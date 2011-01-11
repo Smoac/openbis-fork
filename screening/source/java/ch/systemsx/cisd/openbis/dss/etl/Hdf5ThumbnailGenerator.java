@@ -72,7 +72,7 @@ class Hdf5ThumbnailGenerator implements IHdf5WriterClient
             File img = new File(imagesInStoreFolder, imagePath);
             BufferedImage image = ImageUtil.loadImage(img);
             BufferedImage thumbnail =
-                    ImageUtil.rescale(image, thumbnailMaxWidth, thumbnailMaxHeight, false, true);
+                    ImageUtil.rescale(image, thumbnailMaxWidth, thumbnailMaxHeight, false);
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             try
             {

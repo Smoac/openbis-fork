@@ -160,14 +160,19 @@ public class ImageUtil
      */
     public static boolean isImageFile(File file)
     {
-        String name = file.getName();
+        String fileName = file.getName();
+        String fileType = tryGetFileExtension(fileName);
+        return fileType != null && FILE_TYPES.contains(fileType);
+    }
+
+    private static String tryGetFileExtension(String name)
+    {
         int lastIndexOfDot = name.lastIndexOf('.');
         if (lastIndexOfDot < 0)
         {
-            return false;
+            return null;
         }
-        String fileType = name.substring(lastIndexOfDot + 1).toLowerCase();
-        return FILE_TYPES.contains(fileType);
+        return name.substring(lastIndexOfDot + 1).toLowerCase();
     }
 
     /**
@@ -267,7 +272,7 @@ public class ImageUtil
      */
     public static BufferedImage createThumbnail(BufferedImage image, int maxWidth, int maxHeight)
     {
-        return rescale(image, maxWidth, maxHeight, true, false);
+        return rescale(image, maxWidth, maxHeight, true);
     }
 
     /**
@@ -279,11 +284,9 @@ public class ImageUtil
      * @param maxHeight Maximum height of the result image.
      * @param enlargeIfNecessary if false and the image has smaller width and height than the
      *            specified limit, then the image is not changed.
-     * @param preserveAlpha if true alpha channel will be not ignored (and image will take more
-     *            space)
      */
     public static BufferedImage rescale(BufferedImage image, int maxWidth, int maxHeight,
-            boolean enlargeIfNecessary, boolean preserveAlpha)
+            boolean enlargeIfNecessary)
     {
         int width = image.getWidth();
         int height = image.getHeight();
@@ -304,7 +307,10 @@ public class ImageUtil
         int thumbnailWidth = (int) (scale * width + 0.5);
         int thumbnailHeight = (int) (scale * height + 0.5);
 
-        int imageType = preserveAlpha ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB;
+        // preserve alpha channel if it was present before
+        int imageType =
+                image.getColorModel().hasAlpha() ? BufferedImage.TYPE_INT_ARGB
+                        : BufferedImage.TYPE_INT_RGB;
         BufferedImage thumbnail = new BufferedImage(thumbnailWidth, thumbnailHeight, imageType);
         Graphics2D graphics2D = thumbnail.createGraphics();
         graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,

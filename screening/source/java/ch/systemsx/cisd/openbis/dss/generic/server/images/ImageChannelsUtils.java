@@ -115,24 +115,24 @@ public class ImageChannelsUtils
         {
             // NOTE: never merges the overlays, draws each channel separately (merging looses
             // transparency and is slower)
-            List<BufferedImage> overlayImages =
+            List<ImageWithReference> overlayImages =
                     getSingleImagesSkipNonExisting(overlayChannels, overlaySize,
                             datasetDirectoryProvider);
-            for (BufferedImage overlayImage : overlayImages)
+            for (ImageWithReference overlayImage : overlayImages)
             {
                 if (image != null)
                 {
                     drawOverlay(image, overlayImage);
                 } else
                 {
-                    image = overlayImage;
+                    image = overlayImage.getBufferedImage();
                 }
             }
         }
         return createResponseContentStream(image, null);
     }
 
-    private static List<BufferedImage> getSingleImagesSkipNonExisting(
+    private static List<ImageWithReference> getSingleImagesSkipNonExisting(
             DatasetAcquiredImagesReference imagesReference, RequestedImageSize imageSize,
             IDatasetDirectoryProvider datasetDirectoryProvider)
     {
@@ -445,7 +445,7 @@ public class ImageChannelsUtils
             start = operationLog.isDebugEnabled() ? System.currentTimeMillis() : 0;
             image =
                     ImageUtil.rescale(image, size.getWidth(), size.getHeight(),
-                            requestedSize.enlargeIfNecessary(), true);
+                            requestedSize.enlargeIfNecessary());
             if (operationLog.isDebugEnabled())
             {
                 operationLog.debug("Create thumbnail: " + (System.currentTimeMillis() - start));
@@ -492,8 +492,8 @@ public class ImageChannelsUtils
             return calculateAndTransformSingleImage(imageReference, transform, allChannelsMerged);
         } else
         {
-            List<BufferedImage> images = calculateSingleImages(imageReferences);
-            BufferedImage mergedImage = mergeImages(images, imageReferences);
+            List<ImageWithReference> images = calculateSingleImages(imageReferences);
+            BufferedImage mergedImage = mergeImages(images);
             // NOTE: even if we are not merging all the channels but just few of them we use the
             // merged-channel transformation
             IImageTransformerFactory transformerFactory =
@@ -513,13 +513,37 @@ public class ImageChannelsUtils
         return factoryOrNull.createTransformer().transform(input);
     }
 
-    private static List<BufferedImage> calculateSingleImages(
+    private static class ImageWithReference
+    {
+        private final BufferedImage image;
+
+        private final AbsoluteImageReference reference;
+
+        public ImageWithReference(BufferedImage image, AbsoluteImageReference reference)
+        {
+            this.image = image;
+            this.reference = reference;
+        }
+
+        public BufferedImage getBufferedImage()
+        {
+            return image;
+        }
+
+        public AbsoluteImageReference getReference()
+        {
+            return reference;
+        }
+    }
+
+    private static List<ImageWithReference> calculateSingleImages(
             List<AbsoluteImageReference> imageReferences)
     {
-        List<BufferedImage> images = new ArrayList<BufferedImage>();
+        List<ImageWithReference> images = new ArrayList<ImageWithReference>();
         for (AbsoluteImageReference imageRef : imageReferences)
         {
-            images.add(calculateSingleImage(imageRef));
+            BufferedImage image = calculateSingleImage(imageRef);
+            images.add(new ImageWithReference(image, imageRef));
         }
         return images;
     }
@@ -559,13 +583,11 @@ public class ImageChannelsUtils
         return (i1OrNull == null) ? (i2OrNull == null) : i1OrNull.equals(i2OrNull);
     }
 
-    private static BufferedImage mergeImages(List<BufferedImage> images,
-            List<AbsoluteImageReference> imageReferences)
+    private static BufferedImage mergeImages(List<ImageWithReference> images)
     {
         assert images.size() > 1 : "more than 1 image expected, but found: " + images.size();
-        assert images.size() == imageReferences.size() : "images.size() != imageReferences.size()";
 
-        BufferedImage newImage = createNewImage(images.get(0));
+        BufferedImage newImage = createNewImage(images.get(0).getBufferedImage());
         int width = newImage.getWidth();
         int height = newImage.getHeight();
         int colorBuffer[] = new int[4];
@@ -573,30 +595,89 @@ public class ImageChannelsUtils
         {
             for (int y = 0; y < height; y++)
             {
-                int mergedRGB = mergeRGBColor(images, imageReferences, x, y, colorBuffer);
+                int mergedRGB = mergeRGBColor(images, x, y, colorBuffer);
                 newImage.setRGB(x, y, mergedRGB);
             }
         }
         return newImage;
     }
 
-    private static void drawOverlay(BufferedImage image, BufferedImage overlayImage)
+    private static void drawOverlay(BufferedImage image, ImageWithReference overlayImage)
+    {
+        BufferedImage overlayBufferedImage = overlayImage.getBufferedImage();
+        if (supportsTransparency(overlayImage))
+        {
+            drawTransparentOverlayFast(image, overlayBufferedImage);
+        } else
+        {
+            drawOverlaySlow(image, overlayBufferedImage);
+        }
+    }
+
+    private static void drawTransparentOverlayFast(BufferedImage image,
+            BufferedImage overlayBufferedImage)
     {
         Graphics2D graphics = image.createGraphics();
         AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER);
         graphics.setComposite(ac);
-        graphics.drawImage(overlayImage, null, null);
+        graphics.drawImage(overlayBufferedImage, null, null);
     }
 
-    private static int mergeRGBColor(List<BufferedImage> images,
-            List<AbsoluteImageReference> imageReferences, int x, int y, int colorBuffer[])
+    /**
+     * Draws overlay by computing the maximal color components (r,g,b) for each pixel. In this way
+     * both transparent and black pixels are not drawn. Useful when overlays are saved in a format
+     * which does not support transparency.
+     */
+    private static void drawOverlaySlow(BufferedImage image, BufferedImage overlayImage)
+    {
+        int width = Math.min(image.getWidth(), overlayImage.getWidth());
+        int height = Math.min(image.getHeight(), overlayImage.getHeight());
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                int imageRGB = image.getRGB(x, y);
+                int overlayRGB = overlayImage.getRGB(x, y);
+                int overlayedRGB = overlayRGBColor(imageRGB, overlayRGB);
+                image.setRGB(x, y, overlayedRGB);
+            }
+        }
+    }
+
+    // creates a color with a maximum value of each component
+    private static int overlayRGBColor(int imageRGB, int overlayRGB)
+    {
+        Color imageColor = new Color(imageRGB);
+        Color overlayColor = new Color(overlayRGB, true);
+
+        if (overlayColor.getAlpha() == 0)
+        {
+            return imageRGB; // overlay is transparent, return the original pixel
+        } else
+        {
+            int r = Math.max(imageColor.getRed(), overlayColor.getRed());
+            int g = Math.max(imageColor.getGreen(), overlayColor.getGreen());
+            int b = Math.max(imageColor.getBlue(), overlayColor.getBlue());
+            return new Color(r, g, b).getRGB();
+        }
+    }
+
+    private static boolean supportsTransparency(ImageWithReference image)
+    {
+        return image.getBufferedImage().getColorModel().hasAlpha();
+    }
+
+    private static int mergeRGBColor(List<ImageWithReference> images, int x, int y,
+            int colorBuffer[])
     {
         Arrays.fill(colorBuffer, 0);
         for (int index = 0; index < images.size(); index++)
         {
-            int rgb = images.get(index).getRGB(x, y);
+            ImageWithReference image = images.get(index);
+            int rgb = image.getBufferedImage().getRGB(x, y);
             Color singleColor = new Color(rgb, true);
-            int channelIndex = imageReferences.get(index).getChannelIndex();
+            int channelIndex = image.getReference().getChannelIndex();
             for (int i : getRGBColorIndexes(channelIndex))
             {
                 colorBuffer[i] = Math.max(colorBuffer[i], extractMaxColorIngredient(singleColor));
