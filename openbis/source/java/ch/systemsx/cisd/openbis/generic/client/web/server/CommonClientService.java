@@ -65,6 +65,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReferenc
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.InvalidSessionException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.ITableDataProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AbstractCommonTableModelProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DataProviderAdapter;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.FileFormatTypesProvider;
@@ -87,6 +88,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
@@ -526,9 +528,7 @@ public final class CommonClientService extends AbstractClientService implements
     public TypedTableResultSet<Sample> listSamples2(ListSampleDisplayCriteria2 criteria)
     {
         SampleProvider provider = new SampleProvider(commonServer, getSessionToken(), criteria);
-        DataProviderAdapter<Sample> dataProvider = new DataProviderAdapter<Sample>(provider);
-        ResultSet<TableModelRowWithObject<Sample>> resultSet = listEntities(criteria, dataProvider);
-        return new TypedTableResultSet<Sample>(resultSet);
+        return listEntities(provider, criteria);
     }
 
     public ResultSetWithEntityTypes<ExternalData> searchForDataSets(
@@ -599,11 +599,7 @@ public final class CommonClientService extends AbstractClientService implements
         MatchingEntitiesProvider provider =
                 new MatchingEntitiesProvider(commonServer, getSessionToken(), matchingEntities,
                         queryText, useWildcardSearchMode);
-        DataProviderAdapter<MatchingEntity> dataProvider =
-                new DataProviderAdapter<MatchingEntity>(provider);
-        ResultSet<TableModelRowWithObject<MatchingEntity>> resultSet =
-                listEntities(resultSetConfig, dataProvider);
-        return new TypedTableResultSet<MatchingEntity>(resultSet);
+        return listEntities(provider, resultSetConfig);
     }
 
     public ResultSet<EntityTypePropertyType<?>> listPropertyTypeAssignments(
@@ -653,13 +649,20 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    private <T extends ISerializable> TypedTableResultSet<T> listEntities(
+            AbstractCommonTableModelProvider<T> provider,
+            IResultSetConfig<String, TableModelRowWithObject<T>> criteria)
+    {
+        DataProviderAdapter<T> dataProvider = new DataProviderAdapter<T>(provider);
+        ResultSet<TableModelRowWithObject<T>> resultSet = listEntities(criteria, dataProvider);
+        return new TypedTableResultSet<T>(resultSet);
+    }
+
     public TypedTableResultSet<Space> listGroups(
             DefaultResultSetConfig<String, TableModelRowWithObject<Space>> criteria)
     {
         SpacesProvider spacesProvider = new SpacesProvider(commonServer, getSessionToken());
-        DataProviderAdapter<Space> dataProvider = new DataProviderAdapter<Space>(spacesProvider);
-        ResultSet<TableModelRowWithObject<Space>> resultSet = listEntities(criteria, dataProvider);
-        return new TypedTableResultSet<Space>(resultSet);
+        return listEntities(spacesProvider, criteria);
     }
 
     public ResultSet<Script> listScripts(final ListScriptsCriteria criteria)
@@ -765,11 +768,7 @@ public final class CommonClientService extends AbstractClientService implements
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         ProjectsProvider projectsProvider = new ProjectsProvider(commonServer, getSessionToken());
-        DataProviderAdapter<Project> dataProvider =
-                new DataProviderAdapter<Project>(projectsProvider);
-        ResultSet<TableModelRowWithObject<Project>> resultSet =
-                listEntities(criteria, dataProvider);
-        return new TypedTableResultSet<Project>(resultSet);
+        return listEntities(projectsProvider, criteria);
     }
 
     public TypedTableResultSet<Vocabulary> listVocabularies(boolean withTerms,
@@ -780,11 +779,7 @@ public final class CommonClientService extends AbstractClientService implements
         VocabulariesProvider provider =
                 new VocabulariesProvider(commonServer, getSessionToken(), withTerms,
                         excludeInternal);
-        DataProviderAdapter<Vocabulary> dataProvider =
-                new DataProviderAdapter<Vocabulary>(provider);
-        ResultSet<TableModelRowWithObject<Vocabulary>> resultSet =
-                listEntities(criteria, dataProvider);
-        return new TypedTableResultSet<Vocabulary>(resultSet);
+        return listEntities(provider, criteria);
     }
 
     public TypedTableResultSet<VocabularyTermWithStats> listVocabularyTerms(
@@ -793,11 +788,7 @@ public final class CommonClientService extends AbstractClientService implements
     {
         VocabularyTermsProvider vocabularyTermsProvider =
                 new VocabularyTermsProvider(commonServer, getSessionToken(), vocabulary);
-        DataProviderAdapter<VocabularyTermWithStats> dataProvider =
-                new DataProviderAdapter<VocabularyTermWithStats>(vocabularyTermsProvider);
-        ResultSet<TableModelRowWithObject<VocabularyTermWithStats>> resultSet =
-                listEntities(criteria, dataProvider);
-        return new TypedTableResultSet<VocabularyTermWithStats>(resultSet);
+        return listEntities(vocabularyTermsProvider, criteria);
     }
 
     public ResultSet<MaterialType> listMaterialTypes(
@@ -859,11 +850,7 @@ public final class CommonClientService extends AbstractClientService implements
     {
         FileFormatTypesProvider provider =
                 new FileFormatTypesProvider(commonServer, getSessionToken());
-        DataProviderAdapter<FileFormatType> dataProvider =
-                new DataProviderAdapter<FileFormatType>(provider);
-        ResultSet<TableModelRowWithObject<FileFormatType>> resultSet =
-                listEntities(criteria, dataProvider);
-        return new TypedTableResultSet<FileFormatType>(resultSet);
+        return listEntities(provider, criteria);
     }
 
     public ResultSetWithEntityTypes<ExternalData> listSampleDataSets(final TechId sampleId,
