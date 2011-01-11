@@ -426,11 +426,13 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
         return AttachmentColDefKind.values();
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected BaseEntityModel<AttachmentVersions> createModel(
             GridRowModel<AttachmentVersions> entity)
     {
         BaseEntityModel<AttachmentVersions> model = super.createModel(entity);
+        // TODO 2010-01-11, Piotr Buczek: get rid of this - extend createColumnDefinitions()
         model.renderAsLinkWithAnchor(AttachmentColDefKind.FILE_NAME.id());
         renderVersionAsLink(model);
         return model;
