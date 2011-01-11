@@ -116,7 +116,8 @@ public class ImageChannelsUtils
             // NOTE: never merges the overlays, draws each channel separately (merging looses
             // transparency and is slower)
             List<BufferedImage> overlayImages =
-                    getSingleImages(overlayChannels, overlaySize, datasetDirectoryProvider);
+                    getSingleImagesSkipNonExisting(overlayChannels, overlaySize,
+                            datasetDirectoryProvider);
             for (BufferedImage overlayImage : overlayImages)
             {
                 if (image != null)
@@ -131,7 +132,7 @@ public class ImageChannelsUtils
         return createResponseContentStream(image, null);
     }
 
-    private static List<BufferedImage> getSingleImages(
+    private static List<BufferedImage> getSingleImagesSkipNonExisting(
             DatasetAcquiredImagesReference imagesReference, RequestedImageSize imageSize,
             IDatasetDirectoryProvider datasetDirectoryProvider)
     {
@@ -139,7 +140,7 @@ public class ImageChannelsUtils
                 createImageChannelsUtils(imagesReference, datasetDirectoryProvider, imageSize);
         boolean mergeAllChannels = utils.isMergeAllChannels(imagesReference);
         List<AbsoluteImageReference> imageContents =
-                utils.fetchImageContents(imagesReference, mergeAllChannels);
+                utils.fetchImageContents(imagesReference, mergeAllChannels, true);
         return calculateSingleImages(imageContents);
     }
 
@@ -198,7 +199,7 @@ public class ImageChannelsUtils
     {
         boolean mergeAllChannels = isMergeAllChannels(imageChannels);
         List<AbsoluteImageReference> imageContents =
-                fetchImageContents(imageChannels, mergeAllChannels);
+                fetchImageContents(imageChannels, mergeAllChannels, false);
         return mergeChannels(imageContents, transform, mergeAllChannels);
     }
 
@@ -227,16 +228,30 @@ public class ImageChannelsUtils
         return true;
     }
 
+    /**
+     * @param skipNonExisting if true references to non-existing images are ignored, otherwise an
+     *            exception is thrown
+     */
     private List<AbsoluteImageReference> fetchImageContents(
-            DatasetAcquiredImagesReference imagesReference, boolean mergeAllChannels)
+            DatasetAcquiredImagesReference imagesReference, boolean mergeAllChannels,
+            boolean skipNonExisting)
     {
         List<String> channelCodes = getChannelCodes(imagesReference);
         List<AbsoluteImageReference> images = new ArrayList<AbsoluteImageReference>();
         for (String channelCode : channelCodes)
         {
+            ImageChannelStackReference channelStackReference =
+                    imagesReference.getChannelStackReference();
             AbsoluteImageReference image =
-                    getImageReference(imagesReference.getChannelStackReference(), channelCode);
-            images.add(image);
+                    imageAccessor.tryGetImage(channelCode, channelStackReference, imageSizeLimit);
+            if (image == null && skipNonExisting == false)
+            {
+                throw createImageNotFoundException(channelStackReference, channelCode);
+            }
+            if (image != null)
+            {
+                images.add(image);
+            }
         }
 
         // Optimization for a case where all channels are on one image
@@ -331,7 +346,7 @@ public class ImageChannelsUtils
                 new ImageChannelsUtils(imageAccessor, imageSizeLimitOrNull);
         boolean mergeAllChannels = imageChannelsUtils.isMergeAllChannels(imagesReference);
         List<AbsoluteImageReference> imageContents =
-                imageChannelsUtils.fetchImageContents(imagesReference, mergeAllChannels);
+                imageChannelsUtils.fetchImageContents(imagesReference, mergeAllChannels, false);
 
         IContent rawContent = tryGetRawContent(convertToPng, imageContents);
         if (rawContent != null)
@@ -594,24 +609,13 @@ public class ImageChannelsUtils
 
     // --------- common
 
-    /**
-     * @throw {@link EnvironmentFailureException} when image does not exist
-     */
-    private AbsoluteImageReference getImageReference(
+    private EnvironmentFailureException createImageNotFoundException(
             ImageChannelStackReference channelStackReference, String chosenChannelCode)
     {
-        AbsoluteImageReference image =
-                imageAccessor.tryGetImage(chosenChannelCode, channelStackReference, imageSizeLimit);
-        if (image != null)
-        {
-            return image;
-        } else
-        {
-            throw EnvironmentFailureException.fromTemplate(
-                    "No " + (imageSizeLimit.isThumbnailRequired() ? "thumbnail" : "image")
-                            + " found for channel stack %s and channel %s", channelStackReference,
-                    chosenChannelCode);
-        }
+        return EnvironmentFailureException.fromTemplate(
+                "No " + (imageSizeLimit.isThumbnailRequired() ? "thumbnail" : "image")
+                        + " found for channel stack %s and channel %s", channelStackReference,
+                chosenChannelCode);
     }
 
     /**

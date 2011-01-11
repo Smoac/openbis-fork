@@ -49,9 +49,15 @@ public class HCSImageFileExtractor extends AbstractImageFileExtractor
 
     public HCSImageFileExtractor(final Properties properties)
     {
-        super(properties, false);
+        super(properties, extractSkipChannelsWithoutImages(properties));
         this.shouldValidatePlateName =
                 PropertyUtils.getBoolean(properties, CHECK_PLATE_NAME_FLAG_PROPERTY_NAME, true);
+    }
+
+    private static boolean extractSkipChannelsWithoutImages(Properties properties)
+    {
+        return PropertyUtils.getBoolean(properties,
+                PlateStorageProcessor.CHANNELS_PER_EXPERIMENT_PROPERTY, true) == false;
     }
 
     /**

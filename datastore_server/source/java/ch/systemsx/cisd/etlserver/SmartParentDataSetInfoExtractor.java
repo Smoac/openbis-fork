@@ -177,7 +177,9 @@ public class SmartParentDataSetInfoExtractor extends DefaultDataSetInfoExtractor
             if (failWhenParentMissing)
             {
                 throw UserFailureException
-                        .fromTemplate("No parent datasets of the type '%s' connected to the same sample/experiment could be found.");
+                        .fromTemplate(
+                                "No parent datasets of the type '%s' connected to the same sample/experiment could be found.",
+                                datasetTypePatternOrNull);
             } else
             {
                 return new ArrayList<String>(); // no parents will be set

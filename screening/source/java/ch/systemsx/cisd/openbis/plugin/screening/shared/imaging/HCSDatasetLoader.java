@@ -82,13 +82,12 @@ public class HCSDatasetLoader implements IImageDatasetLoader
 
     private List<ImgChannelDTO> loadChannels()
     {
-        if (containerOrNull != null)
+        List<ImgChannelDTO> myChannels = query.getChannelsByDatasetId(dataset.getId());
+        if (myChannels.size() == 0 && containerOrNull != null)
         {
-            return query.getChannelsByExperimentId(containerOrNull.getExperimentId());
-        } else
-        {
-            return query.getChannelsByDatasetId(dataset.getId());
+            myChannels = query.getChannelsByExperimentId(containerOrNull.getExperimentId());
         }
+        return myChannels;
     }
 
     private String tryGetImageTransformerFactorySignatureForMergedChannels()

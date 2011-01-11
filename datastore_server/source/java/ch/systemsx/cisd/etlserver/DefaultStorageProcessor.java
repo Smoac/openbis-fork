@@ -21,8 +21,11 @@ import java.util.List;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.etlserver.utils.Unzipper;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 
@@ -38,9 +41,20 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor
 
     static final String NO_RENAME = "Couldn't rename '%s' to '%s'.";
 
+    static final String UNZIP_CRITERIA_KEY = "unzip";
+
+    static final String DELETE_UNZIPPED_KEY = "delete_unzipped";
+
+    private final boolean unzip;
+
+    private final boolean deleteUnzipped;
+
     public DefaultStorageProcessor(final Properties properties)
     {
         super(properties);
+
+        unzip = PropertyUtils.getBoolean(properties, UNZIP_CRITERIA_KEY, false);
+        deleteUnzipped = PropertyUtils.getBoolean(properties, DELETE_UNZIPPED_KEY, true);
     }
 
     //
@@ -105,5 +119,17 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor
                     originalDir.getPath(), files.size());
         }
         return files.get(0);
+    }
+
+    /**
+     * Unzips given archive file to selected output directory.
+     */
+    protected final Status unzipIfMatching(File archiveFile, File outputDirectory)
+    {
+        if (unzip && isZipFile(archiveFile))
+        {
+            return Unzipper.unzip(archiveFile, outputDirectory, deleteUnzipped);
+        }
+        return Status.OK;
     }
 }

@@ -59,7 +59,7 @@ public class MicroscopyBlackboxSeriesStorageProcessor extends AbstractImageStora
 
     public MicroscopyBlackboxSeriesStorageProcessor(Properties properties)
     {
-        super(DEFAULT_WELL_GEOMETRY, DEFAULT_CHANNELS, new BlackboxSeriesImageFileExtractor(
+        super(DEFAULT_WELL_GEOMETRY, new BlackboxSeriesImageFileExtractor(
                 properties), properties);
     }
 

@@ -34,6 +34,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.IHCSImageFileAccepter;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageCheckList.FullLocation;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
@@ -54,9 +55,17 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
     // a class of the old-style image extractor
     private static final String DEPRECATED_FILE_EXTRACTOR_PROPERTY = "deprecated-file-extractor";
 
+    /**
+     * Optional boolean property. Defines if all image datasets in one experiment have the same
+     * channels or if each imported dataset can have different channels. By default true.
+     */
+    static final String CHANNELS_PER_EXPERIMENT_PROPERTY = "define-channels-per-experiment";
+
     // ---
 
     private final ch.systemsx.cisd.etlserver.IHCSImageFileExtractor deprecatedImageFileExtractor;
+
+    private final boolean storeChannelsOnExperimentLevel;
 
     public PlateStorageProcessor(Properties properties)
     {
@@ -71,6 +80,8 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
         {
             this.deprecatedImageFileExtractor = null;
         }
+        this.storeChannelsOnExperimentLevel =
+                PropertyUtils.getBoolean(properties, CHANNELS_PER_EXPERIMENT_PROPERTY, true);
     }
 
     private static final class HCSImageFileAccepter implements IHCSImageFileAccepter
@@ -160,7 +171,8 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
     protected void validateImages(DataSetInformation dataSetInformation, IMailClient mailClient,
             File incomingDataSetDirectory, ImageFileExtractionResult extractionResult)
     {
-        HCSImageCheckList imageCheckList = createImageCheckList(dataSetInformation);
+        HCSImageCheckList imageCheckList =
+                createImageCheckList(dataSetInformation, extractionResult.getChannels());
         checkImagesForDuplicates(extractionResult, imageCheckList);
         if (extractionResult.getInvalidFiles().size() > 0)
         {
@@ -193,13 +205,14 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
         return HCSContainerDatasetInfo.getPlateGeometry(dataSetInformation);
     }
 
-    private HCSImageCheckList createImageCheckList(DataSetInformation dataSetInformation)
+    private HCSImageCheckList createImageCheckList(DataSetInformation dataSetInformation,
+            List<ch.systemsx.cisd.openbis.dss.etl.ImageFileExtractionResult.Channel> channels)
     {
         PlateDimension plateGeometry = getPlateGeometry(dataSetInformation);
         List<String> channelCodes = new ArrayList<String>();
-        for (ChannelDescription cd : channelDescriptions)
+        for (ch.systemsx.cisd.openbis.dss.etl.ImageFileExtractionResult.Channel channel : channels)
         {
-            channelCodes.add(cd.getCode());
+            channelCodes.add(channel.getCode());
         }
         return new HCSImageCheckList(channelCodes, plateGeometry, spotGeometry);
     }
@@ -250,6 +263,8 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
         IImageFileExtractor extractor = imageFileExtractor;
         if (extractor == null)
         {
+            List<ChannelDescription> channelDescriptions =
+                    AbstractImageFileExtractor.extractChannelDescriptions(properties);
             extractor =
                     adapt(deprecatedImageFileExtractor, incomingDataSetDirectory,
                             channelDescriptions);
@@ -297,7 +312,7 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
         HCSContainerDatasetInfo info =
                 HCSContainerDatasetInfo.createScreeningDatasetInfo(dataSetInformation);
         boolean hasImageSeries = hasImageSeries(acquiredImages);
-        return new HCSImageDatasetInfo(info, spotGeometry.getRows(), spotGeometry.getColumns(),
-                hasImageSeries);
+        return new HCSImageDatasetInfo(info, storeChannelsOnExperimentLevel,
+                spotGeometry.getRows(), spotGeometry.getColumns(), hasImageSeries);
     }
 }

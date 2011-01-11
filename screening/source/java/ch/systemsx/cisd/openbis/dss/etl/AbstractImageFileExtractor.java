@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.etl;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -82,6 +83,18 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
 
     protected static final String IMAGE_FILE_ACCEPTED = "Image file '%s' was accepted: %s.";
 
+    // --------
+
+    // comma separated list of channel names, order matters
+    @Deprecated
+    public static final String CHANNEL_NAMES = "channel-names";
+
+    // comma separated list of channel codes, order matters
+    public static final String CHANNEL_CODES = "channel-codes";
+
+    // comma separated list of channel labels, order matters
+    public static final String CHANNEL_LABELS = "channel-labels";
+
     // optional, list of the color components (RED, GREEN, BLUE), in the same order as channel names
     protected static final String EXTRACT_SINGLE_IMAGE_CHANNELS_PROPERTY =
             "extract-single-image-channels";
@@ -104,17 +117,17 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
 
     protected AbstractImageFileExtractor(Properties properties, boolean skipChannelsWithoutImages)
     {
-        this(extractChannelDescriptions(properties), getWellGeometry(properties),
+        this(tryExtractChannelDescriptions(properties), getWellGeometry(properties),
                 skipChannelsWithoutImages, properties);
     }
 
     /**
      * @param skipChannelsWithoutImages if true channel names are derived from a set of channel
      *            codes in the extracted images. In this way we do not restrict available channel
-     *            codes and we have no channels without images. Channel labels are taken from
+     *            codes and each channel has at least one image. Channel labels are taken from
      *            channel descriptions anyway. Should be set to true only for microscopy, in HCS
      *            each dataset of one experiment should have the same set of channels even if they
-     *            are not present in some datasets.
+     *            are not present in some datasets (exceptions: image overlays, test screens).
      */
     protected AbstractImageFileExtractor(List<ChannelDescription> channelDescriptionsOrNull,
             Geometry wellGeometry, boolean skipChannelsWithoutImages, Properties properties)
@@ -165,7 +178,7 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
         if (skipChannelsWithoutImages == false && channelDescriptionsOrNull == null)
         {
             throw ConfigurationFailureException
-                    .fromTemplate("Channel names are not specified and extraction of channels from images is switched off!");
+                    .fromTemplate("Expected channels are not specified and extraction of channels from images is switched off!");
         }
         if (channelColorComponentsOrNull != null && channelDescriptionsOrNull == null)
         {
@@ -352,7 +365,67 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
     protected final static List<ChannelDescription> extractChannelDescriptions(
             final Properties properties)
     {
-        return PlateStorageProcessor.extractChannelDescriptions(properties);
+        List<ChannelDescription> channelDescriptions = tryExtractChannelDescriptions(properties);
+        if (channelDescriptions == null)
+        {
+            throw new ConfigurationFailureException(String.format(
+                    "Both '%s' and '%s' should be configured", CHANNEL_CODES, CHANNEL_LABELS));
+        }
+        return channelDescriptions;
+    }
+
+    private final static List<ChannelDescription> tryExtractChannelDescriptions(
+            final Properties properties)
+    {
+        List<String> names = PropertyUtils.tryGetList(properties, CHANNEL_NAMES);
+        List<String> codes = PropertyUtils.tryGetList(properties, CHANNEL_CODES);
+        List<String> labels = tryGetListOfLabels(properties, CHANNEL_LABELS);
+        if (names != null && (codes != null || labels != null))
+        {
+            throw new ConfigurationFailureException(String.format(
+                    "Configure either '%s' or ('%s','%s') but not both.", CHANNEL_NAMES,
+                    CHANNEL_CODES, CHANNEL_LABELS));
+        }
+        if (names != null)
+        {
+            List<ChannelDescription> descriptions = new ArrayList<ChannelDescription>();
+            for (String name : names)
+            {
+                descriptions.add(new ChannelDescription(name));
+            }
+            return descriptions;
+        }
+        if (codes == null || labels == null)
+        {
+            return null;
+        }
+        if (codes.size() != labels.size())
+        {
+            throw new ConfigurationFailureException(String.format(
+                    "Number of configured '%s' should be the same as number of '%s'.",
+                    CHANNEL_CODES, CHANNEL_LABELS));
+        }
+        List<ChannelDescription> descriptions = new ArrayList<ChannelDescription>();
+        for (int i = 0; i < codes.size(); i++)
+        {
+            descriptions.add(new ChannelDescription(codes.get(i), labels.get(i)));
+        }
+        return descriptions;
+    }
+
+    private final static List<String> tryGetListOfLabels(Properties properties, String propertyKey)
+    {
+        String itemsList = PropertyUtils.getProperty(properties, propertyKey);
+        if (itemsList == null)
+        {
+            return null;
+        }
+        String[] items = itemsList.split(",");
+        for (int i = 0; i < items.length; i++)
+        {
+            items[i] = items[i].trim();
+        }
+        return Arrays.asList(items);
     }
 
     protected final static void ensureChannelExist(

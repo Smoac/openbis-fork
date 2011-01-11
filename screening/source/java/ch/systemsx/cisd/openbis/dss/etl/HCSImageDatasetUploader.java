@@ -46,16 +46,29 @@ public class HCSImageDatasetUploader extends AbstractImageDatasetUploader
     private void upload(HCSImageDatasetInfo info, List<AcquiredSingleImage> images,
             List<ImageFileExtractionResult.Channel> channels)
     {
-        ExperimentWithChannelsAndContainer basicStruct =
-                ImagingDatabaseHelper.getOrCreateExperimentWithChannelsAndContainer(
-                        dao, info, channels);
-        long contId = basicStruct.getContainerId();
-        ImagingChannelsMap channelsMap = basicStruct.getChannelsMap();
+        long contId;
+        ImagingChannelsMap channelsMap = null;
+        if (info.isStoreChannelsOnExperimentLevel())
+        {
+            ExperimentWithChannelsAndContainer basicStruct =
+                    ImagingDatabaseHelper.getOrCreateExperimentWithChannelsAndContainer(dao, info,
+                            channels);
+            contId = basicStruct.getContainerId();
+            channelsMap = basicStruct.getChannelsMap();
+        } else
+        {
+            contId = ImagingDatabaseHelper.getOrCreateExperimentAndContainer(dao, info);
+        }
 
         Long[][] spotIds = getOrCreateSpots(contId, info, images);
         ISpotProvider spotProvider = getSpotProvider(spotIds);
         long datasetId = createDataset(contId, info);
 
+        if (info.isStoreChannelsOnExperimentLevel() == false)
+        {
+            channelsMap = ImagingDatabaseHelper.createDatasetChannels(dao, datasetId, channels);
+        }
+        assert channelsMap != null;
         createImages(images, spotProvider, channelsMap, datasetId);
     }
 

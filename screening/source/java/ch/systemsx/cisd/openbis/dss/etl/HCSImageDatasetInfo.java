@@ -23,12 +23,15 @@ package ch.systemsx.cisd.openbis.dss.etl;
  */
 public class HCSImageDatasetInfo extends HCSContainerDatasetInfo
 {
+    private final boolean storeChannelsOnExperimentLevel;
+
     private final int tileRows, tileColumns;
 
     // has any well timepoints or depth stack images?
     private final boolean hasImageSeries;
 
-    public HCSImageDatasetInfo(HCSContainerDatasetInfo info, int tileRows, int tileColumns,
+    public HCSImageDatasetInfo(HCSContainerDatasetInfo info,
+            boolean storeChannelsOnExperimentLevel, int tileRows, int tileColumns,
             boolean hasImageSeries)
     {
         super.setContainerRows(info.getContainerRows());
@@ -36,6 +39,7 @@ public class HCSImageDatasetInfo extends HCSContainerDatasetInfo
         super.setContainerPermId(info.getContainerPermId());
         super.setDatasetPermId(info.getDatasetPermId());
         super.setExperimentPermId(info.getExperimentPermId());
+        this.storeChannelsOnExperimentLevel = storeChannelsOnExperimentLevel;
         this.tileRows = tileRows;
         this.tileColumns = tileColumns;
         this.hasImageSeries = hasImageSeries;
@@ -54,5 +58,10 @@ public class HCSImageDatasetInfo extends HCSContainerDatasetInfo
     public boolean hasImageSeries()
     {
         return hasImageSeries;
+    }
+
+    public boolean isStoreChannelsOnExperimentLevel()
+    {
+        return storeChannelsOnExperimentLevel;
     }
 }

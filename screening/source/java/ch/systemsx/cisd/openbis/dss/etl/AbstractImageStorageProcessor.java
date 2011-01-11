@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.dss.etl;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -29,13 +28,14 @@ import javax.sql.DataSource;
 
 import net.lemnik.eodsql.QueryTool;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
-import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -50,6 +50,7 @@ import ch.systemsx.cisd.etlserver.AbstractStorageProcessor;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.etlserver.hdf5.Hdf5Container;
 import ch.systemsx.cisd.etlserver.hdf5.HierarchicalStructureDuplicatorFileToHdf5;
+import ch.systemsx.cisd.etlserver.utils.Unzipper;
 import ch.systemsx.cisd.openbis.dss.Constants;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageSeriesPoint;
@@ -136,16 +137,6 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
 
     protected static final String FILE_EXTRACTOR_PROPERTY = "file-extractor";
 
-    // comma separated list of channel names, order matters
-    @Deprecated
-    public static final String CHANNEL_NAMES = "channel-names";
-
-    // comma separated list of channel codes, order matters
-    public static final String CHANNEL_CODES = "channel-codes";
-
-    // comma separated list of channel labels, order matters
-    public static final String CHANNEL_LABELS = "channel-labels";
-
     // how the original data should be stored
     private static enum OriginalDataStorageFormat
     {
@@ -178,8 +169,6 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
 
     protected final Geometry spotGeometry;
 
-    protected final List<ChannelDescription> channelDescriptions;
-
     // --- internal state -------------
 
     private IImagingQueryDAO currentTransaction;
@@ -188,17 +177,14 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
 
     public AbstractImageStorageProcessor(final Properties properties)
     {
-        this(getMandatorySpotGeometry(properties), extractChannelDescriptions(properties),
-                tryCreateImageExtractor(properties), properties);
+        this(getMandatorySpotGeometry(properties), tryCreateImageExtractor(properties), properties);
     }
 
     protected AbstractImageStorageProcessor(Geometry spotGeometry,
-            List<ChannelDescription> channelDescriptions, IImageFileExtractor imageFileExtractor,
-            Properties properties)
+            IImageFileExtractor imageFileExtractor, Properties properties)
     {
         super(properties);
         this.spotGeometry = spotGeometry;
-        this.channelDescriptions = channelDescriptions;
         this.imageFileExtractor = imageFileExtractor;
         this.thumbnailMaxWidth =
                 PropertyUtils.getInt(properties, THUMBNAIL_MAX_WIDTH_PROPERTY,
@@ -245,61 +231,6 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
         return OriginalDataStorageFormat.valueOf(textValue.toUpperCase());
     }
 
-    private final static List<String> tryGetListOfLabels(Properties properties, String propertyKey)
-    {
-        String itemsList = PropertyUtils.getProperty(properties, propertyKey);
-        if (itemsList == null)
-        {
-            return null;
-        }
-        String[] items = itemsList.split(",");
-        for (int i = 0; i < items.length; i++)
-        {
-            items[i] = items[i].trim();
-        }
-        return Arrays.asList(items);
-    }
-
-    public final static List<ChannelDescription> extractChannelDescriptions(
-            final Properties properties)
-    {
-        List<String> names = PropertyUtils.tryGetList(properties, CHANNEL_NAMES);
-        List<String> codes = PropertyUtils.tryGetList(properties, CHANNEL_CODES);
-        List<String> labels = tryGetListOfLabels(properties, CHANNEL_LABELS);
-        if (names != null && (codes != null || labels != null))
-        {
-            throw new ConfigurationFailureException(String.format(
-                    "Configure either '%s' or ('%s','%s') but not both.", CHANNEL_NAMES,
-                    CHANNEL_CODES, CHANNEL_LABELS));
-        }
-        if (names != null)
-        {
-            List<ChannelDescription> descriptions = new ArrayList<ChannelDescription>();
-            for (String name : names)
-            {
-                descriptions.add(new ChannelDescription(name));
-            }
-            return descriptions;
-        }
-        if (codes == null || labels == null)
-        {
-            throw new ConfigurationFailureException(String.format(
-                    "Both '%s' and '%s' should be configured", CHANNEL_CODES, CHANNEL_LABELS));
-        }
-        if (codes.size() != labels.size())
-        {
-            throw new ConfigurationFailureException(String.format(
-                    "Number of configured '%s' should be the same as number of '%s'.",
-                    CHANNEL_CODES, CHANNEL_LABELS));
-        }
-        List<ChannelDescription> descriptions = new ArrayList<ChannelDescription>();
-        for (int i = 0; i < codes.size(); i++)
-        {
-            descriptions.add(new ChannelDescription(codes.get(i), labels.get(i)));
-        }
-        return descriptions;
-    }
-
     private IImagingQueryDAO createQuery()
     {
         return QueryTool.getQuery(dataSource, IImagingQueryDAO.class);
@@ -315,6 +246,13 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
         assert incomingDataSetDirectory != null : "Incoming data set directory can not be null.";
         assert typeExtractor != null : "Unspecified IProcedureAndDataTypeExtractor implementation.";
 
+        File unzipedFolder = tryUnzipToFolder(incomingDataSetDirectory);
+        if (unzipedFolder != null)
+        {
+            return storeData(dataSetInformation, typeExtractor, mailClient, unzipedFolder,
+                    rootDirectory);
+        }
+
         ImageFileExtractionResult extractionResult =
                 extractImages(dataSetInformation, incomingDataSetDirectory);
 
@@ -328,6 +266,23 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
 
         storeInDatabase(dataSetInformation, extractionResult);
         return rootDirectory;
+    }
+
+    private File tryUnzipToFolder(File incomingDataSetDirectory)
+    {
+        if (isZipFile(incomingDataSetDirectory) == false)
+        {
+            return null;
+        }
+        String outputDirName = FilenameUtils.getBaseName(incomingDataSetDirectory.getName());
+        File output = new File(incomingDataSetDirectory.getParentFile(), outputDirName);
+        Status status = Unzipper.unzip(incomingDataSetDirectory, output, true);
+        if (status.isError())
+        {
+            throw EnvironmentFailureException.fromTemplate("Cannot unzip '%s': %s",
+                    incomingDataSetDirectory.getName(), status.tryGetErrorMessage());
+        }
+        return output;
     }
 
     private void processImages(final File rootDirectory, List<AcquiredSingleImage> plateImages,

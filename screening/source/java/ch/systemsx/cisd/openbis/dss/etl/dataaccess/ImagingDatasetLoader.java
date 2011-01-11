@@ -125,14 +125,17 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
 
     private ImgChannelDTO tryLoadChannel(String chosenChannelCode)
     {
-        if (containerOrNull != null)
+        // first we check if there are some channels defined at the dataset level (even for HCS one
+        // can decide in configuration about that)
+        ImgChannelDTO channel = query.tryGetChannelForDataset(dataset.getId(), chosenChannelCode);
+        // if not, we check at the experiment level
+        if (channel == null && containerOrNull != null)
         {
-            return query.tryGetChannelForExperiment(containerOrNull.getExperimentId(),
-                    chosenChannelCode);
-        } else
-        {
-            return query.tryGetChannelForDataset(dataset.getId(), chosenChannelCode);
+            channel =
+                    query.tryGetChannelForExperiment(containerOrNull.getExperimentId(),
+                            chosenChannelCode);
         }
+        return channel;
     }
 
     private void validateChannelStackReference(ImageChannelStackReference channelStackReference)
