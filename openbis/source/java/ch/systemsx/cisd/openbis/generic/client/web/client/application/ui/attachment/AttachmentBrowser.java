@@ -65,6 +65,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Abstrac
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.AttachmentColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.EntityTypeColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.AttachmentFileUploadField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
@@ -123,7 +124,8 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
             attachmentFileUploadField = new AttachmentFileUploadField(viewContext);
             attachmentFileUploadField.addFieldsTo(form, sessionKey, viewContext);
             AbstractRegistrationForm.addFileUploadFeature(form, Arrays.asList(sessionKey));
-            form.addListener(Events.Submit, new FormPanelListener(PopupDialogBasedInfoHandler.INSTANCE)
+            form.addListener(Events.Submit, new FormPanelListener(
+                    PopupDialogBasedInfoHandler.INSTANCE)
                 {
                     @Override
                     protected void setUploadEnabled()
@@ -222,6 +224,8 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
         ColumnDefsAndConfigs<AttachmentVersions> schema = super.createColumnsDefinition();
         schema.setGridCellRendererFor(AttachmentColDefKind.PERMLINK.id(),
                 LinkRenderer.createExternalLinkRenderer(viewContext.getMessage(Dict.PERMLINK)));
+        schema.setGridCellRendererFor(EntityTypeColDefKind.DESCRIPTION.id(),
+                createMultilineStringCellRenderer());
         return schema;
     }
 
@@ -428,7 +432,6 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
     {
         BaseEntityModel<AttachmentVersions> model = super.createModel(entity);
         model.renderAsLinkWithAnchor(AttachmentColDefKind.FILE_NAME.id());
-        model.renderAsMultilineStringWithTooltip(AttachmentColDefKind.DESCRIPTION.id());
         renderVersionAsLink(model);
         return model;
     }

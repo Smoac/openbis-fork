@@ -43,11 +43,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.EntityTypeColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PropertyTypeAssignmentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.PropertyFieldFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ScriptChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
@@ -57,7 +59,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDele
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
@@ -451,12 +452,12 @@ public class PropertyTypeAssignmentGrid extends
     }
 
     @Override
-    protected BaseEntityModel<EntityTypePropertyType<?>> createModel(
-            GridRowModel<EntityTypePropertyType<?>> entity)
+    protected ColumnDefsAndConfigs<EntityTypePropertyType<?>> createColumnsDefinition()
     {
-        BaseEntityModel<EntityTypePropertyType<?>> model = super.createModel(entity);
-        model.renderAsMultilineStringWithTooltip(PropertyTypeAssignmentColDefKind.DESCRIPTION.id());
-        return model;
+        ColumnDefsAndConfigs<EntityTypePropertyType<?>> schema = super.createColumnsDefinition();
+        schema.setGridCellRendererFor(EntityTypeColDefKind.DESCRIPTION.id(),
+                createMultilineStringCellRenderer());
+        return schema;
     }
 
     @Override

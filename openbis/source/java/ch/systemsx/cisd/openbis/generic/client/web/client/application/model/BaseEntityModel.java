@@ -30,7 +30,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GridCustomColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.MultilineHTML;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
@@ -49,8 +48,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 public class BaseEntityModel<T> extends SimplifiedBaseModelData
 {
     private static final long serialVersionUID = 1L;
-    
-    public static <T> BaseEntityModel<T> create(GridRowModel<T> entity, List<IColumnDefinitionUI<T>> columnDefinitions)
+
+    public static <T> BaseEntityModel<T> create(GridRowModel<T> entity,
+            List<IColumnDefinitionUI<T>> columnDefinitions)
     {
         return null;
     }
@@ -67,7 +67,7 @@ public class BaseEntityModel<T> extends SimplifiedBaseModelData
     {
         this(entity, columnDefinitions, false);
     }
-    
+
     public BaseEntityModel(final GridRowModel<T> entity,
             List<? extends IColumnDefinition<T>> columnDefinitions, boolean ignoreCustomColumns)
     {
@@ -108,35 +108,18 @@ public class BaseEntityModel<T> extends SimplifiedBaseModelData
         return get(ModelDataPropertyNames.link(columnId));
     }
 
-    /** render specified column as a link (using div) */
-    public void renderAsLink(String columnId)
-    {
-        String value = this.get(columnId);
-        if (value.length() > 0)
-        {// only for not null value
-            value = LinkRenderer.renderAsLink(value);
-        }
-        this.set(columnId, value);
-    }
-
-    /** render specified column as a link with anchor */
+    /**
+     * render specified column as a link with anchor
+     * 
+     * @deprecated use cell renderer configured in AbstractBrowser.createColumnDefinitions() instead
+     */
+    @Deprecated
     public void renderAsLinkWithAnchor(String columnId)
     {
         String value = this.get(columnId);
         if (value.length() > 0)
         {// only for not null value
             value = LinkRenderer.renderAsLinkWithAnchor(value);
-        }
-        this.set(columnId, value);
-    }
-
-    /** render specified column as a multiline string with a tooltip (no word wrapping available) */
-    public void renderAsMultilineStringWithTooltip(String columnId)
-    {
-        String value = this.get(columnId);
-        if (value.length() > 0)
-        {// only for not null value
-            value = new MultilineHTML(value).toString();
         }
         this.set(columnId, value);
     }

@@ -28,6 +28,7 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -39,12 +40,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.PropertyTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PropertyTypeColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.XmlField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
@@ -53,12 +54,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
  * Grid displaying property types.
@@ -243,13 +243,17 @@ public class PropertyTypeGrid extends AbstractSimpleBrowserGrid<PropertyType>
     }
 
     @Override
-    protected PropertyTypeModel createModel(GridRowModel<PropertyType> entity)
+    protected ColumnDefsAndConfigs<PropertyType> createColumnsDefinition()
     {
-        PropertyTypeModel model = new PropertyTypeModel(entity, getStaticColumnsDefinition());
-        model.renderAsMultilineStringWithTooltip(PropertyTypeColDefKind.DESCRIPTION.id());
-        model.renderAsMultilineStringWithTooltip(PropertyTypeColDefKind.SCHEMA.id());
-        model.renderAsMultilineStringWithTooltip(PropertyTypeColDefKind.TRANSFORMATION.id());
-        return model;
+        ColumnDefsAndConfigs<PropertyType> schema = super.createColumnsDefinition();
+        GridCellRenderer<BaseEntityModel<?>> multilineCellRenderer =
+                createMultilineStringCellRenderer();
+        schema.setGridCellRendererFor(PropertyTypeColDefKind.DESCRIPTION.id(),
+                multilineCellRenderer);
+        schema.setGridCellRendererFor(PropertyTypeColDefKind.SCHEMA.id(), multilineCellRenderer);
+        schema.setGridCellRendererFor(PropertyTypeColDefKind.TRANSFORMATION.id(),
+                multilineCellRenderer);
+        return schema;
     }
 
     @Override

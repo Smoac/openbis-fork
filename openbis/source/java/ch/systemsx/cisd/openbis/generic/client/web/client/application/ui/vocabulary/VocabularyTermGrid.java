@@ -72,7 +72,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
@@ -129,31 +128,24 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
     private VocabularyTermGrid(IViewContext<ICommonClientServiceAsync> viewContext,
             Vocabulary vocabulary)
     {
-        super(viewContext, createBrowserId(vocabulary), true, 
+        super(viewContext, createBrowserId(vocabulary), true,
                 DisplayTypeIDGenerator.VOCABULARY_TERMS_GRID);
         this.vocabulary = vocabulary;
         this.postRegistrationCallback = createRefreshGridAction();
         extendBottomToolbar();
 
     }
-    
+
     @Override
     protected ColumnDefsAndConfigs<TableModelRowWithObject<VocabularyTermWithStats>> createColumnsDefinition()
     {
         ColumnDefsAndConfigs<TableModelRowWithObject<VocabularyTermWithStats>> definitions =
                 super.createColumnsDefinition();
-        definitions.setGridCellRendererFor(VocabularyTermGridIDs.URL, LinkRenderer
-                .createExternalLinkRenderer());
+        definitions.setGridCellRendererFor(VocabularyTermGridIDs.URL,
+                LinkRenderer.createExternalLinkRenderer());
+        definitions.setGridCellRendererFor(VocabularyTermGridIDs.DESCRIPTION,
+                createMultilineStringCellRenderer());
         return definitions;
-    }
-
-    @Override
-    protected BaseEntityModel<TableModelRowWithObject<VocabularyTermWithStats>> createModel(
-            GridRowModel<TableModelRowWithObject<VocabularyTermWithStats>> entity)
-    {
-        BaseEntityModel<TableModelRowWithObject<VocabularyTermWithStats>> model = super.createModel(entity);
-        model.renderAsMultilineStringWithTooltip(VocabularyTermGridIDs.DESCRIPTION);
-        return model;
     }
 
     private void extendBottomToolbar()
@@ -184,7 +176,8 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
         addButton(batchUpdateButton);
 
         Button editButton =
-                createSelectedItemButton(viewContext.getMessage(Dict.EDIT_VOCABULARY_TERM_BUTTON),
+                createSelectedItemButton(
+                        viewContext.getMessage(Dict.EDIT_VOCABULARY_TERM_BUTTON),
                         new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<VocabularyTermWithStats>>>()
                             {
 
@@ -200,8 +193,8 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
         addButton(editButton);
 
         Button deleteButton =
-                createSelectedItemsButton(viewContext
-                        .getMessage(Dict.DELETE_VOCABULARY_TERMS_BUTTON),
+                createSelectedItemsButton(
+                        viewContext.getMessage(Dict.DELETE_VOCABULARY_TERMS_BUTTON),
                         new SelectionListener<ButtonEvent>()
                             {
                                 @Override
@@ -332,7 +325,6 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
         return BROWSER_ID + "-" + vocabularyId;
     }
 
-
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<VocabularyTermWithStats>> resultSetConfig,
@@ -354,7 +346,7 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
     {
         return columnID.startsWith("TERM") ? columnID : columnID.toLowerCase();
     }
-    
+
     private Window createUpdateTermsDialog()
     {
         final String title =
@@ -363,8 +355,8 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
         return new AbstractRegistrationDialog(viewContext, title, postRegistrationCallback)
             {
 
-                public static final String ID =
-                        GenericConstants.ID_PREFIX + "vocabulary-content-edit_" + "form";
+                public static final String ID = GenericConstants.ID_PREFIX
+                        + "vocabulary-content-edit_" + "form";
 
                 protected final String termsSessionKey;
 
@@ -563,8 +555,6 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
             };
     }
 
-    
-
     @Override
     protected List<String> getColumnIdsOfFilters()
     {
@@ -590,7 +580,8 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
 
     private void deleteTerms()
     {
-        List<BaseEntityModel<TableModelRowWithObject<VocabularyTermWithStats>>> terms = getSelectedItems();
+        List<BaseEntityModel<TableModelRowWithObject<VocabularyTermWithStats>>> terms =
+                getSelectedItems();
         if (terms.isEmpty())
         {
             return;
