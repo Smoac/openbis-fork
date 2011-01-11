@@ -525,12 +525,6 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
         }
 
         @Override
-        protected String getEmailSubjectTemplate()
-        {
-            return TransferredDataSetHandlerDataSetRegistrationAlgorithm.EMAIL_SUBJECT_TEMPLATE;
-        }
-
-        @Override
         protected IFileOperations getFileOperations()
         {
             return FileOperations.getMonitoredInstanceForCurrentThread();
@@ -587,7 +581,7 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
         @Override
         protected void rollback(Throwable ex)
         {
-            rollbackStorageProcessor(ex);
+            algorithm.rollbackStorageProcessor(ex);
             if (ex instanceof UserFailureException)
             {
                 throw (UserFailureException) ex;

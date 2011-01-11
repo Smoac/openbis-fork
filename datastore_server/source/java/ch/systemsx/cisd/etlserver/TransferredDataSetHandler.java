@@ -221,7 +221,8 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
 
     public List<DataSetInformation> handleDataSet(final File dataSet)
     {
-        final TransferredDataSetHandlerDataSetRegistrationAlgorithm registrationHelper = createRegistrationHelper(dataSet);
+        final TransferredDataSetHandlerDataSetRegistrationAlgorithm registrationHelper =
+                createRegistrationHelper(dataSet);
         return new DataSetRegistrationAlgorithmRunner(registrationHelper).runAlgorithm();
     }
 
@@ -298,8 +299,8 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
         }
     }
 
-    private TransferredDataSetHandlerDataSetRegistrationAlgorithm createRegistrationHelper(File dataSet,
-            DataSetInformation dataSetInformation, IDataSetRegistrator registrator)
+    private TransferredDataSetHandlerDataSetRegistrationAlgorithm createRegistrationHelper(
+            File dataSet, DataSetInformation dataSetInformation, IDataSetRegistrator registrator)
     {
         if (useIsFinishedMarkerFile)
         {
@@ -543,12 +544,6 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
         }
 
         @Override
-        protected String getEmailSubjectTemplate()
-        {
-            return TransferredDataSetHandlerDataSetRegistrationAlgorithm.EMAIL_SUBJECT_TEMPLATE;
-        }
-
-        @Override
         protected void rollback(final Throwable throwable) throws Error
         {
             stopped |= throwable instanceof InterruptedExceptionUnchecked;
@@ -557,11 +552,12 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
                 Thread.interrupted(); // Ensure the thread's interrupted state is cleared.
                 getOperationLog().warn(
                         String.format("Requested to stop registration of data set '%s'",
-                                dataSetInformation));
+                                algorithm.getDataSetInformation()));
             } else
             {
-                getNotificationLog().error(String.format(errorMessageTemplate, dataSetInformation),
-                        throwable);
+                getNotificationLog().error(
+                        String.format(algorithm.getErrorMessageTemplate(),
+                                algorithm.getDataSetInformation()), throwable);
             }
             // Errors which are not AssertionErrors leave the system in a state that we don't
             // know and can't trust. Thus we will not perform any operations any more in this
@@ -570,24 +566,25 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
             {
                 throw (Error) throwable;
             }
-            UnstoreDataAction action = rollbackStorageProcessor(throwable);
+            UnstoreDataAction action = algorithm.rollbackStorageProcessor(throwable);
             if (stopped == false)
             {
                 if (action == UnstoreDataAction.MOVE_TO_ERROR)
                 {
                     final File baseDirectory =
-                            createBaseDirectory(TransferredDataSetHandler.ERROR_DATA_STRATEGY,
-                                    storeRoot, dataSetInformation);
-                    baseDirectoryHolder =
-                            new BaseDirectoryHolder(TransferredDataSetHandler.ERROR_DATA_STRATEGY,
-                                    baseDirectory, incomingDataSetFile);
+                            algorithm.createBaseDirectory(
+                                    TransferredDataSetHandler.ERROR_DATA_STRATEGY,
+                                    algorithm.getStoreRoot(), algorithm.getDataSetInformation());
+                    algorithm.setBaseDirectoryHolder(new BaseDirectoryHolder(
+                            TransferredDataSetHandler.ERROR_DATA_STRATEGY, baseDirectory,
+                            incomingDataSetFile));
                     boolean moveInCaseOfErrorOk =
-                            FileRenamer.renameAndLog(incomingDataSetFile,
-                                    baseDirectoryHolder.getTargetFile());
+                            FileRenamer.renameAndLog(incomingDataSetFile, algorithm
+                                    .getBaseDirectoryHolder().getTargetFile());
                     writeThrowable(throwable);
                     if (moveInCaseOfErrorOk)
                     {
-                        clean();
+                        algorithm.clean();
                     }
                 } else if (action == UnstoreDataAction.DELETE)
                 {
