@@ -32,5 +32,8 @@
 	<classpathentry kind="lib" path="/libraries/jmock/jmock.jar"/>
 	<classpathentry kind="lib" path="/libraries/fastutil/fastutil.jar" sourcepath="/libraries/fastutil/fastutil-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/spring/test/spring-test.jar" sourcepath="/libraries/spring/test/src.jar"/>
+	<classpathentry kind="lib" path="/libraries/csv/csv.jar" sourcepath="/libraries/csv/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/activation/activation.jar"/>
+	<classpathentry kind="lib" path="/libraries/mail/mail.jar"/>
 	<classpathentry kind="output" path="targets/www/WEB-INF/classes"/>
 </classpath>
