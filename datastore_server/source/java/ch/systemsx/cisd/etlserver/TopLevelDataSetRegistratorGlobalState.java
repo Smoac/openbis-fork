@@ -51,7 +51,6 @@ public class TopLevelDataSetRegistratorGlobalState
             IEncapsulatedOpenBISService openBisService, IMailClient mailClient,
             IDataSetValidator dataSetValidator, boolean notifySuccessfulRegistration,
             ThreadParameters threadParameters)
-
     {
         this.dssCode = dssCode;
         this.openBisService = openBisService;

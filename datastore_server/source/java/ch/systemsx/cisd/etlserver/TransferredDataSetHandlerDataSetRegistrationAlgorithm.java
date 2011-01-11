@@ -52,7 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
-public abstract class DataSetRegistrationAlgorithm
+public abstract class TransferredDataSetHandlerDataSetRegistrationAlgorithm
 {
     @Private
     public static final String EMAIL_SUBJECT_TEMPLATE = "Success: data set for experiment '%s";
@@ -87,14 +87,14 @@ public abstract class DataSetRegistrationAlgorithm
 
     protected String errorMessageTemplate;
 
-    public DataSetRegistrationAlgorithm(File incomingDataSetFile,
+    public TransferredDataSetHandlerDataSetRegistrationAlgorithm(File incomingDataSetFile,
             IDelegatedActionWithResult<Boolean> cleanAftrewardsAction,
             IPreRegistrationAction preRegistrationAction,
             IPostRegistrationAction postRegistrationAction)
     {
         this.preRegistrationAction = preRegistrationAction;
         this.postRegistrationAction = postRegistrationAction;
-        this.errorMessageTemplate = DataSetRegistrationAlgorithm.DATA_SET_STORAGE_FAILURE_TEMPLATE;
+        this.errorMessageTemplate = TransferredDataSetHandlerDataSetRegistrationAlgorithm.DATA_SET_STORAGE_FAILURE_TEMPLATE;
         this.incomingDataSetFile = incomingDataSetFile;
         this.cleanAftrewardsAction = cleanAftrewardsAction;
         this.dataSetInformation = extractDataSetInformation(incomingDataSetFile);
@@ -247,7 +247,7 @@ public abstract class DataSetRegistrationAlgorithm
             try
             {
                 errorMessageTemplate =
-                        DataSetRegistrationAlgorithm.DATA_SET_REGISTRATION_FAILURE_TEMPLATE;
+                        TransferredDataSetHandlerDataSetRegistrationAlgorithm.DATA_SET_REGISTRATION_FAILURE_TEMPLATE;
                 plainRegisterDataSet(data, relativePath, availableFormat, isCompleteFlag);
                 postRegistrationAction.execute(data.getCode(), absolutePath);
                 clean();
@@ -366,7 +366,7 @@ public abstract class DataSetRegistrationAlgorithm
     private final String getSuccessRegistrationMessage()
     {
         final StringBuilder buffer = new StringBuilder();
-        buffer.append(DataSetRegistrationAlgorithm.SUCCESSFULLY_REGISTERED);
+        buffer.append(TransferredDataSetHandlerDataSetRegistrationAlgorithm.SUCCESSFULLY_REGISTERED);
         String userID = dataSetInformation.getUploadingUserIdOrNull();
         String userEMail = dataSetInformation.tryGetUploadingUserEmail();
         if (userID != null || userEMail != null)

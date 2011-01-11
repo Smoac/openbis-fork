@@ -82,7 +82,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  * @author Franz-Josef Elmer
  */
 @Friend(toClasses =
-    { TransferredDataSetHandler.class, DataSetRegistrationAlgorithm.class,
+    { TransferredDataSetHandler.class, TransferredDataSetHandlerDataSetRegistrationAlgorithm.class,
             IdentifiedDataStrategy.class, PluginTaskProviders.class,
             DssPropertyParametersUtil.class })
 public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestCase
@@ -308,7 +308,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
     private final String createLogMsgOfSuccess(final DataSetInformation dataSet)
     {
-        return DataSetRegistrationAlgorithm.SUCCESSFULLY_REGISTERED + "Data Set Code::"
+        return TransferredDataSetHandlerDataSetRegistrationAlgorithm.SUCCESSFULLY_REGISTERED + "Data Set Code::"
                 + DATA_SET_CODE + ";Data Set Type::" + DATA_SET_TYPE.getCode()
                 + ";Experiment Identifier::" + dataSet.getExperimentIdentifier().toString()
                 + ";Sample Identifier::" + dataSet.getSampleIdentifier().toString()
@@ -466,7 +466,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
             final DataSetInformation dataSet, final String dataSetCode, final String recipient)
     {
         expectations.one(mailClient).sendMessage(
-                String.format(DataSetRegistrationAlgorithm.EMAIL_SUBJECT_TEMPLATE, dataSet
+                String.format(TransferredDataSetHandlerDataSetRegistrationAlgorithm.EMAIL_SUBJECT_TEMPLATE, dataSet
                         .getExperimentIdentifier().getExperimentCode()),
                 getNotificationEmailContent(dataSet, dataSetCode), null, null, recipient);
     }
@@ -698,7 +698,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                         createLogMsgOfSuccess(dataSetInformation));
         final LogMonitoringAppender appender2 =
                 LogMonitoringAppender.addAppender(LogCategory.NOTIFY, String.format(
-                        DataSetRegistrationAlgorithm.DATA_SET_STORAGE_FAILURE_TEMPLATE,
+                        TransferredDataSetHandlerDataSetRegistrationAlgorithm.DATA_SET_STORAGE_FAILURE_TEMPLATE,
                         dataSetInformation));
         handler.handle(isFinishedFolder);
 
@@ -756,7 +756,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                         createLogMsgOfSuccess(dataSetInformation));
         final LogMonitoringAppender appender2 =
                 LogMonitoringAppender.addAppender(LogCategory.NOTIFY, String.format(
-                        DataSetRegistrationAlgorithm.DATA_SET_REGISTRATION_FAILURE_TEMPLATE,
+                        TransferredDataSetHandlerDataSetRegistrationAlgorithm.DATA_SET_REGISTRATION_FAILURE_TEMPLATE,
                         dataSetInformation));
 
         handler.handle(isFinishedFolder);

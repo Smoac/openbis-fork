@@ -41,7 +41,7 @@ import ch.systemsx.cisd.common.filesystem.IImmutableCopier;
 import ch.systemsx.cisd.common.io.ConcatenatedFileOutputStreamWriter;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
-import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm;
+import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithmRunner;
 import ch.systemsx.cisd.etlserver.DefaultStorageProcessor;
 import ch.systemsx.cisd.etlserver.IDataSetHandler;
 import ch.systemsx.cisd.etlserver.IDataSetHandlerRpc;
@@ -52,6 +52,7 @@ import ch.systemsx.cisd.etlserver.IPostRegistrationAction;
 import ch.systemsx.cisd.etlserver.IPreRegistrationAction;
 import ch.systemsx.cisd.etlserver.IStorageProcessor;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
+import ch.systemsx.cisd.etlserver.TransferredDataSetHandlerDataSetRegistrationAlgorithm;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
@@ -158,7 +159,8 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
         return handleDataSet(dataSet, null);
     }
 
-    public List<DataSetInformation> handleDataSet(File dataSet, DataSetInformation newOverride)
+    public List<DataSetInformation> handleDataSet(final File dataSet,
+            final DataSetInformation newOverride)
     {
         // Remember the old override, replace it with the override for the execution, then restore
         // it
@@ -169,16 +171,18 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
         }
 
         RegistrationHelper helper = new RegistrationHelper(service, plugin, dataSet);
-        helper.prepare();
-        if (helper.hasDataSetBeenIdentified())
-        {
-            helper.registerDataSet();
-        } else
-        {
-            helper.dealWithUnidentifiedDataSet();
-            throw new UserFailureException("Could not find owner:\n\t" + newOverride
-                    + "\nfor data set:\n\t" + dataSet);
-        }
+
+        new DataSetRegistrationAlgorithmRunner(
+                helper,
+                new DataSetRegistrationAlgorithmRunner.IDataSetRegistrationAlgorithmRunnerDelegate()
+                    {
+
+                        public void didNotIdentifyDataSet()
+                        {
+                            throw new UserFailureException("Could not find owner:\n\t"
+                                    + newOverride + "\nfor data set:\n\t" + dataSet);
+                        }
+                    }).runAlgorithm();
 
         override = oldOverride;
 
@@ -482,7 +486,7 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
      * 
      * @author Chandrasekhar Ramakrishnan
      */
-    private class RegistrationHelper extends DataSetRegistrationAlgorithm
+    private class RegistrationHelper extends TransferredDataSetHandlerDataSetRegistrationAlgorithm
     {
         /**
          * @param service The provider of global state for the data set registration algorithm
@@ -523,7 +527,7 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
         @Override
         protected String getEmailSubjectTemplate()
         {
-            return DataSetRegistrationAlgorithm.EMAIL_SUBJECT_TEMPLATE;
+            return TransferredDataSetHandlerDataSetRegistrationAlgorithm.EMAIL_SUBJECT_TEMPLATE;
         }
 
         @Override

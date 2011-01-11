@@ -19,7 +19,6 @@ package ch.systemsx.cisd.etlserver;
 import static ch.systemsx.cisd.common.Constants.IS_FINISHED_PREFIX;
 
 import java.io.File;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -222,16 +221,8 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
 
     public List<DataSetInformation> handleDataSet(final File dataSet)
     {
-        final DataSetRegistrationAlgorithm registrationHelper = createRegistrationHelper(dataSet);
-        registrationHelper.prepare();
-        if (registrationHelper.hasDataSetBeenIdentified())
-        {
-            return registrationHelper.registerDataSet();
-        } else
-        {
-            registrationHelper.dealWithUnidentifiedDataSet();
-            return Collections.emptyList();
-        }
+        final TransferredDataSetHandlerDataSetRegistrationAlgorithm registrationHelper = createRegistrationHelper(dataSet);
+        return new DataSetRegistrationAlgorithmRunner(registrationHelper).runAlgorithm();
     }
 
     public List<DataSetInformation> handleDataSet(final File dataSet,
@@ -239,17 +230,9 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
     {
         dataSetInformation.setInstanceCode(getHomeDatabaseInstance().getCode());
         dataSetInformation.setInstanceUUID(getHomeDatabaseInstance().getUuid());
-        final DataSetRegistrationAlgorithm registrationHelper =
+        final TransferredDataSetHandlerDataSetRegistrationAlgorithm registrationHelper =
                 createRegistrationHelper(dataSet, dataSetInformation, registrator);
-        registrationHelper.prepare();
-        if (registrationHelper.hasDataSetBeenIdentified())
-        {
-            return registrationHelper.registerDataSet();
-        } else
-        {
-            registrationHelper.dealWithUnidentifiedDataSet();
-            return Collections.emptyList();
-        }
+        return new DataSetRegistrationAlgorithmRunner(registrationHelper).runAlgorithm();
     }
 
     public boolean isStopped()
@@ -304,7 +287,7 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
     // Helper class
     //
 
-    private DataSetRegistrationAlgorithm createRegistrationHelper(File file)
+    private TransferredDataSetHandlerDataSetRegistrationAlgorithm createRegistrationHelper(File file)
     {
         if (useIsFinishedMarkerFile)
         {
@@ -315,7 +298,7 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
         }
     }
 
-    private DataSetRegistrationAlgorithm createRegistrationHelper(File dataSet,
+    private TransferredDataSetHandlerDataSetRegistrationAlgorithm createRegistrationHelper(File dataSet,
             DataSetInformation dataSetInformation, IDataSetRegistrator registrator)
     {
         if (useIsFinishedMarkerFile)
@@ -329,7 +312,7 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
         }
     }
 
-    private DataSetRegistrationAlgorithm createRegistrationHelperWithIsFinishedFile(
+    private TransferredDataSetHandlerDataSetRegistrationAlgorithm createRegistrationHelperWithIsFinishedFile(
             final File isFinishedFile, final DataSetInformation dsInfo,
             IDataSetRegistrator registrator)
     {
@@ -367,7 +350,7 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
         }
     }
 
-    private DataSetRegistrationAlgorithm createRegistrationHelperWithQuietPeriodFilter(
+    private TransferredDataSetHandlerDataSetRegistrationAlgorithm createRegistrationHelperWithQuietPeriodFilter(
             File incomingDataSetFile, final DataSetInformation dsInfo,
             IDataSetRegistrator registrator)
     {
@@ -449,7 +432,7 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
         return ok;
     }
 
-    private class RegistrationHelper extends DataSetRegistrationAlgorithm
+    private class RegistrationHelper extends TransferredDataSetHandlerDataSetRegistrationAlgorithm
     {
 
         /**
@@ -562,7 +545,7 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
         @Override
         protected String getEmailSubjectTemplate()
         {
-            return DataSetRegistrationAlgorithm.EMAIL_SUBJECT_TEMPLATE;
+            return TransferredDataSetHandlerDataSetRegistrationAlgorithm.EMAIL_SUBJECT_TEMPLATE;
         }
 
         @Override
