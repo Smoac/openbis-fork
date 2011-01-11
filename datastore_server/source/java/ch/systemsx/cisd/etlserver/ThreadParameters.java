@@ -71,11 +71,13 @@ public final class ThreadParameters
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             ThreadParameters.class);
 
-    private static final String INCOMING_DIR = "incoming-dir";
+    @Private
+    static final String INCOMING_DIR = "incoming-dir";
 
     private static final String INCOMING_DIR_CREATE = "incoming-dir-create";
 
-    private static final String DELETE_UNIDENTIFIED_KEY = "delete-unidentified";
+    @Private
+    static final String DELETE_UNIDENTIFIED_KEY = "delete-unidentified";
 
     private static final String REPROCESS_FAULTY_DATASETS_NAME = "reprocess-faulty-datasets";
 
@@ -87,7 +89,9 @@ public final class ThreadParameters
 
     private final boolean createIncomingDirectories;
 
-    private final IETLServerPlugin plugin;
+    private final Properties threadProperties;
+
+    private final Class<?> topLevelDataSetRegistratorClass;
 
     private final String threadName;
 
@@ -112,7 +116,8 @@ public final class ThreadParameters
         this.incomingDataDirectory = extractIncomingDataDir(threadProperties);
         this.createIncomingDirectories =
                 PropertyUtils.getBoolean(threadProperties, INCOMING_DIR_CREATE, false);
-        this.plugin = new PropertiesBasedETLServerPlugin(threadProperties);
+        this.threadProperties = threadProperties;
+        this.topLevelDataSetRegistratorClass = TransferredDataSetHandler.class;
         this.groupCode = tryGetGroupCode(threadProperties);
         this.preRegistrationScript = tryGetPreRegistrationScript(threadProperties);
         this.postRegistrationScript = tryGetPostRegistartionScript(threadProperties);
@@ -232,9 +237,14 @@ public final class ThreadParameters
         return incomingDataDirectory;
     }
 
-    public final IETLServerPlugin getPlugin()
+    public Class<?> getTopLevelDataSetRegistratorClass()
     {
-        return plugin;
+        return topLevelDataSetRegistratorClass;
+    }
+
+    public Properties getThreadProperties()
+    {
+        return threadProperties;
     }
 
     /**
@@ -244,8 +254,14 @@ public final class ThreadParameters
     {
         if (operationLog.isInfoEnabled())
         {
-            logLine("Code extractor: '%s'", plugin.getDataSetInfoExtractor().getClass().getName());
-            logLine("Type extractor: '%s'", plugin.getTypeExtractor().getClass().getName());
+            logLine("Top-level registrator: '%s'", topLevelDataSetRegistratorClass.getName());
+            if (TransferredDataSetHandler.class == topLevelDataSetRegistratorClass)
+            {
+                IETLServerPlugin plugin = ETLServerPluginFactory.getPluginForThread(this);
+                logLine("Code extractor: '%s'", plugin.getDataSetInfoExtractor().getClass()
+                        .getName());
+                logLine("Type extractor: '%s'", plugin.getTypeExtractor().getClass().getName());
+            }
             logLine("Incoming data directory: '%s'.", getIncomingDataDirectory().getAbsolutePath());
             if (groupCode != null)
             {

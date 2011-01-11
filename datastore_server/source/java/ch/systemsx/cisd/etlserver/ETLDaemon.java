@@ -55,6 +55,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.common.maintenance.MaintenanceTaskUtils;
+import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.IExitHandler;
 import ch.systemsx.cisd.common.utilities.ISelfTestable;
 import ch.systemsx.cisd.common.utilities.IStopSignaler;
@@ -276,8 +277,8 @@ public final class ETLDaemon
             final IDataSetValidator dataSetValidator, final boolean notifySuccessfulRegistration)
     {
         final File incomingDataDirectory = threadParameters.getIncomingDataDirectory();
-        final TransferredDataSetHandler pathHandler =
-                createDataSetHandler(parameters.getProperties(), threadParameters,
+        final ITopLevelDataSetRegistrator pathHandler =
+                createTopLevelDataSetRegistrator(parameters.getProperties(), threadParameters,
                         authorizedLimsService, mailClient, dataSetValidator,
                         notifySuccessfulRegistration);
         final HighwaterMarkDirectoryScanningHandler directoryScanningHandler =
@@ -298,23 +299,25 @@ public final class ETLDaemon
                 threadParameters.getThreadName());
     }
 
-    public static TransferredDataSetHandler createDataSetHandler(final Properties properties,
-            final ThreadParameters threadParameters,
+    public static ITopLevelDataSetRegistrator createTopLevelDataSetRegistrator(
+            final Properties properties, final ThreadParameters threadParameters,
             final IEncapsulatedOpenBISService openBISService, final IMailClient mailClient,
             final IDataSetValidator dataSetValidator, final boolean notifySuccessfulRegistration)
     {
-        final IETLServerPlugin plugin = threadParameters.getPlugin();
+        final IETLServerPlugin plugin = ETLServerPluginFactory.getPluginForThread(threadParameters);
         final File storeRootDir = DssPropertyParametersUtil.getStoreRootDir(properties);
         migrateStoreRootDir(storeRootDir, openBISService.getHomeDatabaseInstance());
         plugin.getStorageProcessor().setStoreRootDirectory(storeRootDir);
         String dssCode = DssPropertyParametersUtil.getDataStoreCode(properties);
-        boolean deleteUnidentified = threadParameters.deleteUnidentified();
+        TopLevelDataSetRegistratorGlobalState globalState =
+                new TopLevelDataSetRegistratorGlobalState(dssCode, openBISService, mailClient,
+                        dataSetValidator, notifySuccessfulRegistration, threadParameters);
 
-        return new TransferredDataSetHandler(dssCode, plugin, openBISService, mailClient,
-                dataSetValidator, notifySuccessfulRegistration,
-                threadParameters.useIsFinishedMarkerFile(), deleteUnidentified,
-                threadParameters.tryGetPreRegistrationScript(),
-                threadParameters.tryGetPostRegistrationScript());
+        ITopLevelDataSetRegistrator registrator =
+                ClassUtils.create(ITopLevelDataSetRegistrator.class,
+                        threadParameters.getTopLevelDataSetRegistratorClass(), globalState);
+
+        return registrator;
     }
 
     private static FileFilter createFileFilter(File incomingDataDirectory,
@@ -352,7 +355,8 @@ public final class ETLDaemon
     }
 
     private static void addShutdownHookForCleanup(final Timer workerTimer,
-            final TransferredDataSetHandler mover, final long timeoutMillis, final String threadName)
+            final ITopLevelDataSetRegistrator mover, final long timeoutMillis,
+            final String threadName)
     {
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable()
             {

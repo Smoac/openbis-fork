@@ -31,6 +31,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.etlserver.DataStrategyStore;
+import ch.systemsx.cisd.etlserver.ETLServerPluginFactory;
 import ch.systemsx.cisd.etlserver.IETLServerPlugin;
 import ch.systemsx.cisd.etlserver.Parameters;
 import ch.systemsx.cisd.etlserver.ThreadParameters;
@@ -287,7 +288,7 @@ class PutDataSetServiceInitializer
     IETLServerPlugin getPlugin()
     {
         ThreadParameters[] threadParams = params.getThreads();
-        return threadParams[0].getPlugin();
+        return ETLServerPluginFactory.getPluginForThread(threadParams[0]);
     }
 
     String getDataStoreCode()

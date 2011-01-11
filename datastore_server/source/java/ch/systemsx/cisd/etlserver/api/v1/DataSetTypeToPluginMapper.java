@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
+import ch.systemsx.cisd.etlserver.ETLServerPluginFactory;
 import ch.systemsx.cisd.etlserver.IETLServerPlugin;
 import ch.systemsx.cisd.etlserver.Parameters;
 import ch.systemsx.cisd.etlserver.ThreadParameters;
@@ -111,16 +112,16 @@ class DataSetTypeToPluginMapper
             String defaultThreadName = section.getProperty(DEFAULT_THREAD_KEY);
             if (null == defaultThreadName)
             {
-                return firstThread.getPlugin();
+                return ETLServerPluginFactory.getPluginForThread(firstThread);
             }
 
             ThreadParameters defaultThread = threadParamMap.get(defaultThreadName);
             if (null == defaultThread)
             {
-                return firstThread.getPlugin();
+                return ETLServerPluginFactory.getPluginForThread(firstThread);
             }
 
-            return defaultThread.getPlugin();
+            return ETLServerPluginFactory.getPluginForThread(defaultThread);
         }
 
         public HashMap<String, IETLServerPlugin> getPluginMap()
@@ -136,7 +137,8 @@ class DataSetTypeToPluginMapper
                 ThreadParameters threadParams = threadParamMap.get(threadName);
                 if (null != threadParams)
                 {
-                    map.put(key.toUpperCase(), threadParams.getPlugin());
+                    map.put(key.toUpperCase(),
+                            ETLServerPluginFactory.getPluginForThread(threadParams));
                 }
             }
             return map;

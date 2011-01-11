@@ -32,13 +32,11 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
-import ch.systemsx.cisd.common.filesystem.IPathHandler;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
-import ch.systemsx.cisd.common.utilities.ISelfTestable;
 import ch.systemsx.cisd.etlserver.IStorageProcessor.UnstoreDataAction;
 import ch.systemsx.cisd.etlserver.utils.PostRegistrationExecutor;
 import ch.systemsx.cisd.etlserver.utils.PreRegistrationExecutor;
@@ -53,7 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
  * 
  * @author Bernd Rinn
  */
-public final class TransferredDataSetHandler implements IPathHandler, ISelfTestable,
+public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegistrator implements
         IDataSetHandler, IExtensibleDataSetHandler
 {
 
@@ -108,41 +106,30 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
     private final IPostRegistrationAction postRegistrationAction;
 
     /**
-     * @param dataSetValidator
-     * @param useIsFinishedMarkerFile if true, file/directory is processed when a marker file for it
-     *            appears. Otherwise processing starts if the file/directory is not modified for a
-     *            certain amount of time (so called "quiet period").
-     * @param postRegistrationScriptOrNull
+     * The designated constructor.
+     * 
+     * @param globalState
      */
-    public TransferredDataSetHandler(String dssCode, final IETLServerPlugin plugin,
-            final IEncapsulatedOpenBISService limsService, final IMailClient mailClient,
-            IDataSetValidator dataSetValidator, final boolean notifySuccessfulRegistration,
-            boolean useIsFinishedMarkerFile, boolean deleteUnidentified,
-            String preRegistrationScriptOrNull, String postRegistrationScriptOrNull)
-
+    public TransferredDataSetHandler(TopLevelDataSetRegistratorGlobalState globalState)
     {
-        this(dssCode, plugin.getStorageProcessor(), plugin, limsService, mailClient,
-                dataSetValidator, notifySuccessfulRegistration, useIsFinishedMarkerFile,
-                deleteUnidentified, preRegistrationScriptOrNull, postRegistrationScriptOrNull);
-    }
+        super(globalState);
 
-    TransferredDataSetHandler(String dssCode,
-            final IStoreRootDirectoryHolder storeRootDirectoryHolder,
-            final IETLServerPlugin plugin, final IEncapsulatedOpenBISService limsService,
-            final IMailClient mailClient, IDataSetValidator dataSetValidator,
-            final boolean notifySuccessfulRegistration, boolean useIsFinishedMarkerFile,
-            boolean deleteUnidentified, String preRegistrationScriptOrNull,
-            String postRegistrationScriptOrNull)
-
-    {
+        this.dssCode = globalState.getDssCode();
         assert dssCode != null : "Unspecified data store code";
-        assert storeRootDirectoryHolder != null : "Given store root directory holder can not be null.";
+
+        IETLServerPlugin plugin =
+                ETLServerPluginFactory.getPluginForThread(globalState.getThreadParameters());
         assert plugin != null : "IETLServerPlugin implementation can not be null.";
+
+        storeRootDirectoryHolder = plugin.getStorageProcessor();
+        assert storeRootDirectoryHolder != null : "Given store root directory holder can not be null.";
+
+        this.limsService = globalState.getOpenBisService();
         assert limsService != null : "IEncapsulatedLimsService implementation can not be null.";
+
+        this.mailClient = globalState.getMailClient();
         assert mailClient != null : "IMailClient implementation can not be null.";
 
-        this.dssCode = dssCode;
-        this.storeRootDirectoryHolder = storeRootDirectoryHolder;
         this.dataSetInfoExtractor = plugin.getDataSetInfoExtractor();
         this.typeExtractor = plugin.getTypeExtractor();
         this.storageProcessor = plugin.getStorageProcessor();
@@ -151,17 +138,65 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         {
             ((IDataSetHandlerWithMailClient) dataSetHandler).initializeMailClient(mailClient);
         }
-        this.dataSetValidator = dataSetValidator;
-        this.limsService = limsService;
-        this.mailClient = mailClient;
+        this.dataSetValidator = globalState.getDataSetValidator();
         this.dataStrategyStore = new DataStrategyStore(this.limsService, mailClient);
-        this.notifySuccessfulRegistration = notifySuccessfulRegistration;
+        this.notifySuccessfulRegistration = globalState.isNotifySuccessfulRegistration();
         this.registrationLock = new ReentrantLock();
         this.fileOperations = FileOperations.getMonitoredInstanceForCurrentThread();
-        this.useIsFinishedMarkerFile = useIsFinishedMarkerFile;
-        this.deleteUnidentified = deleteUnidentified;
-        this.preRegistrationAction = PreRegistrationExecutor.create(preRegistrationScriptOrNull);
-        this.postRegistrationAction = PostRegistrationExecutor.create(postRegistrationScriptOrNull);
+        this.useIsFinishedMarkerFile = globalState.isUseIsFinishedMarkerFile();
+        this.deleteUnidentified = globalState.isDeleteUnidentified();
+        this.preRegistrationAction =
+                PreRegistrationExecutor.create(globalState.getPreRegistrationScriptOrNull());
+        this.postRegistrationAction =
+                PostRegistrationExecutor.create(globalState.getPostRegistrationScriptOrNull());
+
+    }
+
+    /**
+     * A constructor used for testing.
+     * 
+     * @param globalState
+     * @param plugin
+     */
+    TransferredDataSetHandler(TopLevelDataSetRegistratorGlobalState globalState,
+            IETLServerPlugin plugin)
+    {
+        super(globalState);
+
+        this.dssCode = globalState.getDssCode();
+        assert dssCode != null : "Unspecified data store code";
+
+        assert plugin != null : "IETLServerPlugin implementation can not be null.";
+
+        storeRootDirectoryHolder = plugin.getStorageProcessor();
+        assert storeRootDirectoryHolder != null : "Given store root directory holder can not be null.";
+
+        this.limsService = globalState.getOpenBisService();
+        assert limsService != null : "IEncapsulatedLimsService implementation can not be null.";
+
+        this.mailClient = globalState.getMailClient();
+        assert mailClient != null : "IMailClient implementation can not be null.";
+
+        this.dataSetInfoExtractor = plugin.getDataSetInfoExtractor();
+        this.typeExtractor = plugin.getTypeExtractor();
+        this.storageProcessor = plugin.getStorageProcessor();
+        dataSetHandler = plugin.getDataSetHandler(this, limsService);
+        if (dataSetHandler instanceof IDataSetHandlerWithMailClient)
+        {
+            ((IDataSetHandlerWithMailClient) dataSetHandler).initializeMailClient(mailClient);
+        }
+        this.dataSetValidator = globalState.getDataSetValidator();
+        this.dataStrategyStore = new DataStrategyStore(this.limsService, mailClient);
+        this.notifySuccessfulRegistration = globalState.isNotifySuccessfulRegistration();
+        this.registrationLock = new ReentrantLock();
+        this.fileOperations = FileOperations.getMonitoredInstanceForCurrentThread();
+        this.useIsFinishedMarkerFile = globalState.isUseIsFinishedMarkerFile();
+        this.deleteUnidentified = globalState.isDeleteUnidentified();
+        this.preRegistrationAction =
+                PreRegistrationExecutor.create(globalState.getPreRegistrationScriptOrNull());
+        this.postRegistrationAction =
+                PostRegistrationExecutor.create(globalState.getPostRegistrationScriptOrNull());
+
     }
 
     /**

@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Properties;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
@@ -267,10 +268,20 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         authorizedLimsService.setPassword("p");
         authorizedLimsService.setDownloadUrl("url");
         dataSetValidator = context.mock(IDataSetValidator.class);
-        handler =
-                new TransferredDataSetHandler("dss", storageProcessor, plugin,
-                        authorizedLimsService, mailClient, dataSetValidator, true, true, false,
-                        null, null);
+
+        Properties threadProperties = new Properties();
+        threadProperties.put(ThreadParameters.INCOMING_DIR, "incoming");
+        threadProperties.put(ThreadParameters.INCOMING_DATA_COMPLETENESS_CONDITION,
+                ThreadParameters.INCOMING_DATA_COMPLETENESS_CONDITION_MARKER_FILE);
+        threadProperties.put(ThreadParameters.DELETE_UNIDENTIFIED_KEY, "false");
+        ThreadParameters threadParameters =
+                new ThreadParameters(threadProperties, "pre-registration-script-test");
+
+        TopLevelDataSetRegistratorGlobalState globalState =
+                new TopLevelDataSetRegistratorGlobalState("dss", authorizedLimsService, mailClient,
+                        dataSetValidator, true, threadParameters);
+
+        handler = new TransferredDataSetHandler(globalState, plugin);
 
         dataSetInformation = new DataSetInformation();
         dataSetInformation.setDataSetType(DATA_SET_TYPE);
@@ -759,10 +770,20 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
     @Test
     public void testPreRegistrationScript()
     {
-        handler =
-                new TransferredDataSetHandler("dss", storageProcessor, plugin,
-                        authorizedLimsService, mailClient, dataSetValidator, true, true, false,
-                        "sourceTest/java/ch/systemsx/cisd/etlserver/utils/test-script.sh", null);
+        Properties threadProperties = new Properties();
+        threadProperties.put(ThreadParameters.INCOMING_DIR, "incoming");
+        threadProperties.put(ThreadParameters.INCOMING_DATA_COMPLETENESS_CONDITION,
+                ThreadParameters.INCOMING_DATA_COMPLETENESS_CONDITION_MARKER_FILE);
+        threadProperties.put(ThreadParameters.DELETE_UNIDENTIFIED_KEY, "false");
+        threadProperties.put(ThreadParameters.PRE_REGISTRATION_SCRIPT_KEY,
+                "sourceTest/java/ch/systemsx/cisd/etlserver/utils/test-script.sh");
+        ThreadParameters threadParameters =
+                new ThreadParameters(threadProperties, "pre-registration-script-test");
+
+        TopLevelDataSetRegistratorGlobalState globalState =
+                new TopLevelDataSetRegistratorGlobalState("dss", authorizedLimsService, mailClient,
+                        dataSetValidator, true, threadParameters);
+        handler = new TransferredDataSetHandler(globalState, plugin);
 
         final Sample baseSample = createBaseSample(dataSetInformation);
         final Experiment baseExperiment = baseSample.getExperiment();
