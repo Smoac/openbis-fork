@@ -180,7 +180,6 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
                 ScriptTypeSelectionWidget.createPropertyScriptTypes(viewContext);
         FieldUtil.setVisibility(false, field);
         FieldUtil.markAsMandatory(field);
-        GWTUtils.autoselect(field);
         return field;
     }
 

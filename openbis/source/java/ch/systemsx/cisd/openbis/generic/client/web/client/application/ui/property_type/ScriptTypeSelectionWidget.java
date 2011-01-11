@@ -65,6 +65,7 @@ public final class ScriptTypeSelectionWidget extends SimpleComboBox<ScriptType>
         setEditable(false);
         setForceSelection(true);
         add(scriptTypes);
+        GWTUtils.autoselect(this);
     }
 
 }
