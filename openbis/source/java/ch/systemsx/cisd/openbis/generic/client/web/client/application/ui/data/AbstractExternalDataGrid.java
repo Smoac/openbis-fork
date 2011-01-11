@@ -358,9 +358,9 @@ public abstract class AbstractExternalDataGrid
                     final String permId = dataset.getPermId();
                     final String dssBaseURL = dataset.getDataStore().getHostUrl();
                     final String typeCode = dataset.getDataSetType().getCode();
-                    final Set<String> typesWithImageOverview =
-                            getWebClientConfiguration().getDataSetTypesWithImageOverview();
-                    if (typesWithImageOverview.contains(typeCode))
+                    final Set<String> typePatternsWithImageOverview =
+                            getWebClientConfiguration().getDataSetTypePatternsWithImageOverview();
+                    if (matches(typePatternsWithImageOverview, typeCode))
                     {
                         return DatasetImageOverviewUtilities.createEmbededImageHtml(dssBaseURL,
                                 permId, typeCode, sessionID);
@@ -371,6 +371,18 @@ public abstract class AbstractExternalDataGrid
                 }
             };
 
+    }
+
+    private static boolean matches(Set<String> patternsSet, String value)
+    {
+        for (String pattern : patternsSet)
+        {
+            if (value.matches(pattern))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     private EntityGridModelFactory<ExternalData> getColumnsFactory()

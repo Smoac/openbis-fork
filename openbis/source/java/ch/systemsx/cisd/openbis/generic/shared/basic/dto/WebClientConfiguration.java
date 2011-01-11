@@ -39,7 +39,7 @@ public class WebClientConfiguration implements ISerializable
     private Map<String, Map<String, String>> technologyProperties =
             new HashMap<String, Map<String, String>>();
 
-    private Set<String> dataSetTypesWithImageOverview = new HashSet<String>();
+    private Set<String> dataSetTypePatternsWithImageOverview = new HashSet<String>();
 
     private ViewMode defaultViewMode;
 
@@ -76,14 +76,14 @@ public class WebClientConfiguration implements ISerializable
         this.defaultViewMode = defaultViewMode;
     }
 
-    public Set<String> getDataSetTypesWithImageOverview()
+    public Set<String> getDataSetTypePatternsWithImageOverview()
     {
-        return dataSetTypesWithImageOverview;
+        return dataSetTypePatternsWithImageOverview;
     }
 
     public void setDataSetTypesWithImageOverview(Set<String> dataSetTypesWithImageOverview)
     {
-        this.dataSetTypesWithImageOverview = dataSetTypesWithImageOverview;
+        this.dataSetTypePatternsWithImageOverview = dataSetTypesWithImageOverview;
     }
 
     public int getMaxVisibleColumns()
