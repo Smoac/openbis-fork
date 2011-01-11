@@ -846,7 +846,7 @@ public final class ComponentProvider
                 {
                     Component component =
                             ScriptRegistrationForm.create(viewContext, entityKindOrNull);
-                    return DefaultTabItem.createUnaware(getTabTitle(), component, true);
+                    return createSimpleTab(getTabTitle(), component, true);
                 }
 
                 @Override

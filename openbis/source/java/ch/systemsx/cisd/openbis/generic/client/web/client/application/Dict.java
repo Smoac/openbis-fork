@@ -382,6 +382,8 @@ public abstract class Dict
 
     public static final String MANAGED = "managed";
 
+    public static final String SCRIPTABLE = "scriptable";
+
     public static final String SECTION_TOOLTIP = "section_tooltip";
 
     public static final String DEFAULT_VALUE = "default_value";
@@ -554,6 +556,8 @@ public abstract class Dict
     public static final String MENU_PROPERTY_TYPES = "menu_property_types";
 
     public static final String MENU_VOCABULARY = "menu_vocabulary";
+
+    public static final String MENU_SCRIPT = "menu_script";
 
     public static final String MENU_DATA_SET = "menu_data_set";
 
