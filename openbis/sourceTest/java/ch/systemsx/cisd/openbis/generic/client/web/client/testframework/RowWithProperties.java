@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.GridTestUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.Row;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**

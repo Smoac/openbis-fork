@@ -22,7 +22,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project.FillProjectRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ProjectGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
-import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
+import ch.systemsx.cisd.openbis.generic.shared.basic.Row;
 
 /**
  * A {@link AbstractGWTTestCase} extension to test <i>Project Registration</i>.

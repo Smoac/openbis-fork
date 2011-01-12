@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
+package ch.systemsx.cisd.openbis.generic.shared.basic;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 
 /**
  * Class which contains all expected cell values to be checked by {@link CheckTableCommand}. It uses
@@ -41,9 +44,9 @@ public class Row
         return this;
     }
 
-    protected final Map<String, Object> getColumnIDValuesMap()
+    public final Map<String, Object> getColumnIDValuesMap()
     {
-        return columnIDValuesMap;
+        return Collections.unmodifiableMap(columnIDValuesMap);
     }
 
     @Override

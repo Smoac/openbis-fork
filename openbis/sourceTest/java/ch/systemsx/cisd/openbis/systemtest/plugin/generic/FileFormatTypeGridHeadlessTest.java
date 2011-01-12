@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.systemtest.plugin.generic;
 
-import static ch.systemsx.cisd.openbis.systemtest.plugin.generic.TypedTableColumnAssertions.assertColumn;
+import static ch.systemsx.cisd.openbis.systemtest.TypedTableColumnAssertions.assertColumn;
 import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.BeforeMethod;

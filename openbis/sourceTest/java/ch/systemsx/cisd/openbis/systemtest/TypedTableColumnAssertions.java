@@ -1,4 +1,4 @@
-package ch.systemsx.cisd.openbis.systemtest.plugin.generic;
+package ch.systemsx.cisd.openbis.systemtest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,13 +19,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
  * 
  * @author Kaloyan Enimanev
  */
-class TypedTableColumnAssertions<T extends ISerializable> extends AssertJUnit
+public class TypedTableColumnAssertions<T extends ISerializable> extends AssertJUnit
 {
     /**
      * a convenience method, that can be used as a static import to achieve a fluent-API like
      * programming style.
      */
-    static <S extends ISerializable> TypedTableColumnAssertions<S> assertColumn(
+    public static <S extends ISerializable> TypedTableColumnAssertions<S> assertColumn(
             TypedTableResultSet<S> tableResultSet,
             String columnName)
     {
