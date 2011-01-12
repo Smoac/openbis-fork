@@ -71,7 +71,13 @@ public class TypedTableAssertions<T extends ISerializable> extends AssertJUnit
      */
     public TypedTableAssertions<T> hasNumberOfRows(int rowsNumber)
     {
-        assertEquals(rowsNumber, tableResultSet.getResultSet().getTotalLength());
+        String error = null;
+        if (rowsNumber != tableResultSet.getResultSet().getTotalLength())
+        {
+            // only build error message when the test is going to fail
+            error = String.format("Invalid number of rows in %s", getTableContents());
+        }
+        assertEquals(error, rowsNumber, tableResultSet.getResultSet().getTotalLength());
         return this;
     }
 
