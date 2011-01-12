@@ -64,6 +64,8 @@ public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtra
     static final String EXPERIMENT_CODE_KEY = "EXPERIMENT_CODE";
 
     static final String SAMPLE_CODE_KEY = "SAMPLE_CODE";
+    
+    static final String BIOLOGICAL_SAMPLE_IDENTIFIER_KEY = "BIOLOGICAL_SAMPLE_IDENTIFIER";
 
     static final String USER_KEY = "USER";
 
@@ -146,6 +148,11 @@ public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtra
             newSample.setSampleType(sampleType);
             newSample.setExperimentIdentifier(experimentIdentifier.toString());
             newSample.setIdentifier(sampleIdentifier.toString());
+            String biologicalSampleIdentifier = properties.getProperty(BIOLOGICAL_SAMPLE_IDENTIFIER_KEY);
+            if (biologicalSampleIdentifier != null)
+            {
+                newSample.setParents(biologicalSampleIdentifier);
+            }
             IEntityProperty[] sampleProperties = Util.getAndCheckProperties(properties, sampleType);
             newSample.setProperties(sampleProperties);
             return service.registerSample(newSample, properties.getProperty(USER_KEY));
@@ -197,8 +204,6 @@ public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtra
                 PropertyUtils.getMandatoryProperty(msInjectionProperties, PROJECT_CODE_KEY);
         String experimentCode =
                 PropertyUtils.getMandatoryProperty(msInjectionProperties, EXPERIMENT_CODE_KEY);
-        ExperimentIdentifier identifier =
-                new ExperimentIdentifier(null, Constants.MS_DATA_SPACE, projectCode, experimentCode);
-        return identifier;
+        return new ExperimentIdentifier(null, Constants.MS_DATA_SPACE, projectCode, experimentCode);
     }
 }

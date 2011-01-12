@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.etlserver.phosphonetx;
 
+import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForMSInjection.BIOLOGICAL_SAMPLE_IDENTIFIER_KEY;
 import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForMSInjection.DATA_SET_PROPERTIES_FILE;
 import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForMSInjection.DATA_SET_TYPE_KEY;
 import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForMSInjection.EXPERIMENT_CODE_KEY;
@@ -229,7 +230,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         save(sampleProperties, MS_INJECTION_PROPERTIES_FILE);
         SampleTypePropertyType pt = createPropertyType(SAMPLE_CODE_KEY, true);
         prepareGetExperimentAndGetSampleType(true, pt);
-        prepareRegisterSample();
+        prepareRegisterSample(null);
 
         try
         {
@@ -257,7 +258,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         save(dataSetProperties, DATA_SET_PROPERTIES_FILE);
         SampleTypePropertyType pt = createPropertyType(SAMPLE_CODE_KEY, true);
         prepareGetExperimentAndGetSampleType(true, pt);
-        prepareRegisterSample();
+        prepareRegisterSample(null);
 
         try
         {
@@ -290,7 +291,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         SampleTypePropertyType pt1 = createPropertyType(SAMPLE_CODE_KEY, true);
         SampleTypePropertyType pt2 = createPropertyType("VOLUME", false);
         prepareGetExperimentAndGetSampleType(false, pt1, pt2);
-        prepareRegisterSample();
+        prepareRegisterSample(null);
         prepareGetDataSetType("RAW_DATA", createDataSetPropertyType("CENTROID", false));
 
         DataSetInformation info = extractor.getDataSetInformation(dataSet, service);
@@ -303,6 +304,41 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         assertEquals("CENTROID", dProps.get(0).getPropertyCode());
         assertEquals("true", dProps.get(0).getValue());
 
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testRegisterRawDataAndLinkToBiologicalSampe()
+    {
+        Properties sampleProperties = new Properties();
+        sampleProperties.setProperty(PROJECT_CODE_KEY, PROJECT_CODE);
+        sampleProperties.setProperty(SAMPLE_CODE_KEY, SAMPLE_CODE);
+        sampleProperties.setProperty(EXPERIMENT_CODE_KEY, EXPERIMENT_CODE);
+        sampleProperties.setProperty(BIOLOGICAL_SAMPLE_IDENTIFIER_KEY, "bio-sample");
+        sampleProperties.setProperty(USER_KEY, "user1");
+        sampleProperties.setProperty("TEMPERATURE", "47.11");
+        save(sampleProperties, MS_INJECTION_PROPERTIES_FILE);
+        Properties dataSetProperties = new Properties();
+        dataSetProperties.setProperty(DATA_SET_TYPE_KEY, "RAW_DATA");
+        dataSetProperties.setProperty("CENTROID", "true");
+        dataSetProperties.setProperty("BLABLA", "blub");
+        save(dataSetProperties, DATA_SET_PROPERTIES_FILE);
+        SampleTypePropertyType pt1 = createPropertyType(SAMPLE_CODE_KEY, true);
+        SampleTypePropertyType pt2 = createPropertyType("VOLUME", false);
+        prepareGetExperimentAndGetSampleType(false, pt1, pt2);
+        prepareRegisterSample("bio-sample");
+        prepareGetDataSetType("RAW_DATA", createDataSetPropertyType("CENTROID", false));
+        
+        DataSetInformation info = extractor.getDataSetInformation(dataSet, service);
+        
+        assertEquals(Constants.MS_DATA_SPACE, info.getSpaceCode());
+        assertEquals(SAMPLE_CODE, info.getSampleCode());
+        assertEquals(EXPERIMENT_IDENTIFIER, info.getExperimentIdentifier().toString());
+        List<NewProperty> dProps = info.getDataSetProperties();
+        assertEquals(1, dProps.size());
+        assertEquals("CENTROID", dProps.get(0).getPropertyCode());
+        assertEquals("true", dProps.get(0).getValue());
+        
         context.assertIsSatisfied();
     }
 
@@ -466,7 +502,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
             });
     }
 
-    private void prepareRegisterSample()
+    private void prepareRegisterSample(final String parentIdentifier)
     {
         context.checking(new Expectations()
             {
@@ -486,6 +522,8 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
                                     assertEquals(SAMPLE_IDENTIFIER, sample.getIdentifier());
                                     assertEquals(EXPERIMENT_IDENTIFIER, sample
                                             .getExperimentIdentifier());
+                                    String[] parents = sample.getParentsOrNull();
+                                    assertEquals(parentIdentifier, parents == null ? null : parents[0]);
                                     IEntityProperty[] properties = sample.getProperties();
                                     Map<String, IEntityProperty> map =
                                             new HashMap<String, IEntityProperty>();
