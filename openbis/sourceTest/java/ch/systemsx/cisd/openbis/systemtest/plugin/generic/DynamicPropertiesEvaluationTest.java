@@ -24,7 +24,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
@@ -48,7 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
  * @author Piotr Buczek
  */
 @Test(groups = "system test")
-@TransactionConfiguration(defaultRollback = false)
+@Transactional(propagation = Propagation.NOT_SUPPORTED)
 public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
 {
     private static final String CELL_PLATE = "CELL_PLATE";
