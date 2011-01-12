@@ -25,6 +25,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
@@ -51,6 +53,7 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBind
  * @author Franz-Josef Elmer
  */
 @Test(groups = "system test")
+@Transactional(propagation = Propagation.NOT_SUPPORTED)
 public class QueryEditingTest extends QuerySystemTestCase
 {
 

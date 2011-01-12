@@ -22,7 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
+import org.springframework.test.context.testng.AbstractTransactionalTestNGSpringContextTests;
+import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeSuite;
 
@@ -40,7 +41,10 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
  * @author Franz-Josef Elmer
  */
 @ContextConfiguration(locations = "classpath:applicationContext.xml")
-public abstract class SystemTestCase extends AbstractTestNGSpringContextTests
+// In 'commonContext.xml', our transaction manager is called 'transaction-manager' (by default
+// Spring looks for 'transactionManager').
+@TransactionConfiguration(transactionManager = "transaction-manager")
+public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringContextTests
 {
     protected static final String SESSION_KEY = "session-key";
 

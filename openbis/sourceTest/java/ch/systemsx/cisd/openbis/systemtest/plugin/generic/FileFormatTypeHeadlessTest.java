@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSe
 import ch.systemsx.cisd.openbis.generic.shared.basic.Row;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
+import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
 
 /**
  * A headless system test having the same functionality as {@link FileFormatTypeGridTest}.
@@ -35,8 +36,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
  * @author Kaloyan Enimanev
  */
 @Test(groups = "system test")
-public class FileFormatTypeHeadlessTest extends GenericSystemTestCase
+public class FileFormatTypeHeadlessTest extends SystemTestCase
 {
+    private static final int FILE_TYPES_IN_DB = 8;
 
     @BeforeMethod
     public final void setUp()
@@ -44,7 +46,7 @@ public class FileFormatTypeHeadlessTest extends GenericSystemTestCase
         logIntoCommonClientService();
     }
 
-    @Test
+    @Test()
     public void testListFileFormats()
     {
         DefaultResultSetConfig<String, TableModelRowWithObject<FileFormatType>> criteria =
@@ -52,7 +54,7 @@ public class FileFormatTypeHeadlessTest extends GenericSystemTestCase
         TypedTableResultSet<FileFormatType> tableResultSet =
                 commonClientService.listFileTypes(criteria);
 
-        assertTable(tableResultSet).hasNumberOfRows(8);
+        assertTable(tableResultSet).hasNumberOfRows(FILE_TYPES_IN_DB);
         assertColumn(tableResultSet, "CODE").containsValues("TIFF", "XML", "HDF5");
     }
 
@@ -76,7 +78,7 @@ public class FileFormatTypeHeadlessTest extends GenericSystemTestCase
                 new Row().withCell("CODE", fft.getCode()).withCell("DESCRIPTION",
                         fft.getDescription());
 
-        assertTable(tableResultSet).hasNumberOfRows(9);
+        assertTable(tableResultSet).hasNumberOfRows(FILE_TYPES_IN_DB + 1);
         assertTable(tableResultSet).containsRow(expectedRow);
 
     }

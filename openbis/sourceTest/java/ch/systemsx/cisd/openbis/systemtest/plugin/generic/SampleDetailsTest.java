@@ -133,7 +133,7 @@ public class SampleDetailsTest extends GenericSystemTestCase
 
         ResultSetWithEntityTypes<Sample> samples =
                 commonClientService.listSamples(new ListSampleDisplayCriteria(listCriteria));
-        assertEquals(17, samples.getResultSet().getTotalLength());
+        assertEquals(15, samples.getResultSet().getTotalLength());
         assertEquals("[CELL_PLATE]", samples.getAvailableEntityTypes().toString());
 
         GridRowModels<Sample> list = samples.getResultSet().getList();
@@ -179,7 +179,7 @@ public class SampleDetailsTest extends GenericSystemTestCase
 
         ResultSetWithEntityTypes<Sample> samples =
                 commonClientService.listSamples(new ListSampleDisplayCriteria(listCriteria));
-        assertEquals(17, samples.getResultSet().getTotalLength());
+        assertEquals(15, samples.getResultSet().getTotalLength());
         assertEquals("[CELL_PLATE]", samples.getAvailableEntityTypes().toString());
 
         GridRowModels<Sample> list = samples.getResultSet().getList();
