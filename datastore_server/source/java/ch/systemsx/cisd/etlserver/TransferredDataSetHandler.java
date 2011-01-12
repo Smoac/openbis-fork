@@ -29,15 +29,14 @@ import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
-import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm.IDataSetInApplicationServerRegistrator;
-import ch.systemsx.cisd.etlserver.IStorageProcessor.UnstoreDataAction;
+import ch.systemsx.cisd.etlserver.registrator.MarkerFileUtility;
+import ch.systemsx.cisd.etlserver.registrator.TopLevelDataSetChecker;
 import ch.systemsx.cisd.etlserver.utils.PostRegistrationExecutor;
 import ch.systemsx.cisd.etlserver.utils.PreRegistrationExecutor;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
@@ -63,7 +62,7 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
     static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             TransferredDataSetHandler.class);
 
-    static final NamedDataStrategy ERROR_DATA_STRATEGY = new NamedDataStrategy(
+    public static final NamedDataStrategy ERROR_DATA_STRATEGY = new NamedDataStrategy(
             DataStoreStrategyKey.ERROR);
 
     private final IStoreRootDirectoryHolder storeRootDirectoryHolder;
@@ -104,6 +103,8 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
 
     private final IPostRegistrationAction postRegistrationAction;
 
+    private final MarkerFileUtility markerFileUtility;
+
     /**
      * The designated constructor.
      * 
@@ -111,44 +112,8 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
      */
     public TransferredDataSetHandler(TopLevelDataSetRegistratorGlobalState globalState)
     {
-        super(globalState);
-
-        this.dssCode = globalState.getDssCode();
-        assert dssCode != null : "Unspecified data store code";
-
-        IETLServerPlugin plugin =
-                ETLServerPluginFactory.getPluginForThread(globalState.getThreadParameters());
-        assert plugin != null : "IETLServerPlugin implementation can not be null.";
-
-        storeRootDirectoryHolder = plugin.getStorageProcessor();
-        assert storeRootDirectoryHolder != null : "Given store root directory holder can not be null.";
-
-        this.limsService = globalState.getOpenBisService();
-        assert limsService != null : "IEncapsulatedLimsService implementation can not be null.";
-
-        this.mailClient = globalState.getMailClient();
-        assert mailClient != null : "IMailClient implementation can not be null.";
-
-        this.dataSetInfoExtractor = plugin.getDataSetInfoExtractor();
-        this.typeExtractor = plugin.getTypeExtractor();
-        this.storageProcessor = plugin.getStorageProcessor();
-        dataSetHandler = plugin.getDataSetHandler(this, limsService);
-        if (dataSetHandler instanceof IDataSetHandlerWithMailClient)
-        {
-            ((IDataSetHandlerWithMailClient) dataSetHandler).initializeMailClient(mailClient);
-        }
-        this.dataSetValidator = globalState.getDataSetValidator();
-        this.dataStrategyStore = new DataStrategyStore(this.limsService, mailClient);
-        this.notifySuccessfulRegistration = globalState.isNotifySuccessfulRegistration();
-        this.registrationLock = new ReentrantLock();
-        this.fileOperations = FileOperations.getMonitoredInstanceForCurrentThread();
-        this.useIsFinishedMarkerFile = globalState.isUseIsFinishedMarkerFile();
-        this.deleteUnidentified = globalState.isDeleteUnidentified();
-        this.preRegistrationAction =
-                PreRegistrationExecutor.create(globalState.getPreRegistrationScriptOrNull());
-        this.postRegistrationAction =
-                PostRegistrationExecutor.create(globalState.getPostRegistrationScriptOrNull());
-
+        this(globalState, ETLServerPluginFactory.getPluginForThread(globalState
+                .getThreadParameters()));
     }
 
     /**
@@ -196,6 +161,10 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
         this.postRegistrationAction =
                 PostRegistrationExecutor.create(globalState.getPostRegistrationScriptOrNull());
 
+        this.markerFileUtility =
+                new MarkerFileUtility(operationLog, notificationLog, fileOperations,
+                        storeRootDirectoryHolder);
+
     }
 
     /**
@@ -221,8 +190,7 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
 
     public List<DataSetInformation> handleDataSet(final File dataSet)
     {
-        final DataSetRegistrationHelper registrationHelper =
-                createRegistrationHelper(dataSet);
+        final DataSetRegistrationHelper registrationHelper = createRegistrationHelper(dataSet);
         return new DataSetRegistrationAlgorithmRunner(registrationHelper).runAlgorithm();
     }
 
@@ -248,27 +216,8 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
 
     public final void check() throws ConfigurationFailureException, EnvironmentFailureException
     {
-        final File storeRootDirectory = storeRootDirectoryHolder.getStoreRootDirectory();
-        storeRootDirectory.mkdirs();
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.debug("Checking store root directory '"
-                    + storeRootDirectory.getAbsolutePath() + "'.");
-        }
-        final String errorMessage =
-                fileOperations.checkDirectoryFullyAccessible(storeRootDirectory, "store root");
-        if (errorMessage != null)
-        {
-            if (fileOperations.exists(storeRootDirectory) == false)
-            {
-                throw EnvironmentFailureException.fromTemplate(
-                        "Store root directory '%s' does not exist.",
-                        storeRootDirectory.getAbsolutePath());
-            } else
-            {
-                throw new ConfigurationFailureException(errorMessage);
-            }
-        }
+        new TopLevelDataSetChecker(operationLog, storeRootDirectoryHolder, fileOperations)
+                .runCheck();
     }
 
     public boolean isRemote()
@@ -300,8 +249,8 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
         }
     }
 
-    private DataSetRegistrationHelper createRegistrationHelper(
-            File dataSet, DataSetInformation dataSetInformation,
+    private DataSetRegistrationHelper createRegistrationHelper(File dataSet,
+            DataSetInformation dataSetInformation,
             DataSetRegistrationAlgorithm.IDataSetInApplicationServerRegistrator registrator)
     {
         if (useIsFinishedMarkerFile)
@@ -393,46 +342,12 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
      */
     private final File getIncomingDataSetPathFromMarker(final File isFinishedPath)
     {
-        final File incomingDataSetPath =
-                FileUtilities.removePrefixFromFileName(isFinishedPath, IS_FINISHED_PREFIX);
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.debug(String.format(
-                    "Getting incoming data set path '%s' from is-finished path '%s'",
-                    incomingDataSetPath, isFinishedPath));
-        }
-        final String errorMsg =
-                fileOperations.checkPathFullyAccessible(incomingDataSetPath, "incoming data set");
-        if (errorMsg != null)
-        {
-            fileOperations.delete(isFinishedPath);
-            throw EnvironmentFailureException.fromTemplate(String.format(
-                    "Error moving path '%s' from '%s' to '%s': %s", incomingDataSetPath.getName(),
-                    incomingDataSetPath.getParent(),
-                    storeRootDirectoryHolder.getStoreRootDirectory(), errorMsg));
-        }
-        return incomingDataSetPath;
+        return markerFileUtility.getIncomingDataSetPathFromMarker(isFinishedPath);
     }
 
     private boolean deleteAndLogIsFinishedMarkerFile(File isFinishedFile)
     {
-        if (fileOperations.exists(isFinishedFile) == false)
-        {
-            return false;
-        }
-        final boolean ok = fileOperations.delete(isFinishedFile);
-        final String absolutePath = isFinishedFile.getAbsolutePath();
-        if (ok == false)
-        {
-            notificationLog.error(String.format("Removing file '%s' failed.", absolutePath));
-        } else
-        {
-            if (operationLog.isDebugEnabled())
-            {
-                operationLog.debug(String.format("File '%s' has been removed.", absolutePath));
-            }
-        }
-        return ok;
+        return markerFileUtility.deleteAndLogIsFinishedMarkerFile(isFinishedFile);
     }
 
     private class RegistrationHelper extends DataSetRegistrationHelper
@@ -554,52 +469,9 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
         protected void rollback(final Throwable throwable) throws Error
         {
             stopped |= throwable instanceof InterruptedExceptionUnchecked;
-            if (stopped)
-            {
-                Thread.interrupted(); // Ensure the thread's interrupted state is cleared.
-                getOperationLog().warn(
-                        String.format("Requested to stop registration of data set '%s'",
-                                registrationAlgorithm.getDataSetInformation()));
-            } else
-            {
-                getNotificationLog().error(
-                        String.format(registrationAlgorithm.getErrorMessageTemplate(),
-                                registrationAlgorithm.getDataSetInformation()), throwable);
-            }
-            // Errors which are not AssertionErrors leave the system in a state that we don't
-            // know and can't trust. Thus we will not perform any operations any more in this
-            // case.
-            if (throwable instanceof Error && throwable instanceof AssertionError == false)
-            {
-                throw (Error) throwable;
-            }
-            UnstoreDataAction action = registrationAlgorithm.rollbackStorageProcessor(throwable);
-            if (stopped == false)
-            {
-                if (action == UnstoreDataAction.MOVE_TO_ERROR)
-                {
-                    final File baseDirectory =
-                            registrationAlgorithm.createBaseDirectory(
-                                    TransferredDataSetHandler.ERROR_DATA_STRATEGY,
-                                    registrationAlgorithm.getStoreRoot(),
-                                    registrationAlgorithm.getDataSetInformation());
-                    registrationAlgorithm.setBaseDirectoryHolder(new BaseDirectoryHolder(
-                            TransferredDataSetHandler.ERROR_DATA_STRATEGY, baseDirectory,
-                            incomingDataSetFile));
-                    boolean moveInCaseOfErrorOk =
-                            FileRenamer.renameAndLog(incomingDataSetFile, registrationAlgorithm
-                                    .getBaseDirectoryHolder().getTargetFile());
-                    writeThrowable(throwable);
-                    if (moveInCaseOfErrorOk)
-                    {
-                        registrationAlgorithm.clean();
-                    }
-                } else if (action == UnstoreDataAction.DELETE)
-                {
-                    FileUtilities.deleteRecursively(incomingDataSetFile, new Log4jSimpleLogger(
-                            TransferredDataSetHandler.operationLog));
-                }
-            }
+
+            new DataSetRegistrationRollbacker(stopped, registrationAlgorithm, incomingDataSetFile,
+                    notificationLog, operationLog, throwable).doRollback();
         }
     }
 

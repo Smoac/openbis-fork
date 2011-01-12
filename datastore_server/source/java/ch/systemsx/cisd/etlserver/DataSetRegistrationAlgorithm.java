@@ -120,7 +120,7 @@ public class DataSetRegistrationAlgorithm
 
         public DataSetRegistrationAlgorithmState(File incomingDataSetFile,
                 IEncapsulatedOpenBISService openBisService,
-                IDelegatedActionWithResult<Boolean> cleanAftrewardsAction,
+                IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
                 IPreRegistrationAction preRegistrationAction,
                 IPostRegistrationAction postRegistrationAction,
                 DataSetInformation dataSetInformation, IDataStoreStrategy dataStoreStrategy,
@@ -131,7 +131,7 @@ public class DataSetRegistrationAlgorithm
         {
             this.incomingDataSetFile = incomingDataSetFile;
             this.openBisService = openBisService;
-            this.cleanAfterwardsAction = cleanAftrewardsAction;
+            this.cleanAfterwardsAction = cleanAfterwardsAction;
             this.preRegistrationAction = preRegistrationAction;
             this.postRegistrationAction = postRegistrationAction;
             this.dataSetInformation = dataSetInformation;
@@ -204,7 +204,8 @@ public class DataSetRegistrationAlgorithm
     }
 
     public DataSetRegistrationAlgorithm(DataSetRegistrationAlgorithmState state,
-            IRollbackDelegate rollbackDelegate, IDataSetInApplicationServerRegistrator applicationServerRegistrator)
+            IRollbackDelegate rollbackDelegate,
+            IDataSetInApplicationServerRegistrator applicationServerRegistrator)
     {
         this.state = state;
         this.rollbackDelegate = rollbackDelegate;
@@ -352,7 +353,8 @@ public class DataSetRegistrationAlgorithm
         return state.cleanAfterwardsAction.execute();
     }
 
-    private static class DefaultApplicationServerRegistrator implements IDataSetInApplicationServerRegistrator
+    private static class DefaultApplicationServerRegistrator implements
+            IDataSetInApplicationServerRegistrator
     {
         private final IEncapsulatedOpenBISService openBisService;
 
@@ -628,5 +630,10 @@ public class DataSetRegistrationAlgorithm
     private Logger getOperationLog()
     {
         return operationLog;
+    }
+
+    public File getIncomingDataSetFile()
+    {
+        return state.incomingDataSetFile;
     }
 }

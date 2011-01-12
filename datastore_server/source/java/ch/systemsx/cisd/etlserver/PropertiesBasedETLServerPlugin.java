@@ -74,7 +74,10 @@ public class PropertiesBasedETLServerPlugin extends ETLServerPlugin
 
     private static final Properties EMPTY_PROPERTIES = new Properties();
 
-    private final static <T> T create(final Class<T> superClazz, final Properties properties,
+    /**
+     * Utility method to create objects from keys in the properties file.
+     */
+    public final static <T> T create(final Class<T> superClazz, final Properties properties,
             final String keyPrefix, final boolean withSubset, final Object... arguments)
     {
         final String className = properties.getProperty(keyPrefix);

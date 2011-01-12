@@ -84,7 +84,7 @@ public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
 
     private IDataSetInApplicationServerRegistrator appServerRegistrator;
 
-    private IDelegatedActionWithResult<Boolean> cleanAftrewardsAction;
+    private IDelegatedActionWithResult<Boolean> cleanAfterwardsAction;
 
     private IPreRegistrationAction preRegistrationAction;
 
@@ -122,7 +122,7 @@ public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
         openBisService = context.mock(IEncapsulatedOpenBISService.class);
         rollbackDelegate = context.mock(IRollbackDelegate.class);
         appServerRegistrator = context.mock(IDataSetInApplicationServerRegistrator.class);
-        cleanAftrewardsAction = context.mock(IDelegatedActionWithResult.class);
+        cleanAfterwardsAction = context.mock(IDelegatedActionWithResult.class);
         preRegistrationAction = context.mock(IPreRegistrationAction.class);
         postRegistrationAction = context.mock(IPostRegistrationAction.class);
 
@@ -437,7 +437,7 @@ public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    exactly(2).of(cleanAftrewardsAction).execute();
+                    exactly(2).of(cleanAfterwardsAction).execute();
                     will(returnValue(Boolean.TRUE));
                 }
             });
@@ -457,11 +457,10 @@ public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
     private void createAlgorithmAndState(boolean shouldDeleteUnidentified,
             boolean shouldNotifySuccessfulRegistration)
     {
-
         String dataStoreCode = DATA_STORE_CODE;
         DataSetRegistrationAlgorithmState state =
                 new DataSetRegistrationAlgorithmState(incomingDataSetFile, openBisService,
-                        cleanAftrewardsAction, preRegistrationAction, postRegistrationAction,
+                        cleanAfterwardsAction, preRegistrationAction, postRegistrationAction,
                         dataSetInformation, dataStoreStrategy, typeExtractor, storageProcessor,
                         fileOperations, dataSetValidator, mailClient, shouldDeleteUnidentified,
                         registrationLock, dataStoreCode, shouldNotifySuccessfulRegistration);

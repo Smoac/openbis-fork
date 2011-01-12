@@ -23,13 +23,13 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  * 
  * @author Christian Ribeaud
  */
-enum DataStoreStrategyKey
+public enum DataStoreStrategyKey
 {
     /**
-     * This <code>IDataStoreStrategy</code> implementation if for data set that has been
-     * identified as <i>unidentified</i>, meaning that, for instance, no experiment could be mapped
-     * to the one found in given {@link DataSetInformation} (if we try to find out the sample to
-     * which this data set should be registered through the experiment).
+     * This <code>IDataStoreStrategy</code> implementation if for data set that has been identified
+     * as <i>unidentified</i>, meaning that, for instance, no experiment could be mapped to the one
+     * found in given {@link DataSetInformation} (if we try to find out the sample to which this
+     * data set should be registered through the experiment).
      */
     UNIDENTIFIED,
     /**
@@ -39,10 +39,10 @@ enum DataStoreStrategyKey
      */
     IDENTIFIED,
     /**
-     * This <code>IDataStoreStrategy</code> implementation if for data set that has been
-     * identified as <i>invalid</i>, meaning that the data set itself or its
-     * <code>Master Plate</code> code is not registered in the database. So there is no
-     * possibility to link the data set to an already existing sample.
+     * This <code>IDataStoreStrategy</code> implementation if for data set that has been identified
+     * as <i>invalid</i>, meaning that the data set itself or its <code>Master Plate</code> code is
+     * not registered in the database. So there is no possibility to link the data set to an already
+     * existing sample.
      */
     INVALID,
     /**

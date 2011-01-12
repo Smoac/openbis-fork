@@ -17,13 +17,9 @@
 package ch.systemsx.cisd.etlserver;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -86,7 +82,8 @@ public abstract class DataSetRegistrationHelper implements
     public DataSetRegistrationHelper(File incomingDataSetFile,
             IDelegatedActionWithResult<Boolean> cleanAftrewardsAction,
             IPreRegistrationAction preRegistrationAction,
-            IPostRegistrationAction postRegistrationAction, IDataSetInApplicationServerRegistrator appServerRegistrator)
+            IPostRegistrationAction postRegistrationAction,
+            IDataSetInApplicationServerRegistrator appServerRegistrator)
     {
         DataSetInformation dataSetInformation = extractDataSetInformation(incomingDataSetFile);
         IDataStoreStrategy dataStoreStrategy =
@@ -185,28 +182,6 @@ public abstract class DataSetRegistrationHelper implements
         } catch (final RuntimeException ex)
         {
             throw new EnvironmentFailureException(errorMessage, ex);
-        }
-    }
-
-    protected final void writeThrowable(final Throwable throwable)
-    {
-        final String fileName = incomingDataSetFile.getName() + ".exception";
-        final File file =
-                new File(registrationAlgorithm.getBaseDirectoryHolder().getTargetFile()
-                        .getParentFile(), fileName);
-        FileWriter writer = null;
-        try
-        {
-            writer = new FileWriter(file);
-            throwable.printStackTrace(new PrintWriter(writer));
-        } catch (final IOException e)
-        {
-            TransferredDataSetHandler.operationLog.warn(String.format(
-                    "Could not write out the exception '%s' in file '%s'.", fileName,
-                    file.getAbsolutePath()), e);
-        } finally
-        {
-            IOUtils.closeQuietly(writer);
         }
     }
 

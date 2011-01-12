@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
  * 
  * @author Christian Ribeaud
  */
-interface IDataStoreStrategy
+public interface IDataStoreStrategy
 {
 
     /**
@@ -44,7 +44,8 @@ interface IDataStoreStrategy
             final DataSetType dataSetType);
 
     /**
-     * Create the target path for given <var>baseDirectory</var> and given <var>incomingDataSetPath</var>.
+     * Create the target path for given <var>baseDirectory</var> and given
+     * <var>incomingDataSetPath</var>.
      * <p>
      * Note that each call either produces a new <i>target path</i> or throws an exception if
      * computed <i>target path</i> already exists.
