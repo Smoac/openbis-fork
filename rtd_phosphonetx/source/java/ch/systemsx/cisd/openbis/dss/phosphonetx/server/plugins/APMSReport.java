@@ -48,6 +48,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.EMailAddress;
+import ch.systemsx.cisd.common.utilities.Template;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractTableModelReportingPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ProcessingStatus;
@@ -59,7 +60,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -72,11 +72,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
 /**
- * Creates a report from proteins.csv
+ * Creates an APMS report from proteins.csv
  *
  * @author Franz-Josef Elmer
  */
-public class ProteinTableReport extends AbstractTableModelReportingPlugin implements IProcessingPluginTask
+public class APMSReport extends AbstractTableModelReportingPlugin implements IProcessingPluginTask
 {
     private static final class Header
     {
@@ -189,16 +189,21 @@ public class ProteinTableReport extends AbstractTableModelReportingPlugin implem
     
     @Private static final String PROTEIN_FILE_NAME = "proteins.csv";
     private static final String PROTEIN_PROPERTY_CODE_KEY = "protein-property-code";
-    private static final String DEFAULT_PROTEIN_PROPERTY_CODE = "PROTEIN";
+    @Private static final String DEFAULT_PROTEIN_PROPERTY_CODE = "PROTEIN";
+    
+    private
+    static final Template E_MAIL_CONTENT_TEMPLATE = new Template("Dear User\n\n"
+            + "Enclosed you will find the Protein APMS report file for experiment ${experiment-identifier}.\n"
+            + "Data Set: ${data-set}");
     
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            ProteinTableReport.class);
+            APMSReport.class);
 
     private final String proteinPropertyCode;
     
     private IEncapsulatedOpenBISService service;
 
-    public ProteinTableReport(Properties properties, File storeRoot)
+    public APMSReport(Properties properties, File storeRoot)
     {
         super(properties, storeRoot);
         proteinPropertyCode = properties.getProperty(PROTEIN_PROPERTY_CODE_KEY, DEFAULT_PROTEIN_PROPERTY_CODE);
@@ -258,11 +263,17 @@ public class ProteinTableReport extends AbstractTableModelReportingPlugin implem
                 }
                 csvWriter.writeRecord(stringArray);
             }
+            String experimentIdentifier =
+                    datasetDescription.getSpaceCode() + '/' + datasetDescription.getProjectCode()
+                            + '/' + datasetDescription.getExperimentCode();
+            Template template = E_MAIL_CONTENT_TEMPLATE.createFreshCopy();
+            template.bind("experiment-identifier", experimentIdentifier);
+            template.bind("data-set", datasetDescription.getDatasetCode());
             ByteArrayDataSource dataSource =
                     new ByteArrayDataSource(writer.toString(), "text/plain");
             context.getMailClient().sendEmailMessageWithAttachment("Protein APMS Report",
-                    "Here is your report",
-                    datasetDescription.getExperimentCode() + "-protein-report.txt",
+                    template.createText(),
+                    datasetDescription.getExperimentCode() + "-APMS-report.txt",
                     new DataHandler(dataSource), null, null,
                     new EMailAddress(context.getUserEmailOrNull()));
 
@@ -281,8 +292,6 @@ public class ProteinTableReport extends AbstractTableModelReportingPlugin implem
         builder.addHeader("Sample ID");
         builder.addHeader("Bait");
         builder.addHeader("Prey");
-        builder.addHeader("num unique peptides");
-        builder.addHeader("spec count");
         builder.addHeader("freq of obs");
         builder.addHeader("avg MS1 intensities (normalized for the bait)");
         builder.addHeader("STDV MS1 intensity");
@@ -340,12 +349,12 @@ public class ProteinTableReport extends AbstractTableModelReportingPlugin implem
         for (Entry<String, List<Header>> group : groups)
         {
             String biologicalSample = group.getKey();
-            List<Header> hs = group.getValue();
+            List<Header> headers = group.getValue();
             String protein = null;
             double countNonZeroAbundances = 0;
             double sum = 0;
             double sum2 = 0;
-            for (Header header : hs)
+            for (Header header : headers)
             {
                 if (biologicalSample != null && protein == null)
                 {
@@ -367,17 +376,20 @@ public class ProteinTableReport extends AbstractTableModelReportingPlugin implem
                             + value + ") for column " + header.getHeader() + ": " + row);
                 }
             }
-            double averagedAbundance = sum / hs.size();
+            double averagedAbundance = sum / headers.size();
             double abundanceStandardDeviation =
-                    Math.sqrt(averagedAbundance * averagedAbundance - sum2 / hs.size());
-            double frequencyOfObservation = countNonZeroAbundances / hs.size();
-            builder.addRow(Arrays.<ISerializableComparable> asList(new StringTableCell(
-                    biologicalSample), new StringTableCell(protein), new StringTableCell(
-                    identifiedProtein),
-                    new IntegerTableCell(Long.parseLong(row.getValue("n_peptides"))),
-                    new StringTableCell(""), new DoubleTableCell(frequencyOfObservation),
-                    new DoubleTableCell(averagedAbundance), new DoubleTableCell(
-                            abundanceStandardDeviation)));
+                    Math.sqrt(Math.max(0, sum2 / headers.size() - averagedAbundance
+                            * averagedAbundance));
+            double frequencyOfObservation = countNonZeroAbundances / headers.size();
+            StringTableCell biologicalSampleCell = StringTableCell.wrap(biologicalSample);
+            StringTableCell proteinCell = StringTableCell.wrap(protein);
+            StringTableCell identifiedProteinCell = new StringTableCell(identifiedProtein);
+            DoubleTableCell freqOfObsvCell = new DoubleTableCell(frequencyOfObservation);
+            DoubleTableCell abundanceCell = new DoubleTableCell(averagedAbundance);
+            DoubleTableCell abundanceStdvCell = new DoubleTableCell(abundanceStandardDeviation);
+            builder.addRow(Arrays.<ISerializableComparable> asList(biologicalSampleCell,
+                    proteinCell, identifiedProteinCell, freqOfObsvCell, abundanceCell,
+                    abundanceStdvCell));
         }
     }
 
