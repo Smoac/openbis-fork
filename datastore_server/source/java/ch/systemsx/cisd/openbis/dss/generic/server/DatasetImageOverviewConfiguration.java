@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
@@ -39,7 +40,7 @@ public class DatasetImageOverviewConfiguration
 
     private static final String PLUGIN_SERVICE_DEFAULT_KEY = "default";
 
-    private static final String PLUGIN_SERVICE_DATASET_TYPES_KEY = "dataset-types";
+    private static final String PLUGIN_SERVICE_DATASET_TYPE_PATTERNS_KEY = "dataset-types";
 
     public static DatasetImageOverviewConfiguration createConfiguration(Properties properties)
     {
@@ -59,23 +60,24 @@ public class DatasetImageOverviewConfiguration
                 configuration.setDefaultPluginService(pluginClassName, props);
             } else
             {
-                List<String> dataSetTypes =
-                        PropertyUtils.getMandatoryList(props, PLUGIN_SERVICE_DATASET_TYPES_KEY);
-                configuration.addPluginService(pluginClassName, dataSetTypes, props);
+                List<String> dataSetTypePatterns =
+                        PropertyUtils.getMandatoryList(props,
+                                PLUGIN_SERVICE_DATASET_TYPE_PATTERNS_KEY);
+                configuration.addPluginService(pluginClassName, dataSetTypePatterns, props);
             }
         }
 
         return configuration;
     }
 
-    private Map<String, IDatasetImageOverviewPlugin> pluginsByDataSetType =
+    private Map<String, IDatasetImageOverviewPlugin> pluginsByDataSetTypePattern =
             new HashMap<String, IDatasetImageOverviewPlugin>();
 
     private IDatasetImageOverviewPlugin defaultPluginOrNull;
 
     public IDatasetImageOverviewPlugin getDatasetImageOverviewPlugin(String datasetTypeCode)
     {
-        IDatasetImageOverviewPlugin plugin = pluginsByDataSetType.get(datasetTypeCode);
+        IDatasetImageOverviewPlugin plugin = tryFindPlugin(datasetTypeCode);
         if (plugin == null)
         {
             if (defaultPluginOrNull == null)
@@ -92,20 +94,34 @@ public class DatasetImageOverviewConfiguration
         return plugin;
     }
 
-    private void addPluginService(String pluginClass, List<String> dataSetTypes,
+    private IDatasetImageOverviewPlugin tryFindPlugin(String datasetTypeCode)
+    {
+        for (Entry<String, IDatasetImageOverviewPlugin> entry : pluginsByDataSetTypePattern
+                .entrySet())
+        {
+            String datasetTypePattern = entry.getKey();
+            if (datasetTypeCode.matches(datasetTypePattern))
+            {
+                return entry.getValue();
+            }
+        }
+        return null;
+    }
+
+    private void addPluginService(String pluginClass, List<String> dataSetTypePatterns,
             Properties pluginProperties)
     {
-        for (String dataSetType : dataSetTypes)
+        for (String dataSetTypePattern : dataSetTypePatterns)
         {
-            addPluginService(dataSetType, pluginClass, pluginProperties);
+            addPluginService(dataSetTypePattern, pluginClass, pluginProperties);
         }
     }
 
-    private void addPluginService(String dataSetType, String pluginClassName,
+    private void addPluginService(String dataSetTypePattern, String pluginClassName,
             Properties pluginProperties)
     {
-        String normalizedType = dataSetType.toUpperCase();
-        IDatasetImageOverviewPlugin oldPluginOrNull = pluginsByDataSetType.get(normalizedType);
+        String normalizedTypePattern = dataSetTypePattern.toUpperCase();
+        IDatasetImageOverviewPlugin oldPluginOrNull = tryFindPlugin(normalizedTypePattern);
         if (oldPluginOrNull != null)
         {
             throw new ConfigurationFailureException(
@@ -114,7 +130,7 @@ public class DatasetImageOverviewConfiguration
                             oldPluginOrNull.getClass().getName(), pluginClassName));
         }
         IDatasetImageOverviewPlugin plugin = createPlugin(pluginClassName, pluginProperties);
-        pluginsByDataSetType.put(normalizedType, plugin);
+        pluginsByDataSetTypePattern.put(normalizedTypePattern, plugin);
     }
 
     private void setDefaultPluginService(String pluginClassName, Properties pluginProperties)
