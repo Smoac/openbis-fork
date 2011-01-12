@@ -49,17 +49,18 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.Entit
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermValueEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
 /**
@@ -70,8 +71,8 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
 abstract public class GenericMaterialViewer extends AbstractViewerWithVerticalSplit<Material>
         implements IDatabaseModificationObserver
 {
-    public static final String PROPERTIES_ID_PREFIX =
-            GenericConstants.ID_PREFIX + "material-properties-section_";
+    public static final String PROPERTIES_ID_PREFIX = GenericConstants.ID_PREFIX
+            + "material-properties-section_";
 
     private static final String GENERIC_MATERIAL_VIEWER = "generic-material-viewer";
 
@@ -180,12 +181,12 @@ abstract public class GenericMaterialViewer extends AbstractViewerWithVerticalSp
     {
         final Map<String, Object> properties = createProperties(viewContext, material);
         final PropertyGrid propertyGrid = new PropertyGrid(viewContext, properties.size());
-        propertyGrid.registerPropertyValueRenderer(Person.class, PropertyValueRenderers
-                .createPersonPropertyValueRenderer(viewContext));
-        propertyGrid.registerPropertyValueRenderer(MaterialType.class, PropertyValueRenderers
-                .createMaterialTypePropertyValueRenderer(viewContext));
-        propertyGrid.registerPropertyValueRenderer(Invalidation.class, PropertyValueRenderers
-                .createInvalidationPropertyValueRenderer(viewContext));
+        propertyGrid.registerPropertyValueRenderer(Person.class,
+                PropertyValueRenderers.createPersonPropertyValueRenderer(viewContext));
+        propertyGrid.registerPropertyValueRenderer(MaterialType.class,
+                PropertyValueRenderers.createMaterialTypePropertyValueRenderer(viewContext));
+        propertyGrid.registerPropertyValueRenderer(Invalidation.class,
+                PropertyValueRenderers.createInvalidationPropertyValueRenderer(viewContext));
         final IPropertyValueRenderer<IEntityProperty> propertyRenderer =
                 PropertyValueRenderers.createEntityPropertyPropertyValueRenderer(viewContext);
         propertyGrid.registerPropertyValueRenderer(EntityProperty.class, propertyRenderer);
@@ -194,6 +195,8 @@ abstract public class GenericMaterialViewer extends AbstractViewerWithVerticalSp
         propertyGrid.registerPropertyValueRenderer(VocabularyTermValueEntityProperty.class,
                 propertyRenderer);
         propertyGrid.registerPropertyValueRenderer(MaterialValueEntityProperty.class,
+                propertyRenderer);
+        propertyGrid.registerPropertyValueRenderer(ManagedValueEntityProperty.class,
                 propertyRenderer);
         propertyGrid.setProperties(properties);
         propertyGrid.getElement().setId(PROPERTIES_ID_PREFIX + material.getIdentifier());
@@ -209,8 +212,8 @@ abstract public class GenericMaterialViewer extends AbstractViewerWithVerticalSp
         properties.put(messageProvider.getMessage(Dict.MATERIAL), material.getCode());
         properties.put(messageProvider.getMessage(Dict.MATERIAL_TYPE), materialType);
         properties.put(messageProvider.getMessage(Dict.REGISTRATOR), material.getRegistrator());
-        properties.put(messageProvider.getMessage(Dict.REGISTRATION_DATE), material
-                .getRegistrationDate());
+        properties.put(messageProvider.getMessage(Dict.REGISTRATION_DATE),
+                material.getRegistrationDate());
 
         final List<IEntityProperty> materialProperties = material.getProperties();
         Collections.sort(materialProperties);

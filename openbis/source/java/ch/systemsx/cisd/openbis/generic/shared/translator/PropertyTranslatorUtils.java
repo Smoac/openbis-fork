@@ -19,10 +19,13 @@ package ch.systemsx.cisd.openbis.generic.shared.translator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialValueEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 
 /**
  * Some utility methods for entity property translations.
@@ -51,9 +54,39 @@ final class PropertyTranslatorUtils
     }
 
     /**
+     * Creates an appropriate {@link IEntityProperty} for the given <var>propertyPE</var> based on
+     * its type.
+     */
+    static IEntityProperty createEntityProperty(EntityPropertyPE propertyPE)
+    {
+        final DataTypeCode typeCode = PropertyTranslatorUtils.getDataTypeCode(propertyPE);
+        final IEntityProperty basicProperty = createEntityProperty(typeCode);
+        if (propertyPE.getEntityTypePropertyType().isManaged())
+        {
+            return createManagedEntityProperty(propertyPE, basicProperty);
+        } else
+        {
+            return basicProperty;
+        }
+    }
+
+    /**
+     * Creates a managed {@link IEntityProperty} wrapping given <var>basicProperty</var>.
+     */
+    private static IEntityProperty createManagedEntityProperty(EntityPropertyPE property,
+            IEntityProperty basicProperty)
+    {
+        final ScriptPE script = property.getEntityTypePropertyType().getScript();
+        assert script != null && script.getScriptType() == ScriptType.MANAGED_PROPERTY;
+        final ManagedValueEntityProperty result = new ManagedValueEntityProperty(basicProperty);
+        // TODO 2010-01-12, Piotr Buczek: fill managed property
+        return result;
+    }
+
+    /**
      * Creates an appropriate {@link IEntityProperty} for the given <var>dataTypeCode</var>.
      */
-    static IEntityProperty createEntityProperty(DataTypeCode dataTypeCode)
+    private static IEntityProperty createEntityProperty(DataTypeCode dataTypeCode)
     {
         switch (dataTypeCode)
         {

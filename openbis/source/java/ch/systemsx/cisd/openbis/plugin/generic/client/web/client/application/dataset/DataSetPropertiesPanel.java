@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -55,8 +56,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermValueEnti
  */
 public class DataSetPropertiesPanel extends ContentPanel
 {
-    public static final String PROPERTIES_ID_PREFIX =
-            GenericConstants.ID_PREFIX + "dataset-properties-section_";
+    public static final String PROPERTIES_ID_PREFIX = GenericConstants.ID_PREFIX
+            + "dataset-properties-section_";
 
     private final ExternalData dataset;
 
@@ -76,14 +77,14 @@ public class DataSetPropertiesPanel extends ContentPanel
         final Map<String, Object> properties = createProperties(viewContext);
         final PropertyGrid propertyGrid = new PropertyGrid(viewContext, properties.size());
         propertyGrid.getElement().setId(PROPERTIES_ID_PREFIX + dataset.getIdentifier());
-        propertyGrid.registerPropertyValueRenderer(Person.class, PropertyValueRenderers
-                .createPersonPropertyValueRenderer(viewContext));
-        propertyGrid.registerPropertyValueRenderer(DataSetType.class, PropertyValueRenderers
-                .createDataSetTypePropertyValueRenderer(viewContext));
-        propertyGrid.registerPropertyValueRenderer(Invalidation.class, PropertyValueRenderers
-                .createInvalidationPropertyValueRenderer(viewContext));
-        propertyGrid.registerPropertyValueRenderer(Project.class, PropertyValueRenderers
-                .createProjectPropertyValueRenderer(viewContext));
+        propertyGrid.registerPropertyValueRenderer(Person.class,
+                PropertyValueRenderers.createPersonPropertyValueRenderer(viewContext));
+        propertyGrid.registerPropertyValueRenderer(DataSetType.class,
+                PropertyValueRenderers.createDataSetTypePropertyValueRenderer(viewContext));
+        propertyGrid.registerPropertyValueRenderer(Invalidation.class,
+                PropertyValueRenderers.createInvalidationPropertyValueRenderer(viewContext));
+        propertyGrid.registerPropertyValueRenderer(Project.class,
+                PropertyValueRenderers.createProjectPropertyValueRenderer(viewContext));
         final IPropertyValueRenderer<IEntityProperty> propertyRenderer =
                 PropertyValueRenderers.createEntityPropertyPropertyValueRenderer(viewContext);
         propertyGrid.registerPropertyValueRenderer(EntityProperty.class, propertyRenderer);
@@ -93,14 +94,16 @@ public class DataSetPropertiesPanel extends ContentPanel
                 propertyRenderer);
         propertyGrid.registerPropertyValueRenderer(MaterialValueEntityProperty.class,
                 propertyRenderer);
-        propertyGrid.registerPropertyValueRenderer(Sample.class, PropertyValueRenderers
-                .createSamplePropertyValueRenderer(viewContext, true));
-        propertyGrid.registerPropertyValueRenderer(Experiment.class, PropertyValueRenderers
-                .createExperimentPropertyValueRenderer(viewContext));
-        propertyGrid.registerPropertyValueRenderer(ExternalData.class, PropertyValueRenderers
-                .createExternalDataPropertyValueRenderer(viewContext));
-        propertyGrid.registerPropertyValueRenderer(DataStore.class, PropertyValueRenderers
-                .createDataStorePropertyValueRenderer(viewContext));
+        propertyGrid.registerPropertyValueRenderer(ManagedValueEntityProperty.class,
+                propertyRenderer);
+        propertyGrid.registerPropertyValueRenderer(Sample.class,
+                PropertyValueRenderers.createSamplePropertyValueRenderer(viewContext, true));
+        propertyGrid.registerPropertyValueRenderer(Experiment.class,
+                PropertyValueRenderers.createExperimentPropertyValueRenderer(viewContext));
+        propertyGrid.registerPropertyValueRenderer(ExternalData.class,
+                PropertyValueRenderers.createExternalDataPropertyValueRenderer(viewContext));
+        propertyGrid.registerPropertyValueRenderer(DataStore.class,
+                PropertyValueRenderers.createDataStorePropertyValueRenderer(viewContext));
         propertyGrid.setProperties(properties);
         return propertyGrid;
     }
@@ -112,8 +115,8 @@ public class DataSetPropertiesPanel extends ContentPanel
         final Invalidation invalidation = dataset.getInvalidation();
         final Sample sample = dataset.getSample();
 
-        properties.put(messageProvider.getMessage(Dict.DATA_SET), new ExternalHyperlink(dataset
-                .getPermId(), dataset.getPermlink()));
+        properties.put(messageProvider.getMessage(Dict.DATA_SET),
+                new ExternalHyperlink(dataset.getPermId(), dataset.getPermlink()));
         properties.put(messageProvider.getMessage(Dict.DATA_SET_TYPE), datasetType);
 
         properties.put(messageProvider.getMessage(Dict.SOURCE_TYPE), dataset.getSourceType());
@@ -127,14 +130,14 @@ public class DataSetPropertiesPanel extends ContentPanel
         properties.put(messageProvider.getMessage(Dict.IS_COMPLETE), dataset.getComplete());
         properties.put(messageProvider.getMessage(Dict.FILE_FORMAT_TYPE), dataset
                 .getFileFormatType().getCode());
-        properties.put(messageProvider.getMessage(Dict.DATA_PRODUCER_CODE), dataset
-                .getDataProducerCode());
-        properties.put(messageProvider.getMessage(Dict.PRODUCTION_DATE), dataset
-                .getProductionDate());
+        properties.put(messageProvider.getMessage(Dict.DATA_PRODUCER_CODE),
+                dataset.getDataProducerCode());
+        properties.put(messageProvider.getMessage(Dict.PRODUCTION_DATE),
+                dataset.getProductionDate());
 
         properties.put(messageProvider.getMessage(Dict.REGISTRATOR), dataset.getRegistrator());
-        properties.put(messageProvider.getMessage(Dict.REGISTRATION_DATE), dataset
-                .getRegistrationDate());
+        properties.put(messageProvider.getMessage(Dict.REGISTRATION_DATE),
+                dataset.getRegistrationDate());
         properties.put(messageProvider.getMessage(Dict.PROJECT), dataset.getExperiment()
                 .getProject());
         properties.put(messageProvider.getMessage(Dict.EXPERIMENT), dataset.getExperiment());

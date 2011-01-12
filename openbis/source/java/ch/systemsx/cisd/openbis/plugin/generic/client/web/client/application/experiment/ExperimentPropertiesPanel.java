@@ -40,18 +40,19 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.Entit
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermValueEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
 /**
@@ -61,8 +62,8 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  */
 public class ExperimentPropertiesPanel extends ContentPanel
 {
-    public static final String PROPERTIES_ID_PREFIX =
-            GenericConstants.ID_PREFIX + "experiment-properties-section_";
+    public static final String PROPERTIES_ID_PREFIX = GenericConstants.ID_PREFIX
+            + "experiment-properties-section_";
 
     private final TechId experimentId;
 
@@ -95,14 +96,14 @@ public class ExperimentPropertiesPanel extends ContentPanel
         IMessageProvider messageProvider = viewContext;
         final PropertyGrid propertyGrid = new PropertyGrid(messageProvider, properties.size());
         propertyGrid.getElement().setId(PROPERTIES_ID_PREFIX + experimentId);
-        propertyGrid.registerPropertyValueRenderer(Person.class, PropertyValueRenderers
-                .createPersonPropertyValueRenderer(messageProvider));
-        propertyGrid.registerPropertyValueRenderer(ExperimentType.class, PropertyValueRenderers
-                .createExperimentTypePropertyValueRenderer(messageProvider));
-        propertyGrid.registerPropertyValueRenderer(Invalidation.class, PropertyValueRenderers
-                .createInvalidationPropertyValueRenderer(messageProvider));
-        propertyGrid.registerPropertyValueRenderer(Project.class, PropertyValueRenderers
-                .createProjectPropertyValueRenderer(viewContext));
+        propertyGrid.registerPropertyValueRenderer(Person.class,
+                PropertyValueRenderers.createPersonPropertyValueRenderer(messageProvider));
+        propertyGrid.registerPropertyValueRenderer(ExperimentType.class,
+                PropertyValueRenderers.createExperimentTypePropertyValueRenderer(messageProvider));
+        propertyGrid.registerPropertyValueRenderer(Invalidation.class,
+                PropertyValueRenderers.createInvalidationPropertyValueRenderer(messageProvider));
+        propertyGrid.registerPropertyValueRenderer(Project.class,
+                PropertyValueRenderers.createProjectPropertyValueRenderer(viewContext));
         final IPropertyValueRenderer<IEntityProperty> renderer =
                 PropertyValueRenderers.createEntityPropertyPropertyValueRenderer(viewContext);
         propertyGrid.registerPropertyValueRenderer(EntityProperty.class, renderer);
@@ -110,6 +111,7 @@ public class ExperimentPropertiesPanel extends ContentPanel
         propertyGrid.registerPropertyValueRenderer(VocabularyTermValueEntityProperty.class,
                 renderer);
         propertyGrid.registerPropertyValueRenderer(MaterialValueEntityProperty.class, renderer);
+        propertyGrid.registerPropertyValueRenderer(ManagedValueEntityProperty.class, renderer);
         propertyGrid.setProperties(properties);
         return propertyGrid;
     }
@@ -121,12 +123,12 @@ public class ExperimentPropertiesPanel extends ContentPanel
         final ExperimentType experimentType = experiment.getExperimentType();
         final Invalidation invalidation = experiment.getInvalidation();
         properties.put(messageProvider.getMessage(Dict.EXPERIMENT), experiment.getIdentifier());
-        properties.put(messageProvider.getMessage(Dict.PERM_ID), new ExternalHyperlink(experiment
-                .getPermId(), experiment.getPermlink()));
+        properties.put(messageProvider.getMessage(Dict.PERM_ID),
+                new ExternalHyperlink(experiment.getPermId(), experiment.getPermlink()));
         properties.put(messageProvider.getMessage(Dict.EXPERIMENT_TYPE), experimentType);
         properties.put(messageProvider.getMessage(Dict.REGISTRATOR), experiment.getRegistrator());
-        properties.put(messageProvider.getMessage(Dict.REGISTRATION_DATE), experiment
-                .getRegistrationDate());
+        properties.put(messageProvider.getMessage(Dict.REGISTRATION_DATE),
+                experiment.getRegistrationDate());
         if (invalidation != null)
         {
             properties.put(messageProvider.getMessage(Dict.INVALIDATION), invalidation);
@@ -145,7 +147,7 @@ public class ExperimentPropertiesPanel extends ContentPanel
 
     //
     // auto-refresh
-    // 
+    //
 
     private final void updateProperties(Experiment experiment)
     {

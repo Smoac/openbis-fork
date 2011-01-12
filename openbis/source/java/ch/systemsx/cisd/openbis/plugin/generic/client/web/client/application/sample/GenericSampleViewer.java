@@ -66,6 +66,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -334,6 +335,8 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
         propertyGrid.registerPropertyValueRenderer(VocabularyTermValueEntityProperty.class,
                 propertyValueRenderer);
         propertyGrid.registerPropertyValueRenderer(MaterialValueEntityProperty.class,
+                propertyValueRenderer);
+        propertyGrid.registerPropertyValueRenderer(ManagedValueEntityProperty.class,
                 propertyValueRenderer);
         propertyGrid.registerPropertyValueRenderer(Experiment.class,
                 PropertyValueRenderers.createExperimentPropertyValueRenderer(viewContext));

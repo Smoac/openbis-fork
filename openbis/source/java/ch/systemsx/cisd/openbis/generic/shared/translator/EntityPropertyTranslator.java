@@ -42,11 +42,11 @@ public final class EntityPropertyTranslator
     public final static IEntityProperty translate(final EntityPropertyPE propertyPE,
             Map<PropertyTypePE, PropertyType> cacheOrNull)
     {
-        final DataTypeCode typeCode = PropertyTranslatorUtils.getDataTypeCode(propertyPE);
-        final IEntityProperty result = PropertyTranslatorUtils.createEntityProperty(typeCode);
+        final IEntityProperty result = PropertyTranslatorUtils.createEntityProperty(propertyPE);
         result.setPropertyType(PropertyTypeTranslator.translate(propertyPE
                 .getEntityTypePropertyType().getPropertyType(), cacheOrNull));
         result.setOrdinal(propertyPE.getEntityTypePropertyType().getOrdinal());
+        final DataTypeCode typeCode = PropertyTranslatorUtils.getDataTypeCode(propertyPE);
         switch (typeCode)
         {
             case CONTROLLEDVOCABULARY:

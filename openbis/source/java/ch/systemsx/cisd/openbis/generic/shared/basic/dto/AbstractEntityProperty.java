@@ -121,9 +121,9 @@ public abstract class AbstractEntityProperty implements IEntityProperty
         return propertyType + ": " + tryGetAsString();
     }
 
-    // 
+    //
     // Comparable
-    // 
+    //
 
     public int compareTo(IEntityProperty o)
     {

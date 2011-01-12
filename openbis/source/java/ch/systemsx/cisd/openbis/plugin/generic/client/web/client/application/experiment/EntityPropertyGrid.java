@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermValueEntityProperty;
 
@@ -55,12 +56,13 @@ public class EntityPropertyGrid<T extends EntityType, S extends EntityTypeProper
 
     private void registerRenderers()
     {
-        final IPropertyValueRenderer<IEntityProperty> renderer = PropertyValueRenderers
-                .createEntityPropertyPropertyValueRenderer(viewContext);
+        final IPropertyValueRenderer<IEntityProperty> renderer =
+                PropertyValueRenderers.createEntityPropertyPropertyValueRenderer(viewContext);
         grid.registerPropertyValueRenderer(EntityProperty.class, renderer);
         grid.registerPropertyValueRenderer(GenericValueEntityProperty.class, renderer);
         grid.registerPropertyValueRenderer(VocabularyTermValueEntityProperty.class, renderer);
         grid.registerPropertyValueRenderer(MaterialValueEntityProperty.class, renderer);
+        grid.registerPropertyValueRenderer(ManagedValueEntityProperty.class, renderer);
     }
 
     private final Map<String, Object> createProperties(List<P> list)
