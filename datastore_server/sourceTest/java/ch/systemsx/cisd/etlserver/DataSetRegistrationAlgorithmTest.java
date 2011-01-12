@@ -29,9 +29,11 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
+import ch.systemsx.cisd.common.mail.From;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
@@ -42,12 +44,19 @@ import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 
 /**
+ * Tests the data set registration algorithm.
+ * <p>
+ * To debug: add a rollback expectation and print the contents of the exceptionMatcher.
+ * 
  * @author Chandrasekhar Ramakrishnan
  */
 public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
@@ -137,32 +146,127 @@ public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
         storedDataSetFile = createDirectory("stored_data_set");
 
         FileUtilities.writeToFile(new File(incomingDataSetFile, "read.me"), "hello world");
-        setUpExpectations(incomingDataSetFile);
 
-        createAlgorithmAndState(true, false);
-
-        new DataSetRegistrationAlgorithmRunner(registrationAlgorithm).runAlgorithm();
-
-        for (Throwable ex : exceptionMatcher.getRecordedObjects())
-        {
-            ex.printStackTrace();
-        }
-
-        context.assertIsSatisfied();
-    }
-
-    private void setUpExpectations(final File incomingDataSetFile) throws Throwable
-    {
         setUpOpenBisExpectations();
         setUpTypeExtractorExpectations();
-        setUpStorageProcessorExpectations();
+        setUpStorageProcessorExpectations(true);
         setUpDataSetValidatorExpectations();
-        setUpDataStoreStrategyExpectations();
+        setUpDataStoreStrategyExpectations(DataStoreStrategyKey.IDENTIFIED);
         setUpPreAndPostRegistrationExpectations();
         setUpLockExpectations();
         setUpDataSetRegistratorExpectations();
         setUpCleanAfterwardsExpectations();
+
+        createAlgorithmAndState(false, false);
+
+        new DataSetRegistrationAlgorithmRunner(registrationAlgorithm).runAlgorithm();
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testSuccessfulRegistrationWithNotification() throws Throwable
+    {
+        incomingDataSetFile = createDirectory("data_set");
+        storedDataSetFile = createDirectory("stored_data_set");
+
+        FileUtilities.writeToFile(new File(incomingDataSetFile, "read.me"), "hello world");
+
+        setUpOpenBisExpectations();
+        setUpTypeExtractorExpectations();
+        setUpStorageProcessorExpectations(true);
+        setUpDataSetValidatorExpectations();
+        setUpDataStoreStrategyExpectations(DataStoreStrategyKey.IDENTIFIED);
+        setUpPreAndPostRegistrationExpectations();
+        setUpLockExpectations();
+        setUpDataSetRegistratorExpectations();
+        setUpMailClientExpectation();
+        setUpCleanAfterwardsExpectations();
+
+        createAlgorithmAndState(false, true);
+
+        new DataSetRegistrationAlgorithmRunner(registrationAlgorithm).runAlgorithm();
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testUnidentifiedDataSetRegistration() throws Throwable
+    {
+        incomingDataSetFile = createDirectory("data_set");
+        storedDataSetFile = createDirectory("stored_data_set");
+
+        FileUtilities.writeToFile(new File(incomingDataSetFile, "read.me"), "hello world");
+
+        setUpOpenBisExpectations();
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(typeExtractor).getDataSetType(incomingDataSetFile);
+                    will(returnValue(DATA_SET_TYPE));
+
+                    one(storageProcessor).getStoreRootDirectory();
+                    will(returnValue(workingDirectory));
+                }
+            });
+
+        setUpDataStoreStrategyExpectations(DataStoreStrategyKey.UNIDENTIFIED);
+
+        createAlgorithmAndState(false, true);
+
+        new DataSetRegistrationAlgorithmRunner(registrationAlgorithm).runAlgorithm();
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testFailedDataSetRegistration() throws Throwable
+    {
+        incomingDataSetFile = createDirectory("data_set");
+        storedDataSetFile = createDirectory("stored_data_set");
+
+        FileUtilities.writeToFile(new File(incomingDataSetFile, "read.me"), "hello world");
+
+        setUpOpenBisExpectations();
+        setUpTypeExtractorExpectations();
+        setUpStorageProcessorExpectations(false);
+        setUpDataSetValidatorExpectations();
+        setUpDataStoreStrategyExpectations(DataStoreStrategyKey.IDENTIFIED);
+        setUpLockExpectations();
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(preRegistrationAction).execute(DATA_SET_CODE,
+                            incomingDataSetFile.getAbsolutePath());
+
+                    one(appServerRegistrator).registerDataSetInApplicationServer(
+                            with(any(NewExternalData.class)));
+                    will(throwException(new UserFailureException("Could not register")));
+
+                }
+            });
+
         setUpRollbackExpectations();
+
+        createAlgorithmAndState(false, false);
+
+        new DataSetRegistrationAlgorithmRunner(registrationAlgorithm).runAlgorithm();
+
+        context.assertIsSatisfied();
+    }
+
+    /**
+     * Used for debugging.
+     */
+    @SuppressWarnings("unused")
+    private void printExceptions()
+    {
+        for (Throwable ex : exceptionMatcher.getRecordedObjects())
+        {
+            ex.printStackTrace();
+        }
     }
 
     private void setUpOpenBisExpectations()
@@ -202,7 +306,7 @@ public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
             });
     }
 
-    private void setUpStorageProcessorExpectations()
+    private void setUpStorageProcessorExpectations(final boolean shouldSucceed)
     {
         final Action storeDataAction = new CustomAction("StoreData")
             {
@@ -227,13 +331,29 @@ public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
                     one(storageProcessor).getStorageFormat();
                     will(returnValue(StorageFormat.PROPRIETARY));
 
-                    one(storageProcessor).commit(incomingDataSetFile, workingDirectory);
+                    if (shouldSucceed)
+                    {
+                        one(storageProcessor).commit(incomingDataSetFile, workingDirectory);
+                    }
                 }
             });
     }
 
-    private void setUpDataStoreStrategyExpectations()
+    private void setUpDataStoreStrategyExpectations(final DataStoreStrategyKey key)
     {
+        final boolean isIdentified = DataStoreStrategyKey.IDENTIFIED == key;
+        if (isIdentified)
+        {
+            Experiment experiment = new Experiment();
+            experiment.setIdentifier("/SPACE/PROJECT/EXP-CODE");
+            experiment.setCode("EXP-CODE");
+            Person registrator = new Person();
+            registrator.setEmail("email@email.com");
+            experiment.setRegistrator(registrator);
+            dataSetInformation.setExperiment(experiment);
+            dataSetInformation.setExperimentIdentifier(new ExperimentIdentifierFactory(experiment
+                    .getIdentifier()).createIdentifier());
+        }
         context.checking(new Expectations()
             {
                 {
@@ -242,7 +362,14 @@ public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
                     will(returnValue(workingDirectory));
 
                     one(dataStoreStrategy).getKey();
-                    will(returnValue(DataStoreStrategyKey.IDENTIFIED));
+                    will(returnValue(key));
+
+                    if (false == isIdentified)
+                    {
+                        one(dataStoreStrategy).getTargetPath(workingDirectory, incomingDataSetFile);
+                        will(returnValue(incomingDataSetFile));
+                    }
+
                 }
             });
     }
@@ -293,12 +420,24 @@ public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
             });
     }
 
+    private void setUpMailClientExpectation()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(mailClient).sendMessage(with(any(String.class)), with(any(String.class)),
+                            with(aNull(String.class)), with(aNull(From.class)),
+                            with(any(String[].class)));
+                }
+            });
+    }
+
     private void setUpCleanAfterwardsExpectations()
     {
         context.checking(new Expectations()
             {
                 {
-                    one(cleanAftrewardsAction).execute();
+                    exactly(2).of(cleanAftrewardsAction).execute();
                     will(returnValue(Boolean.TRUE));
                 }
             });
@@ -309,8 +448,8 @@ public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    allowing(rollbackDelegate).rollback(
-                            with(any(DataSetRegistrationAlgorithm.class)), with(exceptionMatcher));
+                    one(rollbackDelegate).rollback(with(any(DataSetRegistrationAlgorithm.class)),
+                            with(exceptionMatcher));
                 }
             });
     }
