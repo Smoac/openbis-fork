@@ -19,7 +19,6 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/openbis"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/server-common"/>
 	<classpathentry kind="lib" path="/libraries/spring/spring.jar"/>
-	<classpathentry kind="lib" path="/libraries/cifex/cifex.jar" sourcepath="/cifex/source/java"/>
 	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base-test.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/cisd-args4j/cisd-args4j.jar" sourcepath="/libraries/cisd-args4j/cisd-args4j-src.zip"/>
@@ -53,5 +52,8 @@
 	<classpathentry kind="lib" path="/libraries/jhdf5/cisd-jhdf5-batteries_included_lin_win_mac.jar" sourcepath="/libraries/jhdf5/cisd-jhdf5-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/spring/test/spring-test.jar" sourcepath="/libraries/spring/test/src.jar"/>
 	<classpathentry kind="lib" path="/libraries/spring/webmvc/spring-webmvc.jar" sourcepath="/libraries/spring/webmvc/src.jar"/>
+	<classpathentry kind="lib" path="/libraries/gwt2.0/gwt-isserializable.jar"/>
+	<classpathentry kind="lib" path="/libraries/spring/third-party/stream-supporting-httpinvoker.jar" sourcepath="/libraries/spring/third-party/stream-supporting-httpinvoker-src.zip"/>
+	<classpathentry kind="lib" path="/libraries/cifex/cifex.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
