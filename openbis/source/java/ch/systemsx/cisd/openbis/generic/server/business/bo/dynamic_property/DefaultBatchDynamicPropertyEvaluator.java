@@ -288,7 +288,7 @@ final class DefaultBatchDynamicPropertyEvaluator implements IBatchDynamicPropert
                         + "WHERE pa.script IS NOT NULL                                           "
                         + "AND pa.script.scriptType = '%s'", entityKind
                         .getEntityTypePropertyTypeAssignmentClass().getSimpleName(),
-                        ScriptType.DYNAMIC_PROPERTY);
+                        ScriptType.DYNAMIC_PROPERTY.name());
         final List<Long> list = list(hibernateSession.createQuery(query));
 
         if (operationLog.isDebugEnabled())

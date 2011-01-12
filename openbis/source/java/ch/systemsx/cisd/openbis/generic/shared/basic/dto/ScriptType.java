@@ -37,4 +37,11 @@ public enum ScriptType implements ISerializable
         return description;
     }
 
+    @Override
+    public String toString()
+    {
+        // used for display in combo boxes (ScriptTypeSelectionWidget)
+        return getDescription();
+    }
+
 }

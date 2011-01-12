@@ -139,7 +139,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
 
     private ScriptPE tryFindScript(NewETPTAssignment newAssignment)
     {
-        if (newAssignment.isDynamic() == false)
+        if (newAssignment.getScriptName() == null)
         {
             return null;
         } else
