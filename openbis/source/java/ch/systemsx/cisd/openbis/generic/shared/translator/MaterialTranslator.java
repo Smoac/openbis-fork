@@ -79,30 +79,6 @@ public final class MaterialTranslator
         return result;
     }
 
-    public final static Material translateWithoutEscaping(final MaterialPE materialPE,
-            final boolean withProperties)
-    {
-        if (materialPE == null)
-        {
-            return null;
-        }
-        final Material result = new Material();
-        result.setCode(materialPE.getCode());
-        result.setId(HibernateUtils.getId(materialPE));
-        result.setModificationDate(materialPE.getModificationDate());
-        result.setMaterialType(MaterialTypeTranslator.translate(materialPE.getMaterialType(),
-                new HashMap<PropertyTypePE, PropertyType>()));
-        result.setDatabaseInstance(DatabaseInstanceTranslator.translate(materialPE
-                .getDatabaseInstance()));
-        result.setRegistrator(PersonTranslator.translate(materialPE.getRegistrator()));
-        result.setRegistrationDate(materialPE.getRegistrationDate());
-        if (withProperties)
-        {
-            setProperties(materialPE, result);
-        }
-        return result;
-    }
-
     private static void setProperties(final MaterialPE materialPE, final Material result)
     {
         if (materialPE.isPropertiesInitialized())

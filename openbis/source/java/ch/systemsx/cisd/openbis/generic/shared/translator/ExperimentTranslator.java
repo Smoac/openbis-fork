@@ -54,8 +54,8 @@ public final class ExperimentTranslator
     {
         if (experiment.isPropertiesInitialized())
         {
-            result.setProperties(EntityPropertyTranslator.translateWithoutEscaping(
-                    experiment.getProperties(), new HashMap<PropertyTypePE, PropertyType>()));
+            result.setProperties(EntityPropertyTranslator.translate(experiment.getProperties(),
+                    new HashMap<PropertyTypePE, PropertyType>()));
         } else
         {
             result.setProperties(new ArrayList<IEntityProperty>());

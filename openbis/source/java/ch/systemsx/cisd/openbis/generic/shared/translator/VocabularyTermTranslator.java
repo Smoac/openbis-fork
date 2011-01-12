@@ -53,24 +53,6 @@ public class VocabularyTermTranslator
         return result;
     }
 
-    public static VocabularyTerm translateWithoutEscaping(VocabularyTermPE vt)
-    {
-        if (vt == null)
-        {
-            return null;
-        }
-        VocabularyTerm result = new VocabularyTerm();
-        result.setId(HibernateUtils.getId(vt));
-        result.setCode(vt.getCode());
-        result.setLabel(vt.getLabel());
-        result.setDescription(vt.getDescription());
-        result.setOrdinal(vt.getOrdinal());
-        result.setUrl(vt.getUrl());
-        result.setRegistrationDate(vt.getRegistrationDate());
-        result.setRegistrator(PersonTranslator.translate(vt.getRegistrator()));
-        return result;
-    }
-
     public static List<VocabularyTerm> translateTerms(List<VocabularyTermPE> terms)
     {
         final List<VocabularyTerm> result = new ArrayList<VocabularyTerm>();
