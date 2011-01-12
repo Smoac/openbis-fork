@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.systemtest.plugin.generic;
 
-import static ch.systemsx.cisd.openbis.systemtest.TypedTableColumnAssertions.assertColumn;
-import static org.testng.AssertJUnit.assertEquals;
+import static ch.systemsx.cisd.openbis.systemtest.TypedTableAssertions.assertColumn;
+import static ch.systemsx.cisd.openbis.systemtest.TypedTableAssertions.assertTable;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -25,6 +25,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FileFormatTypeGridTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.Row;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
@@ -34,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
  * @author Kaloyan Enimanev
  */
 @Test(groups = "system test")
-public class FileFormatTypeGridHeadlessTest extends GenericSystemTestCase
+public class FileFormatTypeHeadlessTest extends GenericSystemTestCase
 {
 
     @BeforeMethod
@@ -51,7 +52,7 @@ public class FileFormatTypeGridHeadlessTest extends GenericSystemTestCase
         TypedTableResultSet<FileFormatType> tableResultSet =
                 commonClientService.listFileTypes(criteria);
 
-        assertEquals(8, tableResultSet.getResultSet().getTotalLength());
+        assertTable(tableResultSet).hasNumberOfRows(8);
         assertColumn(tableResultSet, "CODE").containsValues("TIFF", "XML", "HDF5");
     }
 
@@ -70,9 +71,13 @@ public class FileFormatTypeGridHeadlessTest extends GenericSystemTestCase
         TypedTableResultSet<FileFormatType> tableResultSet =
                 commonClientService.listFileTypes(criteria);
 
-        assertEquals(9, tableResultSet.getResultSet().getTotalLength());
-        assertColumn(tableResultSet, "CODE").containsValues(fft.getCode());
-        assertColumn(tableResultSet, "DESCRIPTION").containsValues(fft.getDescription());
+
+        Row expectedRow =
+                new Row().withCell("CODE", fft.getCode()).withCell("DESCRIPTION",
+                        fft.getDescription());
+
+        assertTable(tableResultSet).hasNumberOfRows(9);
+        assertTable(tableResultSet).containsRow(expectedRow);
 
     }
 
