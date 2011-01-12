@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyValueValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
@@ -50,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * 
  * @author Christian Ribeaud
  */
+// TODO 2010-01-11, Piotr Buczek: test dynamic and managed properties handling
 @Friend(toClasses = EntityPropertiesConverter.class)
 public final class EntityPropertiesConverterTest extends AbstractBOTest
 {
@@ -168,6 +170,9 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
     {
         final IEntityPropertiesConverter entityPropertiesConverter =
                 createEntityPropertiesConverter(EntityKind.SAMPLE);
+
+        final RecordingMatcher<Set<IEntityProperty>> definedPropertiesMatcher =
+                RecordingMatcher.create();
         context.checking(new Expectations()
             {
                 {
@@ -180,10 +185,9 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
                     one(dynamicPropertiesChecker).checkDynamicPropertiesNotManuallyUpdated(
                             with(propertiesToUpdateMatcher), with(dynamicPropertiesMatcher));
 
-                    CollectionMatcher<Set<IEntityProperty>> definedPropertiesMatcher =
-                            new CollectionMatcher<Set<IEntityProperty>>(
-                                    new HashSet<IEntityProperty>());
                     one(placeholderCreator).addDynamicPropertiesPlaceholders(
+                            with(definedPropertiesMatcher), with(dynamicPropertiesMatcher));
+                    one(placeholderCreator).addManagedPropertiesPlaceholders(
                             with(definedPropertiesMatcher), with(dynamicPropertiesMatcher));
                 }
             });
@@ -201,6 +205,9 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
                 createEntityPropertiesConverter(EntityKind.SAMPLE);
         final PropertyTypePE propertyTypePE = createPropertyType();
         final IEntityProperty[] properties = createSampleProperties(false);
+
+        final RecordingMatcher<Set<IEntityProperty>> definedPropertiesMatcher =
+                RecordingMatcher.create();
         context.checking(new Expectations()
             {
                 {
@@ -244,10 +251,9 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
                     {
                         listOfProperties.add(p);
                     }
-                    CollectionMatcher<Set<IEntityProperty>> definedPropertiesMatcher =
-                            new CollectionMatcher<Set<IEntityProperty>>(
-                                    new HashSet<IEntityProperty>());
                     one(placeholderCreator).addDynamicPropertiesPlaceholders(
+                            with(definedPropertiesMatcher), with(dynamicPropertiesMatcher));
+                    one(placeholderCreator).addManagedPropertiesPlaceholders(
                             with(definedPropertiesMatcher), with(dynamicPropertiesMatcher));
                 }
 
@@ -278,6 +284,9 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
                 createEntityPropertiesConverter(EntityKind.SAMPLE);
         final PropertyTypePE propertyTypePE = createPropertyType();
         final IEntityProperty[] properties = createSampleProperties(true);
+
+        final RecordingMatcher<Set<IEntityProperty>> definedPropertiesMatcher =
+                RecordingMatcher.create();
         context.checking(new Expectations()
             {
                 {
@@ -302,10 +311,9 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
                     {
                         listOfProperties.add(p);
                     }
-                    CollectionMatcher<Set<IEntityProperty>> definedPropertiesMatcher =
-                            new CollectionMatcher<Set<IEntityProperty>>(
-                                    new HashSet<IEntityProperty>());
                     one(placeholderCreator).addDynamicPropertiesPlaceholders(
+                            with(definedPropertiesMatcher), with(dynamicPropertiesMatcher));
+                    one(placeholderCreator).addManagedPropertiesPlaceholders(
                             with(definedPropertiesMatcher), with(dynamicPropertiesMatcher));
                 }
             });
