@@ -50,6 +50,7 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -442,15 +443,15 @@ public class DatasetDownloadServletTest
                 ImageIO.read(new ByteArrayInputStream(outputStream.toByteArray()));
         assertEquals(25, thumbnail.getWidth());
         assertEquals(50, thumbnail.getHeight());
-        assertEquals(
-                getSessionCreationLogMessage()
-                        + OSUtilities.LINE_SEPARATOR
-                        + LOG_INFO
-                        + "Check access to the data set '1234-1' at openBIS server."
-                        + OSUtilities.LINE_SEPARATOR
-                        + LOG_INFO
-                        + "For data set '1234-1' deliver file <wd>/db-uuid/0a/28/59/1234-1/read me @home.txt "
-                        + "(84 bytes) as a thumbnail.", getNormalizedLogContent());
+        String normalizedLogContent = getNormalizedLogContent();
+        AssertionUtil.assertContains(getSessionCreationLogMessage() + OSUtilities.LINE_SEPARATOR
+                + LOG_INFO + "Check access to the data set '1234-1' at openBIS server.",
+                normalizedLogContent);
+        AssertionUtil
+                .assertContains(
+                        LOG_INFO
+                                + "For data set '1234-1' deliver file <wd>/db-uuid/0a/28/59/1234-1/read me @home.txt "
+                                + "(84 bytes) as a thumbnail.", normalizedLogContent);
 
         context.assertIsSatisfied();
     }
