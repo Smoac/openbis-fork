@@ -33,6 +33,12 @@ public class RecordingMatcher<T> extends BaseMatcher<T>
 
     private List<T> objects = new ArrayList<T>();
 
+    /** convenience method for creating recording matcher of required type (depending on context) */
+    public static <T> RecordingMatcher<T> create()
+    {
+        return new RecordingMatcher<T>();
+    }
+
     /**
      * Removes all recored objects.
      */
