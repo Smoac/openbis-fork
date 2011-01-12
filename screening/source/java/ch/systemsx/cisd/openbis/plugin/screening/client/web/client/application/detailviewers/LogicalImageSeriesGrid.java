@@ -23,6 +23,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageChannelsReference;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
+
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SliderEvent;
@@ -30,10 +34,7 @@ import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Slider;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
-
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageChannelsReference;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageReference;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
+import com.google.gwt.user.client.ui.Widget;
 
 /**
  * Allows to view logical image which has series (e.g. timepoints).
@@ -48,7 +49,7 @@ class LogicalImageSeriesGrid
     {
         LogicalImageSeriesViewerModel model = new LogicalImageSeriesViewerModel(channelStackImages);
         List<LayoutContainer> frames =
-                createTimepointFrames(model.getSortedChannelStackSeriesPoints(), channelReferences,
+                createSeriesFrames(model.getSortedChannelStackSeriesPoints(), channelReferences,
                         sessionId, imageWidth, imageHeight);
 
         return createMoviePlayer(frames, model.getSortedPoints());
@@ -65,12 +66,24 @@ class LogicalImageSeriesGrid
             final List<ImageSeriesPoint> sortedPoints)
     {
         final LayoutContainer mainContainer = new LayoutContainer();
-        addAll(mainContainer, frames);
 
         final Slider slider = createSeriesSlider(frames.size(), new Listener<SliderEvent>()
             {
+                private boolean isFirstMove = true;
+
                 public void handleEvent(SliderEvent e)
                 {
+                    if (isFirstMove)
+                    {
+                        // The first slider move has been made, so we add all hidden frames to the
+                        // DOM. The browser will start fetching images referenced in URLs in the
+                        // background.
+                        for (int i = 1; i < frames.size(); i++)
+                        {
+                            mainContainer.add(frames.get(i));
+                        }
+                        isFirstMove = false;
+                    }
                     int oldValue = e.getOldValue();
                     int newValue = e.getNewValue();
                     if (oldValue > 0)
@@ -78,51 +91,47 @@ class LogicalImageSeriesGrid
                         frames.get(oldValue - 1).hide();
                     }
                     frames.get(newValue - 1).show();
-                    mainContainer.remove(mainContainer.getItem(0));
-                    mainContainer.insert(new Label(createSeriesPointLabel(sortedPoints, newValue)),
-                            0);
+                    removeFirstItem(mainContainer);
+                    mainContainer.insert(createSeriesPointLabel(sortedPoints, newValue), 0);
                     mainContainer.layout();
                 }
+
             });
-        mainContainer.insert(slider, 0);
-        mainContainer.insert(new Label(createSeriesPointLabel(sortedPoints, 1)), 0);
-        slider.setValue(1);
+        // slider.setValue(1);
+
+        mainContainer.add(createSeriesPointLabel(sortedPoints, 1));
+        mainContainer.add(slider);
+        // add only first frame to avoid loading images before the slider is touched
+        mainContainer.add(frames.get(0));
 
         return mainContainer;
+    }
+
+    private static void removeFirstItem(LayoutContainer container)
+    {
+        container.remove(container.getItem(0));
     }
 
     /**
      * @param sortedChannelStackSeriesPoints - one element on the list are all tiles for a fixed
      *            series point
      */
-    private static List<LayoutContainer> createTimepointFrames(
+    private static List<LayoutContainer> createSeriesFrames(
             List<List<ImageChannelStack>> sortedChannelStackSeriesPoints,
             LogicalImageChannelsReference channelReferences, String sessionId, int imageWidth,
             int imageHeight)
     {
         final List<LayoutContainer> frames = new ArrayList<LayoutContainer>();
-        int counter = 0;
         for (List<ImageChannelStack> seriesPointStacks : sortedChannelStackSeriesPoints)
         {
             final LayoutContainer container =
                     createFrameForSeriesPoint(seriesPointStacks, channelReferences, sessionId,
                             imageWidth, imageHeight);
+            boolean isFirstFrame = (frames.size() == 0);
+            container.setVisible(isFirstFrame);
             frames.add(container);
-            if (counter > 0)
-            {
-                container.setVisible(false);
-            }
-            counter++;
         }
         return frames;
-    }
-
-    private static void addAll(LayoutContainer container, List<LayoutContainer> frames)
-    {
-        for (LayoutContainer frame : frames)
-        {
-            container.add(frame);
-        }
     }
 
     private static LayoutContainer createFrameForSeriesPoint(
@@ -175,12 +184,13 @@ class LogicalImageSeriesGrid
         container.add(dummy);
     }
 
-    private static String createSeriesPointLabel(List<ImageSeriesPoint> sortedPoints,
+    private static Widget createSeriesPointLabel(List<ImageSeriesPoint> sortedPoints,
             int sequenceNumber)
     {
         ImageSeriesPoint point = sortedPoints.get(sequenceNumber - 1);
         int numberOfSequences = sortedPoints.size();
-        return point.getLabel() + " (" + sequenceNumber + "/" + numberOfSequences + ")";
+        String labelText = point.getLabel() + " (" + sequenceNumber + "/" + numberOfSequences + ")";
+        return new Label(labelText);
     }
 
     private static final Slider createSeriesSlider(int maxValue, Listener<SliderEvent> listener)
