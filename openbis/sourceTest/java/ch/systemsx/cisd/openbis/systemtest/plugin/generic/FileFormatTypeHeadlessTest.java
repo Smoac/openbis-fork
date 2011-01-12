@@ -46,7 +46,7 @@ public class FileFormatTypeHeadlessTest extends SystemTestCase
         logIntoCommonClientService();
     }
 
-    @Test()
+    @Test
     public void testListFileFormats()
     {
         DefaultResultSetConfig<String, TableModelRowWithObject<FileFormatType>> criteria =
