@@ -16,24 +16,24 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import org.apache.commons.lang.StringUtils;
-
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 
 /**
  * Table cell wrapping a string.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class StringTableCell implements ISerializableComparable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private static final StringTableCell EMPTY_CELL = new StringTableCell("");
-    
+
     public static StringTableCell wrap(String stringOrNull)
     {
         return StringUtils.isBlank(stringOrNull) ? EMPTY_CELL : new StringTableCell(stringOrNull);
     }
-    
+
     private String string;
 
     public StringTableCell(String string)
@@ -55,20 +55,20 @@ public class StringTableCell implements ISerializableComparable
     {
         return this == obj
                 || (obj instanceof StringTableCell && string.equals(((StringTableCell) obj).string));
-   }
-    
+    }
+
     @Override
     public int hashCode()
     {
         return string.hashCode();
     }
-    
+
     @Override
     public String toString()
     {
         return string;
     }
-    
+
     // ---------------------------
 
     // GWT only
