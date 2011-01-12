@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 
-public abstract class TransferredDataSetHandlerDataSetRegistrationAlgorithm implements
+public abstract class DataSetRegistrationHelper implements
         DataSetRegistrationAlgorithm.IRollbackDelegate
 {
     @Private
@@ -63,7 +63,7 @@ public abstract class TransferredDataSetHandlerDataSetRegistrationAlgorithm impl
 
     protected final DataSetRegistrationAlgorithm registrationAlgorithm;
 
-    public TransferredDataSetHandlerDataSetRegistrationAlgorithm(File incomingDataSetFile,
+    public DataSetRegistrationHelper(File incomingDataSetFile,
             IDelegatedActionWithResult<Boolean> cleanAftrewardsAction,
             IPreRegistrationAction preRegistrationAction,
             IPostRegistrationAction postRegistrationAction)
@@ -83,7 +83,7 @@ public abstract class TransferredDataSetHandlerDataSetRegistrationAlgorithm impl
         this.incomingDataSetFile = algorithmState.getIncomingDataSetFile();
     }
 
-    public TransferredDataSetHandlerDataSetRegistrationAlgorithm(File incomingDataSetFile,
+    public DataSetRegistrationHelper(File incomingDataSetFile,
             IDelegatedActionWithResult<Boolean> cleanAftrewardsAction,
             IPreRegistrationAction preRegistrationAction,
             IPostRegistrationAction postRegistrationAction, IDataSetInApplicationServerRegistrator appServerRegistrator)

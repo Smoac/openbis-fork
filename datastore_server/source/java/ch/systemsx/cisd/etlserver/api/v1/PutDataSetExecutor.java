@@ -52,7 +52,7 @@ import ch.systemsx.cisd.etlserver.IPostRegistrationAction;
 import ch.systemsx.cisd.etlserver.IPreRegistrationAction;
 import ch.systemsx.cisd.etlserver.IStorageProcessor;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
-import ch.systemsx.cisd.etlserver.TransferredDataSetHandlerDataSetRegistrationAlgorithm;
+import ch.systemsx.cisd.etlserver.DataSetRegistrationHelper;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
@@ -486,7 +486,7 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
      * 
      * @author Chandrasekhar Ramakrishnan
      */
-    private class RegistrationHelper extends TransferredDataSetHandlerDataSetRegistrationAlgorithm
+    private class RegistrationHelper extends DataSetRegistrationHelper
     {
         /**
          * @param service The provider of global state for the data set registration algorithm

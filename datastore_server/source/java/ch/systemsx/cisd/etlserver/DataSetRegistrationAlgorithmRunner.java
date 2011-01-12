@@ -47,13 +47,13 @@ public class DataSetRegistrationAlgorithmRunner
     private final IDataSetRegistrationAlgorithmRunnerDelegate delegate;
 
     public DataSetRegistrationAlgorithmRunner(
-            TransferredDataSetHandlerDataSetRegistrationAlgorithm registrationHelper)
+            DataSetRegistrationHelper registrationHelper)
     {
         this(registrationHelper, new NoOpDelegate());
     }
 
     public DataSetRegistrationAlgorithmRunner(
-            TransferredDataSetHandlerDataSetRegistrationAlgorithm registrationHelper,
+            DataSetRegistrationHelper registrationHelper,
             IDataSetRegistrationAlgorithmRunnerDelegate delegate)
     {
         this(registrationHelper.getRegistrationAlgorithm(), delegate);

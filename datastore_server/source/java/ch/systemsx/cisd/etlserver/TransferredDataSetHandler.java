@@ -221,7 +221,7 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
 
     public List<DataSetInformation> handleDataSet(final File dataSet)
     {
-        final TransferredDataSetHandlerDataSetRegistrationAlgorithm registrationHelper =
+        final DataSetRegistrationHelper registrationHelper =
                 createRegistrationHelper(dataSet);
         return new DataSetRegistrationAlgorithmRunner(registrationHelper).runAlgorithm();
     }
@@ -232,7 +232,7 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
     {
         dataSetInformation.setInstanceCode(getHomeDatabaseInstance().getCode());
         dataSetInformation.setInstanceUUID(getHomeDatabaseInstance().getUuid());
-        final TransferredDataSetHandlerDataSetRegistrationAlgorithm registrationHelper =
+        final DataSetRegistrationHelper registrationHelper =
                 createRegistrationHelper(dataSet, dataSetInformation, registrator);
         return new DataSetRegistrationAlgorithmRunner(registrationHelper).runAlgorithm();
     }
@@ -289,7 +289,7 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
     // Helper class
     //
 
-    private TransferredDataSetHandlerDataSetRegistrationAlgorithm createRegistrationHelper(File file)
+    private DataSetRegistrationHelper createRegistrationHelper(File file)
     {
         if (useIsFinishedMarkerFile)
         {
@@ -300,7 +300,7 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
         }
     }
 
-    private TransferredDataSetHandlerDataSetRegistrationAlgorithm createRegistrationHelper(
+    private DataSetRegistrationHelper createRegistrationHelper(
             File dataSet, DataSetInformation dataSetInformation,
             DataSetRegistrationAlgorithm.IDataSetInApplicationServerRegistrator registrator)
     {
@@ -315,7 +315,7 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
         }
     }
 
-    private TransferredDataSetHandlerDataSetRegistrationAlgorithm createRegistrationHelperWithIsFinishedFile(
+    private DataSetRegistrationHelper createRegistrationHelperWithIsFinishedFile(
             final File isFinishedFile, final DataSetInformation dsInfo,
             DataSetRegistrationAlgorithm.IDataSetInApplicationServerRegistrator registrator)
     {
@@ -353,7 +353,7 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
         }
     }
 
-    private TransferredDataSetHandlerDataSetRegistrationAlgorithm createRegistrationHelperWithQuietPeriodFilter(
+    private DataSetRegistrationHelper createRegistrationHelperWithQuietPeriodFilter(
             File incomingDataSetFile, final DataSetInformation dsInfo,
             DataSetRegistrationAlgorithm.IDataSetInApplicationServerRegistrator registrator)
     {
@@ -435,7 +435,7 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
         return ok;
     }
 
-    private class RegistrationHelper extends TransferredDataSetHandlerDataSetRegistrationAlgorithm
+    private class RegistrationHelper extends DataSetRegistrationHelper
     {
 
         RegistrationHelper(TransferredDataSetHandler transferredDataSetHandler,
