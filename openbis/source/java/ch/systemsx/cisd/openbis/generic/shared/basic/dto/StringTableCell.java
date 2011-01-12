@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import org.apache.commons.lang.StringUtils;
+
 
 /**
  * Table cell wrapping a string.
@@ -25,6 +27,12 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 public class StringTableCell implements ISerializableComparable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+    private static final StringTableCell EMPTY_CELL = new StringTableCell("");
+    
+    public static StringTableCell wrap(String stringOrNull)
+    {
+        return StringUtils.isBlank(stringOrNull) ? EMPTY_CELL : new StringTableCell(stringOrNull);
+    }
     
     private String string;
 
