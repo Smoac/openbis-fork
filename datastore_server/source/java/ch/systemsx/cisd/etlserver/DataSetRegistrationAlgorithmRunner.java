@@ -22,6 +22,8 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
+ * Runs DataSetRegistrationAlgorithm objects.
+ * 
  * @author Chandrasekhar Ramakrishnan
  */
 public class DataSetRegistrationAlgorithmRunner
@@ -40,32 +42,45 @@ public class DataSetRegistrationAlgorithmRunner
 
     }
 
-    private final TransferredDataSetHandlerDataSetRegistrationAlgorithm registrationHelper;
+    private final DataSetRegistrationAlgorithm registrationAlgorithm;
 
     private final IDataSetRegistrationAlgorithmRunnerDelegate delegate;
 
-    public DataSetRegistrationAlgorithmRunner(TransferredDataSetHandlerDataSetRegistrationAlgorithm registrationAlgorithm)
+    public DataSetRegistrationAlgorithmRunner(
+            TransferredDataSetHandlerDataSetRegistrationAlgorithm registrationHelper)
+    {
+        this(registrationHelper, new NoOpDelegate());
+    }
+
+    public DataSetRegistrationAlgorithmRunner(
+            TransferredDataSetHandlerDataSetRegistrationAlgorithm registrationHelper,
+            IDataSetRegistrationAlgorithmRunnerDelegate delegate)
+    {
+        this(registrationHelper.getRegistrationAlgorithm(), delegate);
+    }
+
+    public DataSetRegistrationAlgorithmRunner(DataSetRegistrationAlgorithm registrationAlgorithm)
     {
         this(registrationAlgorithm, new NoOpDelegate());
     }
 
-    public DataSetRegistrationAlgorithmRunner(TransferredDataSetHandlerDataSetRegistrationAlgorithm registrationAlgorithm,
+    public DataSetRegistrationAlgorithmRunner(DataSetRegistrationAlgorithm registrationAlgorithm,
             IDataSetRegistrationAlgorithmRunnerDelegate delegate)
     {
-        this.registrationHelper = registrationAlgorithm;
+        this.registrationAlgorithm = registrationAlgorithm;
         this.delegate = delegate;
     }
 
     public List<DataSetInformation> runAlgorithm()
     {
-        registrationHelper.prepare();
-        if (registrationHelper.hasDataSetBeenIdentified())
+        registrationAlgorithm.prepare();
+        if (registrationAlgorithm.hasDataSetBeenIdentified())
         {
-            return registrationHelper.registerDataSet();
+            return registrationAlgorithm.registerDataSet();
         } else
         {
             delegate.didNotIdentifyDataSet();
-            registrationHelper.dealWithUnidentifiedDataSet();
+            registrationAlgorithm.dealWithUnidentifiedDataSet();
             return Collections.emptyList();
         }
     }

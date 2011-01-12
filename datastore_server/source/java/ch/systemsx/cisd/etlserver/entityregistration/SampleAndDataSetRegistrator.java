@@ -19,8 +19,8 @@ package ch.systemsx.cisd.etlserver.entityregistration;
 import java.io.File;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm;
 import ch.systemsx.cisd.etlserver.IExtensibleDataSetHandler;
-import ch.systemsx.cisd.etlserver.TransferredDataSetHandler;
 import ch.systemsx.cisd.etlserver.entityregistration.SampleAndDataSetControlFileProcessor.ControlFileRegistrationProperties;
 import ch.systemsx.cisd.etlserver.entityregistration.SampleDataSetPair.SampleDataSetPairProcessing;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -41,7 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
  * @author Chandrasekhar Ramakrishnan
  */
 class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor implements
-        TransferredDataSetHandler.IDataSetRegistrator
+        DataSetRegistrationAlgorithm.IDataSetInApplicationServerRegistrator
 {
 
     private final ControlFileRegistrationProperties properties;

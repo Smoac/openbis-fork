@@ -581,7 +581,7 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
         @Override
         protected void rollback(Throwable ex)
         {
-            algorithm.rollbackStorageProcessor(ex);
+            registrationAlgorithm.rollbackStorageProcessor(ex);
             if (ex instanceof UserFailureException)
             {
                 throw (UserFailureException) ex;

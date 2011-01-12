@@ -34,11 +34,11 @@ import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm.DataSetRegistrationAlgorithmState;
+import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm.IDataSetInApplicationServerRegistrator;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
-import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 
 public abstract class TransferredDataSetHandlerDataSetRegistrationAlgorithm implements
         DataSetRegistrationAlgorithm.IRollbackDelegate
@@ -61,7 +61,7 @@ public abstract class TransferredDataSetHandlerDataSetRegistrationAlgorithm impl
 
     protected final File incomingDataSetFile;
 
-    protected final DataSetRegistrationAlgorithm algorithm;
+    protected final DataSetRegistrationAlgorithm registrationAlgorithm;
 
     public TransferredDataSetHandlerDataSetRegistrationAlgorithm(File incomingDataSetFile,
             IDelegatedActionWithResult<Boolean> cleanAftrewardsAction,
@@ -79,8 +79,34 @@ public abstract class TransferredDataSetHandlerDataSetRegistrationAlgorithm impl
                         getStorageProcessor(), getFileOperations(), getDataSetValidator(),
                         getMailClient(), shouldDeleteUnidentified(), getRegistrationLock(),
                         getDataStoreCode(), shouldNotifySuccessfulRegistration());
-        algorithm = new DataSetRegistrationAlgorithm(algorithmState, this);
+        registrationAlgorithm = new DataSetRegistrationAlgorithm(algorithmState, this);
         this.incomingDataSetFile = algorithmState.getIncomingDataSetFile();
+    }
+
+    public TransferredDataSetHandlerDataSetRegistrationAlgorithm(File incomingDataSetFile,
+            IDelegatedActionWithResult<Boolean> cleanAftrewardsAction,
+            IPreRegistrationAction preRegistrationAction,
+            IPostRegistrationAction postRegistrationAction, IDataSetInApplicationServerRegistrator appServerRegistrator)
+    {
+        DataSetInformation dataSetInformation = extractDataSetInformation(incomingDataSetFile);
+        IDataStoreStrategy dataStoreStrategy =
+                getDataStrategyStore()
+                        .getDataStoreStrategy(dataSetInformation, incomingDataSetFile);
+        DataSetRegistrationAlgorithmState algorithmState =
+                new DataSetRegistrationAlgorithmState(incomingDataSetFile, getOpenBisService(),
+                        cleanAftrewardsAction, preRegistrationAction, postRegistrationAction,
+                        dataSetInformation, dataStoreStrategy, getTypeExtractor(),
+                        getStorageProcessor(), getFileOperations(), getDataSetValidator(),
+                        getMailClient(), shouldDeleteUnidentified(), getRegistrationLock(),
+                        getDataStoreCode(), shouldNotifySuccessfulRegistration());
+        registrationAlgorithm =
+                new DataSetRegistrationAlgorithm(algorithmState, this, appServerRegistrator);
+        this.incomingDataSetFile = algorithmState.getIncomingDataSetFile();
+    }
+
+    public DataSetRegistrationAlgorithm getRegistrationAlgorithm()
+    {
+        return registrationAlgorithm;
     }
 
     /**
@@ -88,7 +114,7 @@ public abstract class TransferredDataSetHandlerDataSetRegistrationAlgorithm impl
      */
     public DataSetInformation getDataSetInformation()
     {
-        return algorithm.getDataSetInformation();
+        return registrationAlgorithm.getDataSetInformation();
     }
 
     /**
@@ -96,12 +122,12 @@ public abstract class TransferredDataSetHandlerDataSetRegistrationAlgorithm impl
      */
     public final void prepare()
     {
-        algorithm.prepare();
+        registrationAlgorithm.prepare();
     }
 
     public final boolean hasDataSetBeenIdentified()
     {
-        return algorithm.hasDataSetBeenIdentified();
+        return registrationAlgorithm.hasDataSetBeenIdentified();
     }
 
     /**
@@ -109,7 +135,7 @@ public abstract class TransferredDataSetHandlerDataSetRegistrationAlgorithm impl
      */
     public final List<DataSetInformation> registerDataSet()
     {
-        return algorithm.registerDataSet();
+        return registrationAlgorithm.registerDataSet();
     }
 
     /**
@@ -117,34 +143,7 @@ public abstract class TransferredDataSetHandlerDataSetRegistrationAlgorithm impl
      */
     public final void dealWithUnidentifiedDataSet()
     {
-        final boolean ok =
-                shouldDeleteUnidentified() ? (removeAndLog(incomingDataSetFile.getName()
-                        + " could not be identified.")) : FileRenamer.renameAndLog(
-                        incomingDataSetFile, algorithm.getBaseDirectoryHolder().getTargetFile());
-        if (ok)
-        {
-            algorithm.clean();
-        }
-    }
-
-    private boolean removeAndLog(String msg)
-    {
-        final boolean ok = getFileOperations().removeRecursivelyQueueing(incomingDataSetFile);
-        if (getOperationLog().isInfoEnabled())
-        {
-            getOperationLog().info("Dataset deleted in registration: " + msg);
-        }
-        return ok;
-    }
-
-    /**
-     * Contact openBis and register the data set there. Subclasses may override.
-     * 
-     * @throws Throwable
-     */
-    protected void registerDataSetInApplicationServer(NewExternalData data) throws Throwable
-    {
-        getOpenBisService().registerDataSet(algorithm.getDataSetInformation(), data);
+        registrationAlgorithm.dealWithUnidentifiedDataSet();
     }
 
     /**
@@ -193,8 +192,8 @@ public abstract class TransferredDataSetHandlerDataSetRegistrationAlgorithm impl
     {
         final String fileName = incomingDataSetFile.getName() + ".exception";
         final File file =
-                new File(algorithm.getBaseDirectoryHolder().getTargetFile().getParentFile(),
-                        fileName);
+                new File(registrationAlgorithm.getBaseDirectoryHolder().getTargetFile()
+                        .getParentFile(), fileName);
         FileWriter writer = null;
         try
         {

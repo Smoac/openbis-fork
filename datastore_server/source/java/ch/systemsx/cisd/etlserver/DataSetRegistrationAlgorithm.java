@@ -62,6 +62,16 @@ public class DataSetRegistrationAlgorithm
     }
 
     /**
+     * Interface for code that is run to register a new data set.
+     * 
+     * @author Chandrasekhar Ramakrishnan
+     */
+    public static interface IDataSetInApplicationServerRegistrator
+    {
+        public void registerDataSetInApplicationServer(NewExternalData data) throws Throwable;
+    }
+
+    /**
      * Object for holding the state necessary for registring a data set.
      * 
      * @author Chandrasekhar Ramakrishnan
@@ -150,74 +160,9 @@ public class DataSetRegistrationAlgorithm
             this.emailSubjectTemplate = EMAIL_SUBJECT_TEMPLATE;
         }
 
-        public String getErrorMessageTemplate()
-        {
-            return defaultErrorMessageTemplate;
-        }
-
         public File getIncomingDataSetFile()
         {
             return incomingDataSetFile;
-        }
-
-        public IEncapsulatedOpenBISService getOpenBisService()
-        {
-            return openBisService;
-        }
-
-        public IDelegatedActionWithResult<Boolean> getCleanAftrewardsAction()
-        {
-            return cleanAfterwardsAction;
-        }
-
-        public IPreRegistrationAction getPreRegistrationAction()
-        {
-            return preRegistrationAction;
-        }
-
-        public IPostRegistrationAction getPostRegistrationAction()
-        {
-            return postRegistrationAction;
-        }
-
-        public DataSetInformation getDataSetInformation()
-        {
-            return dataSetInformation;
-        }
-
-        public IDataStoreStrategy getDataStoreStrategy()
-        {
-            return dataStoreStrategy;
-        }
-
-        public ITypeExtractor getTypeExtractor()
-        {
-            return typeExtractor;
-        }
-
-        public IStorageProcessor getStorageProcessor()
-        {
-            return storageProcessor;
-        }
-
-        public DataSetType getDataSetType()
-        {
-            return dataSetType;
-        }
-
-        public File getStoreRoot()
-        {
-            return storeRoot;
-        }
-
-        public IMailClient getMailClient()
-        {
-            return mailClient;
-        }
-
-        public Lock getRegistrationLock()
-        {
-            return registrationLock;
         }
     }
 
@@ -239,6 +184,8 @@ public class DataSetRegistrationAlgorithm
     // Immutable State
     private final DataSetRegistrationAlgorithmState state;
 
+    private final IDataSetInApplicationServerRegistrator applicationServerRegistrator;
+
     private final IRollbackDelegate rollbackDelegate;
 
     private final File incomingDataSetFile;
@@ -250,14 +197,21 @@ public class DataSetRegistrationAlgorithm
 
     private String errorMessageTemplate;
 
-    public DataSetRegistrationAlgorithm(DataSetRegistrationAlgorithmState state,
+    public DataSetRegistrationAlgorithm(final DataSetRegistrationAlgorithmState state,
             IRollbackDelegate rollbackDelegate)
+    {
+        this(state, rollbackDelegate, new DefaultApplicationServerRegistrator(state));
+    }
+
+    public DataSetRegistrationAlgorithm(DataSetRegistrationAlgorithmState state,
+            IRollbackDelegate rollbackDelegate, IDataSetInApplicationServerRegistrator applicationServerRegistrator)
     {
         this.state = state;
         this.rollbackDelegate = rollbackDelegate;
         incomingDataSetFile = state.incomingDataSetFile;
         dataSetInformation = state.dataSetInformation;
-        errorMessageTemplate = state.getErrorMessageTemplate();
+        errorMessageTemplate = state.defaultErrorMessageTemplate;
+        this.applicationServerRegistrator = applicationServerRegistrator;
     }
 
     /**
@@ -307,11 +261,9 @@ public class DataSetRegistrationAlgorithm
                 final String errorMessage =
                         "Error when trying to register data set '" + incomingDataSetFile.getName()
                                 + "'.";
-                state.getMailClient()
-                        .sendMessage(
-                                String.format(errorMessage, dataSetInformation
-                                        .getExperimentIdentifier().getExperimentCode()),
-                                ex.getMessage(), null, null, userEmailOrNull);
+                state.mailClient.sendMessage(String.format(errorMessage, dataSetInformation
+                        .getExperimentIdentifier().getExperimentCode()), ex.getMessage(), null,
+                        null, userEmailOrNull);
                 if (state.shouldDeleteUnidentified)
                 {
                     deleted = removeAndLog(errorMessage + " [" + ex.getMessage() + "]");
@@ -326,6 +278,21 @@ public class DataSetRegistrationAlgorithm
         {
             rollback(throwable);
             return Collections.emptyList();
+        }
+    }
+
+    /**
+     * This method is only ever called for unidentified data sets.
+     */
+    public final void dealWithUnidentifiedDataSet()
+    {
+        final boolean ok =
+                state.shouldDeleteUnidentified ? (removeAndLog(incomingDataSetFile.getName()
+                        + " could not be identified.")) : FileRenamer.renameAndLog(
+                        incomingDataSetFile, getBaseDirectoryHolder().getTargetFile());
+        if (ok)
+        {
+            clean();
         }
     }
 
@@ -366,7 +333,7 @@ public class DataSetRegistrationAlgorithm
 
     public File getStoreRoot()
     {
-        return state.getStoreRoot();
+        return state.storeRoot;
     }
 
     /**
@@ -385,14 +352,33 @@ public class DataSetRegistrationAlgorithm
         return state.cleanAfterwardsAction.execute();
     }
 
+    private static class DefaultApplicationServerRegistrator implements IDataSetInApplicationServerRegistrator
+    {
+        private final IEncapsulatedOpenBISService openBisService;
+
+        private final DataSetInformation dataSetInformation;
+
+        DefaultApplicationServerRegistrator(DataSetRegistrationAlgorithmState state)
+        {
+            openBisService = state.openBisService;
+            dataSetInformation = state.dataSetInformation;
+        }
+
+        public void registerDataSetInApplicationServer(NewExternalData data) throws Throwable
+        {
+            openBisService.registerDataSet(dataSetInformation, data);
+        }
+
+    }
+
     /**
-     * Contact openBis and register the data set there. Subclasses may override.
+     * Use the applicationServerRegistrator to register the data set with the app server.
      * 
      * @throws Throwable
      */
-    protected void registerDataSetInApplicationServer(NewExternalData data) throws Throwable
+    private void registerDataSetInApplicationServer(NewExternalData data) throws Throwable
     {
-        state.getOpenBisService().registerDataSet(dataSetInformation, data);
+        applicationServerRegistrator.registerDataSetInApplicationServer(data);
     }
 
     private void rollback(Throwable ex)
@@ -421,7 +407,7 @@ public class DataSetRegistrationAlgorithm
                     incomingDataSetFile.getAbsolutePath());
             File dataFile =
                     getStorageProcessor().storeData(dataSetInformation, getTypeExtractor(),
-                            state.getMailClient(), incomingDataSetFile,
+                            state.mailClient, incomingDataSetFile,
                             baseDirectoryHolder.getBaseDirectory());
             if (getOperationLog().isInfoEnabled())
             {
@@ -438,7 +424,7 @@ public class DataSetRegistrationAlgorithm
             final BooleanOrUnknown isCompleteFlag = dataSetInformation.getIsCompleteFlag();
             // Ensure that we either register the data set and initiate the processing copy or
             // do none of both.
-            state.getRegistrationLock().lock();
+            state.registrationLock.lock();
             try
             {
                 errorMessageTemplate = DATA_SET_REGISTRATION_FAILURE_TEMPLATE;
@@ -447,7 +433,7 @@ public class DataSetRegistrationAlgorithm
                 clean();
             } finally
             {
-                state.getRegistrationLock().unlock();
+                state.registrationLock.unlock();
             }
             getStorageProcessor().commit(incomingDataSetFile,
                     baseDirectoryHolder.getBaseDirectory());
@@ -491,10 +477,9 @@ public class DataSetRegistrationAlgorithm
             }
             if (StringUtils.isBlank(email) == false)
             {
-                state.getMailClient().sendMessage(
-                        String.format(state.emailSubjectTemplate, dataSetInformation
-                                .getExperimentIdentifier().getExperimentCode()), msg, null, null,
-                        email);
+                state.mailClient.sendMessage(String.format(state.emailSubjectTemplate,
+                        dataSetInformation.getExperimentIdentifier().getExperimentCode()), msg,
+                        null, null, email);
             }
         }
     }

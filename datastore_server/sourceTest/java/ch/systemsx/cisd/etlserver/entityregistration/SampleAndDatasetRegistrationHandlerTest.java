@@ -39,8 +39,8 @@ import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
+import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm;
 import ch.systemsx.cisd.etlserver.IExtensibleDataSetHandler;
-import ch.systemsx.cisd.etlserver.IExtensibleDataSetHandler.IDataSetRegistrator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -500,8 +500,8 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
             {
                 {
                     final RecordingMatcher<File> fileMatcher = new RecordingMatcher<File>();
-                    final RecordingMatcher<IExtensibleDataSetHandler.IDataSetRegistrator> registratorMatcher =
-                            new RecordingMatcher<IExtensibleDataSetHandler.IDataSetRegistrator>();
+                    final RecordingMatcher<DataSetRegistrationAlgorithm.IDataSetInApplicationServerRegistrator> registratorMatcher =
+                            new RecordingMatcher<DataSetRegistrationAlgorithm.IDataSetInApplicationServerRegistrator>();
 
                     for (int i = 1; i < 4; ++i)
                     {
@@ -520,9 +520,9 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
                         {
                             public Object invoke(Invocation invocation) throws Throwable
                             {
-                                List<IDataSetRegistrator> recordedObjects =
+                                List<DataSetRegistrationAlgorithm.IDataSetInApplicationServerRegistrator> recordedObjects =
                                         registratorMatcher.getRecordedObjects();
-                                IDataSetRegistrator registrator =
+                                DataSetRegistrationAlgorithm.IDataSetInApplicationServerRegistrator registrator =
                                         recordedObjects.get(recordedObjects.size() - 1);
                                 fillExternalDataFromInformation(externalData, dataSetInfoMatcher
                                         .getRecordedObjects().get(recordedObjects.size() - 1));

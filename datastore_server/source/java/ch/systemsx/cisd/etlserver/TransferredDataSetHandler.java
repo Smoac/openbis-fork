@@ -36,6 +36,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
+import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm.IDataSetInApplicationServerRegistrator;
 import ch.systemsx.cisd.etlserver.IStorageProcessor.UnstoreDataAction;
 import ch.systemsx.cisd.etlserver.utils.PostRegistrationExecutor;
 import ch.systemsx.cisd.etlserver.utils.PreRegistrationExecutor;
@@ -43,7 +44,6 @@ import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
-import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 
 /**
  * The class that handles the incoming data set.
@@ -227,7 +227,8 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
     }
 
     public List<DataSetInformation> handleDataSet(final File dataSet,
-            DataSetInformation dataSetInformation, IDataSetRegistrator registrator)
+            DataSetInformation dataSetInformation,
+            DataSetRegistrationAlgorithm.IDataSetInApplicationServerRegistrator registrator)
     {
         dataSetInformation.setInstanceCode(getHomeDatabaseInstance().getCode());
         dataSetInformation.setInstanceUUID(getHomeDatabaseInstance().getUuid());
@@ -300,7 +301,8 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
     }
 
     private TransferredDataSetHandlerDataSetRegistrationAlgorithm createRegistrationHelper(
-            File dataSet, DataSetInformation dataSetInformation, IDataSetRegistrator registrator)
+            File dataSet, DataSetInformation dataSetInformation,
+            DataSetRegistrationAlgorithm.IDataSetInApplicationServerRegistrator registrator)
     {
         if (useIsFinishedMarkerFile)
         {
@@ -315,7 +317,7 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
 
     private TransferredDataSetHandlerDataSetRegistrationAlgorithm createRegistrationHelperWithIsFinishedFile(
             final File isFinishedFile, final DataSetInformation dsInfo,
-            IDataSetRegistrator registrator)
+            DataSetRegistrationAlgorithm.IDataSetInApplicationServerRegistrator registrator)
     {
         assert isFinishedFile != null : "Unspecified is-finished file.";
         final String name = isFinishedFile.getName();
@@ -353,7 +355,7 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
 
     private TransferredDataSetHandlerDataSetRegistrationAlgorithm createRegistrationHelperWithQuietPeriodFilter(
             File incomingDataSetFile, final DataSetInformation dsInfo,
-            IDataSetRegistrator registrator)
+            DataSetRegistrationAlgorithm.IDataSetInApplicationServerRegistrator registrator)
     {
         IDelegatedActionWithResult<Boolean> cleanAftrewardsAction =
                 new IDelegatedActionWithResult<Boolean>()
@@ -436,12 +438,6 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
     private class RegistrationHelper extends TransferredDataSetHandlerDataSetRegistrationAlgorithm
     {
 
-        /**
-         * @param transferredDataSetHandler
-         * @param incomingDataSetFile
-         * @param cleanAftrewardsAction
-         * @param postRegistrationAction
-         */
         RegistrationHelper(TransferredDataSetHandler transferredDataSetHandler,
                 File incomingDataSetFile,
                 IDelegatedActionWithResult<Boolean> cleanAftrewardsAction,
@@ -450,6 +446,17 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
         {
             super(incomingDataSetFile, cleanAftrewardsAction, preRegistrationAction,
                     postRegistrationAction);
+        }
+
+        RegistrationHelper(TransferredDataSetHandler transferredDataSetHandler,
+                File incomingDataSetFile,
+                IDelegatedActionWithResult<Boolean> cleanAftrewardsAction,
+                IPreRegistrationAction preRegistrationAction,
+                IPostRegistrationAction postRegistrationAction,
+                IDataSetInApplicationServerRegistrator appServerRegistrator)
+        {
+            super(incomingDataSetFile, cleanAftrewardsAction, preRegistrationAction,
+                    postRegistrationAction, appServerRegistrator);
         }
 
         // state accessors
@@ -552,12 +559,12 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
                 Thread.interrupted(); // Ensure the thread's interrupted state is cleared.
                 getOperationLog().warn(
                         String.format("Requested to stop registration of data set '%s'",
-                                algorithm.getDataSetInformation()));
+                                registrationAlgorithm.getDataSetInformation()));
             } else
             {
                 getNotificationLog().error(
-                        String.format(algorithm.getErrorMessageTemplate(),
-                                algorithm.getDataSetInformation()), throwable);
+                        String.format(registrationAlgorithm.getErrorMessageTemplate(),
+                                registrationAlgorithm.getDataSetInformation()), throwable);
             }
             // Errors which are not AssertionErrors leave the system in a state that we don't
             // know and can't trust. Thus we will not perform any operations any more in this
@@ -566,25 +573,26 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
             {
                 throw (Error) throwable;
             }
-            UnstoreDataAction action = algorithm.rollbackStorageProcessor(throwable);
+            UnstoreDataAction action = registrationAlgorithm.rollbackStorageProcessor(throwable);
             if (stopped == false)
             {
                 if (action == UnstoreDataAction.MOVE_TO_ERROR)
                 {
                     final File baseDirectory =
-                            algorithm.createBaseDirectory(
+                            registrationAlgorithm.createBaseDirectory(
                                     TransferredDataSetHandler.ERROR_DATA_STRATEGY,
-                                    algorithm.getStoreRoot(), algorithm.getDataSetInformation());
-                    algorithm.setBaseDirectoryHolder(new BaseDirectoryHolder(
+                                    registrationAlgorithm.getStoreRoot(),
+                                    registrationAlgorithm.getDataSetInformation());
+                    registrationAlgorithm.setBaseDirectoryHolder(new BaseDirectoryHolder(
                             TransferredDataSetHandler.ERROR_DATA_STRATEGY, baseDirectory,
                             incomingDataSetFile));
                     boolean moveInCaseOfErrorOk =
-                            FileRenamer.renameAndLog(incomingDataSetFile, algorithm
+                            FileRenamer.renameAndLog(incomingDataSetFile, registrationAlgorithm
                                     .getBaseDirectoryHolder().getTargetFile());
                     writeThrowable(throwable);
                     if (moveInCaseOfErrorOk)
                     {
-                        algorithm.clean();
+                        registrationAlgorithm.clean();
                     }
                 } else if (action == UnstoreDataAction.DELETE)
                 {
@@ -598,8 +606,6 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
     private class OverridingRegistrationHelper extends RegistrationHelper
     {
 
-        private final IDataSetRegistrator registrator;
-
         /**
          * @param transferredDataSetHandler
          * @param incomingDataSetFile
@@ -610,11 +616,11 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
                 File incomingDataSetFile,
                 IDelegatedActionWithResult<Boolean> cleanAftrewardsAction,
                 IPreRegistrationAction preRegistrationAction,
-                IPostRegistrationAction postRegistrationAction, IDataSetRegistrator registrator)
+                IPostRegistrationAction postRegistrationAction,
+                DataSetRegistrationAlgorithm.IDataSetInApplicationServerRegistrator registrator)
         {
             super(transferredDataSetHandler, incomingDataSetFile, cleanAftrewardsAction,
-                    preRegistrationAction, postRegistrationAction);
-            this.registrator = registrator;
+                    preRegistrationAction, postRegistrationAction, registrator);
         }
 
         @Override
@@ -627,12 +633,6 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
         protected boolean shouldNotifySuccessfulRegistration()
         {
             return false;
-        }
-
-        @Override
-        protected void registerDataSetInApplicationServer(NewExternalData data) throws Throwable
-        {
-            registrator.registerDataSetInApplicationServer(data);
         }
     }
 }
