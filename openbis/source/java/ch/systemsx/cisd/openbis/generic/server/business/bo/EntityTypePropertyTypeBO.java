@@ -119,7 +119,12 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         {
             List<Long> entityIds = getAllEntityIds(entityType);
             addPropertyWithDefaultValue(entityType, propertyType,
-                    BasicConstant.PLACEHOLDER_PROPERTY_VALUE, entityIds, null);
+                    BasicConstant.DYNAMIC_PROPERTY_PLACEHOLDER_VALUE, entityIds, null);
+        } else if (newAssignment.isManaged())
+        {
+            List<Long> entityIds = getAllEntityIds(entityType);
+            addPropertyWithDefaultValue(entityType, propertyType,
+                    BasicConstant.MANAGED_PROPERTY_PLACEHOLDER_VALUE, entityIds, null);
         } else if (newAssignment.isMandatory())
         // fill default property values
         {

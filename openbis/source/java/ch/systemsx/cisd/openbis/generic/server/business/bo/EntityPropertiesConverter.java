@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -74,6 +75,9 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
     private Map<String, Set<String>> dynamicPropertiesByEntityTypeCode =
             new HashMap<String, Set<String>>();
 
+    private Map<String, Set<String>> managedPropertiesByEntityTypeCode =
+            new HashMap<String, Set<String>>();
+
     private final TableMap<String, PropertyTypePE> propertyTypesByCode =
             new TableMap<String, PropertyTypePE>(
                     KeyExtractorFactory.getPropertyTypeByCodeKeyExtractor());
@@ -86,19 +90,19 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
 
     private final IDynamicPropertiesUpdateChecker dynamicPropertiesUpdateChecker;
 
-    private final IDynamicProperiesPlaceholderCreator placeholderCreator;
+    private final IPropertyPlaceholderCreator placeholderCreator;
 
     public EntityPropertiesConverter(final EntityKind entityKind, final IDAOFactory daoFactory)
     {
         this(entityKind, daoFactory, new PropertyValidator(), new DynamicPropertiesUpdateChecker(),
-                new DynamicProperiesPlaceholderCreator());
+                new PlaceholderPropertyCreator());
     }
 
     @Private
     EntityPropertiesConverter(final EntityKind entityKind, final IDAOFactory daoFactory,
             final IPropertyValueValidator propertyValueValidator,
             IDynamicPropertiesUpdateChecker dynamicPropertiesUpdateChecker,
-            IDynamicProperiesPlaceholderCreator placeholderCreator)
+            IPropertyPlaceholderCreator placeholderCreator)
     {
         assert entityKind != null : "Unspecified entity kind.";
         assert daoFactory != null : "Unspecified DAO factory.";
@@ -132,6 +136,27 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             dynamicPropertiesByEntityTypeCode.put(code, set);
         }
         return dynamicPropertiesByEntityTypeCode.get(code);
+    }
+
+    private final Set<String> getManagedProperties(final EntityTypePE entityTypePE)
+    {
+        String code = entityTypePE.getCode();
+        if (managedPropertiesByEntityTypeCode.containsKey(code) == false)
+        {
+            HashSet<String> set = new HashSet<String>();
+            List<EntityTypePropertyTypePE> list =
+                    daoFactory.getEntityPropertyTypeDAO(entityKind).listEntityPropertyTypes(
+                            entityTypePE);
+            for (EntityTypePropertyTypePE etpt : list)
+            {
+                if (etpt.isManaged())
+                {
+                    set.add(etpt.getPropertyType().getCode());
+                }
+            }
+            managedPropertiesByEntityTypeCode.put(code, set);
+        }
+        return managedPropertiesByEntityTypeCode.get(code);
     }
 
     private final EntityTypePE getEntityType(final String entityTypeCode)
@@ -227,32 +252,36 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
     // IEntityPropertiesConverter
     //
 
-    private final <T extends EntityPropertyPE> List<T> convertProperties(
-            final List<? extends IEntityProperty> properties, final String entityTypeCode,
-            final PersonPE registrator)
-    {
-        IEntityProperty[] propsArray = properties.toArray(new IEntityProperty[0]);
-        return convertProperties(propsArray, entityTypeCode, registrator);
-    }
-
     public final <T extends EntityPropertyPE> List<T> convertProperties(
             final IEntityProperty[] properties, final String entityTypeCode,
             final PersonPE registrator)
+    {
+        return convertProperties(properties, entityTypeCode, registrator, true);
+    }
+
+    private final <T extends EntityPropertyPE> List<T> convertProperties(
+            final IEntityProperty[] properties, final String entityTypeCode,
+            final PersonPE registrator, final boolean createManagedPropertiesPlaceholders)
     {
         assert entityTypeCode != null : "Unspecified entity type code.";
         assert registrator != null : "Unspecified registrator";
         assert properties != null : "Unspecified entity properties";
         final EntityTypePE entityTypePE = getEntityType(entityTypeCode);
         Set<String> dynamicProperties = getDynamicProperties(entityTypePE);
+        Set<String> managedProperties = getManagedProperties(entityTypePE);
+        Set<IEntityProperty> definedProperties =
+                new LinkedHashSet<IEntityProperty>(Arrays.asList(properties));
         Set<String> propertiesToUpdate = extractPropertiesToUpdate(properties);
         dynamicPropertiesUpdateChecker.checkDynamicPropertiesNotManuallyUpdated(propertiesToUpdate,
                 dynamicProperties);
-        List<IEntityProperty> newProperties =
-                new ArrayList<IEntityProperty>(Arrays.asList(properties));
-        placeholderCreator.addDynamicPropertiesPlaceholders(newProperties, propertiesToUpdate,
-                dynamicProperties);
+        placeholderCreator.addDynamicPropertiesPlaceholders(definedProperties, dynamicProperties);
+        if (createManagedPropertiesPlaceholders)
+        {
+            placeholderCreator.addManagedPropertiesPlaceholders(definedProperties,
+                    managedProperties);
+        }
         final List<T> list = new ArrayList<T>();
-        for (final IEntityProperty property : newProperties)
+        for (final IEntityProperty property : definedProperties)
         {
             final T convertedPropertyOrNull =
                     tryConvertProperty(registrator, entityTypePE, property);
@@ -379,7 +408,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             EntityTypePE entityType, List<IEntityProperty> newProperties, PersonPE registrator)
     {
         final List<T> convertedProperties =
-                convertProperties(newProperties, entityType.getCode(), registrator);
+                convertPropertiesForUpdate(newProperties, entityType.getCode(), registrator);
         final Set<T> set = new HashSet<T>();
         for (T newProperty : convertedProperties)
         {
@@ -397,6 +426,15 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         return set;
     }
 
+    private final <T extends EntityPropertyPE> List<T> convertPropertiesForUpdate(
+            final List<? extends IEntityProperty> properties, final String entityTypeCode,
+            final PersonPE registrator)
+    {
+        IEntityProperty[] propsArray = properties.toArray(new IEntityProperty[0]);
+        return convertProperties(propsArray, entityTypeCode, registrator, false);
+    }
+
+    // TODO 2010-01-12, Piotr Buczek: refactor - propertiesToUpdate are not used at all
     public <T extends EntityPropertyPE> Set<T> updateProperties(Collection<T> oldProperties,
             EntityTypePE entityType, List<IEntityProperty> newProperties, PersonPE registrator,
             Set<String> propertiesToUpdate)

@@ -216,6 +216,7 @@ public abstract class EntityTypePropertyTypePE extends HibernateAbstractRegistra
         builder.append("ordinal", getOrdinal());
         builder.append("section", getSection());
         builder.append("dynamic", isDynamic());
+        builder.append("managed", isManaged());
         return builder.toString();
     }
 

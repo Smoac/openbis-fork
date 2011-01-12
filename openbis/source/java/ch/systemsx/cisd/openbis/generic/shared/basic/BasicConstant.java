@@ -43,10 +43,13 @@ public class BasicConstant
     /** Prefix of property value that contains error message. */
     public static final String ERROR_PROPERTY_PREFIX = "" + UNI_REPLACEMENT_CHAR;
 
-    // placeholder
-    /** Prefix of property value that contains error message. */
-    public static final String PLACEHOLDER_PROPERTY_VALUE = ERROR_PROPERTY_PREFIX
+    /** Value of dynamic property before it is evaluated. */
+    public static final String DYNAMIC_PROPERTY_PLACEHOLDER_VALUE = ERROR_PROPERTY_PREFIX
             + "(pending evaluation)";
+
+    /** Value of managed property before it is defined by user. */
+    public static final String MANAGED_PROPERTY_PLACEHOLDER_VALUE = ERROR_PROPERTY_PREFIX
+            + "(undefined)";
 
     /** Template part of Vocabulary URL that that is replaced with vocabulary term code. */
     public static final String VOCABULARY_URL_TEMPLATE_TERM_PART = "$term$";

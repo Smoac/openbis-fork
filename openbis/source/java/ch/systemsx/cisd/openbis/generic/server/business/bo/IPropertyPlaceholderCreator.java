@@ -16,13 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
-import java.util.List;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 
-interface IDynamicProperiesPlaceholderCreator
+interface IPropertyPlaceholderCreator
 {
-    void addDynamicPropertiesPlaceholders(List<IEntityProperty> newProperties,
-            Set<String> propertiesToUpdate, Set<String> dynamicProperties);
+    void addDynamicPropertiesPlaceholders(Set<IEntityProperty> definedProperties,
+            Set<String> dynamicProperties);
+
+    void addManagedPropertiesPlaceholders(Set<IEntityProperty> definedProperties,
+            Set<String> managedProperties);
 }
