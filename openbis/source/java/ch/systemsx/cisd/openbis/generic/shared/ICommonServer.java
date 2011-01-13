@@ -118,7 +118,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
- * Definition of the client-server interface.
+ * You can think of {@link ICommonServer} as the openBIS core. It contains entity-type unspecific
+ * operations needed by all openBIS installations. Customization for a specific use cases (i.e.
+ * specific entity types) can be achieved through implementing plugins.
  * 
  * @author Franz-Josef Elmer
  */
