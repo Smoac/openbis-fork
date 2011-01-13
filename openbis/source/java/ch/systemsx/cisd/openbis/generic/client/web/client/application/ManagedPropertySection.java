@@ -36,6 +36,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedUiDescription;
  */
 public class ManagedPropertySection extends DisposableTabContent
 {
+    private static String ID_PREFIX = "managed_property_section_";
+
     private final ManagedUiDescription uiDescription;
 
     public ManagedPropertySection(final String header, IViewContext<?> viewContext,
@@ -53,7 +55,7 @@ public class ManagedPropertySection extends DisposableTabContent
 
                 public String createID()
                 {
-                    return "managed_property_section_" + Format.hyphenize(header);
+                    return ID_PREFIX + Format.hyphenize(header);
                 }
             });
     }
