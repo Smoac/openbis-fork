@@ -51,7 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * 
  * @author Christian Ribeaud
  */
-// TODO 2010-01-11, Piotr Buczek: test dynamic and managed properties handling
+// TODO 2011-01-11, Piotr Buczek: test dynamic and managed properties handling
 @Friend(toClasses = EntityPropertiesConverter.class)
 public final class EntityPropertiesConverterTest extends AbstractBOTest
 {

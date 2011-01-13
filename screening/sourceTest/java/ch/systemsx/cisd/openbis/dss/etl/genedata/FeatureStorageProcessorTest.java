@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -213,7 +213,7 @@ public class FeatureStorageProcessorTest extends AbstractFileSystemTestCase
 
         // Set the properties
         IEntityProperty properties[] = new IEntityProperty[1];
-        GenericValueEntityProperty entityProperty = new GenericValueEntityProperty();
+        GenericEntityProperty entityProperty = new GenericEntityProperty();
         PropertyType propertyType = new PropertyType();
         propertyType.setCode(PlateDimensionParser.PLATE_GEOMETRY_PROPERTY_NAME);
         entityProperty.setPropertyType(propertyType);

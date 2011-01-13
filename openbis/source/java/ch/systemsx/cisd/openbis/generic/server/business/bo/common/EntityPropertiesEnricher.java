@@ -21,15 +21,15 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongSet;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialValueEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermValueEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermEntityProperty;
 
 /**
  * A class that can enrich a set of entities with its entity properties.
@@ -61,7 +61,7 @@ public final class EntityPropertiesEnricher implements IEntityPropertiesEnricher
                 .getEntityPropertyGenericValues(entityIDs))
         {
             final IEntityPropertiesHolder entity = entities.get(val.entity_id);
-            final IEntityProperty property = new GenericValueEntityProperty();
+            final IEntityProperty property = new GenericEntityProperty();
             property.setValue(val.value);
             property.setPropertyType(propertyTypes.get(val.prty_id));
             entity.getProperties().add(property);
@@ -77,7 +77,7 @@ public final class EntityPropertiesEnricher implements IEntityPropertiesEnricher
                 vocabularyURLMap = getVocabularyURLs();
             }
             final IEntityPropertiesHolder entity = entities.get(val.entity_id);
-            final IEntityProperty property = new VocabularyTermValueEntityProperty();
+            final IEntityProperty property = new VocabularyTermEntityProperty();
             VocabularyTerm vocabularyTerm = terms.get(val.id);
             if (vocabularyTerm == null)
             {
@@ -107,7 +107,7 @@ public final class EntityPropertiesEnricher implements IEntityPropertiesEnricher
                 materialTypes = getMaterialTypes();
             }
             final IEntityPropertiesHolder entity = entities.get(val.entity_id);
-            final IEntityProperty property = new MaterialValueEntityProperty();
+            final IEntityProperty property = new MaterialEntityProperty();
             Material material = materials.get(val.id);
             if (material == null)
             {

@@ -17,12 +17,12 @@
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedValueEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialValueEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermValueEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
@@ -78,8 +78,8 @@ final class PropertyTranslatorUtils
     {
         final ScriptPE script = property.getEntityTypePropertyType().getScript();
         assert script != null && script.getScriptType() == ScriptType.MANAGED_PROPERTY;
-        final ManagedValueEntityProperty result = new ManagedValueEntityProperty(basicProperty);
-        // TODO 2010-01-12, Piotr Buczek: fill managed property
+        final ManagedEntityProperty result = new ManagedEntityProperty(basicProperty);
+        // TODO 2011-01-12, Piotr Buczek: fill managed property
         return result;
     }
 
@@ -91,11 +91,11 @@ final class PropertyTranslatorUtils
         switch (dataTypeCode)
         {
             case CONTROLLEDVOCABULARY:
-                return new VocabularyTermValueEntityProperty();
+                return new VocabularyTermEntityProperty();
             case MATERIAL:
-                return new MaterialValueEntityProperty();
+                return new MaterialEntityProperty();
             default:
-                return new GenericValueEntityProperty();
+                return new GenericEntityProperty();
         }
     }
 

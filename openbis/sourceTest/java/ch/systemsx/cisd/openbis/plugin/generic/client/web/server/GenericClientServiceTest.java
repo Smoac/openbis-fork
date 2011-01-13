@@ -47,7 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -940,7 +940,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
 
     private IEntityProperty createXmlProperty()
     {
-        GenericValueEntityProperty property = new GenericValueEntityProperty();
+        GenericEntityProperty property = new GenericEntityProperty();
         PropertyType propertyType = new PropertyType();
         propertyType.setDataType(new DataType(DataTypeCode.XML));
         propertyType

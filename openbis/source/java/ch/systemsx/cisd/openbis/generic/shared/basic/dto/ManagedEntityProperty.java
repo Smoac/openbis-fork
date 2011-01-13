@@ -21,16 +21,41 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
  * 
  * @author Piotr Buczek
  */
-public class ManagedValueEntityProperty implements IEntityProperty
+public class ManagedEntityProperty implements IEntityProperty, IManagedEntityProperty
 {
 
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private IEntityProperty delegatedProperty;
 
-    public ManagedValueEntityProperty(IEntityProperty delegatedProperty)
+    // NOTE: defaults are set for testing - scripts should override them
+
+    private boolean ownTab = true;
+
+    private ManagedUiDescription uiDescription = new ManagedUiDescription();
+
+    public ManagedEntityProperty(IEntityProperty delegatedProperty)
     {
         this.delegatedProperty = delegatedProperty;
+    }
+
+    //
+    // IManagedEntityProperty
+    //
+
+    public boolean isOwnTab()
+    {
+        return ownTab;
+    }
+
+    public void setOwnTab(boolean ownTab)
+    {
+        this.ownTab = ownTab;
+    }
+
+    public ManagedUiDescription getUiDescription()
+    {
+        return uiDescription;
     }
 
     //
@@ -69,7 +94,7 @@ public class ManagedValueEntityProperty implements IEntityProperty
 
     public String getValue()
     {
-        // TODO 2010-01-12, Piotr Buczek: remove special handling after testing
+        // TODO 2011-01-12, Piotr Buczek: remove special handling after testing
         String delegatedValue = delegatedProperty.getValue();
         return delegatedValue == null ? null : "(managed) " + delegatedValue;
     }
@@ -108,7 +133,7 @@ public class ManagedValueEntityProperty implements IEntityProperty
     // For serialization
     //
 
-    public ManagedValueEntityProperty()
+    public ManagedEntityProperty()
     {
     }
 

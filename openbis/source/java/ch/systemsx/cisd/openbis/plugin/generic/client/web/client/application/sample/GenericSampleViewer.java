@@ -63,18 +63,18 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedValueEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialValueEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermValueEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermEntityProperty;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
 /**
@@ -211,6 +211,10 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
         container.addSection(attachmentsSection);
 
         container.layout();
+
+        // managed properties
+        attachManagedPropertiesSections(container, generator);
+
         moduleSectionManager.initialize(container, generator);
         return container;
     }
@@ -330,13 +334,13 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
         final IPropertyValueRenderer<IEntityProperty> propertyValueRenderer =
                 PropertyValueRenderers.createEntityPropertyPropertyValueRenderer(viewContext);
         propertyGrid.registerPropertyValueRenderer(EntityProperty.class, propertyValueRenderer);
-        propertyGrid.registerPropertyValueRenderer(GenericValueEntityProperty.class,
+        propertyGrid.registerPropertyValueRenderer(GenericEntityProperty.class,
                 propertyValueRenderer);
-        propertyGrid.registerPropertyValueRenderer(VocabularyTermValueEntityProperty.class,
+        propertyGrid.registerPropertyValueRenderer(VocabularyTermEntityProperty.class,
                 propertyValueRenderer);
-        propertyGrid.registerPropertyValueRenderer(MaterialValueEntityProperty.class,
+        propertyGrid.registerPropertyValueRenderer(MaterialEntityProperty.class,
                 propertyValueRenderer);
-        propertyGrid.registerPropertyValueRenderer(ManagedValueEntityProperty.class,
+        propertyGrid.registerPropertyValueRenderer(ManagedEntityProperty.class,
                 propertyValueRenderer);
         propertyGrid.registerPropertyValueRenderer(Experiment.class,
                 PropertyValueRenderers.createExperimentPropertyValueRenderer(viewContext));

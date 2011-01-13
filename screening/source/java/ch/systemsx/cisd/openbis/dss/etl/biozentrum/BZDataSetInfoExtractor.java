@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -45,7 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermValueEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
@@ -186,7 +186,7 @@ public class BZDataSetInfoExtractor implements IDataSetInfoExtractor
             String termCode)
     {
         List<IEntityProperty> sampleProperties = new ArrayList<IEntityProperty>();
-        VocabularyTermValueEntityProperty property = new VocabularyTermValueEntityProperty();
+        VocabularyTermEntityProperty property = new VocabularyTermEntityProperty();
         VocabularyTerm vocabularyTerm = new VocabularyTerm();
         vocabularyTerm.setCode(termCode);
         property.setVocabularyTerm(vocabularyTerm);
@@ -204,7 +204,7 @@ public class BZDataSetInfoExtractor implements IDataSetInfoExtractor
             String description)
     {
         List<IEntityProperty> properties = new ArrayList<IEntityProperty>();
-        GenericValueEntityProperty property = new GenericValueEntityProperty();
+        GenericEntityProperty property = new GenericEntityProperty();
         property.setValue(description);
         PropertyType propertyType = new PropertyType();
         DataType dataType = new DataType();

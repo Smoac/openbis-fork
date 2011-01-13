@@ -44,15 +44,15 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedValueEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialValueEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermValueEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermEntityProperty;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
 /**
@@ -107,11 +107,11 @@ public class ExperimentPropertiesPanel extends ContentPanel
         final IPropertyValueRenderer<IEntityProperty> renderer =
                 PropertyValueRenderers.createEntityPropertyPropertyValueRenderer(viewContext);
         propertyGrid.registerPropertyValueRenderer(EntityProperty.class, renderer);
-        propertyGrid.registerPropertyValueRenderer(GenericValueEntityProperty.class, renderer);
-        propertyGrid.registerPropertyValueRenderer(VocabularyTermValueEntityProperty.class,
+        propertyGrid.registerPropertyValueRenderer(GenericEntityProperty.class, renderer);
+        propertyGrid.registerPropertyValueRenderer(VocabularyTermEntityProperty.class,
                 renderer);
-        propertyGrid.registerPropertyValueRenderer(MaterialValueEntityProperty.class, renderer);
-        propertyGrid.registerPropertyValueRenderer(ManagedValueEntityProperty.class, renderer);
+        propertyGrid.registerPropertyValueRenderer(MaterialEntityProperty.class, renderer);
+        propertyGrid.registerPropertyValueRenderer(ManagedEntityProperty.class, renderer);
         propertyGrid.setProperties(properties);
         return propertyGrid;
     }

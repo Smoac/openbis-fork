@@ -17,49 +17,39 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 /**
- * A {@link IEntityProperty} class that only stores the generic value, but not a vocabulary term
- * value or a material value.
+ * A {@link IEntityProperty} class that only stores the material value, but not a generic value or a
+ * vocabulary term value.
  * 
  * @author Bernd Rinn
  */
-public class GenericValueEntityProperty extends AbstractEntityProperty
+public class MaterialEntityProperty extends AbstractEntityProperty
 {
-
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private String originalValue;
-    private String value;
+    private Material materialOrNull;
 
     @Override
-    public String getValue()
+    public void setPropertyType(PropertyType propertyType)
     {
-        return value;
-    }
-
-    @Override
-    public void setValue(String value)
-    {
-        this.value = value;
-    }
-
-    @Override
-    public String tryGetOriginalValue()
-    {
-        if (getOriginalValue() != null)
+        if (DataTypeCode.MATERIAL.equals(propertyType.getDataType().getCode()) == false)
         {
-            return getOriginalValue();
+            throw new IllegalArgumentException(
+                    "Only property types with data type MATERIAL supported, found '"
+                            + propertyType.getDataType().getCode() + "'.");
         }
-        return super.tryGetAsString();
+        super.setPropertyType(propertyType);
     }
 
-    public void setOriginalValue(String originalValue)
+    @Override
+    public Material getMaterial()
     {
-        this.originalValue = originalValue;
+        return materialOrNull;
     }
 
-    public String getOriginalValue()
+    @Override
+    public void setMaterial(Material material)
     {
-        return originalValue;
+        this.materialOrNull = material;
     }
 
 }

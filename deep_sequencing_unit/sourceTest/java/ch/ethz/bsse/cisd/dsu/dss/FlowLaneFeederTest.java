@@ -43,7 +43,7 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -300,10 +300,10 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
         SampleTypePropertyType p1 = createPropertyType("P1");
         SampleTypePropertyType p2 = createPropertyType("P2");
         SampleTypePropertyType p3 = createPropertyType("DATA_TRANSFERRED");
-        IEntityProperty fl1p1v = new GenericValueEntityProperty();
+        IEntityProperty fl1p1v = new GenericEntityProperty();
         fl1p1v.setPropertyType(p1.getPropertyType());
         fl1p1v.setValue("v1");
-        IEntityProperty fl2p2v = new GenericValueEntityProperty();
+        IEntityProperty fl2p2v = new GenericEntityProperty();
         fl2p2v.setPropertyType(p2.getPropertyType());
         fl2p2v.setValue("v2");
 
@@ -620,20 +620,20 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
                         one(service).getPropertiesOfTopSampleRegisteredFor(identifier);
                         if (sample.getSubCode().equals("2"))
                         {
-                            GenericValueEntityProperty p1 =
+                            GenericEntityProperty p1 =
                                     createProperty(FlowLaneFeeder.AFFILIATION_KEY, AFFILIATION);
-                            GenericValueEntityProperty p2 =
+                            GenericEntityProperty p2 =
                                     createProperty(FlowLaneFeeder.EXTERNAL_SAMPLE_NAME_KEY,
                                             EXTERNAL_SAMPLE_NAME);
-                            will(returnValue(new GenericValueEntityProperty[]
+                            will(returnValue(new GenericEntityProperty[]
                                 { p1, p2 }));
                         }
                     }
                 }
 
-                private GenericValueEntityProperty createProperty(String key, String value)
+                private GenericEntityProperty createProperty(String key, String value)
                 {
-                    GenericValueEntityProperty p = new GenericValueEntityProperty();
+                    GenericEntityProperty p = new GenericEntityProperty();
                     p.setValue(FlowLaneFeeder.escapeSampleCode(value));
                     PropertyType propertyType = new PropertyType();
                     propertyType.setCode(FlowLaneFeeder.escapeSampleCode(key));

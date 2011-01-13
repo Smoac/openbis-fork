@@ -21,7 +21,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
  * 
  * @author Christian Ribeaud
  */
-public class EntityProperty extends GenericValueEntityProperty
+public class EntityProperty extends GenericEntityProperty
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

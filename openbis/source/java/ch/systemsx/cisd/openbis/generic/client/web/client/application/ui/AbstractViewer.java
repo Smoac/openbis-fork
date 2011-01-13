@@ -35,15 +35,23 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ManagedPropertySection;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModuleInitializationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityEditorTabClickListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithProperties;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedUiDescription;
 
 /**
  * @author Franz-Josef Elmer
@@ -232,4 +240,34 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
         moduleSectionManager.initialize(modules);
     }
 
+    protected void attachManagedPropertiesSections(final SectionsPanel container,
+            final IEntityInformationHolderWithProperties entity)
+    {
+        boolean sectionsAdded = false;
+        for (final IEntityProperty property : entity.getProperties())
+        {
+            if (property instanceof ManagedEntityProperty)
+            {
+                ManagedEntityProperty managedProperty = (ManagedEntityProperty) property;
+                if (managedProperty.isOwnTab())
+                {
+                    TabContent managedSection =
+                            createManagedPropertySection(property.getPropertyType().getLabel(),
+                                    entity, managedProperty.getUiDescription());
+                    container.addSection(managedSection);
+                    sectionsAdded = true;
+                }
+            }
+        }
+        if (sectionsAdded == true)
+        {
+            container.layout();
+        }
+    }
+
+    protected TabContent createManagedPropertySection(final String header, final IIdHolder ownerId,
+            final ManagedUiDescription uiDescription)
+    {
+        return new ManagedPropertySection(header, viewContext, ownerId, uiDescription);
+    }
 }

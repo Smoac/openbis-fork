@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -61,10 +61,10 @@ public class XMLPropertyTransformerTest extends AssertJUnit
         assertEquals("hello", transformed3.tryGetOriginalValue());
     }
 
-    private GenericValueEntityProperty createProperty(DataTypeCode dataSetTypeCode, String value,
+    private GenericEntityProperty createProperty(DataTypeCode dataSetTypeCode, String value,
             String xsltOrNull)
     {
-        GenericValueEntityProperty property = new GenericValueEntityProperty();
+        GenericEntityProperty property = new GenericEntityProperty();
         PropertyType propertyType = new PropertyType();
         propertyType.setDataType(new DataType(dataSetTypeCode));
         propertyType.setTransformation(xsltOrNull);

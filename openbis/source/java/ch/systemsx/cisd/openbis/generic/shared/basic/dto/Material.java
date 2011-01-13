@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import java.util.Date;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithProperties;
 
 /**
  * The <i>GWT</i> equivalent to MaterialPE.
@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWit
  * @author Izabela Adamczyk
  */
 public class Material extends CodeWithRegistration<Material> implements
-        IEntityInformationHolderWithIdentifier, IEntityPropertiesHolder
+        IEntityInformationHolderWithProperties
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

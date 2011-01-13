@@ -161,6 +161,7 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
                     remove(loadingLabel);
                     GenericExperimentViewer.this.rightPanelSectionsOrNull = createRightPanel();
                     SectionsPanel rightPanel = layoutSections(rightPanelSectionsOrNull);
+                    attachManagedPropertiesSections(rightPanel, experiment);
                     moduleSectionManager.initialize(rightPanel, experiment);
                     add(rightPanel, createRightBorderLayoutData());
                     layout();
@@ -271,8 +272,8 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
         {
             assert rightPanelSectionsOrNull != null : "right panel not layouted";
             CompositeDatabaseModificationObserverWithMainObserver modificationObserver =
-                    new CompositeDatabaseModificationObserverWithMainObserver(propertiesPanelOrNull
-                            .getDatabaseModificationObserver());
+                    new CompositeDatabaseModificationObserverWithMainObserver(
+                            propertiesPanelOrNull.getDatabaseModificationObserver());
             for (DisposableTabContent panel : rightPanelSectionsOrNull)
             {
                 modificationObserver.addObserver(panel.tryGetDatabaseModificationObserver());

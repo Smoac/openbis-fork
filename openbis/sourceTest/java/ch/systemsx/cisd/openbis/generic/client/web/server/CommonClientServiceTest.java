@@ -56,7 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
@@ -213,7 +213,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
 
     private IEntityProperty createXmlProperty()
     {
-        GenericValueEntityProperty property = new GenericValueEntityProperty();
+        GenericEntityProperty property = new GenericEntityProperty();
         PropertyType propertyType = new PropertyType();
         propertyType.setDataType(new DataType(DataTypeCode.XML));
         propertyType

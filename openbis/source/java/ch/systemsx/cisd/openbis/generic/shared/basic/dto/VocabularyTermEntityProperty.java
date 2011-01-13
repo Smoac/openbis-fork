@@ -22,7 +22,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
  * 
  * @author Bernd Rinn
  */
-public class VocabularyTermValueEntityProperty extends AbstractEntityProperty
+public class VocabularyTermEntityProperty extends AbstractEntityProperty
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

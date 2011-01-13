@@ -434,7 +434,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         return convertProperties(propsArray, entityTypeCode, registrator, false);
     }
 
-    // TODO 2010-01-12, Piotr Buczek: refactor - propertiesToUpdate are not used at all
+    // TODO 2011-01-12, Piotr Buczek: refactor - propertiesToUpdate are not used at all
     public <T extends EntityPropertyPE> Set<T> updateProperties(Collection<T> oldProperties,
             EntityTypePE entityType, List<IEntityProperty> newProperties, PersonPE registrator,
             Set<String> propertiesToUpdate)

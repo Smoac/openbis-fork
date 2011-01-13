@@ -21,7 +21,7 @@ import java.util.List;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -42,10 +42,10 @@ public class XMLPropertyTransformer
                 List<IEntityProperty> properties = propertiesHolder.getProperties();
                 for (IEntityProperty property : properties)
                 {
-                    if (property instanceof GenericValueEntityProperty)
+                    if (property instanceof GenericEntityProperty)
                     {
-                        GenericValueEntityProperty entityProperty =
-                                (GenericValueEntityProperty) property;
+                        GenericEntityProperty entityProperty =
+                                (GenericEntityProperty) property;
                         PropertyType propertyType = entityProperty.getPropertyType();
                         if (propertyType.getDataType().getCode().equals(DataTypeCode.XML))
                         {

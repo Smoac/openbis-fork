@@ -51,16 +51,16 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedValueEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermValueEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermEntityProperty;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
 /**
@@ -135,6 +135,7 @@ abstract public class GenericMaterialViewer extends AbstractViewerWithVerticalSp
             container.addSection(panel);
         }
         container.layout();
+        attachManagedPropertiesSections(container, material);
         moduleSectionManager.initialize(container, material);
         return container;
     }
@@ -190,14 +191,11 @@ abstract public class GenericMaterialViewer extends AbstractViewerWithVerticalSp
         final IPropertyValueRenderer<IEntityProperty> propertyRenderer =
                 PropertyValueRenderers.createEntityPropertyPropertyValueRenderer(viewContext);
         propertyGrid.registerPropertyValueRenderer(EntityProperty.class, propertyRenderer);
-        propertyGrid.registerPropertyValueRenderer(GenericValueEntityProperty.class,
+        propertyGrid.registerPropertyValueRenderer(GenericEntityProperty.class, propertyRenderer);
+        propertyGrid.registerPropertyValueRenderer(VocabularyTermEntityProperty.class,
                 propertyRenderer);
-        propertyGrid.registerPropertyValueRenderer(VocabularyTermValueEntityProperty.class,
-                propertyRenderer);
-        propertyGrid.registerPropertyValueRenderer(MaterialValueEntityProperty.class,
-                propertyRenderer);
-        propertyGrid.registerPropertyValueRenderer(ManagedValueEntityProperty.class,
-                propertyRenderer);
+        propertyGrid.registerPropertyValueRenderer(MaterialEntityProperty.class, propertyRenderer);
+        propertyGrid.registerPropertyValueRenderer(ManagedEntityProperty.class, propertyRenderer);
         propertyGrid.setProperties(properties);
         propertyGrid.getElement().setId(PROPERTIES_ID_PREFIX + material.getIdentifier());
         return propertyGrid;

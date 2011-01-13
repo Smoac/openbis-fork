@@ -50,9 +50,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
 /**
@@ -186,8 +186,11 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
         final TabContent childrenSection = new DataSetChildrenSection(viewContext, dataset);
         container.addSection(childrenSection);
 
-        // container.layout();
+        // managed properties
+        attachManagedPropertiesSections(container, dataset);
+
         moduleSectionManager.initialize(container, dataset);
+
         return container;
     }
 

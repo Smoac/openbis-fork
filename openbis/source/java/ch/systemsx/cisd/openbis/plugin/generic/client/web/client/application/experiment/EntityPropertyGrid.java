@@ -27,11 +27,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.propert
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedValueEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialValueEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermValueEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermEntityProperty;
 
 /**
  * @author Izabela Adamczyk
@@ -59,10 +59,10 @@ public class EntityPropertyGrid<T extends EntityType, S extends EntityTypeProper
         final IPropertyValueRenderer<IEntityProperty> renderer =
                 PropertyValueRenderers.createEntityPropertyPropertyValueRenderer(viewContext);
         grid.registerPropertyValueRenderer(EntityProperty.class, renderer);
-        grid.registerPropertyValueRenderer(GenericValueEntityProperty.class, renderer);
-        grid.registerPropertyValueRenderer(VocabularyTermValueEntityProperty.class, renderer);
-        grid.registerPropertyValueRenderer(MaterialValueEntityProperty.class, renderer);
-        grid.registerPropertyValueRenderer(ManagedValueEntityProperty.class, renderer);
+        grid.registerPropertyValueRenderer(GenericEntityProperty.class, renderer);
+        grid.registerPropertyValueRenderer(VocabularyTermEntityProperty.class, renderer);
+        grid.registerPropertyValueRenderer(MaterialEntityProperty.class, renderer);
+        grid.registerPropertyValueRenderer(ManagedEntityProperty.class, renderer);
     }
 
     private final Map<String, Object> createProperties(List<P> list)

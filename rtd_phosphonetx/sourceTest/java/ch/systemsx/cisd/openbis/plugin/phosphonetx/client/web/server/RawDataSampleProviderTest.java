@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -199,7 +199,7 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
         ArrayList<IEntityProperty> properties = new ArrayList<IEntityProperty>();
         for (String label : labels)
         {
-            GenericValueEntityProperty property = new GenericValueEntityProperty();
+            GenericEntityProperty property = new GenericEntityProperty();
             PropertyType propertyType = new PropertyType();
             propertyType.setLabel(label);
             propertyType.setCode(propertyType.getLabel().toUpperCase());
