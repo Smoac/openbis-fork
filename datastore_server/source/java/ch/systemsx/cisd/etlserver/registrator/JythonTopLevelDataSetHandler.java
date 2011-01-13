@@ -38,7 +38,7 @@ public class JythonTopLevelDataSetHandler extends AbstractOmniscientTopLevelData
     /**
      * @param globalState
      */
-    protected JythonTopLevelDataSetHandler(TopLevelDataSetRegistratorGlobalState globalState)
+    public JythonTopLevelDataSetHandler(TopLevelDataSetRegistratorGlobalState globalState)
     {
         super(globalState);
 

@@ -278,8 +278,15 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                 new ThreadParameters(threadProperties, "pre-registration-script-test");
 
         TopLevelDataSetRegistratorGlobalState globalState =
-                new TopLevelDataSetRegistratorGlobalState("dss", authorizedLimsService, mailClient,
-                        dataSetValidator, true, threadParameters);
+                new TopLevelDataSetRegistratorGlobalState("dss", workingDirectory,
+                        authorizedLimsService, mailClient, dataSetValidator, true, threadParameters);
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(storageProcessor).setStoreRootDirectory(workingDirectory);
+                }
+            });
 
         handler = new TransferredDataSetHandler(globalState, plugin);
 
@@ -781,8 +788,15 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                 new ThreadParameters(threadProperties, "pre-registration-script-test");
 
         TopLevelDataSetRegistratorGlobalState globalState =
-                new TopLevelDataSetRegistratorGlobalState("dss", authorizedLimsService, mailClient,
-                        dataSetValidator, true, threadParameters);
+                new TopLevelDataSetRegistratorGlobalState("dss", workingDirectory,
+                        authorizedLimsService, mailClient, dataSetValidator, true, threadParameters);
+        context.checking(new Expectations()
+            {
+                {
+                    one(storageProcessor).setStoreRootDirectory(workingDirectory);
+                }
+            });
+
         handler = new TransferredDataSetHandler(globalState, plugin);
 
         final Sample baseSample = createBaseSample(dataSetInformation);

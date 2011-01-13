@@ -161,12 +161,14 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator extends
     {
         super(globalState);
 
+        IStorageProcessor storageProcessor =
+                PropertiesBasedETLServerPlugin.create(IStorageProcessor.class, globalState
+                        .getThreadParameters().getThreadProperties(), STORAGE_PROCESSOR_KEY, true);
+        storageProcessor.setStoreRootDirectory(globalState.getStoreRootDir());
+
         state =
-                new OmniscientTopLevelDataSetRegistratorState(globalState,
-                        PropertiesBasedETLServerPlugin.create(IStorageProcessor.class, globalState
-                                .getThreadParameters().getThreadProperties(),
-                                STORAGE_PROCESSOR_KEY, true), new ReentrantLock(),
-                        FileOperations.getMonitoredInstanceForCurrentThread());
+                new OmniscientTopLevelDataSetRegistratorState(globalState, storageProcessor,
+                        new ReentrantLock(), FileOperations.getMonitoredInstanceForCurrentThread());
 
     }
 

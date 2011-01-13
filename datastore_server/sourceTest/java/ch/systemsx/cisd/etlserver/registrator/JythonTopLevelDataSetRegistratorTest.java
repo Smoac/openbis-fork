@@ -102,8 +102,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         FileUtilities.writeToFile(new File(subDataSet1, "read1.me"), "hello world");
         FileUtilities.writeToFile(new File(subDataSet2, "read2.me"), "hello world");
 
-        MockStorageProcessor.instance.storeRootDirectory = workingDirectory;
-
         setUpDataSetValidatorExpectations();
         setUpMailClientExpectations();
 
@@ -266,8 +264,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
                 new ThreadParameters(threadProperties, "jython-handler-test");
 
         TopLevelDataSetRegistratorGlobalState globalState =
-                new TopLevelDataSetRegistratorGlobalState("dss", openBisService, mailClient,
-                        dataSetValidator, true, threadParameters);
+                new TopLevelDataSetRegistratorGlobalState("dss", workingDirectory, openBisService,
+                        mailClient, dataSetValidator, true, threadParameters);
 
         handler = new JythonTopLevelDataSetHandler(globalState);
     }

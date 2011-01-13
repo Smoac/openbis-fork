@@ -41,6 +41,13 @@ public class DataSetRegistrationDetails implements ITypeExtractor
 
     private DataSetInformation dataSetInformation;
 
+    public DataSetRegistrationDetails()
+    {
+        fileFormatType = new FileFormatType(FileFormatType.DEFAULT_FILE_FORMAT_TYPE_CODE);
+        measuredData = true;
+        locatorType = new LocatorType(LocatorType.DEFAULT_LOCATOR_TYPE_CODE);
+    }
+
     public FileFormatType getFileFormatType(File incomingDataSetPath)
     {
         return fileFormatType;

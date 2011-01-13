@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.etlserver;
 
+import java.io.File;
+
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -28,6 +30,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 public class TopLevelDataSetRegistratorGlobalState
 {
     private final String dssCode;
+
+    private final File storeRootDir;
 
     private final IEncapsulatedOpenBISService openBisService;
 
@@ -47,12 +51,13 @@ public class TopLevelDataSetRegistratorGlobalState
 
     private final String postRegistrationScriptOrNull;
 
-    public TopLevelDataSetRegistratorGlobalState(String dssCode,
+    public TopLevelDataSetRegistratorGlobalState(String dssCode, File storeRootDir,
             IEncapsulatedOpenBISService openBisService, IMailClient mailClient,
             IDataSetValidator dataSetValidator, boolean notifySuccessfulRegistration,
             ThreadParameters threadParameters)
     {
         this.dssCode = dssCode;
+        this.storeRootDir = storeRootDir;
         this.openBisService = openBisService;
         this.mailClient = mailClient;
         this.dataSetValidator = dataSetValidator;
@@ -67,6 +72,11 @@ public class TopLevelDataSetRegistratorGlobalState
     public String getDssCode()
     {
         return dssCode;
+    }
+
+    public File getStoreRootDir()
+    {
+        return storeRootDir;
     }
 
     public IEncapsulatedOpenBISService getOpenBisService()

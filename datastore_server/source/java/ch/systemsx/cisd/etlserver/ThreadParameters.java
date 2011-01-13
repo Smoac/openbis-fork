@@ -59,29 +59,28 @@ public final class ThreadParameters
     static final String GROUP_CODE_KEY = "group-code";
 
     @Private
-    public
-    static final String INCOMING_DATA_COMPLETENESS_CONDITION =
+    public static final String INCOMING_DATA_COMPLETENESS_CONDITION =
             "incoming-data-completeness-condition";
 
     @Private
-    public
-    static final String INCOMING_DATA_COMPLETENESS_CONDITION_MARKER_FILE = "marker-file";
+    public static final String INCOMING_DATA_COMPLETENESS_CONDITION_MARKER_FILE = "marker-file";
 
     @Private
     static final String INCOMING_DATA_COMPLETENESS_CONDITION_AUTODETECTION = "auto-detection";
+
+    @Private
+    public static final String TOP_LEVEL_DATA_SET_HANDLER = "top-level-data-set-handler";
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             ThreadParameters.class);
 
     @Private
-    public
-    static final String INCOMING_DIR = "incoming-dir";
+    public static final String INCOMING_DIR = "incoming-dir";
 
     private static final String INCOMING_DIR_CREATE = "incoming-dir-create";
 
     @Private
-    public
-    static final String DELETE_UNIDENTIFIED_KEY = "delete-unidentified";
+    public static final String DELETE_UNIDENTIFIED_KEY = "delete-unidentified";
 
     private static final String REPROCESS_FAULTY_DATASETS_NAME = "reprocess-faulty-datasets";
 
@@ -121,7 +120,22 @@ public final class ThreadParameters
         this.createIncomingDirectories =
                 PropertyUtils.getBoolean(threadProperties, INCOMING_DIR_CREATE, false);
         this.threadProperties = threadProperties;
-        this.topLevelDataSetRegistratorClass = TransferredDataSetHandler.class;
+        String registratorClassName =
+                PropertyUtils.getProperty(threadProperties, TOP_LEVEL_DATA_SET_HANDLER);
+
+        Class<?> registratorClass;
+        try
+        {
+            registratorClass =
+                    (null == registratorClassName) ? TransferredDataSetHandler.class : Class
+                            .forName(registratorClassName);
+        } catch (ClassNotFoundException ex)
+        {
+            registratorClass = TransferredDataSetHandler.class;
+
+        }
+        this.topLevelDataSetRegistratorClass = registratorClass;
+
         this.groupCode = tryGetGroupCode(threadProperties);
         this.preRegistrationScript = tryGetPreRegistrationScript(threadProperties);
         this.postRegistrationScript = tryGetPostRegistartionScript(threadProperties);

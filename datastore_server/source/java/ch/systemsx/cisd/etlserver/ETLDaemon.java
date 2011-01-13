@@ -304,14 +304,13 @@ public final class ETLDaemon
             final IEncapsulatedOpenBISService openBISService, final IMailClient mailClient,
             final IDataSetValidator dataSetValidator, final boolean notifySuccessfulRegistration)
     {
-        final IETLServerPlugin plugin = ETLServerPluginFactory.getPluginForThread(threadParameters);
         final File storeRootDir = DssPropertyParametersUtil.getStoreRootDir(properties);
         migrateStoreRootDir(storeRootDir, openBISService.getHomeDatabaseInstance());
-        plugin.getStorageProcessor().setStoreRootDirectory(storeRootDir);
         String dssCode = DssPropertyParametersUtil.getDataStoreCode(properties);
         TopLevelDataSetRegistratorGlobalState globalState =
-                new TopLevelDataSetRegistratorGlobalState(dssCode, openBISService, mailClient,
-                        dataSetValidator, notifySuccessfulRegistration, threadParameters);
+                new TopLevelDataSetRegistratorGlobalState(dssCode, storeRootDir, openBISService,
+                        mailClient, dataSetValidator, notifySuccessfulRegistration,
+                        threadParameters);
 
         ITopLevelDataSetRegistrator registrator =
                 ClassUtils.create(ITopLevelDataSetRegistrator.class,

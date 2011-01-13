@@ -127,6 +127,8 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
     {
         super(globalState);
 
+        plugin.getStorageProcessor().setStoreRootDirectory(globalState.getStoreRootDir());
+
         this.dssCode = globalState.getDssCode();
         assert dssCode != null : "Unspecified data store code";
 
