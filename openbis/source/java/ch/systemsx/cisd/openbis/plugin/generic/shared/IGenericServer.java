@@ -66,6 +66,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 
 /**
+ * Definition of the client-server interface.
+ * <p>
  * Provides backend support for the "default" rendering of detail views (e.g. for samples,
  * materials, datasets) of the openBIS presentation layer. Plugins have the choice to either use
  * this "generic" functionality, or to implement/extend it on their own. {@link IGenericServer} can
