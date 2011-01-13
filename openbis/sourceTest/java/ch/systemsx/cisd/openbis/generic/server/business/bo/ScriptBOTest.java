@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import org.jmock.Expectations;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DataRetrievalFailureException;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
@@ -42,6 +43,19 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
     { ScriptBO.class, ScriptBO.IScriptFactory.class, ScriptPE.class })
 public final class ScriptBOTest extends AbstractBOTest
 {
+
+    @SuppressWarnings("unused")
+    @DataProvider
+    private final static Object[][] scriptTypes()
+    {
+        return new Object[][]
+            {
+                { ScriptType.DYNAMIC_PROPERTY },
+                { ScriptType.MANAGED_PROPERTY }
+
+            };
+    }
+
     private static final String SCRIPT = "1+1";
 
     private static final String NAME = "name";
@@ -68,13 +82,7 @@ public final class ScriptBOTest extends AbstractBOTest
         context.assertIsSatisfied();
     }
 
-    @Test
-    public final void testDefineAndSaveDynamicProperty()
-    {
-        testDefineAndSave(ScriptType.DYNAMIC_PROPERTY);
-        testDefineAndSave(ScriptType.MANAGED_PROPERTY);
-    }
-
+    @Test(dataProvider = "scriptTypes")
     public final void testDefineAndSave(ScriptType scriptType)
     {
         final ScriptBO scriptBO = createScriptBO();
@@ -189,13 +197,7 @@ public final class ScriptBOTest extends AbstractBOTest
         context.assertIsSatisfied();
     }
 
-    @Test
-    public void testUpdateScriptNotChanged() throws Exception
-    {
-        testUpdateScriptNotChanged(ScriptType.DYNAMIC_PROPERTY);
-        testUpdateScriptNotChanged(ScriptType.MANAGED_PROPERTY);
-    }
-
+    @Test(dataProvider = "scriptTypes")
     public void testUpdateScriptNotChanged(ScriptType scriptType) throws Exception
     {
         final ScriptBO scriptBO = createScriptBO();
@@ -237,14 +239,8 @@ public final class ScriptBOTest extends AbstractBOTest
         context.assertIsSatisfied();
     }
 
-    @Test
-    public void testUpdateScriptChanged() throws Exception
-    {
-        testUpdateScriptChanged(ScriptType.DYNAMIC_PROPERTY);
-        testUpdateScriptChanged(ScriptType.MANAGED_PROPERTY);
-    }
-
     @SuppressWarnings("deprecation")
+    @Test(dataProvider = "scriptTypes")
     public void testUpdateScriptChanged(final ScriptType scriptType) throws Exception
     {
         final ScriptBO scriptBO = createScriptBO();

@@ -43,6 +43,18 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 public final class ScriptDAOTest extends AbstractDAOTest
 {
 
+    @SuppressWarnings("unused")
+    @DataProvider
+    private final static Object[][] scriptTypes()
+    {
+        return new Object[][]
+            {
+                { ScriptType.DYNAMIC_PROPERTY },
+                { ScriptType.MANAGED_PROPERTY }
+
+            };
+    }
+
     private static final String DESCRIPTION = "desc";
 
     private static final String SCRIPT = "1+1";
@@ -62,18 +74,6 @@ public final class ScriptDAOTest extends AbstractDAOTest
     private static String createScriptName(int i)
     {
         return NAME + i;
-    }
-
-    @SuppressWarnings("unused")
-    @DataProvider
-    private final static Object[][] scriptTypes()
-    {
-        return new Object[][]
-            {
-                { ScriptType.DYNAMIC_PROPERTY },
-                { ScriptType.MANAGED_PROPERTY }
-
-            };
     }
 
     @Test(dataProvider = "scriptTypes")
