@@ -25,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModification;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseUpdateModification;
-import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
@@ -71,7 +70,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
  * materials, datasets) of the openBIS presentation layer. Plugins have the choice to either use
  * this "generic" functionality, or to implement/extend it on their own. {@link IGenericServer} can
  * be thought of as an optional convenience/utility service that goes together with the central
- * entity-type unspecific {@link ICommonServer}.
+ * entity-type unspecific <code>ICommonServer</code>.
  * 
  * @author Franz-Josef Elmer
  */
