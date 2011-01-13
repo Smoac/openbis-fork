@@ -29,24 +29,36 @@ public class ManagedUiDescription implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private List<IManagedWidgetDescription> widgetDescriptions;
+    private IManagedWidgetDescription outputWidgetDescription;
+
+    private List<ManagedInputWidgetDescription> inputWidgetDescriptions;
 
     public ManagedUiDescription()
     {
     }
 
-    public List<IManagedWidgetDescription> getWidgetDescriptions()
+    public IManagedWidgetDescription getOutputWidgetDescription()
     {
-        return widgetDescriptions;
+        return outputWidgetDescription;
     }
 
-    public void setWidgetDescriptions(List<IManagedWidgetDescription> widgetDescriptions)
+    public void setOutputWidgetDescription(IManagedWidgetDescription outputWidgetDescription)
     {
-        this.widgetDescriptions = widgetDescriptions;
+        this.outputWidgetDescription = outputWidgetDescription;
     }
 
-    public void addWidgetDescription(IManagedWidgetDescription widgetDescription)
+    public List<ManagedInputWidgetDescription> getInputWidgetDescriptions()
     {
-        widgetDescriptions.add(widgetDescription);
+        return inputWidgetDescriptions;
+    }
+
+    public void setInputWidgetDescriptions(List<ManagedInputWidgetDescription> widgetDescriptions)
+    {
+        this.inputWidgetDescriptions = widgetDescriptions;
+    }
+
+    public void addInputWidgetDescription(ManagedInputWidgetDescription widgetDescription)
+    {
+        inputWidgetDescriptions.add(widgetDescription);
     }
 }
