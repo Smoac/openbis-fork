@@ -1,3 +1,4 @@
 1	1	properties	number of properties	str(entity.properties().size()) + ' properties'	2010-10-27 15:16:48.994831+02	2	\N	DYNAMIC_PROPERTY
 2	1	code	\N	entity.code()	2010-10-27 15:16:48.994831+02	2	\N	DYNAMIC_PROPERTY
 3	1	date	\N	str(currentDate().getTime())	2010-10-27 15:16:48.994831+02	2	\N	DYNAMIC_PROPERTY
+4	1	managed list	\N	fake script	2010-10-27 15:16:48.994831+02	2	\N	MANAGED_PROPERTY

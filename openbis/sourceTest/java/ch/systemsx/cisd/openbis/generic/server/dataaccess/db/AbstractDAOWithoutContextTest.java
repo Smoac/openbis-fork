@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
@@ -237,6 +238,12 @@ public abstract class AbstractDAOWithoutContextTest extends
     {
         final ScriptPE result = createScriptPE(scriptType, name, script, description, kind);
         daoFactory.getScriptDAO().createOrUpdate(result);
+        assertEquals(scriptType, result.getScriptType());
+        assertEquals(daoFactory.getHomeDatabaseInstance(), result.getDatabaseInstance());
+        assertEquals(script, result.getScript());
+        assertEquals(description, result.getDescription());
+        assertEquals(name, result.getName());
+        assertEquals(kind, result.getEntityKind());
         return result;
     }
 
