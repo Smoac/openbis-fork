@@ -24,6 +24,7 @@ import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm.DataSetRegistrationAlgorithmState;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm.IDataSetInApplicationServerRegistrator;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm.IRollbackDelegate;
+import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithmRunner;
 import ch.systemsx.cisd.etlserver.IDataStoreStrategy;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
@@ -75,22 +76,6 @@ public class DataSetRegistrationService implements IRollbackDelegate
     }
 
     /**
-     * Factory method that creates a new registration details object.
-     */
-    public DataSetRegistrationDetails createRegistrationDetails()
-    {
-        return new DataSetRegistrationDetails();
-    }
-
-    /**
-     * Factory method that creates a new data set information object.
-     */
-    public DataSetInformation createDataSetInformation()
-    {
-        return new DataSetInformation();
-    }
-
-    /**
      * Queue registration a data set and return a future for the data set that will be created.
      */
     public FutureDataSet queueDataSetRegistration(File dataSetFile,
@@ -107,13 +92,16 @@ public class DataSetRegistrationService implements IRollbackDelegate
 
     public void commit()
     {
-
+        for (DataSetRegistrationAlgorithm registrationAlgorithm : dataSetRegistrations)
+        {
+            new DataSetRegistrationAlgorithmRunner(registrationAlgorithm).runAlgorithm();
+        }
         globalCleanAfterwardsAction.execute();
     }
 
     public void abort()
     {
-
+        dataSetRegistrations.clear();
     }
 
     private DataSetRegistrationAlgorithm createRegistrationAlgorithm(File incomingDataSetFile,
@@ -161,7 +149,8 @@ public class DataSetRegistrationService implements IRollbackDelegate
 
         private final DataSetInformation dataSetInformation;
 
-        DefaultApplicationServerRegistrator(AbstractOmniscientTopLevelDataSetRegistrator registrator,
+        DefaultApplicationServerRegistrator(
+                AbstractOmniscientTopLevelDataSetRegistrator registrator,
                 DataSetInformation dataSetInformation)
         {
             this.dataSetInformation = dataSetInformation;

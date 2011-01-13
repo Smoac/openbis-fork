@@ -59,10 +59,12 @@ public final class ThreadParameters
     static final String GROUP_CODE_KEY = "group-code";
 
     @Private
+    public
     static final String INCOMING_DATA_COMPLETENESS_CONDITION =
             "incoming-data-completeness-condition";
 
     @Private
+    public
     static final String INCOMING_DATA_COMPLETENESS_CONDITION_MARKER_FILE = "marker-file";
 
     @Private
@@ -72,11 +74,13 @@ public final class ThreadParameters
             ThreadParameters.class);
 
     @Private
+    public
     static final String INCOMING_DIR = "incoming-dir";
 
     private static final String INCOMING_DIR_CREATE = "incoming-dir-create";
 
     @Private
+    public
     static final String DELETE_UNIDENTIFIED_KEY = "delete-unidentified";
 
     private static final String REPROCESS_FAULTY_DATASETS_NAME = "reprocess-faulty-datasets";

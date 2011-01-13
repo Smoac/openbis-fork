@@ -129,7 +129,6 @@ public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
         dataStoreStrategy = context.mock(IDataStoreStrategy.class);
         typeExtractor = context.mock(ITypeExtractor.class);
         storageProcessor = context.mock(IStorageProcessor.class);
-        // fileOperations = context.mock(IFileOperations.class);
         fileOperations = FileOperations.getInstance();
         dataSetValidator = context.mock(IDataSetValidator.class);
         mailClient = context.mock(IMailClient.class);

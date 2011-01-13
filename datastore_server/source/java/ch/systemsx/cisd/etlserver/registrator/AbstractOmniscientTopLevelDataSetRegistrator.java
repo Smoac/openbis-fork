@@ -46,6 +46,7 @@ import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.utils.PostRegistrationExecutor;
 import ch.systemsx.cisd.etlserver.utils.PreRegistrationExecutor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 
 /**
@@ -78,6 +79,8 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator extends
 
         private final MarkerFileUtility markerFileUtility;
 
+        private final DatabaseInstance homeDatabaseInstance;
+
         private OmniscientTopLevelDataSetRegistratorState(
                 TopLevelDataSetRegistratorGlobalState globalState,
                 IStorageProcessor storageProcessor, ReentrantLock registrationLock,
@@ -97,6 +100,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator extends
             this.markerFileUtility =
                     new MarkerFileUtility(operationLog, notificationLog, fileOperations,
                             storageProcessor);
+            this.homeDatabaseInstance = globalState.getOpenBisService().getHomeDatabaseInstance();
         }
 
         public TopLevelDataSetRegistratorGlobalState getGlobalState()
@@ -137,6 +141,11 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator extends
         public MarkerFileUtility getMarkerFileUtility()
         {
             return markerFileUtility;
+        }
+
+        public DatabaseInstance getHomeDatabaseInstance()
+        {
+            return homeDatabaseInstance;
         }
     }
 
@@ -207,7 +216,9 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator extends
 
         DataSetRegistrationService service =
                 new DataSetRegistrationService(this, cleanAfterwardsAction);
+
         handleDataSet(incomingDataSetFile, service);
+        service.commit();
     }
 
     public boolean isStopped()
