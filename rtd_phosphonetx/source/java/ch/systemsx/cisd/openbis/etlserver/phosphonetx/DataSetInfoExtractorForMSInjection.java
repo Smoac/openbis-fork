@@ -142,13 +142,13 @@ public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtra
     {
         SampleType sampleType = service.getSampleType(SAMPLE_TYPE_CODE);
         Sample sample = service.tryGetSampleWithExperiment(sampleIdentifier);
+        String biologicalSampleIdentifier = properties.getProperty(BIOLOGICAL_SAMPLE_IDENTIFIER_KEY);
         if (sample == null)
         {
             NewSample newSample = new NewSample();
             newSample.setSampleType(sampleType);
             newSample.setExperimentIdentifier(experimentIdentifier.toString());
             newSample.setIdentifier(sampleIdentifier.toString());
-            String biologicalSampleIdentifier = properties.getProperty(BIOLOGICAL_SAMPLE_IDENTIFIER_KEY);
             if (biologicalSampleIdentifier != null)
             {
                 newSample.setParents(biologicalSampleIdentifier);
@@ -164,7 +164,9 @@ public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtra
             Set<NewAttachment> emptySet = Collections.<NewAttachment> emptySet();
             Date version = sample.getModificationDate();
             service.updateSample(new SampleUpdatesDTO(sampleID, propertiesList,
-                    experimentIdentifier, emptySet, version, sampleIdentifier, null, null));
+                    experimentIdentifier, emptySet, version, sampleIdentifier, null,
+                    biologicalSampleIdentifier == null ? null : new String[]
+                        { biologicalSampleIdentifier }));
             return sample.getId();
         }
     }
