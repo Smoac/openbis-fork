@@ -43,7 +43,8 @@ class ListProteinSequenceDataProvider extends AbstractOriginalDataProviderWithou
         this.proteinReferenceID = proteinReferenceID;
     }
 
-    public List<ProteinSequence> getOriginalData() throws UserFailureException
+    @Override
+    public List<ProteinSequence> getFullOriginalData() throws UserFailureException
     {
         return server.listProteinSequencesByProteinReference(sessionToken, proteinReferenceID);
     }

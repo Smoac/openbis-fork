@@ -46,7 +46,8 @@ public class ListDataSetProteinDataProvider extends AbstractOriginalDataProvider
         this.proteinReferenceID = proteinReferenceID;
     }
 
-    public List<DataSetProtein> getOriginalData() throws UserFailureException
+    @Override
+    public List<DataSetProtein> getFullOriginalData() throws UserFailureException
     {
         return server.listProteinsByExperimentAndReference(sessionToken, experimentID,
                 proteinReferenceID);

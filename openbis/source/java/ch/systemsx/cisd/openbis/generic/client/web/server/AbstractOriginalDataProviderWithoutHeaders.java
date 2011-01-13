@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.server;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 
@@ -31,11 +32,40 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 public abstract class AbstractOriginalDataProviderWithoutHeaders<T> implements
         IOriginalDataProvider<T>
 {
-    private static final List<TableModelColumnHeader> NO_HEADERS = new ArrayList<TableModelColumnHeader>();
+    private static final List<TableModelColumnHeader> NO_HEADERS =
+            new ArrayList<TableModelColumnHeader>();
+
+    private List<T> originalData;
 
     public List<TableModelColumnHeader> getHeaders()
     {
         // Collections.emptyList() can not be serialized by GWT
         return NO_HEADERS;
     }
+    
+    public List<T> getOriginalData(int maxSize) throws UserFailureException
+    {
+        originalData = getOriginalData();
+        List<T> list = new ArrayList<T>();
+        for (T item : originalData)
+        {
+            if (list.size() == maxSize)
+            {
+                break;
+            }
+            list.add(item);
+        }
+        return list;
+    }
+
+    public List<T> getOriginalData() throws UserFailureException
+    {
+        if (originalData != null)
+        {
+            return originalData;
+        }
+        return getFullOriginalData();
+    }
+
+    public abstract List<T> getFullOriginalData();
 }

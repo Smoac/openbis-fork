@@ -271,7 +271,8 @@ public final class ScreeningClientService extends AbstractClientService implemen
             return listEntities(displayCriteria,
                     new AbstractOriginalDataProviderWithoutHeaders<Material>()
                         {
-                            public List<Material> getOriginalData() throws UserFailureException
+                            @Override
+                            public List<Material> getFullOriginalData() throws UserFailureException
                             {
                                 return server.listExperimentMaterials(getSessionToken(),
                                         experimentId, displayCriteria.getListCriteria()

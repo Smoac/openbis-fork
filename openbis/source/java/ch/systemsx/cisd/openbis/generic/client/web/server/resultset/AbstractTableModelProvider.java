@@ -16,7 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 
 /**
@@ -37,6 +42,23 @@ public abstract class AbstractTableModelProvider<T extends ISerializable> implem
             model = createTableModel();
         }
         return model;
+    }
+
+    public TypedTableModel<T> getTableModel(int maxSize)
+    {
+        TypedTableModel<T> tableModel = getTableModel();
+        List<TableModelColumnHeader> headers = tableModel.getHeader();
+        List<TableModelRowWithObject<T>> rows = tableModel.getRows();
+        List<TableModelRowWithObject<T>> limitedRows = new ArrayList<TableModelRowWithObject<T>>();
+        for (TableModelRowWithObject<T> row : rows)
+        {
+            if (limitedRows.size() == maxSize)
+            {
+                break;
+            }
+            limitedRows.add(row);
+        }
+        return new TypedTableModel<T>(headers, limitedRows);
     }
 
     /**

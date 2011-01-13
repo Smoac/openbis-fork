@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractOriginalDataProviderWithoutHeaders;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
@@ -25,8 +26,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
 /**
  * @author Franz-Josef Elmer
  */
-public final class DataProviderAdapter<T extends ISerializable> implements
-        IOriginalDataProvider<TableModelRowWithObject<T>>
+public final class DataProviderAdapter<T extends ISerializable> extends
+    AbstractOriginalDataProviderWithoutHeaders<TableModelRowWithObject<T>>
 {
     private final ITableModelProvider<T> provider;
 
@@ -35,11 +36,13 @@ public final class DataProviderAdapter<T extends ISerializable> implements
         this.provider = provider;
     }
 
-    public List<TableModelRowWithObject<T>> getOriginalData()
+    @Override
+    public List<TableModelRowWithObject<T>> getFullOriginalData()
     {
         return provider.getTableModel().getRows();
     }
 
+    @Override
     public List<TableModelColumnHeader> getHeaders()
     {
         return provider.getTableModel().getHeader();

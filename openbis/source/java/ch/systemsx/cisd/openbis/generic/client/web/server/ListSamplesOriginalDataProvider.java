@@ -29,7 +29,8 @@ final class ListSamplesOriginalDataProvider extends AbstractOriginalDataProvider
     // AbstractOriginalDataProvider
     //
 
-    public final List<Sample> getOriginalData()
+    @Override
+    public final List<Sample> getFullOriginalData()
     {
         switch (criteria.getCriteriaKind())
         {

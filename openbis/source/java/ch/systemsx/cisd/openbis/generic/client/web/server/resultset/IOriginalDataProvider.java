@@ -30,6 +30,11 @@ public interface IOriginalDataProvider<T>
 {
 
     /**
+     * Gets the original data limited to not more than specified number of items.
+     */
+    public List<T> getOriginalData(int maxSize) throws UserFailureException;
+    
+    /**
      * Returns the original data.
      */
     public List<T> getOriginalData() throws UserFailureException;

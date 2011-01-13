@@ -29,7 +29,8 @@ final class ListRelatedDataSetOriginalDataProvider extends
     // AbstractOriginalDataProvider
     //
 
-    public final List<ExternalData> getOriginalData()
+    @Override
+    public final List<ExternalData> getFullOriginalData()
     {
         final List<ExternalData> hits = commonServer.listRelatedDataSets(sessionToken, entities);
         return hits;

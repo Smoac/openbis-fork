@@ -197,7 +197,8 @@ public abstract class AbstractClientService implements IClientService,
     {
         return new AbstractOriginalDataProviderWithoutHeaders<T>()
             {
-                public List<T> getOriginalData() throws UserFailureException
+                @Override
+                public List<T> getFullOriginalData() throws UserFailureException
                 {
                     throw new IllegalStateException("Data not found in the cache");
                 }
@@ -381,6 +382,12 @@ public abstract class AbstractClientService implements IClientService,
         ResultSet<TableModelRowWithObject<Null>> resultSet =
                 listEntities(criteria, new IOriginalDataProvider<TableModelRowWithObject<Null>>()
                     {
+                        public List<TableModelRowWithObject<Null>> getOriginalData(int maxSize)
+                                throws UserFailureException
+                        {
+                            return getOriginalData();
+                        }
+
                         public List<TableModelRowWithObject<Null>> getOriginalData()
                                 throws UserFailureException
                         {

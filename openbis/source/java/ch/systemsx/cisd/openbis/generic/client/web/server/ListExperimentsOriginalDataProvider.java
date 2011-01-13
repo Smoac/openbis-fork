@@ -44,7 +44,8 @@ final class ListExperimentsOriginalDataProvider extends AbstractOriginalDataProv
     // AbstractOriginalDataProvider
     //
 
-    public final List<Experiment> getOriginalData()
+    @Override
+    public final List<Experiment> getFullOriginalData()
     {
         final List<Experiment> experiments =
                 commonServer.listExperiments(sessionToken, listCriteria.getExperimentType(),

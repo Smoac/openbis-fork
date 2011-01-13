@@ -49,7 +49,8 @@ class ListSampleAbundanceDataProvider extends AbstractOriginalDataProviderWithou
     }
 
 
-    public List<SampleWithPropertiesAndAbundance> getOriginalData() throws UserFailureException
+    @Override
+    public List<SampleWithPropertiesAndAbundance> getFullOriginalData() throws UserFailureException
     {
         return server.listSamplesWithAbundanceByProtein(sessionToken, experimentID, proteinReferenceID);
     }

@@ -20,9 +20,19 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 
 /**
+ * Provider of a {@link TypedTableModel} instance.
+ * 
  * @author Franz-Josef Elmer
  */
 public interface ITableModelProvider<T extends ISerializable>
 {
+    /**
+     * Returns the full table model.
+     */
     public TypedTableModel<T> getTableModel();
+    
+    /**
+     * Returns the table model limited as specified.
+     */
+    public TypedTableModel<T> getTableModel(int maxSize);
 }

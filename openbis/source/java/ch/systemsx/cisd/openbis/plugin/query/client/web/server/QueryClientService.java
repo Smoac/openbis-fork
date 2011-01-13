@@ -198,7 +198,8 @@ public class QueryClientService extends AbstractClientService implements IQueryC
             return listEntities(resultSetConfig,
                     new AbstractOriginalDataProviderWithoutHeaders<QueryExpression>()
                         {
-                            public List<QueryExpression> getOriginalData()
+                            @Override
+                            public List<QueryExpression> getFullOriginalData()
                                     throws UserFailureException
                             {
                                 return queryServer.listQueries(getSessionToken(),

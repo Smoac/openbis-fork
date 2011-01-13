@@ -36,7 +36,8 @@ final class ListMatchingEntitiesOriginalDataProvider extends
     // AbstractOriginalDataProvider
     //
 
-    public final List<MatchingEntity> getOriginalData()
+    @Override
+    public final List<MatchingEntity> getFullOriginalData()
     {
         final List<MatchingEntity> entities =
                 commonServer.listMatchingEntities(sessionToken, matchingEntities, queryText,

@@ -582,7 +582,8 @@ public final class CommonClientService extends AbstractClientService implements
         return listEntities(criteria,
                 new AbstractOriginalDataProviderWithoutHeaders<PropertyType>()
                     {
-                        public List<PropertyType> getOriginalData() throws UserFailureException
+                        @Override
+                        public List<PropertyType> getFullOriginalData() throws UserFailureException
                         {
                             return listPropertyTypes(true);
                         }
@@ -608,7 +609,8 @@ public final class CommonClientService extends AbstractClientService implements
         return listEntities(criteria,
                 new AbstractOriginalDataProviderWithoutHeaders<EntityTypePropertyType<?>>()
                     {
-                        public List<EntityTypePropertyType<?>> getOriginalData()
+                        @Override
+                        public List<EntityTypePropertyType<?>> getFullOriginalData()
                                 throws UserFailureException
                         {
                             return extractAssignments(listPropertyTypes(true));
@@ -669,7 +671,8 @@ public final class CommonClientService extends AbstractClientService implements
     {
         return listEntities(criteria, new AbstractOriginalDataProviderWithoutHeaders<Script>()
             {
-                public List<Script> getOriginalData() throws UserFailureException
+                @Override
+                public List<Script> getFullOriginalData() throws UserFailureException
                 {
                     return listScripts(criteria.tryGetScriptType(), criteria.tryGetEntityKind());
                 }
@@ -711,7 +714,8 @@ public final class CommonClientService extends AbstractClientService implements
     {
         return listEntities(criteria, new AbstractOriginalDataProviderWithoutHeaders<Person>()
             {
-                public List<Person> getOriginalData() throws UserFailureException
+                @Override
+                public List<Person> getFullOriginalData() throws UserFailureException
                 {
                     if (criteria.getAuthorizationGroupId() == null)
                         return listPersons();
@@ -742,7 +746,8 @@ public final class CommonClientService extends AbstractClientService implements
         return listEntities(criteria,
                 new AbstractOriginalDataProviderWithoutHeaders<RoleAssignment>()
                     {
-                        public List<RoleAssignment> getOriginalData() throws UserFailureException
+                        @Override
+                        public List<RoleAssignment> getFullOriginalData() throws UserFailureException
                         {
                             return listRoleAssignments();
                         }
@@ -798,7 +803,8 @@ public final class CommonClientService extends AbstractClientService implements
         return listEntities(criteria,
                 new AbstractOriginalDataProviderWithoutHeaders<MaterialType>()
                     {
-                        public List<MaterialType> getOriginalData() throws UserFailureException
+                        @Override
+                        public List<MaterialType> getFullOriginalData() throws UserFailureException
                         {
                             return listMaterialTypes();
                         }
@@ -810,7 +816,8 @@ public final class CommonClientService extends AbstractClientService implements
     {
         return listEntities(criteria, new AbstractOriginalDataProviderWithoutHeaders<SampleType>()
             {
-                public List<SampleType> getOriginalData() throws UserFailureException
+                @Override
+                public List<SampleType> getFullOriginalData() throws UserFailureException
                 {
                     return listSampleTypes();
                 }
@@ -824,7 +831,8 @@ public final class CommonClientService extends AbstractClientService implements
         return listEntities(criteria,
                 new AbstractOriginalDataProviderWithoutHeaders<ExperimentType>()
                     {
-                        public List<ExperimentType> getOriginalData() throws UserFailureException
+                        @Override
+                        public List<ExperimentType> getFullOriginalData() throws UserFailureException
                         {
                             return listExperimentTypes();
                         }
@@ -837,7 +845,8 @@ public final class CommonClientService extends AbstractClientService implements
     {
         return listEntities(criteria, new AbstractOriginalDataProviderWithoutHeaders<DataSetType>()
             {
-                public List<DataSetType> getOriginalData() throws UserFailureException
+                @Override
+                public List<DataSetType> getFullOriginalData() throws UserFailureException
                 {
                     return listDataSetTypes();
                 }
@@ -861,7 +870,8 @@ public final class CommonClientService extends AbstractClientService implements
         return listEntitiesWithTypes(criteria,
                 new AbstractOriginalDataProviderWithoutHeaders<ExternalData>()
                     {
-                        public List<ExternalData> getOriginalData() throws UserFailureException
+                        @Override
+                        public List<ExternalData> getFullOriginalData() throws UserFailureException
                         {
                             final String sessionToken = getSessionToken();
                             final List<ExternalData> externalData =
@@ -880,7 +890,8 @@ public final class CommonClientService extends AbstractClientService implements
                 new AbstractOriginalDataProviderWithoutHeaders<ExternalData>()
                     {
 
-                        public List<ExternalData> getOriginalData() throws UserFailureException
+                        @Override
+                        public List<ExternalData> getFullOriginalData() throws UserFailureException
                         {
                             final String sessionToken = getSessionToken();
                             final List<ExternalData> externalData =
@@ -900,7 +911,8 @@ public final class CommonClientService extends AbstractClientService implements
         return listEntitiesWithTypes(criteria,
                 new AbstractOriginalDataProviderWithoutHeaders<ExternalData>()
                     {
-                        public List<ExternalData> getOriginalData() throws UserFailureException
+                        @Override
+                        public List<ExternalData> getFullOriginalData() throws UserFailureException
                         {
                             final String sessionToken = getSessionToken();
                             final List<ExternalData> externalData =
@@ -1741,7 +1753,8 @@ public final class CommonClientService extends AbstractClientService implements
         return listEntities(criteria,
                 new AbstractOriginalDataProviderWithoutHeaders<AttachmentVersions>()
                     {
-                        public List<AttachmentVersions> getOriginalData()
+                        @Override
+                        public List<AttachmentVersions> getFullOriginalData()
                                 throws UserFailureException
                         {
                             return listAttachmentVersions(holderId, holderKind);
@@ -2134,6 +2147,13 @@ public final class CommonClientService extends AbstractClientService implements
                         {
                             return null;
                         }
+
+                        public List<TableModelRowWithObject<Null>> getOriginalData(int maxSize)
+                                throws UserFailureException
+                        {
+                            return getOriginalData();
+                        }
+
                     };
         return new TypedTableResultSet<Null>(listEntities(resultSetConfig, dataProvider));
     }
@@ -2259,7 +2279,8 @@ public final class CommonClientService extends AbstractClientService implements
         return listEntities(resultSetConfig,
                 new AbstractOriginalDataProviderWithoutHeaders<AuthorizationGroup>()
                     {
-                        public List<AuthorizationGroup> getOriginalData()
+                        @Override
+                        public List<AuthorizationGroup> getFullOriginalData()
                                 throws UserFailureException
                         {
                             return listAuthorizationGroups();
@@ -2408,7 +2429,8 @@ public final class CommonClientService extends AbstractClientService implements
         return listEntities(resultSetConfig,
                 new AbstractOriginalDataProviderWithoutHeaders<GridCustomFilter>()
                     {
-                        public List<GridCustomFilter> getOriginalData() throws UserFailureException
+                        @Override
+                        public List<GridCustomFilter> getFullOriginalData() throws UserFailureException
                         {
                             return listFilters(gridId);
                         }
@@ -2480,7 +2502,8 @@ public final class CommonClientService extends AbstractClientService implements
         return listEntities(resultSetConfig,
                 new AbstractOriginalDataProviderWithoutHeaders<GridCustomColumn>()
                     {
-                        public List<GridCustomColumn> getOriginalData() throws UserFailureException
+                        @Override
+                        public List<GridCustomColumn> getFullOriginalData() throws UserFailureException
                         {
                             return listGridCustomColumns(gridId);
                         }

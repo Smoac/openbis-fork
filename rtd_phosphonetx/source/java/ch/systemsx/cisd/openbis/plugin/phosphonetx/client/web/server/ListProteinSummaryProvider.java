@@ -43,7 +43,8 @@ class ListProteinSummaryProvider extends AbstractOriginalDataProviderWithoutHead
         this.experimentID = experimentID;
     }
 
-    public List<ProteinSummary> getOriginalData() throws UserFailureException
+    @Override
+    public List<ProteinSummary> getFullOriginalData() throws UserFailureException
     {
         return server.listProteinSummariesByExperiment(sessionToken, experimentID);
     }

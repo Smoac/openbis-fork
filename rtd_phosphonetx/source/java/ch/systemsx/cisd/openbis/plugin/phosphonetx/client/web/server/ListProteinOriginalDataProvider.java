@@ -53,7 +53,8 @@ class ListProteinOriginalDataProvider extends AbstractOriginalDataProviderWithou
         this.aggregateOnOriginal = aggregateOnOriginal;
     }
     
-    public List<ProteinInfo> getOriginalData() throws UserFailureException
+    @Override
+    public List<ProteinInfo> getFullOriginalData() throws UserFailureException
     {
         return server.listProteinsByExperiment(sessionToken, experimentID, falseDiscoveryRate,
                 aggregateFunction, treatmentTypeCode, aggregateOnOriginal);
