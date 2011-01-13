@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
+import ch.systemsx.cisd.openbis.generic.server.business.bo.managed_property.ManagedPropertyEvaluator;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.managed_property.ManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -79,7 +81,9 @@ final class PropertyTranslatorUtils
         final ScriptPE script = property.getEntityTypePropertyType().getScript();
         assert script != null && script.getScriptType() == ScriptType.MANAGED_PROPERTY;
         final ManagedEntityProperty result = new ManagedEntityProperty(basicProperty);
-        // TODO 2011-01-12, Piotr Buczek: fill managed property
+        ManagedPropertyEvaluator evaluator =
+                ManagedPropertyEvaluatorFactory.createManagedPropertyEvaluator(script);
+        evaluator.evalConfigureProperty(result);
         return result;
     }
 

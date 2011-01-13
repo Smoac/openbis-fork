@@ -16,26 +16,18 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.util.ArrayList;
-import java.util.List;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
+ * The interface exposed to the script.
+ * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class ManagedComboBoxInputWidgetDescription extends ManagedInputWidgetDescription
+public interface IManagedUiDescription
 {
-    private static final long serialVersionUID = 1L;
+    public void useTableOutput(TypedTableModel<ISerializable> tableModel);
 
-    private List<String> options = new ArrayList<String>();
+    public void addTextInputField(String label);
 
-    public List<String> getOptions()
-    {
-        return options;
-    }
-
-    public void setOptions(List<String> options)
-    {
-        this.options = options;
-    }
-
+    public void addComboBoxInputField(String labels, String[] values);
 }

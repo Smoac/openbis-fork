@@ -14,28 +14,19 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
+package ch.systemsx.cisd.openbis.generic.server.business.bo.managed_property;
 
-import java.util.ArrayList;
-import java.util.List;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 
 /**
+ * Factory for creating managed property evaluators. (Could do some caching or other cleverness.)
+ * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class ManagedComboBoxInputWidgetDescription extends ManagedInputWidgetDescription
+public class ManagedPropertyEvaluatorFactory
 {
-    private static final long serialVersionUID = 1L;
-
-    private List<String> options = new ArrayList<String>();
-
-    public List<String> getOptions()
+    public static ManagedPropertyEvaluator createManagedPropertyEvaluator(ScriptPE scriptPE)
     {
-        return options;
+        return new ManagedPropertyEvaluator(scriptPE);
     }
-
-    public void setOptions(List<String> options)
-    {
-        this.options = options;
-    }
-
 }

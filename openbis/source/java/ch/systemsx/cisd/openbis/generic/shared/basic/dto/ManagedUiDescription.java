@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.util.Arrays;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
@@ -25,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  * 
  * @author Piotr Buczek
  */
-public class ManagedUiDescription implements ISerializable
+public class ManagedUiDescription implements IManagedUiDescription, ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -60,5 +61,28 @@ public class ManagedUiDescription implements ISerializable
     public void addInputWidgetDescription(ManagedInputWidgetDescription widgetDescription)
     {
         inputWidgetDescriptions.add(widgetDescription);
+    }
+
+    public void addTextInputField(String label)
+    {
+        ManagedTextInputWidgetDescription inputField = new ManagedTextInputWidgetDescription();
+        inputField.setLabel(label);
+        addInputWidgetDescription(inputField);
+    }
+
+    public void addComboBoxInputField(String label, String[] values)
+    {
+        ManagedComboBoxInputWidgetDescription inputField =
+                new ManagedComboBoxInputWidgetDescription();
+        inputField.setLabel(label);
+        inputField.setOptions(Arrays.asList(values));
+        addInputWidgetDescription(inputField);
+    }
+
+    public void useTableOutput(TypedTableModel<ISerializable> tableModel)
+    {
+        ManagedTableWidgetDescription tableWidget = new ManagedTableWidgetDescription();
+        tableWidget.setTableModel(tableModel);
+        setOutputWidgetDescription(tableWidget);
     }
 }
