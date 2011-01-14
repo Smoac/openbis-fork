@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 /**
  * Implementation of {@link IAttachmentDAO} for data bases.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  * @author Tomasz Pylak
  */
 final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> implements IAttachmentDAO
@@ -186,16 +186,23 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
 
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();
 
-        final String query =
-                String.format("delete from %s where " + getParentName(owner)
-                        + " = ? and fileName = ?", TABLE_NAME);
-        final int deletedRows = hibernateTemplate.bulkUpdate(query, toArray(owner, fileName));
+        int deletedRows = 0;
+        for (AttachmentPE att : owner.getAttachments())
+        {
+            if (fileName.equals(att.getFileName()))
+            {
+                deletedRows++;
+                hibernateTemplate.delete(att);
+            }
+        }
+
         hibernateTemplate.flush();
+
         if (operationLog.isInfoEnabled())
         {
             operationLog.debug(String.format(
-                    "%s attachment(s) deleted for %s '%s' and file name '%s'.", deletedRows, owner
-                            .getHolderName(), owner, fileName));
+                    "%s attachment(s) deleted for %s '%s' and file name '%s'.", deletedRows,
+                    owner.getHolderName(), owner, fileName));
         }
 
         return deletedRows;
