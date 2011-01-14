@@ -36,6 +36,8 @@ class LibraryRegistrationTask implements Runnable
     private static final String UNSUCCESSFUL_LIBRARY_REGISTARION_STATUS =
             "Library registration failed";
 
+    private static final String DELIM = " ";
+
 
     private final String sessionToken;
 
@@ -213,15 +215,15 @@ class LibraryRegistrationTask implements Runnable
         }
 
         boolean ignoreNewType =
-                existingType.startsWith(newType + " ") || existingType.endsWith(" " + newType)
-                        || (existingType.indexOf(" " + newType + " ") > 0);
+                existingType.startsWith(newType + DELIM) || existingType.endsWith(DELIM + newType)
+                        || (existingType.indexOf(DELIM + newType + DELIM) > 0);
 
         if (ignoreNewType)
         {
             return existingType;
         } else
         {
-            return existingType + " " + newType;
+            return existingType + DELIM + newType;
         }
     }
 
