@@ -25,20 +25,20 @@ public class ManagedTableWidgetDescription implements IManagedWidgetDescription
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private TypedTableModel<?> tableModel;
+    private TableModel tableModel;
 
     public ManagedTableWidgetDescription()
     {
     }
 
-    public void setTableModel(TypedTableModel<?> tableModel)
-    {
-        this.tableModel = tableModel;
-    }
-
-    public TypedTableModel<?> getTableModel()
+    public TableModel getTableModel()
     {
         return tableModel;
+    }
+
+    public void setTableModel(TableModel tableModel)
+    {
+        this.tableModel = tableModel;
     }
 
     //

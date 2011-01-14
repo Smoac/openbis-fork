@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.IDynamicPropertyEvaluator;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.api.IEntityAdaptor;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.api.IEntityPropertyAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;

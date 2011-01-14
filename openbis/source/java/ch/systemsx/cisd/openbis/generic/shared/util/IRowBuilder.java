@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks;
+package ch.systemsx.cisd.openbis.generic.shared.util;
+
+import java.util.Date;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 
 /**
  * Builder of a row of {@link SimpleTableModelBuilder}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IRowBuilder
@@ -29,19 +31,24 @@ public interface IRowBuilder
      * Sets the value of the column specified by the header title.
      */
     public void setCell(String headerTitle, ISerializableComparable value);
-    
+
     /**
      * Sets the value of the column specified by the header title by the specified string.
      */
     public void setCell(String headerTitle, String value);
-    
+
     /**
      * Sets the value of the column specified by the header title by the specified long value.
      */
     public void setCell(String headerTitle, long value);
-    
+
     /**
      * Sets the value of the column specified by the header title by the specified double value.
      */
     public void setCell(String headerTitle, double value);
+
+    /**
+     * Sets the value of the column specified by the header title by the specified date.
+     */
+    public void setCell(String headerTitle, Date value);
 }

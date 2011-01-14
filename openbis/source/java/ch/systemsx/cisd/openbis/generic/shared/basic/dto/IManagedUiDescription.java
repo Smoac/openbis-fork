@@ -16,16 +16,20 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.managed_property.api.ISimpleTableModelBuilderAdaptor;
 
 /**
- * The interface exposed to the script.
+ * The interface exposed to the Managed Property script.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
 public interface IManagedUiDescription
 {
-    public void useTableOutput(TypedTableModel<ISerializable> tableModel);
+    public void setupTableOutput(ISimpleTableModelBuilderAdaptor tableModelBuilder);
+
+    // FIXME remove this as it exposes TableModel (or introduce TableModelAdaptor)
+    @Deprecated
+    public void useTableOutput(TableModel tableModel);
 
     public void addTextInputField(String label);
 

@@ -27,11 +27,11 @@ import ch.systemsx.cisd.openbis.dss.generic.server.AbstractTabularDataGraphServl
 import ch.systemsx.cisd.openbis.dss.generic.server.graph.TabularDataGraphCollectionConfiguration;
 import ch.systemsx.cisd.openbis.dss.generic.server.graph.TabularDataGraphConfiguration;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDataMergingReportingPlugin;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GeneratedImageTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
 
 /**
  * Reporting plugin that returns a table in which each column contains a graph. The number and

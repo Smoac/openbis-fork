@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.IDynamicPropertyEvaluator;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.api.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 
 /**

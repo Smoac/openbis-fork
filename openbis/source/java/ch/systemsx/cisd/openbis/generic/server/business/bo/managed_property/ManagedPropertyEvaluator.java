@@ -21,10 +21,9 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.evaluator.Evaluator;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
-import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
 
 /**
  * Class for evaluating scripts that control managed properties.
@@ -66,9 +65,9 @@ public class ManagedPropertyEvaluator
 
     public static class ScriptUtilityFactory
     {
-        static public TypedTableModelBuilder<ISerializable> createTableBuilder()
+        static public SimpleTableModelBuilder createTableBuilder()
         {
-            return new TypedTableModelBuilder<ISerializable>();
+            return new SimpleTableModelBuilder();
         }
     }
 }

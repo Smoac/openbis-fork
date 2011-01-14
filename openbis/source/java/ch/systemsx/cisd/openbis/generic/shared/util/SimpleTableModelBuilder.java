@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks;
+package ch.systemsx.cisd.openbis.generic.shared.util;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -22,9 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
-
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.common.utilities.Counters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
@@ -35,7 +34,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
-import ch.systemsx.cisd.openbis.generic.shared.util.DataTypeUtils;
 
 /**
  * Helps in building a {@link TableModel}
@@ -48,12 +46,14 @@ public class SimpleTableModelBuilder
     private final List<TableModelRow> rows;
 
     private final List<TableModelColumnHeader> headers;
-    
+
     private final Counters<String> counters = new Counters<String>();
-    
+
     private final Map<String, Integer> titleToIndexMap;
 
     private final boolean uniqueHeaderTitles;
+
+    private String messageOrNull;
 
     /**
      * Creates a new instance with non-unique header titles allowed.
@@ -86,7 +86,7 @@ public class SimpleTableModelBuilder
     {
         addHeader(title, 150);
     }
-    
+
     /**
      * Adds header with specified title, specified code and default column width 150.
      * 
@@ -97,7 +97,7 @@ public class SimpleTableModelBuilder
     {
         addHeader(title, code, 150);
     }
-    
+
     /**
      * Adds header with specified title and specified default column width.
      * 
@@ -108,7 +108,7 @@ public class SimpleTableModelBuilder
     {
         addHeader(title, title, defaultColumnWidth);
     }
-    
+
     /**
      * Adds header with specified title, specified code and specified default column width.
      * 
@@ -133,9 +133,9 @@ public class SimpleTableModelBuilder
         int count = counters.count(code);
         return count == 1 ? code : code + count;
     }
-    
+
     /**
-     * Adds an empty row and returns a row builder for setting values of this row. 
+     * Adds an empty row and returns a row builder for setting values of this row.
      * 
      * @throws UnsupportedOperationException if header titles are not forced to be unique
      */
@@ -143,7 +143,8 @@ public class SimpleTableModelBuilder
     {
         if (uniqueHeaderTitles == false)
         {
-            throw new UnsupportedOperationException("Method only supported for unique header titles.");
+            throw new UnsupportedOperationException(
+                    "Method only supported for unique header titles.");
         }
         final List<ISerializableComparable> values = new ArrayList<ISerializableComparable>();
         StringTableCell emptyCell = new StringTableCell("");
@@ -156,17 +157,22 @@ public class SimpleTableModelBuilder
             {
                 public void setCell(String headerTitle, String value)
                 {
-                    setCell(headerTitle, new StringTableCell(value));
+                    setCell(headerTitle, asText(value));
                 }
 
                 public void setCell(String headerTitle, long value)
                 {
-                    setCell(headerTitle, new IntegerTableCell(value));
+                    setCell(headerTitle, asNum(value));
                 }
 
                 public void setCell(String headerTitle, double value)
                 {
-                    setCell(headerTitle, new DoubleTableCell(value));
+                    setCell(headerTitle, asNum(value));
+                }
+
+                public void setCell(String headerTitle, Date value)
+                {
+                    setCell(headerTitle, asDate(value));
                 }
 
                 public void setCell(String headerTitle, ISerializableComparable value)
@@ -207,9 +213,10 @@ public class SimpleTableModelBuilder
         TableModelColumnHeader header = headers.get(index);
         DataTypeCode headerDataType = header.getDataType();
         DataTypeCode dataType = getDataTypeCodeFor(value);
-        if (StringUtils.isNotBlank(value.toString()))
+        if (StringUtils.isBlank(value.toString()) == false)
         {
-            DataTypeCode compatibleDataType = DataTypeUtils.getCompatibleDataType(headerDataType, dataType);
+            DataTypeCode compatibleDataType =
+                    DataTypeUtils.getCompatibleDataType(headerDataType, dataType);
             header.setDataType(compatibleDataType);
         }
     }
@@ -229,6 +236,16 @@ public class SimpleTableModelBuilder
             return DataTypeCode.TIMESTAMP;
         }
         return DataTypeCode.VARCHAR;
+    }
+
+    public String tryGetMessage()
+    {
+        return messageOrNull;
+    }
+
+    public void setMessage(String message)
+    {
+        this.messageOrNull = message;
     }
 
     public TableModel getTableModel()
@@ -268,4 +285,5 @@ public class SimpleTableModelBuilder
     {
         return new StringTableCell("");
     }
+
 }

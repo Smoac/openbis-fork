@@ -14,22 +14,17 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator;
+package ch.systemsx.cisd.openbis.generic.shared.basic;
 
 /**
- * Interface implemented by all entity properties
- * 
  * @author Piotr Buczek
  */
-public interface IEntityPropertyAdaptor
+public interface IManagedPropertyGridInformationProvider
 {
-    /** Returns the code of property type. */
-    public String propertyTypeCode();
-
-    /** Returns the property value as string. */
-    public String valueAsString();
-
-    /** Returns the property value as string that should be rendered e.g. in a table. */
-    public String renderedValue();
+    /**
+     * the key of a grid that can be used when creating ids (unique in the context of an entity,
+     * doesn't contain spaces)
+     */
+    public String getKey();
 
 }

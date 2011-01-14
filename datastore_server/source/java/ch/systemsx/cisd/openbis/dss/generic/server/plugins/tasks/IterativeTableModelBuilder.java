@@ -31,6 +31,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.util.TableCellUtil;
 
 /**

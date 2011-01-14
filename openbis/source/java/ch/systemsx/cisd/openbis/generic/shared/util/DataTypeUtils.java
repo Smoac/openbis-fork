@@ -20,11 +20,9 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
-
-import com.google.gwt.user.client.rpc.IsSerializable;
-
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
@@ -40,7 +38,7 @@ public class DataTypeUtils
 {
     private static final Map<DataTypeCode, Converter> map = new HashMap<DataTypeCode, Converter>();
 
-    private enum Converter implements IsSerializable
+    private enum Converter implements ISerializable
     {
 
         INTEGER(DataTypeCode.INTEGER)
