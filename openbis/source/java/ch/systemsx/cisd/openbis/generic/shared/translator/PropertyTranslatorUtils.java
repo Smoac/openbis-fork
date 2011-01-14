@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
-import ch.systemsx.cisd.openbis.generic.server.business.bo.managed_property.ManagedPropertyEvaluator;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.managed_property.ManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -28,6 +26,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermEntityPro
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluator;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory;
 
 /**
  * Some utility methods for entity property translations.

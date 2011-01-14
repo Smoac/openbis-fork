@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.business.bo.managed_property;
+package ch.systemsx.cisd.openbis.generic.shared.managed_property;
 
 import java.util.Date;
 
-import ch.systemsx.cisd.openbis.generic.server.business.bo.managed_property.api.IRowBuilderAdaptor;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.managed_property.api.ISimpleTableModelBuilderAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IRowBuilderAdaptor;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTableModelBuilderAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.util.IRowBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
 

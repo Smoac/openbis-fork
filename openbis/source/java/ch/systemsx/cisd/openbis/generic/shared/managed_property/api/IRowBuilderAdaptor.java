@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.business.bo.managed_property.api;
+package ch.systemsx.cisd.openbis.generic.shared.managed_property.api;
 
 import java.util.Date;
 
