@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVecto
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MicroscopyImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 
@@ -150,7 +151,7 @@ public interface IDssServiceRpcScreening extends IRpcService
             String sessionToken,
             @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class) List<PlateImageReference> imageReferences,
             ImageSize size);
-    
+
     /**
      * Provide images for a given list of image references (given by data set code, well position,
      * channel and tile). The result is encoded into one stream, which consist of multiple blocks in
@@ -165,10 +166,10 @@ public interface IDssServiceRpcScreening extends IRpcService
             @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class) List<PlateImageReference> imageReferences);
 
     /**
-     * Provide images for specified data set, list of well positions (empty list means all wells),
-     * channel, and optional thumb nail size. Images of all tiles are delivered. If thumb nail size
-     * isn't specified the original image is delivered otherwise a thumb nail image with same aspect
-     * ratio as the original image but which fits into specified size will be delivered.
+     * Provide images for specified data set, list of well positions, channel, and optional thumb
+     * nail size. Images of all tiles are delivered. If thumb nail size isn't specified the original
+     * image is delivered otherwise a thumb nail image with same aspect ratio as the original image
+     * but which fits into specified size will be delivered.
      * <p>
      * The result is encoded into one stream, which consist of multiple blocks in a format:
      * (<block-size><block-of-bytes>)*, where block-size is the block size in bytes encoded as one
@@ -186,8 +187,31 @@ public interface IDssServiceRpcScreening extends IRpcService
             List<WellPosition> wellPositions, String channel, ImageSize thumbnailSizeOrNull);
 
     /**
-     * Lists plate image references for specified data set, list of well positions (empty list means
-     * all wells), and channel.
+     * Provide images for specified microscopy data set, channel and optional thumb nail size.
+     * Images of all tiles are delivered. If thumb nail size isn't specified the original image is
+     * delivered otherwise a thumb nail image with same aspect ratio as the original image but which
+     * fits into specified size will be delivered.
+     * <p>
+     * Note that this method will not work for datasets connected to plates (in this case the wells
+     * would have to be specified additionally).
+     * <p>
+     * The result is encoded into one stream, which consist of multiple blocks in a format:
+     * (<block-size><block-of-bytes>)*, where block-size is the block size in bytes encoded as one
+     * long number. The number of blocks is equal to the number of specified references and the
+     * order of blocks corresponds to the order of image references. The images will be converted to
+     * PNG format before being shipped.
+     * 
+     * @since 1.5
+     */
+    @MinimalMinorVersion(5)
+    @DataSetAccessGuard
+    public InputStream loadImages(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = SingleDataSetIdentifierPredicate.class) IDatasetIdentifier dataSetIdentifier,
+            String channel, ImageSize thumbnailSizeOrNull);
+
+    /**
+     * Lists plate image references for specified data set, list of well positions and channel.
      */
     @MinimalMinorVersion(4)
     @DataSetAccessGuard
@@ -197,8 +221,18 @@ public interface IDssServiceRpcScreening extends IRpcService
             List<WellPosition> wellPositions, String channel);
 
     /**
-     * Saves the specified transformer factory for the specified channel and the experiment to
-     * which the specified data sets belong.
+     * Lists microscopy image references for specified data set and channel.
+     */
+    @MinimalMinorVersion(5)
+    @DataSetAccessGuard
+    public List<MicroscopyImageReference> listImageReferences(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = SingleDataSetIdentifierPredicate.class) IDatasetIdentifier dataSetIdentifier,
+            String channel);
+
+    /**
+     * Saves the specified transformer factory for the specified channel of the specified data. Note
+     * that the channel can be stored at the dataset or experiment level.
      */
     @MinimalMinorVersion(4)
     @DataSetAccessGuard
@@ -208,8 +242,9 @@ public interface IDssServiceRpcScreening extends IRpcService
             String channel, IImageTransformerFactory transformerFactory);
 
     /**
-     * Returns the transformer factory for the specified channel and the experiment to which
-     * the specified data sets belong.
+     * Returns the transformer factory for the specified channel and the experiment to which the
+     * specified data sets belong. If there is exactly one dataset identifier, checks first if
+     * channels are defined on the dataset level.
      * 
      * @return <code>null</code> if such a factory has been defined yet.
      */
@@ -219,7 +254,7 @@ public interface IDssServiceRpcScreening extends IRpcService
             String sessionToken,
             @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class) List<IDatasetIdentifier> dataSetIdentifiers,
             String channel);
-    
+
     /**
      * For a given set of image data sets, provide all image channels that have been acquired and
      * the available (natural) image size(s).

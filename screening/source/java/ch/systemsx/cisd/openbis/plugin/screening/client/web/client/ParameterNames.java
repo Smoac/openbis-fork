@@ -27,7 +27,5 @@ public class ParameterNames
 
     public static final String DATA_SET_AND_WELLS = "data-set-and-wells";
 
-    public static final String DATA_SETS = "data-sets";
-
     public static final String SERVER_URL = "server-url";
 }

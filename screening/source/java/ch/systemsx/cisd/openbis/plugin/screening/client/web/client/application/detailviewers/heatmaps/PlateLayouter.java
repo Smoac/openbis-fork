@@ -50,6 +50,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.dto.Color;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.PlateUtils;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
@@ -340,8 +341,9 @@ public class PlateLayouter
                         // image transformer factory has changed. For the image URL the
                         // signature of the factory is needed to distinguish them. This is important
                         // because Web browser caches images.
-                        service.getImageDatasetReference(dataset.getImageDataset()
-                                .getDatasetReference(),
+                        DatasetImagesReference imageDataset = dataset.getImageDataset();
+                        service.getImageDatasetReference(imageDataset.getDatasetCode(),
+                                imageDataset.getDatastoreCode(),
                                 new AbstractAsyncCallback<ImageDatasetEnrichedReference>(
                                         screeningViewContext)
                                     {

@@ -83,7 +83,7 @@ public class LogicalImageDatasetSection extends TabContent
                     LogicalImageViewer viewer =
                             new LogicalImageViewer(logicalImageReference,
                                     LogicalImageDatasetSection.this.viewContext, identifier,
-                                    experimentPermId);
+                                    experimentPermId, true);
                     Widget viewerWidget = viewer.getViewerWidget(imageInfo.getChannelStacks());
                     add(viewerWidget, LayoutUtils.createRowLayoutSurroundingData());
 

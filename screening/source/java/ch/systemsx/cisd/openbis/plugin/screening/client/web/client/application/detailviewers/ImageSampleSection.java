@@ -172,7 +172,8 @@ public class ImageSampleSection extends TabContent
             LogicalImageReference logicalImageReference =
                     new LogicalImageReference(imageInfo.getImageDataset(), wellLocationOrNull);
             LogicalImageViewer viewer =
-                    new LogicalImageViewer(logicalImageReference, viewContext, "", experimentPermId);
+                    new LogicalImageViewer(logicalImageReference, viewContext, "",
+                            experimentPermId, true);
             return viewer.getViewerWidget(imageInfo.getChannelStacks());
         }
 

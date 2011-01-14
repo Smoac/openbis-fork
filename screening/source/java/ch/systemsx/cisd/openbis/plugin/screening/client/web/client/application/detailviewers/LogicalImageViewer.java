@@ -18,14 +18,6 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.Text;
-import com.extjs.gxt.ui.client.widget.layout.RowLayout;
-import com.extjs.gxt.ui.client.widget.layout.TableLayout;
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.Widget;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
@@ -40,8 +32,25 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageChannelsReference;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
+
+import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.util.Margins;
+import com.extjs.gxt.ui.client.widget.Label;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.Text;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.layout.ColumnLayout;
+import com.extjs.gxt.ui.client.widget.layout.RowData;
+import com.extjs.gxt.ui.client.widget.layout.RowLayout;
+import com.extjs.gxt.ui.client.widget.layout.TableLayout;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Widget;
 
 /**
  * A widget which displays one logical image pointed by {@link LogicalImageReference}.
@@ -50,7 +59,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
  */
 public class LogicalImageViewer
 {
-
     private static final String NO_IMAGES_AVAILABLE_MSG = "No images available";
 
     private static final int ONE_IMAGE_WIDTH_PX = 200;
@@ -58,6 +66,8 @@ public class LogicalImageViewer
     private static final int ONE_IMAGE_HEIGHT_PX = 120;
 
     private static final int CHANNEL_SPLITER_AND_LABEL_HEIGHT_PX = 90;
+
+    private static final int ADJUST_COLORS_AND_REFRESH_BUTTON_WIDTH_PX = 80;
 
     // ----------------
 
@@ -69,16 +79,19 @@ public class LogicalImageViewer
 
     private final String experimentIdentifier;
 
+    private final boolean showColorAdjustmentButton;
+
     private String currentlySelectedChannelCode;
 
     public LogicalImageViewer(LogicalImageReference logicalImageReference,
             IViewContext<IScreeningClientServiceAsync> viewContext, String experimentIdentifier,
-            String experimentPermId)
+            String experimentPermId, boolean showColorAdjustmentButton)
     {
         this.logicalImageReference = logicalImageReference;
         this.viewContext = viewContext;
         this.experimentIdentifier = experimentIdentifier;
         this.channelState = createDefaultChannelState(viewContext, experimentPermId);
+        this.showColorAdjustmentButton = showColorAdjustmentButton && isImageEditorEnabled();
     }
 
     /** Creates a widget which displays a series of images. */
@@ -168,8 +181,92 @@ public class LogicalImageViewer
                             channelReferences, imageWidth, imageHeight);
                 }
             };
-        return ChannelChooser.createViewerWithChannelChooser(viewerFactory, channelState,
-                logicalImageReference);
+        return createViewerWithChannelChooser(viewerFactory);
+    }
+
+    private LayoutContainer createViewerWithChannelChooser(
+            final IChanneledViewerFactory viewerFactory)
+    {
+        LayoutContainer container = createMainEmptyContainer();
+        if (hasNoChannels())
+        {
+            container.add(new Label(NO_IMAGES_AVAILABLE_MSG));
+            return container;
+        }
+
+        final ChannelChooser channelChooser =
+                new ChannelChooser(logicalImageReference, viewerFactory, channelState);
+        channelChooser.addViewerTo(container);
+
+        if (showColorAdjustmentButton)
+        {
+            LayoutContainer buttonToolbar = new LayoutContainer();
+            buttonToolbar.setLayout(new ColumnLayout());
+            Button adjustColorsButton =
+                    new Button(viewContext.getMessage(Dict.IMAGE_VIEWER_BUTTON),
+                            new SelectionListener<ButtonEvent>()
+                                {
+                                    @Override
+                                    public void componentSelected(ButtonEvent ce)
+                                    {
+                                        launchImageEditor();
+                                    }
+                                });
+            buttonToolbar.add(adjustColorsButton);
+            Button refreshButton =
+                    new Button(viewContext.getMessage(Dict.BUTTON_REFRESH),
+                            new SelectionListener<ButtonEvent>()
+                                {
+                                    @Override
+                                    public void componentSelected(ButtonEvent ce)
+                                    {
+                                        updateDatasetAndRefresh(channelChooser);
+                                    }
+                                });
+            buttonToolbar.add(refreshButton);
+
+            adjustColorsButton.setWidth(ADJUST_COLORS_AND_REFRESH_BUTTON_WIDTH_PX);
+            refreshButton.setWidth(ADJUST_COLORS_AND_REFRESH_BUTTON_WIDTH_PX);
+
+            RowData layoutData = new RowData();
+            layoutData.setMargins(new Margins(10, 2, 0, 2));
+            container.add(buttonToolbar, layoutData);
+        }
+        return container;
+    }
+
+    private boolean hasNoChannels()
+    {
+        return logicalImageReference.getChannelsCodes().size() == 0;
+    }
+
+    private void updateDatasetAndRefresh(final ChannelChooser channelChooser)
+    {
+        // dataset update is needed because colors adjustment could have been performed
+        viewContext.getService().getImageDatasetReference(logicalImageReference.getDatasetCode(),
+                logicalImageReference.getDatastoreCode(),
+                new AbstractAsyncCallback<ImageDatasetEnrichedReference>(viewContext)
+                    {
+                        @Override
+                        protected void process(ImageDatasetEnrichedReference refreshedDataset)
+                        {
+                            LogicalImageReference updatedLogicalImageReference =
+                                    logicalImageReference.updateDatasets(refreshedDataset);
+                            channelChooser.refresh(updatedLogicalImageReference);
+                        }
+                    });
+    }
+
+    private static LayoutContainer createMainEmptyContainer()
+    {
+        final LayoutContainer container = new LayoutContainer();
+        container.setLayout(new RowLayout());
+        container.setScrollMode(Scroll.AUTO);
+
+        RowData layoutData = new RowData();
+        layoutData.setMargins(new Margins(3, 0, 0, 0));
+        container.add(new Text(""), layoutData); // separator
+        return container;
     }
 
     /** Creates a widget which displays images which has no series. */
@@ -185,8 +282,7 @@ public class LogicalImageViewer
                     return createTilesGrid(channelReferences, sessionId);
                 }
             };
-        return ChannelChooser.createViewerWithChannelChooser(viewerFactory, channelState,
-                logicalImageReference);
+        return createViewerWithChannelChooser(viewerFactory);
     }
 
     private static IDefaultChannelState createDefaultChannelState(
@@ -235,11 +331,16 @@ public class LogicalImageViewer
             urlParams.addParameter(ParameterNames.DATA_SET_AND_WELLS, imagePointer);
         } else
         {
-            urlParams
-                    .addParameter(ParameterNames.DATA_SETS, logicalImageReference.getDatasetCode());
+            urlParams.addParameter(ParameterNames.DATA_SET_AND_WELLS,
+                    logicalImageReference.getDatasetCode());
         }
 
         Window.open(urlParams.toString(), "_blank", "resizable=yes,scrollbars=yes,dependent=yes");
+    }
+
+    public boolean isImageEditorEnabled()
+    {
+        return "true".equals(viewContext.getPropertyOrNull("image-viewer-enabled"));
     }
 
     private static LayoutContainer createTilesGrid(LogicalImageChannelsReference channelReferences,

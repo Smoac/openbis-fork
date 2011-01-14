@@ -30,7 +30,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
@@ -121,7 +120,8 @@ public interface IScreeningClientService extends IClientService
      * Returns information about image dataset for a given image dataset. Used to refresh
      * information about the dataset.
      */
-    public ImageDatasetEnrichedReference getImageDatasetReference(DatasetReference imageDataset);
+    public ImageDatasetEnrichedReference getImageDatasetReference(String datasetCode,
+            String datastoreCode);
 
     /**
      * Loads information about datasets connected to specified sample (microscopy) or a container

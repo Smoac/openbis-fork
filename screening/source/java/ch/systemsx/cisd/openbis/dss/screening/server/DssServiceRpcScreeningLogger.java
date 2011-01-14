@@ -32,12 +32,11 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVecto
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MicroscopyImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DssServiceRpcScreeningLogger extends AbstractServerLogger implements
@@ -122,6 +121,23 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
         return null;
     }
 
+    public InputStream loadImages(String sessionToken, IDatasetIdentifier dataSetIdentifier,
+            String channel, ImageSize thumbnailSizeOrNull)
+    {
+        logAccess(sessionToken, "load_images microscopy ",
+                "DATA_SET(%s) CHANNEL(%s) IMAGE_SIZE(%s)", dataSetIdentifier, channel,
+                thumbnailSizeOrNull);
+        return null;
+    }
+
+    public List<MicroscopyImageReference> listImageReferences(String sessionToken,
+            IDatasetIdentifier dataSetIdentifier, String channel)
+    {
+        logAccess(sessionToken, "list_image_references", "DATA_SET(%s) CHANNEL(%s)",
+                dataSetIdentifier, channel);
+        return null;
+    }
+
     public List<PlateImageReference> listPlateImageReferences(String sessionToken,
             IDatasetIdentifier dataSetIdentifier, List<WellPosition> wellPositions, String channel)
     {
@@ -152,7 +168,7 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
     {
         logAccess(sessionToken, "load_image_metadata", "DATA_SETS(%s)", imageDatasets);
         return null;
-   }
+    }
 
     public void checkDatasetsAuthorizationForIDatasetIdentifier(String sessionToken,
             List<? extends IDatasetIdentifier> featureDatasets)

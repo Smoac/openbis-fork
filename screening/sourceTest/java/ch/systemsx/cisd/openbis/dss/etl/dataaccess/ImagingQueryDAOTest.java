@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.etl.dataaccess;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -211,6 +212,7 @@ public class ImagingQueryDAOTest extends AbstractDBTest
         final long datasetId = addDataset(DS_PERM_ID, containerId);
         final long spotId = addSpot(containerId);
         final long datasetChannelId1 = addDatasetChannel(datasetId);
+        assertTrue(dao.hasDatasetChannels(DS_PERM_ID));
         final long experimentChannelId2 = addExperimentChannel(experimentId);
 
         testChannelMethods(experimentId, datasetId, datasetChannelId1, experimentChannelId2);

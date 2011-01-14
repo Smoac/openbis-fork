@@ -161,6 +161,10 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
     @Select("select * from CHANNELS where (DS_ID = ?{1}) and CODE = upper(?{2})")
     public ImgChannelDTO tryGetChannelForDataset(long datasetId, String chosenChannelCode);
 
+    @Select("select count(*) > 0 from CHANNELS ch "
+            + "join DATA_SETS d on ch.ds_id = d.id where d.PERM_ID = ?{1}")
+    public boolean hasDatasetChannels(String datasetPermId);
+
     // ---------------- Generic ---------------------------------
 
     /** @return an image for the specified channel and channel stack or null */

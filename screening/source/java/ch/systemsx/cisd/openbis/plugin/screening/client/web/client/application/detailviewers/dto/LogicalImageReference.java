@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
@@ -74,6 +75,15 @@ public class LogicalImageReference
         this.overlayDatasets = new ArrayList<DatasetImagesReference>();
     }
 
+    /**
+     * Creates a new instance with refreshed dataset references, does not change the current
+     * instance.
+     */
+    public LogicalImageReference updateDatasets(ImageDatasetEnrichedReference refreshedDataset)
+    {
+        return new LogicalImageReference(refreshedDataset, wellLocationOrNull);
+    }
+
     public WellLocation tryGetWellLocation()
     {
         return wellLocationOrNull;
@@ -122,5 +132,11 @@ public class LogicalImageReference
     public List<DatasetImagesReference> getOverlayDatasets()
     {
         return overlayDatasets;
+    }
+
+    public DatasetReference getDatasetReference()
+    {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

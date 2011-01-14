@@ -206,7 +206,7 @@ public class WellContentDialog extends Dialog
                 new LogicalImageReference(imageDatasetOrNull, wellLocationOrNull);
         return new LogicalImageViewer(imagesOrNull, viewContext,
                 experimentCriteria.getExperimentIdentifier(),
-                experimentCriteria.getExperimentPermId());
+                experimentCriteria.getExperimentPermId(), false);
     }
 
     private static SingleExperimentSearchCriteria getExperiment(WellData wellData)
@@ -256,6 +256,7 @@ public class WellContentDialog extends Dialog
         this.viewContext = viewContext;
         setScrollMode(Scroll.AUTO);
         setHideOnButtonClick(true);
+        setButtons(CLOSE);
         setHeading(WELL_LABEL + getWellDescription());
         setTopComponent(createContentDescription());
 
@@ -283,7 +284,7 @@ public class WellContentDialog extends Dialog
 
     private void addImageEditorLaunchButton(final LogicalImageViewer viewer)
     {
-        if ("true".equals(viewContext.getPropertyOrNull("image-viewer-enabled")) == false)
+        if (viewer.isImageEditorEnabled() == false)
         {
             return;
         }

@@ -402,11 +402,16 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
 
                     long datasetId = 123;
                     ImgDatasetDTO dataset = createDataset(datasetId);
+                    dataset.setPermId(DATASET_CODE);
 
                     one(dao).tryGetDatasetByPermId(DATASET_CODE);
                     will(returnValue(dataset));
+
                     one(dao).tryGetDatasetByPermId("ds2");
                     will(returnValue(dataset));
+
+                    allowing(dao).hasDatasetChannels(DATASET_CODE);
+                    will(returnValue(true));
 
                     exactly(2).of(transformerDAO).saveTransformerFactoryForDatasetChannel(
                             datasetId, channel, transformerFactory);
@@ -442,13 +447,17 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                     long datasetId = 123;
                     ImgDatasetDTO dataset = createDataset(datasetId);
                     dataset.setContainerId(containerId);
-
+                    dataset.setPermId(DATASET_CODE);
+                    
                     long experimentId = 888;
                     ImgContainerDTO container = new ImgContainerDTO(null, null, null, experimentId);
                     container.setId(containerId);
 
                     one(dao).tryGetDatasetByPermId(DATASET_CODE);
                     will(returnValue(dataset));
+                    
+                    allowing(dao).hasDatasetChannels(DATASET_CODE);
+                    will(returnValue(false));
 
                     one(dao).getContainerById(containerId);
                     will(returnValue(container));

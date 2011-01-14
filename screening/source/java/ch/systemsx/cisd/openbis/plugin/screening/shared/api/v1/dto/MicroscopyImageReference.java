@@ -1,52 +1,30 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
 /**
- * Identifies one image acquired in a screening context.
+ * Identifies one image acquired in a microscopy context.
  * 
  * @author Tomasz Pylak
  */
-public class PlateImageReference extends DatasetIdentifier
+public class MicroscopyImageReference extends DatasetIdentifier
 {
     private static final long serialVersionUID = 1L;
-
-    private final WellPosition wellPosition;
 
     private final int tile;
 
     private final String channel;
 
     /**
+     * Reference to image dataset which has no wells (like e.g. in microscopy).
+     * 
      * @param dataset if image dataset is specified, image will be fetched from it. If a feature
      *            vector dataset is specified, a connected image dataset will be found and image
      *            will be fetched from it.
      */
-    public PlateImageReference(int tile, String channel, WellPosition wellPosition,
-            IDatasetIdentifier dataset)
+    public MicroscopyImageReference(int tile, String channel, IDatasetIdentifier dataset)
     {
         super(dataset.getDatasetCode(), dataset.getDatastoreServerUrl());
-        this.wellPosition = wellPosition;
         this.tile = tile;
         this.channel = channel.toUpperCase();
-    }
-
-    /**
-     * @param dataset if image dataset is specified, image will be fetched from it. If a feature
-     *            vector dataset is specified, a connected image dataset will be found and image
-     *            will be fetched from it.
-     */
-    public PlateImageReference(int wellRow, int wellColumn, int tile, String channel,
-            IDatasetIdentifier dataset)
-    {
-        super(dataset.getDatasetCode(), dataset.getDatastoreServerUrl());
-        this.wellPosition = new WellPosition(wellRow, wellColumn);
-        this.tile = tile;
-        this.channel = channel.toUpperCase();
-    }
-
-    /** Well position on the plate */
-    public WellPosition getWellPosition()
-    {
-        return wellPosition;
     }
 
     /** a sequential number of an image tile, starts from 0 */
@@ -66,9 +44,8 @@ public class PlateImageReference extends DatasetIdentifier
     @Override
     public String toString()
     {
-        String wellDesc = wellPosition != null ? ", well " + wellPosition : "";
-        return "Image for [dataset " + getDatasetCode() + wellDesc + ", channel " + channel
-                + ", tile " + tile + "]";
+        return "Image for [dataset " + getDatasetCode() + ", channel " + channel + ", tile " + tile
+                + "]";
     }
 
     @Override
@@ -79,7 +56,6 @@ public class PlateImageReference extends DatasetIdentifier
         result = prime * result + super.hashCode();
         result = prime * result + channel.hashCode();
         result = prime * result + tile;
-        result = prime * result + wellPosition.hashCode();
         return result;
     }
 
@@ -99,16 +75,12 @@ public class PlateImageReference extends DatasetIdentifier
             return false;
         }
 
-        final PlateImageReference other = (PlateImageReference) obj;
+        final MicroscopyImageReference other = (MicroscopyImageReference) obj;
         if (channel.equals(other.channel) == false)
         {
             return false;
         }
         if (tile != other.tile)
-        {
-            return false;
-        }
-        if (wellPosition.equals(other.wellPosition) == false)
         {
             return false;
         }

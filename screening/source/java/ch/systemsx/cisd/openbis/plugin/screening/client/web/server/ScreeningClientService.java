@@ -50,7 +50,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientService;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
@@ -235,11 +234,11 @@ public final class ScreeningClientService extends AbstractClientService implemen
                 wellLocationOrNull);
     }
 
-    public ImageDatasetEnrichedReference getImageDatasetReference(DatasetReference imageDataset)
+    public ImageDatasetEnrichedReference getImageDatasetReference(String datasetCode,
+            String datastoreCode)
     {
         final String sessionToken = getSessionToken();
-        return server.getImageDatasetReference(sessionToken, imageDataset.getCode(),
-                imageDataset.getDatastoreCode());
+        return server.getImageDatasetReference(sessionToken, datasetCode, datastoreCode);
     }
 
     public ImageSampleContent getImageDatasetInfosForSample(TechId sampleId,
