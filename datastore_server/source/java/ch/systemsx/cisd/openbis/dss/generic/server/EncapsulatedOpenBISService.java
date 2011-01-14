@@ -818,25 +818,58 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
 
     public List<Person> listAdministrators()
     {
-        return service.listAdministrators(sessionToken);
+        checkSessionToken();
+        try
+        {
+            return service.listAdministrators(sessionToken);
+        } catch (final InvalidSessionException ex)
+        {
+            authenticate();
+            return service.listAdministrators(sessionToken);
+        }
     }
 
     public Person tryPersonWithUserIdOrEmail(String useridOrEmail)
     {
-        return service.tryPersonWithUserIdOrEmail(sessionToken, useridOrEmail);
+        checkSessionToken();
+        try
+        {
+            return service.tryPersonWithUserIdOrEmail(sessionToken, useridOrEmail);
+        } catch (final InvalidSessionException ex)
+        {
+            authenticate();
+            return service.tryPersonWithUserIdOrEmail(sessionToken, useridOrEmail);
+        }
     }
 
     public Sample registerSampleAndDataSet(NewSample newSample, NewExternalData externalData,
             String userIdOrNull) throws UserFailureException
     {
-        return service
-                .registerSampleAndDataSet(sessionToken, newSample, externalData, userIdOrNull);
+        checkSessionToken();
+        try
+        {
+            return service.registerSampleAndDataSet(sessionToken, newSample, externalData,
+                    userIdOrNull);
+        } catch (final InvalidSessionException ex)
+        {
+            authenticate();
+            return service.registerSampleAndDataSet(sessionToken, newSample, externalData,
+                    userIdOrNull);
+        }
     }
 
     public Sample updateSampleAndRegisterDataSet(SampleUpdatesDTO newSample,
             NewExternalData externalData)
     {
-        return service.updateSampleAndRegisterDataSet(sessionToken, newSample, externalData);
+        checkSessionToken();
+        try
+        {
+            return service.updateSampleAndRegisterDataSet(sessionToken, newSample, externalData);
+        } catch (final InvalidSessionException ex)
+        {
+            authenticate();
+            return service.updateSampleAndRegisterDataSet(sessionToken, newSample, externalData);
+        }
     }
 
 }
