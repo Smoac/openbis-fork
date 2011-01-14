@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public abstract class ManagedInputWidgetDescription implements IManagedWidgetDescription
+public abstract class ManagedInputWidgetDescription implements IManagedInputWidgetDescription
 {
     private static final long serialVersionUID = 1L;
 
@@ -27,10 +27,18 @@ public abstract class ManagedInputWidgetDescription implements IManagedWidgetDes
 
     private String value;
 
+    //
+    // IManagedWidgetDescription
+    //
+
     public ManagedWidgetType getManagedWidgetType()
     {
         return ManagedWidgetType.INPUT;
     }
+
+    //
+    // IManagedInputWidgetDescription
+    //
 
     public ManagedInputFieldType getManagedInputFieldType()
     {

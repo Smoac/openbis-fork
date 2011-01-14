@@ -19,10 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import java.util.Arrays;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.server.business.bo.managed_property.SimpleTableModelBuilderAdaptor;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.managed_property.api.ISimpleTableModelBuilderAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
-import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
 
 /**
  * Object that declaratively describes a UI (labels, fields, their ordering, table content).
@@ -80,23 +77,6 @@ public class ManagedUiDescription implements IManagedUiDescription, ISerializabl
         inputField.setLabel(label);
         inputField.setOptions(Arrays.asList(values));
         addInputWidgetDescription(inputField);
-    }
-
-    public void setupTableOutput(ISimpleTableModelBuilderAdaptor tableModelBuilder)
-    {
-        ManagedTableWidgetDescription tableWidget = new ManagedTableWidgetDescription();
-        SimpleTableModelBuilder simpleTableModelBuilder;
-        if (tableModelBuilder instanceof SimpleTableModelBuilderAdaptor)
-        {
-            simpleTableModelBuilder =
-                    ((SimpleTableModelBuilderAdaptor) tableModelBuilder).getBuilder();
-        } else
-        {
-            simpleTableModelBuilder = new SimpleTableModelBuilder();
-            simpleTableModelBuilder.setMessage("can't handle table builder");
-        }
-        tableWidget.setTableModel(simpleTableModelBuilder.getTableModel());
-        setOutputWidgetDescription(tableWidget);
     }
 
     public void useTableOutput(TableModel tableModel)

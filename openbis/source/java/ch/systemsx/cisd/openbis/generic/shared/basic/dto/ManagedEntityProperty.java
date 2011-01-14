@@ -53,7 +53,7 @@ public class ManagedEntityProperty implements IEntityProperty, IManagedEntityPro
         this.ownTab = ownTab;
     }
 
-    public ManagedUiDescription getUiDescription()
+    public IManagedUiDescription getUiDescription()
     {
         return uiDescription;
     }

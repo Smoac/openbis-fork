@@ -23,10 +23,8 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
  */
 public interface IManagedEntityProperty
 {
-    // private String tabName; // tab name could be just property code
-
     boolean isOwnTab();
 
-    ManagedUiDescription getUiDescription();
+    IManagedUiDescription getUiDescription();
 
 }

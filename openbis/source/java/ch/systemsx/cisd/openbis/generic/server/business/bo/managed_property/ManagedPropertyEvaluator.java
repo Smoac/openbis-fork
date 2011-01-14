@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
+// TODO 2011-01-14, Piotr Buczek: it should be possible to reuse evaluator by set of properties
 public class ManagedPropertyEvaluator
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,

@@ -28,6 +28,12 @@ public class ManagedComboBoxInputWidgetDescription extends ManagedInputWidgetDes
 
     private List<String> options = new ArrayList<String>();
 
+    @Override
+    public ManagedInputFieldType getManagedInputFieldType()
+    {
+        return ManagedInputFieldType.COMBO_BOX;
+    }
+
     public List<String> getOptions()
     {
         return options;

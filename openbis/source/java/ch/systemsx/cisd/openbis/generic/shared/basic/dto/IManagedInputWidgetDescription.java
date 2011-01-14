@@ -16,19 +16,21 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-
 /**
- * The interface exposed to the Managed Property script.
+ * Interface implemented by objects describing an input UI element (text field, combo box)
  * 
- * @author Chandrasekhar Ramakrishnan
+ * @author Piotr Buczek
  */
-public interface IManagedUiDescription
+public interface IManagedInputWidgetDescription extends IManagedWidgetDescription
 {
-    public void useTableOutput(TableModel tableModel);
+    ManagedInputFieldType getManagedInputFieldType();
 
-    public void addTextInputField(String label);
+    void setValue(String value);
 
-    public void addComboBoxInputField(String labels, String[] values);
+    String getValue();
 
-    public IManagedWidgetDescription getOutputWidgetDescription();
+    void setLabel(String label);
+
+    String getLabel();
+
 }

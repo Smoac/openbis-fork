@@ -20,6 +20,7 @@ import java.util.Date;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.managed_property.api.IRowBuilderAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.managed_property.api.ISimpleTableModelBuilderAdaptor;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.util.IRowBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
 
@@ -46,16 +47,11 @@ public class SimpleTableModelBuilderAdaptor implements ISimpleTableModelBuilderA
     // SimpleTableModelBuilder delegated methods
     //
 
-    // This is not exposed in API interface on purpose.
-    // We don't want to expose neither builder nor TableModel.
-    public SimpleTableModelBuilder getBuilder()
+    // NOTE: TableModel is exposed to keep dependencies simple
+    public TableModel getTableModel()
     {
-        return builder;
+        return builder.getTableModel();
     }
-
-    //
-    // ISimpleTableModelBuilderAdaptor
-    //
 
     public void addHeader(String title)
     {
