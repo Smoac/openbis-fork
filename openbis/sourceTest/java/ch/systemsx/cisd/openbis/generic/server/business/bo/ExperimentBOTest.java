@@ -297,7 +297,7 @@ public final class ExperimentBOTest extends AbstractBOTest
                     one(projectDAO).tryFindProject(dbCode, groupCode, projectCode);
                     will(returnValue(null));
 
-                    one(entityPropertyTypeDAO).listEntityPropertyTypes(type);
+                    exactly(2).of(entityPropertyTypeDAO).listEntityPropertyTypes(type);
                     will(returnValue(new ArrayList<EntityTypePropertyTypePE>()));
 
                 }
