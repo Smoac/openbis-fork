@@ -79,6 +79,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedTableWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -674,6 +675,12 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      */
     public void createReportFromDatasets(DatastoreServiceDescription serviceDescription,
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria,
+            AsyncCallback<TableModelReference> callback);
+
+    /**
+     * @see ICommonClientService#createReportForManagedProperty(ManagedTableWidgetDescription)
+     */
+    public void createReportForManagedProperty(ManagedTableWidgetDescription tableDescription,
             AsyncCallback<TableModelReference> callback);
 
     /**

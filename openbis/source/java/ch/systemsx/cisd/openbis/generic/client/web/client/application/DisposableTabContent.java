@@ -31,6 +31,7 @@ abstract public class DisposableTabContent extends TabContent
     abstract protected IDisposableComponent createDisposableContent();
 
     // null if the section has not been shown yet
+    // or content is created asynchronously (then subclass should call updateContent())
     private IDisposableComponent disposableComponentOrNull = null;
 
     /**
@@ -58,7 +59,18 @@ abstract public class DisposableTabContent extends TabContent
     @Override
     protected void showContent()
     {
-        this.disposableComponentOrNull = createDisposableContent();
-        add(disposableComponentOrNull.getComponent());
+        IDisposableComponent contentOrNull = createDisposableContent();
+        if (contentOrNull != null)
+        {
+            updateContent(contentOrNull);
+        }
+    }
+
+    protected void updateContent(IDisposableComponent content)
+    {
+        if (content != null) // sanity check
+        {
+            add(content.getComponent());
+        }
     }
 }

@@ -22,12 +22,20 @@ import com.extjs.gxt.ui.client.util.Format;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Info;
+import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.managed_property.ManagedPropertyGridGeneratedCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.managed_property.ManagedPropertyGridGeneratedCallback.IOnGridComponentGeneratedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IManagedPropertyGridInformationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedUiDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedTableWidgetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedWidgetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiDescription;
 
 /**
  * {@link TabContent} handled by managed property script.
@@ -36,14 +44,40 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedUiDescription;
  */
 public class ManagedPropertySection extends DisposableTabContent
 {
+    private static final IDisposableComponent DUMMY_CONTENT = new IDisposableComponent()
+        {
+
+            public void update(Set<DatabaseModificationKind> observedModifications)
+            {
+            }
+
+            public DatabaseModificationKind[] getRelevantModifications()
+            {
+                return DatabaseModificationKind.EMPTY_ARRAY;
+            }
+
+            public Component getComponent()
+            {
+                return new ContentPanel();
+            }
+
+            public void dispose()
+            {
+            }
+
+        };
+
     private static String ID_PREFIX = "managed_property_section_";
 
-    private final ManagedUiDescription uiDescription;
+    private final IManagedUiDescription uiDescription;
+
+    private final String gridIdSuffix;
 
     public ManagedPropertySection(final String header, IViewContext<?> viewContext,
-            IIdHolder ownerId, ManagedUiDescription uiDescription)
+            IIdHolder ownerId, IManagedUiDescription uiDescription)
     {
         super(header, viewContext, ownerId);
+        this.gridIdSuffix = Format.hyphenize(header);
         this.uiDescription = uiDescription;
         setIds(new IDisplayTypeIDGenerator()
             {
@@ -55,7 +89,7 @@ public class ManagedPropertySection extends DisposableTabContent
 
                 public String createID()
                 {
-                    return ID_PREFIX + Format.hyphenize(header);
+                    return ID_PREFIX + gridIdSuffix;
                 }
             });
     }
@@ -64,28 +98,53 @@ public class ManagedPropertySection extends DisposableTabContent
     protected IDisposableComponent createDisposableContent()
     {
         Info.display(getHeading() + " show content", uiDescription.toString());
-        // TODO use uiDescription to create tab
-        return new IDisposableComponent()
-            {
 
-                public void update(Set<DatabaseModificationKind> observedModifications)
-                {
-                }
+        ManagedTableWidgetDescription tableDescriptionOrNull = tryGetTableDescription();
+        if (tableDescriptionOrNull == null)
+        {
+            MessageBox.alert("Error", "Failed to create content", null);
+            return DUMMY_CONTENT;
+        } else
+        {
+            IManagedPropertyGridInformationProvider gridInfo =
+                    new IManagedPropertyGridInformationProvider()
+                        {
+                            public String getKey()
+                            {
+                                return gridIdSuffix;
+                            }
+                        };
+            IOnGridComponentGeneratedAction gridGeneratedAction =
+                    new IOnGridComponentGeneratedAction()
+                        {
 
-                public DatabaseModificationKind[] getRelevantModifications()
-                {
-                    return DatabaseModificationKind.EMPTY_ARRAY;
-                }
+                            public void execute(IDisposableComponent gridComponent)
+                            {
+                                Info.display("grid generated", gridComponent.getComponent().getId());
+                                updateContent(gridComponent);
+                            }
 
-                public Component getComponent()
-                {
-                    return new ContentPanel();
-                }
+                        };
+            AsyncCallback<TableModelReference> callback =
+                    ManagedPropertyGridGeneratedCallback.create(viewContext.getCommonViewContext(),
+                            gridInfo, gridGeneratedAction);
+            viewContext.getCommonService().createReportForManagedProperty(tableDescriptionOrNull,
+                    callback);
+            return null; // FIXME not the best solution
+        }
 
-                public void dispose()
-                {
-                }
+    }
 
-            };
+    private ManagedTableWidgetDescription tryGetTableDescription()
+    {
+        if (uiDescription.getOutputWidgetDescription() != null
+                && uiDescription.getOutputWidgetDescription().getManagedWidgetType() == ManagedWidgetType.TABLE
+                && uiDescription.getOutputWidgetDescription() instanceof ManagedTableWidgetDescription)
+        {
+            return (ManagedTableWidgetDescription) uiDescription.getOutputWidgetDescription();
+        } else
+        {
+            return null;
+        }
     }
 }

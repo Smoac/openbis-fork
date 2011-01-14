@@ -51,7 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWit
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedUiDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiDescription;
 
 /**
  * @author Franz-Josef Elmer
@@ -266,7 +266,7 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
     }
 
     protected TabContent createManagedPropertySection(final String header, final IIdHolder ownerId,
-            final ManagedUiDescription uiDescription)
+            final IManagedUiDescription uiDescription)
     {
         return new ManagedPropertySection(header, viewContext, ownerId, uiDescription);
     }

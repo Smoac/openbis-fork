@@ -77,6 +77,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedTableWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -779,6 +780,12 @@ public interface ICommonClientService extends IClientService
             DatastoreServiceDescription serviceDescription,
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria)
             throws UserFailureException;
+
+    /**
+     * Uses the specified table description to generate a table/report.
+     */
+    public TableModelReference createReportForManagedProperty(
+            ManagedTableWidgetDescription tableDescription) throws UserFailureException;
 
     /**
      * Returns a list of report rows.

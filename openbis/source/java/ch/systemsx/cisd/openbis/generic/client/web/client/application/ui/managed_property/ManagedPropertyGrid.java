@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.managed_property;
 
 import java.util.Set;
 
@@ -32,26 +32,26 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConf
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IReportInformationProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IManagedPropertyGridInformationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Null;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
- * @author Franz-Josef Elmer
+ * @author Piotr Buczek
  */
-public class ReportGrid extends TypedTableGrid<Null>
+public class ManagedPropertyGrid extends TypedTableGrid<Null>
 {
     // browser consists of the grid and the paging toolbar
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "DataSetReporterGrid";
 
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext,
-            TableModelReference tableModelReference, IReportInformationProvider infoProvider)
+            TableModelReference tableModelReference,
+            IManagedPropertyGridInformationProvider gridInformation)
     {
-        final ReportGrid grid =
-                new ReportGrid(viewContext, tableModelReference, infoProvider.getKey(),
-                        infoProvider.getDownloadURL());
+        final ManagedPropertyGrid grid =
+                new ManagedPropertyGrid(viewContext, tableModelReference, gridInformation);
         return grid.asDisposableWithoutToolbar();
     }
 
@@ -62,23 +62,23 @@ public class ReportGrid extends TypedTableGrid<Null>
 
     private final String resultSetKey;
 
-    private final String reportKind;
+    private final String gridKind;
 
-    private ReportGrid(IViewContext<ICommonClientServiceAsync> viewContext,
-            TableModelReference tableModelReference, String reportKind, String downloadURL)
+    private ManagedPropertyGrid(IViewContext<ICommonClientServiceAsync> viewContext,
+            TableModelReference tableModelReference,
+            IManagedPropertyGridInformationProvider gridInformation)
     {
         super(viewContext, BROWSER_ID, true, DisplayTypeIDGenerator.DATA_SET_REPORTING_GRID);
-        setDownloadURL(downloadURL);
         setId(BROWSER_ID);
         this.resultSetKey = tableModelReference.getResultSetKey();
-        this.reportKind = reportKind;
+        this.gridKind = gridInformation.getKey();
         updateDefaultRefreshButton();
     }
 
     @Override
     public String getGridDisplayTypeID()
     {
-        return createGridDisplayTypeID(reportKind);
+        return createGridDisplayTypeID(gridKind);
     }
 
     @Override
