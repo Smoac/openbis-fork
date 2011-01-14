@@ -26,7 +26,6 @@ import java.util.Properties;
 import net.lemnik.eodsql.DataIterator;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
 import ch.systemsx.cisd.openbis.dss.yeastx.server.EICMLChromatogramGeneratorServlet;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GeneratedImageTableCell;
@@ -34,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
 
 /**
  * Reporting plugin which shows images for the chromatograms contained in the specified datasets.
@@ -172,9 +172,9 @@ public class EICMLChromatogramImagesReporter extends AbstractEICMLDatastoreRepor
         String chromatogramLabel = chromatogram.getLabel();
         row.add(SimpleTableModelBuilder.asText(chromatogramLabel));
         int mz1 = getMz1(chromatogramLabel);
-        row.add(SimpleTableModelBuilder.asNum(mz1));
+        row.add(SimpleTableModelBuilder.asInteger(mz1));
         int mz2 = getMz2(chromatogramLabel);
-        row.add(SimpleTableModelBuilder.asNum(mz2));
+        row.add(SimpleTableModelBuilder.asInteger(mz2));
         row.add(imageCell);
         return row;
     }

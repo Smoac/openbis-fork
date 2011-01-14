@@ -16,25 +16,26 @@
 
 package ch.systemsx.cisd.yeastx.eicml;
 
-import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder.asNum;
+import static ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder.asDate;
+import static ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder.asDouble;
+import static ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder.asText;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
 
 /**
  * Reporting plugin which shows all the run details for the chosen datasets.
  * 
  * @author Tomasz Pylak
  */
-public class EICMLRunsReporter extends AbstractEICMLDatastoreReportingPlugin 
+public class EICMLRunsReporter extends AbstractEICMLDatastoreReportingPlugin
 {
     private static final long serialVersionUID = 1L;
 
@@ -72,27 +73,10 @@ public class EICMLRunsReporter extends AbstractEICMLDatastoreReportingPlugin
         row.add(asText(run.getMethodIonisation()));
         row.add(asText(run.getMethodSeparation()));
         row.add(asDate(run.getAcquisitionDate()));
-        row.add(asNum(run.getStartTime()));
-        row.add(asNum(run.getEndTime()));
+        row.add(asDouble(run.getStartTime()));
+        row.add(asDouble(run.getEndTime()));
         row.add(asText(run.getOperator()));
         return row;
-    }
-
-    private static ISerializableComparable asDate(Date dateOrNull)
-    {
-        if (dateOrNull != null)
-        {
-            return SimpleTableModelBuilder.asDate(dateOrNull);
-        } else
-        {
-            return SimpleTableModelBuilder.asText("");
-        }
-    }
-
-    private static ISerializableComparable asText(String textOrNull)
-    {
-        String text = textOrNull == null ? "" : textOrNull;
-        return SimpleTableModelBuilder.asText(text);
     }
 
     private static void addReportHeaders(SimpleTableModelBuilder builder)

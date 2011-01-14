@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.yeastx.eicml;
 
-import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder.asNum;
-import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder.asText;
+import static ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder.asDouble;
+import static ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder.asText;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -26,10 +26,10 @@ import java.util.Properties;
 
 import net.lemnik.eodsql.DataIterator;
 
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
 
 /**
  * Reporting plugin which shows all the chromatograms details for the chosen datasets.
@@ -88,12 +88,12 @@ public class EICMLChromatogramsReporter extends AbstractEICMLDatastoreReportingP
         List<ISerializableComparable> row = new ArrayList<ISerializableComparable>();
 
         row.add(asText(chromatogram.getLabel()));
-        row.add(asNum(calcMin(chromatogram.getRunTimes())));
-        row.add(asNum(calcMax(chromatogram.getRunTimes())));
-        row.add(asNum(calcMax(chromatogram.getIntensities())));
-        row.add(asNum(chromatogram.getQ1Mz()));
-        row.add(asNum(chromatogram.getQ3LowMz()));
-        row.add(asNum(chromatogram.getQ3HighMz()));
+        row.add(asDouble(calcMin(chromatogram.getRunTimes())));
+        row.add(asDouble(calcMax(chromatogram.getRunTimes())));
+        row.add(asDouble(calcMax(chromatogram.getIntensities())));
+        row.add(asDouble(chromatogram.getQ1Mz()));
+        row.add(asDouble(chromatogram.getQ3LowMz()));
+        row.add(asDouble(chromatogram.getQ3HighMz()));
         row.add(asText("" + chromatogram.getPolarity()));
         return row;
     }
