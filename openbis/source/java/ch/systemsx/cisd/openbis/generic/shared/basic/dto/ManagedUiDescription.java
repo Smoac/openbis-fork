@@ -20,6 +20,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedWidgetDescription;
 
 /**
  * Object that declaratively describes a UI (labels, fields, their ordering, table content).

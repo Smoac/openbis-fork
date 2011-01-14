@@ -14,23 +14,17 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
+package ch.systemsx.cisd.openbis.generic.shared.basic.dto.api;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedWidgetType;
 
 /**
- * Interface implemented by objects describing an input UI element (text field, combo box)
+ * Interface implemented by objects describing a UI element (label, field, table)
  * 
  * @author Piotr Buczek
  */
-public interface IManagedInputWidgetDescription extends IManagedWidgetDescription
+public interface IManagedWidgetDescription extends ISerializable
 {
-    ManagedInputFieldType getManagedInputFieldType();
-
-    void setValue(String value);
-
-    String getValue();
-
-    void setLabel(String label);
-
-    String getLabel();
-
+    ManagedWidgetType getManagedWidgetType();
 }

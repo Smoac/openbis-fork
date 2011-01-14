@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+package ch.systemsx.cisd.openbis.generic.shared.basic.dto.api;
 
 /**
- * Interface implemented by objects describing a UI element (label, field, table)
+ * Interface implemented by managed property.
  * 
  * @author Piotr Buczek
  */
-public interface IManagedWidgetDescription extends ISerializable
+public interface IManagedEntityProperty
 {
-    ManagedWidgetType getManagedWidgetType();
+    boolean isOwnTab();
+
+    IManagedUiDescription getUiDescription();
+
 }

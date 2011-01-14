@@ -14,17 +14,23 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
+package ch.systemsx.cisd.openbis.generic.shared.basic.dto.api;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+
 
 /**
- * Interface implemented by managed property.
+ * The interface exposed to the Managed Property script.
  * 
- * @author Piotr Buczek
+ * @author Chandrasekhar Ramakrishnan
  */
-public interface IManagedEntityProperty
+public interface IManagedUiDescription
 {
-    boolean isOwnTab();
+    public void useTableOutput(TableModel tableModel);
 
-    IManagedUiDescription getUiDescription();
+    public void addTextInputField(String label);
 
+    public void addComboBoxInputField(String labels, String[] values);
+
+    public IManagedWidgetDescription getOutputWidgetDescription();
 }
