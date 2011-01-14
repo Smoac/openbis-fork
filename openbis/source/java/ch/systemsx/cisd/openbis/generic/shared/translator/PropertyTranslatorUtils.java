@@ -82,7 +82,7 @@ final class PropertyTranslatorUtils
         assert script != null && script.getScriptType() == ScriptType.MANAGED_PROPERTY;
         final ManagedEntityProperty result = new ManagedEntityProperty(basicProperty);
         ManagedPropertyEvaluator evaluator =
-                ManagedPropertyEvaluatorFactory.createManagedPropertyEvaluator(script);
+                ManagedPropertyEvaluatorFactory.createManagedPropertyEvaluator(script.getScript());
         evaluator.evalConfigureProperty(result);
         return result;
     }

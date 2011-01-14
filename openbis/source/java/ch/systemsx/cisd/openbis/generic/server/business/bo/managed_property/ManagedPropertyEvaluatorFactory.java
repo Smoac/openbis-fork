@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.managed_property;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 
 /**
  * Factory for creating managed property evaluators. (Could do some caching or other cleverness.)
@@ -25,8 +24,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
  */
 public class ManagedPropertyEvaluatorFactory
 {
-    public static ManagedPropertyEvaluator createManagedPropertyEvaluator(ScriptPE scriptPE)
+    public static ManagedPropertyEvaluator createManagedPropertyEvaluator(String scriptExpression)
     {
-        return new ManagedPropertyEvaluator(scriptPE);
+        return new ManagedPropertyEvaluator(scriptExpression);
     }
 }

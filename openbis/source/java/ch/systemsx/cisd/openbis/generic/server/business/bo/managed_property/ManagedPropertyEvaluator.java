@@ -22,7 +22,6 @@ import ch.systemsx.cisd.common.evaluator.Evaluator;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
 
 /**
@@ -36,7 +35,7 @@ public class ManagedPropertyEvaluator
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             ManagedPropertyEvaluator.class);
 
-    private final ScriptPE scriptPE;
+    private final String scriptExpression;
 
     /**
      * The name of the script that expects the property to be there and updates it.
@@ -45,9 +44,9 @@ public class ManagedPropertyEvaluator
 
     private static final String PROPERTY_VARIABLE_NAME = "property";
 
-    public ManagedPropertyEvaluator(ScriptPE scriptPE)
+    public ManagedPropertyEvaluator(String scriptExpression)
     {
-        this.scriptPE = scriptPE;
+        this.scriptExpression = scriptExpression;
     }
 
     public void evalConfigureProperty(ManagedEntityProperty managedProperty)
@@ -58,8 +57,7 @@ public class ManagedPropertyEvaluator
         }
 
         Evaluator evaluator =
-                new Evaluator(CONFIGURE_OUTPUT_EXPRESSION, ScriptUtilityFactory.class,
-                        scriptPE.getScript());
+                new Evaluator(CONFIGURE_OUTPUT_EXPRESSION, ScriptUtilityFactory.class, scriptExpression);
         evaluator.set(PROPERTY_VARIABLE_NAME, managedProperty);
         evaluator.eval();
     }
