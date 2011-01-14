@@ -162,12 +162,12 @@ public class SimpleTableModelBuilder
 
                 public void setCell(String headerTitle, long value)
                 {
-                    setCell(headerTitle, asNum(value));
+                    setCell(headerTitle, asInteger(value));
                 }
 
                 public void setCell(String headerTitle, double value)
                 {
-                    setCell(headerTitle, asNum(value));
+                    setCell(headerTitle, asDouble(value));
                 }
 
                 public void setCell(String headerTitle, Date value)
@@ -262,12 +262,12 @@ public class SimpleTableModelBuilder
         return new StringTableCell(textOrNull);
     }
 
-    public static ISerializableComparable asNum(int num)
+    public static ISerializableComparable asInteger(long num)
     {
         return new IntegerTableCell(num);
     }
 
-    public static ISerializableComparable asNum(double num)
+    public static ISerializableComparable asDouble(double num)
     {
         return new DoubleTableCell(num);
     }
