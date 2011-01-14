@@ -17,12 +17,12 @@
 package ch.systemsx.cisd.openbis.generic.server.util;
 
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
@@ -78,10 +78,9 @@ public final class KeyExtractorFactory
     }
 
     /**
-     * Creates an <code>IKeyExtractor</code> implementation based on {@link IIdAndCodeHolder}
-     * extension.
+     * Creates an <code>IKeyExtractor</code> implementation based on {@link ICodeHolder} extension.
      */
-    public final static <T extends IIdAndCodeHolder> IKeyExtractor<String, T> createCodeKeyExtractor()
+    public final static <T extends ICodeHolder> IKeyExtractor<String, T> createCodeKeyExtractor()
     {
         return new CodeKeyExtractor<T>();
     }
@@ -187,15 +186,14 @@ public final class KeyExtractorFactory
         }
     }
 
-    private final static class CodeKeyExtractor<T extends IIdAndCodeHolder> implements
+    private final static class CodeKeyExtractor<T extends ICodeHolder> implements
             IKeyExtractor<String, T>
     {
-
         //
         // IKeyExtractor
         //
 
-        public final String getKey(final IIdAndCodeHolder id)
+        public final String getKey(final ICodeHolder id)
         {
             return id.getCode();
         }

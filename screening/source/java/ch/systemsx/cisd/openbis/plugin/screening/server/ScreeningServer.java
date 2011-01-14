@@ -20,6 +20,9 @@ import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
@@ -31,6 +34,9 @@ import org.springframework.stereotype.Component;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.common.mail.MailClient;
+import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
@@ -46,6 +52,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -54,6 +62,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTranslator;
+import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningQuery;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.PlateContentLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ScreeningApiImpl;
@@ -94,11 +103,20 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
      */
     public static final int MINOR_VERSION = 4;
 
+    private static ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 10, 360,
+            TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+
     @Resource(name = ResourceNames.SCREENING_BUSINESS_OBJECT_FACTORY)
     private IScreeningBusinessObjectFactory businessObjectFactory;
 
     @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
-    protected ICommonServer commonServer;
+    private ICommonServer commonServer;
+
+    @Resource(name = ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames.GENERIC_PLUGIN_SERVER)
+    private IGenericServer genericServer;
+
+    @Resource(name = ResourceNames.MAIL_CLIENT_PARAMETERS)
+    private MailClientParameters mailClientParameters;
 
     public ScreeningServer()
     {
@@ -196,6 +214,16 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         IVocabularyDAO vocabularyDAO = getDAOFactory().getVocabularyDAO();
         VocabularyPE vocabulary = vocabularyDAO.tryFindVocabularyByCode(code);
         return VocabularyTranslator.translate(vocabulary);
+    }
+
+    public void registerLibrary(String sessionToken, String userEmail,
+            List<NewMaterial> newGenesOrNull, List<NewMaterial> newOligosOrNull,
+            List<NewSamplesWithTypes> newSamplesWithType)
+    {
+        IMailClient mailClient = new MailClient(mailClientParameters);
+        executor.submit(new LibraryRegistrationTask(sessionToken, userEmail, newGenesOrNull,
+                newOligosOrNull, newSamplesWithType, commonServer, genericServer, getDAOFactory(),
+                mailClient));
     }
 
     // --------- IScreeningOpenbisServer - method signature should be changed with care
@@ -317,4 +345,5 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     {
         return MINOR_VERSION;
     }
+
 }

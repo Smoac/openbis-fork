@@ -33,6 +33,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
@@ -140,4 +142,13 @@ public interface IScreeningServer extends IServer
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public Vocabulary getVocabulary(String sessionToken, String code) throws UserFailureException;
+
+    /**
+     * registers the contents of an uploaded library.
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
+    public void registerLibrary(String sessionToken, String userEmail,
+            List<NewMaterial> newGenesOrNull, List<NewMaterial> newOligosOrNull,
+            List<NewSamplesWithTypes> newSamplesWithType);
 }

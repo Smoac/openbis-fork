@@ -29,7 +29,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -244,8 +246,6 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
     public List<Material> listExperimentMaterials(String sessionToken, TechId experimentId,
             MaterialType materialType)
     {
-        logAccess(sessionToken, "listExperimentMaterials", "experimentId(%s), materialType(%s)",
-                experimentId, materialType);
         return null;
     }
 
@@ -257,5 +257,14 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
     public int getMinorVersion()
     {
         return ScreeningServer.MINOR_VERSION;
+    }
+
+    public void registerLibrary(String sessionToken, String userEmail,
+            List<NewMaterial> newGenesOrNull, List<NewMaterial> newOligosOrNull,
+            List<NewSamplesWithTypes> newSamplesWithType)
+    {
+        logAccess(sessionToken, "registerLibrary",
+                "userEmail(%s), newGenesOrNull(%s), newOligosOrNull(%s), newSamplesWithType(%s)",
+                userEmail, newGenesOrNull, newOligosOrNull, newSamplesWithType);
     }
 }

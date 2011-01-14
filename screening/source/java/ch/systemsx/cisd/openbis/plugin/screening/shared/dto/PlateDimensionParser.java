@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.dto;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 
 /**
@@ -57,12 +57,13 @@ public class PlateDimensionParser
     public static PlateDimension tryToGetPlateDimension(final IEntityProperty[] properties)
     {
         assert properties != null : "Unspecified properties";
-        final String plateGeometryString =
-                tryFindProperty(properties, PLATE_GEOMETRY_PROPERTY_NAME);
-        if (plateGeometryString == null)
+        IEntityProperty plateGeometryProperty =
+                EntityHelper.tryFindProperty(properties, PLATE_GEOMETRY_PROPERTY_NAME);
+        if (plateGeometryProperty == null)
         {
             return null;
         }
+        final String plateGeometryString = plateGeometryProperty.tryGetAsString();
         final PlateDimension dimension = tryParsePlateDimension(plateGeometryString);
         if (dimension == null)
         {
@@ -102,20 +103,6 @@ public class PlateDimensionParser
         {
             return null;
         }
-    }
-
-    private static String tryFindProperty(final IEntityProperty[] properties,
-            final String propertyCode)
-    {
-        for (final IEntityProperty property : properties)
-        {
-            final PropertyType propertyType = property.getPropertyType();
-            if (propertyType.getCode().equals(propertyCode))
-            {
-                return property.tryGetAsString();
-            }
-        }
-        return null;
     }
 
     public static Geometry getPlateGeometry(List<IEntityProperty> properties)

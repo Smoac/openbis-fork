@@ -17,9 +17,6 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.server;
 
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
@@ -27,7 +24,6 @@ import javax.servlet.http.HttpSession;
 import org.springframework.stereotype.Component;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.spring.IUncheckedMultipartFile;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
@@ -50,7 +46,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
-import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.plugin.screening.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientService;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
@@ -80,15 +75,6 @@ public final class ScreeningClientService extends AbstractClientService implemen
 
     @Resource(name = ResourceNames.SCREENING_PLUGIN_SERVER)
     private IScreeningServer server;
-
-    @Resource(name = ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames.GENERIC_PLUGIN_SERVER)
-    private IGenericServer genericServer;
-
-    @Resource(name = ResourceNames.MAIL_CLIENT_PARAMETERS)
-    private MailClientParameters mailClientParameters;
-
-    private static ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 10, 360,
-            TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
 
     public ScreeningClientService()
     {
@@ -221,9 +207,9 @@ public final class ScreeningClientService extends AbstractClientService implemen
                         new LibraryExtractor(file.getInputStream(), details.getSeparator(),
                                 experiment, space, details.getPlateGeometry(), details.getScope());
                 extractor.extract();
-                executor.submit(new LibraryRegistrationTask(sessionToken, details.getUserEmail(),
-                        extractor.getNewGenes(), extractor.getNewOligos(), extractor
-                                .getNewSamplesWithType(), genericServer, mailClientParameters));
+                server.registerLibrary(sessionToken, details.getUserEmail(),
+                        extractor.getNewGenes(), extractor.getNewOligos(),
+                        extractor.getNewSamplesWithType());
             }
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {

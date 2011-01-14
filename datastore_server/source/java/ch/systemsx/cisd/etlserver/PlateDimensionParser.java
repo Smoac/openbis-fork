@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.etlserver;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
 /**
  * Extractor and parser of the plate geometry from an array of properties.
@@ -56,12 +56,13 @@ public class PlateDimensionParser
     public static PlateDimension tryToGetPlateDimension(final IEntityProperty[] properties)
     {
         assert properties != null : "Unspecified properties";
-        final String plateGeometryString =
-                tryFindProperty(properties, PLATE_GEOMETRY_PROPERTY_NAME);
-        if (plateGeometryString == null)
+        IEntityProperty plateGeometryProperty =
+                EntityHelper.tryFindProperty(properties, PLATE_GEOMETRY_PROPERTY_NAME);
+        if (plateGeometryProperty == null)
         {
             return null;
         }
+        final String plateGeometryString = plateGeometryProperty.tryGetAsString();
         final PlateDimension dimension = tryParsePlateDimension(plateGeometryString);
         if (dimension == null)
         {
@@ -101,20 +102,6 @@ public class PlateDimensionParser
         {
             return null;
         }
-    }
-
-    private static String tryFindProperty(final IEntityProperty[] properties,
-            final String propertyCode)
-    {
-        for (final IEntityProperty property : properties)
-        {
-            final PropertyType propertyType = property.getPropertyType();
-            if (propertyType.getCode().equals(propertyCode))
-            {
-                return property.tryGetAsString();
-            }
-        }
-        return null;
     }
 
 }
