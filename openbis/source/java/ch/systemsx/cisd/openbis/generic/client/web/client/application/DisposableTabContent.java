@@ -62,15 +62,19 @@ abstract public class DisposableTabContent extends TabContent
         IDisposableComponent contentOrNull = createDisposableContent();
         if (contentOrNull != null)
         {
-            updateContent(contentOrNull);
+            updateContent(contentOrNull, false);
         }
     }
 
-    protected void updateContent(IDisposableComponent content)
+    protected void updateContent(IDisposableComponent content, boolean syncNeeded)
     {
-        if (content != null) // sanity check
+        if (content != null)
         {
             add(content.getComponent());
+            if (syncNeeded)
+            {
+                syncSize();
+            }
         }
     }
 }

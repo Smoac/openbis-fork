@@ -121,7 +121,7 @@ public class ManagedPropertySection extends DisposableTabContent
                             public void execute(IDisposableComponent gridComponent)
                             {
                                 Info.display("grid generated", gridComponent.getComponent().getId());
-                                updateContent(gridComponent);
+                                updateContent(gridComponent, true);
                             }
 
                         };
@@ -130,7 +130,7 @@ public class ManagedPropertySection extends DisposableTabContent
                             gridInfo, gridGeneratedAction);
             viewContext.getCommonService().createReportForManagedProperty(tableDescriptionOrNull,
                     callback);
-            return null; // FIXME not the best solution
+            return null;
         }
 
     }
