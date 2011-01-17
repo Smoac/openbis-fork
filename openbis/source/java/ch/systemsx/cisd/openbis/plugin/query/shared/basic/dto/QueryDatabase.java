@@ -16,13 +16,16 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * @author Piotr Buczek
  */
-public class QueryDatabase implements IsSerializable, Comparable<QueryDatabase>
+public class QueryDatabase implements ISerializable, Comparable<QueryDatabase>
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private String key;
 
     private String label;
@@ -63,9 +66,9 @@ public class QueryDatabase implements IsSerializable, Comparable<QueryDatabase>
         this.label = label;
     }
 
-    // 
+    //
     // Object
-    // 
+    //
 
     @Override
     public String toString()
