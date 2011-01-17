@@ -176,7 +176,6 @@ abstract public class AbstractScriptEditRegisterForm extends AbstractRegistratio
             IViewContext<ICommonClientServiceAsync> viewContext)
     {
         final MultilineVarcharField field = new ScriptField(viewContext);
-        field.treatTabKeyAsInput();
         field.setFireChangeEventOnSetValue(true);
         return field;
     }
