@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -32,6 +33,8 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.Radio;
+import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.google.gwt.user.client.Element;
 
@@ -137,7 +140,11 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
 
     private final ScriptChooserField scriptChooser;
 
-    private final ScriptTypeSelectionWidget scriptTypeChooser;
+    private Radio scriptTypeManaged;
+
+    private Radio scriptTypeDynamic;
+
+    private final RadioGroup scriptTypeRadioGroup;
 
     public static DatabaseModificationAwareComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext, EntityKind entityKind)
@@ -157,7 +164,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         setScrollMode(Scroll.AUTO);
         add(infoBox = createInfoBox());
         add(formPanel = createFormPanel());
-        scriptTypeChooser = createScriptTypeChooserField(viewContext);
+        scriptTypeRadioGroup = createScriptTypeRadioGroup();
         scriptChooser =
                 createScriptChooserField(viewContext, createScriptTypeProvider(), entityKind);
     }
@@ -168,19 +175,9 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
             {
                 public ScriptType tryGetScriptType()
                 {
-                    return scriptTypeChooser.getSimpleValue();
+                    return isManaged() ? ScriptType.MANAGED_PROPERTY : ScriptType.DYNAMIC_PROPERTY;
                 }
             };
-    }
-
-    private static ScriptTypeSelectionWidget createScriptTypeChooserField(
-            IViewContext<ICommonClientServiceAsync> viewContext)
-    {
-        ScriptTypeSelectionWidget field =
-                ScriptTypeSelectionWidget.createPropertyScriptTypes(viewContext);
-        FieldUtil.setVisibility(false, field);
-        FieldUtil.markAsMandatory(field);
-        return field;
     }
 
     private static ScriptChooserField createScriptChooserField(
@@ -208,6 +205,35 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
     {
         final InfoBox infoBox = new InfoBox();
         return infoBox;
+    }
+
+    private final RadioGroup createScriptTypeRadioGroup()
+    {
+        final RadioGroup result = new RadioGroup();
+        result.setSelectionRequired(true);
+        result.setVisible(false);
+        result.setOrientation(Orientation.HORIZONTAL);
+        scriptTypeManaged = createRadio(ScriptType.MANAGED_PROPERTY.getDescription());
+        scriptTypeDynamic = createRadio(ScriptType.DYNAMIC_PROPERTY.getDescription());
+        result.add(scriptTypeManaged);
+        result.add(scriptTypeDynamic);
+        FieldUtil.setValueWithoutEvents(result, scriptTypeManaged);
+        result.setLabelSeparator("");
+        result.addListener(Events.Change, new Listener<BaseEvent>()
+            {
+                public void handleEvent(BaseEvent be)
+                {
+                    scriptChooser.setValue("");
+                }
+            });
+        return result;
+    }
+
+    private final Radio createRadio(final String label)
+    {
+        Radio result = new Radio();
+        result.setBoxLabel(label);
+        return result;
     }
 
     private PropertyTypeSelectionWidget getPropertyTypeWidget()
@@ -299,7 +325,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
     private void updateVisibilityOfScriptRelatedFields()
     {
         boolean scriptable = isScriptable();
-        FieldUtil.setVisibility(scriptable, scriptTypeChooser, scriptChooser);
+        FieldUtil.setVisibility(scriptable, scriptTypeRadioGroup, scriptChooser);
         if (defaultValueField != null)
         {
             FieldUtil.setVisibility(scriptable == false, defaultValueField.get());
@@ -434,7 +460,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         formPanel.add(propertyTypeWidget);
         formPanel.add(typeSelectionWidget);
         formPanel.add(getScriptableCheckbox());
-        formPanel.add(scriptTypeChooser);
+        formPanel.add(scriptTypeRadioGroup);
         formPanel.add(scriptChooser);
         formPanel.add(getMandatoryCheckbox());
         updatePropertyTypeRelatedFields();
@@ -576,14 +602,12 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
 
     boolean isDynamic()
     {
-        ScriptType scriptTypeOrNull = scriptTypeChooser.getSimpleValue();
-        return scriptTypeOrNull != null && scriptTypeOrNull == ScriptType.DYNAMIC_PROPERTY;
+        return isScriptable() && scriptTypeDynamic.getValue();
     }
 
     boolean isManaged()
     {
-        ScriptType scriptTypeOrNull = scriptTypeChooser.getSimpleValue();
-        return scriptTypeOrNull != null && scriptTypeOrNull == ScriptType.MANAGED_PROPERTY;
+        return isScriptable() && scriptTypeManaged.getValue();
     }
 
     //

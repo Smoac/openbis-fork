@@ -44,16 +44,6 @@ public final class ScriptTypeSelectionWidget extends SimpleComboBox<ScriptType>
                         Dict.COMBO_BOX_CHOOSE, "script type"), Arrays.asList(ScriptType.values()));
     }
 
-    /** creates a combo box with script types related with property types */
-    public static ScriptTypeSelectionWidget createPropertyScriptTypes(
-            final IViewContext<ICommonClientServiceAsync> viewContext)
-    {
-        return new ScriptTypeSelectionWidget(viewContext.getMessage(Dict.SCRIPT_TYPE),
-                viewContext.getMessage(Dict.SCRIPT_TYPE), viewContext.getMessage(
-                        Dict.COMBO_BOX_CHOOSE, "script type"), Arrays.asList(
-                        ScriptType.DYNAMIC_PROPERTY, ScriptType.MANAGED_PROPERTY));
-    }
-
     private ScriptTypeSelectionWidget(final String fieldLabel, final String toolTip,
             final String chooseText, final List<ScriptType> scriptTypes)
     {
