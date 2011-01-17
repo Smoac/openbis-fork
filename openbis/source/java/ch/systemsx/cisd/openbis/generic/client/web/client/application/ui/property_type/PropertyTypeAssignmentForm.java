@@ -223,7 +223,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
             {
                 public void handleEvent(BaseEvent be)
                 {
-                    scriptChooser.setValue("");
+                    scriptChooser.setRawValue("");
                 }
             });
         return result;
