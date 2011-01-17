@@ -820,7 +820,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     // wraps this browser into the interface appropriate for the toolbar. If this class would just
     // implement the interface it could be very confusing for the code reader.
-    protected final IBrowserGridActionInvoker asActionInvoker()
+    protected IBrowserGridActionInvoker asActionInvoker()
     {
         final AbstractBrowserGrid<T, M> delegate = this;
         return new IBrowserGridActionInvoker()

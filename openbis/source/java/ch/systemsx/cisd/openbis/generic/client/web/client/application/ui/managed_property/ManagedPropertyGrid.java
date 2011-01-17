@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.manage
 
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.widget.Info;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -26,7 +27,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -34,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReferenc
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IManagedPropertyGridInformationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Null;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
@@ -43,15 +47,17 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
 public class ManagedPropertyGrid extends TypedTableGrid<Null>
 {
     // browser consists of the grid and the paging toolbar
-    public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "DataSetReporterGrid";
+    public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "ManagedPropertyGrid";
 
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext,
             TableModelReference tableModelReference,
-            IManagedPropertyGridInformationProvider gridInformation)
+            IManagedPropertyGridInformationProvider gridInformation,
+            IDelegatedAction onRefreshAction)
     {
         final ManagedPropertyGrid grid =
-                new ManagedPropertyGrid(viewContext, tableModelReference, gridInformation);
+                new ManagedPropertyGrid(viewContext, tableModelReference, gridInformation,
+                        onRefreshAction);
         return grid.asDisposableWithoutToolbar();
     }
 
@@ -64,11 +70,15 @@ public class ManagedPropertyGrid extends TypedTableGrid<Null>
 
     private final String gridKind;
 
+    private final IDelegatedAction onRefreshAction;
+
     private ManagedPropertyGrid(IViewContext<ICommonClientServiceAsync> viewContext,
             TableModelReference tableModelReference,
-            IManagedPropertyGridInformationProvider gridInformation)
+            IManagedPropertyGridInformationProvider gridInformation,
+            IDelegatedAction onRefreshAction)
     {
         super(viewContext, BROWSER_ID, true, DisplayTypeIDGenerator.DATA_SET_REPORTING_GRID);
+        this.onRefreshAction = onRefreshAction;
         setId(BROWSER_ID);
         this.resultSetKey = tableModelReference.getResultSetKey();
         this.gridKind = gridInformation.getKey();
@@ -87,7 +97,7 @@ public class ManagedPropertyGrid extends TypedTableGrid<Null>
             AsyncCallback<TypedTableResultSet<Null>> callback)
     {
         // In all cases the data should be taken from the cache, and we know the key already.
-        // The custom columns should be recomputed. - TODO 2011-01-13, Piotr Buczek: WHY??
+        // The custom columns should be recomputed.
         resultSetConfig.setCacheConfig(ResultSetFetchConfig
                 .createFetchFromCacheAndRecompute(resultSetKey));
         viewContext.getService().listReport(resultSetConfig, callback);
@@ -102,9 +112,52 @@ public class ManagedPropertyGrid extends TypedTableGrid<Null>
     }
 
     @Override
-    public void update(Set<DatabaseModificationKind> observedModifications)
+    public DatabaseModificationKind[] getRelevantModifications()
     {
-        // do nothing
+        Info.display("getRelevantModifications", "");
+        return new DatabaseModificationKind[]
+            {
+                    // script changes can cause all sorts of changes to the grid
+                    DatabaseModificationKind.edit(ObjectKind.SCRIPT),
+                    // different script can be assigned
+                    DatabaseModificationKind.edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT)
+
+            };
     }
 
+    @Override
+    public void update(Set<DatabaseModificationKind> observedModifications)
+    {
+        Info.display("update", "");
+        super.update(observedModifications);
+    }
+
+    @Override
+    protected IBrowserGridActionInvoker asActionInvoker()
+    {
+        final IBrowserGridActionInvoker delegate = super.asActionInvoker();
+        return new IBrowserGridActionInvoker()
+            {
+
+                public void toggleFilters(boolean show)
+                {
+                    delegate.toggleFilters(show);
+                }
+
+                public void refresh()
+                {
+                    onRefreshAction.execute();
+                }
+
+                public void export(boolean allColumns)
+                {
+                    delegate.export(allColumns);
+                }
+
+                public void configure()
+                {
+                    delegate.configure();
+                }
+            };
+    }
 }

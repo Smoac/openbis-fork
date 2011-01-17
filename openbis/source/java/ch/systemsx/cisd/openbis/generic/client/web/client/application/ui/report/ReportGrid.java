@@ -87,7 +87,7 @@ public class ReportGrid extends TypedTableGrid<Null>
             AsyncCallback<TypedTableResultSet<Null>> callback)
     {
         // In all cases the data should be taken from the cache, and we know the key already.
-        // The custom columns should be recomputed. - TODO 2011-01-13, Piotr Buczek: WHY??
+        // The custom columns should be recomputed.
         resultSetConfig.setCacheConfig(ResultSetFetchConfig
                 .createFetchFromCacheAndRecompute(resultSetKey));
         viewContext.getService().listReport(resultSetConfig, callback);

@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.managed_property.ManagedPropertyGridGeneratedCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.managed_property.ManagedPropertyGridGeneratedCallback.IOnGridComponentGeneratedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IManagedPropertyGridInformationProvider;
@@ -99,14 +100,14 @@ public class ManagedPropertySection extends DisposableTabContent
     {
         Info.display(getHeading() + " show content", uiDescription.toString());
 
-        ManagedTableWidgetDescription tableDescriptionOrNull = tryGetTableDescription();
+        final ManagedTableWidgetDescription tableDescriptionOrNull = tryGetTableDescription();
         if (tableDescriptionOrNull == null)
         {
             MessageBox.alert("Error", "Failed to create content", null);
             return DUMMY_CONTENT;
         } else
         {
-            IManagedPropertyGridInformationProvider gridInfo =
+            final IManagedPropertyGridInformationProvider gridInfo =
                     new IManagedPropertyGridInformationProvider()
                         {
                             public String getKey()
@@ -114,22 +115,34 @@ public class ManagedPropertySection extends DisposableTabContent
                                 return gridIdSuffix;
                             }
                         };
-            IOnGridComponentGeneratedAction gridGeneratedAction =
+            // refresh reloads the table and replaces tab component
+            final IOnGridComponentGeneratedAction gridGeneratedAction =
                     new IOnGridComponentGeneratedAction()
                         {
 
                             public void execute(IDisposableComponent gridComponent)
                             {
-                                Info.display("grid generated", gridComponent.getComponent().getId());
-                                updateContent(gridComponent, true);
+                                Info.display("grid generated", ""); // TODO remove
+                                replaceContent(gridComponent);
                             }
 
                         };
-            AsyncCallback<TableModelReference> callback =
-                    ManagedPropertyGridGeneratedCallback.create(viewContext.getCommonViewContext(),
-                            gridInfo, gridGeneratedAction);
-            viewContext.getCommonService().createReportForManagedProperty(tableDescriptionOrNull,
-                    callback);
+
+            IDelegatedAction loadGrid = new IDelegatedAction()
+                {
+
+                    public void execute()
+                    {
+                        AsyncCallback<TableModelReference> callback =
+                                ManagedPropertyGridGeneratedCallback.create(
+                                        viewContext.getCommonViewContext(), gridInfo,
+                                        gridGeneratedAction, this);
+                        viewContext.getCommonService().createReportForManagedProperty(
+                                tableDescriptionOrNull, callback);
+                    }
+
+                };
+            loadGrid.execute();
             return null;
         }
 
@@ -147,4 +160,5 @@ public class ManagedPropertySection extends DisposableTabContent
             return null;
         }
     }
+
 }

@@ -66,7 +66,7 @@ abstract public class DisposableTabContent extends TabContent
         }
     }
 
-    protected void updateContent(IDisposableComponent content, boolean syncNeeded)
+    private void updateContent(IDisposableComponent content, boolean syncNeeded)
     {
         if (content != null)
         {
@@ -75,6 +75,16 @@ abstract public class DisposableTabContent extends TabContent
             {
                 syncSize();
             }
+        }
+    }
+
+    protected void replaceContent(IDisposableComponent content)
+    {
+        if (content != null)
+        {
+            removeAll();
+            disposeComponents();
+            updateContent(content, true);
         }
     }
 }
