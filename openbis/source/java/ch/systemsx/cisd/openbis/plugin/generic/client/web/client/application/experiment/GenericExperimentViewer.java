@@ -120,7 +120,8 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
             }));
     }
 
-    private void reloadAllData()
+    @Override
+    protected void reloadAllData()
     {
         reloadExperiment(new AbstractAsyncCallback<Experiment>(viewContext)
             {

@@ -21,7 +21,6 @@ import java.util.Set;
 import com.extjs.gxt.ui.client.util.Format;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -74,12 +73,15 @@ public class ManagedPropertySection extends DisposableTabContent
 
     private final String gridIdSuffix;
 
+    private final IDelegatedAction refreshAction;
+
     public ManagedPropertySection(final String header, IViewContext<?> viewContext,
-            IIdHolder ownerId, IManagedUiDescription uiDescription)
+            IIdHolder ownerId, IManagedUiDescription uiDescription, IDelegatedAction refreshAction)
     {
         super(header, viewContext, ownerId);
         this.gridIdSuffix = Format.hyphenize(header);
         this.uiDescription = uiDescription;
+        this.refreshAction = refreshAction;
         setIds(new IDisplayTypeIDGenerator()
             {
 
@@ -98,8 +100,6 @@ public class ManagedPropertySection extends DisposableTabContent
     @Override
     protected IDisposableComponent createDisposableContent()
     {
-        Info.display(getHeading() + " show content", uiDescription.toString());
-
         final ManagedTableWidgetDescription tableDescriptionOrNull = tryGetTableDescription();
         if (tableDescriptionOrNull == null)
         {
@@ -122,7 +122,6 @@ public class ManagedPropertySection extends DisposableTabContent
 
                             public void execute(IDisposableComponent gridComponent)
                             {
-                                Info.display("grid generated", ""); // TODO remove
                                 replaceContent(gridComponent);
                             }
 
@@ -136,7 +135,7 @@ public class ManagedPropertySection extends DisposableTabContent
                         AsyncCallback<TableModelReference> callback =
                                 ManagedPropertyGridGeneratedCallback.create(
                                         viewContext.getCommonViewContext(), gridInfo,
-                                        gridGeneratedAction, this);
+                                        gridGeneratedAction, refreshAction);
                         viewContext.getCommonService().createReportForManagedProperty(
                                 tableDescriptionOrNull, callback);
                     }

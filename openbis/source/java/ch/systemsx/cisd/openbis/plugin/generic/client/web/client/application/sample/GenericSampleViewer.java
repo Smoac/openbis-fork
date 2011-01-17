@@ -163,6 +163,7 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
             }));
     }
 
+    @Override
     protected void reloadAllData()
     {
         reloadSampleGenerationData(new SampleGenerationInfoCallback(viewContext, this));

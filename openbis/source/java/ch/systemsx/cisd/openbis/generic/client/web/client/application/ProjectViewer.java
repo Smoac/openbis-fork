@@ -35,8 +35,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDele
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 
 /**
  * Presents details of the project.
@@ -92,7 +92,8 @@ public final class ProjectViewer extends AbstractViewer<IEntityInformationHolder
             }));
     }
 
-    private void reloadAllData()
+    @Override
+    protected void reloadAllData()
     {
         reloadData(new ProjectInfoCallback(viewContext, this));
     }

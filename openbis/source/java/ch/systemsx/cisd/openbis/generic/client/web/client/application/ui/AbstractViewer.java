@@ -48,7 +48,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithProperties;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiDescription;
@@ -78,6 +77,9 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
 
     // A suffix used to designate widgets owned by this panel
     protected String displayIdSuffix;
+
+    /** reload data for the viewer, update original data and recreate the view */
+    protected abstract void reloadAllData();
 
     public AbstractViewer(final IViewContext<?> viewContext, String id)
     {
@@ -265,9 +267,18 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
         }
     }
 
-    protected TabContent createManagedPropertySection(final String header, final IIdHolder ownerId,
-            final IManagedUiDescription uiDescription)
+    protected TabContent createManagedPropertySection(final String header,
+            final IEntityInformationHolder ownerId, final IManagedUiDescription uiDescription)
     {
-        return new ManagedPropertySection(header, viewContext, ownerId, uiDescription);
+        IDelegatedAction refreshAction = new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    reloadAllData();
+                }
+            };
+        return new ManagedPropertySection(header, viewContext, ownerId, uiDescription,
+                refreshAction);
     }
+
 }

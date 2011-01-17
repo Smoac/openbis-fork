@@ -49,7 +49,7 @@ public final class DemoSampleViewer extends AbstractViewer<Sample>
         super(viewContext, createId(sampleId));
         this.sampleId = sampleId;
         this.viewContext = viewContext;
-        reloadData();
+        reloadAllData();
     }
 
     public static final String createId(final TechId sampleId)
@@ -65,7 +65,8 @@ public final class DemoSampleViewer extends AbstractViewer<Sample>
     /**
      * Load the sample information.
      */
-    protected void reloadData()
+    @Override
+    protected void reloadAllData()
     {
         SampleInfoCallback callback = new SampleInfoCallback(viewContext, this);
         viewContext.getService().getSampleGenerationInfo(sampleId, getBaseIndexURL(), callback);

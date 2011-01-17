@@ -140,6 +140,7 @@ abstract public class GenericMaterialViewer extends AbstractViewerWithVerticalSp
         return container;
     }
 
+    @Override
     protected void reloadAllData()
     {
         reloadMaterialData(new MaterialInfoCallback(viewContext, this));
