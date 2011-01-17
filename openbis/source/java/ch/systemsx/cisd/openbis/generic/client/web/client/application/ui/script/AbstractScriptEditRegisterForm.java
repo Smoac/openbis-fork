@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.script;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -23,9 +26,11 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.Validator;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Element;
@@ -152,6 +157,7 @@ abstract public class AbstractScriptEditRegisterForm extends AbstractRegistratio
     protected void onScriptTypeChanged(ScriptType scriptType)
     {
         rightPanel.setVisible(scriptType == ScriptType.DYNAMIC_PROPERTY);
+        scriptField.setValidator(validatorsByScriptType.get(scriptType));
     }
 
     private IValidable asValidable(final FormPanel panel)
@@ -235,6 +241,63 @@ abstract public class AbstractScriptEditRegisterForm extends AbstractRegistratio
         setValues();
         setLoading(false);
         layout();
+    }
+
+    //
+    // script validators
+    //
+
+    private static Map<ScriptType, Validator> validatorsByScriptType =
+            new HashMap<ScriptType, Validator>();
+
+    static
+    {
+        validatorsByScriptType.put(ScriptType.DYNAMIC_PROPERTY,
+                new DynamicPropertyScriptValidator());
+        validatorsByScriptType.put(ScriptType.MANAGED_PROPERTY,
+                new ManagedPropertyScriptValidator());
+    }
+
+    private final static String NEWLINE = "\n";
+
+    /** {@link Validator} for script of type {@link ScriptType#DYNAMIC_PROPERTY}. */
+    private static class DynamicPropertyScriptValidator implements Validator
+    {
+
+        private final static String CALCULATE_DEFINITION = "def calculate():";
+
+        private final static String CALCULATE_DEFINITION_NOT_FOUND_MSG =
+                "Multiline script should contain definition of 'calculate()' function.";
+
+        public String validate(Field<?> field, final String fieldValue)
+        {
+            if (fieldValue.contains(NEWLINE))
+            {
+                final String[] lines = fieldValue.split(NEWLINE);
+                for (String line : lines)
+                {
+                    if (line.startsWith(CALCULATE_DEFINITION))
+                    {
+                        // validated value is valid
+                        return null;
+                    }
+                }
+                return CALCULATE_DEFINITION_NOT_FOUND_MSG;
+            }
+            // validated value is valid
+            return null;
+        }
+    }
+
+    /** {@link Validator} for script of type {@link ScriptType#MANAGED_PROPERTY}. */
+    private static class ManagedPropertyScriptValidator implements Validator
+    {
+
+        public String validate(Field<?> field, String value)
+        {
+            // TODO Auto-generated method stub
+            return null;
+        }
     }
 
 }
