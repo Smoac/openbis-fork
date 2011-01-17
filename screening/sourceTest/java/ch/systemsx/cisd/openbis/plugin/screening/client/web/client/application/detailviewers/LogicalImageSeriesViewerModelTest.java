@@ -45,6 +45,10 @@ public class LogicalImageSeriesViewerModelTest extends AssertJUnit
             { 1, 2, 3, null };
 
         LogicalImageSeriesViewerModel model = createModel(times, depths, series);
+        
+        assertEquals(false, model.isMatrixViewPossible());
+        assertEquals(3, model.getNumberOfDepthLevels());
+        assertEquals(3, model.getNumberOfTimepoints());
 
         List<ImageSeriesPoint> sortedPoints = model.getSortedPoints();
         ImageSeriesPoint firstPoint = new ImageSeriesPoint(null, null, null);
@@ -59,6 +63,83 @@ public class LogicalImageSeriesViewerModelTest extends AssertJUnit
         List<ImageChannelStack> lastList = stackSeriesPoints.get(stackSeriesPoints.size() - 1);
         assertEquals(lastPoint, new ImageSeriesPoint(lastList.get(0)));
     }
+    
+    @Test
+    public void testMatrixViewIsPossible()
+    {
+        Float times[] = new Float[]
+            { 1.5f, 3f, 4.5f };
+        Float depths[] = new Float[]
+            { 2.5f, 5f };
+        Integer series[] = new Integer[]
+            { null };
+        
+        LogicalImageSeriesViewerModel model = createModel(times, depths, series);
+        
+        assertEquals(true, model.isMatrixViewPossible());
+        assertEquals(3, model.getNumberOfTimepoints());
+        assertEquals(2, model.getNumberOfDepthLevels());
+    }
+    
+    @Test
+    public void testMatrixViewIsNotPossibleBecauseOfSeriesNumbers()
+    {
+        Float times[] = new Float[]
+            { 1.5f, 3f, 4.5f };
+        Float depths[] = new Float[]
+            { 2.5f, 5f };
+        Integer series[] = new Integer[]
+            { 1 };
+        
+        LogicalImageSeriesViewerModel model = createModel(times, depths, series);
+        
+        assertEquals(false, model.isMatrixViewPossible());
+        assertEquals(3, model.getNumberOfTimepoints());
+        assertEquals(2, model.getNumberOfDepthLevels());
+    }
+    
+    @Test
+    public void testMatrixViewIsNotPossibleBecauseOfMissingTimePoint()
+    {
+        List<ImageChannelStack> stacks = new ArrayList<ImageChannelStack>();
+        stacks.add(stack(1, 1, null, 2.5f, null));
+        stacks.add(stack(1, 1, 1f, 2.5f, null));
+        
+        LogicalImageSeriesViewerModel model = new LogicalImageSeriesViewerModel(stacks);
+        
+        assertEquals(false, model.isMatrixViewPossible());
+        assertEquals(1, model.getNumberOfTimepoints());
+        assertEquals(1, model.getNumberOfDepthLevels());
+    }
+    
+    @Test
+    public void testMatrixViewIsNotPossibleBecauseOfMissingDepth()
+    {
+        List<ImageChannelStack> stacks = new ArrayList<ImageChannelStack>();
+        stacks.add(stack(1, 1, 1f, null, null));
+        stacks.add(stack(1, 1, 1f, 2.5f, null));
+        
+        LogicalImageSeriesViewerModel model = new LogicalImageSeriesViewerModel(stacks);
+        
+        assertEquals(false, model.isMatrixViewPossible());
+        assertEquals(1, model.getNumberOfTimepoints());
+        assertEquals(1, model.getNumberOfDepthLevels());
+    }
+    
+    @Test
+    public void testMatrixViewIsNotPossibleBecauseOfSparseMatrix()
+    {
+        List<ImageChannelStack> stacks = new ArrayList<ImageChannelStack>();
+        stacks.add(stack(1, 1, 1f, 1f, null));
+        stacks.add(stack(1, 1, 1f, 2f, null));
+        stacks.add(stack(1, 1, 2f, 2f, null));
+        
+        LogicalImageSeriesViewerModel model = new LogicalImageSeriesViewerModel(stacks);
+        
+        assertEquals(false, model.isMatrixViewPossible());
+        assertEquals(2, model.getNumberOfTimepoints());
+        assertEquals(2, model.getNumberOfDepthLevels());
+    }
 
     private LogicalImageSeriesViewerModel createModel(Float[] times, Float[] depths,
             Integer[] series)
@@ -70,15 +151,15 @@ public class LogicalImageSeriesViewerModelTest extends AssertJUnit
             {
                 for (int seriesNum = 0; seriesNum < series.length; seriesNum++)
                 {
-                    stacks.add(mkStack(1, 1, times[time], depths[depth], series[seriesNum]));
-                    stacks.add(mkStack(2, 2, times[time], depths[depth], series[seriesNum]));
+                    stacks.add(stack(1, 1, times[time], depths[depth], series[seriesNum]));
+                    stacks.add(stack(2, 2, times[time], depths[depth], series[seriesNum]));
                 }
             }
         }
         return new LogicalImageSeriesViewerModel(stacks);
     }
 
-    private static ImageChannelStack mkStack(int row, int col, Float tOrNull, Float zOrNull,
+    private static ImageChannelStack stack(int row, int col, Float tOrNull, Float zOrNull,
             Integer seriesNumberOrNull)
     {
         return new ImageChannelStack(0, row, col, tOrNull, zOrNull, seriesNumberOrNull);

@@ -17,15 +17,13 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageChannelsReference;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageReference;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -33,8 +31,13 @@ import com.extjs.gxt.ui.client.event.SliderEvent;
 import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Slider;
+import com.extjs.gxt.ui.client.widget.layout.HBoxLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.user.client.ui.Widget;
+
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageChannelsReference;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 
 /**
  * Allows to view logical image which has series (e.g. timepoints).
@@ -48,42 +51,92 @@ class LogicalImageSeriesGrid
             LogicalImageChannelsReference channelReferences, int imageWidth, int imageHeight)
     {
         LogicalImageSeriesViewerModel model = new LogicalImageSeriesViewerModel(channelStackImages);
+        List<List<ImageChannelStack>> sortedChannelStackSeriesPoints = model.getSortedChannelStackSeriesPoints();
         List<LayoutContainer> frames =
-                createSeriesFrames(model.getSortedChannelStackSeriesPoints(), channelReferences,
+                createSeriesFrames(sortedChannelStackSeriesPoints, channelReferences,
                         sessionId, imageWidth, imageHeight);
-
-        return createMoviePlayer(frames, model.getSortedPoints());
+        if (model.isMatrixViewPossible())
+        {
+            return createTimeAndDepthViewer(frames, model);
+        }
+        return createMoviePlayer(frames, model);
     }
-
-    private static List<ImageSeriesPoint> sortPoints(Set<ImageSeriesPoint> points)
+    
+    private static LayoutContainer createTimeAndDepthViewer(final List<LayoutContainer> frames,
+            final LogicalImageSeriesViewerModel model)
     {
-        ArrayList<ImageSeriesPoint> pointsList = new ArrayList<ImageSeriesPoint>(points);
-        Collections.sort(pointsList);
-        return pointsList;
+        final LayoutContainer mainContainer = new LayoutContainer();
+        LayoutContainer sliderContainer = new LayoutContainer(new HBoxLayout());
+        mainContainer.add(sliderContainer);
+        LayoutContainer timeSliderContainer = new LayoutContainer();
+        sliderContainer.add(timeSliderContainer);
+        final int numberOfTimepoints = model.getNumberOfTimepoints();
+        final Label timeSliderLabel = new Label();
+        timeSliderContainer.add(timeSliderLabel);
+        final Slider timeSlider = createSlider(numberOfTimepoints);
+        timeSliderContainer.add(timeSlider);
+        Label spacer = new Label();
+        spacer.setWidth(80);
+        sliderContainer.add(spacer);
+        LayoutContainer depthSliderContainer = new LayoutContainer();
+        sliderContainer.add(depthSliderContainer);
+        final int numberOfDepthLevels = model.getNumberOfDepthLevels();
+        final Label depthSliderLabel = new Label();
+        depthSliderContainer.add(depthSliderLabel);
+        final Slider depthSlider = createSlider(numberOfDepthLevels);
+        depthSliderContainer.add(depthSlider);
+        Listener<SliderEvent> listener = new AbstractSliderListener(mainContainer, frames)
+            {
+                private int currentFrameIndex;
+                
+                @Override
+                public void handleEvent(SliderEvent be)
+                {
+                    super.handleEvent(be);
+                    frames.get(currentFrameIndex).hide();
+                    currentFrameIndex =
+                            (timeSlider.getValue() - 1) * numberOfDepthLevels
+                                    + (depthSlider.getValue() - 1);
+                    frames.get(currentFrameIndex).show();
+                    int timeSliderValue = timeSlider.getValue();
+                    int depthSliderValue = depthSlider.getValue();
+                    setSliderLabels(model, timeSliderLabel, timeSliderValue, depthSliderLabel, depthSliderValue);
+                    mainContainer.layout();
+                }
+            };
+        timeSlider.addListener(Events.Change, listener);
+        depthSlider.addListener(Events.Change, listener);
+        setSliderLabels(model, timeSliderLabel, 1, depthSliderLabel, 1);
+        
+        // add only first frame to avoid loading images before the slider is touched
+        mainContainer.add(frames.get(0));
+        return mainContainer;
+    }
+    
+    private static void setSliderLabels(LogicalImageSeriesViewerModel model, Label timeSliderLabel,
+            int timeSliderValue, Label depthSliderLabel, int depthSliderValue)
+    {
+        int numberOfTimepoints = model.getNumberOfTimepoints();
+        int numberOfDepthLevels = model.getNumberOfDepthLevels();
+        ImageSeriesPoint imageSeriesPoint = model.get(timeSliderValue - 1, depthSliderValue - 1);
+        Float time = imageSeriesPoint.getTimePointOrNull();
+        timeSliderLabel.setText("Time: " + time + " sec (" + timeSliderValue + "/" + numberOfTimepoints + ")");
+        Float depth = imageSeriesPoint.getDepthOrNull();
+        depthSliderLabel.setText("Depth: " + depth + " (" + depthSliderValue + "/"
+                + numberOfDepthLevels + ")");
     }
 
     private static LayoutContainer createMoviePlayer(final List<LayoutContainer> frames,
-            final List<ImageSeriesPoint> sortedPoints)
+            LogicalImageSeriesViewerModel model)
     {
+        final List<ImageSeriesPoint> sortedPoints = model.getSortedPoints();
         final LayoutContainer mainContainer = new LayoutContainer();
-
-        final Slider slider = createSeriesSlider(frames.size(), new Listener<SliderEvent>()
+        Listener<SliderEvent> listener =  new AbstractSliderListener(mainContainer, frames)
             {
-                private boolean isFirstMove = true;
-
+                @Override
                 public void handleEvent(SliderEvent e)
                 {
-                    if (isFirstMove)
-                    {
-                        // The first slider move has been made, so we add all hidden frames to the
-                        // DOM. The browser will start fetching images referenced in URLs in the
-                        // background.
-                        for (int i = 1; i < frames.size(); i++)
-                        {
-                            mainContainer.add(frames.get(i));
-                        }
-                        isFirstMove = false;
-                    }
+                    super.handleEvent(e);
                     int oldValue = e.getOldValue();
                     int newValue = e.getNewValue();
                     if (oldValue > 0)
@@ -96,7 +149,9 @@ class LogicalImageSeriesGrid
                     mainContainer.layout();
                 }
 
-            });
+            };
+        final Slider slider = createSlider(frames.size());
+        slider.addListener(Events.Change, listener);
         // slider.setValue(1);
 
         mainContainer.add(createSeriesPointLabel(sortedPoints, 1));
@@ -193,17 +248,16 @@ class LogicalImageSeriesGrid
         return new Label(labelText);
     }
 
-    private static final Slider createSeriesSlider(int maxValue, Listener<SliderEvent> listener)
+    private static Slider createSlider(int maxValue)
     {
         final Slider slider = new Slider();
         // we do not want the slider to be long when there are just few points
-        slider.setWidth(Math.min(230, maxValue * 10));
+        slider.setWidth(Math.min(230, Math.max(100, maxValue * 10)));
         slider.setIncrement(1);
         slider.setMinValue(1);
         slider.setMaxValue(maxValue);
         slider.setClickToChange(true);
         slider.setUseTip(false);
-        slider.addListener(Events.Change, listener);
         return slider;
     }
 
@@ -227,11 +281,11 @@ class LogicalImageSeriesGrid
             this.zOrNull = zOrNull;
             this.seriesNumberOrNull = seriesNumberOrNull;
         }
-
+        
         public String getLabel()
         {
             String desc = "";
-            if (tOrNull != null)
+            if (isTimePointPresent())
             {
                 if (desc.length() > 0)
                 {
@@ -239,7 +293,7 @@ class LogicalImageSeriesGrid
                 }
                 desc += "Time: " + tOrNull + " sec";
             }
-            if (zOrNull != null)
+            if (isDepthPresent())
             {
                 if (desc.length() > 0)
                 {
@@ -247,7 +301,7 @@ class LogicalImageSeriesGrid
                 }
                 desc += "Depth: " + zOrNull;
             }
-            if (seriesNumberOrNull != null)
+            if (isSeriesNumberPresent())
             {
                 if (desc.length() > 0)
                 {
@@ -256,6 +310,36 @@ class LogicalImageSeriesGrid
                 desc += "Series: " + seriesNumberOrNull;
             }
             return desc;
+        }
+
+        private boolean isDepthPresent()
+        {
+            return zOrNull != null;
+        }
+        
+        Float getDepthOrNull()
+        {
+            return zOrNull;
+        }
+
+        private boolean isTimePointPresent()
+        {
+            return tOrNull != null;
+        }
+        
+        Float getTimePointOrNull()
+        {
+            return tOrNull;
+        }
+
+        private boolean isSeriesNumberPresent()
+        {
+            return seriesNumberOrNull != null;
+        }
+        
+        Integer getSeriesNumberOrNull()
+        {
+            return seriesNumberOrNull;
         }
 
         public int compareTo(ImageSeriesPoint o)
@@ -288,9 +372,9 @@ class LogicalImageSeriesGrid
             int result = 1;
             result =
                     prime * result
-                            + ((seriesNumberOrNull == null) ? 0 : seriesNumberOrNull.hashCode());
-            result = prime * result + ((tOrNull == null) ? 0 : tOrNull.hashCode());
-            result = prime * result + ((zOrNull == null) ? 0 : zOrNull.hashCode());
+                            + (isSeriesNumberPresent() ? seriesNumberOrNull.hashCode() : 0);
+            result = prime * result + (isTimePointPresent() ? tOrNull.hashCode() : 0);
+            result = prime * result + (isDepthPresent() ? zOrNull.hashCode() : 0);
             return result;
         }
 
@@ -298,30 +382,48 @@ class LogicalImageSeriesGrid
         public boolean equals(Object obj)
         {
             if (this == obj)
+            {
                 return true;
+            }
             if (obj == null)
+            {
                 return false;
+            }
             if (getClass() != obj.getClass())
+            {
                 return false;
+            }
             ImageSeriesPoint other = (ImageSeriesPoint) obj;
-            if (seriesNumberOrNull == null)
+            if (isSeriesNumberPresent() == false)
             {
-                if (other.seriesNumberOrNull != null)
+                if (other.isSeriesNumberPresent())
+                {
                     return false;
-            } else if (!seriesNumberOrNull.equals(other.seriesNumberOrNull))
-                return false;
-            if (tOrNull == null)
+                }
+            } else if (seriesNumberOrNull.equals(other.seriesNumberOrNull) == false)
             {
-                if (other.tOrNull != null)
-                    return false;
-            } else if (!tOrNull.equals(other.tOrNull))
                 return false;
-            if (zOrNull == null)
+            }
+            if (isTimePointPresent() == false)
             {
-                if (other.zOrNull != null)
+                if (other.isTimePointPresent())
+                {
                     return false;
-            } else if (!zOrNull.equals(other.zOrNull))
+                }
+            } else if (tOrNull.equals(other.tOrNull) == false)
+            {
                 return false;
+            }
+            if (isDepthPresent() == false)
+            {
+                if (other.isDepthPresent())
+                {    
+                    return false;
+                }
+            } else if (zOrNull.equals(other.zOrNull) == false)
+            {
+                return false;
+            }
             return true;
         }
     }
@@ -329,49 +431,93 @@ class LogicalImageSeriesGrid
     // private
     static class LogicalImageSeriesViewerModel
     {
+        private final Map<ImageSeriesPoint, List<ImageChannelStack>> channelStackImagesBySeries;
+        
         private final List<ImageSeriesPoint> sortedPoints;
+        
+        private final int numberOfTimepoints;
+        
+        private final int numberOfDepthLevels;
+        
+        private final boolean matrixViewPossible;
 
-        private final List<List<ImageChannelStack>> sortedChannelStackSeriesPoints;
+        private List<List<ImageSeriesPoint>> matrix;
 
         public LogicalImageSeriesViewerModel(List<ImageChannelStack> channelStackImages)
         {
-            Map<ImageSeriesPoint, List<ImageChannelStack>> channelStackImagesBySeries =
-                    groupImagesBySeries(channelStackImages);
-            this.sortedPoints = sortPoints(channelStackImagesBySeries.keySet());
-            this.sortedChannelStackSeriesPoints =
-                    getSortedSeries(channelStackImagesBySeries, sortedPoints);
-        }
-
-        private static Map<ImageSeriesPoint, List<ImageChannelStack>> groupImagesBySeries(
-                List<ImageChannelStack> channelStackImages)
-        {
-            Map<ImageSeriesPoint, List<ImageChannelStack>> result =
-                    new TreeMap<ImageSeriesPoint, List<ImageChannelStack>>();
+            channelStackImagesBySeries = new TreeMap<ImageSeriesPoint, List<ImageChannelStack>>();
+            TreeMap<Float/* TimePoint */, Map<Float/* Depth */, ImageSeriesPoint>> timePointDepthMatrix =
+                    new TreeMap<Float/* TimePoint */, Map<Float/* Depth */, ImageSeriesPoint>>();
+            boolean seriesNumberPresent = false;
+            boolean timepointOrDepthNotPresent = false;
             for (ImageChannelStack ref : channelStackImages)
             {
                 ImageSeriesPoint point = new ImageSeriesPoint(ref);
-                List<ImageChannelStack> imageReferences = result.get(point);
+                List<ImageChannelStack> imageReferences = channelStackImagesBySeries.get(point);
                 if (imageReferences == null)
                 {
                     imageReferences = new ArrayList<ImageChannelStack>();
-                    result.put(point, imageReferences);
+                    channelStackImagesBySeries.put(point, imageReferences);
                 }
                 imageReferences.add(ref);
+                Integer seriesNumberOrNull = ref.tryGetSeriesNumber();
+                if (seriesNumberOrNull != null)
+                {
+                    seriesNumberPresent = true;
+                }
+                Float timepoint = ref.tryGetTimepoint();
+                Float depth = ref.tryGetDepth();
+                if (timepoint == null || depth == null)
+                {
+                    timepointOrDepthNotPresent = true;
+                } else
+                {
+                    Map<Float, ImageSeriesPoint> depthMap = timePointDepthMatrix.get(timepoint);
+                    if (depthMap == null)
+                    {
+                        depthMap = new TreeMap<Float, LogicalImageSeriesGrid.ImageSeriesPoint>();
+                        timePointDepthMatrix.put(timepoint, depthMap);
+                    }
+                    depthMap.put(depth, point);
+                }
             }
-            return result;
+            sortedPoints = new ArrayList<ImageSeriesPoint>(channelStackImagesBySeries.keySet());
+            Collections.sort(sortedPoints);
+            numberOfTimepoints = timePointDepthMatrix.size();
+            Collection<Map<Float, ImageSeriesPoint>> values = timePointDepthMatrix.values();
+            matrix = new ArrayList<List<ImageSeriesPoint>>();
+            
+            Set<Integer> depthMapSizes = new HashSet<Integer>();
+            for (Map<Float, ImageSeriesPoint> depthMap : values)
+            {
+                matrix.add(new ArrayList<ImageSeriesPoint>(depthMap.values()));
+                depthMapSizes.add(depthMap.size());
+            }
+            int depthMapSizesSize = depthMapSizes.size();
+            numberOfDepthLevels = depthMapSizesSize == 0 ? 0 : depthMapSizes.iterator().next();
+            matrixViewPossible =
+                    seriesNumberPresent == false && timepointOrDepthNotPresent == false
+                            && depthMapSizesSize == 1;
+        }
+        
+        public ImageSeriesPoint get(int timeIndex, int depthIndex)
+        {
+            return matrix.get(timeIndex).get(depthIndex);
         }
 
-        private static List<List<ImageChannelStack>> getSortedSeries(
-                Map<ImageSeriesPoint, List<ImageChannelStack>> channelStackImagesBySeries,
-                List<ImageSeriesPoint> sortedPoints)
+        public final int getNumberOfTimepoints()
         {
-            List<List<ImageChannelStack>> sortedSeries = new ArrayList<List<ImageChannelStack>>();
-            for (ImageSeriesPoint point : sortedPoints)
-            {
-                List<ImageChannelStack> series = channelStackImagesBySeries.get(point);
-                sortedSeries.add(series);
-            }
-            return sortedSeries;
+            return numberOfTimepoints;
+        }
+
+        public final int getNumberOfDepthLevels()
+        {
+            return numberOfDepthLevels;
+        }
+
+        public final boolean isMatrixViewPossible()
+        {
+            return matrixViewPossible;
         }
 
         public List<ImageSeriesPoint> getSortedPoints()
@@ -381,7 +527,43 @@ class LogicalImageSeriesGrid
 
         public List<List<ImageChannelStack>> getSortedChannelStackSeriesPoints()
         {
-            return sortedChannelStackSeriesPoints;
+            List<List<ImageChannelStack>> sortedSeries = new ArrayList<List<ImageChannelStack>>();
+            for (ImageSeriesPoint point : sortedPoints)
+            {
+                List<ImageChannelStack> series = channelStackImagesBySeries.get(point);
+                sortedSeries.add(series);
+            }
+            return sortedSeries;
+        }
+    }
+
+    private abstract static class AbstractSliderListener implements Listener<SliderEvent>
+    {
+        private boolean isFirstMove = true;
+
+        private final LayoutContainer mainContainer;
+
+        private final List<LayoutContainer> frames;
+
+        AbstractSliderListener(LayoutContainer mainContainer, List<LayoutContainer> frames)
+        {
+            this.mainContainer = mainContainer;
+            this.frames = frames;
+        }
+
+        public void handleEvent(SliderEvent be)
+        {
+            if (isFirstMove)
+            {
+                // The first slider move has been made, so we add all hidden frames to the
+                // DOM. The browser will start fetching images referenced in URLs in the
+                // background.
+                for (int i = 1; i < frames.size(); i++)
+                {
+                    mainContainer.add(frames.get(i));
+                }
+                isFirstMove = false;
+            }
         }
     }
 
