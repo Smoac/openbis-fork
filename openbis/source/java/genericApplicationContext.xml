@@ -160,6 +160,9 @@
         </property>
     </bean>
 
+    <bean id="handlerExceptionResolver" 
+        class="ch.systemsx.cisd.openbis.generic.server.DefaultHandlerExceptionResolver"/>
+
     <!-- 
         // Transaction
     -->
