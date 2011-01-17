@@ -57,7 +57,8 @@ public class ManagedPropertyEvaluator
         }
 
         Evaluator evaluator =
-                new Evaluator(CONFIGURE_OUTPUT_EXPRESSION, ScriptUtilityFactory.class, scriptExpression);
+                new Evaluator(CONFIGURE_OUTPUT_EXPRESSION, ScriptUtilityFactory.class,
+                        scriptExpression);
         evaluator.set(PROPERTY_VARIABLE_NAME, managedProperty);
         evaluator.eval();
     }
@@ -66,7 +67,7 @@ public class ManagedPropertyEvaluator
     {
         static public SimpleTableModelBuilder createTableBuilder()
         {
-            return new SimpleTableModelBuilder();
+            return new SimpleTableModelBuilder(true);
         }
     }
 }
