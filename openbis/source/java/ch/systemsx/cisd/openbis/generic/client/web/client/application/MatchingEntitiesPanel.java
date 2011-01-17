@@ -25,7 +25,6 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModifica
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 import com.extjs.gxt.ui.client.core.XDOM;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -99,7 +98,8 @@ public final class MatchingEntitiesPanel extends TypedTableGrid<MatchingEntity>
         registerLinkClickListenerFor(MatchingEntityColumnKind.IDENTIFIER.id(),
                 new ICellListener<TableModelRowWithObject<MatchingEntity>>()
                     {
-                        public void handle(TableModelRowWithObject<MatchingEntity> rowItem, boolean keyPressed)
+                        public void handle(TableModelRowWithObject<MatchingEntity> rowItem,
+                                boolean keyPressed)
                         {
                             showEntityViewer(rowItem, false, keyPressed);
                         }
@@ -153,8 +153,8 @@ public final class MatchingEntitiesPanel extends TypedTableGrid<MatchingEntity>
     }
 
     @Override
-    protected void showEntityViewer(TableModelRowWithObject<MatchingEntity> object, boolean editMode,
-            boolean inBackground)
+    protected void showEntityViewer(TableModelRowWithObject<MatchingEntity> object,
+            boolean editMode, boolean inBackground)
     {
         MatchingEntity matchingEntity = object.getObjectOrNull();
         final EntityKind entityKind = matchingEntity.getEntityKind();
@@ -204,7 +204,8 @@ public final class MatchingEntitiesPanel extends TypedTableGrid<MatchingEntity>
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<TableModelRowWithObject<MatchingEntity>> exportCriteria,
+    protected void prepareExportEntities(
+            TableExportCriteria<TableModelRowWithObject<MatchingEntity>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportMatchingEntities(exportCriteria, callback);
@@ -226,12 +227,6 @@ public final class MatchingEntitiesPanel extends TypedTableGrid<MatchingEntity>
                     createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
                     edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
                     createOrDelete(ObjectKind.VOCABULARY_TERM), edit(ObjectKind.VOCABULARY_TERM) };
-    }
-
-    @Override
-    public void update(Set<DatabaseModificationKind> observedModifications)
-    {
-        refreshGridSilently();
     }
 
 }

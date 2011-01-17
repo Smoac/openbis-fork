@@ -16,7 +16,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -46,8 +45,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetCo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.FileFormatTypeGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
@@ -73,8 +70,7 @@ public class FileFormatTypeGrid extends TypedTableGrid<FileFormatType>
 
     private FileFormatTypeGrid(IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(viewContext, BROWSER_ID, true,
-                DisplayTypeIDGenerator.FILE_FORMAT_TYPE_BROWSER_GRID);
+        super(viewContext, BROWSER_ID, true, DisplayTypeIDGenerator.FILE_FORMAT_TYPE_BROWSER_GRID);
         postRegistrationCallback = createRefreshGridAction();
         extendBottomToolbar();
         allowMultipleSelection();
@@ -97,7 +93,8 @@ public class FileFormatTypeGrid extends TypedTableGrid<FileFormatType>
         createItem.setId(ADD_NEW_TYPE_BUTTON_ID);
         addButton(createItem);
         Button editButton =
-                createSelectedItemButton(viewContext.getMessage(Dict.EDIT_TYPE_BUTTON),
+                createSelectedItemButton(
+                        viewContext.getMessage(Dict.EDIT_TYPE_BUTTON),
                         new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<FileFormatType>>>()
                             {
 
@@ -159,8 +156,8 @@ public class FileFormatTypeGrid extends TypedTableGrid<FileFormatType>
                     ConfirmationDialog confirmationDialog =
                             new ConfirmationDialog(context
                                     .getMessage(Dict.DELETE_CONFIRMATION_TITLE), context
-                                    .getMessage(Dict.DELETE_CONFIRMATION_MESSAGE, StringUtils
-                                            .joinList(selectedTypeCodes)))
+                                    .getMessage(Dict.DELETE_CONFIRMATION_MESSAGE,
+                                            StringUtils.joinList(selectedTypeCodes)))
                                 {
                                     @Override
                                     protected void onYes()
@@ -225,12 +222,6 @@ public class FileFormatTypeGrid extends TypedTableGrid<FileFormatType>
     }
 
     @Override
-    protected List<IColumnDefinition<TableModelRowWithObject<FileFormatType>>> getInitialFilters()
-    {
-        return Collections.emptyList();
-    }
-
-    @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<FileFormatType>> resultSetConfig,
             AsyncCallback<TypedTableResultSet<FileFormatType>> callback)
@@ -244,12 +235,6 @@ public class FileFormatTypeGrid extends TypedTableGrid<FileFormatType>
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportFileTypes(exportCriteria, callback);
-    }
-
-    @Override
-    public DatabaseModificationKind[] getRelevantModifications()
-    {
-        return new DatabaseModificationKind[] {};
     }
 
     @Override
