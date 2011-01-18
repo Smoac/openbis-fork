@@ -160,7 +160,8 @@ public class ProteinViewer extends AbstractViewerWithVerticalSplit<IEntityInform
         reloadAllData();
     }
 
-    private void reloadAllData()
+    @Override
+    protected void reloadAllData()
     {
         if (experimentOrNull != null)
         {
