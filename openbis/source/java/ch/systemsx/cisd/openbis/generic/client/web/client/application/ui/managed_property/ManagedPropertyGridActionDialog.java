@@ -105,32 +105,33 @@ public final class ManagedPropertyGridActionDialog extends
     {
         formPanel.setLabelWidth(100);
         formPanel.setFieldWidth(200);
-        for (IManagedInputWidgetDescription inputField : managedProperty.getUiDescription()
+        for (IManagedInputWidgetDescription inputDescription : managedProperty.getUiDescription()
                 .getInputWidgetDescriptions())
         {
+            Info.display(inputDescription.getLabel() + " description",
+                    inputDescription.getDescription());
+            Info.display(inputDescription.getLabel() + " value", inputDescription.getValue());
             TextField<?> field;
-            switch (inputField.getManagedInputFieldType())
+            switch (inputDescription.getManagedInputFieldType())
             {
                 case TEXT:
-                    field = createTextField(inputField);
+                    field = createTextField(inputDescription);
                     break;
                 case COMBO_BOX:
-                    field = createComboBoxField(inputField);
+                    field = createComboBoxField(inputDescription);
                     break;
                 default:
                     throw new UnsupportedOperationException(); // can't happen
             }
-            final String label = inputField.getLabel();
+            final String label = inputDescription.getLabel();
             field.setFieldLabel(label);
-            if (inputField.getValue() != null)
-            {
-                field.setRawValue(inputField.getValue());
-            }
-            if (inputField.getDescription() != null)
+
+            if (inputDescription.getDescription() != null)
             {
                 AbstractImagePrototype infoIcon =
                         AbstractImagePrototype.create(viewContext.getImageBundle().getInfoIcon());
-                FieldUtil.addInfoIcon(field, inputField.getDescription(), infoIcon.createImage());
+                FieldUtil.addInfoIcon(field, inputDescription.getDescription(),
+                        infoIcon.createImage());
             }
             inputFieldsByLabel.put(label, field);
             formPanel.add(field);
@@ -140,6 +141,11 @@ public final class ManagedPropertyGridActionDialog extends
     private TextField<?> createTextField(IManagedInputWidgetDescription inputDescription)
     {
         final TextField<String> field = new TextField<String>();
+        if (inputDescription.getValue() != null)
+        {
+            field.setValue(inputDescription.getValue());
+            field.updateOriginalValue(field.getValue());
+        }
         return field;
     }
 
@@ -149,6 +155,13 @@ public final class ManagedPropertyGridActionDialog extends
         comboBox.setTriggerAction(TriggerAction.ALL);
         comboBox.setEditable(false);
         comboBox.setForceSelection(true);
+
+        if (inputDescription.getValue() != null)
+        {
+            // FIXME
+            comboBox.setRawValue(inputDescription.getValue());
+            comboBox.updateOriginalValue(comboBox.getValue());
+        }
 
         final ManagedComboBoxInputWidgetDescription comboBoxDescription =
                 (ManagedComboBoxInputWidgetDescription) inputDescription;
