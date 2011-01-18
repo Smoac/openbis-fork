@@ -2105,7 +2105,25 @@ public final class CommonClientService extends AbstractClientService implements
             IManagedEntityProperty managedProperty)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        // TODO Auto-generated method stub
+        final String sessionToken = getSessionToken();
+        switch (entityKind)
+        {
+            case EXPERIMENT:
+                commonServer.updateManagedPropertyOnExperiment(sessionToken, entityId,
+                        managedProperty);
+                break;
+            case SAMPLE:
+                commonServer.updateManagedPropertyOnSample(sessionToken, entityId, managedProperty);
+                break;
+            case DATA_SET:
+                commonServer
+                        .updateManagedPropertyOnDataSet(sessionToken, entityId, managedProperty);
+                break;
+            case MATERIAL:
+                commonServer.updateManagedPropertyOnMaterial(sessionToken, entityId,
+                        managedProperty);
+                break;
+        }
         System.err.println("update " + entityId + " " + entityKind + " "
                 + managedProperty.getUiDescription());
     }

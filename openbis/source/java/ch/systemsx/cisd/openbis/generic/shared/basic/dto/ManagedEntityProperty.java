@@ -152,4 +152,9 @@ public class ManagedEntityProperty implements IEntityProperty, IManagedEntityPro
         this.delegatedProperty = delegatedProperty;
     }
 
+    public IEntityProperty asEntityProperty()
+    {
+        return this;
+    }
+
 }

@@ -84,6 +84,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
@@ -958,5 +959,34 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         logAccess(sessionToken, "getEntityInformationHolder", "KIND(%s) IDENTIFIER(%s)",
                 info.getEntityKind(), info.getEntityIdentifier());
         return null;
+    }
+
+    public void updateManagedPropertyOnExperiment(String sessionToken, TechId experimentId,
+            IManagedEntityProperty managedProperty)
+    {
+        logTracking(sessionToken, "updateManagedPropertyOnExperiment", "ID(%s) PROPERTY(%s)",
+                experimentId, managedProperty.asEntityProperty().getPropertyType().getCode());
+
+    }
+
+    public void updateManagedPropertyOnSample(String sessionToken, TechId experimentId,
+            IManagedEntityProperty managedProperty)
+    {
+        logTracking(sessionToken, "updateManagedPropertyOnSample", "ID(%s) PROPERTY(%s)",
+                experimentId, managedProperty.asEntityProperty().getPropertyType().getCode());
+    }
+
+    public void updateManagedPropertyOnDataSet(String sessionToken, TechId experimentId,
+            IManagedEntityProperty managedProperty)
+    {
+        logTracking(sessionToken, "updateManagedPropertyOnDataSet", "ID(%s) PROPERTY(%s)",
+                experimentId, managedProperty.asEntityProperty().getPropertyType().getCode());
+    }
+
+    public void updateManagedPropertyOnMaterial(String sessionToken, TechId experimentId,
+            IManagedEntityProperty managedProperty)
+    {
+        logTracking(sessionToken, "updateManagedPropertyOnMaterial", "ID(%s) PROPERTY(%s)",
+                experimentId, managedProperty.asEntityProperty().getPropertyType().getCode());
     }
 }

@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto.api;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+
 /**
  * Interface implemented by managed property.
  * 
@@ -28,5 +30,7 @@ public interface IManagedEntityProperty
     void setOwnTab(boolean ownTab);
 
     IManagedUiDescription getUiDescription();
+
+    IEntityProperty asEntityProperty();
 
 }
