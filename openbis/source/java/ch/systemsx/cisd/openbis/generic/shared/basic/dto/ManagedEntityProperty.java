@@ -97,9 +97,7 @@ public class ManagedEntityProperty implements IEntityProperty, IManagedEntityPro
 
     public String getValue()
     {
-        // TODO 2011-01-12, Piotr Buczek: remove special handling after testing
-        String delegatedValue = delegatedProperty.getValue();
-        return delegatedValue == null ? null : "(managed) " + delegatedValue;
+        return delegatedProperty.getValue();
     }
 
     public void setValue(String value)
