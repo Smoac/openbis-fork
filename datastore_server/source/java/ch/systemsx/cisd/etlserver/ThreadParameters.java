@@ -131,8 +131,8 @@ public final class ThreadParameters
                             .forName(registratorClassName);
         } catch (ClassNotFoundException ex)
         {
-            registratorClass = TransferredDataSetHandler.class;
-
+            throw ConfigurationFailureException.fromTemplate("Wrong '%s' property: %s",
+                    TOP_LEVEL_DATA_SET_HANDLER, ex.getMessage());
         }
         this.topLevelDataSetRegistratorClass = registratorClass;
 

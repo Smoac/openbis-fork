@@ -20,6 +20,7 @@ import java.io.File;
 
 import org.python.util.PythonInterpreter;
 
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
@@ -33,7 +34,7 @@ public class JythonTopLevelDataSetHandler extends AbstractOmniscientTopLevelData
     // The key in the properties file
     public static final String SCRIPT_PATH_KEY = "script-path";
 
-    private final String scriptPath;
+    private final File scriptFile;
 
     /**
      * @param globalState
@@ -42,9 +43,15 @@ public class JythonTopLevelDataSetHandler extends AbstractOmniscientTopLevelData
     {
         super(globalState);
 
-        scriptPath =
+        String path =
                 PropertyUtils.getMandatoryProperty(globalState.getThreadParameters()
                         .getThreadProperties(), SCRIPT_PATH_KEY);
+        scriptFile = new File(path);
+        if (scriptFile.isFile() == false)
+        {
+            throw ConfigurationFailureException.fromTemplate("Script file '%s' does not exist!",
+                    path);
+        }
 
     }
 
@@ -52,7 +59,6 @@ public class JythonTopLevelDataSetHandler extends AbstractOmniscientTopLevelData
     protected void handleDataSet(File dataSetFile, DataSetRegistrationService service)
     {
         // Load the script
-        File scriptFile = new File(scriptPath);
         String scriptString = FileUtilities.loadToString(scriptFile);
 
         // Create an evaluator
@@ -62,7 +68,17 @@ public class JythonTopLevelDataSetHandler extends AbstractOmniscientTopLevelData
         interpreter.set("state", getGlobalState());
         setObjectFactory(interpreter);
 
-        interpreter.exec(scriptString);
+        try
+        {
+            interpreter.exec(scriptString);
+        } catch (RuntimeException ex)
+        {
+            operationLog
+                    .error(String
+                            .format("Cannot register dataset from a file '%s'. Error in jython dropbox has occured.",
+                                    dataSetFile.getPath(), ex.getMessage()));
+            throw ex;
+        }
     }
 
     /**
@@ -75,7 +91,7 @@ public class JythonTopLevelDataSetHandler extends AbstractOmniscientTopLevelData
 
     public static class JythonObjectFactory
     {
-        private final OmniscientTopLevelDataSetRegistratorState registratorState;
+        protected final OmniscientTopLevelDataSetRegistratorState registratorState;
 
         public JythonObjectFactory(OmniscientTopLevelDataSetRegistratorState registratorState)
         {
