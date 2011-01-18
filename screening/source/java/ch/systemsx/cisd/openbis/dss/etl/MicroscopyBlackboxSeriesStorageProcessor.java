@@ -27,7 +27,7 @@ import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
-import ch.systemsx.cisd.openbis.dss.etl.dto.ImageFileInfo;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageFileInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ChannelDescription;
@@ -52,22 +52,21 @@ public class MicroscopyBlackboxSeriesStorageProcessor extends AbstractImageStora
 
     private static final Location DEFAULT_TILE = new Location(1, 1);
 
-    private static final Geometry DEFAULT_WELL_GEOMETRY = new Geometry(1, 1);
+    private static final Geometry DEFAULT_TILE_GEOMETRY = new Geometry(1, 1);
 
     private static final List<ChannelDescription> DEFAULT_CHANNELS = Arrays
             .asList(new ChannelDescription(DEFAULT_CHANNEL_CODE, DEFAULT_CHANNEL_LABEL));
 
     public MicroscopyBlackboxSeriesStorageProcessor(Properties properties)
     {
-        super(DEFAULT_WELL_GEOMETRY, new BlackboxSeriesImageFileExtractor(
-                properties), properties);
+        super(new BlackboxSeriesImageFileExtractor(properties), properties);
     }
 
     private static class BlackboxSeriesImageFileExtractor extends AbstractImageFileExtractor
     {
         protected BlackboxSeriesImageFileExtractor(Properties properties)
         {
-            super(DEFAULT_CHANNELS, DEFAULT_WELL_GEOMETRY, true, properties);
+            super(DEFAULT_CHANNELS, DEFAULT_TILE_GEOMETRY, true, properties);
         }
 
         @Override
@@ -76,8 +75,10 @@ public class MicroscopyBlackboxSeriesStorageProcessor extends AbstractImageStora
         {
             String imageRelativePath = getRelativeImagePath(incomingDataSetDirectory, imageFile);
             // we postpone assigning series numbers until all images are extracted
-            return new ImageFileInfo(null, DEFAULT_CHANNEL_CODE, DEFAULT_TILE, imageRelativePath,
-                    null, null, null);
+            ImageFileInfo info =
+                    new ImageFileInfo(DEFAULT_CHANNEL_CODE, DEFAULT_TILE.getY(),
+                            DEFAULT_TILE.getX(), imageRelativePath);
+            return info;
         }
     }
 
@@ -88,7 +89,8 @@ public class MicroscopyBlackboxSeriesStorageProcessor extends AbstractImageStora
         List<AcquiredSingleImage> images = extractedImages.getImages();
         setSeriesNumber(images);
         MicroscopyImageDatasetInfo dataset =
-                createMicroscopyImageDatasetInfo(dataSetInformation, images);
+                createMicroscopyImageDatasetInfo(dataSetInformation, images,
+                        extractedImages.getTileGeometry());
 
         MicroscopyImageDatasetUploader.upload(dao, dataset, images, extractedImages.getChannels());
     }
@@ -120,11 +122,12 @@ public class MicroscopyBlackboxSeriesStorageProcessor extends AbstractImageStora
     }
 
     private MicroscopyImageDatasetInfo createMicroscopyImageDatasetInfo(
-            DataSetInformation dataSetInformation, List<AcquiredSingleImage> images)
+            DataSetInformation dataSetInformation, List<AcquiredSingleImage> images,
+            Geometry tileGeometry)
     {
         boolean hasImageSeries = hasImageSeries(images);
         return new MicroscopyImageDatasetInfo(dataSetInformation.getDataSetCode(),
-                spotGeometry.getRows(), spotGeometry.getColumns(), hasImageSeries);
+                tileGeometry.getRows(), tileGeometry.getColumns(), hasImageSeries);
     }
 
     @Override

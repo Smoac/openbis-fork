@@ -18,9 +18,9 @@ package ch.systemsx.cisd.openbis.dss.etl;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.dss.etl.ImageFileExtractionResult.Channel;
 import ch.systemsx.cisd.openbis.dss.etl.ImagingDatabaseHelper.ImagingChannelsMap;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
 
 /**
@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDa
 public class MicroscopyImageDatasetUploader extends AbstractImageDatasetUploader
 {
     public static void upload(IImagingQueryDAO dao, MicroscopyImageDatasetInfo dataset,
-            List<AcquiredSingleImage> images, List<ImageFileExtractionResult.Channel> channels)
+            List<AcquiredSingleImage> images, List<Channel> channels)
     {
         new MicroscopyImageDatasetUploader(dao).upload(dataset, images, channels);
     }

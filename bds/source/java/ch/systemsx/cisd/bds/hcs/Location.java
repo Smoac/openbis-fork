@@ -46,7 +46,7 @@ public final class Location
         this.y = y;
     }
 
-    public static final Location tryCreateLocationFromRowAndColumn(final int row, final int column)
+    public static final Location createLocationFromRowAndColumn(final int row, final int column)
     {
         return new Location(column, row);
     }

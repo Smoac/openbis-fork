@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Map;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.dss.etl.ImageFileExtractionResult.Channel;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgExperimentDTO;
@@ -47,7 +47,7 @@ public class ImagingDatabaseHelper
      * Creates channels connected to the specified dataset id.
      */
     public static ImagingChannelsMap createDatasetChannels(IImagingQueryDAO dao, long datasetId,
-            List<ImageFileExtractionResult.Channel> channels)
+            List<Channel> channels)
     {
         ChannelOwner channelOwner = ChannelOwner.createDataset(datasetId);
         return new ImagingChannelsCreator(dao).getOrCreateChannelsMap(channelOwner, channels);
@@ -93,7 +93,7 @@ public class ImagingDatabaseHelper
      */
     public static ExperimentWithChannelsAndContainer getOrCreateExperimentWithChannelsAndContainer(
             IImagingQueryDAO dao, HCSContainerDatasetInfo info,
-            List<ImageFileExtractionResult.Channel> channels)
+            List<Channel> channels)
     {
         ImagingDatabaseHelper helper = new ImagingDatabaseHelper(dao);
         synchronized (IImagingQueryDAO.class)
@@ -246,14 +246,14 @@ public class ImagingDatabaseHelper
         }
 
         public ImagingChannelsMap getOrCreateChannelsMap(ChannelOwner channelOwner,
-                List<ImageFileExtractionResult.Channel> channels)
+                List<Channel> channels)
         {
             Map<String, Long> map = getOrCreateChannels(channelOwner, channels);
             return new ImagingChannelsMap(map);
         }
 
         private Map<String, Long> getOrCreateChannels(ChannelOwner channelOwner,
-                List<ImageFileExtractionResult.Channel> channels)
+                List<Channel> channels)
         {
             if (channelOwner.tryGetExperimentId() != null)
             {
@@ -278,7 +278,7 @@ public class ImagingDatabaseHelper
         {
             Map<String/* name */, ImgChannelDTO> existingChannels = asNameMap(allChannels);
             Map<String, Long> map = new HashMap<String, Long>();
-            for (ImageFileExtractionResult.Channel channel : channels)
+            for (Channel channel : channels)
             {
                 ImgChannelDTO channelDTO =
                         updateExperimentChannel(channel, expId, existingChannels);
@@ -290,7 +290,7 @@ public class ImagingDatabaseHelper
         private Map<String, Long> createChannels(ChannelOwner channelOwner, List<Channel> channels)
         {
             Map<String, Long> map = new HashMap<String, Long>();
-            for (ImageFileExtractionResult.Channel channel : channels)
+            for (Channel channel : channels)
             {
                 ImgChannelDTO channelDTO = createChannel(channel, channelOwner);
                 addChannel(map, channelDTO);
@@ -313,7 +313,7 @@ public class ImagingDatabaseHelper
             return nameMap;
         }
 
-        private ImgChannelDTO updateExperimentChannel(ImageFileExtractionResult.Channel channel,
+        private ImgChannelDTO updateExperimentChannel(Channel channel,
                 long expId, Map<String, ImgChannelDTO> existingChannels)
         {
             ImgChannelDTO channelDTO =
@@ -358,7 +358,7 @@ public class ImagingDatabaseHelper
                     channelName, existingChannels.keySet());
         }
 
-        private ImgChannelDTO createChannel(ImageFileExtractionResult.Channel channel,
+        private ImgChannelDTO createChannel(Channel channel,
                 ChannelOwner channelOwner)
         {
             ImgChannelDTO channelDTO = makeChannelDTO(channel, channelOwner);
@@ -367,7 +367,7 @@ public class ImagingDatabaseHelper
             return channelDTO;
         }
 
-        private static ImgChannelDTO makeChannelDTO(ImageFileExtractionResult.Channel channel,
+        private static ImgChannelDTO makeChannelDTO(Channel channel,
                 ChannelOwner channelOwner)
         {
             return new ImgChannelDTO(channel.getCode(), channel.tryGetDescription(),

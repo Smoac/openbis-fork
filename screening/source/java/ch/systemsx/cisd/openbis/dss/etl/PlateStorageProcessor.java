@@ -24,7 +24,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
-import ch.systemsx.cisd.bds.hcs.Channel;
+import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.filesystem.NodeFactory;
@@ -38,6 +38,7 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.IHCSImageFileAccepter;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageCheckList.FullLocation;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ChannelDescription;
@@ -121,7 +122,8 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
     // adapts old-style image extractor to the new one which is stateless
     private static IImageFileExtractor adapt(
             final ch.systemsx.cisd.etlserver.IHCSImageFileExtractor extractor,
-            final File imageFileRootDirectory, final List<ChannelDescription> descriptions)
+            final File imageFileRootDirectory, final List<ChannelDescription> descriptions,
+            final Geometry tileGeometry)
     {
         return new IImageFileExtractor()
             {
@@ -135,22 +137,25 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
                             extractor.process(
                                     NodeFactory.createDirectoryNode(incomingDataSetDirectory),
                                     dataSetInformation, accepter);
-                    List<ImageFileExtractionResult.Channel> channels =
-                            convert(originalResult.getChannels());
+                    List<Channel> channels = convert(originalResult.getChannels());
                     return new ImageFileExtractionResult(accepter.getImages(),
-                            asRelativePaths(originalResult.getInvalidFiles()), channels);
+                            asRelativePaths(originalResult.getInvalidFiles()), channels,
+                            tileGeometry);
                 }
 
-                private List<ImageFileExtractionResult.Channel> convert(Set<Channel> channels)
+                private List<Channel> convert(Set<ch.systemsx.cisd.bds.hcs.Channel> channels)
                 {
-                    List<ImageFileExtractionResult.Channel> result =
-                            new ArrayList<ImageFileExtractionResult.Channel>();
-                    for (Channel channel : channels)
+                    List<Channel> result = new ArrayList<Channel>();
+                    for (ch.systemsx.cisd.bds.hcs.Channel channel : channels)
                     {
-                        result.add(new ImageFileExtractionResult.Channel(getChannelCodeOrLabel(
-                                extractChannelCodes(descriptions), channel.getCounter()), null,
-                                channel.getWavelength(), getChannelCodeOrLabel(
-                                        extractChannelLabels(descriptions), channel.getCounter())));
+                        String channelCode =
+                                getChannelCodeOrLabel(extractChannelCodes(descriptions),
+                                        channel.getCounter());
+                        String channelLabel =
+                                getChannelCodeOrLabel(extractChannelLabels(descriptions),
+                                        channel.getCounter());
+                        Channel convertedChannel = new Channel(channelCode, channelLabel);
+                        result.add(convertedChannel);
                     }
                     return result;
                 }
@@ -172,7 +177,8 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
             File incomingDataSetDirectory, ImageFileExtractionResult extractionResult)
     {
         HCSImageCheckList imageCheckList =
-                createImageCheckList(dataSetInformation, extractionResult.getChannels());
+                createImageCheckList(dataSetInformation, extractionResult.getChannels(),
+                        extractionResult.getTileGeometry());
         checkImagesForDuplicates(extractionResult, imageCheckList);
         if (extractionResult.getInvalidFiles().size() > 0)
         {
@@ -206,15 +212,16 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
     }
 
     private HCSImageCheckList createImageCheckList(DataSetInformation dataSetInformation,
-            List<ch.systemsx.cisd.openbis.dss.etl.ImageFileExtractionResult.Channel> channels)
+            List<ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel> channels,
+            Geometry tileGeometry)
     {
         PlateDimension plateGeometry = getPlateGeometry(dataSetInformation);
         List<String> channelCodes = new ArrayList<String>();
-        for (ch.systemsx.cisd.openbis.dss.etl.ImageFileExtractionResult.Channel channel : channels)
+        for (ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel channel : channels)
         {
             channelCodes.add(channel.getCode());
         }
-        return new HCSImageCheckList(channelCodes, plateGeometry, spotGeometry);
+        return new HCSImageCheckList(channelCodes, plateGeometry, tileGeometry);
     }
 
     private void checkCompleteness(HCSImageCheckList imageCheckList,
@@ -265,9 +272,10 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
         {
             List<ChannelDescription> channelDescriptions =
                     AbstractImageFileExtractor.extractChannelDescriptions(properties);
+            Geometry tileGeometry = AbstractImageFileExtractor.getMandatoryTileGeometry(properties);
             extractor =
                     adapt(deprecatedImageFileExtractor, incomingDataSetDirectory,
-                            channelDescriptions);
+                            channelDescriptions, tileGeometry);
         }
         return extractor;
     }
@@ -301,18 +309,21 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
         Experiment experiment = dataSetInformation.tryToGetExperiment();
         assert experiment != null : "experiment is null";
         List<AcquiredSingleImage> images = extractedImages.getImages();
-        HCSImageDatasetInfo info = createImageDatasetInfo(experiment, dataSetInformation, images);
+        HCSImageDatasetInfo info =
+                createImageDatasetInfo(experiment, dataSetInformation, images,
+                        extractedImages.getTileGeometry());
 
         HCSImageDatasetUploader.upload(dao, info, images, extractedImages.getChannels());
     }
 
     private HCSImageDatasetInfo createImageDatasetInfo(Experiment experiment,
-            DataSetInformation dataSetInformation, List<AcquiredSingleImage> acquiredImages)
+            DataSetInformation dataSetInformation, List<AcquiredSingleImage> acquiredImages,
+            Geometry tileGeometry)
     {
         HCSContainerDatasetInfo info =
                 HCSContainerDatasetInfo.createScreeningDatasetInfo(dataSetInformation);
         boolean hasImageSeries = hasImageSeries(acquiredImages);
         return new HCSImageDatasetInfo(info, storeChannelsOnExperimentLevel,
-                spotGeometry.getRows(), spotGeometry.getColumns(), hasImageSeries);
+                tileGeometry.getRows(), tileGeometry.getColumns(), hasImageSeries);
     }
 }

@@ -21,8 +21,8 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.openbis.dss.etl.dto.ImageFileInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.UnparsedImageFileInfo;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageFileInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
@@ -71,14 +71,21 @@ public class MicroscopyImageFileExtractor extends AbstractImageFileExtractor
         }
 
         String channelCode = CodeAndLabelUtil.normalize(unparsedInfo.getChannelToken());
-
-        Float timepointOrNull = tryAsFloat(unparsedInfo.getTimepointToken());
-        Float depthOrNull = tryAsFloat(unparsedInfo.getDepthToken());
-        Integer seriesNumberOrNull = tryAsInt(unparsedInfo.getSeriesNumberToken());
         String imageRelativePath = getRelativeImagePath(incomingDataSetDirectory, imageFile);
 
-        return new ImageFileInfo(null, channelCode, tileLocation, imageRelativePath,
-                timepointOrNull, depthOrNull, seriesNumberOrNull);
+        ImageFileInfo info =
+                new ImageFileInfo(channelCode, tileLocation.getY(), tileLocation.getX(),
+                        imageRelativePath);
+
+        Float timepointOrNull = tryAsFloat(unparsedInfo.getTimepointToken());
+        info.setTimepoint(timepointOrNull);
+        Float depthOrNull = tryAsFloat(unparsedInfo.getDepthToken());
+        info.setDepth(depthOrNull);
+        Integer seriesNumberOrNull = tryAsInt(unparsedInfo.getSeriesNumberToken());
+        info.setSeriesNumber(seriesNumberOrNull);
+
+        return info;
+
     }
 
 }

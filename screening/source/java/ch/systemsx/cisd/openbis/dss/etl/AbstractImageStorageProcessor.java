@@ -32,7 +32,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
@@ -117,9 +116,6 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
     protected static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
             PlateStorageProcessor.class);
 
-    // tiles geometry, e.g. 3x4 if the well is divided into 12 tiles (3 rows, 4 columns)
-    private static final String SPOT_GEOMETRY_PROPERTY = "well_geometry";
-
     private static final String GENERATE_THUMBNAILS_PROPERTY = "generate-thumbnails";
 
     private final static String COMPRESS_THUMBNAILS_PROPERTY = "compress-thumbnails";
@@ -167,8 +163,6 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
 
     protected final IImageFileExtractor imageFileExtractor;
 
-    protected final Geometry spotGeometry;
-
     // --- internal state -------------
 
     private IImagingQueryDAO currentTransaction;
@@ -177,14 +171,13 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
 
     public AbstractImageStorageProcessor(final Properties properties)
     {
-        this(getMandatorySpotGeometry(properties), tryCreateImageExtractor(properties), properties);
+        this(tryCreateImageExtractor(properties), properties);
     }
 
-    protected AbstractImageStorageProcessor(Geometry spotGeometry,
-            IImageFileExtractor imageFileExtractor, Properties properties)
+    protected AbstractImageStorageProcessor(IImageFileExtractor imageFileExtractor,
+            Properties properties)
     {
         super(properties);
-        this.spotGeometry = spotGeometry;
         this.imageFileExtractor = imageFileExtractor;
         this.thumbnailMaxWidth =
                 PropertyUtils.getInt(properties, THUMBNAIL_MAX_WIDTH_PROPERTY,
@@ -200,13 +193,6 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
 
         this.dataSource = ServiceProvider.getDataSourceProvider().getDataSource(properties);
         this.currentTransaction = null;
-    }
-
-    private static Geometry getMandatorySpotGeometry(Properties properties)
-    {
-        String spotGeometryText =
-                PropertyUtils.getMandatoryProperty(properties, SPOT_GEOMETRY_PROPERTY);
-        return Geometry.createFromString(spotGeometryText);
     }
 
     private static IImageFileExtractor tryCreateImageExtractor(final Properties properties)
@@ -382,7 +368,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
             final File incomingDataSetDirectory)
     {
         long extractionStart = System.currentTimeMillis();
-        final ImageFileExtractionResult result =
+        ImageFileExtractionResult result =
                 getImageFileExtractor(incomingDataSetDirectory).extract(incomingDataSetDirectory,
                         dataSetInformation);
 

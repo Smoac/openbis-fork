@@ -22,6 +22,7 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.dss.etl.ImagingDatabaseHelper.ExperimentWithChannelsAndContainer;
 import ch.systemsx.cisd.openbis.dss.etl.ImagingDatabaseHelper.ImagingChannelsMap;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgSpotDTO;
 
@@ -33,7 +34,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgSp
 public class HCSImageDatasetUploader extends AbstractImageDatasetUploader
 {
     public static void upload(IImagingQueryDAO dao, HCSImageDatasetInfo info,
-            List<AcquiredSingleImage> images, List<ImageFileExtractionResult.Channel> channels)
+            List<AcquiredSingleImage> images, List<Channel> channels)
     {
         new HCSImageDatasetUploader(dao).upload(info, images, channels);
     }
@@ -44,7 +45,7 @@ public class HCSImageDatasetUploader extends AbstractImageDatasetUploader
     }
 
     private void upload(HCSImageDatasetInfo info, List<AcquiredSingleImage> images,
-            List<ImageFileExtractionResult.Channel> channels)
+            List<Channel> channels)
     {
         long contId;
         ImagingChannelsMap channelsMap = null;

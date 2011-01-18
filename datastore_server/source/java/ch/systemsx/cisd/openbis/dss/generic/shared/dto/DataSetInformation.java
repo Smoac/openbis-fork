@@ -330,7 +330,7 @@ public class DataSetInformation implements Serializable
     //
 
     @Override
-    public final String toString()
+    public String toString()
     {
         return ToStringBuilder.reflectionToString(this,
                 ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);

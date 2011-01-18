@@ -44,6 +44,6 @@ public class HCSImageFileExtractor extends ch.systemsx.cisd.openbis.dss.etl.HCSI
             // Nothing to do here. Rest of the code can handle this.
             return null;
         }
-        return Location.tryCreateLocationFromColumnwisePosition(tileNumber, wellGeometry);
+        return Location.tryCreateLocationFromColumnwisePosition(tileNumber, tileGeometry);
     }
 }

@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Properties;
 
+import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
@@ -52,17 +53,19 @@ public class MicroscopyStorageProcessor extends AbstractImageStorageProcessor
     {
         List<AcquiredSingleImage> images = extractedImages.getImages();
         MicroscopyImageDatasetInfo dataset =
-                createMicroscopyImageDatasetInfo(dataSetInformation, images);
+                createMicroscopyImageDatasetInfo(dataSetInformation, images,
+                        extractedImages.getTileGeometry());
 
         MicroscopyImageDatasetUploader.upload(dao, dataset, images, extractedImages.getChannels());
     }
 
     private MicroscopyImageDatasetInfo createMicroscopyImageDatasetInfo(
-            DataSetInformation dataSetInformation, List<AcquiredSingleImage> images)
+            DataSetInformation dataSetInformation, List<AcquiredSingleImage> images,
+            Geometry tileGeometry)
     {
         boolean hasImageSeries = hasImageSeries(images);
         return new MicroscopyImageDatasetInfo(dataSetInformation.getDataSetCode(),
-                spotGeometry.getRows(), spotGeometry.getColumns(), hasImageSeries);
+                tileGeometry.getRows(), tileGeometry.getColumns(), hasImageSeries);
     }
 
     @Override

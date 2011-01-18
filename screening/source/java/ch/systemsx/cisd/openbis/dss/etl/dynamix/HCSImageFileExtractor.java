@@ -29,10 +29,9 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.openbis.dss.etl.AbstractImageFileExtractor;
-import ch.systemsx.cisd.openbis.dss.etl.dto.ImageFileInfo;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageFileInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dynamix.WellLocationMappingUtils.DynamixWellPosition;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
@@ -78,13 +77,14 @@ public class HCSImageFileExtractor extends AbstractImageFileExtractor
             return null;
         }
         WellLocation wellLocation = getWellLocation(imageFile, tokens);
-        Location tileLocation = new Location(1, 1);
-        String channelCode = tokens[1];
+        String channelCode = tokens[1].toUpperCase();
         Float timepoint = (float) getSecondsFromFirstMeasurement(imageFile, tokens);
         String imageRelativePath = getRelativeImagePath(incomingDataSetDirectory, imageFile);
 
-        return new ImageFileInfo(asLocation(wellLocation), channelCode, tileLocation,
-                imageRelativePath, timepoint, null, null);
+        ImageFileInfo info = new ImageFileInfo(channelCode, 1, 1, imageRelativePath);
+        info.setTimepoint(timepoint);
+        info.setWell(wellLocation.getRow(), wellLocation.getColumn());
+        return info;
     }
 
     private long getSecondsFromFirstMeasurement(File imageFile, String[] tokens)
@@ -145,12 +145,6 @@ public class HCSImageFileExtractor extends AbstractImageFileExtractor
         DynamixWellPosition wellPos =
                 WellLocationMappingUtils.parseWellPosition(tokens[0], posToken);
         return map.get(wellPos);
-    }
-
-    private static Location asLocation(WellLocation wellLocation)
-    {
-        return Location.tryCreateLocationFromRowAndColumn(wellLocation.getRow(),
-                wellLocation.getColumn());
     }
 
     private Map<DynamixWellPosition, WellLocation> getWellLocationMapping(File imageFile)

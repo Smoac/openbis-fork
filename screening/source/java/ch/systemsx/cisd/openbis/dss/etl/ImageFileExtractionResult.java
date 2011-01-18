@@ -18,6 +18,9 @@ package ch.systemsx.cisd.openbis.dss.etl;
 import java.io.File;
 import java.util.List;
 
+import ch.systemsx.cisd.bds.hcs.Geometry;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
+
 /**
  * Class which contains the image extraction process results.
  * 
@@ -33,12 +36,16 @@ public final class ImageFileExtractionResult
 
     private final List<Channel> channels;
 
+    /** How many tile rows and columns are there on each spot? */
+    private final Geometry tileGeometry;
+
     public ImageFileExtractionResult(List<AcquiredSingleImage> images, List<File> invalidFiles,
-            List<Channel> channels)
+            List<Channel> channels, Geometry tileGeometry)
     {
         this.images = images;
         this.invalidFiles = invalidFiles;
         this.channels = channels;
+        this.tileGeometry = tileGeometry;
     }
 
     public List<AcquiredSingleImage> getImages()
@@ -56,55 +63,9 @@ public final class ImageFileExtractionResult
         return channels;
     }
 
-    /**
-     * A channel in which the image has been acquired.
-     * <p>
-     * Each channel has its <code>code</code> which uniquely identifies it in one experiment or
-     * dataset.
-     * </p>
-     * 
-     * @author Tomasz Pylak
-     */
-    public static final class Channel
+    public Geometry getTileGeometry()
     {
-        private final String code;
-
-        private final String label;
-
-        private final String description;
-
-        private final Integer wavelength;
-
-        public Channel(String code, String descriptionOrNull, Integer wavelengthOrNull, String label)
-        {
-            assert code != null : "code is null";
-            assert label != null : "label is null";
-            this.label = label;
-            this.code = code;
-            this.description = descriptionOrNull;
-            this.wavelength = wavelengthOrNull;
-        }
-
-        public String getCode()
-        {
-            return code;
-        }
-
-        public String tryGetDescription()
-        {
-            return description;
-        }
-
-        public Integer tryGetWavelength()
-        {
-            return wavelength;
-        }
-
-        public String getLabel()
-        {
-            return label;
-        }
-
+        return tileGeometry;
     }
 
 }

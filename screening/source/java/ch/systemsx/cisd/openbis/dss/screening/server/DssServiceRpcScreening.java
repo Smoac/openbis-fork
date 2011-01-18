@@ -242,7 +242,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                         {
                             ImageChannelStackReference channelStackReference =
                                     ImageChannelStackReference.createHCSFromLocations(new Location(
-                                            col, row), Location.tryCreateLocationFromRowAndColumn(
+                                            col, row), Location.createLocationFromRowAndColumn(
                                             tileRow, tileCol));
                             AbsoluteImageReference image =
                                     imageAccessor.tryGetImage(channelCode, channelStackReference,

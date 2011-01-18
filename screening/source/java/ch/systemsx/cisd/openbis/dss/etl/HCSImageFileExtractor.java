@@ -24,8 +24,8 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.openbis.dss.etl.dto.ImageFileInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.UnparsedImageFileInfo;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageFileInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
@@ -84,7 +84,7 @@ public class HCSImageFileExtractor extends AbstractImageFileExtractor
         Location tileLoc = tryGetTileLocation(tileNumber);
         if (tileLoc == null)
         {
-            tileLoc = Location.tryCreateLocationFromRowwisePosition(tileNumber, wellGeometry);
+            tileLoc = Location.tryCreateLocationFromRowwisePosition(tileNumber, tileGeometry);
         }
         return tileLoc;
     }
@@ -160,13 +160,6 @@ public class HCSImageFileExtractor extends AbstractImageFileExtractor
     {
         assert unparsedInfo != null;
 
-        Location wellLocation = tryGetWellLocation(unparsedInfo.getWellLocationToken());
-        if (wellLocation == null)
-        {
-            operationLog.info("Cannot extract well location from token "
-                    + unparsedInfo.getWellLocationToken());
-            return null;
-        }
         Location tileLocation = tryGetTileLocation(unparsedInfo.getTileLocationToken());
         if (tileLocation == null)
         {
@@ -175,13 +168,27 @@ public class HCSImageFileExtractor extends AbstractImageFileExtractor
             return null;
         }
         String channelCode = CodeAndLabelUtil.normalize(unparsedInfo.getChannelToken());
-
-        Float timepointOrNull = tryAsFloat(unparsedInfo.getTimepointToken());
-        Float depthOrNull = tryAsFloat(unparsedInfo.getDepthToken());
-        Integer seriesNumberOrNull = tryAsInt(unparsedInfo.getSeriesNumberToken());
         String imageRelativePath = getRelativeImagePath(incomingDataSetDirectory, imageFile);
 
-        return new ImageFileInfo(wellLocation, channelCode, tileLocation, imageRelativePath,
-                timepointOrNull, depthOrNull, seriesNumberOrNull);
+        ImageFileInfo info =
+                new ImageFileInfo(channelCode, tileLocation.getY(), tileLocation.getX(),
+                        imageRelativePath);
+
+        boolean ok = info.setWell(unparsedInfo.getWellLocationToken());
+        if (ok == false)
+        {
+            operationLog.info("Cannot extract well location from token "
+                    + unparsedInfo.getWellLocationToken());
+            return null;
+        }
+
+        Float timepointOrNull = tryAsFloat(unparsedInfo.getTimepointToken());
+        info.setTimepoint(timepointOrNull);
+        Float depthOrNull = tryAsFloat(unparsedInfo.getDepthToken());
+        info.setDepth(depthOrNull);
+        Integer seriesNumberOrNull = tryAsInt(unparsedInfo.getSeriesNumberToken());
+        info.setSeriesNumber(seriesNumberOrNull);
+
+        return info;
     }
 }

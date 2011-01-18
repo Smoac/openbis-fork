@@ -40,8 +40,8 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.openbis.dss.etl.ImageFileExtractionResult.Channel;
-import ch.systemsx.cisd.openbis.dss.etl.dto.ImageFileInfo;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageFileInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ChannelDescription;
@@ -85,6 +85,9 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
 
     // --------
 
+    // tiles geometry, e.g. 3x4 if the well is divided into 12 tiles (3 rows, 4 columns)
+    public static final String TILE_GEOMETRY_PROPERTY = "well_geometry";
+
     // comma separated list of channel names, order matters
     @Deprecated
     public static final String CHANNEL_NAMES = "channel-names";
@@ -113,7 +116,7 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
 
     protected final TileMapper tileMapperOrNull;
 
-    protected final Geometry wellGeometry;
+    protected final Geometry tileGeometry;
 
     protected AbstractImageFileExtractor(Properties properties, boolean skipChannelsWithoutImages)
     {
@@ -130,11 +133,11 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
      *            are not present in some datasets (exceptions: image overlays, test screens).
      */
     protected AbstractImageFileExtractor(List<ChannelDescription> channelDescriptionsOrNull,
-            Geometry wellGeometry, boolean skipChannelsWithoutImages, Properties properties)
+            Geometry tileGeometry, boolean skipChannelsWithoutImages, Properties properties)
     {
-        assert wellGeometry != null : "wel geometry is null";
+        assert tileGeometry != null : "wel geometry is null";
 
-        this.wellGeometry = wellGeometry;
+        this.tileGeometry = tileGeometry;
 
         this.channelDescriptionsOrNull = channelDescriptionsOrNull;
         this.channelColorComponentsOrNull = tryGetChannelComponents(properties);
@@ -142,7 +145,14 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
         checkChannelsAndColorComponents();
 
         this.tileMapperOrNull =
-                TileMapper.tryCreate(properties.getProperty(TILE_MAPPING_PROPERTY), wellGeometry);
+                TileMapper.tryCreate(properties.getProperty(TILE_MAPPING_PROPERTY), tileGeometry);
+    }
+
+    protected final static Geometry getMandatoryTileGeometry(Properties properties)
+    {
+        String spotGeometryText =
+                PropertyUtils.getMandatoryProperty(properties, TILE_GEOMETRY_PROPERTY);
+        return Geometry.createFromString(spotGeometryText);
     }
 
     private static Geometry getWellGeometry(final Properties properties)
@@ -231,7 +241,8 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
             }
         }
         return new ImageFileExtractionResult(acquiredImages,
-                Collections.unmodifiableList(invalidFiles), getAllChannels(acquiredImages));
+                Collections.unmodifiableList(invalidFiles), getAllChannels(acquiredImages),
+                tileGeometry);
 
     }
 
@@ -356,8 +367,7 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
         List<Channel> channels = new ArrayList<Channel>();
         for (ChannelDescription channelDescription : channelDescriptions)
         {
-            channels.add(new Channel(channelDescription.getCode(), null, null, channelDescription
-                    .getLabel()));
+            channels.add(new Channel(channelDescription.getCode(), channelDescription.getLabel()));
         }
         return channels;
     }
@@ -437,7 +447,7 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
         }
         for (ChannelDescription channelDescription : channelDescriptionsOrNull)
         {
-            if (channelDescription.getCode().equals(channelCode))
+            if (channelDescription.getCode().equalsIgnoreCase(channelCode))
             {
                 return;
             }
@@ -447,7 +457,7 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
                 channelDescriptionsOrNull);
     }
 
-    protected final static List<AcquiredSingleImage> createImagesWithNoColorComponent(
+    public final static List<AcquiredSingleImage> createImagesWithNoColorComponent(
             ImageFileInfo imageInfo)
     {
         List<AcquiredSingleImage> images = new ArrayList<AcquiredSingleImage>();
@@ -455,14 +465,24 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
         return images;
     }
 
-    protected final static AcquiredSingleImage createImage(ImageFileInfo imageInfo,
+    public final static AcquiredSingleImage createImage(ImageFileInfo imageInfo,
             ColorComponent colorComponentOrNull)
     {
         RelativeImageReference relativeImageRef =
                 new RelativeImageReference(imageInfo.getImageRelativePath(), null,
                         colorComponentOrNull);
-        return new AcquiredSingleImage(imageInfo.tryGetWellLocation(), imageInfo.getTileLocation(),
-                imageInfo.getChannelCode(), imageInfo.tryGetTimepoint(), imageInfo.tryGetDepth(),
+        Location wellLoc = null;
+        if (imageInfo.hasWellLocation())
+        {
+            wellLoc =
+                    Location.createLocationFromRowAndColumn(imageInfo.tryGetWellRow(),
+                            imageInfo.tryGetWellColumn());
+        }
+        Location tileLoc =
+                Location.createLocationFromRowAndColumn(imageInfo.getTileRow(),
+                        imageInfo.getTileColumn());
+        return new AcquiredSingleImage(wellLoc, tileLoc, imageInfo.getChannelCode(),
+                imageInfo.tryGetTimepoint(), imageInfo.tryGetDepth(),
                 imageInfo.tryGetSeriesNumber(), relativeImageRef);
     }
 
