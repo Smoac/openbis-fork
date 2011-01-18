@@ -16,10 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedWidgetDescription;
 
@@ -34,7 +36,8 @@ public class ManagedUiDescription implements IManagedUiDescription, ISerializabl
 
     private IManagedWidgetDescription outputWidgetDescription;
 
-    private List<ManagedInputWidgetDescription> inputWidgetDescriptions;
+    private List<IManagedInputWidgetDescription> inputWidgetDescriptions =
+            new ArrayList<IManagedInputWidgetDescription>();
 
     public ManagedUiDescription()
     {
@@ -50,17 +53,17 @@ public class ManagedUiDescription implements IManagedUiDescription, ISerializabl
         this.outputWidgetDescription = outputWidgetDescription;
     }
 
-    public List<ManagedInputWidgetDescription> getInputWidgetDescriptions()
+    public List<IManagedInputWidgetDescription> getInputWidgetDescriptions()
     {
         return inputWidgetDescriptions;
     }
 
-    public void setInputWidgetDescriptions(List<ManagedInputWidgetDescription> widgetDescriptions)
+    public void setInputWidgetDescriptions(List<IManagedInputWidgetDescription> widgetDescriptions)
     {
         this.inputWidgetDescriptions = widgetDescriptions;
     }
 
-    public void addInputWidgetDescription(ManagedInputWidgetDescription widgetDescription)
+    public void addInputWidgetDescription(IManagedInputWidgetDescription widgetDescription)
     {
         inputWidgetDescriptions.add(widgetDescription);
     }

@@ -1695,19 +1695,19 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         return selectedColumnDefs;
     }
 
-    /** Creates deletion callback that refreshes the grid. */
-    protected final AbstractAsyncCallback<Void> createDeletionCallback(
+    /** Creates callback that refreshes the grid. */
+    protected final AbstractAsyncCallback<Void> createRefreshCallback(
             IBrowserGridActionInvoker invoker)
     {
-        return new DeletionCallback(viewContext, invoker);
+        return new RefreshCallback(viewContext, invoker);
     }
 
-    /** Deletion callback that refreshes the grid. */
-    private static final class DeletionCallback extends AbstractAsyncCallback<Void>
+    /** Callback that refreshes the grid. */
+    private static final class RefreshCallback extends AbstractAsyncCallback<Void>
     {
         private final IBrowserGridActionInvoker invoker;
 
-        public DeletionCallback(IViewContext<?> viewContext, IBrowserGridActionInvoker invoker)
+        public RefreshCallback(IViewContext<?> viewContext, IBrowserGridActionInvoker invoker)
         {
             super(viewContext);
             this.invoker = invoker;

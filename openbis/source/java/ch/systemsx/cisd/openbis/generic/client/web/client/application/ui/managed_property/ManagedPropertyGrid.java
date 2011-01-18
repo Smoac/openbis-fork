@@ -16,13 +16,17 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.managed_property;
 
+import java.util.List;
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Info;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
@@ -40,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Null;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedEntityProperty;
 
 /**
  * @author Piotr Buczek
@@ -51,13 +56,13 @@ public class ManagedPropertyGrid extends TypedTableGrid<Null>
 
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext,
-            TableModelReference tableModelReference,
+            IManagedEntityProperty managedProperty, TableModelReference tableModelReference,
             IManagedPropertyGridInformationProvider gridInformation,
             IDelegatedAction onRefreshAction)
     {
         final ManagedPropertyGrid grid =
-                new ManagedPropertyGrid(viewContext, tableModelReference, gridInformation,
-                        onRefreshAction);
+                new ManagedPropertyGrid(viewContext, managedProperty, tableModelReference,
+                        gridInformation, onRefreshAction);
         return grid.asDisposableWithoutToolbar();
     }
 
@@ -72,17 +77,55 @@ public class ManagedPropertyGrid extends TypedTableGrid<Null>
 
     private final IDelegatedAction onRefreshAction;
 
+    private final IManagedEntityProperty managedProperty;
+
     private ManagedPropertyGrid(IViewContext<ICommonClientServiceAsync> viewContext,
-            TableModelReference tableModelReference,
+            IManagedEntityProperty managedProperty, TableModelReference tableModelReference,
             IManagedPropertyGridInformationProvider gridInformation,
             IDelegatedAction onRefreshAction)
     {
         super(viewContext, BROWSER_ID, true, DisplayTypeIDGenerator.DATA_SET_REPORTING_GRID);
+        this.managedProperty = managedProperty;
         this.onRefreshAction = onRefreshAction;
         setId(BROWSER_ID);
         this.resultSetKey = tableModelReference.getResultSetKey();
         this.gridKind = gridInformation.getKey();
         updateDefaultRefreshButton();
+        extendBottomToolbar();
+    }
+
+    // adds action buttons
+    private void extendBottomToolbar()
+    {
+        if (viewContext.isSimpleMode())
+        {
+            return;
+        }
+        addEntityOperationsLabel();
+        addEntityOperationButtons();
+        addEntityOperationsSeparator();
+    }
+
+    private void addEntityOperationButtons()
+    {
+        // For now we have only one fixed action to modify
+        // but in future we want to support different actions (create/update/delete).
+
+        final String editTitle = viewContext.getMessage(Dict.BUTTON_EDIT);
+        Button editButton = new Button(editTitle, new AbstractCreateDialogListener()
+            {
+
+                @Override
+                protected Dialog createDialog(List<TableModelRowWithObject<Null>> data,
+                        IBrowserGridActionInvoker invoker)
+                {
+                    AsyncCallback<Void> callback = createRefreshCallback(invoker);
+                    return new ManagedPropertyGridActionDialog(viewContext, data, callback,
+                            managedProperty, editTitle);
+                }
+            });
+
+        addButton(editButton);
     }
 
     @Override
@@ -110,6 +153,8 @@ public class ManagedPropertyGrid extends TypedTableGrid<Null>
     {
         viewContext.getService().prepareExportReport(exportCriteria, callback);
     }
+
+    // FIXME auto refresh doesn't work
 
     @Override
     public DatabaseModificationKind[] getRelevantModifications()
@@ -160,4 +205,5 @@ public class ManagedPropertyGrid extends TypedTableGrid<Null>
                 }
             };
     }
+
 }

@@ -156,7 +156,7 @@ public class QueryBrowserGrid extends AbstractSimpleBrowserGrid<QueryExpression>
                                         IBrowserGridActionInvoker invoker)
                                 {
                                     return new DeletionConfirmationDialog(viewContext, selected,
-                                            createDeletionCallback(invoker));
+                                            createRefreshCallback(invoker));
                                 }
                             });
         addButton(deleteButton);

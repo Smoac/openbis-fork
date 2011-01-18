@@ -127,7 +127,7 @@ public class GridCustomFilterGrid extends AbstractSimpleBrowserGrid<GridCustomFi
                                         IBrowserGridActionInvoker invoker)
                                 {
                                     return new DeletionConfirmationDialog(viewContext, selected,
-                                            createDeletionCallback(invoker));
+                                            createRefreshCallback(invoker));
                                 }
                             });
         addButton(deleteButton);

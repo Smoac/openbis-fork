@@ -152,7 +152,7 @@ public class ProjectGrid extends TypedTableGrid<Project>
                                         projects.add(row.getObjectOrNull());
                                     }
                                     return new ProjectListDeletionConfirmationDialog(viewContext,
-                                            projects , createDeletionCallback(invoker));
+                                            projects , createRefreshCallback(invoker));
                                 }
                             });
         addButton(deleteButton);

@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IManagedPropertyGridInforma
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedTableWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedWidgetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiDescription;
 
 /**
@@ -69,18 +70,19 @@ public class ManagedPropertySection extends DisposableTabContent
 
     private static String ID_PREFIX = "managed_property_section_";
 
-    private final IManagedUiDescription uiDescription;
-
     private final String gridIdSuffix;
 
     private final IDelegatedAction refreshAction;
 
+    private final IManagedEntityProperty managedProperty;
+
     public ManagedPropertySection(final String header, IViewContext<?> viewContext,
-            IIdHolder ownerId, IManagedUiDescription uiDescription, IDelegatedAction refreshAction)
+            IIdHolder ownerId, IManagedEntityProperty managedProperty,
+            IDelegatedAction refreshAction)
     {
         super(header, viewContext, ownerId);
+        this.managedProperty = managedProperty;
         this.gridIdSuffix = Format.hyphenize(header);
-        this.uiDescription = uiDescription;
         this.refreshAction = refreshAction;
         setIds(new IDisplayTypeIDGenerator()
             {
@@ -134,8 +136,8 @@ public class ManagedPropertySection extends DisposableTabContent
                     {
                         AsyncCallback<TableModelReference> callback =
                                 ManagedPropertyGridGeneratedCallback.create(
-                                        viewContext.getCommonViewContext(), gridInfo,
-                                        gridGeneratedAction, refreshAction);
+                                        viewContext.getCommonViewContext(), managedProperty,
+                                        gridInfo, gridGeneratedAction, refreshAction);
                         viewContext.getCommonService().createReportForManagedProperty(
                                 tableDescriptionOrNull, callback);
                     }
@@ -149,6 +151,7 @@ public class ManagedPropertySection extends DisposableTabContent
 
     private ManagedTableWidgetDescription tryGetTableDescription()
     {
+        final IManagedUiDescription uiDescription = managedProperty.getUiDescription();
         if (uiDescription.getOutputWidgetDescription() != null
                 && uiDescription.getOutputWidgetDescription().getManagedWidgetType() == ManagedWidgetType.TABLE
                 && uiDescription.getOutputWidgetDescription() instanceof ManagedTableWidgetDescription)

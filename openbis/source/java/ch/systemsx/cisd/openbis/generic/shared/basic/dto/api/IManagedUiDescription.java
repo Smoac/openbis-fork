@@ -16,8 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto.api;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 
 /**
  * The interface exposed to the Managed Property script.
@@ -33,4 +34,6 @@ public interface IManagedUiDescription
     public void addComboBoxInputField(String labels, String[] values);
 
     public IManagedWidgetDescription getOutputWidgetDescription();
+
+    public List<IManagedInputWidgetDescription> getInputWidgetDescriptions();
 }

@@ -207,7 +207,7 @@ public class ExperimentBrowserGrid extends
                         IBrowserGridActionInvoker invoker)
                 {
                     return new ExperimentListDeletionConfirmationDialog(viewContext,
-                            createDeletionCallback(invoker), getDisplayedAndSelectedItemsAction()
+                            createRefreshCallback(invoker), getDisplayedAndSelectedItemsAction()
                                     .execute());
                 }
             });

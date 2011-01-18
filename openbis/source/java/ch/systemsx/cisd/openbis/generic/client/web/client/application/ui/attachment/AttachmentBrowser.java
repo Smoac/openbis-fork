@@ -304,7 +304,7 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
                                     IBrowserGridActionInvoker invoker)
                             {
                                 return new AttachmentListDeletionConfirmationDialog(viewContext,
-                                        attachmentVersions, createDeletionCallback(invoker),
+                                        attachmentVersions, createRefreshCallback(invoker),
                                         attachmentHolder);
                             }
                         }));

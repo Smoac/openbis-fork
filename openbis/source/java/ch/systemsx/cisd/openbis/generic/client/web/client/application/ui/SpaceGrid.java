@@ -129,7 +129,7 @@ public class SpaceGrid extends TypedTableGrid<Space>
                                         IBrowserGridActionInvoker invoker)
                                 {
                                     return new GroupListDeletionConfirmationDialog(viewContext,
-                                            groups, createDeletionCallback(invoker));
+                                            groups, createRefreshCallback(invoker));
                                 }
                             });
         addButton(deleteButton);

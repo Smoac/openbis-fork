@@ -661,7 +661,7 @@ public class SampleBrowserGrid extends TypedTableGrid<Sample>
                 protected Dialog createDialog(List<TableModelRowWithObject<Sample>> samples,
                         IBrowserGridActionInvoker invoker)
                 {
-                    AsyncCallback<Void> callback = createDeletionCallback(invoker);
+                    AsyncCallback<Void> callback = createRefreshCallback(invoker);
                     DisplayedAndSelectedEntities<TableModelRowWithObject<Sample>> s =
                             getDisplayedAndSelectedItemsAction().execute();
                     return new SampleListDeletionConfirmationDialog<TableModelRowWithObject<Sample>>(

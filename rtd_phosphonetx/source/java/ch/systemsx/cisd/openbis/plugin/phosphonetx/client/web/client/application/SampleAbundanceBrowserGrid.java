@@ -213,7 +213,7 @@ public class SampleAbundanceBrowserGrid
                                 IBrowserGridActionInvoker invoker)
                         {
                             return new SampleListDeletionConfirmationDialog(viewContext, samples,
-                                    createDeletionCallback(invoker));
+                                    createRefreshCallback(invoker));
                         }
                     }));
         allowMultipleSelection(); // we allow deletion of multiple samples

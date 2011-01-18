@@ -156,7 +156,7 @@ public class PersonGrid extends AbstractSimpleBrowserGrid<Person>
                                     {
                                         return new PersonListDeletionConfirmationDialog(
                                                 viewContext, selected, authorizationGroupOrNull,
-                                                createDeletionCallback(invoker));
+                                                createRefreshCallback(invoker));
                                     }
                                 });
             deleteButton.setId(createRemoveButtonId(authorizationGroupOrNull));

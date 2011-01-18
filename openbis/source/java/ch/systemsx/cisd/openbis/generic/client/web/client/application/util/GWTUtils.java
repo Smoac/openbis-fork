@@ -27,6 +27,8 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.TextMetrics;
 import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.Info;
+import com.extjs.gxt.ui.client.widget.InfoConfig;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
@@ -405,10 +407,6 @@ public final class GWTUtils
             });
     }
 
-    //
-    // native JavaScript
-    //
-
     /**
      * Returns the <i>search</i> of a <i>Javascript</i> window location (without the starting
      * <code>?</code> if any).
@@ -419,6 +417,35 @@ public final class GWTUtils
     {
         return Location.getQueryString();
     }
+
+    /**
+     * Whether this application is deployed.
+     */
+    public final static boolean isDeployed()
+    {
+        return GWT.isScript();
+    }
+
+    public final static void displayInfo(String title)
+    {
+        displayInfo(title, "");
+    }
+
+    public final static void displayInfo(String title, String text)
+    {
+        displayInfo(title, text, 10000); // 10s
+    }
+
+    public final static void displayInfo(String title, String text, int displayTime)
+    {
+        InfoConfig config = new InfoConfig(title, text);
+        config.display = displayTime;
+        Info.display(config);
+    }
+
+    //
+    // native JavaScript
+    //
 
     /**
      * Tooltip template displayed when mouse is over drop down list.
@@ -435,13 +462,5 @@ public final class GWTUtils
        '</tpl>' 
        ].join(""); 
      }-*/;
-
-    /**
-     * Whether this application is deployed.
-     */
-    public final static boolean isDeployed()
-    {
-        return GWT.isScript();
-    }
 
 }

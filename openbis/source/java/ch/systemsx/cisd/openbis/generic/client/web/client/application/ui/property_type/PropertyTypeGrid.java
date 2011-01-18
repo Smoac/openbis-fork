@@ -133,7 +133,7 @@ public class PropertyTypeGrid extends AbstractSimpleBrowserGrid<PropertyType>
                                 IBrowserGridActionInvoker invoker)
                         {
                             return new PropertyTypeListDeletionConfirmationDialog(viewContext,
-                                    propertyTypes, createDeletionCallback(invoker));
+                                    propertyTypes, createRefreshCallback(invoker));
                         }
 
                         @Override

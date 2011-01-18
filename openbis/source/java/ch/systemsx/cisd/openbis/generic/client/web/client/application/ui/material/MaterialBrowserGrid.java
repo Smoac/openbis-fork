@@ -194,7 +194,7 @@ public class MaterialBrowserGrid extends
                         IBrowserGridActionInvoker invoker)
                 {
                     return new MaterialListDeletionConfirmationDialog(viewContext, materials,
-                            createDeletionCallback(invoker), getDisplayedAndSelectedItemsAction()
+                            createRefreshCallback(invoker), getDisplayedAndSelectedItemsAction()
                                     .execute());
                 }
             });

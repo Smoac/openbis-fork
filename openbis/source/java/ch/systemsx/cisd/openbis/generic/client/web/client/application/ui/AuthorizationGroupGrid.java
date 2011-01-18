@@ -152,7 +152,7 @@ public class AuthorizationGroupGrid extends AbstractSimpleBrowserGrid<Authorizat
                                         IBrowserGridActionInvoker invoker)
                                 {
                                     return new GroupListDeletionConfirmationDialog(viewContext,
-                                            selected, createDeletionCallback(invoker));
+                                            selected, createRefreshCallback(invoker));
                                 }
                             });
         deleteButton.setId(DELETE_BUTTON_ID);

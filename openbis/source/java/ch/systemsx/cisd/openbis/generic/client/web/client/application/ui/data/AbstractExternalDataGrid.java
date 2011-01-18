@@ -147,7 +147,7 @@ public abstract class AbstractExternalDataGrid
                                     IBrowserGridActionInvoker invoker)
                             {
                                 return new DataSetListDeletionConfirmationDialog(viewContext,
-                                        createDeletionCallback(invoker),
+                                        createRefreshCallback(invoker),
                                         getSelectedAndDisplayedItemsAction().execute());
                             }
                         });

@@ -49,8 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithProperties;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedEntityProperty;
 
 /**
  * @author Franz-Josef Elmer
@@ -248,14 +247,14 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
         boolean sectionsAdded = false;
         for (final IEntityProperty property : entity.getProperties())
         {
-            if (property instanceof ManagedEntityProperty)
+            if (property instanceof IManagedEntityProperty)
             {
-                ManagedEntityProperty managedProperty = (ManagedEntityProperty) property;
+                IManagedEntityProperty managedProperty = (IManagedEntityProperty) property;
                 if (managedProperty.isOwnTab())
                 {
                     TabContent managedSection =
                             createManagedPropertySection(property.getPropertyType().getLabel(),
-                                    entity, managedProperty.getUiDescription());
+                                    entity, managedProperty);
                     container.addSection(managedSection);
                     sectionsAdded = true;
                 }
@@ -268,7 +267,7 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
     }
 
     protected TabContent createManagedPropertySection(final String header,
-            final IEntityInformationHolder ownerId, final IManagedUiDescription uiDescription)
+            final IEntityInformationHolder ownerId, final IManagedEntityProperty managedProperty)
     {
         IDelegatedAction refreshAction = new IDelegatedAction()
             {
@@ -277,7 +276,7 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
                     reloadAllData();
                 }
             };
-        return new ManagedPropertySection(header, viewContext, ownerId, uiDescription,
+        return new ManagedPropertySection(header, viewContext, ownerId, managedProperty,
                 refreshAction);
     }
 

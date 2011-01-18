@@ -244,7 +244,7 @@ public class VocabularyGrid extends TypedTableGrid<Vocabulary>
                                 IBrowserGridActionInvoker invoker)
                         {
                             return new VocabularyListDeletionConfirmationDialog(viewContext,
-                                    vocabularies, createDeletionCallback(invoker));
+                                    vocabularies, createRefreshCallback(invoker));
                         }
 
                         @Override

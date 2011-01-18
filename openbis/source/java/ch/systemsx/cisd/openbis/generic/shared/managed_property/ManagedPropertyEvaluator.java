@@ -21,7 +21,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.evaluator.Evaluator;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
 
 /**
@@ -40,7 +40,7 @@ public class ManagedPropertyEvaluator
     /**
      * The name of the script that expects the property to be there and updates it.
      */
-    private static final String CONFIGURE_OUTPUT_EXPRESSION = "configure_output()";
+    private static final String CONFIGURE_UI_EXPRESSION = "configure_ui()";
 
     private static final String PROPERTY_VARIABLE_NAME = "property";
 
@@ -49,7 +49,7 @@ public class ManagedPropertyEvaluator
         this.scriptExpression = scriptExpression;
     }
 
-    public void evalConfigureProperty(ManagedEntityProperty managedProperty)
+    public void evalConfigureProperty(IManagedEntityProperty managedProperty)
     {
         if (operationLog.isDebugEnabled())
         {
@@ -57,8 +57,7 @@ public class ManagedPropertyEvaluator
         }
 
         Evaluator evaluator =
-                new Evaluator(CONFIGURE_OUTPUT_EXPRESSION, ScriptUtilityFactory.class,
-                        scriptExpression);
+                new Evaluator(CONFIGURE_UI_EXPRESSION, ScriptUtilityFactory.class, scriptExpression);
         evaluator.set(PROPERTY_VARIABLE_NAME, managedProperty);
         evaluator.eval();
     }

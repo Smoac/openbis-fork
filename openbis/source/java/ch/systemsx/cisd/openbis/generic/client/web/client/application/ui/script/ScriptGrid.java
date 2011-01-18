@@ -137,7 +137,7 @@ public class ScriptGrid extends AbstractSimpleBrowserGrid<Script>
                                         IBrowserGridActionInvoker invoker)
                                 {
                                     return new ScriptListDeletionConfirmationDialog(viewContext,
-                                            scripts, createDeletionCallback(invoker));
+                                            scripts, createRefreshCallback(invoker));
                                 }
                             });
         addButton(deleteButton);

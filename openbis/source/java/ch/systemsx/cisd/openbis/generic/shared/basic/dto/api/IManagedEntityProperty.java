@@ -25,6 +25,8 @@ public interface IManagedEntityProperty
 {
     boolean isOwnTab();
 
+    void setOwnTab(boolean ownTab);
+
     IManagedUiDescription getUiDescription();
 
 }
