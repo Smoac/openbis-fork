@@ -161,7 +161,7 @@
     </bean>
 
     <bean id="handlerExceptionResolver" 
-        class="ch.systemsx.cisd.openbis.generic.server.DefaultHandlerExceptionResolver"/>
+        class="ch.systemsx.cisd.common.spring.DefaultHandlerExceptionResolver"/>
 
     <!-- 
         // Transaction
