@@ -487,7 +487,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         return asDisposableEntityChooser(container, toolbar);
     }
 
-    private DisposableEntityChooser<T> asDisposableEntityChooser(final Component mainComponent, Component toolbarOrNull)
+    private DisposableEntityChooser<T> asDisposableEntityChooser(final Component mainComponent,
+            Component toolbarOrNull)
     {
         final AbstractBrowserGrid<T, M> self = this;
         // TODO, 2011-01-18, FJE: Better toolbarOrNull declared as IDisposableComponent
@@ -512,7 +513,10 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 {
                     debug("dispose a browser");
                     self.disposeCache();
-                    disposableComponent.dispose();
+                    if (disposableComponent != null)
+                    {
+                        disposableComponent.dispose();
+                    }
                 }
 
                 public Component getComponent()
@@ -721,7 +725,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         private final DefaultResultSetConfig<String, T> resultSetConfig;
 
         private int logID;
-        
+
         private boolean reloadingPhase;
 
         public ListEntitiesCallback(final IViewContext<?> viewContext,
@@ -766,7 +770,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             } else if (partial)
             {
                 reloadingPhase = true;
-                resultSetConfig.setCacheConfig(ResultSetFetchConfig.createFetchFromCacheAndRecompute(key));
+                resultSetConfig.setCacheConfig(ResultSetFetchConfig
+                        .createFetchFromCacheAndRecompute(key));
                 listEntities(resultSetConfig, this);
             }
             List<GridCustomColumnInfo> customColumnMetadata = rowModels.getCustomColumnsMetadata();
@@ -784,7 +789,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             if (reloadingPhase == false)
             {
                 pagingToolbar.enable();
-                filterToolbar.refreshColumnFiltersDistinctValues(rowModels.getColumnDistinctValues());
+                filterToolbar.refreshColumnFiltersDistinctValues(rowModels
+                        .getColumnDistinctValues());
             } else
             {
                 pagingToolbar.disableForLoadingRest();
