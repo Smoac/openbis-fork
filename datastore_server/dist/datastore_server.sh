@@ -131,7 +131,7 @@ else
 fi
 
 command=$1
-ALL_JAVA_OPTS="-Djavax.net.ssl.trustStore=etc/openBIS.keystore $JAVA_OPTS"
+ALL_JAVA_OPTS="-Djavax.net.ssl.trustStore=etc/openBIS.keystore $JAVA_OPTS -Dpython.path=lib/jython-lib"
 
 # Build classpath from $LIB_FOLDER content. First JAR is datastore_server.jar because it has to appear before cifex.jar
 CP=`echo $LIB_FOLDER/datastore_server.jar $LIB_FOLDER/*.jar | sed 's/ /:/g'`
