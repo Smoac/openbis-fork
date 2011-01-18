@@ -100,7 +100,7 @@ public class ProjectEditForm extends AbstractProjectEditRegisterForm
                 .getDescription()));
         projectCodeField.setValue(originalProject.getCode());
         projectCodeField.setEnabled(false);
-        spaceField.selectGroupAndUpdateOriginal(originalProject.getSpace().getCode());
+        spaceField.selectSpaceAndUpdateOriginal(originalProject.getSpace().getCode());
     }
 
     public void updateOriginalValues()

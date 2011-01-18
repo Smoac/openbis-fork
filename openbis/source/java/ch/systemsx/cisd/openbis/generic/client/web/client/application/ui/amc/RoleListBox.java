@@ -20,7 +20,7 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.ListBox;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 
@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
  */
 public class RoleListBox extends ListBox
 {
-    public RoleListBox(final GroupSelectionWidget groupWidget)
+    public RoleListBox(final SpaceSelectionWidget groupWidget)
     {
         RoleWithHierarchy[] values = RoleWithHierarchy.values();
         for (RoleWithHierarchy visibleRoleCode : values)
@@ -57,7 +57,7 @@ public class RoleListBox extends ListBox
         return RoleWithHierarchy.values()[getSelectedIndex()];
     }
 
-    private void updateWidgetsVisibility(final GroupSelectionWidget group)
+    private void updateWidgetsVisibility(final SpaceSelectionWidget group)
     {
         int index = getSelectedIndex();
         RoleWithHierarchy[] roles = RoleWithHierarchy.values();

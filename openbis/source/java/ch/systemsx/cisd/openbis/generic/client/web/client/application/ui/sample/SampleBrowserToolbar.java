@@ -24,6 +24,7 @@ import java.util.Set;
 
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
@@ -33,9 +34,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.SampleTypeDisplayID;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.GroupModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SpaceModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleTypeModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesFilterUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
@@ -53,7 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  * @author Izabela Adamczyk
  * @author Christian Ribeaud
  */
-final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvider
+final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvider, IDisposableComponent
 {
     public static final String ID = "sample-browser-toolbar";
 
@@ -64,14 +66,14 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
 
     private final SampleTypeSelectionWidget selectSampleTypeCombo;
 
-    private final GroupSelectionWidget selectGroupCombo;
+    private final SpaceSelectionWidget selectSpaceCombo;
 
     private final IViewContext<?> viewContext;
 
     private final boolean excludeWithoutExperiment;
 
     public SampleBrowserToolbar(final IViewContext<?> viewContext, final boolean addShared,
-            boolean addAll, final boolean excludeWithoutExperiment, String initialGroupOrNull,
+            boolean addAll, final boolean excludeWithoutExperiment, String initialSpaceOrNull,
             String initialSampleTypeOrNull, SampleTypeDisplayID sampleTypeDisplayID)
     {
         this.viewContext = viewContext;
@@ -79,8 +81,8 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
         selectSampleTypeCombo =
                 new SampleTypeSelectionWidget(viewContext, ID, true, true, false,
                         initialSampleTypeOrNull, sampleTypeDisplayID);
-        selectGroupCombo =
-                new GroupSelectionWidget(viewContext, ID, addShared, addAll, initialGroupOrNull);
+        selectSpaceCombo =
+                new SpaceSelectionWidget(viewContext, ID, addShared, addAll, initialSpaceOrNull);
         display();
     }
 
@@ -91,6 +93,23 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
         this(viewContext, addShared, addAll, excludeWithoutExperiment, null, null,
                 sampleTypeDisplayID);
     }
+    
+    public void update(Set<DatabaseModificationKind> observedModifications)
+    {
+    }
+
+    public Component getComponent()
+    {
+        return this;
+    }
+
+    public void dispose()
+    {
+        if (selectSpaceCombo != null)
+        {
+            selectSpaceCombo.dispose();
+        }
+    }
 
     public ListSampleDisplayCriteria tryGetCriteria()
     {
@@ -99,17 +118,17 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
         {
             return null;
         }
-        final Space selectedGroup = selectGroupCombo.tryGetSelectedGroup();
-        if (selectedGroup == null)
+        final Space selectedSpace = selectSpaceCombo.tryGetSelectedSpace();
+        if (selectedSpace == null)
         {
             return null;
         }
-        final boolean includeInstance = GroupSelectionWidget.isSharedGroup(selectedGroup);
+        final boolean includeInstance = SpaceSelectionWidget.isSharedSpace(selectedSpace);
         final boolean includeSpace = includeInstance == false;
 
         ListSampleCriteria criteria = new ListSampleCriteria();
         criteria.setSampleType(selectedType);
-        criteria.setSpaceCode(GroupSelectionWidget.tryToGetGroupCode(selectedGroup));
+        criteria.setSpaceCode(SpaceSelectionWidget.tryToGetSpaceCode(selectedSpace));
         criteria.setIncludeSpace(includeSpace);
         criteria.setIncludeInstance(includeInstance);
         criteria.setExcludeWithoutExperiment(excludeWithoutExperiment);
@@ -133,11 +152,11 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
 
     public void setCriteriaChangedListeners(final IDelegatedAction action)
     {
-        selectGroupCombo.addSelectionChangedListener(new SelectionChangedListener<GroupModel>()
+        selectSpaceCombo.addSelectionChangedListener(new SelectionChangedListener<SpaceModel>()
             {
 
                 @Override
-                public void selectionChanged(SelectionChangedEvent<GroupModel> se)
+                public void selectionChanged(SelectionChangedEvent<SpaceModel> se)
                 {
                     action.execute();
                 }
@@ -162,7 +181,7 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
         add(selectSampleTypeCombo);
         add(new SeparatorToolItem());
         add(new LabelToolItem(viewContext.getMessage(Dict.GROUP) + GenericConstants.LABEL_SEPARATOR));
-        add(selectGroupCombo);
+        add(selectSpaceCombo);
     }
 
     //
@@ -198,7 +217,7 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
         }
         if (observedModifications.contains(createOrDelete(ObjectKind.SPACE)))
         {
-            selectGroupCombo.refreshStore();
+            selectSpaceCombo.refreshStore();
         }
 
     }

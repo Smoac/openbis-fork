@@ -28,15 +28,15 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
  * 
  * @author Izabela Adamczyk
  */
-public class GroupModel extends SimplifiedBaseModelData
+public class SpaceModel extends SimplifiedBaseModelData
 {
     private static final long serialVersionUID = 1L;
 
-    public GroupModel()
+    public SpaceModel()
     {
     }
 
-    public GroupModel(final Space space)
+    public SpaceModel(final Space space)
     {
         set(ModelDataPropertyNames.CODE, space.getCode());
         set(ModelDataPropertyNames.DESCRIPTION, space.getDescription());
@@ -45,12 +45,12 @@ public class GroupModel extends SimplifiedBaseModelData
         set(ModelDataPropertyNames.OBJECT, space);
     }
 
-    public final static List<GroupModel> convert(final List<Space> groups)
+    public final static List<SpaceModel> convert(final List<Space> groups)
     {
-        final List<GroupModel> result = new ArrayList<GroupModel>();
+        final List<SpaceModel> result = new ArrayList<SpaceModel>();
         for (final Space g : groups)
         {
-            result.add(new GroupModel(g));
+            result.add(new SpaceModel(g));
         }
         return result;
     }

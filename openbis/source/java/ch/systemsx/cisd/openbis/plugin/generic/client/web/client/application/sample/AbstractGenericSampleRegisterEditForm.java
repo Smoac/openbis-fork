@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.SampleTypeDisplayID;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField.ExperimentChooserFieldAdaptor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IChosenEntityListener;
@@ -88,7 +88,7 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
 
     private ExperimentIdentifier initialExperimentIdentifierOrNull;
 
-    protected GroupSelectionWidget groupSelectionWidget;
+    protected SpaceSelectionWidget groupSelectionWidget;
 
     private String initialGroupCodeOrNull;
 
@@ -289,7 +289,7 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
     protected void createEntitySpecificFormFields()
     {
         groupSelectionWidget =
-                new GroupSelectionWidget(viewContext, getId(), true, false, initialGroupCodeOrNull);
+                new SpaceSelectionWidget(viewContext, getId(), true, false, initialGroupCodeOrNull);
         FieldUtil.markAsMandatory(groupSelectionWidget);
         groupSelectionWidget.setFieldLabel(viewContext.getMessage(Dict.GROUP));
         parentButton =
@@ -340,8 +340,8 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
 
     protected final String createSampleIdentifier()
     {
-        final Space space = groupSelectionWidget.tryGetSelectedGroup();
-        final boolean shared = GroupSelectionWidget.isSharedGroup(space);
+        final Space space = groupSelectionWidget.tryGetSelectedSpace();
+        final boolean shared = SpaceSelectionWidget.isSharedSpace(space);
         final String code = codeField.getValue();
         final StringBuilder builder = new StringBuilder("/");
         if (shared == false)

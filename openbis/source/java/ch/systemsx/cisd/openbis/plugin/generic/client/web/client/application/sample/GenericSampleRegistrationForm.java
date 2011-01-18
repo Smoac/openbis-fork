@@ -22,7 +22,7 @@ import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -64,8 +64,8 @@ public final class GenericSampleRegistrationForm extends AbstractGenericSampleRe
         protected String createSuccessfullRegistrationInfo(Void result)
         {
             String code = codeField.getValue();
-            final Space selectedGroup = groupSelectionWidget.tryGetSelectedGroup();
-            boolean shared = GroupSelectionWidget.isSharedGroup(selectedGroup);
+            final Space selectedGroup = groupSelectionWidget.tryGetSelectedSpace();
+            boolean shared = SpaceSelectionWidget.isSharedSpace(selectedGroup);
             if (shared)
             {
                 return "Shared sample <b>" + code + "</b> successfully registered";

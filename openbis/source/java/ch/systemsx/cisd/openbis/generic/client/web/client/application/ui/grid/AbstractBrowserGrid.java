@@ -451,13 +451,13 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         container.add(toolbar);
         container.add(this, new RowData(1, 1));
 
-        return asDisposableEntityChooser(container);
+        return asDisposableEntityChooser(container, toolbar);
     }
 
     /** @return this grid as a disposable component */
     protected final DisposableEntityChooser<T> asDisposableWithoutToolbar()
     {
-        return asDisposableEntityChooser(this);
+        return asDisposableEntityChooser(this, null);
     }
 
     /**
@@ -484,12 +484,16 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         subContainer.add(this, new RowData(1, 1));
         container.add(subContainer, new RowData(1, 1));
 
-        return asDisposableEntityChooser(container);
+        return asDisposableEntityChooser(container, toolbar);
     }
 
-    private DisposableEntityChooser<T> asDisposableEntityChooser(final Component mainComponent)
+    private DisposableEntityChooser<T> asDisposableEntityChooser(final Component mainComponent, Component toolbarOrNull)
     {
         final AbstractBrowserGrid<T, M> self = this;
+        // TODO, 2011-01-18, FJE: Better toolbarOrNull declared as IDisposableComponent
+        final IDisposableComponent disposableComponent =
+                toolbarOrNull instanceof IDisposableComponent ? (IDisposableComponent) toolbarOrNull
+                        : null;
         return new DisposableEntityChooser<T>()
             {
                 public T tryGetSingleSelected()
@@ -508,6 +512,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 {
                     debug("dispose a browser");
                     self.disposeCache();
+                    disposableComponent.dispose();
                 }
 
                 public Component getComponent()
@@ -1424,9 +1429,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         }
     }
 
-    private void removeResultSet(String resultSetKey2)
+    private void removeResultSet(String resultSetKey)
     {
-        viewContext.getService().removeResultSet(resultSetKey2,
+        viewContext.getService().removeResultSet(resultSetKey,
                 new VoidAsyncCallback<Void>(viewContext));
     }
 

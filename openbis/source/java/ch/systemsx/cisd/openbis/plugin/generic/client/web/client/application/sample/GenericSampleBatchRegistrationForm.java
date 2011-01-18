@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.UrlParamsHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
@@ -58,7 +58,7 @@ public final class GenericSampleBatchRegistrationForm extends AbstractSampleBatc
 
     private final CheckBoxField generateCodesCheckbox;
 
-    private final GroupSelectionWidget groupSelector;
+    private final SpaceSelectionWidget groupSelector;
 
     private final IViewContext<IGenericClientServiceAsync> viewContext;
 
@@ -86,7 +86,7 @@ public final class GenericSampleBatchRegistrationForm extends AbstractSampleBatc
     protected void save()
     {
         String defaultGroupIdentifier = null;
-        Space selectedGroup = groupSelector.tryGetSelectedGroup();
+        Space selectedGroup = groupSelector.tryGetSelectedSpace();
         if (generateCodesCheckbox.getValue() && selectedGroup != null)
         {
             defaultGroupIdentifier = selectedGroup.getIdentifier();
@@ -129,17 +129,17 @@ public final class GenericSampleBatchRegistrationForm extends AbstractSampleBatc
         return result;
     }
 
-    private final GroupSelectionWidget createGroupField(
+    private final SpaceSelectionWidget createGroupField(
             IViewContext<ICommonClientServiceAsync> context, String idSuffix, boolean addShared,
             final CheckBoxField checkbox)
     {
-        GroupSelectionWidget field = new GroupSelectionWidget(context, idSuffix, addShared, false)
+        SpaceSelectionWidget field = new SpaceSelectionWidget(context, idSuffix, addShared, false)
             {
 
                 @Override
                 protected boolean validateValue(String val)
                 {
-                    if (checkbox.getValue() && tryGetSelectedGroup() == null)
+                    if (checkbox.getValue() && tryGetSelectedSpace() == null)
                     {
                         forceInvalid(GXT.MESSAGES.textField_blankText());
                         return false;

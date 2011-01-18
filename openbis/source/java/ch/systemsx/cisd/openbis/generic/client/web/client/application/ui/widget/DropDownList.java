@@ -25,6 +25,7 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.store.StoreFilter;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.google.gwt.user.client.Element;
@@ -35,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 
@@ -43,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  * @author Izabela Adamczyk
  */
 abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> implements
-        IDatabaseModificationObserver
+        IDisposableComponent
 {
     abstract protected void loadData(AbstractAsyncCallback<List<E>> callback);
 
@@ -186,6 +187,15 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
     public void setAllowValueNotFromList(boolean allowValueNotFromList)
     {
         this.allowValueNotFromList = allowValueNotFromList;
+    }
+
+    public Component getComponent()
+    {
+        return this;
+    }
+
+    public void dispose()
+    {
     }
 
     public void update(Set<DatabaseModificationKind> observedModifications)

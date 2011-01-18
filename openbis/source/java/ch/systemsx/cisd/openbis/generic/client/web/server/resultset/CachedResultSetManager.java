@@ -823,7 +823,6 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     public final synchronized void removeResultSet(final K resultSetKey)
     {
         assert resultSetKey != null : "Unspecified data key holder.";
-        debug("remove key " + resultSetKey);
         if (cache.remove(resultSetKey) != null)
         {
             debug(String.format("Result set for key '%s' has been removed.", resultSetKey));

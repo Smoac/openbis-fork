@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionCont
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
@@ -135,11 +135,11 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
         Space spaceOrNull = originalSample.getSpace();
         if (spaceOrNull != null)
         {
-            groupSelectionWidget.selectGroupAndUpdateOriginal(spaceOrNull.getCode());
+            groupSelectionWidget.selectSpaceAndUpdateOriginal(spaceOrNull.getCode());
         } else
         {
             groupSelectionWidget
-                    .selectGroupAndUpdateOriginal(GroupSelectionWidget.SHARED_SPACE_CODE);
+                    .selectSpaceAndUpdateOriginal(SpaceSelectionWidget.SHARED_SPACE_CODE);
         }
     }
 

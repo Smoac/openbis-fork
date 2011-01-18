@@ -26,8 +26,9 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.GroupModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SpaceModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
@@ -40,25 +41,25 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
- * {@link ComboBox} containing list of groups loaded from the server.
+ * {@link ComboBox} containing list of {@link Space} instances loaded from the server.
  * 
  * @author Izabela Adamczyk
  */
-public class GroupSelectionWidget extends DropDownList<GroupModel, Space>
+public class SpaceSelectionWidget extends DropDownList<SpaceModel, Space>
 {
 
     public static final String SUFFIX = "group-select";
 
     private final IViewContext<?> viewContext;
 
-    private String initialGroupOrNull;
+    private String initialSpaceOrNull;
 
-    public static final boolean isSharedGroup(Space g)
+    public static final boolean isSharedSpace(Space g)
     {
         return SHARED_SPACE_CODE.equals(g.getCode());
     }
 
-    public static final String tryToGetGroupCode(Space space)
+    public static final String tryToGetSpaceCode(Space space)
     {
         String code = space.getCode();
         return code.equals(ALL_SPACES_CODE) ? null : code;
@@ -73,22 +74,34 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Space>
     public boolean dataLoaded = false;
 
     private final boolean addAll;
+    
+    private String resultSetKey;
 
-    public GroupSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
+    public SpaceSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
             boolean addShared, boolean addAll)
     {
         this(viewContext, idSuffix, addShared, addAll, null);
     }
 
-    public GroupSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
-            boolean addShared, boolean addAll, final String initialGroupCodeOrNull)
+    public SpaceSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
+            boolean addShared, boolean addAll, final String initialSpaceCodeOrNull)
     {
         super(viewContext, SUFFIX + idSuffix, Dict.GROUP, ModelDataPropertyNames.CODE, viewContext
                 .getMessage(Dict.GROUP), viewContext.getMessage(Dict.GROUP));
         this.viewContext = viewContext;
         this.addShared = addShared;
         this.addAll = addAll;
-        this.initialGroupOrNull = initialGroupCodeOrNull;
+        this.initialSpaceOrNull = initialSpaceCodeOrNull;
+    }
+    
+    @Override
+    public void dispose()
+    {
+        if (resultSetKey != null)
+        {
+            viewContext.getCommonService().removeResultSet(resultSetKey,
+                    new VoidAsyncCallback<Void>(viewContext));
+        }
     }
 
     /**
@@ -96,7 +109,7 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Space>
      * 
      * @return <code>null</code> if nothing is selected yet.
      */
-    public final Space tryGetSelectedGroup()
+    public final Space tryGetSelectedSpace()
     {
         return super.tryGetSelected();
     }
@@ -116,9 +129,10 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Space>
         return space;
     }
 
-    private final class ListGroupsCallback extends AbstractAsyncCallback<TypedTableResultSet<Space>>
+    private final class ListSpaceCallback extends AbstractAsyncCallback<TypedTableResultSet<Space>>
     {
-        ListGroupsCallback(final IViewContext<?> viewContext)
+
+        ListSpaceCallback(final IViewContext<?> viewContext)
         {
             super(viewContext);
         }
@@ -126,15 +140,16 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Space>
         @Override
         protected final void process(final TypedTableResultSet<Space> result)
         {
-            final ListStore<GroupModel> groupStore = getStore();
-            groupStore.removeAll();
+            resultSetKey = result.getResultSet().getResultSetKey();
+            final ListStore<SpaceModel> spaceStore = getStore();
+            spaceStore.removeAll();
             if (addShared)
             {
-                groupStore.add(new GroupModel(createSharedSpace()));
+                spaceStore.add(new SpaceModel(createSharedSpace()));
             }
             if (addAll)
             {
-                groupStore.add(new GroupModel(createAllSpaces()));
+                spaceStore.add(new SpaceModel(createAllSpaces()));
             }
             List<TableModelRowWithObject<Space>> tableRows = result.getResultSet().getList().extractOriginalObjects();
             List<Space> spaces = new ArrayList<Space>();
@@ -142,22 +157,22 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Space>
             {
                 spaces.add(tableModelRowWithObject.getObjectOrNull());
             }
-            groupStore.add(convertItems(spaces));
+            spaceStore.add(convertItems(spaces));
             dataLoaded = true;
-            if (groupStore.getCount() > 0)
+            if (spaceStore.getCount() > 0)
             {
                 setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, viewContext
                         .getMessage(Dict.GROUP)));
                 setReadOnly(false);
-                if (initialGroupOrNull != null)
+                if (initialSpaceOrNull != null)
                 {
-                    selectGroupAndUpdateOriginal(initialGroupOrNull);
+                    selectSpaceAndUpdateOriginal(initialSpaceOrNull);
                 } else
                 {
-                    final int homeGroupIndex = getHomeGroupIndex(groupStore);
+                    final int homeGroupIndex = getSpaceGroupIndex(spaceStore);
                     if (homeGroupIndex > -1)
                     {
-                        setValue(groupStore.getAt(homeGroupIndex));
+                        setValue(spaceStore.getAt(homeGroupIndex));
                         setOriginalValue(getValue());
                     }
                 }
@@ -169,16 +184,16 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Space>
             }
         }
 
-        int getHomeGroupIndex(ListStore<GroupModel> groupStore)
+        int getSpaceGroupIndex(ListStore<SpaceModel> spaceStore)
         {
             final SessionContext sessionContext = viewContext.getModel().getSessionContext();
             final User user = sessionContext.getUser();
-            final String homeGroup = user.getHomeGroupCode();
-            if (homeGroup != null)
+            final String homeSpace = user.getHomeGroupCode();
+            if (homeSpace != null)
             {
-                for (int i = 0; i < groupStore.getCount(); i++)
+                for (int i = 0; i < spaceStore.getCount(); i++)
                 {
-                    if (groupStore.getAt(i).get(ModelDataPropertyNames.CODE).equals(homeGroup))
+                    if (spaceStore.getAt(i).get(ModelDataPropertyNames.CODE).equals(homeSpace))
                     {
                         return i;
                     }
@@ -188,34 +203,34 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Space>
         }
     }
 
-    public void selectGroupAndUpdateOriginal(String group)
+    public void selectSpaceAndUpdateOriginal(String space)
     {
-        initialGroupOrNull = group;
-        if (dataLoaded && initialGroupOrNull != null)
+        initialSpaceOrNull = space;
+        if (dataLoaded && initialSpaceOrNull != null)
         {
             try
             {
-                GWTUtils.setSelectedItem(GroupSelectionWidget.this, ModelDataPropertyNames.CODE,
-                        initialGroupOrNull);
+                GWTUtils.setSelectedItem(SpaceSelectionWidget.this, ModelDataPropertyNames.CODE,
+                        initialSpaceOrNull);
             } catch (IllegalArgumentException ex)
             {
-                MessageBox.alert("Error", "Space '" + group + "' doesn't exist.", null);
+                MessageBox.alert("Error", "Space '" + space + "' doesn't exist.", null);
             }
             updateOriginalValue();
         }
     }
 
     @Override
-    protected List<GroupModel> convertItems(List<Space> result)
+    protected List<SpaceModel> convertItems(List<Space> result)
     {
-        return GroupModel.convert(result);
+        return SpaceModel.convert(result);
     }
 
     @Override
     protected void loadData(AbstractAsyncCallback<List<Space>> callback)
     {
         DefaultResultSetConfig<String, TableModelRowWithObject<Space>> config = DefaultResultSetConfig.createFetchAll();
-        viewContext.getCommonService().listGroups(config, new ListGroupsCallback(viewContext));
+        viewContext.getCommonService().listGroups(config, new ListSpaceCallback(viewContext));
         callback.ignore();
     }
 

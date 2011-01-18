@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind.DEFAULT_COLUMN_WIDTH;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.InvokeActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Logout;
@@ -89,7 +89,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
     public final void testExportMasterPlates()
     {
         loginAndGotoListSamplesTab();
-        remoteConsole.prepare(new ListSamples(GroupSelectionWidget.SHARED_SPACE_CODE,
+        remoteConsole.prepare(new ListSamples(SpaceSelectionWidget.SHARED_SPACE_CODE,
                 "MASTER_PLATE"));
         ExportSamplesTestCommand exportCommand = new ExportSamplesTestCommand(client);
         remoteConsole.prepare(exportCommand);
@@ -103,7 +103,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
     public final void testListOnlySharedMasterPlates()
     {
         loginAndGotoListSamplesTab();
-        remoteConsole.prepare(new ListSamples(GroupSelectionWidget.SHARED_SPACE_CODE,
+        remoteConsole.prepare(new ListSamples(SpaceSelectionWidget.SHARED_SPACE_CODE,
                 "MASTER_PLATE"));
         CheckSampleTable table = new CheckSampleTable();
         Row expectedRow =

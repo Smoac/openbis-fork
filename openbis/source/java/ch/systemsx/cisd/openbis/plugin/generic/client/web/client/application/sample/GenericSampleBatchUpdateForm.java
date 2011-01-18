@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.UrlParamsHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.BasicFileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
@@ -73,7 +73,7 @@ public final class GenericSampleBatchUpdateForm extends AbstractRegistrationForm
 
     private final SampleType sampleType;
 
-    private final GroupSelectionWidget groupSelector;
+    private final SpaceSelectionWidget groupSelector;
 
     public GenericSampleBatchUpdateForm(final IViewContext<IGenericClientServiceAsync> viewContext,
             final SampleType sampleType)
@@ -90,10 +90,10 @@ public final class GenericSampleBatchUpdateForm extends AbstractRegistrationForm
         addUploadFeatures(SESSION_KEY);
     }
 
-    private final GroupSelectionWidget createGroupField(
+    private final SpaceSelectionWidget createGroupField(
             IViewContext<ICommonClientServiceAsync> context, String idSuffix, boolean addShared)
     {
-        GroupSelectionWidget field = new GroupSelectionWidget(context, idSuffix, addShared, false);
+        SpaceSelectionWidget field = new SpaceSelectionWidget(context, idSuffix, addShared, false);
         field.setFieldLabel(viewContext.getMessage(Dict.DEFAULT_GROUP));
         return field;
     }
@@ -134,7 +134,7 @@ public final class GenericSampleBatchUpdateForm extends AbstractRegistrationForm
 
     protected void save()
     {
-        final Space selectedGroup = groupSelector.tryGetSelectedGroup();
+        final Space selectedGroup = groupSelector.tryGetSelectedSpace();
         final String defaultGroupIdentifier =
                 selectedGroup != null ? selectedGroup.getIdentifier() : null;
         viewContext.getService().updateSamples(sampleType, SESSION_KEY, defaultGroupIdentifier,

@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AuthorizationGroupSelectionWidget;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
@@ -55,7 +55,7 @@ public class AddRoleAssignmentDialog extends AbstractRegistrationDialog
 
     static final String AUTH_GROUP_RADIO = PREFIX + "auth-group-rd";
 
-    private final GroupSelectionWidget group;
+    private final SpaceSelectionWidget group;
 
     private final PersonSelectionWidget person;
 
@@ -74,7 +74,7 @@ public class AddRoleAssignmentDialog extends AbstractRegistrationDialog
                 postRegistrationCallback);
         this.viewContext = viewContext;
 
-        group = new GroupSelectionWidget(viewContext, PREFIX, false, false);
+        group = new SpaceSelectionWidget(viewContext, PREFIX, false, false);
         group.setWidth(100);
 
         roleBox = new AdapterField(new RoleListBox(group));
@@ -136,7 +136,7 @@ public class AddRoleAssignmentDialog extends AbstractRegistrationDialog
                     ((RoleListBox) roleBox.getWidget()).getValue(), grantee, registrationCallback);
         } else
         {
-            Space spaceOrNull = group.tryGetSelectedGroup();
+            Space spaceOrNull = group.tryGetSelectedSpace();
             viewContext.getService().registerGroupRole(
                     ((RoleListBox) roleBox.getWidget()).getValue(), spaceOrNull.getCode(), grantee,
                     registrationCallback);

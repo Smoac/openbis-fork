@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sa
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.InvokeActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.CheckSampleTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ChooseTypeOfNewSample;
@@ -129,12 +129,12 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ChooseTypeOfNewSample(sampleTypeCode));
         final String description = "A very nice control layout.";
         remoteConsole.prepare(new FillSampleRegistrationForm(
-                GroupSelectionWidget.SHARED_SPACE_CODE, SHARED_CL).addProperty(
+                SpaceSelectionWidget.SHARED_SPACE_CODE, SHARED_CL).addProperty(
                 new PropertyField(getFormID() + "description", description)).addProperty(
                 new PropertyField(getFormID() + GWTUtils.escapeToFormId(PLATE_GEOMETRY),
                         "1536_WELLS_32X48")));
         remoteConsole.prepare(new InvokeActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_BROWSE));
-        remoteConsole.prepare(new ListSamples(GroupSelectionWidget.SHARED_SPACE_CODE,
+        remoteConsole.prepare(new ListSamples(SpaceSelectionWidget.SHARED_SPACE_CODE,
                 sampleTypeCode));
         remoteConsole.prepare(new CheckSampleTable().expectedRow(new SampleRow(SHARED_CL)
                 .identifier("CISD").withUserPropertyCell("DESCRIPTION", description)));

@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IntegerField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractSaveDialog;
@@ -63,7 +63,7 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
 
     private final IViewContext<?> viewContext;
 
-    private final GroupSelectionWidget homeSpaceField;
+    private final SpaceSelectionWidget homeSpaceField;
 
     private final CheckBoxField useWildcardSearchModeCheckbox;
 
@@ -108,10 +108,10 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
     // Change
     //
 
-    private final GroupSelectionWidget createHomeGroupField()
+    private final SpaceSelectionWidget createHomeGroupField()
     {
-        GroupSelectionWidget field =
-                new GroupSelectionWidget(viewContext, GROUP_FIELD_ID, false, false);
+        SpaceSelectionWidget field =
+                new SpaceSelectionWidget(viewContext, GROUP_FIELD_ID, false, false);
         FieldUtil.setMandatoryFlag(field, false);
         field.setFieldLabel(viewContext.getMessage(Dict.HOME_GROUP_LABEL));
         return field;

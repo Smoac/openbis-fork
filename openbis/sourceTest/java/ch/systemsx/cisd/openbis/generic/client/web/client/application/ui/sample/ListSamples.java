@@ -20,7 +20,7 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleTypeModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
@@ -48,9 +48,9 @@ public class ListSamples extends AbstractDefaultTestCommand
 
     public void execute()
     {
-        final GroupSelectionWidget groupSelector =
-                (GroupSelectionWidget) GWTTestUtil.getWidgetWithID(GroupSelectionWidget.ID
-                        + GroupSelectionWidget.SUFFIX + SampleBrowserToolbar.ID);
+        final SpaceSelectionWidget groupSelector =
+                (SpaceSelectionWidget) GWTTestUtil.getWidgetWithID(SpaceSelectionWidget.ID
+                        + SpaceSelectionWidget.SUFFIX + SampleBrowserToolbar.ID);
 
         final ComboBox<SampleTypeModel> sampleTypeSelector =
                 (SampleTypeSelectionWidget) GWTTestUtil

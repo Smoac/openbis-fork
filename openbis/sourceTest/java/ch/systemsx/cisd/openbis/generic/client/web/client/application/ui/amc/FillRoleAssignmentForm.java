@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AuthorizationGroupSelectionWidget;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractSaveDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
@@ -73,7 +73,7 @@ public class FillRoleAssignmentForm extends AbstractDefaultTestCommand
         if (groupNameOrNull != null)
         {
             String groupSelectorId =
-                    GroupSelectionWidget.ID + GroupSelectionWidget.SUFFIX
+                    SpaceSelectionWidget.ID + SpaceSelectionWidget.SUFFIX
                             + AddRoleAssignmentDialog.PREFIX;
             GWTTestUtil.selectValueInSelectionWidget(groupSelectorId, ModelDataPropertyNames.CODE,
                     groupNameOrNull);

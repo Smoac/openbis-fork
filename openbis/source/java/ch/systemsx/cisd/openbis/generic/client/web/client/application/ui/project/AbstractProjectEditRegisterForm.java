@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelL
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
@@ -53,7 +53,7 @@ abstract class AbstractProjectEditRegisterForm extends AbstractRegistrationForm
 
     protected MultilineVarcharField projectDescriptionField;
 
-    protected GroupSelectionWidget spaceField;
+    protected SpaceSelectionWidget spaceField;
 
     private AttachmentsFileFieldManager attachmentsManager;
 
@@ -88,7 +88,7 @@ abstract class AbstractProjectEditRegisterForm extends AbstractRegistrationForm
         return GenericConstants.ID_PREFIX + "project-" + editOrRegister + "_form";
     }
 
-    GroupSelectionWidget getGroupField()
+    SpaceSelectionWidget getGroupField()
     {
         return spaceField;
     }
@@ -105,9 +105,9 @@ abstract class AbstractProjectEditRegisterForm extends AbstractRegistrationForm
         return new DescriptionField(viewContext, false, getId());
     }
 
-    private final GroupSelectionWidget createGroupField()
+    private final SpaceSelectionWidget createGroupField()
     {
-        GroupSelectionWidget field = new GroupSelectionWidget(viewContext, getId(), false, false);
+        SpaceSelectionWidget field = new SpaceSelectionWidget(viewContext, getId(), false, false);
         FieldUtil.markAsMandatory(field);
         field.setFieldLabel(viewContext.getMessage(Dict.GROUP));
         return field;

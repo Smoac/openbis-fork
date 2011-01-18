@@ -108,6 +108,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
@@ -345,7 +346,8 @@ public interface ICommonServer extends IServer
 
     /**
      * Performs an <i>Hibernate Search</i> based on given parameters.
-     * @param maxSize 
+     * 
+     * @param maxSize
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
@@ -1210,5 +1212,41 @@ public interface ICommonServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public String evaluate(String sessionToken, DynamicPropertyEvaluationInfo info);
+
+    /**
+     * Evaluates the managed property script and updates the entity.
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @DatabaseUpdateModification(value = ObjectKind.EXPERIMENT)
+    public void updateManagedPropertyOnExperiment(String sessionToken, TechId experimentId,
+            IManagedEntityProperty managedProperty);
+
+    /**
+     * Evaluates the managed property script and updates the entity.
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
+    public void updateManagedPropertyOnSample(String sessionToken, TechId experimentId,
+            IManagedEntityProperty managedProperty);
+
+    /**
+     * Evaluates the managed property script and updates the entity.
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
+    public void updateManagedPropertyOnDataSet(String sessionToken, TechId experimentId,
+            IManagedEntityProperty managedProperty);
+
+    /**
+     * Evaluates the managed property script and updates the entity.
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @DatabaseUpdateModification(value = ObjectKind.MATERIAL)
+    public void updateManagedPropertyOnMaterial(String sessionToken, TechId experimentId,
+            IManagedEntityProperty managedProperty);
 
 }

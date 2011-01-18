@@ -22,7 +22,7 @@ import java.util.List;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
@@ -91,9 +91,9 @@ public final class FillSampleRegistrationForm extends AbstractDefaultTestCommand
         GWTTestUtil.setTextField(FORM_ID + AbstractGenericEntityRegistrationForm.ID_SUFFIX_CODE,
                 code);
 
-        final GroupSelectionWidget groupSelector =
-                (GroupSelectionWidget) GWTTestUtil.getWidgetWithID(GroupSelectionWidget.ID
-                        + GroupSelectionWidget.SUFFIX + FORM_ID);
+        final SpaceSelectionWidget groupSelector =
+                (SpaceSelectionWidget) GWTTestUtil.getWidgetWithID(SpaceSelectionWidget.ID
+                        + SpaceSelectionWidget.SUFFIX + FORM_ID);
         GWTUtils.setSelectedItem(groupSelector, ModelDataPropertyNames.CODE, groupNameOrNull);
 
         if (StringUtils.isBlank(parentsOrNull) == false)
