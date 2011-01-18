@@ -220,6 +220,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     private ColumnModel fullColumnModel;
 
+    private boolean settingsDialogAlreadyOpen;
+
     protected AbstractBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             String gridId, IDisplayTypeIDGenerator displayTypeIDGenerator)
     {
@@ -1244,6 +1246,11 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         String msg =
                 viewContext.getMessage(Dict.TOO_MANY_VISIBLE_COLUMNS_MSG, maxVisibleColumns,
                         visibleColumnsCount);
+        if (settingsDialogAlreadyOpen)
+        {
+            return;
+        }
+        settingsDialogAlreadyOpen = true;
         MessageBox.alert(title, msg, new Listener<MessageBoxEvent>()
             {
                 public void handleEvent(MessageBoxEvent be)
@@ -1444,6 +1451,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                         customColumnsMetadataProvider, resultSetKeyOrNull,
                         pendingFetchManager.tryTopPendingFetchConfig());
         columnSettingsConfigurer.showDialog();
+        settingsDialogAlreadyOpen = false;
     }
 
     // Default visibility so that friend classes can use -- should otherwise be considered private
