@@ -21,6 +21,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
@@ -63,19 +64,13 @@ final class PropertyTranslatorUtils
     {
         final DataTypeCode typeCode = PropertyTranslatorUtils.getDataTypeCode(propertyPE);
         final IEntityProperty basicProperty = createEntityProperty(typeCode);
-        if (propertyPE.getEntityTypePropertyType().isManaged())
-        {
-            return createManagedEntityProperty(propertyPE, basicProperty);
-        } else
-        {
-            return basicProperty;
-        }
+        return basicProperty;
     }
 
     /**
      * Creates a managed {@link IEntityProperty} wrapping given <var>basicProperty</var>.
      */
-    private static IEntityProperty createManagedEntityProperty(EntityPropertyPE property,
+    static IEntityProperty createManagedEntityProperty(EntityPropertyPE property,
             IEntityProperty basicProperty)
     {
         final ScriptPE script = property.getEntityTypePropertyType().getScript();
@@ -85,6 +80,13 @@ final class PropertyTranslatorUtils
                 ManagedPropertyEvaluatorFactory.createManagedPropertyEvaluator(script.getScript());
         evaluator.evalConfigureProperty(result);
         return result;
+    }
+
+    static void initializeEntityProperty(IEntityProperty property, PropertyType propertyType,
+            Long ordinal)
+    {
+        property.setPropertyType(propertyType);
+        property.setOrdinal(ordinal);
     }
 
     /**

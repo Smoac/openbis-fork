@@ -42,24 +42,40 @@ public final class EntityPropertyTranslator
     public final static IEntityProperty translate(final EntityPropertyPE propertyPE,
             Map<PropertyTypePE, PropertyType> cacheOrNull)
     {
-        final IEntityProperty result = PropertyTranslatorUtils.createEntityProperty(propertyPE);
-        result.setPropertyType(PropertyTypeTranslator.translate(propertyPE
-                .getEntityTypePropertyType().getPropertyType(), cacheOrNull));
-        result.setOrdinal(propertyPE.getEntityTypePropertyType().getOrdinal());
+        final IEntityProperty basicProperty =
+                PropertyTranslatorUtils.createEntityProperty(propertyPE);
+        final PropertyType propertyType =
+                PropertyTypeTranslator.translate(propertyPE.getEntityTypePropertyType()
+                        .getPropertyType(), cacheOrNull);
+        final Long ordinal = propertyPE.getEntityTypePropertyType().getOrdinal();
+
+        PropertyTranslatorUtils.initializeEntityProperty(basicProperty, propertyType, ordinal);
+       
         final DataTypeCode typeCode = PropertyTranslatorUtils.getDataTypeCode(propertyPE);
         switch (typeCode)
         {
             case CONTROLLEDVOCABULARY:
-                result.setVocabularyTerm(VocabularyTermTranslator.translate(propertyPE
+                basicProperty.setVocabularyTerm(VocabularyTermTranslator.translate(propertyPE
                         .getVocabularyTerm()));
                 break;
             case MATERIAL:
-                result.setMaterial(MaterialTranslator.translate(propertyPE.getMaterialValue(),
-                        false));
+                basicProperty.setMaterial(MaterialTranslator.translate(
+                        propertyPE.getMaterialValue(), false));
                 break;
             default:
-                result.setValue(propertyPE.tryGetUntypedValue());
+                basicProperty.setValue(propertyPE.tryGetUntypedValue());
         }
+
+        final IEntityProperty result;
+        if (propertyPE.getEntityTypePropertyType().isManaged())
+        {
+            result = PropertyTranslatorUtils.createManagedEntityProperty(propertyPE, basicProperty);
+            PropertyTranslatorUtils.initializeEntityProperty(result, propertyType, ordinal);
+        } else
+        {
+            result = basicProperty;
+        }
+
         return result;
     }
 
