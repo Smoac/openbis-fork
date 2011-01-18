@@ -71,10 +71,8 @@ public final class ManagedPropertyGridActionDialog extends
     protected String createMessage()
     {
         // TODO 2011-01-18 - the message should depend on action and be provided by the script
-        return "Update managed property";
+        return "Action decription";
     }
-
-    private static boolean IS_UPDATE_IMPLEMENTED = false;
 
     @Override
     protected void executeConfirmedAction()
@@ -86,17 +84,14 @@ public final class ManagedPropertyGridActionDialog extends
         }
         Info.display("confirmed", sb.toString());
 
-        if (IS_UPDATE_IMPLEMENTED)
+        for (IManagedInputWidgetDescription inputDescription : managedProperty
+                .getUiDescription().getInputWidgetDescriptions())
         {
-            for (IManagedInputWidgetDescription inputDescription : managedProperty
-                    .getUiDescription().getInputWidgetDescriptions())
-            {
-                TextField<String> field = inputFieldsByLabel.get(inputDescription.getLabel());
-                inputDescription.setValue(field.getValue());
-            }
-            viewContext.getService().updateManagedProperty(TechId.create(entity),
-                    entity.getEntityKind(), managedProperty, callback);
+            TextField<String> field = inputFieldsByLabel.get(inputDescription.getLabel());
+            inputDescription.setValue(field.getValue());
         }
+        viewContext.getService().updateManagedProperty(TechId.create(entity),
+                entity.getEntityKind(), managedProperty, callback);
     }
 
     @Override

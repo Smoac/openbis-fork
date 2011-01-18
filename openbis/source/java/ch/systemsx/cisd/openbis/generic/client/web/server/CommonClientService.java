@@ -2106,6 +2106,8 @@ public final class CommonClientService extends AbstractClientService implements
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         // TODO Auto-generated method stub
+        System.err.println("update " + entityId + " " + entityKind + " "
+                + managedProperty.getUiDescription());
     }
 
     public List<DatastoreServiceDescription> listDataStoreServices(
