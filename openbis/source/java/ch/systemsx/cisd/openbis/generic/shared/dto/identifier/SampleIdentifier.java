@@ -74,6 +74,12 @@ public class SampleIdentifier extends SampleOwnerIdentifier
         this(null, spaceIdentifier, sampleCode);
     }
 
+    /** Group level {@link SampleIdentifier} in home database instance. */
+    public static SampleIdentifier create(String spaceCode, String sampleCode)
+    {
+        return new SampleIdentifier(new SpaceIdentifier(spaceCode), sampleCode);
+    }
+
     /** Home group level {@link SampleIdentifier} with type. */
     public static SampleIdentifier createHomeGroup(final String sampleCode)
     {

@@ -41,6 +41,12 @@ public class SpaceIdentifier extends DatabaseInstanceIdentifier implements
         return new SpaceIdentifier(getHomeSpaceCode(), DatabaseInstanceIdentifier.HOME);
     }
 
+    /** space in the home database */
+    public SpaceIdentifier(final String spaceCode)
+    {
+        this(DatabaseInstanceIdentifier.HOME, spaceCode);
+    }
+
     public SpaceIdentifier(final DatabaseInstanceIdentifier databaseInstanceIdentifier,
             final String spaceCode)
     {
