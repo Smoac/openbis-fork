@@ -43,7 +43,7 @@ public class ViewingTestSuite2 extends GWTTestSuite
         testSuite.addTestSuite(SearchTest.class);
 
         testSuite.addTestSuite(SampleBrowserTest.class);
-        testSuite.addTestSuite(ExperimentBrowserTest.class);
+        testSuite.addTestSuite(ExperimentBrowserTest.class);// replaced by head-less system test
         testSuite.addTestSuite(MaterialBrowserTest.class);
 
         return testSuite;

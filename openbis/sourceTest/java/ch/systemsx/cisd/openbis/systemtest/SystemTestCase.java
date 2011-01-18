@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.systemtest;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,15 +32,23 @@ import org.testng.annotations.BeforeSuite;
 
 import ch.systemsx.cisd.common.servlet.SpringRequestContextProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
 /**
+ * Abstract super class of head-less system tests.
+ * 
  * @author Franz-Josef Elmer
  */
 @ContextConfiguration(locations = "classpath:applicationContext.xml")
@@ -151,6 +162,41 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
         bean.addMultipartFile(new MockMultipartFile(fileName, fileName, null, fileContent.getBytes()));
         HttpSession session = request.getSession();
         session.setAttribute(SESSION_KEY, bean);
+    }
+
+    protected <T extends ICodeHolder> T getOriginalObjectByCode(ResultSet<T> resultSet, String code)
+    {
+        GridRowModels<T> list = resultSet.getList();
+        List<String> codes = new ArrayList<String>();
+        for (GridRowModel<T> gridRowModel : list)
+        {
+            T originalObject = gridRowModel.getOriginalObject();
+            String objectCode = originalObject.getCode();
+            if (objectCode.equals(code))
+            {
+                return originalObject;
+            }
+            codes.add(objectCode);
+        }
+        AssertJUnit.fail("No row with code " + code + " found in " + codes);
+        return null;
+    }
+
+    protected void assertProperty(IEntityPropertiesHolder propertiesHolder, String key, String value)
+    {
+        List<IEntityProperty> properties = propertiesHolder.getProperties();
+        List<String> propertyCodes = new ArrayList<String>();
+        for (IEntityProperty property : properties)
+        {
+            String code = property.getPropertyType().getCode();
+            if (code.equals(key))
+            {
+                AssertJUnit.assertEquals("Property " + key, value, property.tryGetAsString());
+                return;
+            }
+            propertyCodes.add(code);
+        }
+        AssertJUnit.fail("No property " + key + " found in " + propertyCodes);
     }
 
 }
