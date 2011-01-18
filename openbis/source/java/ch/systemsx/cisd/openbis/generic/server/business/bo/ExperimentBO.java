@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
@@ -571,6 +572,15 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     {
         final String code = createCode(EntityKind.EXPERIMENT);
         experiment.setCode(code);
+    }
+
+    public void updateManagedProperty(IManagedEntityProperty managedProperty)
+    {
+        final Set<ExperimentPropertyPE> existingProperties = experiment.getProperties();
+        final ExperimentTypePE type = experiment.getExperimentType();
+        final PersonPE registrator = findRegistrator();
+        experiment.setProperties(propertiesConverter.updateManagedProperty(existingProperties,
+                type, managedProperty, registrator));
     }
 
 }

@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
@@ -90,5 +91,12 @@ public interface IEntityPropertiesConverter
      */
     public <T extends EntityPropertyPE> void checkMandatoryProperties(Collection<T> properties,
             EntityTypePE entityTypePE, Map<EntityTypePE, List<EntityTypePropertyTypePE>> cache);
+
+    /**
+     * Update the value of a managed property, assuming the managedProperty already has the updated
+     * value.
+     */
+    public <T extends EntityPropertyPE> Set<T> updateManagedProperty(Collection<T> oldProperties,
+            EntityTypePE entityType, IManagedEntityProperty managedProperty, PersonPE registrator);
 
 }

@@ -26,6 +26,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
@@ -144,5 +145,14 @@ public final class MaterialBO extends AbstractMaterialBusinessObject implements 
     private static String getDeletionDescription(MaterialPE material)
     {
         return String.format("%s (%s)", material.getCode(), material.getMaterialType().getCode());
+    }
+
+    public void updateManagedProperty(IManagedEntityProperty managedProperty)
+    {
+        final Set<MaterialPropertyPE> existingProperties = material.getProperties();
+        final MaterialTypePE type = material.getMaterialType();
+        final PersonPE registrator = findRegistrator();
+        material.setProperties(entityPropertiesConverter.updateManagedProperty(existingProperties,
+                type, managedProperty, registrator));
     }
 }

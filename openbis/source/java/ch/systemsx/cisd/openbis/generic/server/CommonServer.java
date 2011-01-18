@@ -152,6 +152,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -161,6 +162,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationHolderDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -168,6 +170,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
@@ -182,6 +185,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluator;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AuthorizationGroupTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTypeTranslator;
@@ -2196,29 +2201,134 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     public void updateManagedPropertyOnExperiment(String sessionToken, TechId experimentId,
             IManagedEntityProperty managedProperty)
     {
-        // TODO Auto-generated method stub
-        
+        Session session = getSession(sessionToken);
+        try
+        {
+            IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
+            experimentBO.loadDataByTechId(experimentId);
+
+            // Evaluate the script
+            experimentBO.enrichWithProperties();
+            Set<? extends EntityPropertyPE> properties =
+                    experimentBO.getExperiment().getProperties();
+            ManagedPropertyEvaluator evaluator =
+                    tryManagedPropertyEvaluator(managedProperty, properties);
+            evaluator.evaluateUpdateProperty(managedProperty);
+
+            experimentBO.updateManagedProperty(managedProperty);
+            experimentBO.save();
+            scheduleDynamicPropertiesEvaluation(getDAOFactory()
+                    .getDynamicPropertyEvaluationScheduler(), ExperimentPE.class,
+                    Arrays.asList(experimentBO.getExperiment()));
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
     }
 
     public void updateManagedPropertyOnSample(String sessionToken, TechId experimentId,
             IManagedEntityProperty managedProperty)
     {
-        // TODO Auto-generated method stub
-        
+        Session session = getSession(sessionToken);
+        try
+        {
+            ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
+            sampleBO.loadDataByTechId(experimentId);
+
+            // Evaluate the script
+            sampleBO.enrichWithProperties();
+            Set<? extends EntityPropertyPE> properties = sampleBO.getSample().getProperties();
+            ManagedPropertyEvaluator evaluator =
+                    tryManagedPropertyEvaluator(managedProperty, properties);
+            evaluator.evaluateUpdateProperty(managedProperty);
+
+            sampleBO.updateManagedProperty(managedProperty);
+            sampleBO.save();
+            scheduleDynamicPropertiesEvaluation(getDAOFactory()
+                    .getDynamicPropertyEvaluationScheduler(), SamplePE.class,
+                    Arrays.asList(sampleBO.getSample()));
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
     }
 
     public void updateManagedPropertyOnDataSet(String sessionToken, TechId experimentId,
             IManagedEntityProperty managedProperty)
     {
-        // TODO Auto-generated method stub
-        
+        Session session = getSession(sessionToken);
+        try
+        {
+            IExternalDataBO dataSetBO = businessObjectFactory.createExternalDataBO(session);
+            dataSetBO.loadDataByTechId(experimentId);
+
+            // Evaluate the script
+            dataSetBO.enrichWithProperties();
+            Set<? extends EntityPropertyPE> properties =
+                    dataSetBO.getExternalData().getProperties();
+            ManagedPropertyEvaluator evaluator =
+                    tryManagedPropertyEvaluator(managedProperty, properties);
+            evaluator.evaluateUpdateProperty(managedProperty);
+
+            dataSetBO.updateManagedProperty(managedProperty);
+            dataSetBO.save();
+            scheduleDynamicPropertiesEvaluation(getDAOFactory()
+                    .getDynamicPropertyEvaluationScheduler(), ExternalDataPE.class,
+                    Arrays.asList(dataSetBO.getExternalData()));
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
     }
 
     public void updateManagedPropertyOnMaterial(String sessionToken, TechId experimentId,
             IManagedEntityProperty managedProperty)
     {
-        // TODO Auto-generated method stub
-        
+        Session session = getSession(sessionToken);
+        try
+        {
+            IMaterialBO materialBO = businessObjectFactory.createMaterialBO(session);
+            materialBO.loadDataByTechId(experimentId);
+
+            // Evaluate the script
+            materialBO.enrichWithProperties();
+            Set<? extends EntityPropertyPE> properties = materialBO.getMaterial().getProperties();
+            ManagedPropertyEvaluator evaluator =
+                    tryManagedPropertyEvaluator(managedProperty, properties);
+            evaluator.evaluateUpdateProperty(managedProperty);
+
+            materialBO.updateManagedProperty(managedProperty);
+            materialBO.save();
+            scheduleDynamicPropertiesEvaluation(getDAOFactory()
+                    .getDynamicPropertyEvaluationScheduler(), MaterialPE.class,
+                    Arrays.asList(materialBO.getMaterial()));
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
     }
 
+    private ManagedPropertyEvaluator tryManagedPropertyEvaluator(
+            IManagedEntityProperty managedProperty, Set<? extends EntityPropertyPE> properties)
+    {
+        String managedPropertyCode = managedProperty.asEntityProperty().getPropertyType().getCode();
+
+        EntityPropertyPE managedPropertyPE = null;
+        for (EntityPropertyPE property : properties)
+        {
+            if (property.getEntityTypePropertyType().getPropertyType().getCode()
+                    .equals(managedPropertyCode))
+            {
+                managedPropertyPE = property;
+            }
+        }
+        if (null == managedPropertyPE)
+        {
+            return null;
+
+        }
+
+        return ManagedPropertyEvaluatorFactory.createManagedPropertyEvaluator(managedPropertyPE
+                .getEntityTypePropertyType().getScript().getScript());
+    }
 }

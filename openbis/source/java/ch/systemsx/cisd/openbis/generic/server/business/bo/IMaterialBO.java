@@ -16,9 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
-
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 
 /**
@@ -46,5 +46,10 @@ public interface IMaterialBO extends IEntityBusinessObject
      * @throws UserFailureException if material with given technical identifier is not found.
      */
     void deleteByTechId(TechId materialId, String reason);
+
+    /**
+     * Changes the value of a managed property.
+     */
+    void updateManagedProperty(IManagedEntityProperty managedProperty);
 
 }

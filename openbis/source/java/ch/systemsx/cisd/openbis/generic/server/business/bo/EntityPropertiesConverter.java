@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -40,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
@@ -422,6 +424,35 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             {
                 set.add(newProperty);
             }
+        }
+        return set;
+    }
+
+    /**
+     * Update the value of a managed property, assuming the managedProperty already has the updated
+     * value.
+     */
+    public <T extends EntityPropertyPE> Set<T> updateManagedProperty(Collection<T> oldProperties,
+            EntityTypePE entityType, IManagedEntityProperty managedProperty, PersonPE registrator)
+    {
+        // Convert the managed property
+        final List<T> convertedProperties =
+                convertPropertiesForUpdate(
+                        Collections.singletonList(managedProperty.asEntityProperty()),
+                        entityType.getCode(), registrator);
+        T convertedProperty = convertedProperties.get(0);
+
+        final Set<T> set = new HashSet<T>();
+
+        // Add all existing properties
+        set.addAll(oldProperties);
+
+        // Update the managed property we want to update
+        T existingProperty = tryFind(oldProperties, convertedProperty);
+        if (existingProperty != null)
+        {
+            existingProperty.setUntypedValue(convertedProperty.getValue(),
+                    convertedProperty.getVocabularyTerm(), convertedProperty.getMaterialValue());
         }
         return set;
     }

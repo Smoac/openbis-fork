@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -360,6 +361,15 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         {
             HibernateUtils.initialize(sample.getProperties());
         }
+    }
+
+    public void updateManagedProperty(IManagedEntityProperty managedProperty)
+    {
+        final Set<SamplePropertyPE> existingProperties = sample.getProperties();
+        final SampleTypePE type = sample.getSampleType();
+        final PersonPE registrator = findRegistrator();
+        sample.setProperties(entityPropertiesConverter.updateManagedProperty(existingProperties,
+                type, managedProperty, registrator));
     }
 
 }

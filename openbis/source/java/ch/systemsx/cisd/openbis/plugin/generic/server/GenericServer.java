@@ -49,9 +49,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
@@ -94,7 +92,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleBatchUpdatesDTO;
@@ -215,9 +212,9 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             sampleBO.addAttachment(AttachmentTranslator.translate(attachment));
         }
         sampleBO.save();
-        scheduleDynamicPropertiesEvaluation(
-                getDAOFactory().getDynamicPropertyEvaluationScheduler(), SamplePE.class,
-                Arrays.asList(sampleBO.getSample()));
+        AbstractServer.scheduleDynamicPropertiesEvaluation(getDAOFactory()
+                .getDynamicPropertyEvaluationScheduler(), SamplePE.class, Arrays.asList(sampleBO
+                .getSample()));
     }
 
     public Experiment getExperimentInfo(final String sessionToken,
@@ -536,9 +533,9 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 sampleBO.setExperiment(experiment);
             }
         }
-        scheduleDynamicPropertiesEvaluation(
-                getDAOFactory().getDynamicPropertyEvaluationScheduler(), ExperimentPE.class,
-                Arrays.asList(experimentBO.getExperiment()));
+        AbstractServer.scheduleDynamicPropertiesEvaluation(getDAOFactory()
+                .getDynamicPropertyEvaluationScheduler(), ExperimentPE.class, Arrays
+                .asList(experimentBO.getExperiment()));
     }
 
     public void registerMaterials(String sessionToken, String materialTypeCode,
@@ -736,9 +733,9 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         List<String> parents = IdentifierExtractor.extract(sample.getParents());
         Collections.sort(parents);
         result.setParents(parents);
-        scheduleDynamicPropertiesEvaluation(
-                getDAOFactory().getDynamicPropertyEvaluationScheduler(), SamplePE.class,
-                Arrays.asList(sampleBO.getSample()));
+        AbstractServer.scheduleDynamicPropertiesEvaluation(getDAOFactory()
+                .getDynamicPropertyEvaluationScheduler(), SamplePE.class, Arrays.asList(sampleBO
+                .getSample()));
         return result;
     }
 
@@ -822,21 +819,6 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             map.put(material.getCode(), material);
         }
         return map;
-    }
-
-    /**
-     * Schedules evaluation of dynamic properties on specified entities. After evaluation is done
-     * the entities will be indexed.
-     */
-    private static <T extends IEntityInformationWithPropertiesHolder> void scheduleDynamicPropertiesEvaluation(
-            IDynamicPropertyEvaluationScheduler scheduler, Class<T> entityClass, List<T> entities)
-    {
-        List<Long> ids = new ArrayList<Long>();
-        for (IEntityInformationWithPropertiesHolder entity : entities)
-        {
-            ids.add(entity.getId());
-        }
-        scheduler.scheduleUpdate(DynamicPropertyEvaluationOperation.evaluate(entityClass, ids));
     }
 
     public void registerExperiments(String sessionToken, NewExperimentsWithType experiments)
