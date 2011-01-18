@@ -118,7 +118,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         boolean fail = true;
         try
         {
-            hibernateSearchDAO.searchEntitiesByTerm(null, null, createDataProvider(), true, 0);
+            hibernateSearchDAO.searchEntitiesByTerm(null, null, createDataProvider(), true, 0, Integer.MAX_VALUE);
         } catch (final AssertionError ex)
         {
             fail = false;
@@ -128,7 +128,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         try
         {
             hibernateSearchDAO.searchEntitiesByTerm(SearchableEntity.MATERIAL, "",
-                    createDataProvider(), true, 0);
+                    createDataProvider(), true, 0, Integer.MAX_VALUE);
         } catch (final AssertionError ex)
         {
             fail = false;
@@ -148,7 +148,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         final String lastName = "John";
         final List<MatchingEntity> hits =
                 hibernateSearchDAO.searchEntitiesByTerm(SearchableEntity.SAMPLE, term,
-                        createDataProvider(), false, 0);
+                        createDataProvider(), false, 0, Integer.MAX_VALUE);
         assertTrue(hits.size() > 0);
         for (MatchingEntity matchingEntity : hits)
         {
@@ -174,7 +174,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         final IHibernateSearchDAO hibernateSearchDAO = daoFactory.getHibernateSearchDAO();
         final List<MatchingEntity> hits =
                 hibernateSearchDAO.searchEntitiesByTerm(SearchableEntity.EXPERIMENT, query,
-                        createDataProvider(), useWildcardMode, 0);
+                        createDataProvider(), useWildcardMode, 0, Integer.MAX_VALUE);
         assertEquals(5, hits.size());
         for (MatchingEntity matchingEntity : hits)
         {
@@ -190,7 +190,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         String propertyValue = "adenovirus";
         final List<MatchingEntity> hits =
                 hibernateSearchDAO.searchEntitiesByTerm(SearchableEntity.MATERIAL, propertyValue,
-                        createDataProvider(), true, 0);
+                        createDataProvider(), true, 0, Integer.MAX_VALUE);
         assertEquals(2, hits.size());
         for (MatchingEntity matchingEntity : hits)
         {

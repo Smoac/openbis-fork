@@ -279,11 +279,11 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     public final List<MatchingEntity> listMatchingEntities(final String sessionToken,
             final SearchableEntity[] searchableEntities, final String queryText,
-            final boolean useWildcardSearchMode)
+            final boolean useWildcardSearchMode, int maxSIze)
     {
         logAccess(sessionToken, "list_matching_entities",
-                "SEARCHABLE-ENTITIES(%s) QUERY-TEXT(%s) WILDCARD_MODE(%s)",
-                abbreviate(searchableEntities), queryText, useWildcardSearchMode);
+                "SEARCHABLE-ENTITIES(%s) QUERY-TEXT(%s) WILDCARD_MODE(%s) MAX_SIZE(%s)",
+                abbreviate(searchableEntities), queryText, useWildcardSearchMode, maxSIze);
         return null;
     }
 

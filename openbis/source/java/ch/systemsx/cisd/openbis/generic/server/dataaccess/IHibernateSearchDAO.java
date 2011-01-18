@@ -38,10 +38,11 @@ public interface IHibernateSearchDAO
      * using all the indexed fields.
      * 
      * @param searchTerm could be something like "<code>C11 AND System User</code>".
+     * @param maxSize Maximum number of entries. 
      */
     public List<MatchingEntity> searchEntitiesByTerm(final SearchableEntity searchableEntity,
             final String searchTerm, final HibernateSearchDataProvider dataProvider,
-            boolean useWildcardSearchMode, int alreadyFoundEntities) throws DataAccessException;
+            boolean useWildcardSearchMode, int alreadyFoundEntities, int maxSize) throws DataAccessException;
 
     /** search for entity ids using the specified criteria */
     public List<Long> searchForEntityIds(DetailedSearchCriteria criteria, EntityKind entityKind);

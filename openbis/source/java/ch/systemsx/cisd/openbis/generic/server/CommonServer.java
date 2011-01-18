@@ -532,7 +532,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     public final List<MatchingEntity> listMatchingEntities(final String sessionToken,
             final SearchableEntity[] searchableEntities, final String queryText,
-            final boolean useWildcardSearchMode)
+            final boolean useWildcardSearchMode, int maxSize)
     {
         checkSession(sessionToken);
         final List<MatchingEntity> list = new ArrayList<MatchingEntity>();
@@ -545,7 +545,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 List<MatchingEntity> entities =
                         getDAOFactory().getHibernateSearchDAO().searchEntitiesByTerm(
                                 searchableEntity, queryText, dataProvider, useWildcardSearchMode,
-                                list.size());
+                                list.size(), maxSize);
                 list.addAll(entities);
             }
         } catch (final DataAccessException ex)

@@ -105,7 +105,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
 
     public List<MatchingEntity> searchEntitiesByTerm(final SearchableEntity searchableEntity,
             final String searchTerm, final HibernateSearchDataProvider dataProvider,
-            final boolean useWildcardSearchMode, final int alreadyFoundEntities)
+            final boolean useWildcardSearchMode, final int alreadyFoundEntities, final int maxSize)
             throws DataAccessException
     {
         assert searchableEntity != null : "Unspecified searchable entity";
@@ -119,7 +119,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                                 throws HibernateException, SQLException
                         {
                             return doSearchEntitiesByTerm(session, searchableEntity, searchTerm,
-                                    dataProvider, useWildcardSearchMode, alreadyFoundEntities);
+                                    dataProvider, useWildcardSearchMode, alreadyFoundEntities, maxSize);
                         }
                     }));
         if (operationLog.isDebugEnabled())
@@ -134,7 +134,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
     private final List<MatchingEntity> doSearchEntitiesByTerm(final Session session,
             final SearchableEntity searchableEntity, final String userQuery,
             final HibernateSearchDataProvider dataProvider, final boolean useWildcardSearchMode,
-            int alreadyFoundEntities) throws DataAccessException, UserFailureException
+            int alreadyFoundEntities, int maxSize) throws DataAccessException, UserFailureException
     {
         final FullTextSession fullTextSession = Search.getFullTextSession(session);
         Analyzer analyzer = LuceneQueryBuilder.createSearchAnalyzer();
@@ -153,7 +153,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                 List<MatchingEntity> hits =
                         searchTermInField(fullTextSession, fieldName, searchQuery,
                                 searchableEntity, analyzer, indexProvider.getReader(),
-                                dataProvider, result.size() + alreadyFoundEntities);
+                                dataProvider, result.size() + alreadyFoundEntities, maxSize);
                 result.addAll(hits);
             }
             return result;
@@ -166,10 +166,12 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
     private final List<MatchingEntity> searchTermInField(final FullTextSession fullTextSession,
             final String fieldName, final String searchTerm,
             final SearchableEntity searchableEntity, Analyzer analyzer, IndexReader indexReader,
-            final HibernateSearchDataProvider dataProvider, int alreadyFoundResults)
+            final HibernateSearchDataProvider dataProvider, int alreadyFoundResults, int maxSize)
             throws DataAccessException, UserFailureException
     {
-        int maxResults = Math.max(0, hibernateSearchContext.getMaxResults() - alreadyFoundResults);
+        int maxResults =
+                Math.max(0, Math.min(maxSize, hibernateSearchContext.getMaxResults())
+                        - alreadyFoundResults);
         if (maxResults == 0)
         {
             return new ArrayList<MatchingEntity>();

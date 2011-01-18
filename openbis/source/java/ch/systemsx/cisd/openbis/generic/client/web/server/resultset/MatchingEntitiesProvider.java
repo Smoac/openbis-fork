@@ -56,7 +56,7 @@ public class MatchingEntitiesProvider extends AbstractCommonTableModelProvider<M
     {
         List<MatchingEntity> entities =
             commonServer.listMatchingEntities(sessionToken, matchingEntities, queryText,
-                    useWildcardSearchMode);
+                    useWildcardSearchMode, maxSize);
         TypedTableModelBuilder<MatchingEntity> builder = new TypedTableModelBuilder<MatchingEntity>();
         builder.addColumn(ENTITY_KIND);
         builder.addColumn(ENTITY_TYPE);
