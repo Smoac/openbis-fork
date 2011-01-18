@@ -345,13 +345,14 @@ public interface ICommonServer extends IServer
 
     /**
      * Performs an <i>Hibernate Search</i> based on given parameters.
+     * @param maxSize 
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = MatchingEntityValidator.class)
     public List<MatchingEntity> listMatchingEntities(final String sessionToken,
             final SearchableEntity[] searchableEntities, final String queryText,
-            final boolean useWildcardSearchMode);
+            final boolean useWildcardSearchMode, int maxSize);
 
     /**
      * List experiment types.
