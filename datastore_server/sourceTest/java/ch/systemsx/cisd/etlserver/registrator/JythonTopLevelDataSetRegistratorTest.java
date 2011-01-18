@@ -113,20 +113,17 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
     }
 
     @Test
-    public void testInvalidScriptPath()
+    public void testScriptPathDeletedLater()
     {
         setUpHomeDataBaseExpectations();
+        String scriptPath = "foo.py";
+        Properties threadProperties = createThreadProperties(scriptPath);
 
-        Properties threadProperties = new Properties();
-        threadProperties.put(ThreadParameters.INCOMING_DIR, "incoming");
-        threadProperties.put(ThreadParameters.INCOMING_DATA_COMPLETENESS_CONDITION,
-                ThreadParameters.INCOMING_DATA_COMPLETENESS_CONDITION_MARKER_FILE);
-        threadProperties.put(ThreadParameters.DELETE_UNIDENTIFIED_KEY, "false");
-        threadProperties.put(IStorageProcessor.STORAGE_PROCESSOR_KEY,
-                MockStorageProcessor.class.getName());
-        threadProperties.put(JythonTopLevelDataSetHandler.SCRIPT_PATH_KEY, "foo.py");
-
+        // test the situation where script has been deleted later
+        File scriptFile = new File(scriptPath);
+        FileUtilities.writeToFile(scriptFile, "x");
         createHandler(threadProperties);
+        FileUtilities.delete(scriptFile);
         try
         {
             incomingDataSetFile = createDirectory(workingDirectory, "data_set");
@@ -144,6 +141,37 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         {
             assertTrue(ex.getCause().toString(), ex.getCause() instanceof FileNotFoundException);
         }
+    }
+
+    @Test
+    public void testScriptPathMissing()
+    {
+        setUpHomeDataBaseExpectations();
+        String scriptPath = "foo.py";
+        Properties threadProperties = createThreadProperties(scriptPath);
+
+        // it should not be possible to create a handler if script does not exist
+        try
+        {
+            createHandler(threadProperties);
+            fail("The script should does not exist");
+        } catch (ConfigurationFailureException ex)
+        {
+            assertEquals(ex.getMessage(), "Script file 'foo.py' does not exist!");
+        }
+    }
+
+    private Properties createThreadProperties(String scriptPath)
+    {
+        Properties threadProperties = new Properties();
+        threadProperties.put(ThreadParameters.INCOMING_DIR, "incoming");
+        threadProperties.put(ThreadParameters.INCOMING_DATA_COMPLETENESS_CONDITION,
+                ThreadParameters.INCOMING_DATA_COMPLETENESS_CONDITION_MARKER_FILE);
+        threadProperties.put(ThreadParameters.DELETE_UNIDENTIFIED_KEY, "false");
+        threadProperties.put(IStorageProcessor.STORAGE_PROCESSOR_KEY,
+                MockStorageProcessor.class.getName());
+        threadProperties.put(JythonTopLevelDataSetHandler.SCRIPT_PATH_KEY, scriptPath);
+        return threadProperties;
     }
 
     @Test
