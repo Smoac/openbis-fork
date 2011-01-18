@@ -29,9 +29,9 @@ public interface IManagedUiDescription
 {
     public void useTableOutput(TableModel tableModel);
 
-    public void addTextInputField(String label);
+    public IManagedInputWidgetDescription addTextInputField(String label);
 
-    public void addComboBoxInputField(String labels, String[] values);
+    public IManagedInputWidgetDescription addComboBoxInputField(String labels, String[] values);
 
     public IManagedWidgetDescription getOutputWidgetDescription();
 

@@ -35,4 +35,8 @@ public interface IManagedInputWidgetDescription extends IManagedWidgetDescriptio
 
     String getLabel();
 
+    void setDescription(String description);
+
+    String getDescription();
+
 }

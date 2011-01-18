@@ -68,20 +68,22 @@ public class ManagedUiDescription implements IManagedUiDescription, ISerializabl
         inputWidgetDescriptions.add(widgetDescription);
     }
 
-    public void addTextInputField(String label)
+    public IManagedInputWidgetDescription addTextInputField(String label)
     {
         ManagedTextInputWidgetDescription inputField = new ManagedTextInputWidgetDescription();
         inputField.setLabel(label);
         addInputWidgetDescription(inputField);
+        return inputField;
     }
 
-    public void addComboBoxInputField(String label, String[] values)
+    public IManagedInputWidgetDescription addComboBoxInputField(String label, String[] values)
     {
         ManagedComboBoxInputWidgetDescription inputField =
                 new ManagedComboBoxInputWidgetDescription();
         inputField.setLabel(label);
         inputField.setOptions(Arrays.asList(values));
         addInputWidgetDescription(inputField);
+        return inputField;
     }
 
     public void useTableOutput(TableModel tableModel)

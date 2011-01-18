@@ -29,6 +29,8 @@ public abstract class ManagedInputWidgetDescription implements IManagedInputWidg
 
     private String value;
 
+    private String description; // for field info
+
     //
     // IManagedWidgetDescription
     //
@@ -65,6 +67,16 @@ public abstract class ManagedInputWidgetDescription implements IManagedInputWidg
     public void setValue(String value)
     {
         this.value = value;
+    }
+
+    public String getDescription()
+    {
+        return description;
+    }
+
+    public void setDescription(String description)
+    {
+        this.description = description;
     }
 
 }

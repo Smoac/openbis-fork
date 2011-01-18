@@ -21,14 +21,19 @@ import java.util.List;
 import java.util.Map;
 
 import com.extjs.gxt.ui.client.widget.Info;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedComboBoxInputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Null;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedEntityProperty;
@@ -50,8 +55,8 @@ public final class ManagedPropertyGridActionDialog extends
 
     private final IManagedEntityProperty managedProperty;
 
-    private final Map<String, TextField<String>> inputFieldsByLabel =
-            new LinkedHashMap<String, TextField<String>>();
+    private final Map<String, TextField<?>> inputFieldsByLabel =
+            new LinkedHashMap<String, TextField<?>>();
 
     public ManagedPropertyGridActionDialog(IViewContext<ICommonClientServiceAsync> viewContext,
             String editTitle, List<TableModelRowWithObject<Null>> data,
@@ -78,17 +83,18 @@ public final class ManagedPropertyGridActionDialog extends
     protected void executeConfirmedAction()
     {
         StringBuilder sb = new StringBuilder();
-        for (TextField<String> inputField : inputFieldsByLabel.values())
+        for (TextField<?> inputField : inputFieldsByLabel.values())
         {
             sb.append(inputField.getFieldLabel() + ": " + inputField.getValue() + "\n");
         }
         Info.display("confirmed", sb.toString());
 
-        for (IManagedInputWidgetDescription inputDescription : managedProperty
-                .getUiDescription().getInputWidgetDescriptions())
+        for (IManagedInputWidgetDescription inputDescription : managedProperty.getUiDescription()
+                .getInputWidgetDescriptions())
         {
-            TextField<String> field = inputFieldsByLabel.get(inputDescription.getLabel());
-            inputDescription.setValue(field.getValue());
+            TextField<?> field = inputFieldsByLabel.get(inputDescription.getLabel());
+            inputDescription
+                    .setValue(field.getValue() == null ? null : field.getValue().toString());
         }
         viewContext.getService().updateManagedProperty(TechId.create(entity),
                 entity.getEntityKind(), managedProperty, callback);
@@ -99,19 +105,55 @@ public final class ManagedPropertyGridActionDialog extends
     {
         formPanel.setLabelWidth(100);
         formPanel.setFieldWidth(200);
-        for (IManagedInputWidgetDescription inputDescription : managedProperty.getUiDescription()
+        for (IManagedInputWidgetDescription inputField : managedProperty.getUiDescription()
                 .getInputWidgetDescriptions())
         {
-            final TextField<String> field = new TextField<String>();
-            final String label = inputDescription.getLabel();
-            field.setFieldLabel(label);
-            if (inputDescription.getValue() != null)
+            TextField<?> field;
+            switch (inputField.getManagedInputFieldType())
             {
-                field.setValue(inputDescription.getValue());
+                case TEXT:
+                    field = createTextField(inputField);
+                    break;
+                case COMBO_BOX:
+                    field = createComboBoxField(inputField);
+                    break;
+                default:
+                    throw new UnsupportedOperationException(); // can't happen
+            }
+            final String label = inputField.getLabel();
+            field.setFieldLabel(label);
+            if (inputField.getValue() != null)
+            {
+                field.setRawValue(inputField.getValue());
+            }
+            if (inputField.getDescription() != null)
+            {
+                AbstractImagePrototype infoIcon =
+                        AbstractImagePrototype.create(viewContext.getImageBundle().getInfoIcon());
+                FieldUtil.addInfoIcon(field, inputField.getDescription(), infoIcon.createImage());
             }
             inputFieldsByLabel.put(label, field);
             formPanel.add(field);
         }
     }
 
+    private TextField<?> createTextField(IManagedInputWidgetDescription inputDescription)
+    {
+        final TextField<String> field = new TextField<String>();
+        return field;
+    }
+
+    private TextField<?> createComboBoxField(IManagedInputWidgetDescription inputDescription)
+    {
+        final SimpleComboBox<String> comboBox = new SimpleComboBox<String>();
+        comboBox.setTriggerAction(TriggerAction.ALL);
+        comboBox.setEditable(false);
+        comboBox.setForceSelection(true);
+
+        final ManagedComboBoxInputWidgetDescription comboBoxDescription =
+                (ManagedComboBoxInputWidgetDescription) inputDescription;
+        comboBox.add(comboBoxDescription.getOptions());
+
+        return comboBox;
+    }
 }
