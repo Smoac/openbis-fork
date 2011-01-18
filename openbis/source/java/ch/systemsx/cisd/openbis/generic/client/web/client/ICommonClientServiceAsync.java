@@ -105,6 +105,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermWithStats;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedEntityProperty;
 
 /**
  * Asynchronous version of {@link ICommonClientService}.
@@ -664,6 +665,10 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /** @see ICommonClientService#addAttachment(TechId, String, AttachmentHolderKind, NewAttachment) */
     public void addAttachment(TechId holderId, String sessionKey, AttachmentHolderKind holderKind,
             NewAttachment attachment, AsyncCallback<Void> asyncCallback);
+
+    /** @see ICommonClientService#updateManagedProperty(TechId, EntityKind, IManagedEntityProperty) */
+    public void updateManagedProperty(TechId entityId, EntityKind entityKind,
+            IManagedEntityProperty managedProperty, AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#listDataStoreServices(DataStoreServiceKind) */
     public void listDataStoreServices(DataStoreServiceKind pluginTaskKind,
