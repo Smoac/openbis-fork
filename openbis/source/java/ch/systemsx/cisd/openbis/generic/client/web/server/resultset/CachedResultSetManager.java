@@ -664,26 +664,28 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         ResultSetFetchMode mode = cacheConfig.getMode();
         debug("getResultSet(cache config = " + cacheConfig + ")");
 
-        if (mode == ResultSetFetchMode.COMPUTE_AND_CACHE
-                || mode == ResultSetFetchMode.CLEAR_COMPUTE_AND_CACHE)
+        switch (mode)
         {
-            if (mode == ResultSetFetchMode.CLEAR_COMPUTE_AND_CACHE)
-            {
+            case CLEAR_COMPUTE_AND_CACHE:
                 removeResultSet(cacheConfig.tryGetResultSetKey());
-            }
-            return fetchAndCacheResult(sessionToken, resultConfig, dataProvider);
-        }
-        K dataKey = cacheConfig.tryGetResultSetKey();
-        TableData<T> tableData = tryGetCachedTableData(dataKey);
-        if (tableData != null)
-        {
-            return calculateSortAndFilterResult(sessionToken, tableData, resultConfig, dataKey, false);
-        } else
-        {
-            return fetchAndCacheResult(sessionToken, resultConfig, dataProvider);
+                //$FALL-THROUGH$ -
+            case COMPUTE_AND_CACHE:
+                return fetchAndCacheResult(sessionToken, resultConfig, dataProvider);
+            default:
+                K dataKey = cacheConfig.tryGetResultSetKey();
+                TableData<T> tableData = tryGetCachedTableData(dataKey);
+                if (tableData != null)
+                {
+                    return calculateSortAndFilterResult(sessionToken, tableData, resultConfig,
+                            dataKey, false);
+                } else
+                {
+                    return fetchAndCacheResult(sessionToken, resultConfig, dataProvider);
+                }
+
         }
     }
-    
+
     private <T> IResultSet<K, T> fetchAndCacheResult(final String sessionToken,
             final IResultSetConfig<K, T> resultConfig, final IOriginalDataProvider<T> dataProvider)
     {
@@ -757,19 +759,19 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
                 public TableData<T> call() throws Exception
                 {
                     List<T> rows = dataProvider.getOriginalData(Integer.MAX_VALUE);
-                    List<TableModelColumnHeader> headers = dataProvider.getHeaders();
+        List<TableModelColumnHeader> headers = dataProvider.getHeaders();
                     debug(rows.size() + " records loaded for key "+dataKey);
-                    TableData<T> tableData =
+        TableData<T> tableData =
                         new TableData<T>(rows, headers, customColumnsProvider,
                                 columnCalculator);
-                    xmlPropertyTransformer.transformXMLProperties(rows);
+        xmlPropertyTransformer.transformXMLProperties(rows);
                     return tableData;
                 }
             };
             future = executor.submit(callable);
         return future;
     }
-    
+
 
     private synchronized <T> void addToCache(K dataKey, Future<TableData<T>> tableData)
     {
