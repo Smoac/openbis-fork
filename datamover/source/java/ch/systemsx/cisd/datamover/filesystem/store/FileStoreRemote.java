@@ -101,8 +101,8 @@ public class FileStoreRemote extends AbstractFileStore
     private static String mkListByOldestModifiedCommand(final String directoryPath)
     {
         // -A: show all entries except of . and ..
-        // -1: show one entry per line, nams only
-        // -t -r: sort by modification time (the oldest forst thanx to -r)
+        // -1: show one entry per line, names only
+        // -t -r: sort by modification time (the oldest first thanx to -r)
         return "ls -1 -A -t -r " + directoryPath;
     }
 
