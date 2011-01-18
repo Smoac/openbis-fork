@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 ETH Zuerich, CISD
+ * Copyright 2011 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,15 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
+package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 /**
- * Provider of a {@link TypedTableModel} instance.
- * 
+ * Constants used by client and server of the web presentation layer.
+ *
  * @author Franz-Josef Elmer
  */
-public interface ITableModelProvider<T extends ISerializable>
+public class Constants
 {
-    /**
-     * Returns the table model limited as specified. For {@link Integer#MAX_VALUE} the full table
-     * model is returned.
-     */
-    public TypedTableModel<T> getTableModel(int maxSize);
+    /** Maximum number of rows shown on a page of a grid. */
+    public static final int GRID_PAGE_SIZE = 50;
 }

@@ -16,35 +16,43 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
+import java.util.Collections;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractOriginalDataProviderWithoutHeaders;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 
 /**
+ * Adapter which turns a {@link ITableModelProvider} into a {@link IOriginalDataProvider}.
+ *  
  * @author Franz-Josef Elmer
  */
-public final class DataProviderAdapter<T extends ISerializable> extends
-    AbstractOriginalDataProviderWithoutHeaders<TableModelRowWithObject<T>>
+public final class DataProviderAdapter<T extends ISerializable> implements
+        IOriginalDataProvider<TableModelRowWithObject<T>>
 {
     private final ITableModelProvider<T> provider;
+    
+    private TypedTableModel<T> tableModel;
 
     public DataProviderAdapter(ITableModelProvider<T> provider)
     {
         this.provider = provider;
     }
 
-    @Override
-    public List<TableModelRowWithObject<T>> getFullOriginalData()
+    public List<TableModelRowWithObject<T>> getOriginalData(int maxSize)
+            throws UserFailureException
     {
-        return provider.getTableModel().getRows();
+        tableModel = provider.getTableModel(maxSize);
+        return tableModel.getRows();
     }
 
-    @Override
     public List<TableModelColumnHeader> getHeaders()
     {
-        return provider.getTableModel().getHeader();
+        return tableModel == null ? Collections.<TableModelColumnHeader> emptyList() : tableModel
+                .getHeader();
     }
+
 }

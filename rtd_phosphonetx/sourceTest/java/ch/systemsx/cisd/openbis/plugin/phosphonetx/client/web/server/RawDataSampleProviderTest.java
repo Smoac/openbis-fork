@@ -71,7 +71,7 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
     {
         prepareListRawDataSamples();
         
-        List<TableModelColumnHeader> headers = provider.getTableModel().getHeader();
+        List<TableModelColumnHeader> headers = provider.getTableModel(Integer.MAX_VALUE).getHeader();
         
         assertFixedColumns(headers);
         assertEquals(4, headers.size());
@@ -86,7 +86,7 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
         Sample ms3 = sample("MS3", sample("DE", "gamma", "alpha"), "two");
         prepareListRawDataSamples(ms1, ms2, ms3);
         
-        List<TableModelColumnHeader> headers = provider.getTableModel().getHeader();
+        List<TableModelColumnHeader> headers = provider.getTableModel(Integer.MAX_VALUE).getHeader();
         
         assertFixedColumns(headers);
         assertPropertyHeader("one", "USER-ONE", 4, headers);
@@ -103,7 +103,7 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
     {
         prepareListRawDataSamples();
         
-        List<TableModelRowWithObject<Sample>> data = provider.getTableModel().getRows();
+        List<TableModelRowWithObject<Sample>> data = provider.getTableModel(Integer.MAX_VALUE).getRows();
         
         assertEquals(0, data.size());
         context.assertIsSatisfied();
@@ -121,7 +121,7 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
         Sample ms3 = sample("MS3", parent, "2");
         prepareListRawDataSamples(ms1, ms2, ms3);
         
-        TypedTableModel<Sample> tableModel = provider.getTableModel();
+        TypedTableModel<Sample> tableModel = provider.getTableModel(Integer.MAX_VALUE);
         List<TableModelRowWithObject<Sample>> data = tableModel.getRows();
         
         assertEquals(3, data.size());

@@ -48,6 +48,7 @@ public final class ResultSetTranslator
         resultSet.setList(resultSetList);
         resultSet.setTotalLength(result.getTotalLength());
         resultSet.setResultSetKey(result.getResultSetKey());
+        resultSet.setPartial(result.isPartial());
         return resultSet;
     }
 }

@@ -67,7 +67,7 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
     }
 
     @Override
-    protected TypedTableModel<Sample> createTableModel()
+    protected TypedTableModel<Sample> createTableModel(int maxSize)
     {
         List<Sample> samples = getSamples();
         TypedTableModelBuilder<Sample> builder = new TypedTableModelBuilder<Sample>();

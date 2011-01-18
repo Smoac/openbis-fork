@@ -33,20 +33,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 public abstract class AbstractTableModelProvider<T extends ISerializable> implements
         ITableModelProvider<T>
 {
-    private TypedTableModel<T> model;
-
-    public final TypedTableModel<T> getTableModel()
-    {
-        if (model == null)
-        {
-            model = createTableModel();
-        }
-        return model;
-    }
-
     public TypedTableModel<T> getTableModel(int maxSize)
     {
-        TypedTableModel<T> tableModel = getTableModel();
+        TypedTableModel<T> tableModel = createTableModel(maxSize);
         List<TableModelColumnHeader> headers = tableModel.getHeader();
         List<TableModelRowWithObject<T>> rows = tableModel.getRows();
         List<TableModelRowWithObject<T>> limitedRows = new ArrayList<TableModelRowWithObject<T>>();
@@ -62,9 +51,9 @@ public abstract class AbstractTableModelProvider<T extends ISerializable> implem
     }
 
     /**
-     * Creates the table model. The returned instance is always returned by {@link #getTableModel()}
-     * .
+     * Creates the table model with the specified maximum number of rows. If
+     * {@link Integer#MAX_VALUE} is specified the complete table will be created.
      */
-    protected abstract TypedTableModel<T> createTableModel();
+    protected abstract TypedTableModel<T> createTableModel(int maxSize);
 
 }

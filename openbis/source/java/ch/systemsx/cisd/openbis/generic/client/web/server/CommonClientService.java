@@ -2154,12 +2154,6 @@ public final class CommonClientService extends AbstractClientService implements
         IOriginalDataProvider<TableModelRowWithObject<Null>> dataProvider =
                 new IOriginalDataProvider<TableModelRowWithObject<Null>>()
                     {
-                        public List<TableModelRowWithObject<Null>> getOriginalData()
-                                throws UserFailureException
-                        {
-                            throw new IllegalStateException("Data not found in the cache");
-                        }
-
                         public List<TableModelColumnHeader> getHeaders()
                         {
                             return null;
@@ -2168,7 +2162,7 @@ public final class CommonClientService extends AbstractClientService implements
                         public List<TableModelRowWithObject<Null>> getOriginalData(int maxSize)
                                 throws UserFailureException
                         {
-                            return getOriginalData();
+                            throw new IllegalStateException("Data not found in the cache");
                         }
 
                     };

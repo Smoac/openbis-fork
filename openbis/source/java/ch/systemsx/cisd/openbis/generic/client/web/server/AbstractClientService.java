@@ -385,12 +385,6 @@ public abstract class AbstractClientService implements IClientService,
                         public List<TableModelRowWithObject<Null>> getOriginalData(int maxSize)
                                 throws UserFailureException
                         {
-                            return getOriginalData();
-                        }
-
-                        public List<TableModelRowWithObject<Null>> getOriginalData()
-                                throws UserFailureException
-                        {
                             return TableModelUtils.asTableModelRowsWithNullObject(tableModel
                                     .getRows());
                         }

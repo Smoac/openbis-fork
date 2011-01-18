@@ -78,7 +78,7 @@ public class SampleProviderTest extends AbstractProviderTest
                 }
             });
 
-        TypedTableModel<Sample> tableModel = sampleProvider.getTableModel();
+        TypedTableModel<Sample> tableModel = sampleProvider.getTableModel(Integer.MAX_VALUE);
 
         assertEquals(
                 "[CODE, SUBCODE, DATABASE_INSTANCE, SPACE, SAMPLE_IDENTIFIER, SAMPLE_TYPE, "
@@ -131,7 +131,7 @@ public class SampleProviderTest extends AbstractProviderTest
                 }
             });
 
-        TypedTableModel<Sample> tableModel = sampleProvider.getTableModel();
+        TypedTableModel<Sample> tableModel = sampleProvider.getTableModel(Integer.MAX_VALUE);
 
         assertEquals(
                 "[CODE, SUBCODE, DATABASE_INSTANCE, SPACE, SAMPLE_IDENTIFIER, SAMPLE_TYPE, "

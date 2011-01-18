@@ -85,8 +85,7 @@ public class PlateMetadataProviderTest extends AbstractServerTestCase
                 }
             });
 
-        TypedTableModel<WellMetadata> tableModel = provider.getTableModel();
-        assertSame(tableModel, provider.getTableModel());
+        TypedTableModel<WellMetadata> tableModel = provider.getTableModel(Integer.MAX_VALUE);
 
         List<TableModelColumnHeader> headers = tableModel.getHeader();
         assertEquals(null, headers.get(0).getTitle());

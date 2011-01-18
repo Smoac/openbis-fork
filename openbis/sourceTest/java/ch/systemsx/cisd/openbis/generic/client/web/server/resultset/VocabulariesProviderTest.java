@@ -61,7 +61,7 @@ public class VocabulariesProviderTest extends AbstractProviderTest
     {
         VocabulariesProvider vocabulariesProvider =
                 new VocabulariesProvider(server, SESSION_TOKEN, true, false);
-        TypedTableModel<Vocabulary> tableModel = vocabulariesProvider.getTableModel();
+        TypedTableModel<Vocabulary> tableModel = vocabulariesProvider.getTableModel(Integer.MAX_VALUE);
 
         assertEquals(
                 "[CODE, DESCRIPTION, IS_MANAGED_INTERNALLY, REGISTRATOR, REGISTRATION_DATE, URL_TEMPLATE, "

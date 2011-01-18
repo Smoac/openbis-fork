@@ -58,7 +58,7 @@ public abstract class AbstractOriginalDataProviderWithoutHeaders<T> implements
         return list;
     }
 
-    public List<T> getOriginalData() throws UserFailureException
+    private List<T> getOriginalData() throws UserFailureException
     {
         if (originalData != null)
         {

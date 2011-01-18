@@ -78,7 +78,7 @@ public class PhosphoNetXClientServiceTest extends AbstractFileSystemTestCase
                 throws UserFailureException
         {
             List<TableModelColumnHeader> headers = dataProvider.getHeaders();
-            List<T> originalData = dataProvider.getOriginalData();
+            List<T> originalData = dataProvider.getOriginalData(Integer.MAX_VALUE);
             List<GridRowModel<T>> rows = new ArrayList<GridRowModel<T>>();
             for (int i = 0; i < originalData.size(); i++)
             {
@@ -86,7 +86,7 @@ public class PhosphoNetXClientServiceTest extends AbstractFileSystemTestCase
                 rows.add(new GridRowModel<T>(rowData, null));
             }
             return new DefaultResultSet<K, T>(resultConfig.getCacheConfig().tryGetResultSetKey(),
-                    new GridRowModels<T>(rows, headers, null, null), rows.size());
+                    new GridRowModels<T>(rows, headers, null, null), rows.size(), false);
         }
 
         public void removeResultSet(K resultSetKey) throws UserFailureException

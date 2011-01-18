@@ -57,7 +57,7 @@ public class VocabularyTermsProvider extends AbstractCommonTableModelProvider<Vo
     }
 
     @Override
-    protected TypedTableModel<VocabularyTermWithStats> createTableModel()
+    protected TypedTableModel<VocabularyTermWithStats> createTableModel(int maxSize)
     {
         TypedTableModelBuilder<VocabularyTermWithStats> builder =
                 new TypedTableModelBuilder<VocabularyTermWithStats>();

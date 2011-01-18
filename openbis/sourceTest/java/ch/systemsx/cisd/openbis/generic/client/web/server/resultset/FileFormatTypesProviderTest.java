@@ -60,7 +60,7 @@ public class FileFormatTypesProviderTest extends AbstractProviderTest
     {
         FileFormatTypesProvider vocabulariesProvider =
                 new FileFormatTypesProvider(server, SESSION_TOKEN);
-        TypedTableModel<FileFormatType> tableModel = vocabulariesProvider.getTableModel();
+        TypedTableModel<FileFormatType> tableModel = vocabulariesProvider.getTableModel(Integer.MAX_VALUE);
 
         assertEquals("[CODE, DESCRIPTION]", getHeaderIDs(tableModel).toString());
 

@@ -178,6 +178,12 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
     {
         return refreshButton.isEnabled();
     }
+    
+    public void disableForLoadingRest()
+    {
+        displayText.setLabel("Loading the rest of the data");
+        disable();
+    }
 
     protected final void updateDefaultRefreshButton(boolean isEnabled)
     {

@@ -30,14 +30,10 @@ public interface IOriginalDataProvider<T>
 {
 
     /**
-     * Gets the original data limited to not more than specified number of items.
+     * Gets the original data limited by specified number of items. All data is returned if the
+     * argument is {@link Integer#MAX_VALUE}.
      */
     public List<T> getOriginalData(int maxSize) throws UserFailureException;
-    
-    /**
-     * Returns the original data.
-     */
-    public List<T> getOriginalData() throws UserFailureException;
     
     /**
      * Returns headers if known, otherwise an empty list is returned.

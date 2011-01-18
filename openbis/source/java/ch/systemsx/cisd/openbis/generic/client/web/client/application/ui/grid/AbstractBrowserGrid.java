@@ -93,6 +93,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Constants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridFilters;
@@ -177,7 +178,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     // ------ private section. NOTE: it should remain unaccessible to subclasses! ---------------
 
-    private static final int PAGE_SIZE = 50;
+    private static final int PAGE_SIZE = Constants.GRID_PAGE_SIZE;
 
     // set to true to see some useful debugging messages
     private static final boolean DEBUG = false;
@@ -713,6 +714,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         private final DefaultResultSetConfig<String, T> resultSetConfig;
 
         private int logID;
+        
+        private boolean reloadingPhase;
 
         public ListEntitiesCallback(final IViewContext<?> viewContext,
                 final AsyncCallback<PagingLoadResult<M>> delegate,
@@ -746,8 +749,19 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             logID = log("process loaded data");
             // save the key of the result, later we can refer to the result in the cache using this
             // key
-            saveCacheKey(result.getResultSetKey());
+            String key = result.getResultSetKey();
+            saveCacheKey(key);
             GridRowModels<T> rowModels = result.getList();
+            boolean partial = result.isPartial();
+            if (reloadingPhase)
+            {
+                reloadingPhase = false;
+            } else if (partial)
+            {
+                reloadingPhase = true;
+                resultSetConfig.setCacheConfig(ResultSetFetchConfig.createFetchFromCacheAndRecompute(key));
+                listEntities(resultSetConfig, this);
+            }
             List<GridCustomColumnInfo> customColumnMetadata = rowModels.getCustomColumnsMetadata();
             customColumnsMetadataProvider.setCustomColumnsMetadata(customColumnMetadata);
             // convert the result to the model data for the grid control
@@ -760,7 +774,14 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             pagingToolbar.enableExportButton();
             pagingToolbar.updateDefaultConfigButton(true);
 
-            filterToolbar.refreshColumnFiltersDistinctValues(rowModels.getColumnDistinctValues());
+            if (reloadingPhase == false)
+            {
+                pagingToolbar.enable();
+                filterToolbar.refreshColumnFiltersDistinctValues(rowModels.getColumnDistinctValues());
+            } else
+            {
+                pagingToolbar.disableForLoadingRest();
+            }
             onComplete(true);
 
             viewContext.logStop(logID);

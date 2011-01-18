@@ -31,8 +31,11 @@ public final class DefaultResultSet<K, T> implements IResultSet<K, T>
 
     private final int totalLength;
 
-    public DefaultResultSet(final K resultSetKey, final GridRowModels<T> list, final int totalLength)
+    private final boolean partial;
+
+    public DefaultResultSet(final K resultSetKey, final GridRowModels<T> list, final int totalLength, boolean partial)
     {
+        this.partial = partial;
         assert resultSetKey != null : "Unspecified result set key";
         assert list != null : "Unspecified list.";
         assert totalLength > -1 : "Total length must be >= 0.";
@@ -58,6 +61,11 @@ public final class DefaultResultSet<K, T> implements IResultSet<K, T>
     public final int getTotalLength()
     {
         return totalLength;
+    }
+
+    public boolean isPartial()
+    {
+        return partial;
     }
 
 }

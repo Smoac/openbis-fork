@@ -331,14 +331,31 @@ public final class CachedResultSetManagerTest extends AssertJUnit
     }
 
     @Test
-    public void testOffsetAndLimit()
+    public void testOffset()
     {
         prepareDataAndCustomColumnDefinitions(20);
         ResultSetConfigBuilder builder =
                 new ResultSetConfigBuilder(COL_DEFS).displayID(GRID_DISPLAY_ID);
 
-        getAndCheckRows(10, 0, builder.offset(-1).limit(10));
+        builder.fetchFromCache(KEY);
+        getAndCheckRows(18, 2, builder.offset(2).limit(-1));
+        getAndCheckRows(1, 19, builder.offset(19).limit(-1));
+        getAndCheckRows(1, 19, builder.offset(20).limit(-1));
+        getAndCheckRows(1, 19, builder.offset(21).limit(-1));
+        getAndCheckRows(20, 0, builder.offset(-1).limit(-1));
 
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testOffsetAndLimit()
+    {
+        prepareDataAndCustomColumnDefinitions(20, 10);
+        ResultSetConfigBuilder builder =
+            new ResultSetConfigBuilder(COL_DEFS).displayID(GRID_DISPLAY_ID);
+        
+        getAndCheckRows(10, 0, builder.offset(-1).limit(10));
+        
         builder.fetchFromCache(KEY);
         getAndCheckRows(10, 9, builder.offset(9).limit(10));
         getAndCheckRows(10, 10, builder.offset(10).limit(10));
@@ -346,12 +363,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
         getAndCheckRows(1, 19, builder.offset(19).limit(10));
         getAndCheckRows(1, 19, builder.offset(20).limit(10));
         getAndCheckRows(1, 19, builder.offset(21).limit(10));
-        getAndCheckRows(18, 2, builder.offset(2).limit(-1));
-        getAndCheckRows(1, 19, builder.offset(19).limit(-1));
-        getAndCheckRows(1, 19, builder.offset(20).limit(-1));
-        getAndCheckRows(1, 19, builder.offset(21).limit(-1));
-        getAndCheckRows(20, 0, builder.offset(-1).limit(-1));
-
+        
         context.assertIsSatisfied();
     }
 
@@ -411,7 +423,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
                     one(keyGenerator).createKey();
                     will(returnValue(KEY));
 
-                    one(originalDataProvider).getOriginalData();
+                    one(originalDataProvider).getOriginalData(Integer.MAX_VALUE);
                     will(returnValue(Arrays.asList()));
 
                     one(originalDataProvider).getHeaders();
@@ -738,7 +750,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
                     one(keyGenerator).createKey();
                     will(returnValue(KEY));
 
-                    one(originalDataProvider).getOriginalData();
+                    one(originalDataProvider).getOriginalData(Integer.MAX_VALUE);
                     will(returnValue(createDataList()));
 
                     one(originalDataProvider).getHeaders();
@@ -808,7 +820,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
                     one(keyGenerator).createKey();
                     will(returnValue(KEY));
 
-                    one(originalDataProvider).getOriginalData();
+                    one(originalDataProvider).getOriginalData(Integer.MAX_VALUE);
                     will(returnValue(data));
 
                     one(originalDataProvider).getHeaders();
@@ -854,7 +866,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
                     one(keyGenerator).createKey();
                     will(returnValue(KEY));
 
-                    one(originalDataProvider).getOriginalData();
+                    one(originalDataProvider).getOriginalData(Integer.MAX_VALUE);
                     will(returnValue(createDataList()));
 
                     one(originalDataProvider).getHeaders();
@@ -879,7 +891,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
                     one(keyGenerator).createKey();
                     will(returnValue(KEY));
 
-                    one(originalDataProvider).getOriginalData();
+                    one(originalDataProvider).getOriginalData(Integer.MAX_VALUE);
                     will(returnValue(createDataList("a", "b")));
 
                     one(originalDataProvider).getHeaders();
@@ -928,22 +940,36 @@ public final class CachedResultSetManagerTest extends AssertJUnit
     private void prepareDataAndCustomColumnDefinitions(final int size,
             final GridCustomColumn... columns)
     {
+        prepareDataAndCustomColumnDefinitions(size, Integer.MAX_VALUE, columns);
+    }
+    
+    private void prepareDataAndCustomColumnDefinitions(final int size, final int maxSize,
+            final GridCustomColumn... columns)
+    {
         context.checking(new Expectations()
             {
                 {
                     one(keyGenerator).createKey();
                     will(returnValue(KEY));
 
-                    one(originalDataProvider).getOriginalData();
+                    one(originalDataProvider).getOriginalData(maxSize);
                     DataHolder[] rows = new DataHolder[size];
                     for (int i = 0; i < rows.length; i++)
                     {
                         rows[i] = new DataHolder(i + "-a" + i % 2);
                     }
                     will(returnValue(Arrays.asList(rows)));
-
+                    
                     one(originalDataProvider).getHeaders();
                     will(returnValue(Arrays.asList()));
+                    
+                    if (size >= maxSize)
+                    {
+                        one(originalDataProvider).getOriginalData(Integer.MAX_VALUE);
+                        will(returnValue(Arrays.asList(rows)));
+                        one(originalDataProvider).getHeaders();
+                        will(returnValue(Arrays.asList()));
+                    }
 
                     allowing(customColumnsProvider).getGridCustomColumn(SESSION_TOKEN,
                             GRID_DISPLAY_ID);

@@ -52,7 +52,7 @@ public class MatchingEntitiesProvider extends AbstractCommonTableModelProvider<M
     }
 
     @Override
-    protected TypedTableModel<MatchingEntity> createTableModel()
+    protected TypedTableModel<MatchingEntity> createTableModel(int maxSize)
     {
         List<MatchingEntity> entities =
             commonServer.listMatchingEntities(sessionToken, matchingEntities, queryText,

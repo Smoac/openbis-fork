@@ -38,7 +38,7 @@ public class FileFormatTypesProvider extends AbstractCommonTableModelProvider<Fi
     }
 
     @Override
-    protected TypedTableModel<FileFormatType> createTableModel()
+    protected TypedTableModel<FileFormatType> createTableModel(int maxSize)
     {
         List<FileFormatType> fileFormats = commonServer.listFileFormatTypes(sessionToken);
 

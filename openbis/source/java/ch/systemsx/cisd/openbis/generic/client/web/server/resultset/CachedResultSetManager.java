@@ -28,10 +28,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.base.namedthread.NamingThreadPoolExecutor;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.shared.basic.AlternativesStringFilter;
@@ -424,7 +432,9 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     private final ICustomColumnsProvider customColumnsProvider;
 
     // all cache access should be doen in a monitor (synchronized clause)
-    private final Map<K, TableData<?>> cache = new HashMap<K, TableData<?>>();
+    private final Map<K, Future<?>> cache = new HashMap<K, Future<?>>();
+
+    private final ThreadPoolExecutor executor = new NamingThreadPoolExecutor("Background Table Loader").corePoolSize(10).daemonize();
 
     private final XMLPropertyTransformer xmlPropertyTransformer = new XMLPropertyTransformer();
 
@@ -667,52 +677,135 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         TableData<T> tableData = tryGetCachedTableData(dataKey);
         if (tableData != null)
         {
-            return calculateSortAndFilterResult(sessionToken, tableData, resultConfig, dataKey);
+            return calculateSortAndFilterResult(sessionToken, tableData, resultConfig, dataKey, false);
         } else
         {
             return fetchAndCacheResult(sessionToken, resultConfig, dataProvider);
         }
     }
-
+    
     private <T> IResultSet<K, T> fetchAndCacheResult(final String sessionToken,
             final IResultSetConfig<K, T> resultConfig, final IOriginalDataProvider<T> dataProvider)
     {
-        K dataKey = resultSetKeyProvider.createKey();
-        debug("retrieving the data with a new key " + dataKey);
-        List<T> rows = dataProvider.getOriginalData();
-        List<TableModelColumnHeader> headers = dataProvider.getHeaders();
-        TableData<T> tableData =
-                new TableData<T>(rows, headers, customColumnsProvider, columnCalculator);
+        final K dataKey = resultSetKeyProvider.createKey();
+        int limit = resultConfig.getLimit();
+        if (limit == IResultSetConfig.NO_LIMIT)
+        {
+            limit = Integer.MAX_VALUE;
+        }
+        debug("Retrieving " + limit + " record for a new key " + dataKey);
+        List<T> rows = dataProvider.getOriginalData(limit);
+        final List<TableModelColumnHeader> headers = dataProvider.getHeaders();
+        final TableData<T> tableData =
+            new TableData<T>(rows, headers, customColumnsProvider, columnCalculator);
         xmlPropertyTransformer.transformXMLProperties(rows);
-
-        addToCache(dataKey, tableData);
-        return calculateSortAndFilterResult(sessionToken, tableData, resultConfig, dataKey);
+        
+        Future<TableData<T>> future;
+        boolean partial = rows.size() >= limit;
+        if (partial)
+        {
+            debug("Only partially loaded data for key "+dataKey);
+            future = loadCompleteTableInBackground(dataProvider, dataKey);
+        } else
+        {
+            debug("Completely loaded for key "+dataKey);
+            future = createFutureWhichIsPresent(dataKey, tableData);
+        }
+        addToCache(dataKey, future);
+        return calculateSortAndFilterResult(sessionToken, tableData, resultConfig, dataKey, partial);
     }
 
-    private synchronized <T> void addToCache(K dataKey, TableData<T> tableData)
+    private <T> Future<TableData<T>> createFutureWhichIsPresent(final K dataKey,
+            final TableData<T> tableData)
+    {
+        return new Future<TableData<T>>()
+            {
+                public boolean cancel(boolean mayInterruptIfRunning)
+                {
+                    return true;
+                }
+
+                public boolean isCancelled()
+                {
+                    return false;
+                }
+
+                public boolean isDone()
+                {
+                    return true;
+                }
+
+                public TableData<T> get() throws InterruptedException, ExecutionException
+                {
+                    return tableData;
+                }
+
+                public TableData<T> get(long timeout, TimeUnit unit)
+                        throws InterruptedException, ExecutionException, TimeoutException
+                {
+                    return get();
+                }
+            };
+    }
+
+    private <T> Future<TableData<T>> loadCompleteTableInBackground(
+            final IOriginalDataProvider<T> dataProvider, final K dataKey)
+    {
+        Future<TableData<T>> future;
+        Callable<TableData<T>> callable = new Callable<TableData<T>>()
+            {
+                public TableData<T> call() throws Exception
+                {
+                    List<T> rows = dataProvider.getOriginalData(Integer.MAX_VALUE);
+                    List<TableModelColumnHeader> headers = dataProvider.getHeaders();
+                    debug(rows.size() + " records loaded for key "+dataKey);
+                    TableData<T> tableData =
+                        new TableData<T>(rows, headers, customColumnsProvider,
+                                columnCalculator);
+                    xmlPropertyTransformer.transformXMLProperties(rows);
+                    return tableData;
+                }
+            };
+            future = executor.submit(callable);
+        return future;
+    }
+    
+
+    private synchronized <T> void addToCache(K dataKey, Future<TableData<T>> tableData)
     {
         cache.put(dataKey, tableData);
+        debug(cache.size() + " keys in cache: " + cache.keySet());
     }
 
     private static <K, T> IResultSet<K, T> calculateSortAndFilterResult(String sessionToken,
-            TableData<T> tableData, final IResultSetConfig<K, T> resultConfig, K dataKey)
+            TableData<T> tableData, final IResultSetConfig<K, T> resultConfig, K dataKey, boolean partial)
     {
         GridRowModels<T> data = tableData.getRows(sessionToken, resultConfig);
-        return filterLimitAndSort(resultConfig, data, dataKey);
+        return filterLimitAndSort(resultConfig, data, dataKey, partial);
     }
 
     private synchronized <T> TableData<T> tryGetCachedTableData(K dataKey)
     {
-        TableData<T> tableData = cast(cache.get(dataKey));
+        Future<TableData<T>> tableData = cast(cache.get(dataKey));
         if (tableData == null)
         {
             operationLog.error("Reference to the stale cache key " + dataKey);
+            return null;
         }
-        return tableData;
+        try
+        {
+            return tableData.get();
+        } catch (InterruptedException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        } catch (ExecutionException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex.getCause());
+        }
     }
 
     private static <K, T> IResultSet<K, T> filterLimitAndSort(
-            final IResultSetConfig<K, T> resultConfig, GridRowModels<T> data, K dataKey)
+            final IResultSetConfig<K, T> resultConfig, GridRowModels<T> data, K dataKey, boolean partial)
     {
         GridRowModels<T> filteredData =
                 filterData(data, resultConfig.getAvailableColumns(), resultConfig.getFilters());
@@ -722,12 +815,13 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         final SortInfo<T> sortInfo = resultConfig.getSortInfo();
         sortData(filteredData, sortInfo);
         final GridRowModels<T> list = subList(filteredData, offset, limit);
-        return new DefaultResultSet<K, T>(dataKey, list, size);
+        return new DefaultResultSet<K, T>(dataKey, list, size, partial);
     }
 
     public final synchronized void removeResultSet(final K resultSetKey)
     {
         assert resultSetKey != null : "Unspecified data key holder.";
+        debug("remove key " + resultSetKey);
         if (cache.remove(resultSetKey) != null)
         {
             debug(String.format("Result set for key '%s' has been removed.", resultSetKey));
@@ -740,6 +834,6 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
 
     private void debug(String msg)
     {
-        operationLog.debug(msg);
+        operationLog.info(msg);
     }
 }

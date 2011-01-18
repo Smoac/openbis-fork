@@ -42,7 +42,7 @@ public class SpacesProvider extends AbstractCommonTableModelProvider<Space>
     }
 
     @Override
-    protected TypedTableModel<Space> createTableModel()
+    protected TypedTableModel<Space> createTableModel(int maxSize)
     {
         DatabaseInstanceIdentifier identifier = new DatabaseInstanceIdentifier(null);
         List<Space> spaces = commonServer.listSpaces(sessionToken, identifier);

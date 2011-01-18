@@ -299,7 +299,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         final String resultSetKey = "131";
         GridRowModels<T> rowModels = createGridRowModels(entities);
         final DefaultResultSet<String, T> defaultResultSet =
-                new DefaultResultSet<String, T>(resultSetKey, rowModels, entities.size());
+                new DefaultResultSet<String, T>(resultSetKey, rowModels, entities.size(), false);
         context.checking(new Expectations()
             {
                 {
@@ -326,7 +326,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         GridRowModels<TableModelRowWithObject<T>> rowModels = createGridRowModels(rows);
         final DefaultResultSet<String, TableModelRowWithObject<T>> resultSet =
                 new DefaultResultSet<String, TableModelRowWithObject<T>>(resultSetKey, rowModels,
-                        entities.size());
+                        entities.size(), false);
         context.checking(new Expectations()
             {
                 {

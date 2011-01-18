@@ -48,7 +48,7 @@ class RawDataSampleProvider extends AbstractTableModelProvider<Sample>
     }
 
     @Override
-    public TypedTableModel<Sample> createTableModel()
+    public TypedTableModel<Sample> createTableModel(int maxSize)
     {
         List<MsInjectionSample> samples = service.listRawDataSamples(sessionToken);
         TypedTableModelBuilder<Sample> builder = new TypedTableModelBuilder<Sample>();

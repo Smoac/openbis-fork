@@ -43,7 +43,7 @@ public class ProjectsProvider extends AbstractCommonTableModelProvider<Project>
     }
 
     @Override
-    protected TypedTableModel<Project> createTableModel()
+    protected TypedTableModel<Project> createTableModel(int maxSize)
     {
         List<Project> projects = commonServer.listProjects(sessionToken);
         TypedTableModelBuilder<Project> builder = new TypedTableModelBuilder<Project>();
