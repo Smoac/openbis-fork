@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConf
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IManagedPropertyGridInformationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
@@ -54,14 +55,14 @@ public class ManagedPropertyGrid extends TypedTableGrid<Null>
     // browser consists of the grid and the paging toolbar
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "ManagedPropertyGrid";
 
-    public static IDisposableComponent create(
-            final IViewContext<ICommonClientServiceAsync> viewContext,
-            IManagedEntityProperty managedProperty, TableModelReference tableModelReference,
+    public static IDisposableComponent create(IViewContext<ICommonClientServiceAsync> viewContext,
+            TableModelReference tableModelReference, IEntityInformationHolder entity,
+            IManagedEntityProperty managedProperty,
             IManagedPropertyGridInformationProvider gridInformation,
             IDelegatedAction onRefreshAction)
     {
         final ManagedPropertyGrid grid =
-                new ManagedPropertyGrid(viewContext, managedProperty, tableModelReference,
+                new ManagedPropertyGrid(viewContext, tableModelReference, entity, managedProperty,
                         gridInformation, onRefreshAction);
         return grid.asDisposableWithoutToolbar();
     }
@@ -79,12 +80,16 @@ public class ManagedPropertyGrid extends TypedTableGrid<Null>
 
     private final IManagedEntityProperty managedProperty;
 
+    private final IEntityInformationHolder entity;
+
     private ManagedPropertyGrid(IViewContext<ICommonClientServiceAsync> viewContext,
-            IManagedEntityProperty managedProperty, TableModelReference tableModelReference,
+            TableModelReference tableModelReference, IEntityInformationHolder entity,
+            IManagedEntityProperty managedProperty,
             IManagedPropertyGridInformationProvider gridInformation,
             IDelegatedAction onRefreshAction)
     {
         super(viewContext, BROWSER_ID, true, DisplayTypeIDGenerator.DATA_SET_REPORTING_GRID);
+        this.entity = entity;
         this.managedProperty = managedProperty;
         this.onRefreshAction = onRefreshAction;
         setId(BROWSER_ID);
@@ -120,8 +125,8 @@ public class ManagedPropertyGrid extends TypedTableGrid<Null>
                         IBrowserGridActionInvoker invoker)
                 {
                     AsyncCallback<Void> callback = createRefreshCallback(invoker);
-                    return new ManagedPropertyGridActionDialog(viewContext, data, callback,
-                            managedProperty, editTitle);
+                    return new ManagedPropertyGridActionDialog(viewContext, editTitle, data,
+                            callback, entity, managedProperty);
                 }
             });
 

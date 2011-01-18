@@ -267,7 +267,7 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
     }
 
     protected TabContent createManagedPropertySection(final String header,
-            final IEntityInformationHolder ownerId, final IManagedEntityProperty managedProperty)
+            final IEntityInformationHolder entity, final IManagedEntityProperty managedProperty)
     {
         IDelegatedAction refreshAction = new IDelegatedAction()
             {
@@ -276,7 +276,7 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
                     reloadAllData();
                 }
             };
-        return new ManagedPropertySection(header, viewContext, ownerId, managedProperty,
+        return new ManagedPropertySection(header, viewContext, entity, managedProperty,
                 refreshAction);
     }
 

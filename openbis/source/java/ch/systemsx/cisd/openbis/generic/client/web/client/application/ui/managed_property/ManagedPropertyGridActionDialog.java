@@ -16,46 +16,52 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.managed_property;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Null;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 
-
 public final class ManagedPropertyGridActionDialog extends
         AbstractDataConfirmationDialog<List<TableModelRowWithObject<Null>>>
 {
 
-    @SuppressWarnings("unused")
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     @SuppressWarnings("unused")
+    // to be used for actions like edit row/delete rows
     private final List<TableModelRowWithObject<Null>> data;
 
-    @SuppressWarnings("unused")
     private final AsyncCallback<Void> callback;
+
+    private final IEntityInformationHolder entity;
 
     private final IManagedEntityProperty managedProperty;
 
-    private List<TextField<String>> inputFields;
+    private final Map<String, TextField<String>> inputFieldsByLabel =
+            new LinkedHashMap<String, TextField<String>>();
 
     public ManagedPropertyGridActionDialog(IViewContext<ICommonClientServiceAsync> viewContext,
-            List<TableModelRowWithObject<Null>> data, AsyncCallback<Void> callback,
-            IManagedEntityProperty managedProperty, String title)
+            String editTitle, List<TableModelRowWithObject<Null>> data,
+            AsyncCallback<Void> callback, IEntityInformationHolder entity,
+            IManagedEntityProperty managedProperty)
     {
-        super(viewContext, data, title);
+        super(viewContext, data, editTitle);
         this.viewContext = viewContext;
         this.data = data;
+        this.entity = entity;
         this.managedProperty = managedProperty;
         this.callback = callback;
         setWidth(400);
@@ -64,32 +70,33 @@ public final class ManagedPropertyGridActionDialog extends
     @Override
     protected String createMessage()
     {
-        return "Update property"; // TODO
+        // TODO 2011-01-18 - the message should depend on action and be provided by the script
+        return "Update managed property";
     }
+
+    private static boolean IS_UPDATE_IMPLEMENTED = false;
 
     @Override
     protected void executeConfirmedAction()
     {
         StringBuilder sb = new StringBuilder();
-        for (TextField<String> inputField : inputFields)
+        for (TextField<String> inputField : inputFieldsByLabel.values())
         {
             sb.append(inputField.getFieldLabel() + ": " + inputField.getValue() + "\n");
         }
         Info.display("confirmed", sb.toString());
-        // TODO
-        // AsyncCallback<Void> callbackWithProgressBar =
-        // AsyncCallbackWithProgressBar.decorate(callback, "Deleting samples...");
-        // if (selectedAndDisplayedItemsOrNull != null)
-        // {
-        // final DisplayedOrSelectedIdHolderCriteria<T> uploadCriteria =
-        // selectedAndDisplayedItemsOrNull.createCriteria(isOnlySelected());
-        // viewContext.getCommonService().deleteSamples(uploadCriteria, reason.getValue(),
-        // callbackWithProgressBar);
-        // } else
-        // {
-        // viewContext.getCommonService().deleteSample(TechId.create(singleDataOrNull),
-        // reason.getValue(), callbackWithProgressBar);
-        // }
+
+        if (IS_UPDATE_IMPLEMENTED)
+        {
+            for (IManagedInputWidgetDescription inputDescription : managedProperty
+                    .getUiDescription().getInputWidgetDescriptions())
+            {
+                TextField<String> field = inputFieldsByLabel.get(inputDescription.getLabel());
+                inputDescription.setValue(field.getValue());
+            }
+            viewContext.getService().updateManagedProperty(TechId.create(entity),
+                    entity.getEntityKind(), managedProperty, callback);
+        }
     }
 
     @Override
@@ -101,12 +108,13 @@ public final class ManagedPropertyGridActionDialog extends
                 .getInputWidgetDescriptions())
         {
             final TextField<String> field = new TextField<String>();
-            field.setFieldLabel(inputDescription.getLabel());
+            final String label = inputDescription.getLabel();
+            field.setFieldLabel(label);
             if (inputDescription.getValue() != null)
             {
                 field.setValue(inputDescription.getValue());
             }
-            inputFields.add(field);
+            inputFieldsByLabel.put(label, field);
             formPanel.add(field);
         }
     }

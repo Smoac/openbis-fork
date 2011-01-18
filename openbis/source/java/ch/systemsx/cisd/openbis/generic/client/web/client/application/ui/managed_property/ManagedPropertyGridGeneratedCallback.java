@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IManagedPropertyGridInformationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedEntityProperty;
 
@@ -51,25 +52,28 @@ public class ManagedPropertyGridGeneratedCallback extends
 
     private final IManagedEntityProperty managedProperty;
 
+    private final IEntityInformationHolder entity;
+
     public static AsyncCallback<TableModelReference> create(
-            IViewContext<ICommonClientServiceAsync> viewContext,
+            IViewContext<ICommonClientServiceAsync> viewContext, IEntityInformationHolder entity,
             IManagedEntityProperty managedProperty,
             IManagedPropertyGridInformationProvider gridInfo,
             IOnGridComponentGeneratedAction onGridGeneratedAction, IDelegatedAction onRefreshAction)
     {
         return AsyncCallbackWithProgressBar.decorate(new ManagedPropertyGridGeneratedCallback(
-                viewContext, managedProperty, gridInfo, onGridGeneratedAction, onRefreshAction),
-                "Generating the table...");
+                viewContext, entity, managedProperty, gridInfo, onGridGeneratedAction,
+                onRefreshAction), "Generating the table...");
     }
 
     private ManagedPropertyGridGeneratedCallback(
-            IViewContext<ICommonClientServiceAsync> viewContext,
+            IViewContext<ICommonClientServiceAsync> viewContext, IEntityInformationHolder entity,
             IManagedEntityProperty managedProperty,
             IManagedPropertyGridInformationProvider gridInfo,
             IOnGridComponentGeneratedAction onGridGeneratedAction, IDelegatedAction onRefreshAction)
     {
         super(viewContext);
         this.viewContext = viewContext;
+        this.entity = entity;
         this.managedProperty = managedProperty;
         this.gridInfo = gridInfo;
         this.onGridGeneratedAction = onGridGeneratedAction;
@@ -80,8 +84,8 @@ public class ManagedPropertyGridGeneratedCallback extends
     protected void process(final TableModelReference tableModelReference)
     {
         final IDisposableComponent reportComponent =
-                ManagedPropertyGrid.create(viewContext, managedProperty, tableModelReference,
-                        gridInfo, onRefreshAction);
+                ManagedPropertyGrid.create(viewContext, tableModelReference, entity,
+                        managedProperty, gridInfo, onRefreshAction);
         onGridGeneratedAction.execute(reportComponent);
         if (StringUtils.isBlank(tableModelReference.tryGetMessage()) == false)
         {

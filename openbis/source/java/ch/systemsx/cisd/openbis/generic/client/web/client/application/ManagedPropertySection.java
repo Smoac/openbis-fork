@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.managed
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.managed_property.ManagedPropertyGridGeneratedCallback.IOnGridComponentGeneratedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IManagedPropertyGridInformationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedTableWidgetDescription;
@@ -76,11 +76,14 @@ public class ManagedPropertySection extends DisposableTabContent
 
     private final IManagedEntityProperty managedProperty;
 
+    private final IEntityInformationHolder entity;
+
     public ManagedPropertySection(final String header, IViewContext<?> viewContext,
-            IIdHolder ownerId, IManagedEntityProperty managedProperty,
+            IEntityInformationHolder entity, IManagedEntityProperty managedProperty,
             IDelegatedAction refreshAction)
     {
-        super(header, viewContext, ownerId);
+        super(header, viewContext, entity);
+        this.entity = entity;
         this.managedProperty = managedProperty;
         this.gridIdSuffix = Format.hyphenize(header);
         this.refreshAction = refreshAction;
@@ -136,8 +139,9 @@ public class ManagedPropertySection extends DisposableTabContent
                     {
                         AsyncCallback<TableModelReference> callback =
                                 ManagedPropertyGridGeneratedCallback.create(
-                                        viewContext.getCommonViewContext(), managedProperty,
-                                        gridInfo, gridGeneratedAction, refreshAction);
+                                        viewContext.getCommonViewContext(), entity,
+                                        managedProperty, gridInfo, gridGeneratedAction,
+                                        refreshAction);
                         viewContext.getCommonService().createReportForManagedProperty(
                                 tableDescriptionOrNull, callback);
                     }
