@@ -238,6 +238,27 @@ public class SimpleTableModelBuilder
         return DataTypeCode.VARCHAR;
     }
 
+    public SimpleTableModelBuilder addFullHeader(String... titles)
+    {
+        for (String title : titles)
+        {
+            addHeader(title);
+        }
+
+        return this;
+    }
+
+    public SimpleTableModelBuilder addFullRow(String... values)
+    {
+        List<ISerializableComparable> rowValues = new ArrayList<ISerializableComparable>();
+        for (String value : values)
+        {
+            rowValues.add(SimpleTableModelBuilder.asText(value));
+        }
+        addRow(rowValues);
+        return this;
+    }
+
     public String tryGetMessage()
     {
         return messageOrNull;
