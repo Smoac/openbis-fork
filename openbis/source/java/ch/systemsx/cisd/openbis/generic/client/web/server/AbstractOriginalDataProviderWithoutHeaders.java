@@ -42,29 +42,21 @@ public abstract class AbstractOriginalDataProviderWithoutHeaders<T> implements
         // Collections.emptyList() can not be serialized by GWT
         return NO_HEADERS;
     }
-    
+
     public List<T> getOriginalData(int maxSize) throws UserFailureException
     {
-        originalData = getOriginalData();
-        List<T> list = new ArrayList<T>();
-        for (T item : originalData)
-        {
-            if (list.size() == maxSize)
-            {
-                break;
-            }
-            list.add(item);
-        }
-        return list;
+        // dummy implementation
+        List<T> fullList = getOriginalData();
+        return fullList.subList(0, Math.min(fullList.size(), maxSize));
     }
 
     private List<T> getOriginalData() throws UserFailureException
     {
-        if (originalData != null)
+        if (originalData == null)
         {
-            return originalData;
+            originalData = getFullOriginalData();
         }
-        return getFullOriginalData();
+        return originalData;
     }
 
     public abstract List<T> getFullOriginalData();
