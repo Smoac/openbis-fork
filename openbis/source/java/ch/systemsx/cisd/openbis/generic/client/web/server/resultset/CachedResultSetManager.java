@@ -431,10 +431,11 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
 
     private final ICustomColumnsProvider customColumnsProvider;
 
-    // all cache access should be doen in a monitor (synchronized clause)
-    private final Map<K, Future<?>> cache = new HashMap<K, Future<?>>();
+    // all cache access is done in a monitor
+    private final Map<K, Future<?>> cache = Collections.synchronizedMap(new HashMap<K, Future<?>>());
 
-    private final ThreadPoolExecutor executor = new NamingThreadPoolExecutor("Background Table Loader").corePoolSize(10).daemonize();
+    private final ThreadPoolExecutor executor = new NamingThreadPoolExecutor(
+            "Background Table Loader").corePoolSize(10).daemonize();
 
     private final XMLPropertyTransformer xmlPropertyTransformer = new XMLPropertyTransformer();
 
@@ -699,18 +700,18 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         List<T> rows = dataProvider.getOriginalData(limit);
         final List<TableModelColumnHeader> headers = dataProvider.getHeaders();
         final TableData<T> tableData =
-            new TableData<T>(rows, headers, customColumnsProvider, columnCalculator);
+                new TableData<T>(rows, headers, customColumnsProvider, columnCalculator);
         xmlPropertyTransformer.transformXMLProperties(rows);
-        
+
         Future<TableData<T>> future;
         boolean partial = rows.size() >= limit;
         if (partial)
         {
-            debug("Only partially loaded data for key "+dataKey);
+            debug("Only partially loaded data for key " + dataKey);
             future = loadCompleteTableInBackground(dataProvider, dataKey);
         } else
         {
-            debug("Completely loaded for key "+dataKey);
+            debug("Completely loaded for key " + dataKey);
             future = createFutureWhichIsPresent(dataKey, tableData);
         }
         addToCache(dataKey, future);
@@ -742,8 +743,8 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
                     return tableData;
                 }
 
-                public TableData<T> get(long timeout, TimeUnit unit)
-                        throws InterruptedException, ExecutionException, TimeoutException
+                public TableData<T> get(long timeout, TimeUnit unit) throws InterruptedException,
+                        ExecutionException, TimeoutException
                 {
                     return get();
                 }
@@ -759,34 +760,33 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
                 public TableData<T> call() throws Exception
                 {
                     List<T> rows = dataProvider.getOriginalData(Integer.MAX_VALUE);
-        List<TableModelColumnHeader> headers = dataProvider.getHeaders();
-                    debug(rows.size() + " records loaded for key "+dataKey);
-        TableData<T> tableData =
-                        new TableData<T>(rows, headers, customColumnsProvider,
-                                columnCalculator);
-        xmlPropertyTransformer.transformXMLProperties(rows);
+                    List<TableModelColumnHeader> headers = dataProvider.getHeaders();
+                    debug(rows.size() + " records loaded for key " + dataKey);
+                    TableData<T> tableData =
+                            new TableData<T>(rows, headers, customColumnsProvider, columnCalculator);
+                    xmlPropertyTransformer.transformXMLProperties(rows);
                     return tableData;
                 }
             };
-            future = executor.submit(callable);
+        future = executor.submit(callable);
         return future;
     }
 
-
-    private synchronized <T> void addToCache(K dataKey, Future<TableData<T>> tableData)
+    private <T> void addToCache(K dataKey, Future<TableData<T>> tableData)
     {
         cache.put(dataKey, tableData);
         debug(cache.size() + " keys in cache: " + cache.keySet());
     }
 
     private static <K, T> IResultSet<K, T> calculateSortAndFilterResult(String sessionToken,
-            TableData<T> tableData, final IResultSetConfig<K, T> resultConfig, K dataKey, boolean partial)
+            TableData<T> tableData, final IResultSetConfig<K, T> resultConfig, K dataKey,
+            boolean partial)
     {
         GridRowModels<T> data = tableData.getRows(sessionToken, resultConfig);
         return filterLimitAndSort(resultConfig, data, dataKey, partial);
     }
 
-    private synchronized <T> TableData<T> tryGetCachedTableData(K dataKey)
+    private <T> TableData<T> tryGetCachedTableData(K dataKey)
     {
         Future<TableData<T>> tableData = cast(cache.get(dataKey));
         if (tableData == null)
@@ -803,11 +803,12 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         } catch (ExecutionException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex.getCause());
-        }
+        } 
     }
 
     private static <K, T> IResultSet<K, T> filterLimitAndSort(
-            final IResultSetConfig<K, T> resultConfig, GridRowModels<T> data, K dataKey, boolean partial)
+            final IResultSetConfig<K, T> resultConfig, GridRowModels<T> data, K dataKey,
+            boolean partial)
     {
         GridRowModels<T> filteredData =
                 filterData(data, resultConfig.getAvailableColumns(), resultConfig.getFilters());
@@ -820,7 +821,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         return new DefaultResultSet<K, T>(dataKey, list, size, partial);
     }
 
-    public final synchronized void removeResultSet(final K resultSetKey)
+    public final void removeResultSet(final K resultSetKey)
     {
         assert resultSetKey != null : "Unspecified data key holder.";
         if (cache.remove(resultSetKey) != null)
@@ -835,6 +836,6 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
 
     private void debug(String msg)
     {
-        operationLog.info(msg);
+        operationLog.debug(msg);
     }
 }
