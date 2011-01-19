@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
+import static ch.systemsx.cisd.common.test.AssertionUtil.assertContains;
 import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
 import static org.testng.AssertJUnit.assertEquals;
 
@@ -306,11 +307,11 @@ public class DatasetDownloadServletTest
 
         DatasetDownloadServlet servlet = createServlet();
         servlet.doGet(request, response);
-        assertEquals("<html><body><h1>Error</h1>" + OSUtilities.LINE_SEPARATOR
+        assertContains("<html><body><h1>Error</h1>" + OSUtilities.LINE_SEPARATOR
                 + "Unknown data set '1234-1'." + OSUtilities.LINE_SEPARATOR + "</body></html>"
                 + OSUtilities.LINE_SEPARATOR, writer.toString());
         String logContent = logRecorder.getLogContent();
-        assertEquals(getSessionCreationLogMessage() + OSUtilities.LINE_SEPARATOR + LOG_INFO
+        assertContains(getSessionCreationLogMessage() + OSUtilities.LINE_SEPARATOR + LOG_INFO
                 + "Data set '1234-1' not found in openBIS server." + OSUtilities.LINE_SEPARATOR
                 + LOG_INFO + "User failure: Unknown data set '1234-1'.", logContent);
 
@@ -444,9 +445,8 @@ public class DatasetDownloadServletTest
         assertEquals(25, thumbnail.getWidth());
         assertEquals(50, thumbnail.getHeight());
         String normalizedLogContent = getNormalizedLogContent();
-        AssertionUtil.assertContains(getSessionCreationLogMessage() + OSUtilities.LINE_SEPARATOR
-                + LOG_INFO + "Check access to the data set '1234-1' at openBIS server.",
-                normalizedLogContent);
+        assertContains(getSessionCreationLogMessage() + OSUtilities.LINE_SEPARATOR + LOG_INFO
+                + "Check access to the data set '1234-1' at openBIS server.", normalizedLogContent);
         AssertionUtil
                 .assertContains(
                         LOG_INFO
