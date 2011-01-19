@@ -51,7 +51,6 @@ public final class AttachmentDAOTest extends AbstractDAOTest
         ExperimentPE owner = selectFirstExperiment();
 
         int rowsInAttachmentContents = countRowsInTable(ATT_CONTENTS_TABLE);
-        System.err.println(rowsInAttachmentContents);
 
         // create
         attachmentDAO.createAttachment(attachment1v1, owner);
