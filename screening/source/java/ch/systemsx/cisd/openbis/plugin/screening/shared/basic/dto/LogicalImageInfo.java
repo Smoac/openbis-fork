@@ -60,7 +60,17 @@ public class LogicalImageInfo implements ISerializable
 
     public String getExperimentPermId()
     {
-        return imageDataset.getImageDataset().getDatasetReference().getExperimentPermId();
+        return getImageDatasetReference().getExperimentPermId();
+    }
+
+    public String getExperimentIdentifier()
+    {
+        return getImageDatasetReference().getExperimentIdentifier();
+    }
+
+    private DatasetReference getImageDatasetReference()
+    {
+        return imageDataset.getImageDataset().getDatasetReference();
     }
 
     public List<ImageChannelStack> getChannelStacks()

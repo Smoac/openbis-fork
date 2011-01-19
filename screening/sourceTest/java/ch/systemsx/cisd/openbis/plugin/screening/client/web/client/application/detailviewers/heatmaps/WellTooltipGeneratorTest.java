@@ -178,7 +178,7 @@ public class WellTooltipGeneratorTest extends AssertJUnit
 
     private static DatasetReference createDatasetReference()
     {
-        return new DatasetReference(0, null, null, null, null, null, null, null);
+        return new DatasetReference(0, null, null, null, null, null, null, null, null);
     }
 
     private static PlateMetadata createEmptyPlateMetadata()

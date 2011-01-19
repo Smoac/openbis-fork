@@ -22,6 +22,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -56,9 +57,10 @@ public class ScreeningUtils
         DataStore dataStore = dataset.getDataStore();
         String dataTypeCode = dataset.getDataSetType().getCode();
         String fileTypeCode = dataset.getFileFormatType().getCode();
+        Experiment experiment = dataset.getExperiment();
         return new DatasetReference(dataset.getId(), dataset.getCode(), dataTypeCode,
                 dataset.getRegistrationDate(), fileTypeCode, dataStore.getCode(),
-                dataStore.getHostUrl(), dataset.getExperiment().getPermId());
+                dataStore.getHostUrl(), experiment.getPermId(), experiment.getIdentifier());
     }
 
     public static List<ExternalDataPE> filterImageAnalysisDatasets(List<ExternalDataPE> datasets)

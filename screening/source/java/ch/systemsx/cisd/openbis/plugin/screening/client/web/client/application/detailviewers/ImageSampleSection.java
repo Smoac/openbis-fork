@@ -168,12 +168,12 @@ public class ImageSampleSection extends TabContent
 
         private Widget createImageViewer(LogicalImageInfo imageInfo)
         {
-            String experimentPermId = imageInfo.getExperimentPermId();
             LogicalImageReference logicalImageReference =
                     new LogicalImageReference(imageInfo.getImageDataset(), wellLocationOrNull);
             LogicalImageViewer viewer =
-                    new LogicalImageViewer(logicalImageReference, viewContext, "",
-                            experimentPermId, true);
+                    new LogicalImageViewer(logicalImageReference, viewContext,
+                            imageInfo.getExperimentIdentifier(), imageInfo.getExperimentPermId(),
+                            true);
             return viewer.getViewerWidget(imageInfo.getChannelStacks());
         }
 
