@@ -197,6 +197,9 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         setUpDataSetValidatorExpectations();
         setUpMailClientExpectations();
 
+        didDataSetRollbackHappen = false;
+        didServiceRollbackHappen = false;
+
         handler.handle(markerFile);
 
         // Causes problems in Hudson
@@ -207,8 +210,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
 
         assertEquals(2, MockStorageProcessor.instance.calledStoreDataCount);
         assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
-        assertTrue(didDataSetRollbackHappen);
-        assertFalse(didServiceRollbackHappen);
+        assertTrue("Data set rollback should have been invoked", didDataSetRollbackHappen);
+        assertFalse("Service rollback should not have been invoked", didServiceRollbackHappen);
     }
 
     private void createData()
@@ -245,8 +248,10 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
 
         TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
-        assertTrue(theHandler.didRollbackDataSetRegistrationFunctionRun);
-        assertFalse(theHandler.didRollbackServiceFunctionRun);
+        assertTrue("Python data set rollback should have run",
+                theHandler.didRollbackDataSetRegistrationFunctionRun);
+        assertFalse("Python service rollback should not have run",
+                theHandler.didRollbackServiceFunctionRun);
     }
 
     @Test

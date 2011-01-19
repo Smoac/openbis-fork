@@ -91,13 +91,16 @@ public class ExtractableData extends Code<ExtractableData>
     @CollectionMapping(collectionClass = ArrayList.class, elementClass = String.class)
     public final void setParentDataSetCodes(List<String> parentDataSetCodes)
     {
-        this.parentDataSetCodes = parentDataSetCodes;
+
+        ArrayList<String> newParentDataSetCodes = new ArrayList<String>(parentDataSetCodes);
+        this.parentDataSetCodes = newParentDataSetCodes;
     }
 
     @CollectionMapping(collectionClass = ArrayList.class, elementClass = NewProperty.class)
     public void setDataSetProperties(List<NewProperty> dataSetProperties)
     {
-        this.dataSetProperties = dataSetProperties;
+        ArrayList<NewProperty> newDataSetProperties = new ArrayList<NewProperty>(dataSetProperties);
+        this.dataSetProperties = newDataSetProperties;
     }
 
     public List<NewProperty> getDataSetProperties()
