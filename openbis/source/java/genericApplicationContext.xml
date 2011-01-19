@@ -11,7 +11,6 @@
             http://www.springframework.org/schema/context/spring-context-2.5.xsd">
 
     <import resource="hibernateContext.xml" />
-
     <import resource="dbConfigurationContext.xml" />
 
     <bean id="data-source" factory-bean="db-configuration-context" factory-method="getDataSource" />
@@ -159,9 +158,6 @@
             </list>
         </property>
     </bean>
-
-    <bean id="handlerExceptionResolver" 
-        class="ch.systemsx.cisd.common.spring.DefaultHandlerExceptionResolver"/>
 
     <!-- 
         // Transaction
