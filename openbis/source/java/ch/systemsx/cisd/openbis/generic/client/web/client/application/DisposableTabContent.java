@@ -70,6 +70,7 @@ abstract public class DisposableTabContent extends TabContent
     {
         if (content != null)
         {
+            disposableComponentOrNull = content;
             add(content.getComponent());
             if (syncNeeded)
             {
