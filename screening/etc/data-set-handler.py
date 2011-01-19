@@ -22,6 +22,7 @@ TILE_COLUMNS_NUMBER = 2
 # available channels, for each channel code and label have to be specified
 CHANNELS = [ Channel("DAPI", "DAPI"), Channel("FITC", "FITC"), Channel("CY5", "Cy5") ]
 
+RECOGNIZED_IMAGES_EXTENSIONS = ["tiff", "tif", "png", "gif", "jpg", "jpeg"]
 
 # extracts code of the sample from the directory name
 def extract_sample_code(file_basename):
@@ -95,8 +96,14 @@ def create_image_infos(dir):
     images = []
     dir_path = dir.getPath()
     for file in os.listdir(dir_path):
-        image = create_image_info(file)
-        images.append(image)
+    	ext = os.path.splitext(file)[1][1:].lower()
+	try:
+		extIx = RECOGNIZED_IMAGES_EXTENSIONS.index(ext)
+                # not reached if extension not found
+		image = create_image_info(file)
+                images.append(image)	
+	except ValueError:
+		pass # extension not recognized	
     return images
 
 def set_dataset_info(registration_details, dataset):
