@@ -23,6 +23,7 @@ import java.util.Set;
 
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Element;
@@ -33,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.MaterialTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid.ICriteriaProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
@@ -45,7 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  * 
  * @author Izabela Adamczyk
  */
-public class MaterialBrowserToolbar extends ToolBar implements
+public class MaterialBrowserToolbar extends ToolBar implements IDisposableComponent,
         ICriteriaProvider<ListMaterialDisplayCriteria>
 {
     public static final String ID = "material-browser-toolbar";
@@ -122,6 +124,23 @@ public class MaterialBrowserToolbar extends ToolBar implements
         } else
         {
             entityTypeRefreshCallback.postRefresh(true);
+        }
+    }
+
+    public void update(Set<DatabaseModificationKind> observedModifications)
+    {
+    }
+
+    public Component getComponent()
+    {
+        return this;
+    }
+
+    public void dispose()
+    {
+        if (selectMaterialTypeCombo != null)
+        {
+            selectMaterialTypeCombo.dispose();
         }
     }
 

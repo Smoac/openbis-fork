@@ -1,17 +1,21 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search;
 
 import java.util.List;
+import java.util.Set;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.TextToolItem;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
@@ -21,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
  * @author Izabela Adamczyk
  * @author Piotr Buczek
  */
-public class DetailedSearchToolbar extends ToolBar
+public class DetailedSearchToolbar extends ToolBar implements IDisposableComponent
 {
     private LabelToolItem description;
 
@@ -57,6 +61,24 @@ public class DetailedSearchToolbar extends ToolBar
         {
             updateDescription(searchWindow.getCriteriaDescription());
         }
+    }
+
+    public void update(Set<DatabaseModificationKind> observedModifications)
+    {
+    }
+
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        return null;
+    }
+
+    public Component getComponent()
+    {
+        return this;
+    }
+
+    public void dispose()
+    {
     }
 
     public void updateSearchResults(DetailedSearchCriteria searchCriteria,

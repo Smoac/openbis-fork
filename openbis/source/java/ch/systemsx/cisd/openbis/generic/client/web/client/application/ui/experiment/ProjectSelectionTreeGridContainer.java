@@ -30,6 +30,7 @@ import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.TreeStore;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
@@ -53,16 +54,18 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SimplifiedBaseModelData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -78,7 +81,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
  * @author Piotr Buczek
  */
 public final class ProjectSelectionTreeGridContainer extends LayoutContainer implements
-        IDatabaseModificationObserver
+        IDisposableComponent
 {
 
     public static final String ID = GenericConstants.ID_PREFIX + "select-project";
@@ -96,6 +99,8 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
     private final TreeGrid<ModelData> tree;
 
     private final Map<Project, Widget> projectLinks = new HashMap<Project, Widget>();
+    
+    private String resultSetKey;
 
     public ProjectSelectionTreeGridContainer(final IViewContext<?> viewContext,
             String initialIdentifierOrNull)
@@ -405,11 +410,26 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
         refreshTree();
     }
 
+    public Component getComponent()
+    {
+        return this;
+    }
+
+    public void dispose()
+    {
+        if (resultSetKey != null)
+        {
+            viewContext.getCommonService().removeResultSet(resultSetKey,
+                    new VoidAsyncCallback<Void>(viewContext));
+        }
+    }
+
     //
     // Helper classes
     //
     private final class ListProjectsCallback extends AbstractAsyncCallback<TypedTableResultSet<Project>>
     {
+
         ListProjectsCallback(final IViewContext<?> viewContext)
         {
             super(viewContext);
@@ -418,7 +438,9 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
         @Override
         protected void process(final TypedTableResultSet<Project> result)
         {
-            List<TableModelRowWithObject<Project>> rows = result.getResultSet().getList().extractOriginalObjects();
+            ResultSet<TableModelRowWithObject<Project>> resultSet = result.getResultSet();
+            resultSetKey = resultSet.getResultSetKey();
+            List<TableModelRowWithObject<Project>> rows = resultSet.getList().extractOriginalObjects();
             List<Project> projects = new ArrayList<Project>();
             for (TableModelRowWithObject<Project> row : rows)
             {

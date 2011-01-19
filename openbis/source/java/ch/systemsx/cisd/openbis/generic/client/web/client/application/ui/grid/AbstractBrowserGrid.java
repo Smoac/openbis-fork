@@ -444,11 +444,11 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     /** @return this grid as a disposable component with a specified toolbar at the top. */
-    protected final DisposableEntityChooser<T> asDisposableWithToolbar(final Component toolbar)
+    protected final DisposableEntityChooser<T> asDisposableWithToolbar(final IDisposableComponent toolbar)
     {
         final LayoutContainer container = new LayoutContainer();
         container.setLayout(new RowLayout());
-        container.add(toolbar);
+        container.add(toolbar.getComponent());
         container.add(this, new RowData(1, 1));
 
         return asDisposableEntityChooser(container, toolbar);
@@ -465,13 +465,13 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
      *         the left.
      */
     protected final DisposableEntityChooser<T> asDisposableWithToolbarAndTree(
-            final Component toolbar, final Component tree, String headerOrNull)
+            final IDisposableComponent toolbar, final Component tree, String headerOrNull)
     {
         // WORKAROUND: BorderLayout causes problems when rendered in a tab
         // We use RowLayout here but we loose the split this way.
         final LayoutContainer container = new LayoutContainer();
         container.setLayout(new RowLayout(Orientation.VERTICAL));
-        container.add(toolbar, new RowData(1, -1));
+        container.add(toolbar.getComponent(), new RowData(1, -1));
 
         final LayoutContainer subContainer = new LayoutContainer();
         subContainer.setLayout(new RowLayout(Orientation.HORIZONTAL));
@@ -488,13 +488,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     private DisposableEntityChooser<T> asDisposableEntityChooser(final Component mainComponent,
-            Component toolbarOrNull)
+            final IDisposableComponent disposableComponentOrNull)
     {
         final AbstractBrowserGrid<T, M> self = this;
-        // TODO, 2011-01-18, FJE: Better toolbarOrNull declared as IDisposableComponent
-        final IDisposableComponent disposableComponent =
-                toolbarOrNull instanceof IDisposableComponent ? (IDisposableComponent) toolbarOrNull
-                        : null;
         return new DisposableEntityChooser<T>()
             {
                 public T tryGetSingleSelected()
@@ -513,9 +509,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 {
                     debug("dispose a browser");
                     self.disposeCache();
-                    if (disposableComponent != null)
+                    if (disposableComponentOrNull != null)
                     {
-                        disposableComponent.dispose();
+                        disposableComponentOrNull.dispose();
                     }
                 }
 

@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
@@ -75,6 +76,8 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
     protected boolean allowValueNotFromList = false;
 
     public String callbackIdOrNull;
+
+    protected String resultSetKey;
 
     private final List<IDataRefreshCallback> dataRefreshCallbacks;
 
@@ -193,11 +196,16 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
     {
         return this;
     }
-
+    
     public void dispose()
     {
+        if (resultSetKey != null && viewContextOrNull != null)
+        {
+            viewContextOrNull.getCommonService().removeResultSet(resultSetKey,
+                    new VoidAsyncCallback<Void>(viewContextOrNull));
+        }
     }
-
+    
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
         refreshStore();

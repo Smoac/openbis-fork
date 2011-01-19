@@ -26,7 +26,6 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SpaceModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
@@ -75,8 +74,6 @@ public class SpaceSelectionWidget extends DropDownList<SpaceModel, Space>
 
     private final boolean addAll;
     
-    private String resultSetKey;
-
     public SpaceSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
             boolean addShared, boolean addAll)
     {
@@ -92,16 +89,6 @@ public class SpaceSelectionWidget extends DropDownList<SpaceModel, Space>
         this.addShared = addShared;
         this.addAll = addAll;
         this.initialSpaceOrNull = initialSpaceCodeOrNull;
-    }
-    
-    @Override
-    public void dispose()
-    {
-        if (resultSetKey != null)
-        {
-            viewContext.getCommonService().removeResultSet(resultSetKey,
-                    new VoidAsyncCallback<Void>(viewContext));
-        }
     }
 
     /**
