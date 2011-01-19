@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.widget.Dialog;
-import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -164,7 +163,6 @@ public class ManagedPropertyGrid extends TypedTableGrid<Null>
     @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
-        Info.display("getRelevantModifications", "");
         return new DatabaseModificationKind[]
             {
                     // script changes can cause all sorts of changes to the grid
@@ -178,7 +176,6 @@ public class ManagedPropertyGrid extends TypedTableGrid<Null>
     @Override
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
-        Info.display("update", "");
         super.update(observedModifications);
     }
 

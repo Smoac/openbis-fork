@@ -108,9 +108,6 @@ public final class ManagedPropertyGridActionDialog extends
         for (IManagedInputWidgetDescription inputDescription : managedProperty.getUiDescription()
                 .getInputWidgetDescriptions())
         {
-            Info.display(inputDescription.getLabel() + " description",
-                    inputDescription.getDescription());
-            Info.display(inputDescription.getLabel() + " value", inputDescription.getValue());
             TextField<?> field;
             switch (inputDescription.getManagedInputFieldType())
             {
