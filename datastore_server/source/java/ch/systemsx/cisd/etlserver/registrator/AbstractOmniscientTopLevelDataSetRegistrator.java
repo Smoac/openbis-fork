@@ -34,7 +34,6 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.etlserver.AbstractTopLevelDataSetRegistrator;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm;
-import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm.IRollbackDelegate;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationRollbacker;
 import ch.systemsx.cisd.etlserver.DataStrategyStore;
 import ch.systemsx.cisd.etlserver.IDataStrategyStore;
@@ -50,10 +49,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 
 /**
+ * Abstract superclass for data set handlers that manage the entire data set registration process
+ * themselves.
+ * 
  * @author Chandrasekhar Ramakrishnan
  */
 public abstract class AbstractOmniscientTopLevelDataSetRegistrator extends
-        AbstractTopLevelDataSetRegistrator implements IRollbackDelegate
+        AbstractTopLevelDataSetRegistrator
 {
     static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
             AbstractOmniscientTopLevelDataSetRegistrator.class);
@@ -61,6 +63,11 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator extends
     static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             AbstractOmniscientTopLevelDataSetRegistrator.class);
 
+    /**
+     * Object that contains the global state available for data set handlers.
+     * 
+     * @author Chandrasekhar Ramakrishnan
+     */
     protected static class OmniscientTopLevelDataSetRegistratorState
     {
         private final TopLevelDataSetRegistratorGlobalState globalState;
@@ -154,6 +161,8 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator extends
     private boolean stopped;
 
     /**
+     * Constructor.
+     * 
      * @param globalState
      */
     protected AbstractOmniscientTopLevelDataSetRegistrator(
@@ -182,7 +191,13 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator extends
         return state.registrationLock;
     }
 
-    public void handle(File incomingDataSetFileOrIsFinishedFile)
+    /**
+     * A file has arrived in the drop box. Handle it.
+     * <p>
+     * Setup necessary for data set handling is done, then the handleDataSet method (a subclass
+     * responsibility) is invoked.
+     */
+    public final void handle(File incomingDataSetFileOrIsFinishedFile)
     {
         if (stopped)
         {
@@ -217,10 +232,16 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator extends
         }
 
         DataSetRegistrationService service =
-                new DataSetRegistrationService(this, cleanAfterwardsAction);
+                createDataSetRegistrationService(cleanAfterwardsAction);
 
-        handleDataSet(incomingDataSetFile, service);
-        service.commit();
+        try
+        {
+            handleDataSet(incomingDataSetFile, service);
+            service.commit();
+        } catch (Throwable ex)
+        {
+            rollback(service, ex);
+        }
     }
 
     public boolean isStopped()
@@ -243,9 +264,14 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator extends
     }
 
     /**
-     * For subclasses to override.
+     * Rollback a failure when trying to register an individual data set.
+     * <p>
+     * Subclasses may override, but should call super.
+     * 
+     * @param dataSetRegistrationService
      */
-    public void rollback(DataSetRegistrationAlgorithm registrationAlgorithm, Throwable throwable)
+    public void rollback(DataSetRegistrationService dataSetRegistrationService,
+            DataSetRegistrationAlgorithm registrationAlgorithm, Throwable throwable)
     {
         updateStopped(throwable instanceof InterruptedExceptionUnchecked);
 
@@ -254,6 +280,33 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator extends
                 throwable).doRollback();
     }
 
+    /**
+     * Rollback a failure that occurs outside of any *particular* data set registration, but with
+     * the whole processing of the incoming folder itself.
+     * <p>
+     * Subclasses may override, but should call super.
+     */
+    protected void rollback(DataSetRegistrationService service, Throwable throwable)
+    {
+        updateStopped(throwable instanceof InterruptedExceptionUnchecked);
+
+        service.abort();
+    }
+
+    /**
+     * Create the data set registration service.
+     */
+    protected DataSetRegistrationService createDataSetRegistrationService(
+            final IDelegatedActionWithResult<Boolean> cleanAfterwardsAction)
+    {
+        DataSetRegistrationService service =
+                new DataSetRegistrationService(this, cleanAfterwardsAction);
+        return service;
+    }
+
+    /**
+     * Register the data with openBIS
+     */
     public void registerDataSetInApplicationServer(DataSetInformation dataSetInformation,
             NewExternalData data) throws Throwable
     {
@@ -271,7 +324,10 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator extends
     }
 
     /**
-     * For subclasses to override.
+     * For subclasses to implement.
+     * 
+     * @throws Throwable
      */
-    protected abstract void handleDataSet(File dataSetFile, DataSetRegistrationService service);
+    protected abstract void handleDataSet(File dataSetFile, DataSetRegistrationService service)
+            throws Throwable;
 }

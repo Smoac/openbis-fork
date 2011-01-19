@@ -139,7 +139,7 @@ public class DataSetRegistrationService implements IRollbackDelegate
 
     public void rollback(DataSetRegistrationAlgorithm algorithm, Throwable ex)
     {
-        registrator.rollback(algorithm, ex);
+        registrator.rollback(this, algorithm, ex);
     }
 
     private static class DefaultApplicationServerRegistrator implements

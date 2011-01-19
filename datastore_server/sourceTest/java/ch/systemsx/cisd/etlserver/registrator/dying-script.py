@@ -2,9 +2,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier as identifier
 import java.io as io
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto as dto
 
-def rollbackAlgorithm(algorithm):
-	10
-
 # Create the Experiment Identifier
 identifier = identifier.ExperimentIdentifierFactory("/SPACE/PROJECT/EXP-CODE").createIdentifier()
 
@@ -15,10 +12,4 @@ dataSetInformation.setExperimentIdentifier(identifier)
 registrationDetails.setDataSetType(dto.DataSetType("O1"));
 futureDataSet = service.queueDataSetRegistration(io.File(incoming, "sub_data_set_1"), registrationDetails)
 
-# Register data set 2
-registrationDetails = factory.createRegistrationDetails()
-dataSetInformation = registrationDetails.getDataSetInformation()
-dataSetInformation.setExperimentIdentifier(identifier)
-dataSetInformation.setParentDataSetCodes([futureDataSet.getCode()])
-registrationDetails.setDataSetType(dto.DataSetType("O1"));
-service.queueDataSetRegistration(io.File(incoming, "sub_data_set_2"), registrationDetails)
+None.non_existant_function()

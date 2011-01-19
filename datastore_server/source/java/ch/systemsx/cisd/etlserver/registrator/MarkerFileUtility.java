@@ -88,12 +88,13 @@ public class MarkerFileUtility
         final String absolutePath = isFinishedFile.getAbsolutePath();
         if (ok == false)
         {
-            notificationLog.error(String.format("Removing file '%s' failed.", absolutePath));
+            notificationLog.error(String.format("Removing marker file '%s' failed.", absolutePath));
         } else
         {
             if (operationLog.isDebugEnabled())
             {
-                operationLog.debug(String.format("File '%s' has been removed.", absolutePath));
+                operationLog.debug(String
+                        .format("Marker file '%s' has been removed.", absolutePath));
             }
         }
         return ok;
