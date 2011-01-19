@@ -285,6 +285,14 @@ class LogicalImageSeriesGrid
         public String getLabel()
         {
             String desc = "";
+            if (isSeriesNumberPresent())
+            {
+                if (desc.length() > 0)
+                {
+                    desc += ". ";
+                }
+                desc += "Series: " + seriesNumberOrNull;
+            }
             if (isTimePointPresent())
             {
                 if (desc.length() > 0)
@@ -300,14 +308,6 @@ class LogicalImageSeriesGrid
                     desc += ". ";
                 }
                 desc += "Depth: " + zOrNull;
-            }
-            if (isSeriesNumberPresent())
-            {
-                if (desc.length() > 0)
-                {
-                    desc += ". ";
-                }
-                desc += "Series: " + seriesNumberOrNull;
             }
             return desc;
         }
