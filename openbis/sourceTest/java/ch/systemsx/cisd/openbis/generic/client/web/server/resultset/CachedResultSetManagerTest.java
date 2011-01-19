@@ -32,6 +32,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GridCustomColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ColumnDistinctValues;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomFilterInfo;
@@ -52,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ParameterWithValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo.SortDir;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 
 /**
  * Test cases for corresponding {@link CachedResultSetManager} class.
@@ -280,6 +282,44 @@ public final class CachedResultSetManagerTest extends AssertJUnit
         {
             return recordedColumnCodes.toString();
         }
+    }
+    
+    private static final class MockOriginalDataProvider implements IOriginalDataProvider<DataHolder>
+    {
+        private final List<DataHolder> data;
+        private final int maxSizeThresholdForSlowDelivery;
+        private final long timeToDeliver;
+        
+        private List<Integer> recordedMaxSizes = new ArrayList<Integer>();
+
+        MockOriginalDataProvider(List<DataHolder> data, int maxSizeThresholdForSlowDelivery, long timeToDeliver)
+        {
+            this.data = data;
+            this.maxSizeThresholdForSlowDelivery = maxSizeThresholdForSlowDelivery;
+            this.timeToDeliver = timeToDeliver;
+        }
+
+        public List<DataHolder> getOriginalData(int maxSize) throws UserFailureException
+        {
+            recordedMaxSizes.add(maxSize);
+            if (maxSize >= maxSizeThresholdForSlowDelivery)
+            {
+                try
+                {
+                    Thread.sleep(timeToDeliver);
+                } catch (InterruptedException ex)
+                {
+                    // ignored
+                }
+            }
+            return data.subList(0, Math.min(data.size(), maxSize));
+        }
+
+        public List<TableModelColumnHeader> getHeaders()
+        {
+            return Arrays.asList();
+        }
+        
     }
 
     private IOriginalDataProvider<DataHolder> originalDataProvider;
@@ -839,6 +879,52 @@ public final class CachedResultSetManagerTest extends AssertJUnit
                 resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
         assertEquals("beta", getData(resultSet, 0));
 
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testWaitingForFuture()
+    {
+        List<DataHolder> data = createDataList("a", "b", "c", "d");
+        MockOriginalDataProvider dataProvider = new MockOriginalDataProvider(data, 2, 1000);
+        ResultSetConfigBuilder builder =
+                new ResultSetConfigBuilder(COL_DEFS).computeAndCache().limit(1);
+        context.checking(new Expectations()
+            {
+                {
+                    one(keyGenerator).createKey();
+                    will(returnValue(KEY));
+                }
+            });
+        
+        // First call gets only first page
+        IResultSet<Long, DataHolder> resultSet =
+            resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), dataProvider);
+        assertEquals(true, resultSet.isPartial());
+        assertEquals(1, resultSet.getList().size());
+        assertEquals(1, resultSet.getTotalLength());
+        assertEquals("a", getData(resultSet, 0));
+        
+        // Second call has to wait
+        builder.fetchFromCache(KEY);
+        resultSet =
+            resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), dataProvider);
+        assertEquals(false, resultSet.isPartial());
+        assertEquals(1, resultSet.getList().size());
+        assertEquals(4, resultSet.getTotalLength());
+        assertEquals("a", getData(resultSet, 0));
+        
+        // Third call get sorted value
+        builder.sortDesc("col1");
+        resultSet =
+            resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), dataProvider);
+        assertEquals(false, resultSet.isPartial());
+        assertEquals(1, resultSet.getList().size());
+        assertEquals(4, resultSet.getTotalLength());
+        assertEquals("d", getData(resultSet, 0));
+        
+        assertEquals(Arrays.asList(1, Integer.MAX_VALUE).toString(), dataProvider.recordedMaxSizes.toString());
+        
         context.assertIsSatisfied();
     }
 
