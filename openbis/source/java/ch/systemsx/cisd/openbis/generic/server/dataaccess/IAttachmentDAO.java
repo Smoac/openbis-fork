@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 /**
  * Data access object for managing persistency of {@link AttachmentPE} instances.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public interface IAttachmentDAO extends IGenericDAO<AttachmentPE>
 {
@@ -74,6 +74,8 @@ public interface IAttachmentDAO extends IGenericDAO<AttachmentPE>
     /**
      * Deletes all attachment versions with specified <var>fileName</var> and <var>owner</var>.
      * There will be no error if no such attachment exist.
+     * <p>
+     * NOTE: Attachments are removed from DB - not from the owner object.
      * 
      * @return number of attachments deleted
      */

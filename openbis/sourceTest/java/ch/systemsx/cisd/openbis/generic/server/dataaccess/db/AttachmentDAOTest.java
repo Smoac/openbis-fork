@@ -20,8 +20,6 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
@@ -44,41 +42,39 @@ public final class AttachmentDAOTest extends AbstractDAOTest
     private static final String ATT_CONTENTS_TABLE = "attachment_contents";
 
     @Test
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public final void testDeleteAttachment()
     {
-        final int NUM_ATTACHMENTS = 2;
-
         IAttachmentDAO attachmentDAO = daoFactory.getAttachmentDAO();
-        AttachmentPE attachment1 = createTestAttachment(1);
-        AttachmentPE attachment2 = createTestAttachment(2);
+        AttachmentPE attachment1v1 = createTestAttachment(FILE_NAME, 1);
+        AttachmentPE attachment1v2 = createTestAttachment(FILE_NAME, 2);
+        AttachmentPE attachment2 = createTestAttachment(FILE_NAME + "2", 1);
         ExperimentPE owner = selectFirstExperiment();
 
         int rowsInAttachmentContents = countRowsInTable(ATT_CONTENTS_TABLE);
+        System.err.println(rowsInAttachmentContents);
 
         // create
-        attachmentDAO.createAttachment(attachment1, owner);
+        attachmentDAO.createAttachment(attachment1v1, owner);
+        attachmentDAO.createAttachment(attachment1v2, owner);
         attachmentDAO.createAttachment(attachment2, owner);
 
         AttachmentPE persisted =
                 attachmentDAO.tryFindAttachmentByOwnerAndFileName(owner, FILE_NAME);
         assertNotNull(persisted);
-        assertEquals(rowsInAttachmentContents + NUM_ATTACHMENTS,
-                countRowsInTable(ATT_CONTENTS_TABLE));
+        assertEquals(rowsInAttachmentContents + 3, countRowsInTable(ATT_CONTENTS_TABLE));
 
         // delete and test
         attachmentDAO.deleteByOwnerAndFileName(owner, FILE_NAME);
 
         persisted = attachmentDAO.tryFindAttachmentByOwnerAndFileName(owner, FILE_NAME);
         assertNull(persisted);
-        assertEquals(rowsInAttachmentContents, countRowsInTable(ATT_CONTENTS_TABLE));
-
+        assertEquals(rowsInAttachmentContents + 1, countRowsInTable(ATT_CONTENTS_TABLE));
     }
 
-    private AttachmentPE createTestAttachment(int version)
+    private AttachmentPE createTestAttachment(String fileName, int version)
     {
         AttachmentPE result = new AttachmentPE();
-        result.setFileName(FILE_NAME);
+        result.setFileName(fileName);
         result.setVersion(version);
 
         AttachmentContentPE content = new AttachmentContentPE();
