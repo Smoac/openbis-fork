@@ -197,15 +197,15 @@ public class PostgreSQLAdminDAO extends AbstractDatabaseAdminDAO
             getJdbcTemplate().execute(CREATE_PLPGSQL);
         } catch (RuntimeException ex)
         {
-            // if (ex instanceof DataAccessException
-            // && DBUtilities.isDuplicateObjectException((DataAccessException) ex))
-            // {
-            // operationLog.warn("Cannot create language PL/PgSQL since it already exists.");
-            // } else
-            // {
-            operationLog.error("Failed to create language PL/PgSQL.", ex);
-            // throw ex;
-            // }
+            if (ex instanceof DataAccessException
+                    && DBUtilities.isDuplicateObjectException((DataAccessException) ex))
+            {
+                operationLog.warn("Cannot create language PL/PgSQL since it already exists.");
+            } else
+            {
+                operationLog.error("Failed to create language PL/PgSQL.", ex);
+                throw ex;
+            }
         }
     }
 
