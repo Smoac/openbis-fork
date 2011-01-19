@@ -54,15 +54,13 @@ public class PostgreSQLAdminDAO extends AbstractDatabaseAdminDAO
 
     private static final String CREATE_PLPGSQL = "create language plpgsql;";
 
-    private static final String CREATE_TABLE_DATABASE_VERSION_LOGS_SQL =
-            "create table "
-                    + DatabaseVersionLogDAO.DB_VERSION_LOG
-                    + " (db_version varchar(4) not null, "
-                    + "module_name varchar(250), run_status varchar(10), run_status_timestamp timestamp, "
-                    + "module_code bytea, run_exception bytea);";
+    private static final String CREATE_TABLE_DATABASE_VERSION_LOGS_SQL = "create table "
+            + DatabaseVersionLogDAO.DB_VERSION_LOG + " (db_version varchar(4) not null, "
+            + "module_name varchar(250), run_status varchar(10), run_status_timestamp timestamp, "
+            + "module_code bytea, run_exception bytea);";
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, PostgreSQLAdminDAO.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            PostgreSQLAdminDAO.class);
 
     /**
      * Creates an instance.
@@ -140,8 +138,7 @@ public class PostgreSQLAdminDAO extends AbstractDatabaseAdminDAO
                 }
             } else
             {
-                operationLog.error("Database role '" + role
-                        + "' couldn't be created:", ex);
+                operationLog.error("Database role '" + role + "' couldn't be created:", ex);
                 throw ex;
             }
         }
@@ -200,15 +197,15 @@ public class PostgreSQLAdminDAO extends AbstractDatabaseAdminDAO
             getJdbcTemplate().execute(CREATE_PLPGSQL);
         } catch (RuntimeException ex)
         {
-            if (ex instanceof DataAccessException
-                    && DBUtilities.isDuplicateObjectException((DataAccessException) ex))
-            {
-                operationLog.warn("Cannot create language PL/PgSQL since it already exists.");
-            } else
-            {
-                operationLog.error("Failed to create language PL/PgSQL.", ex);
-                throw ex;
-            }
+            // if (ex instanceof DataAccessException
+            // && DBUtilities.isDuplicateObjectException((DataAccessException) ex))
+            // {
+            // operationLog.warn("Cannot create language PL/PgSQL since it already exists.");
+            // } else
+            // {
+            operationLog.error("Failed to create language PL/PgSQL.", ex);
+            // throw ex;
+            // }
         }
     }
 
@@ -262,7 +259,7 @@ public class PostgreSQLAdminDAO extends AbstractDatabaseAdminDAO
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug("Searching for mass upload files in directory '"
-                    + dumpFolder.getAbsolutePath() + "'."); 
+                    + dumpFolder.getAbsolutePath() + "'.");
         }
         String[] csvFiles = dumpFolder.list(new FilenameFilter()
             {
