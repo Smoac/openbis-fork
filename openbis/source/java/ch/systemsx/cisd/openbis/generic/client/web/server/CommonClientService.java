@@ -65,15 +65,16 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReferenc
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.InvalidSessionException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.ITableDataProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AbstractCommonTableModelProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DataProviderAdapter;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.FileFormatTypesProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ITableModelProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.MatchingEntitiesProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ProjectsProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.SampleProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ScriptProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.SpacesProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.TableDataProviderFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.VocabulariesProvider;
@@ -150,7 +151,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
@@ -497,7 +497,7 @@ public final class CommonClientService extends AbstractClientService implements
         return prepareExportEntities(criteria);
     }
 
-    public String prepareExportScripts(TableExportCriteria<Script> criteria)
+    public String prepareExportScripts(TableExportCriteria<TableModelRowWithObject<Script>> criteria)
     {
         return prepareExportEntities(criteria);
     }
@@ -654,12 +654,18 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     private <T extends ISerializable> TypedTableResultSet<T> listEntities(
-            AbstractCommonTableModelProvider<T> provider,
+            ITableModelProvider<T> provider,
             IResultSetConfig<String, TableModelRowWithObject<T>> criteria)
     {
-        DataProviderAdapter<T> dataProvider = new DataProviderAdapter<T>(provider);
-        ResultSet<TableModelRowWithObject<T>> resultSet = listEntities(criteria, dataProvider);
-        return new TypedTableResultSet<T>(resultSet);
+        try
+        {
+            DataProviderAdapter<T> dataProvider = new DataProviderAdapter<T>(provider);
+            ResultSet<TableModelRowWithObject<T>> resultSet = listEntities(criteria, dataProvider);
+            return new TypedTableResultSet<T>(resultSet);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
     }
 
     public TypedTableResultSet<Space> listGroups(
@@ -669,31 +675,12 @@ public final class CommonClientService extends AbstractClientService implements
         return listEntities(spacesProvider, criteria);
     }
 
-    public ResultSet<Script> listScripts(final ListScriptsCriteria criteria)
+    public TypedTableResultSet<Script> listScripts(final ListScriptsCriteria criteria)
     {
-        return listEntities(criteria, new AbstractOriginalDataProviderWithoutHeaders<Script>()
-            {
-                @Override
-                public List<Script> getFullOriginalData() throws UserFailureException
-                {
-                    return listScripts(criteria.tryGetScriptType(), criteria.tryGetEntityKind());
-                }
-            });
-    }
-
-    private List<Script> listScripts(ScriptType scriptTypeOrNull, EntityKind entityKindOrNull)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
-    {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            final List<Script> scripts =
-                    commonServer.listScripts(sessionToken, scriptTypeOrNull, entityKindOrNull);
-            return scripts;
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        ScriptProvider scriptProvider =
+                new ScriptProvider(commonServer, getSessionToken(), criteria.tryGetScriptType(),
+                        criteria.tryGetEntityKind());
+        return listEntities(scriptProvider, criteria);
     }
 
     public List<AuthorizationGroup> listAuthorizationGroups()

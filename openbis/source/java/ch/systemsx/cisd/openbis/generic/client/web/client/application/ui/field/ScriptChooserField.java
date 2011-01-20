@@ -27,13 +27,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * A field for selecting a script.
  * 
  * @author Izabela Adamczyk
  */
-public class ScriptChooserField extends ChosenEntitySetter<Script>
+public class ScriptChooserField extends ChosenEntitySetter<TableModelRowWithObject<Script>>
 {
 
     public interface IScriptTypeProvider
@@ -81,22 +82,22 @@ public class ScriptChooserField extends ChosenEntitySetter<Script>
     }
 
     private static void browseScripts(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final ChosenEntitySetter<Script> chosenScriptField, ScriptType scriptTypeOrNull,
+            final ChosenEntitySetter<TableModelRowWithObject<Script>> chosenScriptField, ScriptType scriptTypeOrNull,
             EntityKind entityKindOrNull)
     {
-        DisposableEntityChooser<Script> scriptBrowser =
+        DisposableEntityChooser<TableModelRowWithObject<Script>> scriptBrowser =
                 ScriptGrid.create(viewContext, scriptTypeOrNull, entityKindOrNull);
         String title =
                 viewContext.getMessage(Dict.TITLE_CHOOSE_SCRIPT, scriptTypeOrNull == null ? ""
                         : scriptTypeOrNull.getDescription());
-        new EntityChooserDialog<Script>(scriptBrowser, chosenScriptField, title, viewContext)
+        new EntityChooserDialog<TableModelRowWithObject<Script>>(scriptBrowser, chosenScriptField, title, viewContext)
                 .show();
     }
 
     @Override
-    public String renderEntity(Script script)
+    public String renderEntity(TableModelRowWithObject<Script> script)
     {
-        return script.getName();
+        return script.getObjectOrNull().getName();
     }
 
     private ScriptChooserField(boolean mandatory, String initialValueOrNull,

@@ -123,10 +123,10 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
 
     /** @see ICommonClientService#listScripts(ListScriptsCriteria) */
     public void listScripts(ListScriptsCriteria criteria,
-            final AsyncCallback<ResultSet<Script>> asyncCallback);
+            final AsyncCallback<TypedTableResultSet<Script>> asyncCallback);
 
     /** @see ICommonClientService#prepareExportScripts(TableExportCriteria) */
-    public void prepareExportScripts(TableExportCriteria<Script> exportCriteria,
+    public void prepareExportScripts(TableExportCriteria<TableModelRowWithObject<Script>> exportCriteria,
             AsyncCallback<String> callback);
 
     /** @see ICommonClientService#prepareExportGroups(TableExportCriteria) */

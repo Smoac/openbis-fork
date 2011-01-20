@@ -20,13 +20,14 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * Criteria for listing scripts.
  * 
  * @author Izabela Adamczyk
  */
-public final class ListScriptsCriteria extends DefaultResultSetConfig<String, Script> implements
+public final class ListScriptsCriteria extends DefaultResultSetConfig<String, TableModelRowWithObject<Script>> implements
         IsSerializable
 {
     // If "null", all scripts should be included

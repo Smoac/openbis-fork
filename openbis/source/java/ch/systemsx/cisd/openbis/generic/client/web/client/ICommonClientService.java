@@ -134,12 +134,12 @@ public interface ICommonClientService extends IClientService
     /**
      * Returns a list of all scripts.
      */
-    public ResultSet<Script> listScripts(ListScriptsCriteria criteria) throws UserFailureException;
+    public TypedTableResultSet<Script> listScripts(ListScriptsCriteria criteria) throws UserFailureException;
 
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for scripts.
      */
-    public String prepareExportScripts(final TableExportCriteria<Script> criteria)
+    public String prepareExportScripts(final TableExportCriteria<TableModelRowWithObject<Script>> criteria)
             throws UserFailureException;
 
     /**

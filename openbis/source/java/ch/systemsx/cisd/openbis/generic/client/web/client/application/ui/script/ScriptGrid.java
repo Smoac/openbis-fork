@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.script;
 
+import java.util.Arrays;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -23,6 +24,7 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -39,36 +41,36 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.ScriptColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListScriptsCriteria;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ScriptGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * Grid displaying scripts.
  * 
  * @author Izabela Adamczyk
  */
-public class ScriptGrid extends AbstractSimpleBrowserGrid<Script>
+public class ScriptGrid extends TypedTableGrid<Script>
 {
     // browser consists of the grid and the paging toolbar
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "script-browser";
 
-    public static final String GRID_ID = BROWSER_ID + "_grid";
+    public static final String GRID_ID = BROWSER_ID + TypedTableGrid.GRID_POSTFIX;
 
     public static final String ADD_BUTTON_ID = BROWSER_ID + "_add-button";
 
@@ -80,7 +82,7 @@ public class ScriptGrid extends AbstractSimpleBrowserGrid<Script>
 
     private final ScriptType scriptTypeOrNull;
 
-    public static DisposableEntityChooser<Script> create(
+    public static DisposableEntityChooser<TableModelRowWithObject<Script>> create(
             final IViewContext<ICommonClientServiceAsync> viewContext, ScriptType scriptTypeOrNull,
             EntityKind entityKindOrNull)
     {
@@ -92,7 +94,7 @@ public class ScriptGrid extends AbstractSimpleBrowserGrid<Script>
     private ScriptGrid(IViewContext<ICommonClientServiceAsync> viewContext,
             ScriptType scriptTypeOrNull, EntityKind entityKindOrNull)
     {
-        super(viewContext, BROWSER_ID, GRID_ID, DisplayTypeIDGenerator.SCRIPTS_BROWSER_GRID);
+        super(viewContext, BROWSER_ID, true, DisplayTypeIDGenerator.SCRIPTS_BROWSER_GRID);
         this.entityKindOrNull = entityKindOrNull;
         this.scriptTypeOrNull = scriptTypeOrNull;
     }
@@ -117,9 +119,9 @@ public class ScriptGrid extends AbstractSimpleBrowserGrid<Script>
 
         Button editButton =
                 createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
-                        new ISelectedEntityInvoker<BaseEntityModel<Script>>()
+                        new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<Script>>>()
                             {
-                                public void invoke(BaseEntityModel<Script> selectedItem,
+                                public void invoke(BaseEntityModel<TableModelRowWithObject<Script>> selectedItem,
                                         boolean keyPressed)
                                 {
                                     openEditor(selectedItem, keyPressed);
@@ -133,7 +135,7 @@ public class ScriptGrid extends AbstractSimpleBrowserGrid<Script>
                         new AbstractCreateDialogListener()
                             {
                                 @Override
-                                protected Dialog createDialog(List<Script> scripts,
+                                protected Dialog createDialog(List<TableModelRowWithObject<Script>> scripts,
                                         IBrowserGridActionInvoker invoker)
                                 {
                                     return new ScriptListDeletionConfirmationDialog(viewContext,
@@ -147,15 +149,15 @@ public class ScriptGrid extends AbstractSimpleBrowserGrid<Script>
     }
 
     @Override
-    protected IColumnDefinitionKind<Script>[] getStaticColumnsDefinition()
+    protected String translateColumnIdToDictionaryKey(String columnID)
     {
-        return ScriptColDefKind.values();
+        return columnID.toLowerCase();
     }
-
+    
     @Override
-    protected ColumnDefsAndConfigs<Script> createColumnsDefinition()
+    protected ColumnDefsAndConfigs<TableModelRowWithObject<Script>> createColumnsDefinition()
     {
-        ColumnDefsAndConfigs<Script> schema = super.createColumnsDefinition();
+        ColumnDefsAndConfigs<TableModelRowWithObject<Script>> schema = super.createColumnsDefinition();
         schema.setGridCellRendererFor(ScriptColDefKind.DESCRIPTION.id(),
                 createMultilineStringCellRenderer());
         schema.setGridCellRendererFor(ScriptColDefKind.SCRIPT.id(),
@@ -164,8 +166,9 @@ public class ScriptGrid extends AbstractSimpleBrowserGrid<Script>
     }
 
     @Override
-    protected void listEntities(DefaultResultSetConfig<String, Script> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<Script>> callback)
+    protected void listTableRows(
+            DefaultResultSetConfig<String, TableModelRowWithObject<Script>> resultSetConfig,
+            AsyncCallback<TypedTableResultSet<Script>> callback)
     {
         ListScriptsCriteria criteria = new ListScriptsCriteria();
         criteria.copyPagingConfig(resultSetConfig);
@@ -175,25 +178,19 @@ public class ScriptGrid extends AbstractSimpleBrowserGrid<Script>
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<Script> exportCriteria,
+    protected void prepareExportEntities(TableExportCriteria<TableModelRowWithObject<Script>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportScripts(exportCriteria, callback);
     }
 
     @Override
-    protected List<IColumnDefinition<Script>> getInitialFilters()
+    protected List<String> getColumnIdsOfFilters()
     {
-        return asColumnFilters(new ScriptColDefKind[]
-            { ScriptColDefKind.NAME });
+        return Arrays.asList(ScriptGridColumnIDs.NAME);
     }
 
     @Override
-    protected void showEntityViewer(final Script script, boolean editMode, boolean inBackground)
-    {
-        assert false : "not implemented";
-    }
-
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
@@ -201,9 +198,9 @@ public class ScriptGrid extends AbstractSimpleBrowserGrid<Script>
                     DatabaseModificationKind.edit(ObjectKind.SCRIPT) };
     }
 
-    private void openEditor(BaseEntityModel<Script> selectedItem, boolean keyPressed)
+    private void openEditor(BaseEntityModel<TableModelRowWithObject<Script>> selectedItem, boolean keyPressed)
     {
-        final Script script = selectedItem.getBaseObject();
+        final Script script = selectedItem.getBaseObject().getObjectOrNull();
         final TechId scriptId = TechId.create(script);
         AbstractTabItemFactory tabFactory = new AbstractTabItemFactory()
             {
@@ -244,7 +241,7 @@ public class ScriptGrid extends AbstractSimpleBrowserGrid<Script>
     }
 
     private static final class ScriptListDeletionConfirmationDialog extends
-            AbstractDataListDeletionConfirmationDialog<Script>
+            AbstractDataListDeletionConfirmationDialog<TableModelRowWithObject<Script>>
     {
 
         private final IViewContext<ICommonClientServiceAsync> viewContext;
@@ -252,7 +249,7 @@ public class ScriptGrid extends AbstractSimpleBrowserGrid<Script>
         private final AbstractAsyncCallback<Void> callback;
 
         public ScriptListDeletionConfirmationDialog(
-                IViewContext<ICommonClientServiceAsync> viewContext, List<Script> data,
+                IViewContext<ICommonClientServiceAsync> viewContext, List<TableModelRowWithObject<Script>> data,
                 AbstractAsyncCallback<Void> callback)
         {
             super(viewContext, data);
