@@ -22,6 +22,7 @@ import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSea
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.event.BaseEvent;
@@ -65,6 +66,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
@@ -215,7 +217,27 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
     {
         WellSearchGrid reviewer =
                 new WellSearchGrid(viewContext, experimentCriteriaOrNull, materialCriteria);
-        return reviewer.asDisposableWithToolbar(reviewer.createToolbar());
+        final ToolBar toolbar = reviewer.createToolbar();
+        return reviewer.asDisposableWithToolbar(new IDisposableComponent()
+            {
+                public void update(Set<DatabaseModificationKind> observedModifications)
+                {
+                }
+                
+                public DatabaseModificationKind[] getRelevantModifications()
+                {
+                    return null;
+                }
+                
+                public Component getComponent()
+                {
+                    return toolbar;
+                }
+                
+                public void dispose()
+                {
+                }
+            });
     }
 
     private final IViewContext<IScreeningClientServiceAsync> viewContext;
