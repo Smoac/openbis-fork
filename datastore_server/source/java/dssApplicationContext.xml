@@ -21,16 +21,34 @@
   <bean id="plugin-tasks" class="ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProviders"
         factory-method="create" />
 
-    <bean id="openBIS-service" class="ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService">
+  <bean id="etl-lims-service" class="ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService"
+      factory-method="createOpenBisService">
+      <constructor-arg value="${server-url}"/>
+  </bean>
+  
+  <bean id="sessionHolder" class="ch.systemsx.cisd.openbis.dss.generic.server.openbisauth.OpenBISSessionHolder">
+      <property name="dataStoreCode" value="${data-store-server-code}"/>
+  </bean>
+  
+  <bean id="reauthenticateInterceptor" class="ch.systemsx.cisd.openbis.dss.generic.server.openbisauth.OpenBISAuthenticationInterceptor">
         <constructor-arg ref="session-token-manager"/>
-        <constructor-arg value="${server-url}"/>
+        <constructor-arg ref="etl-lims-service"/>
+        <constructor-arg ref="plugin-tasks" />
+        <constructor-arg ref="sessionHolder" />
         <property name="username" value="${username}"/>
         <property name="password" value="${password}"/>
         <property name="port" value="${port}"/>
         <property name="useSSL" value="${use-ssl}"/>
         <property name="downloadUrl" value="${download-url}"/>
-        <property name="dataStoreCode" value="${data-store-server-code}"/>
-        <constructor-arg ref="plugin-tasks" />
+  </bean>
+  
+  <bean id="reauthenticateAdvisor" class="ch.systemsx.cisd.openbis.dss.generic.server.openbisauth.OpenBISAuthenticationAdvisor">
+      <constructor-arg ref="reauthenticateInterceptor"/>
+  </bean>
+   
+    <bean id="openBIS-service" class="ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService">
+       <constructor-arg ref="etl-lims-service"/>
+       <constructor-arg ref="sessionHolder"/>
     </bean>    
     
     <bean id="data-store-server"

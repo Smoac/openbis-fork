@@ -53,12 +53,11 @@ import ch.systemsx.cisd.common.test.LogMonitoringAppender;
 import ch.systemsx.cisd.etlserver.IStorageProcessor.UnstoreDataAction;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.dss.generic.server.SessionTokenManager;
+import ch.systemsx.cisd.openbis.dss.generic.server.openbisauth.OpenBISSessionHolder;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProviders;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PluginUtilTest;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -70,9 +69,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 
@@ -254,19 +251,17 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         context = new Mockery();
         dataSetInfoExtractor = context.mock(IDataSetInfoExtractor.class);
         typeExtractor = context.mock(ITypeExtractor.class);
-        String storeRoot = workingDirectory.getPath();
         storageProcessor = context.mock(IStorageProcessor.class);
         limsService = context.mock(IETLLIMSService.class);
         mailClient = context.mock(IMailClient.class);
         plugin =
                 new ETLServerPlugin(new MockDataSetInfoExtractor(dataSetInfoExtractor),
                         typeExtractor, storageProcessor);
+
+        OpenBISSessionHolder sessionHolder = new OpenBISSessionHolder();
+        sessionHolder.setToken(SESSION_TOKEN);
         authorizedLimsService =
-                new EncapsulatedOpenBISService(new SessionTokenManager(), limsService,
-                        PluginUtilTest.createPluginTaskProviders(new File(storeRoot)));
-        authorizedLimsService.setUsername("u");
-        authorizedLimsService.setPassword("p");
-        authorizedLimsService.setDownloadUrl("url");
+ new EncapsulatedOpenBISService(limsService, sessionHolder);
         dataSetValidator = context.mock(IDataSetValidator.class);
 
         Properties threadProperties = new Properties();
@@ -407,12 +402,6 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
                     one(storageProcessor).getStoreRootDirectory();
                     will(returnValue(workingDirectory));
-
-                    one(limsService).tryToAuthenticate("u", "p");
-                    will(returnValue(createSession()));
-
-                    one(limsService).registerDataStoreServer(with(equal(SESSION_TOKEN)),
-                            with(any(DataStoreServerInfo.class)));
 
                     atLeast(1).of(limsService).tryGetSampleWithExperiment(SESSION_TOKEN,
                             dataSetInformation.getSampleIdentifier());
@@ -840,12 +829,5 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         preRegistrationAppender.verifyLogHasHappened();
         System.out.println(Arrays.toString(dataSetPath.list()));
         context.assertIsSatisfied();
-    }
-
-    private static SessionContextDTO createSession()
-    {
-        SessionContextDTO session = new SessionContextDTO();
-        session.setSessionToken(SESSION_TOKEN);
-        return session;
     }
 }
