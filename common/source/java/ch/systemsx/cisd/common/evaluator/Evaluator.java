@@ -111,14 +111,50 @@ public final class Evaluator
             interpreter.exec(initialScriptOrNull);
         }
         this.expression = expression;
+        this.compiledExpression = doCompile(expression);
+    }
+
+    /**
+     * @return compiled <var>expression</var>
+     * @throws EvaluatorException if compilation fails
+     */
+    private static PyCode doCompile(String expression) throws EvaluatorException
+    {
         try
         {
-            this.compiledExpression =
-                    __builtin__.compile("__result__=(" + expression + ")", "expression: "
-                            + expression, "exec");
+            return __builtin__.compile("__result__=(" + expression + ")", "expression: "
+                    + expression, "exec");
         } catch (PyException ex)
         {
-            throw toEvaluatorException(ex);
+            throw toEvaluatorException(ex, expression);
+        }
+    }
+
+    /**
+     * @throws EvaluatorException if compilation of given expression fails
+     */
+    public static void checkExpressionCompilation(String expression) throws EvaluatorException
+    {
+        new PythonInterpreter();
+        doCompile(expression);
+    }
+
+    /**
+     * @throws EvaluatorException if compilation of given script fails
+     */
+    public static void checkScriptCompilation(String script) throws EvaluatorException
+    {
+        try
+        {
+            PythonInterpreter pi = new PythonInterpreter();
+            // Security: do not allow file access.
+            pi.exec("def open():\n   pass");
+            pi.exec(script);
+        } catch (PyException ex)
+        {
+            final String msg =
+                    "Script compilation failed with message:\n\n" + extractExceptionMessage(ex);
+            throw new EvaluatorException(msg);
         }
     }
 
@@ -313,10 +349,20 @@ public final class Evaluator
 
     private EvaluatorException toEvaluatorException(PyException ex)
     {
-        final String[] description = StringUtils.split(ex.toString(), '\n');
-        final String msg =
-                "Error evaluating '" + expression + "': " + description[description.length - 1];
+        return toEvaluatorException(ex, expression);
+    }
+
+    private static EvaluatorException toEvaluatorException(PyException ex, String expression)
+    {
+        final String exMsg = extractExceptionMessage(ex);
+        final String msg = "Error evaluating '" + expression + "': " + exMsg;
         return new EvaluatorException(msg);
+    }
+
+    private static String extractExceptionMessage(PyException ex)
+    {
+        final String[] description = StringUtils.split(ex.toString(), '\n');
+        return description[description.length - 1];
     }
 
     public static boolean isMultiline(String expression)

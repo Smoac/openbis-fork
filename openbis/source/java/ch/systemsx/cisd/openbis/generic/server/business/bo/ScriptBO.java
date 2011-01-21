@@ -20,6 +20,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataRetrievalFailureException;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.evaluator.Evaluator;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -97,6 +98,7 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
         assert script != null : "Script not defined";
         try
         {
+            checkScriptCompilation(script.getScript());
             getScriptDAO().createOrUpdate(script);
         } catch (final DataAccessException e)
         {
@@ -127,8 +129,11 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
         {
             scriptChanged = true;
             script.setScript(updates.getScript());
+            checkScriptCompilation(updates.getScript());
         }
         getScriptDAO().createOrUpdate(script);
+
+        script.getScript();
         if (scriptChanged && script.isDynamic())
         {
             for (EntityTypePropertyTypePE assignment : script.getPropertyAssignments())
@@ -137,6 +142,11 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
                         .scheduleDynamicPropertiesEvaluation(assignment);
             }
         }
+    }
+
+    private void checkScriptCompilation(String scriptExpression)
+    {
+        Evaluator.checkScriptCompilation(scriptExpression);
     }
 
 }
