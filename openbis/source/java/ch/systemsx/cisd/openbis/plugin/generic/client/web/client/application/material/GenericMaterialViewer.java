@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.material;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,14 +38,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PropertyTypeRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewerWithVerticalSplit;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.IPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.EntityPropertyUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
@@ -59,9 +55,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermEntityProperty;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertiesPanelUtils;
 
 /**
  * The <i>generic</i> material viewer.
@@ -202,27 +198,20 @@ abstract public class GenericMaterialViewer extends AbstractViewerWithVerticalSp
         return propertyGrid;
     }
 
-    private static final Map<String, Object> createProperties(
-            final IMessageProvider messageProvider, Material material)
+    private static final Map<String, Object> createProperties(final IViewContext<?> viewContext,
+            Material material)
     {
         final Map<String, Object> properties = new LinkedHashMap<String, Object>();
         final MaterialType materialType = material.getMaterialType();
 
-        properties.put(messageProvider.getMessage(Dict.MATERIAL), material.getCode());
-        properties.put(messageProvider.getMessage(Dict.MATERIAL_TYPE), materialType);
-        properties.put(messageProvider.getMessage(Dict.REGISTRATOR), material.getRegistrator());
-        properties.put(messageProvider.getMessage(Dict.REGISTRATION_DATE),
+        properties.put(viewContext.getMessage(Dict.MATERIAL), material.getCode());
+        properties.put(viewContext.getMessage(Dict.MATERIAL_TYPE), materialType);
+        properties.put(viewContext.getMessage(Dict.REGISTRATOR), material.getRegistrator());
+        properties.put(viewContext.getMessage(Dict.REGISTRATION_DATE),
                 material.getRegistrationDate());
 
-        final List<IEntityProperty> materialProperties = material.getProperties();
-        Collections.sort(materialProperties);
-        List<PropertyType> types = EntityPropertyUtils.extractTypes(materialProperties);
-        for (final IEntityProperty property : materialProperties)
-        {
-            final String label =
-                    PropertyTypeRenderer.getDisplayName(property.getPropertyType(), types);
-            properties.put(label, property);
-        }
+        PropertiesPanelUtils.addEntityProperties(viewContext, properties, material.getProperties());
+
         return properties;
     }
 

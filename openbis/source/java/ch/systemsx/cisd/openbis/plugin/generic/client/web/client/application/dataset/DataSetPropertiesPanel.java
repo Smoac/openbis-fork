@@ -16,9 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -26,12 +24,10 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PropertyTypeRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.IPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ExternalHyperlink;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.EntityPropertyUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
@@ -45,9 +41,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermEntityProperty;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertiesPanelUtils;
 
 /**
  * {@link ContentPanel} containing dataset properties.
@@ -88,14 +84,11 @@ public class DataSetPropertiesPanel extends ContentPanel
         final IPropertyValueRenderer<IEntityProperty> propertyRenderer =
                 PropertyValueRenderers.createEntityPropertyPropertyValueRenderer(viewContext);
         propertyGrid.registerPropertyValueRenderer(EntityProperty.class, propertyRenderer);
-        propertyGrid.registerPropertyValueRenderer(GenericEntityProperty.class,
-                propertyRenderer);
+        propertyGrid.registerPropertyValueRenderer(GenericEntityProperty.class, propertyRenderer);
         propertyGrid.registerPropertyValueRenderer(VocabularyTermEntityProperty.class,
                 propertyRenderer);
-        propertyGrid.registerPropertyValueRenderer(MaterialEntityProperty.class,
-                propertyRenderer);
-        propertyGrid.registerPropertyValueRenderer(ManagedEntityProperty.class,
-                propertyRenderer);
+        propertyGrid.registerPropertyValueRenderer(MaterialEntityProperty.class, propertyRenderer);
+        propertyGrid.registerPropertyValueRenderer(ManagedEntityProperty.class, propertyRenderer);
         propertyGrid.registerPropertyValueRenderer(Sample.class,
                 PropertyValueRenderers.createSamplePropertyValueRenderer(viewContext, true));
         propertyGrid.registerPropertyValueRenderer(Experiment.class,
@@ -149,16 +142,8 @@ public class DataSetPropertiesPanel extends ContentPanel
         {
             properties.put(messageProvider.getMessage(Dict.INVALIDATION), invalidation);
         }
-
-        final List<IEntityProperty> datasetProperties = dataset.getProperties();
-        Collections.sort(datasetProperties);
-        List<PropertyType> types = EntityPropertyUtils.extractTypes(datasetProperties);
-        for (final IEntityProperty property : datasetProperties)
-        {
-            final String label =
-                    PropertyTypeRenderer.getDisplayName(property.getPropertyType(), types);
-            properties.put(label, property);
-        }
+        PropertiesPanelUtils.addEntityProperties(viewContext, properties, dataset.getProperties());
         return properties;
     }
+
 }

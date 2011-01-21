@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +45,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PropertyTypeRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewerWithVerticalSplit;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.IPropertyValueRenderer;
@@ -54,7 +52,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.propert
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleListDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ExternalHyperlink;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.EntityPropertyUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -69,12 +66,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermEntityProperty;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertiesPanelUtils;
 
 /**
  * The <i>generic</i> sample viewer.
@@ -293,21 +290,8 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
         {
             properties.put(viewContext.getMessage(Dict.PART_OF), partOf);
         }
-        final List<IEntityProperty> sampleProperties = sample.getProperties();
+        PropertiesPanelUtils.addEntityProperties(viewContext, properties, sample.getProperties());
 
-        List<PropertyType> types = EntityPropertyUtils.extractTypes(sampleProperties);
-        Collections.sort(sampleProperties);
-        final boolean debugging = viewContext.getDisplaySettingsManager().isDebuggingModeEnabled();
-        for (final IEntityProperty property : sampleProperties)
-        {
-            // don't display managed properties if debugging mode is off
-            if (property.isManaged() == false || debugging)
-            {
-                final String label =
-                        PropertyTypeRenderer.getDisplayName(property.getPropertyType(), types);
-                properties.put(label, property);
-            }
-        }
         return properties;
     }
 

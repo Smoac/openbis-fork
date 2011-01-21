@@ -16,9 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,12 +29,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractDatabaseModificationObserverWithCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserverWithCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PropertyTypeRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.IPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ExternalHyperlink;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.EntityPropertyUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -51,9 +47,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermEntityProperty;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertiesPanelUtils;
 
 /**
  * {@link ContentPanel} containing experiment properties.
@@ -108,8 +104,7 @@ public class ExperimentPropertiesPanel extends ContentPanel
                 PropertyValueRenderers.createEntityPropertyPropertyValueRenderer(viewContext);
         propertyGrid.registerPropertyValueRenderer(EntityProperty.class, renderer);
         propertyGrid.registerPropertyValueRenderer(GenericEntityProperty.class, renderer);
-        propertyGrid.registerPropertyValueRenderer(VocabularyTermEntityProperty.class,
-                renderer);
+        propertyGrid.registerPropertyValueRenderer(VocabularyTermEntityProperty.class, renderer);
         propertyGrid.registerPropertyValueRenderer(MaterialEntityProperty.class, renderer);
         propertyGrid.registerPropertyValueRenderer(ManagedEntityProperty.class, renderer);
         propertyGrid.setProperties(properties);
@@ -117,31 +112,27 @@ public class ExperimentPropertiesPanel extends ContentPanel
     }
 
     private static Map<String, Object> createProperties(Experiment experiment,
-            IMessageProvider messageProvider)
+            IViewContext<?> viewContext)
     {
         final Map<String, Object> properties = new LinkedHashMap<String, Object>();
         final ExperimentType experimentType = experiment.getExperimentType();
         final Invalidation invalidation = experiment.getInvalidation();
-        properties.put(messageProvider.getMessage(Dict.EXPERIMENT), experiment.getIdentifier());
-        properties.put(messageProvider.getMessage(Dict.PERM_ID),
+        properties.put(viewContext.getMessage(Dict.EXPERIMENT), experiment.getIdentifier());
+        properties.put(viewContext.getMessage(Dict.PERM_ID),
                 new ExternalHyperlink(experiment.getPermId(), experiment.getPermlink()));
-        properties.put(messageProvider.getMessage(Dict.EXPERIMENT_TYPE), experimentType);
-        properties.put(messageProvider.getMessage(Dict.REGISTRATOR), experiment.getRegistrator());
-        properties.put(messageProvider.getMessage(Dict.REGISTRATION_DATE),
+        properties.put(viewContext.getMessage(Dict.EXPERIMENT_TYPE), experimentType);
+        properties.put(viewContext.getMessage(Dict.REGISTRATOR), experiment.getRegistrator());
+        properties.put(viewContext.getMessage(Dict.REGISTRATION_DATE),
                 experiment.getRegistrationDate());
         if (invalidation != null)
         {
-            properties.put(messageProvider.getMessage(Dict.INVALIDATION), invalidation);
+            properties.put(viewContext.getMessage(Dict.INVALIDATION), invalidation);
         }
-        properties.put(messageProvider.getMessage(Dict.PROJECT), experiment.getProject());
-        final List<IEntityProperty> experimentProperties = experiment.getProperties();
-        Collections.sort(experimentProperties);
-        List<PropertyType> types = EntityPropertyUtils.extractTypes(experimentProperties);
-        for (final IEntityProperty property : experimentProperties)
-        {
-            properties.put(PropertyTypeRenderer.getDisplayName(property.getPropertyType(), types),
-                    property);
-        }
+        properties.put(viewContext.getMessage(Dict.PROJECT), experiment.getProject());
+
+        PropertiesPanelUtils.addEntityProperties(viewContext, properties,
+                experiment.getProperties());
+
         return properties;
     }
 
