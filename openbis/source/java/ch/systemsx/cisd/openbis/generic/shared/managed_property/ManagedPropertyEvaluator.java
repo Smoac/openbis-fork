@@ -40,12 +40,12 @@ public class ManagedPropertyEvaluator
     /**
      * The name of the script that expects the property to be there and updates ui configuration.
      */
-    private static final String CONFIGURE_UI_EXPRESSION = "configure_ui()";
+    private static final String CONFIGURE_UI_EXPRESSION = "configureUI()";
 
     /**
      * The name of the script that expects the property to be there and updates the value.
      */
-    private static final String UPDATE_VALUE_EXPRESSION = "update_value()";
+    private static final String UPDATE_VALUE_EXPRESSION = "updateValue()";
 
     private static final String PROPERTY_VARIABLE_NAME = "property";
 
