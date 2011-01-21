@@ -3,6 +3,7 @@
         <groups>
             <run>
                 <exclude name="broken" />
+                <exclude name="flaky" />
             </run>
         </groups>
         <packages>
