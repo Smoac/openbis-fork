@@ -125,6 +125,11 @@ public class ManagedEntityProperty implements IEntityProperty, IManagedEntityPro
         return delegatedProperty.getOrdinal();
     }
 
+    public boolean isManaged()
+    {
+        return true;
+    }
+
     public int compareTo(IEntityProperty o)
     {
         return delegatedProperty.compareTo(o);

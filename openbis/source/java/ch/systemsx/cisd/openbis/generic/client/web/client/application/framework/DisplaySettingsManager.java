@@ -457,37 +457,28 @@ public class DisplaySettingsManager
 
     //
 
-    /**
-     * @returns section settings for given display id<br>
-     */
     @SuppressWarnings("deprecation")
     public final boolean isUseWildcardSearchMode()
     {
         return displaySettings.isUseWildcardSearchMode();
     }
 
-    /**
-     * update section settings for given display id
-     */
     @SuppressWarnings("deprecation")
     public final void updateUseWildcardSearchMode(Boolean newValue)
     {
         displaySettings.setUseWildcardSearchMode(newValue);
     }
 
-    /**
-     * Should error messages from custom columns be displayed in debugging or user format?
-     */
     @SuppressWarnings("deprecation")
-    public final boolean isDisplayCustomColumnDebuggingErrorMessages()
+    public final boolean isDebuggingModeEnabled()
     {
-        return displaySettings.isDisplayCustomColumnDebuggingErrorMessages();
+        return displaySettings.isDebuggingModeEnabled();
     }
 
     @SuppressWarnings("deprecation")
-    public final void setDisplayCustomColumnDebuggingErrorMessages(boolean isDebugging)
+    public final void setDebuggingModeEnabled(boolean isDebugging)
     {
-        displaySettings.setDisplayCustomColumnDebuggingErrorMessages(isDebugging);
+        displaySettings.setDebuggingModeEnabled(isDebugging);
     }
 
     @SuppressWarnings("deprecation")

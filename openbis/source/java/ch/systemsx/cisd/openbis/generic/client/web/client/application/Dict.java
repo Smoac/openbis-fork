@@ -72,6 +72,8 @@ public abstract class Dict
 
     public static final String LOAD_IN_PROGRESS = "load_in_progress";
 
+    public static final String LOAD_REST_OF_DATA = "load_rest_of_data";
+
     public static final String TABLE_OPERATIONS = "table_operations";
 
     public static final String ENTITY_OPERATIONS = "entity_operations";
@@ -849,7 +851,9 @@ public abstract class Dict
 
     public static final String REAL_NUMBER_FORMATING_PRECISION = "real_number_formating_precision";
 
-    public static final String ERROR_MESSAGE_FORMATING = "error_message_formating";
+    public static final String DEBUGGING_MODE = "debugging_mode";
+
+    public static final String DEBUGGING_MODE_INFO = "debugging_mode_info";
 
     //
     // Help Info

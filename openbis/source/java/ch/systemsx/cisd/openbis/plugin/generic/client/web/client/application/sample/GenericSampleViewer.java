@@ -56,7 +56,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.EntityPropertyUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -243,65 +242,71 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
         return new AttachmentVersionsSection(viewContext.getCommonViewContext(), sample);
     }
 
-    private final static Map<String, Object> createProperties(
-            final IMessageProvider messageProvider, final SampleParentWithDerived sampleGeneration)
+    private final static Map<String, Object> createProperties(final IViewContext<?> viewContext,
+            final SampleParentWithDerived sampleGeneration)
     {
         final Map<String, Object> properties = new LinkedHashMap<String, Object>();
         final Sample sample = sampleGeneration.getParent();
         final SampleType sampleType = sample.getSampleType();
         final Invalidation invalidation = sample.getInvalidation();
         final Sample[] generated = sampleGeneration.getDerived();
-        properties.put(messageProvider.getMessage(Dict.SAMPLE_PROPERTIES_PANEL_SAMPLE_IDENTIFIER),
+        properties.put(viewContext.getMessage(Dict.SAMPLE_PROPERTIES_PANEL_SAMPLE_IDENTIFIER),
                 sample.getIdentifier());
-        properties.put(messageProvider.getMessage(Dict.PERM_ID),
+        properties.put(viewContext.getMessage(Dict.PERM_ID),
                 new ExternalHyperlink(sample.getPermId(), sample.getPermlink()));
-        properties.put(messageProvider.getMessage(Dict.SAMPLE_TYPE), sampleType);
-        properties.put(messageProvider.getMessage(Dict.REGISTRATOR), sample.getRegistrator());
-        properties.put(messageProvider.getMessage(Dict.REGISTRATION_DATE),
-                sample.getRegistrationDate());
+        properties.put(viewContext.getMessage(Dict.SAMPLE_TYPE), sampleType);
+        properties.put(viewContext.getMessage(Dict.REGISTRATOR), sample.getRegistrator());
+        properties
+                .put(viewContext.getMessage(Dict.REGISTRATION_DATE), sample.getRegistrationDate());
         if (invalidation != null)
         {
-            properties.put(messageProvider.getMessage(Dict.INVALIDATION), invalidation);
+            properties.put(viewContext.getMessage(Dict.INVALIDATION), invalidation);
         }
 
         Experiment experiment = sample.getExperiment();
         if (experiment != null)
         {
-            properties.put(messageProvider.getMessage(Dict.PROJECT), experiment.getProject());
-            properties.put(messageProvider.getMessage(Dict.EXPERIMENT), experiment);
+            properties.put(viewContext.getMessage(Dict.PROJECT), experiment.getProject());
+            properties.put(viewContext.getMessage(Dict.EXPERIMENT), experiment);
         }
 
         // If there is only one Derived Sample it can be shown as a property,
         // otherwise show number of samples (users should use Derived Samples section).
         if (generated.length == 1)
         {
-            properties.put(messageProvider.getMessage(Dict.DERIVED_SAMPLE), generated);
+            properties.put(viewContext.getMessage(Dict.DERIVED_SAMPLE), generated);
         } else if (generated.length > 1)
         {
-            properties.put(messageProvider.getMessage(Dict.DERIVED_SAMPLE) + "s", generated.length);
+            properties.put(viewContext.getMessage(Dict.DERIVED_SAMPLE) + "s", generated.length);
         }
         final Set<Sample> parents = sample.getParents();
         final int parentsSize = parents.size();
         if (parentsSize == 1)
         {
-            properties.put(messageProvider.getMessage(Dict.PARENT), parents.iterator().next());
+            properties.put(viewContext.getMessage(Dict.PARENT), parents.iterator().next());
         } else if (parentsSize > 1)
         {
-            properties.put(messageProvider.getMessage(Dict.PARENTS), parentsSize);
+            properties.put(viewContext.getMessage(Dict.PARENTS), parentsSize);
         }
         Sample partOf = sample.getContainer();
         if (partOf != null)
         {
-            properties.put(messageProvider.getMessage(Dict.PART_OF), partOf);
+            properties.put(viewContext.getMessage(Dict.PART_OF), partOf);
         }
         final List<IEntityProperty> sampleProperties = sample.getProperties();
+
         List<PropertyType> types = EntityPropertyUtils.extractTypes(sampleProperties);
         Collections.sort(sampleProperties);
+        final boolean debugging = viewContext.getDisplaySettingsManager().isDebuggingModeEnabled();
         for (final IEntityProperty property : sampleProperties)
         {
-            final String label =
-                    PropertyTypeRenderer.getDisplayName(property.getPropertyType(), types);
-            properties.put(label, property);
+            // don't display managed properties if debugging mode is off
+            if (property.isManaged() == false || debugging)
+            {
+                final String label =
+                        PropertyTypeRenderer.getDisplayName(property.getPropertyType(), types);
+                properties.put(label, property);
+            }
         }
         return properties;
     }

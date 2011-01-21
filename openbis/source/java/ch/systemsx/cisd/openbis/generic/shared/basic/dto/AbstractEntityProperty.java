@@ -111,6 +111,11 @@ public abstract class AbstractEntityProperty implements IEntityProperty
         return ordinal;
     }
 
+    public boolean isManaged()
+    {
+        return false;
+    }
+
     //
     // Object
     //

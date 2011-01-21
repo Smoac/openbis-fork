@@ -52,8 +52,11 @@ public class DisplaySettings implements ISerializable
     // for new users with clean display settings basic search mode will be used by default
     private boolean useWildcardSearchMode = false;
 
-    // For new new users, custom column error messages are in user format, not debugging
-    private boolean displayCustomColumnDebuggingErrorMessages = false;
+    // When debugging mode is on more information will be shown in UI:
+    // - error messages for custom columns or managed properties will contain technical details
+    // - raw output and input for managed properties is visible
+    // For new users with clean display settings the debugging mode is disabled
+    private boolean debugging = false;
 
     private RealNumberFormatingParameters realNumberFormatingParameters =
             new RealNumberFormatingParameters();
@@ -199,24 +202,24 @@ public class DisplaySettings implements ISerializable
     }
 
     /**
-     * Are error messages from custom columns displayed in debugging format or user format?
+     * Are error messages in debugging format or user format?
      * 
      * @deprecated Should be used only by DisplaySettingsManager.
      */
     @Deprecated
-    public boolean isDisplayCustomColumnDebuggingErrorMessages()
+    public boolean isDebuggingModeEnabled()
     {
-        return displayCustomColumnDebuggingErrorMessages;
+        return debugging;
     }
 
     /**
-     * Are error messages from custom columns displayed in debugging format or user format?
+     * Are error messages in debugging format or user format?
      * 
      * @deprecated Should be used only by DisplaySettingsManager.
      */
     @Deprecated
-    public void setDisplayCustomColumnDebuggingErrorMessages(boolean isDebugging)
+    public void setDebuggingModeEnabled(boolean isDebugging)
     {
-        displayCustomColumnDebuggingErrorMessages = isDebugging;
+        debugging = isDebugging;
     }
 }

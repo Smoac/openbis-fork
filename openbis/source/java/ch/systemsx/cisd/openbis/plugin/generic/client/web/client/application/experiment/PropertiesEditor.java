@@ -138,11 +138,16 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
                         createFormFieldId(getId(), propertyTypeCode), value, viewContext);
         field.get().setData(ETPT, etpt);
         GWTUtils.setToolTip(field.get(), propertyTypeCode);
-        if (etpt.isDynamic())
+        if (etpt.isManaged() && isDebuggingModeEnabled() == false)
         {
             FieldUtil.setVisibility(false, field.get());
         }
         return field;
+    }
+
+    private boolean isDebuggingModeEnabled()
+    {
+        return viewContext.getDisplaySettingsManager().isDebuggingModeEnabled();
     }
 
     private String getId()
@@ -167,8 +172,7 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
             Object value = field.get().getValue();
             final S etpt = field.get().getData(ETPT); // null for section labels
 
-            if (etpt != null && value != null && PropertyFieldFactory.valueToString(value) != null
-                    && (etpt.isDynamic() == false))
+            if (etpt != null && value != null && PropertyFieldFactory.valueToString(value) != null)
             {
                 final IEntityProperty entityProperty = createEntityProperty();
                 entityProperty.setValue(PropertyFieldFactory.valueToString(value));
@@ -274,4 +278,5 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
         }
         return result;
     }
+
 }

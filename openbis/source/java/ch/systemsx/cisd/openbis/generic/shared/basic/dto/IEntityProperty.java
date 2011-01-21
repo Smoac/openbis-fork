@@ -55,4 +55,6 @@ public interface IEntityProperty extends ISerializable, Comparable<IEntityProper
 
     Long getOrdinal();
 
+    boolean isManaged();
+
 }

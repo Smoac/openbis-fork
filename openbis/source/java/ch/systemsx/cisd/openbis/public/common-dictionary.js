@@ -27,6 +27,7 @@ var common = {
   edit: "Edit",
   material: "Material",
   load_in_progress: "Loading...",
+  load_rest_of_data: "Loading the rest of the data",
   details_title: "{0} {1}",
   edit_title: "Edit {0} {1}",
   tab_link: "Link",
@@ -479,7 +480,8 @@ var common = {
   real_number_formating_fields: "Custom Real Number Formatting in Tables",
   scientific_formating: "Scientific",
   real_number_formating_precision: "Precision",
-  error_message_formating: "Debugging Error Messages",
+  debugging_mode: "Enable Debugging Mode",
+  debugging_mode_info: "This mode is for advanced users. When enabled information like detailed error messages useful e.g. when debugging scripts invoked by openbis will be shown.",
     
   //
   // Role View

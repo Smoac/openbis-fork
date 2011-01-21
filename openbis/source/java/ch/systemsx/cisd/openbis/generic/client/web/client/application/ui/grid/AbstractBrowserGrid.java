@@ -639,7 +639,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         resultSetConfig.setCacheConfig(pendingFetchManager.tryTopPendingFetchConfig());
         resultSetConfig.setGridDisplayId(gridDisplayId);
         resultSetConfig.setCustomColumnErrorMessageLong(viewContext.getDisplaySettingsManager()
-                .isDisplayCustomColumnDebuggingErrorMessages());
+                .isDebuggingModeEnabled());
         return resultSetConfig;
     }
 
@@ -768,6 +768,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 reloadingPhase = true;
                 resultSetConfig.setCacheConfig(ResultSetFetchConfig
                         .createFetchFromCacheAndRecompute(key));
+                // this.reuse(); // FIXME PTR has to be done?
                 listEntities(resultSetConfig, this);
             }
             List<GridCustomColumnInfo> customColumnMetadata = rowModels.getCustomColumnsMetadata();

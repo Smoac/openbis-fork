@@ -29,6 +29,7 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -56,8 +57,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
  */
 public class ChangeUserSettingsDialog extends AbstractSaveDialog
 {
-    public static final String DIALOG_ID =
-            GenericConstants.ID_PREFIX + "change-user-settings-dialog";
+    public static final String DIALOG_ID = GenericConstants.ID_PREFIX
+            + "change-user-settings-dialog";
 
     public static final String GROUP_FIELD_ID = DIALOG_ID + "-group-field";
 
@@ -71,7 +72,7 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
 
     private final CheckBoxField scientificFormatingField;
 
-    private final CheckBoxField errorMessageFormattingField;
+    private final CheckBoxField debuggingModeField;
 
     private final IntegerField precisionField;
 
@@ -96,8 +97,8 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         scientificFormatingField = createScientificCheckBox();
         formatingFields.add(scientificFormatingField);
         addField(formatingFields);
-        errorMessageFormattingField = createErrorMessageFormattingCheckBox();
-        addField(errorMessageFormattingField);
+        debuggingModeField = createDebuggingModeCheckBox();
+        addField(debuggingModeField);
         fbar.insert(createResetButton(), 1); // inserting Reset button in between Save and Cancel
 
         DialogWithOnlineHelpUtils.addHelpButton(viewContext.getCommonViewContext(), this,
@@ -143,9 +144,8 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         boolean useWildcardSearchMode = extractUseWildcardSearchMode();
         displaySettingsManager.updateUseWildcardSearchMode(useWildcardSearchMode);
 
-        boolean useCustomColumnDebuggingMessages = errorMessageFormattingField.getValue();
-        displaySettingsManager
-                .setDisplayCustomColumnDebuggingErrorMessages(useCustomColumnDebuggingMessages);
+        boolean debuggingModeEnabled = debuggingModeField.getValue();
+        displaySettingsManager.setDebuggingModeEnabled(debuggingModeEnabled);
 
         displaySettingsManager.storeSettings();
     }
@@ -191,12 +191,14 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         return field;
     }
 
-    private CheckBoxField createErrorMessageFormattingCheckBox()
+    private CheckBoxField createDebuggingModeCheckBox()
     {
-        CheckBoxField field =
-                new CheckBoxField(viewContext.getMessage(Dict.ERROR_MESSAGE_FORMATING), false);
-        field.setValue(viewContext.getDisplaySettingsManager()
-                .isDisplayCustomColumnDebuggingErrorMessages());
+        CheckBoxField field = new CheckBoxField(viewContext.getMessage(Dict.DEBUGGING_MODE), false);
+        AbstractImagePrototype infoIcon =
+                AbstractImagePrototype.create(viewContext.getImageBundle().getInfoIcon());
+        FieldUtil.addInfoIcon(field, viewContext.getMessage(Dict.DEBUGGING_MODE_INFO),
+                infoIcon.createImage());
+        field.setValue(viewContext.getDisplaySettingsManager().isDebuggingModeEnabled());
         return field;
     }
 
