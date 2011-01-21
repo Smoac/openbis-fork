@@ -432,7 +432,8 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     private final ICustomColumnsProvider customColumnsProvider;
 
     // all cache access is done in a monitor
-    private final Map<K, Future<?>> cache = Collections.synchronizedMap(new HashMap<K, Future<?>>());
+    private final Map<K, Future<?>> cache = Collections
+            .synchronizedMap(new HashMap<K, Future<?>>());
 
     private final ThreadPoolExecutor executor = new NamingThreadPoolExecutor(
             "Background Table Loader").corePoolSize(10).daemonize();
@@ -803,7 +804,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         } catch (ExecutionException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex.getCause());
-        } 
+        }
     }
 
     private static <K, T> IResultSet<K, T> filterLimitAndSort(
@@ -836,6 +837,6 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
 
     private void debug(String msg)
     {
-        operationLog.info(msg);
+        operationLog.debug(msg);
     }
 }
