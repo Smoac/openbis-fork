@@ -49,6 +49,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
  * @author Piotr Buczek
  */
 @Test(groups = "system test")
+// NOTE: Standard propagation is overriden to provide more control over transaction handling.
+// Transactions are not rolled back automatically after every method because there are dependencies
+// between methods. DB cleanup is done after all methods are tested (see cleanup()).
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
 {
