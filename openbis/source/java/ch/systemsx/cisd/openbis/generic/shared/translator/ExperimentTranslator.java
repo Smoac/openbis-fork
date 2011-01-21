@@ -50,12 +50,20 @@ public final class ExperimentTranslator
         // Can not be instantiated.
     }
 
-    private static void setProperties(final ExperimentPE experiment, final Experiment result)
+    private static void setProperties(final ExperimentPE experiment, final Experiment result,
+            final boolean rawManagedProperties)
     {
         if (experiment.isPropertiesInitialized())
         {
-            result.setProperties(EntityPropertyTranslator.translate(experiment.getProperties(),
-                    new HashMap<PropertyTypePE, PropertyType>()));
+            if (rawManagedProperties)
+            {
+                result.setProperties(EntityPropertyTranslator.translateRaw(
+                        experiment.getProperties(), new HashMap<PropertyTypePE, PropertyType>()));
+            } else
+            {
+                result.setProperties(EntityPropertyTranslator.translate(experiment.getProperties(),
+                        new HashMap<PropertyTypePE, PropertyType>()));
+            }
         } else
         {
             result.setProperties(new ArrayList<IEntityProperty>());
@@ -64,6 +72,12 @@ public final class ExperimentTranslator
 
     public final static Experiment translate(final ExperimentPE experiment, String baseIndexURL,
             final LoadableFields... withFields)
+    {
+        return translate(experiment, baseIndexURL, false, withFields);
+    }
+
+    public final static Experiment translate(final ExperimentPE experiment, String baseIndexURL,
+            final boolean rawManagedProperties, final LoadableFields... withFields)
     {
         if (experiment == null)
         {
@@ -88,7 +102,7 @@ public final class ExperimentTranslator
             switch (field)
             {
                 case PROPERTIES:
-                    setProperties(experiment, result);
+                    setProperties(experiment, result, rawManagedProperties);
                     break;
                 case ATTACHMENTS:
                     result.setAttachments(AttachmentTranslator.translate(
@@ -102,13 +116,14 @@ public final class ExperimentTranslator
         return result;
     }
 
+    // NOTE: when translating list of experiments managed properties will contain raw value
     public final static List<Experiment> translate(final List<ExperimentPE> experiments,
             String baseIndexURL, final LoadableFields... withFields)
     {
         final List<Experiment> result = new ArrayList<Experiment>(experiments.size());
         for (final ExperimentPE experiment : experiments)
         {
-            result.add(ExperimentTranslator.translate(experiment, baseIndexURL, withFields));
+            result.add(ExperimentTranslator.translate(experiment, baseIndexURL, true, withFields));
         }
         return result;
     }

@@ -42,6 +42,12 @@ public final class EntityPropertyTranslator
     public final static IEntityProperty translate(final EntityPropertyPE propertyPE,
             Map<PropertyTypePE, PropertyType> cacheOrNull)
     {
+        return translate(propertyPE, cacheOrNull, false);
+    }
+
+    public final static IEntityProperty translate(final EntityPropertyPE propertyPE,
+            Map<PropertyTypePE, PropertyType> cacheOrNull, boolean rawManagedProperties)
+    {
         final IEntityProperty basicProperty =
                 PropertyTranslatorUtils.createEntityProperty(propertyPE);
         final PropertyType propertyType =
@@ -50,7 +56,7 @@ public final class EntityPropertyTranslator
         final Long ordinal = propertyPE.getEntityTypePropertyType().getOrdinal();
 
         PropertyTranslatorUtils.initializeEntityProperty(basicProperty, propertyType, ordinal);
-       
+
         final DataTypeCode typeCode = PropertyTranslatorUtils.getDataTypeCode(propertyPE);
         switch (typeCode)
         {
@@ -67,7 +73,7 @@ public final class EntityPropertyTranslator
         }
 
         final IEntityProperty result;
-        if (propertyPE.getEntityTypePropertyType().isManaged())
+        if (propertyPE.getEntityTypePropertyType().isManaged() && rawManagedProperties == false)
         {
             result = PropertyTranslatorUtils.createManagedEntityProperty(propertyPE, basicProperty);
             PropertyTranslatorUtils.initializeEntityProperty(result, propertyType, ordinal);
@@ -76,6 +82,22 @@ public final class EntityPropertyTranslator
             result = basicProperty;
         }
 
+        return result;
+    }
+
+    public final static List<IEntityProperty> translateRaw(
+            final Set<? extends EntityPropertyPE> list,
+            Map<PropertyTypePE, PropertyType> cacheOrNull)
+    {
+        if (list == null)
+        {
+            return null;
+        }
+        final List<IEntityProperty> result = new ArrayList<IEntityProperty>();
+        for (final EntityPropertyPE property : list)
+        {
+            result.add(translate(property, cacheOrNull, true));
+        }
         return result;
     }
 

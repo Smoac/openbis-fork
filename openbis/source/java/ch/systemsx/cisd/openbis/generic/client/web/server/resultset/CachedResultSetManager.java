@@ -837,6 +837,9 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
 
     private void debug(String msg)
     {
-        operationLog.debug(msg);
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(msg);
+        }
     }
 }
