@@ -143,6 +143,28 @@ public class FileConverter
         return failed;
     }
 
+    /**
+     * Converts the <var>failureRecord</var> to an error string. If
+     * <code>failureRecords.isEmpty()</code>, then return <code>null</code>.
+     */
+    public static String tryFailuresToString(Collection<FailureRecord> failureRecords)
+    {
+        assert failureRecords != null;
+
+        if (failureRecords.size() > 0)
+        {
+            final StringBuilder errorMsgBuilder = new StringBuilder();
+            errorMsgBuilder.append("The following files could not bee successfully converted:\n");
+            for (FailureRecord r : failureRecords)
+            {
+                errorMsgBuilder.append(String.format("%s (%s)\n", r.getFailedFile().getName(), r
+                        .getFailureStatus().tryGetErrorMessage()));
+            }
+            return errorMsgBuilder.toString();
+        }
+        return null;
+    }
+
     private FileConverter()
     {
         // Do not instantiate.
