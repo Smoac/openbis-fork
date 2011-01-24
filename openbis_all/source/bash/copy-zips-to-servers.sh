@@ -13,6 +13,7 @@ export BASYSBIO_TEST=openbis-test.ethz.ch
 export CINA=bs-openbis01.ethz.ch
 export PLASMIDS=bs-openbis02.ethz.ch
 export LIMB=bs-openbis03.ethz.ch
+export CHIPDB=bs-openbis09.ethz.ch
 
 
 # Different types of server specific zips we distinguish
@@ -34,6 +35,7 @@ for i in $ZIPS; do
          echo $AGRONOMICS; scp -p $i $AGRONOMICS:~openbis
          echo $SCU; scp -p $i $SCU:~openbis
          echo $LIMB; scp -p $i $LIMB:~openbis
+         echo $CHIPDB; scp -p $i $CHIPDB:~openbis
  
 done
 
