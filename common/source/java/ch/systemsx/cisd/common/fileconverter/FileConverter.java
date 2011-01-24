@@ -112,13 +112,12 @@ public class FileConverter
      * Uses #cores * <var>machineLoad</var> threads for the conversion, but not more than
      * <var>maxThreads</var>.
      */
-    public static Collection<FailureRecord> performConversion(String directoryName,
+    public static Collection<FailureRecord> performConversion(File directory,
             IFileConversionStrategy conversionStrategy, double machineLoad, int maxThreads)
             throws InterruptedExceptionUnchecked, EnvironmentFailureException
     {
         conversionStrategy.getConverter().check();
-        final Queue<File> workerQueue =
-                tryFillWorkerQueue(new File(directoryName), conversionStrategy);
+        final Queue<File> workerQueue = tryFillWorkerQueue(directory, conversionStrategy);
         final Collection<FailureRecord> failed =
                 Collections.synchronizedCollection(new ArrayList<FailureRecord>());
         if (workerQueue == null || workerQueue.isEmpty())
