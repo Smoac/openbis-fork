@@ -48,24 +48,24 @@ public final class PropertyUtilsTest extends AbstractFileSystemTestCase
         appender = new BufferedAppender();
         appender.resetLogContent();
     }
-    
+
     @Test
     public void testLoadProperties()
     {
         File propertiesFile = new File(workingDirectory, "p.properties");
         FileUtilities.writeToFile(propertiesFile, "answer = 42\n\n# comment\n  key=4711  ");
         Properties properties = PropertyUtils.loadProperties(propertiesFile);
-        
+
         assertEquals("42", properties.getProperty("answer"));
         assertEquals("4711", properties.getProperty("key"));
     }
-    
+
     @Test
     public void testLoadInvalidProperties()
     {
         File propertiesFile = new File(workingDirectory, "p.properties");
         FileUtilities.writeToFile(propertiesFile, "answer=42\nquestion");
-        
+
         try
         {
             PropertyUtils.loadProperties(propertiesFile);
@@ -115,8 +115,8 @@ public final class PropertyUtilsTest extends AbstractFileSystemTestCase
             PropertyUtils.getMandatoryProperty(properties, propertyKey);
         } catch (final ConfigurationFailureException ex)
         {
-            assertEquals(String.format(PropertyUtils.EMPTY_STRING_FORMAT, propertyKey), ex
-                    .getMessage());
+            assertEquals(String.format(PropertyUtils.EMPTY_STRING_FORMAT, propertyKey),
+                    ex.getMessage());
         }
         final String value = "value";
         properties.setProperty(propertyKey, value);
@@ -136,23 +136,51 @@ public final class PropertyUtilsTest extends AbstractFileSystemTestCase
         final long defaultValue = 123L;
         // Property not defined
         final ISimpleLogger simpleLogger = createSimpleLogger();
-        assertEquals(defaultValue, PropertyUtils.getLong(properties, propertyKey, defaultValue,
-                simpleLogger));
+        assertEquals(defaultValue,
+                PropertyUtils.getLong(properties, propertyKey, defaultValue, simpleLogger));
         assertEquals("", appender.getLogContent());
         // A non-long value
         appender.resetLogContent();
         String value = "choubidou";
         properties.setProperty(propertyKey, value);
-        assertEquals(defaultValue, PropertyUtils.getLong(properties, propertyKey, defaultValue,
-                simpleLogger));
+        assertEquals(defaultValue,
+                PropertyUtils.getLong(properties, propertyKey, defaultValue, simpleLogger));
         assertEquals(String.format(PropertyUtils.NON_LONG_VALUE_FORMAT, value, defaultValue),
                 appender.getLogContent());
         // A long value
         appender.resetLogContent();
         value = "678";
         properties.setProperty(propertyKey, value);
-        assertEquals(Long.parseLong(value), PropertyUtils.getLong(properties, propertyKey,
-                defaultValue, simpleLogger));
+        assertEquals(Long.parseLong(value),
+                PropertyUtils.getLong(properties, propertyKey, defaultValue, simpleLogger));
+        assertEquals("", appender.getLogContent());
+    }
+
+    @Test
+    public final void testGetDouble()
+    {
+        final Properties properties = new Properties();
+        final String propertyKey = "key";
+        final double defaultValue = 123.5;
+        // Property not defined
+        final ISimpleLogger simpleLogger = createSimpleLogger();
+        assertEquals(defaultValue,
+                PropertyUtils.getDouble(properties, propertyKey, defaultValue, simpleLogger));
+        assertEquals("", appender.getLogContent());
+        // A non-number value
+        appender.resetLogContent();
+        String value = "choubidou";
+        properties.setProperty(propertyKey, value);
+        assertEquals(defaultValue,
+                PropertyUtils.getDouble(properties, propertyKey, defaultValue, simpleLogger));
+        assertEquals(String.format(PropertyUtils.NON_DOUBLE_VALUE_FORMAT, value, defaultValue),
+                appender.getLogContent());
+        // A double value
+        appender.resetLogContent();
+        value = "678.1";
+        properties.setProperty(propertyKey, value);
+        assertEquals(Double.parseDouble(value),
+                PropertyUtils.getDouble(properties, propertyKey, defaultValue, simpleLogger));
         assertEquals("", appender.getLogContent());
     }
 
@@ -164,44 +192,44 @@ public final class PropertyUtilsTest extends AbstractFileSystemTestCase
         final boolean defaultValue = false;
         // Property not defined
         final ISimpleLogger simpleLogger = createSimpleLogger();
-        assertEquals(defaultValue, PropertyUtils.getBoolean(properties, propertyKey, defaultValue,
-                simpleLogger));
+        assertEquals(defaultValue,
+                PropertyUtils.getBoolean(properties, propertyKey, defaultValue, simpleLogger));
         assertEquals("", appender.getLogContent());
         // A non-boolean value
         appender.resetLogContent();
         String value = "choubidou";
         properties.setProperty(propertyKey, value);
-        assertEquals(defaultValue, PropertyUtils.getBoolean(properties, propertyKey, defaultValue,
-                simpleLogger));
+        assertEquals(defaultValue,
+                PropertyUtils.getBoolean(properties, propertyKey, defaultValue, simpleLogger));
         assertEquals(String.format(PropertyUtils.NON_BOOLEAN_VALUE_FORMAT, value, defaultValue),
                 appender.getLogContent());
         // TRUE
         appender.resetLogContent();
         value = "TRUE";
         properties.setProperty(propertyKey, value);
-        assertEquals(true, PropertyUtils.getBoolean(properties, propertyKey, defaultValue,
-                simpleLogger));
+        assertEquals(true,
+                PropertyUtils.getBoolean(properties, propertyKey, defaultValue, simpleLogger));
         assertEquals("", appender.getLogContent());
         // 1
         appender.resetLogContent();
         value = "1";
         properties.setProperty(propertyKey, value);
-        assertEquals(true, PropertyUtils.getBoolean(properties, propertyKey, defaultValue,
-                simpleLogger));
+        assertEquals(true,
+                PropertyUtils.getBoolean(properties, propertyKey, defaultValue, simpleLogger));
         assertEquals("", appender.getLogContent());
         // YeS
         appender.resetLogContent();
         value = "YeS";
         properties.setProperty(propertyKey, value);
-        assertEquals(true, PropertyUtils.getBoolean(properties, propertyKey, defaultValue,
-                simpleLogger));
+        assertEquals(true,
+                PropertyUtils.getBoolean(properties, propertyKey, defaultValue, simpleLogger));
         assertEquals("", appender.getLogContent());
         // on
         appender.resetLogContent();
         value = "on";
         properties.setProperty(propertyKey, value);
-        assertEquals(defaultValue, PropertyUtils.getBoolean(properties, propertyKey, defaultValue,
-                simpleLogger));
+        assertEquals(defaultValue,
+                PropertyUtils.getBoolean(properties, propertyKey, defaultValue, simpleLogger));
         assertEquals(String.format(PropertyUtils.NON_BOOLEAN_VALUE_FORMAT, value, defaultValue),
                 appender.getLogContent());
     }

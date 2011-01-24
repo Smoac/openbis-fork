@@ -63,6 +63,9 @@ public final class PropertyUtils
     static final String NON_LONG_VALUE_FORMAT =
             "Invalid long '%s'. Default value '%s' will be used.";
 
+    static final String NON_DOUBLE_VALUE_FORMAT =
+        "Invalid double '%s'. Default value '%s' will be used.";
+
     static final String NOT_POSITIVE_LONG_VALUE_FORMAT =
             "Invalid positive long '%s'. Default value '%s' will be used.";
 
@@ -320,6 +323,43 @@ public final class PropertyUtils
             final int defaultValue)
     {
         return getPosInt(properties, propertyKey, defaultValue, null);
+    }
+
+    /**
+     * Looks up given <var>propertyKey</var> in given <var>properties</var>.
+     * 
+     * @return <code>defaultValue</code> if given <var>propertyKey</var> could not be found.
+     */
+    public final static double getDouble(final Properties properties, final String propertyKey,
+            final double defaultValue, final ISimpleLogger loggerOrNull)
+    {
+        assertParameters(properties, propertyKey);
+        final String doubleOrNull = getProperty(properties, propertyKey);
+        if (doubleOrNull == null)
+        {
+            return defaultValue;
+        }
+        if (NumberUtils.isNumber(doubleOrNull) == false)
+        {
+            if (loggerOrNull != null)
+            {
+                loggerOrNull.log(LogLevel.INFO, String.format(NON_DOUBLE_VALUE_FORMAT, doubleOrNull,
+                        defaultValue));
+            }
+            return defaultValue;
+        }
+        return Double.parseDouble(doubleOrNull);
+    }
+
+    /**
+     * Looks up given <var>propertyKey</var> in given <var>properties</var>.
+     * 
+     * @return <code>defaultValue</code> if given <var>propertyKey</var> could not be found.
+     */
+    public final static double getDouble(final Properties properties, final String propertyKey,
+            final double defaultValue)
+    {
+        return getDouble(properties, propertyKey, defaultValue, null);
     }
 
     /**
