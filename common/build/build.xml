@@ -1,82 +1,84 @@
 <project name="common" basedir="..">
-    <target name="clean">
-        <delete dir="${dist}" />
-    </target>
+	<target name="clean">
+		<delete dir="${dist}" />
+		<delete dir="${classes}" />
+		<delete dir="${output.test}" />
+	</target>
 
-    <import file="../../build_resources/ant/build-common.xml" />
+	<import file="../../build_resources/ant/build-common.xml" />
 
-    <project-classpath name="ecp" classes="${classes}" />
-    <property name="mainfolder" value="common" />
-    <property name="jar.file" value="${dist}/common.jar" />
-    <property name="basic-jar.file" value="${dist}/cisd-common-basic.jar" />
-    <property name="nativesrc" value="${lib}/unix/native" />
-    <property name="nativeroot" value="${targets}/ant" />
-    <property name="native" value="${nativeroot}/native" />
-		<property name="basic.path" value="ch/systemsx/cisd/common/shared/basic" />
-	
-    <property name="dist.common" value="${dist}/${mainfolder}" />
-    <property name="dist.common.lib" value="${dist.common}/lib" />
+	<project-classpath name="ecp" classes="${classes}" />
+	<property name="mainfolder" value="common" />
+	<property name="jar.file" value="${dist}/common.jar" />
+	<property name="basic-jar.file" value="${dist}/cisd-common-basic.jar" />
+	<property name="nativesrc" value="${lib}/unix/native" />
+	<property name="nativeroot" value="${targets}/ant" />
+	<property name="native" value="${nativeroot}/native" />
+	<property name="basic.path" value="ch/systemsx/cisd/common/shared/basic" />
+
+	<property name="dist.common" value="${dist}/${mainfolder}" />
+	<property name="dist.common.lib" value="${dist.common}/lib" />
 
 
-    <target name="ci" depends="build-common.ci, check-dependencies" />
+	<target name="ci" depends="build-common.ci, check-dependencies" />
 
-    <target name="jar" depends="compile-tests">
-        <mkdir dir="${dist.common.lib}" />
-        <build-info revision="revision.number" version="version.number" clean="clean.flag" />
-        <echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
-        <copy todir="${native}">
-            <fileset dir="${nativesrc}">
-                <include name="**/unix.so" />
-            </fileset>
-        </copy>
-        <recursive-jar destfile="${jar.file}">
-            <fileset dir="${classes}">
-                <include name="**/*.class" />
-                <include name="${build.info.filename}" />
-            </fileset>
-            <fileset dir="${nativeroot}">
-                <include name="**/unix.so" />
-            </fileset>
-          <zipfileset src="${lib}/cisd-base/cisd-base.jar" />
-            <zipfileset src="${lib}/log4j/log4j.jar" />
-            <zipfileset src="${lib}/testng/testng-jdk15.jar" />
-            <zipfileset src="${lib}/commons-lang/commons-lang.jar" />
-            <zipfileset src="${lib}/commons-io/commons-io.jar" />
-            <manifest>
-                <attribute name="Version" value="${version.number}" />
-                <attribute name="Build-Number"
-                           value="${version.number} (r${revision.number},${clean.flag})" />
-            </manifest>
-        </recursive-jar>
-    </target>
-	
-		<target name="jar-basic" depends="compile"> 
-			<build-info revision="revision.number" version="version.number" clean="clean.flag" />
-	        <echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
-	        <recursive-jar destfile="${basic-jar.file}">
-		        <fileset dir="${classes}">
-              <include name="${basic.path}/**/*.class" />
-							<include name="**/CISD-basic.gwt.xml" />
-              <include name="${build.info.filename}" />
-            </fileset>
-     				<fileset dir="${sources}">
-		        	<include name="${basic.path}/**/*.java" />
-     				</fileset>
-	        	<manifest>
-	            <attribute name="Version" value="${version.number}" />
-	            <attribute name="Build-Number"
-	                      value="${version.number} (r${revision.number},${clean.flag})" />
-	          </manifest>
-	        </recursive-jar>
-	    </target>
+	<target name="jar" depends="compile-tests">
+		<mkdir dir="${dist.common.lib}" />
+		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
+		<echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
+		<copy todir="${native}">
+			<fileset dir="${nativesrc}">
+				<include name="**/unix.so" />
+			</fileset>
+		</copy>
+		<recursive-jar destfile="${jar.file}">
+			<fileset dir="${classes}">
+				<include name="**/*.class" />
+				<include name="${build.info.filename}" />
+			</fileset>
+			<fileset dir="${nativeroot}">
+				<include name="**/unix.so" />
+			</fileset>
+			<zipfileset src="${lib}/cisd-base/cisd-base.jar" />
+			<zipfileset src="${lib}/log4j/log4j.jar" />
+			<zipfileset src="${lib}/testng/testng-jdk15.jar" />
+			<zipfileset src="${lib}/commons-lang/commons-lang.jar" />
+			<zipfileset src="${lib}/commons-io/commons-io.jar" />
+			<manifest>
+				<attribute name="Version" value="${version.number}" />
+				<attribute name="Build-Number"
+				           value="${version.number} (r${revision.number},${clean.flag})" />
+			</manifest>
+		</recursive-jar>
+	</target>
 
-    <!--
+	<target name="jar-basic" depends="compile">
+		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
+		<echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
+		<recursive-jar destfile="${basic-jar.file}">
+			<fileset dir="${classes}">
+				<include name="${basic.path}/**/*.class" />
+				<include name="**/CISD-basic.gwt.xml" />
+				<include name="${build.info.filename}" />
+			</fileset>
+			<fileset dir="${sources}">
+				<include name="${basic.path}/**/*.java" />
+			</fileset>
+			<manifest>
+				<attribute name="Version" value="${version.number}" />
+				<attribute name="Build-Number"
+				           value="${version.number} (r${revision.number},${clean.flag})" />
+			</manifest>
+		</recursive-jar>
+	</target>
+
+	<!--
 	  // Runs the test suite 'tests.xml'.
 	  -->
-    <target name="run-tests" description="Runs the test suite 'tests.xml'.">
-        <antcall target="build-common.run-tests">
-            <param name="test.suite" value="tests.xml" />
-        </antcall>
-    </target>
+	<target name="run-tests" description="Runs the test suite 'tests.xml'.">
+		<antcall target="build-common.run-tests">
+			<param name="test.suite" value="tests.xml" />
+		</antcall>
+	</target>
 
 </project>
