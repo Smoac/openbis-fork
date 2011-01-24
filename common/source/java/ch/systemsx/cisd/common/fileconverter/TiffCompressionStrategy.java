@@ -71,7 +71,7 @@ public class TiffCompressionStrategy implements IFileConversionStrategy
      */
     public TiffCompressionStrategy() throws EnvironmentFailureException
     {
-        // tiffcp is consierably faster than convert
+        // tiffcp is considerably faster than convert
         final TiffCpTiffCompressionConverter tiffCpConverter = new TiffCpTiffCompressionConverter();
         if (tiffCpConverter.isAvailable())
         {
