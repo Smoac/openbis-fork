@@ -17,18 +17,17 @@
 package ch.systemsx.cisd.datamover.transformation;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.compression.file.ICompressionMethod;
-import ch.systemsx.cisd.common.compression.tiff.TiffCompressor;
-import ch.systemsx.cisd.common.compression.tiff.TiffConvertCompressionMethod;
-import ch.systemsx.cisd.common.compression.tiff.TiffCpCompressionMethod;
+import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.fileconverter.FileConverter;
+import ch.systemsx.cisd.common.fileconverter.TiffCompressionStrategy;
+import ch.systemsx.cisd.common.fileconverter.TiffCompressionStrategy.TiffCompressionMethod;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
@@ -41,11 +40,11 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 public class TiffCompressorTransformator implements ITransformator
 {
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, TiffCompressorTransformator.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            TiffCompressorTransformator.class);
 
-    private static final Logger notificationLog =
-            LogFactory.getLogger(LogCategory.NOTIFY, TiffCompressorTransformator.class);
+    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
+            TiffCompressorTransformator.class);
 
     private static final String COMPRESSION_COMMAND_KEY = "compression-command";
 
@@ -53,77 +52,64 @@ public class TiffCompressorTransformator implements ITransformator
 
     private static final String THREADS_PER_PROCESSOR_KEY = "threads-per-processor";
 
-    private static final CompressionCommand DEFAULT_COMPRESSION_COMMAND = CompressionCommand.TIFFCP;
+    private static final TiffCompressionMethod DEFAULT_COMPRESSION_METHOD =
+            TiffCompressionMethod.LIBTIFF_TIFFCP;
 
-    private static final int DEFAULT_THREADS_PER_PROCESSOR = 1;
+    private static final double DEFAULT_THREADS_PER_CPU_CORE = 1.0;
 
-    /**
-     * Enumeration of supported methods of compression with names matching transformator property
-     * value.
-     */
-    private enum CompressionCommand
-    {
-        TIFFCP, CONVERT
-    }
+    private final TiffCompressionStrategy compressionStrategy;
 
-    private final ICompressionMethod compressionMethod;
-
-    private final int threadsPerProcessor;
+    private final double threadsPerCpuCore;
 
     public TiffCompressorTransformator(Properties properties)
     {
         operationLog.info("TiffCompressorTransformator created with properties: \n" + properties);
 
-        compressionMethod = extractCompressionMethod(properties);
-        threadsPerProcessor = extractThreadsPerProcessor(properties);
+        compressionStrategy = extractCompressionMethod(properties);
+        threadsPerCpuCore = extractThreadsPerProcessor(properties);
     }
 
-    private int extractThreadsPerProcessor(Properties properties)
+    private double extractThreadsPerProcessor(Properties properties)
     {
-        int result =
-                PropertyUtils.getInt(properties, THREADS_PER_PROCESSOR_KEY,
-                        DEFAULT_THREADS_PER_PROCESSOR);
+        double result =
+                PropertyUtils.getDouble(properties, THREADS_PER_PROCESSOR_KEY,
+                        DEFAULT_THREADS_PER_CPU_CORE);
         if (result > 0)
         {
             return result;
         } else
         {
-            throw ConfigurationFailureException
-                    .fromTemplate(
-                            "Number of threads per processor set for property '%s' is %s but needs to be greater than %s",
-                            THREADS_PER_PROCESSOR_KEY, result, 0);
+            throw ConfigurationFailureException.fromTemplate(
+                    "Number of threads per processor set for property '%s' is %s "
+                            + "but needs to be greater than %s", THREADS_PER_PROCESSOR_KEY, result,
+                    0);
         }
     }
 
-    private ICompressionMethod extractCompressionMethod(Properties properties)
+    private TiffCompressionStrategy extractCompressionMethod(Properties properties)
     {
         final String compressionCommandName =
-                PropertyUtils.getProperty(properties, COMPRESSION_COMMAND_KEY);
-        CompressionCommand compressionCommand = DEFAULT_COMPRESSION_COMMAND;
+                PropertyUtils.getProperty(properties, COMPRESSION_COMMAND_KEY).toUpperCase();
+        TiffCompressionMethod compressionCommand = DEFAULT_COMPRESSION_METHOD;
         if (compressionCommandName != null)
         {
-            try
+            if (compressionCommandName.equals("TIFFCP"))
             {
-                compressionCommand = CompressionCommand.valueOf(compressionCommandName);
-            } catch (IllegalArgumentException ex)
+                compressionCommand = TiffCompressionMethod.LIBTIFF_TIFFCP;
+            } else if (compressionCommandName.equals("CONVERT"))
             {
-                throw ConfigurationFailureException
-                        .fromTemplate(
-                                "Compression command '%s' set for property '%s' is not among supported commands: %s",
-                                compressionCommandName, COMPRESSION_COMMAND_KEY, Arrays
-                                        .toString(CompressionCommand.values()));
+                compressionCommand = TiffCompressionMethod.IMAGEMAGICK_CONVERT;
+            } else
+            {
+                throw ConfigurationFailureException.fromTemplate(
+                        "Compression command '%s' set for property '%s' is not "
+                                + "among supported commands: TIFFCP, CONVERT",
+                        compressionCommandName, COMPRESSION_COMMAND_KEY);
             }
         }
         final String compressionTypeOrNull =
                 PropertyUtils.getProperty(properties, COMPRESSION_TYPE_KEY);
-        switch (compressionCommand)
-        {
-            case CONVERT:
-                return TiffConvertCompressionMethod.create(compressionTypeOrNull);
-            case TIFFCP:
-                return TiffCpCompressionMethod.create(compressionTypeOrNull);
-        }
-        return null; // not possible
+        return new TiffCompressionStrategy(compressionCommand, compressionTypeOrNull);
     }
 
     //
@@ -140,13 +126,13 @@ public class TiffCompressorTransformator implements ITransformator
         try
         {
             errorMsgOrNull =
-                    TiffCompressor.compress(path.getAbsolutePath(), threadsPerProcessor,
-                            compressionMethod);
+                    FileConverter.tryFailuresToString(FileConverter.performConversion(path,
+                            compressionStrategy, threadsPerCpuCore, Integer.MAX_VALUE));
             if (errorMsgOrNull != null)
             {
                 notificationLog.error(errorMsgOrNull);
             }
-        } catch (InterruptedException ex)
+        } catch (InterruptedExceptionUnchecked ex)
         {
             ex.printStackTrace();
             return Status.createError("Tiff compression was interrupted:" + ex.getMessage());
