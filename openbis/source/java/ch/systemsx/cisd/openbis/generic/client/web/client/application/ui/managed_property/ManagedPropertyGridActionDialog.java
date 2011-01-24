@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedComboBoxInputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Null;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 
 public final class ManagedPropertyGridActionDialog extends
@@ -53,7 +53,7 @@ public final class ManagedPropertyGridActionDialog extends
 
     private final IEntityInformationHolder entity;
 
-    private final IManagedEntityProperty managedProperty;
+    private final IManagedProperty managedProperty;
 
     private final Map<String, TextField<?>> inputFieldsByLabel =
             new LinkedHashMap<String, TextField<?>>();
@@ -61,7 +61,7 @@ public final class ManagedPropertyGridActionDialog extends
     public ManagedPropertyGridActionDialog(IViewContext<ICommonClientServiceAsync> viewContext,
             String editTitle, List<TableModelRowWithObject<Null>> data,
             AsyncCallback<Void> callback, IEntityInformationHolder entity,
-            IManagedEntityProperty managedProperty)
+            IManagedProperty managedProperty)
     {
         super(viewContext, data, editTitle);
         this.viewContext = viewContext;

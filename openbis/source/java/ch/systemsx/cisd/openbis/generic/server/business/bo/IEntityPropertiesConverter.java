@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
@@ -97,6 +97,6 @@ public interface IEntityPropertiesConverter
      * value.
      */
     public <T extends EntityPropertyPE> Set<T> updateManagedProperty(Collection<T> oldProperties,
-            EntityTypePE entityType, IManagedEntityProperty managedProperty, PersonPE registrator);
+            EntityTypePE entityType, IManagedProperty managedProperty, PersonPE registrator);
 
 }

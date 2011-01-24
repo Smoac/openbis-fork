@@ -44,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Null;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 
 /**
  * @author Piotr Buczek
@@ -56,7 +56,7 @@ public class ManagedPropertyGrid extends TypedTableGrid<Null>
 
     public static IDisposableComponent create(IViewContext<ICommonClientServiceAsync> viewContext,
             TableModelReference tableModelReference, IEntityInformationHolder entity,
-            IManagedEntityProperty managedProperty,
+            IManagedProperty managedProperty,
             IManagedPropertyGridInformationProvider gridInformation,
             IDelegatedAction onRefreshAction)
     {
@@ -77,13 +77,13 @@ public class ManagedPropertyGrid extends TypedTableGrid<Null>
 
     private final IDelegatedAction onRefreshAction;
 
-    private final IManagedEntityProperty managedProperty;
+    private final IManagedProperty managedProperty;
 
     private final IEntityInformationHolder entity;
 
     private ManagedPropertyGrid(IViewContext<ICommonClientServiceAsync> viewContext,
             TableModelReference tableModelReference, IEntityInformationHolder entity,
-            IManagedEntityProperty managedProperty,
+            IManagedProperty managedProperty,
             IManagedPropertyGridInformationProvider gridInformation,
             IDelegatedAction onRefreshAction)
     {

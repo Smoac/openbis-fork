@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
@@ -686,7 +686,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         getExternalDataDAO().updateDataSetStatuses(dataSetCodes, newStatus);
     }
 
-    public void updateManagedProperty(IManagedEntityProperty managedProperty)
+    public void updateManagedProperty(IManagedProperty managedProperty)
     {
         final Set<DataSetPropertyPE> existingProperties = externalData.getProperties();
         final DataSetTypePE type = externalData.getDataSetType();

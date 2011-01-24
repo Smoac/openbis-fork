@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiDescription;
 
 /**
@@ -24,41 +24,63 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiDescripti
  * 
  * @author Piotr Buczek
  */
-public class ManagedEntityProperty implements IEntityProperty, IManagedEntityProperty
+public class ManagedEntityProperty implements IEntityProperty, IManagedProperty
 {
 
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private IEntityProperty delegatedProperty;
+    private IEntityProperty entityProperty;
 
-    // NOTE: defaults are set for testing - scripts should override them
+    private IManagedProperty managedProperty;
 
-    private boolean ownTab = true;
-
-    private ManagedUiDescription uiDescription = new ManagedUiDescription();
-
-    public ManagedEntityProperty(IEntityProperty delegatedProperty)
+    public ManagedEntityProperty(IEntityProperty entityProperty, IManagedProperty managedProperty)
     {
-        this.delegatedProperty = delegatedProperty;
+        this.entityProperty = entityProperty;
+        this.managedProperty = managedProperty;
     }
 
     //
-    // IManagedEntityProperty
+    // IManagedProperty
     //
 
     public boolean isOwnTab()
     {
-        return ownTab;
+        return managedProperty.isOwnTab();
     }
 
     public void setOwnTab(boolean ownTab)
     {
-        this.ownTab = ownTab;
+        managedProperty.setOwnTab(ownTab);
     }
 
     public IManagedUiDescription getUiDescription()
     {
-        return uiDescription;
+        return managedProperty.getUiDescription();
+    }
+
+    public String getPropertyTypeCode()
+    {
+        return managedProperty.getPropertyTypeCode();
+        // return getPropertyType().getCode();
+    }
+
+    public String getRawValue()
+    {
+        return managedProperty.getRawValue();
+    }
+
+    public void setRawValue(String rawValue)
+    {
+        managedProperty.setRawValue(rawValue);
+    }
+
+    //
+    // IEntityProperty not delegated methods
+    //
+
+    public boolean isManaged()
+    {
+        return true;
     }
 
     //
@@ -67,72 +89,67 @@ public class ManagedEntityProperty implements IEntityProperty, IManagedEntityPro
 
     public String tryGetAsString()
     {
-        return delegatedProperty.tryGetAsString();
+        return entityProperty.tryGetAsString();
     }
 
     public String tryGetOriginalValue()
     {
-        return delegatedProperty.tryGetOriginalValue();
+        return entityProperty.tryGetOriginalValue();
     }
 
     public Material getMaterial()
     {
-        return delegatedProperty.getMaterial();
+        return entityProperty.getMaterial();
     }
 
     public void setMaterial(Material material)
     {
-        delegatedProperty.setMaterial(material);
+        entityProperty.setMaterial(material);
     }
 
     public VocabularyTerm getVocabularyTerm()
     {
-        return delegatedProperty.getVocabularyTerm();
+        return entityProperty.getVocabularyTerm();
     }
 
     public void setVocabularyTerm(VocabularyTerm vocabularyTerm)
     {
-        delegatedProperty.setVocabularyTerm(vocabularyTerm);
+        entityProperty.setVocabularyTerm(vocabularyTerm);
     }
 
     public String getValue()
     {
-        return delegatedProperty.getValue();
+        return entityProperty.getValue();
     }
 
     public void setValue(String value)
     {
-        delegatedProperty.setValue(value);
+        entityProperty.setValue(value);
     }
 
     public PropertyType getPropertyType()
     {
-        return delegatedProperty.getPropertyType();
+        return entityProperty.getPropertyType();
     }
 
     public void setPropertyType(PropertyType propertyType)
     {
-        delegatedProperty.setPropertyType(propertyType);
+        entityProperty.setPropertyType(propertyType);
     }
 
     public void setOrdinal(Long ordinal)
     {
-        delegatedProperty.setOrdinal(ordinal);
+        entityProperty.setOrdinal(ordinal);
     }
 
     public Long getOrdinal()
     {
-        return delegatedProperty.getOrdinal();
-    }
-
-    public boolean isManaged()
-    {
-        return true;
+        return entityProperty.getOrdinal();
     }
 
     public int compareTo(IEntityProperty o)
     {
-        return delegatedProperty.compareTo(o);
+        return entityProperty.compareTo(o);
     }
 
     //
@@ -143,21 +160,21 @@ public class ManagedEntityProperty implements IEntityProperty, IManagedEntityPro
     {
     }
 
-    @SuppressWarnings("unused")
-    private IEntityProperty getDelegatedProperty()
-    {
-        return delegatedProperty;
-    }
+    // @SuppressWarnings("unused")
+    // private IEntityProperty getEntityProperty()
+    // {
+    // return entityProperty;
+    // }
+    //
+    // @SuppressWarnings("unused")
+    // private void setEntityProperty(IEntityProperty entityProperty)
+    // {
+    // this.entityProperty = entityProperty;
+    // }
 
-    @SuppressWarnings("unused")
-    private void setDelegatedProperty(IEntityProperty delegatedProperty)
-    {
-        this.delegatedProperty = delegatedProperty;
-    }
-
-    public IEntityProperty asEntityProperty()
-    {
-        return this;
-    }
+    // public IEntityProperty asEntityProperty()
+    // {
+    // return this;
+    // }
 
 }

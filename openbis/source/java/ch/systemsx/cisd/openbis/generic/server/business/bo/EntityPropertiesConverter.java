@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -41,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
@@ -433,14 +432,8 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
      * value.
      */
     public <T extends EntityPropertyPE> Set<T> updateManagedProperty(Collection<T> oldProperties,
-            EntityTypePE entityType, IManagedEntityProperty managedProperty, PersonPE registrator)
+            EntityTypePE entityType, IManagedProperty managedProperty, PersonPE registrator)
     {
-        // Convert the managed property
-        final List<T> convertedProperties =
-                convertPropertiesForUpdate(
-                        Collections.singletonList(managedProperty.asEntityProperty()),
-                        entityType.getCode(), registrator);
-        T convertedProperty = convertedProperties.get(0);
 
         final Set<T> set = new HashSet<T>();
 
@@ -448,11 +441,10 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         set.addAll(oldProperties);
 
         // Update the managed property we want to update
-        T existingProperty = tryFind(oldProperties, convertedProperty);
+        T existingProperty = tryFind(oldProperties, managedProperty.getPropertyTypeCode());
         if (existingProperty != null)
         {
-            existingProperty.setUntypedValue(convertedProperty.getValue(),
-                    convertedProperty.getVocabularyTerm(), convertedProperty.getMaterialValue());
+            existingProperty.setUntypedValue(managedProperty.getRawValue(), null, null);
         }
         return set;
     }
@@ -491,6 +483,20 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         {
             if (oldProperty.getEntityTypePropertyType().getPropertyType()
                     .equals(p.getEntityTypePropertyType().getPropertyType()))
+            {
+                return oldProperty;
+            }
+        }
+        return null;
+    }
+
+    private static <T extends EntityPropertyPE> T tryFind(Collection<T> oldProperties,
+            String propertyTypeCode)
+    {
+        for (T oldProperty : oldProperties)
+        {
+            if (oldProperty.getEntityTypePropertyType().getPropertyType().getCode()
+                    .equals(propertyTypeCode))
             {
                 return oldProperty;
             }

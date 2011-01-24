@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IManagedPropertyGridInformationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedTableWidgetDescription;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ManagedOutputWidgetType;
 
@@ -74,12 +74,12 @@ public class ManagedPropertySection extends DisposableTabContent
 
     private final IDelegatedAction refreshAction;
 
-    private final IManagedEntityProperty managedProperty;
+    private final IManagedProperty managedProperty;
 
     private final IEntityInformationHolder entity;
 
     public ManagedPropertySection(final String header, IViewContext<?> viewContext,
-            IEntityInformationHolder entity, IManagedEntityProperty managedProperty,
+            IEntityInformationHolder entity, IManagedProperty managedProperty,
             IDelegatedAction refreshAction)
     {
         super(header, viewContext, entity);

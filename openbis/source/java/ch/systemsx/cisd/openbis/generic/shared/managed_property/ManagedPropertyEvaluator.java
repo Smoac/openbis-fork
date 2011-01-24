@@ -21,7 +21,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.evaluator.Evaluator;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTableModelBuilderAdaptor;
 
 /**
@@ -54,7 +54,7 @@ public class ManagedPropertyEvaluator
         this.scriptExpression = scriptExpression;
     }
 
-    public void evalConfigureProperty(IManagedEntityProperty managedProperty)
+    public void evalConfigureProperty(IManagedProperty managedProperty)
     {
         if (operationLog.isDebugEnabled())
         {
@@ -68,7 +68,7 @@ public class ManagedPropertyEvaluator
         evaluator.eval();
     }
 
-    public void evaluateUpdateProperty(IManagedEntityProperty managedProperty)
+    public void evaluateUpdateProperty(IManagedProperty managedProperty)
     {
         if (operationLog.isDebugEnabled())
         {

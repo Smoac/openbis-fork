@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
@@ -83,5 +83,5 @@ public interface IExperimentBO extends IEntityBusinessObject
     /**
      * Changes the value of a managed property.
      */
-    void updateManagedProperty(IManagedEntityProperty managedProperty);
+    void updateManagedProperty(IManagedProperty managedProperty);
 }

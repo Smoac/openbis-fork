@@ -16,14 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto.api;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-
 /**
  * Interface implemented by managed property.
  * 
  * @author Piotr Buczek
  */
-public interface IManagedEntityProperty
+public interface IManagedProperty
 {
     boolean isOwnTab();
 
@@ -31,6 +29,9 @@ public interface IManagedEntityProperty
 
     IManagedUiDescription getUiDescription();
 
-    IEntityProperty asEntityProperty();
+    String getPropertyTypeCode();
 
+    String getRawValue();
+
+    void setRawValue(String rawValue);
 }

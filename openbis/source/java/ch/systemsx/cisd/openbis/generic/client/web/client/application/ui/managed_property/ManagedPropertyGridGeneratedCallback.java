@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDele
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IManagedPropertyGridInformationProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 
 /**
  * @author Piotr Buczek
@@ -50,13 +50,13 @@ public class ManagedPropertyGridGeneratedCallback extends
 
     private final IDelegatedAction onRefreshAction;
 
-    private final IManagedEntityProperty managedProperty;
+    private final IManagedProperty managedProperty;
 
     private final IEntityInformationHolder entity;
 
     public static AsyncCallback<TableModelReference> create(
             IViewContext<ICommonClientServiceAsync> viewContext, IEntityInformationHolder entity,
-            IManagedEntityProperty managedProperty,
+            IManagedProperty managedProperty,
             IManagedPropertyGridInformationProvider gridInfo,
             IOnGridComponentGeneratedAction onGridGeneratedAction, IDelegatedAction onRefreshAction)
     {
@@ -67,7 +67,7 @@ public class ManagedPropertyGridGeneratedCallback extends
 
     private ManagedPropertyGridGeneratedCallback(
             IViewContext<ICommonClientServiceAsync> viewContext, IEntityInformationHolder entity,
-            IManagedEntityProperty managedProperty,
+            IManagedProperty managedProperty,
             IManagedPropertyGridInformationProvider gridInfo,
             IOnGridComponentGeneratedAction onGridGeneratedAction, IDelegatedAction onRefreshAction)
     {

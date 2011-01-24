@@ -26,7 +26,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
@@ -147,7 +147,7 @@ public final class MaterialBO extends AbstractMaterialBusinessObject implements 
         return String.format("%s (%s)", material.getCode(), material.getMaterialType().getCode());
     }
 
-    public void updateManagedProperty(IManagedEntityProperty managedProperty)
+    public void updateManagedProperty(IManagedProperty managedProperty)
     {
         final Set<MaterialPropertyPE> existingProperties = material.getProperties();
         final MaterialTypePE type = material.getMaterialType();

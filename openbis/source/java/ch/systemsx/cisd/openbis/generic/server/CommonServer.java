@@ -142,7 +142,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
@@ -2199,7 +2199,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     public void updateManagedPropertyOnExperiment(String sessionToken, TechId experimentId,
-            IManagedEntityProperty managedProperty)
+            IManagedProperty managedProperty)
     {
         Session session = getSession(sessionToken);
         try
@@ -2227,7 +2227,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     public void updateManagedPropertyOnSample(String sessionToken, TechId experimentId,
-            IManagedEntityProperty managedProperty)
+            IManagedProperty managedProperty)
     {
         Session session = getSession(sessionToken);
         try
@@ -2254,7 +2254,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     public void updateManagedPropertyOnDataSet(String sessionToken, TechId experimentId,
-            IManagedEntityProperty managedProperty)
+            IManagedProperty managedProperty)
     {
         Session session = getSession(sessionToken);
         try
@@ -2282,7 +2282,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     public void updateManagedPropertyOnMaterial(String sessionToken, TechId experimentId,
-            IManagedEntityProperty managedProperty)
+            IManagedProperty managedProperty)
     {
         Session session = getSession(sessionToken);
         try
@@ -2309,9 +2309,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     private ManagedPropertyEvaluator tryManagedPropertyEvaluator(
-            IManagedEntityProperty managedProperty, Set<? extends EntityPropertyPE> properties)
+            IManagedProperty managedProperty, Set<? extends EntityPropertyPE> properties)
     {
-        String managedPropertyCode = managedProperty.asEntityProperty().getPropertyType().getCode();
+        String managedPropertyCode = managedProperty.getPropertyTypeCode();
 
         EntityPropertyPE managedPropertyPE = null;
         for (EntityPropertyPE property : properties)

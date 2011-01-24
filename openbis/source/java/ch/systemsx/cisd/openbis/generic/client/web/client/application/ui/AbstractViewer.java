@@ -49,7 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithProperties;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 
 /**
  * @author Franz-Josef Elmer
@@ -247,9 +247,9 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
         boolean sectionsAdded = false;
         for (final IEntityProperty property : entity.getProperties())
         {
-            if (property instanceof IManagedEntityProperty)
+            if (property.isManaged() && property instanceof IManagedProperty) // double check
             {
-                IManagedEntityProperty managedProperty = (IManagedEntityProperty) property;
+                IManagedProperty managedProperty = (IManagedProperty) property;
                 if (managedProperty.isOwnTab())
                 {
                     TabContent managedSection =
@@ -267,7 +267,7 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
     }
 
     protected TabContent createManagedPropertySection(final String header,
-            final IEntityInformationHolder entity, final IManagedEntityProperty managedProperty)
+            final IEntityInformationHolder entity, final IManagedProperty managedProperty)
     {
         IDelegatedAction refreshAction = new IDelegatedAction()
             {
