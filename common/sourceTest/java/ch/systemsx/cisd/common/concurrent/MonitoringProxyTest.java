@@ -502,7 +502,7 @@ public class MonitoringProxyTest
         retryingOnceExceptionThrowingProxy.worksOnSecondInvocation();
     }
 
-    @Test(groups = {"slow", "flaky"})
+    @Test(groups = {"slow"})
     public void testRetryOnceFailOnceWithCommunicator()
     {
         retryingOnceExceptionThrowingProxy.resetInvocationsCancelled();
