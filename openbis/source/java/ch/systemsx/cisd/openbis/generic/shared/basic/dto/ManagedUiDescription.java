@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedOutputWidgetDescription;
@@ -96,7 +95,7 @@ public class ManagedUiDescription implements IManagedUiDescription, ISerializabl
             tableWidget.setTableModel((TableModel) tableModel);
         } else
         {
-            throw UserFailureException.fromTemplate("Unsupported implementation of ITableModel");
+            throw new IllegalArgumentException("Unsupported implementation of ITableModel");
         }
         setOutputWidgetDescription(tableWidget);
     }
