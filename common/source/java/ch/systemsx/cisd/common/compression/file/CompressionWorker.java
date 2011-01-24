@@ -34,6 +34,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  * 
  * @author Bernd Rinn
  */
+@Deprecated
 class CompressionWorker implements Runnable
 {
 

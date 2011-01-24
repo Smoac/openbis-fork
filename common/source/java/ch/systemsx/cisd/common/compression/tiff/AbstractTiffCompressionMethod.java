@@ -23,13 +23,16 @@ import java.util.List;
 import ch.systemsx.cisd.common.compression.file.InPlaceCompressionMethod;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.fileconverter.TiffCompressionStrategy;
 
 /**
  * A compression method for TIFF files using an <code>executable</code> utility with an option to
  * specify compression type.
  * 
+ * @deprecated Use {@link TiffCompressionStrategy} instead.
  * @author Piotr Buczek
  */
+@Deprecated
 public abstract class AbstractTiffCompressionMethod extends InPlaceCompressionMethod
 {
 

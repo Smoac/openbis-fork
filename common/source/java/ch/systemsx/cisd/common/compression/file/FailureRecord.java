@@ -26,6 +26,7 @@ import ch.systemsx.cisd.common.exceptions.StatusFlag;
  * 
  * @author Bernd Rinn
  */
+@Deprecated
 public class FailureRecord
 {
     private final File failedFile;

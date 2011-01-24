@@ -29,6 +29,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.fileconverter.FileConverter;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -39,8 +40,10 @@ import ch.systemsx.cisd.common.utilities.ISelfTestable;
 /**
  * The base class for file compression.
  * 
+ * @deprecated Use {@link FileConverter} instead.
  * @author Bernd Rinn
  */
+@Deprecated
 public class Compressor
 {
 

@@ -24,6 +24,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.fileconverter.IFileConversionMethod;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
@@ -33,8 +34,10 @@ import ch.systemsx.cisd.common.utilities.ISelfTestable;
  * An {@link ICompressionMethod} that performs in-place compression of a bulk of files by means of
  * calling an external compression program and running it per file in an external process.
  * 
+ * @deprecated Use {@link IFileConversionMethod} instead.
  * @author Bernd Rinn
  */
+@Deprecated
 public abstract class InPlaceCompressionMethod implements ICompressionMethod, ISelfTestable
 {
 

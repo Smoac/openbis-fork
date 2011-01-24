@@ -21,14 +21,17 @@ import java.util.Arrays;
 import java.util.List;
 
 import ch.systemsx.cisd.base.utilities.OSUtilities;
+import ch.systemsx.cisd.common.fileconverter.TiffCompressionStrategy;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 
 /**
  * A compression method for TIFF files using the <code>tiffcp</code> utility with specified
  * compression type parameter (by default: <code>lzw:2</code>).
  * 
+ * @deprecated Use {@link TiffCompressionStrategy} instead.
  * @author Piotr Buczek
  */
+@Deprecated
 public class TiffCpCompressionMethod extends AbstractTiffCompressionMethod
 {
 

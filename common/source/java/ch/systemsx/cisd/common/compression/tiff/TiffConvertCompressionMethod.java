@@ -24,6 +24,7 @@ import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.fileconverter.TiffCompressionStrategy;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.process.ProcessResult;
@@ -33,8 +34,10 @@ import ch.systemsx.cisd.common.process.ProcessExecutionHelper.OutputReadingStrat
  * A compression method for TIFF files using the ImageMagick <code>convert</code> utility with
  * specified compression type parameter (by default: <code>LZW</code>).
  * 
+ * @deprecated Use {@link TiffCompressionStrategy} instead.
  * @author Bernd Rinn
  */
+@Deprecated
 public class TiffConvertCompressionMethod extends AbstractTiffCompressionMethod
 {
 

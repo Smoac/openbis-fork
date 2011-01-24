@@ -20,13 +20,16 @@ import java.io.File;
 import java.io.FileFilter;
 
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.fileconverter.IFileConversionMethod;
 
 /**
  * A role that compresses a file. A compression method may only be suitable for some files, thus it
  * is also a {@link FileFilter}.
  * 
+ * @deprecated Use {@link IFileConversionMethod} instead.
  * @author Bernd Rinn
  */
+@Deprecated
 public interface ICompressionMethod extends FileFilter
 {
 
