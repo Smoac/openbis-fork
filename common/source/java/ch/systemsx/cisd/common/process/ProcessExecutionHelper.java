@@ -133,20 +133,39 @@ public final class ProcessExecutionHelper
     private final AtomicReference<ProcessRecord> processWrapper;
 
     /**
+     * Log the <var>result</var> and return the {@link ProcessResult#isOK()} flag.
+     * 
+     * @throws InterruptedExceptionUnchecked If the <var>result</var> has the
+     *             {@link ProcessResult#isInterruped()} flag set.
+     */
+    public static final boolean log(ProcessResult result) throws InterruptedExceptionUnchecked
+    {
+        result.log();
+        if (result.isInterruped())
+        {
+            throw new InterruptedExceptionUnchecked();
+        }
+        return result.isOK();
+    }
+
+    /**
      * Runs an Operating System process, specified by <var>cmd</var>.
      * 
      * @param cmd The command line to run.
      * @param operationLog The {@link Logger} to use for all message on the higher level.
      * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
-     * @return <code>true</code>, if the process did complete successfully, <code>false</code>
-     *         otherwise.
-     * @throws InterruptedExceptionUnchecked If the thread got interrupted.
+     * @param stopOnInterrupt If <code>true</code>, an {@link InterruptedExceptionUnchecked} will be
+     *            thrown if the thread got interrupted, otherwise, the
+     *            {@link ProcessResult#isInterruped()} flag will be set.
+     * @return The process result.
+     * @throws InterruptedExceptionUnchecked If the thread got interrupted and
+     *             <var>stopOnInterrupt</var> is <code>true</code>.
      */
-    public static boolean runAndLog(final List<String> cmd, final Logger operationLog,
-            final Logger machineLog) throws InterruptedExceptionUnchecked
+    public static ProcessResult run(final List<String> cmd, final Logger operationLog,
+            final Logger machineLog, boolean stopOnInterrupt) throws InterruptedExceptionUnchecked
     {
         return new ProcessExecutionHelper(cmd, ConcurrencyUtilities.NO_TIMEOUT,
-                DEFAULT_OUTPUT_READING_STRATEGY, operationLog, machineLog).runAndLog();
+                DEFAULT_OUTPUT_READING_STRATEGY, operationLog, machineLog).run(stopOnInterrupt);
     }
 
     /**
@@ -161,8 +180,23 @@ public final class ProcessExecutionHelper
     public static ProcessResult run(final List<String> cmd, final Logger operationLog,
             final Logger machineLog) throws InterruptedExceptionUnchecked
     {
-        return new ProcessExecutionHelper(cmd, ConcurrencyUtilities.NO_TIMEOUT,
-                DEFAULT_OUTPUT_READING_STRATEGY, operationLog, machineLog).run(true);
+        return run(cmd, operationLog, machineLog, true);
+    }
+
+    /**
+     * Runs an Operating System process, specified by <var>cmd</var>.
+     * 
+     * @param cmd The command line to run.
+     * @param operationLog The {@link Logger} to use for all message on the higher level.
+     * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
+     * @return <code>true</code>, if the process did complete successfully, <code>false</code>
+     *         otherwise.
+     * @throws InterruptedExceptionUnchecked If the thread got interrupted.
+     */
+    public static boolean runAndLog(final List<String> cmd, final Logger operationLog,
+            final Logger machineLog) throws InterruptedExceptionUnchecked
+    {
+        return log(run(cmd, operationLog, machineLog, false));
     }
 
     /**
@@ -183,8 +217,31 @@ public final class ProcessExecutionHelper
             final Logger machineLog, final long millisToWaitForCompletion)
             throws InterruptedExceptionUnchecked
     {
+        return log(run(cmd, operationLog, machineLog, false, millisToWaitForCompletion));
+    }
+
+    /**
+     * Runs an Operating System process, specified by <var>cmd</var>.
+     * 
+     * @param cmd The command line to run.
+     * @param operationLog The {@link Logger} to use for all message on the higher level.
+     * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
+     * @param stopOnInterrupt If <code>true</code>, an {@link InterruptedExceptionUnchecked} will be
+     *            thrown if the thread got interrupted, otherwise, the
+     *            {@link ProcessResult#isInterruped()} flag will be set.
+     * @param millisToWaitForCompletion The time to wait for the process to complete in milli
+     *            seconds. If the process is not finished after that time, it will be terminated by
+     *            a watch dog.
+     * @return The process result.
+     * @throws InterruptedExceptionUnchecked If the thread got interrupted and
+     *             <var>stopOnInterrupt</var> is <code>true</code>.
+     */
+    public static ProcessResult run(final List<String> cmd, final Logger operationLog,
+            final Logger machineLog, final boolean stopOnInterrupt,
+            final long millisToWaitForCompletion) throws InterruptedExceptionUnchecked
+    {
         return new ProcessExecutionHelper(cmd, millisToWaitForCompletion,
-                DEFAULT_OUTPUT_READING_STRATEGY, operationLog, machineLog).runAndLog();
+                DEFAULT_OUTPUT_READING_STRATEGY, operationLog, machineLog).run(stopOnInterrupt);
     }
 
     /**
@@ -203,8 +260,7 @@ public final class ProcessExecutionHelper
             final Logger machineLog, final long millisToWaitForCompletion)
             throws InterruptedExceptionUnchecked
     {
-        return new ProcessExecutionHelper(cmd, millisToWaitForCompletion,
-                DEFAULT_OUTPUT_READING_STRATEGY, operationLog, machineLog).run(true);
+        return run(cmd, operationLog, machineLog, true, millisToWaitForCompletion);
     }
 
     /**
@@ -226,8 +282,8 @@ public final class ProcessExecutionHelper
             final Logger machineLog, final long millisToWaitForCompletion,
             final OutputReadingStrategy outputReadingStrategy) throws InterruptedExceptionUnchecked
     {
-        return new ProcessExecutionHelper(cmd, millisToWaitForCompletion, outputReadingStrategy,
-                operationLog, machineLog).runAndLog();
+        return log(run(cmd, operationLog, machineLog, millisToWaitForCompletion,
+                outputReadingStrategy, false));
     }
 
     /**
@@ -644,17 +700,6 @@ public final class ProcessExecutionHelper
         {
             return null;
         }
-    }
-
-    private final boolean runAndLog() throws InterruptedExceptionUnchecked
-    {
-        final ProcessResult result = run(false);
-        result.log();
-        if (result.isInterruped())
-        {
-            throw new InterruptedExceptionUnchecked();
-        }
-        return result.isOK();
     }
 
 }
