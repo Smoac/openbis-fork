@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -36,6 +37,7 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
+import ch.systemsx.cisd.common.parser.DefaultLineTokenizer.PropertyKey;
 import ch.systemsx.cisd.common.parser.filter.AlwaysAcceptLineFilter;
 import ch.systemsx.cisd.common.parser.filter.ILineFilter;
 import ch.systemsx.cisd.common.utilities.UnicodeUtils;
@@ -78,6 +80,10 @@ public class TabFileLoader<T>
     private static final String TOKENS_SEPARATOR = "\t";
 
     public static final String COMMENT_PREFIX = "#";
+
+    // Excel can put comments in double quotes (") if they contain quote character. Multiple saving
+    // of the can cause multiple '"' to occure before the '#' character.
+    public static final Pattern COMMENT_REGEXP_PATTERN = Pattern.compile("\"*#.*");
 
     private final IParserObjectFactoryFactory<T> factory;
 
@@ -269,7 +275,7 @@ public class TabFileLoader<T>
             headerLine = line.getText();
         }
 
-        final DefaultParser<T> parser = new DefaultParser<T>();
+        final IParser<T> parser = createParser();
         final String[] tokens = StringUtils.split(headerLine, TOKENS_SEPARATOR);
         int lastEmptyHeadersToSkip = countLastEmptyTokens(headerLine);
         final int headerLength = tokens.length;
@@ -330,7 +336,7 @@ public class TabFileLoader<T>
             headerLine = line.getText();
         }
 
-        final DefaultParser<T> parser = new DefaultParser<T>();
+        final IParser<T> parser = createParser();
         final String[] tokens = StringUtils.split(headerLine, TOKENS_SEPARATOR);
         int lastEmptyHeadersToSkip = countLastEmptyTokens(headerLine);
         final int headerLength = tokens.length;
@@ -349,12 +355,12 @@ public class TabFileLoader<T>
     private static boolean startsWithComment(Line line)
     {
         String text = line.getText();
-        return text.startsWith(COMMENT_PREFIX);
+        return COMMENT_REGEXP_PATTERN.matcher(text).matches();
     }
 
     private static String trimComment(Line previousLine)
     {
-        String text = previousLine.getText();
+        String text = previousLine.getText().trim();
         if (text.startsWith(COMMENT_PREFIX))
         {
             return text.substring(COMMENT_PREFIX.length());
@@ -508,13 +514,20 @@ public class TabFileLoader<T>
         }
     }
 
+    private final <E> IParser<E> createParser()
+    {
+        DefaultLineTokenizer tokenizer = new DefaultLineTokenizer();
+        // recognize default Excel text qualifiers
+        tokenizer.setProperty(PropertyKey.QUOTE_CHARS, "'\"");
+        return new DefaultParser<E>(tokenizer);
+    }
+
     //
     // Helper classes
     //
 
     private final static class TabFileLineIterator implements Iterator<Line>
     {
-        private static final String QUOTE = "" + '"';
 
         private final LineIterator lineIterator;
 
@@ -536,25 +549,7 @@ public class TabFileLoader<T>
 
         public final Line next()
         {
-            String text = unescapeQuotes(lineIterator.nextLine());
-            return new Line(++lineNumber, text);
-        }
-
-        // if the line contains quotes, Excel escapes them surrounding the whole line in quotes and
-        // doubling all quotes inside.
-        private static String unescapeQuotes(String text)
-        {
-            // skips tabs at the end if line is quoted - see multisection tsv files problem
-            String trimmedText = text.trim();
-            if (trimmedText.length() > 1 && trimmedText.startsWith(QUOTE)
-                    && trimmedText.endsWith(QUOTE))
-            {
-                String unquoted = trimmedText.substring(1, trimmedText.length() - 1);
-                return unquoted.replaceAll(QUOTE + QUOTE, QUOTE);
-            } else
-            {
-                return text;
-            }
+            return new Line(++lineNumber, lineIterator.nextLine());
         }
 
         public final boolean hasNext()

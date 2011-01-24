@@ -16,7 +16,10 @@
 
 package ch.systemsx.cisd.common.parser;
 
-import static org.testng.AssertJUnit.*;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -46,28 +49,35 @@ public final class DefaultLineTokenizerTest
         assertTrue(tokens.length == 4);
         assertEquals(tokens[0], "This");
         assertEquals(tokens[1], "is");
+        assertEquals(tokens[2], "a");
+        assertEquals(tokens[3], "line");
         // Trim is whitespace
         line = " This\t is \t a \tline ";
         tokens = tokenizer.tokenize(line);
         assertTrue(tokens.length == 4);
+        assertEquals(tokens[0], "This");
+        assertEquals(tokens[1], "is");
         assertEquals(tokens[2], "a");
         assertEquals(tokens[3], "line");
         // Separators are " \t"
         tokenizer.setProperty(DefaultLineTokenizer.PropertyKey.SEPARATOR_CHARS, " \t");
-        tokenizer.init();
         line = "This is \ta\tline";
         tokens = tokenizer.tokenize(line);
         assertTrue(tokens.length == 5);
         assertEquals(tokens[0], "This");
         assertEquals(tokens[1], "is");
         assertEquals(tokens[2], "");
+        assertEquals(tokens[3], "a");
+        assertEquals(tokens[4], "line");
         // Trying quote characters
         tokenizer.setProperty(DefaultLineTokenizer.PropertyKey.QUOTE_CHARS, "'");
-        line = "'This rule'\t'is not'\ta\tline";
+        line = "'This rule'\t'is ''certainly not'''\ta\tline";
         tokens = tokenizer.tokenize(line);
         assertTrue(tokens.length == 4);
         assertEquals(tokens[0], "This rule");
-        assertEquals(tokens[1], "is not");
+        assertEquals(tokens[1], "is 'certainly not'");
+        assertEquals(tokens[2], "a");
+        assertEquals(tokens[3], "line");
         // Trying to set <code>null</code>
         tokenizer.setProperty(null, null);
         // Resetting to default values
@@ -78,5 +88,7 @@ public final class DefaultLineTokenizerTest
         assertTrue(tokens.length == 4);
         assertEquals(tokens[0], "This");
         assertEquals(tokens[1], "is");
+        assertEquals(tokens[2], "a");
+        assertEquals(tokens[3], "line");
     }
 }

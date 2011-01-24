@@ -16,7 +16,8 @@
 
 package ch.systemsx.cisd.common.parser;
 
-import static org.testng.AssertJUnit.*;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 
 import java.io.StringReader;
 import java.util.List;
@@ -202,7 +203,8 @@ public final class TabFileLoaderTest
     {
         String header =
                 "\"#Comment surrounded by quotes with \"\"double quotes\"\" inside.\"\n"
-                        + "#another \"comment\"\n";
+                        + "#another \"comment\"\n"
+                        + "\"\"\"#Comment starting with 3 quotes with \"\"double quotes\"\" inside.\"\"\"\n";
         loadAndCheck(header);
     }
 
@@ -211,12 +213,15 @@ public final class TabFileLoaderTest
         TabFileLoader<ABC> loader = new TabFileLoader<ABC>(new ABCFactoryFactory());
         String values1 = "a1\tb1\tc1\n";
         // here we check quotes escaping in non-comment lines
-        String values2 = "\"a2\t\"\"b2\"\"\tc2\"\n";
-        List<ABC> list = loader.load(new StringReader(preamble + "A\tB\tC\n" + values1 + values2));
+        String values2 = "a2\t\"b\"\"2\"\"\"\tc2\n";
+        String values3 = "a3\t'b''3'''\tc3\n";
+        List<ABC> list =
+                loader.load(new StringReader(preamble + "A\tB\tC\n" + values1 + values2 + values3));
 
-        assertEquals(list.toString(), 2, list.size());
+        assertEquals(list.toString(), 3, list.size());
         assertEquals("a1b1c1", list.get(0).toString());
-        assertEquals("a2\"b2\"c2", list.get(1).toString());
+        assertEquals("a2b\"2\"c2", list.get(1).toString());
+        assertEquals("a3b'3'c3", list.get(2).toString());
     }
 
 }
