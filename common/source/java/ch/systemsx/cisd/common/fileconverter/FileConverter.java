@@ -19,15 +19,18 @@ package ch.systemsx.cisd.common.fileconverter;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 
+import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
@@ -54,42 +57,37 @@ public class FileConverter
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             FileConverter.class);
 
-    private static final int NUMBER_OF_PROCESSORS = Runtime.getRuntime().availableProcessors();
+    private static final int NUMBER_OF_CPU_CORES = Runtime.getRuntime().availableProcessors();
 
     private static Queue<File> tryFillWorkerQueue(final File directory,
             final IFileConversionStrategy conversionStrategy) throws EnvironmentFailureException
     {
-        final File[] filesToCompressOrNull =
-                FileUtilities.tryListFiles(directory, new FileFilter()
+        final List<File> filesToCompressOrNull =
+                FileUtilities.listFiles(directory, new FileFilter()
                     {
                         public boolean accept(File pathname)
                         {
                             return conversionStrategy.tryCheckConvert(pathname) != null;
                         }
-                    }, new Log4jSimpleLogger(machineLog));
-        if (filesToCompressOrNull == null)
-        {
-            String errorMsg = String.format("Path '%s' is not a directory.", directory.getPath());
-            machineLog.error(errorMsg);
-            throw new EnvironmentFailureException(errorMsg);
-        }
+                    }, true, null, new Log4jSimpleLogger(machineLog));
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("Found %d files to compress.",
-                    filesToCompressOrNull.length));
+            operationLog.info(String.format("Found %d files to convert.",
+                    filesToCompressOrNull.size()));
         }
-        if (filesToCompressOrNull.length == 0)
+        if (filesToCompressOrNull.isEmpty())
         {
             return null;
         }
-        return new ArrayBlockingQueue<File>(filesToCompressOrNull.length, false,
-                Arrays.asList(filesToCompressOrNull));
+        return new ArrayBlockingQueue<File>(filesToCompressOrNull.size(), false,
+                filesToCompressOrNull);
     }
 
-    private static int getInitialNumberOfWorkers(int threadsPerProcessor)
+    @Private
+    static int getInitialNumberOfWorkers(double machineLoad, int maxThreads)
     {
-        assert threadsPerProcessor > 0;
-        return NUMBER_OF_PROCESSORS * threadsPerProcessor;
+        return (int) Math.max(1,
+                Math.min(Math.round(NUMBER_OF_CPU_CORES * machineLoad), maxThreads));
     }
 
     private static void startUpWorkerThreads(AtomicInteger workersCounter, Queue<File> workerQueue,
@@ -107,30 +105,47 @@ public class FileConverter
         }
     }
 
-    public static Collection<FailureRecord> start(String directoryName,
-            IFileConversionStrategy conversionStrategy, int threadsPerProcessor)
-            throws InterruptedException, EnvironmentFailureException
+    /**
+     * Performs the conversion described by <var>conversionStrategy</var> on all files in
+     * <var>directoryName</var>.
+     * <p>
+     * Uses #cores * <var>machineLoad</var> threads for the conversion, but not more than
+     * <var>maxThreads</var>.
+     */
+    public static Collection<FailureRecord> performConversion(String directoryName,
+            IFileConversionStrategy conversionStrategy, double machineLoad, int maxThreads)
+            throws InterruptedExceptionUnchecked, EnvironmentFailureException
     {
         conversionStrategy.getConverter().check();
         final Queue<File> workerQueue =
                 tryFillWorkerQueue(new File(directoryName), conversionStrategy);
         final Collection<FailureRecord> failed =
                 Collections.synchronizedCollection(new ArrayList<FailureRecord>());
-        if (workerQueue == null || workerQueue.size() == 0)
+        if (workerQueue == null || workerQueue.isEmpty())
         {
-            System.out.println("No files to compress.");
             return failed;
         }
-        AtomicInteger workersCounter =
-                new AtomicInteger(getInitialNumberOfWorkers(threadsPerProcessor));
+        final AtomicInteger workersCounter =
+                new AtomicInteger(getInitialNumberOfWorkers(machineLoad, maxThreads));
         startUpWorkerThreads(workersCounter, workerQueue, failed, conversionStrategy);
         synchronized (failed)
         {
             while (workersCounter.get() > 0)
             {
-                failed.wait();
+                try
+                {
+                    failed.wait();
+                } catch (InterruptedException ex)
+                {
+                    throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+                }
             }
         }
         return failed;
+    }
+
+    private FileConverter()
+    {
+        // Do not instantiate.
     }
 }

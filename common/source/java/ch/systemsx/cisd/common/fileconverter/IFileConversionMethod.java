@@ -29,6 +29,11 @@ import ch.systemsx.cisd.common.utilities.ISelfTestable;
 public interface IFileConversionMethod extends ISelfTestable
 {
     /**
+     * Returns <code>true</code>, if this conversion method is available.
+     */
+    public boolean isAvailable();
+    
+    /**
      * Performs the file conversion on <var>inFile</var>, creating a file <var>outFile</var> in the
      * process.
      * 

@@ -16,19 +16,13 @@
 
 package ch.systemsx.cisd.common.fileconverter;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Collections;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.base.utilities.OSUtilities;
-import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
-import ch.systemsx.cisd.common.process.ProcessExecutionHelper.OutputReadingStrategy;
 import ch.systemsx.cisd.common.process.ProcessResult;
 
 /**
@@ -36,29 +30,25 @@ import ch.systemsx.cisd.common.process.ProcessResult;
  * 
  * @author Bernd Rinn
  */
-public abstract class AbstractImageMagickConvertImageFileConverter implements IFileConversionMethod
+abstract class AbstractImageMagickConvertImageFileConverter extends
+        AbstractExecutableFileConverter
 {
-
-    protected final Logger machineLog;
-
-    protected final Logger operationLog;
-
-    private final static String executableName = "convert";
-
-    private final static File executable = OSUtilities.findExecutable(executableName);
-
+    private final String imageMagickVersionOrNull;
+    
     protected AbstractImageMagickConvertImageFileConverter(Logger machineLog, Logger operationLog)
     {
-        this.machineLog = machineLog;
-        this.operationLog = operationLog;
+        super(machineLog, operationLog);
+        if (getExecutablePath().startsWith("? "))
+        {
+            imageMagickVersionOrNull = null;
+        } else
+        {
+            imageMagickVersionOrNull = tryGetImageMagickVersion();
+            
+        }
     }
 
-    /**
-     * Returns the command line to <code>convert</code>.
-     */
-    protected abstract List<String> getCommandLine(File inFile, File outFile);
-
-    private static String extractImageMagickVersion(String imageMagickVersionLine)
+    private static String tryExtractImageMagickVersion(String imageMagickVersionLine)
     {
         if (imageMagickVersionLine.startsWith("Version: ImageMagick") == false)
         {
@@ -74,67 +64,64 @@ public abstract class AbstractImageMagickConvertImageFileConverter implements IF
         }
     }
 
-    private String getImageMagickVersion(String convertExecutableToCheck)
+    private String tryGetImageMagickVersion()
     {
-        final ProcessResult result =
-                ProcessExecutionHelper.run(Arrays.asList(convertExecutableToCheck, "--version"),
-                        operationLog, machineLog, Constants.MILLIS_TO_WAIT_BEFORE_TIMEOUT,
-                        OutputReadingStrategy.ALWAYS, true);
-        result.log();
-        final String versionString = extractImageMagickVersion(result.getOutput().get(0));
+        final ProcessResult result = runExecutable(Collections.singletonList("--version"));
+        ProcessExecutionHelper.log(result);
+        final String versionString = tryExtractImageMagickVersion(result.getOutput().get(0));
         return versionString;
     }
 
-    /**
-     * Returns <code>false</code>.
-     */
-    public boolean isRemote()
+    public boolean isAvailable()
     {
-        return false;
-    }
-
-    /**
-     * Checks for convert v6.2 or newer being installed and executable.
-     */
-    public void check() throws EnvironmentFailureException, ConfigurationFailureException
-    {
-        final String imageMagickVersionOrNull = getImageMagickVersion(executable.getAbsolutePath());
         if (imageMagickVersionOrNull == null)
         {
-            throw new ConfigurationFailureException("Invalid convert utility");
+            return false;
         }
         String[] imageMagickVersionParts = imageMagickVersionOrNull.split("\\.");
         if (imageMagickVersionParts.length != 3)
         {
-            throw new ConfigurationFailureException("Invalid convert utility");
+            return false;
         }
         final int imageMagickMajorVersion = Integer.parseInt(imageMagickVersionParts[0]);
         final int imageMagickMinorVersion = Integer.parseInt(imageMagickVersionParts[1]);
         if (imageMagickMajorVersion < 6 || imageMagickMinorVersion < 2)
         {
-            throw ConfigurationFailureException.fromTemplate(
-                    "Convert utility is too old (expected: v6.2 or newer, found: v%s)",
-                    imageMagickVersionOrNull);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Checks for convert v6.2 or newer being installed and executable.
+     */
+    @Override
+    public void check() throws EnvironmentFailureException, ConfigurationFailureException
+    {
+        super.check();
+        if (isAvailable() == false)
+        {
+            if (imageMagickVersionOrNull == null)
+            {
+                throw new ConfigurationFailureException("Invalid convert utility.");
+            } else
+            {
+                throw ConfigurationFailureException.fromTemplate(
+                        "Convert utility is too old (expected: v6.2 or newer, found: v%s)",
+                        imageMagickVersionOrNull);
+            }
         }
         if (machineLog.isInfoEnabled())
         {
             machineLog.info(String.format("Using convert executable '%s', ImageMagick version %s",
-                    executable, imageMagickVersionOrNull));
+                    getExecutablePath(), imageMagickVersionOrNull));
         }
     }
 
-    public boolean convert(File inFile, File outFile)
+    @Override
+    protected String getExecutableName()
     {
-        final List<String> commandLine = new ArrayList<String>();
-        commandLine.add(executable.getAbsolutePath());
-        commandLine.addAll(getCommandLine(inFile, outFile));
-        final boolean processOK = ProcessExecutionHelper.runAndLog(commandLine, operationLog, machineLog);
-        final boolean exists = outFile.exists() && (outFile.length() > 0);
-        if (exists == false)
-        {
-            operationLog.error("Outfile '" + outFile.getAbsolutePath() + "' does not exist after processing.");
-        }
-        return processOK && exists;
+        return "convert";
     }
 
 }

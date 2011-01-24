@@ -27,31 +27,38 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
- * A class that performs tiff file compression.
+ * A class that performs tiff file compression using ImageMagick's <code>convert</code> utility.
  * 
  * @author Bernd Rinn
  */
-public class ImageMagickTiffCompressionConverter extends
-        AbstractImageMagickConvertImageFileConverter implements IFileConversionStrategy
+class ImageMagickTiffCompressionConverter extends
+        AbstractImageMagickConvertImageFileConverter
 {
     private final static String DEFAULT_COMPRESSION_TYPE = "LZW";
 
-    private final String compressionAlgorithmOrNull;
+    private final String compressionAlgorithm;
+
+    public ImageMagickTiffCompressionConverter()
+    {
+        this(DEFAULT_COMPRESSION_TYPE);
+    }
 
     public ImageMagickTiffCompressionConverter(String compressionAlgorithmOrNull)
     {
         super(LogFactory.getLogger(LogCategory.MACHINE, ImageMagickTiffCompressionConverter.class),
                 LogFactory.getLogger(LogCategory.OPERATION,
                         ImageMagickTiffCompressionConverter.class));
-        this.compressionAlgorithmOrNull = compressionAlgorithmOrNull;
+        this.compressionAlgorithm =
+                compressionAlgorithmOrNull == null ? DEFAULT_COMPRESSION_TYPE
+                        : compressionAlgorithmOrNull;
     }
 
     @Override
     protected List<String> getCommandLine(File inFile, File outFile)
     {
         final String compression =
-                StringUtils.isEmpty(compressionAlgorithmOrNull) ? DEFAULT_COMPRESSION_TYPE
-                        : compressionAlgorithmOrNull;
+                StringUtils.isEmpty(compressionAlgorithm) ? DEFAULT_COMPRESSION_TYPE
+                        : compressionAlgorithm;
         return Arrays.asList(inFile.getAbsolutePath(), "-compress", compression,
                 outFile.getAbsolutePath());
     }

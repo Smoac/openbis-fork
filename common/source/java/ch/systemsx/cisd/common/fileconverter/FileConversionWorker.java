@@ -223,7 +223,7 @@ class FileConversionWorker implements Runnable
         }
 
         // Convert
-        final File inProgressFile = prefixInProgress(fileToConvert);
+        final File inProgressFile = prefixInProgress(convertedFile);
         final boolean runOK =
                 conversionStrategy.getConverter().convert(fileToConvert, inProgressFile);
         if (runOK == false)
@@ -255,7 +255,7 @@ class FileConversionWorker implements Runnable
                 final boolean ok = originalFile.delete();
                 if (ok == false)
                 {
-                    return createStatusAndLog("Clean up: Unable to delete original file '%s'",
+                    return createStatusAndLog("Clean up: Unable to delete original file '%s' failed.",
                             originalFile);
                 }
             }
@@ -315,7 +315,7 @@ class FileConversionWorker implements Runnable
         final boolean ok = fileToConvert.delete();
         if (ok)
         {
-            operationLog.warn(String.format("Clean up: deleting temporary file '%s'",
+            operationLog.info(String.format("Clean up: successfully deleting temporary file '%s'",
                     fileToConvert.getAbsolutePath()));
             return Status.OK;
         } else

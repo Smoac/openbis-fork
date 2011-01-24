@@ -1,15 +1,3 @@
-package ch.systemsx.cisd.common.fileconverter;
-
-import java.io.File;
-import java.util.Arrays;
-import java.util.List;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
-
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
-
 /*
  * Copyright 2011 ETH Zuerich, CISD
  *
@@ -26,35 +14,41 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  * limitations under the License.
  */
 
+package ch.systemsx.cisd.common.fileconverter;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
+
 /**
  * A class that performs conversion of a tiff file to a png file with optional page extraction and
  * transparency conversion using the ImageMagick <code>convert</code> utility.
  * 
  * @author Bernd Rinn
  */
-public class ImageMagickTiffToPngConverter extends AbstractImageMagickConvertImageFileConverter
-        implements IFileConversionStrategy
+class ImageMagickTiffToPngConverter extends AbstractImageMagickConvertImageFileConverter
 {
     private final String transparentColorOrNull;
 
-    private final boolean replaceFile;
-
     private final int page;
 
-    public ImageMagickTiffToPngConverter(String transparentColorOrNull, int page,
-            boolean replaceFile)
+    public ImageMagickTiffToPngConverter(String transparentColorOrNull, int page)
     {
         super(LogFactory.getLogger(LogCategory.MACHINE, ImageMagickTiffToPngConverter.class),
                 LogFactory.getLogger(LogCategory.OPERATION, ImageMagickTiffToPngConverter.class));
         this.transparentColorOrNull = transparentColorOrNull;
         this.page = page;
-        this.replaceFile = replaceFile;
     }
 
     @Override
     protected List<String> getCommandLine(File inFile, File outFile)
     {
-        if (StringUtils.isEmpty(transparentColorOrNull))
+        if (StringUtils.isNotEmpty(transparentColorOrNull))
         {
 
             return Arrays.asList("-transparent", transparentColorOrNull, inFile.getAbsolutePath()
@@ -64,33 +58,6 @@ public class ImageMagickTiffToPngConverter extends AbstractImageMagickConvertIma
             return Arrays.asList(inFile.getAbsolutePath() + "[" + page + "]",
                     outFile.getAbsolutePath());
         }
-    }
-
-    //
-    // IFileConversionStrategy
-    //
-
-    public File tryCheckConvert(File inFile)
-    {
-        final String ext = FilenameUtils.getExtension(inFile.getName()).toLowerCase();
-        if ("tiff".equals(ext) || "tif".equals(ext))
-        {
-            return new File(inFile.getParent(), FilenameUtils.getBaseName(inFile.getName())
-                    + ".png");
-        } else
-        {
-            return null;
-        }
-    }
-
-    public boolean deleteOriginalFile()
-    {
-        return replaceFile;
-    }
-
-    public IFileConversionMethod getConverter()
-    {
-        return this;
     }
 
 }
