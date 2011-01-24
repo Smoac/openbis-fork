@@ -1248,7 +1248,7 @@ public final class FileUtilities
     }
 
     /**
-     * A {@link FileFilter} that matches against a list of file extensions and that
+     * A {@link FileFilter} that matches against a list of file extensions.
      * 
      * @author Bernd Rinn
      */
@@ -1310,7 +1310,7 @@ public final class FileUtilities
     }
 
     /**
-     * A {@link FileFilter} that matches against a list of file extensions and that
+     * A {@link FileFilter} that accepts all directories.
      * 
      * @author Bernd Rinn
      */
@@ -1330,6 +1330,36 @@ public final class FileUtilities
                 observerOrNull.update();
             }
             return pathname.isDirectory();
+        }
+
+    }
+
+    /**
+     * A {@link FileFilter} that is <code>true</code> if either of the two filters provided is
+     * <code>true</code>.
+     * 
+     * @author Bernd Rinn
+     */
+    private static final class OrFilter implements FileFilter
+    {
+        private final IActivityObserver observerOrNull;
+
+        private final FileFilter filter1, filter2;
+
+        OrFilter(IActivityObserver observerOrNull, FileFilter filter1, FileFilter filter2)
+        {
+            this.observerOrNull = observerOrNull;
+            this.filter1 = filter1;
+            this.filter2 = filter2;
+        }
+
+        public boolean accept(File pathname)
+        {
+            if (observerOrNull != null)
+            {
+                observerOrNull.update();
+            }
+            return filter1.accept(pathname) || filter2.accept(pathname);
         }
 
     }
@@ -1364,6 +1394,98 @@ public final class FileUtilities
      * of extensions.
      * 
      * @param directory The directory to search in.
+     * @param filterOrNull The {@link FileFilter} used to decide whether a given file is listed or
+     *            not. If <code>null</code>, all files are returned.
+     * @param recursive If true all subdirectories are searched as well.
+     * @return A list of java.io.File (all files) with the matching files, or an empty list, if
+     *         <var>directory</var> is not a directory.
+     * @throw {@link EnvironmentFailureException} if an error occurs on listing
+     *        <var>directory</var>.
+     */
+    public static List<File> listFiles(File directory, FileFilter filterOrNull, boolean recursive)
+            throws EnvironmentFailureException
+    {
+        return listFiles(directory, filterOrNull, recursive, null);
+    }
+
+    /**
+     * Finds files within a given directory (and optionally its subdirectories) which match an array
+     * of extensions.
+     * 
+     * @param directory The directory to search in.
+     * @param filterOrNull The {@link FileFilter} used to decide whether a given file is listed or
+     *            not. If <code>null</code>, all files are returned.
+     * @param recursive If true all subdirectories are searched as well.
+     * @param observerOrNull If not <code>null</code>, will be updated on progress of file
+     *            gathering. This can be used to find out whether a (potentially) long-running file
+     *            gathering call is alive-and-kicking or hangs (e.g. due to a remote directory
+     *            becoming unresponsive).
+     * @return A list of java.io.File (all files) with the matching files, or an empty list, if
+     *         <var>directory</var> is not a directory.
+     * @throw {@link EnvironmentFailureException} if an error occurs on listing
+     *        <var>directory</var>.
+     */
+    public static List<File> listFiles(File directory, FileFilter filterOrNull, boolean recursive,
+            IActivityObserver observerOrNull) throws EnvironmentFailureException
+    {
+        return listFiles(directory, filterOrNull, recursive, observerOrNull, null);
+    }
+
+    /**
+     * Finds files within a given directory (and optionally its subdirectories) which match an array
+     * of extensions.
+     * 
+     * @param directory The directory to search in.
+     * @param filterOrNull The {@link FileFilter} used to decide whether a given file is listed or
+     *            not. If <code>null</code>, all files are returned.
+     * @param recursive If true all subdirectories are searched as well.
+     * @param observerOrNull If not <code>null</code>, will be updated on progress of file
+     *            gathering. This can be used to find out whether a (potentially) long-running file
+     *            gathering call is alive-and-kicking or hangs (e.g. due to a remote directory
+     *            becoming unresponsive).
+     * @param loggerOrNull The logger to use to report failures in listing.
+     * @return A list of java.io.File (all files) with the matching files, or an empty list, if
+     *         <var>directory</var> is not a directory.
+     * @throw {@link EnvironmentFailureException} if an error occurs on listing
+     *        <var>directory</var>.
+     */
+    public static List<File> listFiles(File directory, FileFilter filterOrNull, boolean recursive,
+            IActivityObserver observerOrNull, ISimpleLogger loggerOrNull)
+            throws EnvironmentFailureException
+    {
+        assert directory != null;
+
+        final List<File> result = new LinkedList<File>();
+        entryInternalListFiles(directory, result,
+                (filterOrNull == null) ? new TrueFilter(observerOrNull) : filterOrNull,
+                observerOrNull, recursive, FType.FILE, loggerOrNull);
+        return result;
+    }
+
+    /**
+     * Finds files within a given directory (and optionally its subdirectories) which match an array
+     * of extensions.
+     * 
+     * @param directory The directory to search in.
+     * @param extensionsOrNull An array of extensions, ex. {"java","xml"}. If this parameter is
+     *            <code>null</code>, all files are returned.
+     * @param recursive If true all subdirectories are searched as well.
+     * @return A list of java.io.File (all files) with the matching files, or an empty list, if
+     *         <var>directory</var> is not a directory.
+     * @throw {@link EnvironmentFailureException} if an error occurs on listing
+     *        <var>directory</var>.
+     */
+    public static List<File> listFiles(File directory, String[] extensionsOrNull, boolean recursive)
+            throws EnvironmentFailureException
+    {
+        return listFiles(directory, extensionsOrNull, recursive, null, null);
+    }
+
+    /**
+     * Finds files within a given directory (and optionally its subdirectories) which match an array
+     * of extensions.
+     * 
+     * @param directory The directory to search in.
      * @param extensionsOrNull An array of extensions, ex. {"java","xml"}. If this parameter is
      *            <code>null</code>, all files are returned.
      * @param recursive If true all subdirectories are searched as well.
@@ -1373,16 +1495,59 @@ public final class FileUtilities
      *            becoming unresponsive).
      * @return A list of java.io.File (all files) with the matching files, or an empty list, if
      *         <var>directory</var> is not a directory.
+     * @throw {@link EnvironmentFailureException} if an error occurs on listing
+     *        <var>directory</var>.
      */
     public static List<File> listFiles(File directory, String[] extensionsOrNull,
-            boolean recursive, IActivityObserver observerOrNull)
+            boolean recursive, IActivityObserver observerOrNull) throws EnvironmentFailureException
+    {
+        return listFiles(directory, extensionsOrNull, recursive, observerOrNull, null);
+    }
+
+    /**
+     * Finds files within a given directory (and optionally its subdirectories) which match an array
+     * of extensions.
+     * 
+     * @param directory The directory to search in.
+     * @param extensionsOrNull An array of extensions, ex. {"java","xml"}. If this parameter is
+     *            <code>null</code>, all files are returned.
+     * @param recursive If true all subdirectories are searched as well.
+     * @param observerOrNull If not <code>null</code>, will be updated on progress of file
+     *            gathering. This can be used to find out whether a (potentially) long-running file
+     *            gathering call is alive-and-kicking or hangs (e.g. due to a remote directory
+     *            becoming unresponsive).
+     * @param loggerOrNull The logger to use to report failures in listing.
+     * @return A list of java.io.File (all files) with the matching files, or an empty list, if
+     *         <var>directory</var> is not a directory.
+     * @throw {@link EnvironmentFailureException} if an error occurs on listing
+     *        <var>directory</var>.
+     */
+    public static List<File> listFiles(File directory, String[] extensionsOrNull,
+            boolean recursive, IActivityObserver observerOrNull, ISimpleLogger loggerOrNull)
+            throws EnvironmentFailureException
     {
         assert directory != null;
 
         final List<File> result = new LinkedList<File>();
-        internalListFiles(directory, result, new ExtensionFileFilter(extensionsOrNull, recursive,
-                observerOrNull), observerOrNull, recursive, FType.FILE);
+        entryInternalListFiles(directory, result, new ExtensionFileFilter(extensionsOrNull, recursive,
+                observerOrNull), observerOrNull, recursive, FType.FILE, loggerOrNull);
         return result;
+    }
+
+    /**
+     * Finds directories within a given directory (and optionally its subdirectories).
+     * 
+     * @param directory The directory to search in.
+     * @param recursive If true all subdirectories are searched as well.
+     * @return A list of java.io.File (all directories), or an empty list, if <var>directory</var>
+     *         ist not a directory.
+     * @throw {@link EnvironmentFailureException} if an error occurs on listing
+     *        <var>directory</var>.
+     */
+    public static List<File> listDirectories(File directory, boolean recursive)
+            throws EnvironmentFailureException
+    {
+        return listDirectories(directory, recursive, null, null);
     }
 
     /**
@@ -1396,16 +1561,56 @@ public final class FileUtilities
      *            becoming unresponsive).
      * @return A list of java.io.File (all directories), or an empty list, if <var>directory</var>
      *         ist not a directory.
+     * @throw {@link EnvironmentFailureException} if an error occurs on listing
+     *        <var>directory</var>.
      */
     public static List<File> listDirectories(File directory, boolean recursive,
-            IActivityObserver observerOrNull)
+            IActivityObserver observerOrNull) throws EnvironmentFailureException
+    {
+        return listDirectories(directory, recursive, observerOrNull, null);
+    }
+
+    /**
+     * Finds directories within a given directory (and optionally its subdirectories).
+     * 
+     * @param directory The directory to search in.
+     * @param recursive If true all subdirectories are searched as well.
+     * @param observerOrNull If not <code>null</code>, will be updated on progress of file
+     *            gathering. This can be used to find out whether a (potentially) long-running file
+     *            gathering call is alive-and-kicking or hangs (e.g. due to a remote directory
+     *            becoming unresponsive).
+     * @param loggerOrNull The logger to use to report failures in listing.
+     * @return A list of java.io.File (all directories), or an empty list, if <var>directory</var>
+     *         ist not a directory.
+     * @throw {@link EnvironmentFailureException} if an error occurs on listing
+     *        <var>directory</var>.
+     */
+    public static List<File> listDirectories(File directory, boolean recursive,
+            IActivityObserver observerOrNull, ISimpleLogger loggerOrNull)
+            throws EnvironmentFailureException
     {
         assert directory != null;
 
         final List<File> result = new LinkedList<File>();
-        internalListFiles(directory, result, new DirectoryFilter(observerOrNull), observerOrNull,
-                recursive, FType.DIRECTORY);
+        entryInternalListFiles(directory, result, new DirectoryFilter(observerOrNull), observerOrNull,
+                recursive, FType.DIRECTORY, loggerOrNull);
         return result;
+    }
+
+    /**
+     * Finds files and directories within a given directory (and optionally its subdirectories).
+     * 
+     * @param directory The directory to search in.
+     * @param recursive If true all subdirectories are searched as well.
+     * @return A list of java.io.File (all directories), or an empty list, if <var>directory</var>
+     *         ist not a directory.
+     * @throw {@link EnvironmentFailureException} if an error occurs on listing
+     *        <var>directory</var>.
+     */
+    public static List<File> listFilesAndDirectories(File directory, boolean recursive)
+            throws EnvironmentFailureException
+    {
+        return listFilesAndDirectories(directory, recursive, null, null);
     }
 
     /**
@@ -1419,15 +1624,39 @@ public final class FileUtilities
      *            becoming unresponsive).
      * @return A list of java.io.File (all directories), or an empty list, if <var>directory</var>
      *         ist not a directory.
+     * @throw {@link EnvironmentFailureException} if an error occurs on listing
+     *        <var>directory</var>.
      */
     public static List<File> listFilesAndDirectories(File directory, boolean recursive,
-            IActivityObserver observerOrNull)
+            IActivityObserver observerOrNull) throws EnvironmentFailureException
+    {
+        return listFilesAndDirectories(directory, recursive, observerOrNull, null);
+    }
+
+    /**
+     * Finds files and directories within a given directory (and optionally its subdirectories).
+     * 
+     * @param directory The directory to search in.
+     * @param recursive If true all subdirectories are searched as well.
+     * @param observerOrNull If not <code>null</code>, will be updated on progress of file
+     *            gathering. This can be used to find out whether a (potentially) long-running file
+     *            gathering call is alive-and-kicking or hangs (e.g. due to a remote directory
+     *            becoming unresponsive).
+     * @param loggerOrNull The logger to use to report failures in listing.
+     * @return A list of java.io.File (all directories), or an empty list, if <var>directory</var>
+     *         ist not a directory.
+     * @throw {@link EnvironmentFailureException} if an error occurs on listing
+     *        <var>directory</var>.
+     */
+    public static List<File> listFilesAndDirectories(File directory, boolean recursive,
+            IActivityObserver observerOrNull, ISimpleLogger loggerOrNull)
+            throws EnvironmentFailureException
     {
         assert directory != null;
 
         final List<File> result = new LinkedList<File>();
-        internalListFiles(directory, result, new TrueFilter(observerOrNull), observerOrNull,
-                recursive, FType.EITHER);
+        entryInternalListFiles(directory, result, new TrueFilter(observerOrNull), observerOrNull,
+                recursive, FType.EITHER, loggerOrNull);
         return result;
     }
 
@@ -1436,13 +1665,49 @@ public final class FileUtilities
         FILE, DIRECTORY, EITHER
     }
 
-    private static void internalListFiles(File directory, List<File> result, FileFilter filter,
-            IActivityObserver observerOrNull, boolean recursive, FType ftype)
+    private static void entryInternalListFiles(File directory, List<File> result,
+            FileFilter filter, IActivityObserver observerOrNull, boolean recursive, FType ftype,
+            final ISimpleLogger loggerOrNull)
     {
-        final File[] filteredFilesAndDirectories = directory.listFiles(filter);
+        if (recursive)
+        {
+            internalListFiles(directory, result, new OrFilter(null, new DirectoryFilter(null),
+                    filter), observerOrNull, recursive, ftype, loggerOrNull);
+        } else
+        {
+            internalListFiles(directory, result, filter, observerOrNull, recursive, ftype,
+                    loggerOrNull);
+        }
+    }
+
+    private static void internalListFiles(File directory, List<File> result, FileFilter filter,
+            IActivityObserver observerOrNull, boolean recursive, FType ftype,
+            final ISimpleLogger loggerOrNull)
+    {
+        RuntimeException ex = null;
+        File[] filteredFilesAndDirectories = null;
+        try
+        {
+            filteredFilesAndDirectories = directory.listFiles(filter);
+        } catch (final RuntimeException e)
+        {
+            ex = e;
+        }
         if (filteredFilesAndDirectories == null)
         {
-            return;
+            if (loggerOrNull != null)
+            {
+                logFailureInDirectoryListing(ex, directory, loggerOrNull);
+            }
+            if (ex != null)
+            {
+                throw new EnvironmentFailureException(
+                        "Error listing directory '" + directory + "'", ex);
+            } else
+            {
+                throw new EnvironmentFailureException("Path '" + directory.getPath()
+                        + "' is not a directory.");
+            }
         }
         for (File f : filteredFilesAndDirectories)
         {
@@ -1452,15 +1717,16 @@ public final class FileUtilities
             }
             if (f.isDirectory())
             {
-                if (ftype != FType.FILE)
+                if (ftype != FType.FILE && filter.accept(f))
                 {
                     result.add(f);
                 }
                 if (recursive)
                 {
-                    internalListFiles(f, result, filter, observerOrNull, recursive, ftype);
+                    internalListFiles(f, result, filter, observerOrNull, recursive, ftype,
+                            loggerOrNull);
                 }
-            } else if (ftype != FType.DIRECTORY)
+            } else if (ftype != FType.DIRECTORY && filter.accept(f))
             {
                 result.add(f);
             }

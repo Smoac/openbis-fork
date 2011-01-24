@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.filesystem;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
@@ -31,6 +32,7 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.concurrent.IActivityObserver;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.parser.filter.ExcludeEmptyAndCommentLineFilter;
 
 /**
@@ -381,11 +383,17 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
         final File dir = new File(workingDirectory, "listFiles");
         dir.mkdir();
         final File nonExistentDir = new File(dir, "nonExistent");
-        assertTrue(FileUtilities.listFiles(dir, null, true, null).isEmpty());
-        assertTrue(FileUtilities.listFiles(nonExistentDir, null, true, null).isEmpty());
+        assertTrue(FileUtilities.listFiles(dir, (FileFilter) null, true, null, null).isEmpty());
+        try
+        {
+            FileUtilities.listFiles(nonExistentDir, (FileFilter) null, true, null, null);
+        } catch (EnvironmentFailureException ex)
+        {
+            assertTrue(ex.getMessage().endsWith("not a directory."));
+        }
         final File subDir = new File(dir, "subdir");
         subDir.mkdir();
-        assertTrue(FileUtilities.listFiles(dir, null, true, null).isEmpty());
+        assertTrue(FileUtilities.listFiles(dir, (FileFilter) null, true, null, null).isEmpty());
         assertEquals("subdir", FileUtilities.listDirectories(dir, true, null).get(0).getName());
         final File f1 = new File(dir, "f1.dat");
         f1.createNewFile();
@@ -397,11 +405,11 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
         f4.createNewFile();
         final CountingActivityObserver observer = new CountingActivityObserver();
 
-        final List<File> list1 = FileUtilities.listFiles(dir, null, true, null);
+        final List<File> list1 = FileUtilities.listFiles(dir, (FileFilter) null, true, null, null);
         assertEquals(4, list1.size());
         assertEquals(new HashSet<File>(Arrays.asList(f1, f2, f3, f4)), new HashSet<File>(list1));
 
-        final List<File> list2 = FileUtilities.listFiles(dir, null, true, observer);
+        final List<File> list2 = FileUtilities.listFiles(dir, (FileFilter) null, true, observer, null);
         assertEquals(list1, list2);
         assertTrue("" + observer.count, observer.count >= list2.size());
 
@@ -414,20 +422,27 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
 
         final File subDir2 = new File(subDir, "subDir2");
         subDir2.mkdir();
+        final File f5 = new File(subDir2, "f5.ttt");
+        f5.createNewFile();
+
+        final List<File> list4 = FileUtilities.listFiles(dir, (FileFilter) null, true, null, null);
+        assertEquals(5, list4.size());
+        assertEquals(new HashSet<File>(Arrays.asList(f1, f2, f3, f4, f5)), new HashSet<File>(list4));
+
         final File subDir3 = new File(dir, "subDir3");
         subDir3.mkdir();
         observer.count = 0;
-        final List<File> list4 = FileUtilities.listDirectories(dir, true, observer);
-        assertEquals(3, list4.size());
+        final List<File> list5 = FileUtilities.listDirectories(dir, true, observer);
+        assertEquals(3, list5.size());
         assertEquals(new HashSet<File>(Arrays.asList(subDir, subDir2, subDir3)), new HashSet<File>(
-                list4));
-        assertTrue("" + observer.count, observer.count >= list4.size());
+                list5));
+        assertTrue("" + observer.count, observer.count >= list5.size());
 
         observer.count = 0;
-        final List<File> list5 = FileUtilities.listDirectories(dir, false, observer);
-        assertEquals(2, list5.size());
-        assertEquals(new HashSet<File>(Arrays.asList(subDir, subDir3)), new HashSet<File>(list5));
-        assertTrue("" + observer.count, observer.count >= list5.size());
+        final List<File> list6 = FileUtilities.listDirectories(dir, false, observer);
+        assertEquals(2, list6.size());
+        assertEquals(new HashSet<File>(Arrays.asList(subDir, subDir3)), new HashSet<File>(list6));
+        assertTrue("" + observer.count, observer.count >= list6.size());
     }
 
     @Test
