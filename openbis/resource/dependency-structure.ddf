@@ -240,4 +240,4 @@ check [api-client] independentOf [everything-except-java-and-api-shared]
 check sets [dynamic-properties-api] [managed-properties-api]
 
 check [dynamic-properties-api] independentOf [cisd-except-dynamic-properties-api]
-# check [managed-properties-api] independentOf [cisd-except-managed-properties-api]
+check [managed-properties-api] independentOf [cisd-except-managed-properties-api]
