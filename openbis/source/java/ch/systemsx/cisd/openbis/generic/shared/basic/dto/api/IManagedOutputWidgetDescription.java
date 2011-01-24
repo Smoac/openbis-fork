@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto.api;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
- * Interface implemented by objects describing an output UI element (table, label)
+ * Interface implemented by objects describing an output UI element (table, label).
  * 
  * @author Piotr Buczek
  */

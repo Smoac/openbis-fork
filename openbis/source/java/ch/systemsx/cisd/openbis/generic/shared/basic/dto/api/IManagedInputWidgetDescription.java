@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto.api;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
- * Interface implemented by objects describing an input UI element (text field, combo box)
+ * Interface implemented by objects describing an input UI element (text field, combo box).
  * 
  * @author Piotr Buczek
  */

@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.managed_property.api;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ITableModel;
 
 /**
  * Builder of simple table models.
@@ -31,10 +31,8 @@ public interface ISimpleTableModelBuilderAdaptor
 
     /**
      * Returns table model to be set in as output.
-     * <p>
-     * NOTE: scripts shouldn't rely on the returned object's interface
      */
-    TableModel getTableModel();
+    ITableModel getTableModel();
 
     /**
      * Adds an empty row and returns a row builder for setting values of this row.

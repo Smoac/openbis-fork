@@ -20,10 +20,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedOutputWidgetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ITableModel;
 
 /**
  * Object that declaratively describes a UI (labels, fields, their ordering, table content).
@@ -86,10 +88,16 @@ public class ManagedUiDescription implements IManagedUiDescription, ISerializabl
         return inputField;
     }
 
-    public void useTableOutput(TableModel tableModel)
+    public void useTableOutput(ITableModel tableModel)
     {
         ManagedTableWidgetDescription tableWidget = new ManagedTableWidgetDescription();
-        tableWidget.setTableModel(tableModel);
+        if (tableModel instanceof TableModel)
+        {
+            tableWidget.setTableModel((TableModel) tableModel);
+        } else
+        {
+            throw UserFailureException.fromTemplate("Unsupported implementation of ITableModel");
+        }
         setOutputWidgetDescription(tableWidget);
     }
 }

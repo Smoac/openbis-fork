@@ -16,24 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto.api;
 
-import java.util.List;
-
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
- * The interface exposed to the Managed Property script.
+ * Interface implemented by table models.
+ * <p>
+ * NOTE: For now the interface is empty. It was introduced not to expose internal API.
  * 
- * @author Chandrasekhar Ramakrishnan
+ * @author Piotr Buczek
  */
-public interface IManagedUiDescription extends ISerializable
+public interface ITableModel extends ISerializable
 {
-    public void useTableOutput(ITableModel tableModel);
 
-    public IManagedInputWidgetDescription addTextInputField(String label);
-
-    public IManagedInputWidgetDescription addComboBoxInputField(String labels, String[] values);
-
-    public IManagedOutputWidgetDescription getOutputWidgetDescription();
-
-    public List<IManagedInputWidgetDescription> getInputWidgetDescriptions();
 }
