@@ -38,7 +38,12 @@ public class SimpleTableModelBuilderAdaptor implements ISimpleTableModelBuilderA
 
     private final SimpleTableModelBuilder builder;
 
-    public SimpleTableModelBuilderAdaptor(SimpleTableModelBuilder builder)
+    public static SimpleTableModelBuilderAdaptor create()
+    {
+        return new SimpleTableModelBuilderAdaptor(new SimpleTableModelBuilder(true));
+    }
+
+    private SimpleTableModelBuilderAdaptor(SimpleTableModelBuilder builder)
     {
         this.builder = builder;
     }

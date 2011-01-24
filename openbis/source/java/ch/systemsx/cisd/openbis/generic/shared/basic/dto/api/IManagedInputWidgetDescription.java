@@ -16,14 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto.api;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedInputFieldType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Interface implemented by objects describing an input UI element (text field, combo box)
  * 
  * @author Piotr Buczek
  */
-public interface IManagedInputWidgetDescription extends IManagedWidgetDescription
+public interface IManagedInputWidgetDescription extends ISerializable
 {
     ManagedInputFieldType getManagedInputFieldType();
 

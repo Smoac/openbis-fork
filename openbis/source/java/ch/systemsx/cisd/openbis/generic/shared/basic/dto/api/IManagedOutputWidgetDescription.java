@@ -17,14 +17,13 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto.api;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedWidgetType;
 
 /**
- * Interface implemented by objects describing a UI element (label, field, table)
+ * Interface implemented by objects describing an output UI element (table, label)
  * 
  * @author Piotr Buczek
  */
-public interface IManagedWidgetDescription extends ISerializable
+public interface IManagedOutputWidgetDescription extends ISerializable
 {
-    ManagedWidgetType getManagedWidgetType();
+    ManagedOutputWidgetType getManagedWidgetType();
 }

@@ -16,14 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedWidgetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedOutputWidgetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ManagedOutputWidgetType;
 
 /**
- * {@link IManagedWidgetDescription} implementation for tables
+ * {@link IManagedOutputWidgetDescription} implementation for tables
  * 
  * @author Piotr Buczek
  */
-public class ManagedTableWidgetDescription implements IManagedWidgetDescription
+public class ManagedTableWidgetDescription implements IManagedOutputWidgetDescription
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -47,9 +48,9 @@ public class ManagedTableWidgetDescription implements IManagedWidgetDescription
     // IManagedWidgetDescription
     //
 
-    public ManagedWidgetType getManagedWidgetType()
+    public ManagedOutputWidgetType getManagedWidgetType()
     {
-        return ManagedWidgetType.TABLE;
+        return ManagedOutputWidgetType.TABLE;
     }
 
 }

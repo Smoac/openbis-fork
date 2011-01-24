@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ManagedInputFieldType;
+
 /**
  * @author Chandrasekhar Ramakrishnan
  */

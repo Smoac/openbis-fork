@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto.api;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 
 /**
@@ -25,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public interface IManagedUiDescription
+public interface IManagedUiDescription extends ISerializable
 {
     public void useTableOutput(TableModel tableModel);
 
@@ -33,7 +34,7 @@ public interface IManagedUiDescription
 
     public IManagedInputWidgetDescription addComboBoxInputField(String labels, String[] values);
 
-    public IManagedWidgetDescription getOutputWidgetDescription();
+    public IManagedOutputWidgetDescription getOutputWidgetDescription();
 
     public List<IManagedInputWidgetDescription> getInputWidgetDescriptions();
 }

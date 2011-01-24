@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
+package ch.systemsx.cisd.openbis.generic.shared.basic.dto.api;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public enum ManagedInputFieldType
+public enum ManagedInputFieldType implements ISerializable
 {
     TEXT, COMBO_BOX
 }

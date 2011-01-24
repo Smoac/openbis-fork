@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ManagedInputFieldType;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -30,15 +31,6 @@ public abstract class ManagedInputWidgetDescription implements IManagedInputWidg
     private String value;
 
     private String description; // for field info
-
-    //
-    // IManagedWidgetDescription
-    //
-
-    public ManagedWidgetType getManagedWidgetType()
-    {
-        return ManagedWidgetType.INPUT;
-    }
 
     //
     // IManagedInputWidgetDescription

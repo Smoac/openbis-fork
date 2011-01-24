@@ -34,9 +34,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IManagedPropertyGridInformationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedTableWidgetDescription;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedWidgetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ManagedOutputWidgetType;
 
 /**
  * {@link TabContent} handled by managed property script.
@@ -157,7 +157,7 @@ public class ManagedPropertySection extends DisposableTabContent
     {
         final IManagedUiDescription uiDescription = managedProperty.getUiDescription();
         if (uiDescription.getOutputWidgetDescription() != null
-                && uiDescription.getOutputWidgetDescription().getManagedWidgetType() == ManagedWidgetType.TABLE
+                && uiDescription.getOutputWidgetDescription().getManagedWidgetType() == ManagedOutputWidgetType.TABLE
                 && uiDescription.getOutputWidgetDescription() instanceof ManagedTableWidgetDescription)
         {
             return (ManagedTableWidgetDescription) uiDescription.getOutputWidgetDescription();

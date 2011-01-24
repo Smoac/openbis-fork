@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
+package ch.systemsx.cisd.openbis.generic.shared.basic.dto.api;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * @author Piotr Buczek
  */
-public enum ManagedWidgetType implements ISerializable
+public enum ManagedOutputWidgetType implements ISerializable
 {
-    TABLE, LABEL, INPUT;
+    TABLE, LABEL;
 }

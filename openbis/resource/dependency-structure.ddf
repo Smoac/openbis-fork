@@ -212,6 +212,7 @@ layer plugin.${pq}.web.client-server = [plugin.${pq}.web.client] [plugin.${pq}.w
 
 check layeringOf plugin.${pq}.web.client-server
 
+###########################################
 # Check API
 #
 
@@ -225,3 +226,18 @@ check sets [api-shared] [api-client]
 check [api-shared] independentOf [everything-except-java]
 check [api-client] independentOf [everything-except-java-and-api-shared]
 
+###########################################
+# Script API
+#
+
+[dynamic-properties-api] = ${generic}.server.business.bo.dynamic_property.calculator.api.*
+[managed-properties-api] = ${generic}.shared.basic.dto.api.* ${generic}.shared.basic.ISerializable ${generic}.shared.managed_property.api.*
+
+[cisd] = ch.systemsx.cisd.*
+[cisd-except-dynamic-properties-api] = [cisd] excluding [dynamic-properties-api]
+[cisd-except-managed-properties-api] = [cisd] excluding [managed-properties-api]
+
+check sets [dynamic-properties-api] [managed-properties-api]
+
+check [dynamic-properties-api] independentOf [cisd-except-dynamic-properties-api]
+# check [managed-properties-api] independentOf [cisd-except-managed-properties-api]

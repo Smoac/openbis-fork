@@ -22,7 +22,7 @@ import ch.systemsx.cisd.common.evaluator.Evaluator;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTableModelBuilderAdaptor;
 
 /**
  * Class for evaluating scripts that control managed properties.
@@ -68,14 +68,6 @@ public class ManagedPropertyEvaluator
         evaluator.eval();
     }
 
-    public static class ScriptUtilityFactory
-    {
-        static public SimpleTableModelBuilder createTableBuilder()
-        {
-            return new SimpleTableModelBuilder(true);
-        }
-    }
-
     public void evaluateUpdateProperty(IManagedEntityProperty managedProperty)
     {
         if (operationLog.isDebugEnabled())
@@ -88,5 +80,21 @@ public class ManagedPropertyEvaluator
                 new Evaluator(UPDATE_VALUE_EXPRESSION, ScriptUtilityFactory.class, scriptExpression);
         evaluator.set(PROPERTY_VARIABLE_NAME, managedProperty);
         evaluator.eval();
+    }
+
+    //
+    // utlilities
+    //
+
+    /**
+     * This utility class should shouldn't expose anything outside of Managed Property API. No
+     * method should return or take as an argument anything outside of the API.
+     */
+    public static class ScriptUtilityFactory
+    {
+        public static ISimpleTableModelBuilderAdaptor createTableBuilder()
+        {
+            return SimpleTableModelBuilderAdaptor.create();
+        }
     }
 }

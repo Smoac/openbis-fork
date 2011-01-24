@@ -23,7 +23,7 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiDescription;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedWidgetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedOutputWidgetDescription;
 
 /**
  * Object that declaratively describes a UI (labels, fields, their ordering, table content).
@@ -34,7 +34,7 @@ public class ManagedUiDescription implements IManagedUiDescription, ISerializabl
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private IManagedWidgetDescription outputWidgetDescription;
+    private IManagedOutputWidgetDescription outputWidgetDescription;
 
     private List<IManagedInputWidgetDescription> inputWidgetDescriptions =
             new ArrayList<IManagedInputWidgetDescription>();
@@ -43,12 +43,12 @@ public class ManagedUiDescription implements IManagedUiDescription, ISerializabl
     {
     }
 
-    public IManagedWidgetDescription getOutputWidgetDescription()
+    public IManagedOutputWidgetDescription getOutputWidgetDescription()
     {
         return outputWidgetDescription;
     }
 
-    public void setOutputWidgetDescription(IManagedWidgetDescription outputWidgetDescription)
+    public void setOutputWidgetDescription(IManagedOutputWidgetDescription outputWidgetDescription)
     {
         this.outputWidgetDescription = outputWidgetDescription;
     }
