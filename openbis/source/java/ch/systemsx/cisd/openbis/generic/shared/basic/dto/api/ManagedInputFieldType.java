@@ -25,5 +25,5 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  */
 public enum ManagedInputFieldType implements ISerializable
 {
-    TEXT, COMBO_BOX
+    TEXT, MULTILINE_TEXT, COMBO_BOX
 }

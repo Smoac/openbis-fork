@@ -77,6 +77,15 @@ public class ManagedUiDescription implements IManagedUiDescription, ISerializabl
         return inputField;
     }
 
+    public IManagedInputWidgetDescription addMultilineTextInputField(String label)
+    {
+        ManagedMultilineTextInputWidgetDescription inputField =
+                new ManagedMultilineTextInputWidgetDescription();
+        inputField.setLabel(label);
+        addInputWidgetDescription(inputField);
+        return inputField;
+    }
+
     public IManagedInputWidgetDescription addComboBoxInputField(String label, String[] values)
     {
         ManagedComboBoxInputWidgetDescription inputField =

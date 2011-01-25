@@ -29,6 +29,7 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
@@ -117,6 +118,9 @@ public final class ManagedPropertyGridActionDialog extends
                 case TEXT:
                     field = createTextField(inputDescription);
                     break;
+                case MULTILINE_TEXT:
+                    field = createMultilineTextField(inputDescription);
+                    break;
                 case COMBO_BOX:
                     field = createComboBoxField(inputDescription);
                     break;
@@ -141,6 +145,18 @@ public final class ManagedPropertyGridActionDialog extends
     private TextField<?> createTextField(IManagedInputWidgetDescription inputDescription)
     {
         final TextField<String> field = new TextField<String>();
+        if (inputDescription.getValue() != null)
+        {
+            field.setValue(inputDescription.getValue());
+            field.updateOriginalValue(field.getValue());
+        }
+        return field;
+    }
+
+    private TextField<?> createMultilineTextField(IManagedInputWidgetDescription inputDescription)
+    {
+        final TextField<String> field =
+                new MultilineVarcharField(inputDescription.getLabel(), false);
         if (inputDescription.getValue() != null)
         {
             field.setValue(inputDescription.getValue());

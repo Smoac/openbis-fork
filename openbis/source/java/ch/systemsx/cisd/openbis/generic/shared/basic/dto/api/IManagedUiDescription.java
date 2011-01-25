@@ -31,6 +31,8 @@ public interface IManagedUiDescription extends ISerializable
 
     public IManagedInputWidgetDescription addTextInputField(String label);
 
+    public IManagedInputWidgetDescription addMultilineTextInputField(String label);
+
     public IManagedInputWidgetDescription addComboBoxInputField(String labels, String[] values);
 
     public IManagedOutputWidgetDescription getOutputWidgetDescription();

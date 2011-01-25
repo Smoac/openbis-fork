@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ManagedInputFieldType;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -35,11 +34,6 @@ public abstract class ManagedInputWidgetDescription implements IManagedInputWidg
     //
     // IManagedInputWidgetDescription
     //
-
-    public ManagedInputFieldType getManagedInputFieldType()
-    {
-        return ManagedInputFieldType.TEXT;
-    }
 
     public String getLabel()
     {

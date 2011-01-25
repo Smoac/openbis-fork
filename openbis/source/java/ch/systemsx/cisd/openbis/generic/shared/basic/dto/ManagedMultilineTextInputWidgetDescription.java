@@ -21,13 +21,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ManagedInputFieldTy
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class ManagedTextInputWidgetDescription extends ManagedInputWidgetDescription
+public class ManagedMultilineTextInputWidgetDescription extends ManagedInputWidgetDescription
 {
 
     private static final long serialVersionUID = 1L;
 
     public ManagedInputFieldType getManagedInputFieldType()
     {
-        return ManagedInputFieldType.TEXT;
+        return ManagedInputFieldType.MULTILINE_TEXT;
     }
 }
