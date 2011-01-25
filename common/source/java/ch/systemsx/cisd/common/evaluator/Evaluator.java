@@ -118,23 +118,32 @@ public final class Evaluator
     /**
      * Evaluates specified function with specified arguments. The arguments are turned into
      * Python Strings if they are Java {@link String} objects. The return value of the function
-     * is returned as a Java String object.
+     * is returned as a Java object or <code>null</code>.
      * 
      * @throws EvaluatorException if evaluation fails.
      */
-    public String evalStringFunction(String functionName, Object... args)
+    public Object evalFunction(String functionName, Object... args)
     {
         try
         {
-            PyFunction func =
-                (PyFunction) interpreter.get(functionName, PyFunction.class);
+            PyObject pyObject = interpreter.get(functionName);
+            if (pyObject == null)
+            {
+                throw new PyException(new PyString("Unkown function"), functionName);
+            }
+            if (pyObject instanceof PyFunction == false)
+            {
+                throw new PyException(new PyString("Not a function"), "'" + functionName
+                        + "' is of type " + pyObject.getType().getFullName() + ".");
+            }
+            PyFunction func = (PyFunction) pyObject;
             PyObject[] pyArgs = new PyObject[args.length];
             for (int i = 0; i < args.length; i++)
             {
                 pyArgs[i] = translateToPython(args[i]);
             }
             PyObject result = func.__call__(pyArgs);
-            return result == null ? null : result.toString();
+            return translateToJava(result);
         } catch (PyException ex)
         {
             StringBuilder builder = new StringBuilder();
@@ -264,7 +273,12 @@ public final class Evaluator
     public Object eval()
     {
         doEval();
-        final Object obj = getInterpreterResult();
+        final PyObject obj = getInterpreterResult();
+        return translateToJava(obj);
+    }
+
+    private Object translateToJava(final PyObject obj)
+    {
         if (obj instanceof PyInteger)
         {
             return new Long(((PyInteger) obj).getValue());
