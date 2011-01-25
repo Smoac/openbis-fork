@@ -35,4 +35,9 @@ public abstract class AbstractTopLevelDataSetRegistrator implements ITopLevelDat
         return globalState;
     }
 
+    public boolean isUseIsFinishedMarkerFile()
+    {
+        return globalState.isUseIsFinishedMarkerFile();
+    }
+
 }

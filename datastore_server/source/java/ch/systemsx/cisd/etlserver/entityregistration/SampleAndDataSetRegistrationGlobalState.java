@@ -62,6 +62,8 @@ class SampleAndDataSetRegistrationGlobalState
 
     private final boolean unmentionedSubfolderIsFailure;
 
+    private final boolean useIsFinishedMarkerFile;
+
     private final Logger operationLog;
 
     private IMailClient mailClient;
@@ -71,7 +73,7 @@ class SampleAndDataSetRegistrationGlobalState
             SampleType sampleTypeOrNull, DataSetType dataSetTypeOrNull,
             SampleRegistrationMode sampleRegistrationMode, List<String> errorEmailRecipientsOrNull,
             String controlFilePattern, boolean alwaysCleanupAfterProcessing,
-            boolean unmentionedSubfolderIsFailure, Logger operationLog)
+            boolean unmentionedSubfolderIsFailure, boolean useIsFinishedMarkerFile, Logger operationLog)
     {
         this.delegator = delegator;
         this.openbisService = openbisService;
@@ -83,6 +85,7 @@ class SampleAndDataSetRegistrationGlobalState
         this.controlFilePattern = controlFilePattern;
         this.alwaysCleanupAfterProcessing = alwaysCleanupAfterProcessing;
         this.unmentionedSubfolderIsFailure = unmentionedSubfolderIsFailure;
+        this.useIsFinishedMarkerFile = useIsFinishedMarkerFile;
         this.operationLog = operationLog;
     }
 
@@ -190,5 +193,10 @@ class SampleAndDataSetRegistrationGlobalState
     public boolean areUnmentionedFoldersAnError()
     {
         return unmentionedSubfolderIsFailure;
+    }
+
+    public boolean isUseIsFinishedMarkerFile()
+    {
+        return useIsFinishedMarkerFile;
     }
 }

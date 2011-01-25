@@ -32,7 +32,9 @@ import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.IDataSetHandler;
 import ch.systemsx.cisd.etlserver.IDataSetHandlerWithMailClient;
+import ch.systemsx.cisd.etlserver.IExtensibleDataSetHandler;
 import ch.systemsx.cisd.etlserver.entityregistration.SampleAndDataSetRegistrationGlobalState.SampleRegistrationMode;
+import ch.systemsx.cisd.etlserver.registrator.MarkerFileUtility;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -78,7 +80,12 @@ public class SampleAndDataSetRegistrationHandler implements IDataSetHandlerWithM
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             SampleAndDataSetRegistrationHandler.class);
 
+    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
+            SampleAndDataSetRegistrationHandler.class);
+
     private final SampleAndDataSetRegistrationGlobalState globalState;
+
+    private final MarkerFileUtility markerFileUtility;
 
     public SampleAndDataSetRegistrationHandler(Properties parentProperties,
             IDataSetHandler delegator, IEncapsulatedOpenBISService service)
@@ -87,6 +94,10 @@ public class SampleAndDataSetRegistrationHandler implements IDataSetHandlerWithM
                 ExtendedProperties.getSubset(parentProperties,
                         IDataSetHandler.DATASET_HANDLER_KEY + '.', true);
         globalState = createGlobalState(specificProperties, delegator, service);
+        File storeRootDir = ((IExtensibleDataSetHandler) delegator).getStoreRootDir();
+        markerFileUtility =
+                new MarkerFileUtility(operationLog, notificationLog,
+                        FileOperations.getMonitoredInstanceForCurrentThread(), storeRootDir);
     }
 
     private static SampleAndDataSetRegistrationGlobalState createGlobalState(
@@ -148,10 +159,13 @@ public class SampleAndDataSetRegistrationHandler implements IDataSetHandlerWithM
                 PropertyUtils.getBoolean(specificProperties,
                         CONTROL_FILE_UNMENTIONED_SUBFOLDER_IS_FAILURE, true);
 
+        boolean userFinishedMarkerFile =
+                ((IExtensibleDataSetHandler) delegator).isUseIsFinishedMarkerFile();
+
         return new SampleAndDataSetRegistrationGlobalState(delegator, service, spaceIdentifier,
                 sampleTypeOrNull, dataSetTypeOrNull, registrationMode, errorEmailRecipients,
                 controlFilePattern, deleteFilesOnFailure, unmentionedSubfolderIsFailure,
-                operationLog);
+                userFinishedMarkerFile, operationLog);
     }
 
     public void initializeMailClient(IMailClient mailClient)
@@ -161,10 +175,15 @@ public class SampleAndDataSetRegistrationHandler implements IDataSetHandlerWithM
 
     public List<DataSetInformation> handleDataSet(File file)
     {
+        File fileToRegister = file;
         try
         {
+            if (globalState.isUseIsFinishedMarkerFile())
+            {
+                fileToRegister = markerFileUtility.getIncomingDataSetPathFromMarker(file);
+            }
             SampleAndDataSetFolderProcessor folderProcessor =
-                    new SampleAndDataSetFolderProcessor(globalState, file);
+                    new SampleAndDataSetFolderProcessor(globalState, fileToRegister);
             folderProcessor.register();
         } catch (Exception ex)
         {
@@ -175,8 +194,13 @@ public class SampleAndDataSetRegistrationHandler implements IDataSetHandlerWithM
         {
             if (globalState.alwaysCleanUpAfterProcessing())
             {
-                FileOperations.getMonitoredInstanceForCurrentThread().deleteRecursively(file);
-                logFileDeletion(file);
+                FileOperations.getMonitoredInstanceForCurrentThread().deleteRecursively(
+                        fileToRegister);
+                logFileDeletion(fileToRegister);
+                if (globalState.isUseIsFinishedMarkerFile())
+                {
+                    markerFileUtility.deleteAndLogIsFinishedMarkerFile(file);
+                }
             }
         }
         return createReturnValue();

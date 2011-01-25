@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.etlserver.entityregistration;
 
+import static ch.systemsx.cisd.common.Constants.IS_FINISHED_PREFIX;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
@@ -24,6 +25,7 @@ import java.util.Properties;
 
 import javax.activation.DataHandler;
 
+import org.apache.log4j.Logger;
 import org.hamcrest.core.IsNull;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -35,6 +37,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
@@ -73,6 +76,10 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
 
     protected BufferedAppender logAppender;
 
+    private File markerFile;
+
+    private File workingCopy;
+
     @Override
     @BeforeMethod
     public void setUp() throws IOException
@@ -85,6 +92,9 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
         openbisService = context.mock(IEncapsulatedOpenBISService.class);
         delegator = context.mock(IExtensibleDataSetHandler.class);
         mailClient = context.mock(IMailClient.class);
+
+        setupMarkerFileExpectations();
+
     }
 
     @AfterMethod
@@ -114,10 +124,10 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
         final String folderName = "missing-sample-identifier";
         setupPartialSuccessErrorEmailExpectations(attachmentMatcher, addressesMatcher, folderName);
 
-        File workingCopy = createWorkingCopyOfTestFolder(folderName);
+        createWorkingCopyOfTestFolder(folderName);
 
         initializeDefaultDataSetHandler();
-        handler.handleDataSet(workingCopy);
+        handler.handleDataSet(markerFile);
 
         String logText =
                 "Global properties extracted from file 'control.tsv': SAMPLE_TYPE(MY_SAMPLE_TYPE) DATA_SET_TYPE(MY_DATA_SET_TYPE) USER(test@test.test)\n"
@@ -154,10 +164,10 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
                 new RecordingMatcher<EMailAddress[]>();
         setupPartialSuccessErrorEmailExpectations(attachmentMatcher, addressesMatcher, folderName);
 
-        File workingCopy = createWorkingCopyOfTestFolder(folderName);
+        createWorkingCopyOfTestFolder(folderName);
 
         initializeDefaultDataSetHandler();
-        handler.handleDataSet(workingCopy);
+        handler.handleDataSet(markerFile);
 
         String logText =
                 "Global properties extracted from file 'control.tsv': SAMPLE_TYPE(MY_SAMPLE_TYPE) DATA_SET_TYPE(MY_DATA_SET_TYPE) USER(test@test.test)\n"
@@ -192,10 +202,10 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
                 new RecordingMatcher<EMailAddress[]>();
         setupSuccessEmailExpectations(attachmentMatcher, addressesMatcher, folderName);
 
-        File workingCopy = createWorkingCopyOfTestFolder(folderName);
+        createWorkingCopyOfTestFolder(folderName);
 
         initializeDefaultDataSetHandler();
-        handler.handleDataSet(workingCopy);
+        handler.handleDataSet(markerFile);
 
         String logText =
                 "Global properties extracted from file 'control.tsv': SAMPLE_TYPE(MY_SAMPLE_TYPE) DATA_SET_TYPE(MY_DATA_SET_TYPE) USER(test@test.test)\n"
@@ -227,10 +237,10 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
                 new RecordingMatcher<EMailAddress[]>();
         setupSuccessEmailExpectations(attachmentMatcher, addressesMatcher, folderName);
 
-        File workingCopy = createWorkingCopyOfTestFolder(folderName);
+        createWorkingCopyOfTestFolder(folderName);
 
         initializeDefaultDataSetHandler();
-        handler.handleDataSet(workingCopy);
+        handler.handleDataSet(markerFile);
 
         String logText =
                 "Global properties extracted from file 'control.tsv': SAMPLE_TYPE(MY_SAMPLE_TYPE) DATA_SET_TYPE(MY_DATA_SET_TYPE) USER(test@test.test)\n"
@@ -263,10 +273,10 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
                 new RecordingMatcher<EMailAddress[]>();
         setupSuccessEmailExpectations(attachmentMatcher, addressesMatcher, folderName);
 
-        File workingCopy = createWorkingCopyOfTestFolder(folderName);
+        createWorkingCopyOfTestFolder(folderName);
 
         initializeDefaultDataSetHandler();
-        handler.handleDataSet(workingCopy);
+        handler.handleDataSet(markerFile);
 
         String logText =
                 "Global properties extracted from file 'control.tsv': SAMPLE_TYPE(MY_SAMPLE_TYPE) DATA_SET_TYPE(MY_DATA_SET_TYPE) USER(test@test.test)\n"
@@ -302,10 +312,10 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
                 new RecordingMatcher<EMailAddress[]>();
         setupSuccessEmailExpectations(attachmentMatcher, addressesMatcher, folderName);
 
-        File workingCopy = createWorkingCopyOfTestFolder(folderName);
+        createWorkingCopyOfTestFolder(folderName);
 
         initializeDefaultDataSetHandler();
-        handler.handleDataSet(workingCopy);
+        handler.handleDataSet(markerFile);
 
         String logText =
                 "Global properties extracted from file 'control.tsv': SAMPLE_TYPE(MY_SAMPLE_TYPE) DATA_SET_TYPE(MY_DATA_SET_TYPE) USER(test@test.test)\n"
@@ -326,10 +336,10 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
 
         setupFailureErrorEmailExpectations(attachmentMatcher, addressesMatcher, "no-control");
 
-        File workingCopy = createWorkingCopyOfTestFolder("no-control");
+        createWorkingCopyOfTestFolder("no-control");
 
         initializeDefaultDataSetHandler();
-        handler.handleDataSet(workingCopy);
+        handler.handleDataSet(markerFile);
 
         String errorText =
                 "Folder (no-control) for sample/dataset registration contains no control files matching the configured pattern: .*\\.[Tt][Ss][Vv].\n"
@@ -352,10 +362,10 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
 
         setupFailureErrorEmailExpectations(attachmentMatcher, addressesMatcher, "empty-folder");
 
-        File workingCopy = createWorkingCopyOfTestFolder("empty-folder");
+        createWorkingCopyOfTestFolder("empty-folder");
 
         initializeDefaultDataSetHandler();
-        handler.handleDataSet(workingCopy);
+        handler.handleDataSet(markerFile);
 
         String errorText =
                 "Folder (empty-folder) for sample/dataset registration contains no control files matching the configured pattern: .*\\.[Tt][Ss][Vv].\n"
@@ -397,16 +407,18 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
         handler.initializeMailClient(mailClient);
     }
 
-    private File createWorkingCopyOfTestFolder(String folderName)
+    private void createWorkingCopyOfTestFolder(String folderName)
     {
         File dataSetFile =
                 new File("sourceTest/java/ch/systemsx/cisd/etlserver/entityregistration/test-data/"
                         + folderName);
 
-        File workingCopy = new File(workingDirectory, folderName);
+        workingCopy = new File(workingDirectory, folderName);
         FileOperations.getInstance().copy(dataSetFile, workingCopy);
         FileOperations.getInstance().deleteRecursively(new File(workingCopy, ".svn"));
-        return workingCopy;
+
+        markerFile = new File(workingDirectory, IS_FINISHED_PREFIX + folderName);
+        FileUtilities.writeToFile(markerFile, "");
     }
 
     private void setupFailureErrorEmailExpectations(
@@ -488,6 +500,20 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
                     admin.setUserId("test");
                     oneOf(openbisService).tryPersonWithUserIdOrEmail(admin.getEmail());
                     will(returnValue(admin));
+                }
+            });
+    }
+
+    private void setupMarkerFileExpectations()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    exactly(1).of(delegator).isUseIsFinishedMarkerFile();
+                    will(returnValue(true));
+
+                    exactly(1).of(delegator).getStoreRootDir();
+                    will(returnValue(workingDirectory));
                 }
             });
     }
@@ -606,8 +632,24 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
 
     private void checkAppenderContent(String logText, String folderName)
     {
-        // Check the text
-        assertEquals(logText + "\nDeleting file '" + folderName + "'.", logAppender.getLogContent());
-    }
+        String mainLogText = String.format("%s\nDeleting file '%s'.", logText, folderName);
 
+        String theLogText;
+        if (Logger.getRootLogger().isDebugEnabled())
+        {
+            String formatString =
+                    "Getting incoming data set path 'targets/unit-test-wd/ch.systemsx.cisd.etlserver.entityregistration.SampleAndDatasetRegistrationHandlerTest/%s' "
+                            + "from is-finished path 'targets/unit-test-wd/ch.systemsx.cisd.etlserver.entityregistration.SampleAndDatasetRegistrationHandlerTest/%s'\n"
+                            + "%s" + "\nMarker file '%s' has been removed.";
+            String markerFileName = IS_FINISHED_PREFIX + folderName;
+            theLogText =
+                    String.format(formatString, folderName, markerFileName, mainLogText,
+                            markerFile.getAbsolutePath());
+        } else
+        {
+            theLogText = mainLogText;
+        }
+        // Check the text
+        assertEquals(theLogText, logAppender.getLogContent());
+    }
 }

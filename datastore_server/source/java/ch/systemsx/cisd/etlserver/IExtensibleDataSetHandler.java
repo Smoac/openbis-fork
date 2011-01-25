@@ -32,4 +32,14 @@ public interface IExtensibleDataSetHandler extends IDataSetHandler
     public List<DataSetInformation> handleDataSet(final File dataSet,
             DataSetInformation dataSetInformation,
             DataSetRegistrationAlgorithm.IDataSetInApplicationServerRegistrator registrator);
+
+    /**
+     * Return true if this top-level data set handler uses a marker file.
+     */
+    public boolean isUseIsFinishedMarkerFile();
+
+    /**
+     * Return the store root directory for the data set handler.
+     */
+    public File getStoreRootDir();
 }

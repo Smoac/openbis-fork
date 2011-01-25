@@ -280,6 +280,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
             {
                 {
                     one(storageProcessor).setStoreRootDirectory(workingDirectory);
+                    allowing(storageProcessor).getStoreRootDirectory();
+                    will(returnValue(workingDirectory));
                 }
             });
 
@@ -400,9 +402,6 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                     one(limsService).getHomeDatabaseInstance(SESSION_TOKEN);
                     will(returnValue(homeDatabaseInstance));
 
-                    one(storageProcessor).getStoreRootDirectory();
-                    will(returnValue(workingDirectory));
-
                     atLeast(1).of(limsService).tryGetSampleWithExperiment(SESSION_TOKEN,
                             dataSetInformation.getSampleIdentifier());
                     will(returnValue(sample));
@@ -471,13 +470,6 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
     public final void testDataSetFileIsReadOnly()
     {
         data1.setReadOnly();
-        context.checking(new Expectations()
-            {
-                {
-                    one(storageProcessor).getStoreRootDirectory();
-                    will(returnValue(workingDirectory));
-                }
-            });
 
         try
         {

@@ -38,15 +38,22 @@ public class MarkerFileUtility
 
     private final IFileOperations fileOperations;
 
-    private final IStoreRootDirectoryHolder storeRootDirectoryHolder;
+    private final File storeRootDirectory;
 
     public MarkerFileUtility(Logger operationLog, Logger notificationLog,
             IFileOperations fileOperations, IStoreRootDirectoryHolder storeRootDirectoryHolder)
     {
+        this(operationLog, notificationLog, fileOperations, storeRootDirectoryHolder
+                .getStoreRootDirectory());
+    }
+
+    public MarkerFileUtility(Logger operationLog, Logger notificationLog,
+            IFileOperations fileOperations, File storeRootDirectory)
+    {
         this.operationLog = operationLog;
         this.notificationLog = notificationLog;
         this.fileOperations = fileOperations;
-        this.storeRootDirectoryHolder = storeRootDirectoryHolder;
+        this.storeRootDirectory = storeRootDirectory;
     }
 
     /**
@@ -72,8 +79,7 @@ public class MarkerFileUtility
             fileOperations.delete(isFinishedPath);
             throw EnvironmentFailureException.fromTemplate(String.format(
                     "Error moving path '%s' from '%s' to '%s': %s", incomingDataSetPath.getName(),
-                    incomingDataSetPath.getParent(),
-                    storeRootDirectoryHolder.getStoreRootDirectory(), errorMsg));
+                    incomingDataSetPath.getParent(), storeRootDirectory, errorMsg));
         }
         return incomingDataSetPath;
     }

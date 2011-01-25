@@ -509,4 +509,9 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
             return false;
         }
     }
+
+    public File getStoreRootDir()
+    {
+        return getGlobalState().getStoreRootDir();
+    }
 }
