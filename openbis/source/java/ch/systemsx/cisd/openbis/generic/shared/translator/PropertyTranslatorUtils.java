@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
+import ch.systemsx.cisd.common.evaluator.EvaluatorException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -76,9 +78,16 @@ final class PropertyTranslatorUtils
         final ScriptPE script = property.getEntityTypePropertyType().getScript();
         assert script != null && script.getScriptType() == ScriptType.MANAGED_PROPERTY;
         final ManagedEntityProperty result = new ManagedEntityProperty(basicProperty);
-        ManagedPropertyEvaluator evaluator =
-                ManagedPropertyEvaluatorFactory.createManagedPropertyEvaluator(script.getScript());
-        evaluator.evalConfigureProperty(result);
+        try
+        {
+            ManagedPropertyEvaluator evaluator =
+                    ManagedPropertyEvaluatorFactory.createManagedPropertyEvaluator(script
+                            .getScript());
+            evaluator.evalConfigureProperty(result);
+        } catch (EvaluatorException ex)
+        {
+            result.setValue(BasicConstant.ERROR_PROPERTY_PREFIX + ex.getMessage());
+        }
         return result;
     }
 

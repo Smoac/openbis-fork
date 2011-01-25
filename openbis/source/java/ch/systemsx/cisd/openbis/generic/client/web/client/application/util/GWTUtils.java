@@ -27,11 +27,14 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.TextMetrics;
 import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.InfoConfig;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.tips.ToolTipConfig;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
 import com.google.gwt.core.client.GWT;
@@ -45,6 +48,7 @@ import com.google.gwt.user.client.ui.ListBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.MainTabPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SimpleDialog;
 
 /**
  * Some utility methods around <i>GWT</i>.
@@ -92,6 +96,27 @@ public final class GWTUtils
                 (prefix.equals(MainTabPanel.BLANK_TAB_TITLE) ? "" : prefix + " - ")
                         + CommonViewContext.ClientStaticState.getPageTitleSuffix();
         Window.setTitle(title);
+    }
+
+    public static com.extjs.gxt.ui.client.widget.Window createErrorMessageWithDetailsDialog(
+            final IMessageProvider messageProvider, final String basicMsg, final String detailedMsg)
+    {
+        final String heading = "Error";
+        final String okButtonLabel = "Show Details";
+        final HorizontalPanel panel = new HorizontalPanel();
+        panel.setLayout(new FitLayout());
+        panel.addText(basicMsg);
+        panel.setBorders(false);
+        final SimpleDialog dialog =
+                new SimpleDialog(panel, heading, okButtonLabel, messageProvider);
+        dialog.setAcceptAction(new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    MessageBox.alert("Error Details", detailedMsg, null);
+                }
+            });
+        return dialog;
     }
 
     /**

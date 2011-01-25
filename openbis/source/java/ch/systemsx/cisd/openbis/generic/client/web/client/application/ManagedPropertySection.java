@@ -28,12 +28,17 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.managed_property.ManagedPropertyGridGeneratedCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.managed_property.ManagedPropertyGridGeneratedCallback.IOnGridComponentGeneratedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
+import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IManagedPropertyGridInformationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedTableWidgetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedOutputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ManagedOutputWidgetType;
@@ -105,13 +110,9 @@ public class ManagedPropertySection extends DisposableTabContent
     @Override
     protected IDisposableComponent createDisposableContent()
     {
-        final ManagedTableWidgetDescription tableDescriptionOrNull = tryGetTableDescription();
-        if (tableDescriptionOrNull == null)
+        try
         {
-            MessageBox.alert("Error", "Failed to create content", null);
-            return DUMMY_CONTENT;
-        } else
-        {
+            final ManagedTableWidgetDescription tableDescription = getTableDescription();
             final IManagedPropertyGridInformationProvider gridInfo =
                     new IManagedPropertyGridInformationProvider()
                         {
@@ -132,39 +133,69 @@ public class ManagedPropertySection extends DisposableTabContent
 
                         };
 
-            IDelegatedAction loadGrid = new IDelegatedAction()
-                {
-
-                    public void execute()
-                    {
-                        AsyncCallback<TableModelReference> callback =
-                                ManagedPropertyGridGeneratedCallback.create(
-                                        viewContext.getCommonViewContext(), entity,
-                                        managedProperty, gridInfo, gridGeneratedAction,
-                                        refreshAction);
-                        viewContext.getCommonService().createReportForManagedProperty(
-                                tableDescriptionOrNull, callback);
-                    }
-
-                };
-            loadGrid.execute();
+            AsyncCallback<TableModelReference> callback =
+                    ManagedPropertyGridGeneratedCallback.create(viewContext.getCommonViewContext(),
+                            entity, managedProperty, gridInfo, gridGeneratedAction, refreshAction);
+            viewContext.getCommonService().createReportForManagedProperty(tableDescription,
+                    callback);
             return null;
+        } catch (UserFailureException ex)
+        {
+            final String basicMsg = ex.getMessage();
+            final String detailedMsg = ex.getDetails();
+            if (detailedMsg != null)
+            {
+                GWTUtils.createErrorMessageWithDetailsDialog(viewContext, basicMsg, detailedMsg)
+                        .show();
+            } else
+            {
+                MessageBox.alert("Error", basicMsg, null);
+            }
+            return DUMMY_CONTENT;
+        }
+    }
+
+    private ManagedTableWidgetDescription getTableDescription() throws UserFailureException
+    {
+        final IManagedUiDescription uiDescription = managedProperty.getUiDescription();
+        if (uiDescription == null)
+        {
+            throwFailToCreateContentException("uiDescription was not set in IManagedProperty object");
+            return null; // make eclipse happy
+        } else
+        {
+            final String value = StringEscapeUtils.unescapeHtml(managedProperty.getValue());
+            // if there is a script error than value will contain error message
+            if (value.startsWith(BasicConstant.ERROR_PROPERTY_PREFIX)
+                    && (value.equals(BasicConstant.MANAGED_PROPERTY_PLACEHOLDER_VALUE) == false))
+            {
+                final String errorMsg =
+                        value.substring(BasicConstant.ERROR_PROPERTY_PREFIX.length());
+                throwFailToCreateContentException(errorMsg);
+            }
+
+            final IManagedOutputWidgetDescription outputWidget =
+                    uiDescription.getOutputWidgetDescription();
+            if (outputWidget == null)
+            {
+                throwFailToCreateContentException("Output widget was not set in IManagedUiDescription object");
+            } else if (outputWidget.getManagedWidgetType() != ManagedOutputWidgetType.TABLE)
+            {
+                throwFailToCreateContentException("IManagedOutputWidgetDescription is not of type ManagedOutputWidgetType.TABLE");
+            } else if ((outputWidget instanceof ManagedTableWidgetDescription) == false)
+            {
+                throwFailToCreateContentException("IManagedOutputWidgetDescription should be a subclass of ManagedTableWidgetDescription");
+            }
+            return (ManagedTableWidgetDescription) uiDescription.getOutputWidgetDescription();
         }
 
     }
 
-    private ManagedTableWidgetDescription tryGetTableDescription()
+    private void throwFailToCreateContentException(String detailedErrorMsg)
+            throws UserFailureException
     {
-        final IManagedUiDescription uiDescription = managedProperty.getUiDescription();
-        if (uiDescription.getOutputWidgetDescription() != null
-                && uiDescription.getOutputWidgetDescription().getManagedWidgetType() == ManagedOutputWidgetType.TABLE
-                && uiDescription.getOutputWidgetDescription() instanceof ManagedTableWidgetDescription)
-        {
-            return (ManagedTableWidgetDescription) uiDescription.getOutputWidgetDescription();
-        } else
-        {
-            return null;
-        }
+        throw new UserFailureException("Failed to create content for " + getHeading() + ".",
+                detailedErrorMsg);
     }
 
 }

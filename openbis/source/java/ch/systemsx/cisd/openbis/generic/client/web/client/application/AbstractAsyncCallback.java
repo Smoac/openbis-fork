@@ -22,15 +22,11 @@ import java.util.List;
 import com.extjs.gxt.ui.client.event.WindowEvent;
 import com.extjs.gxt.ui.client.event.WindowListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
-import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.Window;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.InvocationException;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SimpleDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
@@ -80,7 +76,7 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
                             String details = userException.getDetails();
                             if (details != null)
                             {
-                                createErrorMessageWithDetailsDialog(messageProvider,
+                                GWTUtils.createErrorMessageWithDetailsDialog(messageProvider,
                                         failureMessage, details).show();
                                 return;
                             }
@@ -89,27 +85,6 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
                         MessageBox.alert("Error", failureMessage, null);
                     }
 
-                    private Window createErrorMessageWithDetailsDialog(
-                            final IMessageProvider messageProvider, final String failureMessage,
-                            final String details)
-                    {
-                        final String heading = "Error";
-                        final String okButtonLabel = "Show Details";
-                        final HorizontalPanel panel = new HorizontalPanel();
-                        panel.setLayout(new FitLayout());
-                        panel.addText(failureMessage);
-                        panel.setBorders(false);
-                        final SimpleDialog dialog =
-                                new SimpleDialog(panel, heading, okButtonLabel, messageProvider);
-                        dialog.setAcceptAction(new IDelegatedAction()
-                            {
-                                public void execute()
-                                {
-                                    MessageBox.alert("Error details", details, null);
-                                }
-                            });
-                        return dialog;
-                    }
                 };
 
     private static ICallbackListener<?> staticCallbackListener = DEFAULT_CALLBACK_LISTENER;
