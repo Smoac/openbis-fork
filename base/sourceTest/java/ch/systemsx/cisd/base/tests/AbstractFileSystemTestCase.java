@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.base.tests;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -39,8 +40,8 @@ public abstract class AbstractFileSystemTestCase extends AssertJUnit
 
     protected static final String TARGETS_DIRECTORY = "targets";
 
-    private static final File UNIT_TEST_ROOT_DIRECTORY =
-            new File(TARGETS_DIRECTORY + File.separator + UNIT_TEST_WORKING_DIRECTORY);
+    private static final File UNIT_TEST_ROOT_DIRECTORY = new File(TARGETS_DIRECTORY
+            + File.separator + UNIT_TEST_WORKING_DIRECTORY);
 
     protected final File workingDirectory;
 
@@ -105,6 +106,12 @@ public abstract class AbstractFileSystemTestCase extends AssertJUnit
         {
             return;
         }
-        FileUtils.deleteDirectory(workingDirectory);
+        try
+        {
+            FileUtils.deleteDirectory(workingDirectory);
+        } catch (FileNotFoundException ex)
+        {
+            // Ignore
+        }
     }
 }
