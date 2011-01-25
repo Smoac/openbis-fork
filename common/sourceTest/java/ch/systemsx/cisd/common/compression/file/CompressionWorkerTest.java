@@ -43,10 +43,11 @@ import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 
 /**
- * Test cases for the {@link CompressionWorker}.
+ * Test cases for the CompressionWorker.
  * 
  * @author Bernd Rinn
  */
+@SuppressWarnings("deprecation")
 @Friend(toClasses = CompressionWorker.class)
 public final class CompressionWorkerTest
 {
