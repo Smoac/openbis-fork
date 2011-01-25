@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.python.core.PyCode;
 import org.python.core.PyException;
 import org.python.core.PyFloat;
+import org.python.core.PyFunction;
 import org.python.core.PyInteger;
 import org.python.core.PyJavaInstance;
 import org.python.core.PyLong;
@@ -112,6 +113,50 @@ public final class Evaluator
         }
         this.expression = expression;
         this.compiledExpression = doCompile(expression);
+    }
+    
+    /**
+     * Evaluates specified function with specified arguments. The arguments are turned into
+     * Python Strings if they are Java {@link String} objects. The return value of the function
+     * is returned as a Java String object.
+     * 
+     * @throws EvaluatorException if evaluation fails.
+     */
+    public String evalStringFunction(String functionName, Object... args)
+    {
+        try
+        {
+            PyFunction func =
+                (PyFunction) interpreter.get(functionName, PyFunction.class);
+            PyObject[] pyArgs = new PyObject[args.length];
+            for (int i = 0; i < args.length; i++)
+            {
+                pyArgs[i] = translateToPython(args[i]);
+            }
+            PyObject result = func.__call__(pyArgs);
+            return result == null ? null : result.toString();
+        } catch (PyException ex)
+        {
+            StringBuilder builder = new StringBuilder();
+            for (Object  argument : args)
+            {
+                if (builder.length() > 0)
+                {
+                    builder.append(", ");
+                }
+                builder.append(argument);
+            }
+            throw toEvaluatorException(ex, functionName + "(" + builder + ")");
+        }
+    }
+
+    private PyObject translateToPython(Object javaObject)
+    {
+        if (javaObject instanceof String)
+        {
+            return new PyString((String) javaObject);
+        }
+        return new PyJavaInstance(javaObject);
     }
 
     /**
