@@ -426,9 +426,20 @@ public final class Evaluator
 
     private static EvaluatorException toEvaluatorException(PyException ex, String expression)
     {
+        Exception exception = null;
+        PyObject value = ex.value;
+        if (value instanceof PyJavaInstance)
+        {
+            Object object = ((PyJavaInstance) value).__tojava__(Object.class);
+            if (object instanceof Exception)
+            {
+                exception = (Exception) object;
+            }
+        }
         final String exMsg = extractExceptionMessage(ex);
         final String msg = "Error evaluating '" + expression + "': " + exMsg;
-        return new EvaluatorException(msg);
+        return exception == null ? new EvaluatorException(msg) : new EvaluatorException(msg,
+                exception);
     }
 
     private static String extractExceptionMessage(PyException ex)

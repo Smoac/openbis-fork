@@ -31,4 +31,10 @@ public class EvaluatorException extends UserFailureException
     {
         super(msg);
     }
+    
+    public EvaluatorException(String message, Throwable cause)
+    {
+        super(message, cause);
+    }
+    
 }
