@@ -220,7 +220,18 @@ public class EvaluatorTest extends AssertJUnit
         Evaluator evaluator = new Evaluator("", null, "def get(map, key):\n  return map.get(key)\n");
         Map<String, List<String>> map = new HashMap<String, List<String>>();
         map.put("physicists", Arrays.asList("Newton", "Einstein"));
-        assertEquals("[Newton, Einstein]", evaluator.evalFunction("get", map, "physicists").toString());
+        Object result = evaluator.evalFunction("get", map, "physicists");
+        assertEquals("Result " + result.getClass(), true, result instanceof List);
+        assertEquals("[Newton, Einstein]", result.toString());
+    }
+    
+    @Test
+    public void testEvalFunctionWhichReturnsAList()
+    {
+        Evaluator evaluator = new Evaluator("", null, "def get():\n  return ['a','b']");
+        Object result = evaluator.evalFunction("get");
+        assertEquals("Result " + result.getClass(), true, result instanceof List);
+        assertEquals("[a, b]", result.toString());
     }
     
     @Test

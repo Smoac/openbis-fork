@@ -17,6 +17,8 @@ package ch.systemsx.cisd.common.evaluator;
  */
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.python.core.PyCode;
@@ -25,6 +27,7 @@ import org.python.core.PyFloat;
 import org.python.core.PyFunction;
 import org.python.core.PyInteger;
 import org.python.core.PyJavaInstance;
+import org.python.core.PyList;
 import org.python.core.PyLong;
 import org.python.core.PyNone;
 import org.python.core.PyObject;
@@ -274,7 +277,13 @@ public final class Evaluator
     {
         doEval();
         final PyObject obj = getInterpreterResult();
-        return translateToJava(obj);
+        Object result = translateToJava(obj);
+        if (result != null && result instanceof Long == false && result instanceof Double == false
+                && result instanceof String == false)
+        {
+            return result.toString();
+        }
+        return result;
     }
 
     private Object translateToJava(final PyObject obj)
@@ -291,15 +300,19 @@ public final class Evaluator
         } else if (obj instanceof PyNone)
         {
             return null;
+        } else if (obj instanceof PyList)
+        {
+            PyList pyList = (PyList) obj;
+            PyObject[] array = pyList.getArray();
+            List<Object> list = new ArrayList<Object>();
+            for (PyObject pyObject : array)
+            {
+                list.add(translateToJava(pyObject));
+            }
+            return list;
         } else if (obj instanceof PyJavaInstance)
         {
-            Object proxy = ((PyJavaInstance) obj).__tojava__(Object.class);
-            if (proxy instanceof Long == false && proxy instanceof Double == false
-                    && proxy instanceof String == false)
-            {
-                return proxy.toString();
-            }
-            return proxy;
+            return ((PyJavaInstance) obj).__tojava__(Object.class);
         } else
         {
             return obj.toString();
