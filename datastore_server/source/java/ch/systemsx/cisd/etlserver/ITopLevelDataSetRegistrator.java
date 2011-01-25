@@ -28,5 +28,9 @@ import ch.systemsx.cisd.common.utilities.ISelfTestable;
  */
 public interface ITopLevelDataSetRegistrator extends IPathHandler, ISelfTestable
 {
+    /**
+     * A lock used to synchronize shutting down the processing thread of the top-level data set
+     * registrator.
+     */
     public Lock getRegistrationLock();
 }
