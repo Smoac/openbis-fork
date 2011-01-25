@@ -267,15 +267,23 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
                     Sample loadedSample = getSpaceSample(NEW_SAMPLE_IDENTIFIER);
                     createdSampleId = TechId.create(loadedSample);
                     boolean found = false;
-                    for (IEntityProperty property : loadedSample.getProperties())
+                    try
                     {
-                        if (property.getPropertyType().getCode().equals(DESCRIPTION))
+                        for (IEntityProperty property : loadedSample.getProperties())
                         {
-                            assertTrue(dateBefore.getTime() < Long.parseLong(property.getValue()));
-                            assertTrue(dateAfter.getTime() > Long.parseLong(property.getValue()));
-                            found = true;
-                            break;
+                            if (property.getPropertyType().getCode().equals(DESCRIPTION))
+                            {
+                                assertTrue(dateBefore.getTime() < Long.parseLong(property
+                                        .getValue()));
+                                assertTrue(dateAfter.getTime() > Long
+                                        .parseLong(property.getValue()));
+                                found = true;
+                                break;
+                            }
                         }
+                    } catch (NumberFormatException ex)
+                    {
+                        fail(ex.getMessage());
                     }
                     assertTrue(
                             "property " + DESCRIPTION + " not found for sample "
