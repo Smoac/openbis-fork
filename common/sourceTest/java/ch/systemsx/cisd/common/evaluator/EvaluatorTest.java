@@ -247,7 +247,7 @@ public class EvaluatorTest extends AssertJUnit
             fail("EvaluatorException expected");
         } catch (EvaluatorException ex)
         {
-            assertEquals("Error evaluating 'func(world)': Unkown function: func", ex.getMessage());
+            assertEquals("Error evaluating 'func(world)': Unknown function: func", ex.getMessage());
         }
     }
 

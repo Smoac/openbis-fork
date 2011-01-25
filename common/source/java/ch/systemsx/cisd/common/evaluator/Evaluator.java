@@ -129,7 +129,7 @@ public final class Evaluator
             PyObject pyObject = interpreter.get(functionName);
             if (pyObject == null)
             {
-                throw new PyException(new PyString("Unkown function"), functionName);
+                throw new PyException(new PyString("Unknown function"), functionName);
             }
             if (pyObject instanceof PyFunction == false)
             {
