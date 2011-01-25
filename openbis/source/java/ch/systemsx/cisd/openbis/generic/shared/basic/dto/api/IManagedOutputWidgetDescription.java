@@ -20,6 +20,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Interface implemented by objects describing an output UI element (table, label).
+ * <p>
+ * All methods of this interface are part of the Managed Properties API.
  * 
  * @author Piotr Buczek
  */

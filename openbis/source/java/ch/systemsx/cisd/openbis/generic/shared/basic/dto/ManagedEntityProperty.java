@@ -160,21 +160,4 @@ public class ManagedEntityProperty implements IEntityProperty, IManagedProperty
     {
     }
 
-    // @SuppressWarnings("unused")
-    // private IEntityProperty getEntityProperty()
-    // {
-    // return entityProperty;
-    // }
-    //
-    // @SuppressWarnings("unused")
-    // private void setEntityProperty(IEntityProperty entityProperty)
-    // {
-    // this.entityProperty = entityProperty;
-    // }
-
-    // public IEntityProperty asEntityProperty()
-    // {
-    // return this;
-    // }
-
 }

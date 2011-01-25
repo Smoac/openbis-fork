@@ -102,4 +102,14 @@ public class SimpleTableModelBuilderAdaptor implements ISimpleTableModelBuilderA
             };
     }
 
+    public void addFullHeader(String... titles)
+    {
+        builder.addFullHeader(titles);
+    }
+
+    public void addFullRow(String... values)
+    {
+        builder.addFullRow(values);
+    }
+
 }

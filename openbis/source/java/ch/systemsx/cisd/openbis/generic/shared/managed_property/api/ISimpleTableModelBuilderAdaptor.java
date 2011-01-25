@@ -65,4 +65,8 @@ public interface ISimpleTableModelBuilderAdaptor
      */
     void addHeader(String title, String code);
 
+    void addFullHeader(String... titles);
+
+    void addFullRow(String... values);
+
 }

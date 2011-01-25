@@ -77,6 +77,9 @@ final class PropertyTranslatorUtils
         final ScriptPE script = property.getEntityTypePropertyType().getScript();
         assert script != null && script.getScriptType() == ScriptType.MANAGED_PROPERTY;
         final ManagedProperty managedProperty = new ManagedProperty();
+        managedProperty.setPropertyTypeCode(property.getEntityTypePropertyType().getPropertyType()
+                .getCode());
+        managedProperty.setRawValue(property.getValue());
         ManagedPropertyEvaluator evaluator =
                 ManagedPropertyEvaluatorFactory.createManagedPropertyEvaluator(script.getScript());
         evaluator.evalConfigureProperty(managedProperty);

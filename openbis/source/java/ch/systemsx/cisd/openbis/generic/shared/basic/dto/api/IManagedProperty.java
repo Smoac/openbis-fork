@@ -16,12 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto.api;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+
 /**
  * Interface implemented by managed property.
+ * <p>
+ * All methods of this interface are part of the Managed Properties API.
  * 
  * @author Piotr Buczek
  */
-public interface IManagedProperty
+public interface IManagedProperty extends ISerializable
 {
     boolean isOwnTab();
 
