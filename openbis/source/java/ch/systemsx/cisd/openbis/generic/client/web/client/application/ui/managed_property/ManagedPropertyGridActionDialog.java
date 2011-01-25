@@ -36,8 +36,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedComboBoxInputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Null;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 
 public final class ManagedPropertyGridActionDialog extends
         AbstractDataConfirmationDialog<List<TableModelRowWithObject<Null>>>
@@ -82,12 +82,15 @@ public final class ManagedPropertyGridActionDialog extends
     @Override
     protected void executeConfirmedAction()
     {
-        StringBuilder sb = new StringBuilder();
-        for (TextField<?> inputField : inputFieldsByLabel.values())
+        if (viewContext.isLoggingEnabled())
         {
-            sb.append(inputField.getFieldLabel() + ": " + inputField.getValue() + "\n");
+            StringBuilder sb = new StringBuilder();
+            for (TextField<?> inputField : inputFieldsByLabel.values())
+            {
+                sb.append(inputField.getFieldLabel() + ": " + inputField.getValue() + "\n");
+            }
+            Info.display("confirmed", sb.toString());
         }
-        Info.display("confirmed", sb.toString());
 
         for (IManagedInputWidgetDescription inputDescription : managedProperty.getUiDescription()
                 .getInputWidgetDescriptions())
