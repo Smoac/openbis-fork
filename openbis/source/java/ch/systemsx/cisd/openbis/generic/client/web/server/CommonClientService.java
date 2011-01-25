@@ -2111,8 +2111,6 @@ public final class CommonClientService extends AbstractClientService implements
                         managedProperty);
                 break;
         }
-        System.err.println("update " + entityId + " " + entityKind + " "
-                + managedProperty.getUiDescription());
     }
 
     public List<DatastoreServiceDescription> listDataStoreServices(
