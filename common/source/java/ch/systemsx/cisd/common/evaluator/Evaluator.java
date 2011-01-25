@@ -305,9 +305,9 @@ public final class Evaluator
             PyList pyList = (PyList) obj;
             PyObject[] array = pyList.getArray();
             List<Object> list = new ArrayList<Object>();
-            for (PyObject pyObject : array)
+            for (int i = 0, n = pyList.size(); i < n; i++)
             {
-                list.add(translateToJava(pyObject));
+                list.add(translateToJava(array[i]));
             }
             return list;
         } else if (obj instanceof PyJavaInstance)
@@ -315,7 +315,7 @@ public final class Evaluator
             return ((PyJavaInstance) obj).__tojava__(Object.class);
         } else
         {
-            return obj.toString();
+            return obj == null ? null : obj.toString();
         }
     }
 
