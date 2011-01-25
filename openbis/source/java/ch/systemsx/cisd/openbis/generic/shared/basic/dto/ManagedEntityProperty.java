@@ -31,12 +31,15 @@ public class ManagedEntityProperty implements IEntityProperty, IManagedProperty
 
     private IEntityProperty entityProperty;
 
-    private IManagedProperty managedProperty;
+    // NOTE: defaults are set for testing - scripts should override them
 
-    public ManagedEntityProperty(IEntityProperty entityProperty, IManagedProperty managedProperty)
+    private boolean ownTab = true;
+
+    private IManagedUiDescription uiDescription = new ManagedUiDescription();
+
+    public ManagedEntityProperty(IEntityProperty entityProperty)
     {
         this.entityProperty = entityProperty;
-        this.managedProperty = managedProperty;
     }
 
     //
@@ -45,33 +48,22 @@ public class ManagedEntityProperty implements IEntityProperty, IManagedProperty
 
     public boolean isOwnTab()
     {
-        return managedProperty.isOwnTab();
+        return ownTab;
     }
 
     public void setOwnTab(boolean ownTab)
     {
-        managedProperty.setOwnTab(ownTab);
+        this.ownTab = ownTab;
     }
 
     public IManagedUiDescription getUiDescription()
     {
-        return managedProperty.getUiDescription();
+        return uiDescription;
     }
 
     public String getPropertyTypeCode()
     {
-        return managedProperty.getPropertyTypeCode();
-        // return getPropertyType().getCode();
-    }
-
-    public String getRawValue()
-    {
-        return managedProperty.getRawValue();
-    }
-
-    public void setRawValue(String rawValue)
-    {
-        managedProperty.setRawValue(rawValue);
+        return entityProperty.getPropertyType().getCode();
     }
 
     //

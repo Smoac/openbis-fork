@@ -35,7 +35,7 @@ public interface IManagedProperty extends ISerializable
 
     String getPropertyTypeCode();
 
-    String getRawValue();
+    String getValue();
 
-    void setRawValue(String rawValue);
+    void setValue(String value);
 }

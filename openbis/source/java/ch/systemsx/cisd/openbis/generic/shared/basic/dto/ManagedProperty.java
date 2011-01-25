@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiDescription;
 
@@ -31,9 +32,9 @@ public class ManagedProperty implements IManagedProperty
 
     // NOTE: defaults are set for testing - scripts should override them
 
-    private String propertyTypeCode = null;
+    private String value = BasicConstant.MANAGED_PROPERTY_PLACEHOLDER_VALUE;
 
-    private String rawValue = null;
+    private String propertyTypeCode = null;
 
     private boolean ownTab = true;
 
@@ -68,14 +69,14 @@ public class ManagedProperty implements IManagedProperty
         this.propertyTypeCode = propertyTypeCode;
     }
 
-    public String getRawValue()
+    public String getValue()
     {
-        return rawValue;
+        return value;
     }
 
-    public void setRawValue(String rawValue)
+    public void setValue(String value)
     {
-        this.rawValue = rawValue;
+        this.value = value;
     }
 
     //

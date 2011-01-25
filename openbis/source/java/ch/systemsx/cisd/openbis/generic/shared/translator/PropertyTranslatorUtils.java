@@ -20,7 +20,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
@@ -76,15 +75,10 @@ final class PropertyTranslatorUtils
     {
         final ScriptPE script = property.getEntityTypePropertyType().getScript();
         assert script != null && script.getScriptType() == ScriptType.MANAGED_PROPERTY;
-        final ManagedProperty managedProperty = new ManagedProperty();
-        managedProperty.setPropertyTypeCode(property.getEntityTypePropertyType().getPropertyType()
-                .getCode());
-        managedProperty.setRawValue(property.getValue());
+        final ManagedEntityProperty result = new ManagedEntityProperty(basicProperty);
         ManagedPropertyEvaluator evaluator =
                 ManagedPropertyEvaluatorFactory.createManagedPropertyEvaluator(script.getScript());
-        evaluator.evalConfigureProperty(managedProperty);
-        final ManagedEntityProperty result =
-                new ManagedEntityProperty(basicProperty, managedProperty);
+        evaluator.evalConfigureProperty(result);
         return result;
     }
 

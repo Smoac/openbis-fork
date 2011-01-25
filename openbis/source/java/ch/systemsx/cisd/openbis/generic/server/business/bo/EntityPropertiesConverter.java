@@ -444,7 +444,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         T existingProperty = tryFind(oldProperties, managedProperty.getPropertyTypeCode());
         if (existingProperty != null)
         {
-            existingProperty.setUntypedValue(managedProperty.getRawValue(), null, null);
+            existingProperty.setUntypedValue(managedProperty.getValue(), null, null);
         }
         return set;
     }
