@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
@@ -63,7 +64,9 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
 
     private static final String NEW_SAMPLE_IDENTIFIER = "/CISD/" + NEW_SAMPLE_CODE;
 
-    private static long SLEEP_TIME = 5000; // 5s
+    private static long SLEEP_TIME = 1000; // 1s
+
+    private static long MAX_RETRIES = 5;
 
     private TechId createdSampleId = null;
 
@@ -93,37 +96,44 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
                         script);
         commonClientService.assignPropertyType(assignment);
 
-        // properties should be evaluated asynchronously - check values after a few seconds
-        sleep(SLEEP_TIME * 2);
-
-        ListSampleCriteria listCriteria = new ListSampleCriteria();
-        listCriteria.setIncludeSpace(true);
-        listCriteria.setSpaceCode("CISD");
-        listCriteria.setSampleType(getSampleType(CELL_PLATE));
-
-        ResultSetWithEntityTypes<Sample> samples =
-                commonClientService.listSamples(new ListSampleDisplayCriteria(listCriteria));
-        assertTrue(samples.getResultSet().getTotalLength() > 0);
-        assertEquals("[CELL_PLATE]", samples.getAvailableEntityTypes().toString());
-
-        GridRowModels<Sample> list = samples.getResultSet().getList();
-        for (GridRowModel<Sample> gridRowModel : list)
-        {
-            Sample sample = gridRowModel.getOriginalObject();
-            boolean found = false;
-            for (IEntityProperty property : sample.getProperties())
+        final IDelegatedAction assertAction = new IDelegatedAction()
             {
-                if (property.getPropertyType().getCode().equals(propertyTypeCode))
+
+                public void execute()
                 {
-                    assertEquals(sample.getCode(), property.getValue());
-                    found = true;
-                    break;
+                    ListSampleCriteria listCriteria = new ListSampleCriteria();
+                    listCriteria.setIncludeSpace(true);
+                    listCriteria.setSpaceCode("CISD");
+                    listCriteria.setSampleType(getSampleType(CELL_PLATE));
+
+                    ResultSetWithEntityTypes<Sample> samples =
+                            commonClientService.listSamples(new ListSampleDisplayCriteria(
+                                    listCriteria));
+                    assertTrue(samples.getResultSet().getTotalLength() > 0);
+                    assertEquals("[CELL_PLATE]", samples.getAvailableEntityTypes().toString());
+
+                    GridRowModels<Sample> list = samples.getResultSet().getList();
+                    for (GridRowModel<Sample> gridRowModel : list)
+                    {
+                        Sample sample = gridRowModel.getOriginalObject();
+                        boolean found = false;
+                        for (IEntityProperty property : sample.getProperties())
+                        {
+                            if (property.getPropertyType().getCode().equals(propertyTypeCode))
+                            {
+                                assertEquals(sample.getCode(), property.getValue());
+                                found = true;
+                                break;
+                            }
+                        }
+                        assertTrue("property " + propertyTypeCode + " not found for sample "
+                                + sample.getCode(), found);
+                    }
                 }
-            }
-            assertTrue(
-                    "property " + propertyTypeCode + " not found for sample " + sample.getCode(),
-                    found);
-        }
+            };
+
+        // properties should be evaluated asynchronously - check values after a few seconds
+        check(SLEEP_TIME, MAX_RETRIES, "testRegisterDynamicPropertyAssignment", assertAction);
     }
 
     @Test(dependsOnMethods = "testRegisterDynamicPropertyAssignment")
@@ -141,23 +151,32 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
         newSample.setSampleType(sampleType);
         genericClientService.registerSample("session", newSample);
 
-        // properties should be evaluated asynchronously - check values after a few seconds
-        sleep(SLEEP_TIME);
-        Sample loadedSample = getSpaceSample(identifier);
-        createdSampleId = TechId.create(loadedSample);
-        boolean found = false;
-        for (IEntityProperty property : loadedSample.getProperties())
-        {
-            if (property.getPropertyType().getCode().equals(DESCRIPTION))
+        final IDelegatedAction assertAction = new IDelegatedAction()
             {
-                assertEquals(sampleCode, loadedSample.getCode());
-                assertEquals(sampleCode, property.getValue());
-                found = true;
-                break;
-            }
-        }
-        assertTrue("property " + DESCRIPTION + " not found for sample " + loadedSample.getCode(),
-                found);
+
+                public void execute()
+                {
+                    Sample loadedSample = getSpaceSample(identifier);
+                    createdSampleId = TechId.create(loadedSample);
+                    boolean found = false;
+                    for (IEntityProperty property : loadedSample.getProperties())
+                    {
+                        if (property.getPropertyType().getCode().equals(DESCRIPTION))
+                        {
+                            assertEquals(sampleCode, loadedSample.getCode());
+                            assertEquals(sampleCode, property.getValue());
+                            found = true;
+                            break;
+                        }
+                    }
+                    assertTrue(
+                            "property " + DESCRIPTION + " not found for sample "
+                                    + loadedSample.getCode(), found);
+                }
+            };
+
+        // properties should be evaluated asynchronously - check values after a few seconds
+        check(SLEEP_TIME, MAX_RETRIES, "testCreateSampleWithDynamicProperty", assertAction);
     }
 
     @Test(dependsOnMethods = "testCreateSampleWithDynamicProperty")
@@ -173,41 +192,52 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
                 createDynamicPropertyAssignment(entityKind, propertyTypeCode, entityTypeCode,
                         script);
 
-        // properties should be evaluated asynchronously - check values after a few seconds
         final Date dateBefore = new Date();
         commonClientService.updatePropertyTypeAssignment(assignmentUpdates);
-        sleep(SLEEP_TIME * 2);
-        final Date dateAfter = new Date();
 
-        ListSampleCriteria listCriteria = new ListSampleCriteria();
-        listCriteria.setIncludeSpace(true);
-        listCriteria.setSpaceCode("CISD");
-        listCriteria.setSampleType(getSampleType(CELL_PLATE));
-
-        ResultSetWithEntityTypes<Sample> samples =
-                commonClientService.listSamples(new ListSampleDisplayCriteria(listCriteria));
-        assertTrue(samples.getResultSet().getTotalLength() > 0);
-        assertEquals("[CELL_PLATE]", samples.getAvailableEntityTypes().toString());
-
-        GridRowModels<Sample> list = samples.getResultSet().getList();
-        for (GridRowModel<Sample> gridRowModel : list)
-        {
-            Sample sample = gridRowModel.getOriginalObject();
-            boolean found = false;
-            for (IEntityProperty property : sample.getProperties())
+        final IDelegatedAction assertAction = new IDelegatedAction()
             {
-                if (property.getPropertyType().getCode().equals(propertyTypeCode))
+
+                public void execute()
                 {
-                    assertTrue(dateBefore.getTime() < Long.parseLong(property.getValue()));
-                    assertTrue(dateAfter.getTime() > Long.parseLong(property.getValue()));
-                    found = true;
-                    break;
+                    final Date dateAfter = new Date();
+
+                    ListSampleCriteria listCriteria = new ListSampleCriteria();
+                    listCriteria.setIncludeSpace(true);
+                    listCriteria.setSpaceCode("CISD");
+                    listCriteria.setSampleType(getSampleType(CELL_PLATE));
+
+                    ResultSetWithEntityTypes<Sample> samples =
+                            commonClientService.listSamples(new ListSampleDisplayCriteria(
+                                    listCriteria));
+                    assertTrue(samples.getResultSet().getTotalLength() > 0);
+                    assertEquals("[CELL_PLATE]", samples.getAvailableEntityTypes().toString());
+
+                    GridRowModels<Sample> list = samples.getResultSet().getList();
+                    for (GridRowModel<Sample> gridRowModel : list)
+                    {
+                        Sample sample = gridRowModel.getOriginalObject();
+                        boolean found = false;
+                        for (IEntityProperty property : sample.getProperties())
+                        {
+                            if (property.getPropertyType().getCode().equals(propertyTypeCode))
+                            {
+                                assertTrue(dateBefore.getTime() < Long.parseLong(property
+                                        .getValue()));
+                                assertTrue(dateAfter.getTime() > Long
+                                        .parseLong(property.getValue()));
+                                found = true;
+                                break;
+                            }
+                        }
+                        assertTrue("property " + propertyTypeCode + " not found for sample "
+                                + sample.getCode(), found);
+                    }
                 }
-            }
-            assertTrue(
-                    "property " + propertyTypeCode + " not found for sample " + sample.getCode(),
-                    found);
-        }
+            };
+
+        // properties should be evaluated asynchronously - check values after a few seconds
+        check(SLEEP_TIME * 2, MAX_RETRIES, "testUpdateDynamicPropertyAssignment", assertAction);
     }
 
     @Test(dependsOnMethods = "testUpdateDynamicPropertyAssignment")
@@ -223,27 +253,38 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
                         Collections.EMPTY_LIST, null, oldSample.getModificationDate(),
                         oldSample.getIdentifier(), null, null);
 
-        // properties should be evaluated asynchronously - check values after a few seconds
         final Date dateBefore = new Date();
         genericClientService.updateSample(updates);
-        sleep(SLEEP_TIME);
-        final Date dateAfter = new Date();
 
-        Sample loadedSample = getSpaceSample(NEW_SAMPLE_IDENTIFIER);
-        createdSampleId = TechId.create(loadedSample);
-        boolean found = false;
-        for (IEntityProperty property : loadedSample.getProperties())
-        {
-            if (property.getPropertyType().getCode().equals(DESCRIPTION))
+        final IDelegatedAction assertAction = new IDelegatedAction()
             {
-                assertTrue(dateBefore.getTime() < Long.parseLong(property.getValue()));
-                assertTrue(dateAfter.getTime() > Long.parseLong(property.getValue()));
-                found = true;
-                break;
-            }
-        }
-        assertTrue("property " + DESCRIPTION + " not found for sample " + loadedSample.getCode(),
-                found);
+
+                public void execute()
+                {
+                    sleep(SLEEP_TIME);
+                    final Date dateAfter = new Date();
+
+                    Sample loadedSample = getSpaceSample(NEW_SAMPLE_IDENTIFIER);
+                    createdSampleId = TechId.create(loadedSample);
+                    boolean found = false;
+                    for (IEntityProperty property : loadedSample.getProperties())
+                    {
+                        if (property.getPropertyType().getCode().equals(DESCRIPTION))
+                        {
+                            assertTrue(dateBefore.getTime() < Long.parseLong(property.getValue()));
+                            assertTrue(dateAfter.getTime() > Long.parseLong(property.getValue()));
+                            found = true;
+                            break;
+                        }
+                    }
+                    assertTrue(
+                            "property " + DESCRIPTION + " not found for sample "
+                                    + loadedSample.getCode(), found);
+                }
+            };
+
+        // properties should be evaluated asynchronously - check values after a few seconds
+        check(SLEEP_TIME * 2, MAX_RETRIES, "testUpdateSampleWithDynamicProperty", assertAction);
     }
 
     private SampleType getSampleType(String sampleTypeCode)
@@ -282,6 +323,29 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
         ListSampleCriteria listCriteria = new ListSampleCriteria();
         listCriteria.setIncludeSpace(true);
         return getSample(sampleIdentifier, listCriteria);
+    }
+
+    /**
+     * Tries to perform given <var>assertAction</var> with specified number of <var>retries</var>
+     * waiting for specified time (in ms) before each attempt. Only {@link AssertionError}s are
+     * handled by the method.
+     */
+    private void check(long timeToWait, long retries, String testName, IDelegatedAction assertAction)
+    {
+        for (int i = 0; i < retries; i++)
+        {
+            sleep(timeToWait);
+            try
+            {
+                assertAction.execute();
+            } catch (AssertionError ex)
+            {
+                System.err.println(String.format("%s: %d retry, assertion failed: \n\t %s",
+                        testName, i + 1, ex.getMessage()));
+                continue; // exception thrown - retry
+            }
+            break; // exception not thrown - success
+        }
     }
 
     @AfterClass
