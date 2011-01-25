@@ -66,20 +66,32 @@ public class UserFailureExceptionTranslator
     {
         final String className =
                 WEB_CLIENT_EXCEPTIONS_PACKAGE + "." + exception.getClass().getSimpleName();
-        String message = StringEscapeUtils.escapeHtml(exception.getMessage());
+        final String exMessage = StringEscapeUtils.escapeHtml(exception.getMessage());
+
+        String basicMessage;
+        String detailedMessageOrNull = null;
+        if (simpleMessageOrNull != null)
+        {
+            basicMessage = simpleMessageOrNull;
+            detailedMessageOrNull = exMessage;
+        } else
+        {
+            basicMessage = exMessage;
+        }
+
+        return createTranslatedException(className, basicMessage, detailedMessageOrNull);
+    }
+
+    private static UserFailureException createTranslatedException(final String className,
+            final String basicMessage, final String detailedMessageOrNull)
+    {
         try
         {
-            if (simpleMessageOrNull != null)
-            {
-                return ClassUtils.create(UserFailureException.class, className,
-                        simpleMessageOrNull, message);
-            } else
-            {
-                return ClassUtils.create(UserFailureException.class, className, message);
-            }
+            return ClassUtils.create(UserFailureException.class, className, basicMessage,
+                    detailedMessageOrNull);
         } catch (final CheckedExceptionTunnel e)
         {
-            return new UserFailureException(message);
+            return new UserFailureException(basicMessage, detailedMessageOrNull);
         }
     }
 }

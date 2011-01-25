@@ -2088,28 +2088,45 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    private static final String MANAGED_PROPERTY_UPDATE_ERROR_MSG =
+            "Problem occured when updating managed property. "
+                    + "Contact instance admin about a possible bug in script definition.";
+
     public void updateManagedProperty(TechId entityId, EntityKind entityKind,
             IManagedProperty managedProperty)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
-        switch (entityKind)
+        try
         {
-            case EXPERIMENT:
-                commonServer.updateManagedPropertyOnExperiment(sessionToken, entityId,
-                        managedProperty);
-                break;
-            case SAMPLE:
-                commonServer.updateManagedPropertyOnSample(sessionToken, entityId, managedProperty);
-                break;
-            case DATA_SET:
-                commonServer
-                        .updateManagedPropertyOnDataSet(sessionToken, entityId, managedProperty);
-                break;
-            case MATERIAL:
-                commonServer.updateManagedPropertyOnMaterial(sessionToken, entityId,
-                        managedProperty);
-                break;
+            switch (entityKind)
+            {
+                case EXPERIMENT:
+                    commonServer.updateManagedPropertyOnExperiment(sessionToken, entityId,
+                            managedProperty);
+                    break;
+                case SAMPLE:
+                    commonServer.updateManagedPropertyOnSample(sessionToken, entityId,
+                            managedProperty);
+                    break;
+                case DATA_SET:
+                    commonServer.updateManagedPropertyOnDataSet(sessionToken, entityId,
+                            managedProperty);
+                    break;
+                case MATERIAL:
+                    commonServer.updateManagedPropertyOnMaterial(sessionToken, entityId,
+                            managedProperty);
+                    break;
+            }
+        } catch (final UserFailureException e)
+        {
+            if (operationLog.isInfoEnabled())
+            {
+                // we do not log this as an error, because it can be only user's fault
+                operationLog.info(
+                        MANAGED_PROPERTY_UPDATE_ERROR_MSG + " DETAILS: " + e.getMessage(), e);
+            }
+            throw UserFailureExceptionTranslator.translate(e, MANAGED_PROPERTY_UPDATE_ERROR_MSG);
         }
     }
 

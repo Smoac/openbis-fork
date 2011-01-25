@@ -164,7 +164,7 @@ public class QueryClientService extends AbstractClientService implements IQueryC
         {
             if (operationLog.isInfoEnabled())
             {
-                // we do not log this as an error, because it can be only user fault
+                // we do not log this as an error, because it can be only user's fault
                 operationLog.info(QUERY_EXECUTION_ERROR_MSG + " DETAILS: " + e.getMessage(), e);
             }
             throw UserFailureExceptionTranslator.translate(e, QUERY_EXECUTION_ERROR_MSG);
