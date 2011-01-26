@@ -117,6 +117,15 @@ public final class Evaluator
         this.expression = expression;
         this.compiledExpression = doCompile(expression);
     }
+
+    /**
+     * Returns <code>true</code> if specified function is defined in the script.
+     */
+    public boolean hasFunction(String functionName)
+    {
+        PyObject pyObject = interpreter.get(functionName);
+        return pyObject instanceof PyFunction;
+    }
     
     /**
      * Evaluates specified function with specified arguments. The arguments are turned into

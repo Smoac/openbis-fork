@@ -249,6 +249,18 @@ public class EvaluatorTest extends AssertJUnit
     }
 
     @Test
+    public void testHasFunction()
+    {
+        Evaluator evaluator =
+                new Evaluator("", null, "text = 'hi'\n"
+                        + "def hello(name):\n  return 'hello ' + name");
+        
+        assertEquals(true, evaluator.hasFunction("hello"));
+        assertEquals(false, evaluator.hasFunction("text"));
+        assertEquals(false, evaluator.hasFunction("blabla"));
+    }
+    
+    @Test
     public void testEvalUnkownFunction()
     {
         Evaluator evaluator = new Evaluator("", null, "def hello(name):\n  return 'hello ' + name");
