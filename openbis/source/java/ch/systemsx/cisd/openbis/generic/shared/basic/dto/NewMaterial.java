@@ -21,7 +21,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
  * 
  * @author Izabela Adamczyk
  */
-public final class NewMaterial extends Code<NewMaterial>
+public final class NewMaterial extends Code<NewMaterial> implements IPropertiesBean
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

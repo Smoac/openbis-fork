@@ -23,7 +23,7 @@ import java.util.List;
  * 
  * @author Izabela Adamczyk
  */
-public final class NewExperiment extends Identifier<NewExperiment>
+public final class NewExperiment extends Identifier<NewExperiment> implements IPropertiesBean
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

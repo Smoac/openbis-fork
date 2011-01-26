@@ -469,6 +469,8 @@ public final class GenericServerTest extends AbstractServerTestCase
                 {
                     one(daoFactory).getEntityTypeDAO(EntityKind.MATERIAL);
                     will(returnValue(entityTypeDAO));
+                    
+                    one(propertiesBatchManager).manageProperties(materialTypePE, newMaterials);
 
                     one(entityTypeDAO).tryToFindEntityTypeByCode(typeCode);
                     will(returnValue(materialTypePE));
@@ -846,8 +848,15 @@ public final class GenericServerTest extends AbstractServerTestCase
     public void testRegisterExperimentEmptyCollection() throws Exception
     {
         prepareGetSession();
-        createServer().registerExperiments(SESSION_TOKEN,
-                new NewExperimentsWithType(EXPERIMENT_TYPE, createNewExperiments()));
+        final NewExperimentsWithType experiments =
+                new NewExperimentsWithType(EXPERIMENT_TYPE, createNewExperiments());
+        context.checking(new Expectations()
+            {
+                {
+                    one(propertiesBatchManager).manageProperties(experiments);
+                }
+            });
+        createServer().registerExperiments(SESSION_TOKEN, experiments);
     }
 
     @Test
@@ -858,9 +867,12 @@ public final class GenericServerTest extends AbstractServerTestCase
         final List<NewBasicExperiment> entities =
                 createNewExperiments(new NewBasicExperiment(EXPERIMENT_IDENTIFIER1),
                         new NewBasicExperiment(EXPERIMENT_IDENTIFIER2));
+        final NewExperimentsWithType experiments =
+                new NewExperimentsWithType(EXPERIMENT_TYPE, entities);
         context.checking(new Expectations()
             {
                 {
+                    one(propertiesBatchManager).manageProperties(experiments);
                     one(daoFactory).getEntityTypeDAO(EntityKind.EXPERIMENT);
                     will(returnValue(entityTypeDAO));
                     one(entityTypeDAO).tryToFindEntityTypeByCode(EXPERIMENT_TYPE);
@@ -872,7 +884,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                 }
             });
         createServer().registerExperiments(SESSION_TOKEN,
-                new NewExperimentsWithType(EXPERIMENT_TYPE, entities));
+                experiments);
         context.assertIsSatisfied();
     }
 }

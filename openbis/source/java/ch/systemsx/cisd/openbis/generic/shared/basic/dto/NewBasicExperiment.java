@@ -21,7 +21,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
  * 
  * @author Izabela Adamczyk
  */
-public class NewBasicExperiment extends Identifier<NewBasicExperiment>
+public class NewBasicExperiment extends Identifier<NewBasicExperiment> implements IPropertiesBean
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

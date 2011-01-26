@@ -554,6 +554,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         }
         ServerUtils.prevalidate(newMaterials, "material");
         final MaterialTypePE materialTypePE = findMaterialType(materialTypeCode);
+        getPropertiesBatchManager().manageProperties(materialTypePE, newMaterials);
         final Session session = getSession(sessionToken);
         IBatchOperation<NewMaterial> strategy = new IBatchOperation<NewMaterial>()
             {
@@ -830,6 +831,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         assert sessionToken != null : "Unspecified session token.";
         assert experiments.getExperimentTypeCode() != null : "Experiments type not specified";
         assert experiments.getNewExperiments() != null : "Experiments collection not specified";
+        getPropertiesBatchManager().manageProperties(experiments);
 
         final Session session = getSession(sessionToken);
         final List<NewBasicExperiment> newExperiments = experiments.getNewExperiments();

@@ -16,7 +16,12 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
+import java.util.List;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperimentsWithType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 
 /**
  * Interface of classes which manage managed properties in batch updates.
@@ -26,4 +31,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 public interface IPropertiesBatchManager
 {
     public void manageProperties(NewSamplesWithTypes newSamplesWithTypes);
+
+    public void manageProperties(NewExperimentsWithType experiments);
+
+    public void manageProperties(MaterialTypePE materialTypePE, List<NewMaterial> newMaterials);
 }
