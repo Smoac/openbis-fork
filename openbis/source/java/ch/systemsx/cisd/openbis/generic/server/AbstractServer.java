@@ -30,6 +30,8 @@ import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.AbstractServiceWithLogger;
+import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
+import ch.systemsx.cisd.openbis.generic.server.business.PropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationScheduler;
@@ -64,8 +66,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GridCustomExpressionTranslator.GridCustomColumnTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.util.ServerUtils;
-import ch.systemsx.cisd.openbis.plugin.generic.server.IPropertiesBatchManager;
-import ch.systemsx.cisd.openbis.plugin.generic.server.PropertiesBatchManager;
 
 /**
  * An <i>abstract</i> {@link IServer} implementation.
@@ -127,7 +127,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     {
         if (propertiesBatchManager == null)
         {
-            propertiesBatchManager = new PropertiesBatchManager(daoFactory);
+            propertiesBatchManager = new PropertiesBatchManager();
         }
         return propertiesBatchManager;
     }
@@ -446,7 +446,6 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     protected void registerSamples(final Session session,
             final NewSamplesWithTypes newSamplesWithType, PersonPE registratorOrNull)
     {
-        getPropertiesBatchManager().manageProperties(newSamplesWithType);
         final SampleType sampleType = newSamplesWithType.getSampleType();
         final List<NewSample> newSamples = newSamplesWithType.getNewSamples();
         assert sampleType != null : "Unspecified sample type.";
@@ -466,6 +465,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
             throw UserFailureException.fromTemplate("Sample type with code '%s' does not exist.",
                     sampleTypeCode);
         }
+        getPropertiesBatchManager().manageProperties(sampleTypePE, newSamplesWithType);
         getSampleTypeSlaveServerPlugin(sampleTypePE).registerSamples(session, newSamples,
                 registratorOrNull);
     }

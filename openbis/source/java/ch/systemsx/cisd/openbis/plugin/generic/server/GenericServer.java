@@ -41,6 +41,7 @@ import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.batch.BatchOperationExecutor;
 import ch.systemsx.cisd.openbis.generic.server.batch.IBatchOperation;
+import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
@@ -831,7 +832,6 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         assert sessionToken != null : "Unspecified session token.";
         assert experiments.getExperimentTypeCode() != null : "Experiments type not specified";
         assert experiments.getNewExperiments() != null : "Experiments collection not specified";
-        getPropertiesBatchManager().manageProperties(experiments);
 
         final Session session = getSession(sessionToken);
         final List<NewBasicExperiment> newExperiments = experiments.getNewExperiments();
@@ -848,6 +848,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             throw UserFailureException.fromTemplate(
                     "Experiment type with code '%s' does not exist.", experimentTypePE);
         }
+        getPropertiesBatchManager().manageProperties(experimentTypePE, experiments);
         BatchOperationExecutor.executeInBatches(new ExperimentBatchRegistration(
                 businessObjectFactory.createExperimentTable(session), newExperiments,
                 experimentTypePE));

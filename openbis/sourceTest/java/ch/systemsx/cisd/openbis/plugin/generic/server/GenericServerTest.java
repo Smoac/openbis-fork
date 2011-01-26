@@ -251,12 +251,6 @@ public final class GenericServerTest extends AbstractServerTestCase
         List<NewSamplesWithTypes> samplesWithTypes = new ArrayList<NewSamplesWithTypes>();
         final NewSamplesWithTypes newSamplesWithType = new NewSamplesWithTypes(new SampleType(), newSamples);
         samplesWithTypes.add(newSamplesWithType);
-        context.checking(new Expectations()
-            {
-                {
-                    one(propertiesBatchManager).manageProperties(newSamplesWithType);
-                }
-            });
         
         try
         {
@@ -290,7 +284,7 @@ public final class GenericServerTest extends AbstractServerTestCase
 
                     one(sampleTypeSlaveServerPlugin).registerSamples(SESSION, newSamples, null);
                     
-                    one(propertiesBatchManager).manageProperties(newSamplesWithType);
+                    one(propertiesBatchManager).manageProperties(sampleTypePE, newSamplesWithType);
                 }
             });
         createServer().registerOrUpdateSamples(SESSION_TOKEN, samplesWithTypes);
@@ -319,7 +313,7 @@ public final class GenericServerTest extends AbstractServerTestCase
 
                     one(sampleTypeSlaveServerPlugin).registerSamples(SESSION, newSamples, null);
                     
-                    one(propertiesBatchManager).manageProperties(newSamplesWithType);
+                    one(propertiesBatchManager).manageProperties(sampleTypePE, newSamplesWithType);
                 }
             });
         createServer().registerSamples(SESSION_TOKEN, samplesWithTypes);
@@ -850,13 +844,8 @@ public final class GenericServerTest extends AbstractServerTestCase
         prepareGetSession();
         final NewExperimentsWithType experiments =
                 new NewExperimentsWithType(EXPERIMENT_TYPE, createNewExperiments());
-        context.checking(new Expectations()
-            {
-                {
-                    one(propertiesBatchManager).manageProperties(experiments);
-                }
-            });
         createServer().registerExperiments(SESSION_TOKEN, experiments);
+        context.assertIsSatisfied();
     }
 
     @Test
@@ -872,7 +861,7 @@ public final class GenericServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(propertiesBatchManager).manageProperties(experiments);
+                    one(propertiesBatchManager).manageProperties(experimentTypePE, experiments);
                     one(daoFactory).getEntityTypeDAO(EntityKind.EXPERIMENT);
                     will(returnValue(entityTypeDAO));
                     one(entityTypeDAO).tryToFindEntityTypeByCode(EXPERIMENT_TYPE);

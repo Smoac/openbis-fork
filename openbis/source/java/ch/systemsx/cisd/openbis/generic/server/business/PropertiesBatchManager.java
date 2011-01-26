@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.generic.server;
+package ch.systemsx.cisd.openbis.generic.server.business;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,8 +24,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import ch.systemsx.cisd.common.evaluator.EvaluatorException;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -42,7 +40,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluator;
 
 /**
@@ -52,38 +49,26 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyE
  */
 public class PropertiesBatchManager implements IPropertiesBatchManager
 {
-    final IDAOFactory daoFactory;
-
-    public PropertiesBatchManager(IDAOFactory daoFactory)
+    public void manageProperties(SampleTypePE sampleType, NewSamplesWithTypes newSamplesWithTypes)
     {
-        this.daoFactory = daoFactory;
-    }
-
-    public void manageProperties(NewSamplesWithTypes newSamplesWithTypes)
-    {
-        ISampleTypeDAO sampleTypeDAO = daoFactory.getSampleTypeDAO();
-        String code = newSamplesWithTypes.getSampleType().getCode();
-        SampleTypePE sampleType = sampleTypeDAO.tryFindSampleTypeByCode(code);
         Set<? extends EntityTypePropertyTypePE> sampleTypePropertyTypes =
                 sampleType.getSampleTypePropertyTypes();
     
         managePropertiesBeans(newSamplesWithTypes.getNewSamples(), sampleTypePropertyTypes);
     }
     
-    public void manageProperties(NewExperimentsWithType experiments)
+    public void manageProperties(ExperimentTypePE experimentType, NewExperimentsWithType experiments)
     {
-        String code = experiments.getExperimentTypeCode();
-        ExperimentTypePE entityType = (ExperimentTypePE) daoFactory.getEntityTypeDAO(EntityKind.EXPERIMENT).tryToFindEntityTypeByCode(code);
         Set<? extends EntityTypePropertyTypePE> entityTypePropertyTypes =
-        entityType.getExperimentTypePropertyTypes();
+        experimentType.getExperimentTypePropertyTypes();
 
         managePropertiesBeans(experiments.getNewExperiments(), entityTypePropertyTypes);
     }
     
-    public void manageProperties(MaterialTypePE materialTypePE, List<NewMaterial> newMaterials)
+    public void manageProperties(MaterialTypePE materialType, List<NewMaterial> newMaterials)
     {
         Set<? extends EntityTypePropertyTypePE> entityTypePropertyTypes =
-        materialTypePE.getMaterialTypePropertyTypes();
+        materialType.getMaterialTypePropertyTypes();
         managePropertiesBeans(newMaterials, entityTypePropertyTypes);
     }
 

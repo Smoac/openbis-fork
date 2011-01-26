@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.generic.server;
+package ch.systemsx.cisd.openbis.generic.server.business;
 
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperimentsWithType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 
 /**
  * Interface of classes which manage managed properties in batch updates.
@@ -30,9 +32,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
  */
 public interface IPropertiesBatchManager
 {
-    public void manageProperties(NewSamplesWithTypes newSamplesWithTypes);
+    public void manageProperties(SampleTypePE sampleType, NewSamplesWithTypes newSamplesWithTypes);
 
-    public void manageProperties(NewExperimentsWithType experiments);
+    public void manageProperties(ExperimentTypePE experimentType, NewExperimentsWithType experiments);
 
-    public void manageProperties(MaterialTypePE materialTypePE, List<NewMaterial> newMaterials);
+    public void manageProperties(MaterialTypePE materialType, List<NewMaterial> newMaterials);
 }

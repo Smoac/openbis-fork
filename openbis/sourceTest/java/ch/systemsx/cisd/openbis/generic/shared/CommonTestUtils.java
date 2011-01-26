@@ -268,6 +268,8 @@ public class CommonTestUtils
     public static final SampleTypePE createSampleType()
     {
         final SampleTypePE sampleTypePE = new SampleTypePE();
+        sampleTypePE.setId(1234567890123456L);
+        sampleTypePE.setDatabaseInstance(createHomeDatabaseInstance());
         sampleTypePE.setCode(CommonTestUtils.SAMPLE_TYPE);
         sampleTypePE.setGeneratedFromHierarchyDepth(0);
         sampleTypePE.setContainerHierarchyDepth(0);
