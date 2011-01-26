@@ -20,6 +20,7 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -34,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
@@ -99,8 +101,8 @@ public class EntityPropertyTypeDAOTest extends AbstractDAOTest
         EntityTypePE entityType =
                 daoFactory.getEntityTypeDAO(entityKind).tryToFindEntityTypeByCode(typeCode);
         List<ExperimentPE> allExperiments = daoFactory.getExperimentDAO().listExperiments();
-        Assert.assertEquals(filter(allExperiments, entityType), daoFactory
-                .getEntityPropertyTypeDAO(entityKind).listEntities(entityType));
+        Assert.assertEquals(new HashSet<ExperimentPE>(filter(allExperiments, entityType)), new HashSet<IEntityPropertiesHolder>(daoFactory
+                .getEntityPropertyTypeDAO(entityKind).listEntities(entityType)));
     }
 
     private static List<ExperimentPE> filter(List<ExperimentPE> allExperiments,

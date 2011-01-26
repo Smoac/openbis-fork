@@ -39,8 +39,8 @@ public class SampleReferenceRecord
     /** sample type code */
     public String st_code;
 
-    /** group code */
-    public String g_code;
+    /** space code */
+    public String spc_code;
 
     /** container code */
     public String c_code;

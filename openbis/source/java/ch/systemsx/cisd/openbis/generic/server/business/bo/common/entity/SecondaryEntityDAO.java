@@ -105,7 +105,7 @@ public class SecondaryEntityDAO
             return null; // experiment is connected (through group) with different db instance
         }
         final Space space = new Space();
-        space.setCode(record.s_code);
+        space.setCode(record.spc_code);
         space.setInstance(databaseInstance);
 
         final Experiment experiment = new Experiment();
@@ -199,8 +199,8 @@ public class SecondaryEntityDAO
         sample.setCode(IdentifierHelper.convertCode(record.s_code, record.c_code));
         sample.setSampleType(createSampleType(record.st_code, databaseInstance));
         sample.setInvalidation(createInvalidation(record.inva_id));
-        sample.setSpace(tryCreateGroup(record.g_code, databaseInstance));
-        sample.setDatabaseInstance(tryGetDatabaseInstance(record.g_code, databaseInstance));
+        sample.setSpace(tryCreateGroup(record.spc_code, databaseInstance));
+        sample.setDatabaseInstance(tryGetDatabaseInstance(record.spc_code, databaseInstance));
         sample.setPermId(record.perm_id);
         sample.setIdentifier(createIdentifier(sample).toString());
         return sample;

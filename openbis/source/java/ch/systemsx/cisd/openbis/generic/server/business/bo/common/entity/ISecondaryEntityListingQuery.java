@@ -50,7 +50,7 @@ public interface ISecondaryEntityListingQuery extends TransactionQuery
      * @param experimentId The id of the experiment to get the code for.
      */
     @Select("select e.code as e_code, e.perm_id as e_permid, et.code as et_code, "
-            + "p.code as p_code, p.id as p_id, g.code as g_code, g.dbin_id as dbin_id from experiments e "
+            + "p.code as p_code, p.id as p_id, g.code as spc_code, g.dbin_id as dbin_id from experiments e "
             + "join experiment_types et on e.exty_id=et.id join projects p on e.proj_id=p.id "
             + "join spaces g on p.space_id=g.id where e.id=?{1}")
     public ExperimentProjectSpaceCodeRecord getExperimentAndProjectAndGroupCodeForId(
@@ -64,7 +64,7 @@ public interface ISecondaryEntityListingQuery extends TransactionQuery
      * Returns the samples for the given ids.
      */
     @Select(sql = "select s.id as id, s.perm_id as perm_id, s.code as s_code, s.inva_id as inva_id, "
-            + "           st.code as st_code, g.code as g_code, c.code as c_code"
+            + "           st.code as st_code, g.code as spc_code, c.code as c_code"
             + "   from samples s join sample_types st on s.saty_id=st.id"
             + "                  join spaces g on s.space_id=g.id "
             + "                  left join samples c on s.samp_id_part_of=c.id "

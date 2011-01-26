@@ -17,7 +17,7 @@ public class ExperimentProjectSpaceCodeRecord
 
     public String p_code;
 
-    public String s_code;
+    public String spc_code;
 
     public Long p_id;
 
