@@ -15,20 +15,25 @@ fi
 
 SERVERS_DIR=$BASE/servers
 
+if [ ! -d "$SERVERS_DIR" ]; then
+    echo "$SERVERS_DIR does not exist. Aborting ..."
+    exit 1
+fi
+
 if [ $(find "$SERVERS_DIR" -name "*server-screening*.zip")  ]; then
     
     echo "Downloading admin scripts for openBIS screening..." 
     SVN_DIR=$SVN_DIR_SCREENING
-     
-elif [ $(find "$SERVERS_DIR" -name "*server-screening*.zip")  ]; 
+    
+elif [ $(find "$SERVERS_DIR" -name "*server-*.zip")  ]; then 
     
     echo "Downloading admin scripts for generic openBIS installation..." 
     SVN_DIR=$SVN_DIR_GENERIC
      
 else
-    echo "Could not detect openBIS archives in SERVERS_DIR. Please, download openBIS and datastore server archives and try again..."
-    exit 1 
-if
+    echo "Could not detect openBIS archives in $SERVERS_DIR. Please, download openBIS and datastore server archives and try again..."
+    exit 2 
+fi
 
 
 mkdir bin
