@@ -29,16 +29,20 @@ public interface IManagedInputWidgetDescription extends ISerializable
 {
     ManagedInputFieldType getManagedInputFieldType();
 
-    void setValue(String value);
-
-    String getValue();
+    String getLabel();
 
     void setLabel(String label);
 
-    String getLabel();
+    String getValue();
 
-    void setDescription(String description);
+    IManagedInputWidgetDescription setValue(String value);
 
     String getDescription();
+
+    IManagedInputWidgetDescription setDescription(String description);
+
+    boolean isMandatory();
+
+    IManagedInputWidgetDescription setMandatory(boolean mandatory);
 
 }

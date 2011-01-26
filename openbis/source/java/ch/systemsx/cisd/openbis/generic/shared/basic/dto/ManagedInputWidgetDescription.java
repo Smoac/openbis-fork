@@ -31,6 +31,8 @@ public abstract class ManagedInputWidgetDescription implements IManagedInputWidg
 
     private String description; // for field info
 
+    private boolean mandatory;
+
     //
     // IManagedInputWidgetDescription
     //
@@ -50,9 +52,10 @@ public abstract class ManagedInputWidgetDescription implements IManagedInputWidg
         return value;
     }
 
-    public void setValue(String value)
+    public IManagedInputWidgetDescription setValue(String value)
     {
         this.value = value;
+        return this;
     }
 
     public String getDescription()
@@ -60,9 +63,21 @@ public abstract class ManagedInputWidgetDescription implements IManagedInputWidg
         return description;
     }
 
-    public void setDescription(String description)
+    public IManagedInputWidgetDescription setDescription(String description)
     {
         this.description = description;
+        return this;
+    }
+
+    public boolean isMandatory()
+    {
+        return mandatory;
+    }
+
+    public IManagedInputWidgetDescription setMandatory(boolean mandatory)
+    {
+        this.mandatory = mandatory;
+        return this;
     }
 
 }

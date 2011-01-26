@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedComboBoxInputWidgetDescription;
@@ -128,6 +129,10 @@ public final class ManagedPropertyGridActionDialog extends
                     throw new UnsupportedOperationException(); // can't happen
             }
             final String label = inputDescription.getLabel();
+            if (label == null)
+            {
+                throwFailToCreateContentException("Label is not set in input widget description");
+            }
             field.setFieldLabel(label);
 
             if (inputDescription.getDescription() != null)
@@ -137,6 +142,8 @@ public final class ManagedPropertyGridActionDialog extends
                 FieldUtil.addInfoIcon(field, inputDescription.getDescription(),
                         infoIcon.createImage());
             }
+            FieldUtil.setMandatoryFlag(field, inputDescription.isMandatory());
+
             inputFieldsByLabel.put(label, field);
             formPanel.add(field);
         }
@@ -179,10 +186,25 @@ public final class ManagedPropertyGridActionDialog extends
             comboBox.updateOriginalValue(comboBox.getValue());
         }
 
-        final ManagedComboBoxInputWidgetDescription comboBoxDescription =
-                (ManagedComboBoxInputWidgetDescription) inputDescription;
-        comboBox.add(comboBoxDescription.getOptions());
+        if (inputDescription instanceof ManagedComboBoxInputWidgetDescription)
+        {
+            final ManagedComboBoxInputWidgetDescription comboBoxDescription =
+                    (ManagedComboBoxInputWidgetDescription) inputDescription;
+            comboBox.add(comboBoxDescription.getOptions());
 
-        return comboBox;
+            return comboBox;
+        } else
+        {
+            throwFailToCreateContentException("'" + inputDescription.getLabel()
+                    + "' description should be a subclass of ManagedComboBoxInputWidgetDescription");
+            return null;
+        }
     }
+
+    private void throwFailToCreateContentException(String detailedErrorMsg)
+            throws UserFailureException
+    {
+        throw new UserFailureException("Failed to create content.", detailedErrorMsg);
+    }
+
 }
