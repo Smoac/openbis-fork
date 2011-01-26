@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -134,6 +135,30 @@ public final class CommonServerTest extends AbstractServerTestCase
         commonBusinessObjectFactory = context.mock(ICommonBusinessObjectFactory.class);
         sampleTypeSlaveServerPlugin = context.mock(ISampleTypeSlaveServerPlugin.class);
         dataSetTypeSlaveServerPlugin = context.mock(IDataSetTypeSlaveServerPlugin.class);
+    }
+    
+    @Test
+    public void testGetTemplateColumns()
+    {
+        prepareGetSession();
+        final String type = "MY_TYPE";
+        context.checking(new Expectations()
+            {
+                {
+                    one(daoFactory).getEntityTypeDAO(ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.EXPERIMENT);
+                    will(returnValue(entityTypeDAO));
+                    
+                    one(entityTypeDAO).tryToFindEntityTypeByCode(type);
+                    will(returnValue(new ExperimentTypePE()));
+                }
+            });
+        
+        String template =
+                createServer().getTemplateColumns(SESSION_TOKEN, EntityKind.EXPERIMENT, type,
+                        false, false, BatchOperationKind.REGISTRATION);
+        
+        assertEquals("identifier", template);
+        context.assertIsSatisfied();
     }
 
     @Test
