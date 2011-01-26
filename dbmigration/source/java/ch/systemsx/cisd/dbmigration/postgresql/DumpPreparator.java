@@ -58,7 +58,7 @@ import ch.systemsx.cisd.dbmigration.SimpleTableMetaData;
  */
 public class DumpPreparator
 {
-    private static final String MAC_POSTGRESQL_PATH = "/opt/local/lib/postgresql84/bin/";
+    private static final String MAC_POSTGRESQL_PATH = "/opt/local/lib/postgresql90/bin/";
     private static final String MAC_POSTGRESQL_9_PATH = "/opt/local/lib/postgresql90/bin/";
 
     private static final String DUMP_EXEC = "pg_dump";
