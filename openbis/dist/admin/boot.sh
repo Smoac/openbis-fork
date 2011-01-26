@@ -20,12 +20,15 @@ if [ ! -d "$SERVERS_DIR" ]; then
     exit 1
 fi
 
-if [ $(find "$SERVERS_DIR" -name "*server-screening*.zip")  ]; then
+SCREENING_ZIPS_EXIST=`find "$SERVERS_DIR" -name "*server-screening*.zip"`
+GENERIC_ZIPS_EXIST=`find "$SERVERS_DIR" -name "*server-*.zip"`
+
+if [ -n "$SCREENING_ZIPS_EXIST" ]; then
     
     echo "Downloading admin scripts for openBIS screening..." 
     SVN_DIR=$SVN_DIR_SCREENING
     
-elif [ $(find "$SERVERS_DIR" -name "*server-*.zip")  ]; then 
+elif [ -n "$GENERIC_ZIPS_EXIST"  ]; then 
     
     echo "Downloading admin scripts for generic openBIS installation..." 
     SVN_DIR=$SVN_DIR_GENERIC
