@@ -16,42 +16,57 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.managed_property;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.evaluator.Evaluator;
+import ch.systemsx.cisd.common.evaluator.EvaluatorException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
-import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTableModelBuilderAdaptor;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ScriptUtilityFactory;
 
 /**
  * Class for evaluating scripts that control managed properties.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-// TODO 2011-01-14, Piotr Buczek: it should be possible to reuse evaluator by set of properties
 public class ManagedPropertyEvaluator
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             ManagedPropertyEvaluator.class);
 
-    private final String scriptExpression;
-
     /**
      * The name of the script that expects the property to be there and updates ui configuration.
      */
-    private static final String CONFIGURE_UI_EXPRESSION = "configureUI()";
+    private static final String CONFIGURE_UI_EXPRESSION = "configureUI";
 
     /**
      * The name of the script that expects the property to be there and updates the value.
      */
-    private static final String UPDATE_VALUE_EXPRESSION = "updateValue()";
+    private static final String UPDATE_VALUE_EXPRESSION = "updateValue";
 
+    /**
+     * The name of the function that returns an array of column names.
+     */
+    private static final String BATCH_COLUMN_NAMES_FUNCTION = "batchColumnNames";
+    
+    /**
+     * The name of the function that expects a map of bindings.
+     */
+    private static final String UPDATE_FROM_BATCH_INPUT_FUNCTION = "updateFromBatchInput";
+    
     private static final String PROPERTY_VARIABLE_NAME = "property";
+    
+    private final Evaluator evaluator;
 
     public ManagedPropertyEvaluator(String scriptExpression)
     {
-        this.scriptExpression = scriptExpression;
+        evaluator = new Evaluator("", ScriptUtilityFactory.class, scriptExpression);
     }
 
     public void evalConfigureProperty(IManagedProperty managedProperty)
@@ -62,10 +77,8 @@ public class ManagedPropertyEvaluator
                     managedProperty));
         }
 
-        Evaluator evaluator =
-                new Evaluator(CONFIGURE_UI_EXPRESSION, ScriptUtilityFactory.class, scriptExpression);
         evaluator.set(PROPERTY_VARIABLE_NAME, managedProperty);
-        evaluator.eval();
+        evaluator.evalFunction(CONFIGURE_UI_EXPRESSION);
     }
 
     public void evaluateUpdateProperty(IManagedProperty managedProperty)
@@ -76,25 +89,34 @@ public class ManagedPropertyEvaluator
                     managedProperty));
         }
 
-        Evaluator evaluator =
-                new Evaluator(UPDATE_VALUE_EXPRESSION, ScriptUtilityFactory.class, scriptExpression);
         evaluator.set(PROPERTY_VARIABLE_NAME, managedProperty);
-        evaluator.eval();
+        evaluator.evalFunction(UPDATE_VALUE_EXPRESSION);
     }
-
-    //
-    // utlilities
-    //
-
-    /**
-     * This utility class should shouldn't expose anything outside of Managed Property API. No
-     * method should return or take as an argument anything outside of the API.
-     */
-    public static class ScriptUtilityFactory
+    
+    public List<String> getBatchColumnNames()
     {
-        public static ISimpleTableModelBuilderAdaptor createTableBuilder()
+        Object result = evaluator.evalFunction(BATCH_COLUMN_NAMES_FUNCTION);
+        if (result instanceof List == false)
         {
-            return SimpleTableModelBuilderAdaptor.create();
+            throw new EvaluatorException("Function '" + BATCH_COLUMN_NAMES_FUNCTION
+                    + "' doesn't return a List but an object of type '"
+                    + result.getClass().getName() + "': " + result);
         }
+        List<?> list = (List<?>) result;
+        ArrayList<String> columnNames = new ArrayList<String>();
+        for (Object element : list)
+        {
+            columnNames.add(element.toString());
+        }
+        return columnNames;
     }
+
+    public String updateFromBatchInput(Map<String, String> bindings)
+    {
+        ManagedProperty property = new ManagedProperty();
+        evaluator.set(PROPERTY_VARIABLE_NAME, property);
+        evaluator.evalFunction(UPDATE_FROM_BATCH_INPUT_FUNCTION, bindings);
+        return property.getValue();
+    }
+
 }

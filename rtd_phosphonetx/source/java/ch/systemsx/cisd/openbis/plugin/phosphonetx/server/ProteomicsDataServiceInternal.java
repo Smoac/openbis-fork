@@ -52,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
+import ch.systemsx.cisd.openbis.plugin.generic.server.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.ExperimentLoader;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.ISampleLoader;
@@ -94,7 +95,14 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
     public ProteomicsDataServiceInternal(ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
             ICommonBusinessObjectFactory businessObjectFactory, IBusinessObjectFactory boFactory)
     {
-        super(sessionManager, daoFactory);
+        this(sessionManager, daoFactory, null, businessObjectFactory, boFactory);
+    }
+    
+    ProteomicsDataServiceInternal(ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
+            IPropertiesBatchManager propertiesBatchManager,
+            ICommonBusinessObjectFactory businessObjectFactory, IBusinessObjectFactory boFactory)
+    {
+        super(sessionManager, daoFactory, propertiesBatchManager);
         sessionManagerFromConstructor = sessionManager;
         this.commonBoFactory = businessObjectFactory;
         this.boFactory = boFactory;

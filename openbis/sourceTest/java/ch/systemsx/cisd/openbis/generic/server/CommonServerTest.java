@@ -114,7 +114,8 @@ public final class CommonServerTest extends AbstractServerTestCase
     {
         CommonServer server =
                 new CommonServer(authenticationService, sessionManager, daoFactory,
-                        commonBusinessObjectFactory, new LastModificationState());
+                        propertiesBatchManager, commonBusinessObjectFactory,
+                        new LastModificationState());
         server.setSampleTypeSlaveServerPlugin(sampleTypeSlaveServerPlugin);
         server.setDataSetTypeSlaveServerPlugin(dataSetTypeSlaveServerPlugin);
         server.setBaseIndexURL(SESSION_TOKEN, BASE_INDEX_URL);

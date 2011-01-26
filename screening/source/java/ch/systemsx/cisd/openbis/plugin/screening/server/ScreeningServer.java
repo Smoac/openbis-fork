@@ -62,6 +62,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTranslator;
+import ch.systemsx.cisd.openbis.plugin.generic.server.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningQuery;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.PlateContentLoader;
@@ -124,11 +125,13 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
 
     @Private
     ScreeningServer(final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
+            IPropertiesBatchManager propertiesBatchManager,
             final IScreeningBusinessObjectFactory businessObjectFactory,
             final ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin,
             final IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin)
     {
-        super(sessionManager, daoFactory, sampleTypeSlaveServerPlugin, dataSetTypeSlaveServerPlugin);
+        super(sessionManager, daoFactory, propertiesBatchManager, sampleTypeSlaveServerPlugin,
+                dataSetTypeSlaveServerPlugin);
         this.businessObjectFactory = businessObjectFactory;
     }
 

@@ -25,7 +25,7 @@ import ch.systemsx.cisd.common.annotation.BeanProperty;
  * 
  * @author Christian Ribeaud
  */
-public class NewSample extends Identifier<NewSample> implements Comparable<NewSample>
+public class NewSample extends Identifier<NewSample> implements Comparable<NewSample>, IPropertiesBean
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

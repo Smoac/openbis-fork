@@ -94,7 +94,9 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
         commonBoFactory = context.mock(ICommonBusinessObjectFactory.class);
         boFactory = context.mock(IBusinessObjectFactory.class);
         sampleLoader = context.mock(ISampleLoader.class);
-        service = new ProteomicsDataServiceInternal(sessionManager, daoFactory, commonBoFactory, boFactory);
+        service =
+                new ProteomicsDataServiceInternal(sessionManager, daoFactory,
+                        propertiesBatchManager, commonBoFactory, boFactory);
         experimentType = new ExperimentTypePE();
         experimentType.setCode(EXPERIMENT_TYPE);
         experimentType.setDatabaseInstance(CommonTestUtils.createHomeDatabaseInstance());

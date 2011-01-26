@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.plugin.demo.shared.IDemoServer;
 import ch.systemsx.cisd.openbis.plugin.demo.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.plugin.generic.server.IPropertiesBatchManager;
 
 /**
  * The concrete {@link IDemoServer} implementation.
@@ -60,11 +61,13 @@ public final class DemoServer extends AbstractServer<IDemoServer> implements IDe
 
     @Private
     DemoServer(final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
+            IPropertiesBatchManager propertiesBatchManager,
             final IDemoBusinessObjectFactory businessObjectFactory,
             final ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin,
             final IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin)
     {
-        super(sessionManager, daoFactory, sampleTypeSlaveServerPlugin, dataSetTypeSlaveServerPlugin);
+        super(sessionManager, daoFactory, propertiesBatchManager, sampleTypeSlaveServerPlugin,
+                dataSetTypeSlaveServerPlugin);
         this.businessObjectFactory = businessObjectFactory;
     }
 

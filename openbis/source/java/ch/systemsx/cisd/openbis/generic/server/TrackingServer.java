@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.plugin.generic.server.IPropertiesBatchManager;
 
 public final class TrackingServer extends AbstractServer<ITrackingServer> implements
         ITrackingServer
@@ -43,12 +44,20 @@ public final class TrackingServer extends AbstractServer<ITrackingServer> implem
     private final ICommonBusinessObjectFactory businessObjectFactory;
 
     public TrackingServer(final ISessionManager<Session> sessionManager,
-            final IDAOFactory daoFactory, final ICommonBusinessObjectFactory businessObjectFactory)
+            final IDAOFactory daoFactory,
+            final ICommonBusinessObjectFactory businessObjectFactory)
     {
-        super(sessionManager, daoFactory);
-        this.businessObjectFactory = businessObjectFactory;
+        this(sessionManager, daoFactory, null, businessObjectFactory);
     }
 
+    TrackingServer(final ISessionManager<Session> sessionManager,
+            final IDAOFactory daoFactory, IPropertiesBatchManager propertiesBatchManager,
+            final ICommonBusinessObjectFactory businessObjectFactory)
+    {
+        super(sessionManager, daoFactory, propertiesBatchManager);
+        this.businessObjectFactory = businessObjectFactory;
+    }
+    
     ICommonBusinessObjectFactory getBusinessObjectFactory()
     {
         return businessObjectFactory;

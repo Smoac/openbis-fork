@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.plugin.generic.server.IPropertiesBatchManager;
 
 /**
  * @author Franz-Josef Elmer
@@ -46,9 +47,10 @@ abstract class AbstractCommonServer<T extends IServer> extends AbstractServer<T>
 
     public AbstractCommonServer(IAuthenticationService authenticationService,
             ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
+            IPropertiesBatchManager propertiesBatchManager,
             ICommonBusinessObjectFactory businessObjectFactory)
     {
-        super(sessionManager, daoFactory);
+        super(sessionManager, daoFactory, propertiesBatchManager);
         this.authenticationService = authenticationService;
         this.businessObjectFactory = businessObjectFactory;
     }

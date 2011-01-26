@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlu
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.plugin.demo.shared.IDemoServer;
+import ch.systemsx.cisd.openbis.plugin.generic.server.IPropertiesBatchManager;
 
 /**
  * Test cases for corresponding {@link DemoServer} class.
@@ -38,11 +39,14 @@ public final class DemoServerTest extends AbstractServerTestCase
 
     private IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin;
 
+    private IPropertiesBatchManager propertiesBatchManager;
+
     @SuppressWarnings("unused")
     private final IDemoServer createServer()
     {
-        return new DemoServer(sessionManager, daoFactory, demoBusinessObjectFactory,
-                sampleTypeSlaveServerPlugin, dataSetTypeSlaveServerPlugin);
+        return new DemoServer(sessionManager, daoFactory, propertiesBatchManager,
+                demoBusinessObjectFactory, sampleTypeSlaveServerPlugin,
+                dataSetTypeSlaveServerPlugin);
     }
 
     //
@@ -57,5 +61,7 @@ public final class DemoServerTest extends AbstractServerTestCase
         sampleTypeSlaveServerPlugin = context.mock(ISampleTypeSlaveServerPlugin.class);
         demoBusinessObjectFactory = context.mock(IDemoBusinessObjectFactory.class);
         dataSetTypeSlaveServerPlugin = context.mock(IDataSetTypeSlaveServerPlugin.class);
+        propertiesBatchManager = context.mock(IPropertiesBatchManager.class);
+
     }
 }

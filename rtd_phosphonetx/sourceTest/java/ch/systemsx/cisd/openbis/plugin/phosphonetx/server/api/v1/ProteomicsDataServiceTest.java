@@ -80,7 +80,9 @@ public class ProteomicsDataServiceTest extends AbstractServerTestCase
     {
         super.setUp();
         internalService = context.mock(IProteomicsDataServiceInternal.class);
-        service = new ProteomicsDataService(sessionManager, daoFactory, internalService);
+        service =
+                new ProteomicsDataService(sessionManager, daoFactory, propertiesBatchManager,
+                        internalService);
         session2 = new SessionContextDTO();
         session2.setSessionToken(SESSION_TOKEN + "2");
     }

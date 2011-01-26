@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.util.DataTypeUtils;
+import ch.systemsx.cisd.openbis.plugin.generic.server.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IProteomicsDataServiceInternal;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.IProteomicsDataService;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.DataSet;
@@ -75,9 +76,10 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
     }
 
     public ProteomicsDataService(final ISessionManager<Session> sessionManager,
-            final IDAOFactory daoFactory, IProteomicsDataServiceInternal service)
+            final IDAOFactory daoFactory, IPropertiesBatchManager propertiesBatchManager,
+            IProteomicsDataServiceInternal service)
     {
-        super(sessionManager, daoFactory);
+        super(sessionManager, daoFactory, propertiesBatchManager);
         this.service = service;
     }
 

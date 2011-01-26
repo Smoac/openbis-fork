@@ -64,6 +64,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.plugin.generic.server.IPropertiesBatchManager;
 
 /**
  * @author Franz-Josef Elmer
@@ -81,9 +82,9 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     }
 
     GeneralInformationService(ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
-            ICommonServer commonServer)
+            IPropertiesBatchManager propertiesBatchManager, ICommonServer commonServer)
     {
-        super(sessionManager, daoFactory);
+        super(sessionManager, daoFactory, propertiesBatchManager);
         this.commonServer = commonServer;
     }
 

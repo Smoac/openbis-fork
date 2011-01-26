@@ -899,8 +899,8 @@ public class ETLServiceTest extends AbstractServerTestCase
 
     private IETLLIMSService createService()
     {
-        return new ETLService(authenticationService, sessionManager, daoFactory, boFactory,
-                dssfactory);
+        return new ETLService(authenticationService, sessionManager, daoFactory,
+                propertiesBatchManager, boFactory, dssfactory);
     }
 
     private DataStoreServerInfo createDSSInfo()

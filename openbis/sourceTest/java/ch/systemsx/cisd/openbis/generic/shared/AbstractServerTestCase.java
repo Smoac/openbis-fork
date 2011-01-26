@@ -58,7 +58,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
@@ -66,6 +65,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IQueryDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IPermIdDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
@@ -73,10 +73,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.plugin.generic.server.IPropertiesBatchManager;
 
 /**
  * An <i>abstract</i> test infrastructure for {@link IServer} implementations.
@@ -175,6 +176,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected IDynamicPropertyEvaluationScheduler evaluator;
 
+    protected IPropertiesBatchManager propertiesBatchManager;
+
     @BeforeMethod
     @SuppressWarnings("unchecked")
     public void setUp()
@@ -184,6 +187,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         context = new Mockery();
         authenticationService = context.mock(IAuthenticationService.class);
         sessionManager = context.mock(ISessionManager.class);
+        propertiesBatchManager = context.mock(IPropertiesBatchManager.class);
         // DAO
         daoFactory = context.mock(IDAOFactory.class);
         databaseInstanceDAO = context.mock(IDatabaseInstanceDAO.class);

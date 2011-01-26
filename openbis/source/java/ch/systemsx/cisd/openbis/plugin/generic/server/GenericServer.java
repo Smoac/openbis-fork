@@ -141,11 +141,13 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
 
     @Private
     GenericServer(final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
+            IPropertiesBatchManager propertiesBatchManager,
             final IGenericBusinessObjectFactory businessObjectFactory,
             final ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin,
             final IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin)
     {
-        super(sessionManager, daoFactory, sampleTypeSlaveServerPlugin, dataSetTypeSlaveServerPlugin);
+        super(sessionManager, daoFactory, propertiesBatchManager, sampleTypeSlaveServerPlugin,
+                dataSetTypeSlaveServerPlugin);
         this.businessObjectFactory = businessObjectFactory;
     }
 

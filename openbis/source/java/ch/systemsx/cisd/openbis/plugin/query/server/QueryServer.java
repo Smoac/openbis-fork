@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.plugin.generic.server.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.plugin.query.shared.DatabaseDefinition;
 import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryDatabaseDefinitionProvider;
 import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryServer;
@@ -79,11 +80,13 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
 
     @Private
     QueryServer(final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
+            IPropertiesBatchManager propertiesBatchManager,
             final ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin,
             final IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin,
             IQueryDatabaseDefinitionProvider dbDefinitionProvider)
     {
-        super(sessionManager, daoFactory, sampleTypeSlaveServerPlugin, dataSetTypeSlaveServerPlugin);
+        super(sessionManager, daoFactory, propertiesBatchManager, sampleTypeSlaveServerPlugin,
+                dataSetTypeSlaveServerPlugin);
         this.dbDefinitionProvider = dbDefinitionProvider;
     }
 

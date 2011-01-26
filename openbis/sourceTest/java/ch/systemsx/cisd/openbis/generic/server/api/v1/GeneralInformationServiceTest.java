@@ -76,7 +76,9 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
     {
         super.setUp();
         commonServer = context.mock(ICommonServer.class);
-        service = new GeneralInformationService(sessionManager, daoFactory, commonServer);
+        service =
+                new GeneralInformationService(sessionManager, daoFactory, propertiesBatchManager,
+                        commonServer);
     }
 
     @Test

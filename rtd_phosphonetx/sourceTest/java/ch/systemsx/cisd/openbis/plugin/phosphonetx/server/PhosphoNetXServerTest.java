@@ -69,8 +69,9 @@ public class PhosphoNetXServerTest extends AbstractServerTestCase
         abundanceColumnDefinitionTable = context.mock(IAbundanceColumnDefinitionTable.class);
         sampleProvider = context.mock(ISampleProvider.class);
         server =
-                new PhosphoNetXServer(sessionManager, daoFactory, phosphoNetXDAOFactory, boFactory,
-                        sampleTypeSlaveServerPlugin, dataSetTypeSlaveServerPlugin);
+                new PhosphoNetXServer(sessionManager, daoFactory, propertiesBatchManager,
+                        phosphoNetXDAOFactory, boFactory, sampleTypeSlaveServerPlugin,
+                        dataSetTypeSlaveServerPlugin);
         context.checking(new Expectations()
             {
                 {

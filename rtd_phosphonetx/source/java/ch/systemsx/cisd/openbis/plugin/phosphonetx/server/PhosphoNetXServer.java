@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTranslator;
+import ch.systemsx.cisd.openbis.plugin.generic.server.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.AccessionNumberBuilder;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IAbundanceColumnDefinitionTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IBusinessObjectFactory;
@@ -83,11 +84,13 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
 
     @Private
     PhosphoNetXServer(ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
+            IPropertiesBatchManager propertiesBatchManager,
             IPhosphoNetXDAOFactory specificDAOFactory, IBusinessObjectFactory specificBOFactory,
             ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin,
             IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin)
     {
-        super(sessionManager, daoFactory, sampleTypeSlaveServerPlugin, dataSetTypeSlaveServerPlugin);
+        super(sessionManager, daoFactory, propertiesBatchManager, sampleTypeSlaveServerPlugin,
+                dataSetTypeSlaveServerPlugin);
         this.specificDAOFactory = specificDAOFactory;
         this.specificBOFactory = specificBOFactory;
     }

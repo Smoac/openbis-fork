@@ -209,6 +209,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTermTranslat
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
+import ch.systemsx.cisd.openbis.plugin.generic.server.IPropertiesBatchManager;
 
 public final class CommonServer extends AbstractCommonServer<ICommonServerForInternalUse> implements
         ICommonServerForInternalUse
@@ -220,10 +221,20 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             final ICommonBusinessObjectFactory businessObjectFactory,
             final LastModificationState lastModificationState)
     {
-        super(authenticationService, sessionManager, daoFactory, businessObjectFactory);
-        this.lastModificationState = lastModificationState;
+        this(authenticationService, sessionManager, daoFactory, null, businessObjectFactory,
+                lastModificationState);
     }
 
+    CommonServer(final IAuthenticationService authenticationService,
+            final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
+            IPropertiesBatchManager propertiesBatchManager,
+            final ICommonBusinessObjectFactory businessObjectFactory,
+            final LastModificationState lastModificationState)
+    {
+        super(authenticationService, sessionManager, daoFactory, propertiesBatchManager, businessObjectFactory);
+        this.lastModificationState = lastModificationState;
+    }
+    
     ICommonBusinessObjectFactory getBusinessObjectFactory()
     {
         return businessObjectFactory;
@@ -1691,7 +1702,21 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         {
             if (etpt.isDynamic() == false)
             {
-                columns.add(etpt.getPropertyType().getCode());
+                String code = etpt.getPropertyType().getCode();
+                if (etpt.isManaged())
+                {
+                    String script = etpt.getScript().getScript();
+                    ManagedPropertyEvaluator evaluator = new ManagedPropertyEvaluator(script);
+                    List<String> batchColumnNames = evaluator.getBatchColumnNames();
+                    Collections.sort(batchColumnNames);
+                    for (String name : batchColumnNames)
+                    {
+                        columns.add(code + ':' + name);
+                    }
+                } else
+                {
+                    columns.add(code);
+                }
             }
         }
     }

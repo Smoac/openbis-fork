@@ -62,8 +62,8 @@ public final class QueryServerTest extends AbstractServerTestCase
 
     private final IQueryServer createServer()
     {
-        return new QueryServer(sessionManager, daoFactory, sampleTypeSlaveServerPlugin,
-                dataSetTypeSlaveServerPlugin, dbDefinitionProvider);
+        return new QueryServer(sessionManager, daoFactory, propertiesBatchManager,
+                sampleTypeSlaveServerPlugin, dataSetTypeSlaveServerPlugin, dbDefinitionProvider);
     }
 
     //

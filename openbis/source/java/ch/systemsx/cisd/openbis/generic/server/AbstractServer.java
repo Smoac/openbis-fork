@@ -52,18 +52,20 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomColumnPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleSession;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GridCustomExpressionTranslator.GridCustomColumnTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.util.ServerUtils;
+import ch.systemsx.cisd.openbis.plugin.generic.server.IPropertiesBatchManager;
+import ch.systemsx.cisd.openbis.plugin.generic.server.PropertiesBatchManager;
 
 /**
  * An <i>abstract</i> {@link IServer} implementation.
@@ -93,6 +95,8 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     @Resource(name = ComponentNames.REMOTE_HOST_VALIDATOR)
     private IRemoteHostValidator remoteHostValidator;
 
+    private IPropertiesBatchManager propertiesBatchManager;
+
     protected AbstractServer()
     {
         operationLog.info(String.format("Creating new '%s' implementation: '%s'.",
@@ -100,22 +104,32 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     }
 
     protected AbstractServer(final ISessionManager<Session> sessionManager,
-            final IDAOFactory daoFactory)
+            final IDAOFactory daoFactory, IPropertiesBatchManager propertiesBatchManager)
     {
         this();
         this.sessionManager = sessionManager;
         this.daoFactory = daoFactory;
+        this.propertiesBatchManager = propertiesBatchManager;
     }
 
     // For testing purpose.
     protected AbstractServer(final ISessionManager<Session> sessionManager,
-            final IDAOFactory daoFactory,
+            final IDAOFactory daoFactory, IPropertiesBatchManager propertiesBatchManager,
             final ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin,
             final IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin)
     {
-        this(sessionManager, daoFactory);
+        this(sessionManager, daoFactory, propertiesBatchManager);
         this.sampleTypeSlaveServerPlugin = sampleTypeSlaveServerPlugin;
         this.dataSetTypeSlaveServerPlugin = dataSetTypeSlaveServerPlugin;
+    }
+    
+    protected IPropertiesBatchManager getPropertiesBatchManager()
+    {
+        if (propertiesBatchManager == null)
+        {
+            propertiesBatchManager = new PropertiesBatchManager(daoFactory);
+        }
+        return propertiesBatchManager;
     }
 
     public final void setSampleTypeSlaveServerPlugin(
@@ -432,6 +446,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     protected void registerSamples(final Session session,
             final NewSamplesWithTypes newSamplesWithType, PersonPE registratorOrNull)
     {
+        getPropertiesBatchManager().manageProperties(newSamplesWithType);
         final SampleType sampleType = newSamplesWithType.getSampleType();
         final List<NewSample> newSamples = newSamplesWithType.getNewSamples();
         assert sampleType != null : "Unspecified sample type.";

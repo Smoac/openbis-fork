@@ -117,6 +117,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTermTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
+import ch.systemsx.cisd.openbis.plugin.generic.server.IPropertiesBatchManager;
 
 /**
  * @author Franz-Josef Elmer
@@ -131,11 +132,19 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
             ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
             ICommonBusinessObjectFactory boFactory, IDataStoreServiceFactory dssFactory)
     {
-        super(authenticationService, sessionManager, daoFactory, boFactory);
+        this(authenticationService, sessionManager, daoFactory, null, boFactory, dssFactory);
+    }
+
+    ETLService(IAuthenticationService authenticationService,
+            ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
+            IPropertiesBatchManager propertiesBatchManager,
+            ICommonBusinessObjectFactory boFactory, IDataStoreServiceFactory dssFactory)
+    {
+        super(authenticationService, sessionManager, daoFactory, propertiesBatchManager, boFactory);
         this.daoFactory = daoFactory;
         this.dssFactory = dssFactory;
     }
-
+    
     public IETLService createLogger(IInvocationLoggerContext context)
     {
         return new ETLServiceLogger(getSessionManager(), context);

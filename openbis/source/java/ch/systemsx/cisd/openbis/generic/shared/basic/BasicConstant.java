@@ -41,7 +41,7 @@ public class BasicConstant
     private static final char UNI_REPLACEMENT_CHAR = 0xFFFD;
 
     /** Prefix of property value that contains error message. */
-    public static final String ERROR_PROPERTY_PREFIX = "" + UNI_REPLACEMENT_CHAR;
+    public static final String ERROR_PROPERTY_PREFIX = Character.toString(UNI_REPLACEMENT_CHAR);
 
     /** Value of dynamic property before it is evaluated. */
     public static final String DYNAMIC_PROPERTY_PLACEHOLDER_VALUE = ERROR_PROPERTY_PREFIX

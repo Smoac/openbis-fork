@@ -110,8 +110,9 @@ public final class GenericServerTest extends AbstractServerTestCase
     private final IGenericServer createServer()
     {
         GenericServer genericServer =
-                new GenericServer(sessionManager, daoFactory, genericBusinessObjectFactory,
-                        sampleTypeSlaveServerPlugin, dataSetTypeSlaveServerPlugin);
+                new GenericServer(sessionManager, daoFactory, propertiesBatchManager,
+                        genericBusinessObjectFactory, sampleTypeSlaveServerPlugin,
+                        dataSetTypeSlaveServerPlugin);
         genericServer.commonServer = commonServer;
         return genericServer;
     }
@@ -248,7 +249,15 @@ public final class GenericServerTest extends AbstractServerTestCase
         newSamples.add(createNewSample("same"));
         newSamples.add(createNewSample("same"));
         List<NewSamplesWithTypes> samplesWithTypes = new ArrayList<NewSamplesWithTypes>();
-        samplesWithTypes.add(new NewSamplesWithTypes(new SampleType(), newSamples));
+        final NewSamplesWithTypes newSamplesWithType = new NewSamplesWithTypes(new SampleType(), newSamples);
+        samplesWithTypes.add(newSamplesWithType);
+        context.checking(new Expectations()
+            {
+                {
+                    one(propertiesBatchManager).manageProperties(newSamplesWithType);
+                }
+            });
+        
         try
         {
             server.registerSamples(SESSION_TOKEN, samplesWithTypes);
@@ -271,7 +280,8 @@ public final class GenericServerTest extends AbstractServerTestCase
         newSamples.add(createNewSample("one"));
         newSamples.add(createNewSample("two"));
         List<NewSamplesWithTypes> samplesWithTypes = new ArrayList<NewSamplesWithTypes>();
-        samplesWithTypes.add(new NewSamplesWithTypes(sampleType, newSamples));
+        final NewSamplesWithTypes newSamplesWithType = new NewSamplesWithTypes(sampleType, newSamples);
+        samplesWithTypes.add(newSamplesWithType);
         context.checking(new Expectations()
             {
                 {
@@ -279,6 +289,8 @@ public final class GenericServerTest extends AbstractServerTestCase
                     will(returnValue(sampleTypePE));
 
                     one(sampleTypeSlaveServerPlugin).registerSamples(SESSION, newSamples, null);
+                    
+                    one(propertiesBatchManager).manageProperties(newSamplesWithType);
                 }
             });
         createServer().registerOrUpdateSamples(SESSION_TOKEN, samplesWithTypes);
@@ -296,7 +308,9 @@ public final class GenericServerTest extends AbstractServerTestCase
         newSamples.add(createNewSample("one"));
         newSamples.add(createNewSample("two"));
         List<NewSamplesWithTypes> samplesWithTypes = new ArrayList<NewSamplesWithTypes>();
-        samplesWithTypes.add(new NewSamplesWithTypes(sampleType, newSamples));
+        final NewSamplesWithTypes newSamplesWithType =
+                new NewSamplesWithTypes(sampleType, newSamples);
+        samplesWithTypes.add(newSamplesWithType);
         context.checking(new Expectations()
             {
                 {
@@ -304,6 +318,8 @@ public final class GenericServerTest extends AbstractServerTestCase
                     will(returnValue(sampleTypePE));
 
                     one(sampleTypeSlaveServerPlugin).registerSamples(SESSION, newSamples, null);
+                    
+                    one(propertiesBatchManager).manageProperties(newSamplesWithType);
                 }
             });
         createServer().registerSamples(SESSION_TOKEN, samplesWithTypes);
