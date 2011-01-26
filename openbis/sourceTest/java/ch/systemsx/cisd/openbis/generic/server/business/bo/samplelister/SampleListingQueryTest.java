@@ -38,7 +38,7 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.ExperimentProjectGroupCodeRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.ExperimentProjectSpaceCodeRecord;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -57,7 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
  * @author Bernd Rinn
  */
 @Friend(toClasses =
-    { SampleRecord.class, ExperimentProjectGroupCodeRecord.class, ISampleListingQuery.class,
+    { SampleRecord.class, ExperimentProjectSpaceCodeRecord.class, ISampleListingQuery.class,
             SampleListerDAO.class, SampleRelationRecord.class })
 @Test(groups =
     { "db", "sample" })
@@ -258,7 +258,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
     public void testQueryGroupSamples()
     {
         int sampleCount = 0;
-        for (SampleRecord sample : query.getListableGroupSamples(dbInstanceId, groupCode))
+        for (SampleRecord sample : query.getListableSpaceSamples(dbInstanceId, groupCode))
         {
             final String msg = "id: " + sample.id;
             final SampleRecord sample2 = query.getSample(sample.id);
@@ -274,7 +274,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
     {
         long sampleTypeId = getSampleTypeId(SAMPLE_TYPE_CODE_CELL_PLATE);
         List<SampleRecord> samples =
-                asList(query.getGroupSamplesForSampleType(dbInstanceId, groupCode, sampleTypeId));
+                asList(query.getSpaceSamplesForSampleType(dbInstanceId, groupCode, sampleTypeId));
         assertTrue(samples.size() >= 15);
         SampleRecord sample = findCode(samples, "CP-TEST-1");
         assertEquals(18, sample.expe_id.longValue());
@@ -315,7 +315,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
     public void testQueryGroupWithExperimentSamples()
     {
         int sampleCount = 0;
-        for (SampleRecord sample : query.getGroupSamplesWithExperiment(dbInstanceId, groupCode))
+        for (SampleRecord sample : query.getSpaceSamplesWithExperiment(dbInstanceId, groupCode))
         {
             final String msg = "id: " + sample.id;
             final SampleRecord sample2 = query.getSample(sample.id);

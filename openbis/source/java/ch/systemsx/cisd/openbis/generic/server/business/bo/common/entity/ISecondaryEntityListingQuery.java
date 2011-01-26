@@ -53,7 +53,7 @@ public interface ISecondaryEntityListingQuery extends TransactionQuery
             + "p.code as p_code, p.id as p_id, g.code as g_code, g.dbin_id as dbin_id from experiments e "
             + "join experiment_types et on e.exty_id=et.id join projects p on e.proj_id=p.id "
             + "join spaces g on p.space_id=g.id where e.id=?{1}")
-    public ExperimentProjectGroupCodeRecord getExperimentAndProjectAndGroupCodeForId(
+    public ExperimentProjectSpaceCodeRecord getExperimentAndProjectAndGroupCodeForId(
             long experimentId);
 
     //

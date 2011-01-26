@@ -52,7 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DatabaseInstanceTransl
  * @author Tomasz Pylak
  */
 @Friend(toClasses =
-    { SampleReferenceRecord.class, ExperimentProjectGroupCodeRecord.class,
+    { SampleReferenceRecord.class, ExperimentProjectSpaceCodeRecord.class,
             ISecondaryEntityListingQuery.class })
 public class SecondaryEntityDAO
 {
@@ -88,7 +88,7 @@ public class SecondaryEntityDAO
 
     public Experiment tryGetExperiment(final long experimentId)
     {
-        final ExperimentProjectGroupCodeRecord record =
+        final ExperimentProjectSpaceCodeRecord record =
                 query.getExperimentAndProjectAndGroupCodeForId(experimentId);
         if (record == null)
         {
@@ -98,14 +98,14 @@ public class SecondaryEntityDAO
     }
 
     private Experiment tryCreateExperiment(final long experimentId,
-            final ExperimentProjectGroupCodeRecord record)
+            final ExperimentProjectSpaceCodeRecord record)
     {
         if (record.dbin_id.equals(databaseInstance.getId()) == false)
         {
             return null; // experiment is connected (through group) with different db instance
         }
         final Space space = new Space();
-        space.setCode(record.g_code);
+        space.setCode(record.s_code);
         space.setInstance(databaseInstance);
 
         final Experiment experiment = new Experiment();

@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityProperti
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesEnricher;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesHolderResolver;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.AbstractLister;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.ExperimentProjectGroupCodeRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.ExperimentProjectSpaceCodeRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
@@ -76,7 +76,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  * @author Bernd Rinn
  */
 @Friend(toClasses =
-    { ExperimentProjectGroupCodeRecord.class, SampleRecord.class, SampleRelationRecord.class,
+    { ExperimentProjectSpaceCodeRecord.class, SampleRecord.class, SampleRelationRecord.class,
             ISampleListingQuery.class })
 final class SampleListingWorker extends AbstractLister
 {
@@ -222,7 +222,7 @@ final class SampleListingWorker extends AbstractLister
         retrievePrimaryBasicSamples(tryGetIteratorForSamplesByIds());
         retrievePrimaryBasicSamples(tryGetIteratorForSamplesByCodes());
         retrievePrimaryBasicSamples(tryGetIteratorForSamplesByPermIds());
-        retrievePrimaryBasicSamples(tryGetIteratorForGroupSamples());
+        retrievePrimaryBasicSamples(tryGetIteratorForSpaceSamples());
         retrievePrimaryBasicSamples(tryGetIteratorForSharedSamples());
         retrievePrimaryBasicSamples(tryGetIteratorForExperimentSamples());
         retrievePrimaryBasicSamples(tryGetIteratorForContainedSamples());
@@ -372,7 +372,7 @@ final class SampleListingWorker extends AbstractLister
         return query.getSamplesForPermIds(permIds);
     }
 
-    private Iterable<SampleRecord> tryGetIteratorForGroupSamples()
+    private Iterable<SampleRecord> tryGetIteratorForSpaceSamples()
     {
         if (criteria.isIncludeSpace() == false)
         {
@@ -382,64 +382,64 @@ final class SampleListingWorker extends AbstractLister
         {
             if (singleSampleTypeMode)
             {
-                return getGroupSampleForSampleTypeWithExperiment();
+                return getSpaceSampleForSampleTypeWithExperiment();
             } else
             {
-                return getGroupSamplesWithExperiment();
+                return getSpaceSamplesWithExperiment();
             }
         } else
         {
             if (singleSampleTypeMode)
             {
-                return getGroupSamplesForSampleType();
+                return getSpaceSamplesForSampleType();
             } else
             {
-                return getGroupSamples();
+                return getSpaceSamples();
             }
         }
     }
 
-    private DataIterator<SampleRecord> getGroupSamples()
+    private DataIterator<SampleRecord> getSpaceSamples()
     {
         String groupCode = criteria.getSpaceCode();
         if (groupCode == null)
         {
-            return query.getAllListableGroupSamples(databaseInstanceId);
+            return query.getAllListableSpaceSamples(databaseInstanceId);
         }
-        return query.getListableGroupSamples(databaseInstanceId, groupCode);
+        return query.getListableSpaceSamples(databaseInstanceId, groupCode);
     }
 
-    private Iterable<SampleRecord> getGroupSamplesForSampleType()
+    private Iterable<SampleRecord> getSpaceSamplesForSampleType()
     {
         final long sampleTypeId = getSampleTypeId();
         String groupCode = criteria.getSpaceCode();
         if (groupCode == null)
         {
-            return query.getAllGroupSamplesForSampleType(databaseInstanceId, sampleTypeId);
+            return query.getAllSpaceSamplesForSampleType(databaseInstanceId, sampleTypeId);
         }
-        return query.getGroupSamplesForSampleType(databaseInstanceId, groupCode, sampleTypeId);
+        return query.getSpaceSamplesForSampleType(databaseInstanceId, groupCode, sampleTypeId);
     }
 
-    private DataIterator<SampleRecord> getGroupSamplesWithExperiment()
+    private DataIterator<SampleRecord> getSpaceSamplesWithExperiment()
     {
         String groupCode = criteria.getSpaceCode();
         if (groupCode == null)
         {
-            return query.getAllGroupSamplesWithExperiment(databaseInstanceId);
+            return query.getAllSpaceSamplesWithExperiment(databaseInstanceId);
         }
-        return query.getGroupSamplesWithExperiment(databaseInstanceId, groupCode);
+        return query.getSpaceSamplesWithExperiment(databaseInstanceId, groupCode);
     }
 
-    private DataIterator<SampleRecord> getGroupSampleForSampleTypeWithExperiment()
+    private DataIterator<SampleRecord> getSpaceSampleForSampleTypeWithExperiment()
     {
         final long sampleTypeId = getSampleTypeId();
         String groupCode = criteria.getSpaceCode();
         if (groupCode == null)
         {
-            return query.getAllGroupSamplesForSampleTypeWithExperiment(databaseInstanceId,
+            return query.getAllSpaceSamplesForSampleTypeWithExperiment(databaseInstanceId,
                     sampleTypeId);
         }
-        return query.getGroupSamplesForSampleTypeWithExperiment(databaseInstanceId, groupCode,
+        return query.getSpaceSamplesForSampleTypeWithExperiment(databaseInstanceId, groupCode,
                 sampleTypeId);
     }
 

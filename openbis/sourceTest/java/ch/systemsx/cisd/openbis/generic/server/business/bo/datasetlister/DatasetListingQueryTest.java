@@ -39,7 +39,7 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.utilities.Counters;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.ExperimentProjectGroupCodeRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.ExperimentProjectSpaceCodeRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
@@ -56,7 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
  * @author Tomasz Pylak
  */
 @Friend(toClasses =
-    { DatasetRecord.class, ExperimentProjectGroupCodeRecord.class, IDatasetListingQuery.class,
+    { DatasetRecord.class, ExperimentProjectSpaceCodeRecord.class, IDatasetListingQuery.class,
             DatasetListerDAO.class })
 @Test(groups =
     { "db", "dataset" })

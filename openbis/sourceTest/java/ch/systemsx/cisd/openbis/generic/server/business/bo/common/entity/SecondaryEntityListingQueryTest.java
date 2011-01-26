@@ -47,7 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
  * @author Tomasz Pylak
  */
 @Friend(toClasses =
-    { ExperimentProjectGroupCodeRecord.class, ISecondaryEntityListingQuery.class,
+    { ExperimentProjectSpaceCodeRecord.class, ISecondaryEntityListingQuery.class,
             SecondaryEntityDAO.class })
 @Test(groups =
     { "db", "misc" })
