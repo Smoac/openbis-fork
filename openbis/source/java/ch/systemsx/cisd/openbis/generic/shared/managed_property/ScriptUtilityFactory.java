@@ -1,12 +1,12 @@
-package ch.systemsx.cisd.openbis.generic.shared.managed_property.api;
+package ch.systemsx.cisd.openbis.generic.shared.managed_property;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ValidationException;
-import ch.systemsx.cisd.openbis.generic.shared.managed_property.SimpleTableModelBuilderAdaptor;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTableModelBuilderAdaptor;
 
 /**
  * This utility class with function to be used by jython scripts for managed properties.
  * <p>
- * All methods of this class are part of the Managed Properties API.
+ * All public methods of this class are part of the Managed Properties API.
  */
 public class ScriptUtilityFactory
 {

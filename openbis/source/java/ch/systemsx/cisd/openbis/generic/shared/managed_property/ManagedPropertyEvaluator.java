@@ -28,7 +28,6 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
-import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ScriptUtilityFactory;
 
 /**
  * Class for evaluating scripts that control managed properties.

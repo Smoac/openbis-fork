@@ -16,14 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto.api;
 
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * Exception thrown by jython scripts in case of invalid input.
  *
  * @author Franz-Josef Elmer
  */
-public class ValidationException extends UserFailureException
+public class ValidationException extends RuntimeException
 {
     private static final long serialVersionUID = 1L;
 

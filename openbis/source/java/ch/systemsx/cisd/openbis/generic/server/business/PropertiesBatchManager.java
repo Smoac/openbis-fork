@@ -24,6 +24,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import ch.systemsx.cisd.common.evaluator.EvaluatorException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -108,7 +109,7 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
                         Throwable cause = ex.getCause();
                         if (cause instanceof ValidationException)
                         {
-                            throw new ValidationException("Error in row " + (i + 1) + ": "
+                            throw new UserFailureException("Error in row " + (i + 1) + ": "
                                     + cause.getMessage());
                         }
                         entityProperty.setValue(BasicConstant.ERROR_PROPERTY_PREFIX
