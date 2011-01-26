@@ -3,7 +3,9 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * Description of one plate-based screening dataset.
@@ -22,6 +24,8 @@ public class DatasetReference extends DatasetIdentifier implements Serializable
 
     private Date registrationDate;
 
+    private Map<String, String> properties = Collections.<String, String> emptyMap();
+
     @Deprecated
     public DatasetReference(String datasetCode, String datastoreServerUrl, PlateIdentifier plate)
     {
@@ -32,18 +36,22 @@ public class DatasetReference extends DatasetIdentifier implements Serializable
     public DatasetReference(String datasetCode, String datastoreServerUrl, PlateIdentifier plate,
             Geometry plateGeometry, Date registrationDate)
     {
-        this(datasetCode, datastoreServerUrl, plate, null, plateGeometry, registrationDate);
+        this(datasetCode, datastoreServerUrl, plate, null, plateGeometry, registrationDate, null);
     }
 
     public DatasetReference(String datasetCode, String datastoreServerUrl,
             PlateIdentifier plateWithExperiment, ExperimentIdentifier experiment,
-            Geometry plateGeometry, Date registrationDate)
+            Geometry plateGeometry, Date registrationDate, Map<String, String> propertiesOrNull)
     {
         super(datasetCode, datastoreServerUrl);
         this.plate = plateWithExperiment;
         this.experimentIdentifier = (experiment == null) ? createFakeExperiment(plate) : experiment;
         this.plateGeometry = plateGeometry;
         this.registrationDate = registrationDate;
+        if (propertiesOrNull != null)
+        {
+            this.properties = Collections.unmodifiableMap(propertiesOrNull);
+        }
     }
 
     private static ExperimentIdentifier createFakeExperiment(PlateIdentifier plate)
@@ -84,6 +92,11 @@ public class DatasetReference extends DatasetIdentifier implements Serializable
     public ExperimentIdentifier getExperimentIdentifier()
     {
         return experimentIdentifier;
+    }
+
+    public Map<String, String> getProperties()
+    {
+        return properties;
     }
 
     // Special method for customizing Java deserialization.

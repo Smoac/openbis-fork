@@ -481,7 +481,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return new FeatureVectorDatasetWellReference(fvdr.getDatasetCode(),
                 fvdr.getDatastoreServerUrl(), fvdr.getPlate(), fvdr.getExperimentIdentifier(),
                 fvdr.getPlateGeometry(), fvdr.getRegistrationDate(), fvdr.getParentImageDataset(),
-                wellPosition);
+                fvdr.getProperties(), wellPosition);
     }
 
     public List<FeatureVectorWithDescription> loadFeaturesForDatasetWellReferences(

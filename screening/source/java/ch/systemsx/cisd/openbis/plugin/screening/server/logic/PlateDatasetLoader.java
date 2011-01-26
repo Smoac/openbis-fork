@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -225,6 +226,23 @@ class PlateDatasetLoader
         }
         throw new UserFailureException("Sample '" + sample.getIdentifier() + "' has no property "
                 + ScreeningConstants.PLATE_GEOMETRY);
+    }
+    
+    protected Map<String, String> extractProperties(ExternalData dataSet)
+    {
+        final Map<String, String> properties = new HashMap<String, String>();
+        if (dataSet.getProperties() != null)
+        {
+            for (IEntityProperty prop : dataSet.getProperties())
+            {
+                final String value = prop.tryGetAsString();
+                if (value != null)
+                {
+                    properties.put(prop.getPropertyType().getCode(), value);
+                }
+            }
+        }
+        return properties;
     }
 
     private Sample getSample(ExternalData dataset)

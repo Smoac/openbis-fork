@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
 import java.util.Date;
+import java.util.Map;
 
 /**
  * Reference to one well in a feature vector dataset.
@@ -44,16 +45,17 @@ public class FeatureVectorDatasetWellReference extends FeatureVectorDatasetRefer
     {
         this(fvdr.getDatasetCode(), fvdr.getDatastoreServerUrl(), fvdr.getPlate(), fvdr
                 .getExperimentIdentifier(), fvdr.getPlateGeometry(), fvdr.getRegistrationDate(),
-                fvdr.getParentImageDataset(), wellPosition);
+                fvdr.getParentImageDataset(), fvdr.getProperties(), wellPosition);
     }
 
     public FeatureVectorDatasetWellReference(String datasetCode, String datastoreServerUrl,
             PlateIdentifier plate, ExperimentIdentifier experimentIdentifier,
             Geometry plateGeometry, Date registrationDate,
-            IImageDatasetIdentifier imageDatasetIdentifier, WellPosition wellPosition)
+            IImageDatasetIdentifier imageDatasetIdentifier, Map<String, String> propertiesOrNull,
+            WellPosition wellPosition)
     {
         super(datasetCode, datastoreServerUrl, plate, experimentIdentifier, plateGeometry,
-                registrationDate, imageDatasetIdentifier);
+                registrationDate, imageDatasetIdentifier, propertiesOrNull);
         this.wellPosition = wellPosition;
     }
 

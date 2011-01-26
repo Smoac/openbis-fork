@@ -601,7 +601,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
 
     private FeatureVectorDatasetReference createFeatureVectorDatasetReference(String dataSetCode)
     {
-        return new FeatureVectorDatasetReference(dataSetCode, "", null, null, null, null, null);
+        return new FeatureVectorDatasetReference(dataSetCode, "", null, null, null, null, null, null);
     }
 
     // Used for the authorization test

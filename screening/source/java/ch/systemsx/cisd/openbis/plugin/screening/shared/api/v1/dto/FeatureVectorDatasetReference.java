@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
 import java.util.Date;
+import java.util.Map;
 
 /**
  * Description of one feature vector dataset.
@@ -42,10 +43,11 @@ public class FeatureVectorDatasetReference extends DatasetReference implements
     public FeatureVectorDatasetReference(String datasetCode, String datastoreServerUrl,
             PlateIdentifier plate, ExperimentIdentifier experimentIdentifier,
             Geometry plateGeometry, Date registrationDate,
-            IImageDatasetIdentifier imageDatasetIdentifierOrNull)
+            IImageDatasetIdentifier imageDatasetIdentifierOrNull,
+            Map<String, String> propertiesOrNull)
     {
         super(datasetCode, datastoreServerUrl, plate, experimentIdentifier, plateGeometry,
-                registrationDate);
+                registrationDate, propertiesOrNull);
         this.imageDatasetIdentifierOrNull = imageDatasetIdentifierOrNull;
     }
 

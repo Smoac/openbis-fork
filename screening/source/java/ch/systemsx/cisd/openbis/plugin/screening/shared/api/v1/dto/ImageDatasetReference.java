@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
 import java.util.Date;
+import java.util.Map;
 
 /**
  * Description of one image dataset.
@@ -43,9 +44,9 @@ public class ImageDatasetReference extends DatasetReference implements IImageDat
 
     public ImageDatasetReference(String datasetCode, String datastoreServerUrl,
             PlateIdentifier plate, ExperimentIdentifier experimentIdentifier,
-            Geometry plateGemoetry, Date registrationDate)
+            Geometry plateGemoetry, Date registrationDate, Map<String, String> propertiesOrNull)
     {
         super(datasetCode, datastoreServerUrl, plate, experimentIdentifier, plateGemoetry,
-                registrationDate);
+                registrationDate, propertiesOrNull);
     }
 }
