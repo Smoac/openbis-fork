@@ -79,7 +79,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedTableWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -100,6 +99,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
@@ -126,7 +126,8 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             final AsyncCallback<TypedTableResultSet<Script>> asyncCallback);
 
     /** @see ICommonClientService#prepareExportScripts(TableExportCriteria) */
-    public void prepareExportScripts(TableExportCriteria<TableModelRowWithObject<Script>> exportCriteria,
+    public void prepareExportScripts(
+            TableExportCriteria<TableModelRowWithObject<Script>> exportCriteria,
             AsyncCallback<String> callback);
 
     /** @see ICommonClientService#prepareExportGroups(TableExportCriteria) */
@@ -683,9 +684,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<TableModelReference> callback);
 
     /**
-     * @see ICommonClientService#createReportForManagedProperty(ManagedTableWidgetDescription)
+     * @see ICommonClientService#createReportFromTableModel(TableModel)
      */
-    public void createReportForManagedProperty(ManagedTableWidgetDescription tableDescription,
+    public void createReportFromTableModel(TableModel tableModel,
             AsyncCallback<TableModelReference> callback);
 
     /**

@@ -129,7 +129,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedTableWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -2164,12 +2163,10 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public TableModelReference createReportForManagedProperty(
-            ManagedTableWidgetDescription tableDescription)
+    public TableModelReference createReportFromTableModel(TableModel tableModel)
     {
         try
         {
-            final TableModel tableModel = tableDescription.getTableModel();
             String resultSetKey = saveInCache(tableModel);
             return new TableModelReference(resultSetKey, tableModel.getHeader());
         } catch (final UserFailureException e)

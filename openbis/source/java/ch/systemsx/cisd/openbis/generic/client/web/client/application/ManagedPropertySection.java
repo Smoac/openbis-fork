@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IManagedPropertyGridInformationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedTableWidgetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedOutputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiDescription;
@@ -112,7 +113,7 @@ public class ManagedPropertySection extends DisposableTabContent
     {
         try
         {
-            final ManagedTableWidgetDescription tableDescription = getTableDescription();
+            final TableModel tableModel = extractTableModel();
             final IManagedPropertyGridInformationProvider gridInfo =
                     new IManagedPropertyGridInformationProvider()
                         {
@@ -136,8 +137,7 @@ public class ManagedPropertySection extends DisposableTabContent
             AsyncCallback<TableModelReference> callback =
                     ManagedPropertyGridGeneratedCallback.create(viewContext.getCommonViewContext(),
                             entity, managedProperty, gridInfo, gridGeneratedAction, refreshAction);
-            viewContext.getCommonService().createReportForManagedProperty(tableDescription,
-                    callback);
+            viewContext.getCommonService().createReportFromTableModel(tableModel, callback);
             return null;
         } catch (UserFailureException ex)
         {
@@ -155,12 +155,12 @@ public class ManagedPropertySection extends DisposableTabContent
         }
     }
 
-    private ManagedTableWidgetDescription getTableDescription() throws UserFailureException
+    private TableModel extractTableModel() throws UserFailureException
     {
         final IManagedUiDescription uiDescription = managedProperty.getUiDescription();
         if (uiDescription == null)
         {
-            throwFailToCreateContentException("uiDescription was not set in IManagedProperty object");
+            throwFailToCreateContentException("UiDescription was not set in IManagedProperty object");
             return null; // make eclipse happy
         } else
         {
@@ -186,7 +186,15 @@ public class ManagedPropertySection extends DisposableTabContent
             {
                 throwFailToCreateContentException("IManagedOutputWidgetDescription should be a subclass of ManagedTableWidgetDescription");
             }
-            return (ManagedTableWidgetDescription) uiDescription.getOutputWidgetDescription();
+
+            final ManagedTableWidgetDescription tableDescription =
+                    (ManagedTableWidgetDescription) uiDescription.getOutputWidgetDescription();
+            final TableModel result = tableDescription.getTableModel();
+            if (tableDescription.getTableModel() == null)
+            {
+                throwFailToCreateContentException("TableModel was not set in ManagedTableWidgetDescription object");
+            }
+            return result;
         }
 
     }

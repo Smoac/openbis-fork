@@ -77,7 +77,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedTableWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -98,6 +97,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
@@ -134,12 +134,14 @@ public interface ICommonClientService extends IClientService
     /**
      * Returns a list of all scripts.
      */
-    public TypedTableResultSet<Script> listScripts(ListScriptsCriteria criteria) throws UserFailureException;
+    public TypedTableResultSet<Script> listScripts(ListScriptsCriteria criteria)
+            throws UserFailureException;
 
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for scripts.
      */
-    public String prepareExportScripts(final TableExportCriteria<TableModelRowWithObject<Script>> criteria)
+    public String prepareExportScripts(
+            final TableExportCriteria<TableModelRowWithObject<Script>> criteria)
             throws UserFailureException;
 
     /**
@@ -787,10 +789,10 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
-     * Uses the specified table description to generate a table/report.
+     * Uses the specified table model to generate a table/report.
      */
-    public TableModelReference createReportForManagedProperty(
-            ManagedTableWidgetDescription tableDescription) throws UserFailureException;
+    public TableModelReference createReportFromTableModel(TableModel tableModel)
+            throws UserFailureException;
 
     /**
      * Returns a list of report rows.
