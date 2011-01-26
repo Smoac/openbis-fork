@@ -94,6 +94,11 @@ public class DatasetReference extends DatasetIdentifier implements Serializable
         return experimentIdentifier;
     }
 
+    /**
+     * Returns the data set properties.
+     * 
+     * @since 1.5
+     */
     public Map<String, String> getProperties()
     {
         return properties;

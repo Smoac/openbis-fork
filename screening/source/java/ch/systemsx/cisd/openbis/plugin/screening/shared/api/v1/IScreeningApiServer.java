@@ -95,6 +95,19 @@ public interface IScreeningApiServer extends IRpcService
     List<Plate> listPlates(String sessionToken) throws IllegalArgumentException;
 
     /**
+     * Return the list of all plates assigned to the given experiment.
+     * 
+     * @since 1.5
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @MinimalMinorVersion(5)
+    List<Plate> listPlates(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = ExperimentIdentifierPredicate.class) ExperimentIdentifier experiment)
+            throws IllegalArgumentException;
+
+    /**
      * Return the list of all visible experiments, along with their hierarchical context (space,
      * project).
      * 

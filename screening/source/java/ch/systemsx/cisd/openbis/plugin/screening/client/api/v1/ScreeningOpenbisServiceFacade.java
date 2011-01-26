@@ -221,6 +221,31 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return openbisScreeningServer.listPlates(sessionToken);
     }
 
+    /**
+     * Return the list of all plates for the given <var>experiment</var>.
+     */
+    public List<Plate> listPlates(ExperimentIdentifier experiment)
+    {
+        if (hasASMethod("listPlates", ExperimentIdentifier.class))
+        {
+            return openbisScreeningServer.listPlates(sessionToken, experiment);
+        } else
+        {
+            final List<Plate> allPlates = listPlates();
+            final List<Plate> result = new ArrayList<Plate>(allPlates.size());
+            for (Plate plate : allPlates)
+            {
+                if (plate.getExperimentIdentifier().getPermId().equals(experiment.getPermId())
+                        || plate.getExperimentIdentifier().getAugmentedCode()
+                                .equals(experiment.getAugmentedCode()))
+                {
+                    result.add(plate);
+                }
+            }
+            return result;
+        }
+    }
+
     public List<ExperimentIdentifier> listExperiments()
     {
         checkASMinimalMinorVersion("listExperiments");
@@ -894,6 +919,13 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         final int minimalMinorVersion =
                 getMinimalMinorVersion(IDssServiceRpcScreening.class, methodName, parameterTypes);
         return serviceHolder.getMinorVersion() >= minimalMinorVersion;
+    }
+
+    private boolean hasASMethod(final String methodName, final Class<?>... parameterTypes)
+    {
+        final int minimalMinorVersion =
+                getMinimalMinorVersion(IScreeningApiServer.class, methodName, parameterTypes);
+        return minorVersionApplicationServer >= minimalMinorVersion;
     }
 
     private static int getMinimalMinorVersion(final Class<?> clazz, final String methodName,

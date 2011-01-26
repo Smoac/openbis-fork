@@ -127,15 +127,25 @@ public class ScreeningApiImpl
 
     public List<Plate> listPlates()
     {
-        ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
+        final ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
 
-        ListSampleCriteria criteria = new ListSampleCriteria();
+        final ListSampleCriteria criteria = new ListSampleCriteria();
         criteria.setSampleType(loadPlateType());
         criteria.setIncludeSpace(true);
         criteria.setSpaceCode(null);
         criteria.setExcludeWithoutExperiment(true);
 
-        List<Sample> samples = sampleLister.list(new ListOrSearchSampleCriteria(criteria));
+        final List<Sample> samples = sampleLister.list(new ListOrSearchSampleCriteria(criteria));
+        return asPlates(samples);
+    }
+
+    public List<Plate> listPlates(ExperimentIdentifier experiment)
+    {
+        final TechId experimentId = getExperimentTechId(experiment);
+        final ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
+        final ListSampleCriteria criteria = ListSampleCriteria.createForExperiment(experimentId);
+
+        final List<Sample> samples = sampleLister.list(new ListOrSearchSampleCriteria(criteria));
         return asPlates(samples);
     }
 
@@ -144,7 +154,11 @@ public class ScreeningApiImpl
         final List<Plate> plates = new ArrayList<Plate>();
         for (Sample sample : samples)
         {
-            plates.add(asPlate(sample));
+            if (ScreeningConstants.PLATE_PLUGIN_TYPE_CODE
+                    .equals(sample.getEntityType().getCode()))
+            {
+                plates.add(asPlate(sample));
+            }
         }
         Collections.sort(plates, new Comparator<Plate>()
             {
@@ -614,6 +628,52 @@ public class ScreeningApiImpl
             return asExperimentIdentifier(experimentPE);
         }
 
+    }
+
+    private TechId getExperimentTechId(ExperimentIdentifier experimentIdentifierFromUser)
+    {
+        if (experimentIdentifierFromUser.getPermId() != null)
+        {
+            final ExperimentPE experimentPE =
+                    daoFactory.getExperimentDAO().tryGetByPermID(
+                            experimentIdentifierFromUser.getPermId());
+            if (experimentPE == null)
+            {
+                throw UserFailureException.fromTemplate("Experiment '%s' not found",
+                        experimentIdentifierFromUser.getPermId());
+            }
+            return new TechId(experimentPE.getId());
+        } else
+        {
+            final String spaceCode =
+                    SpaceCodeHelper.getSpaceCode(session.tryGetHomeGroupCode(),
+                            experimentIdentifierFromUser.getSpaceCode());
+            if (StringUtils.isEmpty(spaceCode))
+            {
+                throw new UserFailureException(
+                        "Space code is empty but there are no experiments outside a space, "
+                                + "use null to denote your home space.");
+            }
+            final ProjectPE projectPE =
+                    daoFactory.getProjectDAO().tryFindProject(null, spaceCode,
+                            experimentIdentifierFromUser.getProjectCode());
+            if (projectPE == null)
+            {
+                throw UserFailureException.fromTemplate("Project '%s' in space '%s' not found",
+                        experimentIdentifierFromUser.getProjectCode(), spaceCode);
+            }
+            final ExperimentPE experimentPE =
+                    daoFactory.getExperimentDAO().tryFindByCodeAndProject(projectPE,
+                            experimentIdentifierFromUser.getExperimentCode());
+            if (experimentPE == null)
+            {
+                throw UserFailureException.fromTemplate(
+                        "Experiment '%s' in project '%s', space '%s' not found",
+                        experimentIdentifierFromUser.getExperimentCode(),
+                        experimentIdentifierFromUser.getProjectCode(), spaceCode);
+            }
+            return new TechId(experimentPE.getId());
+        }
     }
 
     private static Map<String, DatasetReferenceHolder> createPlateToDatasetsMap(

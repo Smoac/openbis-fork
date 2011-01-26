@@ -73,6 +73,11 @@ public interface IScreeningOpenbisServiceFacade
     public List<Plate> listPlates();
 
     /**
+     * Return the list of all plates for the given <var>experiment</var>.
+     */
+    public List<Plate> listPlates(ExperimentIdentifier experiment);
+
+    /**
      * Return the list of all visible experiments, along with their hierarchical context (space,
      * project).
      */

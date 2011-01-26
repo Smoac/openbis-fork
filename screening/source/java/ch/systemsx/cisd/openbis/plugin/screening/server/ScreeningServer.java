@@ -71,6 +71,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.server.logic.WellContentLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
@@ -102,7 +103,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     /**
      * The minor version of this service.
      */
-    public static final int MINOR_VERSION = 4;
+    public static final int MINOR_VERSION = 5;
 
     private static ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 10, 360,
             TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
@@ -272,6 +273,11 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     public List<Plate> listPlates(String sessionToken)
     {
         return createScreeningApiImpl(sessionToken).listPlates();
+    }
+
+    public List<Plate> listPlates(String sessionToken, ExperimentIdentifier experiment)
+    {
+        return createScreeningApiImpl(sessionToken).listPlates(experiment);
     }
 
     public List<ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier> listExperiments(
