@@ -26,9 +26,11 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IScriptUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluator;
 
 /**
  * The only productive implementation of {@link IScriptBO}. We are using an interface here to keep
@@ -98,7 +100,7 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
         assert script != null : "Script not defined";
         try
         {
-            checkScriptCompilation(script.getScript());
+            checkScriptCompilation(script.getScriptType(), script.getScript());
             getScriptDAO().createOrUpdate(script);
         } catch (final DataAccessException e)
         {
@@ -129,7 +131,7 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
         {
             scriptChanged = true;
             script.setScript(updates.getScript());
-            checkScriptCompilation(updates.getScript());
+            checkScriptCompilation(script.getScriptType(), updates.getScript());
         }
         getScriptDAO().createOrUpdate(script);
 
@@ -144,9 +146,14 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
         }
     }
 
-    private void checkScriptCompilation(String scriptExpression)
+    private void checkScriptCompilation(ScriptType scriptType, String scriptExpression)
     {
         Evaluator.checkScriptCompilation(scriptExpression);
+        if (scriptType == ScriptType.MANAGED_PROPERTY)
+        {
+            ManagedPropertyEvaluator evalutor = new ManagedPropertyEvaluator(scriptExpression);
+            evalutor.assertBatchColumnNamesAreUppercase();
+        }
     }
 
 }

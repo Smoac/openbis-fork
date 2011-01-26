@@ -92,6 +92,35 @@ public class ManagedPropertyEvaluator
         evaluator.evalFunction(UPDATE_VALUE_EXPRESSION);
     }
     
+    public void assertBatchColumnNamesAreUppercase()
+    {
+        if (hasBatchColumnNamesFunction())
+        {
+            
+            List<String> batchColumnNames = getBatchColumnNames();
+            List<String> notUpperCaseNames = new ArrayList<String>();
+            for (String name : batchColumnNames)
+            {
+                if (name.toUpperCase().equals(name) == false)
+                {
+                    notUpperCaseNames.add(name);
+                }
+            }
+            if (notUpperCaseNames.isEmpty() == false)
+            {
+                throw new EvaluatorException(
+                        "The following batch column names as returned by function '"
+                                + BATCH_COLUMN_NAMES_FUNCTION + "' are not in uupper case: "
+                                + notUpperCaseNames);
+            }
+        }
+    }
+    
+    public boolean hasBatchColumnNamesFunction()
+    {
+        return evaluator.hasFunction(BATCH_COLUMN_NAMES_FUNCTION);
+    }
+    
     public List<String> getBatchColumnNames()
     {
         Object result = evaluator.evalFunction(BATCH_COLUMN_NAMES_FUNCTION);

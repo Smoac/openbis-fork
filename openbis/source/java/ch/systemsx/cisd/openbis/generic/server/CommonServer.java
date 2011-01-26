@@ -1707,11 +1707,17 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 {
                     String script = etpt.getScript().getScript();
                     ManagedPropertyEvaluator evaluator = new ManagedPropertyEvaluator(script);
-                    List<String> batchColumnNames = evaluator.getBatchColumnNames();
-                    Collections.sort(batchColumnNames);
-                    for (String name : batchColumnNames)
+                    if (evaluator.hasBatchColumnNamesFunction())
                     {
-                        columns.add(code + ':' + name);
+                        List<String> batchColumnNames = evaluator.getBatchColumnNames();
+                        Collections.sort(batchColumnNames);
+                        for (String name : batchColumnNames)
+                        {
+                            columns.add(code + ':' + name);
+                        }
+                    } else
+                    {
+                        columns.add(code);
                     }
                 } else
                 {
