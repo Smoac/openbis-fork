@@ -158,8 +158,10 @@ public final class CommonServerTest extends AbstractServerTestCase
                     builder.assign("DYNAMIC-PROP").script(ScriptType.DYNAMIC_PROPERTY, "");
                     builder.assign("MANAGED-PROP-NO-SUBCOLUMNS").script(
                             ScriptType.MANAGED_PROPERTY, "");
-                    builder.assign("MANAGED-PROP-SUBCOLUMNS").script(ScriptType.MANAGED_PROPERTY,
-                            "def batchColumnNames():\n  return ['A', 'B']");
+                    builder.assign("MANAGED-PROP-SUBCOLUMNS").script(
+                            ScriptType.MANAGED_PROPERTY,
+                            "def batchColumnNames():\n  return ['A', 'B']\n"
+                                    + "def updateFromBatchInput():\n  None");
                     will(returnValue(builder.getExperimentTypePE()));
                 }
             });

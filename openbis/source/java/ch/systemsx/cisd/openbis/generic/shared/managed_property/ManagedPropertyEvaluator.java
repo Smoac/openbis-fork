@@ -17,13 +17,16 @@
 package ch.systemsx.cisd.openbis.generic.shared.managed_property;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.evaluator.Evaluator;
 import ch.systemsx.cisd.common.evaluator.EvaluatorException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedProperty;
@@ -61,11 +64,79 @@ public class ManagedPropertyEvaluator
     
     private static final String PROPERTY_VARIABLE_NAME = "property";
     
+    public static void assertBatchColumnNames(String propertyName, List<String> columnNames,
+            Map<String, String> bindings)
+    {
+        Set<String> names = bindings.keySet();
+        if (columnNames.isEmpty())
+        {
+            if (names.contains("") == false)
+            {
+                throw new UserFailureException("No subcolumns expected for property '"
+                        + propertyName + "': " + names);
+            }
+        } else
+        {
+            List<String> missingColumns = new ArrayList<String>();
+            for (String columnName : columnNames)
+            {
+                if (names.contains(columnName) == false)
+                {
+                    missingColumns.add(propertyName + ":" + columnName);
+                }
+            }
+            if (missingColumns.isEmpty() == false)
+            {
+                throw new UserFailureException("Following columns are missed: " + missingColumns);
+            }
+        }
+    }
+    
     private final Evaluator evaluator;
+
+    private final List<String> columnNames;
+
+    private final boolean updateFromBatchFunctionDefined;
 
     public ManagedPropertyEvaluator(String scriptExpression)
     {
         evaluator = new Evaluator("", ScriptUtilityFactory.class, scriptExpression);
+        updateFromBatchFunctionDefined = evaluator.hasFunction(UPDATE_FROM_BATCH_INPUT_FUNCTION);
+        List<String> names = new ArrayList<String>();
+        if (evaluator.hasFunction(BATCH_COLUMN_NAMES_FUNCTION))
+        {
+            if (updateFromBatchFunctionDefined == false)
+            {
+                throw new EvaluatorException("Function '" + BATCH_COLUMN_NAMES_FUNCTION
+                        + "' defined but not '" + UPDATE_FROM_BATCH_INPUT_FUNCTION + "'.");
+            }
+            Object result = evaluator.evalFunction(BATCH_COLUMN_NAMES_FUNCTION);
+            if (result instanceof List == false)
+            {
+                throw new EvaluatorException("Function '" + BATCH_COLUMN_NAMES_FUNCTION
+                        + "' doesn't return a List but an object of type '"
+                        + result.getClass().getName() + "': " + result);
+            }
+            List<?> list = (List<?>) result;
+            List<String> notUpperCaseNames = new ArrayList<String>();
+            for (Object element : list)
+            {
+                String columnName = element.toString();
+                if (columnName.toUpperCase().equals(columnName) == false)
+                {
+                    notUpperCaseNames.add(columnName);
+                }
+                names.add(columnName);
+            }
+            if (notUpperCaseNames.isEmpty() == false)
+            {
+                throw new EvaluatorException(
+                        "The following batch column names as returned by function '"
+                                + BATCH_COLUMN_NAMES_FUNCTION + "' are not in uupper case: "
+                                + notUpperCaseNames);
+            }
+        }
+        columnNames = Collections.unmodifiableList(names);
     }
 
     public void evalConfigureProperty(IManagedProperty managedProperty)
@@ -92,55 +163,18 @@ public class ManagedPropertyEvaluator
         evaluator.evalFunction(UPDATE_VALUE_EXPRESSION);
     }
     
-    public void assertBatchColumnNamesAreUppercase()
-    {
-        if (hasBatchColumnNamesFunction())
-        {
-            
-            List<String> batchColumnNames = getBatchColumnNames();
-            List<String> notUpperCaseNames = new ArrayList<String>();
-            for (String name : batchColumnNames)
-            {
-                if (name.toUpperCase().equals(name) == false)
-                {
-                    notUpperCaseNames.add(name);
-                }
-            }
-            if (notUpperCaseNames.isEmpty() == false)
-            {
-                throw new EvaluatorException(
-                        "The following batch column names as returned by function '"
-                                + BATCH_COLUMN_NAMES_FUNCTION + "' are not in uupper case: "
-                                + notUpperCaseNames);
-            }
-        }
-    }
-    
-    public boolean hasBatchColumnNamesFunction()
-    {
-        return evaluator.hasFunction(BATCH_COLUMN_NAMES_FUNCTION);
-    }
-    
     public List<String> getBatchColumnNames()
     {
-        Object result = evaluator.evalFunction(BATCH_COLUMN_NAMES_FUNCTION);
-        if (result instanceof List == false)
-        {
-            throw new EvaluatorException("Function '" + BATCH_COLUMN_NAMES_FUNCTION
-                    + "' doesn't return a List but an object of type '"
-                    + result.getClass().getName() + "': " + result);
-        }
-        List<?> list = (List<?>) result;
-        ArrayList<String> columnNames = new ArrayList<String>();
-        for (Object element : list)
-        {
-            columnNames.add(element.toString());
-        }
         return columnNames;
     }
 
-    public String updateFromBatchInput(Map<String, String> bindings)
+    public String updateFromBatchInput(String propertyName, Map<String, String> bindings)
     {
+        assertBatchColumnNames(propertyName, columnNames, bindings);
+        if (updateFromBatchFunctionDefined == false)
+        {
+            return bindings.get("");
+        }
         ManagedProperty property = new ManagedProperty();
         evaluator.set(PROPERTY_VARIABLE_NAME, property);
         evaluator.evalFunction(UPDATE_FROM_BATCH_INPUT_FUNCTION, bindings);

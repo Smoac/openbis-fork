@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,8 +41,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluator;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory;
 
 /**
  * Handles Managed Properties of batch uploads/updates.
@@ -97,12 +98,14 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
                 entityProperty.setPropertyType(propertyType);
                 if (evaluator == null)
                 {
+                    ManagedPropertyEvaluator.assertBatchColumnNames(code,
+                            Collections.<String> emptyList(), bindings);
                     entityProperty.setValue(bindings.get(""));
                 } else
                 {
                     try
                     {
-                        String result = evaluator.updateFromBatchInput(bindings);
+                        String result = evaluator.updateFromBatchInput(code, bindings);
                         entityProperty.setValue(result);
                     } catch (EvaluatorException ex)
                     {
@@ -159,8 +162,10 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
             if (entityTypePropertyType.isManaged())
             {
                 String propertyTypeCode = entityTypePropertyType.getPropertyType().getCode();
-                ScriptPE script = entityTypePropertyType.getScript();
-                evaluators.put(propertyTypeCode, new ManagedPropertyEvaluator(script.getScript()));
+                String script = entityTypePropertyType.getScript().getScript();
+                ManagedPropertyEvaluator evaluator =
+                        ManagedPropertyEvaluatorFactory.createManagedPropertyEvaluator(script);
+                evaluators.put(propertyTypeCode, evaluator);
             }
         }
         return evaluators;

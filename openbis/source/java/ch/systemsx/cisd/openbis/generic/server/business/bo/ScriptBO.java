@@ -151,8 +151,8 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
         Evaluator.checkScriptCompilation(scriptExpression);
         if (scriptType == ScriptType.MANAGED_PROPERTY)
         {
-            ManagedPropertyEvaluator evalutor = new ManagedPropertyEvaluator(scriptExpression);
-            evalutor.assertBatchColumnNamesAreUppercase();
+            // constructor checks script
+            new ManagedPropertyEvaluator(scriptExpression);
         }
     }
 
