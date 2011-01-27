@@ -179,7 +179,7 @@ public class ManagedPropertySection extends DisposableTabContent
             if (outputWidget == null)
             {
                 throwFailToCreateContentException("Output widget was not set in IManagedUiDescription object");
-            } else if (outputWidget.getManagedWidgetType() != ManagedOutputWidgetType.TABLE)
+            } else if (outputWidget.getManagedOutputWidgetType() != ManagedOutputWidgetType.TABLE)
             {
                 throwFailToCreateContentException("IManagedOutputWidgetDescription is not of type ManagedOutputWidgetType.TABLE");
             } else if ((outputWidget instanceof ManagedTableWidgetDescription) == false)
