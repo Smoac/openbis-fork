@@ -105,17 +105,24 @@ public final class Evaluator
         }
         this.interpreter = new PythonInterpreter();
         // Security: do not allow file access.
-        interpreter.exec("def open():\n   pass");
-        if (supportFunctionsOrNull != null)
+        
+        try
         {
-            interpreter.exec("from " + supportFunctionsOrNull.getCanonicalName() + " import *");
-        }
-        if (initialScriptOrNull != null)
+            interpreter.exec("def open():\n   pass");
+            if (supportFunctionsOrNull != null)
+            {
+                interpreter.exec("from " + supportFunctionsOrNull.getCanonicalName() + " import *");
+            }
+            if (initialScriptOrNull != null)
+            {
+                interpreter.exec(initialScriptOrNull);
+            }
+            this.expression = expression;
+            this.compiledExpression = doCompile(expression);
+        } catch (PyException ex)
         {
-            interpreter.exec(initialScriptOrNull);
+            throw toEvaluatorException(ex);
         }
-        this.expression = expression;
-        this.compiledExpression = doCompile(expression);
     }
 
     /**
@@ -433,7 +440,7 @@ public final class Evaluator
         return toEvaluatorException(ex, expression);
     }
 
-    private static EvaluatorException toEvaluatorException(PyException ex, String expression)
+    private static EvaluatorException toEvaluatorException(PyException ex, String expressionOrNull)
     {
         Exception exception = null;
         PyObject value = ex.value;
@@ -445,8 +452,11 @@ public final class Evaluator
                 exception = (Exception) object;
             }
         }
-        final String exMsg = extractExceptionMessage(ex);
-        final String msg = "Error evaluating '" + expression + "': " + exMsg;
+        String msg = extractExceptionMessage(ex);
+        if (expressionOrNull != null)
+        {
+            msg = "Error evaluating '" + expressionOrNull + "': " + msg;
+        }
         return exception == null ? new EvaluatorException(msg) : new EvaluatorException(msg,
                 exception);
     }
