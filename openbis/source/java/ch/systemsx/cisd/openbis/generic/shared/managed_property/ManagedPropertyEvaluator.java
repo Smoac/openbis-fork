@@ -43,28 +43,28 @@ public class ManagedPropertyEvaluator
             ManagedPropertyEvaluator.class);
 
     /**
-     * The name of the script that expects the property to be there and updates ui configuration.
+     * The name of the function that creates ui description
      */
-    private static final String CONFIGURE_UI_EXPRESSION = "configureUI";
+    private static final String CONFIGURE_UI_FUNCTION = "configureUI";
 
     /**
-     * The name of the script that expects the property to be there and updates the value.
+     * The name of the function that updates the value of managed property from ui input fields
      */
-    private static final String UPDATE_VALUE_EXPRESSION = "updateValue";
+    private static final String UPDATE_FROM_UI_FUNCTION = "updateFromUI";
 
     /**
      * The name of the function that returns an array of column names.
      */
     private static final String BATCH_COLUMN_NAMES_FUNCTION = "batchColumnNames";
-    
+
     /**
      * The name of the function that expects a map of bindings.
      */
     private static final String UPDATE_FROM_BATCH_INPUT_FUNCTION = "updateFromBatchInput";
-    
+
     private static final String PROPERTY_VARIABLE_NAME = "property";
-    
-    public static void assertBatchColumnNames(String propertyName, List<String> columnNames,
+
+ 	public static void assertBatchColumnNames(String propertyName, List<String> columnNames,
             Map<String, String> bindings)
     {
         Set<String> names = bindings.keySet();
@@ -91,7 +91,7 @@ public class ManagedPropertyEvaluator
             }
         }
     }
-    
+
     private final Evaluator evaluator;
 
     private final List<String> columnNames;
@@ -139,7 +139,7 @@ public class ManagedPropertyEvaluator
         columnNames = Collections.unmodifiableList(names);
     }
 
-    public void evalConfigureProperty(IManagedProperty managedProperty)
+    public void configureUI(IManagedProperty managedProperty)
     {
         if (operationLog.isDebugEnabled())
         {
@@ -148,10 +148,10 @@ public class ManagedPropertyEvaluator
         }
 
         evaluator.set(PROPERTY_VARIABLE_NAME, managedProperty);
-        evaluator.evalFunction(CONFIGURE_UI_EXPRESSION);
+        evaluator.evalFunction(CONFIGURE_UI_FUNCTION);
     }
 
-    public void evaluateUpdateProperty(IManagedProperty managedProperty)
+    public void updateFromUI(IManagedProperty managedProperty)
     {
         if (operationLog.isDebugEnabled())
         {
@@ -160,15 +160,15 @@ public class ManagedPropertyEvaluator
         }
 
         evaluator.set(PROPERTY_VARIABLE_NAME, managedProperty);
-        evaluator.evalFunction(UPDATE_VALUE_EXPRESSION);
+        evaluator.evalFunction(UPDATE_FROM_UI_FUNCTION);
     }
-    
+
     public List<String> getBatchColumnNames()
     {
         return columnNames;
     }
 
-    public String updateFromBatchInput(String propertyName, Map<String, String> bindings)
+     public String updateFromBatchInput(String propertyName, Map<String, String> bindings)
     {
         assertBatchColumnNames(propertyName, columnNames, bindings);
         if (updateFromBatchFunctionDefined == false)

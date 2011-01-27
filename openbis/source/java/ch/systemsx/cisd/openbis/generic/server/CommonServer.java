@@ -231,10 +231,11 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             final ICommonBusinessObjectFactory businessObjectFactory,
             final LastModificationState lastModificationState)
     {
-        super(authenticationService, sessionManager, daoFactory, propertiesBatchManager, businessObjectFactory);
+        super(authenticationService, sessionManager, daoFactory, propertiesBatchManager,
+                businessObjectFactory);
         this.lastModificationState = lastModificationState;
     }
-    
+
     ICommonBusinessObjectFactory getBusinessObjectFactory()
     {
         return businessObjectFactory;
@@ -1641,15 +1642,18 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 columns.add(NewSample.PARENTS);
                 if (withExperiments)
                     columns.add(NewSample.EXPERIMENT);
-                addProperties(columns, ((SampleTypePE) entityType).getSampleTypePropertyTypes());
+                addPropertiesToTemplateColumns(columns,
+                        ((SampleTypePE) entityType).getSampleTypePropertyTypes());
                 break;
             case DATA_SET:
                 columns.add(NewDataSet.CODE);
-                addProperties(columns, ((DataSetTypePE) entityType).getDataSetTypePropertyTypes());
+                addPropertiesToTemplateColumns(columns,
+                        ((DataSetTypePE) entityType).getDataSetTypePropertyTypes());
                 break;
             case MATERIAL:
                 columns.add(NewMaterial.CODE);
-                addProperties(columns, ((MaterialTypePE) entityType).getMaterialTypePropertyTypes());
+                addPropertiesToTemplateColumns(columns,
+                        ((MaterialTypePE) entityType).getMaterialTypePropertyTypes());
                 break;
             case EXPERIMENT:
                 columns.add(NewSample.IDENTIFIER_COLUMN);
@@ -1657,7 +1661,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 {
                     columns.add("project");
                 }
-                addProperties(columns,
+                addPropertiesToTemplateColumns(columns,
                         ((ExperimentTypePE) entityType).getExperimentTypePropertyTypes());
                 break;
         }
@@ -1694,8 +1698,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return sb.toString();
     }
 
-    private <T extends EntityTypePropertyTypePE> void addProperties(List<String> columns,
-            Set<T> propertyTypes)
+    private <T extends EntityTypePropertyTypePE> void addPropertiesToTemplateColumns(
+            List<String> columns, Set<T> propertyTypes)
     {
         List<T> sortedPropertyTypes = asSortedList(propertyTypes);
         for (EntityTypePropertyTypePE etpt : sortedPropertyTypes)
@@ -2244,7 +2248,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                     experimentBO.getExperiment().getProperties();
             ManagedPropertyEvaluator evaluator =
                     tryManagedPropertyEvaluator(managedProperty, properties);
-            evaluator.evaluateUpdateProperty(managedProperty);
+            evaluator.updateFromUI(managedProperty);
 
             experimentBO.updateManagedProperty(managedProperty);
             experimentBO.save();
@@ -2271,7 +2275,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             Set<? extends EntityPropertyPE> properties = sampleBO.getSample().getProperties();
             ManagedPropertyEvaluator evaluator =
                     tryManagedPropertyEvaluator(managedProperty, properties);
-            evaluator.evaluateUpdateProperty(managedProperty);
+            evaluator.updateFromUI(managedProperty);
 
             sampleBO.updateManagedProperty(managedProperty);
             sampleBO.save();
@@ -2299,7 +2303,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                     dataSetBO.getExternalData().getProperties();
             ManagedPropertyEvaluator evaluator =
                     tryManagedPropertyEvaluator(managedProperty, properties);
-            evaluator.evaluateUpdateProperty(managedProperty);
+            evaluator.updateFromUI(managedProperty);
 
             dataSetBO.updateManagedProperty(managedProperty);
             dataSetBO.save();
@@ -2326,7 +2330,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             Set<? extends EntityPropertyPE> properties = materialBO.getMaterial().getProperties();
             ManagedPropertyEvaluator evaluator =
                     tryManagedPropertyEvaluator(managedProperty, properties);
-            evaluator.evaluateUpdateProperty(managedProperty);
+            evaluator.updateFromUI(managedProperty);
 
             materialBO.updateManagedProperty(managedProperty);
             materialBO.save();
@@ -2339,8 +2343,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
     }
 
-    private ManagedPropertyEvaluator tryManagedPropertyEvaluator(
-            IManagedProperty managedProperty, Set<? extends EntityPropertyPE> properties)
+    private ManagedPropertyEvaluator tryManagedPropertyEvaluator(IManagedProperty managedProperty,
+            Set<? extends EntityPropertyPE> properties)
     {
         String managedPropertyCode = managedProperty.getPropertyTypeCode();
 
