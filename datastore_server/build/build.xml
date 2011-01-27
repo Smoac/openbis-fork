@@ -128,6 +128,7 @@
     <copy todir="${dist.datastore_server.lib}/jython-lib" >
     	<fileset 	dir="${lib}/jython/jython-lib" />
     </copy>
+    <copy file="${lib}/truezip/truezip.jar" todir="${dist.datastore_server.lib}" />
   </target>
 
   <!-- parameters: 
