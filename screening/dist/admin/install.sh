@@ -25,9 +25,13 @@ echo Installing openBIS Datastore Server
 unzip $ROOT_DIR/datastore*.zip -d $ROOT_DIR
 
 echo Installing openBIS Application Server
-unzip $ROOT_DIR/openBIS-*.zip -d $ROOT_DIR
-$ROOT_DIR/openBIS-server/install.sh $ROOT_DIR/openBIS-server
+TMP_EXTRACT=$ROOT_DIR/tmp-extract
+mkdir -p "$TMP_EXTRACT"
+mkdir $ROOT_DIR/openBIS-server
+unzip $ROOT_DIR/openBIS-*.zip -d "$TMP_EXTRACT"
+$TMP_EXTRACT/openBIS-server/install.sh $ROOT_DIR/openBIS-server
 
+rm -rf "$TMP_EXTRACT"
 mv $ROOT_DIR/*.zip $BACKUP_DIR/
 
 

@@ -13,6 +13,7 @@ if [ ${BASE#/} == ${BASE} ]; then
     BASE="`pwd`/${BASE}"
 fi
 
+source $BASE/common-functions.sh
 ROOT=$BASE/../servers
 
 # -- AS
@@ -23,15 +24,15 @@ cp $CONF/jetty.xml $ROOT/openBIS-server/jetty/etc/
 cp $CONF/jetty.properties $ROOT/openBIS-server/jetty/bin/
 cp $CONF/welcomePageSimple.html $ROOT/openBIS-server/jetty/webapps/openbis/ 
 # not always present
-cp $CONF/.keystore $ROOT/openBIS-server/jetty/etc/openBIS.keystore
-cp $CONF/passwd $ROOT/openBIS-server/jetty/etc/
-cp $CONF/web-client.properties $ROOT/openBIS-server/jetty/etc/
+copyIfExists $CONF/.keystore $ROOT/openBIS-server/jetty/etc/openBIS.keystore
+copyIfExists $CONF/passwd $ROOT/openBIS-server/jetty/etc/
+copyIfExists $CONF/web-client.properties $ROOT/openBIS-server/jetty/etc/
 
 # -- DSS
 cp $CONF/dss-service.properties $ROOT/datastore_server/etc/service.properties
 cp $CONF/dss-log.xml $ROOT/datastore_server/etc/log.xml
 cp $CONF/datastore_server.conf $ROOT/datastore_server/etc/
 # not always present
-cp $CONF/.keystore $ROOT/datastore_server/etc/openBIS.keystore
+copyIfExists $CONF/.keystore $ROOT/datastore_server/etc/openBIS.keystore
 # screening-specific
 cp $CONF/tabular-data-graph.properties $ROOT/datastore_server/etc/
