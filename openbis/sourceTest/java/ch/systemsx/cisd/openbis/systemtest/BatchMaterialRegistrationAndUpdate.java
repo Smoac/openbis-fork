@@ -26,7 +26,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
@@ -38,35 +40,65 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchRegistrationResult;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
+@Test(groups = "system test")
+@Transactional(propagation = Propagation.NOT_SUPPORTED)
 public class BatchMaterialRegistrationAndUpdate extends SystemTestCase
 {
     private static final String MATERIAL_TYPE = "CONTROL";
     private static final Set<String> CODES = new HashSet<String>(Arrays.asList("C1", "C2"));
+    
+    @AfterMethod
+    public void tearDown()
+    {
+      commonClientService.unassignPropertyType(EntityKind.MATERIAL, "COMMENT", MATERIAL_TYPE);
+    }
 
     @Test
-    public void testRegistration()
+    public void testBatchRegistrationWithManagedProperty()
     {
-        logIntoCommonClientService();
+        logIntoCommonClientService().getSessionID();
         deleteTestMaterials();
-        String materialBatchData = "code\tdescription\tsize\nc1\tcompound 1\t42\nc2\tcompound 2\t43";
+        Script script = new Script();
+        script.setScriptType(ScriptType.MANAGED_PROPERTY);
+        script.setName("batch script");
+        script.setScript("def batchColumnNames():\n  return ['A', 'B']\n"
+                + "def updateFromBatchInput(bindings):\n"
+                + "  property.setValue(bindings.get('A') + bindings.get('B'))\n"
+                + "def configureUI():\n  None");
+        commonClientService.registerScript(script);
+        NewETPTAssignment assignment = new NewETPTAssignment();
+        assignment.setEntityKind(EntityKind.MATERIAL);
+        assignment.setEntityTypeCode(MATERIAL_TYPE);
+        assignment.setPropertyTypeCode("COMMENT");
+        assignment.setManaged(true);
+        assignment.setScriptName("batch script");
+        assignment.setOrdinal(0L);
+        commonClientService.assignPropertyType(assignment);
+        String materialBatchData = "code\tdescription\tsize\tcomment:a\tcomment:b\n" +
+        		"c1\tcompound 1\t42\tx\ty\n" +
+        		"c2\tcompound 2\t43\ta\tb";
         
         List<BatchRegistrationResult> result = registerMaterials(materialBatchData);
         
         assertEquals("2 material(s) found and registered.", result.get(0).getMessage());
         assertEquals(1, result.size());
         
-        assertProperties("[DESCRIPTION: compound 1, SIZE: 42]", "C1");
-        assertProperties("[DESCRIPTION: compound 2, SIZE: 43]", "C2");
+        assertProperties("[COMMENT: xy, DESCRIPTION: compound 1, SIZE: 42]", "C1");
+        assertProperties("[COMMENT: ab, DESCRIPTION: compound 2, SIZE: 43]", "C2");
     }
 
     @Test

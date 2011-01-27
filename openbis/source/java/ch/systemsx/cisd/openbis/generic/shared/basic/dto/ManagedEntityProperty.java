@@ -148,6 +148,12 @@ public class ManagedEntityProperty implements IEntityProperty, IManagedProperty
     // For serialization
     //
 
+    @Override
+    public String toString()
+    {
+        return entityProperty.toString();
+    }
+
     public ManagedEntityProperty()
     {
     }
