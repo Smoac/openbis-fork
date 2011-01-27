@@ -61,6 +61,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
@@ -85,6 +86,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.builders.ExperimentTypePEBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
@@ -145,19 +147,29 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getEntityTypeDAO(ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.EXPERIMENT);
+                    one(daoFactory)
+                            .getEntityTypeDAO(
+                                    ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.EXPERIMENT);
                     will(returnValue(entityTypeDAO));
-                    
+
                     one(entityTypeDAO).tryToFindEntityTypeByCode(type);
-                    will(returnValue(new ExperimentTypePE()));
+                    ExperimentTypePEBuilder builder = new ExperimentTypePEBuilder();
+                    builder.assign("NON-MANAGED-PROP");
+                    builder.assign("DYNAMIC-PROP").script(ScriptType.DYNAMIC_PROPERTY, "");
+                    builder.assign("MANAGED-PROP-NO-SUBCOLUMNS").script(
+                            ScriptType.MANAGED_PROPERTY, "");
+                    builder.assign("MANAGED-PROP-SUBCOLUMNS").script(ScriptType.MANAGED_PROPERTY,
+                            "def batchColumnNames():\n  return ['A', 'B']");
+                    will(returnValue(builder.getExperimentTypePE()));
                 }
             });
-        
+
         String template =
                 createServer().getTemplateColumns(SESSION_TOKEN, EntityKind.EXPERIMENT, type,
                         false, false, BatchOperationKind.REGISTRATION);
-        
-        assertEquals("identifier", template);
+
+        assertEquals("identifier\tNON-MANAGED-PROP\tMANAGED-PROP-NO-SUBCOLUMNS\t"
+                + "MANAGED-PROP-SUBCOLUMNS:A\tMANAGED-PROP-SUBCOLUMNS:B", template);
         context.assertIsSatisfied();
     }
 
