@@ -28,4 +28,6 @@ $TMP_EXTRACT/openBIS-server/install.sh $ROOT_DIR/openBIS-server
 rm -rf "$TMP_EXTRACT"
 mv $ROOT_DIR/*.zip $BACKUP_DIR/
 
+. $BASE/create-empty-screening-db.sh
+
 
