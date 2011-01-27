@@ -16,30 +16,32 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto.builders;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
 
 /**
- * Builder for {@link ExperimentTypePE} instances.
+ * Builder for {@link SampleTypePE} instances.
  *
  * @author felmer
  */
-public class ExperimentTypePEBuilder extends AbstractEntityTypePEBuilder
+public class SampleTypePEBuilder extends AbstractEntityTypePEBuilder
 {
-    private final ExperimentTypePE experimentType = new ExperimentTypePE();
-    
-    public ExperimentTypePE getExperimentTypePE()
+    private final SampleTypePE sampleType = new SampleTypePE();
+
+    public SampleTypePE getSampleType()
     {
-        return experimentType;
+        return sampleType;
     }
-    
+
     @Override
     public EntityTypePropertyTypePEBuilder assign(PropertyTypePE propertyType)
     {
-        ExperimentTypePropertyTypePE etpt = new ExperimentTypePropertyTypePE();
-        etpt.setOrdinal((long) experimentType.getExperimentTypePropertyTypes().size());
-        experimentType.addExperimentTypePropertyType(etpt);
+        SampleTypePropertyTypePE etpt = new SampleTypePropertyTypePE();
+        etpt.setOrdinal((long) sampleType.getSampleTypePropertyTypes().size());
+        sampleType.addSampleTypePropertyType(etpt);
         return new EntityTypePropertyTypePEBuilder(etpt, propertyType);
     }
+    
+    
 }

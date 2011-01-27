@@ -62,7 +62,7 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
     public void manageProperties(ExperimentTypePE experimentType, NewExperimentsWithType experiments)
     {
         Set<? extends EntityTypePropertyTypePE> entityTypePropertyTypes =
-        experimentType.getExperimentTypePropertyTypes();
+                experimentType.getExperimentTypePropertyTypes();
 
         managePropertiesBeans(experiments.getNewExperiments(), entityTypePropertyTypes);
     }
@@ -70,7 +70,7 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
     public void manageProperties(MaterialTypePE materialType, List<NewMaterial> newMaterials)
     {
         Set<? extends EntityTypePropertyTypePE> entityTypePropertyTypes =
-        materialType.getMaterialTypePropertyTypes();
+                materialType.getMaterialTypePropertyTypes();
         managePropertiesBeans(newMaterials, entityTypePropertyTypes);
     }
 
