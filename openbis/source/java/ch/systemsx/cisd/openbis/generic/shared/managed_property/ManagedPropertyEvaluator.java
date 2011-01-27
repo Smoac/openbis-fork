@@ -29,7 +29,6 @@ import ch.systemsx.cisd.common.evaluator.EvaluatorException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 
 /**
@@ -63,8 +62,14 @@ public class ManagedPropertyEvaluator
     private static final String UPDATE_FROM_BATCH_INPUT_FUNCTION = "updateFromBatchInput";
 
     private static final String PROPERTY_VARIABLE_NAME = "property";
-
- 	public static void assertBatchColumnNames(String propertyName, List<String> columnNames,
+    
+    /**
+     * Asserts that for all specified batch column names bindings are specified. If the list of
+     * column names is empty the value should be bound at an empty string.
+     * 
+     * @param propertyTypeCode Property type code. Only needed for error messages.
+     */
+    public static void assertBatchColumnNames(String propertyTypeCode, List<String> columnNames,
             Map<String, String> bindings)
     {
         Set<String> names = bindings.keySet();
@@ -73,7 +78,7 @@ public class ManagedPropertyEvaluator
             if (names.contains("") == false)
             {
                 throw new UserFailureException("No subcolumns expected for property '"
-                        + propertyName + "': " + names);
+                        + propertyTypeCode + "': " + names);
             }
         } else
         {
@@ -82,7 +87,7 @@ public class ManagedPropertyEvaluator
             {
                 if (names.contains(columnName) == false)
                 {
-                    missingColumns.add(propertyName + ":" + columnName);
+                    missingColumns.add(propertyTypeCode + ":" + columnName);
                 }
             }
             if (missingColumns.isEmpty() == false)
@@ -132,7 +137,7 @@ public class ManagedPropertyEvaluator
             {
                 throw new EvaluatorException(
                         "The following batch column names as returned by function '"
-                                + BATCH_COLUMN_NAMES_FUNCTION + "' are not in uupper case: "
+                                + BATCH_COLUMN_NAMES_FUNCTION + "' are not in upper case: "
                                 + notUpperCaseNames);
             }
         }
@@ -168,17 +173,17 @@ public class ManagedPropertyEvaluator
         return columnNames;
     }
 
-     public String updateFromBatchInput(String propertyName, Map<String, String> bindings)
+    public void updateFromBatchInput(IManagedProperty managedProperty, Map<String, String> bindings)
     {
-        assertBatchColumnNames(propertyName, columnNames, bindings);
+        assertBatchColumnNames(managedProperty.getPropertyTypeCode(), columnNames, bindings);
         if (updateFromBatchFunctionDefined == false)
         {
-            return bindings.get("");
+            managedProperty.setValue(bindings.get(""));
+        } else
+        {
+            evaluator.set(PROPERTY_VARIABLE_NAME, managedProperty);
+            evaluator.evalFunction(UPDATE_FROM_BATCH_INPUT_FUNCTION, bindings);
         }
-        ManagedProperty property = new ManagedProperty();
-        evaluator.set(PROPERTY_VARIABLE_NAME, property);
-        evaluator.evalFunction(UPDATE_FROM_BATCH_INPUT_FUNCTION, bindings);
-        return property.getValue();
     }
 
 }

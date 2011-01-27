@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertiesBean;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperimentsWithType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
@@ -105,8 +106,10 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
                 {
                     try
                     {
-                        String result = evaluator.updateFromBatchInput(code, bindings);
-                        entityProperty.setValue(result);
+                        ManagedProperty managedProperty = new ManagedProperty();
+                        managedProperty.setPropertyTypeCode(code);
+                        evaluator.updateFromBatchInput(managedProperty, bindings);
+                        entityProperty.setValue(managedProperty.getValue());
                     } catch (EvaluatorException ex)
                     {
                         Throwable cause = ex.getCause();
