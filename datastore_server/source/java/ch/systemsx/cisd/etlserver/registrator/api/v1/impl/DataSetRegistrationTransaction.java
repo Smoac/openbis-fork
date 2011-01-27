@@ -16,12 +16,25 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
+import java.io.File;
+import java.util.ArrayList;
+
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
+import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
+import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperiment;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperimentImmutable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISampleImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
 /**
  * The implementation of a transaction. This class is designed to be used in one thread.
@@ -31,22 +44,68 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.ISampleImmutable;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class DataSetRegistrationTransaction implements IDataSetRegistrationTransaction
+public class DataSetRegistrationTransaction<T extends DataSetInformation> implements
+        IDataSetRegistrationTransaction
 {
     // Keeps track of steps that have been executed and may need to be reverted. Elements are kept
     // in the order they need to be reverted.
-    private final RollbackStack rollbackStack = new RollbackStack();
+    private final RollbackStack rollbackStack;
+
+    // The directory to use as "local" for paths
+    private final File workingDirectory;
+
+    // The directory in which new data sets get staged
+    private final File stagingDirectory;
+
+    // The registration service that owns this transaction
+    private final DataSetRegistrationService registrationService;
+
+    // The interface to openBIS
+    private final IEncapsulatedOpenBISService openBisService;
+
+    private final IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory;
+
+    private final ArrayList<DataSet<T>> registeredDataSets = new ArrayList<DataSet<T>>();
+
+    public DataSetRegistrationTransaction(RollbackStack rollbackStack, File workingDirectory,
+            File stagingDirectory, DataSetRegistrationService registrationService,
+            IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory)
+    {
+        this.rollbackStack = rollbackStack;
+        this.workingDirectory = workingDirectory;
+        this.stagingDirectory = stagingDirectory;
+        this.registrationService = registrationService;
+        this.openBisService =
+                this.registrationService.getRegistratorState().getGlobalState().getOpenBisService();
+        this.registrationDetailsFactory = registrationDetailsFactory;
+    }
 
     public IDataSet createNewDataSet()
     {
-        // TODO Auto-generated method stub
-        return null;
+        // Create registration details for the new data set
+        DataSetRegistrationDetails<T> registrationDetails =
+                registrationDetailsFactory.createDataSetRegistrationDetails();
+
+        // Request a code, so we can keep the staging file name and the data set code in sync
+        String dataSetCode = generateDataSetCode(registrationDetails);
+        registrationDetails.getDataSetInformation().setDataSetCode(dataSetCode);
+
+        // Create a directory for the data set
+        File stagingFolder = new File(stagingDirectory, dataSetCode);
+        MkdirsCommand cmd = new MkdirsCommand(stagingFolder.getAbsolutePath());
+        executeCommand(cmd);
+
+        DataSet<T> dataSet = new DataSet<T>(registrationDetails, stagingFolder);
+        registeredDataSets.add(dataSet);
+        return dataSet;
     }
 
     public ISampleImmutable getSample(String sampleIdentifierString)
     {
-        // TODO Auto-generated method stub
-        return null;
+        SampleIdentifier sampleIdentifier =
+                new SampleIdentifierFactory(sampleIdentifierString).createIdentifier();
+        Sample sample = new Sample(openBisService.tryGetSampleWithExperiment(sampleIdentifier));
+        return sample;
     }
 
     public ISample getSampleForUpdate(String sampleIdentifierString)
@@ -63,8 +122,11 @@ public class DataSetRegistrationTransaction implements IDataSetRegistrationTrans
 
     public IExperimentImmutable getExperiment(String experimentIdentifierString)
     {
-        // TODO Auto-generated method stub
-        return null;
+        ExperimentIdentifier experimentIdentifier =
+                new ExperimentIdentifierFactory(experimentIdentifierString).createIdentifier();
+        Experiment experiment =
+                new Experiment(openBisService.tryToGetExperiment(experimentIdentifier));
+        return experiment;
     }
 
     public IExperiment getExperimentForUpdate(String experimentIdentifierString)
@@ -81,13 +143,43 @@ public class DataSetRegistrationTransaction implements IDataSetRegistrationTrans
 
     public String moveFile(String src, IDataSet dst)
     {
-        // TODO Auto-generated method stub
-        return null;
+        File srcFile = new File(src);
+        return moveFile(src, dst, srcFile.getName());
     }
 
     public String moveFile(String src, IDataSet dst, String dstInDataset)
     {
-        // TODO Auto-generated method stub
+        @SuppressWarnings("unchecked")
+        DataSet<T> dataSet = (DataSet<T>) dst;
+
+        // See if this is an absolute path
+        File srcFile = new File(src);
+        if (false == srcFile.exists())
+        {
+            // Try it relative
+            srcFile = new File(workingDirectory, src);
+        }
+
+        File dataSetFolder = dataSet.getDataSetFolder();
+        File dstFile = new File(dataSetFolder, dstInDataset);
+
+        FileUtilities.checkInputFile(srcFile);
+
+        MoveFileCommand cmd =
+                new MoveFileCommand(srcFile.getParentFile().getAbsolutePath(), srcFile.getName(),
+                        dstFile.getParentFile().getAbsolutePath(), dstFile.getName());
+        executeCommand(cmd);
+        return dstFile.getAbsolutePath();
+    }
+
+    public String createNewDirectory(IDataSet dst, String dirName)
+    {
+        @SuppressWarnings("unchecked")
+        DataSet<T> dataSet = (DataSet<T>) dst;
+        File dataSetFolder = dataSet.getDataSetFolder();
+        File dstFile = new File(dataSetFolder, dirName);
+        MkdirsCommand cmd = new MkdirsCommand(dstFile.getAbsolutePath());
+        executeCommand(cmd);
         return null;
     }
 
@@ -110,6 +202,20 @@ public class DataSetRegistrationTransaction implements IDataSetRegistrationTrans
     }
 
     /**
+     * Commit the transaction
+     */
+    public void commit()
+    {
+        for (DataSet<T> dataSet : registeredDataSets)
+        {
+            registrationService.queueDataSetRegistration(dataSet.getDataSetFolder(),
+                    dataSet.getRegistrationDetails());
+        }
+
+        registrationService.commit();
+    }
+
+    /**
      * Rollback any commands that have been executed. Rollback is done in the reverse order of
      * execution.
      */
@@ -120,12 +226,21 @@ public class DataSetRegistrationTransaction implements IDataSetRegistrationTrans
 
     /**
      * Execute the command and add it to the list of commands that have been executed.
-     * <p>
-     * Made package visible for testing purposes.
      */
-    void executeCommand(ITransactionalCommand cmd)
+    protected void executeCommand(ITransactionalCommand cmd)
     {
         rollbackStack.pushAndExecuteCommand(cmd);
+    }
+
+    /**
+     * Generate a data set code for the registration details. Just calls openBisService to get a
+     * data set code by default.
+     * 
+     * @return A data set code
+     */
+    protected String generateDataSetCode(DataSetRegistrationDetails<T> registrationDetails)
+    {
+        return openBisService.createDataSetCode();
     }
 
 }

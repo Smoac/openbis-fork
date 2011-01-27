@@ -17,11 +17,14 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v1;
 
 /**
+ * An interface for samples from the database that should not be altered.
  * 
- *
  * @author Chandrasekhar Ramakrishnan
  */
 public interface ISampleImmutable
 {
-
+    /**
+     * Return true if the sample exists in the database.
+     */
+    boolean isExistingSample();
 }

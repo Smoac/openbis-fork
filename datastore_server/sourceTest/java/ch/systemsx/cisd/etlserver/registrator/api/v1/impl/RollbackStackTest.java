@@ -16,36 +16,13 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
-import java.io.File;
-import java.io.IOException;
-
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-
-import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class RollbackStackTest extends AbstractFileSystemTestCase
+public class RollbackStackTest extends AbstractTestWithRollbackStack
 {
-    private File queue1File;
-
-    private File queue2File;
-
-    private RollbackStack rollbackStack;
-
-    @BeforeMethod
-    @Override
-    public void setUp() throws IOException
-    {
-        super.setUp();
-
-        queue1File = new File(workingDirectory, "queue1.dat");
-        queue2File = new File(workingDirectory, "queue2.dat");
-
-        rollbackStack = new RollbackStack(queue1File, queue2File);
-    }
 
     @Test
     public void testRollback()

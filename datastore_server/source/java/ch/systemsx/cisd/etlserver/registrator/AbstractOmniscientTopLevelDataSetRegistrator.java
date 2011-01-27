@@ -68,7 +68,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator extends
      * 
      * @author Chandrasekhar Ramakrishnan
      */
-    protected static class OmniscientTopLevelDataSetRegistratorState
+    public static class OmniscientTopLevelDataSetRegistratorState
     {
         private final TopLevelDataSetRegistratorGlobalState globalState;
 

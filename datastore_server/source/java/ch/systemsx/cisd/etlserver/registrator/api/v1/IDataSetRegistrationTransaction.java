@@ -92,8 +92,16 @@ public interface IDataSetRegistrationTransaction
     String moveFile(String src, IDataSet dst, String dstInDataset);
 
     /**
-     * Take note of a new file to create in a data set. Doesn't actually create the file, just
-     * tracks it for transactional purposes.
+     * Create a new directory and return the path.
+     * 
+     * @param dst The data set to add the file to.
+     * @param dirName The name of the new file to create. (Can be a simple file or directory.)
+     * @return The absolute path of the new file.
+     */
+    String createNewDirectory(IDataSet dst, String dirName);
+
+    /**
+     * Create a new empty file and return the path.
      * 
      * @param dst The data set to add the file to.
      * @param fileName The name of the new file to create. (Can be a simple file or directory.)
@@ -102,8 +110,7 @@ public interface IDataSetRegistrationTransaction
     String createNewFile(IDataSet dst, String fileName);
 
     /**
-     * Take note of a new file to create in a data set. Doesn't actually create the file, just
-     * tracks it for transactional purposes.
+     * Create a new empty file and return the path.
      * 
      * @param dst The data set to add the file to.
      * @param dstInDataset The path of the file in the data set

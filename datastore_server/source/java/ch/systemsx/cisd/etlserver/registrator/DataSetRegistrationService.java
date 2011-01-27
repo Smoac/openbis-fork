@@ -75,11 +75,16 @@ public class DataSetRegistrationService implements IRollbackDelegate
         this.globalCleanAfterwardsAction = globalCleanAfterwardsAction;
     }
 
+    public OmniscientTopLevelDataSetRegistratorState getRegistratorState()
+    {
+        return registratorState;
+    }
+
     /**
      * Queue registration a data set and return a future for the data set that will be created.
      */
     public FutureDataSet queueDataSetRegistration(File dataSetFile,
-            DataSetRegistrationDetails details)
+            DataSetRegistrationDetails<?> details)
     {
         DataSetRegistrationAlgorithm registration =
                 createRegistrationAlgorithm(dataSetFile, details);
@@ -105,7 +110,7 @@ public class DataSetRegistrationService implements IRollbackDelegate
     }
 
     private DataSetRegistrationAlgorithm createRegistrationAlgorithm(File incomingDataSetFile,
-            DataSetRegistrationDetails details)
+            DataSetRegistrationDetails<?> details)
     {
         final TopLevelDataSetRegistratorGlobalState globalState = registratorState.getGlobalState();
         final IDelegatedActionWithResult<Boolean> cleanAfterwardsAction =

@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class DataSetRegistrationDetails implements ITypeExtractor
+public class DataSetRegistrationDetails<T extends DataSetInformation> implements ITypeExtractor
 {
     private FileFormatType fileFormatType;
 
@@ -39,7 +39,7 @@ public class DataSetRegistrationDetails implements ITypeExtractor
 
     private LocatorType locatorType;
 
-    private DataSetInformation dataSetInformation;
+    private T dataSetInformation;
 
     public DataSetRegistrationDetails()
     {
@@ -123,12 +123,12 @@ public class DataSetRegistrationDetails implements ITypeExtractor
         this.locatorType = locatorType;
     }
 
-    public DataSetInformation getDataSetInformation()
+    public T getDataSetInformation()
     {
         return dataSetInformation;
     }
 
-    public void setDataSetInformation(DataSetInformation dataSetInformation)
+    public void setDataSetInformation(T dataSetInformation)
     {
         this.dataSetInformation = dataSetInformation;
     }

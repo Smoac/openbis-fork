@@ -21,7 +21,6 @@ import java.io.Serializable;
 import java.util.Queue;
 
 import ch.systemsx.cisd.common.collections.ExtendedBlockingQueueFactory;
-import ch.systemsx.cisd.common.collections.ExtendedLinkedBlockingQueue;
 
 /**
  * A package internal class to manage the rollback stack.
@@ -37,16 +36,6 @@ class RollbackStack
     private Queue<StackElement> liveLifo;
 
     private Queue<StackElement> tempLifo;
-
-    /**
-     * A non-persistent rollback stack. This constructor will be deleted after initial development
-     * is finished.
-     */
-    public RollbackStack()
-    {
-        liveLifo = new ExtendedLinkedBlockingQueue<StackElement>();
-        tempLifo = new ExtendedLinkedBlockingQueue<StackElement>();
-    }
 
     /**
      * Constructor for a rollback stack that uses queue1File and queue2File for the persistent

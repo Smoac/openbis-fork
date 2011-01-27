@@ -218,11 +218,20 @@ public class JythonTopLevelDataSetHandler extends AbstractOmniscientTopLevelData
         /**
          * Factory method that creates a new registration details object.
          */
-        public DataSetRegistrationDetails createRegistrationDetails()
+        public DataSetRegistrationDetails<DataSetInformation> createRegistrationDetails()
         {
-            DataSetRegistrationDetails registrationDetails = new DataSetRegistrationDetails();
+            DataSetRegistrationDetails<DataSetInformation> registrationDetails =
+                    new DataSetRegistrationDetails<DataSetInformation>();
             registrationDetails.setDataSetInformation(createDataSetInformation());
             return registrationDetails;
+        }
+
+        /**
+         * Adaptor for the IDataSetRegistrationDetailsFactory interface.
+         */
+        public DataSetRegistrationDetails<DataSetInformation> createDataSetRegistrationDetails()
+        {
+            return createRegistrationDetails();
         }
 
         /**

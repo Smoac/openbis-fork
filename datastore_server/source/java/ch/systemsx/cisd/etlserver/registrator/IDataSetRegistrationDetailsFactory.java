@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.registrator.api.v1;
+package ch.systemsx.cisd.etlserver.registrator;
+
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
+ * A factory for creating DataSetRegistrationDetails objects.
+ * 
  * @author Chandrasekhar Ramakrishnan
  */
-public interface IExperimentImmutable
+public interface IDataSetRegistrationDetailsFactory<T extends DataSetInformation>
 {
-    /**
-     * Return true if the experiment is in openBIS.
-     */
-    boolean isExistingExperiment();
+    DataSetRegistrationDetails<T> createDataSetRegistrationDetails();
 }
