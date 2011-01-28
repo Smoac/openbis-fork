@@ -1,0 +1,151 @@
+# ---------------------------------------------------------------------------
+# BIOZENTRUM formats
+# ---------------------------------------------------------------------------
+
+bz-image-analysis-results.incoming-dir = ${incoming-root-dir}/incoming-analysis-bz
+bz-image-analysis-results.incoming-data-completeness-condition = auto-detection
+
+# The extractor class to use for code extraction
+bz-image-analysis-results.data-set-info-extractor = ch.systemsx.cisd.etlserver.DataSetInfoExtractorWithFileNameProperty 
+bz-image-analysis-results.data-set-info-extractor.file-name-property-code = EXTERNAL_IDENTIFIER
+bz-image-analysis-results.data-set-info-extractor.extractor = ch.systemsx.cisd.openbis.dss.etl.biozentrum.BZDataSetInfoExtractor
+bz-image-analysis-results.data-set-info-extractor.extractor.space-code = ${import-space-code}
+bz-image-analysis-results.data-set-info-extractor.extractor.project-code = DEFAULT
+bz-image-analysis-results.data-set-info-extractor.extractor.plate-geometry = 384_WELLS_16X24
+
+# The extractor class to use for type extraction
+bz-image-analysis-results.type-extractor = ch.systemsx.cisd.etlserver.SimpleTypeExtractor
+bz-image-analysis-results.type-extractor.file-format-type = CSV
+bz-image-analysis-results.type-extractor.locator-type = RELATIVE_LOCATION
+bz-image-analysis-results.type-extractor.data-set-type = HCS_IMAGE_ANALYSIS_DATA
+bz-image-analysis-results.type-extractor.is-measured = false
+
+# The storage processor (IStorageProcessor implementation)
+bz-image-analysis-results.storage-processor = ch.systemsx.cisd.openbis.dss.etl.featurevector.FeatureVectorStorageProcessor
+bz-image-analysis-results.storage-processor.processor = ch.systemsx.cisd.etlserver.DefaultStorageProcessor
+bz-image-analysis-results.storage-processor.data-source = imaging-db
+# semi-colon (;) by default 
+bz-image-analysis-results.storage-processor.separator = ,
+bz-image-analysis-results.storage-processor.ignore-comments = true
+bz-image-analysis-results.storage-processor.well-name-col-is-alphanum = true
+
+# ---------------------------------------------------------------------------
+
+matlab-analysis.incoming-dir = ${incoming-root-dir}/incoming-matlab
+
+matlab-analysis.incoming-data-completeness-condition = auto-detection
+matlab-analysis.entity-separator = .
+# The extractor class to use for code extraction
+matlab-analysis.data-set-info-extractor = ch.systemsx.cisd.openbis.dss.etl.biozentrum.BZDataSetInfoExtractor
+matlab-analysis.data-set-info-extractor.space-code = ${import-space-code}
+matlab-analysis.data-set-info-extractor.project-code = DEFAULT
+matlab-analysis.data-set-info-extractor.plate-geometry = 384_WELLS_16X24
+
+# The extractor class to use for type extraction
+matlab-analysis.type-extractor = ch.systemsx.cisd.etlserver.SimpleTypeExtractor
+matlab-analysis.type-extractor.file-format-type = MAT
+matlab-analysis.type-extractor.locator-type = RELATIVE_LOCATION
+matlab-analysis.type-extractor.data-set-type = HCS_MATLAB_PER_CLUSTER_JOB
+matlab-analysis.type-extractor.is-measured = false
+
+# The storage processor (IStorageProcessor implementation)
+matlab-analysis.storage-processor = ch.systemsx.cisd.etlserver.DefaultStorageProcessor
+matlab-analysis.storage-processor.unzip = true
+#matlab-analysis.storage-processor.delete_unzipped = false
+
+
+# ------------------------------------------------------------------------
+
+
+# The directory to watch for incoming data.
+thumbnail-dropbox.incoming-dir = ${incoming-root-dir}/incoming-bio/incoming-thumbnails
+thumbnail-dropbox.incoming-data-completeness-condition = auto-detection
+
+# The extractor class to use for code extraction
+thumbnail-dropbox.data-set-info-extractor = ch.systemsx.cisd.etlserver.DataSetInfoExtractorWithFileNameProperty
+thumbnail-dropbox.data-set-info-extractor.file-name-property-code = EXTERNAL_IDENTIFIER
+thumbnail-dropbox.data-set-info-extractor.extractor = ch.systemsx.cisd.openbis.dss.etl.biozentrum.BZDataSetInfoExtractor
+thumbnail-dropbox.data-set-info-extractor.extractor.space-code = DEMO
+thumbnail-dropbox.data-set-info-extractor.extractor.project-code = BIOZENTRUM
+
+# The extractor class to use for type extraction
+thumbnail-dropbox.type-extractor = ch.systemsx.cisd.etlserver.SimpleTypeExtractor
+thumbnail-dropbox.type-extractor.file-format-type = JPG
+thumbnail-dropbox.type-extractor.locator-type = RELATIVE_LOCATION
+thumbnail-dropbox.type-extractor.data-set-type = HCS_IMAGE
+thumbnail-dropbox.type-extractor.is-measured = false
+
+thumbnail-dropbox.storage-processor = ch.systemsx.cisd.openbis.dss.etl.biozentrum.LinkingStorageProcessor
+thumbnail-dropbox.storage-processor.target-dir = ${root-dir}/incoming-bio/openbis-out
+thumbnail-dropbox.storage-processor.processor = ch.systemsx.cisd.openbis.dss.etl.PlateStorageProcessor
+thumbnail-dropbox.storage-processor.processor.generate-thumbnails = true
+thumbnail-dropbox.storage-processor.processor.channel-names = DAPI, GFP, Cy3
+thumbnail-dropbox.storage-processor.processor.well_geometry = 2x4
+thumbnail-dropbox.storage-processor.processor.file-extractor = ch.systemsx.cisd.openbis.dss.etl.FlexibleHCSImageFileExtractor
+thumbnail-dropbox.storage-processor.processor.data-source = imaging-db
+thumbnail-dropbox.storage-processor.processor.tile_mapping = 1,2,3,4;5,6,7,8
+
+# The directory to watch for incoming data.
+image-analysis-results.incoming-dir = ${incoming-root-dir}/incoming-bio/incoming-analysis
+image-analysis-results.incoming-data-completeness-condition = auto-detection
+
+# The extractor class to use for code extraction
+image-analysis-results.data-set-info-extractor = ch.systemsx.cisd.etlserver.DataSetInfoExtractorWithFileNameProperty 
+image-analysis-results.data-set-info-extractor.file-name-property-code = EXTERNAL_IDENTIFIER
+image-analysis-results.data-set-info-extractor.extractor = ch.systemsx.cisd.openbis.dss.etl.biozentrum.BZDataSetInfoExtractor
+# optional: text which appears directly after the identifier 
+image-analysis-results.data-set-info-extractor.extractor.separator = .per-well
+image-analysis-results.data-set-info-extractor.extractor.space-code = DEMO
+image-analysis-results.data-set-info-extractor.extractor.project-code = BIOZENTRUM
+image-analysis-results.data-set-info-extractor.extractor.plate-geometry = 384_WELLS_16X24
+
+# The extractor class to use for type extraction
+image-analysis-results.type-extractor = ch.systemsx.cisd.etlserver.SimpleTypeExtractor
+image-analysis-results.type-extractor.file-format-type = CSV
+image-analysis-results.type-extractor.locator-type = RELATIVE_LOCATION
+image-analysis-results.type-extractor.data-set-type = HCS_IMAGE_ANALYSIS_DATA
+image-analysis-results.type-extractor.is-measured = false
+
+# The storage processor (IStorageProcessor implementation)
+image-analysis-results.storage-processor = ch.systemsx.cisd.openbis.dss.etl.featurevector.FeatureVectorStorageProcessor
+image-analysis-results.storage-processor.processor = ch.systemsx.cisd.etlserver.DefaultStorageProcessor
+image-analysis-results.storage-processor.data-source = imaging-db
+# semi-colon (;) by default 
+image-analysis-results.storage-processor.separator = ,
+image-analysis-results.storage-processor.ignore-comments = true
+image-analysis-results.storage-processor.well-name-col-is-alphanum = true
+image-analysis-results.storage-processor.well-name-row = File_Name
+image-analysis-results.storage-processor.well-name-col = File_Name
+
+# ----------------------------
+
+# The directory to watch for incoming data.
+bz-split-channels-images.incoming-dir = ${incoming-root-dir}/incoming-images-bz
+bz-split-channels-images.incoming-data-completeness-condition = auto-detection
+
+# The extractor class to use for code extraction
+bz-split-channels-images.data-set-info-extractor = ch.systemsx.cisd.etlserver.DataSetInfoExtractorWithFileNameProperty
+bz-split-channels-images.data-set-info-extractor.file-name-property-code = EXTERNAL_IDENTIFIER
+bz-split-channels-images.data-set-info-extractor.extractor = ch.systemsx.cisd.openbis.dss.etl.biozentrum.BZDataSetInfoExtractor
+bz-split-channels-images.data-set-info-extractor.extractor.space-code = ${import-space-code}
+bz-split-channels-images.data-set-info-extractor.extractor.project-code = DEFAULT
+
+# The extractor class to use for type extraction
+bz-split-channels-images.type-extractor = ch.systemsx.cisd.etlserver.SimpleTypeExtractor
+bz-split-channels-images.type-extractor.file-format-type = TIFF
+bz-split-channels-images.type-extractor.locator-type = RELATIVE_LOCATION
+bz-split-channels-images.type-extractor.data-set-type = HCS_IMAGE
+bz-split-channels-images.type-extractor.is-measured = true
+
+bz-split-channels-images.storage-processor = ch.systemsx.cisd.openbis.dss.etl.PlateStorageProcessor
+bz-split-channels-images.storage-processor.generate-thumbnails = false
+bz-split-channels-images.storage-processor.channel-names = DAPI, GFP, Cy3
+bz-split-channels-images.storage-processor.well_geometry = 2x3
+bz-split-channels-images.storage-processor.file-extractor = ch.systemsx.cisd.openbis.dss.etl.FlexibleImageFileExtractor
+bz-split-channels-images.storage-processor.data-source = imaging-db
+bz-split-channels-images.storage-processor.tile_mapping = 1,2,3;4,5,6
+
+# ---------------------------------------------------------------------------
+# END BIOZENTRUM formats
+# ---------------------------------------------------------------------------
+

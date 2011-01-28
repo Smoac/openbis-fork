@@ -1,0 +1,64 @@
+# --- hcs dropbox, split channels ------------------------------------------------------------------------
+
+# The directory to watch for incoming data.
+hcs-dropbox.incoming-dir = ${incoming-root-dir}/incoming-hcs
+hcs-dropbox.incoming-data-completeness-condition = auto-detection
+
+# The extractor class to use for code extraction
+hcs-dropbox.data-set-info-extractor = ch.systemsx.cisd.etlserver.DefaultDataSetInfoExtractor
+hcs-dropbox.data-set-info-extractor.entity-separator = .
+hcs-dropbox.data-set-info-extractor.index-of-sample-code = 0
+hcs-dropbox.data-set-info-extractor.space-code = DEMO
+
+# The extractor class to use for type extraction
+hcs-dropbox.type-extractor = ch.systemsx.cisd.etlserver.SimpleTypeExtractor
+hcs-dropbox.type-extractor.file-format-type = PNG
+hcs-dropbox.type-extractor.locator-type = RELATIVE_LOCATION
+hcs-dropbox.type-extractor.is-measured = true
+
+hcs-dropbox.storage-processor = ch.systemsx.cisd.openbis.dss.etl.PlateStorageProcessor
+hcs-dropbox.storage-processor.file-extractor = ch.systemsx.cisd.openbis.dss.etl.FlexibleHCSImageFileExtractor
+hcs-dropbox.storage-processor.channel-codes = DAPI, FITC, CY5
+hcs-dropbox.storage-processor.channel-labels = Dapi, FITC, Cy5
+hcs-dropbox.storage-processor.define-channels-per-experiment = false
+
+hcs-dropbox.type-extractor.data-set-type = HCS_IMAGE_TEST_DATA
+
+hcs-dropbox.storage-processor.data-source = imaging-db
+hcs-dropbox.storage-processor.generate-thumbnails = true
+hcs-dropbox.storage-processor.well_geometry = 2x2
+hcs-dropbox.storage-processor.tile_mapping = 1,2;3,4
+
+
+# --- hcs overlay dropbox, split channels ------------------------------------------------------------------------
+
+# The directory to watch for incoming data.
+hcs-dropbox-overlays.incoming-dir = ${incoming-root-dir}/incoming-hcs-overlays
+hcs-dropbox-overlays.incoming-data-completeness-condition = auto-detection
+
+# The extractor class to use for code extraction
+hcs-dropbox-overlays.data-set-info-extractor = ch.systemsx.cisd.etlserver.SmartParentDataSetInfoExtractor
+hcs-dropbox-overlays.data-set-info-extractor.entity-separator = .
+hcs-dropbox-overlays.data-set-info-extractor.index-of-sample-code = 0
+hcs-dropbox-overlays.data-set-info-extractor.smart-parent-data-set-resolution-many-parents-mode = CHOOSE_YOUNGEST
+hcs-dropbox-overlays.data-set-info-extractor.smart-parent-data-set-resolution-fail-if-missing = true
+hcs-dropbox-overlays.data-set-info-extractor.space-code = DEMO
+
+# The extractor class to use for type extraction
+hcs-dropbox-overlays.type-extractor = ch.systemsx.cisd.etlserver.SimpleTypeExtractor
+hcs-dropbox-overlays.type-extractor.file-format-type = PNG
+hcs-dropbox-overlays.type-extractor.locator-type = RELATIVE_LOCATION
+hcs-dropbox-overlays.type-extractor.is-measured = true
+
+hcs-dropbox-overlays.data-set-info-extractor.smart-parent-data-set-resolution-dataset-type = HCS_IMAGE_TEST_.*
+hcs-dropbox-overlays.storage-processor = ch.systemsx.cisd.openbis.dss.etl.PlateStorageProcessor
+hcs-dropbox-overlays.storage-processor.file-extractor = ch.systemsx.cisd.openbis.dss.etl.FlexibleHCSImageFileExtractor
+hcs-dropbox-overlays.type-extractor.data-set-type = HCS_IMAGE_OVERLAY_TEST_DATA
+
+hcs-dropbox-overlays.storage-processor.data-source = imaging-db
+hcs-dropbox-overlays.storage-processor.generate-thumbnails = true
+hcs-dropbox-overlays.storage-processor.well_geometry = 2x2
+hcs-dropbox-overlays.storage-processor.tile_mapping = 1,2;3,4
+hcs-dropbox-overlays.storage-processor.define-channels-per-experiment = false
+hcs-dropbox-overlays.storage-processor.unzip = true
+
