@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
@@ -50,21 +51,20 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Test(groups = "system test")
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
-public class BatchMaterialRegistrationAndUpdate extends SystemTestCase
+public class BatchMaterialRegistrationAndUpdateTest extends SystemTestCase
 {
     private static final String MATERIAL_TYPE = "CONTROL";
+
     private static final Set<String> CODES = new HashSet<String>(Arrays.asList("C1", "C2"));
-    
+
     @AfterMethod
     public void tearDown()
     {
-      commonClientService.unassignPropertyType(EntityKind.MATERIAL, "COMMENT", MATERIAL_TYPE);
+        commonClientService.unassignPropertyType(EntityKind.MATERIAL, "COMMENT", MATERIAL_TYPE);
     }
 
     @Test
@@ -77,7 +77,7 @@ public class BatchMaterialRegistrationAndUpdate extends SystemTestCase
         script.setName("batch script");
         script.setScript("def batchColumnNames():\n  return ['A', 'B']\n"
                 + "def updateFromBatchInput(bindings):\n"
-                + "  property.setValue(bindings.get('A') + bindings.get('B'))\n"
+                + "  property.setValue(bindings.get('A') + ' & ' + bindings.get('B'))\n"
                 + "def configureUI():\n  None");
         commonClientService.registerScript(script);
         NewETPTAssignment assignment = new NewETPTAssignment();
@@ -88,17 +88,17 @@ public class BatchMaterialRegistrationAndUpdate extends SystemTestCase
         assignment.setScriptName("batch script");
         assignment.setOrdinal(0L);
         commonClientService.assignPropertyType(assignment);
-        String materialBatchData = "code\tdescription\tsize\tcomment:a\tcomment:b\n" +
-        		"c1\tcompound 1\t42\tx\ty\n" +
-        		"c2\tcompound 2\t43\ta\tb";
-        
+        String materialBatchData =
+                "code\tdescription\tsize\tcomment:a\tcomment:b\n" + "c1\tcompound 1\t42\tx\ty\n"
+                        + "c2\tcompound 2\t43\ta\tb";
+
         List<BatchRegistrationResult> result = registerMaterials(materialBatchData);
-        
+
         assertEquals("2 material(s) found and registered.", result.get(0).getMessage());
         assertEquals(1, result.size());
-        
-        assertProperties("[COMMENT: xy, DESCRIPTION: compound 1, SIZE: 42]", "C1");
-        assertProperties("[COMMENT: ab, DESCRIPTION: compound 2, SIZE: 43]", "C2");
+
+        assertProperties("[COMMENT: x & y, DESCRIPTION: compound 1, SIZE: 42]", "C1");
+        assertProperties("[COMMENT: a & b, DESCRIPTION: compound 2, SIZE: 43]", "C2");
     }
 
     @Test
@@ -113,10 +113,10 @@ public class BatchMaterialRegistrationAndUpdate extends SystemTestCase
         List<BatchRegistrationResult> result =
                 updateMaterials("code\tdescription\n" + "c1\tnew description\n" + "c2\t--DELETE--",
                         false);
-        
+
         assertEquals("2 material(s) updated.", result.get(0).getMessage());
         assertEquals(1, result.size());
-        
+
         assertProperties("[DESCRIPTION: new description, SIZE: 42]", "C1");
         assertProperties("[SIZE: 43]", "C2");
     }
@@ -140,7 +140,7 @@ public class BatchMaterialRegistrationAndUpdate extends SystemTestCase
         assertProperties("[DESCRIPTION: compound one, SIZE: 42]", "C1");
         assertProperties("[DESCRIPTION: compound two, SIZE: 4711]", "C2");
     }
-    
+
     private void deleteTestMaterials()
     {
         MaterialType materialType = getMaterialType(MATERIAL_TYPE);
@@ -159,7 +159,7 @@ public class BatchMaterialRegistrationAndUpdate extends SystemTestCase
         commonClientService.deleteMaterials(DisplayedOrSelectedIdHolderCriteria
                 .<Material> createSelectedItems(materialsToBeDeleted), "?");
     }
-    
+
     private MaterialType getMaterialType(String code)
     {
         List<MaterialType> materialTypes = commonClientService.listMaterialTypes();
@@ -172,10 +172,11 @@ public class BatchMaterialRegistrationAndUpdate extends SystemTestCase
         }
         throw new IllegalArgumentException("Unknown material type: " + code);
     }
-    
+
     private void assertProperties(String expectedProperties, String materialCode)
     {
-        assertEquals(expectedProperties, getMaterialOrNull(materialCode).getProperties().toString());
+        assertEquals(expectedProperties, StringEscapeUtils.unescapeHtml(getMaterialOrNull(
+                materialCode).getProperties().toString()));
     }
 
     private Material getMaterialOrNull(String code)
@@ -183,17 +184,18 @@ public class BatchMaterialRegistrationAndUpdate extends SystemTestCase
         try
         {
             IEntityInformationHolderWithPermId m =
-                commonClientService.getMaterialInformationHolder(new MaterialIdentifier(code,
-                        MATERIAL_TYPE));
+                    commonClientService.getMaterialInformationHolder(new MaterialIdentifier(code,
+                            MATERIAL_TYPE));
             Material materialInfo = genericClientService.getMaterialInfo(new TechId(m.getId()));
             assertEquals(code, materialInfo.getCode());
             Collections.sort(materialInfo.getProperties(), new Comparator<IEntityProperty>()
-                    {
-                public int compare(IEntityProperty p1, IEntityProperty p2)
                 {
-                    return p1.getPropertyType().getCode().compareTo(p2.getPropertyType().getCode());
-                }
-                    });
+                    public int compare(IEntityProperty p1, IEntityProperty p2)
+                    {
+                        return p1.getPropertyType().getCode()
+                                .compareTo(p2.getPropertyType().getCode());
+                    }
+                });
             return materialInfo;
         } catch (UserFailureException ex)
         {
@@ -208,8 +210,9 @@ public class BatchMaterialRegistrationAndUpdate extends SystemTestCase
         materialType.setCode(MATERIAL_TYPE);
         return genericClientService.registerMaterials(materialType, SESSION_KEY);
     }
-    
-    private List<BatchRegistrationResult> updateMaterials(String materialBatchData, boolean ignoreUnregistered)
+
+    private List<BatchRegistrationResult> updateMaterials(String materialBatchData,
+            boolean ignoreUnregistered)
     {
         uploadFile("my-file", materialBatchData);
         MaterialType materialType = new MaterialType();
