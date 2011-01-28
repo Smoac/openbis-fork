@@ -41,7 +41,7 @@ public class PropertiesPanelUtils
                 viewContext.getDisplaySettingsManager().isDebuggingModeEnabled();
         for (final IEntityProperty property : entityProperties)
         {
-            if (property.isManaged() != false || isDebuggingEnabled)
+            if (property.isManaged() == false || isDebuggingEnabled)
             {
                 final String label =
                         PropertyTypeRenderer.getDisplayName(property.getPropertyType(), types);
