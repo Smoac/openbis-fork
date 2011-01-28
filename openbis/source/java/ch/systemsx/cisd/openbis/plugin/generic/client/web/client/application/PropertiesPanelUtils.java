@@ -37,11 +37,16 @@ public class PropertiesPanelUtils
     {
         Collections.sort(entityProperties);
         List<PropertyType> types = EntityPropertyUtils.extractTypes(entityProperties);
+        boolean isDebuggingEnabled =
+                viewContext.getDisplaySettingsManager().isDebuggingModeEnabled();
         for (final IEntityProperty property : entityProperties)
         {
-            final String label =
-                    PropertyTypeRenderer.getDisplayName(property.getPropertyType(), types);
-            properties.put(label, property);
+            if (property.isManaged() != false || isDebuggingEnabled)
+            {
+                final String label =
+                        PropertyTypeRenderer.getDisplayName(property.getPropertyType(), types);
+                properties.put(label, property);
+            }
         }
     }
 }
