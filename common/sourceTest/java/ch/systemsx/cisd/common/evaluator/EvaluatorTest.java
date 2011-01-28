@@ -348,7 +348,7 @@ public class EvaluatorTest extends AssertJUnit
             fail("EvaluatorException expected");
         } catch (EvaluatorException ex)
         {
-            assertEquals("Script compilation failed with message:\n"
+            assertEquals("Script compilation failed with message:\n\n"
                     + "SyntaxError: ('invalid syntax', ('<string>', 1, 3, '1+'))", ex.getMessage());
         }
     }
