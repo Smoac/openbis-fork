@@ -22,20 +22,47 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * The interface exposed to the Managed Property script.
+ * <p>
+ * Returns description of the input field for fluent API style with method chaining.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
 public interface IManagedUiDescription extends ISerializable
 {
+    /**
+     * Sets the given table model to define an output that will be shown in detail view of the
+     * entity owning the property. The table will be shown in an extra tab.
+     */
     public void useTableOutput(ITableModel tableModel);
 
+    /**
+     * Adds a text input field with given <var>label</var> to input widgets that will be used in
+     * user interface for modification of the managed property.
+     */
     public IManagedInputWidgetDescription addTextInputField(String label);
 
+    /**
+     * Adds a multiline text with given <var>label</var> input field to input widgets that will be
+     * used in user interface for modification of the managed property.
+     */
     public IManagedInputWidgetDescription addMultilineTextInputField(String label);
 
+    /**
+     * Adds a combo box input field with given <var>label</var> to input widgets that will be used
+     * in user interface for modification of the managed property. The combo box will contain list
+     * of provided <var>values</var>.
+     */
     public IManagedInputWidgetDescription addComboBoxInputField(String labels, String[] values);
 
+    /**
+     * Returns description of the widget that will be shown in detail view of the entity owning the
+     * property.
+     */
     public IManagedOutputWidgetDescription getOutputWidgetDescription();
 
+    /**
+     * Returns a list of objects describing input widgets that will be used in user interface user
+     * interface for modification of the managed property.
+     */
     public List<IManagedInputWidgetDescription> getInputWidgetDescriptions();
 }

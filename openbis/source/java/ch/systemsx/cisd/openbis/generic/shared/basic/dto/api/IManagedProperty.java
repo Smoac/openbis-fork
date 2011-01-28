@@ -27,15 +27,28 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  */
 public interface IManagedProperty extends ISerializable
 {
-    boolean isOwnTab();
 
-    void setOwnTab(boolean ownTab);
-
-    IManagedUiDescription getUiDescription();
-
+    /** Return the code (or name) of the managed property. */
     String getPropertyTypeCode();
 
+    /**
+     * Returns <var>true</var> if the detailed view of the entity owning the property will show the
+     * managed property in an extra tab.
+     */
+    boolean isOwnTab();
+
+    /** Sets whether managed property is shown in an extra tab or not. */
+    void setOwnTab(boolean ownTab);
+
+    /** Returns the current value of the property. */
     String getValue();
 
+    /** Set the value of the property. */
     void setValue(String value);
+
+    /**
+     * Return an object which allows to manage data for the user interface (input as well as
+     * output).
+     */
+    IManagedUiDescription getUiDescription();
 }

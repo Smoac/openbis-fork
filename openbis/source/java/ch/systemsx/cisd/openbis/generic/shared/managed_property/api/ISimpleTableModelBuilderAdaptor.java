@@ -20,7 +20,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ITableModel;
 
 /**
- * Builder of simple table models.
+ * Builder of simple table models. All column titles should be unique.
  * <p>
  * All methods of this interface are part of the Managed Properties API.
  * 
@@ -30,43 +30,47 @@ public interface ISimpleTableModelBuilderAdaptor
 {
 
     /**
-     * Returns table model to be set in as output.
+     * Returns the defined table model. It should be used to set an output of managed property.
      */
     ITableModel getTableModel();
 
     /**
      * Adds an empty row and returns a row builder for setting values of this row.
-     * 
-     * @throws UnsupportedOperationException if header titles are not forced to be unique
      */
     IRowBuilderAdaptor addRow();
 
     /**
-     * Adds header with specified title and default column width 150.
+     * Adds header column with specified title and default column width 150.
      * 
-     * @throws UserFailureException if non-unique header titles are not allowed and a header with
-     *             same title has already been added.
+     * @throws UserFailureException if header with the same title has already been added.
      */
     void addHeader(String title);
 
     /**
-     * Adds header with specified title and specified default column width.
+     * Adds header column with specified title and specified default column width.
      * 
-     * @throws UserFailureException if non-unique header titles are not allowed and a header with
-     *             same title has already been added.
+     * @throws UserFailureException if header with the same title has already been added.
      */
     void addHeader(String title, int defaultColumnWidth);
 
     /**
-     * Adds header with specified title, specified code and default column width 150.
+     * Adds header column with specified title, specified code and default column width 150.
      * 
-     * @throws UserFailureException if non-unique header titles are not allowed and a header with
-     *             same title has already been added.
+     * @throws UserFailureException if header with the same title has already been added.
      */
     void addHeader(String title, String code);
 
+    /**
+     * A convenience method for adding complete header with columns with specified titles and
+     * default column width 150.
+     * 
+     * @throws UserFailureException if header titles are not unique.
+     */
     void addFullHeader(String... titles);
 
+    /**
+     * A convenience method for adding a row with specified values.
+     */
     void addFullRow(String... values);
 
 }
