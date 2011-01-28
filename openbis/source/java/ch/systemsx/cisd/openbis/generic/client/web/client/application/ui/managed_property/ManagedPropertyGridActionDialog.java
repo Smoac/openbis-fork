@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -101,6 +102,8 @@ public final class ManagedPropertyGridActionDialog extends
             inputDescription
                     .setValue(field.getValue() == null ? null : field.getValue().toString());
         }
+        // old vale was escaped going to the client - unescape it before sending back to the server
+        managedProperty.setValue(StringEscapeUtils.unescapeHtml(managedProperty.getValue()));
         viewContext.getService().updateManagedProperty(TechId.create(entity),
                 entity.getEntityKind(), managedProperty, callback);
     }
@@ -154,7 +157,7 @@ public final class ManagedPropertyGridActionDialog extends
         final TextField<String> field = new TextField<String>();
         if (inputDescription.getValue() != null)
         {
-            field.setValue(inputDescription.getValue());
+            FieldUtil.setValueWithUnescaping(field, inputDescription.getValue());
             field.updateOriginalValue(field.getValue());
         }
         return field;
@@ -166,7 +169,7 @@ public final class ManagedPropertyGridActionDialog extends
                 new MultilineVarcharField(inputDescription.getLabel(), false);
         if (inputDescription.getValue() != null)
         {
-            field.setValue(inputDescription.getValue());
+            FieldUtil.setValueWithUnescaping(field, inputDescription.getValue());
             field.updateOriginalValue(field.getValue());
         }
         return field;

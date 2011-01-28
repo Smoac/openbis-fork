@@ -30,6 +30,7 @@ import com.google.gwt.user.client.ui.Image;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 
 /**
  * Utilities for {@link Field} class.
@@ -108,6 +109,11 @@ public class FieldUtil
         field.enableEvents(false);
         field.setValue(value);
         field.enableEvents(true);
+    }
+
+    public static void setValueWithUnescaping(Field<String> field, String value)
+    {
+        field.setValue(StringEscapeUtils.unescapeHtml(value));
     }
 
     //
