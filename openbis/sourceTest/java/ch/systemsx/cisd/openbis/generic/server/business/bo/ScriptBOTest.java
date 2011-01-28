@@ -23,6 +23,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.common.evaluator.EvaluatorException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -117,6 +118,43 @@ public final class ScriptBOTest extends AbstractBOTest
         assertEquals(ManagerTestTool.EXAMPLE_SESSION.tryGetPerson(), scriptPE.getRegistrator());
         assertEquals(newScript.getScript(), scriptPE.getScript());
         assertEquals(instance, scriptPE.getDatabaseInstance());
+        context.assertIsSatisfied();
+    }
+
+    @Test(dataProvider = "scriptTypes")
+    public final void testDefineAndSaveScriptCompilationFail(ScriptType scriptType)
+    {
+        final ScriptBO scriptBO = createScriptBO();
+        final DatabaseInstancePE instance = createDatabaseInstance();
+
+        final Script newScript = new Script();
+        newScript.setDescription(DESCRIPTION);
+        newScript.setName(NAME);
+        newScript.setScript("1+");
+        newScript.setScriptType(scriptType);
+
+        final ScriptPE scriptPE = new ScriptPE();
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(scriptFactory).create();
+                    will(returnValue(scriptPE));
+
+                    one(daoFactory).getHomeDatabaseInstance();
+                    will(returnValue(instance));
+                }
+            });
+        scriptBO.define(newScript);
+        try
+        {
+            scriptBO.save();
+            fail("EvaluatorException expected");
+        } catch (EvaluatorException ex)
+        {
+            assertEquals("Script compilation failed with message:\n"
+                    + "SyntaxError: ('invalid syntax', ('<string>', 1, 3, '1+'))", ex.getMessage());
+        }
         context.assertIsSatisfied();
     }
 
