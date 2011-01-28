@@ -56,6 +56,8 @@
 	<classpathentry kind="lib" path="/libraries/spring/third-party/stream-supporting-httpinvoker.jar" sourcepath="/libraries/spring/third-party/stream-supporting-httpinvoker-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/cifex/cifex.jar"/>
 	<classpathentry kind="lib" path="/libraries/jython/jython.jar" sourcepath="/libraries/jython/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/slf4j/slf4j.jar" sourcepath="/libraries/slf4j/src.jar"/>
+	<classpathentry kind="lib" path="/libraries/bioformats/bioformats.jar"/>
 	<classpathentry kind="lib" path="/libraries/truezip/truezip.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
