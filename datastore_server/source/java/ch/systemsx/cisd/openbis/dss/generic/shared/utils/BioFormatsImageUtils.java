@@ -121,12 +121,26 @@ public class BioFormatsImageUtils
     public static BufferedImage[] readImages(File file) throws IOExceptionUnchecked,
             IllegalArgumentException
     {
+        NIOFileHandle handle = null;
         try
         {
-            return readImages(file.getPath(), new NIOFileHandle(file, "r"));
+            handle = new NIOFileHandle(file, "r");
+            return readImages(file.getPath(), handle);
         } catch (IOException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        } finally
+        {
+            if (handle != null)
+            {
+                try
+                {
+                    handle.close();
+                } catch (IOException ex)
+                {
+                    // Silence.
+                }
+            }
         }
     }
 
@@ -169,7 +183,8 @@ public class BioFormatsImageUtils
             final IFormatReader reader = findReader(filename);
             // This does the actual parsing.
             reader.setId(filename);
-            final BufferedImageReader biReader = BufferedImageReader.makeBufferedImageReader(reader);
+            final BufferedImageReader biReader =
+                    BufferedImageReader.makeBufferedImageReader(reader);
             final BufferedImage image = biReader.openImage(page);
             reader.close();
             return image;
@@ -187,11 +202,14 @@ public class BioFormatsImageUtils
     }
 
     /**
-     * Returns all images of the image file given by <var>filename</var> represented
-     * by <var>handle</var> as {@link BufferedImage}.
+     * Returns all images of the image file given by <var>filename</var> represented by
+     * <var>handle</var> as {@link BufferedImage}.
      * <p>
      * Note that the suffix of <var>filename</var> is used to find the right reader.
      * 
+     * @param filename The name of the image, suffix used to determine the reader
+     * @param handle The handle of the content of the file, may be used to determine the reader as
+     *            well. Will <i>not</i> be closed!
      * @throws IOExceptionUnchecked If access to <var>handle</var> fails.
      * @throws IllegalArgumentException If no suitable reader can be found.
      */
@@ -206,7 +224,8 @@ public class BioFormatsImageUtils
             final IFormatReader reader = findReader(filename);
             // This does the actual parsing.
             reader.setId(filename);
-            final BufferedImageReader biReader = BufferedImageReader.makeBufferedImageReader(reader);
+            final BufferedImageReader biReader =
+                    BufferedImageReader.makeBufferedImageReader(reader);
             images = new BufferedImage[biReader.getImageCount()];
             for (int i = 0; i < images.length; ++i)
             {
