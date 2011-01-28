@@ -41,8 +41,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IB
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SpaceGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -92,8 +92,8 @@ public class SpaceGrid extends TypedTableGrid<Space>
         addEntityOperationsLabel();
 
         final Button addGroupButton =
-                new Button(viewContext.getMessage(Dict.BUTTON_ADD, viewContext
-                        .getMessage(Dict.GROUP)), new SelectionListener<ButtonEvent>()
+                new Button(viewContext.getMessage(Dict.BUTTON_ADD,
+                        viewContext.getMessage(Dict.GROUP)), new SelectionListener<ButtonEvent>()
                     {
                         @Override
                         public void componentSelected(ButtonEvent ce)
@@ -107,10 +107,12 @@ public class SpaceGrid extends TypedTableGrid<Space>
         addButton(addGroupButton);
 
         Button editButton =
-                createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
+                createSelectedItemButton(
+                        viewContext.getMessage(Dict.BUTTON_EDIT),
                         new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<Space>>>()
                             {
-                                public void invoke(BaseEntityModel<TableModelRowWithObject<Space>> selectedItem,
+                                public void invoke(
+                                        BaseEntityModel<TableModelRowWithObject<Space>> selectedItem,
                                         boolean keyPressed)
                                 {
                                     Space space = selectedItem.getBaseObject().getObjectOrNull();
@@ -125,7 +127,8 @@ public class SpaceGrid extends TypedTableGrid<Space>
                         new AbstractCreateDialogListener()
                             {
                                 @Override
-                                protected Dialog createDialog(List<TableModelRowWithObject<Space>> groups,
+                                protected Dialog createDialog(
+                                        List<TableModelRowWithObject<Space>> groups,
                                         IBrowserGridActionInvoker invoker)
                                 {
                                     return new GroupListDeletionConfirmationDialog(viewContext,
@@ -153,7 +156,7 @@ public class SpaceGrid extends TypedTableGrid<Space>
                     boolean mandatory = false;
 
                     descriptionField = createDescriptionField(viewContext, mandatory);
-                    descriptionField.setValue(StringEscapeUtils.unescapeHtml(description));
+                    FieldUtil.setValueWithUnescaping(descriptionField, description);
                     addField(descriptionField);
                 }
 
@@ -172,13 +175,14 @@ public class SpaceGrid extends TypedTableGrid<Space>
     {
         return columnID.toLowerCase();
     }
-    
+
     @Override
     protected ColumnDefsAndConfigs<TableModelRowWithObject<Space>> createColumnsDefinition()
     {
         ColumnDefsAndConfigs<TableModelRowWithObject<Space>> definitions =
                 super.createColumnsDefinition();
-        definitions.setGridCellRendererFor(SpaceGridColumnIDs.REGISTRATOR, PersonRenderer.REGISTRATOR_RENDERER);
+        definitions.setGridCellRendererFor(SpaceGridColumnIDs.REGISTRATOR,
+                PersonRenderer.REGISTRATOR_RENDERER);
         return definitions;
     }
 
@@ -191,7 +195,8 @@ public class SpaceGrid extends TypedTableGrid<Space>
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<TableModelRowWithObject<Space>> exportCriteria,
+    protected void prepareExportEntities(
+            TableExportCriteria<TableModelRowWithObject<Space>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportGroups(exportCriteria, callback);
@@ -214,8 +219,8 @@ public class SpaceGrid extends TypedTableGrid<Space>
         private final AbstractAsyncCallback<Void> callback;
 
         public GroupListDeletionConfirmationDialog(
-                IViewContext<ICommonClientServiceAsync> viewContext, List<TableModelRowWithObject<Space>> data,
-                AbstractAsyncCallback<Void> callback)
+                IViewContext<ICommonClientServiceAsync> viewContext,
+                List<TableModelRowWithObject<Space>> data, AbstractAsyncCallback<Void> callback)
         {
             super(viewContext, data);
             this.viewContext = viewContext;
@@ -225,15 +230,14 @@ public class SpaceGrid extends TypedTableGrid<Space>
         @Override
         protected void executeConfirmedAction()
         {
-            
+
             List<TableModelRowWithObject<Space>> d = data;
             List<TechId> list = new ArrayList<TechId>();
             for (TableModelRowWithObject<Space> tableModelRowWithObject : d)
             {
-                list.add(new  TechId(tableModelRowWithObject.getObjectOrNull().getId()));
+                list.add(new TechId(tableModelRowWithObject.getObjectOrNull().getId()));
             }
-            viewContext.getCommonService().deleteGroups(list, reason.getValue(),
-                    callback);
+            viewContext.getCommonService().deleteGroups(list, reason.getValue(), callback);
         }
 
         @Override

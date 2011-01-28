@@ -63,12 +63,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Co
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SimpleDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DialogWithOnlineHelpUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
@@ -243,12 +243,12 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
                     boolean mandatory = false;
 
                     labelField = createTextField(viewContext.getMessage(Dict.LABEL), mandatory);
-                    labelField.setValue(StringEscapeUtils.unescapeHtml(label));
+                    FieldUtil.setValueWithUnescaping(labelField, label);
                     labelField.setMaxLength(GenericConstants.COLUMN_LABEL);
                     addField(labelField);
 
                     descriptionField = createDescriptionField(viewContext, mandatory);
-                    descriptionField.setValue(StringEscapeUtils.unescapeHtml(description));
+                    FieldUtil.setValueWithUnescaping(descriptionField, description);
                     addField(descriptionField);
                     // if vocabulary term cannot be choosen from list there is no need to edit order
                     if (vocabulary.isChosenFromList())

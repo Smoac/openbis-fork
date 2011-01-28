@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 
@@ -66,9 +66,9 @@ public class ScriptEditForm extends AbstractScriptEditRegisterForm
     @Override
     protected void setValues()
     {
-        descriptionField.setValue(StringEscapeUtils.unescapeHtml(originalScript.getDescription()));
-        scriptField.setValue(StringEscapeUtils.unescapeHtml(originalScript.getScript()));
-        nameField.setValue(StringEscapeUtils.unescapeHtml(originalScript.getName()));
+        FieldUtil.setValueWithUnescaping(descriptionField, originalScript.getDescription());
+        FieldUtil.setValueWithUnescaping(scriptField, originalScript.getScript());
+        FieldUtil.setValueWithUnescaping(nameField, originalScript.getName());
         String entityKind =
                 originalScript.getEntityKind() == null ? GenericConstants.ALL_ENTITY_KINDS
                         : originalScript.getEntityKind().name();

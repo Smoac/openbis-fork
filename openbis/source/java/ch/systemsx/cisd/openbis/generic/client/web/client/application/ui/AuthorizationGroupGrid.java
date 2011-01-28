@@ -49,8 +49,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IB
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -293,8 +293,7 @@ public class AuthorizationGroupGrid extends AbstractSimpleBrowserGrid<Authorizat
 
                 {
                     descriptionField = createDescriptionField(viewContext, false);
-                    descriptionField.setValue(StringEscapeUtils.unescapeHtml(authGroup
-                            .getDescription()));
+                    FieldUtil.setValueWithUnescaping(descriptionField, authGroup.getDescription());
                     addField(descriptionField);
                 }
 
@@ -309,5 +308,4 @@ public class AuthorizationGroupGrid extends AbstractSimpleBrowserGrid<Authorizat
                 }
             };
     }
-
 }

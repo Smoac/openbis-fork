@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Ab
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.TextToolItem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
@@ -139,8 +140,8 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends
                     ConfirmationDialog confirmationDialog =
                             new ConfirmationDialog(context
                                     .getMessage(Dict.DELETE_CONFIRMATION_TITLE), context
-                                    .getMessage(Dict.DELETE_CONFIRMATION_MESSAGE, StringUtils
-                                            .joinList(selectedTypeCodes)))
+                                    .getMessage(Dict.DELETE_CONFIRMATION_MESSAGE,
+                                            StringUtils.joinList(selectedTypeCodes)))
                                 {
                                     @Override
                                     protected void onYes()
@@ -189,7 +190,7 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends
                 private final DescriptionField descriptionField;
                 {
                     descriptionField = createDescriptionField(viewContext);
-                    descriptionField.setValueAndUnescape(entityType.getDescription());
+                    FieldUtil.setValueWithUnescaping(descriptionField, entityType.getDescription());
                     addField(descriptionField);
                 }
 

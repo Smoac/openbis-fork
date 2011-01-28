@@ -33,9 +33,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DialogWithOnlineHelpUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -122,17 +122,18 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
 
                 {
                     descriptionField = createDescriptionField(viewContext);
-                    descriptionField.setValueAndUnescape(dataSetType.getDescription());
+                    FieldUtil
+                            .setValueWithUnescaping(descriptionField, dataSetType.getDescription());
                     addField(descriptionField);
 
                     mainDataSetPatternField = createMainDataSetPatternField();
-                    mainDataSetPatternField.setValue(StringEscapeUtils.unescapeHtml(dataSetType
-                            .getMainDataSetPattern()));
+                    FieldUtil.setValueWithUnescaping(mainDataSetPatternField,
+                            dataSetType.getMainDataSetPattern());
                     addField(mainDataSetPatternField);
 
                     mainDataSetPathField = createMainDataSetPathField();
-                    mainDataSetPathField.setValue(StringEscapeUtils.unescapeHtml(dataSetType
-                            .getMainDataSetPath()));
+                    FieldUtil.setValueWithUnescaping(mainDataSetPathField,
+                            dataSetType.getMainDataSetPath());
                     addField(mainDataSetPathField);
 
                     DialogWithOnlineHelpUtils.addHelpButton(viewContext, this,
@@ -201,8 +202,8 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
     {
         TextField<String> mainDataSetPatternField = new TextField<String>();
         mainDataSetPatternField.setFieldLabel(viewContext.getMessage(Dict.MAIN_DATA_SET_PATTERN));
-        GWTUtils.setToolTip(mainDataSetPatternField, viewContext
-                .getMessage(Dict.MAIN_DATA_SET_PATTERN_TOOLTIP));
+        GWTUtils.setToolTip(mainDataSetPatternField,
+                viewContext.getMessage(Dict.MAIN_DATA_SET_PATTERN_TOOLTIP));
         mainDataSetPatternField.setEmptyText(viewContext
                 .getMessage(Dict.MAIN_DATA_SET_PATTERN_EXAMPLE));
         return mainDataSetPatternField;
@@ -212,8 +213,8 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
     {
         TextField<String> mainDataSetPathField = new TextField<String>();
         mainDataSetPathField.setFieldLabel(viewContext.getMessage(Dict.MAIN_DATA_SET_PATH));
-        GWTUtils.setToolTip(mainDataSetPathField, viewContext
-                .getMessage(Dict.MAIN_DATA_SET_PATH_TOOLTIP));
+        GWTUtils.setToolTip(mainDataSetPathField,
+                viewContext.getMessage(Dict.MAIN_DATA_SET_PATH_TOOLTIP));
         mainDataSetPathField.setEmptyText(viewContext.getMessage(Dict.MAIN_DATA_SET_PATH_EXAMPLE));
         return mainDataSetPathField;
     }

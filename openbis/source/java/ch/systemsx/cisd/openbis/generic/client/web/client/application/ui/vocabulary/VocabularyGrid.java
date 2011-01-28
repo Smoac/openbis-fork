@@ -179,7 +179,7 @@ public class VocabularyGrid extends TypedTableGrid<Vocabulary>
         tabFactory.setInBackground(inBackground);
         DispatcherHelper.dispatchNaviEvent(tabFactory);
     }
-    
+
     private void extendBottomToolbar()
     {
         addEntityOperationsLabel();
@@ -268,7 +268,6 @@ public class VocabularyGrid extends TypedTableGrid<Vocabulary>
 
         addEntityOperationsSeparator();
     }
-   
 
     private Component createEditEntityDialog(final Vocabulary vocabulary)
     {
@@ -298,12 +297,11 @@ public class VocabularyGrid extends TypedTableGrid<Vocabulary>
                     addField(codeField);
 
                     descriptionField = createDescriptionField(viewContext);
-                    descriptionField.setValueAndUnescape(vocabulary.getDescription());
+                    FieldUtil.setValueWithUnescaping(descriptionField, vocabulary.getDescription());
                     addField(descriptionField);
 
                     urlTemplateField = createURLTemplateField();
-                    urlTemplateField.setValue(StringEscapeUtils.unescapeHtml(vocabulary
-                            .getURLTemplate()));
+                    FieldUtil.setValueWithUnescaping(urlTemplateField, vocabulary.getURLTemplate());
                     addField(urlTemplateField);
 
                     chosenFromList = createChosenFromListCheckbox();

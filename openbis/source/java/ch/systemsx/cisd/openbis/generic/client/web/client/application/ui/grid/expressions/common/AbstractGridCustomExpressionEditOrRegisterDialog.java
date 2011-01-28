@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.common;
 
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils.unescapeHtml;
-
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -37,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.D
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractColumnSettingsDataModelProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DialogWithOnlineHelpUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExpression;
@@ -112,9 +111,9 @@ abstract public class AbstractGridCustomExpressionEditOrRegisterDialog extends
 
     protected void initializeValues(AbstractExpression gridExpression)
     {
-        descriptionField.setValue(unescapeHtml(gridExpression.getDescription()));
-        expressionField.setValue(unescapeHtml(gridExpression.getExpression()));
-        nameField.setValue(unescapeHtml(gridExpression.getName()));
+        FieldUtil.setValueWithUnescaping(descriptionField, gridExpression.getDescription());
+        FieldUtil.setValueWithUnescaping(expressionField, gridExpression.getExpression());
+        FieldUtil.setValueWithUnescaping(nameField, gridExpression.getName());
         publicField.setValue(gridExpression.isPublic());
     }
 

@@ -49,8 +49,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Co
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -180,22 +180,22 @@ public class PropertyTypeGrid extends AbstractSimpleBrowserGrid<PropertyType>
 
                     labelField = createTextField(viewContext.getMessage(Dict.LABEL), mandatory);
                     labelField.setMaxLength(GenericConstants.COLUMN_LABEL);
-                    labelField.setValue(StringEscapeUtils.unescapeHtml(label));
+                    FieldUtil.setValueWithUnescaping(labelField, label);
                     addField(labelField);
 
                     descriptionField = createDescriptionField(viewContext, mandatory);
-                    descriptionField.setValue(StringEscapeUtils.unescapeHtml(description));
+                    FieldUtil.setValueWithUnescaping(descriptionField, description);
                     addField(descriptionField);
 
                     if (dataTypeCode == DataTypeCode.XML)
                     {
                         xmlSchemaField = createXmlSchemaField();
-                        xmlSchemaField.setValueAndUnescape(propertyType.getSchema());
+                        FieldUtil.setValueWithUnescaping(xmlSchemaField, propertyType.getSchema());
                         addField(xmlSchemaField);
 
                         xslTransformationsField = createXslTransformationsField();
-                        xslTransformationsField.setValueAndUnescape(propertyType
-                                .getTransformation());
+                        FieldUtil.setValueWithUnescaping(xslTransformationsField,
+                                propertyType.getTransformation());
                         addField(xslTransformationsField);
                     }
                 }

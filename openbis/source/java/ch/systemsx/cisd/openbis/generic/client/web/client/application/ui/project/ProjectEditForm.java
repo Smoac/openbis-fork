@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
@@ -96,8 +96,7 @@ public class ProjectEditForm extends AbstractProjectEditRegisterForm
     @Override
     protected void setValues()
     {
-        projectDescriptionField.setValue(StringEscapeUtils.unescapeHtml(originalProject
-                .getDescription()));
+        FieldUtil.setValueWithUnescaping(projectDescriptionField, originalProject.getDescription());
         projectCodeField.setValue(originalProject.getCode());
         projectCodeField.setEnabled(false);
         spaceField.selectSpaceAndUpdateOriginal(originalProject.getSpace().getCode());

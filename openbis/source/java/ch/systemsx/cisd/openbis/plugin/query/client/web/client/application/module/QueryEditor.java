@@ -61,7 +61,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ExpressionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IReportInformationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -242,9 +241,9 @@ public class QueryEditor extends Dialog
         createEntityTypeFields();
         if (queryOrNull != null)
         {
-            nameField.setValue(queryOrNull.getName());
-            descriptionField.setValue(StringEscapeUtils.unescapeHtml(queryOrNull.getDescription()));
-            statementField.setValue(StringEscapeUtils.unescapeHtml(queryOrNull.getExpression()));
+            FieldUtil.setValueWithUnescaping(nameField, queryOrNull.getName());
+            FieldUtil.setValueWithUnescaping(descriptionField, queryOrNull.getDescription());
+            FieldUtil.setValueWithUnescaping(statementField, queryOrNull.getExpression());
             isPublicField.setValue(queryOrNull.isPublic());
             queryTypeField.setSimpleValue(queryOrNull.getQueryType());
             // initial values for entity type fields are set when they are created

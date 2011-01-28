@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.C
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DialogWithOnlineHelpUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -142,12 +143,12 @@ public class SampleTypeGrid extends AbstractEntityTypeGrid<SampleType>
 
                 {
                     descriptionField = createDescriptionField(viewContext);
-                    descriptionField.setValueAndUnescape(sampleType.getDescription());
+                    FieldUtil.setValueWithUnescaping(descriptionField, sampleType.getDescription());
                     addField(descriptionField);
 
                     listableField =
-                            SampleTypeDialogFieldHelper.createListableField(viewContext, sampleType
-                                    .isListable());
+                            SampleTypeDialogFieldHelper.createListableField(viewContext,
+                                    sampleType.isListable());
                     addField(listableField);
 
                     showContainerField =
@@ -276,9 +277,9 @@ public class SampleTypeGrid extends AbstractEntityTypeGrid<SampleType>
             };
     }
 
-    // 
+    //
     // Helpers
-    // 
+    //
 
     private static final class SampleTypeDialogFieldHelper
     {

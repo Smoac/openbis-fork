@@ -75,10 +75,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IB
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.PopupDialogBasedInfoHandler;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -340,14 +340,14 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
                 private final TextField<String> titleField;
                 {
                     titleField = createTextField(viewContext.getMessage(Dict.TITLE));
-                    titleField.setValue(StringEscapeUtils.unescapeHtml(current.getTitle()));
+                    FieldUtil.setValueWithUnescaping(titleField, current.getTitle());
                     addField(titleField);
                 }
 
                 private final DescriptionField descriptionField;
                 {
                     descriptionField = createDescriptionField(viewContext);
-                    descriptionField.setValueAndUnescape(current.getDescription());
+                    FieldUtil.setValueWithUnescaping(descriptionField, current.getDescription());
                     addField(descriptionField);
                 }
 
