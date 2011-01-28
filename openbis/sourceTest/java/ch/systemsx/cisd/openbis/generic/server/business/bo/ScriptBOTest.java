@@ -152,7 +152,7 @@ public final class ScriptBOTest extends AbstractBOTest
             fail("EvaluatorException expected");
         } catch (EvaluatorException ex)
         {
-            assertEquals("Script compilation failed with message:\n"
+            assertEquals("Script compilation failed with message:\n\n"
                     + "SyntaxError: ('invalid syntax', ('<string>', 1, 3, '1+'))", ex.getMessage());
         }
         context.assertIsSatisfied();

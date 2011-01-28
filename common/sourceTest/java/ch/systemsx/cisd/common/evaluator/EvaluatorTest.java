@@ -206,25 +206,26 @@ public class EvaluatorTest extends AssertJUnit
         }
         assertFalse(tagFile.exists());
     }
-    
+
     @Test
     public void testEvalFunctionWithStringArgument()
     {
         Evaluator evaluator = new Evaluator("", null, "def hello(name):\n  return 'hello ' + name");
         assertEquals("hello world", evaluator.evalFunction("hello", "world").toString());
     }
-    
+
     @Test
     public void testEvalFunctionWithTwoArguments()
     {
-        Evaluator evaluator = new Evaluator("", null, "def get(map, key):\n  return map.get(key)\n");
+        Evaluator evaluator =
+                new Evaluator("", null, "def get(map, key):\n  return map.get(key)\n");
         Map<String, List<String>> map = new HashMap<String, List<String>>();
         map.put("physicists", Arrays.asList("Newton", "Einstein"));
         Object result = evaluator.evalFunction("get", map, "physicists");
         assertEquals("Result " + result.getClass(), true, result instanceof List);
         assertEquals("[Newton, Einstein]", result.toString());
     }
-    
+
     @Test
     public void testEvalFunctionWhichReturnsAList()
     {
@@ -233,7 +234,7 @@ public class EvaluatorTest extends AssertJUnit
         assertEquals("Result " + result.getClass(), true, result instanceof List);
         assertEquals("[a, b]", result.toString());
     }
-    
+
     @Test
     public void testEvalFunctionWithScriptError()
     {
@@ -254,12 +255,12 @@ public class EvaluatorTest extends AssertJUnit
         Evaluator evaluator =
                 new Evaluator("", null, "text = 'hi'\n"
                         + "def hello(name):\n  return 'hello ' + name");
-        
+
         assertEquals(true, evaluator.hasFunction("hello"));
         assertEquals(false, evaluator.hasFunction("text"));
         assertEquals(false, evaluator.hasFunction("blabla"));
     }
-    
+
     @Test
     public void testEvalUnkownFunction()
     {
@@ -290,51 +291,65 @@ public class EvaluatorTest extends AssertJUnit
                     ex.getMessage());
         }
     }
-    
+
     @Test
     public void testEvalFunctionWithNotEnoughArguments()
     {
-        Evaluator evaluator =
-            new Evaluator("", null, "def hello(name):\n  return 'hello ' + name");
+        Evaluator evaluator = new Evaluator("", null, "def hello(name):\n  return 'hello ' + name");
         try
         {
             evaluator.evalFunction("hello");
             fail("EvaluatorException expected");
         } catch (EvaluatorException ex)
         {
-            assertEquals("Error evaluating 'hello()': TypeError: " +
-            		"hello() takes at least 1 argument (0 given)", ex.getMessage());
+            assertEquals("Error evaluating 'hello()': TypeError: "
+                    + "hello() takes at least 1 argument (0 given)", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testEvalFunctionWithToManyArguments()
     {
-        Evaluator evaluator =
-            new Evaluator("", null, "def hello(name):\n  return 'hello ' + name");
+        Evaluator evaluator = new Evaluator("", null, "def hello(name):\n  return 'hello ' + name");
         try
         {
             evaluator.evalFunction("hello", "world", "universe");
             fail("EvaluatorException expected");
         } catch (EvaluatorException ex)
         {
-            assertEquals("Error evaluating 'hello(world, universe)': TypeError: " +
-                    "hello() too many arguments; expected 1 got 2", ex.getMessage());
+            assertEquals("Error evaluating 'hello(world, universe)': TypeError: "
+                    + "hello() too many arguments; expected 1 got 2", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testEvalFunctionWithWrongArgument()
     {
-        Evaluator evaluator = new Evaluator("", null, "def get(map, key):\n  return map.get(key)\n");
+        Evaluator evaluator =
+                new Evaluator("", null, "def get(map, key):\n  return map.get(key)\n");
         try
         {
             evaluator.evalFunction("get", "world", "universe");
             fail("EvaluatorException expected");
         } catch (EvaluatorException ex)
         {
-            assertEquals("Error evaluating 'get(world, universe)': AttributeError: " +
-            		"'string' object has no attribute 'get'", ex.getMessage());
+            assertEquals("Error evaluating 'get(world, universe)': AttributeError: "
+                    + "'string' object has no attribute 'get'", ex.getMessage());
+        }
+    }
+
+    @Test
+    public void testCheckScriptCompilation()
+    {
+        Evaluator.checkScriptCompilation("1+1");
+        try
+        {
+            Evaluator.checkScriptCompilation("1+");
+            fail("EvaluatorException expected");
+        } catch (EvaluatorException ex)
+        {
+            assertEquals("Script compilation failed with message:\n"
+                    + "SyntaxError: ('invalid syntax', ('<string>', 1, 3, '1+'))", ex.getMessage());
         }
     }
 
