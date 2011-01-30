@@ -319,8 +319,7 @@ public final class LDAPPrincipalQuery implements ISelfTestable
                 final Attributes attributes = result.getAttributes();
                 final String userId = tryGetAttribute(attributes, config.getUserIdAttributeName());
                 final String email = tryGetAttribute(attributes, config.getEmailAttributeName());
-                final String distinguishedName =
-                        tryGetAttribute(attributes, DISTINGUISHED_NAME_ATTRIBUTE_NAME);
+                final String distinguishedName = result.getNameInNamespace();
                 if (userId != null && email != null && distinguishedName != null)
                 {
                     final String firstName =
