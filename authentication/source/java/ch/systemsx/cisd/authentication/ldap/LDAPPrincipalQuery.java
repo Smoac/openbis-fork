@@ -198,6 +198,10 @@ public final class LDAPPrincipalQuery implements ISelfTestable
         final Principal principal = tryGetPrincipal(userId);
         if (principal == null)
         {
+            if (operationLog.isDebugEnabled())
+            {
+                operationLog.debug(String.format("User '%s' not found in LDAP directory.", userId));
+            }
             return null;
         }
         authenticatePrincipal(principal, passwordOrNull);
