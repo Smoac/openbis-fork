@@ -18,6 +18,8 @@ package ch.systemsx.cisd.common.io;
 
 import java.io.InputStream;
 
+import ch.systemsx.cisd.common.filesystem.IRandomAccessFile;
+
 /**
  * Content based on a {@link IContentProvider}.
  *
@@ -56,6 +58,11 @@ public class ContentProviderBasedContent implements IContent
         return getContent().getInputStream();
     }
     
+    public IRandomAccessFile getReadOnlyRandomAccessFile()
+    {
+        return getContent().getReadOnlyRandomAccessFile();
+    }
+    
     private IContent getContent()
     {
         if (content == null)
@@ -64,5 +71,5 @@ public class ContentProviderBasedContent implements IContent
         }
         return content;
     }
-    
+
 }

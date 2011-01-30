@@ -242,7 +242,7 @@ public class ImageChannelsUtilsTest extends AssertJUnit
 
     private String getImageContentDescription(IContent image)
     {
-        BufferedImage bufferedImage = ImageUtil.loadImage(image.getInputStream());
+        BufferedImage bufferedImage = ImageUtil.loadImage(image);
         return getImageContentDescription(bufferedImage);
     }
 

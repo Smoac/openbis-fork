@@ -24,7 +24,6 @@ import java.awt.image.RenderedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -470,12 +469,11 @@ public class ImageChannelsUtils
     private static BufferedImage loadImage(AbsoluteImageReference imageReference)
     {
         IContent content = imageReference.getContent();
-        InputStream inputStream = content.getInputStream();
 
         // extracts the correct page if necessary
         int page = (imageReference.tryGetPage() != null) ? imageReference.tryGetPage() : 0;
 
-        BufferedImage image = ImageUtil.loadImage(inputStream, page);
+        BufferedImage image = ImageUtil.loadImage(content, page);
         return image;
     }
 

@@ -219,7 +219,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             IImagingDatasetLoader imageAccessor)
     {
         IContent imageFile = getAnyImagePath(imageAccessor, dataset);
-        BufferedImage image = ImageUtil.loadImage(imageFile.getInputStream());
+        BufferedImage image = ImageUtil.loadImage(imageFile);
         Size imageSize = new Size(image.getWidth(), image.getHeight());
         return imageSize;
     }

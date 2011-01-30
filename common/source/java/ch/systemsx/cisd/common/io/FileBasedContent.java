@@ -20,9 +20,13 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.RandomAccessFile;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.filesystem.IRandomAccessFile;
+import ch.systemsx.cisd.common.filesystem.RandomAccessFileImpl;
 
 /**
  * File content. Wraps an instance of {@link File}.
@@ -74,6 +78,17 @@ public class FileBasedContent implements IContent
         {
             return new BufferedInputStream(new FileInputStream(file));
         } catch (FileNotFoundException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+    }
+
+    public IRandomAccessFile getReadOnlyRandomAccessFile()
+    {
+        try
+        {
+            return new RandomAccessFileImpl(new RandomAccessFile(file, "r"));
+        } catch (IOException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }

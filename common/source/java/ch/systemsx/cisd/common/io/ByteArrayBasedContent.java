@@ -18,6 +18,10 @@ package ch.systemsx.cisd.common.io;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
+
+import ch.systemsx.cisd.common.filesystem.ByteBufferRandomAccessFile;
+import ch.systemsx.cisd.common.filesystem.IRandomAccessFile;
 
 /**
  * Content based on an array of bytes.
@@ -68,5 +72,10 @@ public class ByteArrayBasedContent implements IContent
     public InputStream getInputStream()
     {
         return new ByteArrayInputStream(byteArray);
+    }
+
+    public IRandomAccessFile getReadOnlyRandomAccessFile()
+    {
+        return new ByteBufferRandomAccessFile(ByteBuffer.wrap(byteArray));
     }
 }

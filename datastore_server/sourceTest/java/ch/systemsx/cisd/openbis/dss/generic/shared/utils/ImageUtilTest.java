@@ -18,8 +18,6 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -27,7 +25,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.filesystem.IRandomAccessFile;
+import ch.systemsx.cisd.common.io.FileBasedContent;
+import ch.systemsx.cisd.common.io.IContent;
 
 /**
  * 
@@ -36,6 +36,37 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
  */
 public class ImageUtilTest extends AssertJUnit
 {
+    private static class MockIContent implements IContent
+    {
+        final MockInputStream is = new MockInputStream();
+        
+        public String tryGetName()
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        public long getSize()
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        public boolean exists()
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        public IRandomAccessFile getReadOnlyRandomAccessFile()
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        public InputStream getInputStream()
+        {
+            return is;
+        }
+        
+    }
+    
     private static class MockInputStream extends InputStream
     {
         boolean closeInvoked;
@@ -100,17 +131,17 @@ public class ImageUtilTest extends AssertJUnit
     @Test
     public void testInputStreamAutomaticallyClosed()
     {
-        MockInputStream inputStream = new MockInputStream();
+        MockIContent content = new MockIContent();
         try
         {
-            ImageUtil.loadImage(inputStream);
+            ImageUtil.loadImage(content);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ex)
         {
             assertEquals("File type of an image input stream couldn't be determined.", ex.getMessage());
         }
         
-        assertEquals(true, inputStream.closeInvoked);
+        assertEquals(true, content.is.closeInvoked);
     }
 
     private BufferedImage loadImageByFile(String fileName)
@@ -123,15 +154,7 @@ public class ImageUtilTest extends AssertJUnit
     private BufferedImage loadImageByInputStream(String fileName)
     {
         File file = new File(dir, fileName);
-        BufferedImage image;
-        try
-        {
-            image = ImageUtil.loadImage(new FileInputStream(file));
-        } catch (FileNotFoundException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        }
-        return image;
+        return ImageUtil.loadImage(new FileBasedContent(file));
     }
     
     private void assertImageSize(int expectedWith, int expectedHeight, BufferedImage image)

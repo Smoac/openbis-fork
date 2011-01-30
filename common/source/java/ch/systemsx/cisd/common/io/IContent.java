@@ -18,8 +18,10 @@ package ch.systemsx.cisd.common.io;
 
 import java.io.InputStream;
 
+import ch.systemsx.cisd.common.filesystem.IRandomAccessFile;
+
 /**
- * Abstract of streamable binary content with name and known size.
+ * Abstract of streamable and random-accessible binary content with name and known size.
  * 
  * @author Franz-Josef Elmer
  */
@@ -40,6 +42,11 @@ public interface IContent
      */
     public boolean exists();
 
+    /**
+     * Returns a random access file object for read-only use.
+     */
+    public IRandomAccessFile getReadOnlyRandomAccessFile();
+    
     /**
      * Returns a new instance of an input stream over the complete content. Note that the returned
      * {@link InputStream} is expected to have {@link InputStream#markSupported()}

@@ -37,12 +37,13 @@ import javax.imageio.ImageIO;
 
 import org.apache.commons.io.IOUtils;
 
-import com.sun.media.jai.codec.FileSeekableStream;
 import com.sun.media.jai.codec.ImageCodec;
 import com.sun.media.jai.codec.ImageDecoder;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.io.FileBasedContent;
+import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.common.utilities.DataTypeUtil;
 
 /**
@@ -182,9 +183,9 @@ public class ImageUtil
      * @throws IllegalArgumentException if the input stream doesn't start with a magic number
      *             identifying supported image format.
      */
-    public static BufferedImage loadImage(InputStream inputStream)
+    public static BufferedImage loadImage(IContent content)
     {
-        return loadImage(inputStream, 0);
+        return loadImage(content, 0);
     }
 
     /**
@@ -195,12 +196,12 @@ public class ImageUtil
      * @throws IllegalArgumentException if the input stream doesn't start with a magic number
      *             identifying supported image format.
      */
-    public static BufferedImage loadImage(InputStream inputStream, int page)
+    public static BufferedImage loadImage(IContent content, int page)
     {
-        InputStream markSupportingInputStream = inputStream;
-        if (inputStream.markSupported() == false)
+        InputStream markSupportingInputStream = content.getInputStream();
+        if (markSupportingInputStream.markSupported() == false)
         {
-            markSupportingInputStream = new BufferedInputStream(inputStream);
+            markSupportingInputStream = new BufferedInputStream(markSupportingInputStream);
         }
         String fileType = DataTypeUtil.tryToFigureOutFileTypeOf(markSupportingInputStream);
         return loadImage(markSupportingInputStream, fileType, page);
@@ -214,7 +215,7 @@ public class ImageUtil
      * @throws IllegalArgumentException if the input stream doesn't start with a magic number
      *             identifying supported image format.
      */
-    public static BufferedImage loadImage(InputStream inputStream, String fileType, int page)
+    private static BufferedImage loadImage(InputStream inputStream, String fileType, int page)
     {
         try
         {
@@ -251,15 +252,7 @@ public class ImageUtil
         {
             throw new IllegalArgumentException("File does not exist: " + file.getAbsolutePath());
         }
-        try
-        {
-            FileSeekableStream inStream = new FileSeekableStream(file);
-            return loadImage(inStream);
-        } catch (IOException ex)
-        {
-            throw new IllegalArgumentException("Isn't a valid image file: "
-                    + file.getAbsolutePath() + ". Error: " + ex.getMessage());
-        }
+        return loadImage(new FileBasedContent(file));
     }
 
     /**

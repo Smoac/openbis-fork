@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.dss.screening.server;
 
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -42,6 +41,7 @@ import ch.systemsx.cisd.base.image.IImageTransformer;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.base.mdarray.MDFloatArray;
 import ch.systemsx.cisd.bds.hcs.Location;
+import ch.systemsx.cisd.common.io.ByteArrayBasedContent;
 import ch.systemsx.cisd.common.io.ConcatenatedFileOutputStreamWriter;
 import ch.systemsx.cisd.common.io.FileBasedContent;
 import ch.systemsx.cisd.common.io.IContent;
@@ -333,7 +333,8 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         imagesWriter.writeNextBlock(outputStream);
-        return ImageUtil.loadImage(new ByteArrayInputStream(outputStream.toByteArray()));
+        return ImageUtil
+                .loadImage(new ByteArrayBasedContent(outputStream.toByteArray(), "UNKNOWN"));
     }
 
     @Test
@@ -448,14 +449,14 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                     ImgDatasetDTO dataset = createDataset(datasetId);
                     dataset.setContainerId(containerId);
                     dataset.setPermId(DATASET_CODE);
-                    
+
                     long experimentId = 888;
                     ImgContainerDTO container = new ImgContainerDTO(null, null, null, experimentId);
                     container.setId(containerId);
 
                     one(dao).tryGetDatasetByPermId(DATASET_CODE);
                     will(returnValue(dataset));
-                    
+
                     allowing(dao).hasDatasetChannels(DATASET_CODE);
                     will(returnValue(false));
 
@@ -601,7 +602,8 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
 
     private FeatureVectorDatasetReference createFeatureVectorDatasetReference(String dataSetCode)
     {
-        return new FeatureVectorDatasetReference(dataSetCode, "", null, null, null, null, null, null);
+        return new FeatureVectorDatasetReference(dataSetCode, "", null, null, null, null, null,
+                null);
     }
 
     // Used for the authorization test
