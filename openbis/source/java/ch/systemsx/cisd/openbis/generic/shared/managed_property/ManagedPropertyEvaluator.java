@@ -30,6 +30,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
 
 /**
  * Class for evaluating scripts that control managed properties.
@@ -62,7 +63,7 @@ public class ManagedPropertyEvaluator
     private static final String UPDATE_FROM_BATCH_INPUT_FUNCTION = "updateFromBatchInput";
 
     private static final String PROPERTY_VARIABLE_NAME = "property";
-    
+
     /**
      * Asserts that for all specified batch column names bindings are specified. If the list of
      * column names is empty the value should be bound at an empty string.
@@ -156,7 +157,7 @@ public class ManagedPropertyEvaluator
         evaluator.evalFunction(CONFIGURE_UI_FUNCTION);
     }
 
-    public void updateFromUI(IManagedProperty managedProperty)
+    public void updateFromUI(IManagedProperty managedProperty, IManagedUiAction action)
     {
         if (operationLog.isDebugEnabled())
         {
@@ -165,7 +166,7 @@ public class ManagedPropertyEvaluator
         }
 
         evaluator.set(PROPERTY_VARIABLE_NAME, managedProperty);
-        evaluator.evalFunction(UPDATE_FROM_UI_FUNCTION);
+        evaluator.evalFunction(UPDATE_FROM_UI_FUNCTION, action);
     }
 
     public List<String> getBatchColumnNames()

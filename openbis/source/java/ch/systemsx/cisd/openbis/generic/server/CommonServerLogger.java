@@ -85,6 +85,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
@@ -962,31 +963,34 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     public void updateManagedPropertyOnExperiment(String sessionToken, TechId experimentId,
-            IManagedProperty managedProperty)
+            IManagedProperty managedProperty, IManagedUiAction updateAction)
     {
-        logTracking(sessionToken, "updateManagedPropertyOnExperiment", "ID(%s) PROPERTY(%s)",
-                experimentId, managedProperty.getPropertyTypeCode());
-
+        logTracking(sessionToken, "updateManagedPropertyOnExperiment",
+                "ID(%s) PROPERTY(%s) ACTION(%s)", experimentId,
+                managedProperty.getPropertyTypeCode(), updateAction.getName());
     }
 
     public void updateManagedPropertyOnSample(String sessionToken, TechId sampleId,
-            IManagedProperty managedProperty)
+            IManagedProperty managedProperty, IManagedUiAction updateAction)
     {
-        logTracking(sessionToken, "updateManagedPropertyOnSample", "ID(%s) PROPERTY(%s)", sampleId,
-                managedProperty.getPropertyTypeCode());
+        logTracking(sessionToken, "updateManagedPropertyOnSample",
+                "ID(%s) PROPERTY(%s) ACTION(%s)", sampleId, managedProperty.getPropertyTypeCode(),
+                updateAction.getName());
     }
 
     public void updateManagedPropertyOnDataSet(String sessionToken, TechId dataSetId,
-            IManagedProperty managedProperty)
+            IManagedProperty managedProperty, IManagedUiAction updateAction)
     {
-        logTracking(sessionToken, "updateManagedPropertyOnDataSet", "ID(%s) PROPERTY(%s)",
-                dataSetId, managedProperty.getPropertyTypeCode());
+        logTracking(sessionToken, "updateManagedPropertyOnDataSet",
+                "ID(%s) PROPERTY(%s) ACTION(%s)", dataSetId, managedProperty.getPropertyTypeCode(),
+                updateAction.getName());
     }
 
     public void updateManagedPropertyOnMaterial(String sessionToken, TechId materialId,
-            IManagedProperty managedProperty)
+            IManagedProperty managedProperty, IManagedUiAction updateAction)
     {
-        logTracking(sessionToken, "updateManagedPropertyOnMaterial", "ID(%s) PROPERTY(%s)",
-                materialId, managedProperty.getPropertyTypeCode());
+        logTracking(sessionToken, "updateManagedPropertyOnMaterial",
+                "ID(%s) PROPERTY(%s) ACTION(%s)", materialId,
+                managedProperty.getPropertyTypeCode(), updateAction.getName());
     }
 }

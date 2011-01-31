@@ -106,6 +106,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
 
 /**
  * Asynchronous version of {@link ICommonClientService}.
@@ -667,9 +668,13 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void addAttachment(TechId holderId, String sessionKey, AttachmentHolderKind holderKind,
             NewAttachment attachment, AsyncCallback<Void> asyncCallback);
 
-    /** @see ICommonClientService#updateManagedProperty(TechId, EntityKind, IManagedProperty) */
+    /**
+     * @see ICommonClientService#updateManagedProperty(TechId, EntityKind, IManagedProperty,
+     *      IManagedUiAction)
+     */
     public void updateManagedProperty(TechId entityId, EntityKind entityKind,
-            IManagedProperty managedProperty, AsyncCallback<Void> asyncCallback);
+            IManagedProperty managedProperty, IManagedUiAction updateAction,
+            AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#listDataStoreServices(DataStoreServiceKind) */
     public void listDataStoreServices(DataStoreServiceKind pluginTaskKind,

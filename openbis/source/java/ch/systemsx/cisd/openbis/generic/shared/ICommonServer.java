@@ -109,6 +109,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
@@ -1220,7 +1221,7 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @DatabaseUpdateModification(value = ObjectKind.EXPERIMENT)
     public void updateManagedPropertyOnExperiment(String sessionToken, TechId experimentId,
-            IManagedProperty managedProperty);
+            IManagedProperty managedProperty, IManagedUiAction updateAction);
 
     /**
      * Evaluates the managed property script and updates the entity.
@@ -1229,7 +1230,7 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
     public void updateManagedPropertyOnSample(String sessionToken, TechId experimentId,
-            IManagedProperty managedProperty);
+            IManagedProperty managedProperty, IManagedUiAction updateAction);
 
     /**
      * Evaluates the managed property script and updates the entity.
@@ -1238,7 +1239,7 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
     public void updateManagedPropertyOnDataSet(String sessionToken, TechId experimentId,
-            IManagedProperty managedProperty);
+            IManagedProperty managedProperty, IManagedUiAction updateAction);
 
     /**
      * Evaluates the managed property script and updates the entity.
@@ -1247,6 +1248,6 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @DatabaseUpdateModification(value = ObjectKind.MATERIAL)
     public void updateManagedPropertyOnMaterial(String sessionToken, TechId experimentId,
-            IManagedProperty managedProperty);
+            IManagedProperty managedProperty, IManagedUiAction updateAction);
 
 }

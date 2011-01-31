@@ -16,31 +16,21 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto.api;
 
-import java.util.List;
-
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
- * The interface exposed to the Managed Property script.
+ * Selection modes of table actions.
+ * <p>
+ * NOTE: This enumeration is part of the Managed Properties API.
  * 
- * @author Chandrasekhar Ramakrishnan
+ * @author Piotr Buczek
  */
-public interface IManagedUiDescription extends ISerializable
+public enum ManagedTableActionRowSelectionType implements ISerializable
 {
-    /**
-     * Sets the given table model to define an output that will be shown in detail view of the
-     * entity owning the property. The table will be shown in an extra tab.
-     */
-    void useTableOutput(ITableModel tableModel);
-
-    IManagedUiAction addAction(String id);
-
-    List<IManagedUiAction> getActions();
-
-    /**
-     * Returns description of the widget that will be shown in detail view of the entity owning the
-     * property.
-     */
-    IManagedOutputWidgetDescription getOutputWidgetDescription();
-
+    /** e.g. create/add action */
+    NOT_REQUIRED,
+    /** e.g. edit action */
+    REQUIRED_SINGLE,
+    /** e.g. delete action */
+    REQUIRED
 }

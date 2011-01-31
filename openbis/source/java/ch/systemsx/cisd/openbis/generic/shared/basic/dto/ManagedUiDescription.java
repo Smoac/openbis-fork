@@ -17,12 +17,11 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedOutputWidgetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ITableModel;
 
@@ -35,10 +34,10 @@ public class ManagedUiDescription implements IManagedUiDescription, ISerializabl
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private IManagedOutputWidgetDescription outputWidgetDescription;
+    private IManagedOutputWidgetDescription outputWidget;
 
-    private List<IManagedInputWidgetDescription> inputWidgetDescriptions =
-            new ArrayList<IManagedInputWidgetDescription>();
+    private List<IManagedUiAction> actions =
+            new ArrayList<IManagedUiAction>();
 
     public ManagedUiDescription()
     {
@@ -46,56 +45,33 @@ public class ManagedUiDescription implements IManagedUiDescription, ISerializabl
 
     public IManagedOutputWidgetDescription getOutputWidgetDescription()
     {
-        return outputWidgetDescription;
+        return outputWidget;
     }
 
-    public void setOutputWidgetDescription(IManagedOutputWidgetDescription outputWidgetDescription)
+    public void setOutputWidgetDescription(IManagedOutputWidgetDescription outputWidget)
     {
-        this.outputWidgetDescription = outputWidgetDescription;
+        this.outputWidget = outputWidget;
     }
 
-    public List<IManagedInputWidgetDescription> getInputWidgetDescriptions()
+    public IManagedUiAction addAction(String id)
     {
-        return inputWidgetDescriptions;
+        IManagedUiAction action = new ManagedUiActionDescription(id);
+        actions.add(action);
+        return action;
     }
 
-    public void setInputWidgetDescriptions(List<IManagedInputWidgetDescription> widgetDescriptions)
+    public IManagedUiAction addTableAction(String id)
     {
-        this.inputWidgetDescriptions = widgetDescriptions;
+        IManagedUiAction action = new ManagedUiTableActionDescription(id);
+        actions.add(action);
+        return action;
     }
 
-    public void addInputWidgetDescription(IManagedInputWidgetDescription widgetDescription)
+    public List<IManagedUiAction> getActions()
     {
-        inputWidgetDescriptions.add(widgetDescription);
+        return actions;
     }
-
-    public IManagedInputWidgetDescription addTextInputField(String label)
-    {
-        ManagedTextInputWidgetDescription inputField = new ManagedTextInputWidgetDescription();
-        inputField.setLabel(label);
-        addInputWidgetDescription(inputField);
-        return inputField;
-    }
-
-    public IManagedInputWidgetDescription addMultilineTextInputField(String label)
-    {
-        ManagedMultilineTextInputWidgetDescription inputField =
-                new ManagedMultilineTextInputWidgetDescription();
-        inputField.setLabel(label);
-        addInputWidgetDescription(inputField);
-        return inputField;
-    }
-
-    public IManagedInputWidgetDescription addComboBoxInputField(String label, String[] values)
-    {
-        ManagedComboBoxInputWidgetDescription inputField =
-                new ManagedComboBoxInputWidgetDescription();
-        inputField.setLabel(label);
-        inputField.setOptions(Arrays.asList(values));
-        addInputWidgetDescription(inputField);
-        return inputField;
-    }
-
+    
     public void useTableOutput(ITableModel tableModel)
     {
         ManagedTableWidgetDescription tableWidget = new ManagedTableWidgetDescription();

@@ -104,6 +104,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
 
 /**
  * Service interface for the generic GWT client.
@@ -771,7 +772,7 @@ public interface ICommonClientService extends IClientService
 
     /** Updates managed property of specified entity. */
     public void updateManagedProperty(TechId entityId, EntityKind entityKind,
-            IManagedProperty managedProperty) throws UserFailureException;
+            IManagedProperty managedProperty, IManagedUiAction updateAction) throws UserFailureException;
 
     /**
      * For given {@link DataStoreServiceKind} returns a list of all corresponding

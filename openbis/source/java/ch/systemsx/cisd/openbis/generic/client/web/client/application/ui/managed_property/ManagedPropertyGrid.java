@@ -25,7 +25,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
@@ -45,6 +44,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Null;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiTableAction;
 
 /**
  * @author Piotr Buczek
@@ -105,31 +106,40 @@ public class ManagedPropertyGrid extends TypedTableGrid<Null>
         {
             return;
         }
-        addEntityOperationsLabel();
-        addEntityOperationButtons();
-        addEntityOperationsSeparator();
+        if (managedProperty.getUiDescription().getActions().size() > 0)
+        {
+            addEntityOperationsLabel();
+            addEntityOperationButtons();
+            addEntityOperationsSeparator();
+        }
     }
 
     private void addEntityOperationButtons()
     {
-        // For now we have only one fixed action to modify
-        // but in future we want to support different actions (create/update/delete).
-
-        final String editTitle = viewContext.getMessage(Dict.BUTTON_EDIT);
-        Button editButton = new Button(editTitle, new AbstractCreateDialogListener()
+        for (IManagedUiAction managedAction : managedProperty.getUiDescription()
+                .getActions())
+        {
+            if (managedAction instanceof IManagedUiTableAction)
             {
+                final IManagedUiTableAction tableAction =
+                        (IManagedUiTableAction) managedAction;
 
-                @Override
-                protected Dialog createDialog(List<TableModelRowWithObject<Null>> data,
-                        IBrowserGridActionInvoker invoker)
-                {
-                    AsyncCallback<Void> callback = createRefreshCallback(invoker);
-                    return new ManagedPropertyGridActionDialog(viewContext, editTitle, data,
-                            callback, entity, managedProperty);
-                }
-            });
+                final String actionTitle = tableAction.getName();
+                Button actionButton = new Button(actionTitle, new AbstractCreateDialogListener()
+                    {
 
-        addButton(editButton);
+                        @Override
+                        protected Dialog createDialog(List<TableModelRowWithObject<Null>> data,
+                                IBrowserGridActionInvoker invoker)
+                        {
+                            AsyncCallback<Void> callback = createRefreshCallback(invoker);
+                            return new ManagedPropertyGridActionDialog(viewContext, actionTitle,
+                                    data, callback, entity, managedProperty, tableAction);
+                        }
+                    });
+                addButton(actionButton);
+            }
+        }
     }
 
     @Override

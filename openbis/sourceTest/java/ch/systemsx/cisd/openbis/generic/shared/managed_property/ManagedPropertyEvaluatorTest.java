@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedOutputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ManagedInputFieldType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ManagedOutputWidgetType;
@@ -141,17 +142,21 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
         ManagedPropertyEvaluator evaluator =
                 new ManagedPropertyEvaluator(
                         "def configureUI():\n"
-                                + "    uiDesc = property.getUiDescription()\n"
-                                + "    uiDesc.addTextInputField('t1')\n"
-                                + "    uiDesc.addTextInputField('t2').setValue('default 2')\n"
-                                + "    uiDesc.addTextInputField('t3').setDescription('description 3')\n"
-                                + "    uiDesc.addMultilineTextInputField('multi').setValue('default m').setDescription('multiline')\n"
-                                + "    uiDesc.addComboBoxInputField('combo', ['v1', 'v2', 'v3']).setMandatory(True).setDescription('select from list')\n");
+                                + "    uiAction = property.getUiDescription().addAction('Create')\n"
+                                + "    uiAction.addTextInputField('t1')\n"
+                                + "    uiAction.addTextInputField('t2').setValue('default 2')\n"
+                                + "    uiAction.addTextInputField('t3').setDescription('description 3')\n"
+                                + "    uiAction.addMultilineTextInputField('multi').setValue('default m').setDescription('multiline')\n"
+                                + "    uiAction.addComboBoxInputField('combo', ['v1', 'v2', 'v3']).setMandatory(True).setDescription('select from list')\n");
         evaluator.configureUI(managedProperty);
         assertEquals(false, managedProperty.isOwnTab());
 
-        List<IManagedInputWidgetDescription> inputWidgets =
-                managedProperty.getUiDescription().getInputWidgetDescriptions();
+        List<IManagedUiAction> actions = managedProperty.getUiDescription().getActions();
+        assertEquals(1, actions.size());
+        IManagedUiAction action = actions.get(0);
+        assertEquals("Create", action.getName());
+
+        List<IManagedInputWidgetDescription> inputWidgets = action.getInputWidgetDescriptions();
         assertEquals(5, inputWidgets.size());
         checkInputFieldWidget(inputWidgets.get(0), ManagedInputFieldType.TEXT, "t1", null, null,
                 false);
@@ -181,30 +186,50 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
     {
         IManagedProperty managedProperty = new ManagedProperty();
         IManagedUiDescription uiDescription = managedProperty.getUiDescription();
-        uiDescription.addTextInputField("t1");
-        uiDescription.addTextInputField("t2").setValue("v2");
-        uiDescription.addMultilineTextInputField("multi").setValue("multi\nline\ninput");
-        uiDescription.addComboBoxInputField("combo", new String[]
-            { "cv1", "cv2", "cv3" }).setValue("cv1");
-        ManagedPropertyEvaluator evaluator =
-                new ManagedPropertyEvaluator(
-                        "def updateFromUI():\n"
-                                + "    value = ''\n"
-                                + "    for input in property.getUiDescription().getInputWidgetDescriptions():\n"
-                                + "        inputValue = input.getValue();\n"
-                                + "        if inputValue is None:\n "
-                                + "            inputValue = 'null'\n"
-                                + "        value = value + input.getLabel() + '=' + inputValue + '|'\n"
-                                + "    property.setValue(value)\n");
-        evaluator.updateFromUI(managedProperty);
 
+        IManagedUiAction action1 = uiDescription.addAction("a1");
+        action1.addTextInputField("t1");
+        action1.addTextInputField("t2").setValue("v2");
+        action1.addMultilineTextInputField("multi").setValue("multi\nline\ninput");
+        action1.addComboBoxInputField("combo", new String[]
+            { "cv1", "cv2", "cv3" }).setValue("cv1");
+
+        IManagedUiAction action2 = uiDescription.addAction("a2");
+        action2.addTextInputField("t1").setValue("v11");
+        action2.addTextInputField("t2").setValue("v22");
+
+        ManagedPropertyEvaluator evaluator =
+                new ManagedPropertyEvaluator("def updateFromUI(action):\n"
+                        + "    if action.getName() == 'a1':\n" + "        value = 'a1|'\n"
+                        + "        for input in action.getInputWidgetDescriptions():\n"
+                        + "            inputValue = input.getValue();\n"
+                        + "            if inputValue is None:\n "
+                        + "                inputValue = 'null'\n"
+                        + "            value = value + input.getLabel() + '=' + inputValue + '|'\n"
+                        + "        property.setValue(value)\n"
+                        + "    elif action.getName() == 'a2':\n" + "        value = 'a2!'\n"
+                        + "        for input in action.getInputWidgetDescriptions():\n"
+                        + "            inputValue = input.getValue();\n"
+                        + "            if inputValue is None:\n "
+                        + "                inputValue = 'null'\n"
+                        + "            value = value + input.getLabel() + '=' + inputValue + '!'\n"
+                        + "        property.setValue(value)\n");
+
+        evaluator.updateFromUI(managedProperty, action1);
         assertNotNull(managedProperty.getValue());
-        String[] inputTokens = managedProperty.getValue().split("\\|");
-        System.err.println(Arrays.toString(inputTokens));
-        assertEquals("t1=null", inputTokens[0]);
-        assertEquals("t2=v2", inputTokens[1]);
-        assertEquals("multi=multi\nline\ninput", inputTokens[2]);
-        assertEquals("combo=cv1", inputTokens[3]);
+        String[] inputTokens1 = managedProperty.getValue().split("\\|");
+        assertEquals("a1", inputTokens1[0]);
+        assertEquals("t1=null", inputTokens1[1]);
+        assertEquals("t2=v2", inputTokens1[2]);
+        assertEquals("multi=multi\nline\ninput", inputTokens1[3]);
+        assertEquals("combo=cv1", inputTokens1[4]);
+
+        evaluator.updateFromUI(managedProperty, action2);
+        assertNotNull(managedProperty.getValue());
+        String[] inputTokens2 = managedProperty.getValue().split("\\!");
+        assertEquals("a2", inputTokens2[0]);
+        assertEquals("t1=v11", inputTokens2[1]);
+        assertEquals("t2=v22", inputTokens2[2]);
     }
 
     private void checkInputFieldWidget(IManagedInputWidgetDescription widget,

@@ -144,6 +144,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
@@ -2234,7 +2235,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     public void updateManagedPropertyOnExperiment(String sessionToken, TechId experimentId,
-            IManagedProperty managedProperty)
+            IManagedProperty managedProperty, IManagedUiAction updateAction)
     {
         Session session = getSession(sessionToken);
         try
@@ -2248,7 +2249,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                     experimentBO.getExperiment().getProperties();
             ManagedPropertyEvaluator evaluator =
                     tryManagedPropertyEvaluator(managedProperty, properties);
-            evaluator.updateFromUI(managedProperty);
+            evaluator.updateFromUI(managedProperty, updateAction);
 
             experimentBO.updateManagedProperty(managedProperty);
             experimentBO.save();
@@ -2262,7 +2263,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     public void updateManagedPropertyOnSample(String sessionToken, TechId experimentId,
-            IManagedProperty managedProperty)
+            IManagedProperty managedProperty, IManagedUiAction updateAction)
     {
         Session session = getSession(sessionToken);
         try
@@ -2275,7 +2276,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             Set<? extends EntityPropertyPE> properties = sampleBO.getSample().getProperties();
             ManagedPropertyEvaluator evaluator =
                     tryManagedPropertyEvaluator(managedProperty, properties);
-            evaluator.updateFromUI(managedProperty);
+            evaluator.updateFromUI(managedProperty, updateAction);
 
             sampleBO.updateManagedProperty(managedProperty);
             sampleBO.save();
@@ -2289,7 +2290,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     public void updateManagedPropertyOnDataSet(String sessionToken, TechId experimentId,
-            IManagedProperty managedProperty)
+            IManagedProperty managedProperty, IManagedUiAction updateAction)
     {
         Session session = getSession(sessionToken);
         try
@@ -2303,7 +2304,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                     dataSetBO.getExternalData().getProperties();
             ManagedPropertyEvaluator evaluator =
                     tryManagedPropertyEvaluator(managedProperty, properties);
-            evaluator.updateFromUI(managedProperty);
+            evaluator.updateFromUI(managedProperty, updateAction);
 
             dataSetBO.updateManagedProperty(managedProperty);
             dataSetBO.save();
@@ -2317,7 +2318,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     public void updateManagedPropertyOnMaterial(String sessionToken, TechId experimentId,
-            IManagedProperty managedProperty)
+            IManagedProperty managedProperty, IManagedUiAction updateAction)
     {
         Session session = getSession(sessionToken);
         try
@@ -2330,7 +2331,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             Set<? extends EntityPropertyPE> properties = materialBO.getMaterial().getProperties();
             ManagedPropertyEvaluator evaluator =
                     tryManagedPropertyEvaluator(managedProperty, properties);
-            evaluator.updateFromUI(managedProperty);
+            evaluator.updateFromUI(managedProperty, updateAction);
 
             materialBO.updateManagedProperty(managedProperty);
             materialBO.save();

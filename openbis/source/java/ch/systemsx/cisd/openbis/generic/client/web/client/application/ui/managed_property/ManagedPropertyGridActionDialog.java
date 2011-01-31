@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Null;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiTableAction;
 
 public final class ManagedPropertyGridActionDialog extends
         AbstractDataConfirmationDialog<List<TableModelRowWithObject<Null>>>
@@ -58,13 +59,15 @@ public final class ManagedPropertyGridActionDialog extends
 
     private final IManagedProperty managedProperty;
 
+    private final IManagedUiTableAction managedAction;
+
     private final Map<String, TextField<?>> inputFieldsByLabel =
             new LinkedHashMap<String, TextField<?>>();
 
     public ManagedPropertyGridActionDialog(IViewContext<ICommonClientServiceAsync> viewContext,
             String editTitle, List<TableModelRowWithObject<Null>> data,
             AsyncCallback<Void> callback, IEntityInformationHolder entity,
-            IManagedProperty managedProperty)
+            IManagedProperty managedProperty, IManagedUiTableAction managedAction)
     {
         super(viewContext, data, editTitle);
         this.viewContext = viewContext;
@@ -72,14 +75,15 @@ public final class ManagedPropertyGridActionDialog extends
         this.entity = entity;
         this.managedProperty = managedProperty;
         this.callback = callback;
+        this.managedAction = managedAction;
         setWidth(400);
     }
 
     @Override
     protected String createMessage()
     {
-        // TODO 2011-01-18 - the message should depend on action and be provided by the script
-        return "Action decription";
+        return managedAction.getDescription() == null ? "Provide data" : managedAction
+                .getDescription();
     }
 
     @Override
@@ -95,7 +99,7 @@ public final class ManagedPropertyGridActionDialog extends
             Info.display("confirmed", sb.toString());
         }
 
-        for (IManagedInputWidgetDescription inputDescription : managedProperty.getUiDescription()
+        for (IManagedInputWidgetDescription inputDescription : managedAction
                 .getInputWidgetDescriptions())
         {
             TextField<?> field = inputFieldsByLabel.get(inputDescription.getLabel());
@@ -105,7 +109,7 @@ public final class ManagedPropertyGridActionDialog extends
         // old vale was escaped going to the client - unescape it before sending back to the server
         managedProperty.setValue(StringEscapeUtils.unescapeHtml(managedProperty.getValue()));
         viewContext.getService().updateManagedProperty(TechId.create(entity),
-                entity.getEntityKind(), managedProperty, callback);
+                entity.getEntityKind(), managedProperty, managedAction, callback);
     }
 
     @Override
@@ -113,7 +117,7 @@ public final class ManagedPropertyGridActionDialog extends
     {
         formPanel.setLabelWidth(100);
         formPanel.setFieldWidth(200);
-        for (IManagedInputWidgetDescription inputDescription : managedProperty.getUiDescription()
+        for (IManagedInputWidgetDescription inputDescription : managedAction
                 .getInputWidgetDescriptions())
         {
             TextField<?> field;

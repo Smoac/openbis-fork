@@ -161,6 +161,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermBatchUpda
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
@@ -2092,7 +2093,7 @@ public final class CommonClientService extends AbstractClientService implements
                     + "Contact instance admin about a possible bug in script definition.";
 
     public void updateManagedProperty(TechId entityId, EntityKind entityKind,
-            IManagedProperty managedProperty)
+            IManagedProperty managedProperty, IManagedUiAction updateAction)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
@@ -2102,23 +2103,30 @@ public final class CommonClientService extends AbstractClientService implements
             {
                 case EXPERIMENT:
                     commonServer.updateManagedPropertyOnExperiment(sessionToken, entityId,
-                            managedProperty);
+                            managedProperty, updateAction);
                     break;
                 case SAMPLE:
                     commonServer.updateManagedPropertyOnSample(sessionToken, entityId,
-                            managedProperty);
+                            managedProperty, updateAction);
                     break;
                 case DATA_SET:
                     commonServer.updateManagedPropertyOnDataSet(sessionToken, entityId,
-                            managedProperty);
+                            managedProperty, updateAction);
                     break;
                 case MATERIAL:
                     commonServer.updateManagedPropertyOnMaterial(sessionToken, entityId,
-                            managedProperty);
+                            managedProperty, updateAction);
                     break;
             }
         } catch (final UserFailureException e)
         {
+            // TODO
+            // Throwable cause = e.getCause();
+            // if (cause instanceof ValidationException)
+            // {
+            // throw new UserFailureException("Error in row " + (i + 1) + ": "
+            // + cause.getMessage());
+            // }
             if (operationLog.isInfoEnabled())
             {
                 // we do not log this as an error, because it can be only user's fault
