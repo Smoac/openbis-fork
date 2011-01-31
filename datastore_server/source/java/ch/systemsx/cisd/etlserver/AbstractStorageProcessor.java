@@ -22,6 +22,7 @@ import java.util.Properties;
 import org.apache.commons.io.FilenameUtils;
 
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 
 /**
  * An <code>abtract</code> implementation of <code>IStorageProcessor</code>.
@@ -66,6 +67,14 @@ public abstract class AbstractStorageProcessor implements IStorageProcessor
     public final void setStoreRootDirectory(final File storeRootDirectory)
     {
         this.storeRootDir = storeRootDirectory;
+    }
+
+    /**
+     * @see IStorageProcessor#getStorageFormat()
+     */
+    public StorageFormat getStorageFormat()
+    {
+        return StorageFormat.PROPRIETARY;
     }
 
     public void commit(File incomingDataSetDirectory, File storedDataDirectory)

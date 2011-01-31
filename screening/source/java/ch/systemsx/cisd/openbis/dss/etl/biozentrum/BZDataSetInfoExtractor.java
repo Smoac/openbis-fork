@@ -59,6 +59,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
  */
 public class BZDataSetInfoExtractor implements IDataSetInfoExtractor
 {
+    private static final String EXPERIMENT_DESCRIPTION_PROPERTY_CODE = "DESCRIPTION";
+
+    private static final String HCS_SIRNA_EXPERIMENT_TYPE = "SIRNA_HCS";
 
     static final String SPACE_CODE = "space-code";
 
@@ -223,7 +226,7 @@ public class BZDataSetInfoExtractor implements IDataSetInfoExtractor
         sample.setExperimentIdentifier(experimentIdentifier.toString());
         sample.setIdentifier(sampleIdentifier.toString());
         SampleType sampleType = new SampleType();
-        sampleType.setCode(ScreeningConstants.PLATE_PLUGIN_TYPE_CODE);
+        sampleType.setCode(ScreeningConstants.DEFAULT_PLATE_SAMPLE_TYPE_CODE);
         sample.setSampleType(sampleType);
         sample.setProperties(createVocabularyProperty(ScreeningConstants.PLATE_GEOMETRY,
                 plateGeometry));
@@ -252,9 +255,9 @@ public class BZDataSetInfoExtractor implements IDataSetInfoExtractor
     private static NewExperiment createExperimentSIRNAHCS(ExperimentIdentifier experimentIdentifier)
     {
         NewExperiment experiment = new NewExperiment();
-        experiment.setExperimentTypeCode(ScreeningConstants.HCS_SIRNA_EXPERIMENT_TYPE);
+        experiment.setExperimentTypeCode(HCS_SIRNA_EXPERIMENT_TYPE);
         experiment.setIdentifier(experimentIdentifier.toString());
-        experiment.setProperties(createVarcharProperty(ScreeningConstants.DESCRIPTION, "-"));
+        experiment.setProperties(createVarcharProperty(EXPERIMENT_DESCRIPTION_PROPERTY_CODE, "-"));
         return experiment;
 
     }

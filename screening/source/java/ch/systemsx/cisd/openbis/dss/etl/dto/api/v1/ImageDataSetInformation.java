@@ -73,6 +73,12 @@ public class ImageDataSetInformation extends DataSetInformation
         this.channels = channels;
     }
 
+    /** are all necessary fields filled? */
+    public boolean isValid()
+    {
+        return tileRowsNumber > 0 && tileColumnsNumber > 0 && channels != null && images != null;
+    }
+
     @Override
     public String toString()
     {

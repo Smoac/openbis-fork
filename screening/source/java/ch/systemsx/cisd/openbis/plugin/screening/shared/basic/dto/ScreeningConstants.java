@@ -33,7 +33,7 @@ public class ScreeningConstants
     // name of the data source (configured in service.properties) which allows to access imaging db
     public static final String IMAGING_DATA_SOURCE = "imaging-db";
 
-    // ---- required entity type patterns
+    // ---- required entity type patterns -----------
 
     // type of the dataset which stores image analysis data, there should be at most one
     public static final String HCS_IMAGE_ANALYSIS_DATASET_TYPE_PATTERN =
@@ -50,38 +50,43 @@ public class ScreeningConstants
     public static final String HCS_PLATE_SAMPLE_TYPE_PATTERN = ".*PLATE.*";
 
     // type of the dataset which stores microscopy images
-    public static final String MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN =
-            "MICROSCOPY_IMAGE|.*IMG.*";
+    public static final String MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN = "MICROSCOPY_IMAGE|.*IMG.*";
 
     // the sample is considered to be a microscopy sample if its type code contains this string
     public static final String IMAGE_SAMPLE_TYPE_PATTERN = ".*IMG.*";
 
+    // the non-control well has to have a type code which contains this string
+    public static final String NON_CONTROL_WELL_SAMPLE_TYPE_PATTERN =
+            ".*WELL.*|.*CHAMBER.*|OLIGO|GENE";
+
     // the well is considered to be a control well if its type code contains this string
     public static final String CONTROL_WELL_SAMPLE_TYPE_PATTERN = ".*CONTROL.*";
 
-    // ---- required entity types
-
-    public static final String PLATE_PLUGIN_TYPE_CODE = "PLATE";
-
-    public static final String LIBRARY_PLUGIN_TYPE_CODE = "LIBRARY";
-
-    public static final String SIRNA_WELL_TYPE_CODE = "SIRNA_WELL";
-
-    // code of the gene material type
-    public static final String GENE_PLUGIN_TYPE_CODE = "GENE";
-
-    // code of the siRNA material type
-    public static final String SIRNA_PLUGIN_TYPE_NAME = "SIRNA";
+    // ----
 
     // code of plate geometry vocabulary
     public static final String PLATE_GEOMETRY = "$PLATE_GEOMETRY";
 
-    public static final String DESCRIPTION = "DESCRIPTION";
+    // Used to import Qiagen siRNA libraries
+    public static final String LIBRARY_PLUGIN_TYPE_CODE = "LIBRARY";
 
-    public static final String HCS_SIRNA_EXPERIMENT_TYPE = "SIRNA_HCS";
+    // --- !!!!!! It's discouraged to use this constant, try hard not to do that !!!!!!!! ---
 
+    /** It's discouraged to use this constant, use {@link #HCS_PLATE_SAMPLE_TYPE_PATTERN} instead. */
+    public static final String DEFAULT_PLATE_SAMPLE_TYPE_CODE = "PLATE";
+
+    /** It's discouraged to use this constant. Code of the gene material type */
+    public static final String GENE_PLUGIN_TYPE_CODE = "GENE";
+
+    /** It's discouraged to use this constant. Code of the siRNA material type. */
+    public static final String SIRNA_PLUGIN_TYPE_NAME = "SIRNA";
+    
+    public static final String SIRNA_WELL_TYPE_CODE = "SIRNA_WELL";
+
+    /** It's discouraged to use this constant. */
     public static final String GENE_SYMBOLS = "GENE_SYMBOLS";
 
+    /** It's discouraged to use this constant. */
     public static final String MERGED_CHANNELS = "Merged Channels";
 
     // ---- required DSS servlets

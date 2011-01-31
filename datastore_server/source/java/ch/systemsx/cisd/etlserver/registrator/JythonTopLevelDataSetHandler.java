@@ -237,7 +237,7 @@ public class JythonTopLevelDataSetHandler extends AbstractOmniscientTopLevelData
         /**
          * Factory method that creates a new data set information object.
          */
-        public DataSetInformation createDataSetInformation()
+        private DataSetInformation createDataSetInformation()
         {
             DataSetInformation dataSetInfo = new DataSetInformation();
             dataSetInfo.setInstanceCode(registratorState.getHomeDatabaseInstance().getCode());

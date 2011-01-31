@@ -154,8 +154,8 @@ public class ScreeningApiImpl
         final List<Plate> plates = new ArrayList<Plate>();
         for (Sample sample : samples)
         {
-            if (ScreeningConstants.PLATE_PLUGIN_TYPE_CODE
-                    .equals(sample.getEntityType().getCode()))
+            if (ScreeningConstants.DEFAULT_PLATE_SAMPLE_TYPE_CODE.equals(sample.getEntityType()
+                    .getCode()))
             {
                 plates.add(asPlate(sample));
             }
@@ -187,12 +187,13 @@ public class ScreeningApiImpl
     {
         ISampleTypeDAO sampleTypeDAO = daoFactory.getSampleTypeDAO();
         SampleTypePE plateTypePE =
-                sampleTypeDAO.tryFindSampleTypeByCode(ScreeningConstants.PLATE_PLUGIN_TYPE_CODE);
+                sampleTypeDAO
+                        .tryFindSampleTypeByCode(ScreeningConstants.DEFAULT_PLATE_SAMPLE_TYPE_CODE);
         if (plateTypePE == null)
         {
             throw new Error(
                     "The database has not been initialized properly for screening, sample type '"
-                            + ScreeningConstants.PLATE_PLUGIN_TYPE_CODE + "' not found.");
+                            + ScreeningConstants.DEFAULT_PLATE_SAMPLE_TYPE_CODE + "' not found.");
         }
         return SampleTypeTranslator.translate(plateTypePE, null);
     }

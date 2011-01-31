@@ -53,11 +53,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ImageSampleViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.MicroscopyDatasetViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateDatasetViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateLocationsMaterialViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateSampleViewer;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ImageSampleViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.sample.LibrarySampleBatchRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
@@ -104,16 +104,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
             // -- library registration
             types.add(ScreeningConstants.LIBRARY_PLUGIN_TYPE_CODE);
             // -- screening well
-            // TODO 2010-12-13, Tomasz Pylak: to be exchanged by the pattern:
-            // (*WELL* || CHAMBER || GENE || OLIGO)
             types.add(ScreeningConstants.CONTROL_WELL_SAMPLE_TYPE_PATTERN);
-            types.add(ScreeningConstants.SIRNA_WELL_TYPE_CODE);
-            types.add("CHAMBER");
-            types.add("WELL");
-            types.add("OLIGO_WELL");
-            types.add("GENE_WELL");
-            types.add("OLIGO");
-            types.add("GENE");
+            types.add(ScreeningConstants.NON_CONTROL_WELL_SAMPLE_TYPE_PATTERN);
             // -- microscopy sample
             types.add(ScreeningConstants.IMAGE_SAMPLE_TYPE_PATTERN);
         } else if (entityKind == EntityKind.MATERIAL)

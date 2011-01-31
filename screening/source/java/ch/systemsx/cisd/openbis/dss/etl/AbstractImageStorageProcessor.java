@@ -32,7 +32,9 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -46,6 +48,8 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.AbstractStorageProcessor;
+import ch.systemsx.cisd.etlserver.DispatcherStorageProcessor.IDispatchableStorageProcessor;
+import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.etlserver.hdf5.Hdf5Container;
 import ch.systemsx.cisd.etlserver.hdf5.HierarchicalStructureDuplicatorFileToHdf5;
@@ -53,9 +57,11 @@ import ch.systemsx.cisd.etlserver.utils.Unzipper;
 import ch.systemsx.cisd.openbis.dss.Constants;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageSeriesPoint;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageDataSetInformation;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageFileInfo;
+import ch.systemsx.cisd.openbis.dss.etl.jython.JythonPlateDataSetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ChannelDescription;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
@@ -84,10 +90,17 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
  * values: RED, GREEN or BLUE. If specified then the channels are extracted from the color
  * components and override 'file-extractor' results.
  * </p>
+ * <p>
+ * Subclasses of this storage processor can be used in the context of
+ * {@link IDispatchableStorageProcessor} only if the given {@link DataSetInformation} can be casted
+ * to {@link ImageDataSetInformation}. This requires using special {@link IDataSetInfoExtractor}
+ * extension or {@link JythonPlateDataSetHandler}.
+ * </p>
  * 
  * @author Tomasz Pylak
  */
-abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
+abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor implements
+        IDispatchableStorageProcessor
 {
     /**
      * Stores the references to the extracted images in the imaging database.
@@ -161,7 +174,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
 
     // --- protected --------
 
-    protected final IImageFileExtractor imageFileExtractor;
+    protected final IImageFileExtractor imageFileExtractorOrNull;
 
     // --- internal state -------------
 
@@ -174,11 +187,11 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
         this(tryCreateImageExtractor(properties), properties);
     }
 
-    protected AbstractImageStorageProcessor(IImageFileExtractor imageFileExtractor,
+    protected AbstractImageStorageProcessor(IImageFileExtractor imageFileExtractorOrNull,
             Properties properties)
     {
         super(properties);
-        this.imageFileExtractor = imageFileExtractor;
+        this.imageFileExtractorOrNull = imageFileExtractorOrNull;
         this.thumbnailMaxWidth =
                 PropertyUtils.getInt(properties, THUMBNAIL_MAX_WIDTH_PROPERTY,
                         DEFAULT_THUMBNAIL_MAX_WIDTH);
@@ -364,13 +377,26 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
         return imgDir.substring(root.length());
     }
 
+    /**
+     * @return true if the dataset has been enriched before and already contains all the information
+     *         about images.
+     */
+    public boolean accepts(DataSetInformation dataSetInformation, File incomingDataSet)
+    {
+        return dataSetInformation instanceof ImageDataSetInformation;
+    }
+
     private ImageFileExtractionResult extractImages(final DataSetInformation dataSetInformation,
             final File incomingDataSetDirectory)
     {
         long extractionStart = System.currentTimeMillis();
+        IImageFileExtractor extractor = tryGetImageFileExtractor(incomingDataSetDirectory);
+        if (extractor == null)
+        {
+            return extractImagesFromDatasetInfoOrDie(dataSetInformation);
+        }
         ImageFileExtractionResult result =
-                getImageFileExtractor(incomingDataSetDirectory).extract(incomingDataSetDirectory,
-                        dataSetInformation);
+                extractor.extract(incomingDataSetDirectory, dataSetInformation);
 
         if (operationLog.isInfoEnabled())
         {
@@ -386,10 +412,52 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
         return result;
     }
 
-    protected IImageFileExtractor getImageFileExtractor(File incomingDataSetDirectory)
+    private ImageFileExtractionResult extractImagesFromDatasetInfoOrDie(
+            final DataSetInformation dataSetInformation)
     {
-        assert imageFileExtractor != null : "imageFileExtractor is null";
-        return imageFileExtractor;
+        if (dataSetInformation instanceof ImageDataSetInformation == false)
+        {
+            throw ConfigurationFailureException
+                    .fromTemplate(
+                            "File extractor '%s' has not been configured or jython script in 'top-level-data-set-handler' is not '%s'.",
+                            FILE_EXTRACTOR_PROPERTY,
+                            JythonPlateDataSetHandler.class.getCanonicalName());
+        } else
+        {
+            return extractImagesFromDatasetInfo((ImageDataSetInformation) dataSetInformation);
+        }
+    }
+
+    private ImageFileExtractionResult extractImagesFromDatasetInfo(
+            ImageDataSetInformation imageDataSetInfo)
+    {
+        if (imageDataSetInfo.isValid() == false)
+        {
+            throw ConfigurationFailureException
+                    .fromTemplate("Invalid image dataset info object, check if your jython script fills all the fields: "
+                            + imageDataSetInfo);
+        }
+        Geometry tileGeometry =
+                new Geometry(imageDataSetInfo.getTileRowsNumber(),
+                        imageDataSetInfo.getTileColumnsNumber());
+
+        List<AcquiredSingleImage> images = new ArrayList<AcquiredSingleImage>();
+        List<ImageFileInfo> imageInfos = imageDataSetInfo.getImages();
+        for (ImageFileInfo imageInfo : imageInfos)
+        {
+            List<AcquiredSingleImage> image =
+                    AbstractImageFileExtractor.createImagesWithNoColorComponent(imageInfo);
+            images.addAll(image);
+        }
+
+        List<File> invalidFiles = new ArrayList<File>(); // handles in an earlier phase
+        return new ImageFileExtractionResult(images, invalidFiles, imageDataSetInfo.getChannels(),
+                tileGeometry);
+    }
+
+    protected IImageFileExtractor tryGetImageFileExtractor(File incomingDataSetDirectory)
+    {
+        return imageFileExtractorOrNull;
     }
 
     @Override
@@ -615,11 +683,6 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
     private static File getOriginalFolder(File storedDataDirectory)
     {
         return new File(storedDataDirectory, DIR_ORIGINAL);
-    }
-
-    public final StorageFormat getStorageFormat()
-    {
-        return StorageFormat.PROPRIETARY;
     }
 
     protected static List<String> extractChannelCodes(final List<ChannelDescription> descriptions)

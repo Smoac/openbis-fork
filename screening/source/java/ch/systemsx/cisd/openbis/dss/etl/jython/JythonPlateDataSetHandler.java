@@ -3,6 +3,7 @@ package ch.systemsx.cisd.openbis.dss.etl.jython;
 import org.python.util.PythonInterpreter;
 
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
+import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.JythonTopLevelDataSetHandler;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageDataSetInformation;
 
@@ -35,10 +36,20 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler
         }
 
         /**
-         * Factory method that creates a new data set information object.
+         * Factory method that creates a new registration details object.
          */
-        @Override
-        public ImageDataSetInformation createDataSetInformation()
+        public DataSetRegistrationDetails<ImageDataSetInformation> createImageRegistrationDetails()
+        {
+            DataSetRegistrationDetails<ImageDataSetInformation> registrationDetails =
+                    new DataSetRegistrationDetails<ImageDataSetInformation>();
+            registrationDetails.setDataSetInformation(createImageDataSetInformation());
+            return registrationDetails;
+        }
+
+        /**
+         * Factory method that creates a new data set information object for image dataset.
+         */
+        private ImageDataSetInformation createImageDataSetInformation()
         {
             ImageDataSetInformation dataSetInfo = new ImageDataSetInformation();
             dataSetInfo.setInstanceCode(registratorState.getHomeDatabaseInstance().getCode());

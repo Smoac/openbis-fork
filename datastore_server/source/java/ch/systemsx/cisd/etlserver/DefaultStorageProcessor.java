@@ -27,7 +27,6 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.utils.Unzipper;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 
 /**
  * A default {@link IStorageProcessor} implementation. The data set is stored in subfolder
@@ -99,11 +98,6 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor
     public static File getOriginalDirectory(final File storedDataDirectory)
     {
         return new File(storedDataDirectory, ORIGINAL_DIR);
-    }
-
-    public final StorageFormat getStorageFormat()
-    {
-        return StorageFormat.PROPRIETARY;
     }
 
     /** returns the only file or directory which is expected to be found inside original directory */

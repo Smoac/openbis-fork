@@ -53,8 +53,8 @@ public class AbstractStorageProcessorWithDropboxTest extends AbstractFileSystemT
         context.checking(new Expectations()
             {
                 {
-                    one(delegateStorageProcessor).storeData(dataSetInfo, null, null, incomingDirectory,
-                            null);
+                    one(delegateStorageProcessor).storeData(dataSetInfo, null, null,
+                            incomingDirectory, null);
                     will(returnValue(incomingDirectory));
 
                     File dropboxIncomingDir = new File(dropboxIncomingDirName);
@@ -154,8 +154,7 @@ public class AbstractStorageProcessorWithDropboxTest extends AbstractFileSystemT
         String expectedErrorMsg = "Given key 'processor' not found in properties '[]'";
         try
         {
-            DelegatingStorageProcessorWithDropbox
-                    .createDelegateStorageProcessor(new Properties());
+            DelegatingStorageProcessorWithDropbox.createDelegateStorageProcessor(new Properties());
         } catch (ConfigurationFailureException e)
         {
             assertEquals(expectedErrorMsg, e.getMessage());
@@ -182,8 +181,8 @@ public class AbstractStorageProcessorWithDropboxTest extends AbstractFileSystemT
                 + AbstractDelegatingStorageProcessor.DELEGATE_PROCESSOR_CLASS_PROPERTY,
                 DefaultStorageProcessor.class.getName());
         properties.setProperty(prefix
-                + StorageProcessorWithDropboxTest.DROPBOX_INCOMING_DIRECTORY_PROPERTY, dropbox2
-                .getAbsolutePath());
+                + StorageProcessorWithDropboxTest.DROPBOX_INCOMING_DIRECTORY_PROPERTY,
+                dropbox2.getAbsolutePath());
         properties.setProperty(prefix
                 + AbstractDatasetDropboxHandler.DATASET_CODE_SEPARATOR_PROPERTY, "-");
         DelegatingStorageProcessorWithDropbox processor =

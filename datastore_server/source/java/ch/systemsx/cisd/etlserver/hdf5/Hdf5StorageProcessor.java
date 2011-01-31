@@ -26,7 +26,6 @@ import ch.systemsx.cisd.etlserver.AbstractStorageProcessor;
 import ch.systemsx.cisd.etlserver.IStorageProcessor;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 
 /**
  * Storage processor that keeps data in an HDF5 container on the file system.
@@ -107,15 +106,7 @@ public class Hdf5StorageProcessor extends AbstractStorageProcessor
 
         return UnstoreDataAction.MOVE_TO_ERROR;
     }
-
-    /**
-     * @see IStorageProcessor#getStorageFormat()
-     */
-    public StorageFormat getStorageFormat()
-    {
-        return StorageFormat.PROPRIETARY;
-    }
-
+    
     /**
      * @see IStorageProcessor#tryGetProprietaryData(File)
      */

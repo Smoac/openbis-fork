@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Properties;
 
 import ch.systemsx.cisd.bds.hcs.Geometry;
-import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -39,12 +38,6 @@ public class MicroscopyStorageProcessor extends AbstractImageStorageProcessor
     public MicroscopyStorageProcessor(Properties properties)
     {
         super(properties);
-        if (imageFileExtractor == null)
-        {
-            throw ConfigurationFailureException
-                    .fromTemplate("Image file extractor property is not configured: "
-                            + FILE_EXTRACTOR_PROPERTY);
-        }
     }
 
     @Override

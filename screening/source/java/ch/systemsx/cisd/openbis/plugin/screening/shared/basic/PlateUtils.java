@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic;
 
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
  * Utility methods for plates.
@@ -43,4 +44,11 @@ public class PlateUtils
         }
         return code;
     }
+
+    /** Allows to generate well code from location, e.g. (1,1) produces "A1" */
+    public static String translateLocationIntoWellCode(WellLocation wellLocation)
+    {
+        return translateRowNumberIntoLetterCode(wellLocation.getRow()) + wellLocation.getColumn();
+    }
+
 }

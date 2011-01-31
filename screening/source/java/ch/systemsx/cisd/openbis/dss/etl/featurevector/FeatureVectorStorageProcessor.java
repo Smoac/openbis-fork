@@ -29,9 +29,11 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessor;
+import ch.systemsx.cisd.etlserver.DispatcherStorageProcessor.IDispatchableStorageProcessor;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.openbis.dss.etl.HCSContainerDatasetInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.CsvToCanonicalFeatureVector.CsvToCanonicalFeatureVectorConfiguration;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -47,7 +49,8 @@ import ch.systemsx.cisd.utils.CsvFileReaderHelper;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProcessor
+public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProcessor implements
+        IDispatchableStorageProcessor
 {
     private static final String ORIGINAL_DIR = ScreeningConstants.ORIGINAL_DATA_DIR;
 
@@ -66,8 +69,7 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
     {
         super(properties);
         this.configuration = new FeatureVectorStorageProcessorConfiguration(properties);
-        convertorConfig =
-                new CsvToCanonicalFeatureVectorConfiguration(configuration);
+        convertorConfig = new CsvToCanonicalFeatureVectorConfiguration(configuration);
         this.dataSource = ServiceProvider.getDataSourceProvider().getDataSource(properties);
         this.openBisService = ServiceProvider.getOpenBISService();
     }
@@ -101,8 +103,8 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
         HCSContainerDatasetInfo datasetInfo = createScreeningDatasetInfo(dataSetInformation);
         DatasetFileLines fileLines = getDatasetFileLines(dataSet);
         CsvToCanonicalFeatureVector convertor =
-                new CsvToCanonicalFeatureVector(fileLines, convertorConfig, datasetInfo
-                        .getContainerRows(), datasetInfo.getContainerColumns());
+                new CsvToCanonicalFeatureVector(fileLines, convertorConfig,
+                        datasetInfo.getContainerRows(), datasetInfo.getContainerColumns());
         List<CanonicalFeatureVector> fvecs = convertor.convert();
 
         dataAccessObject = createDAO();
@@ -110,12 +112,11 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
         uploader.uploadFeatureVectors(fvecs);
     }
 
-    private HCSContainerDatasetInfo createScreeningDatasetInfo(
-            DataSetInformation dataSetInformation)
+    private HCSContainerDatasetInfo createScreeningDatasetInfo(DataSetInformation dataSetInformation)
     {
         Sample sampleOrNull = tryFindSampleForDataSet(dataSetInformation);
-        return HCSContainerDatasetInfo.createScreeningDatasetInfoWithSample(
-                dataSetInformation, sampleOrNull);
+        return HCSContainerDatasetInfo.createScreeningDatasetInfoWithSample(dataSetInformation,
+                sampleOrNull);
     }
 
     private Sample tryFindSampleForDataSet(DataSetInformation dataSetInformation)
@@ -191,6 +192,12 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
     private DatasetFileLines getDatasetFileLines(File file) throws IOException
     {
         return CsvFileReaderHelper.getDatasetFileLines(file, configuration);
+    }
+
+    /** Accepts all non-image datasets (and assumes they are single CSV files). */
+    public boolean accepts(DataSetInformation dataSetInformation, File incomingDataSet)
+    {
+        return dataSetInformation instanceof ImageDataSetInformation == false;
     }
 
 }

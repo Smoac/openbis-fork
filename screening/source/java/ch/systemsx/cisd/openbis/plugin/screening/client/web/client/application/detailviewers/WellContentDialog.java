@@ -58,6 +58,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.WellData;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.PlateUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
@@ -307,13 +308,8 @@ public class WellContentDialog extends Dialog
 
     private String getWellDescription()
     {
-        if (wellOrNull != null)
-        {
-            return wellOrNull.getCode();
-        } else
-        {
-            return "?";
-        }
+        return wellLocationOrNull != null ? PlateUtils
+                .translateLocationIntoWellCode(wellLocationOrNull) : "?";
     }
 
     private LayoutContainer createContentDescription()

@@ -36,6 +36,7 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.IHCSImageFileAccepter;
+import ch.systemsx.cisd.etlserver.IHCSImageFileExtractor;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageCheckList.FullLocation;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
@@ -64,25 +65,30 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
 
     // ---
 
-    private final ch.systemsx.cisd.etlserver.IHCSImageFileExtractor deprecatedImageFileExtractor;
+    private final ch.systemsx.cisd.etlserver.IHCSImageFileExtractor deprecatedImageFileExtractorOrNull;
 
     private final boolean storeChannelsOnExperimentLevel;
 
     public PlateStorageProcessor(Properties properties)
     {
         super(properties);
-        if (imageFileExtractor == null)
-        {
-            String fileExtractorClass = getMandatoryProperty(DEPRECATED_FILE_EXTRACTOR_PROPERTY);
-            this.deprecatedImageFileExtractor =
-                    ClassUtils.create(ch.systemsx.cisd.etlserver.IHCSImageFileExtractor.class,
-                            fileExtractorClass, properties);
-        } else
-        {
-            this.deprecatedImageFileExtractor = null;
-        }
+        this.deprecatedImageFileExtractorOrNull = tryCreateDeprecatedFileExtractor();
         this.storeChannelsOnExperimentLevel =
                 PropertyUtils.getBoolean(properties, CHANNELS_PER_EXPERIMENT_PROPERTY, true);
+    }
+
+    private IHCSImageFileExtractor tryCreateDeprecatedFileExtractor()
+    {
+        if (imageFileExtractorOrNull == null)
+        {
+            String fileExtractorClass = properties.getProperty(DEPRECATED_FILE_EXTRACTOR_PROPERTY);
+            if (fileExtractorClass != null)
+            {
+                return ClassUtils.create(ch.systemsx.cisd.etlserver.IHCSImageFileExtractor.class,
+                        fileExtractorClass, properties);
+            }
+        }
+        return null;
     }
 
     private static final class HCSImageFileAccepter implements IHCSImageFileAccepter
@@ -265,16 +271,16 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
     }
 
     @Override
-    protected IImageFileExtractor getImageFileExtractor(File incomingDataSetDirectory)
+    protected IImageFileExtractor tryGetImageFileExtractor(File incomingDataSetDirectory)
     {
-        IImageFileExtractor extractor = imageFileExtractor;
-        if (extractor == null)
+        IImageFileExtractor extractor = imageFileExtractorOrNull;
+        if (extractor == null && deprecatedImageFileExtractorOrNull != null)
         {
             List<ChannelDescription> channelDescriptions =
                     AbstractImageFileExtractor.extractChannelDescriptions(properties);
             Geometry tileGeometry = AbstractImageFileExtractor.getMandatoryTileGeometry(properties);
             extractor =
-                    adapt(deprecatedImageFileExtractor, incomingDataSetDirectory,
+                    adapt(deprecatedImageFileExtractorOrNull, incomingDataSetDirectory,
                             channelDescriptions, tileGeometry);
         }
         return extractor;
