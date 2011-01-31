@@ -72,16 +72,16 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  * <td>Character which separates sub entities of an entity. Whitespace characters are not allowed.</td>
  * </tr>
  * <tr>
- * <td><code>index-of-group-code</code></td>
+ * <td><code>index-of-space-code</code></td>
  * <td><code>null</code></td>
- * <td>This should be a group to which the sample connected with the dataset belongs. If not
- * specified, the default group code will be used if given, otherwise a sample will be assumed to be
+ * <td>This should be a space to which the sample connected with the dataset belongs. If not
+ * specified, the default space code will be used if given, otherwise a sample will be assumed to be
  * shared.</td>
  * </tr>
  * <tr>
- * <td><code>group-code</code></td>
+ * <td><code>space-code</code></td>
  * <td><code>null</code></td>
- * <td>Default group code of the sample. If unspecified and group code for a specific dataset is
+ * <td>Default space code of the sample. If unspecified and space code for a specific dataset is
  * also unspecified, a shared sample is assumed.</td>
  * </tr>
  * <tr>
