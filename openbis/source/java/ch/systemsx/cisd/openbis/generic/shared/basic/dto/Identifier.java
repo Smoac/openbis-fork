@@ -39,6 +39,18 @@ public class Identifier<T extends Identifier<T>> implements ISerializable, Compa
             new IdentifierHolderComparator();
 
     private String identifier;
+    
+    private String permID;
+
+    public void setPermID(String permID)
+    {
+        this.permID = permID;
+    }
+
+    public String getPermID()
+    {
+        return permID;
+    }
 
     @BeanProperty(label = IDENTIFIER_COLUMN, optional = true)
     public final void setIdentifier(final String identifier)

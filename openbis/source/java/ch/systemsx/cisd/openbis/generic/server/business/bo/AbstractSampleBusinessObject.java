@@ -144,7 +144,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
             final String[] parents = newSample.getParentsOrNull();
             setParents(samplePE, parents);
         }
-        samplePE.setPermId(getPermIdDAO().createPermId());
+        samplePE.setPermId(getOrCreatePermID(newSample));
         return samplePE;
     }
 

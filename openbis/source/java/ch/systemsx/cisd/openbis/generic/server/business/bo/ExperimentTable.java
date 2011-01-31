@@ -283,7 +283,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
         defineExperimentProperties(result, experimentTypePE.getCode(),
                 newExperiment.getProperties(), registrator);
         defineExperimentProject(result, experimentIdentifier);
-        result.setPermId(getPermIdDAO().createPermId());
+        result.setPermId(getOrCreatePermID(newExperiment));
         return result;
     }
 

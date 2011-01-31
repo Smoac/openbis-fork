@@ -282,7 +282,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         defineExperimentProperties(newExperiment.getExperimentTypeCode(),
                 newExperiment.getProperties(), registrator);
         defineExperimentProject(newExperiment, experimentIdentifier);
-        experiment.setPermId(getPermIdDAO().createPermId());
+        experiment.setPermId(getOrCreatePermID(newExperiment));
         dataChanged = true;
     }
 
