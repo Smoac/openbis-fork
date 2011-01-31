@@ -19,26 +19,26 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Null;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class TableModelUtils
 {
 
-    public static List<TableModelRowWithObject<Null>> asTableModelRowsWithNullObject(
+    public static List<TableModelRowWithObject<ReportRowModel>> asTableModelRowsWithReportRowModels(
             List<TableModelRow> rows)
     {
-        List<TableModelRowWithObject<Null>> result = new ArrayList<TableModelRowWithObject<Null>>();
-        Null nullObject = new Null();
+        List<TableModelRowWithObject<ReportRowModel>> result =
+                new ArrayList<TableModelRowWithObject<ReportRowModel>>();
+        int rowCounter = 0;
         for (TableModelRow row : rows)
         {
-            result.add(new TableModelRowWithObject<Null>(nullObject, row.getValues()));
+            result.add(new TableModelRowWithObject<ReportRowModel>(
+                    new ReportRowModel(rowCounter++), row.getValues()));
         }
         return result;
     }

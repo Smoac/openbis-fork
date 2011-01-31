@@ -444,7 +444,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     /** @return this grid as a disposable component with a specified toolbar at the top. */
-    protected final DisposableEntityChooser<T> asDisposableWithToolbar(final IDisposableComponent toolbar)
+    protected final DisposableEntityChooser<T> asDisposableWithToolbar(
+            final IDisposableComponent toolbar)
     {
         final LayoutContainer container = new LayoutContainer();
         container.setLayout(new RowLayout());
@@ -963,16 +964,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     }
                 }
             });
-        button.setEnabled(false);
-        addGridSelectionChangeListener(new Listener<SelectionChangedEvent<ModelData>>()
-            {
-                public void handleEvent(SelectionChangedEvent<ModelData> se)
-                {
-                    boolean enabled = se.getSelection().size() == 1;
-                    button.setEnabled(enabled);
-                }
-
-            });
+        enableButtonOnSelectedItem(button);
         return button;
     }
 
@@ -1006,6 +998,23 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 public void handleEvent(SelectionChangedEvent<ModelData> se)
                 {
                     boolean enabled = se.getSelection().size() > 0;
+                    button.setEnabled(enabled);
+                }
+
+            });
+    }
+
+    /**
+     * Given <var>button</var> will be enabled only if exactly one item is selected in the grid.
+     */
+    protected final void enableButtonOnSelectedItem(final Button button)
+    {
+        button.setEnabled(false);
+        addGridSelectionChangeListener(new Listener<SelectionChangedEvent<ModelData>>()
+            {
+                public void handleEvent(SelectionChangedEvent<ModelData> se)
+                {
+                    boolean enabled = se.getSelection().size() == 1;
                     button.setEnabled(enabled);
                 }
 

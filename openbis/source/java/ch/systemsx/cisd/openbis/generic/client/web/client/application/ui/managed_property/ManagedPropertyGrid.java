@@ -41,7 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IManagedPropertyGridInformationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Null;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
@@ -50,7 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiTableActi
 /**
  * @author Piotr Buczek
  */
-public class ManagedPropertyGrid extends TypedTableGrid<Null>
+public class ManagedPropertyGrid extends TypedTableGrid<ReportRowModel>
 {
     // browser consists of the grid and the paging toolbar
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "ManagedPropertyGrid";
@@ -116,28 +116,42 @@ public class ManagedPropertyGrid extends TypedTableGrid<Null>
 
     private void addEntityOperationButtons()
     {
-        for (IManagedUiAction managedAction : managedProperty.getUiDescription()
-                .getActions())
+        for (IManagedUiAction managedAction : managedProperty.getUiDescription().getActions())
         {
             if (managedAction instanceof IManagedUiTableAction)
             {
-                final IManagedUiTableAction tableAction =
-                        (IManagedUiTableAction) managedAction;
+                final IManagedUiTableAction tableAction = (IManagedUiTableAction) managedAction;
 
                 final String actionTitle = tableAction.getName();
-                Button actionButton = new Button(actionTitle, new AbstractCreateDialogListener()
-                    {
+                final Button actionButton =
+                        new Button(actionTitle, new AbstractCreateDialogListener()
+                            {
 
-                        @Override
-                        protected Dialog createDialog(List<TableModelRowWithObject<Null>> data,
-                                IBrowserGridActionInvoker invoker)
-                        {
-                            AsyncCallback<Void> callback = createRefreshCallback(invoker);
-                            return new ManagedPropertyGridActionDialog(viewContext, actionTitle,
-                                    data, callback, entity, managedProperty, tableAction);
-                        }
-                    });
+                                @Override
+                                protected Dialog createDialog(
+                                        List<TableModelRowWithObject<ReportRowModel>> data,
+                                        IBrowserGridActionInvoker invoker)
+                                {
+                                    AsyncCallback<Void> callback = createRefreshCallback(invoker);
+                                    return new ManagedPropertyGridActionDialog(viewContext,
+                                            actionTitle, data, callback, entity, managedProperty,
+                                            tableAction);
+                                }
+                            });
                 addButton(actionButton);
+
+                switch (tableAction.getSelectionType())
+                {
+                    case REQUIRED:
+                        enableButtonOnSelectedItems(actionButton);
+                        allowMultipleSelection();
+                        break;
+                    case REQUIRED_SINGLE:
+                        enableButtonOnSelectedItem(actionButton);
+                        break;
+                    case NOT_REQUIRED:
+                        break; // nothing to do
+                }
             }
         }
     }
@@ -150,8 +164,8 @@ public class ManagedPropertyGrid extends TypedTableGrid<Null>
 
     @Override
     protected void listTableRows(
-            DefaultResultSetConfig<String, TableModelRowWithObject<Null>> resultSetConfig,
-            AsyncCallback<TypedTableResultSet<Null>> callback)
+            DefaultResultSetConfig<String, TableModelRowWithObject<ReportRowModel>> resultSetConfig,
+            AsyncCallback<TypedTableResultSet<ReportRowModel>> callback)
     {
         // In all cases the data should be taken from the cache, and we know the key already.
         // The custom columns should be recomputed.
@@ -162,7 +176,7 @@ public class ManagedPropertyGrid extends TypedTableGrid<Null>
 
     @Override
     protected void prepareExportEntities(
-            TableExportCriteria<TableModelRowWithObject<Null>> exportCriteria,
+            TableExportCriteria<TableModelRowWithObject<ReportRowModel>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportReport(exportCriteria, callback);

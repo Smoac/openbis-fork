@@ -86,11 +86,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Null;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -772,7 +772,8 @@ public interface ICommonClientService extends IClientService
 
     /** Updates managed property of specified entity. */
     public void updateManagedProperty(TechId entityId, EntityKind entityKind,
-            IManagedProperty managedProperty, IManagedUiAction updateAction) throws UserFailureException;
+            IManagedProperty managedProperty, IManagedUiAction updateAction)
+            throws UserFailureException;
 
     /**
      * For given {@link DataStoreServiceKind} returns a list of all corresponding
@@ -798,15 +799,15 @@ public interface ICommonClientService extends IClientService
     /**
      * Returns a list of report rows.
      */
-    public TypedTableResultSet<Null> listReport(
-            IResultSetConfig<String, TableModelRowWithObject<Null>> resultSetConfig)
+    public TypedTableResultSet<ReportRowModel> listReport(
+            IResultSetConfig<String, TableModelRowWithObject<ReportRowModel>> resultSetConfig)
             throws UserFailureException;
 
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for TableModelRow.
      */
     public String prepareExportReport(
-            TableExportCriteria<TableModelRowWithObject<Null>> exportCriteria)
+            TableExportCriteria<TableModelRowWithObject<ReportRowModel>> exportCriteria)
             throws UserFailureException;
 
     /**

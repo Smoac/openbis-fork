@@ -40,8 +40,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Null;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.NewQuery;
@@ -299,11 +299,11 @@ public class QueryEditingTest extends QuerySystemTestCase
         assertEquals(DataTypeCode.TIMESTAMP, headers.get(2).getDataType());
         assertEquals(3, headers.size());
 
-        DefaultResultSetConfig<String, TableModelRowWithObject<Null>> config =
-                new DefaultResultSetConfig<String, TableModelRowWithObject<Null>>();
+        DefaultResultSetConfig<String, TableModelRowWithObject<ReportRowModel>> config =
+                new DefaultResultSetConfig<String, TableModelRowWithObject<ReportRowModel>>();
         config.setCacheConfig(ResultSetFetchConfig.createFetchFromCache(table.getResultSetKey()));
-        TypedTableResultSet<Null> rs = commonClientService.listReport(config);
-        GridRowModels<TableModelRowWithObject<Null>> l = rs.getResultSet().getList();
+        TypedTableResultSet<ReportRowModel> rs = commonClientService.listReport(config);
+        GridRowModels<TableModelRowWithObject<ReportRowModel>> l = rs.getResultSet().getList();
         assertEquals("[1, MASTER_PLATE, Mon Mar 23 15:34:44 CET 2009]", l.get(0)
                 .getOriginalObject().getValues().toString());
         assertEquals(1, rs.getResultSet().getTotalLength());

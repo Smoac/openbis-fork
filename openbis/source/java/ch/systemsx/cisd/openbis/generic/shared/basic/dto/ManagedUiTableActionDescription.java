@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiTableAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ManagedTableActionRowSelectionType;
@@ -34,6 +37,8 @@ public class ManagedUiTableActionDescription extends ManagedUiActionDescription 
 
     private ManagedTableActionRowSelectionType selectionType =
             ManagedTableActionRowSelectionType.NOT_REQUIRED;
+
+    private List<Integer> selectedRows = new ArrayList<Integer>(); // indices of selected rows
 
     // for serialization
     @SuppressWarnings("unused")
@@ -64,10 +69,20 @@ public class ManagedUiTableActionDescription extends ManagedUiActionDescription 
         return this;
     }
 
-    public IManagedUiTableAction setRowSingleSelectionRequired()
+    public IManagedUiTableAction setRowSelectionRequiredSingle()
     {
         selectionType = ManagedTableActionRowSelectionType.REQUIRED_SINGLE;
         return this;
+    }
+
+    public List<Integer> getSelectedRows()
+    {
+        return selectedRows;
+    }
+
+    public void setSelectedRows(List<Integer> selectedRows)
+    {
+        this.selectedRows = selectedRows;
     }
 
 }

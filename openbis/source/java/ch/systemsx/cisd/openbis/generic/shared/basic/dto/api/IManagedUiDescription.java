@@ -33,7 +33,7 @@ public interface IManagedUiDescription extends ISerializable
      */
     void useTableOutput(ITableModel tableModel);
 
-    IManagedUiAction addAction(String id);
+    IManagedUiAction addAction(String name);
 
     List<IManagedUiAction> getActions();
 

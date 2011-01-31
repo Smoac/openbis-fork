@@ -67,7 +67,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Null;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
@@ -86,7 +86,8 @@ public abstract class AbstractClientService implements IClientService,
             AbstractClientService.class);
 
     @Resource(name = "request-context-provider")
-    @Private public IRequestContextProvider requestContextProvider;
+    @Private
+    public IRequestContextProvider requestContextProvider;
 
     @Resource(name = "common-service")
     protected ICommonClientService commonClientService;
@@ -107,7 +108,8 @@ public abstract class AbstractClientService implements IClientService,
     private String onlineHelpSpecificPageTemplate;
 
     @Resource(name = "web-client-configuration-provider")
-    @Private public WebClientConfigurationProvider webClientConfigurationProvider;
+    @Private
+    public WebClientConfigurationProvider webClientConfigurationProvider;
 
     private int maxResults;
 
@@ -374,26 +376,28 @@ public abstract class AbstractClientService implements IClientService,
 
     // Saves the specified rows in the cache.
     // Returns a key in the cache where the data were saved.
-    protected String saveInCache(final TableModel tableModel)
+    protected String saveReportInCache(final TableModel reportTableModel)
     {
-        DefaultResultSetConfig<String, TableModelRowWithObject<Null>> criteria =
-                new DefaultResultSetConfig<String, TableModelRowWithObject<Null>>();
+        DefaultResultSetConfig<String, TableModelRowWithObject<ReportRowModel>> criteria =
+                new DefaultResultSetConfig<String, TableModelRowWithObject<ReportRowModel>>();
         criteria.setLimit(0); // we do not need any data now, just a key
-        ResultSet<TableModelRowWithObject<Null>> resultSet =
-                listEntities(criteria, new IOriginalDataProvider<TableModelRowWithObject<Null>>()
-                    {
-                        public List<TableModelRowWithObject<Null>> getOriginalData(int maxSize)
-                                throws UserFailureException
-                        {
-                            return TableModelUtils.asTableModelRowsWithNullObject(tableModel
-                                    .getRows());
-                        }
+        ResultSet<TableModelRowWithObject<ReportRowModel>> resultSet =
+                listEntities(criteria,
+                        new IOriginalDataProvider<TableModelRowWithObject<ReportRowModel>>()
+                            {
+                                public List<TableModelRowWithObject<ReportRowModel>> getOriginalData(
+                                        int maxSize) throws UserFailureException
+                                {
+                                    return TableModelUtils
+                                            .asTableModelRowsWithReportRowModels(reportTableModel
+                                                    .getRows());
+                                }
 
-                        public List<TableModelColumnHeader> getHeaders()
-                        {
-                            return tableModel.getHeader();
-                        }
-                    });
+                                public List<TableModelColumnHeader> getHeaders()
+                                {
+                                    return reportTableModel.getHeader();
+                                }
+                            });
         return resultSet.getResultSetKey();
     }
 

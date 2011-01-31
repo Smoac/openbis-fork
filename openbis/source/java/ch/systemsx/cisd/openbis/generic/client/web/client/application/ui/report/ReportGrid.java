@@ -34,13 +34,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReferenc
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IReportInformationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Null;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * @author Franz-Josef Elmer
  */
-public class ReportGrid extends TypedTableGrid<Null>
+public class ReportGrid extends TypedTableGrid<ReportRowModel>
 {
     // browser consists of the grid and the paging toolbar
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "DataSetReporterGrid";
@@ -83,8 +83,8 @@ public class ReportGrid extends TypedTableGrid<Null>
 
     @Override
     protected void listTableRows(
-            DefaultResultSetConfig<String, TableModelRowWithObject<Null>> resultSetConfig,
-            AsyncCallback<TypedTableResultSet<Null>> callback)
+            DefaultResultSetConfig<String, TableModelRowWithObject<ReportRowModel>> resultSetConfig,
+            AsyncCallback<TypedTableResultSet<ReportRowModel>> callback)
     {
         // In all cases the data should be taken from the cache, and we know the key already.
         // The custom columns should be recomputed.
@@ -95,7 +95,7 @@ public class ReportGrid extends TypedTableGrid<Null>
 
     @Override
     protected void prepareExportEntities(
-            TableExportCriteria<TableModelRowWithObject<Null>> exportCriteria,
+            TableExportCriteria<TableModelRowWithObject<ReportRowModel>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportReport(exportCriteria, callback);

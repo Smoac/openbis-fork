@@ -16,25 +16,17 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto.api;
 
+import java.util.List;
+
 /**
+ * Extension of {@link IManagedUiAction} for actions assigned with a table output.
+ * <p>
+ * Every table action can specify table selection mode required for the action to be enabled. If an
+ * action requires table rows to be selected than it will contain list of indexes of selected rows.
  * <p>
  * All methods of this interface are part of the Managed Properties API.
  * 
- * <pre>
- * action has
- * - id (both for display and usage)
- * - description (for tooltip/message shown in dialog)
- * 
- * actionInput
- * - action -> list of input widgets
- * 
- * actions can be assigned to table
- * - selection mode:
- * -- Selection.NOT_REQUIRED       (e.g. create)
- * -- Selection.REQUIRED_SINGLE    (e.g. edit)
- * -- Selection.REQUIRED           (e.g. delete)
- * </pre>
- * 
+ * @see ManagedTableActionRowSelectionType
  * @author Piotr Buczek
  */
 public interface IManagedUiTableAction extends IManagedUiAction
@@ -42,9 +34,29 @@ public interface IManagedUiTableAction extends IManagedUiAction
     /** Returns selection type specifying when the action should be enabled. */
     ManagedTableActionRowSelectionType getSelectionType();
 
+    /**
+     * Sets the selection type to {@link ManagedTableActionRowSelectionType#NOT_REQUIRED}.
+     * 
+     * @return this (for method chaining)
+     */
     IManagedUiTableAction setRowSelectionNotRequired();
 
+    /**
+     * Sets the selection type to {@link ManagedTableActionRowSelectionType#REQUIRED}.
+     * 
+     * @return this (for method chaining)
+     */
     IManagedUiTableAction setRowSelectionRequired();
 
-    IManagedUiTableAction setRowSingleSelectionRequired();
+    /**
+     * Sets the selection type to {@link ManagedTableActionRowSelectionType#REQUIRED_SINGLE}.
+     * 
+     * @return this (for method chaining)
+     */
+    IManagedUiTableAction setRowSelectionRequiredSingle();
+
+    /**
+     * Returns list of indexes of selected rows (empty if no row was selected).
+     */
+    List<Integer> getSelectedRows();
 }

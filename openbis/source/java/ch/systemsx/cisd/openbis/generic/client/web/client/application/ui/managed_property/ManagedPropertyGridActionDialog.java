@@ -37,21 +37,19 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureE
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedComboBoxInputWidgetDescription;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Null;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiTableAction;
 
 public final class ManagedPropertyGridActionDialog extends
-        AbstractDataConfirmationDialog<List<TableModelRowWithObject<Null>>>
+        AbstractDataConfirmationDialog<List<TableModelRowWithObject<ReportRowModel>>>
 {
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    @SuppressWarnings("unused")
-    // to be used for actions like edit row/delete rows
-    private final List<TableModelRowWithObject<Null>> data;
+    private final List<TableModelRowWithObject<ReportRowModel>> data;
 
     private final AsyncCallback<Void> callback;
 
@@ -65,7 +63,7 @@ public final class ManagedPropertyGridActionDialog extends
             new LinkedHashMap<String, TextField<?>>();
 
     public ManagedPropertyGridActionDialog(IViewContext<ICommonClientServiceAsync> viewContext,
-            String editTitle, List<TableModelRowWithObject<Null>> data,
+            String editTitle, List<TableModelRowWithObject<ReportRowModel>> data,
             AsyncCallback<Void> callback, IEntityInformationHolder entity,
             IManagedProperty managedProperty, IManagedUiTableAction managedAction)
     {
@@ -99,6 +97,14 @@ public final class ManagedPropertyGridActionDialog extends
             Info.display("confirmed", sb.toString());
         }
 
+        managedAction.getSelectedRows();
+        List<Integer> selectedRows = managedAction.getSelectedRows();
+        selectedRows.clear();
+        for (TableModelRowWithObject<ReportRowModel> rowModel : data)
+        {
+            selectedRows.add(rowModel.getObjectOrNull().getRowNumber());
+        }
+
         for (IManagedInputWidgetDescription inputDescription : managedAction
                 .getInputWidgetDescriptions())
         {
@@ -106,7 +112,7 @@ public final class ManagedPropertyGridActionDialog extends
             inputDescription
                     .setValue(field.getValue() == null ? null : field.getValue().toString());
         }
-        // old vale was escaped going to the client - unescape it before sending back to the server
+        // old value was escaped going to the client - unescape it before sending back to the server
         managedProperty.setValue(StringEscapeUtils.unescapeHtml(managedProperty.getValue()));
         viewContext.getService().updateManagedProperty(TechId.create(entity),
                 entity.getEntityKind(), managedProperty, managedAction, callback);

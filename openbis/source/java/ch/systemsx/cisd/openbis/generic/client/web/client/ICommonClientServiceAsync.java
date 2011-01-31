@@ -88,11 +88,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Null;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -697,14 +697,15 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /**
      * @see ICommonClientService#listReport(IResultSetConfig)
      */
-    public void listReport(IResultSetConfig<String, TableModelRowWithObject<Null>> resultSetConfig,
-            AsyncCallback<TypedTableResultSet<Null>> callback);
+    public void listReport(
+            IResultSetConfig<String, TableModelRowWithObject<ReportRowModel>> resultSetConfig,
+            AsyncCallback<TypedTableResultSet<ReportRowModel>> callback);
 
     /**
      * @see ICommonClientService#prepareExportReport(TableExportCriteria)
      */
     public void prepareExportReport(
-            TableExportCriteria<TableModelRowWithObject<Null>> exportCriteria,
+            TableExportCriteria<TableModelRowWithObject<ReportRowModel>> exportCriteria,
             AsyncCallback<String> callback);
 
     /**

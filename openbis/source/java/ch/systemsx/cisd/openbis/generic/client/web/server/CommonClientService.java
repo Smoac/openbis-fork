@@ -139,11 +139,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Null;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -2163,7 +2163,7 @@ public final class CommonClientService extends AbstractClientService implements
             final TableModel tableModel =
                     commonServer.createReportFromDatasets(sessionToken, serviceDescription,
                             datasetCodes);
-            String resultSetKey = saveInCache(tableModel);
+            String resultSetKey = saveReportInCache(tableModel);
             return new TableModelReference(resultSetKey, tableModel.getHeader());
         } catch (final UserFailureException e)
         {
@@ -2175,7 +2175,7 @@ public final class CommonClientService extends AbstractClientService implements
     {
         try
         {
-            String resultSetKey = saveInCache(tableModel);
+            String resultSetKey = saveReportInCache(tableModel);
             return new TableModelReference(resultSetKey, tableModel.getHeader());
         } catch (final UserFailureException e)
         {
@@ -2183,28 +2183,29 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public TypedTableResultSet<Null> listReport(
-            IResultSetConfig<String, TableModelRowWithObject<Null>> resultSetConfig)
+    public TypedTableResultSet<ReportRowModel> listReport(
+            IResultSetConfig<String, TableModelRowWithObject<ReportRowModel>> resultSetConfig)
     {
-        IOriginalDataProvider<TableModelRowWithObject<Null>> dataProvider =
-                new IOriginalDataProvider<TableModelRowWithObject<Null>>()
+        IOriginalDataProvider<TableModelRowWithObject<ReportRowModel>> dataProvider =
+                new IOriginalDataProvider<TableModelRowWithObject<ReportRowModel>>()
                     {
                         public List<TableModelColumnHeader> getHeaders()
                         {
                             return null;
                         }
 
-                        public List<TableModelRowWithObject<Null>> getOriginalData(int maxSize)
-                                throws UserFailureException
+                        public List<TableModelRowWithObject<ReportRowModel>> getOriginalData(
+                                int maxSize) throws UserFailureException
                         {
                             throw new IllegalStateException("Data not found in the cache");
                         }
 
                     };
-        return new TypedTableResultSet<Null>(listEntities(resultSetConfig, dataProvider));
+        return new TypedTableResultSet<ReportRowModel>(listEntities(resultSetConfig, dataProvider));
     }
 
-    public String prepareExportReport(TableExportCriteria<TableModelRowWithObject<Null>> criteria)
+    public String prepareExportReport(
+            TableExportCriteria<TableModelRowWithObject<ReportRowModel>> criteria)
     {
         return prepareExportEntities(criteria);
     }
