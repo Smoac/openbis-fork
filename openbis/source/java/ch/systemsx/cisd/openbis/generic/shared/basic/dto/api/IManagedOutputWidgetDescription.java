@@ -27,5 +27,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  */
 public interface IManagedOutputWidgetDescription extends ISerializable
 {
+    /**
+     * @return type of this output field
+     */
     ManagedOutputWidgetType getManagedOutputWidgetType();
 }

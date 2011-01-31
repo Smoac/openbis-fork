@@ -27,22 +27,51 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  */
 public interface IManagedInputWidgetDescription extends ISerializable
 {
-    ManagedInputFieldType getManagedInputFieldType();
 
+    /**
+     * @return label of this input field
+     */
     String getLabel();
 
-    void setLabel(String label);
+    /**
+     * @return type of this input field
+     */
+    ManagedInputFieldType getManagedInputFieldType();
 
+    /**
+     * @return value set in this input field (either default value or value provided by a user).
+     */
     String getValue();
 
+    /**
+     * Sets value / default value of this input field.
+     * 
+     * @return this (for method chaining)
+     */
     IManagedInputWidgetDescription setValue(String value);
 
+    /**
+     * @returns description of this input field.
+     */
     String getDescription();
 
+    /**
+     * Sets description of this input field.
+     * 
+     * @return this (for method chaining)
+     */
     IManagedInputWidgetDescription setDescription(String description);
 
+    /**
+     * @return mandatory flag of this input field
+     */
     boolean isMandatory();
 
+    /**
+     * Sets mandatory flag of this input field (default: false)
+     * 
+     * @return this (for method chaining)
+     */
     IManagedInputWidgetDescription setMandatory(boolean mandatory);
 
 }
