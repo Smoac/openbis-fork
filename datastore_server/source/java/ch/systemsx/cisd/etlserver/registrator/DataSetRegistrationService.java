@@ -18,8 +18,10 @@ package ch.systemsx.cisd.etlserver.registrator;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Properties;
 
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm.DataSetRegistrationAlgorithmState;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm.IDataSetInApplicationServerRegistrator;
@@ -28,6 +30,8 @@ import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithmRunner;
 import ch.systemsx.cisd.etlserver.IDataStoreStrategy;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 
@@ -38,6 +42,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
  */
 public class DataSetRegistrationService implements IRollbackDelegate
 {
+    static final String STAGING_DIR = "staging-dir";
+
     private final AbstractOmniscientTopLevelDataSetRegistrator registrator;
 
     private final OmniscientTopLevelDataSetRegistratorState registratorState;
@@ -93,6 +99,16 @@ public class DataSetRegistrationService implements IRollbackDelegate
         FutureDataSet future =
                 new FutureDataSet(registration.getDataSetInformation().getDataSetCode());
         return future;
+    }
+    
+    public IDataSetRegistrationTransaction transaction(File dataSetFile,
+            IDataSetRegistrationDetailsFactory<DataSetInformation> detailsFactory)
+    {
+        File workingDirectory = dataSetFile.getParentFile();
+        Properties properties = registratorState.getGlobalState().getThreadParameters().getThreadProperties();
+        File stagingDirectory = new File(PropertyUtils.getMandatoryProperty(properties, STAGING_DIR));
+        return new DataSetRegistrationTransaction<DataSetInformation>(registrator.getGlobalState()
+                .getStoreRootDir(), workingDirectory, stagingDirectory, this, detailsFactory);
     }
 
     public void commit()

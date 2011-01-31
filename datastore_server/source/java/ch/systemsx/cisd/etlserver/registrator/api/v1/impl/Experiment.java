@@ -16,39 +16,33 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 
 /**
- * @author Chandrasekhar Ramakrishnan
+ * Implementation of {@link IExperiment} wrapping a {@link NewExperiment} instance.
+ *
+ * @author Franz-Josef Elmer
  */
-public class Experiment implements IExperiment
+class Experiment implements IExperiment
 {
-    private final ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experiment;
-
-    public Experiment(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experiment)
+    private final NewExperiment experiment;
+    
+    Experiment(String identifier)
     {
-        this.experiment = experiment;
-    }
-
-    public ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment getExperiment()
-    {
-        return experiment;
+        experiment = new NewExperiment();
+        experiment.setIdentifier(identifier);
     }
 
     public boolean isExistingExperiment()
     {
-        return null != experiment;
+        return false;
+    }
+    
+    NewExperiment getExperiment()
+    {
+        return experiment;
     }
 
-    /**
-     * Throw an exception if the sample does not exist
-     */
-    protected void checkExists()
-    {
-        if (false == isExistingExperiment())
-        {
-            throw new UserFailureException("Experiment does not exist.");
-        }
-    }
+
 }

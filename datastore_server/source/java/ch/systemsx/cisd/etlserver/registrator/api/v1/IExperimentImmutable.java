@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v1;
 
 /**
+ * Read-only interface to an existing experiment. 
+ *
  * @author Chandrasekhar Ramakrishnan
  */
 public interface IExperimentImmutable

@@ -17,9 +17,10 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v1;
 
 /**
+ * Interface to specify an experiment to be created. 
+ * 
  * @author Chandrasekhar Ramakrishnan
  */
 public interface IExperiment extends IExperimentImmutable
 {
-
 }

@@ -67,7 +67,16 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
 
     private final ArrayList<DataSet<T>> registeredDataSets = new ArrayList<DataSet<T>>();
 
-    public DataSetRegistrationTransaction(RollbackStack rollbackStack, File workingDirectory,
+    public DataSetRegistrationTransaction(File rollBackStackParentFolder, File workingDirectory,
+            File stagingDirectory, DataSetRegistrationService registrationService,
+            IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory)
+    {
+        this(new RollbackStack(new File(rollBackStackParentFolder, "rollBackQueue1"), new File(
+                rollBackStackParentFolder, "rollBackQueue2")), workingDirectory, stagingDirectory,
+                registrationService, registrationDetailsFactory);
+    }
+    
+    DataSetRegistrationTransaction(RollbackStack rollbackStack, File workingDirectory,
             File stagingDirectory, DataSetRegistrationService registrationService,
             IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory)
     {
@@ -104,8 +113,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     {
         SampleIdentifier sampleIdentifier =
                 new SampleIdentifierFactory(sampleIdentifierString).createIdentifier();
-        Sample sample = new Sample(openBisService.tryGetSampleWithExperiment(sampleIdentifier));
-        return sample;
+        return new Sample(openBisService.tryGetSampleWithExperiment(sampleIdentifier));
     }
 
     public ISample getSampleForUpdate(String sampleIdentifierString)
@@ -124,8 +132,8 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     {
         ExperimentIdentifier experimentIdentifier =
                 new ExperimentIdentifierFactory(experimentIdentifierString).createIdentifier();
-        Experiment experiment =
-                new Experiment(openBisService.tryToGetExperiment(experimentIdentifier));
+        ExperimentImmutable experiment =
+                new ExperimentImmutable(openBisService.tryToGetExperiment(experimentIdentifier));
         return experiment;
     }
 
@@ -211,8 +219,6 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
             registrationService.queueDataSetRegistration(dataSet.getDataSetFolder(),
                     dataSet.getRegistrationDetails());
         }
-
-        registrationService.commit();
     }
 
     /**

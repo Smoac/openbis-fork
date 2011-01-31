@@ -68,7 +68,7 @@ public class DataSet<T extends DataSetInformation> implements IDataSet
     public void setExperiment(IExperimentImmutable experiment)
     {
         this.experiment = experiment;
-        Experiment exp = (Experiment) experiment;
+        ExperimentImmutable exp = (ExperimentImmutable) experiment;
         setExperiment(exp.getExperiment());
     }
 

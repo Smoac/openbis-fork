@@ -48,6 +48,8 @@ public class JythonTopLevelDataSetHandler extends AbstractOmniscientTopLevelData
      */
     private static final String ROLLBACK_SERVICE_FUNCTION_NAME = "rollback_service";
 
+    private static final String FACTORY_VARIABLE_NAME = "factory";
+    
     /**
      * The name of the local variable under which the service is made available to the script.
      */
@@ -105,7 +107,8 @@ public class JythonTopLevelDataSetHandler extends AbstractOmniscientTopLevelData
         interpreter.set(SERVICE_VARIABLE_NAME, service);
         interpreter.set(INCOMING_DATA_SET_VARIABLE_NAME, dataSetFile);
         interpreter.set(STATE_VARIABLE_NAME, getGlobalState());
-        setObjectFactory(interpreter);
+        interpreter.set(FACTORY_VARIABLE_NAME, createObjectFactory(interpreter));
+
 
         try
         {
@@ -201,12 +204,12 @@ public class JythonTopLevelDataSetHandler extends AbstractOmniscientTopLevelData
     /**
      * Set the factory available to the python script. Subclasses may want to override.
      */
-    protected void setObjectFactory(PythonInterpreter interpreter)
+    protected IDataSetRegistrationDetailsFactory<DataSetInformation> createObjectFactory(PythonInterpreter interpreter)
     {
-        interpreter.set("factory", new JythonObjectFactory(getRegistratorState()));
+        return new JythonObjectFactory(getRegistratorState());
     }
 
-    public static class JythonObjectFactory
+    public static class JythonObjectFactory implements IDataSetRegistrationDetailsFactory<DataSetInformation>
     {
         protected final OmniscientTopLevelDataSetRegistratorState registratorState;
 
