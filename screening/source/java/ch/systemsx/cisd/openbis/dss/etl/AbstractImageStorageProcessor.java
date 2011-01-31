@@ -132,24 +132,29 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
     protected static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
             PlateStorageProcessor.class);
 
-    private static final String GENERATE_THUMBNAILS_PROPERTY = "generate-thumbnails";
+    protected static final String FILE_EXTRACTOR_PROPERTY = "file-extractor";
 
-    private final static String COMPRESS_THUMBNAILS_PROPERTY = "compress-thumbnails";
+    // --- storage configuration properties
 
     private final static String ORIGINAL_DATA_STORAGE_FORMAT_PROPERTY =
             "original-data-storage-format";
+
+    private static final String GENERATE_THUMBNAILS_PROPERTY = "generate-thumbnails";
+
+    private final static String COMPRESS_THUMBNAILS_PROPERTY = "compress-thumbnails";
 
     private static final String THUMBNAIL_MAX_WIDTH_PROPERTY = "thumbnail-max-width";
 
     private static final String THUMBNAIL_MAX_HEIGHT_PROPERTY = "thumbnail-max-height";
 
-    protected static final String FILE_EXTRACTOR_PROPERTY = "file-extractor";
-
     // ---
 
     private final DataSource dataSource;
 
-    private final ImageStorageConfiguraton imageStorageConfiguraton;
+    /**
+     * Default configuration for all datasets, can be changed by {@link ImageDataSetInformation}.
+     */
+    private final ImageStorageConfiguraton globalImageStorageConfiguraton;
 
     // --- protected --------
 
@@ -174,14 +179,16 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
     {
         super(properties);
         this.imageFileExtractorOrNull = imageFileExtractorOrNull;
-        this.imageStorageConfiguraton = getImageStorageConfiguraton(properties);
+        this.globalImageStorageConfiguraton = getGlobalImageStorageConfiguraton(properties);
 
         this.dataSource = ServiceProvider.getDataSourceProvider().getDataSource(properties);
         this.currentTransaction = null;
         this.shouldDeleteOriginalDataOnCommit = false;
     }
 
-    private static ImageStorageConfiguraton getImageStorageConfiguraton(Properties properties)
+    // --- ImageStorageConfiguraton ---
+
+    private static ImageStorageConfiguraton getGlobalImageStorageConfiguraton(Properties properties)
     {
         ImageStorageConfiguraton storageFormatParameters = new ImageStorageConfiguraton();
         storageFormatParameters
@@ -226,6 +233,8 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
         return OriginalDataStorageFormat.valueOf(textValue.toUpperCase());
     }
 
+    // ----
+
     private static IImageFileExtractor tryCreateImageExtractor(final Properties properties)
     {
         String fileExtractorClass = PropertyUtils.getProperty(properties, FILE_EXTRACTOR_PROPERTY);
@@ -260,11 +269,15 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
                     rootDirectory);
         }
 
-        ImageFileExtractionResult extractionResult =
+        ImageFileExtractionWithConfig extractionResultWithConfig =
                 extractImages(dataSetInformation, incomingDataSetDirectory);
+        ImageFileExtractionResult extractionResult =
+                extractionResultWithConfig.getExtractionResult();
 
         validateImages(dataSetInformation, mailClient, incomingDataSetDirectory, extractionResult);
         List<AcquiredSingleImage> plateImages = extractionResult.getImages();
+        ImageStorageConfiguraton imageStorageConfiguraton =
+                extractionResultWithConfig.getImageStorageConfiguraton();
 
         File imagesInStoreFolder = moveToStore(incomingDataSetDirectory, rootDirectory);
 
@@ -275,6 +288,33 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
                 imageStorageConfiguraton.getOriginalDataStorageFormat().isHdf5();
         storeInDatabase(dataSetInformation, extractionResult);
         return rootDirectory;
+    }
+
+    private final class ImageFileExtractionWithConfig
+    {
+        private final ImageFileExtractionResult extractionResult;
+
+        private final ImageStorageConfiguraton imageStorageConfiguraton;
+
+        public ImageFileExtractionWithConfig(ImageFileExtractionResult extractionResult,
+                ImageStorageConfiguraton imageStorageConfiguraton)
+        {
+            assert extractionResult != null : "extractionResult is null";
+            assert imageStorageConfiguraton != null : "imageStorageConfiguraton is null";
+
+            this.extractionResult = extractionResult;
+            this.imageStorageConfiguraton = imageStorageConfiguraton;
+        }
+
+        public ImageFileExtractionResult getExtractionResult()
+        {
+            return extractionResult;
+        }
+
+        public ImageStorageConfiguraton getImageStorageConfiguraton()
+        {
+            return imageStorageConfiguraton;
+        }
     }
 
     private File tryUnzipToFolder(File incomingDataSetDirectory)
@@ -408,8 +448,8 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
         return dataSetInformation instanceof ImageDataSetInformation;
     }
 
-    private ImageFileExtractionResult extractImages(final DataSetInformation dataSetInformation,
-            final File incomingDataSetDirectory)
+    private ImageFileExtractionWithConfig extractImages(
+            final DataSetInformation dataSetInformation, final File incomingDataSetDirectory)
     {
         long extractionStart = System.currentTimeMillis();
         IImageFileExtractor extractor = tryGetImageFileExtractor(incomingDataSetDirectory);
@@ -431,10 +471,10 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
             throw new UserFailureException("No images found in the incoming diretcory: "
                     + incomingDataSetDirectory);
         }
-        return result;
+        return new ImageFileExtractionWithConfig(result, globalImageStorageConfiguraton);
     }
 
-    private ImageFileExtractionResult extractImagesFromDatasetInfoOrDie(
+    private ImageFileExtractionWithConfig extractImagesFromDatasetInfoOrDie(
             final DataSetInformation dataSetInformation)
     {
         if (dataSetInformation instanceof ImageDataSetInformation == false)
@@ -450,7 +490,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
         }
     }
 
-    private ImageFileExtractionResult extractImagesFromDatasetInfo(
+    private ImageFileExtractionWithConfig extractImagesFromDatasetInfo(
             ImageDataSetInformation imageDataSetInfo)
     {
         if (imageDataSetInfo.isValid() == false)
@@ -473,8 +513,16 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
         }
 
         List<File> invalidFiles = new ArrayList<File>(); // handles in an earlier phase
-        return new ImageFileExtractionResult(images, invalidFiles, imageDataSetInfo.getChannels(),
-                tileGeometry);
+        ImageFileExtractionResult extractionResult =
+                new ImageFileExtractionResult(images, invalidFiles, imageDataSetInfo.getChannels(),
+                        tileGeometry);
+        ImageStorageConfiguraton imageStorageConfiguraton =
+                imageDataSetInfo.getImageStorageConfiguraton();
+        if (imageStorageConfiguraton == null)
+        {
+            imageStorageConfiguraton = globalImageStorageConfiguraton;
+        }
+        return new ImageFileExtractionWithConfig(extractionResult, imageStorageConfiguraton);
     }
 
     protected IImageFileExtractor tryGetImageFileExtractor(File incomingDataSetDirectory)

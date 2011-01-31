@@ -33,6 +33,12 @@ public class ImageStorageConfiguraton
     private OriginalDataStorageFormat originalDataStorageFormat =
             OriginalDataStorageFormat.UNCHANGED;
 
+    /** Returns the default configuration. */
+    public static ImageStorageConfiguraton createDefault()
+    {
+        return new ImageStorageConfiguraton();
+    }
+
     /** @return null if no thumbnails should be generated */
     public ThumbnailsStorageFormat getThumbnailsStorageFormat()
     {

@@ -37,6 +37,8 @@ public class ImageDataSetInformation extends DataSetInformation
 
     private int tileRowsNumber, tileColumnsNumber;
 
+    private ImageStorageConfiguraton imageStorageConfiguratonOrNull;
+
     public int getTileRowsNumber()
     {
         return tileRowsNumber;
@@ -71,6 +73,23 @@ public class ImageDataSetInformation extends DataSetInformation
     public void setChannels(List<Channel> channels)
     {
         this.channels = channels;
+    }
+
+    /**
+     * @return image storage configuration for this dataset or null if the global configuration of
+     *         the storage processor should be used.
+     */
+    public ImageStorageConfiguraton getImageStorageConfiguraton()
+    {
+        return imageStorageConfiguratonOrNull;
+    }
+
+    /**
+     * Set to null if the global configuration of the storage processor should be used.
+     */
+    public void setImageStorageConfiguraton(ImageStorageConfiguraton imageStorageConfiguratonOrNull)
+    {
+        this.imageStorageConfiguratonOrNull = imageStorageConfiguratonOrNull;
     }
 
     /** are all necessary fields filled? */
