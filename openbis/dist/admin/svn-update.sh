@@ -4,16 +4,22 @@
 # screening-specific
 SVN=svncisd.ethz.ch/repos/cisd/openbis/trunk/dist/admin
 
+# set directory
 BASE=`dirname "$0"`
 if [ ${BASE#/} == ${BASE} ]; then
     BASE="`pwd`/${BASE}"
 fi
 
-alias rm='rm'
+if [ -z $OPENBIS_HOME ]; then
+    OPENBIS_HOME=${BASE}
+fi
 
-cd $BASE
-wget -nv -r -l1 -A.sh http://$SVN/
-mv $SVN/* .
-chmod 700 *.sh
-RM=`echo $SVN | cut -d / -f1`
-rm -rf $RM
+# checking for wget
+WGET_HOME=`which wget`
+
+# download the scripts
+$WGET_HOME --no-directories --directory-prefix $OPENBIS_HOME/bin --no-verbose -r -l1 -A.sh http://$SVN/
+
+# set permissions
+find $OPENBIS_HOME/bin -type f -name "*.sh" -exec chmod 700 {} \;
+
