@@ -59,6 +59,9 @@ import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageSeriesPoint;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageFileInfo;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.OriginalDataStorageFormat;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageStorageConfiguraton;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ThumbnailsStorageFormat;
 import ch.systemsx.cisd.openbis.dss.etl.jython.JythonPlateDataSetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -138,39 +141,15 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
 
     private static final String THUMBNAIL_MAX_WIDTH_PROPERTY = "thumbnail-max-width";
 
-    private static final int DEFAULT_THUMBNAIL_MAX_WIDTH = 200;
-
     private static final String THUMBNAIL_MAX_HEIGHT_PROPERTY = "thumbnail-max-height";
-
-    private static final int DEFAULT_THUMBNAIL_MAX_HEIGHT = 120;
 
     protected static final String FILE_EXTRACTOR_PROPERTY = "file-extractor";
 
-    // how the original data should be stored
-    private static enum OriginalDataStorageFormat
-    {
-        UNCHANGED, HDF5, HDF5_COMPRESSED;
-
-        public boolean isHdf5()
-        {
-            return this == OriginalDataStorageFormat.HDF5
-                    || this == OriginalDataStorageFormat.HDF5_COMPRESSED;
-        }
-    }
-
-    // --- private --------
+    // ---
 
     private final DataSource dataSource;
 
-    private final int thumbnailMaxWidth;
-
-    private final int thumbnailMaxHeight;
-
-    private final boolean generateThumbnails;
-
-    private final boolean areThumbnailsCompressed;
-
-    private final OriginalDataStorageFormat originalDataStorageFormat;
+    private final ImageStorageConfiguraton imageStorageConfiguraton;
 
     // --- protected --------
 
@@ -179,6 +158,9 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
     // --- internal state -------------
 
     private IImagingQueryDAO currentTransaction;
+
+    // used when HDF5 is used to store original data
+    private boolean shouldDeleteOriginalDataOnCommit;
 
     // ---
 
@@ -192,20 +174,56 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
     {
         super(properties);
         this.imageFileExtractorOrNull = imageFileExtractorOrNull;
-        this.thumbnailMaxWidth =
-                PropertyUtils.getInt(properties, THUMBNAIL_MAX_WIDTH_PROPERTY,
-                        DEFAULT_THUMBNAIL_MAX_WIDTH);
-        this.thumbnailMaxHeight =
-                PropertyUtils.getInt(properties, THUMBNAIL_MAX_HEIGHT_PROPERTY,
-                        DEFAULT_THUMBNAIL_MAX_HEIGHT);
-        this.generateThumbnails =
-                PropertyUtils.getBoolean(properties, GENERATE_THUMBNAILS_PROPERTY, false);
-        this.areThumbnailsCompressed =
-                PropertyUtils.getBoolean(properties, COMPRESS_THUMBNAILS_PROPERTY, false);
-        this.originalDataStorageFormat = getOriginalDataStorageFormat(properties);
+        this.imageStorageConfiguraton = getImageStorageConfiguraton(properties);
 
         this.dataSource = ServiceProvider.getDataSourceProvider().getDataSource(properties);
         this.currentTransaction = null;
+        this.shouldDeleteOriginalDataOnCommit = false;
+    }
+
+    private static ImageStorageConfiguraton getImageStorageConfiguraton(Properties properties)
+    {
+        ImageStorageConfiguraton storageFormatParameters = new ImageStorageConfiguraton();
+        storageFormatParameters
+                .setThumbnailsStorageFormat(tryCreateThumbnailsStorageFormat(properties));
+        storageFormatParameters
+                .setOriginalDataStorageFormat(getOriginalDataStorageFormat(properties));
+        return storageFormatParameters;
+    }
+
+    private static ThumbnailsStorageFormat tryCreateThumbnailsStorageFormat(Properties properties)
+    {
+        boolean generateThumbnails =
+                PropertyUtils.getBoolean(properties, GENERATE_THUMBNAILS_PROPERTY, false);
+        if (generateThumbnails == false)
+        {
+            return null;
+        }
+        ThumbnailsStorageFormat thumbnailsStorageFormat = new ThumbnailsStorageFormat();
+        int thumbnailMaxWidth =
+                PropertyUtils.getInt(properties, THUMBNAIL_MAX_WIDTH_PROPERTY,
+                        ThumbnailsStorageFormat.DEFAULT_THUMBNAIL_MAX_SIZE);
+        int thumbnailMaxHeight =
+                PropertyUtils.getInt(properties, THUMBNAIL_MAX_HEIGHT_PROPERTY,
+                        ThumbnailsStorageFormat.DEFAULT_THUMBNAIL_MAX_SIZE);
+        boolean areThumbnailsCompressed =
+                PropertyUtils.getBoolean(properties, COMPRESS_THUMBNAILS_PROPERTY,
+                        ThumbnailsStorageFormat.DEFAULT_COMPRESS_THUMBNAILS);
+
+        thumbnailsStorageFormat.setMaxWidth(thumbnailMaxWidth);
+        thumbnailsStorageFormat.setMaxHeight(thumbnailMaxHeight);
+        thumbnailsStorageFormat.setStoreCompressed(areThumbnailsCompressed);
+        return thumbnailsStorageFormat;
+    }
+
+    private static OriginalDataStorageFormat getOriginalDataStorageFormat(
+            final Properties properties)
+    {
+        String defaultValue = OriginalDataStorageFormat.UNCHANGED.name();
+        String textValue =
+                PropertyUtils.getProperty(properties, ORIGINAL_DATA_STORAGE_FORMAT_PROPERTY,
+                        defaultValue);
+        return OriginalDataStorageFormat.valueOf(textValue.toUpperCase());
     }
 
     private static IImageFileExtractor tryCreateImageExtractor(final Properties properties)
@@ -218,16 +236,6 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
         {
             return null;
         }
-    }
-
-    private static OriginalDataStorageFormat getOriginalDataStorageFormat(
-            final Properties properties)
-    {
-        String defaultValue = OriginalDataStorageFormat.UNCHANGED.name();
-        String textValue =
-                PropertyUtils.getProperty(properties, ORIGINAL_DATA_STORAGE_FORMAT_PROPERTY,
-                        defaultValue);
-        return OriginalDataStorageFormat.valueOf(textValue.toUpperCase());
     }
 
     private IImagingQueryDAO createQuery()
@@ -261,8 +269,10 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
         File imagesInStoreFolder = moveToStore(incomingDataSetDirectory, rootDirectory);
 
         // NOTE: plateImages will be changed by reference
-        processImages(rootDirectory, plateImages, imagesInStoreFolder);
+        processImages(rootDirectory, plateImages, imagesInStoreFolder, imageStorageConfiguraton);
 
+        this.shouldDeleteOriginalDataOnCommit =
+                imageStorageConfiguraton.getOriginalDataStorageFormat().isHdf5();
         storeInDatabase(dataSetInformation, extractionResult);
         return rootDirectory;
     }
@@ -284,23 +294,29 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
         return output;
     }
 
-    private void processImages(final File rootDirectory, List<AcquiredSingleImage> plateImages,
-            File imagesInStoreFolder)
+    private static void processImages(final File rootDirectory,
+            List<AcquiredSingleImage> plateImages, File imagesInStoreFolder,
+            ImageStorageConfiguraton imageStorageConfiguraton)
     {
-        generateThumbnails(plateImages, rootDirectory, imagesInStoreFolder);
+        generateThumbnails(plateImages, rootDirectory, imagesInStoreFolder,
+                imageStorageConfiguraton);
         String relativeImagesDirectory =
-                packageImagesIfNecessary(rootDirectory, plateImages, imagesInStoreFolder);
+                packageImagesIfNecessary(rootDirectory, plateImages, imagesInStoreFolder,
+                        imageStorageConfiguraton);
         updateImagesRelativePath(relativeImagesDirectory, plateImages);
     }
 
     // returns the prefix which should be added before each image path to create a path relative to
     // the dataset folder
-    private String packageImagesIfNecessary(final File rootDirectory,
-            List<AcquiredSingleImage> plateImages, File imagesInStoreFolder)
+    private static String packageImagesIfNecessary(final File rootDirectory,
+            List<AcquiredSingleImage> plateImages, File imagesInStoreFolder,
+            ImageStorageConfiguraton imageStorageConfiguraton)
     {
+        OriginalDataStorageFormat originalDataStorageFormat =
+                imageStorageConfiguraton.getOriginalDataStorageFormat();
         if (originalDataStorageFormat.isHdf5())
         {
-            File hdf5OriginalContainer = createHdf5OriginalContainer(rootDirectory);
+            File hdf5OriginalContainer = getHdf5OriginalContainer(rootDirectory);
             boolean isDataCompressed =
                     originalDataStorageFormat == OriginalDataStorageFormat.HDF5_COMPRESSED;
             saveInHdf5(imagesInStoreFolder, hdf5OriginalContainer, isDataCompressed);
@@ -313,12 +329,13 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
         }
     }
 
-    private static File createHdf5OriginalContainer(final File rootDirectory)
+    private static File getHdf5OriginalContainer(final File rootDirectory)
     {
         return new File(rootDirectory, Constants.HDF5_CONTAINER_ORIGINAL_FILE_NAME);
     }
 
-    private void saveInHdf5(File sourceFolder, File hdf5DestinationFile, boolean compressFiles)
+    private static void saveInHdf5(File sourceFolder, File hdf5DestinationFile,
+            boolean compressFiles)
     {
         Hdf5Container container = new Hdf5Container(hdf5DestinationFile);
         container.runWriterClient(compressFiles,
@@ -338,24 +355,29 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
     }
 
     // modifies plateImages by setting the path to thumbnails
-    private void generateThumbnails(final List<AcquiredSingleImage> plateImages,
-            final File rootDirectory, final File imagesInStoreFolder)
+    private static void generateThumbnails(final List<AcquiredSingleImage> plateImages,
+            final File rootDirectory, final File imagesInStoreFolder,
+            ImageStorageConfiguraton imageStorageConfiguraton)
     {
         final File thumbnailsFile =
                 new File(rootDirectory, Constants.HDF5_CONTAINER_THUMBNAILS_FILE_NAME);
         final String relativeThumbnailFilePath =
                 getRelativeImagesDirectory(rootDirectory, thumbnailsFile);
 
-        if (generateThumbnails)
+        ThumbnailsStorageFormat thumbnailsStorageFormatOrNull =
+                imageStorageConfiguraton.getThumbnailsStorageFormat();
+        if (thumbnailsStorageFormatOrNull != null)
         {
             Hdf5Container container = new Hdf5Container(thumbnailsFile);
-            container.runWriterClient(areThumbnailsCompressed, new Hdf5ThumbnailGenerator(
-                    plateImages, imagesInStoreFolder, thumbnailMaxWidth, thumbnailMaxHeight,
-                    relativeThumbnailFilePath, operationLog));
+            container.runWriterClient(thumbnailsStorageFormatOrNull.isStoreCompressed(),
+                    new Hdf5ThumbnailGenerator(plateImages, imagesInStoreFolder,
+                            thumbnailsStorageFormatOrNull.getMaxWidth(),
+                            thumbnailsStorageFormatOrNull.getMaxHeight(),
+                            relativeThumbnailFilePath, operationLog));
         }
     }
 
-    private void updateImagesRelativePath(String folderPathPrefix,
+    private static void updateImagesRelativePath(String folderPathPrefix,
             final List<AcquiredSingleImage> plateImages)
     {
         for (AcquiredSingleImage plateImage : plateImages)
@@ -365,7 +387,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
         }
     }
 
-    private String getRelativeImagesDirectory(File rootDirectory, File imagesInStoreFolder)
+    private static String getRelativeImagesDirectory(File rootDirectory, File imagesInStoreFolder)
     {
         String root = rootDirectory.getAbsolutePath();
         String imgDir = imagesInStoreFolder.getAbsolutePath();
@@ -463,7 +485,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
     @Override
     public void commit(File incomingDataSetDirectory, File storedDataDirectory)
     {
-        if (originalDataStorageFormat.isHdf5())
+        if (shouldDeleteOriginalDataOnCommit)
         {
             commitHdf5StorageFormatChanges(storedDataDirectory);
         }
@@ -473,18 +495,21 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
     private static void commitHdf5StorageFormatChanges(File storedDataDirectory)
     {
         File originalFolder = getOriginalFolder(storedDataDirectory);
-        File hdf5OriginalContainer = createHdf5OriginalContainer(storedDataDirectory);
-        if (hdf5OriginalContainer.exists())
+        File hdf5OriginalContainer = getHdf5OriginalContainer(storedDataDirectory);
+        if (hdf5OriginalContainer.exists()) // this should be always true
         {
             final IFileOperations fileOps = FileOperations.getMonitoredInstanceForCurrentThread();
             if (fileOps.removeRecursivelyQueueing(originalFolder) == false)
             {
-                operationLog.error("Cannot delete '" + originalFolder.getAbsolutePath() + "'.");
+                operationLog.error("Cannot delete original data '"
+                        + originalFolder.getAbsolutePath() + "'.");
             }
         } else
         {
-            notificationLog.error(String.format("HDF5 container with original data '%s' does not "
-                    + "exist, keeping the original directory '%s'.", hdf5OriginalContainer,
+            notificationLog.error(String.format(
+                    "HDF5 container with original data '%s' could not be found, this should not happen! "
+                            + "Dataset should be registered again! "
+                            + "Keeping the original directory '%s'.", hdf5OriginalContainer,
                     originalFolder));
         }
     }
