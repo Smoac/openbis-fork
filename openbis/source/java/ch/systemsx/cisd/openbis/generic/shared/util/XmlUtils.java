@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -77,6 +78,27 @@ public class XmlUtils
             throw UserFailureException.fromTemplate(
                     "Provided value:\n\n%s\n\nisn't a well formed XML document. %s", value,
                     e.getMessage());
+        }
+    }
+
+    /**
+     * Serializes a DOM {@link Document} to a String.
+     */
+    public static String serializeDocument(Document document)
+    {
+        try
+        {
+            TransformerFactory transfac = TransformerFactory.newInstance();
+            Transformer trans = transfac.newTransformer();
+            trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+            trans.setOutputProperty(OutputKeys.INDENT, "yes");
+
+            StringWriter sw = new StringWriter();
+            trans.transform(new DOMSource(document), new StreamResult(sw));
+            return sw.toString();
+        } catch (Exception ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
 

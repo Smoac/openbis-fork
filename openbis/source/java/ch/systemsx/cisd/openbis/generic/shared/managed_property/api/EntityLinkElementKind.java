@@ -19,13 +19,39 @@ package ch.systemsx.cisd.openbis.generic.shared.managed_property.api;
 /**
  * The type of a entity link.
  * <p>
- * TODO 2011-01-31 KE: Can we not unify this enumeration somehow ?
  * 
  * @author Kaloyan Enimanev
  */
 public enum EntityLinkElementKind
 {
 
-    EXPERIMENT, SAMPLE, DATA_SET;
+    EXPERIMENT("Experiment"), SAMPLE("Sample"), DATA_SET("Dataset"), MATERIAL("Material");
 
+    private String elementName;
+
+    private EntityLinkElementKind(String elementName)
+    {
+        this.elementName = elementName;
+    }
+
+    public String getElementName()
+    {
+        return elementName;
+    }
+
+    /**
+     * @return the {@link EntityLinkElementKind} for a given element name or <code>null</code> if no
+     *         matching kind exists.
+     */
+    public static EntityLinkElementKind tryGetForElementName(String elementName)
+    {
+        for (EntityLinkElementKind kind : values())
+        {
+            if (kind.getElementName().equalsIgnoreCase(elementName))
+            {
+                return kind;
+            }
+        }
+        return null;
+    }
 }
