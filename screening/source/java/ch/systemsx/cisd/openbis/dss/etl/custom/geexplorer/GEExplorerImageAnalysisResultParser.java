@@ -123,15 +123,21 @@ public class GEExplorerImageAnalysisResultParser extends DefaultHandler
                     final String name = attributes.getValue("name");
                     featureNames.add(name);
                     final String valStr = attributes.getValue("value");
-                    if (valStr.indexOf('.') >= 0 || valStr.indexOf('E') >= 0
-                            || valStr.indexOf('e') >= 0)
+                    try
                     {
-                        final double value = Double.parseDouble(valStr);
-                        features.get(currentWellId).put(name, value);
-                    } else
+                        if (valStr.indexOf('.') >= 0 || valStr.indexOf('E') >= 0
+                                || valStr.indexOf('e') >= 0)
+                        {
+                            final double value = Double.parseDouble(valStr);
+                            features.get(currentWellId).put(name, value);
+                        } else
+                        {
+                            final long value = Long.parseLong(valStr);
+                            features.get(currentWellId).put(name, value);
+                        }
+                    } catch (NumberFormatException ex)
                     {
-                        final long value = Long.parseLong(valStr);
-                        features.get(currentWellId).put(name, value);
+                        features.get(currentWellId).put(name, Double.NaN);
                     }
                 }
                 break;
