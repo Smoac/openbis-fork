@@ -34,8 +34,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
-import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IEntityLinkElement;
-import ch.systemsx.cisd.openbis.generic.shared.managed_property.structured.ElementFactory;
 
 /**
  * @author Franz-Josef Elmer
@@ -187,20 +185,20 @@ public class SimpleTableModelBuilderTest extends AssertJUnit
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder(true);
         builder.addFullHeader("materialCol", "sampleCol", "experimentCol", "datasetCol");
         IRowBuilder rowBuilder = builder.addRow();
-        rowBuilder.setCell("materialCol", new EntityTableCell(createMaterialLink("m1", "m_type1")));
-        rowBuilder.setCell("sampleCol", new EntityTableCell(createSampleLink("s1")));
-        rowBuilder.setCell("experimentCol", new EntityTableCell(createExperimentLink("e1")));
-        rowBuilder.setCell("datasetCol", new EntityTableCell(createDataSetLink("d1")));
+        rowBuilder.setCell("materialCol", createMaterialCell("m1"));
+        rowBuilder.setCell("sampleCol", createSampleCell("s1"));
+        rowBuilder.setCell("experimentCol", createExperimentCell("e1"));
+        rowBuilder.setCell("datasetCol", createDataSetCell("d1"));
         rowBuilder = builder.addRow();
-        rowBuilder.setCell("materialCol", new EntityTableCell(createMaterialLink("m2", "m_type2")));
-        rowBuilder.setCell("sampleCol", new EntityTableCell(createSampleLink("s2")));
-        rowBuilder.setCell("experimentCol", new EntityTableCell(createExperimentLink("e2")));
-        rowBuilder.setCell("datasetCol", new EntityTableCell(createDataSetLink("d2")));
+        rowBuilder.setCell("materialCol", createMaterialCell("m2"));
+        rowBuilder.setCell("sampleCol", createSampleCell("s2"));
+        rowBuilder.setCell("experimentCol", createExperimentCell("e2"));
+        rowBuilder.setCell("datasetCol", createDataSetCell("d2"));
         rowBuilder = builder.addRow();
         rowBuilder.setCell("materialCol", SimpleTableModelBuilder.createNullCell());
-        rowBuilder.setCell("sampleCol", new EntityTableCell(createSampleLink("s3")));
+        rowBuilder.setCell("sampleCol", createSampleCell("s3"));
         rowBuilder.setCell("experimentCol", SimpleTableModelBuilder.createNullCell());
-        rowBuilder.setCell("datasetCol", new EntityTableCell(createDataSetLink("d3")));
+        rowBuilder.setCell("datasetCol", createDataSetCell("d3"));
 
         TableModel tableModel = builder.getTableModel();
 
@@ -216,12 +214,12 @@ public class SimpleTableModelBuilderTest extends AssertJUnit
         List<TableModelRow> rows = tableModel.getRows();
         assertEquals(3, rows.size());
         assertEquals(4, rows.get(0).getValues().size());
-        assertEquals("m1 (m_type1)", rows.get(0).getValues().get(0).toString());
+        assertEquals("m1", rows.get(0).getValues().get(0).toString());
         assertEquals("s1", rows.get(0).getValues().get(1).toString());
         assertEquals("e1", rows.get(0).getValues().get(2).toString());
         assertEquals("d1", rows.get(0).getValues().get(3).toString());
         assertEquals(4, rows.get(1).getValues().size());
-        assertEquals("m2 (m_type2)", rows.get(1).getValues().get(0).toString());
+        assertEquals("m2", rows.get(1).getValues().get(0).toString());
         assertEquals("s2", rows.get(1).getValues().get(1).toString());
         assertEquals("e2", rows.get(1).getValues().get(2).toString());
         assertEquals("d2", rows.get(1).getValues().get(3).toString());
@@ -232,24 +230,24 @@ public class SimpleTableModelBuilderTest extends AssertJUnit
         assertEquals("d3", rows.get(2).getValues().get(3).toString());
     }
 
-    private static IEntityLinkElement createSampleLink(String permId)
+    private static EntityTableCell createMaterialCell(String permId)
     {
-        return new ElementFactory().createSampleLink(permId);
+        return new EntityTableCell(EntityKind.MATERIAL, permId);
     }
 
-    private static IEntityLinkElement createDataSetLink(String permId)
+    private static EntityTableCell createSampleCell(String permId)
     {
-        return new ElementFactory().createDataSetLink(permId);
+        return new EntityTableCell(EntityKind.SAMPLE, permId);
     }
 
-    private static IEntityLinkElement createExperimentLink(String permId)
+    private static EntityTableCell createExperimentCell(String permId)
     {
-        return new ElementFactory().createExperimentLink(permId);
+        return new EntityTableCell(EntityKind.EXPERIMENT, permId);
     }
 
-    private static IEntityLinkElement createMaterialLink(String code, String type)
+    private static EntityTableCell createDataSetCell(String permId)
     {
-        return new ElementFactory().createMaterialLink(code, type);
+        return new EntityTableCell(EntityKind.DATA_SET, permId);
     }
 
     private void assertHeader(String expectedTitle, String expectedID, int expectedDefaultWidth,
