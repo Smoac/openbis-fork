@@ -36,12 +36,17 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedComboBoxInputWidgetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedTableWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportRowModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiTableAction;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ManagedTableActionRowSelectionType;
 
 public final class ManagedPropertyGridActionDialog extends
         AbstractDataConfirmationDialog<List<TableModelRowWithObject<ReportRowModel>>>
@@ -123,9 +128,11 @@ public final class ManagedPropertyGridActionDialog extends
     {
         formPanel.setLabelWidth(100);
         formPanel.setFieldWidth(200);
+
         for (IManagedInputWidgetDescription inputDescription : managedAction
                 .getInputWidgetDescriptions())
         {
+            trySetBoundedValue(inputDescription);
             TextField<?> field;
             switch (inputDescription.getManagedInputFieldType())
             {
@@ -159,6 +166,48 @@ public final class ManagedPropertyGridActionDialog extends
 
             inputFieldsByLabel.put(label, field);
             formPanel.add(field);
+        }
+    }
+
+    /**
+     * If the managed action requires single row to be selected and there is a binding between given
+     * input field and a table column it tries to get the value from the selected table row and sets
+     * it in the input model.
+     */
+    private void trySetBoundedValue(IManagedInputWidgetDescription inputDescription)
+    {
+        if (managedAction.getSelectionType() == ManagedTableActionRowSelectionType.REQUIRED_SINGLE
+                && data.size() == 1)
+        {
+            String bindedColumnTitleOrNull =
+                    managedAction.getBindings().get(inputDescription.getLabel());
+            if (bindedColumnTitleOrNull != null)
+            {
+                if (viewContext.isLoggingEnabled())
+                {
+                    Info.display("found binding", inputDescription.getLabel() + "->"
+                            + bindedColumnTitleOrNull);
+                }
+                TableModelRowWithObject<ReportRowModel> selectedRow = data.get(0);
+                TableModel tableModel =
+                        ((ManagedTableWidgetDescription) managedProperty.getUiDescription()
+                                .getOutputWidgetDescription()).getTableModel();
+
+                for (TableModelColumnHeader header : tableModel.getHeader())
+                {
+                    if (header.getTitle().equals(bindedColumnTitleOrNull))
+                    {
+                        ISerializableComparable value =
+                                selectedRow.getValues().get(header.getIndex());
+                        inputDescription.setValue(value.toString());
+                        if (viewContext.isLoggingEnabled())
+                        {
+                            Info.display("bounded value", inputDescription.getLabel() + "=" + value);
+                        }
+                        break;
+                    }
+                }
+            }
         }
     }
 

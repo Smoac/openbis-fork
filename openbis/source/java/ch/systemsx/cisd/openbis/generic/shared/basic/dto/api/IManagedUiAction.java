@@ -70,4 +70,10 @@ public interface IManagedUiAction extends ISerializable
      * interface for modification of the managed property.
      */
     public List<IManagedInputWidgetDescription> getInputWidgetDescriptions();
+
+    /**
+     * Convenience method returning value of input widget with given label or null if such widget
+     * doesn't exist.
+     */
+    public String getInputValue(String inputLabel);
 }

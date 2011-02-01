@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiTableAction;
@@ -37,6 +39,9 @@ public class ManagedUiTableActionDescription extends ManagedUiActionDescription 
 
     private ManagedTableActionRowSelectionType selectionType =
             ManagedTableActionRowSelectionType.NOT_REQUIRED;
+
+    /** input label -> column title */
+    private Map<String, String> bindings = new HashMap<String, String>();
 
     private List<Integer> selectedRows = new ArrayList<Integer>(); // indices of selected rows
 
@@ -83,6 +88,17 @@ public class ManagedUiTableActionDescription extends ManagedUiActionDescription 
     public void setSelectedRows(List<Integer> selectedRows)
     {
         this.selectedRows = selectedRows;
+    }
+
+    public IManagedUiTableAction addBinding(String inputLabel, String columnTitle)
+    {
+        bindings.put(inputLabel, columnTitle);
+        return this;
+    }
+
+    public Map<String, String> getBindings()
+    {
+        return bindings;
     }
 
 }

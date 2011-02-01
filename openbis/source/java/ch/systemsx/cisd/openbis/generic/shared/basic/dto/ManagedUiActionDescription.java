@@ -109,4 +109,16 @@ public class ManagedUiActionDescription implements IManagedUiAction, ISerializab
         return inputField;
     }
 
+    public String getInputValue(String inputLabel)
+    {
+        for (IManagedInputWidgetDescription inputDescription : getInputWidgetDescriptions())
+        {
+            if (inputDescription.getLabel().equals(inputLabel))
+            {
+                return inputDescription.getValue();
+            }
+        }
+        return null;
+    }
+
 }

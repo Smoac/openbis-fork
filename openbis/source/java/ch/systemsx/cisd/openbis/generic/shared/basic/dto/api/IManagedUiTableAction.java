@@ -17,12 +17,16 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto.api;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Extension of {@link IManagedUiAction} for actions assigned with a table output.
  * <p>
  * Every table action can specify table selection mode required for the action to be enabled. If an
- * action requires table rows to be selected than it will contain list of indexes of selected rows.
+ * action requires table rows to be selected than it will contain list of indices of selected rows.
+ * <p>
+ * For actions that require single row to be selected it is possible to bind values of selected
+ * row's columns with input fields (e.g. useful in edit actions).
  * <p>
  * All methods of this interface are part of the Managed Properties API.
  * 
@@ -56,7 +60,17 @@ public interface IManagedUiTableAction extends IManagedUiAction
     IManagedUiTableAction setRowSelectionRequiredSingle();
 
     /**
-     * Returns list of indexes of selected rows (empty if no row was selected).
+     * Returns list of indices of selected rows (empty if no row was selected).
      */
     List<Integer> getSelectedRows();
+
+    /**
+     * Adds a binding between input field and table column.
+     */
+    IManagedUiTableAction addBinding(String inputLabel, String columnTitle);
+
+    /**
+     * Returns map of bindings between input fields and table columns.
+     */
+    Map<String, String> getBindings();
 }
