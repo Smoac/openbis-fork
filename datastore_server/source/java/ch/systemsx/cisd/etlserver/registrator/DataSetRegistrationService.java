@@ -100,13 +100,15 @@ public class DataSetRegistrationService implements IRollbackDelegate
                 new FutureDataSet(registration.getDataSetInformation().getDataSetCode());
         return future;
     }
-    
+
     public IDataSetRegistrationTransaction transaction(File dataSetFile,
             IDataSetRegistrationDetailsFactory<DataSetInformation> detailsFactory)
     {
         File workingDirectory = dataSetFile.getParentFile();
-        Properties properties = registratorState.getGlobalState().getThreadParameters().getThreadProperties();
-        File stagingDirectory = new File(PropertyUtils.getMandatoryProperty(properties, STAGING_DIR));
+        Properties properties =
+                registratorState.getGlobalState().getThreadParameters().getThreadProperties();
+        File stagingDirectory =
+                new File(PropertyUtils.getMandatoryProperty(properties, STAGING_DIR));
         return new DataSetRegistrationTransaction<DataSetInformation>(registrator.getGlobalState()
                 .getStoreRootDir(), workingDirectory, stagingDirectory, this, detailsFactory);
     }
@@ -117,6 +119,7 @@ public class DataSetRegistrationService implements IRollbackDelegate
         {
             new DataSetRegistrationAlgorithmRunner(registrationAlgorithm).runAlgorithm();
         }
+        dataSetRegistrations.clear();
         globalCleanAfterwardsAction.execute();
     }
 

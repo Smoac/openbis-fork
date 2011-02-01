@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.etlserver.registrator;
 
+import java.io.File;
+
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSet;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
@@ -26,4 +29,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 public interface IDataSetRegistrationDetailsFactory<T extends DataSetInformation>
 {
     DataSetRegistrationDetails<T> createDataSetRegistrationDetails();
+
+    DataSet<T> createDataSet(DataSetRegistrationDetails<T> registrationDetails, File stagingFile);
 }

@@ -17,7 +17,11 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.util.ArrayList;
+import java.util.Date;
+
+import org.apache.commons.lang.time.DateFormatUtils;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
@@ -47,6 +51,64 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
 public class DataSetRegistrationTransaction<T extends DataSetInformation> implements
         IDataSetRegistrationTransaction
 {
+    private static final String ROLLBACK_QUEUE1_FILE_NAME_SUFFIX = "rollBackQueue1";
+
+    private static final String ROLLBACK_QUEUE2_FILE_NAME_SUFFIX = "rollBackQueue2";
+
+    private final static String ROLLBACK_STACK_FILE_NAME_DATE_FORMAT_PATTERN = "yyyyMMddHHmmssSSS";
+
+    /**
+     * Check if there are any uncompleted transactions and roll them back. To be called during
+     * startup of a thread.
+     */
+    public static synchronized void rollbackDeadTransactions(File rollBackStackParentFolder)
+    {
+        File[] rollbackQueue1Files = rollBackStackParentFolder.listFiles(new FilenameFilter()
+            {
+
+                public boolean accept(File dir, String name)
+                {
+                    return name.endsWith(ROLLBACK_QUEUE1_FILE_NAME_SUFFIX);
+                }
+
+            });
+
+        for (File rollbackStackQueue1 : rollbackQueue1Files)
+        {
+            RollbackStack stack = createExistingRollbackStack(rollbackStackQueue1);
+            stack.rollbackAll();
+        }
+    }
+
+    /**
+     * Create a new persistent rollback stack in the supplied folder.
+     */
+    private static RollbackStack createNewRollbackStack(File rollBackStackParentFolder)
+    {
+        String fileNamePrefix =
+                DateFormatUtils.format(new Date(), ROLLBACK_STACK_FILE_NAME_DATE_FORMAT_PATTERN)
+                        + "-";
+        return new RollbackStack(new File(rollBackStackParentFolder, fileNamePrefix
+                + ROLLBACK_QUEUE1_FILE_NAME_SUFFIX), new File(rollBackStackParentFolder,
+                fileNamePrefix + ROLLBACK_QUEUE2_FILE_NAME_SUFFIX));
+    }
+
+    /**
+     * Given a queue1 file, create an existing rollback stack
+     */
+    private static RollbackStack createExistingRollbackStack(File rollbackStackQueue1)
+    {
+        String rollbackStack1FileName = rollbackStackQueue1.getName();
+        // Remove the ROLLBACK_QUEUE1_FILE_NAME_SUFFIX and append the
+        // ROLLBACK_QUEUE2_FILE_NAME_SUFFIX
+        String rollbackStack2FileName =
+                rollbackStack1FileName.substring(0, rollbackStack1FileName.length()
+                        - ROLLBACK_QUEUE1_FILE_NAME_SUFFIX.length())
+                        + ROLLBACK_QUEUE2_FILE_NAME_SUFFIX;
+        return new RollbackStack(rollbackStackQueue1, new File(rollbackStackQueue1.getParentFile(),
+                rollbackStack2FileName));
+    }
+
     // Keeps track of steps that have been executed and may need to be reverted. Elements are kept
     // in the order they need to be reverted.
     private final RollbackStack rollbackStack;
@@ -71,11 +133,10 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
             File stagingDirectory, DataSetRegistrationService registrationService,
             IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory)
     {
-        this(new RollbackStack(new File(rollBackStackParentFolder, "rollBackQueue1"), new File(
-                rollBackStackParentFolder, "rollBackQueue2")), workingDirectory, stagingDirectory,
+        this(createNewRollbackStack(rollBackStackParentFolder), workingDirectory, stagingDirectory,
                 registrationService, registrationDetailsFactory);
     }
-    
+
     DataSetRegistrationTransaction(RollbackStack rollbackStack, File workingDirectory,
             File stagingDirectory, DataSetRegistrationService registrationService,
             IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory)
@@ -104,7 +165,8 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         MkdirsCommand cmd = new MkdirsCommand(stagingFolder.getAbsolutePath());
         executeCommand(cmd);
 
-        DataSet<T> dataSet = new DataSet<T>(registrationDetails, stagingFolder);
+        DataSet<T> dataSet =
+                registrationDetailsFactory.createDataSet(registrationDetails, stagingFolder);
         registeredDataSets.add(dataSet);
         return dataSet;
     }
@@ -219,6 +281,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
             registrationService.queueDataSetRegistration(dataSet.getDataSetFolder(),
                     dataSet.getRegistrationDetails());
         }
+        registrationService.commit();
     }
 
     /**

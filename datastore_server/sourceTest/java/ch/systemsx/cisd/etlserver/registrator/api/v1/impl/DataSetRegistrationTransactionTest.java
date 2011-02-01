@@ -29,6 +29,7 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
@@ -62,7 +63,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class DataSetRegistrationTransactionTest extends AbstractTestWithRollbackStack
+public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCase
 {
     private static final String EXPERIMENT_IDENTIFIER = "/SPACE/PROJECT/EXP-CODE";
 
@@ -176,6 +177,24 @@ public class DataSetRegistrationTransactionTest extends AbstractTestWithRollback
         checkContentsOfFile(new File(dst));
 
         tr.rollback();
+
+        checkContentsOfFile(srcFile);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testAbortAndRollback()
+    {
+        setUpOpenBisExpectations(false);
+        createTransaction();
+
+        IDataSet newDataSet = tr.createNewDataSet();
+        String dst = tr.moveFile(srcFile.getAbsolutePath(), newDataSet);
+
+        checkContentsOfFile(new File(dst));
+
+        DataSetRegistrationTransaction.rollbackDeadTransactions(workingDirectory);
 
         checkContentsOfFile(srcFile);
 
@@ -421,6 +440,12 @@ public class DataSetRegistrationTransactionTest extends AbstractTestWithRollback
 
             return dataSetInfo;
         }
+
+        public DataSet<DataSetInformation> createDataSet(
+                DataSetRegistrationDetails<DataSetInformation> registrationDetails, File stagingFile)
+        {
+            return new DataSet<DataSetInformation>(registrationDetails, stagingFile);
+        }
     }
 
     private void checkContentsOfFile(File dst)
@@ -438,7 +463,7 @@ public class DataSetRegistrationTransactionTest extends AbstractTestWithRollback
     {
         createHandler();
         tr =
-                new DataSetRegistrationTransaction<DataSetInformation>(rollbackStack,
+                new DataSetRegistrationTransaction<DataSetInformation>(workingDirectory,
                         workingDirectory, stagingDirectory, service, handler);
     }
 }

@@ -42,6 +42,7 @@ import ch.systemsx.cisd.etlserver.IPreRegistrationAction;
 import ch.systemsx.cisd.etlserver.IStorageProcessor;
 import ch.systemsx.cisd.etlserver.PropertiesBasedETLServerPlugin;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.utils.PostRegistrationExecutor;
 import ch.systemsx.cisd.etlserver.utils.PreRegistrationExecutor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -178,6 +179,8 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator extends
         state =
                 new OmniscientTopLevelDataSetRegistratorState(globalState, storageProcessor,
                         new ReentrantLock(), FileOperations.getMonitoredInstanceForCurrentThread());
+
+        DataSetRegistrationTransaction.rollbackDeadTransactions(globalState.getStoreRootDir());
 
     }
 
