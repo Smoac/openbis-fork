@@ -34,8 +34,7 @@ public class EntityLinkElement extends Element implements IEntityLinkElement
         super(kind.getElementName());
         this.kind = kind;
 
-        ElementAttribute permIdAttr = new ElementAttribute(PERMID_ATTR_NAME, permId);
-        addAttributes(permIdAttr);
+        super.addAttribute(PERMID_ATTR_NAME, permId);
     }
 
     public String getPermId()

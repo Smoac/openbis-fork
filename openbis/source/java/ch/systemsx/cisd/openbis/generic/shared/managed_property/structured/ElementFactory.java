@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.shared.managed_property.structured;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.EntityLinkElementKind;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IElement;
-import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IElementAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IElementFactory;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IEntityLinkElement;
 
@@ -51,11 +50,6 @@ public class ElementFactory implements IElementFactory
     {
         String materialPermId = MaterialIdentifier.print(code, typeCode);
         return new EntityLinkElement(EntityLinkElementKind.MATERIAL, materialPermId);
-    }
-
-    public IElementAttribute createAttribute(String key, String value)
-    {
-        return new ElementAttribute(key, value);
     }
 
     public boolean isEntityLink(IElement element)

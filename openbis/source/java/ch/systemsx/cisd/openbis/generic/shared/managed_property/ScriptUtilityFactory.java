@@ -1,6 +1,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.managed_property;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ValidationException;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IElement;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IElementFactory;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTableModelBuilderAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IStructuredPropertyConverter;
@@ -32,11 +33,17 @@ public class ScriptUtilityFactory
         return new ValidationException(message);
     }
 
+    /**
+     * @return a factory object that can be used to create {@link IElement}-s.
+     */
     public static IElementFactory createElementFactory()
     {
         return new ElementFactory();
     }
 
+    /**
+     * @return a converter that can translate {@link IElement} to/from Strings.
+     */
     public static IStructuredPropertyConverter createPropertyConverter()
     {
         return new XmlStructuredPropertyConverter(createElementFactory());

@@ -17,19 +17,34 @@
 package ch.systemsx.cisd.openbis.generic.shared.managed_property.api;
 
 /**
+ * Contains helper method to construct {@link IElement} instances.
+ * 
  * @author Kaloyan Enimanev
  */
 public interface IElementFactory
 {
 
+    /**
+     * @return creates an {@link IElement} for a given element name.
+     */
     IElement createElement(String name);
 
+    /**
+     * @return creates an link element pointing towards a sample with given perm id.
+     */
     IEntityLinkElement createSampleLink(String permId);
 
+    /**
+     * @return creates an link element pointing towards a material with given code and typeCode
+     *         parameters.
+     */
     IEntityLinkElement createMaterialLink(String code, String typeCode);
 
-    IElementAttribute createAttribute(String key, String value);
-
+    /**
+     * @return <code>true</code> if the specified element is a link element, <code>false</code>
+     *         otherwise. This method might come handy in Jython scripts, where it is undesirable to
+     *         hard-code class names or invoke "instanceof".
+     */
     boolean isEntityLink(IElement element);
 
 }

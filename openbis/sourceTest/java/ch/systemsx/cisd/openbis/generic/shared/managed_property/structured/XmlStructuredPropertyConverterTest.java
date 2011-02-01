@@ -42,16 +42,15 @@ public class XmlStructuredPropertyConverterTest extends AssertJUnit
 
         List<IElement> elements =
                 Arrays.asList(
-                        factory.createElement("testname").addAttributes(
-                                factory.createAttribute("attr1", "value1"),
-                                factory.createAttribute("attr2", "value2")),
-                        factory.createSampleLink("permIdSample").addAttributes(
-                                factory.createAttribute("sampleAttrKey", "sampleAttrVal")),
-                        factory.createMaterialLink("materialCode", "typeCode").addAttributes(
-                                factory.createAttribute("materialAttrKey", "materialAttrVal"))
+                        factory.createElement("testname").addAttribute("attr1", "value1")
+                                .addAttribute("attr2", "value2"),
+                        factory.createSampleLink("permIdSample").addAttribute("sampleAttrKey",
+                                "sampleAttrVal"),
+                        factory.createMaterialLink("materialCode", "typeCode").addAttribute(
+                                "materialAttrKey", "materialAttrVal")
         );
 
-        String persistentValue = converter.convertToPropValue(elements);
+        String persistentValue = converter.convertToString(elements);
         List<IElement> deserialized = converter.convertToElements(persistentValue);
 
         assertEquals(elements, deserialized);
@@ -64,17 +63,15 @@ public class XmlStructuredPropertyConverterTest extends AssertJUnit
         List<IElement> elements =
                 Arrays.asList(
                         factory.createElement("name1")
-                                .addAttributes(factory.createAttribute("attr1", "value1"))
+                                .addAttribute("attr1", "value1")
                                 .addChildren(factory.createSampleLink("nestedPermId1"),
                                         factory.createMaterialLink("code1", "typeCode1")),
                         factory.createSampleLink("permIdSample").addChildren(
-                                factory.createElement("nested1").addAttributes(
-                                        factory.createAttribute("na1", "nav2"))),
+                                factory.createElement("nested1").addAttribute("na1", "nav2")),
                         factory.createMaterialLink("materialCode", "typeCode").addChildren(
-                                factory.createElement("nested2").addAttributes(
-                                        factory.createAttribute("na2", "nav2"))));
+                                factory.createElement("nested2").addAttribute("na2", "nav2")));
 
-        String persistentValue = converter.convertToPropValue(elements);
+        String persistentValue = converter.convertToString(elements);
         List<IElement> deserialized = converter.convertToElements(persistentValue);
 
         assertEquals(elements, deserialized);

@@ -18,14 +18,28 @@ package ch.systemsx.cisd.openbis.generic.shared.managed_property.api;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.structured.Element;
+
 /**
+ * Abstracts the conversion of {@link Element} objects to/from database strings.
+ * 
  * @author Kaloyan Enimanev
  */
 public interface IStructuredPropertyConverter
 {
 
+    /**
+     * parses a list of {@link Element} objects from the property value.
+     * 
+     * @param propertyValue a string (usually the property value as stored in the database)
+     */
     List<IElement> convertToElements(String propertyValue);
 
-    String convertToPropValue(List<IElement> elements);
+    /**
+     * @return a {@link String} representation of the specified elements that can be persisted in
+     *         the database. The original list of {@link Element} can be reconstructed from the
+     *         resulting string using {@link #convertToElements(String)}.
+     */
+    String convertToString(List<IElement> elements);
 
 }

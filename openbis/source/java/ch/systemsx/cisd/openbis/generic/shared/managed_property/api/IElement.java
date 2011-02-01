@@ -17,34 +17,63 @@
 package ch.systemsx.cisd.openbis.generic.shared.managed_property.api;
 
 import java.util.List;
+import java.util.Map;
 
 /**
- * TODO KE: write javadoc (API will be exposed publicly)
+ * An {@link IElement} is an object that can be transparently converted to {@link String} (see
+ * {@link IStructuredPropertyConverter}) e.g. when we want to save the value of a structured
+ * (managed) property.
+ * <p>
+ * {@link IElement}-s are meant to be used as a convenient, hierarchical property-value persistence
+ * technique for managed properties.
  * 
  * @author Piotr Buczek
  * @author Kaloyan Enimanev
  */
 public interface IElement
 {
-    
+
+    /**
+     * @return the element's name.
+     */
     String getName();
     
+    /**
+     * @return the value of an attribute or NULL if the attribute is not defined for this
+     *         {@link IElement}
+     */
     String getAttribute(String key);
-    
+
+    /**
+     * The "Data" field is intended for a chunk raw data that can be attached to an element
+     * instance. This might be useful in scenarios where
+     */
     String getData();
 
+    /**
+     * @return all children {@link IElement}-s.
+     */
     List<IElement> getChildren();
     
-    List<IElementAttribute> getAttributes();
+    Map<String, String> getAttributes();
     
+    IElement setAttributes(Map<String, String> attributes);
+
+    /**
+     * adds an attribute, replacing any previously existing attributes with the same key.
+     */
+    IElement addAttribute(String key, String value);
+
     IElement setData(String data);
 
+    /**
+     * sets the children of this {@link IElement}, replacing any previously existing children.
+     */
     IElement setChildren(List<IElement> children);
 
-    IElement setAttributes(List<IElementAttribute> attributes);
-    
+    /**
+     * appends a list of children to this children elements list.
+     */
     IElement addChildren(IElement... child);
-
-    IElement addAttributes(IElementAttribute... attribute);
 
 }

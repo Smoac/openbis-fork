@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.managed_property.api;
 
 /**
- * The type of a entity link.
+ * The type of an entity link.
  * <p>
  * 
  * @author Kaloyan Enimanev
@@ -34,6 +34,9 @@ public enum EntityLinkElementKind
         this.elementName = elementName;
     }
 
+    /**
+     * the {@link IElement} name corresponding to the link.
+     */
     public String getElementName()
     {
         return elementName;

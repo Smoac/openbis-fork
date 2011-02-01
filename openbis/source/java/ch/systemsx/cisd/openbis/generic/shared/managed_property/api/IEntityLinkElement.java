@@ -16,13 +16,22 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.managed_property.api;
 
+
 /**
+ * Denotes a link to an entity in the openBIS database.
+ * 
  * @author Kaloyan Enimanev
  */
 public interface IEntityLinkElement extends IElement
 {
+    /**
+     * @return the perm id of the linked entity.
+     */
     public String getPermId();
 
+    /**
+     * @return the kind of the linked entity.
+     */
     public EntityLinkElementKind getEntityLinkKind();
 
 }

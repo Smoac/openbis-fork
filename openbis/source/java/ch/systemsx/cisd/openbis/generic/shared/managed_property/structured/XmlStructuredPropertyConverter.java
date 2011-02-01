@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.managed_property.structured;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -34,7 +35,6 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.EntityLinkElementKind;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IElement;
-import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IElementAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IElementFactory;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IStructuredPropertyConverter;
 import ch.systemsx.cisd.openbis.generic.shared.util.XmlUtils;
@@ -48,6 +48,9 @@ public class XmlStructuredPropertyConverter implements IStructuredPropertyConver
 {
 
     private static final String ROOT_NAME = "root";
+
+    private static final String OPENBIS_NS = "openbis";
+    private static final String OPENBIS_NAMESPACE_URL = "http://openbis.org/schemas/elements/v1";
 
     private IElementFactory factory;
 
@@ -63,20 +66,29 @@ public class XmlStructuredPropertyConverter implements IStructuredPropertyConver
         return root.getChildren();
     }
 
-    public String convertToPropValue(List<IElement> elements)
+    public String convertToString(List<IElement> elements)
     {
-        IElement root = new Element(ROOT_NAME).setChildren(elements);
-
+        IElement root = createRootElement(elements);
         Document doc = createEmptyDocument();
         Node rootNode = transformToDOM(root, doc);
         doc.appendChild(rootNode);
 
         return XmlUtils.serializeDocument(doc);
     }
+
+    private IElement createRootElement(List<IElement> elements)
+    {
+        IElement root = new Element(ROOT_NAME);
+        root.addAttribute("xmlns:" + OPENBIS_NS, OPENBIS_NAMESPACE_URL);
+        root.setChildren(elements);
+        return root;
+    }
     
     private Node transformToDOM(IElement element, Document document)
     {
-        Node result = document.createElement(element.getName());
+        String name = getNodeNameWithNamespacePrefix(element);
+        Node result = document.createElement(name);
+
         for (IElement child : element.getChildren())
         {
             Node childNode = transformToDOM(child, document);
@@ -87,6 +99,16 @@ public class XmlStructuredPropertyConverter implements IStructuredPropertyConver
         transformDataToDOM(element, document, result);
 
         return result;
+    }
+
+    private String getNodeNameWithNamespacePrefix(IElement element)
+    {
+        String name = element.getName();
+        if (factory.isEntityLink(element))
+        {
+            name = OPENBIS_NS + ":" + name;
+        }
+        return name;
     }
 
     private IElement transformFromDOM(Node node)
@@ -123,24 +145,22 @@ public class XmlStructuredPropertyConverter implements IStructuredPropertyConver
     private void transformAttributesFromDOM(Node node, IElement result)
     {
         NamedNodeMap domAttributes = node.getAttributes();
-        List<IElementAttribute> attributes = new ArrayList<IElementAttribute>();
+        Map<String, String> attributes = result.getAttributes();
         if (domAttributes != null)
         {
             for (int i = 0; i < domAttributes.getLength(); i++)
             {
                 Attr domAttr = (Attr) domAttributes.item(i);
                 String unescapedValue = StringEscapeUtils.unescapeXml(domAttr.getValue());
-                IElementAttribute attribute =
-                        factory.createAttribute(domAttr.getName(), unescapedValue);
-                attributes.add(attribute);
+                attributes.put(domAttr.getName(), unescapedValue);
             }
         }
-        result.setAttributes(attributes);
     }
 
     private IElement createElementForNode(Node node)
     {
         String nodeName = node.getLocalName();
+
         EntityLinkElementKind linkKind = EntityLinkElementKind.tryGetForElementName(nodeName);
         if (linkKind != null)
         {
@@ -167,10 +187,11 @@ public class XmlStructuredPropertyConverter implements IStructuredPropertyConver
 
     private void transformAttributesToDOM(IElement element, Document document, Node node)
     {
-        for (IElementAttribute attribute : element.getAttributes())
+        Map<String, String> attributes = element.getAttributes();
+        for (String key : element.getAttributes().keySet())
         {
-            Attr domAttr = document.createAttribute(attribute.getKey());
-            String escapedValue = StringEscapeUtils.escapeXml(attribute.getValue());
+            Attr domAttr = document.createAttribute(key);
+            String escapedValue = StringEscapeUtils.escapeXml(attributes.get(key));
             domAttr.setValue(escapedValue);
             node.getAttributes().setNamedItem(domAttr);
         }

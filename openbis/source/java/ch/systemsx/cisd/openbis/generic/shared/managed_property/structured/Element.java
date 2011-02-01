@@ -20,13 +20,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IElement;
-import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IElementAttribute;
 
 /**
- * TODO KE: document
+ * The default implementation of {@link IElement}.
  * 
  * @author Kaloyan Enimanev
  */
@@ -35,18 +35,16 @@ public class Element implements IElement
 
     private final String name;
 
-    // TODO KE: no final fields needed
-    private final Map<String /* key */, IElementAttribute> attributes =
-            new HashMap<String, IElementAttribute>();
+    private Map<String, String> attributes = new HashMap<String, String>();
 
-    private final List<IElement> children = new ArrayList<IElement>();
+    private List<IElement> children = new ArrayList<IElement>();
 
     private String data;
 
     public Element(String name)
     {
-        assert Pattern.matches("[a-zA-Z]\\w*", name) : "Element names must be non-emtpy strings "
-                + "containing characters from the English alphabet and digits.";
+        assert Pattern.matches("[a-zA-Z][\\w:]*", name) : "Element names must be non-emtpy strings "
+                + "containing characters from the English alphabet or digits.";
         this.name = name;
     }
 
@@ -57,12 +55,7 @@ public class Element implements IElement
 
     public String getAttribute(String key)
     {
-        IElementAttribute attribute = attributes.get(key);
-        if (attribute != null)
-        {
-            return attribute.getValue();
-        }
-        return null;
+        return attributes.get(key);
     }
 
     public String getData()
@@ -75,28 +68,28 @@ public class Element implements IElement
         return children;
     }
 
-    public List<IElementAttribute> getAttributes()
+    public Map<String, String> getAttributes()
     {
-        // TODO KE: have another datastructure
-        return new ArrayList<IElementAttribute>(attributes.values());
+        return attributes;
     }
 
 
-    public IElement setAttributes(List<IElementAttribute> newAttributes)
+    public IElement setAttributes(Map<String, String> newAttributes)
     {
-        attributes.clear();
-        for (IElementAttribute attribute : newAttributes)
+        assert newAttributes != null : "Setting null attributes is not allowed.";
+        for (Entry<String, String> entry : newAttributes.entrySet())
         {
-            attributes.put(attribute.getKey(), attribute);
+            validateAttribute(entry.getKey(), entry.getValue());
         }
+        this.attributes = newAttributes;
         return this;
     }
 
 
     public IElement setChildren(List<IElement> newChildren)
     {
-        children.clear();
-        children.addAll(newChildren);
+        assert newChildren != null : "Setting null children is not allowed.";
+        this.children = newChildren;
         return this;
     }
 
@@ -115,13 +108,28 @@ public class Element implements IElement
         return this;
     }
 
-    public IElement addAttributes(IElementAttribute... newAttributes)
+    public IElement addAttribute(String key, String value)
     {
-        for (IElementAttribute attribute : newAttributes)
-        {
-            attributes.put(attribute.getKey(), attribute);
-        }
+        validateAttribute(key, value);
+        attributes.put(key, value);
         return this;
+    }
+
+    private void validateAttribute(String key, String value)
+    {
+        if (Pattern.matches("[a-zA-Z][\\w:]*", key) == false)
+        {
+            String error =
+                    String.format("Invalid attribute name %s. Attribute names must "
+                                    + "be non-emtpy strings containing characters from the English alphabet.",
+                            key);
+            throw new IllegalArgumentException(error);
+        }
+        if (value == null)
+        {
+            String error = String.format("Attribute with key %s has NULL value.", key);
+            throw new IllegalArgumentException(error);
+        }
     }
 
     @Override
