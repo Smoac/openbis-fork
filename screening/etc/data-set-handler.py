@@ -25,6 +25,9 @@ ANALYSIS_DATASET_TYPE = "HCS_IMAGE_ANALYSIS_DATA"
 """ file format of the analysis dataset file """
 ANALYSIS_FILE_FORMAT = "CSV"
 
+OVERLAY_IMAGE_DATASET_TYPE = "HCS_IMAGE_SEGMENTATION_OVERLAY"
+OVERLAY_IMAGE_FILE_FORMAT = "PNG"
+
 """ space where the plate for which the dataset has been acquired exist """
 PLATE_SPACE = "DEMO"
 
@@ -124,6 +127,7 @@ def parse_image_tokens(dir):
             extIx = RECOGNIZED_IMAGES_EXTENSIONS.index(ext)
             # not reached if extension not found
             image_tokens = create_image_tokens(file)
+            #print "tile", image_tokens.tile, "path", image_tokens.path, "well", image_tokens.well
             image_tokens_list.append(image_tokens)    
         except ValueError:
             pass # extension not recognized    
@@ -190,7 +194,8 @@ def get_random_string():
 def get_tmp_dir(incoming, label):
     dropbox_parent_dir = incoming.getParentFile().getParent()
     tmp_dir = File(dropbox_parent_dir, "tmp")
-    os.mkdir(tmp_dir.getPath())
+    if not os.path.exists(tmp_dir.getPath()):
+        os.mkdir(tmp_dir.getPath())
     tmp_labeled_dir = File(tmp_dir, label + ".tmp." + get_random_string())
     os.mkdir(tmp_labeled_dir.getPath())
     return tmp_labeled_dir
@@ -357,21 +362,22 @@ OVERLAYS_DIR_PATTERN = "overlays"
 def register_images_with_overlays_and_analysis(incoming):
     if not incoming.isDirectory():
         return
-    analysis_file = find_file_by_ext(incoming, "xml")
-    overlays_dir = find_dir(incoming, OVERLAYS_DIR_PATTERN)
     
+    analysis_file = find_file_by_ext(incoming, "xml")
+    
+    overlays_dir = find_dir(incoming, OVERLAYS_DIR_PATTERN)
+    if overlays_dir != None:
+        overlays_label = "overlays"
+        tmp_overlays_parent_dir = get_tmp_dir(incoming, overlays_label)
+        tmp_overlays_dir = File(tmp_overlays_parent_dir, overlays_label)
+        os.rename(overlays_dir.getPath(), tmp_overlays_dir.getPath())
+            
     image_dataset = create_image_dataset(incoming)
     image_dataset_details = create_image_dataset_details(image_dataset)
 
     plate_code = image_dataset_details.getDataSetInformation().getSampleCode()
     space_code = image_dataset_details.getDataSetInformation().getSpaceCode()
-    
-    if overlays_dir != None:
-        overlays_label = "overlays"
-        tmp_overlays_parent_dir = get_tmp_dir(incoming, overlays_label)
-        tmp_overlays_dir = File(tmp_overlays_parent_dir, overlays_label)
-        os.rename(overlays_dir, tmp_overlays_dir)
-        
+
     if analysis_file != None:
         tmp_analysis_dir = get_tmp_dir(incoming, "image-analysis")
         tmp_analysis_file = File(tmp_analysis_dir, analysis_file.getName())
@@ -379,14 +385,16 @@ def register_images_with_overlays_and_analysis(incoming):
     
     register_sample_if_necessary(space_code, DEFAULT_PROJECT_CODE, DEFAULT_EXPERIMENT_CODE, plate_code)
     img_dataset_code = service.queueDataSetRegistration(incoming, image_dataset_details).getCode()
+    service.commit()
     
     if overlays_dir != None:
         overlay_dataset_details = create_overlay_dataset_details(tmp_overlays_dir, image_dataset, img_dataset_code)
         service.queueDataSetRegistration(tmp_overlays_dir, overlay_dataset_details)
-        
+        service.commit()
+         
     if analysis_file != None:
         analysis_registration_details = create_analysis_dataset_details(space_code, plate_code, img_dataset_code)  
         service.queueDataSetRegistration(tmp_analysis_file, analysis_registration_details)
-
+        service.commit()
 
 register_images_with_overlays_and_analysis(incoming)
