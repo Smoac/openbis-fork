@@ -35,6 +35,16 @@ public interface IElementFactory
     IEntityLinkElement createSampleLink(String permId);
 
     /**
+     * @return creates an link element pointing towards an experiment with given perm id.
+     */
+    IEntityLinkElement createExperimentLink(String permId);
+
+    /**
+     * @return creates an link element pointing towards a data set with given perm id.
+     */
+    IEntityLinkElement createDataSetLink(String permId);
+
+    /**
      * @return creates an link element pointing towards a material with given code and typeCode
      *         parameters.
      */
