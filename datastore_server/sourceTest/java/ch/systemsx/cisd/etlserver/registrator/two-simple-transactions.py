@@ -7,4 +7,4 @@ dataSet2 = transaction.createNewDataSet()
 transaction.moveFile(incoming.getPath() + '/sub_data_set_2', dataSet2)
 dataSet2.setDataSetType('O1')
 dataSet2.setExperiment(transaction.getExperiment('/SPACE/PROJECT/EXP2'))
-transaction.commit()
+
