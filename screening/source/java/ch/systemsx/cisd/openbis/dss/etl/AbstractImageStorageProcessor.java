@@ -546,9 +546,9 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
                 }
             } else
             {
-                images = AbstractImageFileExtractor.createImagesWithNoColorComponent(imageInfo);
+                images.addAll(AbstractImageFileExtractor
+                        .createImagesWithNoColorComponent(imageInfo));
             }
-            images.addAll(images);
         }
         return images;
     }

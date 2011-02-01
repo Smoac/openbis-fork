@@ -92,7 +92,8 @@ public final class HCSImageCheckList
         Integer seriesNumberOrNull = image.tryGetSeriesNumber();
         if (check.isCheckedOff(timepointOrNull, depthOrNull, seriesNumberOrNull))
         {
-            throw new IllegalArgumentException("Image already handled: " + image);
+            throw new IllegalArgumentException("Location: " + location
+                    + " - image already handled: " + image);
         }
         check.checkOff(timepointOrNull, depthOrNull, seriesNumberOrNull);
     }
@@ -122,7 +123,7 @@ public final class HCSImageCheckList
 
     private static final class Check
     {
-        private boolean checkedOff;
+        private boolean checkedOff = false;
 
         private final Set<ImageSeriesPoint> dimensions = new HashSet<ImageSeriesPoint>();
 
