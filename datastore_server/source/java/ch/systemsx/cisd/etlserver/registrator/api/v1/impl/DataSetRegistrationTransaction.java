@@ -132,6 +132,9 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
 
     private final List<Experiment> experimentsToBeRegistered = new ArrayList<Experiment>();
 
+    // Track whether the transaction has been committed or rolledback. A very simple state machine.
+    private boolean isCommittedOrRolledback = false;
+
     public DataSetRegistrationTransaction(File rollBackStackParentFolder, File workingDirectory,
             File stagingDirectory, DataSetRegistrationService registrationService,
             IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory)
@@ -281,12 +284,19 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
      */
     public void commit()
     {
+        if (isCommittedOrRolledback())
+        {
+            return;
+        }
+
         for (DataSet<T> dataSet : registeredDataSets)
         {
             registrationService.queueDataSetRegistration(dataSet.getDataSetFolder(),
                     dataSet.getRegistrationDetails());
         }
         registrationService.commit();
+
+        markCommitted();
     }
 
     /**
@@ -295,8 +305,15 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
      */
     public void rollback()
     {
+        if (isCommittedOrRolledback())
+        {
+            return;
+        }
+
         rollbackStack.rollbackAll();
         registeredDataSets.clear();
+
+        markRolledback();
     }
 
     /**
@@ -316,6 +333,30 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     protected String generateDataSetCode(DataSetRegistrationDetails<T> registrationDetails)
     {
         return openBisService.createDataSetCode();
+    }
+
+    /**
+     * Return true if we are in the committed or rolledback state.
+     */
+    protected boolean isCommittedOrRolledback()
+    {
+        return isCommittedOrRolledback;
+    }
+
+    /**
+     * Move to the committed state.
+     */
+    protected void markCommitted()
+    {
+        isCommittedOrRolledback = true;
+    }
+
+    /**
+     * Move to the rolledback state.
+     */
+    protected void markRolledback()
+    {
+        isCommittedOrRolledback = true;
     }
 
 }
