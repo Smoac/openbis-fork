@@ -232,8 +232,7 @@ public class JythonTopLevelDataSetHandler extends AbstractOmniscientTopLevelData
          */
         public DataSetRegistrationDetails<T> createRegistrationDetails()
         {
-            DataSetRegistrationDetails<T> registrationDetails =
-                    new DataSetRegistrationDetails<T>();
+            DataSetRegistrationDetails<T> registrationDetails = new DataSetRegistrationDetails<T>();
             T dataSetInfo = createDataSetInformation();
             dataSetInfo.setInstanceCode(registratorState.getHomeDatabaseInstance().getCode());
             dataSetInfo.setInstanceUUID(registratorState.getHomeDatabaseInstance().getUuid());
@@ -249,12 +248,12 @@ public class JythonTopLevelDataSetHandler extends AbstractOmniscientTopLevelData
             return createRegistrationDetails();
         }
 
-        public DataSet<T> createDataSet(
-                DataSetRegistrationDetails<T> registrationDetails, File stagingFile)
+        public DataSet<T> createDataSet(DataSetRegistrationDetails<T> registrationDetails,
+                File stagingFile)
         {
             return new DataSet<T>(registrationDetails, stagingFile);
         }
-        
+
         /**
          * Factory method that creates a new data set information object.
          */
@@ -278,9 +277,21 @@ public class JythonTopLevelDataSetHandler extends AbstractOmniscientTopLevelData
             this.interpreter = interpreter;
         }
 
+        public JythonDataSetRegistrationService(JythonDataSetRegistrationService other)
+        {
+            super(other);
+            interpreter = other.interpreter;
+        }
+
         public PythonInterpreter getInterpreter()
         {
             return interpreter;
+        }
+
+        @Override
+        protected JythonDataSetRegistrationService createSubService()
+        {
+            return new JythonDataSetRegistrationService(this);
         }
 
     }

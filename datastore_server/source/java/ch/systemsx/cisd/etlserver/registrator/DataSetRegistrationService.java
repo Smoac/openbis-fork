@@ -54,6 +54,11 @@ public class DataSetRegistrationService implements IRollbackDelegate
             new ArrayList<DataSetRegistrationAlgorithm>();
 
     /**
+     * The currently live transaction.
+     */
+    private DataSetRegistrationTransaction<DataSetInformation> liveTransactionOrNull;
+
+    /**
      * A data set that will be created but might not yet exist.
      * 
      * @author Chandrasekhar Ramakrishnan
@@ -73,12 +78,31 @@ public class DataSetRegistrationService implements IRollbackDelegate
         }
     }
 
+    /**
+     * Create a new DataSetRegistrationService.
+     * 
+     * @param registrator The top level data set registrator
+     * @param globalCleanAfterwardsAction An action to execute when the service has finished
+     */
     public DataSetRegistrationService(AbstractOmniscientTopLevelDataSetRegistrator registrator,
             IDelegatedActionWithResult<Boolean> globalCleanAfterwardsAction)
     {
         this.registrator = registrator;
         this.registratorState = registrator.getRegistratorState();
         this.globalCleanAfterwardsAction = globalCleanAfterwardsAction;
+    }
+
+    /**
+     * A copy constuctor. Used in the creation of transactions. Subclasses will want to override
+     * this.
+     * 
+     * @param other
+     */
+    public DataSetRegistrationService(DataSetRegistrationService other)
+    {
+        this.registrator = other.registrator;
+        this.registratorState = registrator.getRegistratorState();
+        this.globalCleanAfterwardsAction = new NoOpCleanAfterwardsAction();
     }
 
     public OmniscientTopLevelDataSetRegistratorState getRegistratorState()
@@ -104,13 +128,24 @@ public class DataSetRegistrationService implements IRollbackDelegate
     public IDataSetRegistrationTransaction transaction(File dataSetFile,
             IDataSetRegistrationDetailsFactory<DataSetInformation> detailsFactory)
     {
+        if (null != liveTransactionOrNull)
+        {
+            // Commit the existing transaction
+            liveTransactionOrNull.commit();
+        }
         File workingDirectory = dataSetFile.getParentFile();
         Properties properties =
                 registratorState.getGlobalState().getThreadParameters().getThreadProperties();
         File stagingDirectory =
                 new File(PropertyUtils.getMandatoryProperty(properties, STAGING_DIR));
-        return new DataSetRegistrationTransaction<DataSetInformation>(registrator.getGlobalState()
-                .getStoreRootDir(), workingDirectory, stagingDirectory, this, detailsFactory);
+
+        // Clone this service for the transaction to keep them independent
+        liveTransactionOrNull =
+                new DataSetRegistrationTransaction<DataSetInformation>(registrator.getGlobalState()
+                        .getStoreRootDir(), workingDirectory, stagingDirectory,
+                        this.createSubService(), detailsFactory);
+
+        return liveTransactionOrNull;
     }
 
     public void commit()
@@ -119,13 +154,21 @@ public class DataSetRegistrationService implements IRollbackDelegate
         {
             new DataSetRegistrationAlgorithmRunner(registrationAlgorithm).runAlgorithm();
         }
-        dataSetRegistrations.clear();
         globalCleanAfterwardsAction.execute();
     }
 
     public void abort()
     {
         dataSetRegistrations.clear();
+    }
+
+    /**
+     * Create a service derived from this one. By default, use the copy constructor. Subclasses
+     * should override.
+     */
+    protected DataSetRegistrationService createSubService()
+    {
+        return new DataSetRegistrationService(this);
     }
 
     private DataSetRegistrationAlgorithm createRegistrationAlgorithm(File incomingDataSetFile,
@@ -166,7 +209,7 @@ public class DataSetRegistrationService implements IRollbackDelegate
         registrator.rollback(this, algorithm, ex);
     }
 
-    private static class DefaultApplicationServerRegistrator implements
+    protected static class DefaultApplicationServerRegistrator implements
             IDataSetInApplicationServerRegistrator
     {
         private final AbstractOmniscientTopLevelDataSetRegistrator registrator;
@@ -185,6 +228,13 @@ public class DataSetRegistrationService implements IRollbackDelegate
         {
             registrator.registerDataSetInApplicationServer(dataSetInformation, data);
         }
+    }
 
+    protected static class NoOpCleanAfterwardsAction implements IDelegatedActionWithResult<Boolean>
+    {
+        public Boolean execute()
+        {
+            return true; // do nothing
+        }
     }
 }
