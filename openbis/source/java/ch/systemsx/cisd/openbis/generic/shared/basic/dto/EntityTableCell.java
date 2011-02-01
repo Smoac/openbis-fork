@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.EntityLinkElementKind;
-import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IEntityLinkElement;
 
 /**
  * Table cell for an entity link.
@@ -32,14 +30,18 @@ public class EntityTableCell implements ISerializableComparable
 
     private String permId;
 
-    public EntityTableCell(IEntityLinkElement entityLink)
+    public EntityTableCell(EntityKind entityKind, String permId)
     {
-        if (entityLink == null)
+        if (entityKind == null)
         {
-            throw new IllegalArgumentException("Unspecified entity link");
+            throw new IllegalArgumentException("Unspecified entityKind");
         }
-        this.entityKind = convert(entityLink.getEntityLinkKind());
-        this.permId = entityLink.getPermId();
+        if (permId == null)
+        {
+            throw new IllegalArgumentException("Unspecified permId");
+        }
+        this.entityKind = entityKind;
+        this.permId = permId;
     }
 
     public int compareTo(ISerializableComparable o)
@@ -82,22 +84,6 @@ public class EntityTableCell implements ISerializableComparable
     public String toString()
     {
         return getPermId().toString();
-    }
-
-    private static EntityKind convert(EntityLinkElementKind linkElementKind)
-    {
-        switch (linkElementKind)
-        {
-            case DATA_SET:
-                return EntityKind.DATA_SET;
-            case EXPERIMENT:
-                return EntityKind.EXPERIMENT;
-            case MATERIAL:
-                return EntityKind.MATERIAL;
-            case SAMPLE:
-                return EntityKind.SAMPLE;
-        }
-        return null; // won't happen
     }
 
     // ---------------------------

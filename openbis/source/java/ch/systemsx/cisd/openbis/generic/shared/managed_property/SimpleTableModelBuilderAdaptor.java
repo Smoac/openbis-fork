@@ -18,8 +18,10 @@ package ch.systemsx.cisd.openbis.generic.shared.managed_property;
 
 import java.util.Date;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.EntityLinkElementKind;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IEntityLinkElement;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IRowBuilderAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTableModelBuilderAdaptor;
@@ -103,7 +105,13 @@ public class SimpleTableModelBuilderAdaptor implements ISimpleTableModelBuilderA
 
                 public void setCell(String headerTitle, IEntityLinkElement value)
                 {
-                    row.setCell(headerTitle, new EntityTableCell(value));
+                    row.setCell(headerTitle, asTableCell(value));
+                }
+
+                private EntityTableCell asTableCell(IEntityLinkElement value)
+                {
+                    return new EntityTableCell(convert(value.getEntityLinkKind()),
+                            value.getPermId());
                 }
 
             };
@@ -117,6 +125,22 @@ public class SimpleTableModelBuilderAdaptor implements ISimpleTableModelBuilderA
     public void addFullRow(String... values)
     {
         builder.addFullRow(values);
+    }
+
+    private static EntityKind convert(EntityLinkElementKind linkElementKind)
+    {
+        switch (linkElementKind)
+        {
+            case DATA_SET:
+                return EntityKind.DATA_SET;
+            case EXPERIMENT:
+                return EntityKind.EXPERIMENT;
+            case MATERIAL:
+                return EntityKind.MATERIAL;
+            case SAMPLE:
+                return EntityKind.SAMPLE;
+        }
+        return null; // won't happen
     }
 
 }
