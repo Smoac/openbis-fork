@@ -39,13 +39,17 @@ public final class ImageFileExtractionResult
     /** How many tile rows and columns are there on each spot? */
     private final Geometry tileGeometry;
 
+    private final Boolean storeChannelsOnExperimentLevelOrNull;
+
     public ImageFileExtractionResult(List<AcquiredSingleImage> images, List<File> invalidFiles,
-            List<Channel> channels, Geometry tileGeometry)
+            List<Channel> channels, Geometry tileGeometry,
+            Boolean storeChannelsOnExperimentLevelOrNull)
     {
         this.images = images;
         this.invalidFiles = invalidFiles;
         this.channels = channels;
         this.tileGeometry = tileGeometry;
+        this.storeChannelsOnExperimentLevelOrNull = storeChannelsOnExperimentLevelOrNull;
     }
 
     public List<AcquiredSingleImage> getImages()
@@ -68,4 +72,8 @@ public final class ImageFileExtractionResult
         return tileGeometry;
     }
 
+    public Boolean tryStoreChannelsOnExperimentLevel()
+    {
+        return storeChannelsOnExperimentLevelOrNull;
+    }
 }

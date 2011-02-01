@@ -67,13 +67,14 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
 
     private final ch.systemsx.cisd.etlserver.IHCSImageFileExtractor deprecatedImageFileExtractorOrNull;
 
-    private final boolean storeChannelsOnExperimentLevel;
+    // can be overwritten for each dataset
+    private final boolean globalStoreChannelsOnExperimentLevel;
 
     public PlateStorageProcessor(Properties properties)
     {
         super(properties);
         this.deprecatedImageFileExtractorOrNull = tryCreateDeprecatedFileExtractor();
-        this.storeChannelsOnExperimentLevel =
+        this.globalStoreChannelsOnExperimentLevel =
                 PropertyUtils.getBoolean(properties, CHANNELS_PER_EXPERIMENT_PROPERTY, true);
     }
 
@@ -146,7 +147,7 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
                     List<Channel> channels = convert(originalResult.getChannels());
                     return new ImageFileExtractionResult(accepter.getImages(),
                             asRelativePaths(originalResult.getInvalidFiles()), channels,
-                            tileGeometry);
+                            tileGeometry, true);
                 }
 
                 private List<Channel> convert(Set<ch.systemsx.cisd.bds.hcs.Channel> channels)
@@ -315,16 +316,21 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
         Experiment experiment = dataSetInformation.tryToGetExperiment();
         assert experiment != null : "experiment is null";
         List<AcquiredSingleImage> images = extractedImages.getImages();
+        boolean storeChannelsOnExperimentLevel = globalStoreChannelsOnExperimentLevel;
+        if (extractedImages.tryStoreChannelsOnExperimentLevel() != null)
+        {
+            storeChannelsOnExperimentLevel = extractedImages.tryStoreChannelsOnExperimentLevel();
+        }
         HCSImageDatasetInfo info =
                 createImageDatasetInfo(experiment, dataSetInformation, images,
-                        extractedImages.getTileGeometry());
+                        extractedImages.getTileGeometry(), storeChannelsOnExperimentLevel);
 
         HCSImageDatasetUploader.upload(dao, info, images, extractedImages.getChannels());
     }
 
     private HCSImageDatasetInfo createImageDatasetInfo(Experiment experiment,
             DataSetInformation dataSetInformation, List<AcquiredSingleImage> acquiredImages,
-            Geometry tileGeometry)
+            Geometry tileGeometry, boolean storeChannelsOnExperimentLevel)
     {
         HCSContainerDatasetInfo info =
                 HCSContainerDatasetInfo.createScreeningDatasetInfo(dataSetInformation);

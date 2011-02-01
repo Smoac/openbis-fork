@@ -83,11 +83,6 @@ public final class ImageFileInfo
         return seriesNumber;
     }
 
-    public void setChannelCode(String channelCode)
-    {
-        this.channelCode = channelCode;
-    }
-
     // --- setters
 
     public void setWell(int row, int column)

@@ -35,6 +35,8 @@ public class ImageDataSetInformation extends DataSetInformation
 
     private List<Channel> channels;
 
+    private List<ChannelColorComponent> channelColorComponentsOrNull;
+
     private int tileRowsNumber, tileColumnsNumber;
 
     private ImageStorageConfiguraton imageStorageConfiguratonOrNull;
@@ -49,20 +51,9 @@ public class ImageDataSetInformation extends DataSetInformation
         return tileColumnsNumber;
     }
 
-    public void setTileGeometry(int tileRowsNumber, int tileColumnsNumber)
-    {
-        this.tileRowsNumber = tileRowsNumber;
-        this.tileColumnsNumber = tileColumnsNumber;
-    }
-
     public List<ImageFileInfo> getImages()
     {
         return images;
-    }
-
-    public void setImages(List<ImageFileInfo> images)
-    {
-        this.images = images;
     }
 
     public List<Channel> getChannels()
@@ -70,9 +61,9 @@ public class ImageDataSetInformation extends DataSetInformation
         return channels;
     }
 
-    public void setChannels(List<Channel> channels)
+    public List<ChannelColorComponent> getChannelColorComponents()
     {
-        this.channels = channels;
+        return channelColorComponentsOrNull;
     }
 
     /**
@@ -84,13 +75,51 @@ public class ImageDataSetInformation extends DataSetInformation
         return imageStorageConfiguratonOrNull;
     }
 
+    // ------ setters
+
+    public void setTileGeometry(int tileRowsNumber, int tileColumnsNumber)
+    {
+        this.tileRowsNumber = tileRowsNumber;
+        this.tileColumnsNumber = tileColumnsNumber;
+    }
+
+    public void setImages(List<ImageFileInfo> images)
+    {
+        this.images = images;
+    }
+
+    public void setChannels(List<Channel> channels)
+    {
+        this.channels = channels;
+    }
+
     /**
-     * Set to null if the global configuration of the storage processor should be used.
+     * Use this method if channels are encoded in color components of one image (or in other words:
+     * each image contains merged channels). For each channel you have to specify the corresponding
+     * color component of the image.
+     */
+    public void setChannels(List<Channel> channels,
+            List<ChannelColorComponent> channelColorComponents)
+    {
+        if (channels.size() != channelColorComponents.size())
+        {
+            throw new IllegalArgumentException(
+                    "There should be exactly one color component for each channel!");
+        }
+        this.channels = channels;
+        this.channelColorComponentsOrNull = channelColorComponents;
+    }
+
+    /**
+     * Allows to configure various image storage parameters. Set to null if the global configuration
+     * of the storage processor should be used.
      */
     public void setImageStorageConfiguraton(ImageStorageConfiguraton imageStorageConfiguratonOrNull)
     {
         this.imageStorageConfiguratonOrNull = imageStorageConfiguratonOrNull;
     }
+
+    // -------
 
     /** are all necessary fields filled? */
     public boolean isValid()

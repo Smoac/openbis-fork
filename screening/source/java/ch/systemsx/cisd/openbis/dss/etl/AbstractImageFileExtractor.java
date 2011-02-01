@@ -98,7 +98,9 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
     // comma separated list of channel labels, order matters
     public static final String CHANNEL_LABELS = "channel-labels";
 
-    // optional, list of the color components (RED, GREEN, BLUE), in the same order as channel names
+    // Allows to create channels from single color components of the image.
+    // Optional, type: list of the color components (RED, GREEN, BLUE),
+    // in the same order as corresponding channel names.
     protected static final String EXTRACT_SINGLE_IMAGE_CHANNELS_PROPERTY =
             "extract-single-image-channels";
 
@@ -242,7 +244,7 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
         }
         return new ImageFileExtractionResult(acquiredImages,
                 Collections.unmodifiableList(invalidFiles), getAllChannels(acquiredImages),
-                tileGeometry);
+                tileGeometry, null);
 
     }
 
@@ -257,8 +259,7 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
             {
                 ColorComponent colorComponent = channelColorComponentsOrNull.get(i);
                 ChannelDescription channelDescription = channelDescriptionsOrNull.get(i);
-                imageInfo.setChannelCode(channelDescription.getCode());
-                images.add(createImage(imageInfo, colorComponent));
+                images.add(createImage(imageInfo, channelDescription.getCode(), colorComponent));
             }
             return images;
         } else
@@ -266,7 +267,6 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
             ensureChannelExist(channelDescriptionsOrNull, imageInfo.getChannelCode());
             return createImagesWithNoColorComponent(imageInfo);
         }
-
     }
 
     private List<Channel> getAllChannels(List<AcquiredSingleImage> acquiredImages)
@@ -461,12 +461,12 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
             ImageFileInfo imageInfo)
     {
         List<AcquiredSingleImage> images = new ArrayList<AcquiredSingleImage>();
-        images.add(createImage(imageInfo, null));
+        images.add(createImage(imageInfo, imageInfo.getChannelCode(), null));
         return images;
     }
 
     public final static AcquiredSingleImage createImage(ImageFileInfo imageInfo,
-            ColorComponent colorComponentOrNull)
+            String channelCode, ColorComponent colorComponentOrNull)
     {
         RelativeImageReference relativeImageRef =
                 new RelativeImageReference(imageInfo.getImageRelativePath(), null,
@@ -481,9 +481,8 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
         Location tileLoc =
                 Location.createLocationFromRowAndColumn(imageInfo.getTileRow(),
                         imageInfo.getTileColumn());
-        return new AcquiredSingleImage(wellLoc, tileLoc, imageInfo.getChannelCode(),
-                imageInfo.tryGetTimepoint(), imageInfo.tryGetDepth(),
-                imageInfo.tryGetSeriesNumber(), relativeImageRef);
+        return new AcquiredSingleImage(wellLoc, tileLoc, channelCode, imageInfo.tryGetTimepoint(),
+                imageInfo.tryGetDepth(), imageInfo.tryGetSeriesNumber(), relativeImageRef);
     }
 
     protected static Integer tryAsInt(String valueOrNull)

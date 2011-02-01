@@ -33,6 +33,9 @@ public class ImageStorageConfiguraton
     private OriginalDataStorageFormat originalDataStorageFormat =
             OriginalDataStorageFormat.UNCHANGED;
 
+    /** No preferences by default, each storage processor decides by its own if it is not set. */
+    private Boolean storeChannelsOnExperimentLevelOrNull = null;
+
     /** Returns the default configuration. */
     public static ImageStorageConfiguraton createDefault()
     {
@@ -59,6 +62,20 @@ public class ImageStorageConfiguraton
     public void setOriginalDataStorageFormat(OriginalDataStorageFormat originalDataStorageFormat)
     {
         this.originalDataStorageFormat = originalDataStorageFormat;
+    }
+
+    /**
+     * Signalizes that the channels should be saved on experiment level rather than dataset level.
+     * Will be ignored in case of microscopy where all channels are always saved at dataset level.
+     */
+    public void setStoreChannelsOnExperimentLevel(boolean storeChannelsOnExperimentLevel)
+    {
+        this.storeChannelsOnExperimentLevelOrNull = storeChannelsOnExperimentLevel;
+    }
+
+    public Boolean getStoreChannelsOnExperimentLevel()
+    {
+        return storeChannelsOnExperimentLevelOrNull;
     }
 
 }

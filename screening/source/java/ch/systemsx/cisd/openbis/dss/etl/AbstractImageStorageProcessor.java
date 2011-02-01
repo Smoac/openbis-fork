@@ -57,16 +57,19 @@ import ch.systemsx.cisd.etlserver.utils.Unzipper;
 import ch.systemsx.cisd.openbis.dss.Constants;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageSeriesPoint;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ChannelColorComponent;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageFileInfo;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.OriginalDataStorageFormat;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageStorageConfiguraton;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.OriginalDataStorageFormat;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ThumbnailsStorageFormat;
 import ch.systemsx.cisd.openbis.dss.etl.jython.JythonPlateDataSetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ChannelDescription;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 
 /**
  * Abstract superclass for storage processor which stores images in a special-purpose imaging
@@ -503,26 +506,56 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
                 new Geometry(imageDataSetInfo.getTileRowsNumber(),
                         imageDataSetInfo.getTileColumnsNumber());
 
-        List<AcquiredSingleImage> images = new ArrayList<AcquiredSingleImage>();
-        List<ImageFileInfo> imageInfos = imageDataSetInfo.getImages();
-        for (ImageFileInfo imageInfo : imageInfos)
-        {
-            List<AcquiredSingleImage> image =
-                    AbstractImageFileExtractor.createImagesWithNoColorComponent(imageInfo);
-            images.addAll(image);
-        }
+        List<AcquiredSingleImage> images = convertImages(imageDataSetInfo);
 
         List<File> invalidFiles = new ArrayList<File>(); // handles in an earlier phase
-        ImageFileExtractionResult extractionResult =
-                new ImageFileExtractionResult(images, invalidFiles, imageDataSetInfo.getChannels(),
-                        tileGeometry);
         ImageStorageConfiguraton imageStorageConfiguraton =
                 imageDataSetInfo.getImageStorageConfiguraton();
         if (imageStorageConfiguraton == null)
         {
             imageStorageConfiguraton = globalImageStorageConfiguraton;
         }
+
+        ImageFileExtractionResult extractionResult =
+                new ImageFileExtractionResult(images, invalidFiles, imageDataSetInfo.getChannels(),
+                        tileGeometry, imageStorageConfiguraton.getStoreChannelsOnExperimentLevel());
         return new ImageFileExtractionWithConfig(extractionResult, imageStorageConfiguraton);
+    }
+
+    private static List<AcquiredSingleImage> convertImages(ImageDataSetInformation imageDataSetInfo)
+    {
+        List<ImageFileInfo> imageInfos = imageDataSetInfo.getImages();
+        List<ChannelColorComponent> channelColorComponentsOrNull =
+                imageDataSetInfo.getChannelColorComponents();
+        List<Channel> channels = imageDataSetInfo.getChannels();
+
+        List<AcquiredSingleImage> images = new ArrayList<AcquiredSingleImage>();
+        for (ImageFileInfo imageInfo : imageInfos)
+        {
+            if (channelColorComponentsOrNull != null)
+            {
+                for (int i = 0; i < channelColorComponentsOrNull.size(); i++)
+                {
+                    ColorComponent colorComponent =
+                            asColorComponent(channelColorComponentsOrNull.get(i));
+                    Channel channel = channels.get(i);
+                    AcquiredSingleImage image =
+                            AbstractImageFileExtractor.createImage(imageInfo, channel.getCode(),
+                                    colorComponent);
+                    images.add(image);
+                }
+            } else
+            {
+                images = AbstractImageFileExtractor.createImagesWithNoColorComponent(imageInfo);
+            }
+            images.addAll(images);
+        }
+        return images;
+    }
+
+    private static ColorComponent asColorComponent(ChannelColorComponent channelColorComponent)
+    {
+        return ColorComponent.valueOf(channelColorComponent.name());
     }
 
     protected IImageFileExtractor tryGetImageFileExtractor(File incomingDataSetDirectory)
