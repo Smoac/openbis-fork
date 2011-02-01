@@ -204,14 +204,21 @@ public class JythonTopLevelDataSetHandler extends AbstractOmniscientTopLevelData
     /**
      * Set the factory available to the python script. Subclasses may want to override.
      */
-    protected IDataSetRegistrationDetailsFactory<DataSetInformation> createObjectFactory(
+    protected IDataSetRegistrationDetailsFactory<? extends DataSetInformation> createObjectFactory(
             PythonInterpreter interpreter)
     {
-        return new JythonObjectFactory(getRegistratorState());
+        return new JythonObjectFactory<DataSetInformation>(getRegistratorState())
+            {
+                @Override
+                protected DataSetInformation createDataSetInformation()
+                {
+                    return new DataSetInformation();
+                }
+            };
     }
 
-    public static class JythonObjectFactory implements
-            IDataSetRegistrationDetailsFactory<DataSetInformation>
+    public abstract static class JythonObjectFactory<T extends DataSetInformation> implements
+            IDataSetRegistrationDetailsFactory<T>
     {
         protected final OmniscientTopLevelDataSetRegistratorState registratorState;
 
@@ -223,39 +230,35 @@ public class JythonTopLevelDataSetHandler extends AbstractOmniscientTopLevelData
         /**
          * Factory method that creates a new registration details object.
          */
-        public DataSetRegistrationDetails<DataSetInformation> createRegistrationDetails()
+        public DataSetRegistrationDetails<T> createRegistrationDetails()
         {
-            DataSetRegistrationDetails<DataSetInformation> registrationDetails =
-                    new DataSetRegistrationDetails<DataSetInformation>();
-            registrationDetails.setDataSetInformation(createDataSetInformation());
+            DataSetRegistrationDetails<T> registrationDetails =
+                    new DataSetRegistrationDetails<T>();
+            T dataSetInfo = createDataSetInformation();
+            dataSetInfo.setInstanceCode(registratorState.getHomeDatabaseInstance().getCode());
+            dataSetInfo.setInstanceUUID(registratorState.getHomeDatabaseInstance().getUuid());
+            registrationDetails.setDataSetInformation(dataSetInfo);
             return registrationDetails;
         }
 
         /**
          * Adaptor for the IDataSetRegistrationDetailsFactory interface.
          */
-        public DataSetRegistrationDetails<DataSetInformation> createDataSetRegistrationDetails()
+        public DataSetRegistrationDetails<T> createDataSetRegistrationDetails()
         {
             return createRegistrationDetails();
         }
 
+        public DataSet<T> createDataSet(
+                DataSetRegistrationDetails<T> registrationDetails, File stagingFile)
+        {
+            return new DataSet<T>(registrationDetails, stagingFile);
+        }
+        
         /**
          * Factory method that creates a new data set information object.
          */
-        private DataSetInformation createDataSetInformation()
-        {
-            DataSetInformation dataSetInfo = new DataSetInformation();
-            dataSetInfo.setInstanceCode(registratorState.getHomeDatabaseInstance().getCode());
-            dataSetInfo.setInstanceUUID(registratorState.getHomeDatabaseInstance().getUuid());
-
-            return dataSetInfo;
-        }
-
-        public DataSet<DataSetInformation> createDataSet(
-                DataSetRegistrationDetails<DataSetInformation> registrationDetails, File stagingFile)
-        {
-            return new DataSet<DataSetInformation>(registrationDetails, stagingFile);
-        }
+        protected abstract T createDataSetInformation();
     }
 
     protected static class JythonDataSetRegistrationService extends DataSetRegistrationService
