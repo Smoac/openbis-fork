@@ -36,8 +36,7 @@ public class ManagedUiDescription implements IManagedUiDescription, ISerializabl
 
     private IManagedOutputWidgetDescription outputWidget;
 
-    private List<IManagedUiAction> actions =
-            new ArrayList<IManagedUiAction>();
+    private List<IManagedUiAction> actions = new ArrayList<IManagedUiAction>();
 
     public ManagedUiDescription()
     {
@@ -60,9 +59,9 @@ public class ManagedUiDescription implements IManagedUiDescription, ISerializabl
         return action;
     }
 
-    public IManagedUiAction addTableAction(String id)
+    public ManagedUiTableActionDescription addTableAction(String id)
     {
-        IManagedUiAction action = new ManagedUiTableActionDescription(id);
+        ManagedUiTableActionDescription action = new ManagedUiTableActionDescription(id);
         actions.add(action);
         return action;
     }
@@ -71,7 +70,7 @@ public class ManagedUiDescription implements IManagedUiDescription, ISerializabl
     {
         return actions;
     }
-    
+
     public void useTableOutput(ITableModel tableModel)
     {
         ManagedTableWidgetDescription tableWidget = new ManagedTableWidgetDescription();

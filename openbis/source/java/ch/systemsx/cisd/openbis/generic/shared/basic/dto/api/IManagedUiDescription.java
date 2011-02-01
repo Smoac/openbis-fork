@@ -35,6 +35,8 @@ public interface IManagedUiDescription extends ISerializable
 
     IManagedUiAction addAction(String name);
 
+    IManagedUiTableAction addTableAction(String name);
+
     List<IManagedUiAction> getActions();
 
     /**
