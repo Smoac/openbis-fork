@@ -128,11 +128,9 @@ public class DataSetRegistrationService implements IRollbackDelegate
     public IDataSetRegistrationTransaction transaction(File dataSetFile,
             IDataSetRegistrationDetailsFactory<DataSetInformation> detailsFactory)
     {
-        if (null != liveTransactionOrNull)
-        {
-            // Commit the existing transaction
-            liveTransactionOrNull.commit();
-        }
+        // If a transaction is hanging around, commit it before starting a new one
+        commitExtantTransaction();
+
         File workingDirectory = dataSetFile.getParentFile();
         Properties properties =
                 registratorState.getGlobalState().getThreadParameters().getThreadProperties();
@@ -150,6 +148,9 @@ public class DataSetRegistrationService implements IRollbackDelegate
 
     public void commit()
     {
+        // If a transaction is hanging around, commit it before starting a new one
+        commitExtantTransaction();
+
         for (DataSetRegistrationAlgorithm registrationAlgorithm : dataSetRegistrations)
         {
             new DataSetRegistrationAlgorithmRunner(registrationAlgorithm).runAlgorithm();
@@ -235,6 +236,18 @@ public class DataSetRegistrationService implements IRollbackDelegate
         public Boolean execute()
         {
             return true; // do nothing
+        }
+    }
+
+    /**
+     * If a transaction is hanging around, commit it
+     */
+    private void commitExtantTransaction()
+    {
+        if (null != liveTransactionOrNull)
+        {
+            // Commit the existing transaction
+            liveTransactionOrNull.commit();
         }
     }
 }

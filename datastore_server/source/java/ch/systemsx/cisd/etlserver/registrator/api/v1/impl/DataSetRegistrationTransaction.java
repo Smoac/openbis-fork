@@ -127,9 +127,9 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     private final IEncapsulatedOpenBISService openBisService;
 
     private final IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory;
-    
+
     private final ArrayList<DataSet<T>> registeredDataSets = new ArrayList<DataSet<T>>();
-    
+
     private final List<Experiment> experimentsToBeRegistered = new ArrayList<Experiment>();
 
     public DataSetRegistrationTransaction(File rollBackStackParentFolder, File workingDirectory,
@@ -296,6 +296,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     public void rollback()
     {
         rollbackStack.rollbackAll();
+        registeredDataSets.clear();
     }
 
     /**
