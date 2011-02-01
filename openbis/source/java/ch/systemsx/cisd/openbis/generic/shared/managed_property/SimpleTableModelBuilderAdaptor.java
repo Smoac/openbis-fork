@@ -18,7 +18,9 @@ package ch.systemsx.cisd.openbis.generic.shared.managed_property;
 
 import java.util.Date;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IEntityLinkElement;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IRowBuilderAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTableModelBuilderAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.util.IRowBuilder;
@@ -97,6 +99,11 @@ public class SimpleTableModelBuilderAdaptor implements ISimpleTableModelBuilderA
                 public void setCell(String headerTitle, Date value)
                 {
                     row.setCell(headerTitle, value);
+                }
+
+                public void setCell(String headerTitle, IEntityLinkElement value)
+                {
+                    row.setCell(headerTitle, new EntityTableCell(value));
                 }
 
             };

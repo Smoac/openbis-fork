@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared;
+package ch.systemsx.cisd.openbis.generic.shared.util;
 
 import java.util.Arrays;
 import java.util.List;
@@ -26,18 +26,18 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
-import ch.systemsx.cisd.openbis.generic.shared.util.IRowBuilder;
-import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IEntityLinkElement;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.structured.ElementFactory;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class SimpleTableModelBuilderTest extends AssertJUnit
@@ -56,7 +56,7 @@ public class SimpleTableModelBuilderTest extends AssertJUnit
             assertEquals("There is already a header with title 'col'.", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testUnknownCell()
     {
@@ -72,43 +72,43 @@ public class SimpleTableModelBuilderTest extends AssertJUnit
             assertEquals("Unkown column header title: my header", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testNoColumnsAndEmptyTable()
     {
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
-        
+
         TableModel tableModel = builder.getTableModel();
-        
+
         assertEquals(0, tableModel.getHeader().size());
         assertEquals(0, tableModel.getRows().size());
     }
-    
+
     @Test
     public void testEmptyTable()
     {
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
         builder.addHeader("col");
-        
+
         TableModel tableModel = builder.getTableModel();
-        
+
         assertEquals(1, tableModel.getHeader().size());
         assertEquals(0, tableModel.getRows().size());
     }
-    
+
     @Test
     public void testNoHeaders()
     {
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
-        builder.addRow(Arrays.<ISerializableComparable>asList());
-        
+        builder.addRow(Arrays.<ISerializableComparable> asList());
+
         TableModel tableModel = builder.getTableModel();
-        
+
         assertEquals(0, tableModel.getHeader().size());
         assertEquals(1, tableModel.getRows().size());
         assertEquals(0, tableModel.getRows().get(0).getValues().size());
     }
-    
+
     @Test
     public void testAddRow()
     {
@@ -117,9 +117,9 @@ public class SimpleTableModelBuilderTest extends AssertJUnit
         builder.addHeader("col", 200);
         builder.addRow(Arrays.asList(new StringTableCell("hello"), new IntegerTableCell(42)));
         builder.addRow(Arrays.asList(new StringTableCell("world"), new DateTableCell(4711)));
-        
+
         TableModel tableModel = builder.getTableModel();
-        
+
         assertHeader("col", "col", 150, 0, DataTypeCode.VARCHAR, tableModel.getHeader().get(0));
         assertHeader("col", "col2", 200, 1, DataTypeCode.VARCHAR, tableModel.getHeader().get(1));
         assertEquals(2, tableModel.getHeader().size());
@@ -132,7 +132,7 @@ public class SimpleTableModelBuilderTest extends AssertJUnit
         assertEquals(2, rows.get(1).getValues().size());
         assertEquals(2, rows.size());
     }
-    
+
     @Test
     public void testAddRowWithWrongNumberOfCells()
     {
@@ -147,7 +147,7 @@ public class SimpleTableModelBuilderTest extends AssertJUnit
             assertEquals("1 row values expected instead of 2.", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testRowBuilder()
     {
@@ -162,9 +162,9 @@ public class SimpleTableModelBuilderTest extends AssertJUnit
         rowBuilder = builder.addRow();
         rowBuilder.setCell("col1", "world");
         rowBuilder.setCell("col2", 4711);
-        
+
         TableModel tableModel = builder.getTableModel();
-        
+
         assertHeader("col1", "col1", 150, 0, DataTypeCode.VARCHAR, tableModel.getHeader().get(0));
         assertHeader("col2", "col2", 300, 1, DataTypeCode.REAL, tableModel.getHeader().get(1));
         assertEquals(2, tableModel.getHeader().size());
@@ -180,14 +180,99 @@ public class SimpleTableModelBuilderTest extends AssertJUnit
         assertEquals(2, rows.get(1).getValues().size());
         assertEquals(3, rows.size());
     }
-    
+
+    @Test
+    public void testRowBuilderWithEntityLinks()
+    {
+        SimpleTableModelBuilder builder = new SimpleTableModelBuilder(true);
+        builder.addFullHeader("materialCol", "sampleCol", "experimentCol", "datasetCol");
+        IRowBuilder rowBuilder = builder.addRow();
+        rowBuilder.setCell("materialCol", new EntityTableCell(createMaterialLink("m1", "m_type1")));
+        rowBuilder.setCell("sampleCol", new EntityTableCell(createSampleLink("s1")));
+        rowBuilder.setCell("experimentCol", new EntityTableCell(createExperimentLink("e1")));
+        rowBuilder.setCell("datasetCol", new EntityTableCell(createDataSetLink("d1")));
+        rowBuilder = builder.addRow();
+        rowBuilder.setCell("materialCol", new EntityTableCell(createMaterialLink("m2", "m_type2")));
+        rowBuilder.setCell("sampleCol", new EntityTableCell(createSampleLink("s2")));
+        rowBuilder.setCell("experimentCol", new EntityTableCell(createExperimentLink("e2")));
+        rowBuilder.setCell("datasetCol", new EntityTableCell(createDataSetLink("d2")));
+        rowBuilder = builder.addRow();
+        rowBuilder.setCell("materialCol", SimpleTableModelBuilder.createNullCell());
+        rowBuilder.setCell("sampleCol", new EntityTableCell(createSampleLink("s3")));
+        rowBuilder.setCell("experimentCol", SimpleTableModelBuilder.createNullCell());
+        rowBuilder.setCell("datasetCol", new EntityTableCell(createDataSetLink("d3")));
+
+        TableModel tableModel = builder.getTableModel();
+
+        assertLinkHeader("materialCol", "materialCol", 150, 0, DataTypeCode.VARCHAR,
+                EntityKind.MATERIAL, tableModel.getHeader().get(0));
+        assertLinkHeader("sampleCol", "sampleCol", 150, 1, DataTypeCode.VARCHAR, EntityKind.SAMPLE,
+                tableModel.getHeader().get(1));
+        assertLinkHeader("experimentCol", "experimentCol", 150, 2, DataTypeCode.VARCHAR,
+                EntityKind.EXPERIMENT, tableModel.getHeader().get(2));
+        assertLinkHeader("datasetCol", "datasetCol", 150, 3, DataTypeCode.VARCHAR,
+                EntityKind.DATA_SET, tableModel.getHeader().get(3));
+        assertEquals(4, tableModel.getHeader().size());
+        List<TableModelRow> rows = tableModel.getRows();
+        assertEquals(3, rows.size());
+        assertEquals(4, rows.get(0).getValues().size());
+        assertEquals("m1 (m_type1)", rows.get(0).getValues().get(0).toString());
+        assertEquals("s1", rows.get(0).getValues().get(1).toString());
+        assertEquals("e1", rows.get(0).getValues().get(2).toString());
+        assertEquals("d1", rows.get(0).getValues().get(3).toString());
+        assertEquals(4, rows.get(1).getValues().size());
+        assertEquals("m2 (m_type2)", rows.get(1).getValues().get(0).toString());
+        assertEquals("s2", rows.get(1).getValues().get(1).toString());
+        assertEquals("e2", rows.get(1).getValues().get(2).toString());
+        assertEquals("d2", rows.get(1).getValues().get(3).toString());
+        assertEquals(4, rows.get(2).getValues().size());
+        assertEquals("", rows.get(2).getValues().get(0).toString());
+        assertEquals("s3", rows.get(2).getValues().get(1).toString());
+        assertEquals("", rows.get(2).getValues().get(2).toString());
+        assertEquals("d3", rows.get(2).getValues().get(3).toString());
+    }
+
+    private static IEntityLinkElement createSampleLink(String permId)
+    {
+        return new ElementFactory().createSampleLink(permId);
+    }
+
+    private static IEntityLinkElement createDataSetLink(String permId)
+    {
+        return new ElementFactory().createDataSetLink(permId);
+    }
+
+    private static IEntityLinkElement createExperimentLink(String permId)
+    {
+        return new ElementFactory().createExperimentLink(permId);
+    }
+
+    private static IEntityLinkElement createMaterialLink(String code, String type)
+    {
+        return new ElementFactory().createMaterialLink(code, type);
+    }
+
     private void assertHeader(String expectedTitle, String expectedID, int expectedDefaultWidth,
             int expectedIndex, DataTypeCode expectedDataType, TableModelColumnHeader header)
     {
         assertEquals(expectedTitle, header.getTitle());
-        assertEquals("Header '" + header + "'", expectedDefaultWidth, header.getDefaultColumnWidth());
+        assertEquals("Header '" + header + "'", expectedDefaultWidth,
+                header.getDefaultColumnWidth());
         assertEquals("Header '" + header + "'", expectedIndex, header.getIndex());
         assertEquals("Header '" + header + "'", expectedID, header.getId());
         assertEquals("Header '" + header + "'", expectedDataType, header.getDataType());
+    }
+
+    private void assertLinkHeader(String expectedTitle, String expectedID,
+            int expectedDefaultWidth, int expectedIndex, DataTypeCode expectedDataType,
+            EntityKind expectedEntityKind, TableModelColumnHeader header)
+    {
+        assertEquals(expectedTitle, header.getTitle());
+        assertEquals("Header '" + header + "'", expectedDefaultWidth,
+                header.getDefaultColumnWidth());
+        assertEquals("Header '" + header + "'", expectedIndex, header.getIndex());
+        assertEquals("Header '" + header + "'", expectedID, header.getId());
+        assertEquals("Header '" + header + "'", expectedDataType, header.getDataType());
+        assertEquals("Header '" + header + "'", expectedEntityKind, header.tryGetEntityKind());
     }
 }

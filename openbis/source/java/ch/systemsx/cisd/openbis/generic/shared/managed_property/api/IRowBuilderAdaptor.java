@@ -49,4 +49,9 @@ public interface IRowBuilderAdaptor
      */
     public void setCell(String headerTitle, Date value);
 
+    /**
+     * Sets the value of the column specified by the header title by the specified entity link.
+     */
+    public void setCell(String headerTitle, IEntityLinkElement value);
+
 }

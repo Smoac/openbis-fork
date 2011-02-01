@@ -28,6 +28,8 @@ import ch.systemsx.cisd.common.utilities.Counters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
@@ -184,7 +186,9 @@ public class SimpleTableModelBuilder
                     }
                     values.set(index, value);
                     setColumnDataType(index, value);
+                    setColumnEntityKind(index, value);
                 }
+
             };
     }
 
@@ -204,6 +208,7 @@ public class SimpleTableModelBuilder
         {
             ISerializableComparable value = values.get(i);
             setColumnDataType(i, value);
+            setColumnEntityKind(i, value);
         }
         rows.add(new TableModelRow(values));
     }
@@ -219,6 +224,29 @@ public class SimpleTableModelBuilder
                     DataTypeUtils.getCompatibleDataType(headerDataType, dataType);
             header.setDataType(compatibleDataType);
         }
+    }
+
+    private void setColumnEntityKind(Integer index, ISerializableComparable value)
+    {
+        TableModelColumnHeader header = headers.get(index);
+        EntityKind headerEntityKind = header.tryGetEntityKind();
+        EntityKind dataEntityKind = getEntityKindFor(value);
+        if (dataEntityKind != null)
+        {
+            if (headerEntityKind == null || dataEntityKind.equals(headerEntityKind))
+            {
+                header.setEntityKind(dataEntityKind);
+            }
+        }
+    }
+
+    private EntityKind getEntityKindFor(ISerializableComparable value)
+    {
+        if (value instanceof EntityTableCell)
+        {
+            return ((EntityTableCell) value).getEntityKind();
+        }
+        return null;
     }
 
     private DataTypeCode getDataTypeCodeFor(ISerializableComparable value)
@@ -302,7 +330,7 @@ public class SimpleTableModelBuilder
         return new DateTableCell(dateOrNull);
     }
 
-    private static ISerializableComparable createNullCell()
+    static ISerializableComparable createNullCell()
     {
         return new StringTableCell("");
     }

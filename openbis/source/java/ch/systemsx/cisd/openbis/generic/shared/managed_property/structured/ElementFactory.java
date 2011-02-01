@@ -46,6 +46,16 @@ public class ElementFactory implements IElementFactory
         return new EntityLinkElement(EntityLinkElementKind.SAMPLE, permId);
     }
 
+    public IEntityLinkElement createExperimentLink(String permId)
+    {
+        return new EntityLinkElement(EntityLinkElementKind.EXPERIMENT, permId);
+    }
+
+    public IEntityLinkElement createDataSetLink(String permId)
+    {
+        return new EntityLinkElement(EntityLinkElementKind.DATA_SET, permId);
+    }
+
     public IEntityLinkElement createMaterialLink(String code, String typeCode)
     {
         String materialPermId = MaterialIdentifier.print(code, typeCode);
