@@ -193,27 +193,40 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
         action1.addMultilineTextInputField("multi").setValue("multi\nline\ninput");
         action1.addComboBoxInputField("combo", new String[]
             { "cv1", "cv2", "cv3" }).setValue("cv1");
+        assertEquals(null, action1.getInputValue("t1"));
+        assertEquals("v2", action1.getInputValue("t2"));
+        assertEquals(null, action1.getInputValue("t3"));
 
         IManagedUiAction action2 = uiDescription.addAction("a2");
         action2.addTextInputField("t1").setValue("v11");
         action2.addTextInputField("t2").setValue("v22");
+        assertEquals("v11", action2.getInputValue("t1"));
+        assertEquals("v22", action2.getInputValue("t2"));
+        assertEquals(null, action2.getInputValue("t3"));
+
+        IManagedUiAction action3 = uiDescription.addAction("a3");
 
         ManagedPropertyEvaluator evaluator =
-                new ManagedPropertyEvaluator("def updateFromUI(action):\n"
-                        + "    if action.getName() == 'a1':\n" + "        value = 'a1|'\n"
-                        + "        for input in action.getInputWidgetDescriptions():\n"
-                        + "            inputValue = input.getValue();\n"
-                        + "            if inputValue is None:\n "
-                        + "                inputValue = 'null'\n"
-                        + "            value = value + input.getLabel() + '=' + inputValue + '|'\n"
-                        + "        property.setValue(value)\n"
-                        + "    elif action.getName() == 'a2':\n" + "        value = 'a2!'\n"
-                        + "        for input in action.getInputWidgetDescriptions():\n"
-                        + "            inputValue = input.getValue();\n"
-                        + "            if inputValue is None:\n "
-                        + "                inputValue = 'null'\n"
-                        + "            value = value + input.getLabel() + '=' + inputValue + '!'\n"
-                        + "        property.setValue(value)\n");
+                new ManagedPropertyEvaluator(
+                        "def updateFromUI(action):\n"
+                                + "    if action.getName() == 'a1':\n"
+                                + "        value = 'a1|'\n"
+                                + "        for input in action.getInputWidgetDescriptions():\n"
+                                + "            inputValue = input.getValue();\n"
+                                + "            if inputValue is None:\n "
+                                + "                inputValue = 'null'\n"
+                                + "            value = value + input.getLabel() + '=' + inputValue + '|'\n"
+                                + "        property.setValue(value)\n"
+                                + "    elif action.getName() == 'a2':\n"
+                                + "        value = 'a2!'\n"
+                                + "        for input in action.getInputWidgetDescriptions():\n"
+                                + "            inputValue = input.getValue();\n"
+                                + "            if inputValue is None:\n "
+                                + "                inputValue = 'null'\n"
+                                + "            value = value + input.getLabel() + '=' + inputValue + '!'\n"
+                                + "        property.setValue(value)\n"
+                                + "    else:\n"
+                                + "        raise ValidationException('action ' + action.getName() + ' is not supported')\n");
 
         evaluator.updateFromUI(managedProperty, action1);
         assertNotNull(managedProperty.getValue());
@@ -230,6 +243,15 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
         assertEquals("a2", inputTokens2[0]);
         assertEquals("t1=v11", inputTokens2[1]);
         assertEquals("t2=v22", inputTokens2[2]);
+
+        try
+        {
+            evaluator.updateFromUI(managedProperty, action3);
+            fail("expected EvaluatorException");
+        } catch (EvaluatorException e)
+        {
+            assertEquals("action a3 is not supported", e.getCause().getMessage());
+        }
     }
 
     private void checkInputFieldWidget(IManagedInputWidgetDescription widget,
