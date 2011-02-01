@@ -162,6 +162,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplaceme
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ValidationException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
@@ -2120,13 +2121,12 @@ public final class CommonClientService extends AbstractClientService implements
             }
         } catch (final UserFailureException e)
         {
-            // TODO
-            // Throwable cause = e.getCause();
-            // if (cause instanceof ValidationException)
-            // {
-            // throw new UserFailureException("Error in row " + (i + 1) + ": "
-            // + cause.getMessage());
-            // }
+            Throwable cause = e.getCause();
+            if (cause instanceof ValidationException)
+            {
+                throw new ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException(
+                        cause.getMessage());
+            }
             if (operationLog.isInfoEnabled())
             {
                 // we do not log this as an error, because it can be only user's fault
