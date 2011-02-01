@@ -22,7 +22,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperimentImmutable;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class ExperimentImmutable implements IExperimentImmutable
+class ExperimentImmutable implements IExperimentImmutable
 {
     private final ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experiment;
 
@@ -31,7 +31,7 @@ public class ExperimentImmutable implements IExperimentImmutable
         this.experiment = experiment;
     }
 
-    public ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment getExperiment()
+    ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment getExperiment()
     {
         return experiment;
     }

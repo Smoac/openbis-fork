@@ -30,6 +30,8 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
  * Information given to openBIS when registering a new external data set.
@@ -65,6 +67,30 @@ public final class NewExternalData implements Serializable
     private String dataStoreCode;
 
     private boolean measured;
+    
+    private ExperimentIdentifier experimentIdentifierOrNull;
+    
+    private SampleIdentifier sampleIdentifierOrNull;
+    
+    public ExperimentIdentifier getExperimentIdentifierOrNull()
+    {
+        return experimentIdentifierOrNull;
+    }
+
+    public void setExperimentIdentifierOrNull(ExperimentIdentifier experimentIdentifierOrNull)
+    {
+        this.experimentIdentifierOrNull = experimentIdentifierOrNull;
+    }
+
+    public SampleIdentifier getSampleIdentifierOrNull()
+    {
+        return sampleIdentifierOrNull;
+    }
+
+    public void setSampleIdentifierOrNull(SampleIdentifier sampleIdentifierOrNull)
+    {
+        this.sampleIdentifierOrNull = sampleIdentifierOrNull;
+    }
 
     /** Returns <code>dataSetType</code>. */
     public final DataSetType getDataSetType()

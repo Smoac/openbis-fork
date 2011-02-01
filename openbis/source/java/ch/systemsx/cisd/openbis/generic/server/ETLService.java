@@ -84,6 +84,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityCollectionForCreationOrUpdate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
@@ -509,6 +510,31 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         HibernateUtils.initialize(properties);
         return EntityPropertyTranslator.translate(properties.toArray(new SamplePropertyPE[0]),
                 new HashMap<PropertyTypePE, PropertyType>());
+    }
+    
+
+    public void registerEntities(String sessionToken, EntityCollectionForCreationOrUpdate collection)
+            throws UserFailureException
+    {
+        checkSession(sessionToken);
+        
+        List<NewExperiment> experiments = collection.getNewExperiments();
+        for (NewExperiment experiment : experiments)
+        {
+            registerExperiment(sessionToken, experiment);
+        }
+        
+        List<NewExternalData> dataSets = collection.getNewDataSets();
+        for (NewExternalData dataSet : dataSets)
+        {
+            ExperimentIdentifier experimentIdentifier = dataSet.getExperimentIdentifierOrNull();
+            if (experimentIdentifier != null)
+            {
+                registerDataSet(sessionToken, experimentIdentifier, dataSet);
+            }
+        }
+        // TODO Auto-generated method stub
+        
     }
 
     public long registerExperiment(String sessionToken, NewExperiment experiment)

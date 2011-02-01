@@ -20,7 +20,9 @@ import static ch.systemsx.cisd.common.Constants.IS_FINISHED_PREFIX;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
@@ -163,7 +165,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
 
         handler.handle(markerFile);
         
-        assertEquals(1, MockStorageProcessor.instance.calledStoreDataCount);
+        assertEquals(1, MockStorageProcessor.instance.incomingDirs.size());
         assertEquals(DATA_SET_CODE, dataSetInfo.recordedObject().getDataSetCode());
         assertEquals(DATA_SET_TYPE, dataSetInfo.recordedObject().getDataSetType());
         assertEquals(experiment.getIdentifier(), dataSetInfo.recordedObject()
@@ -176,8 +178,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         assertEquals(FileUtilities.getRelativeFile(workingDirectory, datasetLocation), dataSet
                 .recordedObject().getLocation());
         assertEquals(1, MockStorageProcessor.instance.calledCommitCount);
-        assertEquals(datasetLocation, MockStorageProcessor.instance.storeDataRootDir);
-        File incomingDir = MockStorageProcessor.instance.incomingDir;
+        assertEquals(datasetLocation, MockStorageProcessor.instance.rootDirs.get(0));
+        File incomingDir = MockStorageProcessor.instance.incomingDirs.get(0);
         assertEquals(new File(stagingDir, DATA_SET_CODE), incomingDir);
         assertEquals("hello world1",
                 FileUtilities.loadToString(new File(datasetLocation, "sub_data_set_1/read1.me"))
@@ -209,7 +211,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
             });
 
         handler.handle(markerFile);
-        assertEquals(0, MockStorageProcessor.instance.calledStoreDataCount);
+        assertEquals(0, MockStorageProcessor.instance.incomingDirs.size());
         assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
         assertEquals("[]", Arrays.asList(stagingDir.list()).toString());
         assertEquals(
@@ -221,6 +223,93 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
                 FileUtilities.loadToString(
                         new File(workingDirectory, "data_set/sub_data_set_2/read2.me")).trim());
 
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testTwoSimpleTransactions()
+    {
+        setUpHomeDataBaseExpectations();
+        Properties properties = createThreadProperties(SCRIPTS_FOLDER + "two-simple-transactions.py");
+        final File stagingDir = new File(workingDirectory, "staging");
+        properties.setProperty(DataSetRegistrationService.STAGING_DIR, stagingDir.getPath());
+        createHandler(properties, false, true);
+        createData();
+        ExperimentBuilder builder1 = new ExperimentBuilder().identifier("/SPACE/PROJECT/EXP1");
+        final Experiment experiment1 = builder1.getExperiment();
+        ExperimentBuilder builder2 = new ExperimentBuilder().identifier("/SPACE/PROJECT/EXP2");
+        final Experiment experiment2 = builder2.getExperiment();
+        final RecordingMatcher<DataSetInformation> dataSetInfo1 = new RecordingMatcher<DataSetInformation>();
+        final RecordingMatcher<NewExternalData> dataSet1 = new RecordingMatcher<NewExternalData>();
+        final RecordingMatcher<DataSetInformation> dataSetInfo2 = new RecordingMatcher<DataSetInformation>();
+        final RecordingMatcher<NewExternalData> dataSet2 = new RecordingMatcher<NewExternalData>();
+        context.checking(new Expectations()
+            {
+                {
+                    one(openBisService).createDataSetCode();
+                    will(returnValue(DATA_SET_CODE + 1));
+                    
+                    atLeast(1).of(openBisService).tryToGetExperiment(
+                            new ExperimentIdentifierFactory(experiment1.getIdentifier())
+                                    .createIdentifier());
+                    will(returnValue(experiment1));
+                    
+                    one(dataSetValidator).assertValidDataSet(DATA_SET_TYPE,
+                            new File(stagingDir, DATA_SET_CODE + 1));
+                    one(openBisService).registerDataSet(with(dataSetInfo1), with(dataSet1));
+                    
+                    one(openBisService).createDataSetCode();
+                    will(returnValue(DATA_SET_CODE + 2));
+                    
+                    atLeast(1).of(openBisService).tryToGetExperiment(
+                            new ExperimentIdentifierFactory(experiment2.getIdentifier())
+                            .createIdentifier());
+                    will(returnValue(experiment2));
+                    
+                    one(dataSetValidator).assertValidDataSet(DATA_SET_TYPE,
+                            new File(stagingDir, DATA_SET_CODE + 2));
+                    one(openBisService).registerDataSet(with(dataSetInfo2), with(dataSet2));
+                }
+            });
+
+        handler.handle(markerFile);
+        
+        assertEquals(2, MockStorageProcessor.instance.incomingDirs.size());
+        assertEquals(2, MockStorageProcessor.instance.calledCommitCount);
+        assertEquals(DATA_SET_CODE + 1, dataSetInfo1.recordedObject().getDataSetCode());
+        assertEquals(DATA_SET_TYPE, dataSetInfo1.recordedObject().getDataSetType());
+        assertEquals(experiment1.getIdentifier(), dataSetInfo1.recordedObject()
+                .getExperimentIdentifier().toString());
+        assertEquals(DATA_SET_CODE + 1, dataSet1.recordedObject().getCode());
+        assertEquals(DATA_SET_TYPE, dataSet1.recordedObject().getDataSetType());
+        File datasetLocation1 =
+                DatasetLocationUtil.getDatasetLocationPath(workingDirectory, DATA_SET_CODE + 1,
+                        DATABASE_INSTANCE_UUID);
+        assertEquals(FileUtilities.getRelativeFile(workingDirectory, datasetLocation1), dataSet1
+                .recordedObject().getLocation());
+        assertEquals(datasetLocation1, MockStorageProcessor.instance.rootDirs.get(0));
+        File incomingDir1 = MockStorageProcessor.instance.incomingDirs.get(0);
+        assertEquals(new File(stagingDir, DATA_SET_CODE + 1), incomingDir1);
+        assertEquals("hello world1",
+                FileUtilities.loadToString(new File(datasetLocation1, "sub_data_set_1/read1.me"))
+                .trim());
+        assertEquals(DATA_SET_CODE + 2, dataSetInfo2.recordedObject().getDataSetCode());
+        assertEquals(DATA_SET_TYPE, dataSetInfo2.recordedObject().getDataSetType());
+        assertEquals(experiment2.getIdentifier(), dataSetInfo2.recordedObject()
+                .getExperimentIdentifier().toString());
+        assertEquals(DATA_SET_CODE + 2, dataSet2.recordedObject().getCode());
+        assertEquals(DATA_SET_TYPE, dataSet2.recordedObject().getDataSetType());
+        File datasetLocation2 =
+            DatasetLocationUtil.getDatasetLocationPath(workingDirectory, DATA_SET_CODE + 2,
+                    DATABASE_INSTANCE_UUID);
+        assertEquals(FileUtilities.getRelativeFile(workingDirectory, datasetLocation2), dataSet2
+                .recordedObject().getLocation());
+        assertEquals(datasetLocation2, MockStorageProcessor.instance.rootDirs.get(1));
+        File incomingDir2 = MockStorageProcessor.instance.incomingDirs.get(1);
+        assertEquals(new File(stagingDir, DATA_SET_CODE + 2), incomingDir2);
+        assertEquals("hello world2",
+                FileUtilities.loadToString(new File(datasetLocation2, "sub_data_set_2/read2.me"))
+                .trim());
         context.assertIsSatisfied();
     }
     
@@ -243,7 +332,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         // logAppender.getLogContent().endsWith(
         // ".MARKER_is_finished_data_set' has been removed."));
 
-        assertEquals(2, MockStorageProcessor.instance.calledStoreDataCount);
+        assertEquals(2, MockStorageProcessor.instance.incomingDirs.size());
         assertEquals(2, MockStorageProcessor.instance.calledCommitCount);
         assertEquals(
                 "DataSetInformation{sampleCode=<null>,properties={},dataSetType=O1,instanceUUID=db-uuid,instanceCode=<null>,spaceCode=<null>,experimentIdentifier=/SPACE/PROJECT/EXP-CODE,isCompleteFlag=U,extractableData=ExtractableData{productionDate=<null>,dataProducerCode=<null>,parentDataSetCodes=[data-set-code1],dataSetProperties=[],code=data-set-code2},uploadingUserEmailOrNull=<null>,uploadingUserIdOrNull=<null>}",
@@ -276,7 +365,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
                                         + "  File \"<string>\", line 15, in ?\n"
                                         + "AttributeError: 'NoneType' object has no attribute 'non_existant_function'"));
 
-        assertEquals(0, MockStorageProcessor.instance.calledStoreDataCount);
+        assertEquals(0, MockStorageProcessor.instance.incomingDirs.size());
         assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
     }
 
@@ -305,7 +394,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         // logAppender.getLogContent().endsWith(
         // ".MARKER_is_finished_data_set' has been removed."));
 
-        assertEquals(2, MockStorageProcessor.instance.calledStoreDataCount);
+        assertEquals(2, MockStorageProcessor.instance.incomingDirs.size());
         assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
         assertTrue("Data set rollback should have been invoked", didDataSetRollbackHappen);
         assertFalse("Service rollback should not have been invoked", didServiceRollbackHappen);
@@ -341,7 +430,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
 
         handler.handle(markerFile);
 
-        assertEquals(2, MockStorageProcessor.instance.calledStoreDataCount);
+        assertEquals(2, MockStorageProcessor.instance.incomingDirs.size());
         assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
 
         TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
@@ -368,7 +457,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
 
         handler.handle(markerFile);
 
-        assertEquals(0, MockStorageProcessor.instance.calledStoreDataCount);
+        assertEquals(0, MockStorageProcessor.instance.incomingDirs.size());
         assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
 
         assertTrue(
@@ -577,17 +666,15 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
 
         int calledGetStoreRootDirectoryCount = 0;
 
-        int calledStoreDataCount = 0;
-
         int calledCommitCount = 0;
 
         File storeRootDirectory;
 
         String dataSetInfoString;
 
-        private File incomingDir;
+        private List<File> incomingDirs = new ArrayList<File>();
 
-        private File storeDataRootDir;
+        private List<File> rootDirs = new ArrayList<File>();
 
         public MockStorageProcessor(ExtendedProperties props)
         {
@@ -608,9 +695,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         public File storeData(DataSetInformation dataSetInformation, ITypeExtractor typeExtractor,
                 IMailClient mailClient, File incomingDataSetDirectory, File rootDir)
         {
-            this.incomingDir = incomingDataSetDirectory;
-            this.storeDataRootDir = rootDir;
-            calledStoreDataCount++;
+            incomingDirs.add(incomingDataSetDirectory);
+            rootDirs.add(rootDir);
             dataSetInfoString = dataSetInformation.toString();
             try
             {

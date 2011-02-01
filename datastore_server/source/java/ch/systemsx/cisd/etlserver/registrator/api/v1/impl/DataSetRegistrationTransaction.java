@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.lang.time.DateFormatUtils;
 
@@ -126,8 +127,10 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     private final IEncapsulatedOpenBISService openBisService;
 
     private final IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory;
-
+    
     private final ArrayList<DataSet<T>> registeredDataSets = new ArrayList<DataSet<T>>();
+    
+    private final List<Experiment> experimentsToBeRegistered = new ArrayList<Experiment>();
 
     public DataSetRegistrationTransaction(File rollBackStackParentFolder, File workingDirectory,
             File stagingDirectory, DataSetRegistrationService registrationService,
@@ -207,8 +210,10 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
 
     public IExperiment createNewExperiment(String experimentIdentifierString)
     {
-        // TODO Auto-generated method stub
-        return null;
+        String permID = openBisService.createDataSetCode();
+        Experiment experiment = new Experiment(experimentIdentifierString, permID);
+        experimentsToBeRegistered.add(experiment);
+        return experiment;
     }
 
     public String moveFile(String src, IDataSet dst)

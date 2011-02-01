@@ -17,32 +17,28 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 
 /**
- * Implementation of {@link IExperiment} wrapping a {@link NewExperiment} instance.
+ * Implementation of {@link IExperiment}.
  *
  * @author Franz-Josef Elmer
  */
-class Experiment implements IExperiment
+class Experiment extends ExperimentImmutable implements IExperiment
 {
-    private final NewExperiment experiment;
-    
-    Experiment(String identifier)
+    Experiment(String identifier, String permID)
     {
-        experiment = new NewExperiment();
+        super(new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment());
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experiment = getExperiment();
         experiment.setIdentifier(identifier);
+        experiment.setPermId(permID);
     }
 
+    @Override
     public boolean isExistingExperiment()
     {
         return false;
     }
     
-    NewExperiment getExperiment()
-    {
-        return experiment;
-    }
 
 
 }

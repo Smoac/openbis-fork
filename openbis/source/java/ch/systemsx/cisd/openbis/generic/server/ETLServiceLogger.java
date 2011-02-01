@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityCollectionForCreationOrUpdate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
@@ -111,6 +112,15 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
     public void updateSample(String sessionToken, SampleUpdatesDTO updates)
     {
         logTracking(sessionToken, "updateSample", "SAMPLE(%S)", updates.getSampleIdentifier());
+    }
+
+    public void registerEntities(String sessionToken, EntityCollectionForCreationOrUpdate collection)
+            throws UserFailureException
+    {
+        List<NewExperiment> newExperiments = collection.getNewExperiments();
+        List<NewExternalData> newDataSets = collection.getNewDataSets();
+        logTracking(sessionToken, "registerEntities", "NEW_EXPERIMENTS(%s) NEW_DATA_SETS(%s)",
+                newExperiments.size(), newDataSets.size());
     }
 
     public long registerExperiment(String sessionToken, NewExperiment experiment)

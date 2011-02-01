@@ -98,7 +98,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         return this;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     public Class getObjectType()
     {
         return IEncapsulatedOpenBISService.class;

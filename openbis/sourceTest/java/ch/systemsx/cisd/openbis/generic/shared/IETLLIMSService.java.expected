@@ -60,6 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityCollectionForCreationOrUpdate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
@@ -213,6 +214,16 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     public IEntityProperty[] tryToGetPropertiesOfTopSampleRegisteredFor(
             final String sessionToken,
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class) final SampleIdentifier sampleIdentifier)
+            throws UserFailureException;
+    
+    /**
+     * Registers/updates various entities in one transaction.
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    @DatabaseCreateOrDeleteModification(value =
+        { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
+    public void registerEntities(String sessionToken, EntityCollectionForCreationOrUpdate collection)
             throws UserFailureException;
 
     /**
