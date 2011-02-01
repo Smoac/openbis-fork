@@ -240,20 +240,17 @@ public final class ManagedPropertyGridActionDialog extends
         comboBox.setTriggerAction(TriggerAction.ALL);
         comboBox.setEditable(false);
         comboBox.setForceSelection(true);
-
-        if (inputDescription.getValue() != null)
-        {
-            // FIXME
-            comboBox.setRawValue(inputDescription.getValue());
-            comboBox.updateOriginalValue(comboBox.getValue());
-        }
-
         if (inputDescription instanceof ManagedComboBoxInputWidgetDescription)
         {
             final ManagedComboBoxInputWidgetDescription comboBoxDescription =
                     (ManagedComboBoxInputWidgetDescription) inputDescription;
             comboBox.add(comboBoxDescription.getOptions());
 
+            if (inputDescription.getValue() != null)
+            {
+                comboBox.setSimpleValue(inputDescription.getValue());
+                comboBox.updateOriginalValue(comboBox.getValue());
+            }
             return comboBox;
         } else
         {
