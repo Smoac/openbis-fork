@@ -56,9 +56,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
@@ -127,10 +127,18 @@ public abstract class TypedTableGrid<T extends ISerializable>
             {
                 return null;
             }
-            if (value instanceof MaterialTableCell)
+            if (value instanceof EntityTableCell)
             {
-                MaterialTableCell materialTableCell = (MaterialTableCell) value;
-                return LinkExtractor.tryExtract(materialTableCell.getMaterialIdentifier());
+                EntityTableCell entityTableCell = (EntityTableCell) value;
+                String permId = entityTableCell.getPermId();
+                if (entityTableCell.getEntityKind() == EntityKind.MATERIAL)
+                {
+                    return LinkExtractor.tryExtract(MaterialIdentifier.tryParseIdentifier(permId));
+                } else
+                {
+                    return LinkExtractor.createPermlink(entityKind, permId);
+                }
+
             }
             return LinkExtractor.createPermlink(entityKind, value.toString());
         }
@@ -138,11 +146,21 @@ public abstract class TypedTableGrid<T extends ISerializable>
         public void handle(TableModelRowWithObject<T> rowItem, boolean specialKeyPressed)
         {
             ISerializableComparable cellValue = rowItem.getValues().get(header.getIndex());
-            if (cellValue instanceof MaterialTableCell)
+            if (cellValue instanceof EntityTableCell)
             {
-                MaterialTableCell materialTableCell = (MaterialTableCell) cellValue;
-                MaterialIdentifier materialIdentifier = materialTableCell.getMaterialIdentifier();
-                OpenEntityDetailsTabHelper.open(viewContext, materialIdentifier, specialKeyPressed);
+                EntityTableCell entityTableCell = (EntityTableCell) cellValue;
+                String permId = entityTableCell.getPermId();
+                if (entityTableCell.getEntityKind() == EntityKind.MATERIAL)
+                {
+                    MaterialIdentifier materialIdentifier =
+                            MaterialIdentifier.tryParseIdentifier(permId);
+                    OpenEntityDetailsTabHelper.open(viewContext, materialIdentifier,
+                            specialKeyPressed);
+                } else
+                {
+                    OpenEntityDetailsTabHelper.open(viewContext, entityKind, permId,
+                            specialKeyPressed);
+                }
             } else
             {
                 OpenEntityDetailsTabHelper.open(viewContext, entityKind, cellValue.toString(),

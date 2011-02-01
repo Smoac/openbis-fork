@@ -36,12 +36,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
@@ -133,13 +133,14 @@ public class TypedTableModelBuilder<T extends ISerializable>
 
         public void addColumnsForAssignedProperties(String idPrefix, EntityType entityType)
         {
-            List<? extends EntityTypePropertyType<?>> propertyTypes = entityType.getAssignedPropertyTypes();
+            List<? extends EntityTypePropertyType<?>> propertyTypes =
+                    entityType.getAssignedPropertyTypes();
             for (EntityTypePropertyType<?> propertyType : propertyTypes)
             {
                 addColumn(idPrefix, propertyType.getPropertyType());
             }
         }
-        
+
         private IColumn addColumn(String idPrefix, PropertyType propertyType)
         {
             String label = propertyType.getLabel();
@@ -172,7 +173,9 @@ public class TypedTableModelBuilder<T extends ISerializable>
                 switch (dataType)
                 {
                     case MATERIAL:
-                        value = new MaterialTableCell(property.getMaterial());
+                        value =
+                                new EntityTableCell(EntityKind.MATERIAL, property.getMaterial()
+                                        .getIdentifier());
                         break;
                     case CONTROLLEDVOCABULARY:
                         value = new VocabularyTermTableCell(property.getVocabularyTerm());
