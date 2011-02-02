@@ -35,8 +35,6 @@ public class DataSetRegistrationDetails<T extends DataSetInformation> implements
 
     private String processorType;
 
-    private DataSetType dataSetType;
-
     private LocatorType locatorType;
 
     private T dataSetInformation;
@@ -65,7 +63,7 @@ public class DataSetRegistrationDetails<T extends DataSetInformation> implements
 
     public DataSetType getDataSetType(File incomingDataSetPath)
     {
-        return dataSetType;
+        return getDataSetType();
     }
 
     public LocatorType getLocatorType(File incomingDataSetPath)
@@ -111,12 +109,12 @@ public class DataSetRegistrationDetails<T extends DataSetInformation> implements
 
     public DataSetType getDataSetType()
     {
-        return dataSetType;
+        return dataSetInformation.getDataSetType();
     }
 
     public void setDataSetType(DataSetType dataSetType)
     {
-        this.dataSetType = dataSetType;
+        dataSetInformation.setDataSetType(dataSetType);
     }
 
     public LocatorType getLocatorType()
