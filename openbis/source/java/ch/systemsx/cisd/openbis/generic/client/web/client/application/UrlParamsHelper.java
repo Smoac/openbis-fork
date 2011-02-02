@@ -40,6 +40,7 @@ public final class UrlParamsHelper
         methodWithParameters.addParameter(GenericConstants.WITH_EXPERIMENTS, withExperiments);
         methodWithParameters.addParameter(GenericConstants.BATCH_OPERATION_KIND, operationKind
                 .name());
+        methodWithParameters.addParameter("timestamp", Long.toString(System.currentTimeMillis()));
         return methodWithParameters.toString();
     }
 
