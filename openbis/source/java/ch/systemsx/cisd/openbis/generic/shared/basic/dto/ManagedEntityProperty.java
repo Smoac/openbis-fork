@@ -65,6 +65,11 @@ public class ManagedEntityProperty implements IEntityProperty, IManagedProperty
     {
         return entityProperty.getPropertyType().getCode();
     }
+    
+    public boolean isSpecialValue()
+    {
+        return ManagedProperty.isSpecialValue(getValue());
+    }
 
     //
     // IEntityProperty not delegated methods

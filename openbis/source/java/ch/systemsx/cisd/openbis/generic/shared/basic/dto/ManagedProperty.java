@@ -29,6 +29,12 @@ public class ManagedProperty implements IManagedProperty
 {
 
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+    
+    static boolean isSpecialValue(String valueOrNull)
+    {
+        return valueOrNull != null && (valueOrNull.startsWith(BasicConstant.ERROR_PROPERTY_PREFIX)
+                || valueOrNull.equals(BasicConstant.MANAGED_PROPERTY_PLACEHOLDER_VALUE));
+    }
 
     // NOTE: defaults are set for testing - scripts should override them
 
@@ -72,6 +78,11 @@ public class ManagedProperty implements IManagedProperty
     public String getValue()
     {
         return value;
+    }
+
+    public boolean isSpecialValue()
+    {
+        return isSpecialValue(value);
     }
 
     public void setValue(String value)

@@ -23,6 +23,7 @@ import java.util.Map;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
@@ -114,8 +115,13 @@ public final class ManagedPropertyGridActionDialog extends
                 .getInputWidgetDescriptions())
         {
             TextField<?> field = inputFieldsByLabel.get(inputDescription.getLabel());
-            inputDescription
-                    .setValue(field.getValue() == null ? null : field.getValue().toString());
+            Object fieldValue = field.getValue();
+            String value = fieldValue == null ? null : field.getValue().toString();
+            if (fieldValue instanceof SimpleComboValue)
+            {
+                value = ((SimpleComboValue<?>) fieldValue).getValue().toString();
+            }
+            inputDescription.setValue(value);
         }
         // old value was escaped going to the client - unescape it before sending back to the server
         managedProperty.setValue(StringEscapeUtils.unescapeHtml(managedProperty.getValue()));

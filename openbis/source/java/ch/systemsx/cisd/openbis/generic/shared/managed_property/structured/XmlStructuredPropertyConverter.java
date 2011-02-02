@@ -34,6 +34,7 @@ import org.w3c.dom.NodeList;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.EntityLinkElementKind;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IElement;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IElementFactory;
@@ -60,7 +61,13 @@ public class XmlStructuredPropertyConverter implements IStructuredPropertyConver
         this.factory = factory;
     }
 
-    public List<IElement> convertToElements(String propertyValue)
+    public List<IElement> convertToElements(IManagedProperty property)
+    {
+        return property.isSpecialValue() ? Collections.<IElement> emptyList()
+                : convertStringToElements(property.getValue());
+    }
+
+    public List<IElement> convertStringToElements(String propertyValue)
     {
         if (StringUtils.isBlank(propertyValue))
         {

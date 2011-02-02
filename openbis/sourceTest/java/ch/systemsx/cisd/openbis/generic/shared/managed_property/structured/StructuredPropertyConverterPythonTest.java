@@ -56,7 +56,7 @@ public class StructuredPropertyConverterPythonTest extends AssertJUnit
         // the script will create several elements and serialize them in the property value
         String value = managedProperty.getValue();
         List<IElement> elements =
-                ScriptUtilityFactory.createPropertyConverter().convertToElements(value);
+                ScriptUtilityFactory.createPropertyConverter().convertStringToElements(value);
 
         assertEquals(3, elements.size());
     }

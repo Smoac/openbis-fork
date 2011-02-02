@@ -40,6 +40,12 @@ public interface IManagedProperty extends ISerializable
     /** Sets whether managed property is shown in an extra tab or not. */
     void setOwnTab(boolean ownTab);
 
+    /**
+     * Returns <code>true</code> if the value is special, that is either a place-holder value or an
+     * error message.
+     */
+    boolean isSpecialValue();
+
     /** Returns the current value of the property. */
     String getValue();
 

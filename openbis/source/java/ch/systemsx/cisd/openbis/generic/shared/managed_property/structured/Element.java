@@ -120,14 +120,14 @@ public class Element implements IElement
         if (Pattern.matches("[a-zA-Z][\\w:]*", key) == false)
         {
             String error =
-                    String.format("Invalid attribute name %s. Attribute names must "
+                    String.format("Invalid attribute name '%s'. Attribute names must "
                                     + "be non-emtpy strings containing characters from the English alphabet.",
                             key);
             throw new IllegalArgumentException(error);
         }
         if (value == null)
         {
-            String error = String.format("Attribute with key %s has NULL value.", key);
+            String error = String.format("Attribute with key '%s' has NULL value.", key);
             throw new IllegalArgumentException(error);
         }
     }
