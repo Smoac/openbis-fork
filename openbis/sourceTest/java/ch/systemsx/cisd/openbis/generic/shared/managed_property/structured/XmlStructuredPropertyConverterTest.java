@@ -52,7 +52,7 @@ public class XmlStructuredPropertyConverterTest extends AssertJUnit
         String persistentValue = converter.convertToString(elements);
         IElement[] deserialized = converter.convertStringToElements(persistentValue);
 
-        assertEquals(elements.toString(), Arrays.asList(deserialized).toString());
+        assertEquals(elements, Arrays.asList(deserialized));
     }
 
     @Test
@@ -73,6 +73,6 @@ public class XmlStructuredPropertyConverterTest extends AssertJUnit
         String persistentValue = converter.convertToString(elements);
         IElement[] deserialized = converter.convertStringToElements(persistentValue);
 
-        assertEquals(elements.toString(), Arrays.asList(deserialized).toString());
+        assertEquals(elements, Arrays.asList(deserialized));
     }
 }
