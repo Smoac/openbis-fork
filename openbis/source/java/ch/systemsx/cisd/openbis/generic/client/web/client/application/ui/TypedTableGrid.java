@@ -136,7 +136,7 @@ public abstract class TypedTableGrid<T extends ISerializable>
                     return LinkExtractor.tryExtract(MaterialIdentifier.tryParseIdentifier(permId));
                 } else
                 {
-                    return LinkExtractor.createPermlink(entityKind, permId);
+                    return LinkExtractor.createPermlink(entityTableCell.getEntityKind(), permId);
                 }
 
             }
@@ -158,8 +158,8 @@ public abstract class TypedTableGrid<T extends ISerializable>
                             specialKeyPressed);
                 } else
                 {
-                    OpenEntityDetailsTabHelper.open(viewContext, entityKind, permId,
-                            specialKeyPressed);
+                    OpenEntityDetailsTabHelper.open(viewContext, entityTableCell.getEntityKind(),
+                            permId, specialKeyPressed);
                 }
             } else
             {
