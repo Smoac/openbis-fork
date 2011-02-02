@@ -50,9 +50,6 @@ public class XmlStructuredPropertyConverter implements IStructuredPropertyConver
 
     private static final String ROOT_NAME = "root";
 
-    private static final String OPENBIS_NS = "openbis";
-    private static final String OPENBIS_NAMESPACE_URL = "http://openbis.org/schemas/elements/v1";
-
     private IElementFactory factory;
 
     public XmlStructuredPropertyConverter(IElementFactory factory)
@@ -91,15 +88,13 @@ public class XmlStructuredPropertyConverter implements IStructuredPropertyConver
     private IElement createRootElement(IElement[] elements)
     {
         IElement root = new Element(ROOT_NAME);
-        root.addAttribute("xmlns:" + OPENBIS_NS, OPENBIS_NAMESPACE_URL);
         root.setChildren(elements);
         return root;
     }
     
     private Node transformToDOM(IElement element, Document document)
     {
-        String name = getNodeNameWithNamespacePrefix(element);
-        Node result = document.createElement(name);
+        Node result = document.createElement(element.getName());
 
         for (IElement child : element.getChildren())
         {
@@ -113,15 +108,6 @@ public class XmlStructuredPropertyConverter implements IStructuredPropertyConver
         return result;
     }
 
-    private String getNodeNameWithNamespacePrefix(IElement element)
-    {
-        String name = element.getName();
-        if (factory.isEntityLink(element))
-        {
-            name = OPENBIS_NS + ":" + name;
-        }
-        return name;
-    }
 
     private IElement transformFromDOM(Node node)
     {
