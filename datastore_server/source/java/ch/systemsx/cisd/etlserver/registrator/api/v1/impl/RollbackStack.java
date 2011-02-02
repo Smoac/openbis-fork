@@ -32,6 +32,11 @@ import ch.systemsx.cisd.common.collections.ExtendedBlockingQueueFactory;
  */
 class RollbackStack
 {
+    // The files that store the persistent queue. Used for discarding the queues.
+    private final File queue1File;
+
+    private final File queue2File;
+
     // These are not final because they get swapped around.
     private Queue<StackElement> liveLifo;
 
@@ -46,6 +51,9 @@ class RollbackStack
      */
     public RollbackStack(File queue1File, File queue2File)
     {
+        this.queue1File = queue1File;
+        this.queue2File = queue2File;
+
         Queue<StackElement> queue1 =
                 ExtendedBlockingQueueFactory.createPersistRecordBased(queue1File, 16, false);
         Queue<StackElement> queue2 =
@@ -168,6 +176,17 @@ class RollbackStack
         {
             rollbackAndPop();
         }
+    }
+
+    /**
+     * Throws away the persistent stack.
+     */
+    public void discard()
+    {
+        liveLifo = null;
+        tempLifo = null;
+        queue1File.delete();
+        queue2File.delete();
     }
 
     /**

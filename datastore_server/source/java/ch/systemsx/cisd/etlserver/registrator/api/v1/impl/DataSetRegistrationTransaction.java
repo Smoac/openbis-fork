@@ -78,6 +78,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         {
             RollbackStack stack = createExistingRollbackStack(rollbackStackQueue1);
             stack.rollbackAll();
+            stack.discard();
         }
     }
 
@@ -362,6 +363,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
      */
     protected void markCommitted()
     {
+        rollbackStack.discard();
         isCommittedOrRolledback = true;
     }
 
@@ -370,6 +372,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
      */
     protected void markRolledback()
     {
+        rollbackStack.discard();
         isCommittedOrRolledback = true;
     }
 

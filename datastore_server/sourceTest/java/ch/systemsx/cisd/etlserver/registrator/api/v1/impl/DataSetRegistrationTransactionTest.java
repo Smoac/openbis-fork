@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -142,6 +143,9 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
 
         checkContentsOfFile(new File(dst));
 
+        File[] rollbackQueueFiles = listRollbackQueueFiles();
+        assertEquals(2, rollbackQueueFiles.length);
+
         tr.commit();
 
         // assertTrue(
@@ -160,6 +164,9 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
 
         // Changed temporarily to fix a problem on Hudson.
         assertTrue(logAppender.getLogContent().length() > 0);
+
+        rollbackQueueFiles = listRollbackQueueFiles();
+        assertEquals(0, rollbackQueueFiles.length);
 
         // Commented out for the moment.
         context.assertIsSatisfied();
@@ -194,11 +201,35 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
 
         checkContentsOfFile(new File(dst));
 
+        File[] rollbackQueueFiles = listRollbackQueueFiles();
+        assertEquals(2, rollbackQueueFiles.length);
+
         DataSetRegistrationTransaction.rollbackDeadTransactions(workingDirectory);
+
+        rollbackQueueFiles = listRollbackQueueFiles();
+        assertEquals(0, rollbackQueueFiles.length);
 
         checkContentsOfFile(srcFile);
 
         context.assertIsSatisfied();
+    }
+
+    private File[] listRollbackQueueFiles()
+    {
+        File[] rollbackQueueFiles = workingDirectory.listFiles(new FilenameFilter()
+            {
+                public boolean accept(File dir, String name)
+                {
+                    final String ROLLBACK_QUEUE1_FILE_NAME_SUFFIX = "rollBackQueue1";
+
+                    final String ROLLBACK_QUEUE2_FILE_NAME_SUFFIX = "rollBackQueue2";
+
+                    return name.endsWith(ROLLBACK_QUEUE1_FILE_NAME_SUFFIX)
+                            || name.endsWith(ROLLBACK_QUEUE2_FILE_NAME_SUFFIX);
+                }
+
+            });
+        return rollbackQueueFiles;
     }
 
     private void createHandler()
@@ -296,13 +327,13 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
 
     private void setUpDataSetValidatorExpectations()
     {
-        final File dataSetDir = new File(stagingDirectory, DATA_SET_CODE + "1");
-        // File dataSetFile = new File(dataSetDir, srcFile.getName());
+        File dataSetDir = new File(stagingDirectory, DATA_SET_CODE + "1");
+        final File dataSetFile = new File(dataSetDir, srcFile.getName());
         context.checking(new Expectations()
             {
                 {
                     oneOf(dataSetValidator).assertValidDataSet(with(DATA_SET_TYPE),
-                            with(dataSetDir));
+                            with(dataSetFile));
                 }
             });
     }
@@ -350,18 +381,25 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         }
 
         public File storeData(DataSetInformation dataSetInformation, ITypeExtractor typeExtractor,
-                IMailClient mailClient, File incomingDataSetDirectory, File rootDir)
+                IMailClient mailClient, File incomingDataSet, File rootDir)
         {
             calledStoreDataCount++;
             dataSetInfoString = dataSetInformation.toString();
             try
             {
-                FileUtils.copyDirectory(incomingDataSetDirectory, rootDir);
+                if (incomingDataSet.isDirectory())
+                {
+                    FileUtils.copyDirectory(incomingDataSet, rootDir);
+                } else
+                {
+                    FileUtils.copyFileToDirectory(incomingDataSet, rootDir);
+                }
             } catch (IOException ex)
             {
+                ex.printStackTrace();
                 throw new IOExceptionUnchecked(ex);
             }
-            return new File(rootDir, incomingDataSetDirectory.getName());
+            return new File(rootDir, incomingDataSet.getName());
         }
 
         public void commit(File incomingDataSetDirectory, File storedDataDirectory)
