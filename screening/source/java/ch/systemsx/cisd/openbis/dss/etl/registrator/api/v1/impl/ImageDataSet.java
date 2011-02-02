@@ -25,22 +25,23 @@ import ch.systemsx.cisd.openbis.dss.etl.registrator.api.v1.IImageDataSet;
 
 /**
  * Implementation of an {@link IImageDataSet} based on {@link DataSet}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
+// TODO 2011-02-02, Tomasz Pylak: We do not use it, is it really needed? For sure it's not complete.
 public class ImageDataSet extends DataSet<ImageDataSetInformation> implements IImageDataSet
 {
 
-    public ImageDataSet(
-            DataSetRegistrationDetails<ImageDataSetInformation> registrationDetails,
+    public ImageDataSet(DataSetRegistrationDetails<ImageDataSetInformation> registrationDetails,
             File dataSetFolder)
     {
         super(registrationDetails, dataSetFolder);
     }
-    
+
     public void setTileGeometry(int numberOfRows, int numberOfColumns)
     {
-        ImageDataSetInformation dataSetInformation = getRegistrationDetails().getDataSetInformation();
+        ImageDataSetInformation dataSetInformation =
+                getRegistrationDetails().getDataSetInformation();
         dataSetInformation.setTileGeometry(numberOfRows, numberOfColumns);
     }
 }

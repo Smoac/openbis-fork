@@ -234,12 +234,17 @@ public class JythonTopLevelDataSetHandler extends AbstractOmniscientTopLevelData
         {
             DataSetRegistrationDetails<T> registrationDetails = new DataSetRegistrationDetails<T>();
             T dataSetInfo = createDataSetInformation();
-            dataSetInfo.setInstanceCode(registratorState.getHomeDatabaseInstance().getCode());
-            dataSetInfo.setInstanceUUID(registratorState.getHomeDatabaseInstance().getUuid());
+            setDatabaseInstance(dataSetInfo);
             registrationDetails.setDataSetInformation(dataSetInfo);
             return registrationDetails;
         }
 
+        protected final void setDatabaseInstance(T dataSetInfo)
+        {
+            dataSetInfo.setInstanceCode(registratorState.getHomeDatabaseInstance().getCode());
+            dataSetInfo.setInstanceUUID(registratorState.getHomeDatabaseInstance().getUuid());
+        }
+        
         /**
          * Adaptor for the IDataSetRegistrationDetailsFactory interface.
          */

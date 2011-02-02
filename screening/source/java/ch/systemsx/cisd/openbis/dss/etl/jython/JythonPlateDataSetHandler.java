@@ -9,8 +9,8 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.etlserver.registrator.JythonTopLevelDataSetHandler;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSet;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.BasicDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageDataSetInformation;
-import ch.systemsx.cisd.openbis.dss.etl.registrator.api.v1.impl.ImageDataSet;
 
 /**
  * Jython dropbox for HCS and Microscopy image datasets.
@@ -28,12 +28,14 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler
      * Create a screening specific factory available to the python script.
      */
     @Override
-    protected IDataSetRegistrationDetailsFactory<ImageDataSetInformation> createObjectFactory(PythonInterpreter interpreter)
+    protected IDataSetRegistrationDetailsFactory<BasicDataSetInformation> createObjectFactory(
+            PythonInterpreter interpreter)
     {
         return new JythonPlateDatasetFactory(getRegistratorState());
     }
 
-    public static class JythonPlateDatasetFactory extends JythonObjectFactory<ImageDataSetInformation>
+    public static class JythonPlateDatasetFactory extends
+            JythonObjectFactory<BasicDataSetInformation>
     {
         public JythonPlateDatasetFactory(OmniscientTopLevelDataSetRegistratorState registratorState)
         {
@@ -41,17 +43,43 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler
         }
 
         @Override
-        public DataSet<ImageDataSetInformation> createDataSet(
-                DataSetRegistrationDetails<ImageDataSetInformation> registrationDetails,
+        public DataSet<BasicDataSetInformation> createDataSet(
+                DataSetRegistrationDetails<BasicDataSetInformation> registrationDetails,
                 File stagingFile)
         {
-            return new ImageDataSet(registrationDetails, stagingFile);
+            return new DataSet<BasicDataSetInformation>(registrationDetails, stagingFile);
         }
 
         @Override
-        protected ImageDataSetInformation createDataSetInformation()
+        protected BasicDataSetInformation createDataSetInformation()
         {
-            return new ImageDataSetInformation();
+            return new BasicDataSetInformation();
+        }
+
+        /**
+         * Factory method that creates a new registration details object for image datasets.
+         */
+        public DataSetRegistrationDetails<ImageDataSetInformation> createImageRegistrationDetails()
+        {
+            DataSetRegistrationDetails<ImageDataSetInformation> registrationDetails =
+                    new DataSetRegistrationDetails<ImageDataSetInformation>();
+            ImageDataSetInformation dataSetInfo = new ImageDataSetInformation();
+            setDatabaseInstance(dataSetInfo);
+            registrationDetails.setDataSetInformation(dataSetInfo);
+            return registrationDetails;
+        }
+
+        /**
+         * Factory method that creates a new registration details object for non-image datasets.
+         */
+        public DataSetRegistrationDetails<BasicDataSetInformation> createBasicRegistrationDetails()
+        {
+            DataSetRegistrationDetails<BasicDataSetInformation> registrationDetails =
+                    new DataSetRegistrationDetails<BasicDataSetInformation>();
+            BasicDataSetInformation dataSetInfo = new BasicDataSetInformation();
+            setDatabaseInstance(dataSetInfo);
+            registrationDetails.setDataSetInformation(dataSetInfo);
+            return registrationDetails;
         }
     }
 }
