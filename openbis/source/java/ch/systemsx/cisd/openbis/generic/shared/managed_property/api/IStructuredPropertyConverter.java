@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.managed_property.api;
 
-import java.util.List;
-
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.structured.Element;
 
@@ -39,6 +37,6 @@ public interface IStructuredPropertyConverter
      * @return a {@link String} representation of the specified elements that can be persisted in
      *         the database. 
      */
-    String convertToString(List<IElement> elements);
+    String convertToString(IElement[] elements);
 
 }

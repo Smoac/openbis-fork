@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.managed_property.structured;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -86,10 +87,10 @@ public class Element implements IElement
     }
 
 
-    public IElement setChildren(List<IElement> newChildren)
+    public IElement setChildren(IElement[] newChildren)
     {
         assert newChildren != null : "Setting null children is not allowed.";
-        this.children = newChildren;
+        this.children = new ArrayList<IElement>(Arrays.asList(newChildren));
         return this;
     }
 

@@ -78,7 +78,7 @@ public class XmlStructuredPropertyConverter implements IStructuredPropertyConver
         return root.getChildren();
     }
 
-    public String convertToString(List<IElement> elements)
+    public String convertToString(IElement[] elements)
     {
         IElement root = createRootElement(elements);
         Document doc = createEmptyDocument();
@@ -88,7 +88,7 @@ public class XmlStructuredPropertyConverter implements IStructuredPropertyConver
         return XmlUtils.serializeDocument(doc);
     }
 
-    private IElement createRootElement(List<IElement> elements)
+    private IElement createRootElement(IElement[] elements)
     {
         IElement root = new Element(ROOT_NAME);
         root.addAttribute("xmlns:" + OPENBIS_NS, OPENBIS_NAMESPACE_URL);
@@ -150,7 +150,7 @@ public class XmlStructuredPropertyConverter implements IStructuredPropertyConver
 
         }
 
-        result.setChildren(children);
+        result.setChildren(children.toArray(new IElement[children.size()]));
         return result;
     }
 

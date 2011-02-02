@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.managed_property.api;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -69,7 +68,7 @@ public interface IElement
     /**
      * sets the children of this {@link IElement}, replacing any previously existing children.
      */
-    IElement setChildren(List<IElement> children);
+    IElement setChildren(IElement[] children);
 
     /**
      * appends a list of children to this children elements list.

@@ -25,21 +25,36 @@ package ch.systemsx.cisd.openbis.generic.shared.managed_property.api;
 public enum EntityLinkElementKind
 {
 
-    EXPERIMENT("Experiment"), SAMPLE("Sample"), DATA_SET("Dataset"), MATERIAL("Material");
+    EXPERIMENT("Experiment"), SAMPLE("Sample"), DATA_SET("Dataset", "Data Set"), MATERIAL("Material");
 
-    private String elementName;
+    private final String elementName;
+    private final String label;
 
     private EntityLinkElementKind(String elementName)
     {
-        this.elementName = elementName;
+        this(elementName, elementName);
     }
 
+    private EntityLinkElementKind(String elementName, String label)
+    {
+        this.elementName = elementName;
+        this.label = label;
+    }
+    
     /**
      * the {@link IElement} name corresponding to the link.
      */
     public String getElementName()
     {
         return elementName;
+    }
+
+    /**
+     * Returns the label.
+     */
+    public String getLabel()
+    {
+        return label;
     }
 
     /**
