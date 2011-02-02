@@ -1,0 +1,24 @@
+# --- Dispatcher jython dropbox: HCS images from Incell 2000 + GE Explorer image analysis ---------
+
+# The directory to watch for incoming data.
+hcs-all-in-one-dropbox.incoming-dir = ${incoming-root-dir}/incoming-all-in-one
+hcs-all-in-one-dropbox.incoming-data-completeness-condition = auto-detection
+
+# The extractor class to use for code extraction
+hcs-all-in-one-dropbox.top-level-data-set-handler = ch.systemsx.cisd.openbis.dss.etl.jython.JythonPlateDataSetHandler
+hcs-all-in-one-dropbox.script-path = etc/data-set-handler.py
+hcs-all-in-one-dropbox.staging-dir = ${incoming-root-dir}
+
+hcs-all-in-one-dropbox.storage-processor = ch.systemsx.cisd.etlserver.DispatcherStorageProcessor
+hcs-all-in-one-dropbox.storage-processor.processors = images, analysis
+# --- images - accepts all image datasets registrations
+hcs-all-in-one-dropbox.storage-processor.images = ch.systemsx.cisd.openbis.dss.etl.PlateStorageProcessor
+hcs-all-in-one-dropbox.storage-processor.images.data-source = imaging-db
+# --- analysis - accepts all other datasets (and assumes they are single CSV files)
+hcs-all-in-one-dropbox.storage-processor.analysis = ch.systemsx.cisd.openbis.dss.etl.featurevector.FeatureVectorStorageProcessor
+hcs-all-in-one-dropbox.storage-processor.analysis.processor = ch.systemsx.cisd.etlserver.DefaultStorageProcessor
+hcs-all-in-one-dropbox.storage-processor.analysis.data-source = imaging-db
+hcs-all-in-one-dropbox.storage-processor.analysis.separator = ,
+hcs-all-in-one-dropbox.storage-processor.analysis.well-name-row = Well
+hcs-all-in-one-dropbox.storage-processor.analysis.well-name-col = Well
+hcs-all-in-one-dropbox.storage-processor.analysis.well-name-col-is-alphanum = true
