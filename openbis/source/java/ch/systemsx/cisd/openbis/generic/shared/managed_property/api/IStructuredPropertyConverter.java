@@ -36,16 +36,8 @@ public interface IStructuredPropertyConverter
     List<IElement> convertToElements(IManagedProperty property);
     
     /**
-     * parses a list of {@link Element} objects from the property value.
-     * 
-     * @param propertyValue a string (usually the property value as stored in the database)
-     */
-    List<IElement> convertStringToElements(String propertyValue);
-
-    /**
      * @return a {@link String} representation of the specified elements that can be persisted in
-     *         the database. The original list of {@link Element} can be reconstructed from the
-     *         resulting string using {@link #convertStringToElements(String)}.
+     *         the database. 
      */
     String convertToString(List<IElement> elements);
 

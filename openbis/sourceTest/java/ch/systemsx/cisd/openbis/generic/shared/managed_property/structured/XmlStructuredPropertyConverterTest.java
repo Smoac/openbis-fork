@@ -24,7 +24,6 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IElement;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IElementFactory;
-import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IStructuredPropertyConverter;
 
 /**
  * @author Kaloyan Enimanev
@@ -34,7 +33,7 @@ public class XmlStructuredPropertyConverterTest extends AssertJUnit
 
     private IElementFactory factory = new ElementFactory();
 
-    private IStructuredPropertyConverter converter = new XmlStructuredPropertyConverter(factory);
+    private XmlStructuredPropertyConverter converter = new XmlStructuredPropertyConverter(factory);
 
     @Test
     public void testNoNestedElements()
