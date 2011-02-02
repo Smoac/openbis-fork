@@ -463,19 +463,51 @@ def register_images_with_overlays_and_analysis(incoming):
     register_sample_if_necessary(space_code, DEFAULT_PROJECT_CODE, DEFAULT_EXPERIMENT_CODE, plate_code)
 
     img_dataset_code = service.queueDataSetRegistration(incoming, image_dataset_details).getCode()
-    service.commit()
     
     # register overlays dataset
     if overlays_dir != None:
         overlay_dataset_details = create_overlay_dataset_details(tmp_overlays_dir, 
                                      image_dataset_details.getDataSetInformation(), img_dataset_code)
         service.queueDataSetRegistration(tmp_overlays_dir, overlay_dataset_details)
-        service.commit()
 
     # register analysis dataset
     if analysis_file != None:
         analysis_registration_details = create_analysis_dataset_details(space_code, plate_code, img_dataset_code)  
         service.queueDataSetRegistration(tmp_analysis_file, analysis_registration_details)
-        service.commit()
 
+def register_images_with_overlays_and_analysis_new(incoming):
+    if not incoming.isDirectory():
+        return
+    
+    tr = service.transaction(incoming, factory)
+        
+    image_dataset_details = create_image_dataset_details(incoming)
+    plate_code = image_dataset_details.getDataSetInformation().getSampleCode()
+    space_code = image_dataset_details.getDataSetInformation().getSpaceCode()
+    register_sample_if_necessary(space_code, DEFAULT_PROJECT_CODE, DEFAULT_EXPERIMENT_CODE, plate_code)
+
+    # create the image data set and put everything in it initially
+    image_data_set = tr.createNewDataSet(image_dataset_details)
+    image_data_set_folder = tr.moveFile(incoming.getPath(), image_data_set)
+    img_dataset_code = image_data_set.getDataSetCode()
+          
+        
+    # move overlays folder
+    overlays_dir = find_dir(File(image_data_set_folder), OVERLAYS_DIR_PATTERN)
+    if overlays_dir != None:
+        overlay_dataset_details = create_overlay_dataset_details(overlays_dir, 
+                                     image_dataset_details.getDataSetInformation(), img_dataset_code)
+        overlays_data_set = tr.createNewDataSet(overlay_dataset_details)
+        tr.moveFile(overlays_dir.getPath(), overlays_data_set, "overlays")
+
+    # transform and move analysis file
+    analysis_file = find_file_by_ext(File(image_data_set_folder), "xml")
+    if analysis_file != None:
+        analysis_registration_details = create_analysis_dataset_details(space_code, plate_code, img_dataset_code)
+        analysis_data_set = tr.createNewDataSet(analysis_registration_details)
+        analysis_data_set_file = tr.createNewFile(analysis_data_set, analysis_file.getName())
+        GEExplorerImageAnalysisResultParser(analysis_file.getPath()).writeCSV(File(analysis_data_set_file))
+        
+    service.commit()
+    
 register_images_with_overlays_and_analysis(incoming)
