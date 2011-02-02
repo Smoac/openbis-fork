@@ -60,6 +60,11 @@ public class DataSet<T extends DataSetInformation> implements IDataSet
         return dataSetFolder;
     }
 
+    public String getDataSetCode()
+    {
+        return registrationDetails.getDataSetInformation().getDataSetCode();
+    }
+
     public IExperimentImmutable getExperiment()
     {
         return experiment;

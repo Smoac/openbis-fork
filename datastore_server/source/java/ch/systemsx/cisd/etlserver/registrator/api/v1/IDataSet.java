@@ -25,6 +25,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 public interface IDataSet
 {
     /**
+     * Get the data set code of the data set
+     */
+    public String getDataSetCode();
+
+    /**
      * Get the experiment for this data set. This can only be null at initialization time, and will
      * be non-null for a valid data set.
      */

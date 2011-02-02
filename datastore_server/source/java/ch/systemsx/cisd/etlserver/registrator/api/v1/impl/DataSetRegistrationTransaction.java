@@ -162,9 +162,18 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         DataSetRegistrationDetails<T> registrationDetails =
                 registrationDetailsFactory.createDataSetRegistrationDetails();
 
+        return createNewDataSet(registrationDetails);
+    }
+
+    public IDataSet createNewDataSet(DataSetRegistrationDetails<T> registrationDetails)
+    {
         // Request a code, so we can keep the staging file name and the data set code in sync
-        String dataSetCode = generateDataSetCode(registrationDetails);
-        registrationDetails.getDataSetInformation().setDataSetCode(dataSetCode);
+        String dataSetCode = registrationDetails.getDataSetInformation().getDataSetCode();
+        if (null == dataSetCode)
+        {
+            dataSetCode = generateDataSetCode(registrationDetails);
+            registrationDetails.getDataSetInformation().setDataSetCode(dataSetCode);
+        }
 
         // Create a directory for the data set
         File stagingFolder = new File(stagingDirectory, dataSetCode);
@@ -258,19 +267,24 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         File dstFile = new File(dataSetFolder, dirName);
         MkdirsCommand cmd = new MkdirsCommand(dstFile.getAbsolutePath());
         executeCommand(cmd);
-        return null;
+        return dstFile.getAbsolutePath();
     }
 
     public String createNewFile(IDataSet dst, String fileName)
     {
-        // TODO Auto-generated method stub
-        return null;
+        return createNewFile(dst, "/", fileName);
     }
 
     public String createNewFile(IDataSet dst, String dstInDataset, String fileName)
     {
-        // TODO Auto-generated method stub
-        return null;
+        @SuppressWarnings("unchecked")
+        DataSet<T> dataSet = (DataSet<T>) dst;
+        File dataSetFolder = dataSet.getDataSetFolder();
+        File dstFolder = new File(dataSetFolder, dstInDataset);
+        File dstFile = new File(dstFolder, fileName);
+        NewFileCommand cmd = new NewFileCommand(dstFile.getAbsolutePath());
+        executeCommand(cmd);
+        return dstFile.getAbsolutePath();
     }
 
     public void deleteFile(String src)
