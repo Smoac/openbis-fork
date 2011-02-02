@@ -33,7 +33,7 @@ public interface IStructuredPropertyConverter
      * 
      * @return an empty list if the value is undefined or special.
      */
-    List<IElement> convertToElements(IManagedProperty property);
+    IElement[] convertToElements(IManagedProperty property);
     
     /**
      * @return a {@link String} representation of the specified elements that can be persisted in

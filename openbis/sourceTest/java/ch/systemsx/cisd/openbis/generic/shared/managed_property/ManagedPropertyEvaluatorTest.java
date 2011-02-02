@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.shared.managed_property;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.testng.AssertJUnit;
@@ -151,33 +150,33 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
         evaluator.configureUI(managedProperty);
         assertEquals(false, managedProperty.isOwnTab());
 
-        List<IManagedUiAction> actions = managedProperty.getUiDescription().getActions();
-        assertEquals(1, actions.size());
-        IManagedUiAction action = actions.get(0);
+        IManagedUiAction[] actions = managedProperty.getUiDescription().getActions();
+        assertEquals(1, actions.length);
+        IManagedUiAction action = actions[0];
         assertEquals("Create", action.getName());
 
-        List<IManagedInputWidgetDescription> inputWidgets = action.getInputWidgetDescriptions();
-        assertEquals(5, inputWidgets.size());
-        checkInputFieldWidget(inputWidgets.get(0), ManagedInputFieldType.TEXT, "t1", null, null,
+        IManagedInputWidgetDescription[] inputWidgets = action.getInputWidgetDescriptions();
+        assertEquals(5, inputWidgets.length);
+        checkInputFieldWidget(inputWidgets[0], ManagedInputFieldType.TEXT, "t1", null, null,
                 false);
-        checkInputFieldWidget(inputWidgets.get(1), ManagedInputFieldType.TEXT, "t2", "default 2",
+        checkInputFieldWidget(inputWidgets[1], ManagedInputFieldType.TEXT, "t2", "default 2",
                 null, false);
-        checkInputFieldWidget(inputWidgets.get(2), ManagedInputFieldType.TEXT, "t3", null,
+        checkInputFieldWidget(inputWidgets[2], ManagedInputFieldType.TEXT, "t3", null,
                 "description 3", false);
-        checkInputFieldWidget(inputWidgets.get(3), ManagedInputFieldType.MULTILINE_TEXT, "multi",
+        checkInputFieldWidget(inputWidgets[3], ManagedInputFieldType.MULTILINE_TEXT, "multi",
                 "default m", "multiline", false);
-        checkInputFieldWidget(inputWidgets.get(4), ManagedInputFieldType.COMBO_BOX, "combo", null,
+        checkInputFieldWidget(inputWidgets[4], ManagedInputFieldType.COMBO_BOX, "combo", null,
                 "select from list", true);
-        if (inputWidgets.get(4) instanceof ManagedComboBoxInputWidgetDescription)
+        if (inputWidgets[4] instanceof ManagedComboBoxInputWidgetDescription)
         {
             ManagedComboBoxInputWidgetDescription comboBox =
-                    (ManagedComboBoxInputWidgetDescription) inputWidgets.get(4);
+                    (ManagedComboBoxInputWidgetDescription) inputWidgets[4];
             assertEquals("[v1, v2, v3]", comboBox.getOptions().toString());
         } else
         {
             fail("expected instance of "
                     + ManagedComboBoxInputWidgetDescription.class.getSimpleName() + ", got "
-                    + inputWidgets.get(4).getClass().getSimpleName());
+                    + inputWidgets[4].getClass().getSimpleName());
         }
     }
 

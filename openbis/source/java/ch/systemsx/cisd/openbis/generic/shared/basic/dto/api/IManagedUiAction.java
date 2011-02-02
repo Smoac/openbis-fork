@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto.api;
 
-import java.util.List;
-
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
@@ -66,10 +64,10 @@ public interface IManagedUiAction extends ISerializable
     public IManagedInputWidgetDescription addComboBoxInputField(String labels, String[] values);
 
     /**
-     * Returns a list of objects describing input widgets that will be used in user interface user
+     * Returns an array of objects describing input widgets that will be used in user interface user
      * interface for modification of the managed property.
      */
-    public List<IManagedInputWidgetDescription> getInputWidgetDescriptions();
+    public IManagedInputWidgetDescription[] getInputWidgetDescriptions();
 
     /**
      * Convenience method returning value of input widget with given label or null if such widget

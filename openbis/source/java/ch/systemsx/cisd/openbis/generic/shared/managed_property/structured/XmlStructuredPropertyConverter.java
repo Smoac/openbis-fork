@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.shared.managed_property.structured;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -61,17 +60,17 @@ public class XmlStructuredPropertyConverter implements IStructuredPropertyConver
         this.factory = factory;
     }
 
-    public List<IElement> convertToElements(IManagedProperty property)
+    public IElement[] convertToElements(IManagedProperty property)
     {
-        return property.isSpecialValue() ? Collections.<IElement> emptyList()
+        return property.isSpecialValue() ? new IElement[0]
                 : convertStringToElements(property.getValue());
     }
 
-    public List<IElement> convertStringToElements(String propertyValue)
+    public IElement[] convertStringToElements(String propertyValue)
     {
         if (StringUtils.isBlank(propertyValue))
         {
-            return Collections.<IElement> emptyList();
+            return new IElement[0];
         }
 
         Document document = XmlUtils.parseXmlDocument(propertyValue);

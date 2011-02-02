@@ -80,9 +80,14 @@ public class ManagedUiTableActionDescription extends ManagedUiActionDescription 
         return this;
     }
 
-    public List<Integer> getSelectedRows()
+    public int[] getSelectedRows()
     {
-        return selectedRows;
+        int[] result = new int[selectedRows.size()];
+        for (int i = 0; i < result.length; i++)
+        {
+            result[i] = selectedRows.get(i);
+        }
+        return result;
     }
 
     public void setSelectedRows(List<Integer> selectedRows)

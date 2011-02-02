@@ -66,9 +66,9 @@ public class ManagedUiDescription implements IManagedUiDescription, ISerializabl
         return action;
     }
 
-    public List<IManagedUiAction> getActions()
+    public IManagedUiAction[] getActions()
     {
-        return actions;
+        return actions.toArray(new IManagedUiAction[actions.size()]);
     }
 
     public void useTableOutput(ITableModel tableModel)

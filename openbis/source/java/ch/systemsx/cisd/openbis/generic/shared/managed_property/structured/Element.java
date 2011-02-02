@@ -63,9 +63,9 @@ public class Element implements IElement
         return data;
     }
 
-    public List<IElement> getChildren()
+    public IElement[] getChildren()
     {
-        return children;
+        return children.toArray(new IElement[children.size()]);
     }
 
     public Map<String, String> getAttributes()

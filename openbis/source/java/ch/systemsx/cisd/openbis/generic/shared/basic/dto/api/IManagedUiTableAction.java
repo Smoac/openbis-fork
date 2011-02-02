@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto.api;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -62,7 +61,7 @@ public interface IManagedUiTableAction extends IManagedUiAction
     /**
      * Returns list of indices of selected rows (empty if no row was selected).
      */
-    List<Integer> getSelectedRows();
+    int[] getSelectedRows();
 
     /**
      * Adds a binding between input field and table column.

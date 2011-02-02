@@ -106,7 +106,7 @@ public class ManagedPropertyGrid extends TypedTableGrid<ReportRowModel>
         {
             return;
         }
-        if (managedProperty.getUiDescription().getActions().size() > 0)
+        if (managedProperty.getUiDescription().getActions().length > 0)
         {
             addEntityOperationsLabel();
             addEntityOperationButtons();

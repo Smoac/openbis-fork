@@ -53,7 +53,7 @@ public interface IElement
     /**
      * @return all children {@link IElement}-s.
      */
-    List<IElement> getChildren();
+    IElement[] getChildren();
     
     Map<String, String> getAttributes();
     

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.managed_property;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedComboBoxInputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedTableWidgetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedUiTableActionDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
@@ -103,12 +105,16 @@ public final class ManagedPropertyGridActionDialog extends
             Info.display("confirmed", sb.toString());
         }
 
-        managedAction.getSelectedRows();
-        List<Integer> selectedRows = managedAction.getSelectedRows();
-        selectedRows.clear();
-        for (TableModelRowWithObject<ReportRowModel> rowModel : data)
+        if (managedAction instanceof ManagedUiTableActionDescription)
         {
-            selectedRows.add(rowModel.getObjectOrNull().getRowNumber());
+            ManagedUiTableActionDescription ma = (ManagedUiTableActionDescription) managedAction;
+            List<Integer> selectedRows = new ArrayList<Integer>();
+            selectedRows.clear();
+            for (TableModelRowWithObject<ReportRowModel> rowModel : data)
+            {
+                selectedRows.add(rowModel.getObjectOrNull().getRowNumber());
+            }
+            ma.setSelectedRows(selectedRows);
         }
 
         for (IManagedInputWidgetDescription inputDescription : managedAction

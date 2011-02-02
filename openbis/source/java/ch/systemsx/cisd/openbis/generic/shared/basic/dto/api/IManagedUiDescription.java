@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto.api;
 
-import java.util.List;
-
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
@@ -37,7 +35,7 @@ public interface IManagedUiDescription extends ISerializable
 
     IManagedUiTableAction addTableAction(String name);
 
-    List<IManagedUiAction> getActions();
+    IManagedUiAction[] getActions();
 
     /**
      * Returns description of the widget that will be shown in detail view of the entity owning the
