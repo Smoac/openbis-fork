@@ -20,6 +20,7 @@ public final class Channel extends AbstractHashable
 
     private Integer wavelength;
 
+    /** Constructs a channel with a specified code and label. */
     public Channel(String code, String label)
     {
         assert code != null : "code is null";
@@ -48,11 +49,13 @@ public final class Channel extends AbstractHashable
         return label;
     }
 
+    /** Optional. Sets the description of the channel. */
     public void setDescription(String description)
     {
         this.description = description;
     }
 
+    /** Optional. Sets the wavelength of the channel. */
     public void setWavelength(Integer wavelength)
     {
         this.wavelength = wavelength;

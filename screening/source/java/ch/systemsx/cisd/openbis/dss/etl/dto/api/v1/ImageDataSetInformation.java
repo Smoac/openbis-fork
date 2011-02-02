@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
  * 
  * @author Tomasz Pylak
  */
-public class ImageDataSetInformation extends DataSetInformation
+public class ImageDataSetInformation extends BasicDataSetInformation
 {
     private static final long serialVersionUID = IServer.VERSION;
 
@@ -77,17 +77,20 @@ public class ImageDataSetInformation extends DataSetInformation
 
     // ------ setters
 
+    /** Sets location of the tile (a.k.a. filed or side) on the 'well matrix'. */
     public void setTileGeometry(int tileRowsNumber, int tileColumnsNumber)
     {
         this.tileRowsNumber = tileRowsNumber;
         this.tileColumnsNumber = tileColumnsNumber;
     }
 
+    /** Sets detailed description of the images in the dataset. */
     public void setImages(List<ImageFileInfo> images)
     {
         this.images = images;
     }
 
+    /** Sets all channels available in the dataset. */
     public void setChannels(List<Channel> channels)
     {
         this.channels = channels;
@@ -111,8 +114,8 @@ public class ImageDataSetInformation extends DataSetInformation
     }
 
     /**
-     * Allows to configure various image storage parameters. Set to null if the global configuration
-     * of the storage processor should be used.
+     * Allows to configure various image storage parameters. Set to null if the configuration of the
+     * storage processor should be used.
      */
     public void setImageStorageConfiguraton(ImageStorageConfiguraton imageStorageConfiguratonOrNull)
     {
@@ -130,8 +133,8 @@ public class ImageDataSetInformation extends DataSetInformation
     @Override
     public String toString()
     {
-        return "[ dataset code = " + getDataSetCode() + ", tile Rows Number: " + tileRowsNumber
-                + ", tile Columns Number: " + tileColumnsNumber + ", channels: "
+        return "[ dataset code: " + super.getDataSetCode() + ", tile Rows Number: "
+                + tileRowsNumber + ", tile Columns Number: " + tileColumnsNumber + ", channels: "
                 + CollectionUtils.abbreviate(channels, -1) + ", images: "
                 + CollectionUtils.abbreviate(images, 20);
     }

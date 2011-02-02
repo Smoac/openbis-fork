@@ -37,6 +37,14 @@ public class ThumbnailsStorageFormat
 
     private boolean storeCompressed = DEFAULT_COMPRESS_THUMBNAILS;
 
+    /**
+     * Creates empty object which instructs that the thumbnails should be generated with default
+     * settings. Use setters to change default behaviour (you will probably not have to).
+     */
+    public ThumbnailsStorageFormat()
+    {
+    }
+
     public int getMaxWidth()
     {
         return maxWidth;

@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
 
 /**
- * Color component of an image which constitutes one channel (if the image consists of all channels
- * merged).
+ * Color component of an image which constitutes one channel. Useful if the image consists of all
+ * channels merged together.
  * 
  * @author Tomasz Pylak
  */

@@ -54,6 +54,15 @@ public class ImageStorageConfiguraton
         this.thumbnailsStorageFormatOrNull = thumbnailsStorageFormatOrNull;
     }
 
+    /**
+     * Convenience method to switch on thumbnails generation with default settings. Overrides the
+     * results of {@link #setThumbnailsStorageFormat(ThumbnailsStorageFormat)}!.
+     */
+    public void switchOnThumbnailsGeneration()
+    {
+        this.thumbnailsStorageFormatOrNull = new ThumbnailsStorageFormat();
+    }
+
     public OriginalDataStorageFormat getOriginalDataStorageFormat()
     {
         return originalDataStorageFormat;
