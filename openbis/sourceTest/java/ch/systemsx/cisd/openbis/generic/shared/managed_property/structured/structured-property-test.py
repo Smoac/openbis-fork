@@ -25,7 +25,7 @@ def configureUI():
   #
   # test updating the property contents 
   #
-  elements = converter.convertToElements(property.value)
+  elements = converter.convertToElements(property)
   
   elements[0] = factory.createSampleLink("modifiedLink")
   elements[1].children = [
