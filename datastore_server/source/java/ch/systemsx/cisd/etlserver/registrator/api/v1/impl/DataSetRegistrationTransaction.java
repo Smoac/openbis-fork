@@ -247,7 +247,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
             srcFile = new File(workingDirectory, src);
         }
 
-        File dataSetFolder = dataSet.getDataSetFolder();
+        File dataSetFolder = dataSet.getDataSetStagingFolder();
         File dstFile = new File(dataSetFolder, dstInDataset);
 
         FileUtilities.checkInputFile(srcFile);
@@ -263,7 +263,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     {
         @SuppressWarnings("unchecked")
         DataSet<T> dataSet = (DataSet<T>) dst;
-        File dataSetFolder = dataSet.getDataSetFolder();
+        File dataSetFolder = dataSet.getDataSetStagingFolder();
         File dstFile = new File(dataSetFolder, dirName);
         MkdirsCommand cmd = new MkdirsCommand(dstFile.getAbsolutePath());
         executeCommand(cmd);
@@ -279,7 +279,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     {
         @SuppressWarnings("unchecked")
         DataSet<T> dataSet = (DataSet<T>) dst;
-        File dataSetFolder = dataSet.getDataSetFolder();
+        File dataSetFolder = dataSet.getDataSetStagingFolder();
         File dstFolder = new File(dataSetFolder, dstInDataset);
         File dstFile = new File(dstFolder, fileName);
         NewFileCommand cmd = new NewFileCommand(dstFile.getAbsolutePath());
@@ -305,7 +305,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
 
         for (DataSet<T> dataSet : registeredDataSets)
         {
-            registrationService.queueDataSetRegistration(dataSet.getDataSetFolder(),
+            registrationService.queueDataSetRegistration(dataSet.getDataSetContents(),
                     dataSet.getRegistrationDetails());
         }
         registrationService.commit();

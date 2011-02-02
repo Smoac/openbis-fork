@@ -18,6 +18,7 @@ package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
 import java.io.File;
 
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperimentImmutable;
@@ -55,9 +56,25 @@ public class DataSet<T extends DataSetInformation> implements IDataSet
         return registrationDetails;
     }
 
-    public File getDataSetFolder()
+    public File getDataSetStagingFolder()
     {
         return dataSetFolder;
+    }
+
+    public File getDataSetContents()
+    {
+        File[] contents = dataSetFolder.listFiles();
+        if (contents.length > 1)
+        {
+            throw new EnvironmentFailureException(
+                    "Data set is ambiguous -- there are more than one potential candidates");
+        }
+        if (contents.length < 1)
+        {
+            throw new EnvironmentFailureException("Data set is empty");
+        }
+
+        return contents[0];
     }
 
     public String getDataSetCode()
