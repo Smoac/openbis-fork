@@ -83,6 +83,12 @@ public class DataSetRegistrationDetails<T extends DataSetInformation> implements
         this.fileFormatType = fileFormatType;
     }
 
+    public void setFileFormatType(String fileFormatTypeCode)
+    {
+        this.fileFormatType = new FileFormatType();
+        this.fileFormatType.setCode(fileFormatTypeCode);
+    }
+
     public boolean isMeasuredData()
     {
         return measuredData;
