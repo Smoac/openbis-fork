@@ -18,9 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -44,11 +42,18 @@ public final class DynamicPropertyEvaluationScheduler implements
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
             DynamicPropertyEvaluationScheduler.class);
 
-    private final IExtendedBlockingQueue<DynamicPropertyEvaluationOperation> evaluatorQueue;
-
     /** temporary operation queues for every thread */
-    private Map<Thread, List<DynamicPropertyEvaluationOperation>> operationsByThread =
-            new HashMap<Thread, List<DynamicPropertyEvaluationOperation>>();
+    private static final ThreadLocal<List<DynamicPropertyEvaluationOperation>> threadQueue =
+            new ThreadLocal<List<DynamicPropertyEvaluationOperation>>()
+                {
+                    @Override
+                    protected List<DynamicPropertyEvaluationOperation> initialValue()
+                    {
+                        return new ArrayList<DynamicPropertyEvaluationOperation>();
+                    }
+                };
+
+    private final IExtendedBlockingQueue<DynamicPropertyEvaluationOperation> evaluatorQueue;
 
     public DynamicPropertyEvaluationScheduler()
     {
@@ -97,21 +102,14 @@ public final class DynamicPropertyEvaluationScheduler implements
     public void scheduleUpdate(DynamicPropertyEvaluationOperation operation)
     {
         threadDebugLog("Scheduling update: " + operation);
-        List<DynamicPropertyEvaluationOperation> threadOperations =
-                operationsByThread.get(Thread.currentThread());
-        if (threadOperations == null)
-        {
-            threadOperations = new ArrayList<DynamicPropertyEvaluationOperation>();
-            operationsByThread.put(Thread.currentThread(), threadOperations);
-        }
+        List<DynamicPropertyEvaluationOperation> threadOperations = threadQueue.get();
         threadOperations.add(operation);
     }
 
-    public void synchronize()
+    public void synchronizeThreadQueue()
     {
-        List<DynamicPropertyEvaluationOperation> threadOperations =
-                operationsByThread.get(Thread.currentThread());
-        if (threadOperations != null && threadOperations.size() > 0)
+        List<DynamicPropertyEvaluationOperation> threadOperations = threadQueue.get();
+        if (threadOperations.size() > 0)
         {
             threadDebugLog("Synchronizing scheduled operations");
             for (DynamicPropertyEvaluationOperation operation : threadOperations)
@@ -125,13 +123,20 @@ public final class DynamicPropertyEvaluationScheduler implements
         }
     }
 
+    public void clearThreadQueue()
+    {
+        threadDebugLog("Clearing scheduled operations");
+        List<DynamicPropertyEvaluationOperation> threadOperations = threadQueue.get();
+        threadOperations.clear();
+    }
+
     void threadDebugLog(String msg)
     {
-        if (operationLog.isDebugEnabled())
-        {
-            String threadPrefix = "[" + Thread.currentThread().hashCode() + "]: ";
-            operationLog.info(threadPrefix + msg);
-        }
+        // if (operationLog.isDebugEnabled())
+        // {
+        String threadPrefix = "[" + Thread.currentThread().hashCode() + "]: ";
+        operationLog.info(threadPrefix + msg);
+        // }
     }
 
     public DynamicPropertyEvaluationOperation peekWait() throws InterruptedException

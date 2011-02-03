@@ -86,7 +86,10 @@ public class LockSampleModificationsInterceptor extends EmptyInterceptor
         releaseLockForSampleModifications();
         if (tx.wasCommitted())
         {
-            dynamicPropertyScheduler.synchronize();
+            dynamicPropertyScheduler.synchronizeThreadQueue();
+        } else
+        {
+            dynamicPropertyScheduler.clearThreadQueue();
         }
     }
 

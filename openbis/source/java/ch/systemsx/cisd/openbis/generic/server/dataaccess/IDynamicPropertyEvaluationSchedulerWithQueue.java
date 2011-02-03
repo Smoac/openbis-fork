@@ -48,5 +48,11 @@ public interface IDynamicPropertyEvaluationSchedulerWithQueue extends
      * queue. Should be called after transaction is successfuly commited (otherwise evaluator can
      * work on stale data).
      */
-    void synchronize();
+    void synchronizeThreadQueue();
+
+    /**
+     * Remove all operations scheduled in a transaction handled by current thread with this queue.
+     * Should be called after transaction is rolled back.
+     */
+    void clearThreadQueue();
 }
