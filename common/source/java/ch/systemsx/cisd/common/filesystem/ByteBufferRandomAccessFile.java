@@ -16,8 +16,10 @@
 
 package ch.systemsx.cisd.common.filesystem;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 
 /**
@@ -162,8 +164,7 @@ public class ByteBufferRandomAccessFile implements IRandomAccessFile
 
     public int readUnsignedByte() throws IOExceptionUnchecked
     {
-        final byte b = buf.get();
-        return (b < 0) ? 256 + b : b;
+        return buf.get() & 0xff;
     }
 
     public short readShort() throws IOExceptionUnchecked
@@ -173,8 +174,7 @@ public class ByteBufferRandomAccessFile implements IRandomAccessFile
 
     public int readUnsignedShort() throws IOExceptionUnchecked
     {
-        final short s = buf.get();
-        return (s < 0) ? 65536 + s : s;
+        return buf.getShort() & 0xffff;
     }
 
     public char readChar() throws IOExceptionUnchecked
@@ -210,12 +210,17 @@ public class ByteBufferRandomAccessFile implements IRandomAccessFile
         throw new UnsupportedOperationException();
     }
 
-    /**
-     * @throws UnsupportedOperationException
-     */
-    public String readUTF() throws UnsupportedOperationException
+    public String readUTF()
     {
-        throw new UnsupportedOperationException();
+        try
+        {
+            final byte[] strBuf = new byte[readUnsignedShort()];
+            buf.get(strBuf);
+            return new String(strBuf, "UTF-8");
+        } catch (UnsupportedEncodingException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
     }
 
     public void write(int b) throws IOExceptionUnchecked
@@ -293,12 +298,17 @@ public class ByteBufferRandomAccessFile implements IRandomAccessFile
         }
     }
 
-    /**
-     * @throws UnsupportedOperationException
-     */
     public void writeUTF(String str) throws UnsupportedOperationException
     {
-        throw new UnsupportedOperationException();
+        try
+        {
+            final byte[] strBuf = str.getBytes("UTF-8");
+            writeShort(strBuf.length);
+            write(strBuf);
+        } catch (UnsupportedEncodingException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
     }
 
 }
