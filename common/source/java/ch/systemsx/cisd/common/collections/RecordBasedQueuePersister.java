@@ -150,8 +150,20 @@ public class RecordBasedQueuePersister<E> implements IQueuePersister<E>
             } else
             {
                 this.firstRecord = randomAccessFile.readInt();
+                if (this.firstRecord < 0)
+                {
+                    this.firstRecord = 0;
+                }
                 this.lastRecord = randomAccessFile.readInt();
+                if (this.lastRecord < 0)
+                {
+                    this.lastRecord = 0;
+                }
                 this.recordSize = randomAccessFile.readInt();
+                if (this.recordSize < 0)
+                {
+                    this.recordSize = 0;
+                }
             }
             load(randomAccessFile, queue, firstRecord, lastRecord, recordSize);
             // Clean up
