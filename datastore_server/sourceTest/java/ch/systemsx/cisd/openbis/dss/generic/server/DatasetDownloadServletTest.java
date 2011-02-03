@@ -430,6 +430,7 @@ public class DatasetDownloadServletTest
 
                     one(response).setContentType("image/png");
                     one(response).setContentLength(84);
+                    one(response).addHeader("Cache-Control", "max-age=7200");
                     one(response).setHeader("Content-Disposition",
                             "inline; filename=" + EXAMPLE_FILE_NAME);
                     one(response).getOutputStream();
