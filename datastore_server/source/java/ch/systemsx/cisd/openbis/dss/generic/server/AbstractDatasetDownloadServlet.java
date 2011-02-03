@@ -68,7 +68,7 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
 
     protected static final String CONTENT_TYPE_PNG = "image/png";
 
-    private static final long ONE_WEEK_IN_SECONDS = 60 * 60 * 24 * 7;
+    private static final long IMAGE_CACHE_AGE_IN_SECONDS = 60 * 60 * 2;
 
     private static final Size DEFAULT_THUMBNAIL_SIZE = new Size(100, 60);
 
@@ -225,7 +225,7 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
 
         if (CONTENT_TYPE_PNG.equals(responseStream.getContentType()))
         {
-            response.addHeader("Cache-Control", "max-age=" + ONE_WEEK_IN_SECONDS);
+            response.addHeader("Cache-Control", "max-age=" + IMAGE_CACHE_AGE_IN_SECONDS);
         }
 
         response.setContentType(responseStream.getContentType());
