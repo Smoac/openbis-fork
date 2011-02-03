@@ -37,8 +37,6 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
@@ -69,8 +67,6 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
 
     private final EntityKind entityKind;
 
-    private final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler;
-
     private final IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler;
 
     public EntityPropertyTypeDAO(final EntityKind entityKind,
@@ -79,7 +75,6 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
     {
         super(persistencyResources.getSessionFactoryOrNull(), databaseInstance);
         this.entityKind = entityKind;
-        this.fullTextIndexUpdateScheduler = persistencyResources.getIndexUpdateScheduler();
         this.dynamicPropertyEvaluationScheduler =
                 persistencyResources.getDynamicPropertyEvaluationScheduler();
     }
@@ -306,13 +301,7 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
                     entityKind.getLabel(), property));
         }
 
-        if (property.getEntityTypePropertyType().isDynamic())
-        {
-            scheduleDynamicPropertiesEvaluation(entityIds);
-        } else
-        {
-            scheduleFullTextIndexUpdate(entityIds);
-        }
+        scheduleDynamicPropertiesEvaluation(entityIds);
     }
 
     private String getMemoryUsageMessage()
@@ -451,7 +440,7 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         template.clear();
         template.delete(assignment);
 
-        scheduleFullTextIndexUpdate(entityIds);
+        scheduleDynamicPropertiesEvaluation(entityIds);
 
         if (operationLog.isInfoEnabled())
         {
@@ -462,12 +451,6 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
     }
 
     // helpers
-
-    private void scheduleFullTextIndexUpdate(List<Long> entityIds)
-    {
-        fullTextIndexUpdateScheduler.scheduleUpdate(IndexUpdateOperation.reindex(
-                getIndexedEntityClass(entityKind), entityIds));
-    }
 
     private void scheduleDynamicPropertiesEvaluation(List<Long> entityIds)
     {

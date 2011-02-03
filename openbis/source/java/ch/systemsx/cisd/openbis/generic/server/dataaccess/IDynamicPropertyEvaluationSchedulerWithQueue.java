@@ -16,9 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
-
 /**
- * {@link IDynamicPropertyEvaluationScheduler} extension with methods for reading from the queue.
+ * {@link IDynamicPropertyEvaluationScheduler} extension with methods for dealing with persistent
+ * blocking queue.
  * 
  * @author Piotr Buczek
  */
@@ -42,4 +42,11 @@ public interface IDynamicPropertyEvaluationSchedulerWithQueue extends
      * @throws InterruptedException if interrupted while waiting.
      */
     DynamicPropertyEvaluationOperation take() throws InterruptedException;
+
+    /**
+     * Synchronizes all operations scheduled in a transaction handled by current thread with this
+     * queue. Should be called after transaction is successfuly commited (otherwise evaluator can
+     * work on stale data).
+     */
+    void synchronize();
 }

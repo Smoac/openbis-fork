@@ -17,6 +17,10 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -41,6 +45,10 @@ public final class DynamicPropertyEvaluationScheduler implements
             DynamicPropertyEvaluationScheduler.class);
 
     private final IExtendedBlockingQueue<DynamicPropertyEvaluationOperation> evaluatorQueue;
+
+    /** temporary operation queues for every thread */
+    private Map<Thread, List<DynamicPropertyEvaluationOperation>> operationsByThread =
+            new HashMap<Thread, List<DynamicPropertyEvaluationOperation>>();
 
     public DynamicPropertyEvaluationScheduler()
     {
@@ -88,11 +96,42 @@ public final class DynamicPropertyEvaluationScheduler implements
 
     public void scheduleUpdate(DynamicPropertyEvaluationOperation operation)
     {
+        threadDebugLog("Scheduling update: " + operation);
+        List<DynamicPropertyEvaluationOperation> threadOperations =
+                operationsByThread.get(Thread.currentThread());
+        if (threadOperations == null)
+        {
+            threadOperations = new ArrayList<DynamicPropertyEvaluationOperation>();
+            operationsByThread.put(Thread.currentThread(), threadOperations);
+        }
+        threadOperations.add(operation);
+    }
+
+    public void synchronize()
+    {
+        List<DynamicPropertyEvaluationOperation> threadOperations =
+                operationsByThread.get(Thread.currentThread());
+        if (threadOperations != null && threadOperations.size() > 0)
+        {
+            threadDebugLog("Synchronizing scheduled operations");
+            for (DynamicPropertyEvaluationOperation operation : threadOperations)
+            {
+                evaluatorQueue.add(operation);
+            }
+            threadOperations.clear();
+        } else
+        {
+            threadDebugLog("Nothing to synchronize");
+        }
+    }
+
+    void threadDebugLog(String msg)
+    {
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug("Scheduling update: " + operation);
+            String threadPrefix = "[" + Thread.currentThread().hashCode() + "]: ";
+            operationLog.info(threadPrefix + msg);
         }
-        evaluatorQueue.add(operation);
     }
 
     public DynamicPropertyEvaluationOperation peekWait() throws InterruptedException

@@ -124,13 +124,19 @@
             <bean class="org.springframework.jdbc.support.lob.DefaultLobHandler" />
         </property>
         <property name="entityInterceptor">
-            <bean class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LockSampleModificationsInterceptor"/>
+            <ref bean="hibernate-interceptor" />
         </property>
+    </bean>
+
+    <bean id="hibernate-interceptor"
+          class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LockSampleModificationsInterceptor">
+          <property name="dynamicPropertyScheduler" ref="dynamic-property-scheduler" />
     </bean>
 
     <!--
         // Hibernate Search
     -->
+
 
     <bean id="hibernate-search-context"
         class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.HibernateSearchContext">

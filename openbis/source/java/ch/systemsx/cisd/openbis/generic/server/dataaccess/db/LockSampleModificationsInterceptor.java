@@ -24,6 +24,7 @@ import org.hibernate.Interceptor;
 import org.hibernate.Transaction;
 import org.hibernate.type.Type;
 
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationSchedulerWithQueue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
@@ -39,6 +40,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
  * <br>
  * NOTE: Explicit exclusive lock on 'samples' table cannot be used because H2 database does not
  * support it.
+ * <p>
+ * It also synchronizes all dynamic property evaluations scheduled in a transaction with persistent
+ * queue after transaction is successfuly commited.
+ * </p>
  * 
  * @author Piotr Buczek
  */
@@ -46,6 +51,14 @@ public class LockSampleModificationsInterceptor extends EmptyInterceptor
 {
 
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
+    private IDynamicPropertyEvaluationSchedulerWithQueue dynamicPropertyScheduler;
+
+    public void setDynamicPropertyScheduler(
+            IDynamicPropertyEvaluationSchedulerWithQueue dynamicPropertyScheduler)
+    {
+        this.dynamicPropertyScheduler = dynamicPropertyScheduler;
+    }
 
     //
     // Interceptor
@@ -71,6 +84,10 @@ public class LockSampleModificationsInterceptor extends EmptyInterceptor
     public void afterTransactionCompletion(Transaction tx)
     {
         releaseLockForSampleModifications();
+        if (tx.wasCommitted())
+        {
+            dynamicPropertyScheduler.synchronize();
+        }
     }
 
     //
