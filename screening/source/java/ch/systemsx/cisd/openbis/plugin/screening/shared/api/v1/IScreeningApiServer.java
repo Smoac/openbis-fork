@@ -142,6 +142,34 @@ public interface IScreeningApiServer extends IRpcService
             throws IllegalArgumentException;
 
     /**
+     * For a given set of plates provide the list of all data sets containing raw images for each of
+     * these plates.
+     * 
+     * @since 1.6
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @MinimalMinorVersion(6)
+    List<ImageDatasetReference> listRawImageDatasets(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = ScreeningPlateListReadOnlyPredicate.class) List<? extends PlateIdentifier> plates)
+            throws IllegalArgumentException;
+
+    /**
+     * For a given set of plates provide the list of all data sets containing segmentation images
+     * for each of these plates.
+     * 
+     * @since 1.6
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @MinimalMinorVersion(6)
+    List<ImageDatasetReference> listSegmentationImageDatasets(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = ScreeningPlateListReadOnlyPredicate.class) List<? extends PlateIdentifier> plates)
+            throws IllegalArgumentException;
+
+    /**
      * Converts a given list of dataset codes to dataset identifiers.
      */
     @Transactional(readOnly = true)

@@ -72,72 +72,74 @@ public class ScreeningUtils
     public static <T extends DataPE> List<T> filterImageOverlayDatasets(Collection<T> datasets)
     {
         return filterDatasetsByTypePattern(datasets,
-                ScreeningConstants.IMAGE_OVERLAY_DATASET_TYPE_PATTERN);
+                ScreeningConstants.IMAGE_OVERLAY_DATASET_TYPE_PATTERN,
+                ScreeningConstants.HCS_SEGMENTATION_IMAGE_DATASET_TYPE_PATTERN);
     }
 
-    /** excludes overlays even if they match to the image dataset pattern */
+    /** excludes overlay image data sets even when they match to the image dataset pattern */
     public static List<ExternalDataPE> filterImageDatasets(List<ExternalDataPE> datasets)
     {
-        List<ExternalDataPE> allDatasets = new ArrayList<ExternalDataPE>();
-        List<ExternalDataPE> hcsDatasets =
+        List<ExternalDataPE> allDatasets =
                 filterDatasetsByTypePattern(datasets,
-                        ScreeningConstants.HCS_IMAGE_DATASET_TYPE_PATTERN);
-        List<ExternalDataPE> micDatasets =
-                filterDatasetsByTypePattern(datasets,
+                        ScreeningConstants.HCS_IMAGE_DATASET_TYPE_PATTERN,
                         ScreeningConstants.MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN);
-
-        allDatasets.addAll(hcsDatasets);
-        allDatasets.addAll(micDatasets);
 
         allDatasets =
                 excludeDatasetsByTypePattern(allDatasets,
-                        ScreeningConstants.IMAGE_OVERLAY_DATASET_TYPE_PATTERN);
+                        ScreeningConstants.IMAGE_OVERLAY_DATASET_TYPE_PATTERN,
+                        ScreeningConstants.HCS_SEGMENTATION_IMAGE_DATASET_TYPE_PATTERN);
         return allDatasets;
     }
 
     /** chooses datasets of unknown types */
     public static List<ExternalDataPE> filterUnknownDatasets(List<ExternalDataPE> datasets)
     {
-        List<ExternalDataPE> chosenDatasets = new ArrayList<ExternalDataPE>();
-        for (ExternalDataPE dataset : datasets)
-        {
-            if (isTypeMatching(dataset, ScreeningConstants.HCS_IMAGE_ANALYSIS_DATASET_TYPE_PATTERN) == false
-                    && isTypeMatching(dataset, ScreeningConstants.HCS_IMAGE_DATASET_TYPE_PATTERN) == false
-                    && isTypeMatching(dataset,
-                            ScreeningConstants.MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN) == false
-                    && isTypeMatching(dataset,
-                            ScreeningConstants.IMAGE_OVERLAY_DATASET_TYPE_PATTERN) == false)
-            {
-                chosenDatasets.add(dataset);
-            }
-        }
-        return chosenDatasets;
+        return excludeDatasetsByTypePattern(datasets,
+                ScreeningConstants.HCS_IMAGE_ANALYSIS_DATASET_TYPE_PATTERN,
+                ScreeningConstants.HCS_IMAGE_DATASET_TYPE_PATTERN,
+                ScreeningConstants.HCS_RAW_IMAGE_DATASET_TYPE_PATTERN,
+                ScreeningConstants.HCS_RAW_IMAGE_LEGACY_DATASET_TYPE,
+                ScreeningConstants.IMAGE_OVERLAY_DATASET_TYPE_PATTERN,
+                ScreeningConstants.HCS_SEGMENTATION_IMAGE_DATASET_TYPE_PATTERN,
+                ScreeningConstants.MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN);
     }
 
     private static <T extends DataPE> List<T> excludeDatasetsByTypePattern(List<T> datasets,
-            String datasetTypeCodePattern)
+            String... datasetTypeCodePatterns)
     {
-        return filterDatasetsByTypePattern(datasets, datasetTypeCodePattern, false);
+        return filterDatasetsByTypePattern(datasets, false, datasetTypeCodePatterns);
     }
 
     public static <T extends DataPE> List<T> filterDatasetsByTypePattern(Collection<T> datasets,
-            String datasetTypeCodePattern)
+            String... datasetTypeCodePatterns)
     {
-        return filterDatasetsByTypePattern(datasets, datasetTypeCodePattern, true);
+        return filterDatasetsByTypePattern(datasets, true, datasetTypeCodePatterns);
     }
 
     private static <T extends DataPE> List<T> filterDatasetsByTypePattern(Collection<T> datasets,
-            String datasetTypeCodePattern, boolean shouldMatch)
+            boolean doesMatch, String... datasetTypeCodePatterns)
     {
-        List<T> chosenDatasets = new ArrayList<T>();
+        final List<T> chosenDatasets = new ArrayList<T>();
         for (T dataset : datasets)
         {
-            if (isTypeMatching(dataset, datasetTypeCodePattern) == shouldMatch)
+            if (isOneOfTypesMatching(dataset, datasetTypeCodePatterns) == doesMatch)
             {
                 chosenDatasets.add(dataset);
             }
         }
         return chosenDatasets;
+    }
+
+    private static boolean isOneOfTypesMatching(DataPE dataset, String... datasetTypeCodePatterns)
+    {
+        for (String datasetTypeCodePattern : datasetTypeCodePatterns)
+        {
+            if (isTypeMatching(dataset, datasetTypeCodePattern))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static boolean isTypeMatching(DataPE dataset, String datasetTypeCodePattern)
@@ -145,17 +147,33 @@ public class ScreeningUtils
         return dataset.getDataSetType().getCode().matches(datasetTypeCodePattern);
     }
 
-    public static boolean isBasicHcsImageDataset(ExternalData externalData)
+    public static boolean isHcsImageDataset(ExternalData externalData)
     {
-        return ScreeningUtils.isTypeMatching(externalData,
-                ScreeningConstants.HCS_IMAGE_DATASET_TYPE_PATTERN)
-                && isTypeMatching(externalData,
-                        ScreeningConstants.IMAGE_OVERLAY_DATASET_TYPE_PATTERN) == false;
+        return isOneOfTypesMatching(externalData,
+                ScreeningConstants.HCS_IMAGE_DATASET_TYPE_PATTERN,
+                ScreeningConstants.HCS_RAW_IMAGE_DATASET_TYPE_PATTERN,
+                ScreeningConstants.HCS_RAW_IMAGE_LEGACY_DATASET_TYPE,
+                ScreeningConstants.HCS_SEGMENTATION_IMAGE_DATASET_TYPE_PATTERN);
     }
 
-    public static boolean isTypeMatching(ExternalData dataset, String datasetTypeCodePattern)
+    public static boolean isRawHcsImageDataset(ExternalData externalData)
     {
-        return dataset.getDataSetType().getCode().matches(datasetTypeCodePattern);
+        return isTypeMatching(externalData, ScreeningConstants.HCS_RAW_IMAGE_DATASET_TYPE_PATTERN)
+                || ScreeningConstants.HCS_RAW_IMAGE_LEGACY_DATASET_TYPE.equals(externalData
+                        .getDataSetType().getCode());
+    }
+
+    public static boolean isSegmentationHcsImageDataset(ExternalData externalData)
+    {
+        return isOneOfTypesMatching(externalData,
+                ScreeningConstants.IMAGE_OVERLAY_DATASET_TYPE_PATTERN,
+                ScreeningConstants.HCS_SEGMENTATION_IMAGE_DATASET_TYPE_PATTERN);
+    }
+
+    public static boolean isBasicHcsImageDataset(ExternalData externalData)
+    {
+        return isHcsImageDataset(externalData)
+                && isSegmentationHcsImageDataset(externalData) == false;
     }
 
     public static List<ExternalData> filterExternalDataByTypePattern(
@@ -164,7 +182,7 @@ public class ScreeningUtils
         List<ExternalData> chosenDatasets = new ArrayList<ExternalData>();
         for (ExternalData dataset : datasets)
         {
-            if (isTypeMatching(dataset, datasetTypeCodePatterns))
+            if (isOneOfTypesMatching(dataset, datasetTypeCodePatterns))
             {
                 chosenDatasets.add(dataset);
             }
@@ -172,7 +190,13 @@ public class ScreeningUtils
         return chosenDatasets;
     }
 
-    private static boolean isTypeMatching(ExternalData dataset, String... datasetTypeCodePatterns)
+    public static boolean isTypeMatching(ExternalData dataset, String datasetTypeCodePattern)
+    {
+        return dataset.getDataSetType().getCode().matches(datasetTypeCodePattern);
+    }
+
+    private static boolean isOneOfTypesMatching(ExternalData dataset,
+            String... datasetTypeCodePatterns)
     {
         for (String datasetTypeCodePattern : datasetTypeCodePatterns)
         {

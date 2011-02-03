@@ -180,6 +180,20 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
+    public List<ImageDatasetReference> listRawImageDatasets(String sessionToken,
+            List<? extends PlateIdentifier> plates) throws IllegalArgumentException
+    {
+        logAccess(sessionToken, "listRawImageDatasets", "#plates: %s", plates.size());
+        return null;
+    }
+
+    public List<ImageDatasetReference> listSegmentationImageDatasets(String sessionToken,
+            List<? extends PlateIdentifier> plates) throws IllegalArgumentException
+    {
+        logAccess(sessionToken, "listSegmentationImageDatasets", "#plates: %s", plates.size());
+        return null;
+    }
+
     public List<PlateWellReferenceWithDatasets> listPlateWells(
             String sessionToken,
             ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier experimentIdentifer,

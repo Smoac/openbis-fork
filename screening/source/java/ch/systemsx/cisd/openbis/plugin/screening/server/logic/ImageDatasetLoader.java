@@ -56,11 +56,45 @@ class ImageDatasetLoader extends PlateDatasetLoader
     }
 
     /**
+     * Return the raw image datasets for the specified plates.
+     */
+    private List<ExternalData> getRawImageDatasets()
+    {
+        load();
+        return filterRawImageDatasets();
+    }
+
+    /**
+     * Return the segmentation image datasets (overlays) for the specified plates.
+     */
+    private List<ExternalData> getSegmentationImageDatasets()
+    {
+        load();
+        return filterSegmententationImageDatasets();
+    }
+
+    /**
      * Return the image datasets references for the specified plates.
      */
     public List<ImageDatasetReference> getImageDatasetReferences()
     {
         return asImageDatasetReferences(getImageDatasets());
+    }
+
+    /**
+     * Return the raw image datasets references for the specified plates.
+     */
+    public List<ImageDatasetReference> getRawImageDatasetReferences()
+    {
+        return asImageDatasetReferences(getRawImageDatasets());
+    }
+
+    /**
+     * Return the segmentation image datasets references for the specified plates.
+     */
+    public List<ImageDatasetReference> getSegmentationImageDatasetReferences()
+    {
+        return asImageDatasetReferences(getSegmentationImageDatasets());
     }
 
     private List<ExternalData> filterImageDatasets()
@@ -69,6 +103,32 @@ class ImageDatasetLoader extends PlateDatasetLoader
         for (ExternalData externalData : getDatasets())
         {
             if (ScreeningUtils.isBasicHcsImageDataset(externalData))
+            {
+                result.add(externalData);
+            }
+        }
+        return result;
+    }
+
+    private List<ExternalData> filterRawImageDatasets()
+    {
+        List<ExternalData> result = new ArrayList<ExternalData>();
+        for (ExternalData externalData : getDatasets())
+        {
+            if (ScreeningUtils.isRawHcsImageDataset(externalData))
+            {
+                result.add(externalData);
+            }
+        }
+        return result;
+    }
+
+    private List<ExternalData> filterSegmententationImageDatasets()
+    {
+        List<ExternalData> result = new ArrayList<ExternalData>();
+        for (ExternalData externalData : getDatasets())
+        {
+            if (ScreeningUtils.isSegmentationHcsImageDataset(externalData))
             {
                 result.add(externalData);
             }
@@ -86,12 +146,28 @@ class ImageDatasetLoader extends PlateDatasetLoader
         return references;
     }
 
+    private ExternalData tryGetParent(ExternalData externalData)
+    {
+        if (externalData.getParents() != null && externalData.getParents().size() == 1)
+        {
+            return externalData.getParents().iterator().next();
+        } else
+        {
+            return null;
+        }
+    }
+
     protected ImageDatasetReference asImageDataset(ExternalData externalData)
     {
+        if (externalData == null || ScreeningUtils.isHcsImageDataset(externalData) == false)
+        {
+            return null;
+        }
         DataStore dataStore = externalData.getDataStore();
         return new ImageDatasetReference(externalData.getCode(),
                 getDataStoreUrlFromDataStore(dataStore), createPlateIdentifier(externalData),
                 createExperimentIdentifier(externalData), extractPlateGeometry(externalData),
-                externalData.getRegistrationDate(), extractProperties(externalData));
+                externalData.getRegistrationDate(), extractProperties(externalData),
+                asImageDataset(tryGetParent(externalData)));
     }
 }

@@ -91,9 +91,25 @@ public interface IScreeningOpenbisServiceFacade
             List<? extends PlateIdentifier> plates);
 
     /**
-     * For a given set of plates provides the list of all connected data sets containing images.
+     * For a given set of plates provides the list of all connected data sets containing images
+     * which are not segmentation images.
+     * 
+     * @deprecated Use {@link #listRawImageDatasets(List)} instead.
      */
+    @Deprecated
     public List<ImageDatasetReference> listImageDatasets(List<? extends PlateIdentifier> plates);
+
+    /**
+     * For a given set of plates provides the list of all connected data sets containing raw images.
+     */
+    public List<ImageDatasetReference> listRawImageDatasets(List<? extends PlateIdentifier> plates);
+
+    /**
+     * For a given set of plates provides the list of all connected data sets containing
+     * segmentation images (overlays).
+     */
+    public List<ImageDatasetReference> listSegmentationImageDatasets(
+            List<? extends PlateIdentifier> plates);
 
     /**
      * For the given <var>experimentIdentifier</var> find all plate locations that are connected to

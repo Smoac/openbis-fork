@@ -42,10 +42,20 @@ public class ScreeningConstants
     // type of the dataset which stores plate image overlays
     public static final String IMAGE_OVERLAY_DATASET_TYPE_PATTERN = ".*OVERLAY.*";
 
+    // type of the dataset which stores plate image overlays
+    public static final String HCS_SEGMENTATION_IMAGE_DATASET_TYPE_PATTERN =
+            "HCS_IMAGE_SEGMENTATION.*";
+
+    // Type of the dataset which stores raw plate images.
+    public static final String HCS_RAW_IMAGE_DATASET_TYPE_PATTERN = "HCS_IMAGE_RAW.*";
+
+    // The plain old legacy type for raw image data sets.
+    public static final String HCS_RAW_IMAGE_LEGACY_DATASET_TYPE = "HCS_IMAGE";
+    
     // Type of the dataset which stores plate images.
     // We do not want old analysis data to match to this pattern.
     public static final String HCS_IMAGE_DATASET_TYPE_PATTERN =
-            ".*HCS_IMAGE($|[^_].*|_[^A].*|_A[^N].*|_AN[^A].*)";
+            ".*" + HCS_RAW_IMAGE_LEGACY_DATASET_TYPE + "($|[^_].*|_[^A].*|_A[^N].*|_AN[^A].*)";
 
     public static final String HCS_PLATE_SAMPLE_TYPE_PATTERN = ".*PLATE.*";
 
@@ -80,7 +90,7 @@ public class ScreeningConstants
 
     /** It's discouraged to use this constant. Code of the siRNA material type. */
     public static final String SIRNA_PLUGIN_TYPE_NAME = "SIRNA";
-    
+
     public static final String SIRNA_WELL_TYPE_CODE = "SIRNA_WELL";
 
     /** It's discouraged to use this constant. */

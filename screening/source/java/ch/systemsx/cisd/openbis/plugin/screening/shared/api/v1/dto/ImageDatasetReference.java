@@ -28,25 +28,51 @@ public class ImageDatasetReference extends DatasetReference implements IImageDat
 {
     private static final long serialVersionUID = 1L;
 
+    private final ImageDatasetReference parentImageDatasetReference;
+
     @Deprecated
     public ImageDatasetReference(String datasetCode, String datastoreServerUrl,
             PlateIdentifier plate)
     {
-        super(datasetCode, datastoreServerUrl, plate);
+        this(datasetCode, datastoreServerUrl, plate, null, null, null, null, null);
     }
 
     @Deprecated
     public ImageDatasetReference(String datasetCode, String datastoreServerUrl,
             PlateIdentifier plate, Geometry plateGemoetry, Date registrationDate)
     {
-        super(datasetCode, datastoreServerUrl, plate, plateGemoetry, registrationDate);
+        this(datasetCode, datastoreServerUrl, plate, null, plateGemoetry, registrationDate, null,
+                null);
     }
 
+    @Deprecated
     public ImageDatasetReference(String datasetCode, String datastoreServerUrl,
             PlateIdentifier plate, ExperimentIdentifier experimentIdentifier,
             Geometry plateGemoetry, Date registrationDate, Map<String, String> propertiesOrNull)
     {
+        this(datasetCode, datastoreServerUrl, plate, experimentIdentifier, plateGemoetry,
+                registrationDate, propertiesOrNull, null);
+    }
+
+    public ImageDatasetReference(String datasetCode, String datastoreServerUrl,
+            PlateIdentifier plate, ExperimentIdentifier experimentIdentifier,
+            Geometry plateGemoetry, Date registrationDate, Map<String, String> propertiesOrNull,
+            ImageDatasetReference parentImageSetsetReference)
+    {
         super(datasetCode, datastoreServerUrl, plate, experimentIdentifier, plateGemoetry,
                 registrationDate, propertiesOrNull);
+        this.parentImageDatasetReference = parentImageSetsetReference;
     }
+
+    /**
+     * Returns the image parent dataset of this data set, or <code>null</code>, if this data set
+     * doesn't have a parent image dataset or the server version is too old (&lt; 1.6) to fill it.
+     * 
+     * @since 1.6
+     */
+    public ImageDatasetReference getParentImageDatasetReference()
+    {
+        return parentImageDatasetReference;
+    }
+
 }

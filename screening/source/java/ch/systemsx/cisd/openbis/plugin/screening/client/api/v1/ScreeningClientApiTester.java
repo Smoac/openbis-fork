@@ -220,7 +220,7 @@ public class ScreeningClientApiTester
         private void loadImagesByDataSetCode()
         {
             Form form = new Form(this, "Parameters for Loading Images by Data Set");
-            List<ImageDatasetReference> dataSets = facade.listImageDatasets(facade.listPlates());
+            List<ImageDatasetReference> dataSets = facade.listRawImageDatasets(facade.listPlates());
             List<String> dataSetCodes = new ArrayList<String>();
             for (ImageDatasetReference imageDataset : dataSets)
             {

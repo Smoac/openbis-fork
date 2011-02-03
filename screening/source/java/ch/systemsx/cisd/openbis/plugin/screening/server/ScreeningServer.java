@@ -244,6 +244,18 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         return createScreeningApiImpl(sessionToken).listImageDatasets(plates);
     }
 
+    public List<ImageDatasetReference> listRawImageDatasets(String sessionToken,
+            List<? extends PlateIdentifier> plates)
+    {
+        return createScreeningApiImpl(sessionToken).listRawImageDatasets(plates);
+    }
+
+    public List<ImageDatasetReference> listSegmentationImageDatasets(String sessionToken,
+            List<? extends PlateIdentifier> plates)
+    {
+        return createScreeningApiImpl(sessionToken).listSegmentationImageDatasets(plates);
+    }
+
     public List<PlateWellReferenceWithDatasets> listPlateWells(
             String sessionToken,
             ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier experimentIdentifer,

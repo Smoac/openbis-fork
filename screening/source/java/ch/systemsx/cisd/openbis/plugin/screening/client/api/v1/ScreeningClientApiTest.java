@@ -114,7 +114,7 @@ public class ScreeningClientApiTest
 
         List<Plate> plates = facade.listPlates();
         print("Plates: " + plates);
-        List<ImageDatasetReference> imageDatasets = facade.listImageDatasets(plates);
+        List<ImageDatasetReference> imageDatasets = facade.listRawImageDatasets(plates);
         Collections.sort(imageDatasets, new Comparator<ImageDatasetReference>()
             {
                 public int compare(ImageDatasetReference r1, ImageDatasetReference r2)

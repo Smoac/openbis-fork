@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -264,12 +265,43 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     }
 
     /**
-     * For a given set of plates provides the list of all connected data sets containing images.
+     * For a given set of plates provides the list of all connected data sets containing raw images.
+     * 
+     * @deprecated Use {@link #listRawImageDatasets(List)} instead.
      */
+    @Deprecated
     public List<ImageDatasetReference> listImageDatasets(List<? extends PlateIdentifier> plates)
     {
         checkASMinimalMinorVersion("listImageDatasets", List.class);
         return openbisScreeningServer.listImageDatasets(sessionToken, plates);
+    }
+
+    /**
+     * For a given set of plates provides the list of all connected data sets containing raw images.
+     */
+    public List<ImageDatasetReference> listRawImageDatasets(List<? extends PlateIdentifier> plates)
+    {
+        if (hasASMethod("listRawImageDatasets", List.class))
+        {
+            return openbisScreeningServer.listRawImageDatasets(sessionToken, plates);
+        } else
+        {
+            checkASMinimalMinorVersion("listImageDatasets", List.class);
+            return openbisScreeningServer.listImageDatasets(sessionToken, plates);
+        }
+    }
+
+    /**
+     * For a given set of plates provides the list of all connected data sets containing images.
+     */
+    public List<ImageDatasetReference> listSegmentationImageDatasets(
+            List<? extends PlateIdentifier> plates)
+    {
+        if (hasASMethod("listSegmentationImageDatasets", List.class))
+        {
+            return openbisScreeningServer.listSegmentationImageDatasets(sessionToken, plates);
+        }
+        return Collections.emptyList();
     }
 
     /**

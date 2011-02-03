@@ -125,6 +125,18 @@ public class ScreeningApiImpl
                 session.tryGetHomeGroupCode(), plates).getImageDatasetReferences();
     }
 
+    public List<ImageDatasetReference> listRawImageDatasets(List<? extends PlateIdentifier> plates)
+    {
+        return new ImageDatasetLoader(session, businessObjectFactory,
+                session.tryGetHomeGroupCode(), plates).getRawImageDatasetReferences();
+    }
+
+    public List<ImageDatasetReference> listSegmentationImageDatasets(List<? extends PlateIdentifier> plates)
+    {
+        return new ImageDatasetLoader(session, businessObjectFactory,
+                session.tryGetHomeGroupCode(), plates).getSegmentationImageDatasetReferences();
+    }
+
     public List<Plate> listPlates()
     {
         final ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);

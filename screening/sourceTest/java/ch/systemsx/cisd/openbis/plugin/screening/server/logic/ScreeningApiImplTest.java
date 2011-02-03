@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -171,6 +172,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
             });
 
         List<ImageDatasetReference> dataSets = screeningApi.listImageDatasets(Arrays.asList(pi1));
+        assertEquals(1, dataSets.size());
         assertEquals("1", dataSets.get(0).getDatasetCode());
         assertEquals(Geometry.createFromRowColDimensions(16, 24), dataSets.get(0)
                 .getPlateGeometry());
@@ -179,7 +181,87 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
         // FIXME this check doesn't work because of space code (as well as 2 other cases below)
         // assertEquals(pi1, dataSets.get(0).getPlate());
         assertEquals(pi1.getPlateCode(), dataSets.get(0).getPlate().getPlateCode());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testListRawImageDatasets()
+    {
+        final PlateIdentifier pi1 = createSharedPlate("p1");
+        context.checking(new Expectations()
+            {
+                {
+                    one(screeningBOFactory).createSampleLister(SESSION);
+                    will(returnValue(sampleLister));
+                    one(sampleLister).list(with(any(ListOrSearchSampleCriteria.class)));
+                    Sample p1 = plateSample(pi1, "384_WELLS_16X24");
+                    will(returnValue(Arrays.asList(p1)));
+
+                    one(screeningBOFactory).createDatasetLister(SESSION);
+                    will(returnValue(datasetLister));
+                    one(datasetLister).listBySampleIds(with(Arrays.asList((long) 1)));
+                    will(returnValue(Arrays.asList(imageRawDataSet(p1, "1", 1),
+                            imageRawDataSet(p1, "2", 2), imageAnalysisDataSet(p1, "3", 3))));
+                }
+            });
+
+        List<ImageDatasetReference> dataSets =
+                screeningApi.listRawImageDatasets(Arrays.asList(pi1));
+        assertEquals(2, dataSets.size());
+        assertEquals("1", dataSets.get(0).getDatasetCode());
+        assertEquals("2", dataSets.get(1).getDatasetCode());
+        assertEquals(Geometry.createFromRowColDimensions(16, 24), dataSets.get(0)
+                .getPlateGeometry());
+        assertEquals(Geometry.createFromRowColDimensions(16, 24), dataSets.get(1)
+                .getPlateGeometry());
+        assertEquals(new Date(100), dataSets.get(0).getRegistrationDate());
+        assertEquals(new Date(200), dataSets.get(1).getRegistrationDate());
+        assertEquals(SERVER_URL, dataSets.get(0).getDatastoreServerUrl());
+        assertEquals(SERVER_URL, dataSets.get(1).getDatastoreServerUrl());
+        // FIXME this check doesn't work because of space code (as well as 2 other cases below)
+        // assertEquals(pi1, dataSets.get(0).getPlate());
+        assertEquals(pi1.getPlateCode(), dataSets.get(0).getPlate().getPlateCode());
+        assertEquals(pi1.getPlateCode(), dataSets.get(1).getPlate().getPlateCode());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testListSegmentationImageDatasets()
+    {
+        final PlateIdentifier pi1 = createSharedPlate("p1");
+        context.checking(new Expectations()
+            {
+                {
+                    one(screeningBOFactory).createSampleLister(SESSION);
+                    will(returnValue(sampleLister));
+                    one(sampleLister).list(with(any(ListOrSearchSampleCriteria.class)));
+                    Sample p1 = plateSample(pi1, "384_WELLS_16X24");
+                    will(returnValue(Arrays.asList(p1)));
+
+                    one(screeningBOFactory).createDatasetLister(SESSION);
+                    will(returnValue(datasetLister));
+                    one(datasetLister).listBySampleIds(with(Arrays.asList((long) 1)));
+                    final ExternalData rawImage = imageRawDataSet(p1, "2", 2);
+                    will(returnValue(Arrays.asList(imageDataSet(p1, "1", 1), rawImage,
+                            imageSegmentationDataSet(p1, "3", 3, rawImage),
+                            imageAnalysisDataSet(p1, "4", 4))));
+                }
+            });
+
+        List<ImageDatasetReference> dataSets =
+                screeningApi.listSegmentationImageDatasets(Arrays.asList(pi1));
         assertEquals(1, dataSets.size());
+        assertEquals("3", dataSets.get(0).getDatasetCode());
+        assertEquals(Geometry.createFromRowColDimensions(16, 24), dataSets.get(0)
+                .getPlateGeometry());
+        assertEquals(new Date(300), dataSets.get(0).getRegistrationDate());
+        assertEquals(SERVER_URL, dataSets.get(0).getDatastoreServerUrl());
+        assertEquals("2", dataSets.get(0).getParentImageDatasetReference().getDatasetCode());
+        assertEquals(SERVER_URL, dataSets.get(0).getParentImageDatasetReference()
+                .getDatastoreServerUrl());
+        // FIXME this check doesn't work because of space code (as well as 2 other cases below)
+        // assertEquals(pi1, dataSets.get(0).getPlate());
+        assertEquals(pi1.getPlateCode(), dataSets.get(0).getPlate().getPlateCode());
         context.assertIsSatisfied();
     }
 
@@ -362,6 +444,28 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
     {
         ExternalData dataSet = createDataSet(sample, code, id);
         dataSet.setDataSetType(dataSetType("HCS_IMAGE"));
+        dataSet.setExperiment(new Experiment());
+        dataSet.getExperiment().setProject(new Project());
+        dataSet.getExperiment().getProject().setSpace(new Space());
+        return dataSet;
+    }
+
+    private ExternalData imageRawDataSet(Sample sample, String code, long id)
+    {
+        ExternalData dataSet = createDataSet(sample, code, id);
+        dataSet.setDataSetType(dataSetType("HCS_IMAGE_RAW"));
+        dataSet.setExperiment(new Experiment());
+        dataSet.getExperiment().setProject(new Project());
+        dataSet.getExperiment().getProject().setSpace(new Space());
+        return dataSet;
+    }
+
+    private ExternalData imageSegmentationDataSet(Sample sample, String code, long id,
+            ExternalData parent)
+    {
+        ExternalData dataSet = createDataSet(sample, code, id);
+        dataSet.setDataSetType(dataSetType("HCS_IMAGE_SEGMENTATION"));
+        dataSet.setParents(Collections.singleton(parent));
         dataSet.setExperiment(new Experiment());
         dataSet.getExperiment().setProject(new Project());
         dataSet.getExperiment().getProject().setSpace(new Space());
