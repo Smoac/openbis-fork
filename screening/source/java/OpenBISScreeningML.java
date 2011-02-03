@@ -31,8 +31,8 @@ import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.client.cli.Login;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.IScreeningOpenbisServiceFacade;
-import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacadeFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade.IImageOutputStreamProvider;
+import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacadeFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
@@ -363,7 +363,7 @@ public class OpenBISScreeningML
             return new Object[0][];
         }
         final List<ImageDatasetReference> imageDatasets =
-                openbis.listImageDatasets(experimentPlates);
+                openbis.listRawImageDatasets(experimentPlates);
         if (imageDatasets.isEmpty())
         {
             return new Object[0][];
@@ -520,7 +520,7 @@ public class OpenBISScreeningML
             throw new RuntimeException("No plate with that code found.");
         }
         final List<ImageDatasetReference> imageDatasets =
-                openbis.listImageDatasets(Arrays.asList(plateId));
+                openbis.listRawImageDatasets(Arrays.asList(plateId));
         final List<ImageDatasetMetadata> meta = openbis.listImageMetadata(imageDatasets);
         if (meta.isEmpty())
         {
