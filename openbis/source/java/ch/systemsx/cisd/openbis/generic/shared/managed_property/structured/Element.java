@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.managed_property.structured;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,9 +36,9 @@ public class Element implements IElement
 
     private final String name;
 
-    private Map<String, String> attributes = new HashMap<String, String>();
+    private final Map<String, String> attributes = new HashMap<String, String>();
 
-    private List<IElement> children = new ArrayList<IElement>();
+    private final List<IElement> children = new ArrayList<IElement>();
 
     private String data;
 
@@ -64,14 +64,14 @@ public class Element implements IElement
         return data;
     }
 
-    public IElement[] getChildren()
+    public List<IElement> getChildren()
     {
-        return children.toArray(new IElement[children.size()]);
+        return Collections.unmodifiableList(children);
     }
 
     public Map<String, String> getAttributes()
     {
-        return attributes;
+        return Collections.unmodifiableMap(attributes);
     }
 
 
@@ -82,15 +82,17 @@ public class Element implements IElement
         {
             validateAttribute(entry.getKey(), entry.getValue());
         }
-        this.attributes = newAttributes;
+        this.attributes.clear();
+        this.attributes.putAll(newAttributes);
         return this;
     }
 
 
-    public IElement setChildren(IElement[] newChildren)
+    public IElement setChildren(List<IElement> newChildren)
     {
         assert newChildren != null : "Setting null children is not allowed.";
-        this.children = new ArrayList<IElement>(Arrays.asList(newChildren));
+        this.children.clear();
+        this.children.addAll(newChildren);
         return this;
     }
 

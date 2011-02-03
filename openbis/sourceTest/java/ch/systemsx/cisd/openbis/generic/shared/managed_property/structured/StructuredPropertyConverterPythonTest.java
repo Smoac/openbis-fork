@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.managed_property.structured;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.AssertJUnit;
@@ -53,10 +54,10 @@ public class StructuredPropertyConverterPythonTest extends AssertJUnit
         evaluator.configureUI(managedProperty);
 
         // the script will create several elements and serialize them in the property value
-        IElement[] elements =
+        List<IElement> elements =
                 ScriptUtilityFactory.createPropertyConverter().convertToElements(managedProperty);
 
-        assertEquals(3, elements.length);
+        assertEquals(3, elements.size());
     }
 
     /**

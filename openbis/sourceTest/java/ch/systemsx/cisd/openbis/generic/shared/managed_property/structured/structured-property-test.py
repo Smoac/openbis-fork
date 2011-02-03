@@ -25,13 +25,13 @@ def configureUI():
   #
   # test updating the property contents 
   #
-  elements = converter.convertToElements(property)
+  elements = list(converter.convertToElements(property))
   
   elements[0] = factory.createSampleLink("modifiedLink")
   elements[1].children = [
       factory.createElement("nested1").addAttribute("na1", "na2")
   ]
-  elements[2].attributes["key2"] = "modifiedvalue"
+  elements[2].addAttribute("key2", "modifiedvalue")
   property.value = converter.convertToString(elements)
   
 

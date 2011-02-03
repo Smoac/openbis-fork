@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.shared.managed_property.structured;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -57,17 +59,17 @@ public class XmlStructuredPropertyConverter implements IStructuredPropertyConver
         this.factory = factory;
     }
 
-    public IElement[] convertToElements(IManagedProperty property)
+    public List<IElement> convertToElements(IManagedProperty property)
     {
-        return property.isSpecialValue() ? new IElement[0]
+        return property.isSpecialValue() ? Collections.<IElement> emptyList()
                 : convertStringToElements(property.getValue());
     }
 
-    public IElement[] convertStringToElements(String propertyValue)
+    public List<IElement> convertStringToElements(String propertyValue)
     {
         if (StringUtils.isBlank(propertyValue))
         {
-            return new IElement[0];
+            return Collections.<IElement> emptyList();
         }
 
         Document document = XmlUtils.parseXmlDocument(propertyValue);
@@ -75,7 +77,7 @@ public class XmlStructuredPropertyConverter implements IStructuredPropertyConver
         return root.getChildren();
     }
 
-    public String convertToString(IElement[] elements)
+    public String convertToString(List<IElement> elements)
     {
         IElement root = createRootElement(elements);
         Document doc = createEmptyDocument();
@@ -85,7 +87,7 @@ public class XmlStructuredPropertyConverter implements IStructuredPropertyConver
         return XmlUtils.serializeDocument(doc);
     }
 
-    private IElement createRootElement(IElement[] elements)
+    private IElement createRootElement(List<IElement> elements)
     {
         IElement root = new Element(ROOT_NAME);
         root.setChildren(elements);
@@ -136,22 +138,23 @@ public class XmlStructuredPropertyConverter implements IStructuredPropertyConver
 
         }
 
-        result.setChildren(children.toArray(new IElement[children.size()]));
+        result.setChildren(children);
         return result;
     }
 
     private void transformAttributesFromDOM(Node node, IElement result)
     {
         NamedNodeMap domAttributes = node.getAttributes();
-        Map<String, String> attributes = result.getAttributes();
         if (domAttributes != null)
         {
+            Map<String, String> attributes = new HashMap<String, String>();
             for (int i = 0; i < domAttributes.getLength(); i++)
             {
                 Attr domAttr = (Attr) domAttributes.item(i);
                 String unescapedValue = StringEscapeUtils.unescapeXml(domAttr.getValue());
                 attributes.put(domAttr.getName(), unescapedValue);
             }
+            result.setAttributes(attributes);
         }
     }
 
