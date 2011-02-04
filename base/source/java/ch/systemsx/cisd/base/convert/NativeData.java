@@ -21,13 +21,18 @@ import ch.systemsx.cisd.base.utilities.NativeLibraryUtilities;
  * This class encapsulates native methods to deal with arrays of numbers, converting from numbers to
  * bytes and bytes to numbers.
  * <p>
- * These routines are used by class <b>HDFArray</b> to pass data to and from the HDF-5 library.
+ * These routines are used by class <b>HDFArray</b> to pass data to and from the HDF5 library.
  * <p>
  * Methods copyXxxToByte() convert a Java array of primitive numbers (int, short, ...) to a Java
  * array of bytes. Methods copyByteToXxx() convert from a Java array of bytes into a Java array of
  * primitive numbers (int, short, ...)
  * <p>
- * Variant interfaces convert a section of an array.
+ * Variant interfaces convert only a sub-array.
+ * <p>
+ * The class has optimized methods using jni-libraries for some common platforms and a pure-java
+ * implementation (called <i>javamode</i> if the jni-libraries are not available). If you want to
+ * enforce <i>javamode</i>, you need to pass the property <code>nativedata.javamode=true</code> to
+ * the JRE.
  */
 public class NativeData
 {
