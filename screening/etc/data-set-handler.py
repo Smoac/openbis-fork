@@ -12,6 +12,9 @@ from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import *
 from ch.systemsx.cisd.openbis.dss.etl.custom.geexplorer import GEExplorerImageAnalysisResultParser
 from java.io import File
 
+from ch.systemsx.cisd.common.fileconverter import FileConverter, Tiff2PngConversionStrategy
+from ch.systemsx.cisd.common.mail import From
+
 # ------------
 # Dropbox specific image dataset registration. You may want to modify this part.
 # ------------
@@ -273,13 +276,13 @@ Tokenizes file names of all images in the directory.
 Returns: 
   list of ImageTokens
 """
-def parse_image_tokens(dir):
+def parse_image_tokens(dir, recognized_image_extensions):
     image_tokens_list = []
     dir_path = dir.getPath()
     for file in os.listdir(dir_path):
         ext = get_file_ext(file)
         try:
-            extIx = RECOGNIZED_IMAGES_EXTENSIONS.index(ext)
+            extIx = recognized_image_extensions.index(ext)
             # not reached if extension not found
             image_tokens = create_image_tokens(file)
             #print "tile", image_tokens.tile, "path", image_tokens.path, "well", image_tokens.well
@@ -318,7 +321,7 @@ def set_image_dataset(incoming, dataset):
     dataset.setSample(PLATE_SPACE, sample_code)
     dataset.setMeasured(True)
 
-    image_tokens_list = parse_image_tokens(incoming)
+    image_tokens_list = parse_image_tokens(incoming, RECOGNIZED_IMAGES_EXTENSIONS)
     tile_geometry = get_tile_geometry(image_tokens_list)
     images = create_image_infos(image_tokens_list, tile_geometry)
     channels = get_available_channels(images)
@@ -336,8 +339,9 @@ Parameters:
     image_dataset - ImageDataSetInformation, image dataset to which the overlay dataset belongs
     img_dataset_code - string, code of the  image dataset to which the overlay dataset belongs
     overlay_dataset - ImageDataSetInformation where the result will be stored
+    extension - accepted image file extensions
 """
-def set_overlay_dataset(overlays_dir, image_dataset, img_dataset_code, overlay_dataset):
+def set_overlay_dataset(overlays_dir, image_dataset, img_dataset_code, overlay_dataset, extension):
     overlay_dataset.setDatasetTypeCode(OVERLAY_IMAGE_DATASET_TYPE)
     overlay_dataset.setFileFormatCode(OVERLAY_IMAGE_FILE_FORMAT)
 
@@ -345,7 +349,11 @@ def set_overlay_dataset(overlays_dir, image_dataset, img_dataset_code, overlay_d
     overlay_dataset.setMeasured(False)
     overlay_dataset.setParentDatasetCode(img_dataset_code)
 
-    image_tokens_list = parse_image_tokens(overlays_dir)
+    if extension == None:
+        recognized_image_exts = RECOGNIZED_IMAGES_EXTENSIONS
+    else:
+        recognized_image_exts = [ extension ]
+    image_tokens_list = parse_image_tokens(overlays_dir, recognized_image_exts)
     tile_geometry = (image_dataset.getTileRowsNumber(), image_dataset.getTileColumnsNumber())
     images = create_image_infos(image_tokens_list, tile_geometry)
     channels = get_available_channels(images)
@@ -363,10 +371,10 @@ Parameters:
 Returns:
     DataSetRegistrationDetails
 """
-def create_overlay_dataset_details(overlays_dir, image_dataset, img_dataset_code):
+def create_overlay_dataset_details(overlays_dir, image_dataset, img_dataset_code, extension):
     overlay_dataset_details = factory.createImageRegistrationDetails()
     overlay_dataset = overlay_dataset_details.getDataSetInformation()
-    set_overlay_dataset(overlays_dir, image_dataset, img_dataset_code, overlay_dataset)
+    set_overlay_dataset(overlays_dir, image_dataset, img_dataset_code, overlay_dataset, extension)
     set_dataset_details(overlay_dataset, overlay_dataset_details)
 
     config = ImageStorageConfiguraton.createDefault()
@@ -429,53 +437,41 @@ def register_sample_if_necessary(space_code, project_code, experiment_code, samp
         openbis.registerSample(sample, None)
 
 # ---------------------
+
+def debug(*msg):
+    print "".join(msg)
+    
+def convert_to_png(dir, transparent_color):
+    strategy = Tiff2PngConversionStrategy(transparent_color)
+    # Uses #cores * machineLoad threads for the conversion, but not more than maxThreads
+    machineLoad = 1
+    maxThreads = 4
+    status = FileConverter.performConversion(File(dir), strategy, machineLoad, maxThreads)
+    errorMsg = FileConverter.tryFailuresToString(status)
+    if errorMsg != None:
+        raise Exception("Error", errorMsg)
+
+def notify(plate_code):
+    content  = "Dear Mr./Mrs.\n"
+    hostname = "http://bwl27.sanofi-aventis.com:8443/openbis"
+    plate_link = "<a href="+hostname+"#entity=SAMPLE&action=SEARCH&code="+plate_code+">"+plate_code+"</a>"
+    content += "Data for the plate " + plate_link + " has been registered.\n"
+    content += "\n"
+    content += "Have a nice day!\n"
+    content += "   openBIS\n"
+    replyAddress = "Matthew.Smicker@sanofi-aventis.com"
+    fromAddress = From("openbis@sanofi-aventis.com")
+    recipients = [ "Matthew.Smicker@sanofi-aventis.com", "tpylak@ethz.ch" ] 
+    state.mailClient.sendMessage("openBIS: registration finished", content, replyAddress, fromAddress, recipients)
+
        
 """
 Allows to recognize that the subdirectory of the incoming dataset directory contains overlay images.
 This text has to appear in the subdirectory name. 
 """
-OVERLAYS_DIR_PATTERN = "overlays"
+OVERLAYS_DIR_PATTERN = "_ROITiff"
 
 def register_images_with_overlays_and_analysis(incoming):
-    if not incoming.isDirectory():
-        return
-    
-    # move overlays folder
-    overlays_dir = find_dir(incoming, OVERLAYS_DIR_PATTERN)
-    if overlays_dir != None:
-        overlays_label = "overlays"
-        tmp_overlays_parent_dir = get_tmp_dir(incoming, overlays_label)
-        tmp_overlays_dir = File(tmp_overlays_parent_dir, overlays_label)
-        os.rename(overlays_dir.getPath(), tmp_overlays_dir.getPath())
-
-    # transform and move analysis file
-    analysis_file = find_file_by_ext(incoming, "xml")
-    if analysis_file != None:
-        tmp_analysis_dir = get_tmp_dir(incoming, "image-analysis")
-        tmp_analysis_file = File(tmp_analysis_dir, analysis_file.getName())
-        GEExplorerImageAnalysisResultParser(analysis_file.getPath()).writeCSV(tmp_analysis_file)
-
-    # register image dataset            
-    image_dataset_details = create_image_dataset_details(incoming)
-    
-    plate_code = image_dataset_details.getDataSetInformation().getSampleCode()
-    space_code = image_dataset_details.getDataSetInformation().getSpaceCode()
-    register_sample_if_necessary(space_code, DEFAULT_PROJECT_CODE, DEFAULT_EXPERIMENT_CODE, plate_code)
-
-    img_dataset_code = service.queueDataSetRegistration(incoming, image_dataset_details).getCode()
-    
-    # register overlays dataset
-    if overlays_dir != None:
-        overlay_dataset_details = create_overlay_dataset_details(tmp_overlays_dir, 
-                                     image_dataset_details.getDataSetInformation(), img_dataset_code)
-        service.queueDataSetRegistration(tmp_overlays_dir, overlay_dataset_details)
-
-    # register analysis dataset
-    if analysis_file != None:
-        analysis_registration_details = create_analysis_dataset_details(space_code, plate_code, img_dataset_code)  
-        service.queueDataSetRegistration(tmp_analysis_file, analysis_registration_details)
-
-def register_images_with_overlays_and_analysis_new(incoming):
     if not incoming.isDirectory():
         return
     
@@ -495,8 +491,9 @@ def register_images_with_overlays_and_analysis_new(incoming):
     # move overlays folder
     overlays_dir = find_dir(File(image_data_set_folder), OVERLAYS_DIR_PATTERN)
     if overlays_dir != None:
+        convert_to_png(overlays_dir.getPath(), "white")
         overlay_dataset_details = create_overlay_dataset_details(overlays_dir, 
-                                     image_dataset_details.getDataSetInformation(), img_dataset_code)
+                                     image_dataset_details.getDataSetInformation(), img_dataset_code, "png")
         overlays_data_set = tr.createNewDataSet(overlay_dataset_details)
         tr.moveFile(overlays_dir.getPath(), overlays_data_set, "overlays")
 
@@ -509,5 +506,6 @@ def register_images_with_overlays_and_analysis_new(incoming):
         GEExplorerImageAnalysisResultParser(analysis_file.getPath()).writeCSV(File(analysis_data_set_file))
         
     service.commit()
+    notify(plate_code)
     
 register_images_with_overlays_and_analysis(incoming)
