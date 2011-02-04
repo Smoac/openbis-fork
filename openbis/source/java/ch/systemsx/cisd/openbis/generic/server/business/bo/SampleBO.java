@@ -158,7 +158,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         {
             try
             {
-                getSampleDAO().createSample(sample);
+                getSampleDAO().createOrUpdateSample(sample);
             } catch (final DataIntegrityViolationException ex)
             {
                 // needed because we throw an exception in DAO instead of relying on DB constraint
@@ -370,6 +370,8 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         final PersonPE registrator = findRegistrator();
         sample.setProperties(entityPropertiesConverter.updateManagedProperty(existingProperties,
                 type, managedProperty, registrator));
+
+        dataChanged = true;
     }
 
 }

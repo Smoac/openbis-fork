@@ -69,7 +69,7 @@ public final class MaterialDAOTest extends AbstractDAOTest
         newMaterials.add(createMaterial(type, "BRAND_NEW_BACTERIUM_1"));
         newMaterials.add(createMaterial(type, "BRAND_NEW_BACTERIUM_2"));
         Collections.sort(newMaterials);
-        daoFactory.getMaterialDAO().createMaterials(newMaterials);
+        daoFactory.getMaterialDAO().createOrUpdateMaterials(newMaterials);
         List<MaterialPE> bacteria_after =
                 daoFactory.getMaterialDAO().listMaterialsWithProperties(type);
         Assert.assertEquals(NUMBER_OF_BACTERIA + newMaterials.size(), bacteria_after.size());
@@ -90,7 +90,7 @@ public final class MaterialDAOTest extends AbstractDAOTest
         List<MaterialPE> newMaterials = new ArrayList<MaterialPE>();
         newMaterials.add(createMaterial(type, BRAND_NEW_BACTERIUM));
         newMaterials.add(createMaterial(type, BRAND_NEW_BACTERIUM));
-        daoFactory.getMaterialDAO().createMaterials(newMaterials);
+        daoFactory.getMaterialDAO().createOrUpdateMaterials(newMaterials);
     }
 
     @Test(expectedExceptions = DataIntegrityViolationException.class)
@@ -104,7 +104,7 @@ public final class MaterialDAOTest extends AbstractDAOTest
         String existingBacteriumCode = bacteria_before.get(0).getCode();
         List<MaterialPE> newMaterials = new ArrayList<MaterialPE>();
         newMaterials.add(createMaterial(type, existingBacteriumCode));
-        daoFactory.getMaterialDAO().createMaterials(newMaterials);
+        daoFactory.getMaterialDAO().createOrUpdateMaterials(newMaterials);
     }
 
     @Test

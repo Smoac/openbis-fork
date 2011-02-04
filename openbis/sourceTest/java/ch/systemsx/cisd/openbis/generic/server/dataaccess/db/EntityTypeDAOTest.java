@@ -202,7 +202,7 @@ public final class EntityTypeDAOTest extends AbstractDAOTest
         materialTypeDAO.createOrUpdateEntityType(materialType);
         final IMaterialDAO materialDAO = daoFactory.getMaterialDAO();
         List<MaterialPE> materials = createMaterials(3, MATERIAL, materialType);
-        materialDAO.createMaterials(materials);
+        materialDAO.createOrUpdateMaterials(materials);
         boolean exceptionThrown = false;
         try
         {
@@ -260,7 +260,7 @@ public final class EntityTypeDAOTest extends AbstractDAOTest
         EntityTypePropertyTypePE assignment = assignPropertyType(expType, materialPropertyType);
         // Create material - value
         MaterialPE value = createMaterial(materialType, MATERIAL);
-        daoFactory.getMaterialDAO().createMaterials(Arrays.asList(value));
+        daoFactory.getMaterialDAO().createOrUpdateMaterials(Arrays.asList(value));
         // Add property to first found experiment
         ExperimentPropertyPE property = new ExperimentPropertyPE();
         property.setEntityTypePropertyType(assignment);

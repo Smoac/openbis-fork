@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -77,7 +77,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
     }
 
     // LockSampleModificationsInterceptor automatically obtains lock
-    private final void internalCreateSample(final SamplePE sample,
+    private final void internalCreateOrUpdateSample(final SamplePE sample,
             final HibernateTemplate hibernateTemplate, final boolean doLog)
     {
         validatePE(sample);
@@ -94,15 +94,17 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
     // ISampleDAO
     //
 
-    public final void createSample(final SamplePE sample) throws DataAccessException
+    public final void createOrUpdateSample(final SamplePE sample) throws DataAccessException
     {
         assert sample != null : "Unspecified sample";
 
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();
 
-        internalCreateSample(sample, hibernateTemplate, true);
+        internalCreateOrUpdateSample(sample, hibernateTemplate, true);
 
+        // need to deal with exception thrown by trigger checking code uniqueness
         flushWithSqlExceptionHandling(hibernateTemplate);
+        scheduleDynamicPropertiesEvaluation(Collections.singletonList(sample));
     }
 
     public final List<SamplePE> listSamplesByGeneratedFrom(final SamplePE sample)
@@ -322,7 +324,8 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         }
     }
 
-    public final void createSamples(final List<SamplePE> samples) throws DataAccessException
+    public final void createOrUpdateSamples(final List<SamplePE> samples)
+            throws DataAccessException
     {
         assert samples != null && samples.size() > 0 : "Unspecified or empty samples.";
 
@@ -330,7 +333,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
 
         for (final SamplePE samplePE : samples)
         {
-            internalCreateSample(samplePE, hibernateTemplate, false);
+            internalCreateOrUpdateSample(samplePE, hibernateTemplate, false);
         }
         if (operationLog.isInfoEnabled())
         {
@@ -352,7 +355,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
 
         // need to deal with exception thrown by trigger checking code uniqueness
         flushWithSqlExceptionHandling(getHibernateTemplate());
-        scheduleDynamicPropertiesEvaluation(Arrays.asList(sample));
+        scheduleDynamicPropertiesEvaluation(Collections.singletonList(sample));
 
         if (operationLog.isInfoEnabled())
         {

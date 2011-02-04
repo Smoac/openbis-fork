@@ -334,7 +334,7 @@ final class ExternalDataDAO extends AbstractGenericEntityWithPropertiesDAO<Exter
 
         if (dataset instanceof ExternalDataPE)
         {
-            scheduleDynamicPropertiesEvaluation(Arrays.asList((ExternalDataPE) dataset));
+            scheduleDynamicPropertiesEvaluation(Collections.singletonList((ExternalDataPE) dataset));
         }
 
         if (operationLog.isInfoEnabled())
@@ -369,7 +369,7 @@ final class ExternalDataDAO extends AbstractGenericEntityWithPropertiesDAO<Exter
         }
         hibernateTemplate.update(externalData);
         hibernateTemplate.flush();
-        scheduleDynamicPropertiesEvaluation(Arrays.asList(externalData));
+        scheduleDynamicPropertiesEvaluation(Collections.singletonList(externalData));
 
         if (operationLog.isInfoEnabled())
         {

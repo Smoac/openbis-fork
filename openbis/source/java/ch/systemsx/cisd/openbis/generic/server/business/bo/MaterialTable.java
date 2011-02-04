@@ -93,7 +93,7 @@ public final class MaterialTable extends AbstractMaterialBusinessObject implemen
         assert dataChanged == true : "Data not changed";
         try
         {
-            getMaterialDAO().createMaterials(materials);
+            getMaterialDAO().createOrUpdateMaterials(materials);
             checkBusinessRules();
         } catch (final DataAccessException ex)
         {

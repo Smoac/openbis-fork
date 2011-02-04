@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -138,14 +137,14 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
 
     ETLService(IAuthenticationService authenticationService,
             ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
-            IPropertiesBatchManager propertiesBatchManager,
-            ICommonBusinessObjectFactory boFactory, IDataStoreServiceFactory dssFactory)
+            IPropertiesBatchManager propertiesBatchManager, ICommonBusinessObjectFactory boFactory,
+            IDataStoreServiceFactory dssFactory)
     {
         super(authenticationService, sessionManager, daoFactory, propertiesBatchManager, boFactory);
         this.daoFactory = daoFactory;
         this.dssFactory = dssFactory;
     }
-    
+
     public IETLService createLogger(IInvocationLoggerContext context)
     {
         return new ETLServiceLogger(getSessionManager(), context);
@@ -511,19 +510,18 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         return EntityPropertyTranslator.translate(properties.toArray(new SamplePropertyPE[0]),
                 new HashMap<PropertyTypePE, PropertyType>());
     }
-    
 
     public void registerEntities(String sessionToken, EntityCollectionForCreationOrUpdate collection)
             throws UserFailureException
     {
         checkSession(sessionToken);
-        
+
         List<NewExperiment> experiments = collection.getNewExperiments();
         for (NewExperiment experiment : experiments)
         {
             registerExperiment(sessionToken, experiment);
         }
-        
+
         List<NewExternalData> dataSets = collection.getNewDataSets();
         for (NewExternalData dataSet : dataSets)
         {
@@ -534,7 +532,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
             }
         }
         // TODO Auto-generated method stub
-        
+
     }
 
     public long registerExperiment(String sessionToken, NewExperiment experiment)
@@ -879,10 +877,6 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         sampleBO.update(updates);
         sampleBO.save();
 
-        scheduleDynamicPropertiesEvaluation(
-                getDAOFactory().getDynamicPropertyEvaluationScheduler(), SamplePE.class,
-                Arrays.asList(sampleBO.getSample()));
-
         return sampleBO;
     }
 
@@ -925,10 +919,6 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         }
         sampleBO.save();
         SamplePE samplePE = sampleBO.getSample();
-        scheduleDynamicPropertiesEvaluation(
-                getDAOFactory().getDynamicPropertyEvaluationScheduler(), SamplePE.class,
-                Arrays.asList(samplePE));
-
         return samplePE;
     }
 

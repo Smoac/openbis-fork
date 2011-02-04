@@ -164,7 +164,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationHolderDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
-import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -172,7 +171,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
@@ -2253,9 +2251,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
             experimentBO.updateManagedProperty(managedProperty);
             experimentBO.save();
-            scheduleDynamicPropertiesEvaluation(getDAOFactory()
-                    .getDynamicPropertyEvaluationScheduler(), ExperimentPE.class,
-                    Arrays.asList(experimentBO.getExperiment()));
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);
@@ -2280,9 +2275,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
             sampleBO.updateManagedProperty(managedProperty);
             sampleBO.save();
-            scheduleDynamicPropertiesEvaluation(getDAOFactory()
-                    .getDynamicPropertyEvaluationScheduler(), SamplePE.class,
-                    Arrays.asList(sampleBO.getSample()));
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);
@@ -2308,9 +2300,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
             dataSetBO.updateManagedProperty(managedProperty);
             dataSetBO.save();
-            scheduleDynamicPropertiesEvaluation(getDAOFactory()
-                    .getDynamicPropertyEvaluationScheduler(), ExternalDataPE.class,
-                    Arrays.asList(dataSetBO.getExternalData()));
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);
@@ -2335,9 +2324,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
             materialBO.updateManagedProperty(managedProperty);
             materialBO.save();
-            scheduleDynamicPropertiesEvaluation(getDAOFactory()
-                    .getDynamicPropertyEvaluationScheduler(), MaterialPE.class,
-                    Arrays.asList(materialBO.getMaterial()));
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);

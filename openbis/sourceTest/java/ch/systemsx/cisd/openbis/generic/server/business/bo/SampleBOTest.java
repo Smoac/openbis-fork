@@ -210,7 +210,7 @@ public final class SampleBOTest extends AbstractBOTest
                                 return true;
                             }
                         };
-                    one(sampleDAO).createSample(with(matcher));
+                    one(sampleDAO).createOrUpdateSample(with(matcher));
 
                     allowing(externalDataDAO).listExternalData(with(matcher));
                     will(returnValue(new ArrayList<ExternalDataPE>()));
@@ -666,7 +666,7 @@ public final class SampleBOTest extends AbstractBOTest
                     allowing(externalDataDAO).hasExternalData(with(sample));
                     will(returnValue(false));
 
-                    one(sampleDAO).createSample(sample);
+                    one(sampleDAO).createOrUpdateSample(sample);
                     one(propertiesConverter).checkMandatoryProperties(sample.getProperties(),
                             sample.getSampleType());
                 }

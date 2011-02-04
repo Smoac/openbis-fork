@@ -87,7 +87,7 @@ public final class MaterialTableTest extends AbstractBOTest
                     allowing(daoFactory).getMaterialDAO();
                     will(returnValue(materialDAO));
 
-                    one(materialDAO).createMaterials(materials);
+                    one(materialDAO).createOrUpdateMaterials(materials);
 
                     one(propertiesConverter).checkMandatoryProperties(
                             new HashSet<MaterialPropertyPE>(), materialType,

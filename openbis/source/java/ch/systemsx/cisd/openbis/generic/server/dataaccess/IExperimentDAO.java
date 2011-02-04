@@ -42,11 +42,11 @@ public interface IExperimentDAO extends IGenericDAO<ExperimentPE>
             throws DataAccessException;
 
     /**
-     * Lists experiments with specified ids. Fetches also properties. 
+     * Lists experiments with specified ids. Fetches also properties.
      */
     public List<ExperimentPE> listExperimentsWithProperties(final Collection<Long> experimentIDs)
             throws DataAccessException;
-    
+
     /**
      * Lists experiments of specified type and specified project. Fetches also properties.
      * 
@@ -73,9 +73,9 @@ public interface IExperimentDAO extends IGenericDAO<ExperimentPE>
             final String propertyValue, final ProjectPE project) throws DataAccessException;
 
     /**
-     * Inserts given {@link ExperimentPE} into the database.
+     * Inserts given {@link ExperimentPE} into the database or updates it if it already exists.
      */
-    public void createExperiment(ExperimentPE experiment) throws DataAccessException;
+    public void createOrUpdateExperiment(ExperimentPE experiment) throws DataAccessException;
 
     /**
      * Deletes all datasets that are connected to given {@link ExperimentPE} and are supposed to be
@@ -96,8 +96,8 @@ public interface IExperimentDAO extends IGenericDAO<ExperimentPE>
     public List<ExperimentPE> listByPermID(Set<String> permId);
 
     /**
-     * Saves given given experiments in the database.
+     * Saves or updates given given experiments in the database.
      */
-    public void createExperiments(List<ExperimentPE> experiments);
+    public void createOrUpdateExperiments(List<ExperimentPE> experiments);
 
 }

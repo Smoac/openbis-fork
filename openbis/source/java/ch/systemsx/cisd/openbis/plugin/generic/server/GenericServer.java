@@ -215,9 +215,6 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             sampleBO.addAttachment(AttachmentTranslator.translate(attachment));
         }
         sampleBO.save();
-        AbstractServer.scheduleDynamicPropertiesEvaluation(getDAOFactory()
-                .getDynamicPropertyEvaluationScheduler(), SamplePE.class, Arrays.asList(sampleBO
-                .getSample()));
     }
 
     public Experiment getExperimentInfo(final String sessionToken,
@@ -536,9 +533,6 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 sampleBO.setExperiment(experiment);
             }
         }
-        AbstractServer.scheduleDynamicPropertiesEvaluation(getDAOFactory()
-                .getDynamicPropertyEvaluationScheduler(), ExperimentPE.class, Arrays
-                .asList(experimentBO.getExperiment()));
     }
 
     public void registerMaterials(String sessionToken, String materialTypeCode,
@@ -709,9 +703,6 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         ExperimentPE experiment = experimentBO.getExperiment();
         result.setModificationDate(experiment.getModificationDate());
         result.setSamples(Code.extractCodes(experiment.getSamples()));
-        scheduleDynamicPropertiesEvaluation(
-                getDAOFactory().getDynamicPropertyEvaluationScheduler(), ExperimentPE.class,
-                Arrays.asList(experimentBO.getExperiment()));
         return result;
     }
 
@@ -737,9 +728,6 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         List<String> parents = IdentifierExtractor.extract(sample.getParents());
         Collections.sort(parents);
         result.setParents(parents);
-        AbstractServer.scheduleDynamicPropertiesEvaluation(getDAOFactory()
-                .getDynamicPropertyEvaluationScheduler(), SamplePE.class, Arrays.asList(sampleBO
-                .getSample()));
         return result;
     }
 

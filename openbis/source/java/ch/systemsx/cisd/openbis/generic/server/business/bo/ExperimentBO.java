@@ -333,7 +333,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         {
             try
             {
-                getExperimentDAO().createExperiment(experiment);
+                getExperimentDAO().createOrUpdateExperiment(experiment);
             } catch (final DataAccessException ex)
             {
                 final String projectCode = experiment.getProject().getCode();
@@ -581,6 +581,8 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         final PersonPE registrator = findRegistrator();
         experiment.setProperties(propertiesConverter.updateManagedProperty(existingProperties,
                 type, managedProperty, registrator));
+
+        dataChanged = true;
     }
 
 }

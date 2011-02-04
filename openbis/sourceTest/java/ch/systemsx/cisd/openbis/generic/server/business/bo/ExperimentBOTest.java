@@ -223,7 +223,7 @@ public final class ExperimentBOTest extends AbstractBOTest
                     one(permIdDAO).createPermId();
                     will(returnValue("2009010112341234-1"));
 
-                    one(experimentDAO).createExperiment(experiment);
+                    one(experimentDAO).createOrUpdateExperiment(experiment);
                 }
             });
         final ExperimentBO experimentBO = createExperimentBO();
@@ -356,7 +356,7 @@ public final class ExperimentBOTest extends AbstractBOTest
                     one(permIdDAO).createPermId();
                     will(returnValue("2009010101011111-1"));
 
-                    one(experimentDAO).createExperiment(experiment);
+                    one(experimentDAO).createOrUpdateExperiment(experiment);
                     will(throwException(new DataIntegrityViolationException(
                             "exception description...")));
                 }

@@ -42,8 +42,8 @@ public interface IMaterialDAO extends IGenericDAO<MaterialPE>
     @Deprecated
     public List<MaterialPE> listMaterialsWithProperties(MaterialTypePE type);
 
-    /** Inserts given {@link MaterialPE}s into the database. */
-    public void createMaterials(List<MaterialPE> materials);
+    /** Inserts or updates given {@link MaterialPE}s into the database. */
+    public void createOrUpdateMaterials(List<MaterialPE> materials);
 
     /** @return material with the given identifier or null if it is not found. */
     public MaterialPE tryFindMaterial(MaterialIdentifier identifier);

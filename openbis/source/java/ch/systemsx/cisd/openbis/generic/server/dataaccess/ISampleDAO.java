@@ -24,9 +24,9 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * An interface that contains all data access operations on {@link SamplePE}s.
@@ -36,9 +36,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 public interface ISampleDAO extends IGenericDAO<SamplePE>
 {
     /**
-     * Inserts given {@link SamplePE} into the database.
+     * Inserts given {@link SamplePE} into the database or updates it if it already exists.
      */
-    void createSample(final SamplePE sample) throws DataAccessException;
+    void createOrUpdateSample(final SamplePE sample) throws DataAccessException;
 
     /**
      * Tries to find a sample by its permanent ID. Returns <code>null</code> if not found.
@@ -77,9 +77,9 @@ public interface ISampleDAO extends IGenericDAO<SamplePE>
             final SpacePE space);
 
     /**
-     * Inserts given list of {@link SamplePE} into the database in one go.
+     * Inserts or updates given list of {@link SamplePE} into the database in one go.
      */
-    void createSamples(List<SamplePE> samples) throws DataAccessException;
+    void createOrUpdateSamples(List<SamplePE> samples) throws DataAccessException;
 
     /**
      * Updates given <var>sample</var>.

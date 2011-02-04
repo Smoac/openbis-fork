@@ -456,7 +456,7 @@ public final class SampleDAOTest extends AbstractDAOTest
         final DatabaseInstancePE homeDatabaseInstance = daoFactory.getHomeDatabaseInstance();
         samplePE.setDatabaseInstance(homeDatabaseInstance);
         samplePE.setRegistrator(getSystemPerson());
-        sampleDAO.createSample(samplePE);
+        sampleDAO.createOrUpdateSample(samplePE);
         // Following line throws a NonUniqueResultException if sample code not unique.
         sampleDAO.tryFindByCodeAndDatabaseInstance(sampleCode, homeDatabaseInstance);
     }
@@ -470,10 +470,10 @@ public final class SampleDAOTest extends AbstractDAOTest
         final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
         if (samples.length > 1)
         {
-            sampleDAO.createSamples(Arrays.asList(samples));
+            sampleDAO.createOrUpdateSamples(Arrays.asList(samples));
         } else
         {
-            sampleDAO.createSample(samples[0]);
+            sampleDAO.createOrUpdateSample(samples[0]);
         }
     }
 

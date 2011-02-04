@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -73,9 +73,7 @@ public final class MaterialBO extends AbstractMaterialBusinessObject implements 
         assert dataChanged : "Data not changed";
         try
         {
-            final ArrayList<MaterialPE> materials = new ArrayList<MaterialPE>();
-            materials.add(material);
-            getMaterialDAO().createMaterials(materials);
+            getMaterialDAO().createOrUpdateMaterials(Collections.singletonList(material));
         } catch (final DataAccessException ex)
         {
             throwException(ex, String.format("Material '%s'", material.getCode()));
@@ -154,5 +152,6 @@ public final class MaterialBO extends AbstractMaterialBusinessObject implements 
         final PersonPE registrator = findRegistrator();
         material.setProperties(entityPropertiesConverter.updateManagedProperty(existingProperties,
                 type, managedProperty, registrator));
+        dataChanged = true;
     }
 }

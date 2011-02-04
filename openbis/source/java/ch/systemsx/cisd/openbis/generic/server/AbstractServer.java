@@ -32,9 +32,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.AbstractServiceWithLogger;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.PropertiesBatchManager;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.server.plugin.DataSetServerPluginRegistry;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
@@ -55,7 +53,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomColumnPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
@@ -122,7 +119,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         this.sampleTypeSlaveServerPlugin = sampleTypeSlaveServerPlugin;
         this.dataSetTypeSlaveServerPlugin = dataSetTypeSlaveServerPlugin;
     }
-    
+
     protected IPropertiesBatchManager getPropertiesBatchManager()
     {
         if (propertiesBatchManager == null)
@@ -470,18 +467,4 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
                 registratorOrNull);
     }
 
-    /**
-     * Schedules evaluation of dynamic properties on specified entities. After evaluation is done
-     * the entities will be indexed.
-     */
-    protected static <T extends IEntityInformationWithPropertiesHolder> void scheduleDynamicPropertiesEvaluation(
-            IDynamicPropertyEvaluationScheduler scheduler, Class<T> entityClass, List<T> entities)
-    {
-        List<Long> ids = new ArrayList<Long>();
-        for (IEntityInformationWithPropertiesHolder entity : entities)
-        {
-            ids.add(entity.getId());
-        }
-        scheduler.scheduleUpdate(DynamicPropertyEvaluationOperation.evaluate(entityClass, ids));
-    }
 }

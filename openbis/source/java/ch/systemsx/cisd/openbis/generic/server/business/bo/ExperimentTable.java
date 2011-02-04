@@ -323,7 +323,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
         try
         {
             checkBusinessRules();
-            getExperimentDAO().createExperiments(experiments);
+            getExperimentDAO().createOrUpdateExperiments(experiments);
         } catch (final DataAccessException ex)
         {
             throwException(ex, String.format("One of experiments"));

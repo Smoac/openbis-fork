@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -140,13 +141,6 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         return experiment;
     }
 
-    public void createExperiment(ExperimentPE experiment)
-    {
-        HibernateTemplate template = getHibernateTemplate();
-        internalCreateExperiment(experiment, template);
-        template.flush();
-    }
-
     public List<ExperimentPE> listExperimentsByProjectAndProperty(String propertyCode,
             String propertyValue, ProjectPE project) throws DataAccessException
     {
@@ -245,14 +239,23 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         return list;
     }
 
-    public void createExperiments(List<ExperimentPE> experiments)
+    public void createOrUpdateExperiment(ExperimentPE experiment)
+    {
+        HibernateTemplate template = getHibernateTemplate();
+        internalCreateOrUpdateExperiment(experiment, template);
+        template.flush();
+
+        scheduleDynamicPropertiesEvaluation(Collections.singletonList(experiment));
+    }
+
+    public void createOrUpdateExperiments(List<ExperimentPE> experiments)
     {
         assert experiments != null && experiments.size() > 0 : "Unspecified or empty experiments.";
 
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();
         for (final ExperimentPE experiment : experiments)
         {
-            internalCreateExperiment(experiment, hibernateTemplate);
+            internalCreateOrUpdateExperiment(experiment, hibernateTemplate);
         }
         hibernateTemplate.flush();
 
@@ -261,7 +264,7 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         scheduleDynamicPropertiesEvaluation(experiments);
     }
 
-    private void internalCreateExperiment(ExperimentPE experiment,
+    private void internalCreateOrUpdateExperiment(ExperimentPE experiment,
             HibernateTemplate hibernateTemplate)
     {
         assert experiment != null : "Missing experiment.";

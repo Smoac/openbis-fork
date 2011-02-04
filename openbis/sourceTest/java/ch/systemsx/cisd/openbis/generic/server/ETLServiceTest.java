@@ -38,7 +38,6 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationOperation;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
@@ -510,8 +509,6 @@ public class ETLServiceTest extends AbstractServerTestCase
 
                     one(sampleBO).define(sample);
                     one(sampleBO).save();
-                    one(evaluator).scheduleUpdate(
-                            with(any(DynamicPropertyEvaluationOperation.class)));
                     exactly(1).of(sampleBO).getSample();
                     SamplePE samplePE = new SamplePE();
                     samplePE.setId(id);
@@ -538,8 +535,6 @@ public class ETLServiceTest extends AbstractServerTestCase
 
                     one(sampleBO).define(sample);
                     one(sampleBO).save();
-                    one(evaluator).scheduleUpdate(
-                            with(any(DynamicPropertyEvaluationOperation.class)));
                     exactly(2).of(sampleBO).getSample();
                     SamplePE samplePE = new SamplePE();
                     samplePE.setId(id);
@@ -571,8 +566,6 @@ public class ETLServiceTest extends AbstractServerTestCase
 
                     one(sampleBO).define(sample);
                     one(sampleBO).save();
-                    one(evaluator).scheduleUpdate(
-                            with(any(DynamicPropertyEvaluationOperation.class)));
                     exactly(2).of(sampleBO).getSample();
                     SamplePE samplePE = new SamplePE();
                     samplePE.setId(id);
@@ -728,8 +721,6 @@ public class ETLServiceTest extends AbstractServerTestCase
 
                     one(sampleBO).define(sample);
                     one(sampleBO).save();
-                    one(evaluator).scheduleUpdate(
-                            with(any(DynamicPropertyEvaluationOperation.class)));
                     exactly(2).of(sampleBO).getSample();
                     will(returnValue(samplePE));
 
@@ -758,7 +749,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         context.assertIsSatisfied();
     }
 
-    @Test()
+    @Test
     public void testUpdateSampleAndRegisterDataSet()
     {
         prepareGetSession();
@@ -786,9 +777,7 @@ public class ETLServiceTest extends AbstractServerTestCase
 
                     one(sampleBO).update(sample);
                     one(sampleBO).save();
-                    one(evaluator).scheduleUpdate(
-                            with(any(DynamicPropertyEvaluationOperation.class)));
-                    exactly(2).of(sampleBO).getSample();
+                    one(sampleBO).getSample();
                     will(returnValue(samplePE));
 
                     one(boFactory).createExternalDataBO(SESSION);

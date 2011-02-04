@@ -249,7 +249,7 @@ public final class DBCreator extends AbstractDAOTest
             long start = System.currentTimeMillis();
             log("creating experiment: %d/%d", i, EXPERIMENTS_NO);
             ExperimentPE experiment = generateExperiment();
-            daoFactory.getExperimentDAO().createExperiment(experiment);
+            daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment);
             createSamplesWithDataSetsForExperiment(experiment);
             flushAndClearSession();
             long time = (System.currentTimeMillis() - start) / 1000;
@@ -281,7 +281,7 @@ public final class DBCreator extends AbstractDAOTest
         {
             log("creating sample: %d/%d", i, size);
             SamplePE sample = generateSampleForExperiment(experiment);
-            daoFactory.getSampleDAO().createSample(sample);
+            daoFactory.getSampleDAO().createOrUpdateSample(sample);
             createDataSetsForSample(sample);
         }
         log("created samples");

@@ -85,7 +85,7 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
         return list;
     }
 
-    public void createMaterials(List<MaterialPE> materials)
+    public void createOrUpdateMaterials(List<MaterialPE> materials)
     {
         assert materials != null && materials.size() > 0 : "Unspecified or empty materials.";
 

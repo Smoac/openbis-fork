@@ -315,7 +315,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
         assertEqualsOrGreater(8, sizeBefore);
 
         ExperimentPE experiment = createExperiment("CISD", "CISD", "NEMO", "EXP12", "SIRNA_HCS");
-        daoFactory.getExperimentDAO().createExperiment(experiment);
+        daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment);
 
         List<ExperimentPE> experimentsAfter = daoFactory.getExperimentDAO().listExperiments();
         assertEquals(sizeBefore + 1, experimentsAfter.size());
@@ -337,7 +337,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
         experiment.setCode(codeModified);
         experiment.setPermId(daoFactory.getPermIdDAO().createPermId());
         final Date modificationTimestamp = experiment.getModificationDate();
-        daoFactory.getExperimentDAO().createExperiment(experiment);
+        daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment);
 
         List<ExperimentPE> experimentsAfter = daoFactory.getExperimentDAO().listExperiments();
         assertEquals(sizeBefore, experimentsAfter.size());
@@ -355,11 +355,11 @@ public class ExperimentDAOTest extends AbstractDAOTest
         assertEqualsOrGreater(8, sizeBefore);
 
         ExperimentPE experiment = createExperiment("CISD", "CISD", "NEMO", "EXP13", "SIRNA_HCS");
-        daoFactory.getExperimentDAO().createExperiment(experiment);
+        daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment);
 
         ExperimentPE experiment2 =
                 createExperiment("CISD", "CISD", "NEMO", "EXP12", "COMPOUND_HCS");
-        daoFactory.getExperimentDAO().createExperiment(experiment2);
+        daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment2);
 
         List<ExperimentPE> experimentsAfter = daoFactory.getExperimentDAO().listExperiments();
         Collections.sort(experimentsAfter);
@@ -384,7 +384,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
         boolean exceptionThrown = false;
         try
         {
-            daoFactory.getExperimentDAO().createExperiment(experiment);
+            daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment);
         } catch (DataIntegrityViolationException e)
         {
             exceptionThrown = true;
@@ -414,7 +414,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
         boolean exceptionThrown = false;
         try
         {
-            daoFactory.getExperimentDAO().createExperiment(experiment);
+            daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment);
         } catch (final DataIntegrityViolationException ex)
         {
             exceptionThrown = true;
