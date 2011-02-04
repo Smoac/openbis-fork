@@ -132,11 +132,11 @@ public final class DynamicPropertyEvaluationScheduler implements
 
     void threadDebugLog(String msg)
     {
-        // if (operationLog.isDebugEnabled())
-        // {
-        String threadPrefix = "[" + Thread.currentThread().hashCode() + "]: ";
-        operationLog.info(threadPrefix + msg);
-        // }
+        if (operationLog.isDebugEnabled())
+        {
+            String threadPrefix = "[" + Thread.currentThread().hashCode() + "]: ";
+            operationLog.debug(threadPrefix + msg);
+        }
     }
 
     public DynamicPropertyEvaluationOperation peekWait() throws InterruptedException

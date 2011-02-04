@@ -43,11 +43,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
  * <p>
  * It also synchronizes all dynamic property evaluations scheduled in a transaction with persistent
  * queue after transaction is successfuly commited.
- * </p>
  * 
  * @author Piotr Buczek
  */
-public class LockSampleModificationsInterceptor extends EmptyInterceptor
+public class HibernateInterceptor extends EmptyInterceptor
 {
 
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;

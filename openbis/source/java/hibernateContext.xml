@@ -129,7 +129,7 @@
     </bean>
 
     <bean id="hibernate-interceptor"
-          class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LockSampleModificationsInterceptor">
+          class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.HibernateInterceptor">
           <property name="dynamicPropertyScheduler" ref="dynamic-property-scheduler" />
     </bean>
 
