@@ -1,6 +1,6 @@
 /****************************************************************************
  * NCSA HDF                                                                 *
- * National Comptational Science Alliance                                   *
+ * National Computational Science Alliance                                   *
  * University of Illinois at Urbana-Champaign                               *
  * 605 E. Springfield, Champaign IL 61820                                   *
  *                                                                          *
@@ -12,6 +12,8 @@
  ****************************************************************************/
 
 package ch.systemsx.cisd.base.convert;
+
+import java.nio.ByteBuffer;
 
 import ch.systemsx.cisd.base.utilities.NativeLibraryUtilities;
 
@@ -29,13 +31,16 @@ import ch.systemsx.cisd.base.utilities.NativeLibraryUtilities;
  */
 public class NativeData
 {
+    private static final boolean useNativeLib;
 
     static
     {
-        if (NativeLibraryUtilities.loadNativeLibrary("nativedata") == false)
+        if (Boolean.getBoolean("nativedata.javamode"))
         {
-            System.err.println("No suitable 'nativedata' library found for this platform.");
-            System.exit(1);
+            useNativeLib = false;
+        } else
+        {
+            useNativeLib = NativeLibraryUtilities.loadNativeLibrary("nativedata");
         }
     }
 
@@ -59,11 +64,29 @@ public class NativeData
     public enum ByteOrder
     {
         /** <code>byte[]</code> is in native byte order (that is: don't change byte order) */
-        NATIVE,
+        NATIVE(java.nio.ByteOrder.nativeOrder()),
         /** <code>byte[]</code> is in little endian byte order */
-        LITTLE_ENDIAN,
+        LITTLE_ENDIAN(java.nio.ByteOrder.LITTLE_ENDIAN),
         /** <code>byte[]</code> is in big endian byte order */
-        BIG_ENDIAN,
+        BIG_ENDIAN(java.nio.ByteOrder.BIG_ENDIAN);
+
+        private final java.nio.ByteOrder nioByteOrder;
+
+        ByteOrder(java.nio.ByteOrder nioByteOrder)
+        {
+            this.nioByteOrder = nioByteOrder;
+        }
+
+        java.nio.ByteOrder getNioByteOrder()
+        {
+            return nioByteOrder;
+        }
+
+        static ByteOrder getNativeByteOder()
+        {
+            return NATIVE.nioByteOrder.equals(LITTLE_ENDIAN.nioByteOrder) ? LITTLE_ENDIAN
+                    : BIG_ENDIAN;
+        }
     }
 
     /**
@@ -85,8 +108,8 @@ public class NativeData
      * @param byteOrder The ordinal of {@link ByteOrder}, encoding what byte order the
      *            <var>outData</var> should be in.
      */
-    private static native void copyIntToByte(int[] inData, int inStart, byte[] outData, int outStart,
-            int len, int byteOrder);
+    private static native void copyIntToByte(int[] inData, int inStart, byte[] outData,
+            int outStart, int len, int byteOrder);
 
     /**
      * Copies a range from an array of <code>byte</code> into an array of <code>int</code>.
@@ -101,8 +124,8 @@ public class NativeData
      * @param byteOrder The ordinal of {@link ByteOrder}, encoding what byte order the
      *            <var>outData</var> should be in.
      */
-    private static native void copyByteToInt(byte[] inData, int inStart, int[] outData, int outStart,
-            int len, int byteOrder);
+    private static native void copyByteToInt(byte[] inData, int inStart, int[] outData,
+            int outStart, int len, int byteOrder);
 
     /**
      * Copies a range from an array of <code>long</code> into an array of <code>byte</code>.
@@ -117,8 +140,8 @@ public class NativeData
      * @param byteOrder The ordinal of {@link ByteOrder}, encoding what byte order the
      *            <var>outData</var> should be in.
      */
-    private static native void copyLongToByte(long[] inData, int inStart, byte[] outData, int outStart,
-            int len, int byteOrder);
+    private static native void copyLongToByte(long[] inData, int inStart, byte[] outData,
+            int outStart, int len, int byteOrder);
 
     /**
      * Copies a range from an array of <code>byte</code> into an array of <code>long</code>.
@@ -133,8 +156,8 @@ public class NativeData
      * @param byteOrder The ordinal of {@link ByteOrder}, encoding what byte order the
      *            <var>outData</var> should be in.
      */
-    private static native void copyByteToLong(byte[] inData, int inStart, long[] outData, int outStart,
-            int len, int byteOrder);
+    private static native void copyByteToLong(byte[] inData, int inStart, long[] outData,
+            int outStart, int len, int byteOrder);
 
     /**
      * Copies a range from an array of <code>short</code> into an array of <code>byte</code>.
@@ -149,8 +172,8 @@ public class NativeData
      * @param byteOrder The ordinal of {@link ByteOrder}, encoding what byte order the
      *            <var>outData</var> should be in.
      */
-    private static native void copyShortToByte(short[] inData, int inStart, byte[] outData, int outStart,
-            int len, int byteOrder);
+    private static native void copyShortToByte(short[] inData, int inStart, byte[] outData,
+            int outStart, int len, int byteOrder);
 
     /**
      * Copies a range from an array of <code>byte</code> into an array of <code>short</code>.
@@ -165,8 +188,8 @@ public class NativeData
      * @param byteOrder The ordinal of {@link ByteOrder}, encoding what byte order the
      *            <var>outData</var> should be in.
      */
-    private static native void copyByteToShort(byte[] inData, int inStart, short[] outData, int outStart,
-            int len, int byteOrder);
+    private static native void copyByteToShort(byte[] inData, int inStart, short[] outData,
+            int outStart, int len, int byteOrder);
 
     /**
      * Copies a range from an array of <code>float</code> into an array of <code>byte</code>.
@@ -181,8 +204,8 @@ public class NativeData
      * @param byteOrder The ordinal of {@link ByteOrder}, encoding what byte order the
      *            <var>outData</var> should be in.
      */
-    private static native void copyFloatToByte(float[] inData, int inStart, byte[] outData, int outStart,
-            int len, int byteOrder);
+    private static native void copyFloatToByte(float[] inData, int inStart, byte[] outData,
+            int outStart, int len, int byteOrder);
 
     /**
      * Copies a range from an array of <code>byte</code> into an array of <code>float</code>.
@@ -197,8 +220,8 @@ public class NativeData
      * @param byteOrder The ordinal of {@link ByteOrder}, encoding what byte order the
      *            <var>outData</var> should be in.
      */
-    private static native void copyByteToFloat(byte[] inData, int inStart, float[] outData, int outStart,
-            int len, int byteOrder);
+    private static native void copyByteToFloat(byte[] inData, int inStart, float[] outData,
+            int outStart, int len, int byteOrder);
 
     /**
      * Copies a range from an array of <code>double</code> into an array of <code>byte</code>.
@@ -213,8 +236,8 @@ public class NativeData
      * @param byteOrder The ordinal of {@link ByteOrder}, encoding what byte order the
      *            <var>outData</var> should be in.
      */
-    private static native void copyDoubleToByte(double[] inData, int inStart, byte[] outData, int outStart,
-            int len, int byteOrder);
+    private static native void copyDoubleToByte(double[] inData, int inStart, byte[] outData,
+            int outStart, int len, int byteOrder);
 
     /**
      * Copies a range from an array of <code>byte</code> into an array of <code>double</code>.
@@ -229,8 +252,8 @@ public class NativeData
      * @param byteOrder The ordinal of {@link ByteOrder}, encoding what byte order the
      *            <var>outData</var> should be in.
      */
-    private static native void copyByteToDouble(byte[] inData, int inStart, double[] outData, int outStart,
-            int len, int byteOrder);
+    private static native void copyByteToDouble(byte[] inData, int inStart, double[] outData,
+            int outStart, int len, int byteOrder);
 
     //
     // Public
@@ -246,7 +269,55 @@ public class NativeData
      */
     public static ByteOrder getNativeByteOrder()
     {
-        return isLittleEndian() ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
+        return ByteOrder.getNativeByteOder();
+    }
+
+    /**
+     * Changes the byte order of the bytes constituting <var>s</var>.
+     */
+    public static short changeByteOrder(short s)
+    {
+        return (short) ((s << 8) | ((s >> 8) & 0xff));
+    }
+
+    /**
+     * Changes the byte order of the bytes constituting <var>c</var>.
+     */
+    public static char changeByteOrder(char c)
+    {
+        return (char) ((c << 8) | ((c >> 8) & 0xff));
+    }
+
+    /**
+     * Changes the byte order of the bytes constituting <var>i</var>.
+     */
+    public static int changeByteOrder(int i)
+    {
+        return ((changeByteOrder((short) i) << 16) | (changeByteOrder((short) (i >> 16)) & 0xffff));
+    }
+
+    /**
+     * Changes the byte order of the bytes constituting <var>f</var>.
+     */
+    public static float changeByteOrder(float f)
+    {
+        return Float.intBitsToFloat(changeByteOrder(Float.floatToRawIntBits(f)));
+    }
+
+    /**
+     * Changes the byte order of the bytes constituting <var>l</var>.
+     */
+    public static long changeByteOrder(long l)
+    {
+        return (((long) changeByteOrder((int) (l)) << 32) | (changeByteOrder((int) (l >> 32)) & 0xffffffffL));
+    }
+
+    /**
+     * Changes the byte order of the bytes constituting <var>d</var>.
+     */
+    public static double changeByteOrder(double d)
+    {
+        return Double.longBitsToDouble(changeByteOrder(Double.doubleToRawLongBits(d)));
     }
 
     /**
@@ -265,7 +336,15 @@ public class NativeData
     public static void copyIntToByte(int[] inData, int inStart, byte[] outData, int outStart,
             int len, ByteOrder byteOrder)
     {
-        copyIntToByte(inData, inStart, outData, outStart, len, byteOrder.ordinal());
+        if (useNativeLib)
+        {
+            copyIntToByte(inData, inStart, outData, outStart, len, byteOrder.ordinal());
+        } else
+        {
+            final ByteBuffer bb = ByteBuffer.wrap(outData, outStart, len * INT_SIZE);
+            bb.order(byteOrder.getNioByteOrder());
+            bb.asIntBuffer().put(inData, inStart, len);
+        }
     }
 
     /**
@@ -284,7 +363,15 @@ public class NativeData
     public static void copyByteToInt(byte[] inData, int inStart, int[] outData, int outStart,
             int len, ByteOrder byteOrder)
     {
-        copyByteToInt(inData, inStart, outData, outStart, len, byteOrder.ordinal());
+        if (useNativeLib)
+        {
+            copyByteToInt(inData, inStart, outData, outStart, len, byteOrder.ordinal());
+        } else
+        {
+            final ByteBuffer bb = ByteBuffer.wrap(inData, inStart, len * INT_SIZE);
+            bb.order(byteOrder.getNioByteOrder());
+            bb.asIntBuffer().get(outData, outStart, len);
+        }
     }
 
     /**
@@ -303,7 +390,15 @@ public class NativeData
     public static void copyLongToByte(long[] inData, int inStart, byte[] outData, int outStart,
             int len, ByteOrder byteOrder)
     {
-        copyLongToByte(inData, inStart, outData, outStart, len, byteOrder.ordinal());
+        if (useNativeLib)
+        {
+            copyLongToByte(inData, inStart, outData, outStart, len, byteOrder.ordinal());
+        } else
+        {
+            final ByteBuffer bb = ByteBuffer.wrap(outData, outStart, len * LONG_SIZE);
+            bb.order(byteOrder.getNioByteOrder());
+            bb.asLongBuffer().put(inData, inStart, len);
+        }
     }
 
     /**
@@ -322,7 +417,15 @@ public class NativeData
     public static void copyByteToLong(byte[] inData, int inStart, long[] outData, int outStart,
             int len, ByteOrder byteOrder)
     {
-        copyByteToLong(inData, inStart, outData, outStart, len, byteOrder.ordinal());
+        if (useNativeLib)
+        {
+            copyByteToLong(inData, inStart, outData, outStart, len, byteOrder.ordinal());
+        } else
+        {
+            final ByteBuffer bb = ByteBuffer.wrap(inData, inStart, len * LONG_SIZE);
+            bb.order(byteOrder.getNioByteOrder());
+            bb.asLongBuffer().get(outData, outStart, len);
+        }
     }
 
     /**
@@ -341,7 +444,15 @@ public class NativeData
     public static void copyShortToByte(short[] inData, int inStart, byte[] outData, int outStart,
             int len, ByteOrder byteOrder)
     {
-        copyShortToByte(inData, inStart, outData, outStart, len, byteOrder.ordinal());
+        if (useNativeLib)
+        {
+            copyShortToByte(inData, inStart, outData, outStart, len, byteOrder.ordinal());
+        } else
+        {
+            final ByteBuffer bb = ByteBuffer.wrap(outData, outStart, len * SHORT_SIZE);
+            bb.order(byteOrder.getNioByteOrder());
+            bb.asShortBuffer().put(inData, inStart, len);
+        }
     }
 
     /**
@@ -360,7 +471,15 @@ public class NativeData
     public static void copyByteToShort(byte[] inData, int inStart, short[] outData, int outStart,
             int len, ByteOrder byteOrder)
     {
-        copyByteToShort(inData, inStart, outData, outStart, len, byteOrder.ordinal());
+        if (useNativeLib)
+        {
+            copyByteToShort(inData, inStart, outData, outStart, len, byteOrder.ordinal());
+        } else
+        {
+            final ByteBuffer bb = ByteBuffer.wrap(inData, inStart, len * SHORT_SIZE);
+            bb.order(byteOrder.getNioByteOrder());
+            bb.asShortBuffer().get(outData, outStart, len);
+        }
     }
 
     /**
@@ -379,7 +498,15 @@ public class NativeData
     public static void copyFloatToByte(float[] inData, int inStart, byte[] outData, int outStart,
             int len, ByteOrder byteOrder)
     {
-        copyFloatToByte(inData, inStart, outData, outStart, len, byteOrder.ordinal());
+        if (useNativeLib)
+        {
+            copyFloatToByte(inData, inStart, outData, outStart, len, byteOrder.ordinal());
+        } else
+        {
+            final ByteBuffer bb = ByteBuffer.wrap(outData, outStart, len * FLOAT_SIZE);
+            bb.order(byteOrder.getNioByteOrder());
+            bb.asFloatBuffer().put(inData, inStart, len);
+        }
     }
 
     /**
@@ -398,7 +525,15 @@ public class NativeData
     public static void copyByteToFloat(byte[] inData, int inStart, float[] outData, int outStart,
             int len, ByteOrder byteOrder)
     {
-        copyByteToFloat(inData, inStart, outData, outStart, len, byteOrder.ordinal());
+        if (useNativeLib)
+        {
+            copyByteToFloat(inData, inStart, outData, outStart, len, byteOrder.ordinal());
+        } else
+        {
+            final ByteBuffer bb = ByteBuffer.wrap(inData, inStart, len * FLOAT_SIZE);
+            bb.order(byteOrder.getNioByteOrder());
+            bb.asFloatBuffer().get(outData, outStart, len);
+        }
     }
 
     /**
@@ -417,7 +552,15 @@ public class NativeData
     public static void copyDoubleToByte(double[] inData, int inStart, byte[] outData, int outStart,
             int len, ByteOrder byteOrder)
     {
-       copyDoubleToByte(inData, inStart, outData, outStart, len, byteOrder.ordinal()); 
+        if (useNativeLib)
+        {
+            copyDoubleToByte(inData, inStart, outData, outStart, len, byteOrder.ordinal());
+        } else
+        {
+            final ByteBuffer bb = ByteBuffer.wrap(outData, outStart, len * DOUBLE_SIZE);
+            bb.order(byteOrder.getNioByteOrder());
+            bb.asDoubleBuffer().put(inData, inStart, len);
+        }
     }
 
     /**
@@ -436,7 +579,15 @@ public class NativeData
     public static void copyByteToDouble(byte[] inData, int inStart, double[] outData, int outStart,
             int len, ByteOrder byteOrder)
     {
-        copyByteToDouble(inData, inStart, outData, outStart, len, byteOrder.ordinal());
+        if (useNativeLib)
+        {
+            copyByteToDouble(inData, inStart, outData, outStart, len, byteOrder.ordinal());
+        } else
+        {
+            final ByteBuffer bb = ByteBuffer.wrap(inData, inStart, len * DOUBLE_SIZE);
+            bb.order(byteOrder.getNioByteOrder());
+            bb.asDoubleBuffer().get(outData, outStart, len);
+        }
     }
 
     /**
@@ -451,7 +602,7 @@ public class NativeData
     public static short[] byteToShort(byte[] byteArr, ByteOrder byteOrder, int start, int len)
     {
         final short[] array = new short[len];
-        copyByteToShort(byteArr, start, array, 0, len, byteOrder.ordinal());
+        copyByteToShort(byteArr, start, array, 0, len, byteOrder);
         return array;
     }
 
@@ -470,7 +621,7 @@ public class NativeData
         }
         final int len = byteArr.length / SHORT_SIZE;
         final short[] array = new short[len];
-        copyByteToShort(byteArr, 0, array, 0, len, byteOrder.ordinal());
+        copyByteToShort(byteArr, 0, array, 0, len, byteOrder);
         return array;
     }
 
@@ -486,7 +637,7 @@ public class NativeData
     public static byte[] shortToByte(short[] data, ByteOrder byteOrder, int start, int len)
     {
         final byte[] byteArr = new byte[SHORT_SIZE * len];
-        copyShortToByte(data, start, byteArr, 0, len, byteOrder.ordinal());
+        copyShortToByte(data, start, byteArr, 0, len, byteOrder);
         return byteArr;
     }
 
@@ -500,7 +651,7 @@ public class NativeData
     public static byte[] shortToByte(short[] data, ByteOrder byteOrder)
     {
         final byte[] byteArr = new byte[SHORT_SIZE * data.length];
-        copyShortToByte(data, 0, byteArr, 0, data.length, byteOrder.ordinal());
+        copyShortToByte(data, 0, byteArr, 0, data.length, byteOrder);
         return byteArr;
     }
 
@@ -516,7 +667,7 @@ public class NativeData
     public static int[] byteToInt(byte[] byteArr, ByteOrder byteOrder, int start, int len)
     {
         final int[] array = new int[len];
-        copyByteToInt(byteArr, start, array, 0, len, byteOrder.ordinal());
+        copyByteToInt(byteArr, start, array, 0, len, byteOrder);
         return array;
     }
 
@@ -535,7 +686,7 @@ public class NativeData
         }
         final int len = byteArr.length / INT_SIZE;
         final int[] array = new int[len];
-        copyByteToInt(byteArr, 0, array, 0, len, byteOrder.ordinal());
+        copyByteToInt(byteArr, 0, array, 0, len, byteOrder);
         return array;
     }
 
@@ -551,7 +702,7 @@ public class NativeData
     public static byte[] intToByte(int[] data, ByteOrder byteOrder, int start, int len)
     {
         final byte[] byteArr = new byte[INT_SIZE * len];
-        copyIntToByte(data, start, byteArr, 0, len, byteOrder.ordinal());
+        copyIntToByte(data, start, byteArr, 0, len, byteOrder);
         return byteArr;
     }
 
@@ -565,7 +716,7 @@ public class NativeData
     public static byte[] intToByte(int[] data, ByteOrder byteOrder)
     {
         final byte[] byteArr = new byte[INT_SIZE * data.length];
-        copyIntToByte(data, 0, byteArr, 0, data.length, byteOrder.ordinal());
+        copyIntToByte(data, 0, byteArr, 0, data.length, byteOrder);
         return byteArr;
     }
 
@@ -581,7 +732,7 @@ public class NativeData
     public static long[] byteToLong(byte[] byteArr, ByteOrder byteOrder, int start, int len)
     {
         final long[] array = new long[len];
-        copyByteToLong(byteArr, start, array, 0, len, byteOrder.ordinal());
+        copyByteToLong(byteArr, start, array, 0, len, byteOrder);
         return array;
     }
 
@@ -600,7 +751,7 @@ public class NativeData
         }
         final int len = byteArr.length / LONG_SIZE;
         final long[] array = new long[len];
-        copyByteToLong(byteArr, 0, array, 0, len, byteOrder.ordinal());
+        copyByteToLong(byteArr, 0, array, 0, len, byteOrder);
         return array;
     }
 
@@ -616,7 +767,7 @@ public class NativeData
     public static byte[] longToByte(long[] data, ByteOrder byteOrder, int start, int len)
     {
         final byte[] byteArr = new byte[LONG_SIZE * len];
-        copyLongToByte(data, start, byteArr, 0, len, byteOrder.ordinal());
+        copyLongToByte(data, start, byteArr, 0, len, byteOrder);
         return byteArr;
     }
 
@@ -630,7 +781,7 @@ public class NativeData
     public static byte[] longToByte(long[] data, ByteOrder byteOrder)
     {
         final byte[] byteArr = new byte[LONG_SIZE * data.length];
-        copyLongToByte(data, 0, byteArr, 0, data.length, byteOrder.ordinal());
+        copyLongToByte(data, 0, byteArr, 0, data.length, byteOrder);
         return byteArr;
     }
 
@@ -646,7 +797,7 @@ public class NativeData
     public static float[] byteToFloat(byte[] byteArr, ByteOrder byteOrder, int start, int len)
     {
         final float[] array = new float[len];
-        copyByteToFloat(byteArr, start, array, 0, len, byteOrder.ordinal());
+        copyByteToFloat(byteArr, start, array, 0, len, byteOrder);
         return array;
     }
 
@@ -665,7 +816,7 @@ public class NativeData
         }
         final int len = byteArr.length / FLOAT_SIZE;
         final float[] array = new float[len];
-        copyByteToFloat(byteArr, 0, array, 0, len, byteOrder.ordinal());
+        copyByteToFloat(byteArr, 0, array, 0, len, byteOrder);
         return array;
     }
 
@@ -681,7 +832,7 @@ public class NativeData
     public static byte[] floatToByte(float[] data, ByteOrder byteOrder, int start, int len)
     {
         final byte[] byteArr = new byte[FLOAT_SIZE * len];
-        copyFloatToByte(data, start, byteArr, 0, len, byteOrder.ordinal());
+        copyFloatToByte(data, start, byteArr, 0, len, byteOrder);
         return byteArr;
     }
 
@@ -695,7 +846,7 @@ public class NativeData
     public static byte[] floatToByte(float[] data, ByteOrder byteOrder)
     {
         final byte[] byteArr = new byte[FLOAT_SIZE * data.length];
-        copyFloatToByte(data, 0, byteArr, 0, data.length, byteOrder.ordinal());
+        copyFloatToByte(data, 0, byteArr, 0, data.length, byteOrder);
         return byteArr;
     }
 
@@ -711,7 +862,7 @@ public class NativeData
     public static double[] byteToDouble(byte[] byteArr, ByteOrder byteOrder, int start, int len)
     {
         final double[] array = new double[len];
-        copyByteToDouble(byteArr, start, array, 0, len, byteOrder.ordinal());
+        copyByteToDouble(byteArr, start, array, 0, len, byteOrder);
         return array;
     }
 
@@ -730,7 +881,7 @@ public class NativeData
         }
         final int len = byteArr.length / DOUBLE_SIZE;
         final double[] array = new double[len];
-        copyByteToDouble(byteArr, 0, array, 0, len, byteOrder.ordinal());
+        copyByteToDouble(byteArr, 0, array, 0, len, byteOrder);
         return array;
     }
 
@@ -746,7 +897,7 @@ public class NativeData
     public static byte[] doubleToByte(double[] data, ByteOrder byteOrder, int start, int len)
     {
         final byte[] byteArr = new byte[DOUBLE_SIZE * len];
-        copyDoubleToByte(data, start, byteArr, 0, len, byteOrder.ordinal());
+        copyDoubleToByte(data, start, byteArr, 0, len, byteOrder);
         return byteArr;
     }
 
@@ -760,7 +911,7 @@ public class NativeData
     public static byte[] doubleToByte(double[] data, ByteOrder byteOrder)
     {
         final byte[] byteArr = new byte[DOUBLE_SIZE * data.length];
-        copyDoubleToByte(data, 0, byteArr, 0, data.length, byteOrder.ordinal());
+        copyDoubleToByte(data, 0, byteArr, 0, data.length, byteOrder);
         return byteArr;
     }
 

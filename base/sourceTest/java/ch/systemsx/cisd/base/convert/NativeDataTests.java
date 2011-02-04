@@ -80,6 +80,86 @@ public class NativeDataTests
         assertTrue(Arrays.equals(iarr, iarr2));
     }
 
+    @Test
+    public void testIntChangeByteOrderAndBack()
+    {
+        assertEquals(0, NativeData.changeByteOrder(NativeData.changeByteOrder(0)));
+        assertEquals(1, NativeData.changeByteOrder(NativeData.changeByteOrder(1)));
+        assertEquals(-1, NativeData.changeByteOrder(NativeData.changeByteOrder(-1)));
+        assertEquals(Integer.MAX_VALUE,
+                NativeData.changeByteOrder(NativeData.changeByteOrder(Integer.MAX_VALUE)));
+        assertEquals(Integer.MIN_VALUE,
+                NativeData.changeByteOrder(NativeData.changeByteOrder(Integer.MIN_VALUE)));
+    }
+
+    @Test
+    public void testShortChangeByteOrderAndBack()
+    {
+        assertEquals((short) 0, NativeData.changeByteOrder(NativeData.changeByteOrder((short) 0)));
+        assertEquals((short) 1, NativeData.changeByteOrder(NativeData.changeByteOrder((short) 1)));
+        assertEquals((short) -1, NativeData.changeByteOrder(NativeData.changeByteOrder((short) -1)));
+        assertEquals(Short.MAX_VALUE,
+                NativeData.changeByteOrder(NativeData.changeByteOrder(Short.MAX_VALUE)));
+        assertEquals(Short.MIN_VALUE,
+                NativeData.changeByteOrder(NativeData.changeByteOrder(Short.MIN_VALUE)));
+    }
+
+    @Test
+    public void testCharChangeByteOrderAndBack()
+    {
+        assertEquals((char) 0, NativeData.changeByteOrder(NativeData.changeByteOrder((char) 0)));
+        assertEquals((char) 1, NativeData.changeByteOrder(NativeData.changeByteOrder((char) 1)));
+        assertEquals((char) -1, NativeData.changeByteOrder(NativeData.changeByteOrder((char) -1)));
+        assertEquals((char) Short.MAX_VALUE,
+                NativeData.changeByteOrder(NativeData.changeByteOrder((char) Short.MAX_VALUE)));
+        assertEquals((char) Short.MIN_VALUE,
+                NativeData.changeByteOrder(NativeData.changeByteOrder((char) Short.MIN_VALUE)));
+    }
+
+    @Test
+    public void testLongChangeByteOrderAndBack()
+    {
+        assertEquals(0, NativeData.changeByteOrder(NativeData.changeByteOrder(0L)));
+        assertEquals(1, NativeData.changeByteOrder(NativeData.changeByteOrder(1L)));
+        assertEquals(-1, NativeData.changeByteOrder(NativeData.changeByteOrder(-1L)));
+        assertEquals(Long.MAX_VALUE,
+                NativeData.changeByteOrder(NativeData.changeByteOrder(Long.MAX_VALUE)));
+        assertEquals(Long.MIN_VALUE,
+                NativeData.changeByteOrder(NativeData.changeByteOrder(Long.MIN_VALUE)));
+    }
+
+    @Test
+    public void testFloatChangeByteOrderAndBack()
+    {
+        assertEquals(0f, NativeData.changeByteOrder(NativeData.changeByteOrder(0f)));
+        assertEquals(1f, NativeData.changeByteOrder(NativeData.changeByteOrder(1f)));
+        assertEquals(-1f, NativeData.changeByteOrder(NativeData.changeByteOrder(-1f)));
+        assertEquals(Float.MAX_VALUE,
+                NativeData.changeByteOrder(NativeData.changeByteOrder(Float.MAX_VALUE)));
+        assertEquals(Float.MIN_VALUE,
+                NativeData.changeByteOrder(NativeData.changeByteOrder(Float.MIN_VALUE)));
+        assertEquals(-Float.MAX_VALUE,
+                NativeData.changeByteOrder(NativeData.changeByteOrder(-Float.MAX_VALUE)));
+        assertEquals(-Float.MIN_VALUE,
+                NativeData.changeByteOrder(NativeData.changeByteOrder(-Float.MIN_VALUE)));
+    }
+
+    @Test
+    public void testDoubleChangeByteOrderAndBack()
+    {
+        assertEquals(0., NativeData.changeByteOrder(NativeData.changeByteOrder(0.)));
+        assertEquals(1., NativeData.changeByteOrder(NativeData.changeByteOrder(1.)));
+        assertEquals(-1., NativeData.changeByteOrder(NativeData.changeByteOrder(-1.)));
+        assertEquals(Double.MAX_VALUE,
+                NativeData.changeByteOrder(NativeData.changeByteOrder(Double.MAX_VALUE)));
+        assertEquals(Double.MIN_VALUE,
+                NativeData.changeByteOrder(NativeData.changeByteOrder(Double.MIN_VALUE)));
+        assertEquals(-Double.MAX_VALUE,
+                NativeData.changeByteOrder(NativeData.changeByteOrder(-Double.MAX_VALUE)));
+        assertEquals(-Double.MIN_VALUE,
+                NativeData.changeByteOrder(NativeData.changeByteOrder(-Double.MIN_VALUE)));
+    }
+
     @Test(dataProvider = "getOfs")
     public void testLongToByteToLong(int sourceOfs, int targetOfs)
     {
@@ -244,7 +324,7 @@ public class NativeDataTests
         NativeData.copyByteToLong(null, 0, null, 0, 0, ByteOrder.NATIVE);
     }
 
-    @Test(expectedExceptions = IllegalArgumentException.class)
+    @Test(expectedExceptions = {IllegalArgumentException.class, IndexOutOfBoundsException.class})
     public void testIAE()
     {
         NativeData.copyByteToLong(new byte[] {}, -1, new long[] {}, 0, 0, ByteOrder.NATIVE);
@@ -287,7 +367,7 @@ public class NativeDataTests
         final byte[] trailerArray = new byte[]
             { 5, 6, 7, 8 };
         final byte[] barr =
-            new byte[iarr.length * sizeOfTarget + headerArray.length + trailerArray.length];
+                new byte[iarr.length * sizeOfTarget + headerArray.length + trailerArray.length];
         System.arraycopy(headerArray, 0, barr, 0, headerArray.length);
         System.arraycopy(trailerArray, 0, barr, headerArray.length + iarr.length * sizeOfTarget,
                 trailerArray.length);
