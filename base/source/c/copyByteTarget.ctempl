@@ -39,6 +39,7 @@ extern "C" {
 extern jboolean h5JNIFatalError( JNIEnv *env, char *functName);
 extern jboolean h5nullArgument( JNIEnv *env, char *functName);
 extern jboolean h5badArgument( JNIEnv *env, char *functName);
+extern jboolean h5indexOutOfBounds( JNIEnv *env, char *functName);
 
 /* Change byte order for data type of length 2. */
 #define CHANGE_BYTE_ORDER_2(ARRAY) {jbyte _tmp; _tmp=ARRAY[0]; ARRAY[0]=ARRAY[1]; ARRAY[1]=_tmp;}
@@ -97,7 +98,7 @@ JNIEXPORT void JNICALL FUNCTIONNAMETB
     inSize = (*env)->GetArrayLength(env, inData);
 #endif
     if ((inStart < 0) || (inStart + len > inSize)) {
-        h5badArgument(env, OOB_IN_ERR_TB);
+        h5indexOutOfBounds(env, OOB_IN_ERR_TB);
         return;
     }
 
@@ -107,7 +108,7 @@ JNIEXPORT void JNICALL FUNCTIONNAMETB
     outSize = (*env)->GetArrayLength(env, outData);
 #endif
     if ((outStart < 0) || (outStart + lenInBytes > outSize)) {
-        h5badArgument(env, OOB_OUT_ERR_TB);
+        h5indexOutOfBounds(env, OOB_OUT_ERR_TB);
         return;
     }
 
@@ -185,7 +186,7 @@ JNIEXPORT void JNICALL FUNCTIONNAMEBT
     inSize = (*env)->GetArrayLength(env, inData);
 #endif
     if ((inStart < 0) || (inStart + lenInBytes > inSize)) {
-        h5badArgument(env, OOB_IN_ERR_BT);
+        h5indexOutOfBounds(env, OOB_IN_ERR_BT);
         return;
     }
 
@@ -195,7 +196,7 @@ JNIEXPORT void JNICALL FUNCTIONNAMEBT
     outSize = (*env)->GetArrayLength(env, outData);
 #endif
     if ((outStart < 0) || (outStart + len > outSize)) {
-        h5badArgument(env, OOB_OUT_ERR_BT);
+        h5indexOutOfBounds(env, OOB_OUT_ERR_BT);
         return;
     }
 

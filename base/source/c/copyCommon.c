@@ -206,6 +206,63 @@ jboolean h5badArgument( JNIEnv *env, char *functName)
     return JNI_TRUE;
 }
 
+/*
+ *  An Index-out-of-bounds error argument in an HDF5 call
+ *  Create and throw an 'IllegalArgumentException'
+ *
+ *  Note:  This routine never returns from the 'throw',
+ *  and the Java native method immediately raises the
+ *  exception.
+ */
+jboolean h5indexOutOfBounds( JNIEnv *env, char *functName)
+{
+    jmethodID jm;
+    jclass jc;
+    char * args[2];
+    jobject ex;
+    jstring str;
+    int rval;
+
+#ifdef __cplusplus
+    jc = env->FindClass("java/lang/IndexOutOfBoundsException");
+#else
+    jc = (*env)->FindClass(env, "java/lang/IndexOutOfBoundsException");
+#endif
+    if (jc == NULL) {
+        return JNI_FALSE;
+    }
+#ifdef __cplusplus
+    jm = env->GetMethodID(jc, "<init>", "(Ljava/lang/String;)V");
+#else
+    jm = (*env)->GetMethodID(env, jc, "<init>", "(Ljava/lang/String;)V");
+#endif
+    if (jm == NULL) {
+        return JNI_FALSE;
+    }
+
+#ifdef __cplusplus
+    str = env->NewStringUTF(functName);
+#else
+    str = (*env)->NewStringUTF(env,functName);
+#endif
+    args[0] = (char *)str;
+    args[1] = 0;
+#ifdef __cplusplus
+    ex = env->NewObjectA ( jc, jm, (jvalue *)args );
+
+    rval = env->Throw((jthrowable) ex );
+#else
+    ex = (*env)->NewObjectA ( env, jc, jm, (jvalue *)args );
+
+    rval = (*env)->Throw(env, ex );
+#endif
+    if (rval < 0) {
+        fprintf(stderr, "FATAL ERROR:  BadArgument: Throw failed\n");
+        return JNI_FALSE;
+    }
+
+    return JNI_TRUE;
+}
 #ifdef __cplusplus
 }
 #endif
