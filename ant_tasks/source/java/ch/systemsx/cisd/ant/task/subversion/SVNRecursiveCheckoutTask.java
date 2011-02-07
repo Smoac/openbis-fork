@@ -349,6 +349,9 @@ public class SVNRecursiveCheckoutTask extends Task
         } else if (context.isReleaseTag(versionName))
         {
             setReleaseTag(versionName);
+        } else if (context.isSprintBranch(versionName))
+        {
+            setSprintBranch(versionName);
         } else if (context.isSprintTag(versionName))
         {
             setSprintTag(versionName);
@@ -370,6 +373,23 @@ public class SVNRecursiveCheckoutTask extends Task
         {
             context.setReleaseTag(tagName);
         } catch (final UserFailureException ex)
+        {
+            throw new BuildException(ex.getMessage());
+        }
+    }
+
+    /**
+     * Sets the name of the sprint branch specified for this project.
+     */
+    public void setSprintBranch(String branchName)
+    {
+        assert context != null;
+        assert branchName != null;
+
+        try
+        {
+            context.setSprintBranch(branchName);
+        } catch (UserFailureException ex)
         {
             throw new BuildException(ex.getMessage());
         }
