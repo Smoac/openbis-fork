@@ -53,6 +53,12 @@ public final class DynamicPropertyEvaluationScheduler implements
                     }
                 };
 
+    /* private - exposed for tests */
+    public static List<DynamicPropertyEvaluationOperation> getThreadOperations()
+    {
+        return threadQueue.get();
+    }
+
     private final IExtendedBlockingQueue<DynamicPropertyEvaluationOperation> evaluatorQueue;
 
     public DynamicPropertyEvaluationScheduler()
@@ -102,13 +108,13 @@ public final class DynamicPropertyEvaluationScheduler implements
     public void scheduleUpdate(DynamicPropertyEvaluationOperation operation)
     {
         threadDebugLog("Scheduling update: " + operation);
-        List<DynamicPropertyEvaluationOperation> threadOperations = threadQueue.get();
+        List<DynamicPropertyEvaluationOperation> threadOperations = getThreadOperations();
         threadOperations.add(operation);
     }
 
     public void synchronizeThreadQueue()
     {
-        List<DynamicPropertyEvaluationOperation> threadOperations = threadQueue.get();
+        List<DynamicPropertyEvaluationOperation> threadOperations = getThreadOperations();
         if (threadOperations.size() > 0)
         {
             threadDebugLog("Synchronizing scheduled operations");
@@ -126,7 +132,7 @@ public final class DynamicPropertyEvaluationScheduler implements
     public void clearThreadQueue()
     {
         threadDebugLog("Clearing scheduled operations");
-        List<DynamicPropertyEvaluationOperation> threadOperations = threadQueue.get();
+        List<DynamicPropertyEvaluationOperation> threadOperations = getThreadOperations();
         threadOperations.clear();
     }
 

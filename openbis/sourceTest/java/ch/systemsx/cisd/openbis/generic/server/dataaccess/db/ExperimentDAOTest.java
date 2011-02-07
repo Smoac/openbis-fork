@@ -34,6 +34,8 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationOperation;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -89,17 +91,20 @@ public class ExperimentDAOTest extends AbstractDAOTest
     @Test
     public void testListExperimentsWithPropertiesForEmptySet() throws Exception
     {
-        List<ExperimentPE> list = daoFactory.getExperimentDAO().listExperimentsWithProperties(Collections.<Long>emptySet());
+        List<ExperimentPE> list =
+                daoFactory.getExperimentDAO().listExperimentsWithProperties(
+                        Collections.<Long> emptySet());
         assertEquals(0, list.size());
     }
-    
+
     @Test
     public void testListByPermIDForEmptySet() throws Exception
     {
-        List<ExperimentPE> list = daoFactory.getExperimentDAO().listByPermID(Collections.<String>emptySet());
+        List<ExperimentPE> list =
+                daoFactory.getExperimentDAO().listByPermID(Collections.<String> emptySet());
         assertEquals(0, list.size());
     }
-    
+
     @Test
     public void testListExperimentsFromProject() throws Exception
     {
@@ -314,8 +319,15 @@ public class ExperimentDAOTest extends AbstractDAOTest
         int sizeBefore = experimentsBefore.size();
         assertEqualsOrGreater(8, sizeBefore);
 
+        List<DynamicPropertyEvaluationOperation> threadOperations =
+                DynamicPropertyEvaluationScheduler.getThreadOperations();
+        assertEquals(0, threadOperations.size());
+
         ExperimentPE experiment = createExperiment("CISD", "CISD", "NEMO", "EXP12", "SIRNA_HCS");
         daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment);
+
+        assertEquals(1, threadOperations.size());
+        assertEquals(asDynamicPropertyEvaluationOperation(experiment), threadOperations.get(0));
 
         List<ExperimentPE> experimentsAfter = daoFactory.getExperimentDAO().listExperiments();
         assertEquals(sizeBefore + 1, experimentsAfter.size());
@@ -337,7 +349,15 @@ public class ExperimentDAOTest extends AbstractDAOTest
         experiment.setCode(codeModified);
         experiment.setPermId(daoFactory.getPermIdDAO().createPermId());
         final Date modificationTimestamp = experiment.getModificationDate();
+
+        List<DynamicPropertyEvaluationOperation> threadOperations =
+                DynamicPropertyEvaluationScheduler.getThreadOperations();
+        assertEquals(0, threadOperations.size());
+
         daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment);
+
+        assertEquals(1, threadOperations.size());
+        assertEquals(asDynamicPropertyEvaluationOperation(experiment), threadOperations.get(0));
 
         List<ExperimentPE> experimentsAfter = daoFactory.getExperimentDAO().listExperiments();
         assertEquals(sizeBefore, experimentsAfter.size());
@@ -354,12 +374,23 @@ public class ExperimentDAOTest extends AbstractDAOTest
         int sizeBefore = experimentsBefore.size();
         assertEqualsOrGreater(8, sizeBefore);
 
+        List<DynamicPropertyEvaluationOperation> threadOperations =
+                DynamicPropertyEvaluationScheduler.getThreadOperations();
+        assertEquals(0, threadOperations.size());
+
         ExperimentPE experiment = createExperiment("CISD", "CISD", "NEMO", "EXP13", "SIRNA_HCS");
         daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment);
+
+        assertEquals(1, threadOperations.size());
+        assertEquals(asDynamicPropertyEvaluationOperation(experiment), threadOperations.get(0));
 
         ExperimentPE experiment2 =
                 createExperiment("CISD", "CISD", "NEMO", "EXP12", "COMPOUND_HCS");
         daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment2);
+
+        assertEquals(2, threadOperations.size());
+        assertEquals(asDynamicPropertyEvaluationOperation(experiment), threadOperations.get(0));
+        assertEquals(asDynamicPropertyEvaluationOperation(experiment2), threadOperations.get(1));
 
         List<ExperimentPE> experimentsAfter = daoFactory.getExperimentDAO().listExperiments();
         Collections.sort(experimentsAfter);
@@ -412,6 +443,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
     {
         final ExperimentPE experiment = createExperiment("CISD", "CISD", "NEMO", code, "SIRNA_HCS");
         boolean exceptionThrown = false;
+
         try
         {
             daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment);
@@ -489,6 +521,13 @@ public class ExperimentDAOTest extends AbstractDAOTest
         HashSet<String> keys = new HashSet<String>();
         List<ExperimentPE> result = daoFactory.getExperimentDAO().listByPermID(keys);
         AssertJUnit.assertTrue(result.isEmpty());
+    }
+
+    private DynamicPropertyEvaluationOperation asDynamicPropertyEvaluationOperation(
+            ExperimentPE experiment)
+    {
+        return DynamicPropertyEvaluationOperation.evaluate(ExperimentPE.class,
+                Collections.singletonList(experiment.getId()));
     }
 
 }

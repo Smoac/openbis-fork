@@ -40,7 +40,6 @@ import org.testng.annotations.BeforeMethod;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.HibernateSearchContext;
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
@@ -91,8 +90,6 @@ public abstract class AbstractDAOWithoutContextTest extends
 
     protected SessionFactory sessionFactory;
 
-    HibernateSearchContext hibernateSearchContext;
-
     private Long origDatabaseInstanceId;
 
     private Object currentDAO;
@@ -134,18 +131,6 @@ public abstract class AbstractDAOWithoutContextTest extends
     public final void setHibernateSessionFactory(final SessionFactory sessionFactory)
     {
         this.sessionFactory = sessionFactory;
-    }
-
-    /**
-     * Sets <code>hibernate search context</code>.
-     * <p>
-     * Will be automatically dependency injected by type.
-     * </p>
-     */
-    @Autowired
-    public final void setHibernateSearchContext(final HibernateSearchContext hibernateSearchContext)
-    {
-        this.hibernateSearchContext = hibernateSearchContext;
     }
 
     /**
