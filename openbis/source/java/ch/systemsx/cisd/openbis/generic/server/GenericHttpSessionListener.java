@@ -28,7 +28,6 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
@@ -45,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 public final class GenericHttpSessionListener implements HttpSessionListener
 {
     protected static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            AbstractClientService.class);
+            GenericHttpSessionListener.class);
 
     private static final String LOGGING_ACTIVATION_PARAM = "opennis.log.activation.parameter";
 
