@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -57,6 +58,7 @@ public class MainPagePanel extends ContentPanel implements IMainPanel
 
     public final void open(final AbstractTabItemFactory tabItemFactory)
     {
+        History.newItem(History.getToken()); // WORKAROUND for IE not seeing history changes
         GWTUtils.updatePageTitle(tabItemFactory.getTabTitle());
         reset();
         content = tabItemFactory.create();
