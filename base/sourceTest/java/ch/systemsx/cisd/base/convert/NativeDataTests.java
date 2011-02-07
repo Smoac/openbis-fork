@@ -324,10 +324,16 @@ public class NativeDataTests
         NativeData.copyByteToLong(null, 0, null, 0, 0, ByteOrder.NATIVE);
     }
 
-    @Test(expectedExceptions = {IllegalArgumentException.class, IndexOutOfBoundsException.class})
-    public void testIAE()
+    @Test(expectedExceptions = IndexOutOfBoundsException.class)
+    public void testIOOB()
     {
         NativeData.copyByteToLong(new byte[] {}, -1, new long[] {}, 0, 0, ByteOrder.NATIVE);
+    }
+
+    @Test(expectedExceptions = IndexOutOfBoundsException.class)
+    public void testIOOB2()
+    {
+        NativeData.copyByteToLong(new byte[] {}, 0, new long[] {}, 10, 0, ByteOrder.NATIVE);
     }
 
     @Test
