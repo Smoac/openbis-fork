@@ -26,27 +26,33 @@ public interface IDataSet
 {
     /**
      * Get the data set code of the data set
+     * 
+     * @return The code of this data set.
      */
     public String getDataSetCode();
 
     /**
      * Get the experiment for this data set. This can only be null at initialization time, and will
      * be non-null for a valid data set.
+     * 
+     * @return The experiment for this data set (will be non-null for a valid data set)
      */
     IExperimentImmutable getExperiment();
 
     /**
      * Set the experiment for this data set. The experiment may also be set by setting the sample.
      * 
-     * @param experiment The experiment to use. Need not actually be immutable, but the immutable
-     *            one is the supertype.
+     * @param experiment The experiment for this data set. Need not actually be immutable, but the
+     *            immutable one is the supertype.
      */
     void setExperiment(IExperimentImmutable experiment);
 
     /**
      * Get the sample for this data set, if there is one.
+     * 
+     * @return A sample or null.
      */
-    ISampleImmutable getSampleOrNull();
+    ISampleImmutable getSample();
 
     /**
      * Set the sample for this data set. Will also set the experiment, since the sample must have an
@@ -55,21 +61,27 @@ public interface IDataSet
      * @param sampleOrNull The sample to use. Need not actually be immutable, but the immutable one
      *            is the supertype.
      */
-    void setSampleOrNull(ISampleImmutable sampleOrNull);
+    void setSample(ISampleImmutable sampleOrNull);
 
     /**
      * The file format type of the data set. Defaults to the default specified in
      * {@link FileFormatType}.
+     * 
+     * @return The code of the {@link FileFormatType} for this data set.
      */
     public String getFileFormatType();
 
     /**
      * Set the file format type.
+     * 
+     * @param fileFormatTypeCode The code of the desired {@link FileFormatType}.
      */
     public void setFileFormatType(String fileFormatTypeCode);
 
     /**
      * Return true if the data set is measured data. Defaults to true.
+     * 
+     * @return True if the data set is measured data, false otherwise.
      */
     public boolean isMeasuredData();
 
