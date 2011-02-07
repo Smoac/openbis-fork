@@ -157,7 +157,11 @@ public final class ColumnNames
     public final static String LAST_NAME_COLUMN = "last_name";
 
     public static final String LOCATION_COLUMN = "location";
+    
+    public static final String SHARE_ID_COLUMN = "share_id";
 
+    public static final String SIZE_COLUMN = "size";
+    
     public static final String LOCATOR_TYPE_COLUMN = "loty_id";
 
     public static final String MATERIAL_BATCH_COLUMN = "maba_id";

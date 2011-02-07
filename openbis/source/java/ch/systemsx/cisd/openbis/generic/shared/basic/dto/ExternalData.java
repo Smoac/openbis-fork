@@ -56,6 +56,10 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
 
     private Collection<ExternalData> parents;
 
+    private String shareId;
+    
+    private Long size;
+    
     private String location;
 
     private FileFormatType fileFormatType;
@@ -228,6 +232,26 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
     public void setParents(Collection<ExternalData> parents)
     {
         this.parents = parents;
+    }
+
+    public String getShareId()
+    {
+        return shareId;
+    }
+
+    public void setShareId(String shareId)
+    {
+        this.shareId = shareId;
+    }
+
+    public Long getSize()
+    {
+        return size;
+    }
+
+    public void setSize(Long size)
+    {
+        this.size = size;
     }
 
     public final String getLocation()

@@ -37,8 +37,12 @@ public class DatasetRecord extends CodeRecord
 
     // ---- from external_data table
 
-    public String location;
+    public String share_id;
 
+    public String location;
+    
+    public Long size;
+    
     public Long ffty_id;
 
     public Long loty_id;

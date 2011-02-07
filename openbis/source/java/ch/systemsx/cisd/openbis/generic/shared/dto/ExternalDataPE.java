@@ -60,8 +60,12 @@ public final class ExternalDataPE extends DataPE
     /** An empty array of <code>ExternalData</code>. */
     @SuppressWarnings("hiding")
     public final static ExternalDataPE[] EMPTY_ARRAY = new ExternalDataPE[0];
+    
+    private String shareId;
 
     private String location;
+    
+    private Long size;
 
     private VocabularyTermPE storageFormatVocabularyTerm;
 
@@ -104,6 +108,28 @@ public final class ExternalDataPE extends DataPE
     public void setLocation(final String location)
     {
         this.location = location;
+    }
+    
+    @Column(name = ColumnNames.SHARE_ID_COLUMN)
+    public String getShareId()
+    {
+        return shareId;
+    }
+
+    public void setShareId(String shareId)
+    {
+        this.shareId = shareId;
+    }
+
+    @Column(name = ColumnNames.SIZE_COLUMN)
+    public Long getSize()
+    {
+        return size;
+    }
+
+    public void setSize(Long size)
+    {
+        this.size = size;
     }
 
     @ManyToOne(fetch = FetchType.LAZY)

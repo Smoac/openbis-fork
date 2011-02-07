@@ -86,7 +86,9 @@ public class ExternalDataTranslator
         externalData
                 .setFileFormatType(TypeTranslator.translate(externalDataPE.getFileFormatType()));
         externalData.setInvalidation(tryToGetInvalidation(sampleOrNull, experiment));
+        externalData.setShareId(externalDataPE.getShareId());
         externalData.setLocation(externalDataPE.getLocation());
+        externalData.setSize(externalDataPE.getSize());
         externalData.setLocatorType(TypeTranslator.translate(externalDataPE.getLocatorType()));
         final Collection<ExternalData> parents = new HashSet<ExternalData>();
         externalData.setParents(parents);

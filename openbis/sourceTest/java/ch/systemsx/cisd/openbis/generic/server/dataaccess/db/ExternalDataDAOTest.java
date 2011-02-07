@@ -91,11 +91,15 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         String dataSetCode = daoFactory.getPermIdDAO().createPermId();
         SamplePE sample = pickASample();
         ExternalDataPE externalData = createExternalData(dataSetCode, sample);
+        externalData.setShareId("42");
+        externalData.setSize(4711L);
         externalDataDAO.createDataSet(externalData);
 
         ExternalDataPE dataSet =
                 (ExternalDataPE) externalDataDAO.tryToFindDataSetByCode(dataSetCode);
         assertDataEqual(externalData, dataSet);
+        assertEquals("42", dataSet.getShareId());
+        assertEquals(4711L, dataSet.getSize().longValue());
     }
 
     @Test

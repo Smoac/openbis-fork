@@ -44,7 +44,11 @@ public final class NewExternalData implements Serializable
 
     private ExtractableData extractableData = new ExtractableData();
 
+    private String shareId;
+    
     private String location;
+    
+    private Long size;
 
     private StorageFormat storageFormat;
 
@@ -102,6 +106,26 @@ public final class NewExternalData implements Serializable
     public final void setDataSetType(final DataSetType dataSetType)
     {
         this.dataSetType = dataSetType;
+    }
+
+    public String getShareId()
+    {
+        return shareId;
+    }
+
+    public void setShareId(String shareId)
+    {
+        this.shareId = shareId;
+    }
+
+    public Long getSize()
+    {
+        return size;
+    }
+
+    public void setSize(Long size)
+    {
+        this.size = size;
     }
 
     /** Returns <code>locator</code>. */
