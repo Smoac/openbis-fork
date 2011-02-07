@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister;
 import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.util.Date;
-import java.util.List;
 
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.Select;
@@ -34,7 +33,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntity
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LongSetMapper;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.StringArrayMapper;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 
 /**
  * A {@link TransactionQuery} interface for obtaining large sets of dataset-related entities from
