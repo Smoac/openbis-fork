@@ -26,6 +26,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -164,6 +165,33 @@ public class DatasetListerTest extends AbstractDAOTest
             List<ExternalData> rootDataSets = dataSets.get(sample);
             assertSameDataSetsForSameCode(dataSetsByCode, rootDataSets);
         }
+    }
+    
+    @Test
+    public void testListDataSetsByCode()
+    {
+        List<ExternalData> dataSets =
+                lister.listByDatasetCodes(Arrays.asList("20081105092158673-1", "blabla",
+                        "20081105092159188-3"));
+        
+        Collections.sort(dataSets, new Comparator<ExternalData>()
+            {
+                public int compare(ExternalData o1, ExternalData o2)
+                {
+                    return (int) (o1.getId() - o2.getId());
+                }
+            });
+        assertEquals(2L, dataSets.get(0).getId().longValue());
+        assertEquals("20081105092158673-1", dataSets.get(0).getCode());
+        assertEquals("42", dataSets.get(0).getShareId());
+        assertEquals("xxx/yyy/zzz", dataSets.get(0).getLocation());
+        assertEquals(4711L, dataSets.get(0).getSize().longValue());
+        assertEquals(4L, dataSets.get(1).getId().longValue());
+        assertEquals("20081105092159188-3", dataSets.get(1).getCode());
+        assertEquals(null, dataSets.get(1).getShareId());
+        assertEquals("analysis/result", dataSets.get(1).getLocation());
+        assertEquals(null, dataSets.get(1).getSize());
+        assertEquals(2, dataSets.size());
     }
 
     private void assertSameDataSetsForSameCode(Map<String, ExternalData> dataSetsByCode,

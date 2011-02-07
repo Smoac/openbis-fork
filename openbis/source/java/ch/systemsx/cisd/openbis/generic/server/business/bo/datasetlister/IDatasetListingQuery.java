@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister;
 import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.util.Date;
+import java.util.List;
 
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.Select;
@@ -32,6 +33,8 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IPropertyListi
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LongSetMapper;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.StringArrayMapper;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 
 /**
  * A {@link TransactionQuery} interface for obtaining large sets of dataset-related entities from
@@ -171,6 +174,11 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getDatasets(LongSet entityIds);
 
+    @Select(sql = "select * from data join external_data on data.id = external_data.data_id where data.code = any(?{1})", parameterBindings =
+        { StringArrayMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<DatasetRecord> getDatasets(String[] datasetCodes);
+    
+    
     /**
      * Returns the children dataset ids of the specified datasets.
      */
@@ -223,5 +231,6 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(
             LongSet entityIds);
+
 
 }

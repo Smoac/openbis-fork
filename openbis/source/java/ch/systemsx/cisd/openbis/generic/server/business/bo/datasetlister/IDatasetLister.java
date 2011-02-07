@@ -70,9 +70,14 @@ public interface IDatasetLister
     Map<Sample, List<ExternalData>> listAllDataSetsFor(List<Sample> samples);
     //
 
+    /** 
+     * Lists all data sets with specified codes. Unenriched data sets will be returned. 
+     */
+    List<ExternalData> listByDatasetCodes(Collection<String> datasetCodes);
+
     /** @return datasets with given ids */
     List<ExternalData> listByDatasetIds(Collection<Long> datasetIds);
-
+    
     /** @return datasets specified by given criteria */
     List<ExternalData> listByTrackingCriteria(TrackingDataSetCriteria criteria);
 
