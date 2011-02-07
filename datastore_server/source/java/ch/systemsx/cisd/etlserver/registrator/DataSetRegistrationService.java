@@ -53,8 +53,11 @@ public class DataSetRegistrationService implements IRollbackDelegate
     private final ArrayList<DataSetRegistrationAlgorithm> dataSetRegistrations =
             new ArrayList<DataSetRegistrationAlgorithm>();
 
+    // Any parent services
+    private final DataSetRegistrationService parentServiceOrNull;
+
     /**
-     * The currently live transaction.
+     * The currently live child transaction.
      */
     private DataSetRegistrationTransaction<DataSetInformation> liveTransactionOrNull;
 
@@ -90,6 +93,7 @@ public class DataSetRegistrationService implements IRollbackDelegate
         this.registrator = registrator;
         this.registratorState = registrator.getRegistratorState();
         this.globalCleanAfterwardsAction = globalCleanAfterwardsAction;
+        this.parentServiceOrNull = null;
     }
 
     /**
@@ -103,6 +107,7 @@ public class DataSetRegistrationService implements IRollbackDelegate
         this.registrator = other.registrator;
         this.registratorState = registrator.getRegistratorState();
         this.globalCleanAfterwardsAction = new NoOpCleanAfterwardsAction();
+        this.parentServiceOrNull = other;
     }
 
     public OmniscientTopLevelDataSetRegistratorState getRegistratorState()
@@ -146,6 +151,18 @@ public class DataSetRegistrationService implements IRollbackDelegate
         return liveTransactionOrNull;
     }
 
+    // public <T extends DataSetInformation> DataSetStorageAlgorithm<T> createStorageAlgorithm(
+    // File dataSetFile, DataSetRegistrationDetails<T> dataSetDetails)
+    // {
+    // IDataStoreStrategy strategy =
+    // registratorState.getDataStrategyStore().getDataStoreStrategy(
+    // dataSetDetails.getDataSetInformation(), dataSetFile);
+    // DataSetStorageAlgorithm<T> algorithm =
+    // new DataSetStorageAlgorithm<T>(dataSetFile, dataSetDetails, strategy,
+    // registratorState.getStorageProcessor(), null, null, null, null);
+    // return algorithm;
+    // }
+
     public void commit()
     {
         // If a transaction is hanging around, commit it before starting a new one
@@ -161,6 +178,18 @@ public class DataSetRegistrationService implements IRollbackDelegate
     public void abort()
     {
         dataSetRegistrations.clear();
+
+        if (null != liveTransactionOrNull)
+        {
+            liveTransactionOrNull.rollback();
+        }
+        if (null != parentServiceOrNull)
+        {
+            if (null != parentServiceOrNull.liveTransactionOrNull)
+            {
+                parentServiceOrNull.liveTransactionOrNull.rollback();
+            }
+        }
     }
 
     /**
