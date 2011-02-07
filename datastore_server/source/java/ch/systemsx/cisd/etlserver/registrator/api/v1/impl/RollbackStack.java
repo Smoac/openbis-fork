@@ -20,6 +20,8 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.Queue;
 
+import org.apache.log4j.Logger;
+
 import ch.systemsx.cisd.common.collections.ExtendedBlockingQueueFactory;
 
 /**
@@ -152,8 +154,18 @@ class RollbackStack
 
         // This is the tail of the queue, i.e., the head of the stack.
         StackElement elt = liveLifo.peek();
-        // Roll it back
-        elt.command.rollback();
+
+        try
+        {
+            // Roll it back
+            elt.command.rollback();
+        } catch (Throwable ex)
+        {
+            Logger operationLog = getOperationLog();
+            // If any problems happen rolling back a command, log them
+            operationLog.error("Encountered error rolling back command " + elt.toString());
+            operationLog.error(ex);
+        }
 
         // Remove it from the live stack
         liveLifo.remove();
@@ -243,6 +255,11 @@ class RollbackStack
     private static boolean bothQueuesAreEmpty(Queue<StackElement> queue1, Queue<StackElement> queue2)
     {
         return queue1.isEmpty() && queue2.isEmpty();
+    }
+
+    private Logger getOperationLog()
+    {
+        return DataSetRegistrationTransaction.operationLog;
     }
 
     /**

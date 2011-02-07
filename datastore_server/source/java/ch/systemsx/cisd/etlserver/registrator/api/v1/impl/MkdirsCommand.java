@@ -50,6 +50,12 @@ class MkdirsCommand extends AbstractTransactionalCommand
     {
         File src = new File(directoryAbsoutePath);
 
+        if (false == src.exists())
+        {
+            // Nothing to rollback
+            return;
+        }
+
         IFileOperations fileOperations = FileOperations.getMonitoredInstanceForCurrentThread();
         fileOperations.delete(src);
     }

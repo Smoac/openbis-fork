@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
 import java.io.File;
+import java.io.IOException;
 
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
 
@@ -51,15 +53,35 @@ class MoveFileCommand extends AbstractTransactionalCommand
     {
         File src = new File(srcParentDirAbsolutePath, srcFileName);
         File dst = new File(dstParentDirAbsolutePath, dstFileName);
-        
+
+        if (false == src.exists())
+        {
+            IOException checkedException = new IOException("Source file for move does not exist");
+            throw new IOExceptionUnchecked(checkedException);
+        }
+
         IFileOperations fileOperations = FileOperations.getMonitoredInstanceForCurrentThread();
         fileOperations.move(src, dst);
     }
 
     public void rollback()
     {
+        // The src is the original location, dst is the location we moved it to. We want to undo the
+        // move (mv dst src).
         File src = new File(srcParentDirAbsolutePath, srcFileName);
         File dst = new File(dstParentDirAbsolutePath, dstFileName);
+        if (false == dst.exists())
+        {
+            if (true == src.exists())
+            {
+                // This has already been rolled back.
+            } else
+            {
+                getOperationLog().error(
+                        "Could not undo move command. The file move source file no longer exists.");
+            }
+            return;
+        }
 
         IFileOperations fileOperations = FileOperations.getMonitoredInstanceForCurrentThread();
         fileOperations.move(dst, src);

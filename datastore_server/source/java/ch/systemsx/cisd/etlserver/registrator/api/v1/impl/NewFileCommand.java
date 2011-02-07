@@ -50,6 +50,12 @@ class NewFileCommand extends AbstractTransactionalCommand
     {
         File src = new File(fileAbsolutePath);
 
+        if (false == src.exists())
+        {
+            // Nothing to rollback
+            return;
+        }
+
         IFileOperations fileOperations = FileOperations.getMonitoredInstanceForCurrentThread();
         fileOperations.delete(src);
     }

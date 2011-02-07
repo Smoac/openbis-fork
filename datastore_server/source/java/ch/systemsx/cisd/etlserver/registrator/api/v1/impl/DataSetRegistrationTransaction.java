@@ -23,8 +23,11 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.time.DateFormatUtils;
+import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
@@ -58,6 +61,9 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
 
     private final static String ROLLBACK_STACK_FILE_NAME_DATE_FORMAT_PATTERN = "yyyyMMddHHmmssSSS";
 
+    static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            DataSetRegistrationTransaction.class);
+
     /**
      * Check if there are any uncompleted transactions and roll them back. To be called during
      * startup of a thread.
@@ -77,7 +83,19 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         for (File rollbackStackQueue1 : rollbackQueue1Files)
         {
             RollbackStack stack = createExistingRollbackStack(rollbackStackQueue1);
-            stack.rollbackAll();
+            operationLog.info("Found dead rollback stack: " + rollbackStackQueue1
+                    + ". Rolling back.");
+
+            try
+            {
+                stack.rollbackAll();
+            } catch (Throwable ex)
+            {
+                // This should ever happen since rollbackAll should handle execptions, but is here
+                // as a safeguard.
+                operationLog.error("Encountered error rolling back transaction:");
+                operationLog.error(ex);
+            }
             stack.discard();
         }
     }
@@ -308,6 +326,14 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         {
             registrationService.queueDataSetRegistration(dataSet.getDataSetContents(),
                     dataSet.getRegistrationDetails());
+
+            // File contents = dataSet.getDataSetContents();
+            // DataSetRegistrationDetails<T> details = dataSet.getRegistrationDetails();
+            // registrationService.getRegistratorState().getDataStrategyStore()
+            // .getDataStoreStrategy(details.getDataSetInformation(), contents);
+            // DataSetStorageAlgorithm<T> algorithm =
+            // new DataSetStorageAlgorithm<T>(contents, details, null, null, null, null, null,
+            // null);
         }
         registrationService.commit();
 
@@ -334,7 +360,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     /**
      * Execute the command and add it to the list of commands that have been executed.
      */
-    protected void executeCommand(ITransactionalCommand cmd)
+    private void executeCommand(ITransactionalCommand cmd)
     {
         rollbackStack.pushAndExecuteCommand(cmd);
     }
@@ -345,7 +371,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
      * 
      * @return A data set code
      */
-    protected String generateDataSetCode(DataSetRegistrationDetails<T> registrationDetails)
+    private String generateDataSetCode(DataSetRegistrationDetails<T> registrationDetails)
     {
         return openBisService.createDataSetCode();
     }
@@ -353,7 +379,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     /**
      * Return true if we are in the committed or rolledback state.
      */
-    protected boolean isCommittedOrRolledback()
+    private boolean isCommittedOrRolledback()
     {
         return isCommittedOrRolledback;
     }
@@ -361,19 +387,29 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     /**
      * Move to the committed state.
      */
-    protected void markCommitted()
+    private void markCommitted()
     {
         rollbackStack.discard();
+        deleteStagingFolders();
         isCommittedOrRolledback = true;
     }
 
     /**
      * Move to the rolledback state.
      */
-    protected void markRolledback()
+    private void markRolledback()
     {
         rollbackStack.discard();
+        deleteStagingFolders();
         isCommittedOrRolledback = true;
+    }
+
+    private void deleteStagingFolders()
+    {
+        for (DataSet<T> dataSet : registeredDataSets)
+        {
+            dataSet.getDataSetStagingFolder().delete();
+        }
     }
 
 }

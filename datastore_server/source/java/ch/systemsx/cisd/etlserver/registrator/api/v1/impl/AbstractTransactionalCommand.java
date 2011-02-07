@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
+import org.apache.log4j.Logger;
+
 /**
  * Package-internal class to track and execute progress in the transaction.
  * 
@@ -24,5 +26,10 @@ package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 abstract class AbstractTransactionalCommand implements ITransactionalCommand
 {
     private static final long serialVersionUID = 1L;
+
+    protected Logger getOperationLog()
+    {
+        return DataSetRegistrationTransaction.operationLog;
+    }
 
 }
