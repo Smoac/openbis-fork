@@ -33,7 +33,11 @@ public class DatasetDescription implements Serializable
     
     private String datasetCode;
 
+    private String dataSetShareId;
+    
     private String dataSetLocation;
+    
+    private Long dataSetSize;
 
     private String sampleCode;
     
@@ -65,6 +69,26 @@ public class DatasetDescription implements Serializable
     public String getDatasetTypeCode()
     {
         return datasetTypeCode;
+    }
+
+    public String getDataSetShareId()
+    {
+        return dataSetShareId;
+    }
+
+    public void setDataSetShareId(String dataSetShareId)
+    {
+        this.dataSetShareId = dataSetShareId;
+    }
+
+    public Long getDataSetSize()
+    {
+        return dataSetSize;
+    }
+
+    public void setDataSetSize(Long dataSetSize)
+    {
+        this.dataSetSize = dataSetSize;
     }
 
     public String getDataSetLocation()

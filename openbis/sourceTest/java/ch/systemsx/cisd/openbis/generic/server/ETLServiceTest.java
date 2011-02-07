@@ -73,6 +73,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
@@ -110,6 +111,55 @@ public class ETLServiceTest extends AbstractServerTestCase
         boFactory = context.mock(ICommonBusinessObjectFactory.class);
         dssfactory = context.mock(IDataStoreServiceFactory.class);
         dataStoreService = context.mock(IDataStoreService.class);
+    }
+    
+    @Test
+    public void testListDataSets()
+    {
+        prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    one(dataStoreDAO).tryToFindDataStoreByCode(DSS_CODE);
+                    DataStorePE store = new DataStorePE();
+                    store.setCode(DSS_CODE);
+                    will(returnValue(store));
+                    
+                    one(boFactory).createExternalDataTable(SESSION);
+                    will(returnValue(externalDataTable));
+                    
+                    one(externalDataTable).loadByDataStore(store);
+                    one(externalDataTable).getExternalData();
+                    ExternalDataPE ds1 = dataSet(1);
+                    ds1.setShareId("share-1");
+                    ds1.setLocation("loc-a");
+                    ds1.setSize(4711L);
+                    will(returnValue(Arrays.asList(ds1, dataSet(2))));
+                }
+            });
+        
+        List<SimpleDataSetInformationDTO> dataSets = createService().listDataSets(SESSION_TOKEN, DSS_CODE);
+        assertEquals("ds-1", dataSets.get(0).getDataSetCode());
+        assertEquals("share-1", dataSets.get(0).getDataSetShareId());
+        assertEquals("loc-a", dataSets.get(0).getDataSetLocation());
+        assertEquals(4711L, dataSets.get(0).getDataSetSize().longValue());
+        assertEquals("EXP1", dataSets.get(0).getExperimentCode());
+        assertEquals("P", dataSets.get(0).getProjectCode());
+        assertEquals("G1", dataSets.get(0).getGroupCode());
+        assertEquals(2, dataSets.size());
+        context.assertIsSatisfied();
+    }
+    
+    private ExternalDataPE dataSet(long id)
+    {
+        ExternalDataPE dataSet = new ExternalDataPE();
+        dataSet.setId(id);
+        dataSet.setCode("ds-" + id);
+        DataSetTypePE dataSetType = new DataSetTypePE();
+        dataSetType.setCode("my-type");
+        dataSet.setDataSetType(dataSetType);
+        dataSet.setExperiment(createExperiment("TYPE", "EXP1", "G1"));
+        return dataSet;
     }
 
     @Test

@@ -179,6 +179,8 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         externalData.setFileFormatType(pickAFileFormatType());
         externalData.setLocatorType(pickALocatorType());
         externalData.setLocation("abcd");
+        externalData.setShareId("share-42");
+        externalData.setSize(4711L);
         externalData.setComplete(BooleanOrUnknown.U);
         externalData.setStorageFormatVocabularyTerm(pickAStorageFormatVocabularyTerm());
         externalData.setPlaceholder(true);
@@ -194,7 +196,9 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         assertEquals(externalData.getExperiment(), dataSet.getExperiment());
         assertEquals(externalData.getFileFormatType(), dataSet.getFileFormatType());
         assertEquals(externalData.getLocatorType(), dataSet.getLocatorType());
+        assertEquals(externalData.getShareId(), dataSet.getShareId());
         assertEquals(externalData.getLocation(), dataSet.getLocation());
+        assertEquals(externalData.getSize(), dataSet.getSize());
         assertEquals(externalData.getComplete(), dataSet.getComplete());
         assertEquals(externalData.getStorageFormat(), dataSet.getStorageFormat());
         assertEquals(externalData.isPlaceholder(), dataSet.isPlaceholder());

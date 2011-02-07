@@ -356,15 +356,19 @@ final class ExternalDataDAO extends AbstractGenericEntityWithPropertiesDAO<Exter
         // might happen when we work with placeholder data.
         if (loaded instanceof ExternalDataPE == false)
         {
+            String shareId = externalData.getShareId();
             String location = externalData.getLocation();
+            Long size = externalData.getSize();
             Long locatorTypeID = externalData.getLocatorType().getId();
             Long fileFormatTypeID = externalData.getFileFormatType().getId();
             char complete = externalData.getComplete().name().charAt(0);
             Long storageFormatTermID = externalData.getStorageFormatVocabularyTerm().getId();
-            executeUpdate("insert into " + TableNames.EXTERNAL_DATA_TABLE
-                    + " (data_id, location, loty_id, ffty_id, is_complete, cvte_id_stor_fmt) "
-                    + "values (?, ?, ?, ?, ?, ?)", id, location, locatorTypeID, fileFormatTypeID,
-                    complete, storageFormatTermID);
+            executeUpdate(
+                    "insert into "
+                            + TableNames.EXTERNAL_DATA_TABLE
+                            + " (data_id, share_id, location, size, loty_id, ffty_id, is_complete, cvte_id_stor_fmt) "
+                            + "values (?, ?, ?, ?, ?, ?, ?, ?)", id, shareId, location, size,
+                    locatorTypeID, fileFormatTypeID, complete, storageFormatTermID);
             hibernateTemplate.evict(loaded);
         }
         hibernateTemplate.update(externalData);

@@ -490,7 +490,9 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
 
         DatasetDescription description = new DatasetDescription();
         description.setDatasetCode(dataSet.getCode());
+        description.setDataSetShareId(dataSet.getShareId());
         description.setDataSetLocation(dataSet.getLocation());
+        description.setDataSetSize(dataSet.getSize());
         SamplePE sample = dataSet.tryGetSample();
         if (sample != null)
         {

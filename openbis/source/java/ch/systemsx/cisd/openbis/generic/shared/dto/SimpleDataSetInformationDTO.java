@@ -32,8 +32,12 @@ public class SimpleDataSetInformationDTO implements Serializable
 
     private String dataSetCode;
 
+    private String dataSetShareId;
+    
     private String dataSetLocation;
 
+    private Long dataSetSize;
+    
     private String dataSetType;
 
     private String sampleCode;
@@ -66,6 +70,26 @@ public class SimpleDataSetInformationDTO implements Serializable
     public void setDataSetCode(String dataSetCode)
     {
         this.dataSetCode = dataSetCode;
+    }
+
+    public String getDataSetShareId()
+    {
+        return dataSetShareId;
+    }
+
+    public void setDataSetShareId(String dataSetShareId)
+    {
+        this.dataSetShareId = dataSetShareId;
+    }
+
+    public Long getDataSetSize()
+    {
+        return dataSetSize;
+    }
+
+    public void setDataSetSize(Long dataSetSize)
+    {
+        this.dataSetSize = dataSetSize;
     }
 
     public String getDataSetLocation()

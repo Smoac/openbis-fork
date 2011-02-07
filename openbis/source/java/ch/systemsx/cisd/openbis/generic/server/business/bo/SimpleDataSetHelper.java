@@ -51,7 +51,9 @@ public class SimpleDataSetHelper
     {
         SimpleDataSetInformationDTO result = new SimpleDataSetInformationDTO();
         result.setDataSetCode(data.getCode());
+        result.setDataSetShareId(data.getShareId());
         result.setDataSetLocation(data.getLocation());
+        result.setDataSetSize(data.getSize());
         result.setDatabaseInstanceCode(data.getExperiment().getProject().getSpace()
                 .getDatabaseInstance().getCode());
         result.setExperimentCode(data.getExperiment().getCode());
