@@ -27,7 +27,7 @@
                 <exclude name="${build.info.filename}" />
             </zipfileset>
             <manifest>
-                <attribute name="Main-Class" value="ch.systemsx.cisd.ant.utilities.BuildAndEnvironmentInfo" />
+                <attribute name="Main-Class" value="ch.systemsx.cisd.ant.BuildAndEnvironmentInfo" />
                 <attribute name="Version" value="${version.number}" />
                 <attribute name="Build-Number" value="${version.number} (r${revision.number},${clean.flag})" />
             </manifest>
