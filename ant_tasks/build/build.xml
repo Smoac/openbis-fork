@@ -1,4 +1,4 @@
-<project name="Ant Tasks" default="jar" basedir="..">
+<project name="ant-tasks" default="jar" basedir="..">
 
   <import file="../../build_resources/ant/build-common.xml" />
   <project-classpath name="ecp" classes="${classes}" />
@@ -27,7 +27,7 @@
                 <exclude name="${build.info.filename}" />
             </zipfileset>
             <manifest>
-                <attribute name="Main-Class" value="ch.systemsx.cisd.base.utilities.BuildAndEnvironmentInfo" />
+                <attribute name="Main-Class" value="ch.systemsx.cisd.ant.utilities.BuildAndEnvironmentInfo" />
                 <attribute name="Version" value="${version.number}" />
                 <attribute name="Build-Number" value="${version.number} (r${revision.number},${clean.flag})" />
             </manifest>
