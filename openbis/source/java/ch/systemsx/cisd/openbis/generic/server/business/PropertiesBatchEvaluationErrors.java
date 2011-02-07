@@ -38,10 +38,10 @@ class PropertiesBatchEvaluationErrors
      * limitation on the number of ErrorDetails objects kept in memory. This guards us from
      * scripts generating unique error messages for excessively large batches.
      */
-    private static final int MAX_ERROR_DETAILS_KEPT = 10;
+    static final int MAX_ERROR_DETAILS_KEPT = 10;
 
     /** the maximum number of errors displayed to the user. */
-    private static final int MAX_ERROR_IN_USER_MESSAGE = 2;
+    static final int MAX_ERRORS_IN_USER_MESSAGE = 2;
 
     private class ErrorDetail
     {
@@ -118,7 +118,7 @@ class PropertiesBatchEvaluationErrors
         message.append(totalRowsNumber);
         message.append(" rows.");
         
-        int numDisplayErrors = Math.min(errorDetails.size(), MAX_ERROR_IN_USER_MESSAGE);
+        int numDisplayErrors = Math.min(errorDetails.size(), MAX_ERRORS_IN_USER_MESSAGE);
         List<ErrorDetail> formatDetails = sortErrorDetailsByRow().subList(0, numDisplayErrors);
         for (ErrorDetail errDetail : formatDetails)
         {

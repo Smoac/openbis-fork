@@ -16,12 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business;
 
+import static ch.systemsx.cisd.openbis.generic.server.business.PropertiesBatchEvaluationErrors.MAX_ERRORS_IN_USER_MESSAGE;
 import static ch.systemsx.cisd.openbis.generic.server.business.PropertiesBatchEvaluationErrors.MAX_ERROR_DETAILS_KEPT;
-import static ch.systemsx.cisd.openbis.generic.server.business.PropertiesBatchEvaluationErrors.MAX_ERROR_IN_USER_MESSAGE;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import org.apache.commons.lang.StringUtils;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -72,10 +70,11 @@ public class PropertiesBatchEvaluationErrorsTest extends AssertJUnit
 
         String email = errors.constructErrorReportEmail();
         // exactly one stack trace shown
-        assertOccurences(ERROR_TEXT, 1, email);
-        assertOccurences(
-                "100 rows including \\[1, 2, 3] have failed due to the property 'propcode' causing a malfuction",
-                1, email);
+        assertEquals(1, StringUtils.countMatches(email, ERROR_TEXT));
+
+        String pattern =
+                "100 rows including [1, 2, 3] have failed due to the property 'propcode' causing a malfuction";
+        assertEquals(1, StringUtils.countMatches(email, pattern));
     }
 
     @Test
@@ -90,28 +89,13 @@ public class PropertiesBatchEvaluationErrorsTest extends AssertJUnit
 
         String errorMessage = errors.constructUserFailureMessage();
         // not more than 3 messages shown to the user
-        assertOccurences(ERROR_TEXT, MAX_ERROR_IN_USER_MESSAGE,
-                errorMessage);
+        assertEquals(MAX_ERRORS_IN_USER_MESSAGE, StringUtils.countMatches(errorMessage, ERROR_TEXT));
 
         String email = errors.constructErrorReportEmail();
         // only the first 10 stack traces are included
-        assertOccurences(ERROR_TEXT, MAX_ERROR_DETAILS_KEPT, email);
-        assertOccurences("Row 1 has failed due to the property 'propcode' causing a malfuction", 1,
-                email);
-    }
-
-    private void assertOccurences(String pattern, int times, String string)
-    {
-        Pattern pat = Pattern.compile(pattern);
-        Matcher matcher = pat.matcher(string);
-        int actualCount = 0;
-        while (matcher.find())
-        {
-            actualCount++;
-        }
-        String errFormat =
-                String.format("Invalid number of occurences of '%s' in '%s'", pattern, string);
-        assertEquals(errFormat, times, actualCount);
+        assertEquals(MAX_ERROR_DETAILS_KEPT, StringUtils.countMatches(email, ERROR_TEXT));
+        assertEquals(1, StringUtils.countMatches(email,
+                "Row 1 has failed due to the property 'propcode' causing a malfuction"));
     }
 
     private PropertiesBatchEvaluationErrors createErrorsObject()
