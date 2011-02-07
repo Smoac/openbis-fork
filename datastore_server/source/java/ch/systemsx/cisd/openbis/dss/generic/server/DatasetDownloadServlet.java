@@ -439,6 +439,7 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
         PrintWriter writer = null;
         try
         {
+            addNoCacheHeader(response);
             writer = response.getWriter();
             directoryRenderer.setWriter(writer);
             directoryRenderer.printHeader(dataSet);
@@ -472,6 +473,11 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
         }
     }
 
+    private void addNoCacheHeader(HttpServletResponse response)
+    {
+        response.addHeader("pragma", "no-cache");
+    }
+
     private void deliverFile(final HttpServletResponse response, String dataSetCode, File file,
             String displayMode) throws IOException, FileNotFoundException
     {
@@ -496,7 +502,7 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
         }
         writeResponseContent(responseStream, response);
     }
-    
+
     /**
      * @param image is the content of the response
      * @param fileNameOrNull specified if image was generated from one file

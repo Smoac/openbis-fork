@@ -591,6 +591,8 @@ public class DatasetDownloadServletTest
         exp.will(Expectations.returnValue(map));
 
         prepareGetRequestURI(exp, externalData, path);
+
+        exp.oneOf(response).addHeader("pragma", "no-cache");
     }
 
     private void prepareGetRequestURI(Expectations exp, final ExternalData externalData,
