@@ -18,6 +18,7 @@ package ch.systemsx.cisd.common.filesystem;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
@@ -38,6 +39,16 @@ public class ByteBufferRandomAccessFile implements IRandomAccessFile
     public ByteBufferRandomAccessFile(ByteBuffer buf)
     {
         this.buf = buf;
+    }
+
+    public ByteOrder getByteOrder()
+    {
+        return buf.order();
+    }
+
+    public void setByteOrder(ByteOrder byteOrder)
+    {
+        buf.order(byteOrder);
     }
 
     public void readFully(byte[] b) throws IOExceptionUnchecked
@@ -74,7 +85,7 @@ public class ByteBufferRandomAccessFile implements IRandomAccessFile
 
     public int read() throws IOExceptionUnchecked
     {
-        return buf.getInt();
+        return buf.get() & 0xff;
     }
 
     public int read(byte[] b) throws IOExceptionUnchecked

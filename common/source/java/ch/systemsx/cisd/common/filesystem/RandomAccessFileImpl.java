@@ -19,6 +19,7 @@ package ch.systemsx.cisd.common.filesystem;
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
@@ -34,6 +35,40 @@ public class RandomAccessFileImpl implements IRandomAccessFile
 
     private final RandomAccessFile raf;
 
+    private ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
+
+    private boolean changeByteOrder = ByteOrder.nativeOrder().equals(byteOrder);
+
+    private static short changeByteOrder(short x)
+    {
+        return (short) ((x << 8) | ((x >> 8) & 0xff));
+    }
+
+    private static char changeByteOrder(char x)
+    {
+        return (char) ((x << 8) | ((x >> 8) & 0xff));
+    }
+
+    private static int changeByteOrder(int x)
+    {
+        return ((changeByteOrder((short) x) << 16) | (changeByteOrder((short) (x >> 16)) & 0xffff));
+    }
+    
+    private static float changeByteOrder(float x)
+    {
+        return Float.intBitsToFloat(changeByteOrder(Float.floatToIntBits(x)));
+    }
+
+    private static long changeByteOrder(long x)
+    {
+        return (((long) changeByteOrder((int) (x)) << 32) | (changeByteOrder((int) (x >> 32)) & 0xffffffffL));
+    }
+
+    private static double changeByteOrder(double x)
+    {
+        return Double.longBitsToDouble(changeByteOrder(Double.doubleToLongBits(x)));
+    }
+
     public RandomAccessFileImpl(RandomAccessFile raf)
     {
         this.raf = raf;
@@ -47,6 +82,17 @@ public class RandomAccessFileImpl implements IRandomAccessFile
     public final FileChannel getChannel()
     {
         return raf.getChannel();
+    }
+
+    public ByteOrder getByteOrder()
+    {
+        return byteOrder;
+    }
+
+    public void setByteOrder(ByteOrder byteOrder)
+    {
+        this.byteOrder = byteOrder;
+        this.changeByteOrder = ByteOrder.nativeOrder().equals(byteOrder);
     }
 
     public int read() throws IOExceptionUnchecked
@@ -240,7 +286,8 @@ public class RandomAccessFileImpl implements IRandomAccessFile
     {
         try
         {
-            return raf.readShort();
+            final short s = raf.readShort();
+            return changeByteOrder ? changeByteOrder(s) : s;
         } catch (IOException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -249,20 +296,15 @@ public class RandomAccessFileImpl implements IRandomAccessFile
 
     public final int readUnsignedShort() throws IOExceptionUnchecked
     {
-        try
-        {
-            return raf.readUnsignedShort();
-        } catch (IOException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        }
+        return readShort() & 0xffff;
     }
 
     public final char readChar() throws IOExceptionUnchecked
     {
         try
         {
-            return raf.readChar();
+            final char c = raf.readChar(); 
+            return changeByteOrder ? changeByteOrder(c) : c;
         } catch (IOException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -273,7 +315,8 @@ public class RandomAccessFileImpl implements IRandomAccessFile
     {
         try
         {
-            return raf.readInt();
+            final int i = raf.readInt();
+            return changeByteOrder ? changeByteOrder(i) : i;
         } catch (IOException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -284,7 +327,8 @@ public class RandomAccessFileImpl implements IRandomAccessFile
     {
         try
         {
-            return raf.readLong();
+            final long l = raf.readLong();
+            return changeByteOrder ? changeByteOrder(l) : l;
         } catch (IOException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -295,7 +339,8 @@ public class RandomAccessFileImpl implements IRandomAccessFile
     {
         try
         {
-            return raf.readFloat();
+            final float f = raf.readFloat();
+            return changeByteOrder ? changeByteOrder(f) : f;
         } catch (IOException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -306,7 +351,8 @@ public class RandomAccessFileImpl implements IRandomAccessFile
     {
         try
         {
-            return raf.readDouble();
+            final double d = raf.readDouble();
+            return changeByteOrder ? changeByteOrder(d) : d;
         } catch (IOException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -361,7 +407,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
     {
         try
         {
-            raf.writeShort(v);
+            raf.writeShort(changeByteOrder ? changeByteOrder(v) : v);
         } catch (IOException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -372,7 +418,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
     {
         try
         {
-            raf.writeChar(v);
+            raf.writeChar(changeByteOrder ? changeByteOrder(v) : v);
         } catch (IOException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -383,7 +429,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
     {
         try
         {
-            raf.writeInt(v);
+            raf.writeInt(changeByteOrder ? changeByteOrder(v) : v);
         } catch (IOException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -394,7 +440,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
     {
         try
         {
-            raf.writeLong(v);
+            raf.writeLong(changeByteOrder ? changeByteOrder(v) : v);
         } catch (IOException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -405,7 +451,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
     {
         try
         {
-            raf.writeFloat(v);
+            raf.writeFloat(changeByteOrder ? changeByteOrder(v) : v);
         } catch (IOException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -416,7 +462,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
     {
         try
         {
-            raf.writeDouble(v);
+            raf.writeDouble(changeByteOrder ? changeByteOrder(v) : v);
         } catch (IOException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -509,7 +555,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
     }
 
     private long markedPosition = -1;
-    
+
     public void mark(int readlimit)
     {
         try
@@ -548,7 +594,13 @@ public class RandomAccessFileImpl implements IRandomAccessFile
 
     public void synchronize() throws IOExceptionUnchecked
     {
-        // NOOP
+        try
+        {
+            raf.getFD().sync();
+        } catch (IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
     }
 
 }

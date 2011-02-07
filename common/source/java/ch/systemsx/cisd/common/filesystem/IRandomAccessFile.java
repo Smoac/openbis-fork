@@ -19,6 +19,7 @@ package ch.systemsx.cisd.common.filesystem;
 import java.io.Closeable;
 import java.io.DataInput;
 import java.io.DataOutput;
+import java.nio.ByteOrder;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 
@@ -30,6 +31,17 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 public interface IRandomAccessFile extends DataInput, DataOutput, Closeable, IInputStream,
         IOutputStream
 {
+    /**
+     * Gets the byte-order (endiness) of the random access file. Default is network-byte order
+     * (big-endian).
+     */
+    public ByteOrder getByteOrder();
+
+    /**
+     * Sets the byte-order (endiness) of the random access file.
+     */
+    public void setByteOrder(ByteOrder byteOrder);
+
     //
     // RandomAccessFile
     //
@@ -51,8 +63,8 @@ public interface IRandomAccessFile extends DataInput, DataOutput, Closeable, IIn
      * 
      * @param pos the offset position, measured in bytes from the beginning of the file, at which to
      *            set the file pointer.
-     * @exception IOExceptionUnchecked if <code>pos</code> is less than <code>0</code> or if an I/O error
-     *                occurs.
+     * @exception IOExceptionUnchecked if <code>pos</code> is less than <code>0</code> or if an I/O
+     *                error occurs.
      */
     public void seek(long pos) throws IOExceptionUnchecked;
 
@@ -81,7 +93,7 @@ public interface IRandomAccessFile extends DataInput, DataOutput, Closeable, IIn
      * @exception IOExceptionUnchecked If an I/O error occurs
      */
     public void setLength(long newLength) throws IOExceptionUnchecked;
-    
+
     //
     // DataInput
     //
@@ -160,7 +172,7 @@ public interface IRandomAccessFile extends DataInput, DataOutput, Closeable, IIn
      * @see DataInput#readUTF()
      */
     public String readUTF() throws IOExceptionUnchecked;
-    
+
     //
     // DataOutput
     //
