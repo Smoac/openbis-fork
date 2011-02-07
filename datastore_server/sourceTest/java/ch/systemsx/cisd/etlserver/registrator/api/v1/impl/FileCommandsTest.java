@@ -27,7 +27,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class MoveFileCommandTest extends AbstractTestWithRollbackStack
+public class FileCommandsTest extends AbstractTestWithRollbackStack
 {
     private File srcFile;
 
