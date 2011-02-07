@@ -443,16 +443,20 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
             {
                 registrationService.queueDataSetRegistration(dataSet.getDataSetContents(),
                         dataSet.getRegistrationDetails());
-
-                // File contents = dataSet.getDataSetContents();
-                // DataSetRegistrationDetails<T> details = dataSet.getRegistrationDetails();
-                // registrationService.getRegistratorState().getDataStrategyStore()
-                // .getDataStoreStrategy(details.getDataSetInformation(), contents);
-                // DataSetStorageAlgorithm<T> algorithm =
-                // new DataSetStorageAlgorithm<T>(contents, details, null, null, null, null, null,
-                // null);
             }
             registrationService.commit();
+
+            // for (DataSet<T> dataSet : registeredDataSets)
+            // {
+            // File contents = dataSet.getDataSetContents();
+            // DataSetRegistrationDetails<T> details = dataSet.getRegistrationDetails();
+            // registrationService.getRegistratorState().getDataStrategyStore()
+            // .getDataStoreStrategy(details.getDataSetInformation(), contents);
+            // DataSetStorageAlgorithm<T> algorithm =
+            // new DataSetStorageAlgorithm<T>(contents, details, null, null, null, null,
+            // null, null);
+            // }
+            // registrationService.commit();
         }
 
         /**
@@ -506,6 +510,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         {
             this.liveState = liveState;
             deleteStagingFolders();
+            this.liveState.rollbackStack.discard();
         }
 
         private void deleteStagingFolders()
@@ -515,6 +520,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
                 dataSet.getDataSetStagingFolder().delete();
             }
         }
+
     }
 
     private static class CommitedTransactionState<T extends DataSetInformation> extends

@@ -214,7 +214,9 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         context.assertIsSatisfied();
     }
 
-    @Test
+    // The second invocation of rollback will cause a class-cast exception.
+    @Test(expectedExceptions =
+        { ClassCastException.class })
     public void testDoubleRollbackNormal()
     {
         setUpOpenBisExpectations(false);
