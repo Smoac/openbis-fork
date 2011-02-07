@@ -214,6 +214,63 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         context.assertIsSatisfied();
     }
 
+    @Test
+    public void testDoubleRollbackNormal()
+    {
+        setUpOpenBisExpectations(false);
+        createTransaction();
+
+        IDataSet newDataSet = tr.createNewDataSet();
+        String dst = tr.moveFile(srcFile.getAbsolutePath(), newDataSet);
+
+        checkContentsOfFile(new File(dst));
+
+        tr.rollback();
+        tr.rollback();
+
+        checkContentsOfFile(srcFile);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testDoubleRollbackFromDuplicatedQueue() throws IOException
+    {
+        setUpOpenBisExpectations(false);
+        createTransaction();
+
+        // Move a file into the new data set and check that it is valid
+        IDataSet newDataSet = tr.createNewDataSet();
+        String dst = tr.moveFile(srcFile.getAbsolutePath(), newDataSet);
+        checkContentsOfFile(new File(dst));
+
+        // Duplicate the rollback queue so we can simulate a double rollback
+        File[] rollbackQueueFiles = listRollbackQueueFiles();
+        assertEquals(2, rollbackQueueFiles.length);
+        for (File rollbackQueueFile : rollbackQueueFiles)
+        {
+            File destFile = new File(workingDirectory, "dup-" + rollbackQueueFile.getName());
+            FileUtils.copyFile(rollbackQueueFile, destFile);
+        }
+        rollbackQueueFiles = listRollbackQueueFiles();
+        assertEquals(4, rollbackQueueFiles.length);
+
+        // Do a "normal" rollback
+        tr.rollback();
+        rollbackQueueFiles = listRollbackQueueFiles();
+        assertEquals(2, rollbackQueueFiles.length);
+
+        // Rollback again using the queue we duplicated
+        DataSetRegistrationTransaction.rollbackDeadTransactions(workingDirectory);
+        rollbackQueueFiles = listRollbackQueueFiles();
+        assertEquals(0, rollbackQueueFiles.length);
+
+        // The source file should be correct and now exceptions should have been thrown
+        checkContentsOfFile(srcFile);
+
+        context.assertIsSatisfied();
+    }
+
     private File[] listRollbackQueueFiles()
     {
         File[] rollbackQueueFiles = workingDirectory.listFiles(new FilenameFilter()
