@@ -94,12 +94,12 @@ public class DataSet<T extends DataSetInformation> implements IDataSet
         setExperiment(exp.getExperiment());
     }
 
-    public ISampleImmutable getSampleOrNull()
+    public ISampleImmutable getSample()
     {
         return sampleOrNull;
     }
 
-    public void setSampleOrNull(ISampleImmutable sampleOrNull)
+    public void setSample(ISampleImmutable sampleOrNull)
     {
         this.sampleOrNull = sampleOrNull;
 
