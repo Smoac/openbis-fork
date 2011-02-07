@@ -29,6 +29,35 @@ public class ContentProviderBasedContent implements IContent
 {
     private final IContentProvider contentProvider;
     private IContent content;
+    
+    private static final IContent DUMMY = new IContent()
+        {
+            
+            public String tryGetName()
+            {
+                return null;
+            }
+            
+            public long getSize()
+            {
+                return 0;
+            }
+            
+            public IRandomAccessFile getReadOnlyRandomAccessFile()
+            {
+                return null;
+            }
+            
+            public InputStream getInputStream()
+            {
+                return null;
+            }
+            
+            public boolean exists()
+            {
+                return false;
+            }
+        };
 
     /**
      * Creates an instance for specified content provider.
@@ -68,6 +97,10 @@ public class ContentProviderBasedContent implements IContent
         if (content == null)
         {
             content = contentProvider.getContent();
+        }
+        if (content == null)
+        {
+            content = DUMMY;
         }
         return content;
     }

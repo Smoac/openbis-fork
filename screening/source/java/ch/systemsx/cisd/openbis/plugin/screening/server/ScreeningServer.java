@@ -103,7 +103,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     /**
      * The minor version of this service.
      */
-    public static final int MINOR_VERSION = 5;
+    public static final int MINOR_VERSION = 6;
 
     private static ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 10, 360,
             TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
@@ -296,6 +296,12 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
             String sessionToken)
     {
         return createScreeningApiImpl(sessionToken).listExperiments();
+    }
+
+    public List<ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier> listExperiments(
+            String sessionToken, String userId)
+    {
+        return createScreeningApiImpl(sessionToken).listExperiments(userId);
     }
 
     public List<IDatasetIdentifier> getDatasetIdentifiers(String sessionToken,

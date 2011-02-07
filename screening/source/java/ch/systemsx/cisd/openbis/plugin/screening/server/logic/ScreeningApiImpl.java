@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
@@ -65,6 +67,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.SpaceCodeHelper;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningQuery;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.PlateGeometryContainer;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.ScreeningExperimentValidator;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
@@ -214,6 +217,12 @@ public class ScreeningApiImpl
     {
         final List<ExperimentPE> experiments = daoFactory.getExperimentDAO().listExperiments();
         final List<ExperimentIdentifier> experimentIds = asExperimentIdentifiers(experiments);
+        sortByAugmentedCode(experimentIds);
+        return experimentIds;
+    }
+
+    private void sortByAugmentedCode(final List<ExperimentIdentifier> experimentIds)
+    {
         Collections.sort(experimentIds, new Comparator<ExperimentIdentifier>()
             {
                 public int compare(ExperimentIdentifier o1, ExperimentIdentifier o2)
@@ -221,7 +230,34 @@ public class ScreeningApiImpl
                     return o1.getAugmentedCode().compareTo(o2.getAugmentedCode());
                 }
             });
+    }
+
+    public List<ExperimentIdentifier> listExperiments(String userId)
+    {
+        final PersonPE user = daoFactory.getPersonDAO().tryFindPersonByUserId(userId);
+        if (user == null)
+        {
+            return Collections.emptyList();
+        }
+        final List<ExperimentPE> experiments = daoFactory.getExperimentDAO().listExperiments();
+        final List<ExperimentIdentifier> experimentIds = asExperimentIdentifiers(experiments);
+        filterForUser(user, experimentIds);
+        sortByAugmentedCode(experimentIds);
         return experimentIds;
+    }
+
+    private void filterForUser(final PersonPE user, final List<ExperimentIdentifier> experimentIds)
+    {
+        final ScreeningExperimentValidator validator = new ScreeningExperimentValidator();
+        final Iterator<ExperimentIdentifier> it = experimentIds.iterator();
+        while (it.hasNext())
+        {
+            final ExperimentIdentifier id = it.next();
+            if (validator.doValidation(user, id) == false)
+            {
+                it.remove();
+            }
+        }
     }
 
     private static List<ExperimentIdentifier> asExperimentIdentifiers(List<ExperimentPE> experiments)

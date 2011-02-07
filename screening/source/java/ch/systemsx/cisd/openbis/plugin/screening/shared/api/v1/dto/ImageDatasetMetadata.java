@@ -24,31 +24,46 @@ public class ImageDatasetMetadata implements Serializable
 
     private final int tilesNumber;
 
+    private final int tilesRows;
+
+    private final int tilesCols;
+
     private final int width;
 
     private final int height;
 
+    private final int thumbnailWidth;
+
+    private final int thumbnailHeight;
+
     public ImageDatasetMetadata(IImageDatasetIdentifier dataset, List<String> channelCodes,
-            List<String> channelLabels, int tilesNumber, int width, int height)
+            List<String> channelLabels, int tilesRows, int tilesCols, int width,
+            int height, int thumbnailWidth, int thumbnailHeight)
     {
         this.imageDataset = dataset;
         this.channelNames = channelCodes;
         this.channelCodes = channelCodes;
         this.channelLabels = channelLabels;
         this.channelsNumber = channelNames.size();
-        this.tilesNumber = tilesNumber;
+        this.tilesRows = tilesRows;
+        this.tilesCols = tilesCols;
+        this.tilesNumber = tilesRows * tilesCols;
         this.width = width;
         this.height = height;
+        this.thumbnailHeight = thumbnailHeight;
+        this.thumbnailWidth = thumbnailWidth;
     }
 
-    /** identifier of an image dataset which contains images described in this class */
+    /**
+     * Identifier of this image dataset.
+     */
     public IImageDatasetIdentifier getImageDataset()
     {
         return imageDataset;
     }
 
     /**
-     * number of channels in which images have been acquired for the described dataset
+     * Number of channels (wavelengths) in which images have been acquired for this dataset.
      */
     public int getNumberOfChannels()
     {
@@ -56,7 +71,7 @@ public class ImageDatasetMetadata implements Serializable
     }
 
     /**
-     * names of channels in which images have been acquired for the described dataset
+     * Names of channels in which images have been acquired for this dataset.
      */
     @Deprecated
     public List<String> getChannelNames()
@@ -65,8 +80,10 @@ public class ImageDatasetMetadata implements Serializable
     }
 
     /**
-     * Returns channel codes. If channel codes are unspecified channel names are returned. This will
-     * be the case if a serialized instance of a previous of this class will be deserialized.
+     * Returns channel codes.
+     * <p>
+     * <i>Note: If channel codes are unspecified channel names are returned. This will be the case
+     * if a serialized instance of a previous of this class will be deserialized.</i>
      */
     public List<String> getChannelCodes()
     {
@@ -74,8 +91,10 @@ public class ImageDatasetMetadata implements Serializable
     }
 
     /**
-     * Returns channel labels. If channel labels are unspecified channel names are returned. This
-     * will be the case if a serialized instance of a previous of this class will be deserialized.
+     * Returns channel labels.
+     * <p>
+     * <i>Note: If channel labels are unspecified channel names are returned. This will be the case
+     * if a serialized instance of a previous of this class will be deserialized.</i>
      */
     public List<String> getChannelLabels()
     {
@@ -83,29 +102,95 @@ public class ImageDatasetMetadata implements Serializable
     }
 
     /**
-     * number of image tiles (aka fields) into which each well is splited
+     * Number of rows of image tiles (or "fields") available for each well.
+     * <p>
+     * <i>Note: Will be 0 if the server does not support API version 1.6</i>
+     * 
+     * @since 1.6
+     */
+    public int getTilesRows()
+    {
+        return tilesRows;
+    }
+
+    /**
+     * Number of columns of image tiles (or "fields") available for each well.
+     * <p>
+     * <i>Note: Will be 0 if the server does not support API version 1.6</i>
+     * 
+     * @since 1.6
+     */
+    public int getTilesCols()
+    {
+        return tilesCols;
+    }
+
+    /**
+     * Number of image tiles (or "fields") available for each well.
      */
     public int getNumberOfTiles()
     {
         return tilesNumber;
     }
 
-    /** width of all the images in the described dataset */
+    /**
+     * Width of the images in this dataset.
+     */
     public int getWidth()
     {
         return width;
     }
 
-    /** height of all the images in the described dataset */
+    /**
+     * Height of the images in this dataset.
+     */
     public int getHeight()
     {
         return height;
     }
 
+    /**
+     * The width of the thumbnail images, or 0 if no thumbnails are available for this data set.
+     * 
+     * @since 1.6
+     */
+    public int getThumbnailWidth()
+    {
+        return thumbnailWidth;
+    }
+
+    /**
+     * The height of the thumbnail images, or 0 if no thumbnails are available for this data set.
+     * 
+     * @since 1.6
+     */
+    public int getThumbnailHeight()
+    {
+        return thumbnailHeight;
+    }
+
+    /**
+     * <code>true</code>, if this data set has thumbnails, <code>false</code> otherwise.
+     * 
+     * @since 1.6
+     */
+    public boolean hasThumbnails()
+    {
+        return thumbnailHeight != 0 && thumbnailWidth != 0;
+    }
+
     @Override
     public String toString()
     {
-        return "Dataset " + imageDataset + " has [" + getChannelCodes() + "] channels, "
-                + tilesNumber + " tiles. Images resolution: " + width + "x" + height;
+        if (hasThumbnails())
+        {
+            return "Dataset " + imageDataset + " has [" + getChannelCodes() + "] channels, "
+                    + tilesNumber + " tiles. Image resolution: " + width + "x" + height;
+        } else
+        {
+            return "Dataset " + imageDataset + " has [" + getChannelCodes() + "] channels, "
+                    + tilesNumber + " tiles. Image resolution: " + width + "x" + height
+                    + ". Thumbnail resolution: " + thumbnailWidth + "x" + thumbnailHeight + ".";
+        }
     }
 }

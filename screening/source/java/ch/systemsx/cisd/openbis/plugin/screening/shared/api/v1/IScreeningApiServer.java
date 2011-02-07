@@ -120,6 +120,17 @@ public interface IScreeningApiServer extends IRpcService
     List<ExperimentIdentifier> listExperiments(String sessionToken);
 
     /**
+     * Return the list of all experiments visible to user <var>userId</var>, along with their
+     * hierarchical context (space, project).
+     * 
+     * @since 1.6
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
+    @MinimalMinorVersion(6)
+    List<ExperimentIdentifier> listExperiments(String sessionToken, String userId);
+
+    /**
      * For a given set of plates (given by space / plate bar code), provide the list of all data
      * sets containing feature vectors for each of these plates.
      */

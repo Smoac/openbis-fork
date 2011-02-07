@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.etl;
 
 import ch.systemsx.cisd.bds.hcs.Location;
+import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IImageDatasetLoader;
@@ -30,7 +31,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IImageDatasetLoa
 public interface IImagingDatasetLoader extends IImageDatasetLoader
 {
     /**
-     * @param channelCode start from 1
+     * @param channelCode The code fo the channel to get the image for
      * @param imageSize required image size, specified so that an image with the closest size to the
      *            required is returned (e.g. a thumbnail version if available). Note that this
      *            method does no image resizing and the result will most probably not have the
@@ -53,5 +54,17 @@ public interface IImagingDatasetLoader extends IImageDatasetLoader
      */
     AbsoluteImageReference tryGetRepresentativeImage(String channelCode,
             Location wellLocationOrNull, RequestedImageSize imageSize);
+
+    /**
+     * Returns the stored thumbnail for the given parameters, or <code>null</code>, if no thumbnail
+     * has been stored.
+     * <p>
+     * This method will never do any calculations, it will not rescale, convert or merge any images.
+     * It will just plain give you the byte array that has been stored for the thumbnail.
+     * 
+     * @param channelCode The code of the channel to get the thumbnail for.
+     * @param channelStackReference Specifies well and tile of the thumbnail. 
+     */
+    IContent tryGetThumbnail(String channelCode, ImageChannelStackReference channelStackReference);
 
 }

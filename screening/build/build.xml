@@ -346,8 +346,11 @@
         <exclude name="ch/systemsx/cisd/common/api/server/**/*.class" />
       	<include name="ch/systemsx/cisd/openbis/dss/client/api/v1/**/*.class" />
       	<include name="ch/systemsx/cisd/openbis/dss/generic/shared/api/v1/**/*.class" />
+      	<include name="ch/systemsx/cisd/openbis/dss/generic/shared/api/authorization/**/*.class" />
       	<include name="ch/systemsx/cisd/openbis/dss/screening/shared/api/v1/**/*.class" />
+      	<include name="ch/systemsx/cisd/openbis/generic/shared/basic/**/*.class" />
       	<include name="ch/systemsx/cisd/openbis/generic/shared/api/v1/**/*.class" />
+      	<include name="ch/systemsx/cisd/openbis/generic/shared/authorization/annotation/**/*.class" />
       	<include name="ch/systemsx/cisd/openbis/plugin/screening/shared/api/v1/**/*.class" />
        	<include name="ch/systemsx/cisd/openbis/plugin/screening/client/api/v1/**/*.class" />
        	<include name="ch/systemsx/cisd/openbis/plugin/screening/client/cli/**/*.class" />
@@ -378,6 +381,12 @@
             <include name="ch/systemsx/cisd/common/io/IContent.class" />
       </fileset> 
     </jar>
+		<zip update="true" destfile="${dist.screening-api.jar}">
+	    <zipfileset src="${lib}/gwt2.0/gwt-user.jar">
+	      <include name="com/google/gwt/user/client/rpc/IsSerializable.class" />
+	      <include name="com/google/gwt/user/client/rpc/SerializableException.class" />
+	    </zipfileset>
+	  </zip>
     <recursive-jar destfile="${dist.screening-api.lib}/spring-ext.jar">
       <zipfileset src="${lib}/spring/spring.jar" />
       <zipfileset src="${lib}/spring/third-party/stream-supporting-httpinvoker.jar" />

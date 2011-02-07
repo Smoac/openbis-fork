@@ -243,6 +243,12 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
+    public List<ExperimentIdentifier> listExperiments(String sessionToken, String userId)
+    {
+        logAccess(sessionToken, "listExperiments", "user(%s)", userId);
+        return null;
+    }
+
     public List<IDatasetIdentifier> getDatasetIdentifiers(String sessionToken,
             List<String> datasetCodes)
     {

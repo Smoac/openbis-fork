@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetWellReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorWithDescription;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDatasetIdentifier;
@@ -251,6 +252,12 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     {
         checkASMinimalMinorVersion("listExperiments");
         return openbisScreeningServer.listExperiments(sessionToken);
+    }
+
+    public List<ExperimentIdentifier> listExperiments(String userId)
+    {
+        checkASMinimalMinorVersion("listExperiments", String.class);
+        return openbisScreeningServer.listExperiments(sessionToken, userId);
     }
 
     /**
@@ -629,6 +636,105 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         OutputStream getOutputStream(PlateImageReference imageReference) throws IOException;
     }
 
+    public List<WellPosition> convertToWellPositions(List<WellIdentifier> wellIds)
+    {
+        final List<WellPosition> result = new ArrayList<WellPosition>(wellIds.size());
+        for (WellIdentifier id : wellIds)
+        {
+            result.add(id.getWellPosition());
+        }
+        return result;
+    }
+
+    public List<PlateImageReference> createPlateImageReferences(
+            ImageDatasetReference imageDatasetRef)
+    {
+        return createPlateImageReferences(imageDatasetRef, null, null, null);
+    }
+
+    public List<PlateImageReference> createPlateImageReferences(
+            ImageDatasetReference imageDatasetRef, List<String> channelCodesOrNull,
+            List<WellPosition> wellsOrNull)
+    {
+        return createPlateImageReferences(imageDatasetRef, null, channelCodesOrNull, wellsOrNull);
+    }
+
+    public List<PlateImageReference> createPlateImageReferences(
+            ImageDatasetReference imageDatasetRef, ImageDatasetMetadata metadataOrNull,
+            List<String> channelCodesOrNull, List<WellPosition> wellsOrNull)
+    {
+        final List<WellPosition> wellsToUse =
+                (wellsOrNull == null || wellsOrNull.isEmpty()) ? createWellPositions(imageDatasetRef
+                        .getPlateGeometry()) : wellsOrNull;
+        return createPlateImageReferences((IImageDatasetIdentifier) imageDatasetRef,
+                metadataOrNull, channelCodesOrNull, wellsToUse);
+    }
+
+    public List<PlateImageReference> createPlateImageReferences(
+            IImageDatasetIdentifier imageDatasetId, List<String> channeldCodesOrNull,
+            List<WellPosition> wellsToUse)
+    {
+        return createPlateImageReferences(imageDatasetId, null, channeldCodesOrNull, wellsToUse);
+    }
+
+    public List<PlateImageReference> createPlateImageReferences(
+            IImageDatasetIdentifier imageDatasetId, ImageDatasetMetadata metadataOrNull,
+            List<String> channelCodesOrNull, List<WellPosition> wellsToUse)
+    {
+        final ImageDatasetMetadata metadata = getImageMetadata(imageDatasetId, metadataOrNull);
+
+        final List<String> channelsToUse =
+                (channelCodesOrNull == null || channelCodesOrNull.isEmpty()) ? metadata
+                        .getChannelCodes() : channelCodesOrNull;
+        final List<PlateImageReference> result =
+                new ArrayList<PlateImageReference>(wellsToUse.size()
+                        * metadata.getNumberOfChannels() * metadata.getNumberOfTiles());
+        for (WellPosition well : wellsToUse)
+        {
+            for (String channel : channelsToUse)
+            {
+                for (int tile = 0; tile < metadata.getNumberOfTiles(); ++tile)
+                {
+                    result.add(new PlateImageReference(tile, channel, well, metadata
+                            .getImageDataset()));
+                }
+            }
+        }
+        return result;
+    }
+
+    private ImageDatasetMetadata getImageMetadata(IImageDatasetIdentifier imageDatasetRef,
+            ImageDatasetMetadata metadataOrNull)
+    {
+        if (metadataOrNull != null)
+        {
+            return metadataOrNull;
+        }
+        final List<ImageDatasetMetadata> metadataList =
+                listImageMetadata(Collections.singletonList(imageDatasetRef));
+        if (metadataList.isEmpty())
+        {
+            throw new IllegalArgumentException("Cannot find metadata for image data set '"
+                    + imageDatasetRef + "'.");
+        }
+        return metadataList.get(0);
+    }
+
+    private List<WellPosition> createWellPositions(Geometry plateGeometry)
+    {
+        final List<WellPosition> result =
+                new ArrayList<WellPosition>(plateGeometry.getNumberOfRows()
+                        * plateGeometry.getNumberOfColumns());
+        for (int row = 1; row <= plateGeometry.getNumberOfRows(); ++row)
+        {
+            for (int col = 1; col <= plateGeometry.getNumberOfColumns(); ++col)
+            {
+                result.add(new WellPosition(row, col));
+            }
+        }
+        return result;
+    }
+
     /**
      * Saves images for a given list of image references (given by data set code, well position,
      * channel and tile) in the provided output streams. Output streams will not be closed
@@ -726,6 +832,74 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         }
     }
 
+    public void loadImages(List<PlateImageReference> imageReferences, final boolean convertToPNG,
+            final IPlateImageHandler plateImageHandler) throws IOException
+    {
+        try
+        {
+            plateImageReferencesMultiplexer.process(imageReferences,
+                    new IReferenceHandler<PlateImageReference>()
+                        {
+                            public void handle(DssServiceRpcScreeningHolder dssService,
+                                    List<PlateImageReference> references)
+                            {
+                                final InputStream stream;
+                                if (hasDSSMethod(dssService, "loadImages", List.class,
+                                        boolean.class))
+                                {
+                                    // Only available since v1.3
+                                    stream =
+                                            dssService.getService().loadImages(sessionToken,
+                                                    references, convertToPNG);
+                                } else
+                                {
+                                    checkDSSMinimalMinorVersion(dssService, "loadImages",
+                                            List.class);
+                                    stream =
+                                            dssService.getService().loadImages(sessionToken,
+                                                    references);
+                                }
+                                try
+                                {
+                                    final ConcatenatedFileOutputStreamWriter imagesWriter =
+                                            new ConcatenatedFileOutputStreamWriter(stream);
+                                    int index = 0;
+                                    long size;
+                                    do
+                                    {
+                                        final ByteArrayOutputStream outputStream =
+                                                new ByteArrayOutputStream();
+                                        size = imagesWriter.writeNextBlock(outputStream);
+                                        if (size > 0)
+                                        {
+                                            plateImageHandler.handlePlateImage(
+                                                    references.get(index),
+                                                    outputStream.toByteArray());
+                                        }
+                                        index++;
+                                    } while (size >= 0);
+                                } catch (IOException ex)
+                                {
+                                    throw new WrappedIOException(ex);
+                                } finally
+                                {
+                                    try
+                                    {
+                                        stream.close();
+                                    } catch (IOException ex)
+                                    {
+                                        throw new WrappedIOException(ex);
+                                    }
+                                }
+
+                            }
+                        });
+        } catch (WrappedIOException ex)
+        {
+            throw ex.getIoException();
+        }
+    }
+
     public List<byte[]> loadImages(IDatasetIdentifier dataSetIdentifier,
             List<WellPosition> wellPositions, String channel, ImageSize thumbnailSizeOrNull)
             throws IOException
@@ -755,15 +929,18 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             String channel, ImageSize thumbnailSizeOrNull, IPlateImageHandler plateImageHandler)
             throws IOException
     {
-        DssServiceRpcScreeningHolder dssServiceHolder =
+        final DssServiceRpcScreeningHolder dssServiceHolder =
                 dssServiceCache.createDssService(dataSetIdentifier.getDatastoreServerUrl());
-        IDssServiceRpcScreening service = dssServiceHolder.getService();
-        List<PlateImageReference> plateImageReferences =
+        final IDssServiceRpcScreening service = dssServiceHolder.getService();
+        checkDSSMinimalMinorVersion(dssServiceHolder, "listPlateImageReferences",
+                IDatasetIdentifier.class, List.class, String.class);
+        final List<PlateImageReference> plateImageReferences =
                 service.listPlateImageReferences(sessionToken, dataSetIdentifier, wellPositions,
                         channel);
-        InputStream stream =
+        checkDSSMinimalMinorVersion(dssServiceHolder, "loadImages", List.class, ImageSize.class);
+        final InputStream stream =
                 service.loadImages(sessionToken, plateImageReferences, thumbnailSizeOrNull);
-        ConcatenatedFileOutputStreamWriter imagesWriter =
+        final ConcatenatedFileOutputStreamWriter imagesWriter =
                 new ConcatenatedFileOutputStreamWriter(stream);
         int index = 0;
         long size;
@@ -778,6 +955,149 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             }
             index++;
         } while (size >= 0);
+    }
+
+    public void loadImages(List<PlateImageReference> imageReferences,
+            final ImageSize thumbnailSizeOrNull, final IPlateImageHandler plateImageHandler)
+            throws IOException
+    {
+        plateImageReferencesMultiplexer.process(imageReferences,
+                new IReferenceHandler<PlateImageReference>()
+                    {
+                        public void handle(DssServiceRpcScreeningHolder dssService,
+                                List<PlateImageReference> references)
+                        {
+                            checkDSSMinimalMinorVersion(dssService, "loadImages", List.class,
+                                    ImageSize.class);
+                            final InputStream stream =
+                                    dssService.getService().loadImages(sessionToken, references,
+                                            thumbnailSizeOrNull);
+                            try
+                            {
+                                final ConcatenatedFileOutputStreamWriter imagesWriter =
+                                        new ConcatenatedFileOutputStreamWriter(stream);
+                                int index = 0;
+                                long size;
+                                do
+                                {
+                                    final ByteArrayOutputStream outputStream =
+                                            new ByteArrayOutputStream();
+                                    size = imagesWriter.writeNextBlock(outputStream);
+                                    if (size > 0)
+                                    {
+                                        plateImageHandler.handlePlateImage(references.get(index),
+                                                outputStream.toByteArray());
+                                    }
+                                    index++;
+                                } while (size >= 0);
+                            } catch (IOException ex)
+                            {
+                                throw new WrappedIOException(ex);
+                            } finally
+                            {
+                                try
+                                {
+                                    stream.close();
+                                } catch (IOException ex)
+                                {
+                                    throw new WrappedIOException(ex);
+                                }
+                            }
+
+                        }
+                    });
+    }
+
+    public void loadThumbnailImages(List<PlateImageReference> imageReferences,
+            final IPlateImageHandler plateImageHandler) throws IOException
+    {
+        plateImageReferencesMultiplexer.process(imageReferences,
+                new IReferenceHandler<PlateImageReference>()
+                    {
+                        public void handle(DssServiceRpcScreeningHolder dssService,
+                                List<PlateImageReference> references)
+                        {
+                            checkDSSMinimalMinorVersion(dssService, "loadThumbnailImages",
+                                    List.class);
+                            final InputStream stream =
+                                    dssService.getService().loadThumbnailImages(sessionToken,
+                                            references);
+                            try
+                            {
+                                final ConcatenatedFileOutputStreamWriter imagesWriter =
+                                        new ConcatenatedFileOutputStreamWriter(stream);
+                                int index = 0;
+                                long size;
+                                do
+                                {
+                                    final ByteArrayOutputStream outputStream =
+                                            new ByteArrayOutputStream();
+                                    size = imagesWriter.writeNextBlock(outputStream);
+                                    if (size > 0)
+                                    {
+                                        plateImageHandler.handlePlateImage(references.get(index),
+                                                outputStream.toByteArray());
+                                    }
+                                    index++;
+                                } while (size >= 0);
+                            } catch (IOException ex)
+                            {
+                                throw new WrappedIOException(ex);
+                            } finally
+                            {
+                                try
+                                {
+                                    stream.close();
+                                } catch (IOException ex)
+                                {
+                                    throw new WrappedIOException(ex);
+                                }
+                            }
+
+                        }
+                    });
+    }
+
+    public void loadThumbnailImages(List<PlateImageReference> imageReferences,
+            final IImageOutputStreamProvider outputStreamProvider) throws IOException
+    {
+        plateImageReferencesMultiplexer.process(imageReferences,
+                new IReferenceHandler<PlateImageReference>()
+                    {
+                        public void handle(DssServiceRpcScreeningHolder dssService,
+                                List<PlateImageReference> references)
+                        {
+                            checkDSSMinimalMinorVersion(dssService, "loadThumbnailImages",
+                                    List.class);
+                            final InputStream stream =
+                                    dssService.getService().loadThumbnailImages(sessionToken,
+                                            references);
+                            try
+                            {
+                                final ConcatenatedFileOutputStreamWriter imagesWriter =
+                                        new ConcatenatedFileOutputStreamWriter(stream);
+                                for (PlateImageReference imageRef : references)
+                                {
+                                    OutputStream output =
+                                            outputStreamProvider.getOutputStream(imageRef);
+                                    imagesWriter.writeNextBlock(output);
+                                }
+                            } catch (IOException ex)
+                            {
+                                throw new WrappedIOException(ex);
+                            } finally
+                            {
+                                try
+                                {
+                                    stream.close();
+                                } catch (IOException ex)
+                                {
+                                    throw new WrappedIOException(ex);
+                                }
+                            }
+
+                        }
+                    });
     }
 
     public void saveImageTransformerFactory(List<IDatasetIdentifier> dataSetIdentifiers,

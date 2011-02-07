@@ -278,4 +278,31 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
         }
         return createAbsoluteImageReference(imageDTO, channel, imageSize);
     }
+
+    public IContent tryGetThumbnail(String channelCode,
+            ImageChannelStackReference channelStackReference)
+    {
+        if (StringUtils.isBlank(channelCode))
+        {
+            throw new UserFailureException("Unspecified channel.");
+        }
+        validateChannelStackReference(channelStackReference);
+
+        final ImgChannelDTO channel = tryLoadChannel(channelCode);
+        if (channel == null)
+        {
+            return null;
+        }
+
+        long datasetId = getDataset().getId();
+        final ImgImageDTO thumbnailDTO =
+                tryGetThumbnail(channel.getId(), channelStackReference, datasetId);
+        if (thumbnailDTO == null)
+        {
+            return null;
+        }
+        final String path = thumbnailDTO.getFilePath();
+        final IContent content = contentRepository.getContent(path);
+        return content;
+    }
 }

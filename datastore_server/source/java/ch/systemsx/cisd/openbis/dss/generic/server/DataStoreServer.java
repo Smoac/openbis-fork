@@ -33,7 +33,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.bio.SocketConnector;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
+import org.eclipse.jetty.server.ssl.SslConnector;
+import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.eclipse.jetty.server.ssl.SslSocketConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -292,9 +295,15 @@ public class DataStoreServer
 
     private static Connector createSocketConnector(ConfigParameters configParameters)
     {
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("Use Java NIO selector-based socket: " + configParameters.isUseNIO());
+        }
         if (configParameters.isUseSSL())
         {
-            SslSocketConnector socketConnector = new SslSocketConnector();
+            final SslConnector socketConnector =
+                    configParameters.isUseNIO() ? new SslSelectChannelConnector()
+                            : new SslSocketConnector();
             socketConnector.setKeystore(configParameters.getKeystorePath());
             socketConnector.setPassword(configParameters.getKeystorePassword());
             socketConnector.setKeyPassword(configParameters.getKeystoreKeyPassword());
@@ -302,7 +311,8 @@ public class DataStoreServer
         } else
         {
             operationLog.warn("creating connector to openBIS without SSL");
-            return new SelectChannelConnector();
+            return configParameters.isUseNIO() ? new SelectChannelConnector()
+                    : new SocketConnector();
         }
     }
 

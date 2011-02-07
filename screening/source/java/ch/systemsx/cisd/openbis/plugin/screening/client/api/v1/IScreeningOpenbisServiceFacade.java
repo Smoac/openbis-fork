@@ -47,11 +47,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifie
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 
 /**
- * A client side facade of openBIS and Datastore Server API. Since version 1.2 of the API features
- * are no longer identified by a name but by a code. Previous client code still works but all name
- * will be normalized internally. Normalized means that the original code arguments turn to upper
- * case and any symbol which isn't from A-Z or 0-9 is replaced by an underscore character.
- * {@link FeatureVectorDataset} will provide feature codes and feature labels.
+ * The service facade for the openBIS public remote API for screening and imaging.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -82,6 +78,17 @@ public interface IScreeningOpenbisServiceFacade
      * project).
      */
     public List<ExperimentIdentifier> listExperiments();
+
+    /**
+     * Return the list of all experiments visible to user <var>userId</var>, along with their
+     * hierarchical context (space, project).
+     * <p>
+     * The user calling this method needs to have a role <code>INSTANCE_OBSERVER</code> on the
+     * openBIS instance.
+     * 
+     * @since 1.6
+     */
+    public List<ExperimentIdentifier> listExperiments(String userId);
 
     /**
      * For a given set of plates provides the list of all connected data sets containing feature
@@ -183,6 +190,13 @@ public interface IScreeningOpenbisServiceFacade
      * For a given set of feature vector data sets provides the list of all available features. This
      * is just the name of the feature. If for different data sets different sets of features are
      * available, provides the union of the feature names of all data sets.
+     * 
+     * @deprecated Use {@link #listAvailableFeatureCodes(List)} instead. Since version 1.2 of the
+     *             API features are no longer identified by a name but by a code. Previous client
+     *             code still works but the name will be normalized internally. "Normalized" means
+     *             that the original name argument is converted to upper case and any symbol which
+     *             isn't from A-Z or 0-9 is replaced by an underscore character. The
+     *             {@link FeatureVectorDataset} will provide feature codes and feature labels.
      */
     @Deprecated
     public List<String> listAvailableFeatureNames(
@@ -283,6 +297,71 @@ public interface IScreeningOpenbisServiceFacade
             MaterialIdentifier materialIdentifier, List<String> featureCodesOrNull);
 
     /**
+     * Converts the given <var>WellIdentifiers</var> to <var>WellPositions</var>
+     */
+    public List<WellPosition> convertToWellPositions(List<WellIdentifier> wellIds);
+
+    /**
+     * Returns the list of all plate image references for the given <var>imageDatasetRef</var>.
+     */
+    public List<PlateImageReference> createPlateImageReferences(
+            ImageDatasetReference imageDatasetRef);
+
+    /**
+     * Returns the list of all plate image references for the given <var>imageDatasetRef</var> (all
+     * tiles), the given <var>channelCodesOrNull</var> and <var>wellsOrNull</var>.
+     * 
+     * @param channelCodesOrNull The channel codes for which to create image references. If
+     *            <code>null</code> or empty, references for all channels will be created.
+     * @param wellsOrNull The wells to create image references for. If <code>null</code> or empty,
+     *            references for all wells will be created.
+     */
+    public List<PlateImageReference> createPlateImageReferences(
+            ImageDatasetReference imageDatasetRef, List<String> channelCodesOrNull,
+            List<WellPosition> wellsOrNull);
+
+    /**
+     * Returns the list of all plate image references for the given <var>imageDatasetRef</var> (all
+     * tiles), the given <var>channelCodesOrNull</var> and <var>wellsOrNull</var>.
+     * 
+     * @param metadataOrNull The metadata of the image dataset. If <code>null</code>, the metadata
+     *            will be fetched from the server.
+     * @param channelCodesOrNull The channel codes for which to create image references. If
+     *            <code>null</code> or empty, references for all channels will be created.
+     * @param wellsOrNull The wells to create image references for. If <code>null</code> or empty,
+     *            references for all wells will be created.
+     */
+    public List<PlateImageReference> createPlateImageReferences(
+            ImageDatasetReference imageDatasetRef, ImageDatasetMetadata metadataOrNull,
+            List<String> channelCodesOrNull, List<WellPosition> wellsOrNull);
+
+    /**
+     * Returns the list of all plate image references for the given <var>imageDatasetId</var> (all
+     * tiles), and the given <var>channelCodesOrNull</var> and <var>wellsToUse</var>.
+     * 
+     * @param channelCodesOrNull The channel codes for which to create image references. If
+     *            <code>null</code> or empty, references for all channels will be created.
+     * @param wellsToUse The wells to create image references for. Must not be <code>null</code>.
+     */
+    public List<PlateImageReference> createPlateImageReferences(
+            IImageDatasetIdentifier imageDatasetRef, List<String> channelCodesOrNull,
+            List<WellPosition> wellsToUse);
+
+    /**
+     * Returns the list of all plate image references for the given <var>imageDatasetId</var> (all
+     * tiles), and the given <var>channelCodesOrNull</var> and <var>wellsToUse</var>.
+     * 
+     * @param metadataOrNull The metadata of the image dataset. If <code>null</code>, the metadata
+     *            will be fetched from the server.
+     * @param channelCodesOrNull The channel codes for which to create image references. If
+     *            <code>null</code> or empty, references for all channels will be created.
+     * @param wellsToUse The wells to create image references for. Must not be <code>null</code>.
+     */
+    public List<PlateImageReference> createPlateImageReferences(
+            IImageDatasetIdentifier imageDatasetRef, ImageDatasetMetadata metadataOrNull,
+            List<String> channelCodesOrNull, List<WellPosition> wellsToUse);
+
+    /**
      * Saves images for a given list of image references (given by data set code, well position,
      * channel and tile) in the provided output streams. Output streams will not be closed
      * automatically.<br/>
@@ -301,7 +380,6 @@ public interface IScreeningOpenbisServiceFacade
      * automatically.<br/>
      * If <code>convertToPng==true</code>, the images will be converted to PNG format before being
      * shipped, otherwise they will be shipped in the format that they are stored on the server.<br/>
-     * The number of image references has to be the same as the number of files.
      * 
      * @throws IOException when reading images from the server or writing them to the output streams
      *             fails
@@ -309,6 +387,19 @@ public interface IScreeningOpenbisServiceFacade
     public void loadImages(List<PlateImageReference> imageReferences,
             IImageOutputStreamProvider outputStreamProvider, boolean convertToPNG)
             throws IOException;
+
+    /**
+     * Loads images for a given list of image references (given by data set code, well position,
+     * channel and tile) and hands it over to the <var>plateImageHandler</var>.<br/>
+     * If <code>convertToPng==true</code>, the images will be converted to PNG format before being
+     * shipped, otherwise they will be shipped in the format that they are stored on the server.<br/>
+     * @param plateImageHandler handles delivered images.
+     * 
+     * @throws IOException when reading images from the server or writing them to the output streams
+     *             fails
+     */
+    public void loadImages(List<PlateImageReference> imageReferences,
+            boolean convertToPNG, IPlateImageHandler plateImageHandler) throws IOException;
 
     /**
      * Loads original images or thumbnails for a specified data set, a list of well positions (empty
@@ -329,11 +420,46 @@ public interface IScreeningOpenbisServiceFacade
      * nail size isn't specified the original image is delivered otherwise a thumb nail image with
      * same aspect ratio as the original image but which fits into specified size will be delivered.
      * 
-     * @param plateImageHandler Handles delivered images.
+     * @param plateImageHandler handles delivered images.
      */
     public void loadImages(IDatasetIdentifier datasetIdentifier, List<WellPosition> wellPositions,
             String channel, ImageSize thumbnailSizeOrNull, IPlateImageHandler plateImageHandler)
             throws IOException;
+
+    /**
+     * Loads PNG-encoded images for specified image references and, optionally, thumb nail size. If
+     * thumb nail size isn't specified, the original image is delivered, otherwise a thumb nail image
+     * with same aspect ratio as the original image but which fits into specified size will be
+     * delivered.
+     * 
+     * @param plateImageHandler handles delivered images.
+     */
+    public void loadImages(List<PlateImageReference> imageReferences,
+            ImageSize thumbnailSizeOrNull, IPlateImageHandler plateImageHandler) throws IOException;
+
+    /**
+     * Loads thumbnail images for specified data set, for a given list of image references (given by
+     * data set code, well position, channel and tile) in the provided output streams. Output
+     * streams will not be closed automatically.<br/>
+     * If no thumbnails are stored for this data set and well positions, empty images (length 0)
+     * will be returned.
+     * 
+     * @param plateImageHandler Handles delivered images.
+     */
+    public void loadThumbnailImages(List<PlateImageReference> imageReferences,
+            final IPlateImageHandler plateImageHandler) throws IOException;
+
+    /**
+     * Loads thumbnail images for specified data set, for a given list of image references (given by
+     * data set code, well position, channel and tile) in the provided output streams. Output
+     * streams will not be closed automatically.<br/>
+     * If no thumbnails are stored for this data set and well positions, empty images (length 0)
+     * will be returned.
+     * 
+     * @param outputStreamProvider Handles delivered images.
+     */
+    public void loadThumbnailImages(List<PlateImageReference> imageReferences,
+            final IImageOutputStreamProvider outputStreamProvider) throws IOException;
 
     /**
      * Saves the specified transformer factory for the specified channel and the experiment to which

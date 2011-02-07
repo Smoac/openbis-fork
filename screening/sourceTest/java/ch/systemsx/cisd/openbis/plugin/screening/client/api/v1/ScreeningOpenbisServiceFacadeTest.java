@@ -118,6 +118,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
 
     private IImageTransformerFactory transformerFactory;
 
+    @SuppressWarnings("deprecation")
     @BeforeMethod
     public void beforeMethod()
     {
@@ -305,11 +306,11 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
         List<String> channelCodes = Arrays.asList("channel1");
         List<String> channelLabels = Arrays.asList("Channel 1");
         final ImageDatasetMetadata m1 =
-                new ImageDatasetMetadata(i1id, channelCodes, channelLabels, 1, 1, 1);
+                new ImageDatasetMetadata(i1id, channelCodes, channelLabels, 1, 1, 1, 1, 0, 0);
         final ImageDatasetMetadata m2 =
-                new ImageDatasetMetadata(i1id, channelCodes, channelLabels, 1, 1, 1);
+                new ImageDatasetMetadata(i1id, channelCodes, channelLabels, 1, 1, 1, 1, 0, 0);
         final ImageDatasetMetadata m3 =
-                new ImageDatasetMetadata(i2id, channelCodes, channelLabels, 1, 1, 1);
+                new ImageDatasetMetadata(i2id, channelCodes, channelLabels, 1, 1, 1, 1, 0, 0);
         context.checking(new Expectations()
             {
                 {

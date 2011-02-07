@@ -56,6 +56,8 @@ final class ConfigParameters
     private static final String KEYSTORE = "keystore.";
 
     static final String USE_SSL = "use-ssl";
+    
+    static final String USE_NIO = "use-nio-selector-socket";
 
     static final String KEYSTORE_PATH_KEY = KEYSTORE + "path";
 
@@ -84,6 +86,8 @@ final class ConfigParameters
     private final int sessionTimeout;
 
     private final boolean useSSL;
+    
+    private final boolean useNIO;
 
     private final String keystorePath;
 
@@ -161,6 +165,7 @@ final class ConfigParameters
         {
             keystorePath = keystorePassword = keystoreKeyPassword = null;
         }
+        useNIO = PropertyUtils.getBoolean(properties, USE_NIO, false);
         pluginServlets = extractPluginServletsProperties(properties);
     }
 
@@ -261,6 +266,11 @@ final class ConfigParameters
     public boolean isUseSSL()
     {
         return useSSL;
+    }
+
+    public boolean isUseNIO()
+    {
+        return useNIO;
     }
 
     public Properties getProperties()

@@ -35,7 +35,7 @@ public class TimerUtilities
     private static Field tryGetTimerThreadField()
     {
         final Field field = ClassUtils.tryGetDeclaredField(Timer.class, "thread");
-        if (Thread.class.isAssignableFrom(field.getType()))
+        if (field != null && Thread.class.isAssignableFrom(field.getType()))
         {
             return field;
         }

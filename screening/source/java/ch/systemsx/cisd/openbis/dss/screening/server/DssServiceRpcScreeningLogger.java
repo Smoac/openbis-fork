@@ -138,11 +138,28 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
         return null;
     }
 
+    public List<MicroscopyImageReference> listImageReferences(String sessionToken,
+            IDatasetIdentifier dataSetIdentifier, List<String> channels)
+    {
+        logAccess(sessionToken, "list_image_references", "DATA_SET(%s) CHANNELS(%s)",
+                dataSetIdentifier, channels);
+        return null;
+    }
+
     public List<PlateImageReference> listPlateImageReferences(String sessionToken,
             IDatasetIdentifier dataSetIdentifier, List<WellPosition> wellPositions, String channel)
     {
         logAccess(sessionToken, "list_plate_image_references", "DATA_SET(%s) CHANNEL(%s)",
                 dataSetIdentifier, channel);
+        return null;
+    }
+
+    public List<PlateImageReference> listPlateImageReferences(String sessionToken,
+            IDatasetIdentifier dataSetIdentifier, List<WellPosition> wellPositions,
+            List<String> channels)
+    {
+        logAccess(sessionToken, "list_plate_image_references", "DATA_SET(%s) CHANNELS(%s)",
+                dataSetIdentifier, channels);
         return null;
     }
 
@@ -174,6 +191,30 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
             List<? extends IDatasetIdentifier> featureDatasets)
     {
         // server already logs
+    }
+
+    public InputStream loadThumbnailImages(String sessionToken,
+            IDatasetIdentifier dataSetIdentifier, List<WellPosition> wellPositions,
+            List<String> channels)
+    {
+        logAccess(sessionToken, "load_thumbnail_images", "DATA_SET(%s) CHANNELS(%s)",
+                dataSetIdentifier, channels);
+        return null;
+    }
+
+    public InputStream loadThumbnailImages(String sessionToken,
+            List<PlateImageReference> imageReferences)
+    {
+        logAccess(sessionToken, "load_thumbnail_images", "IMAGE_REFERENCES(%s)", imageReferences);
+        return null;
+    }
+
+    public InputStream loadThumbnailImages(String sessionToken,
+            IDatasetIdentifier dataSetIdentifier, List<String> channels)
+    {
+        logAccess(sessionToken, "load_thumbnail_images microscopy ", "DATA_SET(%s) CHANNELS(%s)",
+                dataSetIdentifier, channels);
+        return null;
     }
 
 }

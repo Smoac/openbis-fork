@@ -58,6 +58,8 @@ public interface IDssServiceRpcScreening extends IRpcService
      * For a given set of feature vector data sets provide the list of all available features. This
      * is just the name of the feature. If for different data sets different sets of features are
      * available, provide the union of the features of all data sets.
+     * 
+     * @deprecated Use {@link #listAvailableFeatureCodes(String, List)} instead.
      */
     @Deprecated
     @DataSetAccessGuard
@@ -117,10 +119,10 @@ public interface IDssServiceRpcScreening extends IRpcService
             List<String> featureCodes);
 
     /**
-     * Provide images for a given list of image references (given by data set code, well position,
-     * channel and tile). The result is encoded into one stream, which consist of multiple blocks in
-     * a format: (<block-size><block-of-bytes>)*, where block-size is the block size in bytes
-     * encoded as one long number. The number of blocks is equal to the number of specified
+     * Provide images for a given list of image references (specified by data set code, well
+     * position, channel and tile). The result is encoded into one stream, which consist of multiple
+     * blocks in a format: (<block-size><block-of-bytes>), where block-size is the block size in
+     * bytes encoded as one long number. The number of blocks is equal to the number of specified
      * references and the order of blocks corresponds to the order of image references. If
      * <code>convertToPng==true</code>, the images will be converted to PNG format before being
      * shipped, otherwise they will be shipped in the format that they are stored on the server.
@@ -133,6 +135,24 @@ public interface IDssServiceRpcScreening extends IRpcService
             String sessionToken,
             @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class) List<PlateImageReference> imageReferences,
             boolean convertToPng);
+
+    /**
+     * Provide thumbnail images for a given list of image references (specified by data set code,
+     * well position, channel and tile). The result is encoded into one stream, which consist of
+     * multiple blocks in a format: (<block-size><block-of-bytes>), where block-size is the block
+     * size in bytes encoded as one long number. The number of blocks is equal to the number of
+     * specified references and the order of blocks corresponds to the order of image references.
+     * <p>
+     * If no thumbnails are stored for this data set and well positions, empty images (length 0)
+     * will be returned.
+     * 
+     * @since 1.6
+     */
+    @MinimalMinorVersion(6)
+    @DataSetAccessGuard
+    public InputStream loadThumbnailImages(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class) List<PlateImageReference> imageReferences);
 
     /**
      * Provide images (PNG encoded) for a given list of image references (given by data set code,
@@ -211,7 +231,31 @@ public interface IDssServiceRpcScreening extends IRpcService
             String channel, ImageSize thumbnailSizeOrNull);
 
     /**
+     * Provide thumbnail images for specified microscopy data set. If no thumbnails are stored on
+     * the server, this method will return an empty stream. Images of all tiles are delivered.
+     * <p>
+     * Note that this method will not work for datasets connected to plates (in this case the wells
+     * would have to be specified additionally).
+     * <p>
+     * The result is encoded into one stream, which consist of multiple blocks in a format:
+     * (<block-size><block-of-bytes>)*, where block-size is the block size in bytes encoded as one
+     * long number. The number of blocks is equal to the number of specified references and the
+     * order of blocks corresponds to the order of image references. The thumbnail images will be
+     * shipped exactly as stored, not conversion will be applied.
+     * 
+     * @since 1.6
+     */
+    @MinimalMinorVersion(6)
+    @DataSetAccessGuard
+    public InputStream loadThumbnailImages(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = SingleDataSetIdentifierPredicate.class) IDatasetIdentifier dataSetIdentifier,
+            List<String> channels);
+
+    /**
      * Lists plate image references for specified data set, list of well positions and channel.
+     * 
+     * @since 1.4
      */
     @MinimalMinorVersion(4)
     @DataSetAccessGuard
@@ -221,7 +265,21 @@ public interface IDssServiceRpcScreening extends IRpcService
             List<WellPosition> wellPositions, String channel);
 
     /**
+     * Lists plate image references for specified data set, list of well positions and channels.
+     * 
+     * @since 1.6
+     */
+    @MinimalMinorVersion(6)
+    @DataSetAccessGuard
+    public List<PlateImageReference> listPlateImageReferences(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = SingleDataSetIdentifierPredicate.class) IDatasetIdentifier dataSetIdentifier,
+            List<WellPosition> wellPositions, List<String> channels);
+
+    /**
      * Lists microscopy image references for specified data set and channel.
+     * 
+     * @since 1.5
      */
     @MinimalMinorVersion(5)
     @DataSetAccessGuard
@@ -231,8 +289,22 @@ public interface IDssServiceRpcScreening extends IRpcService
             String channel);
 
     /**
+     * Lists microscopy image references for specified data set and channels.
+     * 
+     * @since 1.6
+     */
+    @MinimalMinorVersion(6)
+    @DataSetAccessGuard
+    public List<MicroscopyImageReference> listImageReferences(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = SingleDataSetIdentifierPredicate.class) IDatasetIdentifier dataSetIdentifier,
+            List<String> channels);
+
+    /**
      * Saves the specified transformer factory for the specified channel of the specified data. Note
      * that the channel can be stored at the dataset or experiment level.
+     * 
+     * @since 1.4
      */
     @MinimalMinorVersion(4)
     @DataSetAccessGuard
