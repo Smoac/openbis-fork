@@ -22,7 +22,6 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertiesBean;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewBasicExperiment;
@@ -35,8 +34,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.builders.ExperimentTypePEBuil
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.SampleTypePEBuilder;
 
 /**
- * 
- *
  * @author felmer
  */
 public class PropertiesBatchManagerTest extends AssertJUnit
@@ -71,7 +68,8 @@ public class PropertiesBatchManagerTest extends AssertJUnit
         addProperties(e2, p3, p4, p5);
         NewExperimentsWithType experiments = new NewExperimentsWithType("T", Arrays.asList(e1, e2));
         
-        new PropertiesBatchManager().manageProperties(builder.getExperimentTypePE(), experiments);
+        new PropertiesBatchManager().manageProperties(builder.getExperimentTypePE(), experiments,
+                null);
         
         assertProperties("UN-MANAGED:hello, MANAGED-NO-SUBCOLUMNS:hi", e1);
         assertProperties("MANAGED-NO-SUBCOLUMNS-BUT-UPDATE:hi alpha, MANAGED_SUBCOLUMNS:ab12", e2);
@@ -92,12 +90,21 @@ public class PropertiesBatchManagerTest extends AssertJUnit
         addProperties(s2, p2);
         NewSamplesWithTypes samples = new NewSamplesWithTypes(null, Arrays.asList(s1, s2));
         
-        new PropertiesBatchManager().manageProperties(builder.getSampleType(), samples);
+        try
+        {
+            new PropertiesBatchManager().manageProperties(builder.getSampleType(), samples, null);
+        } catch (UserFailureException ufe)
+        {
+            assertEquals(
+                    "Script malfunction in 1 out of 2 rows.\n"
+                            + "Row 2 has failed due to the property 'MANAGED-NO-SUBCOLUMNS-BUT-UPDATE' causing a malfuction "
+                            + "in the script (name = 'null', registrator = ''): Error evaluating 'updateFromBatchInput({=two})': "
+                            + "ValueError: invalid literal for __int__: two\n"
+                            + "A detailed error report has been sent to your system administrator.",
+                    ufe.getMessage());
+        }
         
         assertProperties("MANAGED-NO-SUBCOLUMNS-BUT-UPDATE:43", s1);
-        assertProperties("MANAGED-NO-SUBCOLUMNS-BUT-UPDATE:" + BasicConstant.ERROR_PROPERTY_PREFIX
-                + "Error evaluating 'updateFromBatchInput({=two})': "
-                + "ValueError: invalid literal for __int__: two", s2);
     }
     
     @Test
@@ -114,7 +121,8 @@ public class PropertiesBatchManagerTest extends AssertJUnit
         
         try
         {
-            new PropertiesBatchManager().manageProperties(builder.getExperimentTypePE(), experiments);
+            new PropertiesBatchManager().manageProperties(builder.getExperimentTypePE(),
+                    experiments, null);
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
@@ -135,7 +143,8 @@ public class PropertiesBatchManagerTest extends AssertJUnit
         
         try
         {
-            new PropertiesBatchManager().manageProperties(builder.getExperimentTypePE(), experiments);
+            new PropertiesBatchManager().manageProperties(builder.getExperimentTypePE(),
+                    experiments, null);
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {

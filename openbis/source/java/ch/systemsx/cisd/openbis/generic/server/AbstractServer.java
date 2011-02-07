@@ -462,7 +462,8 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
             throw UserFailureException.fromTemplate("Sample type with code '%s' does not exist.",
                     sampleTypeCode);
         }
-        getPropertiesBatchManager().manageProperties(sampleTypePE, newSamplesWithType);
+        getPropertiesBatchManager().manageProperties(sampleTypePE, newSamplesWithType,
+                registratorOrNull);
         getSampleTypeSlaveServerPlugin(sampleTypePE).registerSamples(session, newSamples,
                 registratorOrNull);
     }

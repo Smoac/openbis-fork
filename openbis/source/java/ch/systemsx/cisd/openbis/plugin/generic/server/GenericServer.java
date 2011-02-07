@@ -548,9 +548,10 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             return;
         }
         ServerUtils.prevalidate(newMaterials, "material");
-        final MaterialTypePE materialTypePE = findMaterialType(materialTypeCode);
-        getPropertiesBatchManager().manageProperties(materialTypePE, newMaterials);
         final Session session = getSession(sessionToken);
+        final MaterialTypePE materialTypePE = findMaterialType(materialTypeCode);
+        getPropertiesBatchManager().manageProperties(materialTypePE, newMaterials,
+                session.tryGetPerson());
         IBatchOperation<NewMaterial> strategy = new IBatchOperation<NewMaterial>()
             {
 
@@ -836,7 +837,8 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             throw UserFailureException.fromTemplate(
                     "Experiment type with code '%s' does not exist.", experimentTypePE);
         }
-        getPropertiesBatchManager().manageProperties(experimentTypePE, experiments);
+        getPropertiesBatchManager().manageProperties(experimentTypePE, experiments,
+                session.tryGetPerson());
         BatchOperationExecutor.executeInBatches(new ExperimentBatchRegistration(
                 businessObjectFactory.createExperimentTable(session), newExperiments,
                 experimentTypePE));

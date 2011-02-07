@@ -24,9 +24,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
 import ch.systemsx.cisd.common.evaluator.EvaluatorException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
@@ -41,7 +44,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ValidationException
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory;
 
@@ -52,81 +57,131 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyE
  */
 public class PropertiesBatchManager implements IPropertiesBatchManager
 {
-    public void manageProperties(SampleTypePE sampleType, NewSamplesWithTypes newSamplesWithTypes)
+
+    private static class EvaluationContext
+    {
+        ManagedPropertyEvaluator evaluator;
+
+        ScriptPE scriptPE;
+    }
+
+    private final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, getClass());
+
+    
+    
+    public void manageProperties(SampleTypePE sampleType, NewSamplesWithTypes newSamplesWithTypes,
+            PersonPE registrator)
     {
         Set<? extends EntityTypePropertyTypePE> sampleTypePropertyTypes =
                 sampleType.getSampleTypePropertyTypes();
     
-        managePropertiesBeans(newSamplesWithTypes.getNewSamples(), sampleTypePropertyTypes);
+        managePropertiesBeans(newSamplesWithTypes.getNewSamples(), sampleTypePropertyTypes,
+                registrator);
     }
     
-    public void manageProperties(ExperimentTypePE experimentType, NewExperimentsWithType experiments)
+    public void manageProperties(ExperimentTypePE experimentType,
+            NewExperimentsWithType experiments, PersonPE registrator)
     {
         Set<? extends EntityTypePropertyTypePE> entityTypePropertyTypes =
                 experimentType.getExperimentTypePropertyTypes();
 
-        managePropertiesBeans(experiments.getNewExperiments(), entityTypePropertyTypes);
+        managePropertiesBeans(experiments.getNewExperiments(), entityTypePropertyTypes, registrator);
     }
     
-    public void manageProperties(MaterialTypePE materialType, List<NewMaterial> newMaterials)
+    public void manageProperties(MaterialTypePE materialType, List<NewMaterial> newMaterials,
+            PersonPE registrator)
     {
         Set<? extends EntityTypePropertyTypePE> entityTypePropertyTypes =
                 materialType.getMaterialTypePropertyTypes();
-        managePropertiesBeans(newMaterials, entityTypePropertyTypes);
+        managePropertiesBeans(newMaterials, entityTypePropertyTypes, registrator);
     }
 
     private void managePropertiesBeans(List<? extends IPropertiesBean> propertiesBeans,
-            Set<? extends EntityTypePropertyTypePE> entityTypePropertyTypes)
+            Set<? extends EntityTypePropertyTypePE> entityTypePropertyTypes, PersonPE registrator)
     {
-        Map<String, ManagedPropertyEvaluator> evaluators =
-                createEvaluators(entityTypePropertyTypes);
-        for (int i = 0; i < propertiesBeans.size(); i++)
+        Map<String, EvaluationContext> contexts =
+                createEvaluationContexts(entityTypePropertyTypes);
+        PropertiesBatchEvaluationErrors errors = new PropertiesBatchEvaluationErrors(registrator, propertiesBeans.size());
+
+        int rowNumber = 0;
+        for (IPropertiesBean propertiesBean : propertiesBeans)
         {
-            IPropertiesBean propertiesBean = propertiesBeans.get(i);
-            IEntityProperty[] properties = propertiesBean.getProperties();
-            List<IEntityProperty> newProperties = new ArrayList<IEntityProperty>();
-            Map<String, Map<String, String>> subColumnBindings =
-                    createColumnBindingsMap(properties);
-            for (Entry<String, Map<String, String>> entry : subColumnBindings.entrySet())
-            {
-                String code = entry.getKey();
-                Map<String, String> bindings = entry.getValue();
-                ManagedPropertyEvaluator evaluator = evaluators.get(code);
-                EntityProperty entityProperty = new EntityProperty();
-                PropertyType propertyType = new PropertyType();
-                propertyType.setCode(code);
-                propertyType.setDataType(new DataType(DataTypeCode.VARCHAR));
-                entityProperty.setPropertyType(propertyType);
-                if (evaluator == null)
-                {
-                    ManagedPropertyEvaluator.assertBatchColumnNames(code,
-                            Collections.<String> emptyList(), bindings);
-                    entityProperty.setValue(bindings.get(""));
-                } else
-                {
-                    try
-                    {
-                        ManagedProperty managedProperty = new ManagedProperty();
-                        managedProperty.setPropertyTypeCode(code);
-                        evaluator.updateFromBatchInput(managedProperty, bindings);
-                        entityProperty.setValue(managedProperty.getValue());
-                    } catch (EvaluatorException ex)
-                    {
-                        Throwable cause = ex.getCause();
-                        if (cause instanceof ValidationException)
-                        {
-                            throw new UserFailureException("Error in row " + (i + 1) + ": "
-                                    + cause.getMessage());
-                        }
-                        entityProperty.setValue(BasicConstant.ERROR_PROPERTY_PREFIX
-                                + ex.getMessage());
-                    }
-                }
-                newProperties.add(entityProperty);
-            }
-            propertiesBean.setProperties(newProperties.toArray(new IEntityProperty[newProperties
-                    .size()]));
+            rowNumber++;
+            List<IEntityProperty> newProperties =
+                    accumulateNewProperties(propertiesBean, rowNumber, contexts, errors);
+            IEntityProperty[] newPropArray =
+                    newProperties.toArray(new IEntityProperty[newProperties.size()]);
+            propertiesBean.setProperties(newPropArray);
         }
+
+        if (errors.hasErrors())
+        {
+            // send an email, so that actions can be taken to repair the script
+            notificationLog.error(errors.constructErrorReportEmail());
+            // inform the user that batch import has failed
+            throw new UserFailureException(errors.constructUserFailureMessage());
+        }
+    }
+
+    private List<IEntityProperty> accumulateNewProperties(IPropertiesBean propertiesBean,
+            int rowNumber, Map<String, EvaluationContext> contexts,
+            PropertiesBatchEvaluationErrors errors)
+    {
+        List<IEntityProperty> newProperties = new ArrayList<IEntityProperty>();
+
+        Map<String, Map<String, String>> subColumnBindings =
+                createColumnBindingsMap(propertiesBean.getProperties());
+        for (Entry<String, Map<String, String>> entry : subColumnBindings.entrySet())
+        {
+            String code = entry.getKey();
+            EvaluationContext evalContext = contexts.get(code);
+            try
+            {
+                EntityProperty entityProperty =
+                        evaluateManagedProperty(code, entry.getValue(), evalContext);
+                newProperties.add(entityProperty);
+            } catch (EvaluatorException ex)
+            {
+                Throwable cause = ex.getCause();
+                if (cause instanceof ValidationException)
+                {
+                    throw new UserFailureException("Error in row " + rowNumber + ": "
+                            + cause.getMessage());
+                }
+                errors.accumulateError(rowNumber, ex, code, evalContext.scriptPE);
+            }
+        }
+        return newProperties;
+    }
+
+    private EntityProperty evaluateManagedProperty(String code, Map<String, String> bindings,
+            EvaluationContext evalContext)
+    {
+        EntityProperty entityProperty = createNewEntityProperty(code);
+        if (evalContext == null)
+        {
+            ManagedPropertyEvaluator.assertBatchColumnNames(code,
+                    Collections.<String> emptyList(), bindings);
+            entityProperty.setValue(bindings.get(""));
+        } else
+        {
+            ManagedPropertyEvaluator evaluator = evalContext.evaluator;
+            ManagedProperty managedProperty = new ManagedProperty();
+            managedProperty.setPropertyTypeCode(code);
+            evaluator.updateFromBatchInput(managedProperty, bindings);
+            entityProperty.setValue(managedProperty.getValue());
+        }
+        return entityProperty;
+    }
+
+    private EntityProperty createNewEntityProperty(String code)
+    {
+        EntityProperty entityProperty = new EntityProperty();
+        PropertyType propertyType = new PropertyType();
+        propertyType.setCode(code);
+        propertyType.setDataType(new DataType(DataTypeCode.VARCHAR));
+        entityProperty.setPropertyType(propertyType);
+        return entityProperty;
     }
 
     private Map<String, Map<String, String>> createColumnBindingsMap(IEntityProperty[] properties)
@@ -155,22 +210,23 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
         return subColumnBindings;
     }
 
-    private Map<String, ManagedPropertyEvaluator> createEvaluators(
+    private Map<String, EvaluationContext> createEvaluationContexts(
             Set<? extends EntityTypePropertyTypePE> entityTypePropertyTypes)
     {
-        Map<String, ManagedPropertyEvaluator> evaluators =
-                new HashMap<String, ManagedPropertyEvaluator>();
+        Map<String, EvaluationContext> result = new HashMap<String, EvaluationContext>();
         for (EntityTypePropertyTypePE entityTypePropertyType : entityTypePropertyTypes)
         {
             if (entityTypePropertyType.isManaged())
             {
                 String propertyTypeCode = entityTypePropertyType.getPropertyType().getCode();
                 String script = entityTypePropertyType.getScript().getScript();
-                ManagedPropertyEvaluator evaluator =
+                EvaluationContext context = new EvaluationContext();
+                context.evaluator =
                         ManagedPropertyEvaluatorFactory.createManagedPropertyEvaluator(script);
-                evaluators.put(propertyTypeCode, evaluator);
+                context.scriptPE = entityTypePropertyType.getScript();
+                result.put(propertyTypeCode, context);
             }
         }
-        return evaluators;
+        return result;
     }
 }   

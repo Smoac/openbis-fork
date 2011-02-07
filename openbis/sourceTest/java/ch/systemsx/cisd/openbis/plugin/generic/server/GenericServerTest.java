@@ -280,7 +280,8 @@ public final class GenericServerTest extends AbstractServerTestCase
 
                     one(sampleTypeSlaveServerPlugin).registerSamples(SESSION, newSamples, null);
 
-                    one(propertiesBatchManager).manageProperties(sampleTypePE, newSamplesWithType);
+                    one(propertiesBatchManager).manageProperties(sampleTypePE, newSamplesWithType,
+                            null);
                 }
             });
         createServer().registerOrUpdateSamples(SESSION_TOKEN, samplesWithTypes);
@@ -309,7 +310,8 @@ public final class GenericServerTest extends AbstractServerTestCase
 
                     one(sampleTypeSlaveServerPlugin).registerSamples(SESSION, newSamples, null);
 
-                    one(propertiesBatchManager).manageProperties(sampleTypePE, newSamplesWithType);
+                    one(propertiesBatchManager).manageProperties(sampleTypePE, newSamplesWithType,
+                            null);
                 }
             });
         createServer().registerSamples(SESSION_TOKEN, samplesWithTypes);
@@ -450,7 +452,8 @@ public final class GenericServerTest extends AbstractServerTestCase
                     one(daoFactory).getEntityTypeDAO(EntityKind.MATERIAL);
                     will(returnValue(entityTypeDAO));
 
-                    one(propertiesBatchManager).manageProperties(materialTypePE, newMaterials);
+                    one(propertiesBatchManager)
+                            .manageProperties(materialTypePE, newMaterials, null);
 
                     one(entityTypeDAO).tryToFindEntityTypeByCode(typeCode);
                     will(returnValue(materialTypePE));
@@ -837,7 +840,8 @@ public final class GenericServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(propertiesBatchManager).manageProperties(experimentTypePE, experiments);
+                    one(propertiesBatchManager).manageProperties(experimentTypePE, experiments,
+                            null);
                     one(daoFactory).getEntityTypeDAO(EntityKind.EXPERIMENT);
                     will(returnValue(entityTypeDAO));
                     one(entityTypeDAO).tryToFindEntityTypeByCode(EXPERIMENT_TYPE);

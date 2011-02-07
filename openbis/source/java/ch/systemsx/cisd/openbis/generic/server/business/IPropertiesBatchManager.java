@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 
 /**
@@ -32,9 +33,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
  */
 public interface IPropertiesBatchManager
 {
-    public void manageProperties(SampleTypePE sampleType, NewSamplesWithTypes newSamplesWithTypes);
+    public void manageProperties(SampleTypePE sampleType, NewSamplesWithTypes newSamplesWithTypes,
+            PersonPE registrator);
 
-    public void manageProperties(ExperimentTypePE experimentType, NewExperimentsWithType experiments);
+    public void manageProperties(ExperimentTypePE experimentType,
+            NewExperimentsWithType experiments, PersonPE registrator);
 
-    public void manageProperties(MaterialTypePE materialType, List<NewMaterial> newMaterials);
+    public void manageProperties(MaterialTypePE materialType, List<NewMaterial> newMaterials,
+            PersonPE registrator);
 }
