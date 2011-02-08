@@ -53,6 +53,8 @@ public class DataSetInformation implements Serializable
     private IEntityProperty[] properties = IEntityProperty.EMPTY_ARRAY;
 
     private DataSetType dataSetType;
+    
+    private String shareId;
 
     /**
      * The database instance <i>UUID</i>.
@@ -94,6 +96,16 @@ public class DataSetInformation implements Serializable
     /** This constructor is for serialization. */
     public DataSetInformation()
     {
+    }
+
+    public String getShareId()
+    {
+        return shareId;
+    }
+
+    public void setShareId(String shareId)
+    {
+        this.shareId = shareId;
     }
 
     public String tryGetUploadingUserEmail()

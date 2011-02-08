@@ -19,12 +19,16 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.collections.IKeyExtractor;
+import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -206,14 +210,24 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
 
         return access;
     }
+    
+    protected File getRootDirectory(String datasetCode)
+    {
+        List<ExternalData> list = getOpenBISService().listDataSetsByCode(Arrays.asList(datasetCode));
+        if (list.isEmpty())
+        {
+            throw new IllegalArgumentException("Unknown data set " + datasetCode);
+        }
+        return getRootDirectoryForDataSet(datasetCode, list.get(0).getShareId());
+    }
 
     /**
      * Get the top level of the folder for the data set.
      */
-    protected File getRootDirectoryForDataSet(String code)
+    protected File getRootDirectoryForDataSet(String code, String shareId)
     {
         File dataSetRootDirectory =
-                DatasetLocationUtil.getDatasetLocationPath(getStoreDirectory(), code,
+                DatasetLocationUtil.getDatasetLocationPath(getStoreDirectory(), code, shareId,
                         getHomeDatabaseInstance().getUuid());
         return dataSetRootDirectory;
     }
@@ -240,16 +254,32 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
         }
 
         HashMap<String, File> rootDirectories = new HashMap<String, File>();
+        List<ExternalData> dataSets =
+                openBISService.listDataSetsByCode(new ArrayList<String>(dataSetCodes));
+        TableMap<String, ExternalData> tableMap =
+                new TableMap<String, ExternalData>(dataSets,
+                        new IKeyExtractor<String, ExternalData>()
+                            {
+                                public String getKey(ExternalData e)
+                                {
+                                    return e.getCode();
+                                }
+                            });
         for (String datasetCode : dataSetCodes)
         {
-            rootDirectories.put(datasetCode, getRootDirectory(datasetCode));
+            ExternalData dataSet = tableMap.tryGet(datasetCode);
+            if (dataSet == null)
+            {
+                throw new IllegalArgumentException("Unknown data set " + datasetCode);
+            }
+            rootDirectories.put(datasetCode, getRootDirectory(datasetCode, dataSet.getShareId()));
         }
         return rootDirectories;
     }
 
-    private File getRootDirectory(String dataSetCode)
+    private File getRootDirectory(String dataSetCode, String shareId)
     {
-        File dataSetRootDirectory = getRootDirectoryForDataSet(dataSetCode);
+        File dataSetRootDirectory = getRootDirectoryForDataSet(dataSetCode, shareId);
         if (dataSetRootDirectory.exists() == false)
         {
             throw new IllegalArgumentException("Path does not exist: " + dataSetRootDirectory);

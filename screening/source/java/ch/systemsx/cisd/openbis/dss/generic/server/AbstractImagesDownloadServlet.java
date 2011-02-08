@@ -29,8 +29,6 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils.IDatasetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.DatasetAcquiredImagesReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageGenerationDescription;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 
 /**
  * ABstract class for servlets which allow to download screening images in a chosen size for a
@@ -100,16 +98,13 @@ abstract class AbstractImagesDownloadServlet extends AbstractDatasetDownloadServ
         writeResponseContent(responseStream, response);
     }
 
-    private IDatasetDirectoryProvider createDatasetDirectoryProvider(HttpSession session)
+    private IDatasetDirectoryProvider createDatasetDirectoryProvider(final HttpSession session)
     {
-        final DatabaseInstance databaseInstance = getDatabaseInstance(session);
-        final File storeRootPath = getStoreRootPath();
         return new IDatasetDirectoryProvider()
             {
                 public File getDatasetRoot(String datasetCode)
                 {
-                    return DatasetLocationUtil.getDatasetLocationPathCheckingIfExists(datasetCode,
-                            databaseInstance, storeRootPath);
+                    return createDataSetRootDirectory(datasetCode, session);
                 }
             };
     }

@@ -325,7 +325,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         return enrichDatasets(query.getDatasets(new LongOpenHashSet(datasetIds)));
     }
 
-    public List<ExternalData> listByDatasetCodes(Collection<String> datasetCodes)
+    public List<ExternalData> listByDatasetCode(Collection<String> datasetCodes)
     {
         String[] codes = datasetCodes.toArray(new String[datasetCodes.size()]);
         DataIterator<DatasetRecord> datasets = query.getDatasets(codes);

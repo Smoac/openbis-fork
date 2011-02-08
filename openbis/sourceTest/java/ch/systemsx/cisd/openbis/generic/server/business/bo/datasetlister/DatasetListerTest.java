@@ -171,7 +171,7 @@ public class DatasetListerTest extends AbstractDAOTest
     public void testListDataSetsByCode()
     {
         List<ExternalData> dataSets =
-                lister.listByDatasetCodes(Arrays.asList("20081105092158673-1", "blabla",
+                lister.listByDatasetCode(Arrays.asList("20081105092158673-1", "blabla",
                         "20081105092159188-3"));
         
         Collections.sort(dataSets, new Comparator<ExternalData>()

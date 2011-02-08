@@ -23,6 +23,7 @@ import org.apache.commons.io.FileUtils;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 
 /**
@@ -32,6 +33,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
  */
 public final class NamedDataStrategyTest extends AbstractFileSystemTestCase
 {
+    private static final String SHARE_ID = "share-1";
+
     private static final DataStoreStrategyKey UNIDENTIFIED = DataStoreStrategyKey.UNIDENTIFIED;
 
     private final static String FILE_NAME = "AX14";
@@ -95,9 +98,11 @@ public final class NamedDataStrategyTest extends AbstractFileSystemTestCase
         }
         assertTrue("Base directory can not be null", exceptionThrown);
         final DataSetType dataSetType = new DataSetType("DataSet");
+        DataSetInformation dataSetInfo = new DataSetInformation();
+        dataSetInfo.setShareId(SHARE_ID);
         final File baseDirectory =
-                strategy.getBaseDirectory(workingDirectory, null, dataSetType);
-        assertEquals(new File(new File(workingDirectory, NamedDataStrategy
+                strategy.getBaseDirectory(workingDirectory, dataSetInfo, dataSetType);
+        assertEquals(new File(new File(new File(workingDirectory, SHARE_ID), NamedDataStrategy
                 .getDirectoryName(UNIDENTIFIED)), IdentifiedDataStrategy
                 .createDataSetTypeDirectory(dataSetType)), baseDirectory);
     }

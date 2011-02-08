@@ -71,6 +71,8 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator
 @Friend(toClasses = UploadingCommand.class)
 public class UploadingCommandTest extends AssertJUnit
 {
+    private static final String SHARE_ID = "share-id";
+
     private static final String ZIP_FILENAME = "myData";
 
     private static final String INFO_UPLOAD_PREFIX = "INFO  OPERATION.UploadingCommand - ";
@@ -182,6 +184,7 @@ public class UploadingCommandTest extends AssertJUnit
     {
         ExternalDataPE externalData = new ExternalDataPE();
         externalData.setCode(code);
+        externalData.setShareId(SHARE_ID);
         externalData.setLocation(location);
         externalData.setDerived(true); // measured == (derived == false)
         DataSetTypePE dataSetTypePE = new DataSetTypePE();
@@ -233,8 +236,8 @@ public class UploadingCommandTest extends AssertJUnit
 
     private File createTestData(String location)
     {
-        File dataSet = new File(STORE, location);
-        dataSet.mkdir();
+        File dataSet = new File(new File(STORE, SHARE_ID), location);
+        dataSet.mkdirs();
         FileUtilities.writeToFile(new File(dataSet, "README.TXT"), "Data set " + location);
         File dataFolder = new File(dataSet, "data");
         dataFolder.mkdir();
@@ -411,7 +414,7 @@ public class UploadingCommandTest extends AssertJUnit
         command.execute(STORE);
 
         checkEmail("Couldn't create zip file");
-        assertEquals("ERROR NOTIFY.UploadingCommand - Data set 'ds2' does not exist."
+        assertEquals("ERROR NOTIFY.UploadingCommand - Data set 'share-id/ds2' does not exist."
                 + OSUtilities.LINE_SEPARATOR + INFO_MAIL_PREFIX
                 + "Sending message from 'a@bc.de' to recipients '[user@bc.de]'",
                 getNormalizedLogContent());

@@ -63,8 +63,10 @@ public final class IdentifiedDataStrategy implements IDataStoreStrategy
     static File createBaseDirectory(final File baseDir, final DataSetInformation dataSetInfo)
     {
         String dataSetCode = dataSetInfo.getDataSetCode();
+        String shareId = dataSetInfo.getShareId();
         final String instanceUUID = dataSetInfo.getInstanceUUID();
-        return DatasetLocationUtil.getDatasetLocationPath(baseDir, dataSetCode, instanceUUID);
+        return DatasetLocationUtil.getDatasetLocationPath(baseDir, dataSetCode, shareId,
+                instanceUUID);
     }
 
     //

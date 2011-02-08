@@ -49,12 +49,13 @@ public interface IDataStoreService
     public int getVersion(String sessionToken) throws InvalidAuthenticationException;
 
     /**
-     * Returns from the specified data set locations those locations known by the Data Store Server.
+     * Returns from the specified data sets those known by the Data Store Server.
      * 
      * @param sessionToken Valid token to identify authorised access.
+     * @return locations of known data sets
      * @throws InvalidAuthenticationException if <code>sessionToken</code> is invalid.
      */
-    public List<String> getKnownDataSets(String sessionToken, List<String> dataSetLocations)
+    public List<String> getKnownDataSets(String sessionToken, List<DatasetDescription> dataSets)
             throws InvalidAuthenticationException;
 
     /**
@@ -63,7 +64,7 @@ public interface IDataStoreService
      * @param sessionToken Valid token to identify authorised access.
      * @throws InvalidAuthenticationException if <code>sessionToken</code> is invalid.
      */
-    public void deleteDataSets(String sessionToken, List<String> dataSetLocations)
+    public void deleteDataSets(String sessionToken, List<DatasetDescription> dataSets)
             throws InvalidAuthenticationException;
 
     /**

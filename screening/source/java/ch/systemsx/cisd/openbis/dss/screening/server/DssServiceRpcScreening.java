@@ -640,7 +640,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     private IImagingDatasetLoader createImageLoader(IDatasetIdentifier dataSetIdentifier)
     {
         String datasetCode = dataSetIdentifier.getDatasetCode();
-        File rootDir = getRootDirectoryForDataSet(datasetCode);
+        File rootDir = getRootDirectory(datasetCode);
         IImagingDatasetLoader imageAccessor = createImageLoader(datasetCode, rootDir);
         return imageAccessor;
     }
@@ -965,7 +965,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
 
     private IImagingDatasetLoader createImageLoader(String datasetCode)
     {
-        File datasetRoot = getRootDirectoryForDataSet(datasetCode);
+        File datasetRoot = getRootDirectory(datasetCode);
         return createImageLoader(datasetCode, datasetRoot);
     }
 

@@ -29,6 +29,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -60,6 +61,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 
 /**
@@ -185,6 +187,7 @@ public class DatasetDownloadServletTest
         prepareForObtainingDataSetFromServer(externalData);
         prepareForGettingDataSetFromSession(externalData, "");
         prepareForCreatingHTML(writer);
+        prepareListDataSetsByCode();
 
         DatasetDownloadServlet servlet = createServlet();
         servlet.doGet(request, response);
@@ -220,7 +223,7 @@ public class DatasetDownloadServletTest
         assertContains(getSessionCreationLogMessage() + OSUtilities.LINE_SEPARATOR + LOG_INFO
                 + "Data set '1234-1' obtained from openBIS server.", normalizedLogContent);
         assertContains(OSUtilities.LINE_SEPARATOR + LOG_INFO
-                + "For data set '1234-1' show directory <wd>/db-uuid/0a/28/59/1234-1",
+                + "For data set '1234-1' show directory <wd>/1/db-uuid/0a/28/59/1234-1",
                 normalizedLogContent);
 
         context.assertIsSatisfied();
@@ -259,6 +262,7 @@ public class DatasetDownloadServletTest
         final ExternalData externalData = createExternalData();
         prepareParseRequestURL();
         prepareCreateSession();
+        prepareListDataSetsByCode();
         context.checking(new Expectations()
             {
                 {
@@ -296,12 +300,13 @@ public class DatasetDownloadServletTest
         prepareParseRequestURL();
         prepareCreateSession();
         prepareTryGetDataset(null);
+        prepareListDataSetsByCode();
         context.checking(new Expectations()
             {
                 {
                     one(request).getRequestURI();
                     will(returnValue(REQUEST_URI_PREFIX + EXAMPLE_DATA_SET_CODE));
-
+                    
                     one(response).setContentType("text/html");
                     one(response).getWriter();
                     will(returnValue(new PrintWriter(writer)));
@@ -332,6 +337,7 @@ public class DatasetDownloadServletTest
     {
         final StringWriter writer = new StringWriter();
         final ExternalData externalData = createExternalData();
+        prepareListDataSetsByCode();
         context.checking(new Expectations()
             {
                 {
@@ -361,7 +367,7 @@ public class DatasetDownloadServletTest
                         + "</table> </div> </body></html>"
                         + OSUtilities.LINE_SEPARATOR, writer.toString());
         assertContains(LOG_INFO
-                + "For data set '1234-1' show directory <wd>/db-uuid/0a/28/59/1234-1/"
+                + "For data set '1234-1' show directory <wd>/1/db-uuid/0a/28/59/1234-1/"
                 + EXAMPLE_DATA_SET_SUB_FOLDER_NAME, getNormalizedLogContent());
 
         context.assertIsSatisfied();
@@ -376,6 +382,7 @@ public class DatasetDownloadServletTest
         prepareCreateSession();
         prepareCheckDatasetAccess();
         prepareParseRequestURL();
+        prepareListDataSetsByCode();
         context.checking(new Expectations()
             {
                 {
@@ -406,7 +413,7 @@ public class DatasetDownloadServletTest
                 + "Check access to the data set '1234-1' at openBIS server.", normalizedLogContent);
         assertContains(OSUtilities.LINE_SEPARATOR + LOG_INFO
                 + "For data set '1234-1' deliver file "
-                + "<wd>/db-uuid/0a/28/59/1234-1/read me @home.txt (12 bytes).",
+                + "<wd>/1/db-uuid/0a/28/59/1234-1/read me @home.txt (12 bytes).",
                 normalizedLogContent);
 
         context.assertIsSatisfied();
@@ -420,6 +427,7 @@ public class DatasetDownloadServletTest
         prepareParseRequestURLForThumbnail(100, 50);
         prepareCreateSession();
         prepareCheckDatasetAccess();
+        prepareListDataSetsByCode();
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         context.checking(new Expectations()
             {
@@ -457,7 +465,7 @@ public class DatasetDownloadServletTest
         AssertionUtil
                 .assertContains(
                         LOG_INFO
-                                + "For data set '1234-1' deliver file <wd>/db-uuid/0a/28/59/1234-1/read me @home.txt "
+                                + "For data set '1234-1' deliver file <wd>/1/db-uuid/0a/28/59/1234-1/read me @home.txt "
                                 + "(84 bytes) as a thumbnail.", normalizedLogContent);
 
         context.assertIsSatisfied();
@@ -470,6 +478,7 @@ public class DatasetDownloadServletTest
         final ExternalData externalData = createExternalData();
         prepareParseRequestURL();
         prepareCreateSession();
+        prepareListDataSetsByCode();
         context.checking(new Expectations()
             {
                 {
@@ -704,6 +713,18 @@ public class DatasetDownloadServletTest
                 }
             });
     }
+    
+    private void prepareListDataSetsByCode()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(dataSetService).listDataSetsByCode(Arrays.asList(EXAMPLE_DATA_SET_CODE));
+                    will(returnValue(Arrays.asList(new DataSetBuilder().code(EXAMPLE_DATA_SET_CODE)
+                            .shareId(DataStoreService.DEFAULT_SHARE_ID).getDataSet())));
+                }
+            });
+    }
 
     private void prepareCheckDatasetAccess()
     {
@@ -768,14 +789,14 @@ public class DatasetDownloadServletTest
         locatorType.setCode(LocatorType.DEFAULT_LOCATOR_TYPE_CODE);
         externalData.setLocatorType(locatorType);
         externalData.setLocation(DatasetLocationUtil.getDatasetRelativeLocationPath(
-                EXAMPLE_DATA_SET_CODE, DATABASE_INSTANCE_UUID));
+                EXAMPLE_DATA_SET_CODE, DataStoreService.DEFAULT_SHARE_ID, DATABASE_INSTANCE_UUID));
         return externalData;
     }
 
     private static File getDatasetDirectoryLocation(final File baseDir, String dataSetCode)
     {
         return DatasetLocationUtil.getDatasetLocationPath(baseDir, dataSetCode,
-                DATABASE_INSTANCE_UUID);
+                DataStoreService.DEFAULT_SHARE_ID, DATABASE_INSTANCE_UUID);
     }
 
     private DatasetDownloadServlet createServlet()

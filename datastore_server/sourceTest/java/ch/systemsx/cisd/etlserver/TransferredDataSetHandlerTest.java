@@ -52,6 +52,7 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.test.LogMonitoringAppender;
 import ch.systemsx.cisd.etlserver.IStorageProcessor.UnstoreDataAction;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
+import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreService;
 import ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.server.openbisauth.OpenBISSessionHolder;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProviders;
@@ -84,6 +85,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
             DssPropertyParametersUtil.class })
 public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestCase
 {
+
+    private static final String SHARE_ID = DataStoreService.DEFAULT_SHARE_ID;
 
     private static final String SAMPLE_CODE = "sample1";
 
@@ -135,6 +138,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
             assertEquals(expectedData.getCode(), data.getCode());
             assertEquals(expectedData.getDataProducerCode(), data.getDataProducerCode());
             assertEquals(expectedData.getLocation(), data.getLocation());
+            assertEquals(expectedData.getShareId(), data.getShareId());
             assertEquals(expectedData.getLocatorType(), data.getLocatorType());
             assertEquals(expectedData.getFileFormatType(), data.getFileFormatType());
             assertEquals(expectedData.getDataSetType(), data.getDataSetType());
@@ -261,7 +265,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         OpenBISSessionHolder sessionHolder = new OpenBISSessionHolder();
         sessionHolder.setToken(SESSION_TOKEN);
         authorizedLimsService =
- new EncapsulatedOpenBISService(limsService, sessionHolder);
+                new EncapsulatedOpenBISService(limsService, sessionHolder, "share-id");
         dataSetValidator = context.mock(IDataSetValidator.class);
 
         Properties threadProperties = new Properties();
@@ -304,6 +308,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         dataSetInformation.setProductionDate(DATA_PRODUCTION_DATE);
         dataSetInformation.setDataSetCode(DATA_SET_CODE);
         dataSetInformation.setParentDataSetCodes(Collections.singletonList(PARENT_DATA_SET_CODE));
+        dataSetInformation.setShareId(SHARE_ID);
         targetFolder =
                 IdentifiedDataStrategy.createBaseDirectory(workingDirectory, dataSetInformation);
         targetData1 = createTargetData(data1);
@@ -344,6 +349,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         data.setDataProducerCode(DATA_PRODUCER_CODE);
         data.setProductionDate(DATA_PRODUCTION_DATE);
         data.setCode(DATA_SET_CODE);
+        data.setShareId(SHARE_ID);
         data.setParentDataSetCodes(Collections.singletonList(PARENT_DATA_SET_CODE));
         return data;
     }
@@ -351,7 +357,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
     private String getRelativeTargetFolder()
     {
         String absoluteTarget = targetFolder.getAbsolutePath();
-        return absoluteTarget.substring(workingDirectory.getAbsolutePath().length() + 1);
+        return absoluteTarget.substring(workingDirectory.getAbsolutePath().length() + 1 + SHARE_ID.length() + 1);
     }
 
     // crates sample connected to an experiment
@@ -624,7 +630,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                 + "but according to the openBIS server there is no such sample for this experiment "
                 + "(it has maybe been invalidated?). We thus consider it invalid."
                 + OSUtilities.LINE_SEPARATOR + "INFO  OPERATION.FileRenamer - "
-                + "Moving file 'data1' from '<wd>' to '<wd>/invalid/DataSetType_O1'.");
+                + "Moving file 'data1' from '<wd>' to '<wd>/1/invalid/DataSetType_O1'.");
 
         context.assertIsSatisfied();
     }
@@ -637,7 +643,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         assert data1.exists() && data2.exists();
         prepareForStrategy(data1, null);
         final File toDir =
-                new File(new File(workingDirectory,
+                new File(new File(new File(workingDirectory, SHARE_ID),
                         NamedDataStrategy.getDirectoryName(DataStoreStrategyKey.UNIDENTIFIED)),
                         IdentifiedDataStrategy.createDataSetTypeDirectory(DATA_SET_TYPE));
 
@@ -702,7 +708,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
             final File dataSet)
     {
         final File strategyDirectory =
-                new File(workingDirectory, NamedDataStrategy.getDirectoryName(key));
+                new File(new File(workingDirectory, SHARE_ID),
+                        NamedDataStrategy.getDirectoryName(key));
         assertEquals(true, strategyDirectory.exists());
         final File dataSetTypeDir =
                 new File(strategyDirectory,

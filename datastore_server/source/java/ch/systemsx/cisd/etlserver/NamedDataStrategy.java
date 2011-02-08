@@ -82,7 +82,8 @@ final class NamedDataStrategy implements IDataStoreStrategy
     {
         assertBaseDirectory(baseDirectory);
         assert dataSetType != null : "Missing data set type.";
-        return new File(new File(baseDirectory, getDirectoryName()), IdentifiedDataStrategy
+        File share = new File(baseDirectory, dataSetInfo.getShareId());
+        return new File(new File(share, getDirectoryName()), IdentifiedDataStrategy
                 .createDataSetTypeDirectory(dataSetType));
     }
 

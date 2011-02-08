@@ -63,11 +63,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -218,7 +218,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
                 deleteDataSetLocally(dataSet, reason);
             }
             // delete remotely from Data Store
-            deleteDataSets(dataStore, getLocations(dataSets));
+            deleteDataSets(dataStore, createDatasetDescriptions(dataSets));
         }
     }
 
@@ -318,8 +318,8 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         for (Map.Entry<DataStorePE, List<ExternalDataPE>> entry : map.entrySet())
         {
             DataStorePE dataStore = entry.getKey();
-            List<String> locations = getLocations(entry.getValue());
-            knownLocations.addAll(getKnownDataSets(dataStore, locations));
+            List<ExternalDataPE> dataSets = entry.getValue();
+            knownLocations.addAll(getKnownDataSets(dataStore, createDatasetDescriptions(dataSets)));
         }
         List<String> unknownDataSets = new ArrayList<String>();
         for (ExternalDataPE dataSet : externalData)
@@ -356,16 +356,6 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         return map;
     }
 
-    private List<String> getLocations(List<ExternalDataPE> dataSets)
-    {
-        List<String> locations = new ArrayList<String>();
-        for (ExternalDataPE dataSet : dataSets)
-        {
-            locations.add(dataSet.getLocation());
-        }
-        return locations;
-    }
-
     private void uploadDataSetsToCIFEX(DataStorePE dataStore, List<ExternalDataPE> dataSets,
             DataSetUploadContext context)
     {
@@ -375,7 +365,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         service.uploadDataSetsToCIFEX(sessionToken, cleanDataSets, context);
     }
 
-    private void deleteDataSets(DataStorePE dataStore, List<String> locations)
+    private void deleteDataSets(DataStorePE dataStore, List<DatasetDescription> list)
     {
         IDataStoreService service = tryGetDataStoreService(dataStore);
         if (service == null)
@@ -384,7 +374,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
             return;
         }
         String sessionToken = dataStore.getSessionToken();
-        service.deleteDataSets(sessionToken, locations);
+        service.deleteDataSets(sessionToken, list);
     }
 
     // null if DSS URL has not been specified
@@ -398,17 +388,22 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         return dssFactory.create(remoteURL);
     }
 
-    private List<String> getKnownDataSets(DataStorePE dataStore, List<String> locations)
+    private List<String> getKnownDataSets(DataStorePE dataStore, List<DatasetDescription> dataSets)
     {
         String remoteURL = dataStore.getRemoteUrl();
         if (StringUtils.isBlank(remoteURL))
         {
             // Assuming dummy data store "knows" all locations
+            List<String> locations = new ArrayList<String>();
+            for (DatasetDescription dataSet : dataSets)
+            {
+                locations.add(dataSet.getDataSetLocation());
+            }
             return locations;
         }
         IDataStoreService service = dssFactory.create(remoteURL);
         String sessionToken = dataStore.getSessionToken();
-        return service.getKnownDataSets(sessionToken, locations);
+        return service.getKnownDataSets(sessionToken, dataSets);
     }
 
     public void processDatasets(String datastoreServiceKey, String datastoreCode,

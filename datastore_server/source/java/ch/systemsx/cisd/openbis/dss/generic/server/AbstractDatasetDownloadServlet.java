@@ -21,8 +21,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.activation.MimetypesFileTypeMap;
@@ -313,8 +315,15 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
 
     protected final File createDataSetRootDirectory(String dataSetCode, HttpSession session)
     {
+        List<ExternalData> list =
+                applicationContext.getDataSetService().listDataSetsByCode(
+                        Arrays.asList(dataSetCode));
+        if (list.isEmpty())
+        {
+            throw new IllegalArgumentException("Unknown data set " + dataSetCode);
+        }
         return DatasetLocationUtil.getDatasetLocationPathCheckingIfExists(dataSetCode,
-                getDatabaseInstance(session), getStoreRootPath());
+                list.get(0).getShareId(), getDatabaseInstance(session), getStoreRootPath());
     }
 
     protected final File getStoreRootPath()

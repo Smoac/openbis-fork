@@ -397,10 +397,11 @@ class UploadingCommand implements IDataSetCommand
             for (ExternalData dataSet : dataSets)
             {
                 String location = dataSet.getLocation();
-                File dataSetFile = new File(store, location);
+                String path = dataSet.getShareId() + "/" + location;
+                File dataSetFile = new File(new File(store, dataSet.getShareId()), location);
                 if (dataSetFile.exists() == false)
                 {
-                    notificationLog.error("Data set '" + location + "' does not exist.");
+                    notificationLog.error("Data set '" + path + "' does not exist.");
                     return false;
                 }
                 String newRootPath = createRootPath(dataSet);
@@ -421,7 +422,7 @@ class UploadingCommand implements IDataSetCommand
                             dataSetFile);
                 } catch (IOException ex)
                 {
-                    notificationLog.error("Couldn't add data set '" + location + "' to zip file.",
+                    notificationLog.error("Couldn't add data set '" + path + "' to zip file.",
                             ex);
                     return false;
                 }

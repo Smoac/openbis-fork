@@ -266,7 +266,7 @@ public class MigrationStepFrom003To004 implements IMigrationStep
         {
             String permId = dataset.getPermId();
             File datasetDir =
-                    DatasetLocationUtil.getDatasetLocationPath(storeRootDir, permId, dbUUID);
+                    DatasetLocationUtil.getDatasetLocationPath(storeRootDir, permId, "1", dbUUID);
             DatasetFileLines featureVectorLines = tryFindFeatureVectorsFile(datasetDir);
             if (featureVectorLines != null)
             {

@@ -37,6 +37,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
  */
 public class IdentifiedDataStrategyTest extends AbstractFileSystemTestCase
 {
+    private static final String SHARE_ID = "share-1";
+
     private static final String DATA_SET_CODE = "data-set-code";
 
     private static final String EXAMPLE_PROJECT_CODE = "P";
@@ -64,6 +66,7 @@ public class IdentifiedDataStrategyTest extends AbstractFileSystemTestCase
         dataSetInfo.setInstanceCode("my-instance");
         dataSetInfo.setInstanceUUID("1111-2222");
         dataSetInfo.setDataSetCode(DATA_SET_CODE);
+        dataSetInfo.setShareId(SHARE_ID);
         return dataSetInfo;
     }
 
@@ -92,7 +95,7 @@ public class IdentifiedDataStrategyTest extends AbstractFileSystemTestCase
         assertTrue("Null values not permited here", exceptionThrown);
         final DataSetInformation dataSetInfo = createDataSetInfo();
         File baseDirectory = strategy.getBaseDirectory(workingDirectory, dataSetInfo, dataSetType);
-        final File file = new File(workingDirectory, "1111-2222/27/35/33/data-set-code");
+        final File file = new File(new File(workingDirectory, SHARE_ID), "1111-2222/27/35/33/data-set-code");
         assertEquals(file, baseDirectory);
         assertTrue(baseDirectory.exists() == false);
         // Create a file instead of a directory

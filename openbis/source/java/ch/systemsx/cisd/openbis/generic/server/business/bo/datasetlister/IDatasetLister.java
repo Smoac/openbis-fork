@@ -73,7 +73,7 @@ public interface IDatasetLister
     /** 
      * Lists all data sets with specified codes. Unenriched data sets will be returned. 
      */
-    List<ExternalData> listByDatasetCodes(Collection<String> datasetCodes);
+    List<ExternalData> listByDatasetCode(Collection<String> datasetCodes);
 
     /** @return datasets with given ids */
     List<ExternalData> listByDatasetIds(Collection<Long> datasetIds);

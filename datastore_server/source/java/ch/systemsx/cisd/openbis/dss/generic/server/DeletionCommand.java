@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.List;
 
 import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
  * A command for deleting data sets, based on their location relative to the data store root.
@@ -30,18 +31,19 @@ class DeletionCommand implements IDataSetCommand
 {
     private static final long serialVersionUID = 1L;
     
-    private final List<String> dataSetLocations;
+    private final List<DatasetDescription> dataSets;
 
-    DeletionCommand(List<String> dataSetLocations)
+    DeletionCommand(List<DatasetDescription> dataSets)
     {
-        this.dataSetLocations = dataSetLocations;
+        this.dataSets = dataSets;
     }
 
     public void execute(File store)
     {
-        for (String location : dataSetLocations)
+        for (DatasetDescription dataSet : dataSets)
         {
-            QueueingPathRemoverService.removeRecursively(new File(store, location));
+            File share = new File(store, dataSet.getDataSetShareId());
+            QueueingPathRemoverService.removeRecursively(new File(share, dataSet.getDataSetLocation()));
         }
     }
 
@@ -49,9 +51,9 @@ class DeletionCommand implements IDataSetCommand
     {
         final StringBuilder b = new StringBuilder();
         b.append("Delete data set paths: ");
-        for (String dataset : dataSetLocations)
+        for (DatasetDescription dataset : dataSets)
         {
-            b.append(dataset);
+            b.append(dataset.getDataSetShareId()).append('/').append(dataset.getDataSetLocation());
             b.append(',');
         }
         b.setLength(b.length() - 1);

@@ -54,10 +54,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
@@ -245,8 +245,8 @@ public final class ExternalDataTableTest extends AbstractBOTest
                     prepareFindFullDatasets(new ExternalDataPE[]
                         { d1, d2 }, false, false);
 
-                    one(dataStoreService2).getKnownDataSets(dss2.getSessionToken(),
-                            Arrays.asList(d2.getLocation()));
+                    one(dataStoreService2).getKnownDataSets(with(dss2.getSessionToken()),
+                            with(createDatasetDescriptionsMatcher(d2)));
                     will(returnValue(Arrays.asList()));
                 }
             });
@@ -316,9 +316,9 @@ public final class ExternalDataTableTest extends AbstractBOTest
                     prepareFindFullDatasets(new ExternalDataPE[]
                         { d1, d2 }, false, false);
 
-                    List<String> d2Locations = Arrays.asList(d2.getLocation());
-                    one(dataStoreService2).getKnownDataSets(dss2.getSessionToken(), d2Locations);
-                    will(returnValue(d2Locations));
+                    BaseMatcher<List<DatasetDescription>> dataSets = createDatasetDescriptionsMatcher(d2);
+                    one(dataStoreService2).getKnownDataSets(with(dss2.getSessionToken()), with(dataSets));
+                    will(returnValue(Arrays.asList(d2.getLocation())));
 
                     PersonPE person = EXAMPLE_SESSION.tryGetPerson();
                     one(eventDAO).persist(createDeletionEvent(d1, person, reason));
@@ -326,7 +326,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
                     one(eventDAO).persist(createDeletionEvent(d2, person, reason));
                     one(externalDataDAO).delete(d2);
 
-                    one(dataStoreService2).deleteDataSets(dss2.getSessionToken(), d2Locations);
+                    one(dataStoreService2).deleteDataSets(with(dss2.getSessionToken()), with(dataSets));
                 }
             });
 
@@ -361,12 +361,12 @@ public final class ExternalDataTableTest extends AbstractBOTest
                     prepareFindFullDatasets(new ExternalDataPE[]
                         { d1PE, d2PE }, true, false);
 
-                    List<String> d2Locations = Arrays.asList(d2PE.getLocation());
-                    one(dataStoreService2).getKnownDataSets(dss2.getSessionToken(), d2Locations);
-                    will(returnValue(d2Locations));
+                    one(dataStoreService2).getKnownDataSets(with(dss2.getSessionToken()),
+                            with(createDatasetDescriptionsMatcher(d2PE)));
+                    will(returnValue(Arrays.asList(d2PE.getLocation())));
 
                     one(dataStoreService2).uploadDataSetsToCIFEX(
-                            with(equal(dss2.getSessionToken())), with(new BaseMatcher<List>()
+                            with(equal(dss2.getSessionToken())), with(new BaseMatcher<List<ExternalData>>()
                                 {
 
                                     public boolean matches(Object item)
@@ -621,7 +621,6 @@ public final class ExternalDataTableTest extends AbstractBOTest
             });
     }
 
-    @SuppressWarnings("unchecked")
     private void prepareArchiving(final IDataStoreService service, final DataStorePE store,
             final ExternalDataPE... dataSets)
     {
@@ -635,7 +634,6 @@ public final class ExternalDataTableTest extends AbstractBOTest
             });
     }
 
-    @SuppressWarnings("unchecked")
     private void prepareUnarchiving(final IDataStoreService service, final DataStorePE store,
             final ExternalDataPE... dataSets)
     {
@@ -650,24 +648,18 @@ public final class ExternalDataTableTest extends AbstractBOTest
     }
 
     @SuppressWarnings("unchecked")
-    private BaseMatcher<List> createDatasetDescriptionsMatcher(final ExternalDataPE... dataSets)
+    private BaseMatcher<List<DatasetDescription>> createDatasetDescriptionsMatcher(final ExternalDataPE... dataSets)
     {
-        return new BaseMatcher<List>()
+        return new BaseMatcher<List<DatasetDescription>>()
             {
 
                 public boolean matches(Object item)
                 {
                     List<DatasetDescription> list = (List<DatasetDescription>) item;
-                    if (list.size() != dataSets.length)
-                    {
-                        return false;
-                    }
+                    assertEquals(dataSets.length, list.size());
                     for (int i = 0; i < list.size(); i++)
                     {
-                        if (false == list.get(i).getDatasetCode().equals(dataSets[i].getCode()))
-                        {
-                            return false;
-                        }
+                        assertEquals("data set " + i, dataSets[i].getCode(), list.get(i).getDatasetCode());
                     }
                     return true;
                 }

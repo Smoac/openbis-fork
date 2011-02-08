@@ -189,6 +189,18 @@ public interface IETLLIMSService extends IServer, ISessionProvider
             final boolean showOnlyDirectlyConnected) throws UserFailureException;
 
     /**
+     * Returns all data sets found for specified data set codes.
+     * 
+     * @return plain data sets without properties, samples, and experiments.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    public List<ExternalData> listDataSetsByCode(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> dataSetCodes)
+            throws UserFailureException;
+    
+    /**
      * Lists samples using given configuration.
      * 
      * @return a sorted list of {@link Sample}.

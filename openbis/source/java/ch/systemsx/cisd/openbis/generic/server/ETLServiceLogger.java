@@ -212,6 +212,13 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
         return null;
     }
 
+    public List<ExternalData> listDataSetsByCode(String sessionToken, List<String> dataSetCodes)
+            throws UserFailureException
+    {
+        logAccess(sessionToken, "listDataSetsByCode", "DATA_SETS(%s)", dataSetCodes);
+        return null;
+    }
+
     public IEntityProperty[] tryToGetPropertiesOfTopSampleRegisteredFor(String sessionToken,
             SampleIdentifier sampleIdentifier) throws UserFailureException
     {

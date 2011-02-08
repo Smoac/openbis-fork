@@ -168,6 +168,14 @@ public interface IEncapsulatedOpenBISService
     @ManagedAuthentication
     public List<ExternalData> listDataSetsBySampleID(long sampleID,
             boolean showOnlyDirectlyConnected) throws UserFailureException;
+    
+    /**
+     * Returns all data sets found for specified data set codes.
+     * 
+     * @return plain data sets without properties, samples, and experiments.
+     */
+    @ManagedAuthentication
+    public List<ExternalData> listDataSetsByCode(List<String> dataSetCodes) throws UserFailureException;
 
     /**
      * Registers the specified experiment.

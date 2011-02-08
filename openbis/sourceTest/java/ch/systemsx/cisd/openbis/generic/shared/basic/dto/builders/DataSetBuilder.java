@@ -51,6 +51,12 @@ public class DataSetBuilder
         return this;
     }
     
+    public DataSetBuilder shareId(String shareId)
+    {
+        dataSet.setShareId(shareId);
+        return this;
+    }
+    
     public DataSetBuilder type(String dataSetTypeCode)
     {
         dataSet.setDataSetType(new DataSetType(dataSetTypeCode));

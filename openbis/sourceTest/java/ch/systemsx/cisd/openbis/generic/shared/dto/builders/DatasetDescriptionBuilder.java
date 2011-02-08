@@ -45,6 +45,12 @@ public class DatasetDescriptionBuilder
         return this;
     }
     
+    public DatasetDescriptionBuilder shareId(String shareId)
+    {
+        datasetDescription.setDataSetShareId(shareId);
+        return this;
+    }
+    
     public DatasetDescriptionBuilder sample(String sampleCode)
     {
         datasetDescription.setSampleCode(sampleCode);

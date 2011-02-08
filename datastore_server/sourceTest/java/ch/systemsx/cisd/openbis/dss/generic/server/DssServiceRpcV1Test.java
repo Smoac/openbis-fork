@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -74,6 +75,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
@@ -86,6 +88,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
  */
 public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
 {
+    private static final String SHARE_ID = "share-1";
+
     private static final String NEW_DATA_SET_EXP = "E1";
 
     private static final String NEW_DATA_SET_OWNER_ID = "/TEST-SPACE/S1";
@@ -165,7 +169,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
     private void initializeDirectories(File storeDir, File incomingDir) throws IOException
     {
         File location =
-                DatasetLocationUtil.getDatasetLocationPath(storeDir, DATA_SET_CODE,
+                DatasetLocationUtil.getDatasetLocationPath(storeDir, DATA_SET_CODE, SHARE_ID,
                         DB_INSTANCE_UUID);
         if (!location.mkdirs())
             return;
@@ -273,6 +277,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
     @Test
     public void testDataSetListingNonRecursive()
     {
+        prepareListDataSetsByCode();
         FileInfoDssDTO[] fileInfos =
                 rpcService.listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "/", false);
         assertEquals(2, fileInfos.length);
@@ -302,6 +307,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
     @Test
     public void testDataSetListingRecursive()
     {
+        prepareListDataSetsByCode();
         FileInfoDssDTO[] fileInfos =
                 rpcService.listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "/", true);
         assertEquals(3, fileInfos.length);
@@ -344,6 +350,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
     @Test
     public void testDataSetListingOfChild()
     {
+        prepareListDataSetsByCode();
         FileInfoDssDTO[] fileInfos =
                 rpcService.listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "/stuff/", false);
         assertEquals(1, fileInfos.length);
@@ -373,6 +380,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
     @Test
     public void testDataSetListingOfRelativeChild()
     {
+        prepareListDataSetsByCode();
         FileInfoDssDTO[] fileInfos =
                 rpcService.listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "stuff/", false);
         assertEquals(1, fileInfos.length);
@@ -386,6 +394,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
     @Test
     public void testDataSetListingOfFile()
     {
+        prepareListDataSetsByCode();
         FileInfoDssDTO[] fileInfos =
                 rpcService
                         .listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "stuff/bar.txt", false);
@@ -424,6 +433,8 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
     @Test
     public void testDataSetListingWithSneakyPath()
     {
+        prepareListDataSetsByCode();
+        prepareListDataSetsByCode();
         try
         {
             rpcService.listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "../", true);
@@ -448,6 +459,8 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
     @Test
     public void testDataSetFileRetrieval() throws IOException
     {
+        prepareListDataSetsByCode();
+        prepareListDataSetsByCode();
         FileInfoDssDTO[] fileInfos =
                 rpcService
                         .listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "stuff/bar.txt", false);
@@ -524,6 +537,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
     @Test
     public void testAuthorizationForStringCode()
     {
+        prepareListDataSetsByCode();
         TestMethodInterceptor testMethodInterceptor = new TestMethodInterceptor();
         IDssServiceRpcGenericInternal service = getAdvisedService(testMethodInterceptor);
         service.listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "/", false);
@@ -533,6 +547,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
     @Test
     public void testAuthorizationDataSetFile()
     {
+        prepareListDataSetsByCode();
         TestMethodInterceptor testMethodInterceptor = new TestMethodInterceptor();
         IDssServiceRpcGenericInternal service = getAdvisedService(testMethodInterceptor);
         DataSetFileDTO dataSetFile = new DataSetFileDTO(DATA_SET_CODE, "/", false);
@@ -605,4 +620,17 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         builder.appendFileInfosForFile(file, fileInfos, true);
         return fileInfos;
     }
+    
+    private void prepareListDataSetsByCode()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(openBisService).listDataSetsByCode(Arrays.asList(DATA_SET_CODE));
+                    will(returnValue(Arrays.asList(new DataSetBuilder().code(DATA_SET_CODE)
+                            .shareId(SHARE_ID).getDataSet())));
+                }
+            });
+    }
+
 }

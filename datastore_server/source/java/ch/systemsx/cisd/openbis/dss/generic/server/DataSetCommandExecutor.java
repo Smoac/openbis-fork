@@ -110,9 +110,9 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
         thread.start();
     }
 
-    public void scheduleDeletionOfDataSets(List<String> locations)
+    public void scheduleDeletionOfDataSets(List<DatasetDescription> dataSets)
     {
-        scheduleCommand(new DeletionCommand(locations));
+        scheduleCommand(new DeletionCommand(dataSets));
     }
 
     public void scheduleUploadingDataSetsToCIFEX(ICIFEXRPCServiceFactory cifexServiceFactory,

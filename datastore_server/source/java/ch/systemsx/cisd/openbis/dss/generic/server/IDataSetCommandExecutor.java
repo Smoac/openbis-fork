@@ -41,9 +41,9 @@ interface IDataSetCommandExecutor
     void start();
 
     /**
-     * Schedules deletion of all data sets at specified locations.
+     * Schedules deletion of all specified data sets.
      */
-    void scheduleDeletionOfDataSets(List<String> locations);
+    void scheduleDeletionOfDataSets(List<DatasetDescription> dataSets);
 
     /**
      * Schedules uploading of all data sets to CIFEX using the specified upload context.

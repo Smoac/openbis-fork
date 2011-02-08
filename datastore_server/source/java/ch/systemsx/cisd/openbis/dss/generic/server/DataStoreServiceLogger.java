@@ -78,17 +78,17 @@ class DataStoreServiceLogger implements IDataStoreService
         return 0;
     }
 
-    public List<String> getKnownDataSets(String sessionToken, List<String> dataSetLocations)
+    public List<String> getKnownDataSets(String sessionToken, List<DatasetDescription> dataSetLocations)
             throws InvalidAuthenticationException
     {
-        log("getKnownDataSets", "LOCATIONS(%s)", dataSetLocations);
+        log("getKnownDataSets", "DATA_SETS(%s)", dataSetLocations);
         return null;
     }
 
-    public void deleteDataSets(String sessionToken, List<String> dataSetLocations)
+    public void deleteDataSets(String sessionToken, List<DatasetDescription> dataSets)
             throws InvalidAuthenticationException
     {
-        log("deleteDataSets", "LOCATIONS(%s)", dataSetLocations);
+        log("deleteDataSets", "DATA_SETS(%s)", dataSets);
     }
 
     public void uploadDataSetsToCIFEX(String sessionToken, List<ExternalData> dataSets,

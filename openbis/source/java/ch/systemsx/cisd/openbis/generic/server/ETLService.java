@@ -485,6 +485,13 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         Collections.sort(datasets);
         return datasets;
     }
+    
+    public List<ExternalData> listDataSetsByCode(String sessionToken, List<String> dataSetCodes)
+    {
+        final Session session = getSession(sessionToken);
+        final IDatasetLister datasetLister = createDatasetLister(session);
+        return datasetLister.listByDatasetCode(dataSetCodes);
+    }
 
     public IEntityProperty[] tryToGetPropertiesOfTopSampleRegisteredFor(String sessionToken,
             SampleIdentifier sampleIdentifier) throws UserFailureException

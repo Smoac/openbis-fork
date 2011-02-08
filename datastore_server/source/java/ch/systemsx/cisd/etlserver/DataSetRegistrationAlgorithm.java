@@ -40,6 +40,7 @@ import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.etlserver.IStorageProcessor.UnstoreDataAction;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
+import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -300,6 +301,8 @@ public class DataSetRegistrationAlgorithm
     public final File createBaseDirectory(final IDataStoreStrategy strategy, final File baseDir,
             final DataSetInformation dataSetInfo)
     {
+        // TODO replace by mapping
+        dataSetInfo.setShareId(DataStoreService.DEFAULT_SHARE_ID);
         final File baseDirectory =
                 strategy.getBaseDirectory(baseDir, dataSetInfo, state.dataSetType);
         baseDirectory.mkdirs();
@@ -451,6 +454,7 @@ public class DataSetRegistrationAlgorithm
         data.setUserId(dataSetInformation.getUploadingUserIdOrNull());
         data.setUserEMail(dataSetInformation.tryGetUploadingUserEmail());
         data.setExtractableData(dataSetInformation.getExtractableData());
+        data.setShareId(dataSetInformation.getShareId());
         data.setLocatorType(getTypeExtractor().getLocatorType(incomingDataSetFile));
         data.setDataSetType(getTypeExtractor().getDataSetType(incomingDataSetFile));
         data.setFileFormatType(getTypeExtractor().getFileFormatType(incomingDataSetFile));
@@ -564,7 +568,7 @@ public class DataSetRegistrationAlgorithm
             final BooleanOrUnknown isCompleteFlag)
     {
         data.setComplete(isCompleteFlag);
-        data.setLocation(relativePath);
+        data.setLocation(relativePath.substring(data.getShareId().length() + 1));
         data.setStorageFormat(storageFormat);
         return data;
     }

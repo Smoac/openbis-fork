@@ -222,7 +222,8 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
 
     public File getFileForExternalData(ExternalData externalData)
     {
-        File dataSetFile = new File(service.getStoreRootDirectory(), externalData.getLocation());
+        File share = new File(service.getStoreRootDirectory(), externalData.getShareId());
+        File dataSetFile = new File(share, externalData.getLocation());
         return DefaultStorageProcessor.getOriginalDirectory(dataSetFile);
     }
 
