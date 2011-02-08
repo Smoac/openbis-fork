@@ -48,7 +48,6 @@ import ch.systemsx.cisd.etlserver.TransferredDataSetHandler;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
@@ -121,10 +120,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         this.storeRoot = storageProcessor.getStoreRootDirectory();
         this.dataSetType = registrationDetails.getDataSetType();
 
-        if (dataStoreStrategy.getKey() != DataStoreStrategyKey.IDENTIFIED)
-        {
-            throw new UserFailureException("Data set must be associated with an experiment ");
-        }
+        assert dataStoreStrategy.getKey() == DataStoreStrategyKey.IDENTIFIED : "Data set must be associated with an experiment ";
 
         dataSetValidator.assertValidDataSet(dataSetType, incomingDataSetFile);
 
