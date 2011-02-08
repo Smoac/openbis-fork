@@ -39,11 +39,11 @@ public class LogoutAction implements IDelegatedAction
 
     public void execute()
     {
-        // NOTE: We decided not to support logout in simple view mode.
-        assert viewContext.isSimpleMode() == false;
         History.newItem(""); // clears history token in URL
         DisplaySettings displaySettings =
                 viewContext.getModel().getSessionContext().getDisplaySettings();
-        viewContext.getService().logout(displaySettings, new LogoutCallback(viewContext));
+
+        viewContext.getService().logout(displaySettings, viewContext.isSimpleMode(),
+                new LogoutCallback(viewContext));
     }
 }

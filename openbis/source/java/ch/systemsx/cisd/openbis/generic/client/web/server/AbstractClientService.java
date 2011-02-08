@@ -581,7 +581,7 @@ public abstract class AbstractClientService implements IClientService,
         }
     }
 
-    public final void logout(DisplaySettings displaySettings)
+    public final void logout(DisplaySettings displaySettings, boolean simpleViewMode)
     {
         try
         {
@@ -595,7 +595,11 @@ public abstract class AbstractClientService implements IClientService,
                 httpSession.removeAttribute(SessionConstants.OPENBIS_EXPORT_MANAGER);
                 httpSession.invalidate();
                 IServer server = getServer();
-                server.saveDisplaySettings(sessionToken, displaySettings);
+                if (simpleViewMode == false)
+                {
+                    // only save settings for "normal" view
+                    server.saveDisplaySettings(sessionToken, displaySettings);
+                }
                 server.logout(sessionToken);
             }
         } catch (final UserFailureException e)

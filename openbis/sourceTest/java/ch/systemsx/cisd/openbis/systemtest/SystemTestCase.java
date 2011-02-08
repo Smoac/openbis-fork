@@ -142,7 +142,7 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
 
     protected void logOutFromCommonClientService()
     {
-        commonClientService.logout(new DisplaySettings());
+        commonClientService.logout(new DisplaySettings(), false);
     }
 
     protected void sleep(long millis)

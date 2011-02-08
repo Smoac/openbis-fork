@@ -97,6 +97,8 @@ var common = {
   button_process: "Process",
   button_top: "Files",
   button_evaluate: "Evaluate",
+  logout_buttonLabel: "Logout",
+  home_buttonLabel: "Home",
   
   tooltip_refresh_disabled: "To activate select appropriate criteria first.",
   tooltip_refresh_enabled: "Load or update the table.",

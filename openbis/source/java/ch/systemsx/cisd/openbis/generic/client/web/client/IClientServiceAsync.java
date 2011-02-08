@@ -50,7 +50,8 @@ public interface IClientServiceAsync
     /** @see IClientService#changeUserHomeGroup(TechId) */
     public void changeUserHomeGroup(TechId groupIdOrNull, AsyncCallback<Void> callback);
 
-    /** @see IClientService#logout(DisplaySettings) */
-    public void logout(DisplaySettings displaySettings, AsyncCallback<Void> callback);
+    /** @see IClientService#logout(DisplaySettings, boolean) */
+    public void logout(DisplaySettings displaySettings, boolean simpleViewMode,
+            AsyncCallback<Void> callback);
 
 }

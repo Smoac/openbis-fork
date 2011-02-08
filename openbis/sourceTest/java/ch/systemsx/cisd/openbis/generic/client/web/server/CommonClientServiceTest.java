@@ -598,7 +598,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
                 }
             });
 
-        commonClientService.logout(displaySettings);
+        commonClientService.logout(displaySettings, false);
 
         context.assertIsSatisfied();
     }

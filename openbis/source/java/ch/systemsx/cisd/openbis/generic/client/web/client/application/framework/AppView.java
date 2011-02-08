@@ -20,6 +20,7 @@ import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.View;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
@@ -30,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonView
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Footer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SimpleModeHeader;
 
 /**
  * Main application view.
@@ -44,7 +46,7 @@ final class AppView extends View
 
     private IMainPanel mainPanel;
 
-    private TopMenu north;
+    private LayoutContainer north;
 
     private ComponentProvider componentProvider;
 
@@ -68,10 +70,7 @@ final class AppView extends View
     {
         viewport = new Viewport();
         viewport.setLayout(new BorderLayout());
-        if (viewContext.isSimpleMode() == false)
-        {
-            createNorth();
-        }
+        createNorth();
         createCenter();
         createSouth();
         RootPanel.get().clear();
@@ -80,7 +79,13 @@ final class AppView extends View
 
     private final void createNorth()
     {
-        north = new TopMenu(viewContext, componentProvider);
+        if (viewContext.isSimpleMode())
+        {
+            north = new SimpleModeHeader(viewContext, componentProvider);
+        } else
+        {
+            north = new TopMenu(viewContext, componentProvider);
+        }
         final BorderLayoutData data = new BorderLayoutData(LayoutRegion.NORTH, 30);
         viewport.add(north, data);
     }
@@ -108,7 +113,6 @@ final class AppView extends View
     protected final void initialize()
     {
         componentProvider = new ComponentProvider(viewContext);
-        // categoriesBuilder = new CategoriesBuilder(componentProvider);
     }
 
     @Override
@@ -120,7 +124,7 @@ final class AppView extends View
         } else if (event.getType() == AppEvents.NAVI_EVENT)
         {
             activate(getData(event));
-        }
+        } 
     }
 
     private static IMainPanel createMainPanel(IViewContext<ICommonClientServiceAsync> viewContext)

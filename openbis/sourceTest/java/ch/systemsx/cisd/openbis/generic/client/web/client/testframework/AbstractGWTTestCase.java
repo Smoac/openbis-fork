@@ -149,7 +149,7 @@ public abstract class AbstractGWTTestCase extends GWTTestCase
         final IViewContext<ICommonClientServiceAsync> viewContext = client.tryToGetViewContext();
         if (viewContext != null)
         {
-            viewContext.getService().logout(null, new AsyncCallback<Void>()
+            viewContext.getService().logout(null, false, new AsyncCallback<Void>()
                 {
                     public void onSuccess(final Void result)
                     {
