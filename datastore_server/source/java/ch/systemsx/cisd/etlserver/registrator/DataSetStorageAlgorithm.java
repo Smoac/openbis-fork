@@ -46,6 +46,7 @@ import ch.systemsx.cisd.etlserver.IStorageProcessor;
 import ch.systemsx.cisd.etlserver.IStorageProcessor.UnstoreDataAction;
 import ch.systemsx.cisd.etlserver.TransferredDataSetHandler;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
+import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -338,6 +339,8 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         protected final File createBaseDirectory(final IDataStoreStrategy strategy,
                 final File baseDir, final DataSetInformation dataSetInfo)
         {
+            // TODO replace by mapping
+            dataSetInfo.setShareId(DataStoreService.DEFAULT_SHARE_ID);
             final File baseDirectory =
                     strategy.getBaseDirectory(baseDir, dataSetInfo,
                             storageAlgorithm.getDataSetType());
