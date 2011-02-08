@@ -19,12 +19,12 @@ package ch.systemsx.cisd.etlserver;
 import java.io.File;
 
 /**
- * A tiny class which holds the <i>base directory</i> and ensures that the <i>target file</i>
- * lazily gets computed only once.
+ * A tiny class which holds the <i>base directory</i> and ensures that the <i>target file</i> lazily
+ * gets computed only once.
  * 
  * @author Christian Ribeaud
  */
-final class BaseDirectoryHolder
+public final class BaseDirectoryHolder
 {
 
     private final File baseDirectory;
@@ -35,8 +35,8 @@ final class BaseDirectoryHolder
 
     private File targetFile;
 
-    BaseDirectoryHolder(final IDataStoreStrategy dataStoreStrategy, final File baseDirectory,
-            final File incomingDataSetPath)
+    public BaseDirectoryHolder(final IDataStoreStrategy dataStoreStrategy,
+            final File baseDirectory, final File incomingDataSetPath)
     {
         assert dataStoreStrategy != null : "Data store strategy can not be null.";
         assert baseDirectory != null : "Base directory can not be null";
@@ -51,12 +51,12 @@ final class BaseDirectoryHolder
         return dataStoreStrategy.getTargetPath(baseDirectory, incomingDataSetPath);
     }
 
-    final File getBaseDirectory()
+    public final File getBaseDirectory()
     {
         return baseDirectory;
     }
 
-    final synchronized File getTargetFile()
+    public final synchronized File getTargetFile()
     {
         if (targetFile == null)
         {

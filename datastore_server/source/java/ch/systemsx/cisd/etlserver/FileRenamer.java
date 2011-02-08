@@ -32,22 +32,21 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  * 
  * @author Franz-Josef Elmer
  */
-final class FileRenamer
+public final class FileRenamer
 {
-    private final static Logger notificationLog =
-            LogFactory.getLogger(LogCategory.NOTIFY, FileRenamer.class);
+    private final static Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
+            FileRenamer.class);
 
-    final static Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, FileRenamer.class);
+    final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            FileRenamer.class);
 
     /**
      * Renames given <var>sourceFile</var> to given <var>destinationFile</var>.
      * <p>
-     * Internally uses {@link FileOperations} and notifies the administrator if the process
-     * failed.
+     * Internally uses {@link FileOperations} and notifies the administrator if the process failed.
      * </p>
      */
-    static final boolean renameAndLog(final File sourceFile, final File destinationFile)
+    public static final boolean renameAndLog(final File sourceFile, final File destinationFile)
     {
         final String absoluteTargetPath = destinationFile.getAbsolutePath();
         if (destinationFile.exists())
@@ -58,8 +57,8 @@ final class FileRenamer
             return false;
         }
         boolean renamedOK =
-            FileOperations.getMonitoredInstanceForCurrentThread().rename(sourceFile,
-                    destinationFile);
+                FileOperations.getMonitoredInstanceForCurrentThread().rename(sourceFile,
+                        destinationFile);
         if (renamedOK)
         {
             if (operationLog.isInfoEnabled())

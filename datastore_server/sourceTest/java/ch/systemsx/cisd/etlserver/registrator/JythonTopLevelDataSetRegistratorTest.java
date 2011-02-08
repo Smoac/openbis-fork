@@ -635,7 +635,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
                     registrator.setEmail("email@email.com");
                     experiment.setRegistrator(registrator);
 
-                    exactly(2).of(openBisService).tryToGetExperiment(
+                    exactly(3).of(openBisService).tryToGetExperiment(
                             new ExperimentIdentifierFactory("/SPACE/PROJECT/EXP-CODE")
                                     .createIdentifier());
                     will(returnValue(experiment));

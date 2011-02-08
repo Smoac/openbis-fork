@@ -53,7 +53,7 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
         IDataSetHandler, IExtensibleDataSetHandler
 {
 
-    static final String TARGET_NOT_RELATIVE_TO_STORE_ROOT =
+    public static final String TARGET_NOT_RELATIVE_TO_STORE_ROOT =
             "Target path '%s' is not relative to store root directory '%s'.";
 
     static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,

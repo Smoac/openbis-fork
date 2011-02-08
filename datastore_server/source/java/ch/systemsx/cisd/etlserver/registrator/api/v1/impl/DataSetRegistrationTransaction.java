@@ -18,27 +18,33 @@ package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
+import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
+import ch.systemsx.cisd.etlserver.registrator.IEntityRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperiment;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperimentImmutable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISampleImmutable;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionState.CommitedTransactionState;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionState.LiveTransactionState;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionState.RolledbackTransactionState;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityRegistrationDetails;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -53,7 +59,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
  * @author Chandrasekhar Ramakrishnan
  */
 public class DataSetRegistrationTransaction<T extends DataSetInformation> implements
-        IDataSetRegistrationTransaction
+        IDataSetRegistrationTransaction, DataSetStorageAlgorithmRunner.IRollbackDelegate<T>,
+        DataSetStorageAlgorithmRunner.IDataSetInApplicationServerRegistrator<T>
 {
     private static final String ROLLBACK_QUEUE1_FILE_NAME_SUFFIX = "rollBackQueue1";
 
@@ -150,8 +157,8 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
             IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory)
     {
         state =
-                new LiveTransactionState<T>(rollbackStack, workingDirectory, stagingDirectory,
-                        registrationService, registrationDetailsFactory);
+                new LiveTransactionState<T>(this, rollbackStack, workingDirectory,
+                        stagingDirectory, registrationService, registrationDetailsFactory);
         this.registrationService = registrationService;
         this.openBisService =
                 this.registrationService.getRegistratorState().getGlobalState().getOpenBisService();
@@ -159,12 +166,12 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
 
     public IDataSet createNewDataSet()
     {
-        return ((LiveTransactionState<T>) state).createNewDataSet();
+        return getStateAsLiveState().createNewDataSet();
     }
 
     public IDataSet createNewDataSet(DataSetRegistrationDetails<T> registrationDetails)
     {
-        return ((LiveTransactionState<T>) state).createNewDataSet(registrationDetails);
+        return getStateAsLiveState().createNewDataSet(registrationDetails);
     }
 
     public ISampleImmutable getSample(String sampleIdentifierString)
@@ -176,12 +183,12 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
 
     public ISample getSampleForUpdate(String sampleIdentifierString)
     {
-        return ((LiveTransactionState<T>) state).getSampleForUpdate(sampleIdentifierString);
+        return getStateAsLiveState().getSampleForUpdate(sampleIdentifierString);
     }
 
     public ISample createNewSample(String sampleIdentifierString)
     {
-        return ((LiveTransactionState<T>) state).createNewSample(sampleIdentifierString);
+        return getStateAsLiveState().createNewSample(sampleIdentifierString);
     }
 
     public IExperimentImmutable getExperiment(String experimentIdentifierString)
@@ -195,42 +202,42 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
 
     public IExperiment getExperimentForUpdate(String experimentIdentifierString)
     {
-        return ((LiveTransactionState<T>) state).getExperimentForUpdate(experimentIdentifierString);
+        return getStateAsLiveState().getExperimentForUpdate(experimentIdentifierString);
     }
 
     public IExperiment createNewExperiment(String experimentIdentifierString)
     {
-        return ((LiveTransactionState<T>) state).createNewExperiment(experimentIdentifierString);
+        return getStateAsLiveState().createNewExperiment(experimentIdentifierString);
     }
 
     public String moveFile(String src, IDataSet dst)
     {
-        return ((LiveTransactionState<T>) state).moveFile(src, dst);
+        return getStateAsLiveState().moveFile(src, dst);
     }
 
     public String moveFile(String src, IDataSet dst, String dstInDataset)
     {
-        return ((LiveTransactionState<T>) state).moveFile(src, dst, dstInDataset);
+        return getStateAsLiveState().moveFile(src, dst, dstInDataset);
     }
 
     public String createNewDirectory(IDataSet dst, String dirName)
     {
-        return ((LiveTransactionState<T>) state).createNewDirectory(dst, dirName);
+        return getStateAsLiveState().createNewDirectory(dst, dirName);
     }
 
     public String createNewFile(IDataSet dst, String fileName)
     {
-        return ((LiveTransactionState<T>) state).createNewFile(dst, fileName);
+        return getStateAsLiveState().createNewFile(dst, fileName);
     }
 
     public String createNewFile(IDataSet dst, String dstInDataset, String fileName)
     {
-        return ((LiveTransactionState<T>) state).createNewFile(dst, dstInDataset, fileName);
+        return getStateAsLiveState().createNewFile(dst, dstInDataset, fileName);
     }
 
     public void deleteFile(String src)
     {
-        ((LiveTransactionState<T>) state).deleteFile(src);
+        getStateAsLiveState().deleteFile(src);
     }
 
     /**
@@ -238,7 +245,12 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
      */
     public void commit()
     {
-        LiveTransactionState<T> liveState = (LiveTransactionState<T>) state;
+        // No need to commit again
+        if (state instanceof CommitedTransactionState)
+        {
+            return;
+        }
+        LiveTransactionState<T> liveState = getStateAsLiveState();
         liveState.commit();
 
         state = new CommitedTransactionState<T>(liveState);
@@ -250,320 +262,78 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
      */
     public void rollback()
     {
-        LiveTransactionState<T> liveState = (LiveTransactionState<T>) state;
+        // No need to rollback again
+        if (state instanceof RolledbackTransactionState)
+        {
+            return;
+        }
+
+        LiveTransactionState<T> liveState = getStateAsLiveState();
         liveState.rollback();
 
         state = new RolledbackTransactionState<T>(liveState);
     }
 
     /**
-     * Abstract superclass for the states a DataSetRegistrationTransaction can be in.
-     * 
-     * @author Chandrasekhar Ramakrishnan
+     * Delegate method called by the {@link DataSetStorageAlgorithmRunner}.
      */
-    private static abstract class AbstractTransactionState<T extends DataSetInformation>
+    public void rollback(DataSetStorageAlgorithmRunner<T> algorithm, Throwable ex)
     {
-        public abstract boolean isCommitted();
-
-        public abstract boolean isRolledback();
+        rollback();
+        registrationService.rollbackTransaction(this, algorithm, ex);
     }
 
     /**
-     * The state where the transaction is still modifyiable.
-     * 
-     * @author Chandrasekhar Ramakrishnan
+     * Delegate method called by the {@link DataSetStorageAlgorithmRunner}. This implementation asks
+     * the DataSetRegistrationService to register not just the data sets, but perform any creation
+     * or updates of Experiments and Samples as well.
      */
-    private static class LiveTransactionState<T extends DataSetInformation> extends
-            AbstractTransactionState<T>
+    public void registerDataSetsInApplicationServer(
+            List<DataSetRegistrationInformation<T>> dataSetRegistrations) throws Throwable
     {
-        // Keeps track of steps that have been executed and may need to be reverted. Elements are
-        // kept in the order they need to be reverted.
-        private final RollbackStack rollbackStack;
+        AtomicEntityRegistrationDetails<T> registrationDetails =
+                getStateAsLiveState().createRegistrationDetails(dataSetRegistrations);
+        IEntityRegistrationService<T> entityRegistrationService =
+                registrationService.getEntityRegistrationService();
 
-        // The directory to use as "local" for paths
-        private final File workingDirectory;
-
-        // The directory in which new data sets get staged
-        private final File stagingDirectory;
-
-        // The registration service that owns this transaction
-        private final DataSetRegistrationService registrationService;
-
-        // The interface to openBIS
-        private final IEncapsulatedOpenBISService openBisService;
-
-        private final IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory;
-
-        private final ArrayList<DataSet<T>> registeredDataSets = new ArrayList<DataSet<T>>();
-
-        private final List<Experiment> experimentsToBeRegistered = new ArrayList<Experiment>();
-
-        public LiveTransactionState(RollbackStack rollbackStack, File workingDirectory,
-                File stagingDirectory, DataSetRegistrationService registrationService,
-                IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory)
-        {
-            this.rollbackStack = rollbackStack;
-            this.workingDirectory = workingDirectory;
-            this.stagingDirectory = stagingDirectory;
-            this.registrationService = registrationService;
-            this.openBisService =
-                    this.registrationService.getRegistratorState().getGlobalState()
-                            .getOpenBisService();
-            this.registrationDetailsFactory = registrationDetailsFactory;
-        }
-
-        public IDataSet createNewDataSet()
-        {
-            // Create registration details for the new data set
-            DataSetRegistrationDetails<T> registrationDetails =
-                    registrationDetailsFactory.createDataSetRegistrationDetails();
-
-            return createNewDataSet(registrationDetails);
-        }
-
-        public IDataSet createNewDataSet(DataSetRegistrationDetails<T> registrationDetails)
-        {
-            // Request a code, so we can keep the staging file name and the data set code in sync
-            String dataSetCode = registrationDetails.getDataSetInformation().getDataSetCode();
-            if (null == dataSetCode)
-            {
-                dataSetCode = generateDataSetCode(registrationDetails);
-                registrationDetails.getDataSetInformation().setDataSetCode(dataSetCode);
-            }
-
-            // Create a directory for the data set
-            File stagingFolder = new File(stagingDirectory, dataSetCode);
-            MkdirsCommand cmd = new MkdirsCommand(stagingFolder.getAbsolutePath());
-            executeCommand(cmd);
-
-            DataSet<T> dataSet =
-                    registrationDetailsFactory.createDataSet(registrationDetails, stagingFolder);
-            registeredDataSets.add(dataSet);
-            return dataSet;
-        }
-
-        public ISample getSampleForUpdate(String sampleIdentifierString)
-        {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        public ISample createNewSample(String sampleIdentifierString)
-        {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        public IExperiment getExperimentForUpdate(String experimentIdentifierString)
-        {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        public IExperiment createNewExperiment(String experimentIdentifierString)
-        {
-            String permID = openBisService.createDataSetCode();
-            Experiment experiment = new Experiment(experimentIdentifierString, permID);
-            experimentsToBeRegistered.add(experiment);
-            return experiment;
-        }
-
-        public String moveFile(String src, IDataSet dst)
-        {
-            File srcFile = new File(src);
-            return moveFile(src, dst, srcFile.getName());
-        }
-
-        public String moveFile(String src, IDataSet dst, String dstInDataset)
-        {
-            @SuppressWarnings("unchecked")
-            DataSet<T> dataSet = (DataSet<T>) dst;
-
-            // See if this is an absolute path
-            File srcFile = new File(src);
-            if (false == srcFile.exists())
-            {
-                // Try it relative
-                srcFile = new File(workingDirectory, src);
-            }
-
-            File dataSetFolder = dataSet.getDataSetStagingFolder();
-            File dstFile = new File(dataSetFolder, dstInDataset);
-
-            FileUtilities.checkInputFile(srcFile);
-
-            MoveFileCommand cmd =
-                    new MoveFileCommand(srcFile.getParentFile().getAbsolutePath(),
-                            srcFile.getName(), dstFile.getParentFile().getAbsolutePath(),
-                            dstFile.getName());
-            executeCommand(cmd);
-            return dstFile.getAbsolutePath();
-        }
-
-        public String createNewDirectory(IDataSet dst, String dirName)
-        {
-            @SuppressWarnings("unchecked")
-            DataSet<T> dataSet = (DataSet<T>) dst;
-            File dataSetFolder = dataSet.getDataSetStagingFolder();
-            File dstFile = new File(dataSetFolder, dirName);
-            MkdirsCommand cmd = new MkdirsCommand(dstFile.getAbsolutePath());
-            executeCommand(cmd);
-            return dstFile.getAbsolutePath();
-        }
-
-        public String createNewFile(IDataSet dst, String fileName)
-        {
-            return createNewFile(dst, "/", fileName);
-        }
-
-        public String createNewFile(IDataSet dst, String dstInDataset, String fileName)
-        {
-            @SuppressWarnings("unchecked")
-            DataSet<T> dataSet = (DataSet<T>) dst;
-            File dataSetFolder = dataSet.getDataSetStagingFolder();
-            File dstFolder = new File(dataSetFolder, dstInDataset);
-            File dstFile = new File(dstFolder, fileName);
-            NewFileCommand cmd = new NewFileCommand(dstFile.getAbsolutePath());
-            executeCommand(cmd);
-            return dstFile.getAbsolutePath();
-        }
-
-        public void deleteFile(String src)
-        {
-            // TODO Auto-generated method stub
-
-        }
-
-        /**
-         * Commit the transaction
-         */
-        public void commit()
-        {
-            for (DataSet<T> dataSet : registeredDataSets)
-            {
-                registrationService.queueDataSetRegistration(dataSet.getDataSetContents(),
-                        dataSet.getRegistrationDetails());
-            }
-            registrationService.commit();
-
-            // for (DataSet<T> dataSet : registeredDataSets)
-            // {
-            // File contents = dataSet.getDataSetContents();
-            // DataSetRegistrationDetails<T> details = dataSet.getRegistrationDetails();
-            // registrationService.getRegistratorState().getDataStrategyStore()
-            // .getDataStoreStrategy(details.getDataSetInformation(), contents);
-            // DataSetStorageAlgorithm<T> algorithm =
-            // new DataSetStorageAlgorithm<T>(contents, details, null, null, null, null,
-            // null, null);
-            // }
-            // registrationService.commit();
-        }
-
-        /**
-         * Rollback any commands that have been executed. Rollback is done in the reverse order of
-         * execution.
-         */
-        public void rollback()
-        {
-            rollbackStack.rollbackAll();
-            registeredDataSets.clear();
-        }
-
-        /**
-         * Execute the command and add it to the list of commands that have been executed.
-         */
-        private void executeCommand(ITransactionalCommand cmd)
-        {
-            rollbackStack.pushAndExecuteCommand(cmd);
-        }
-
-        /**
-         * Generate a data set code for the registration details. Just calls openBisService to get a
-         * data set code by default.
-         * 
-         * @return A data set code
-         */
-        private String generateDataSetCode(DataSetRegistrationDetails<T> registrationDetails)
-        {
-            return openBisService.createDataSetCode();
-        }
-
-        @Override
-        public boolean isCommitted()
-        {
-            return false;
-        }
-
-        @Override
-        public boolean isRolledback()
-        {
-            return false;
-        }
+        entityRegistrationService.registerEntitiesInApplcationServer(registrationDetails);
     }
 
-    private static abstract class TerminalTransactionState<T extends DataSetInformation> extends
-            AbstractTransactionState<T>
+    public boolean isCommittedOrRolledback()
     {
-        private final LiveTransactionState<T> liveState;
+        return isCommitted() || isRolledback();
+    }
 
-        protected TerminalTransactionState(LiveTransactionState<T> liveState)
-        {
-            this.liveState = liveState;
-            deleteStagingFolders();
-            this.liveState.rollbackStack.discard();
-        }
+    public boolean isCommitted()
+    {
+        return state.isCommitted();
+    }
 
-        private void deleteStagingFolders()
+    public boolean isRolledback()
+    {
+        return state.isRolledback();
+    }
+
+    /**
+     * Return the state as live state. Throw an EnvironmentFailureException if this is not possible.
+     */
+    private LiveTransactionState<T> getStateAsLiveState()
+    {
+        try
         {
-            for (DataSet<T> dataSet : liveState.registeredDataSets)
+            LiveTransactionState<T> liveState = (LiveTransactionState<T>) state;
+            return liveState;
+        } catch (ClassCastException ex)
+        {
+            String message;
+            if (state instanceof CommitedTransactionState)
             {
-                dataSet.getDataSetStagingFolder().delete();
+                message = "The transaction has already been committed";
+            } else
+            {
+                message = "The transaction has already been rolledback";
             }
-        }
-
-    }
-
-    private static class CommitedTransactionState<T extends DataSetInformation> extends
-            TerminalTransactionState<T>
-    {
-
-        public CommitedTransactionState(LiveTransactionState<T> liveState)
-        {
-            super(liveState);
-        }
-
-        @Override
-        public boolean isCommitted()
-        {
-            return true;
-        }
-
-        @Override
-        public boolean isRolledback()
-        {
-            return false;
+            throw new EnvironmentFailureException(message, ex);
         }
     }
-
-    private static class RolledbackTransactionState<T extends DataSetInformation> extends
-            TerminalTransactionState<T>
-    {
-        public RolledbackTransactionState(LiveTransactionState<T> liveState)
-        {
-            super(liveState);
-        }
-
-        @Override
-        public boolean isCommitted()
-        {
-            return false;
-        }
-
-        @Override
-        public boolean isRolledback()
-        {
-            return true;
-        }
-    }
-
 }

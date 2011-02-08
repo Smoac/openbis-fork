@@ -244,7 +244,7 @@ public class JythonTopLevelDataSetHandler extends AbstractOmniscientTopLevelData
             dataSetInfo.setInstanceCode(registratorState.getHomeDatabaseInstance().getCode());
             dataSetInfo.setInstanceUUID(registratorState.getHomeDatabaseInstance().getUuid());
         }
-        
+
         /**
          * Adaptor for the IDataSetRegistrationDetailsFactory interface.
          */
@@ -282,22 +282,9 @@ public class JythonTopLevelDataSetHandler extends AbstractOmniscientTopLevelData
             this.interpreter = interpreter;
         }
 
-        public JythonDataSetRegistrationService(JythonDataSetRegistrationService other)
-        {
-            super(other);
-            interpreter = other.interpreter;
-        }
-
         public PythonInterpreter getInterpreter()
         {
             return interpreter;
         }
-
-        @Override
-        protected JythonDataSetRegistrationService createSubService()
-        {
-            return new JythonDataSetRegistrationService(this);
-        }
-
     }
 }

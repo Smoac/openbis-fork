@@ -34,7 +34,6 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
-import ch.systemsx.cisd.common.mail.From;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
@@ -132,7 +131,6 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
     {
         setUpOpenBisExpectations(true);
         setUpDataSetValidatorExpectations();
-        setUpMailClientExpectations();
         createTransaction();
 
         IDataSet newDataSet = tr.createNewDataSet();
@@ -214,9 +212,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         context.assertIsSatisfied();
     }
 
-    // The second invocation of rollback will cause a class-cast exception.
-    @Test(expectedExceptions =
-        { ClassCastException.class })
+    @Test
     public void testDoubleRollbackNormal()
     {
         setUpOpenBisExpectations(false);
@@ -371,7 +367,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
                         project.setSpace(space);
                         experiment.setProject(project);
 
-                        exactly(2).of(openBisService).tryToGetExperiment(
+                        exactly(3).of(openBisService).tryToGetExperiment(
                                 new ExperimentIdentifierFactory(EXPERIMENT_IDENTIFIER)
                                         .createIdentifier());
                         will(returnValue(experiment));
@@ -393,18 +389,6 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
                 {
                     oneOf(dataSetValidator).assertValidDataSet(with(DATA_SET_TYPE),
                             with(dataSetFile));
-                }
-            });
-    }
-
-    private void setUpMailClientExpectations()
-    {
-        context.checking(new Expectations()
-            {
-                {
-                    exactly(1).of(mailClient).sendMessage(with(any(String.class)),
-                            with(any(String.class)), with(aNull(String.class)),
-                            with(aNull(From.class)), with(any(String[].class)));
                 }
             });
     }

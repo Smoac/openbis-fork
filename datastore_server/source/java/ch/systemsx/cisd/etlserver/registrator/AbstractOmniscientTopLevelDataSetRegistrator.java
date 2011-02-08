@@ -284,6 +284,20 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator extends
     }
 
     /**
+     * Rollback a failure when trying to commit a transaction.
+     * <p>
+     * Subclasses may override, but should call super.
+     */
+
+    public <T extends DataSetInformation> void rollbackTransaction(
+            DataSetRegistrationService dataSetRegistrationService,
+            DataSetRegistrationTransaction<T> transaction,
+            DataSetStorageAlgorithmRunner<T> algorithm, Throwable ex)
+    {
+        updateStopped(ex instanceof InterruptedExceptionUnchecked);
+    }
+
+    /**
      * Rollback a failure that occurs outside of any *particular* data set registration, but with
      * the whole processing of the incoming folder itself.
      * <p>

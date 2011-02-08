@@ -53,9 +53,6 @@ public class DataSetRegistrationService implements IRollbackDelegate
     private final ArrayList<DataSetRegistrationAlgorithm> dataSetRegistrations =
             new ArrayList<DataSetRegistrationAlgorithm>();
 
-    // Any parent services
-    private final DataSetRegistrationService parentServiceOrNull;
-
     /**
      * The currently live child transaction.
      */
@@ -93,21 +90,6 @@ public class DataSetRegistrationService implements IRollbackDelegate
         this.registrator = registrator;
         this.registratorState = registrator.getRegistratorState();
         this.globalCleanAfterwardsAction = globalCleanAfterwardsAction;
-        this.parentServiceOrNull = null;
-    }
-
-    /**
-     * A copy constuctor. Used in the creation of transactions. Subclasses will want to override
-     * this.
-     * 
-     * @param other
-     */
-    public DataSetRegistrationService(DataSetRegistrationService other)
-    {
-        this.registrator = other.registrator;
-        this.registratorState = registrator.getRegistratorState();
-        this.globalCleanAfterwardsAction = new NoOpCleanAfterwardsAction();
-        this.parentServiceOrNull = other;
     }
 
     public OmniscientTopLevelDataSetRegistratorState getRegistratorState()
@@ -130,6 +112,9 @@ public class DataSetRegistrationService implements IRollbackDelegate
         return future;
     }
 
+    /**
+     * Create a new transaction that atomically performs file operations and registers entities.
+     */
     public IDataSetRegistrationTransaction transaction(File dataSetFile,
             IDataSetRegistrationDetailsFactory<DataSetInformation> detailsFactory)
     {
@@ -145,27 +130,18 @@ public class DataSetRegistrationService implements IRollbackDelegate
         // Clone this service for the transaction to keep them independent
         liveTransactionOrNull =
                 new DataSetRegistrationTransaction<DataSetInformation>(registrator.getGlobalState()
-                        .getStoreRootDir(), workingDirectory, stagingDirectory,
-                        this.createSubService(), detailsFactory);
+                        .getStoreRootDir(), workingDirectory, stagingDirectory, this,
+                        detailsFactory);
 
         return liveTransactionOrNull;
     }
 
-    // public <T extends DataSetInformation> DataSetStorageAlgorithm<T> createStorageAlgorithm(
-    // File dataSetFile, DataSetRegistrationDetails<T> dataSetDetails)
-    // {
-    // IDataStoreStrategy strategy =
-    // registratorState.getDataStrategyStore().getDataStoreStrategy(
-    // dataSetDetails.getDataSetInformation(), dataSetFile);
-    // DataSetStorageAlgorithm<T> algorithm =
-    // new DataSetStorageAlgorithm<T>(dataSetFile, dataSetDetails, strategy,
-    // registratorState.getStorageProcessor(), null, null, null, null);
-    // return algorithm;
-    // }
-
+    /**
+     * Commit any scheduled changes.
+     */
     public void commit()
     {
-        // If a transaction is hanging around, commit it before starting a new one
+        // If a transaction is hanging around, commit it
         commitExtantTransaction();
 
         for (DataSetRegistrationAlgorithm registrationAlgorithm : dataSetRegistrations)
@@ -175,30 +151,50 @@ public class DataSetRegistrationService implements IRollbackDelegate
         globalCleanAfterwardsAction.execute();
     }
 
+    /**
+     * Abort any scheduled changes.
+     */
     public void abort()
     {
+        rollbackExtantTransaction();
         dataSetRegistrations.clear();
+    }
 
-        if (null != liveTransactionOrNull)
-        {
-            liveTransactionOrNull.rollback();
-        }
-        if (null != parentServiceOrNull)
-        {
-            if (null != parentServiceOrNull.liveTransactionOrNull)
-            {
-                parentServiceOrNull.liveTransactionOrNull.rollback();
-            }
-        }
+    public void rollback(DataSetRegistrationAlgorithm algorithm, Throwable ex)
+    {
+        registrator.rollback(this, algorithm, ex);
+    }
+
+    public <T extends DataSetInformation> void rollbackTransaction(
+            DataSetRegistrationTransaction<T> transaction,
+            DataSetStorageAlgorithmRunner<T> algorithm, Throwable ex)
+    {
+        registrator.rollbackTransaction(this, transaction, algorithm, ex);
     }
 
     /**
-     * Create a service derived from this one. By default, use the copy constructor. Subclasses
-     * should override.
+     * Create a storage algorithm for storing an individual data set. This is internally used by
+     * transactions. Other clients may find it useful as well.
      */
-    protected DataSetRegistrationService createSubService()
+    public <T extends DataSetInformation> DataSetStorageAlgorithm<T> createStorageAlgorithm(
+            File dataSetFile, DataSetRegistrationDetails<T> dataSetDetails)
     {
-        return new DataSetRegistrationService(this);
+        IDataStoreStrategy strategy =
+                registratorState.getDataStrategyStore().getDataStoreStrategy(
+                        dataSetDetails.getDataSetInformation(), dataSetFile);
+
+        TopLevelDataSetRegistratorGlobalState globalContext = registratorState.getGlobalState();
+        DataSetStorageAlgorithm<T> algorithm =
+                new DataSetStorageAlgorithm<T>(dataSetFile, dataSetDetails, strategy,
+                        registratorState.getStorageProcessor(),
+                        globalContext.getDataSetValidator(), globalContext.getDssCode(),
+                        registratorState.getFileOperations(), globalContext.getMailClient());
+        return algorithm;
+    }
+
+    public <T extends DataSetInformation> IEntityRegistrationService<T> getEntityRegistrationService()
+    {
+        return new DefaultEntityRegistrationService<T>(registrator);
     }
 
     private DataSetRegistrationAlgorithm createRegistrationAlgorithm(File incomingDataSetFile,
@@ -234,12 +230,28 @@ public class DataSetRegistrationService implements IRollbackDelegate
                         details.getDataSetInformation()));
     }
 
-    public void rollback(DataSetRegistrationAlgorithm algorithm, Throwable ex)
+    /**
+     * If a transaction is hanging around, commit it
+     */
+    private void commitExtantTransaction()
     {
-        registrator.rollback(this, algorithm, ex);
+        if (null != liveTransactionOrNull
+                && false == liveTransactionOrNull.isCommittedOrRolledback())
+        {
+            // Commit the existing transaction
+            liveTransactionOrNull.commit();
+        }
     }
 
-    protected static class DefaultApplicationServerRegistrator implements
+    private void rollbackExtantTransaction()
+    {
+        if (null != liveTransactionOrNull)
+        {
+            liveTransactionOrNull.rollback();
+        }
+    }
+
+    private static class DefaultApplicationServerRegistrator implements
             IDataSetInApplicationServerRegistrator
     {
         private final AbstractOmniscientTopLevelDataSetRegistrator registrator;
@@ -260,23 +272,4 @@ public class DataSetRegistrationService implements IRollbackDelegate
         }
     }
 
-    protected static class NoOpCleanAfterwardsAction implements IDelegatedActionWithResult<Boolean>
-    {
-        public Boolean execute()
-        {
-            return true; // do nothing
-        }
-    }
-
-    /**
-     * If a transaction is hanging around, commit it
-     */
-    private void commitExtantTransaction()
-    {
-        if (null != liveTransactionOrNull)
-        {
-            // Commit the existing transaction
-            liveTransactionOrNull.commit();
-        }
-    }
 }
