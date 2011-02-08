@@ -55,8 +55,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public abstract class AbstractOmniscientTopLevelDataSetRegistrator extends
-        AbstractTopLevelDataSetRegistrator
+public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends DataSetInformation>
+        extends AbstractTopLevelDataSetRegistrator
 {
     static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
             AbstractOmniscientTopLevelDataSetRegistrator.class);
@@ -234,7 +234,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator extends
                 };
         }
 
-        DataSetRegistrationService service =
+        DataSetRegistrationService<T> service =
                 createDataSetRegistrationService(cleanAfterwardsAction);
 
         try
@@ -273,7 +273,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator extends
      * 
      * @param dataSetRegistrationService
      */
-    public void rollback(DataSetRegistrationService dataSetRegistrationService,
+    public void rollback(DataSetRegistrationService<T> dataSetRegistrationService,
             DataSetRegistrationAlgorithm registrationAlgorithm, Throwable throwable)
     {
         updateStopped(throwable instanceof InterruptedExceptionUnchecked);
@@ -289,8 +289,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator extends
      * Subclasses may override, but should call super.
      */
 
-    public <T extends DataSetInformation> void rollbackTransaction(
-            DataSetRegistrationService dataSetRegistrationService,
+    public void rollbackTransaction(DataSetRegistrationService<T> dataSetRegistrationService,
             DataSetRegistrationTransaction<T> transaction,
             DataSetStorageAlgorithmRunner<T> algorithm, Throwable ex)
     {
@@ -303,7 +302,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator extends
      * <p>
      * Subclasses may override, but should call super.
      */
-    protected void rollback(DataSetRegistrationService service, Throwable throwable)
+    protected void rollback(DataSetRegistrationService<T> service, Throwable throwable)
     {
         updateStopped(throwable instanceof InterruptedExceptionUnchecked);
 
@@ -313,11 +312,13 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator extends
     /**
      * Create the data set registration service.
      */
-    protected DataSetRegistrationService createDataSetRegistrationService(
+    protected DataSetRegistrationService<T> createDataSetRegistrationService(
             final IDelegatedActionWithResult<Boolean> cleanAfterwardsAction)
     {
-        DataSetRegistrationService service =
-                new DataSetRegistrationService(this, cleanAfterwardsAction);
+        @SuppressWarnings("unchecked")
+        DataSetRegistrationService<T> service =
+                new DataSetRegistrationService(this, new DefaultDataSetRegistrationDetailsFactory(
+                        getRegistratorState()), cleanAfterwardsAction);
         return service;
     }
 
@@ -345,6 +346,6 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator extends
      * 
      * @throws Throwable
      */
-    protected abstract void handleDataSet(File dataSetFile, DataSetRegistrationService service)
+    protected abstract void handleDataSet(File dataSetFile, DataSetRegistrationService<T> service)
             throws Throwable;
 }

@@ -28,7 +28,7 @@ import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSet;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
@@ -36,7 +36,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class JythonTopLevelDataSetHandler extends AbstractOmniscientTopLevelDataSetRegistrator
+public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
+        AbstractOmniscientTopLevelDataSetRegistrator<T>
 {
     /**
      * The name of the function to define to hook into the data set registration rollback mechanism.
@@ -48,6 +49,11 @@ public class JythonTopLevelDataSetHandler extends AbstractOmniscientTopLevelData
      * The name of the function to define to hook into the service rollback mechanism.
      */
     private static final String ROLLBACK_SERVICE_FUNCTION_NAME = "rollback_service";
+
+    /**
+     * The name of the function to define to hook into the transaction rollback mechanism.
+     */
+    private static final String ROLLBACK_TRANSACTION_FUNCTION_NAME = "rollback_transaction";
 
     private static final String FACTORY_VARIABLE_NAME = "factory";
 
@@ -94,14 +100,14 @@ public class JythonTopLevelDataSetHandler extends AbstractOmniscientTopLevelData
     }
 
     @Override
-    protected void handleDataSet(File dataSetFile, DataSetRegistrationService genericService)
+    protected void handleDataSet(File dataSetFile, DataSetRegistrationService<T> genericService)
             throws Throwable
     {
         // Load the script
         String scriptString = FileUtilities.loadToString(scriptFile);
 
-        JythonDataSetRegistrationService service =
-                (JythonDataSetRegistrationService) genericService;
+        JythonDataSetRegistrationService<T> service =
+                (JythonDataSetRegistrationService<T>) genericService;
 
         // Configure the evaluator
         PythonInterpreter interpreter = service.interpreter;
@@ -129,21 +135,21 @@ public class JythonTopLevelDataSetHandler extends AbstractOmniscientTopLevelData
      * the service so we can use it in error handling).
      */
     @Override
-    protected DataSetRegistrationService createDataSetRegistrationService(
+    protected DataSetRegistrationService<T> createDataSetRegistrationService(
             IDelegatedActionWithResult<Boolean> cleanAfterwardsAction)
     {
         PythonInterpreter interpreter = new PythonInterpreter();
         interpreter.set(STATE_VARIABLE_NAME, getGlobalState());
-        JythonDataSetRegistrationService service =
-                new JythonDataSetRegistrationService(this, cleanAfterwardsAction, interpreter);
+        JythonDataSetRegistrationService<T> service =
+                new JythonDataSetRegistrationService<T>(this, cleanAfterwardsAction, interpreter);
         return service;
     }
 
     @Override
-    public void rollback(DataSetRegistrationService service,
+    public void rollback(DataSetRegistrationService<T> service,
             DataSetRegistrationAlgorithm registrationAlgorithm, Throwable throwable)
     {
-        PythonInterpreter interpreter = ((JythonDataSetRegistrationService) service).interpreter;
+        PythonInterpreter interpreter = getInterpreterFromService(service);
         PyFunction function =
                 tryJythonFunction(interpreter, ROLLBACK_DATA_SET_REGISTRATION_FUNCTION_NAME);
         if (null != function)
@@ -156,9 +162,9 @@ public class JythonTopLevelDataSetHandler extends AbstractOmniscientTopLevelData
     }
 
     @Override
-    protected void rollback(DataSetRegistrationService service, Throwable throwable)
+    protected void rollback(DataSetRegistrationService<T> service, Throwable throwable)
     {
-        PythonInterpreter interpreter = ((JythonDataSetRegistrationService) service).interpreter;
+        PythonInterpreter interpreter = getInterpreterFromService(service);
         PyFunction function = tryJythonFunction(interpreter, ROLLBACK_SERVICE_FUNCTION_NAME);
         if (null != function)
         {
@@ -166,6 +172,21 @@ public class JythonTopLevelDataSetHandler extends AbstractOmniscientTopLevelData
         }
 
         super.rollback(service, throwable);
+    }
+
+    @Override
+    public void rollbackTransaction(DataSetRegistrationService<T> service,
+            DataSetRegistrationTransaction<T> transaction,
+            DataSetStorageAlgorithmRunner<T> algorithmRunner, Throwable ex)
+    {
+        PythonInterpreter interpreter = getInterpreterFromService(service);
+        PyFunction function = tryJythonFunction(interpreter, ROLLBACK_TRANSACTION_FUNCTION_NAME);
+        if (null != function)
+        {
+            invokeRollbackTransactionFunction(function, service, transaction, algorithmRunner, ex);
+        }
+
+        super.rollbackTransaction(service, transaction, algorithmRunner, ex);
     }
 
     private PyFunction tryJythonFunction(PythonInterpreter interpreter, String functionName)
@@ -185,7 +206,7 @@ public class JythonTopLevelDataSetHandler extends AbstractOmniscientTopLevelData
      * Pulled out as a separate method so tests can hook in.
      */
     protected void invokeRollbackServiceFunction(PyFunction function,
-            DataSetRegistrationService service, Throwable throwable)
+            DataSetRegistrationService<T> service, Throwable throwable)
     {
         function.__call__(Py.java2py(service), Py.java2py(throwable));
     }
@@ -193,9 +214,20 @@ public class JythonTopLevelDataSetHandler extends AbstractOmniscientTopLevelData
     /**
      * Pulled out as a separate method so tests can hook in.
      */
+    protected void invokeRollbackTransactionFunction(PyFunction function,
+            DataSetRegistrationService<T> service, DataSetRegistrationTransaction<T> transaction,
+            DataSetStorageAlgorithmRunner<T> algorithmRunner, Throwable throwable)
+    {
+        function.__call__(Py.java2py(service), Py.java2py(transaction),
+                Py.java2py(algorithmRunner), Py.java2py(throwable));
+    }
+
+    /**
+     * Pulled out as a separate method so tests can hook in.
+     */
     protected void invokeRollbackDataSetRegistrationFunction(PyFunction function,
-            DataSetRegistrationService service, DataSetRegistrationAlgorithm registrationAlgorithm,
-            Throwable throwable)
+            DataSetRegistrationService<T> service,
+            DataSetRegistrationAlgorithm registrationAlgorithm, Throwable throwable)
     {
         function.__call__(Py.java2py(service), Py.java2py(registrationAlgorithm),
                 Py.java2py(throwable));
@@ -204,10 +236,12 @@ public class JythonTopLevelDataSetHandler extends AbstractOmniscientTopLevelData
     /**
      * Set the factory available to the python script. Subclasses may want to override.
      */
-    protected IDataSetRegistrationDetailsFactory<? extends DataSetInformation> createObjectFactory(
+    @SuppressWarnings("unchecked")
+    protected IDataSetRegistrationDetailsFactory<T> createObjectFactory(
             PythonInterpreter interpreter)
     {
-        return new JythonObjectFactory<DataSetInformation>(getRegistratorState())
+        return (IDataSetRegistrationDetailsFactory<T>) new JythonObjectFactory<DataSetInformation>(
+                getRegistratorState())
             {
                 @Override
                 protected DataSetInformation createDataSetInformation()
@@ -217,14 +251,12 @@ public class JythonTopLevelDataSetHandler extends AbstractOmniscientTopLevelData
             };
     }
 
-    public abstract static class JythonObjectFactory<T extends DataSetInformation> implements
-            IDataSetRegistrationDetailsFactory<T>
+    public abstract static class JythonObjectFactory<T extends DataSetInformation> extends
+            AbstractDataSetRegistrationDetailsFactory<T>
     {
-        protected final OmniscientTopLevelDataSetRegistratorState registratorState;
-
         public JythonObjectFactory(OmniscientTopLevelDataSetRegistratorState registratorState)
         {
-            this.registratorState = registratorState;
+            super(registratorState);
         }
 
         /**
@@ -232,40 +264,12 @@ public class JythonTopLevelDataSetHandler extends AbstractOmniscientTopLevelData
          */
         public DataSetRegistrationDetails<T> createRegistrationDetails()
         {
-            DataSetRegistrationDetails<T> registrationDetails = new DataSetRegistrationDetails<T>();
-            T dataSetInfo = createDataSetInformation();
-            setDatabaseInstance(dataSetInfo);
-            registrationDetails.setDataSetInformation(dataSetInfo);
-            return registrationDetails;
+            return createDataSetRegistrationDetails();
         }
-
-        protected final void setDatabaseInstance(T dataSetInfo)
-        {
-            dataSetInfo.setInstanceCode(registratorState.getHomeDatabaseInstance().getCode());
-            dataSetInfo.setInstanceUUID(registratorState.getHomeDatabaseInstance().getUuid());
-        }
-
-        /**
-         * Adaptor for the IDataSetRegistrationDetailsFactory interface.
-         */
-        public DataSetRegistrationDetails<T> createDataSetRegistrationDetails()
-        {
-            return createRegistrationDetails();
-        }
-
-        public DataSet<T> createDataSet(DataSetRegistrationDetails<T> registrationDetails,
-                File stagingFile)
-        {
-            return new DataSet<T>(registrationDetails, stagingFile);
-        }
-
-        /**
-         * Factory method that creates a new data set information object.
-         */
-        protected abstract T createDataSetInformation();
     }
 
-    protected static class JythonDataSetRegistrationService extends DataSetRegistrationService
+    protected static class JythonDataSetRegistrationService<T extends DataSetInformation> extends
+            DataSetRegistrationService<T>
     {
         private final PythonInterpreter interpreter;
 
@@ -273,12 +277,12 @@ public class JythonTopLevelDataSetHandler extends AbstractOmniscientTopLevelData
          * @param registrator
          * @param globalCleanAfterwardsAction
          */
-        public JythonDataSetRegistrationService(
-                AbstractOmniscientTopLevelDataSetRegistrator registrator,
+        public JythonDataSetRegistrationService(JythonTopLevelDataSetHandler<T> registrator,
                 IDelegatedActionWithResult<Boolean> globalCleanAfterwardsAction,
                 PythonInterpreter interpreter)
         {
-            super(registrator, globalCleanAfterwardsAction);
+            super(registrator, registrator.createObjectFactory(interpreter),
+                    globalCleanAfterwardsAction);
             this.interpreter = interpreter;
         }
 
@@ -286,5 +290,11 @@ public class JythonTopLevelDataSetHandler extends AbstractOmniscientTopLevelData
         {
             return interpreter;
         }
+    }
+
+    protected PythonInterpreter getInterpreterFromService(DataSetRegistrationService<T> service)
+    {
+        PythonInterpreter interpreter = ((JythonDataSetRegistrationService<T>) service).interpreter;
+        return interpreter;
     }
 }

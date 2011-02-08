@@ -92,7 +92,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
 
     private File srcFile;
 
-    private DataSetRegistrationService service;
+    private DataSetRegistrationService<DataSetInformation> service;
 
     @BeforeTest
     public void init()
@@ -457,8 +457,9 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         }
     }
 
-    private class TestingDataSetHandler extends AbstractOmniscientTopLevelDataSetRegistrator
-            implements IDataSetRegistrationDetailsFactory<DataSetInformation>
+    private class TestingDataSetHandler extends
+            AbstractOmniscientTopLevelDataSetRegistrator<DataSetInformation> implements
+            IDataSetRegistrationDetailsFactory<DataSetInformation>
     {
 
         /**
@@ -470,13 +471,13 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         }
 
         @Override
-        protected void handleDataSet(File dataSetFile, DataSetRegistrationService aService)
-                throws Throwable
+        protected void handleDataSet(File dataSetFile,
+                DataSetRegistrationService<DataSetInformation> aService) throws Throwable
         {
 
         }
 
-        public DataSetRegistrationService createNewService()
+        public DataSetRegistrationService<DataSetInformation> createNewService()
         {
             IDelegatedActionWithResult<Boolean> cleanAfterwardsAction =
                     new IDelegatedActionWithResult<Boolean>()

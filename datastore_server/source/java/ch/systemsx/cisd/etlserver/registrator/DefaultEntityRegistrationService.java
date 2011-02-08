@@ -33,9 +33,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 public class DefaultEntityRegistrationService<T extends DataSetInformation> implements
         IEntityRegistrationService<T>
 {
-    private final AbstractOmniscientTopLevelDataSetRegistrator registrator;
+    private final AbstractOmniscientTopLevelDataSetRegistrator<T> registrator;
 
-    public DefaultEntityRegistrationService(AbstractOmniscientTopLevelDataSetRegistrator registrator)
+    public DefaultEntityRegistrationService(
+            AbstractOmniscientTopLevelDataSetRegistrator<T> registrator)
     {
         this.registrator = registrator;
     }

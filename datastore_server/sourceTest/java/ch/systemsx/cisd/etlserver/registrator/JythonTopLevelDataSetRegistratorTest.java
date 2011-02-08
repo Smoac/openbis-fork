@@ -82,7 +82,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
 
     private static final DataSetType DATA_SET_TYPE = new DataSetType("O1");
 
-    private JythonTopLevelDataSetHandler handler;
+    private JythonTopLevelDataSetHandler<DataSetInformation> handler;
 
     private Mockery context;
 
@@ -735,7 +735,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         }
     }
 
-    private class TestingDataSetHandler extends JythonTopLevelDataSetHandler
+    private class TestingDataSetHandler extends JythonTopLevelDataSetHandler<DataSetInformation>
     {
         private final boolean shouldRegistrationFail;
 
@@ -767,7 +767,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         }
 
         @Override
-        public void rollback(DataSetRegistrationService service,
+        public void rollback(DataSetRegistrationService<DataSetInformation> service,
                 DataSetRegistrationAlgorithm registrationAlgorithm, Throwable throwable)
         {
             super.rollback(service, registrationAlgorithm, throwable);
@@ -775,7 +775,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         }
 
         @Override
-        public void rollback(DataSetRegistrationService service, Throwable throwable)
+        public void rollback(DataSetRegistrationService<DataSetInformation> service,
+                Throwable throwable)
         {
             super.rollback(service, throwable);
             didServiceRollbackHappen = true;
@@ -783,29 +784,32 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(throwable);
             }
+            throwable.printStackTrace();
         }
 
         @Override
         protected void invokeRollbackServiceFunction(PyFunction function,
-                DataSetRegistrationService service, Throwable throwable)
+                DataSetRegistrationService<DataSetInformation> service, Throwable throwable)
         {
             super.invokeRollbackServiceFunction(function, service, throwable);
             PythonInterpreter interpreter =
-                    ((JythonDataSetRegistrationService) service).getInterpreter();
+                    ((JythonDataSetRegistrationService<DataSetInformation>) service)
+                            .getInterpreter();
             didRollbackServiceFunctionRun =
                     (Boolean) interpreter.get("didRollbackServiceFunctionRun", Boolean.class);
         }
 
         @Override
         protected void invokeRollbackDataSetRegistrationFunction(PyFunction function,
-                DataSetRegistrationService service,
+                DataSetRegistrationService<DataSetInformation> service,
                 DataSetRegistrationAlgorithm registrationAlgorithm, Throwable throwable)
         {
             super.invokeRollbackDataSetRegistrationFunction(function, service,
                     registrationAlgorithm, throwable);
 
             PythonInterpreter interpreter =
-                    ((JythonDataSetRegistrationService) service).getInterpreter();
+                    ((JythonDataSetRegistrationService<DataSetInformation>) service)
+                            .getInterpreter();
             didRollbackDataSetRegistrationFunctionRun =
                     (Boolean) interpreter.get("didRollbackServiceFunctionRun", Boolean.class);
         }

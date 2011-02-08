@@ -139,13 +139,13 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     private AbstractTransactionState<T> state;
 
     // The registration service that owns this transaction
-    private final DataSetRegistrationService registrationService;
+    private final DataSetRegistrationService<T> registrationService;
 
     // The interface to openBIS
     private final IEncapsulatedOpenBISService openBisService;
 
     public DataSetRegistrationTransaction(File rollBackStackParentFolder, File workingDirectory,
-            File stagingDirectory, DataSetRegistrationService registrationService,
+            File stagingDirectory, DataSetRegistrationService<T> registrationService,
             IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory)
     {
         this(createNewRollbackStack(rollBackStackParentFolder), workingDirectory, stagingDirectory,
@@ -153,7 +153,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     }
 
     DataSetRegistrationTransaction(RollbackStack rollbackStack, File workingDirectory,
-            File stagingDirectory, DataSetRegistrationService registrationService,
+            File stagingDirectory, DataSetRegistrationService<T> registrationService,
             IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory)
     {
         state =
@@ -161,7 +161,8 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
                         stagingDirectory, registrationService, registrationDetailsFactory);
         this.registrationService = registrationService;
         this.openBisService =
-                this.registrationService.getRegistratorState().getGlobalState().getOpenBisService();
+                this.registrationService.getRegistratorContext().getGlobalState()
+                        .getOpenBisService();
     }
 
     public IDataSet createNewDataSet()

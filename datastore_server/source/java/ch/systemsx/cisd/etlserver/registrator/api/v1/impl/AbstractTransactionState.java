@@ -75,7 +75,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
         private final File stagingDirectory;
 
         // The registration service that owns this transaction
-        private final DataSetRegistrationService registrationService;
+        private final DataSetRegistrationService<T> registrationService;
 
         // The interface to openBIS
         private final IEncapsulatedOpenBISService openBisService;
@@ -88,7 +88,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
 
         public LiveTransactionState(DataSetRegistrationTransaction<T> parent,
                 RollbackStack rollbackStack, File workingDirectory, File stagingDirectory,
-                DataSetRegistrationService registrationService,
+                DataSetRegistrationService<T> registrationService,
                 IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory)
         {
             super(parent);
@@ -97,7 +97,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             this.stagingDirectory = stagingDirectory;
             this.registrationService = registrationService;
             this.openBisService =
-                    this.registrationService.getRegistratorState().getGlobalState()
+                    this.registrationService.getRegistratorContext().getGlobalState()
                             .getOpenBisService();
             this.registrationDetailsFactory = registrationDetailsFactory;
         }
