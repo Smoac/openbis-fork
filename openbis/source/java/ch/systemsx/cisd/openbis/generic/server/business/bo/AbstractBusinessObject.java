@@ -26,7 +26,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEventDAO;
@@ -35,7 +34,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGridCustomColumnDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGridCustomFilterDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
@@ -48,18 +46,18 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IScriptDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyTermDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ICodeSequenceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IPermIdDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Identifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
@@ -151,7 +149,7 @@ abstract class AbstractBusinessObject implements IDAOFactory
         final String code = String.valueOf(entityKind.name().charAt(0)) + id;
         return code;
     }
-    
+
     /**
      * Returns the perm ID of specified identifier or creates a new one if it is <code>null</code>.
      */
@@ -330,13 +328,4 @@ abstract class AbstractBusinessObject implements IDAOFactory
         return daoFactory.getRelationshipTypeDAO();
     }
 
-    public IDynamicPropertyEvaluationScheduler getDynamicPropertyEvaluationScheduler()
-    {
-        return daoFactory.getDynamicPropertyEvaluationScheduler();
-    }
-
-    public IFullTextIndexUpdateScheduler getFullTextIndexUpdateScheduler()
-    {
-        return daoFactory.getFullTextIndexUpdateScheduler();
-    }
 }
