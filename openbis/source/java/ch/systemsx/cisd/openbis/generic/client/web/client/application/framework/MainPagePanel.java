@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUt
 public class MainPagePanel extends ContentPanel implements IMainPanel
 {
 
-    private static final String PREFIX = GenericConstants.ID_PREFIX + "main-page_";
+    public static final String PREFIX = GenericConstants.ID_PREFIX + "main-page_";
 
     private IClosableItem content;
 
