@@ -111,7 +111,8 @@ public class HierarchicalStorageUpdater implements IMaintenanceTask
         {
             File targetFile =
                     new File(hierarchyRoot, DataSetHierarchyHelper.createHierarchicalPath(dataSet));
-            File sourceFile = new File(storeRoot, dataSet.getDataSetLocation());
+            File share = new File(storeRoot, dataSet.getDataSetShareId());
+            File sourceFile = new File(share, dataSet.getDataSetLocation());
             linkMappings.put(targetFile.getAbsolutePath(), sourceFile.getAbsolutePath());
         }
         return linkMappings;

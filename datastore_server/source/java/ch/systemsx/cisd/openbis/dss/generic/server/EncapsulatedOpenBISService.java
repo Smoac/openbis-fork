@@ -362,10 +362,18 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         service.checkSpaceAccess(sToken, spaceId);
     }
 
-    public List<SimpleDataSetInformationDTO> listDataSets()
-            throws UserFailureException
+    public List<SimpleDataSetInformationDTO> listDataSets() throws UserFailureException
     {
-        return service.listDataSets(session.getToken(), session.getDataStoreCode());
+        List<SimpleDataSetInformationDTO> dataSets =
+                service.listDataSets(session.getToken(), session.getDataStoreCode());
+        for (SimpleDataSetInformationDTO dataSet : dataSets)
+        {
+            if (dataSet.getDataSetShareId() == null)
+            {
+                dataSet.setDataSetShareId(defaultShareId);
+            }
+        }
+        return dataSets;
     }
 
     public List<ExternalData> listAvailableDataSets(ArchiverDataSetCriteria criteria)
