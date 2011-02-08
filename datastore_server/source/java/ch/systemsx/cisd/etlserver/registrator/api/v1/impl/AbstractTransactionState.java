@@ -235,8 +235,6 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             {
                 File contents = dataSet.getDataSetContents();
                 DataSetRegistrationDetails<T> details = dataSet.getRegistrationDetails();
-                registrationService.getRegistratorState().getDataStrategyStore()
-                        .getDataStoreStrategy(details.getDataSetInformation(), contents);
                 algorithms.add(registrationService.createStorageAlgorithm(contents, details));
             }
 

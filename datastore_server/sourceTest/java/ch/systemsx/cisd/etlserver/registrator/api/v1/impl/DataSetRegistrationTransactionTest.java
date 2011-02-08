@@ -147,9 +147,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
 
         tr.commit();
 
-        new LogMatcher(logAppender, "No pre-registration script found, skipping execution.*",
-                "No post-registration script found, skipping execution.*",
-                "Identified that database knows experiment '/SPACE/PROJECT/EXP-CODE'.*",
+        new LogMatcher(logAppender,
                 "Identified that database knows experiment '/SPACE/PROJECT/EXP-CODE'.*",
                 "Start storing data set for experiment '/SPACE/PROJECT/EXP-CODE'.*",
                 "Finished storing data set for experiment '/SPACE/PROJECT/EXP-CODE', took .*",
@@ -359,7 +357,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
                         project.setSpace(space);
                         experiment.setProject(project);
 
-                        exactly(3).of(openBisService).tryToGetExperiment(
+                        exactly(2).of(openBisService).tryToGetExperiment(
                                 new ExperimentIdentifierFactory(EXPERIMENT_IDENTIFIER)
                                         .createIdentifier());
                         will(returnValue(experiment));

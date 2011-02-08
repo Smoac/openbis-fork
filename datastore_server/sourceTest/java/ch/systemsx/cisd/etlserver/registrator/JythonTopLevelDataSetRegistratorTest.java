@@ -176,11 +176,9 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         assertEquals(DATA_SET_TYPE, dataSet.recordedObject().getDataSetType());
         File datasetLocation =
                 DatasetLocationUtil.getDatasetLocationPath(workingDirectory, DATA_SET_CODE,
-                        DataStoreService.DEFAULT_SHARE_ID,
-                        DATABASE_INSTANCE_UUID);
-        assertEquals(FileUtilities.getRelativeFile(new File(workingDirectory,
-                DataStoreService.DEFAULT_SHARE_ID), datasetLocation), dataSet.recordedObject()
-                .getLocation());
+                        DataStoreService.DEFAULT_SHARE_ID, DATABASE_INSTANCE_UUID);
+        assertEquals(FileUtilities.getRelativeFile(workingDirectory, datasetLocation), dataSet
+                .recordedObject().getLocation());
         assertEquals(1, MockStorageProcessor.instance.calledCommitCount);
         assertEquals(datasetLocation, MockStorageProcessor.instance.rootDirs.get(0));
         File incomingDir = MockStorageProcessor.instance.incomingDirs.get(0);
@@ -292,9 +290,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         File datasetLocation1 =
                 DatasetLocationUtil.getDatasetLocationPath(workingDirectory, DATA_SET_CODE + 1,
                         DataStoreService.DEFAULT_SHARE_ID, DATABASE_INSTANCE_UUID);
-        assertEquals(FileUtilities.getRelativeFile(new File(workingDirectory,
-                DataStoreService.DEFAULT_SHARE_ID), datasetLocation1), dataSet1.recordedObject()
-                .getLocation());
+        assertEquals(FileUtilities.getRelativeFile(workingDirectory, datasetLocation1), dataSet1
+                .recordedObject().getLocation());
         assertEquals(datasetLocation1, MockStorageProcessor.instance.rootDirs.get(0));
         File incomingDir1 = MockStorageProcessor.instance.incomingDirs.get(0);
         assertEquals(new File(new File(stagingDir, DATA_SET_CODE + 1), "sub_data_set_1"),
@@ -310,9 +307,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         File datasetLocation2 =
                 DatasetLocationUtil.getDatasetLocationPath(workingDirectory, DATA_SET_CODE + 2,
                         DataStoreService.DEFAULT_SHARE_ID, DATABASE_INSTANCE_UUID);
-        assertEquals(FileUtilities.getRelativeFile(new File(workingDirectory,
-                DataStoreService.DEFAULT_SHARE_ID), datasetLocation2), dataSet2.recordedObject()
-                .getLocation());
+        assertEquals(FileUtilities.getRelativeFile(workingDirectory, datasetLocation2), dataSet2
+                .recordedObject().getLocation());
         assertEquals(datasetLocation2, MockStorageProcessor.instance.rootDirs.get(1));
         File incomingDir2 = MockStorageProcessor.instance.incomingDirs.get(1);
         assertEquals(new File(new File(stagingDir, DATA_SET_CODE + 2), "sub_data_set_2"),
