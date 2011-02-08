@@ -47,6 +47,7 @@ import ch.systemsx.cisd.common.io.FileBasedContent;
 import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.IImagingDatasetLoader;
+import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreService;
 import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor;
 import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor.DssServiceRpcAuthorizationMethodInterceptor;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtilsTest;
@@ -59,6 +60,7 @@ import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreen
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetIdentifier;
@@ -200,7 +202,8 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         final List<WellPosition> wellPositions = Arrays.asList(new WellPosition(1, 3));
         final String channel = "dapi";
         prepareGetHomeDatabaseInstance();
-
+        prepareListDataSetsByCode();
+        
         List<PlateImageReference> plateImageReferences =
                 screeningService
                         .listPlateImageReferences(SESSION_TOKEN, ds, wellPositions, channel);
@@ -291,6 +294,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     {
         final String channel = CHANNEL_CODE;
         prepareGetHomeDatabaseInstance();
+        prepareListDataSetsByCode();
         context.checking(new Expectations()
             {
                 {
@@ -596,6 +600,18 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                 {
                     one(service).checkDataSetCollectionAccess(SESSION_TOKEN,
                             Arrays.asList(DATASET_CODE, "ds2"));
+                }
+            });
+    }
+
+    private void prepareListDataSetsByCode()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).listDataSetsByCode(Arrays.asList(DATASET_CODE));
+                    will(returnValue(Arrays.asList(new DataSetBuilder().code(DATASET_CODE)
+                            .shareId(DataStoreService.DEFAULT_SHARE_ID).getDataSet())));
                 }
             });
     }
