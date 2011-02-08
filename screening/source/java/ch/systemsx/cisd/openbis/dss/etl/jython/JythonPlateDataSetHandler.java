@@ -17,7 +17,8 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageDataSetInformation;
  * 
  * @author Tomasz Pylak
  */
-public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler
+public class JythonPlateDataSetHandler extends
+        JythonTopLevelDataSetHandler<BasicDataSetInformation>
 {
     public JythonPlateDataSetHandler(TopLevelDataSetRegistratorGlobalState globalState)
     {
