@@ -31,7 +31,7 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
-import ch.systemsx.cisd.etlserver.registrator.IEntityRegistrationService;
+import ch.systemsx.cisd.etlserver.registrator.IEntityOperationService;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperiment;
@@ -42,7 +42,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionSta
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionState.LiveTransactionState;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionState.RolledbackTransactionState;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityRegistrationDetails;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -292,12 +292,12 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     public void registerDataSetsInApplicationServer(
             List<DataSetRegistrationInformation<T>> dataSetRegistrations) throws Throwable
     {
-        AtomicEntityRegistrationDetails<T> registrationDetails =
+        AtomicEntityOperationDetails<T> registrationDetails =
                 getStateAsLiveState().createRegistrationDetails(dataSetRegistrations);
-        IEntityRegistrationService<T> entityRegistrationService =
+        IEntityOperationService<T> entityRegistrationService =
                 registrationService.getEntityRegistrationService();
 
-        entityRegistrationService.registerEntitiesInApplcationServer(registrationDetails);
+        entityRegistrationService.performOperationsInApplcationServer(registrationDetails);
     }
 
     public boolean isCommittedOrRolledback()

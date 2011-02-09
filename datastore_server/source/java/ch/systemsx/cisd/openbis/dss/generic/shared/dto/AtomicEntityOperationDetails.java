@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class AtomicEntityRegistrationDetails<T extends DataSetInformation> implements
+public class AtomicEntityOperationDetails<T extends DataSetInformation> implements
         Serializable
 {
     private static final long serialVersionUID = 1L;
@@ -46,7 +46,7 @@ public class AtomicEntityRegistrationDetails<T extends DataSetInformation> imple
 
     private final ArrayList<DataSetRegistrationInformation<T>> dataSetRegistrations;
 
-    public AtomicEntityRegistrationDetails(List<ExperimentUpdatesDTO> experimentUpdates,
+    public AtomicEntityOperationDetails(List<ExperimentUpdatesDTO> experimentUpdates,
             List<NewExperiment> experimentRegistrations, List<SampleUpdatesDTO> sampleUpdates,
             List<NewSample> sampleRegistrations,
             List<DataSetRegistrationInformation<T>> dataSetRegistrations)

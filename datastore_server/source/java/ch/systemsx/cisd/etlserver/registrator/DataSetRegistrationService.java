@@ -211,9 +211,9 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
         return algorithm;
     }
 
-    public IEntityRegistrationService<T> getEntityRegistrationService()
+    public IEntityOperationService<T> getEntityRegistrationService()
     {
-        return new DefaultEntityRegistrationService<T>(registrator);
+        return new DefaultEntityOperationService<T>(registrator);
     }
 
     /**

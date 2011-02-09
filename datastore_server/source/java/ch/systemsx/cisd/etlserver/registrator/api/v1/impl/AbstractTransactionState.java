@@ -30,7 +30,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperiment;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityRegistrationDetails;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
@@ -272,7 +272,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             return openBisService.createDataSetCode();
         }
 
-        AtomicEntityRegistrationDetails<T> createRegistrationDetails(
+        AtomicEntityOperationDetails<T> createRegistrationDetails(
                 List<DataSetRegistrationInformation<T>> dataSetRegistrations)
         {
             ArrayList<NewExperiment> experimentRegistrations = new ArrayList<NewExperiment>();
@@ -281,8 +281,8 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             ArrayList<SampleUpdatesDTO> sampleUpdates = new ArrayList<SampleUpdatesDTO>();
             ArrayList<NewSample> sampleRegistrations = new ArrayList<NewSample>();
 
-            AtomicEntityRegistrationDetails<T> registrationDetails =
-                    new AtomicEntityRegistrationDetails<T>(experimentUpdates,
+            AtomicEntityOperationDetails<T> registrationDetails =
+                    new AtomicEntityOperationDetails<T>(experimentUpdates,
                             experimentRegistrations, sampleUpdates, sampleRegistrations,
                             dataSetRegistrations);
             return registrationDetails;

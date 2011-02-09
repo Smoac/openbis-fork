@@ -16,17 +16,17 @@
 
 package ch.systemsx.cisd.etlserver.registrator;
 
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityRegistrationDetails;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityRegistrationResult;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AtomicEntityOperationResult;
 
 /**
  * The inteface implemented by a service that can register openBIS entities atomically.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public interface IEntityRegistrationService<T extends DataSetInformation>
+public interface IEntityOperationService<T extends DataSetInformation>
 {
-    AtomicEntityRegistrationResult registerEntitiesInApplcationServer(
-            AtomicEntityRegistrationDetails<T> registrationDetails);
+    AtomicEntityOperationResult performOperationsInApplcationServer(
+            AtomicEntityOperationDetails<T> registrationDetails);
 }

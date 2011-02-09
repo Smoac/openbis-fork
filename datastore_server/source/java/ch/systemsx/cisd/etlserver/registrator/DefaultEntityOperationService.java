@@ -20,36 +20,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityRegistrationDetails;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityRegistrationResult;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AtomicEntityOperationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 
-public class DefaultEntityRegistrationService<T extends DataSetInformation> implements
-        IEntityRegistrationService<T>
+public class DefaultEntityOperationService<T extends DataSetInformation> implements
+        IEntityOperationService<T>
 {
     private final AbstractOmniscientTopLevelDataSetRegistrator<T> registrator;
 
-    public DefaultEntityRegistrationService(
-            AbstractOmniscientTopLevelDataSetRegistrator<T> registrator)
+    public DefaultEntityOperationService(AbstractOmniscientTopLevelDataSetRegistrator<T> registrator)
     {
         this.registrator = registrator;
     }
 
-    public AtomicEntityRegistrationResult registerEntitiesInApplcationServer(
-            AtomicEntityRegistrationDetails<T> registrationDetails)
+    public AtomicEntityOperationResult performOperationsInApplcationServer(
+            AtomicEntityOperationDetails<T> registrationDetails)
     {
-        // Arrays to hold return values
-        ArrayList<Experiment> experimentsUpdated = new ArrayList<Experiment>();
         ArrayList<Experiment> experimentsCreated = new ArrayList<Experiment>();
         ArrayList<Sample> samplesUpdated = new ArrayList<Sample>();
         ArrayList<Sample> samplesCreated = new ArrayList<Sample>();
-        ArrayList<DataSetInformation> dataSetsCreated = new ArrayList<DataSetInformation>();
+        ArrayList<ExternalData> dataSetsCreated = new ArrayList<ExternalData>();
 
         IEncapsulatedOpenBISService openBisService =
                 registrator.getGlobalState().getOpenBisService();
@@ -69,11 +67,12 @@ public class DefaultEntityRegistrationService<T extends DataSetInformation> impl
         {
             openBisService.registerDataSet(dataSetRegistration.getDataSetInformation(),
                     dataSetRegistration.getExternalData());
-            dataSetsCreated.add(dataSetRegistration.getDataSetInformation());
+            dataSetsCreated.add(openBisService.tryGetDataSet(dataSetRegistration
+                    .getDataSetInformation().getDataSetCode()));
         }
 
-        return new AtomicEntityRegistrationResult(experimentsUpdated, experimentsCreated,
-                samplesUpdated, samplesCreated, dataSetsCreated);
+        return new AtomicEntityOperationResult(experimentsCreated, samplesUpdated, samplesCreated,
+                dataSetsCreated);
 
     }
 
