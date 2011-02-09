@@ -299,4 +299,9 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     {
         registrator.rollback(this, algorithm, ex);
     }
+
+    protected AbstractOmniscientTopLevelDataSetRegistrator<T> getRegistrator()
+    {
+        return registrator;
+    }
 }

@@ -141,6 +141,17 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         PythonInterpreter interpreter = new PythonInterpreter();
         interpreter.set(STATE_VARIABLE_NAME, getGlobalState());
         JythonDataSetRegistrationService<T> service =
+                createJythonDataSetRegistrationService(cleanAfterwardsAction, interpreter);
+        return service;
+    }
+
+    /**
+     * Create a Jython registration service that includes access to the interpreter.
+     */
+    protected JythonDataSetRegistrationService<T> createJythonDataSetRegistrationService(
+            IDelegatedActionWithResult<Boolean> cleanAfterwardsAction, PythonInterpreter interpreter)
+    {
+        JythonDataSetRegistrationService<T> service =
                 new JythonDataSetRegistrationService<T>(this, cleanAfterwardsAction, interpreter);
         return service;
     }
