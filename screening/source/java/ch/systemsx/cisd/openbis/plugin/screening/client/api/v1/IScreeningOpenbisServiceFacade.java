@@ -63,6 +63,13 @@ public interface IScreeningOpenbisServiceFacade
     public void logout();
 
     /**
+     * Removes all images loaded by {@link #loadImageWellCaching(PlateImageReference, ImageSize)}
+     * and {@link #loadThumbnailImageWellCaching(PlateImageReference)} from the image cache, thus
+     * freeing the memory.
+     */
+    public void clearWellImageCache();
+
+    /**
      * Return the list of all visible plates assigned to any experiment, along with their
      * hierarchical context (space, project, experiment).
      */
@@ -393,13 +400,13 @@ public interface IScreeningOpenbisServiceFacade
      * channel and tile) and hands it over to the <var>plateImageHandler</var>.<br/>
      * If <code>convertToPng==true</code>, the images will be converted to PNG format before being
      * shipped, otherwise they will be shipped in the format that they are stored on the server.<br/>
-     * @param plateImageHandler handles delivered images.
      * 
+     * @param plateImageHandler handles delivered images.
      * @throws IOException when reading images from the server or writing them to the output streams
      *             fails
      */
-    public void loadImages(List<PlateImageReference> imageReferences,
-            boolean convertToPNG, IPlateImageHandler plateImageHandler) throws IOException;
+    public void loadImages(List<PlateImageReference> imageReferences, boolean convertToPNG,
+            IPlateImageHandler plateImageHandler) throws IOException;
 
     /**
      * Loads original images or thumbnails for a specified data set, a list of well positions (empty
@@ -427,15 +434,34 @@ public interface IScreeningOpenbisServiceFacade
             throws IOException;
 
     /**
-     * Loads PNG-encoded images for specified image references and, optionally, thumb nail size. If
-     * thumb nail size isn't specified, the original image is delivered, otherwise a thumb nail image
+     * Loads an PNG-encoded image for the specified image reference and, optionally, image size. If
+     * the image size isn't specified, the original image is delivered, otherwise a scaled image
      * with same aspect ratio as the original image but which fits into specified size will be
      * delivered.
+     */
+    public byte[] loadImageWellCaching(final PlateImageReference imageReference,
+            final ImageSize imageSizeOrNull) throws IOException;
+
+    /**
+     * Loads PNG-encoded images for specified image references and, optionally, image size. If the
+     * image size isn't specified, the original image is delivered, otherwise a scaled image with
+     * same aspect ratio as the original image but which fits into specified size will be delivered.
      * 
      * @param plateImageHandler handles delivered images.
      */
-    public void loadImages(List<PlateImageReference> imageReferences,
-            ImageSize thumbnailSizeOrNull, IPlateImageHandler plateImageHandler) throws IOException;
+    public void loadImages(List<PlateImageReference> imageReferences, ImageSize imageSizeOrNull,
+            IPlateImageHandler plateImageHandler) throws IOException;
+
+    /**
+     * Loads the PNG-encoded image for the specified <var>imageReference</var>.
+     * <p>
+     * This method triggers loading the thumbnail images for all tiles and all channels for the
+     * given well and image data set. It is a method to be used in code that has to get one image at
+     * a time but eventually needs all images for a well and can increase performance of image
+     * loading considerably.
+     */
+    public byte[] loadThumbnailImageWellCaching(final PlateImageReference imageReference)
+            throws IOException;
 
     /**
      * Loads thumbnail images for specified data set, for a given list of image references (given by
@@ -478,8 +504,14 @@ public interface IScreeningOpenbisServiceFacade
             List<IDatasetIdentifier> dataSetIdentifiers, String channel);
 
     /**
-     * For a given set of image data sets, provide all image channels that have been acquired and
-     * the available (natural) image size(s).
+     * For a given image data set, provide meta like like which image channels have been acquired,
+     * what is the tile geometry, the available (natural) image size(s) and the like.
+     */
+    public ImageDatasetMetadata listImageMetadata(IImageDatasetIdentifier imageDataset);
+
+    /**
+     * For a given set of image data sets, provide meta like like which image channels have been
+     * acquired, what is the tile geometry, the available (natural) image size(s) and the like.
      */
     public List<ImageDatasetMetadata> listImageMetadata(
             List<? extends IImageDatasetIdentifier> imageDatasets);

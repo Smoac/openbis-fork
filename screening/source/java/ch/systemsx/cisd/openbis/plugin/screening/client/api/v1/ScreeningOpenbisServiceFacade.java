@@ -11,10 +11,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.api.MinimalMinorVersion;
@@ -34,6 +36,7 @@ import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreen
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
+import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.WellImageCache.WellImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
@@ -102,6 +105,11 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     private final String sessionToken;
 
     private final int minorVersionApplicationServer;
+
+    private final Map<IImageDatasetIdentifier, ImageDatasetMetadata> imageMetadataCache =
+            new ConcurrentHashMap<IImageDatasetIdentifier, ImageDatasetMetadata>();
+
+    private final WellImageCache imageCache = new WellImageCache();
 
     private IDssServiceFactory dssServiceCache;
 
@@ -211,6 +219,11 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     {
         checkASMinimalMinorVersion("logoutScreening");
         openbisScreeningServer.logoutScreening(sessionToken);
+    }
+
+    public void clearWellImageCache()
+    {
+        imageCache.clear();
     }
 
     /**
@@ -710,14 +723,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         {
             return metadataOrNull;
         }
-        final List<ImageDatasetMetadata> metadataList =
-                listImageMetadata(Collections.singletonList(imageDatasetRef));
-        if (metadataList.isEmpty())
-        {
-            throw new IllegalArgumentException("Cannot find metadata for image data set '"
-                    + imageDatasetRef + "'.");
-        }
-        return metadataList.get(0);
+        return listImageMetadata(imageDatasetRef);
     }
 
     private List<WellPosition> createWellPositions(Geometry plateGeometry)
@@ -957,9 +963,38 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         } while (size >= 0);
     }
 
-    public void loadImages(List<PlateImageReference> imageReferences,
-            final ImageSize thumbnailSizeOrNull, final IPlateImageHandler plateImageHandler)
-            throws IOException
+    public byte[] loadImageWellCaching(final PlateImageReference imageReference,
+            final ImageSize imageSizeOrNull) throws IOException
+    {
+        // PlateImageReference should really implement IImageDatasetIdentifier, however it doesn't,
+        // so we need to convert to ImageDatasetReference here.
+        final IImageDatasetIdentifier imageDatasetId =
+                new ImageDatasetReference(imageReference.getDatasetCode(),
+                        imageReference.getDatastoreServerUrl(), null, null, null, null, null, null);
+        final ImageDatasetMetadata imageMetadata = listImageMetadata(imageDatasetId);
+        final ImageSize size =
+                (imageSizeOrNull == null) ? new ImageSize(imageMetadata.getWidth(),
+                        imageMetadata.getHeight()) : imageSizeOrNull;
+        final WellImages images = imageCache.getWellImages(imageReference, size, imageMetadata);
+        if (images.isLoaderCall())
+        {
+            final List<PlateImageReference> imageReferences =
+                    createPlateImageReferences(imageDatasetId, imageMetadata, null,
+                            Collections.singletonList(imageReference.getWellPosition()));
+            loadImages(imageReferences, imageSizeOrNull, new IPlateImageHandler()
+                {
+                    public void handlePlateImage(PlateImageReference plateImageReference,
+                            byte[] imageFileBytes)
+                    {
+                        images.putImage(plateImageReference, imageFileBytes);
+                    }
+                });
+        }
+        return images.getImage(imageReference).getImageData();
+    }
+
+    public void loadImages(List<PlateImageReference> imageReferences, final ImageSize sizeOrNull,
+            final IPlateImageHandler plateImageHandler) throws IOException
     {
         plateImageReferencesMultiplexer.process(imageReferences,
                 new IReferenceHandler<PlateImageReference>()
@@ -971,7 +1006,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                                     ImageSize.class);
                             final InputStream stream =
                                     dssService.getService().loadImages(sessionToken, references,
-                                            thumbnailSizeOrNull);
+                                            sizeOrNull);
                             try
                             {
                                 final ConcatenatedFileOutputStreamWriter imagesWriter =
@@ -1006,6 +1041,37 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
 
                         }
                     });
+    }
+
+    public byte[] loadThumbnailImageWellCaching(final PlateImageReference imageReference)
+            throws IOException
+    {
+        // PlateImageReference should really implement IImageDatasetIdentifier, however it doesn't,
+        // so we need to convert to ImageDatasetReference here.
+        final IImageDatasetIdentifier imageDatasetId =
+                new ImageDatasetReference(imageReference.getDatasetCode(),
+                        imageReference.getDatastoreServerUrl(), null, null, null, null, null, null);
+        final ImageDatasetMetadata imageMetadata = listImageMetadata(imageDatasetId);
+        final WellImages images =
+                imageCache.getWellImages(
+                        imageReference,
+                        new ImageSize(imageMetadata.getThumbnailWidth(), imageMetadata
+                                .getThumbnailHeight()), imageMetadata);
+        if (images.isLoaderCall())
+        {
+            final List<PlateImageReference> imageReferences =
+                    createPlateImageReferences(imageDatasetId, imageMetadata, null,
+                            Collections.singletonList(imageReference.getWellPosition()));
+            loadThumbnailImages(imageReferences, new IPlateImageHandler()
+                {
+                    public void handlePlateImage(PlateImageReference plateImageReference,
+                            byte[] imageFileBytes)
+                    {
+                        images.putImage(plateImageReference, imageFileBytes);
+                    }
+                });
+        }
+        return images.getImage(imageReference).getImageData();
     }
 
     public void loadThumbnailImages(List<PlateImageReference> imageReferences,
@@ -1131,10 +1197,18 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return service.getImageTransformerFactoryOrNull(sessionToken, dataSetIdentifiers, channel);
     }
 
-    /**
-     * For a given set of image data sets, provide all image channels that have been acquired and
-     * the available (natural) image size(s).
-     */
+    public ImageDatasetMetadata listImageMetadata(IImageDatasetIdentifier imageDataset)
+    {
+        final List<ImageDatasetMetadata> metadataList =
+                listImageMetadata(Collections.singletonList(imageDataset));
+        if (metadataList.isEmpty())
+        {
+            throw new IllegalArgumentException("Cannot find metadata for image data set '"
+                    + imageDataset + "'.");
+        }
+        return metadataList.get(0);
+    }
+
     public List<ImageDatasetMetadata> listImageMetadata(
             List<? extends IImageDatasetIdentifier> imageDatasets)
     {
@@ -1145,8 +1219,28 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                         List<IImageDatasetIdentifier> references)
                 {
                     checkDSSMinimalMinorVersion(dssService, "listImageMetadata", List.class);
-                    result.addAll(dssService.getService().listImageMetadata(sessionToken,
-                            references));
+                    final Iterator<IImageDatasetIdentifier> it = references.iterator();
+                    while (it.hasNext())
+                    {
+                        final IImageDatasetIdentifier ref = it.next();
+                        final ImageDatasetMetadata cached = imageMetadataCache.get(ref);
+                        if (cached != null)
+                        {
+                            result.add(cached);
+                            it.remove();
+                        }
+                    }
+                    if (references.isEmpty())
+                    {
+                        return;
+                    }
+                    final List<ImageDatasetMetadata> metadata =
+                            dssService.getService().listImageMetadata(sessionToken, references);
+                    for (ImageDatasetMetadata md : metadata)
+                    {
+                        imageMetadataCache.put(md.getImageDataset(), md);
+                    }
+                    result.addAll(metadata);
                 }
             });
         return result;
