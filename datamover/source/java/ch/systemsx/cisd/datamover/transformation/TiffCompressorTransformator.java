@@ -126,8 +126,8 @@ public class TiffCompressorTransformator implements ITransformator
         try
         {
             errorMsgOrNull =
-                    FileConverter.tryFailuresToString(FileConverter.performConversion(path,
-                            compressionStrategy, threadsPerCpuCore, Integer.MAX_VALUE));
+                    FileConverter.performConversion(path, compressionStrategy, threadsPerCpuCore,
+                            Integer.MAX_VALUE);
             if (errorMsgOrNull != null)
             {
                 notificationLog.error(errorMsgOrNull);
