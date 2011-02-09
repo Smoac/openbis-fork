@@ -50,13 +50,20 @@ public class ExperimentPlateLocationsSection extends TabContent
     private List<MaterialType> materialTypesOrNull;
 
     public ExperimentPlateLocationsSection(
+            IViewContext<IScreeningClientServiceAsync> screeningViewContext)
+    {
+        this(screeningViewContext, null);
+        setContentVisible(true);
+    }
+
+    public ExperimentPlateLocationsSection(
             IViewContext<IScreeningClientServiceAsync> screeningViewContext,
-            IEntityInformationHolderWithIdentifier experiment)
+            IEntityInformationHolderWithIdentifier experimentOrNull)
     {
         super(screeningViewContext.getMessage(Dict.EXPERIMENT_PLATE_MATERIAL_REVIEWER_SECTION),
-                screeningViewContext, experiment);
+                screeningViewContext, experimentOrNull);
         this.screeningViewContext = screeningViewContext;
-        this.experiment = experiment;
+        this.experiment = experimentOrNull;
         this.materialListField = createMaterialListArea();
         this.exactMatchOnly =
                 new CheckBoxField(screeningViewContext.getMessage(Dict.EXACT_MATCH_ONLY), false);
@@ -140,6 +147,10 @@ public class ExperimentPlateLocationsSection extends TabContent
 
     private ExperimentSearchCriteria getExperimentSearchCriteria()
     {
+        if (experiment == null)
+        {
+            return ExperimentSearchCriteria.createAllExperiments();
+        }
         return ExperimentSearchCriteria.createExperiment(experiment.getId(),
                 experiment.getPermId(), experiment.getIdentifier());
     }

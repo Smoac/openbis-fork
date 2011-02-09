@@ -10,7 +10,7 @@ var screening = {
 
   GENE_LIBRARY_URL: "http://www.genecards.org/cgi-bin/carddisp.pl?gene={0}",
   GENE_LIBRARY_SEARCH_URL: "http://www.genecards.org//index.php?path=/Search/keyword/{0}",
- 
+  
   // 
   // General
   // 
@@ -21,7 +21,13 @@ var screening = {
   WELL_IMAGES: "Well Images",
   PREVIEW: "Preview",
   PLATE_VIEWER_TITLE: "Plate {0}",
-  
+
+  //
+  // Menu items
+  //
+  WELLS_SEARCH_menu_item: "Wells Search",  
+  WELLS_SEARCH_tab_label: "Wells Search",  
+    
   //
   // Experiment Viewer
   //
@@ -73,7 +79,7 @@ var screening = {
     IMAGE_ANALYSIS_DATA_SET: "Image Analysis Dataset",
     IMAGE_DATA_SET: "Image Dataset",
     
-    PLATE_MATERIAL_REVIEWER_TITLE: "Wells Search",
+    PLATE_MATERIAL_REVIEWER_TITLE: "Wells Search Results",
     PLATE_MATERIAL_REVIEWER_SPECIFY_METERIAL_ITEMS: "E.g. gene symbols, gene ids, gene descriptions, control names or compound names. Separate items with commas (\",\") or specify one item per line.",
 
     EXPERIMENT_PLATE_MATERIAL_REVIEWER_SECTION: "Wells Search",

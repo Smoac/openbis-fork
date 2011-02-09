@@ -79,6 +79,8 @@ public final class Dict extends ch.systemsx.cisd.openbis.generic.client.web.clie
 
     public static final String EXACT_MATCH_ONLY = "EXACT_MATCH_ONLY";
 
+    public static final String WELLS_SEARCH_MENU_ITEM = "WELLS_SEARCH";
+
     private Dict()
     {
         // Can not be instantiated.

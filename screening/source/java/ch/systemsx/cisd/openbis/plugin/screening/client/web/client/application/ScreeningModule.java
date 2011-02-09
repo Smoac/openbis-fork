@@ -25,10 +25,15 @@ import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ITabActionMenuItemDefinition;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TabActionMenuItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ExperimentPlateLocationsSection;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ExperimentWellMaterialsSection;
 
@@ -51,7 +56,33 @@ public class ScreeningModule implements IModule
 
     public List<? extends MenuItem> getMenuItems()
     {
-        return Collections.emptyList();
+        return Collections.singletonList(TabActionMenuItemFactory.createActionMenu(viewContext, ID,
+                new ITabActionMenuItemDefinition<IScreeningClientServiceAsync>()
+                    {
+
+                        public String getName()
+                        {
+                            return Dict.WELLS_SEARCH_MENU_ITEM;
+                        }
+
+                        public DatabaseModificationAwareComponent createComponent(
+                                IViewContext<IScreeningClientServiceAsync> context)
+                        {
+                            TabContent wellSearchTab =
+                                    new ExperimentPlateLocationsSection(viewContext);
+                            return DatabaseModificationAwareComponent.wrapUnaware(wellSearchTab);
+                        }
+
+                        public String tryGetLink()
+                        {
+                            return null;
+                        }
+
+                        public String getHelpPageTitle()
+                        {
+                            return null;
+                        }
+                    }));
     }
 
     public String getName()

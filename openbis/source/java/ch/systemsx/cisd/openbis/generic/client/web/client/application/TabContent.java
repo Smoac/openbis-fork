@@ -55,9 +55,9 @@ abstract public class TabContent extends ContentPanel
 
     private final String ownerId;
 
-    public TabContent(final String header, IViewContext<?> viewContext, IIdHolder ownerId)
+    public TabContent(final String header, IViewContext<?> viewContext, IIdHolder ownerOrNull)
     {
-        this(header, viewContext, ownerId.getId().toString());
+        this(header, viewContext, (ownerOrNull != null) ? ownerOrNull.getId().toString() : "");
     }
 
     private TabContent(final String header, IViewContext<?> viewContext, String ownerId)
