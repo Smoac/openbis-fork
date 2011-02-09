@@ -53,7 +53,6 @@ import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AtomicEntityOperationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
@@ -78,7 +77,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
@@ -643,14 +642,15 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         final IExternalDataBO externalDataBO = businessObjectFactory.createExternalDataBO(session);
         externalDataBO.addPropertiesToDataSet(dataSetCode, properties);
     }
-    
-    public void updateShareIdAndSize(String sessionToken, String dataSetCode, String shareId, long size)
+
+    public void updateShareIdAndSize(String sessionToken, String dataSetCode, String shareId,
+            long size)
     {
         checkSession(sessionToken);
-        
+
         IExternalDataDAO externalDataDAO = getDAOFactory().getExternalDataDAO();
         ExternalDataPE dataSet =
-            externalDataDAO.tryToFindFullDataSetByCode(dataSetCode, false, false);
+                externalDataDAO.tryToFindFullDataSetByCode(dataSetCode, false, false);
         if (dataSet == null)
         {
             throw new UserFailureException("Unknown data set " + dataSetCode);

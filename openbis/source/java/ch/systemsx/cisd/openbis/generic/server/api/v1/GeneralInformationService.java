@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
@@ -64,6 +65,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
 /**
@@ -235,6 +238,28 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
                         .convertToDetailedSearchCriteria();
         List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample> privateSamples =
                 commonServer.searchForSamples(sessionToken, detailedSearchCriteria);
+        ArrayList<Sample> samples = new ArrayList<Sample>();
+        for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample privateSample : privateSamples)
+        {
+            samples.add(Translator.translate(privateSample));
+        }
+
+        return samples;
+    }
+
+    public List<Sample> listSamplesForExperiment(String sessionToken, String experimentIdentifierString)
+    {
+        checkSession(sessionToken);
+        ExperimentIdentifier experimentId =
+                new ExperimentIdentifierFactory(experimentIdentifierString).createIdentifier();
+
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment privateExperiment =
+                commonServer.getExperimentInfo(sessionToken, experimentId);
+
+        ListSampleCriteria listSampleCriteria =
+                ListSampleCriteria.createForExperiment(new TechId(privateExperiment.getId()));
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample> privateSamples =
+                commonServer.listSamples(sessionToken, listSampleCriteria);
         ArrayList<Sample> samples = new ArrayList<Sample>();
         for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample privateSample : privateSamples)
         {

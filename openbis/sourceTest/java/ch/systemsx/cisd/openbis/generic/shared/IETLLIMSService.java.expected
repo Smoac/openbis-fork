@@ -42,7 +42,6 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SpaceIden
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.SampleValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -62,6 +61,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityCollectionForCreationOrUpdate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;

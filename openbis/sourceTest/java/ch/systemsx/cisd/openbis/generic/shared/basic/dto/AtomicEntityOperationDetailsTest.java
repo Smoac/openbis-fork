@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;

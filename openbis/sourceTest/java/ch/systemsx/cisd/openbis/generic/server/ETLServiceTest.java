@@ -44,7 +44,6 @@ import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AtomicEntityOperationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
@@ -58,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleC
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;

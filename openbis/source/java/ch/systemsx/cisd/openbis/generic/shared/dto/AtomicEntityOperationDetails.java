@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
+package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -23,9 +23,8 @@ import java.util.List;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 
 /**
  * An object that captures the state for performing the registration of one or many openBIS entities
