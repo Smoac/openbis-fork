@@ -40,6 +40,13 @@ PLATE_SPACE = "DEMO"
 """ only files with these extensions will be recognized as images """
 RECOGNIZED_IMAGES_EXTENSIONS = ["tiff", "tif", "png", "gif", "jpg", "jpeg"]
 
+""" should thumbnails be generated? """
+GENERATE_THUMBNAILS = True
+""" should all dataset in one experiment use the same channels? """
+STORE_CHANNELS_ON_EXPERIMENT_LEVEL = True
+""" should the original data be stored in the original form or should we pack them into one container? """
+ORIGINAL_DATA_STORAGE_FORMAT = OriginalDataStorageFormat.UNCHANGED
+
 # ---------
 
 """ sample type code of the plate, needed if a new sample is registered automatically """
@@ -103,14 +110,19 @@ def create_image_tokens(path):
     wellText = basename[0:find(basename, "(")] # A - 1
     image_tokens.well = wellText.replace(" - ", "")
     
-    fieldText = basename[find(basename, "fld ") + 4 : find(basename, " wv")]
+    if " wv " in basename:
+        fieldText = basename[find(basename, "fld ") + 4 : find(basename, " wv")]
+        image_tokens.channel = basename[rfind(basename, " - ") + 3 :-1]
+    else:
+        fieldText = basename[find(basename, "fld ") + 4 : find(basename, ")")]
+        image_tokens.channel = "DEFAULT"
+    
     try:
         image_tokens.tile = int(fieldText)
         #print "image_tokens.tile", image_tokens.tile
     except ValueError:
         raise Exception("Cannot parse field number from '" + fieldText + "' in '" + basename + "' file name.")
 
-    image_tokens.channel = basename[rfind(basename, " - ") + 3 :-1]
     return image_tokens
 
 # ------------
@@ -226,6 +238,14 @@ def set_dataset_details(dataset, registration_details):
     registration_details.setDataSetType(dataset.getDataSetType())
     registration_details.setMeasuredData(dataset.isMeasured())
 
+def set_image_dataset_storage_config(image_dataset):
+    config = ImageStorageConfiguraton.createDefault()
+    config.setStoreChannelsOnExperimentLevel(STORE_CHANNELS_ON_EXPERIMENT_LEVEL)
+    config.setOriginalDataStorageFormat(ORIGINAL_DATA_STORAGE_FORMAT)
+    if GENERATE_THUMBNAILS:
+        config.switchOnThumbnailsGeneration()
+    image_dataset.setImageStorageConfiguraton(config)
+    
 """
 Parameters:
     dataset - BasicDataSetInformation
@@ -236,7 +256,8 @@ def create_image_dataset_details(incoming):
     registration_details = factory.createImageRegistrationDetails()
     image_dataset = registration_details.getDataSetInformation()
     set_image_dataset(incoming, image_dataset)
-
+    
+    set_image_dataset_storage_config(image_dataset)
     set_dataset_details(image_dataset, registration_details)
     return registration_details
 
@@ -376,6 +397,7 @@ def create_overlay_dataset_details(overlays_dir, image_dataset, img_dataset_code
     overlay_dataset = overlay_dataset_details.getDataSetInformation()
     set_overlay_dataset(overlays_dir, image_dataset, img_dataset_code, overlay_dataset, extension)
     set_dataset_details(overlay_dataset, overlay_dataset_details)
+    set_image_dataset_storage_config(image_dataset)
 
     config = ImageStorageConfiguraton.createDefault()
     # channels will be connected to the dataset
@@ -445,16 +467,15 @@ def convert_to_png(dir, transparent_color):
     strategy = Tiff2PngConversionStrategy(transparent_color)
     # Uses #cores * machineLoad threads for the conversion, but not more than maxThreads
     machineLoad = 1
-    maxThreads = 4
-    status = FileConverter.performConversion(File(dir), strategy, machineLoad, maxThreads)
-    errorMsg = FileConverter.tryFailuresToString(status)
+    maxThreads = 100
+    errorMsg = FileConverter.performConversion(File(dir), strategy, machineLoad, maxThreads)
     if errorMsg != None:
         raise Exception("Error", errorMsg)
 
 def notify(plate_code):
     content  = "Dear Mr./Mrs.\n"
     hostname = "http://bwl27.sanofi-aventis.com:8443/openbis"
-    plate_link = "<a href="+hostname+"#entity=SAMPLE&action=SEARCH&code="+plate_code+">"+plate_code+"</a>"
+    plate_link = "<a href="+hostname+"#entity=SAMPLE&sample_type=PLATE&action=SEARCH&code="+plate_code+">"+plate_code+"</a>"
     content += "Data for the plate " + plate_link + " has been registered.\n"
     content += "\n"
     content += "Have a nice day!\n"
