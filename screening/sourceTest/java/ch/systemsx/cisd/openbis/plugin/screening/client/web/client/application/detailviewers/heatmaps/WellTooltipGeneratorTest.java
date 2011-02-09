@@ -20,7 +20,9 @@ import static ch.systemsx.cisd.openbis.plugin.screening.client.web.client.applic
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
@@ -73,9 +75,9 @@ public class WellTooltipGeneratorTest extends AssertJUnit
     }
 
     private static String tryGenerateShortDescription(PlateLayouterModel model, int rowIx,
-            int colIx, Integer featureIndexOrNull)
+            int colIx, String featureLabelOrNull)
     {
-        return WellTooltipGenerator.tryGenerateTooltip(model, rowIx, colIx, featureIndexOrNull,
+        return WellTooltipGenerator.tryGenerateTooltip(model, rowIx, colIx, featureLabelOrNull,
                 createDummyRealNumberRenderer());
     }
 
@@ -102,7 +104,7 @@ public class WellTooltipGeneratorTest extends AssertJUnit
         assertEquals(METADATA_EXPECTED_DESC_A2 + "\n" + ALL_FEATURES_DESC, desc);
 
         // one feature distingushed
-        desc = tryGenerateShortDescription(model, 0, 1, 1);
+        desc = tryGenerateShortDescription(model, 0, 1, "FeatureY");
         assertEquals("FeatureY: <b>2.0</b>\n" + METADATA_EXPECTED_DESC_A2 + "\n" + FEATURE_X_DESC,
                 desc);
 
@@ -118,7 +120,7 @@ public class WellTooltipGeneratorTest extends AssertJUnit
         String desc = tryGenerateShortDescription(model, 0, 1, null);
         assertEquals(ALL_FEATURES_DESC, desc);
 
-        desc = tryGenerateShortDescription(model, 0, 1, 0);
+        desc = tryGenerateShortDescription(model, 0, 1, "FeatureX");
         assertEquals("FeatureX: <b>1.0</b>\n" + "\n" + FEATURE_Y_DESC, desc);
 
     }
@@ -134,7 +136,7 @@ public class WellTooltipGeneratorTest extends AssertJUnit
         AssertionUtil.assertStarts("Feature0: 0.0", desc);
         AssertionUtil.assertEnds("Feature29: 29.0\n" + "...", desc);
 
-        desc = tryGenerateShortDescription(model, 0, 1, 4);
+        desc = tryGenerateShortDescription(model, 0, 1, "Feature4");
         AssertionUtil.assertStarts("Feature4: <b>4.0</b>", desc);
         AssertionUtil.assertEnds("Feature29: 29.0\n" + "...", desc);
     }
@@ -153,27 +155,49 @@ public class WellTooltipGeneratorTest extends AssertJUnit
     {
         int size = 40;
         List<String> featureLabels = new ArrayList<String>(size);
-        FeatureValue[] featureValues = new FeatureValue[size];
-        for (int i = 0; i < featureValues.length; i++)
+        Map<String, FeatureValue> featureValuesMap = new LinkedHashMap<String, FeatureValue>();
+        for (int i = 0; i < size; i++)
         {
-            featureValues[i] = FeatureValue.createFloat(i);
+            final String label = "Feature" + i;
+            final FeatureValue featureValue = FeatureValue.createFloat(i);
             featureLabels.add("Feature" + i);
+            featureValuesMap.put(label, featureValue);
         }
         List<FeatureVectorValues> features = new ArrayList<FeatureVectorValues>();
-        features.add(new FeatureVectorValues(null, getLocation(WELL_A2), featureValues));
+        features.add(new FeatureVectorValues(null, getLocation(WELL_A2), featureValuesMap));
         return new FeatureVectorDataset(createDatasetReference(), features, featureLabels);
     }
 
     private static FeatureVectorDataset createFeatureVectorDataset()
     {
-        List<String> featureLabels = Arrays.asList("FeatureX", "FeatureY");
+
+        String[] featureLabels =
+            { "FeatureX", "FeatureY" };
 
         List<FeatureVectorValues> features = new ArrayList<FeatureVectorValues>();
-        features.add(new FeatureVectorValues(null, getLocation(WELL_A2), new FeatureValue[]
-            { FeatureValue.createFloat(1), FeatureValue.createFloat(2) }));
-        features.add(new FeatureVectorValues(null, getLocation(WELL_B3), new FeatureValue[]
-            { FeatureValue.createFloat(-1), FeatureValue.createFloat(-2) }));
-        return new FeatureVectorDataset(createDatasetReference(), features, featureLabels);
+        features.add(new FeatureVectorValues(null, getLocation(WELL_A2), createFeatureVectorMap(
+                featureLabels, new FeatureValue[]
+                    { FeatureValue.createFloat(1), FeatureValue.createFloat(2) })));
+        features.add(new FeatureVectorValues(null, getLocation(WELL_B3), createFeatureVectorMap(
+                featureLabels, new FeatureValue[]
+                    { FeatureValue.createFloat(-1), FeatureValue.createFloat(-2) })));
+        return new FeatureVectorDataset(createDatasetReference(), features,
+                Arrays.asList(featureLabels));
+    }
+
+    private static Map<String, FeatureValue> createFeatureVectorMap(String[] labels,
+            FeatureValue[] values)
+    {
+        assert labels.length == values.length;
+
+        Map<String, FeatureValue> result = new LinkedHashMap<String, FeatureValue>();
+        for (int i = 0; i < labels.length; i++)
+        {
+            final String label = labels[i];
+            final FeatureValue featureValue = values[i];
+            result.put(label, featureValue);
+        }
+        return result;
     }
 
     private static DatasetReference createDatasetReference()

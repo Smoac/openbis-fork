@@ -71,49 +71,48 @@ class HeatmapPresenter
     }
 
     /**
-     * Changes the presented heatmap to the one which shows the feature which appears in all
-     * {@link WellData} on a specified index.
+     * Changes the presented heatmap to the one which shows the feature with given label.
      */
-    public void setFeatureValueMode(int featureIndex)
+    public void setFeatureValueMode(String featureName)
     {
-        IHeatmapRenderer<WellData> renderer = createFeatureHeatmapRenderer(featureIndex);
-        refreshHeatmap(renderer, featureIndex);
+        IHeatmapRenderer<WellData> renderer = createFeatureHeatmapRenderer(featureName);
+        refreshHeatmap(renderer, featureName);
     }
 
-    private IHeatmapRenderer<WellData> createFeatureHeatmapRenderer(int featureIndex)
+    private IHeatmapRenderer<WellData> createFeatureHeatmapRenderer(String featureLabel)
     {
         List<WellData> wellList = model.getWellList();
-        if (model.isVocabularyFeature(featureIndex))
+        if (model.isVocabularyFeature(featureLabel))
         {
-            return createVocabularyFeatureHeatmapRenderer(wellList, featureIndex);
+            return createVocabularyFeatureHeatmapRenderer(wellList, featureLabel);
         } else
         {
-            return createFloatFeatureHeatmapRenderer(wellList, featureIndex, realNumberRenderer);
+            return createFloatFeatureHeatmapRenderer(wellList, featureLabel, realNumberRenderer);
         }
     }
 
-    // here we are sure that all wells have a vocabulary feature at featureIndex index
+    // here we are sure that all wells have a vocabulary feature with given featureLabel
     private static IHeatmapRenderer<WellData> createVocabularyFeatureHeatmapRenderer(
-            List<WellData> wellList, final int featureIndex)
+            List<WellData> wellList, final String featureLabel)
     {
-        List<String> uniqueValues = extractUniqueVocabularyTerms(wellList, featureIndex);
+        List<String> uniqueValues = extractUniqueVocabularyTerms(wellList, featureLabel);
         return new DetegatingStringHeatmapRenderer<WellData>(uniqueValues, null)
             {
                 @Override
                 protected String extractLabel(WellData well)
                 {
-                    return tryAsVocabularyFeature(well, featureIndex);
+                    return tryAsVocabularyFeature(well, featureLabel);
                 }
             };
     }
 
     private static List<String> extractUniqueVocabularyTerms(List<WellData> wellList,
-            int featureIndex)
+            String featureLabel)
     {
         Set<String> uniqueValues = new HashSet<String>();
         for (WellData well : wellList)
         {
-            String term = tryAsVocabularyFeature(well, featureIndex);
+            String term = tryAsVocabularyFeature(well, featureLabel);
             if (term != null)
             {
                 uniqueValues.add(term);
@@ -125,7 +124,7 @@ class HeatmapPresenter
     }
 
     // updates color of all well components
-    private void refreshHeatmap(IHeatmapRenderer<WellData> renderer, Integer featureIndexOrNull)
+    private void refreshHeatmap(IHeatmapRenderer<WellData> renderer, String featureLabelOrNull)
     {
         WellData[][] wellMatrix = model.getWellMatrix();
         for (int rowIx = 0; rowIx < wellMatrix.length; rowIx++)
@@ -136,7 +135,7 @@ class HeatmapPresenter
                 Color color = renderer.getColor(wellData);
                 String tooltipOrNull =
                         WellTooltipGenerator.tryGenerateTooltip(model, rowIx, colIx,
-                                featureIndexOrNull, realNumberRenderer);
+                                featureLabelOrNull, realNumberRenderer);
                 viewManipulations.refreshWellStyle(rowIx, colIx, color, tooltipOrNull);
             }
         }
@@ -151,15 +150,15 @@ class HeatmapPresenter
         viewManipulations.updateLegend(legend);
     }
 
-    // here we are sure that all wells have a float feature at featureIndex index
+    // here we are sure that all wells have a float feature with given featureLabel
     private static IHeatmapRenderer<WellData> createFloatFeatureHeatmapRenderer(
-            List<WellData> wells, final int featureIndex, IRealNumberRenderer realNumberRenderer)
+            List<WellData> wells, final String featureLabel, IRealNumberRenderer realNumberRenderer)
     {
         float min = Float.MAX_VALUE;
         float max = Float.MIN_VALUE;
         for (WellData well : wells)
         {
-            Float value = tryAsFloatFeature(well, featureIndex);
+            Float value = tryAsFloatFeature(well, featureLabel);
             if (value != null && Float.isNaN(value) == false && Float.isInfinite(value) == false)
             {
                 min = Math.min(min, value);
@@ -171,20 +170,20 @@ class HeatmapPresenter
                 @Override
                 protected Float convert(WellData well)
                 {
-                    return tryAsFloatFeature(well, featureIndex);
+                    return tryAsFloatFeature(well, featureLabel);
                 }
             };
     }
 
-    private static float tryAsFloatFeature(WellData well, final int featureIndex)
+    private static float tryAsFloatFeature(WellData well, final String featureLabel)
     {
-        FeatureValue value = well.tryGetFeatureValue(featureIndex);
+        FeatureValue value = well.tryGetFeatureValue(featureLabel);
         return value != null ? value.asFloat() : null;
     }
 
-    private static String tryAsVocabularyFeature(WellData well, final int featureIndex)
+    private static String tryAsVocabularyFeature(WellData well, final String featureLabel)
     {
-        FeatureValue value = well.tryGetFeatureValue(featureIndex);
+        FeatureValue value = well.tryGetFeatureValue(featureLabel);
         return value != null ? value.tryAsVocabularyTerm() : null;
     }
 
@@ -311,14 +310,14 @@ class HeatmapPresenter
         /**
          * Generates a short description of the well, which can be used as e.g. a tooltip
          * 
-         * @param featureIndexOrNull if not null contains an index of the feature which should be
+         * @param featureLabelOrNull if not null contains label of the feature which should be
          *            distinguished.
          */
         public static String tryGenerateTooltip(PlateLayouterModel model, int rowIx, int colIx,
-                Integer featureIndexOrNull, IRealNumberRenderer realNumberRenderer)
+                String featureLabelOrNull, IRealNumberRenderer realNumberRenderer)
         {
             return new WellTooltipGenerator(model, realNumberRenderer).tryGenerateShortDescription(
-                    rowIx, colIx, featureIndexOrNull);
+                    rowIx, colIx, featureLabelOrNull);
         }
 
         private final PlateLayouterModel model;
@@ -332,19 +331,21 @@ class HeatmapPresenter
             this.realNumberRenderer = realNumberRenderer;
         }
 
-        private String tryGenerateShortDescription(int rowIx, int colIx, Integer featureIndexOrNull)
+        private String tryGenerateShortDescription(int rowIx, int colIx,
+                String distinguishedLabelOrNull)
         {
             WellData wellData = model.getWellMatrix()[rowIx][colIx];
             String tooltip = "";
-            if (featureIndexOrNull != null)
+            if (distinguishedLabelOrNull != null)
             {
-                tooltip += generateOneFeatureDescription(wellData, featureIndexOrNull, true);
+                tooltip += generateOneFeatureDescription(wellData, distinguishedLabelOrNull, true);
             }
 
             tooltip += generateMetadataDescription(wellData);
 
-            int featuresNum = getNumberOfFeatures();
-            if (featuresNum - (featureIndexOrNull != null ? 1 : 0) > 0)
+            int allFeaturesNum = getNumberOfAllFeatures();
+            int loadedFeaturesNum = getNumberOfLoadedFeatures(wellData);
+            if (loadedFeaturesNum - (distinguishedLabelOrNull != null ? 1 : 0) > 0)
             {
                 if (tooltip.length() == 0)
                 {
@@ -353,15 +354,21 @@ class HeatmapPresenter
                 {
                     tooltip += NEWLINE; // separate metadata from the text below
                 }
-                int describedFeaturesNum = Math.min(MAX_DESCRIBED_FEATURES, featuresNum);
-                for (int ix = 0; ix < describedFeaturesNum; ix++)
+                int describedFeaturesNum = Math.min(MAX_DESCRIBED_FEATURES, loadedFeaturesNum);
+                int fCounter = 0;
+                for (String featureLabel : wellData.getFeatureLabels())
                 {
-                    if (featureIndexOrNull == null || ix != featureIndexOrNull.intValue())
+                    if (featureLabel.equals(distinguishedLabelOrNull) == false)
                     {
-                        tooltip += generateOneFeatureDescription(wellData, ix, false);
+                        tooltip += generateOneFeatureDescription(wellData, featureLabel, false);
+                    }
+                    fCounter++;
+                    if (fCounter == describedFeaturesNum)
+                    {
+                        break;
                     }
                 }
-                if (featuresNum > describedFeaturesNum)
+                if (allFeaturesNum > describedFeaturesNum)
                 {
                     tooltip += "...";
                 }
@@ -370,19 +377,21 @@ class HeatmapPresenter
 
         }
 
-        private int getNumberOfFeatures()
+        private int getNumberOfLoadedFeatures(WellData wellData)
+        {
+            return wellData.getFeatureLabels().size();
+        }
+
+        private int getNumberOfAllFeatures()
         {
             List<String> featureLabels = model.tryGetFeatureLabels();
             return featureLabels == null ? 0 : featureLabels.size();
         }
 
-        private String generateOneFeatureDescription(WellData wellData, int featureIndex,
+        private String generateOneFeatureDescription(WellData wellData, String featureLabel,
                 boolean distinguished)
         {
-            List<String> featureLabels = model.tryGetFeatureLabels();
-            assert featureLabels != null : "feature labels not set";
-
-            FeatureValue value = wellData.tryGetFeatureValue(featureIndex);
+            FeatureValue value = wellData.tryGetFeatureValue(featureLabel);
             // if the value should be distinguished we show it even if it's null
             if (value == null && distinguished == false)
             {
@@ -393,7 +402,7 @@ class HeatmapPresenter
             {
                 textValue = "<b>" + textValue + "</b>";
             }
-            return featureLabels.get(featureIndex) + ": " + textValue + NEWLINE;
+            return featureLabel + ": " + textValue + NEWLINE;
         }
 
         private String renderValue(FeatureValue value)

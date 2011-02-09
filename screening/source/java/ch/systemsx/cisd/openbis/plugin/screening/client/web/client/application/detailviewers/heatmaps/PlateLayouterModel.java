@@ -17,7 +17,10 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.WellData;
@@ -44,9 +47,9 @@ class PlateLayouterModel
 
     private ImageDatasetEnrichedReference imageDatasetOrNull;
 
-    private List<String> featureLabelsOrNull;
+    private List<String> featureLabelsOrNull; // names of all features
 
-    private boolean[] isVocabularyFeatureMapOrNull;
+    private Set<String> vocabularyFeatureLabels = new HashSet<String>();
 
     // ---
 
@@ -81,15 +84,9 @@ class PlateLayouterModel
         return featureLabelsOrNull;
     }
 
-    public boolean isVocabularyFeature(int featureVectorIndex)
+    public boolean isVocabularyFeature(String featureLabel)
     {
-        if (isVocabularyFeatureMapOrNull == null)
-        {
-            return false;
-        } else
-        {
-            return isVocabularyFeatureMapOrNull[featureVectorIndex];
-        }
+        return vocabularyFeatureLabels.contains(featureLabel);
     }
 
     // --- some logic
@@ -97,7 +94,7 @@ class PlateLayouterModel
     public void setFeatureVectorDataset(FeatureVectorDataset featureVectorDatasetOrNull)
     {
         unsetFeatureVectors();
-        this.isVocabularyFeatureMapOrNull = null;
+        this.vocabularyFeatureLabels.clear(); // TODO PTR: don't clear on update
         if (featureVectorDatasetOrNull == null)
         {
             this.featureLabelsOrNull = null;
@@ -106,32 +103,42 @@ class PlateLayouterModel
             this.featureLabelsOrNull = featureVectorDatasetOrNull.getFeatureLabels();
             List<? extends FeatureVectorValues> features =
                     featureVectorDatasetOrNull.getDatasetFeatures();
+            if (features.isEmpty() == false)
+            {
+                // NOTE: for each feature vector in the dataset this set is the same
+                this.vocabularyFeatureLabels = extractVocabularyFeatureLabels(features.get(0));
+            }
             for (FeatureVectorValues featureVector : features)
             {
-                if (this.isVocabularyFeatureMapOrNull == null)
-                {
-                    // NOTE: for each feature vector in the dataset this map would be the same
-                    this.isVocabularyFeatureMapOrNull = createIsVocabularyMap(featureVector);
-                }
                 WellLocation loc = featureVector.getWellLocation();
                 WellData wellData = tryGetWellData(loc);
                 if (wellData != null)
                 {
-                    wellData.setFeatureValues(featureVector.getFeatureValues());
+                    for (Entry<String, FeatureValue> entry : featureVector.getFeatureMap()
+                            .entrySet())
+                    {
+                        String featureLabel = entry.getKey();
+                        FeatureValue value = entry.getValue();
+                        wellData.addFeatureValue(featureLabel, value);
+                    }
                 }
             }
         }
     }
 
-    private static boolean[] createIsVocabularyMap(FeatureVectorValues featureVector)
+    private static Set<String> extractVocabularyFeatureLabels(FeatureVectorValues featureVector)
     {
-        FeatureValue[] values = featureVector.getFeatureValues();
-        boolean[] map = new boolean[values.length];
-        for (int i = 0; i < map.length; i++)
+        final Set<String> result = new HashSet<String>();
+        for (Entry<String, FeatureValue> entry : featureVector.getFeatureMap().entrySet())
         {
-            map[i] = values[i].isVocabularyTerm();
+            String featureLabel = entry.getKey();
+            FeatureValue featureValue = entry.getValue();
+            if (featureValue.isVocabularyTerm())
+            {
+                result.add(featureLabel);
+            }
         }
-        return map;
+        return result;
     }
 
     private WellData tryGetWellData(WellLocation loc)
@@ -152,7 +159,7 @@ class PlateLayouterModel
     {
         for (WellData well : wellList)
         {
-            well.setFeatureValues(null);
+            well.resetFeatureValues(); // TODO PTR: needed? keep values of all datasets
         }
     }
 

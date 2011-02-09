@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
+import java.util.Map;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.annotation.DoNotEscape;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
@@ -33,7 +35,7 @@ public class FeatureVectorValues implements ISerializable
 
     private WellFeatureVectorReference featureVectorReference;
 
-    private FeatureValue[] featureValues;
+    private Map<String /* feature label */, FeatureValue /* value */> featureMap;
 
     // GWT only
     @SuppressWarnings("unused")
@@ -42,21 +44,27 @@ public class FeatureVectorValues implements ISerializable
     }
 
     public FeatureVectorValues(String dataSetCode, WellLocation wellLocation,
-            FeatureValue[] featureValues)
+            Map<String, FeatureValue> featureMap)
     {
-        this(new WellFeatureVectorReference(dataSetCode, wellLocation), featureValues);
+        this(new WellFeatureVectorReference(dataSetCode, wellLocation), featureMap);
     }
 
     public FeatureVectorValues(WellFeatureVectorReference featureVectorReference,
-            FeatureValue[] featureValues)
+            Map<String, FeatureValue> featureMap)
     {
         this.featureVectorReference = featureVectorReference;
-        this.featureValues = featureValues;
+        this.featureMap = featureMap;
     }
 
+    // NOTE: don't use this method multiple times for performance reasons
     public FeatureValue[] getFeatureValues()
     {
-        return featureValues;
+        return featureMap.values().toArray(new FeatureValue[0]);
+    }
+
+    public Map<String, FeatureValue> getFeatureMap()
+    {
+        return featureMap;
     }
 
     public String getDataSetCode()

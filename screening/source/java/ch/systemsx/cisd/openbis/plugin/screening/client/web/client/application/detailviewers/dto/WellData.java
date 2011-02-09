@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureValue;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
@@ -34,7 +38,10 @@ public class WellData
 
     private WellMetadata wellMetadataOrNull;
 
-    private FeatureValue[] featureValuesOrNull;
+    // ordered map from feature labels to feature values
+    // NOTE: it contains a subset of all feature values of a well (only the ones that were loaded)
+    private Map<String /* feature label */, FeatureValue> featureValuesMap =
+            new LinkedHashMap<String, FeatureValue>();
 
     public WellData(WellLocation wellLocation, Experiment experiment)
     {
@@ -42,18 +49,25 @@ public class WellData
         this.experiment = experiment;
     }
 
-    public void setFeatureValues(FeatureValue[] featureValues)
+    public void addFeatureValue(String featureName, FeatureValue value)
     {
-        this.featureValuesOrNull = featureValues;
+        featureValuesMap.put(featureName, value);
     }
 
-    public FeatureValue tryGetFeatureValue(int featureVectorIndex)
+    public void resetFeatureValues()
     {
-        if (featureValuesOrNull == null)
-        {
-            return null;
-        }
-        return featureValuesOrNull[featureVectorIndex];
+        featureValuesMap.clear();
+    }
+
+    public FeatureValue tryGetFeatureValue(String featureLabel)
+    {
+        return featureValuesMap.get(featureLabel);
+    }
+
+    // ordered set of feature labels for which we have loaded feature values
+    public Set<String> getFeatureLabels()
+    {
+        return featureValuesMap.keySet();
     }
 
     public void setMetadata(WellMetadata well)

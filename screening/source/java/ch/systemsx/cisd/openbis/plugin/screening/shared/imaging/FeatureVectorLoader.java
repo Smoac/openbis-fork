@@ -134,12 +134,13 @@ public class FeatureVectorLoader
         List<FeatureVectorValues> fvs = new ArrayList<FeatureVectorValues>();
         for (FeatureTableRow row : featureRows)
         {
-            fvs.add(new FeatureVectorValues(row.getFeatureVectorReference(), row.getFeatureValues()));
+            fvs.add(new FeatureVectorValues(row.getFeatureVectorReference(), row.getFeatureMap()));
         }
         return new WellFeatureCollection<FeatureVectorValues>(fvs,
                 featureRowsCollection.getFeatureCodesAndLabels());
     }
 
+    // TODO PTR use filtering by codes
     /**
      * fetches specified features of all wells
      * 
@@ -499,10 +500,24 @@ public class FeatureVectorLoader
             WellLocation wellLocation)
     {
         String permId = bundle.dataSet.getPermId();
+
         FeatureValue[] valueArray =
                 createFeatureValueArray(bundle.featureDefToValuesMap,
                         bundle.featureDefToVocabularyTerms, wellLocation);
-        return new FeatureVectorValues(permId, wellLocation, valueArray);
+        return new FeatureVectorValues(permId, wellLocation, asValueMap(valueArray));
+    }
+
+    private Map<String, FeatureValue> asValueMap(FeatureValue[] valueArray)
+    {
+        List<CodeAndLabel> features = getCodesAndLabels();
+        assert features.size() == valueArray.length;
+
+        Map<String, FeatureValue> result = new LinkedHashMap<String, FeatureValue>();
+        for (int i = 0; i < valueArray.length; i++)
+        {
+            result.put(features.get(i).getLabel(), valueArray[i]);
+        }
+        return result;
     }
 
     private FeatureValue[] createFeatureValueArray(

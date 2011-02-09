@@ -99,7 +99,7 @@ public class PlateLayouter
 
     private final Widget view;
 
-    private final SimpleModelComboBox<Integer> heatmapKindChooser;
+    private final SimpleModelComboBox<String> heatmapKindChooser;
 
     public PlateLayouter(ScreeningViewContext viewContext, PlateMetadata plateMetadata)
     {
@@ -173,7 +173,7 @@ public class PlateLayouter
      * re-rendering.
      */
     private static Widget renderView(Component[][] renderedWells,
-            SimpleModelComboBox<Integer> heatmapKindChooser, LayoutContainer legendContainer)
+            SimpleModelComboBox<String> heatmapKindChooser, LayoutContainer legendContainer)
     {
         LayoutContainer container = new LayoutContainer();
         container.setScrollMode(Scroll.AUTO);
@@ -370,54 +370,51 @@ public class PlateLayouter
 
     // ---------
 
-    private static SimpleModelComboBox<Integer> createHeatmapKindComboBox(
+    private static SimpleModelComboBox<String> createHeatmapKindComboBox(
             final HeatmapPresenter presenter, IMessageProvider messageProvider)
     {
-        List<LabeledItem<Integer>> items = createHeatmapKindModel(null);
-        final SimpleModelComboBox<Integer> chooser =
-                new SimpleModelComboBox<Integer>(messageProvider, items,
+        List<LabeledItem<String>> items = createHeatmapKindModel(null);
+        final SimpleModelComboBox<String> chooser =
+                new SimpleModelComboBox<String>(messageProvider, items,
                         HEATMAP_KIND_COMBOBOX_CHOOSER_WIDTH_PX);
-        chooser.addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<LabeledItem<Integer>>>()
+        chooser.addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<LabeledItem<String>>>()
             {
                 @Override
                 public void selectionChanged(
-                        SelectionChangedEvent<SimpleComboValue<LabeledItem<Integer>>> se)
+                        SelectionChangedEvent<SimpleComboValue<LabeledItem<String>>> se)
                 {
-                    Integer value = SimpleModelComboBox.getChosenItem(se);
-                    if (value == null)
+                    String featureName = SimpleModelComboBox.getChosenItem(se);
+                    if (featureName == null)
                     {
                         presenter.setWellMetadataMode();
                     } else
                     {
-                        presenter.setFeatureValueMode(value);
+                        presenter.setFeatureValueMode(featureName);
                     }
                 }
             });
         return chooser;
     }
 
-    private static void updateHeatmapKindComboBox(SimpleModelComboBox<Integer> chooser,
+    private static void updateHeatmapKindComboBox(SimpleModelComboBox<String> chooser,
             List<String> featureLabelsOrNull)
     {
-        List<LabeledItem<Integer>> items = createHeatmapKindModel(featureLabelsOrNull);
+        List<LabeledItem<String>> items = createHeatmapKindModel(featureLabelsOrNull);
         chooser.removeAll();
         chooser.add(items);
         GWTUtils.autoselect(chooser, false);
     }
 
-    private static List<LabeledItem<Integer>> createHeatmapKindModel(
-            List<String> featureLabelsOrNull)
+    private static List<LabeledItem<String>> createHeatmapKindModel(List<String> featureLabelsOrNull)
     {
-        List<LabeledItem<Integer>> items = new ArrayList<LabeledItem<Integer>>();
-        items.add(new LabeledItem<Integer>(null, METADATA_HEATMAP_KIND_MSG));
+        List<LabeledItem<String>> items = new ArrayList<LabeledItem<String>>();
+        items.add(new LabeledItem<String>(null, METADATA_HEATMAP_KIND_MSG));
         if (featureLabelsOrNull != null)
         {
-            int i = 0;
             for (String featureLabel : featureLabelsOrNull)
             {
                 String label = FEATURE_HEATMAP_KIND_PREFIX_MSG + featureLabel;
-                items.add(new LabeledItem<Integer>(i, label));
-                i++;
+                items.add(new LabeledItem<String>(featureLabel, label));
             }
         }
         return items;
