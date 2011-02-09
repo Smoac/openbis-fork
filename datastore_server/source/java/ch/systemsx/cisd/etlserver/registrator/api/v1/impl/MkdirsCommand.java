@@ -59,4 +59,11 @@ class MkdirsCommand extends AbstractTransactionalCommand
         IFileOperations fileOperations = FileOperations.getMonitoredInstanceForCurrentThread();
         fileOperations.delete(src);
     }
+
+    @Override
+    public String toString()
+    {
+        return "MkdirsCommand [directoryAbsoutePath=" + directoryAbsoutePath + "]";
+    }
+
 }

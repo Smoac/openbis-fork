@@ -86,4 +86,13 @@ class MoveFileCommand extends AbstractTransactionalCommand
         IFileOperations fileOperations = FileOperations.getMonitoredInstanceForCurrentThread();
         fileOperations.move(dst, src);
     }
+
+    @Override
+    public String toString()
+    {
+        return "MoveFileCommand [srcParentDirAbsolutePath=" + srcParentDirAbsolutePath
+                + ", srcFileName=" + srcFileName + ", dstParentDirAbsolutePath="
+                + dstParentDirAbsolutePath + ", dstFileName=" + dstFileName + "]";
+    }
+
 }

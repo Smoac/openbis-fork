@@ -59,4 +59,11 @@ class NewFileCommand extends AbstractTransactionalCommand
         IFileOperations fileOperations = FileOperations.getMonitoredInstanceForCurrentThread();
         fileOperations.delete(src);
     }
+
+    @Override
+    public String toString()
+    {
+        return "NewFileCommand [fileAbsolutePath=" + fileAbsolutePath + "]";
+    }
+
 }

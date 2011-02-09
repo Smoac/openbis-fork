@@ -183,6 +183,7 @@ class RollbackStack
      */
     public void rollbackAll()
     {
+        getOperationLog().info("Rolling back stack " + this);
         // Pop and rollback all
         while (size() > 0)
         {
@@ -260,6 +261,12 @@ class RollbackStack
     private Logger getOperationLog()
     {
         return DataSetRegistrationTransaction.operationLog;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "RollbackStack [liveLifo=" + liveLifo.toArray() + "]";
     }
 
     /**
