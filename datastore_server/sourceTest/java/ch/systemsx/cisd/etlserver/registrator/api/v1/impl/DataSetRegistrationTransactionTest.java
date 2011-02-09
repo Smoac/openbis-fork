@@ -146,6 +146,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
 
         tr.commit();
 
+        assertTrue(logAppender.getLogContent().length() > 0);
         // Skip this for the moment
         // new LogMatcher(logAppender,
         // "Identified that database knows experiment '/SPACE/PROJECT/EXP-CODE'.*",
@@ -310,7 +311,8 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
                 new ThreadParameters(threadProperties, "jython-handler-test");
 
         TopLevelDataSetRegistratorGlobalState globalState =
-                new TopLevelDataSetRegistratorGlobalState("dss", ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
+                new TopLevelDataSetRegistratorGlobalState("dss",
+                        ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
                         workingDirectory, openBisService, mailClient, dataSetValidator, true,
                         threadParameters);
         return globalState;
