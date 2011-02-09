@@ -107,7 +107,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTypeTranslator;
@@ -607,26 +606,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         assert sampleIdentifier != null : "Unspecified sample identifier.";
 
         final Session session = getSession(sessionToken);
-        ExperimentPE experiment = tryLoadExperimentBySampleIdentifier(session, sampleIdentifier);
-        if (experiment == null)
-        {
-            throw new UserFailureException("No experiment found for sample " + sampleIdentifier);
-        }
-        if (experiment.getInvalidation() != null)
-        {
-            throw new UserFailureException("Data set can not be registered because experiment '"
-                    + experiment.getIdentifier() + "' is invalid.");
-        }
-        final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
-        sampleBO.loadBySampleIdentifier(sampleIdentifier);
-        final SamplePE cellPlate = sampleBO.getSample();
-        final IExternalDataBO externalDataBO = businessObjectFactory.createExternalDataBO(session);
-        SourceType sourceType =
-                externalData.isMeasured() ? SourceType.MEASUREMENT : SourceType.DERIVED;
-        externalDataBO.define(externalData, cellPlate, sourceType);
-        externalDataBO.save();
-        final String dataSetCode = externalDataBO.getExternalData().getCode();
-        assert dataSetCode != null : "Data set code not specified.";
+        registerDataSetInternal(session, sampleIdentifier, externalData);
     }
 
     public void registerDataSet(String sessionToken, ExperimentIdentifier experimentIdentifier,
@@ -636,19 +616,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         assert experimentIdentifier != null : "Unspecified experiment identifier.";
 
         final Session session = getSession(sessionToken);
-        ExperimentPE experiment = tryToLoadExperimentByIdentifier(session, experimentIdentifier);
-        if (experiment.getInvalidation() != null)
-        {
-            throw new UserFailureException("Data set can not be registered because experiment '"
-                    + experiment.getIdentifier() + "' is invalid.");
-        }
-        final IExternalDataBO externalDataBO = businessObjectFactory.createExternalDataBO(session);
-        SourceType sourceType =
-                externalData.isMeasured() ? SourceType.MEASUREMENT : SourceType.DERIVED;
-        externalDataBO.define(externalData, experiment, sourceType);
-        externalDataBO.save();
-        final String dataSetCode = externalDataBO.getExternalData().getCode();
-        assert dataSetCode != null : "Data set code not specified.";
+        registerDataSetInternal(session, experimentIdentifier, externalData);
     }
 
     public void deleteDataSet(String sessionToken, String dataSetCode, String reason)
@@ -861,7 +829,10 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         // Register the data set
         registerDataSetInternal(sessionToken, externalData, samplePE);
 
-        Sample result = SampleTranslator.translate(Collections.singletonList(samplePE), "").get(0);
+        final Session session = getSession(sessionToken);
+        Sample result =
+                SampleTranslator.translate(Collections.singletonList(samplePE),
+                        session.getBaseIndexURL()).get(0);
         return result;
     }
 
@@ -877,7 +848,9 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         final SamplePE samplePE = sampleBO.getSample();
         registerDataSetInternal(sessionToken, externalData, samplePE);
 
-        Sample result = SampleTranslator.translate(Collections.singletonList(samplePE), "").get(0);
+        Sample result =
+                SampleTranslator.translate(Collections.singletonList(samplePE),
+                        session.getBaseIndexURL()).get(0);
         return result;
     }
 
@@ -940,65 +913,66 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         ArrayList<Experiment> experimentsCreated =
                 createExperiments(sessionToken, operationDetails);
 
-        ArrayList<Sample> samplesUpdated = updateSamples(sessionToken, operationDetails);
+        List<Sample> samplesCreated = createSamples(sessionToken, operationDetails);
 
-        ArrayList<Sample> samplesCreated = createSamples(sessionToken, operationDetails);
+        List<Sample> samplesUpdated = updateSamples(sessionToken, operationDetails);
 
-        ArrayList<ExternalData> dataSetsCreated = createDataSets(sessionToken, operationDetails);
+        List<ExternalData> dataSetsCreated = createDataSets(sessionToken, operationDetails);
 
         return new AtomicEntityOperationResult(experimentsCreated, samplesUpdated, samplesCreated,
                 dataSetsCreated);
     }
 
-    private ArrayList<Sample> createSamples(String sessionToken,
+    private List<Sample> createSamples(String sessionToken,
             AtomicEntityOperationDetails operationDetails)
     {
-        ArrayList<Sample> samplesCreated = new ArrayList<Sample>();
+        ArrayList<SamplePE> samplePEsCreated = new ArrayList<SamplePE>();
         List<NewSample> newSamples = operationDetails.getSampleRegistrations();
         for (NewSample newSample : newSamples)
         {
-            registerSample(sessionToken, newSample, null);
-            SampleIdentifier sampleIdentifier =
-                    new SampleIdentifierFactory(newSample.getIdentifier()).createIdentifier();
-            samplesCreated.add(tryGetSampleWithExperiment(sessionToken, sampleIdentifier));
+            SamplePE samplePE = registerSampleInternal(sessionToken, newSample, null);
+            samplePEsCreated.add(samplePE);
         }
-        return samplesCreated;
+        final Session session = getSession(sessionToken);
+        return SampleTranslator.translate(samplePEsCreated, session.getBaseIndexURL());
     }
 
-    private ArrayList<Sample> updateSamples(String sessionToken,
+    private List<Sample> updateSamples(String sessionToken,
             AtomicEntityOperationDetails operationDetails)
     {
-        ArrayList<Sample> samplesUpdated = new ArrayList<Sample>();
+        final Session session = getSession(sessionToken);
+        ArrayList<SamplePE> samplePEsUpdated = new ArrayList<SamplePE>();
         List<SampleUpdatesDTO> sampleUpdates = operationDetails.getSampleUpdates();
         for (SampleUpdatesDTO sampleUpdate : sampleUpdates)
         {
-            updateSample(sessionToken, sampleUpdate);
-            SampleIdentifier sampleIdentifier = sampleUpdate.getSampleIdentifier();
-            samplesUpdated.add(tryGetSampleWithExperiment(sessionToken, sampleIdentifier));
+            SamplePE samplePE = updateSampleInternal(sampleUpdate, session).getSample();
+            samplePEsUpdated.add(samplePE);
         }
-        return samplesUpdated;
+        return SampleTranslator.translate(samplePEsUpdated, session.getBaseIndexURL());
     }
 
-    private ArrayList<ExternalData> createDataSets(String sessionToken,
+    private List<ExternalData> createDataSets(String sessionToken,
             AtomicEntityOperationDetails operationDetails)
     {
-        ArrayList<ExternalData> dataSetsCreated = new ArrayList<ExternalData>();
+        final Session session = getSession(sessionToken);
+        ArrayList<ExternalDataPE> dataSetsCreated = new ArrayList<ExternalDataPE>();
         ArrayList<NewExternalData> dataSetRegistrations =
                 operationDetails.getDataSetRegistrations();
         for (NewExternalData dataSet : dataSetRegistrations)
         {
             SampleIdentifier sampleIdentifier = dataSet.getSampleIdentifierOrNull();
+            IExternalDataBO externalData;
             if (sampleIdentifier != null)
             {
-                registerDataSet(sessionToken, sampleIdentifier, dataSet);
+                externalData = registerDataSetInternal(session, sampleIdentifier, dataSet);
             } else
             {
                 ExperimentIdentifier experimentIdentifier = dataSet.getExperimentIdentifierOrNull();
-                registerDataSet(sessionToken, experimentIdentifier, dataSet);
+                externalData = registerDataSetInternal(session, experimentIdentifier, dataSet);
             }
-            dataSetsCreated.add(tryGetDataSet(sessionToken, dataSet.getCode()));
+            dataSetsCreated.add(externalData.getExternalData());
         }
-        return dataSetsCreated;
+        return ExternalDataTranslator.translate(dataSetsCreated, "", session.getBaseIndexURL());
     }
 
     private ArrayList<Experiment> createExperiments(String sessionToken,
@@ -1014,5 +988,52 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
             experimentsCreated.add(tryToGetExperiment(sessionToken, experimentIdentifier));
         }
         return experimentsCreated;
+    }
+
+    private IExternalDataBO registerDataSetInternal(final Session session,
+            SampleIdentifier sampleIdentifier, NewExternalData externalData)
+    {
+        ExperimentPE experiment = tryLoadExperimentBySampleIdentifier(session, sampleIdentifier);
+        if (experiment == null)
+        {
+            throw new UserFailureException("No experiment found for sample " + sampleIdentifier);
+        }
+        if (experiment.getInvalidation() != null)
+        {
+            throw new UserFailureException("Data set can not be registered because experiment '"
+                    + experiment.getIdentifier() + "' is invalid.");
+        }
+        final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
+        sampleBO.loadBySampleIdentifier(sampleIdentifier);
+        final SamplePE cellPlate = sampleBO.getSample();
+        final IExternalDataBO externalDataBO = businessObjectFactory.createExternalDataBO(session);
+        SourceType sourceType =
+                externalData.isMeasured() ? SourceType.MEASUREMENT : SourceType.DERIVED;
+        externalDataBO.define(externalData, cellPlate, sourceType);
+        externalDataBO.save();
+        final String dataSetCode = externalDataBO.getExternalData().getCode();
+        assert dataSetCode != null : "Data set code not specified.";
+
+        return externalDataBO;
+    }
+
+    private IExternalDataBO registerDataSetInternal(final Session session,
+            ExperimentIdentifier experimentIdentifier, NewExternalData externalData)
+    {
+        ExperimentPE experiment = tryToLoadExperimentByIdentifier(session, experimentIdentifier);
+        if (experiment.getInvalidation() != null)
+        {
+            throw new UserFailureException("Data set can not be registered because experiment '"
+                    + experiment.getIdentifier() + "' is invalid.");
+        }
+        final IExternalDataBO externalDataBO = businessObjectFactory.createExternalDataBO(session);
+        SourceType sourceType =
+                externalData.isMeasured() ? SourceType.MEASUREMENT : SourceType.DERIVED;
+        externalDataBO.define(externalData, experiment, sourceType);
+        externalDataBO.save();
+        final String dataSetCode = externalDataBO.getExternalData().getCode();
+        assert dataSetCode != null : "Data set code not specified.";
+
+        return externalDataBO;
     }
 }
