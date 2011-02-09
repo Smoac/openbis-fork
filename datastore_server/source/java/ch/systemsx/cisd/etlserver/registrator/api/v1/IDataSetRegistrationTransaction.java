@@ -59,11 +59,6 @@ public interface IDataSetRegistrationTransaction
     IExperimentImmutable getExperiment(String experimentIdentifierString);
 
     /**
-     * Get an experiment from the openBIS AS for the purpose of modifying it.
-     */
-    IExperiment getExperimentForUpdate(String experimentIdentifierString);
-
-    /**
      * Create a new experiment to register with the openBIS AS. The experiment will have a permId.
      */
     IExperiment createNewExperiment(String experimentIdentifierString);

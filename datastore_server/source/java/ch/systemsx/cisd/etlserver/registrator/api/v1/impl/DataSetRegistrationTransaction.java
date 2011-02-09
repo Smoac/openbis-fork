@@ -201,11 +201,6 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         return experiment;
     }
 
-    public IExperiment getExperimentForUpdate(String experimentIdentifierString)
-    {
-        return getStateAsLiveState().getExperimentForUpdate(experimentIdentifierString);
-    }
-
     public IExperiment createNewExperiment(String experimentIdentifierString)
     {
         return getStateAsLiveState().createNewExperiment(experimentIdentifierString);
@@ -293,7 +288,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
             List<DataSetRegistrationInformation<T>> dataSetRegistrations) throws Throwable
     {
         AtomicEntityOperationDetails<T> registrationDetails =
-                getStateAsLiveState().createRegistrationDetails(dataSetRegistrations);
+                getStateAsLiveState().createEntityOperationDetails(dataSetRegistrations);
         IEntityOperationService<T> entityRegistrationService =
                 registrationService.getEntityRegistrationService();
 

@@ -272,7 +272,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             return openBisService.createDataSetCode();
         }
 
-        AtomicEntityOperationDetails<T> createRegistrationDetails(
+        AtomicEntityOperationDetails<T> createEntityOperationDetails(
                 List<DataSetRegistrationInformation<T>> dataSetRegistrations)
         {
             ArrayList<NewExperiment> experimentRegistrations = new ArrayList<NewExperiment>();
