@@ -60,6 +60,9 @@ public class XmlUtils
 
     public static String XSLT_XSD_FILE_RESOURCE = "/schema-for-xslt20.xsd";
 
+    /** indentation to be used when serializing to xml. */
+    public static final Integer INDENTATION = 2;
+    
     /**
      * Parse given string as XML {@link Document}.
      * 
@@ -89,10 +92,11 @@ public class XmlUtils
         try
         {
             TransformerFactory transfac = TransformerFactory.newInstance();
+            transfac.setAttribute("indent-number", INDENTATION);
             Transformer trans = transfac.newTransformer();
             trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
             trans.setOutputProperty(OutputKeys.INDENT, "yes");
-
+            trans.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", INDENTATION.toString());
             StringWriter sw = new StringWriter();
             trans.transform(new DOMSource(document), new StreamResult(sw));
             return sw.toString();

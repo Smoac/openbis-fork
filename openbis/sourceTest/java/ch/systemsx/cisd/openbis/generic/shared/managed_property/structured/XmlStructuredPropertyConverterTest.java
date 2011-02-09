@@ -42,7 +42,7 @@ public class XmlStructuredPropertyConverterTest extends AssertJUnit
         List<IElement> elements =
                 Arrays.asList(
                         factory.createElement("testname").addAttribute("attr1", "value1")
-                                .addAttribute("attr2", "value2"),
+                                .addAttribute("attr2", "value2").setData("dummy&<>data"),
                         factory.createSampleLink("permIdSample").addAttribute("sampleAttrKey",
                                 "sampleAttrVal"),
                         factory.createMaterialLink("materialCode", "typeCode").addAttribute(

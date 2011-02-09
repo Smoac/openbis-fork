@@ -56,7 +56,23 @@ public class Element implements IElement
 
     public String getAttribute(String key)
     {
-        return attributes.get(key);
+        String value = attributes.get(key);
+        if (value == null)
+        {
+            String error = String.format("Attribute '%s' does not exist.", key);
+            throw new IllegalArgumentException(error);
+        }
+        return value;
+    }
+
+    public String getAttribute(String key, String defaultValue)
+    {
+        String value = attributes.get(key);
+        if (value == null)
+        {
+            value = defaultValue;
+        }
+        return value;
     }
 
     public String getData()

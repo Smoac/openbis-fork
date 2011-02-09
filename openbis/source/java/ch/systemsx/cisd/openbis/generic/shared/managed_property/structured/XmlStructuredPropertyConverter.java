@@ -129,10 +129,15 @@ public class XmlStructuredPropertyConverter implements IStructuredPropertyConver
                 {
                     IElement child = transformFromDOM(domChild);
                     children.add(child);
-                } else if (domChild.getNodeType() == Node.CDATA_SECTION_NODE)
+                } else if (domChild.getNodeType() == Node.TEXT_NODE)
                 {
-                    String textContext = domChild.getNodeValue();
-                    result.setData(textContext);
+
+                    String textContent = domChild.getNodeValue().trim();
+                    textContent = StringEscapeUtils.unescapeXml(textContent);
+                    if (false == StringUtils.isBlank(textContent))
+                    {
+                        result.setData(textContent);
+                    }
                 }
             }
 
@@ -201,10 +206,12 @@ public class XmlStructuredPropertyConverter implements IStructuredPropertyConver
     private void transformDataToDOM(IElement element, Document document, Node node)
     {
         // text data
-        if (StringUtils.isBlank(element.getData()) == false)
+        String data = element.getData();
+        if (StringUtils.isBlank(data) == false)
         {
-            Node cdataNode = document.createCDATASection(element.getData());
-            node.appendChild(cdataNode);
+            String escapedXmlContent = StringEscapeUtils.escapeXml(data);
+            Node textNode = document.createTextNode(escapedXmlContent);
+            node.appendChild(textNode);
         }
     }
 

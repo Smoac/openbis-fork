@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.generic.shared.managed_property.structured;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IElement;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IElementFactory;
-import ch.systemsx.cisd.openbis.generic.shared.managed_property.structured.ElementFactory;
 
 /**
  * error test cases for {@link ElementFactory}.
@@ -52,4 +52,26 @@ public class ElementFactoryTest extends AssertJUnit
         factory.createElement("Material");
 
     }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testGetNonExistentAttribute()
+    {
+        IElement element = factory.createElement("test");
+        element.getAttribute("non-existent");
+    }
+
+    @Test
+    public void testGetAttributeWithDefaultValue()
+    {
+        IElement element = factory.createElement("test");
+
+        String existentAttribute = "attr";
+        String value = "value";
+        element.addAttribute(existentAttribute, value);
+
+        String defaultValue = "def_value";
+        assertEquals(value, element.getAttribute(existentAttribute, defaultValue));
+        assertEquals(defaultValue, element.getAttribute("non-existent", defaultValue));
+    }
+
 }

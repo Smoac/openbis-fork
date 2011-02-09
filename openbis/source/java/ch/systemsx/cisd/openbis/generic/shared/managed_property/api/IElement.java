@@ -37,12 +37,18 @@ public interface IElement
      * @return the element's name.
      */
     String getName();
-    
+
     /**
-     * @return the value of an attribute or NULL if the attribute is not defined for this
-     *         {@link IElement}
+     * @return the value of an attribute
+     * @throws IllegalArgumentException if the attribute is not defined for this {@link IElement}
      */
     String getAttribute(String key);
+
+    /**
+     * @return the value of an attribute or <code>defaultValue</code> if the attribute is not
+     *         defined for this {@link IElement}
+     */
+    String getAttribute(String key, String defaultValue);
 
     /**
      * The "Data" field is intended for a chunk raw data that can be attached to an element
