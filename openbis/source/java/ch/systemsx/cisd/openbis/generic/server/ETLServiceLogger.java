@@ -25,6 +25,8 @@ import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AtomicEntityOperationDetails;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AtomicEntityOperationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -388,6 +390,13 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
     {
         logAccess(sessionToken, "updateSampleAndRegisterDataSet", "SAMPLE(%S) DATA_SET(%s)",
                 updates.getSampleIdentifier(), externalData);
+        return null;
+    }
+
+    public AtomicEntityOperationResult performEntityOperations(String sessionToken,
+            AtomicEntityOperationDetails operationDetails)
+    {
+        logAccess(sessionToken, "performEntityOperations", "%s", operationDetails);
         return null;
     }
 }

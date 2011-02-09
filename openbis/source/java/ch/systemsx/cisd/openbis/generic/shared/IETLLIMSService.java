@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.Authoriz
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AtomicOperationsPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodeCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ListSampleCriteriaPredicate;
@@ -41,10 +42,12 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SpaceIden
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.SampleValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AtomicEntityOperationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
@@ -199,7 +202,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
             String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> dataSetCodes)
             throws UserFailureException;
-    
+
     /**
      * Lists samples using given configuration.
      * 
@@ -227,7 +230,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
             final String sessionToken,
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class) final SampleIdentifier sampleIdentifier)
             throws UserFailureException;
-    
+
     /**
      * Registers/updates various entities in one transaction.
      */
@@ -549,5 +552,23 @@ public interface IETLLIMSService extends IServer, ISessionProvider
             String sessionToken,
             @AuthorizationGuard(guardClass = SampleUpdatesPredicate.class) SampleUpdatesDTO updates,
             NewExternalData externalData);
+
+    /**
+     * Updates a sample and registers a data set connected to that sample in one transaction.
+     * 
+     * @param sessionToken The user authentication token. Must not be <code>null</code>.
+     * @param operationDetails A DTO containing information about the entities to change / register.
+     * @throws UserFailureException if given data set code could not be found in the persistence
+     *             layer.
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    @DatabaseUpdateModification(value =
+        { ObjectKind.SAMPLE, ObjectKind.EXPERIMENT })
+    @DatabaseCreateOrDeleteModification(value =
+        { ObjectKind.SAMPLE, ObjectKind.EXPERIMENT, ObjectKind.DATA_SET })
+    public AtomicEntityOperationResult performEntityOperations(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = AtomicOperationsPredicate.class) AtomicEntityOperationDetails operationDetails);
 
 }

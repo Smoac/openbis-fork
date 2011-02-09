@@ -53,6 +53,8 @@ import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AtomicEntityOperationDetails;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AtomicEntityOperationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
@@ -103,7 +105,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTypeTranslator;
@@ -485,7 +489,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         Collections.sort(datasets);
         return datasets;
     }
-    
+
     public List<ExternalData> listDataSetsByCode(String sessionToken, List<String> dataSetCodes)
     {
         final Session session = getSession(sessionToken);
@@ -929,4 +933,86 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         return samplePE;
     }
 
+    public AtomicEntityOperationResult performEntityOperations(String sessionToken,
+            AtomicEntityOperationDetails operationDetails)
+    {
+
+        ArrayList<Experiment> experimentsCreated =
+                createExperiments(sessionToken, operationDetails);
+
+        ArrayList<Sample> samplesUpdated = updateSamples(sessionToken, operationDetails);
+
+        ArrayList<Sample> samplesCreated = createSamples(sessionToken, operationDetails);
+
+        ArrayList<ExternalData> dataSetsCreated = createDataSets(sessionToken, operationDetails);
+
+        return new AtomicEntityOperationResult(experimentsCreated, samplesUpdated, samplesCreated,
+                dataSetsCreated);
+    }
+
+    private ArrayList<Sample> createSamples(String sessionToken,
+            AtomicEntityOperationDetails operationDetails)
+    {
+        ArrayList<Sample> samplesCreated = new ArrayList<Sample>();
+        List<NewSample> newSamples = operationDetails.getSampleRegistrations();
+        for (NewSample newSample : newSamples)
+        {
+            registerSample(sessionToken, newSample, null);
+            SampleIdentifier sampleIdentifier =
+                    new SampleIdentifierFactory(newSample.getIdentifier()).createIdentifier();
+            samplesCreated.add(tryGetSampleWithExperiment(sessionToken, sampleIdentifier));
+        }
+        return samplesCreated;
+    }
+
+    private ArrayList<Sample> updateSamples(String sessionToken,
+            AtomicEntityOperationDetails operationDetails)
+    {
+        ArrayList<Sample> samplesUpdated = new ArrayList<Sample>();
+        List<SampleUpdatesDTO> sampleUpdates = operationDetails.getSampleUpdates();
+        for (SampleUpdatesDTO sampleUpdate : sampleUpdates)
+        {
+            updateSample(sessionToken, sampleUpdate);
+            SampleIdentifier sampleIdentifier = sampleUpdate.getSampleIdentifier();
+            samplesUpdated.add(tryGetSampleWithExperiment(sessionToken, sampleIdentifier));
+        }
+        return samplesUpdated;
+    }
+
+    private ArrayList<ExternalData> createDataSets(String sessionToken,
+            AtomicEntityOperationDetails operationDetails)
+    {
+        ArrayList<ExternalData> dataSetsCreated = new ArrayList<ExternalData>();
+        ArrayList<NewExternalData> dataSetRegistrations =
+                operationDetails.getDataSetRegistrations();
+        for (NewExternalData dataSet : dataSetRegistrations)
+        {
+            SampleIdentifier sampleIdentifier = dataSet.getSampleIdentifierOrNull();
+            if (sampleIdentifier != null)
+            {
+                registerDataSet(sessionToken, sampleIdentifier, dataSet);
+            } else
+            {
+                ExperimentIdentifier experimentIdentifier = dataSet.getExperimentIdentifierOrNull();
+                registerDataSet(sessionToken, experimentIdentifier, dataSet);
+            }
+            dataSetsCreated.add(tryGetDataSet(sessionToken, dataSet.getCode()));
+        }
+        return dataSetsCreated;
+    }
+
+    private ArrayList<Experiment> createExperiments(String sessionToken,
+            AtomicEntityOperationDetails operationDetails)
+    {
+        ArrayList<Experiment> experimentsCreated = new ArrayList<Experiment>();
+        List<NewExperiment> experimentRegistrations = operationDetails.getExperimentRegistrations();
+        for (NewExperiment experiment : experimentRegistrations)
+        {
+            registerExperiment(sessionToken, experiment);
+            ExperimentIdentifier experimentIdentifier =
+                    new ExperimentIdentifierFactory(experiment.getIdentifier()).createIdentifier();
+            experimentsCreated.add(tryToGetExperiment(sessionToken, experimentIdentifier));
+        }
+        return experimentsCreated;
+    }
 }
