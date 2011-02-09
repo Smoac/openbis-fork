@@ -26,7 +26,9 @@ import javax.imageio.ImageIO;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.concurrent.ITaskExecutor;
+import ch.systemsx.cisd.common.concurrent.ParallelizedExecutor;
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.etlserver.hdf5.Hdf5Container.IHdf5WriterClient;
 import ch.systemsx.cisd.hdf5.IHDF5SimpleWriter;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
@@ -48,58 +50,82 @@ class Hdf5ThumbnailGenerator implements IHdf5WriterClient
 
     private final String relativeThumbnailFilePath;
 
+    private final int allowedMachineLoadDuringGeneration;
+
     private final Logger operationLog;
 
     Hdf5ThumbnailGenerator(List<AcquiredSingleImage> plateImages, File imagesInStoreFolder,
             int thumbnailMaxWidth, int thumbnailMaxHeight, String relativeThumbnailFilePath,
-            Logger operationLog)
+            int allowedMachineLoadDuringGeneration, Logger operationLog)
     {
         this.plateImages = plateImages;
         this.imagesInStoreFolder = imagesInStoreFolder;
         this.thumbnailMaxWidth = thumbnailMaxWidth;
         this.thumbnailMaxHeight = thumbnailMaxHeight;
         this.relativeThumbnailFilePath = relativeThumbnailFilePath;
+        this.allowedMachineLoadDuringGeneration = allowedMachineLoadDuringGeneration;
         this.operationLog = operationLog;
+    }
+
+    private Status generateThumbnail(IHDF5SimpleWriter writer, AcquiredSingleImage plateImage)
+    {
+        RelativeImageReference imageReference = plateImage.getImageReference();
+        String imagePath = imageReference.getRelativeImagePath();
+        File img = new File(imagesInStoreFolder, imagePath);
+        BufferedImage image = ImageUtil.loadImage(img);
+        BufferedImage thumbnail =
+                ImageUtil.rescale(image, thumbnailMaxWidth, thumbnailMaxHeight, false);
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        try
+        {
+            ImageIO.write(thumbnail, "png", output);
+            String thumbnailPath = replaceExtensionToPng(imagePath);
+
+            String path =
+                    relativeThumbnailFilePath + ContentRepository.ARCHIVE_DELIMITER + thumbnailPath;
+            plateImage.setThumbnailFilePathOrNull(new RelativeImageReference(path, imageReference
+                    .tryGetPage(), imageReference.tryGetColorComponent()));
+            byte[] byteArray = output.toByteArray();
+            if (operationLog.isDebugEnabled())
+            {
+                operationLog.debug("thumbnail " + thumbnailPath + " (" + byteArray.length
+                        + " bytes)");
+            }
+            writer.writeByteArray(thumbnailPath, byteArray);
+        } catch (IOException ex)
+        {
+            return Status.createError(ex.getMessage());
+        }
+        return Status.OK;
+    }
+
+    private static String replaceExtensionToPng(String imagePath)
+    {
+        String newImagePath = imagePath;
+        int lastIndex = imagePath.lastIndexOf('.');
+        if (lastIndex > 0)
+        {
+            newImagePath = imagePath.substring(0, lastIndex);
+        }
+        newImagePath += ".png";
+        return newImagePath;
+    }
+
+    private ITaskExecutor<AcquiredSingleImage> createThumbnailGenerator(
+            final IHDF5SimpleWriter writer)
+    {
+        return new ITaskExecutor<AcquiredSingleImage>()
+            {
+                public Status execute(AcquiredSingleImage plateImage)
+                {
+                    return generateThumbnail(writer, plateImage);
+                }
+            };
     }
 
     public void runWithSimpleWriter(IHDF5SimpleWriter writer)
     {
-
-        for (AcquiredSingleImage plateImage : plateImages)
-        {
-            RelativeImageReference imageReference = plateImage.getImageReference();
-            String imagePath = imageReference.getRelativeImagePath();
-            File img = new File(imagesInStoreFolder, imagePath);
-            BufferedImage image = ImageUtil.loadImage(img);
-            BufferedImage thumbnail =
-                    ImageUtil.rescale(image, thumbnailMaxWidth, thumbnailMaxHeight, false);
-            ByteArrayOutputStream output = new ByteArrayOutputStream();
-            try
-            {
-                ImageIO.write(thumbnail, "png", output);
-                int lastIndex = imagePath.lastIndexOf('.');
-                if (lastIndex > 0)
-                {
-                    imagePath = imagePath.substring(0, lastIndex);
-                }
-                imagePath += ".png";
-                String path =
-                        relativeThumbnailFilePath + ContentRepository.ARCHIVE_DELIMITER + imagePath;
-                plateImage.setThumbnailFilePathOrNull(new RelativeImageReference(path,
-                        imageReference.tryGetPage(), imageReference.tryGetColorComponent()));
-                byte[] byteArray = output.toByteArray();
-                if (operationLog.isDebugEnabled())
-                {
-                    operationLog.debug("thumbnail " + imagePath + " (" + byteArray.length
-                            + " bytes)");
-                }
-                writer.writeByteArray(imagePath, byteArray);
-            } catch (IOException ex)
-            {
-                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-            }
-        }
-
+        ParallelizedExecutor.process(plateImages, createThumbnailGenerator(writer),
+                allowedMachineLoadDuringGeneration, 100, 1);
     }
-
 }

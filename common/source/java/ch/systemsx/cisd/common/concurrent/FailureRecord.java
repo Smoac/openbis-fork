@@ -14,36 +14,37 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.fileconverter;
-
-import java.io.File;
+package ch.systemsx.cisd.common.concurrent;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 
+
 /**
- * A class that holds the information about a compression failure.
+ * A class that holds the information about a failure during the operation. Stores the failure
+ * status, exception and an item which caused problems.
  * 
  * @author Bernd Rinn
+ * @author Tomasz Pylak
  */
-public class FailureRecord
+public class FailureRecord<T>
 {
-    private final File failedFile;
+    private final T failedItem;
 
     private final Status failureStatus;
 
     private final Throwable throwableOrNull;
 
-    FailureRecord(File failedFile, Status failureStatus)
+    FailureRecord(T failedItem, Status failureStatus)
     {
-        this.failedFile = failedFile;
+        this.failedItem = failedItem;
         this.failureStatus = failureStatus;
         this.throwableOrNull = null;
     }
 
-    FailureRecord(File failedFile, Throwable throwableOrNull)
+    FailureRecord(T failedItem, Throwable throwableOrNull)
     {
-        this.failedFile = failedFile;
+        this.failedItem = failedItem;
         this.failureStatus =
                 Status.createError("Exceptional condition: "
                         + throwableOrNull.getClass().getSimpleName());
@@ -51,11 +52,11 @@ public class FailureRecord
     }
 
     /**
-     * Returns the file that caused the failure.
+     * Returns the item that caused the failure.
      */
-    public final File getFailedFile()
+    public final T getFailedItem()
     {
-        return failedFile;
+        return failedItem;
     }
 
     /**

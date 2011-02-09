@@ -412,11 +412,13 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
         if (thumbnailsStorageFormatOrNull != null)
         {
             Hdf5Container container = new Hdf5Container(thumbnailsFile);
-            container.runWriterClient(thumbnailsStorageFormatOrNull.isStoreCompressed(),
+            container.runWriterClient(
+                    thumbnailsStorageFormatOrNull.isStoreCompressed(),
                     new Hdf5ThumbnailGenerator(plateImages, imagesInStoreFolder,
                             thumbnailsStorageFormatOrNull.getMaxWidth(),
                             thumbnailsStorageFormatOrNull.getMaxHeight(),
-                            relativeThumbnailFilePath, operationLog));
+                            relativeThumbnailFilePath, thumbnailsStorageFormatOrNull
+                                    .getAllowedMachineLoadDuringGeneration(), operationLog));
         }
     }
 

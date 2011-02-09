@@ -17,15 +17,12 @@
 package ch.systemsx.cisd.common.fileconverter;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.Queue;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.concurrent.ITaskExecutor;
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
@@ -34,28 +31,11 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  * 
  * @author Bernd Rinn
  */
-class FileConversionWorker implements Runnable
+class FileConversionTaskExecutor implements ITaskExecutor<File>
 {
-
-    @Private
-    static final int MAX_RETRY_OF_FAILED_COMPRESSIONS = 3;
-
-    @Private
-    static final String COMPRESSING_MSG_TEMPLATE = "Converting '%s'.";
-
-    @Private
-    static final String EXCEPTION_COMPRESSING_MSG_TEMPLATE =
-            "Exceptional condition when trying to convert '%s'.";
-
-    @Private
-    static final String INTERRPTED_MSG = "Thread has been interrupted - exiting worker.";
-
-    @Private
-    static final String EXITING_MSG = "No more files to convert - exiting worker.";
-
     @Private
     final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            FileConversionWorker.class);
+            FileConversionTaskExecutor.class);
 
     private static final String INPROGRESS_MARKER = ".CONVERSION_IN_PROGRESS_";
 
@@ -102,104 +82,27 @@ class FileConversionWorker implements Runnable
         return fileToCompress.getName().startsWith(INPROGRESS_MARKER);
     }
 
-    private Status createStatusAndLog(String msgTemplate, Object... params)
+    private Status createStatus(String msgTemplate, Object... params)
     {
         final String msg = String.format(msgTemplate, params);
-        operationLog.error(msg);
         return Status.createError(msg);
     }
 
-    private final Queue<File> workerQueue;
-
-    private final Collection<FailureRecord> failures;
-
     private final IFileConversionStrategy conversionStrategy;
 
-    private final AtomicInteger activeWorkers;
-
-    FileConversionWorker(final Queue<File> incommingQueue,
-            final Collection<FailureRecord> failures,
-            final IFileConversionStrategy conversionStrategy, final AtomicInteger activeWorkers)
+    FileConversionTaskExecutor(final IFileConversionStrategy conversionStrategy)
     {
-        assert incommingQueue != null;
-        assert failures != null;
         assert conversionStrategy != null;
-        assert activeWorkers != null;
-        assert activeWorkers.get() > 0;
 
-        this.workerQueue = incommingQueue;
-        this.failures = failures;
         this.conversionStrategy = conversionStrategy;
-        this.activeWorkers = activeWorkers;
     }
 
-    public void run()
-    {
-        try
-        {
-            do
-            {
-                if (Thread.interrupted())
-                {
-                    if (operationLog.isInfoEnabled())
-                    {
-                        operationLog.info(INTERRPTED_MSG);
-                    }
-                    return;
-                }
-                final File fileToCompressOrNull = workerQueue.poll();
-                if (fileToCompressOrNull == null)
-                {
-                    operationLog.info(EXITING_MSG);
-                    return;
-                }
-                if (operationLog.isDebugEnabled())
-                {
-                    operationLog.debug(String
-                            .format(COMPRESSING_MSG_TEMPLATE, fileToCompressOrNull));
-                }
-                Status status = null;
-                int count = 0;
-                do
-                {
-                    try
-                    {
-                        status = convert(fileToCompressOrNull);
-                    } catch (final Throwable th)
-                    {
-                        operationLog.error(String.format(EXCEPTION_COMPRESSING_MSG_TEMPLATE,
-                                fileToCompressOrNull), th);
-                        failures.add(new FailureRecord(fileToCompressOrNull, th));
-                        status = null;
-                        break;
-                    }
-                } while (StatusFlag.RETRIABLE_ERROR.equals(status.getFlag())
-                        && ++count < MAX_RETRY_OF_FAILED_COMPRESSIONS);
-                if (status != null && Status.OK.equals(status) == false)
-                {
-                    failures.add(new FailureRecord(fileToCompressOrNull, status));
-                }
-            } while (true);
-        } finally
-        {
-            // if there are no remaining threads working notify main compressor thread that
-            // is waiting for all failures (see Compressor)
-            if (0 == activeWorkers.decrementAndGet())
-            {
-                synchronized (failures)
-                {
-                    failures.notify();
-                }
-            }
-        }
-    }
-
-    private Status convert(File fileToConvert)
+    public Status execute(File fileToConvert)
     {
         final File convertedFile = conversionStrategy.tryCheckConvert(fileToConvert);
         if (convertedFile == null)
         {
-            return createStatusAndLog("IllegalFile: '%s'", fileToConvert.getAbsolutePath());
+            return createStatus("IllegalFile: '%s'", fileToConvert.getAbsolutePath());
         }
         if (convertedFile.equals(fileToConvert))
         {
@@ -228,12 +131,12 @@ class FileConversionWorker implements Runnable
                 conversionStrategy.getConverter().convert(fileToConvert, inProgressFile);
         if (runOK == false)
         {
-            return createStatusAndLog("Unable to convert '%s'.", fileToConvert.getAbsolutePath());
+            return createStatus("Unable to convert '%s'.", fileToConvert.getAbsolutePath());
         }
         final boolean renameOK = inProgressFile.renameTo(convertedFile);
         if (renameOK == false)
         {
-            return createStatusAndLog("Unable to rename '%s' to '%s'.",
+            return createStatus("Unable to rename '%s' to '%s'.",
                     inProgressFile.getAbsolutePath(), convertedFile.getAbsolutePath());
         }
         return deleteOriginalFileIfRequestedAndGetStatus(fileToConvert, deleteOriginalFile);
@@ -255,8 +158,8 @@ class FileConversionWorker implements Runnable
                 final boolean ok = originalFile.delete();
                 if (ok == false)
                 {
-                    return createStatusAndLog("Clean up: Unable to delete original file '%s' failed.",
-                            originalFile);
+                    return createStatus(
+                            "Clean up: Unable to delete original file '%s' failed.", originalFile);
                 }
             }
             if (fileToConvert.renameTo(originalFile))
@@ -264,7 +167,7 @@ class FileConversionWorker implements Runnable
                 return Status.OK;
             } else
             {
-                return createStatusAndLog(
+                return createStatus(
                         "Renaming converted file '%s' to original name '%s' failed.",
                         fileToConvert, originalFile);
             }
@@ -277,24 +180,24 @@ class FileConversionWorker implements Runnable
                 conversionStrategy.getConverter().convert(fileToConvert, inProgressFile);
         if (runOK == false)
         {
-            return createStatusAndLog("Unable to convert '%s'.", fileToConvert.getAbsolutePath());
+            return createStatus("Unable to convert '%s'.", fileToConvert.getAbsolutePath());
         }
         final boolean firstRenameOK = inProgressFile.renameTo(convertedFile);
         if (firstRenameOK == false)
         {
-            return createStatusAndLog("Unable to rename '%s' to '%s'.",
+            return createStatus("Unable to rename '%s' to '%s'.",
                     inProgressFile.getAbsolutePath(), convertedFile.getAbsolutePath());
         }
         final boolean removalOfOriginalOK = fileToConvert.delete();
         if (removalOfOriginalOK == false)
         {
-            return createStatusAndLog("Unable to delete original file '%s'",
+            return createStatus("Unable to delete original file '%s'",
                     fileToConvert.getAbsolutePath());
         }
         final boolean secondRenameOK = convertedFile.renameTo(fileToConvert);
         if (secondRenameOK == false)
         {
-            return createStatusAndLog("Unable to rename '%s' to '%s'.",
+            return createStatus("Unable to rename '%s' to '%s'.",
                     convertedFile.getAbsolutePath(), fileToConvert.getAbsolutePath());
         }
         return Status.OK;
@@ -320,7 +223,7 @@ class FileConversionWorker implements Runnable
             return Status.OK;
         } else
         {
-            return createStatusAndLog("Clean up: Unable to delete temporary file '%s'",
+            return createStatus("Clean up: Unable to delete temporary file '%s'",
                     fileToConvert.getAbsolutePath());
         }
     }

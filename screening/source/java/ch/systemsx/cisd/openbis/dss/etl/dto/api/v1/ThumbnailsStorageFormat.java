@@ -37,6 +37,8 @@ public class ThumbnailsStorageFormat
 
     private boolean storeCompressed = DEFAULT_COMPRESS_THUMBNAILS;
 
+    private int allowedMachineLoadDuringGeneration = 1;
+
     /**
      * Creates empty object which instructs that the thumbnails should be generated with default
      * settings. Use setters to change default behaviour (you will probably not have to).
@@ -60,6 +62,11 @@ public class ThumbnailsStorageFormat
         return storeCompressed;
     }
 
+    public int getAllowedMachineLoadDuringGeneration()
+    {
+        return allowedMachineLoadDuringGeneration;
+    }
+
     /** Sets the maximum width of a thumbnail. */
     public void setMaxWidth(int maxWidth)
     {
@@ -78,4 +85,12 @@ public class ThumbnailsStorageFormat
         this.storeCompressed = storeCompressed;
     }
 
+    /**
+     * The number of threads which will be used during thumbnails generation will be equal to number
+     * of processor cores * machineLoad.
+     */
+    public void setAllowedMachineLoadDuringGeneration(int machineLoad)
+    {
+        this.allowedMachineLoadDuringGeneration = machineLoad;
+    }
 }
