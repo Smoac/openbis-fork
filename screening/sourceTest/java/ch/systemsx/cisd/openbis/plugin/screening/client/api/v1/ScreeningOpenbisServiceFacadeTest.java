@@ -118,7 +118,6 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
 
     private IImageTransformerFactory transformerFactory;
 
-    @SuppressWarnings("deprecation")
     @BeforeMethod
     public void beforeMethod()
     {
@@ -127,8 +126,8 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
         generalInformationService = context.mock(IGeneralInformationService.class);
         dssComponent = context.mock(IDssComponent.class);
         dssServiceFactory = context.mock(IDssServiceFactory.class);
-        i1id = new ImageDatasetReference(DATA_SET1, URL1, null, null, null, null, null);
-        i2id = new ImageDatasetReference(DATA_SET2, URL2, null, null, null, null, null);
+        i1id = new ImageDatasetReference(DATA_SET1, URL1, null, null, null, null, null, null);
+        i2id = new ImageDatasetReference(DATA_SET2, URL2, null, null, null, null, null, null);
         f1id = context.mock(IFeatureVectorDatasetIdentifier.class, "f1id");
         f2id = context.mock(IFeatureVectorDatasetIdentifier.class, "f2id");
         dssService1 = context.mock(IDssServiceRpcScreening.class, "dss1");
