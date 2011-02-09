@@ -306,6 +306,13 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
                 properties.size());
     }
 
+    public void updateShareIdAndSize(String sessionToken, String dataSetCode, String shareId,
+            long size) throws UserFailureException
+    {
+        logTracking(sessionToken, "updateShareIdAndSize", "DATA_SET_CODE(%s) SHARE_ID(%s) SIZE(%s)",
+                dataSetCode, shareId, size);
+    }
+
     public void updateDataSetStatuses(String sessionToken, List<String> dataSetCodes,
             DataSetArchivingStatus newStatus) throws UserFailureException
     {

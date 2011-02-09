@@ -288,6 +288,13 @@ public interface IEncapsulatedOpenBISService
     @ManagedAuthentication
     public void updateDataSet(String code, List<NewProperty> properties, SpaceIdentifier space)
             throws UserFailureException;
+    
+    /**
+     * Updates share id and size of specified data set.
+     */
+    @ManagedAuthentication
+    public void updateShareIdAndSize(String dataSetCode, String shareId, long size)
+            throws UserFailureException;
 
     //
     // Archiving

@@ -22,7 +22,14 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
+import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.filesystem.rsync.RsyncCopier;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 
 /**
  * Utility methods for segmented stores.
@@ -31,6 +38,8 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
  */
 public class SegmentedStoreUtils
 {
+    private static final String RSYNC_EXEC = "rsync";
+    
     private static final Pattern INCOMING_SHARE_ID_PATTERN = Pattern.compile("[0-9]+");
 
     private static final FileFilter FILTER_ON_INCOMING_SHARES = new FileFilter()
@@ -111,5 +120,124 @@ public class SegmentedStoreUtils
                         + testFile.getParentFile().getAbsolutePath());
     }
     
+    /**
+     * Moves the specified data set to the specified share. The data set is folder in the store
+     * its name is the data set code. The destination folder is <code>share</code>. Its name is
+     * the share id.
+     * 
+     * @param service to access openBIS AS.
+     */
+    public static void moveDataSetToAnotherShare(File dataSetDirInStore, File share, IEncapsulatedOpenBISService service)
+    {
+        String dataSetCode = dataSetDirInStore.getName();
+        ExternalData dataSet = service.tryGetDataSet(dataSetCode);
+        if (dataSet == null)
+        {
+            throw new UserFailureException("Unknown data set " + dataSetCode);
+        }
+        File oldShare = dataSetDirInStore.getParentFile().getParentFile().getParentFile().getParentFile().getParentFile();
+        String relativePath = FileUtilities.getRelativeFile(oldShare, dataSetDirInStore);
+        File dataSetDirInNewShare = new File(share, relativePath);
+        dataSetDirInNewShare.mkdirs();
+        copyToShare(dataSetDirInStore, dataSetDirInNewShare);
+        long size = assertEqualSizeAndChildren(dataSetDirInStore, dataSetDirInNewShare);
+        service.updateShareIdAndSize(dataSetCode, share.getName(), size);
+        FileUtilities.deleteRecursively(dataSetDirInStore);
+    }
 
+    private static void copyToShare(File file, File share)
+    {
+        RsyncCopier copier = new RsyncCopier(OSUtilities.findExecutable(RSYNC_EXEC));
+        copier.copyContent(file, share);
+    }
+    
+    private static long assertEqualSizeAndChildren(File source, File destination)
+    {
+        assertSameName(source, destination);
+        if (source.isFile())
+        {
+            assertFile(destination);
+            return assertSameSize(source, destination);
+        } else
+        {
+            assertDirectory(destination);
+            File[] sourceFiles = getFiles(source);
+            File[] destinationFiles = getFiles(destination);
+            assertSameNumberOfChildren(source, sourceFiles, destination, destinationFiles);
+            long sum = 0;
+            for (int i = 0; i < sourceFiles.length; i++)
+            {
+                sum += assertEqualSizeAndChildren(sourceFiles[i], destinationFiles[i]);
+            }
+            return sum;
+        }
+    }
+
+    private static void assertSameNumberOfChildren(File source, File[] sourceFiles, File destination,
+            File[] destinationFiles)
+    {
+        if (sourceFiles.length != destinationFiles.length)
+        {
+            throw new EnvironmentFailureException("Destination directory '"
+                    + destination.getAbsolutePath() + "' has " + destinationFiles.length
+                    + " files but source directory '" + source.getAbsolutePath()
+                    + "' has " + sourceFiles.length + " files.");
+        }
+    }
+
+    private static long assertSameSize(File source, File destination)
+    {
+        long sourceSize = source.length();
+        long destinationSize = destination.length();
+        if (sourceSize != destinationSize)
+        {
+            throw new EnvironmentFailureException("Destination file '" + destination.getAbsolutePath()
+                    + "' has size " + destinationSize + " but source file '"
+                    + source.getAbsolutePath() + "' has size " + sourceSize
+                    + ".");
+        }
+        return sourceSize;
+    }
+
+    private static void assertSameName(File source, File destination)
+    {
+        if (source.getName().equals(destination.getName()) == false)
+        {
+            throw new EnvironmentFailureException("Destination file '"
+                    + destination.getAbsolutePath() + "' has a different name than source file '"
+                    + source.getAbsolutePath() + ".");
+        }
+    }
+    
+    private static void assertFile(File file)
+    {
+        if (file.exists() == false)
+        {
+            throw new EnvironmentFailureException("File does not exist: " + file.getAbsolutePath());
+        }
+        if (file.isFile() == false)
+        {
+            throw new EnvironmentFailureException("File is a directory: " + file.getAbsolutePath());
+        }
+    }
+
+    private static void assertDirectory(File file)
+    {
+        if (file.exists() == false)
+        {
+            throw new EnvironmentFailureException("Directory does not exist: " + file.getAbsolutePath());
+        }
+        if (file.isDirectory() == false)
+        {
+            throw new EnvironmentFailureException("Directory is a file: " + file.getAbsolutePath());
+        }
+    }
+    
+    private static File[] getFiles(File file)
+    {
+        File[] files = file.listFiles();
+        Arrays.sort(files);
+        return files;
+    }
+    
 }

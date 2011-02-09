@@ -78,6 +78,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
@@ -641,6 +642,22 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         final Session session = getSession(sessionToken);
         final IExternalDataBO externalDataBO = businessObjectFactory.createExternalDataBO(session);
         externalDataBO.addPropertiesToDataSet(dataSetCode, properties);
+    }
+    
+    public void updateShareIdAndSize(String sessionToken, String dataSetCode, String shareId, long size)
+    {
+        checkSession(sessionToken);
+        
+        IExternalDataDAO externalDataDAO = getDAOFactory().getExternalDataDAO();
+        ExternalDataPE dataSet =
+            externalDataDAO.tryToFindFullDataSetByCode(dataSetCode, false, false);
+        if (dataSet == null)
+        {
+            throw new UserFailureException("Unknown data set " + dataSetCode);
+        }
+        dataSet.setShareId(shareId);
+        dataSet.setSize(size);
+        externalDataDAO.updateDataSet(dataSet);
     }
 
     public void updateDataSetStatuses(String sessionToken, List<String> dataSetCodes,

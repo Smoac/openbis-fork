@@ -265,6 +265,18 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
 
+    public void updateShareIdAndSize(String dataSetCode, String shareId, long size)
+            throws UserFailureException
+    {
+        service.updateShareIdAndSize(session.getToken(), dataSetCode, shareId, size);
+
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("Updated in openBIS: data set " + dataSetCode + ", share Id: "
+                    + shareId + ", size: " + size);
+        }
+    }
+
     public final void updateDataSetStatuses(List<String> codes,
             DataSetArchivingStatus newStatus) throws UserFailureException
 

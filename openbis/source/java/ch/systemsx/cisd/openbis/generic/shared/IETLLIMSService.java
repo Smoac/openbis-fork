@@ -437,6 +437,16 @@ public interface IETLLIMSService extends IServer, ISessionProvider
             throws UserFailureException;
 
     /**
+     * Updates share id and size of specified data set.
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
+    public void updateShareIdAndSize(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String dataSetCode,
+            String shareId, long size) throws UserFailureException;
+
+    /**
      * Updates status of given data sets.
      */
     @Transactional
