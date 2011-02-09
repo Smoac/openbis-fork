@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v1;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -100,14 +99,4 @@ public interface IDataSet
      * Set the data set type.
      */
     public void setDataSetType(String dataSetTypeCode);
-
-    /**
-     * Get the locator type. Defaults to the default specified in {@link LocatorType}.
-     */
-    public String getLocatorType();
-
-    /**
-     * Set the locator type.
-     */
-    public void setLocatorType(String locatorTypeCode);
 }

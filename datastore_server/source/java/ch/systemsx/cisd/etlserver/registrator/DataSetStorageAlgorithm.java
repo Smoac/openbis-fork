@@ -215,7 +215,6 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         data.setUserId(dataSetInformation.getUploadingUserIdOrNull());
         data.setUserEMail(dataSetInformation.tryGetUploadingUserEmail());
         data.setExtractableData(dataSetInformation.getExtractableData());
-        data.setLocatorType(registrationDetails.getLocatorType());
         data.setDataSetType(registrationDetails.getDataSetType());
         data.setFileFormatType(registrationDetails.getFileFormatType());
         data.setMeasured(registrationDetails.isMeasuredData());

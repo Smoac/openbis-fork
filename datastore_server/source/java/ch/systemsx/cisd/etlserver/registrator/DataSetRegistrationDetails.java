@@ -35,15 +35,12 @@ public class DataSetRegistrationDetails<T extends DataSetInformation> implements
 
     private String processorType;
 
-    private LocatorType locatorType;
-
     private T dataSetInformation;
 
     public DataSetRegistrationDetails()
     {
         fileFormatType = new FileFormatType(FileFormatType.DEFAULT_FILE_FORMAT_TYPE_CODE);
         measuredData = true;
-        locatorType = new LocatorType(LocatorType.DEFAULT_LOCATOR_TYPE_CODE);
     }
 
     public FileFormatType getFileFormatType(File incomingDataSetPath)
@@ -68,7 +65,7 @@ public class DataSetRegistrationDetails<T extends DataSetInformation> implements
 
     public LocatorType getLocatorType(File incomingDataSetPath)
     {
-        return locatorType;
+        return new LocatorType(LocatorType.DEFAULT_LOCATOR_TYPE_CODE);
     }
 
     public FileFormatType getFileFormatType()
@@ -115,16 +112,6 @@ public class DataSetRegistrationDetails<T extends DataSetInformation> implements
     public void setDataSetType(DataSetType dataSetType)
     {
         dataSetInformation.setDataSetType(dataSetType);
-    }
-
-    public LocatorType getLocatorType()
-    {
-        return locatorType;
-    }
-
-    public void setLocatorType(LocatorType locatorType)
-    {
-        this.locatorType = locatorType;
     }
 
     public T getDataSetInformation()
