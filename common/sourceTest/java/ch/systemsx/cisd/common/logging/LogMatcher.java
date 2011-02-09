@@ -47,6 +47,11 @@ public class LogMatcher
             {
                 String actualLine;
                 actualLine = reader.readLine();
+                if (actualLine == null)
+                {
+                    throw new AssertionError(expectedLines.length + " lines expected instead of "
+                            + lineNumber + ":\n" + logRecorder.getLogContent());
+                }
                 if (false == actualLine.matches(expectedLine))
                 {
                     throw new AssertionError(format("Line " + lineNumber, expectedLine, actualLine));
