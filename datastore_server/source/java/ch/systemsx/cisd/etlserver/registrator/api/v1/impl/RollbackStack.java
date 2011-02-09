@@ -20,6 +20,8 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.Queue;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.collections.ExtendedBlockingQueueFactory;
@@ -241,6 +243,13 @@ class RollbackStack
                 return 0;
             }
         }
+
+        @Override
+        public String toString()
+        {
+            return "StackElement [command=" + command + ", order=" + order + "]";
+        }
+
     }
 
     /**
@@ -266,7 +275,9 @@ class RollbackStack
     @Override
     public String toString()
     {
-        return "RollbackStack [liveLifo=" + liveLifo.toArray() + "]";
+        ToStringBuilder sb = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
+        sb.append(liveLifo.toArray());
+        return sb.toString();
     }
 
     /**

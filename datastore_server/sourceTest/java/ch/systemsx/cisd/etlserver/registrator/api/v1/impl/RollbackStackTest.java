@@ -37,6 +37,10 @@ public class RollbackStackTest extends AbstractTestWithRollbackStack
         assertEquals(TrackingCommandStatus.EXECUTED, cmd1.status);
         assertEquals(TrackingCommandStatus.EXECUTED, cmd2.status);
 
+        assertEquals(
+                "RollbackStack[{StackElement [command=TrackingCommand [status=EXECUTED], order=0],StackElement [command=TrackingCommand [status=EXECUTED], order=1]}]",
+                rollbackStack.toString());
+
         // Rollback and check that the rollback occurred correctly
         rollbackStack.rollbackAll();
         assertEquals(TrackingCommandStatus.ROLLEDBACK, cmd1.status);
@@ -236,6 +240,13 @@ public class RollbackStackTest extends AbstractTestWithRollbackStack
                             : true;
             ++rollbackCount;
         }
+
+        @Override
+        public String toString()
+        {
+            return "TrackingCommand [status=" + status + "]";
+        }
+
     }
 
     private static class EqualityTrackingCommand extends TrackingCommand

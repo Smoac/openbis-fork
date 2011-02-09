@@ -23,6 +23,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.logging.BufferedAppender;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -46,6 +47,8 @@ public class FileCommandsTest extends AbstractTestWithRollbackStack
     private File newNewFile;
 
     private MoveFileCommand mvNewFile;
+
+    private BufferedAppender logAppender;
 
     @BeforeMethod
     @Override
@@ -71,6 +74,8 @@ public class FileCommandsTest extends AbstractTestWithRollbackStack
         mvNewFile =
                 new MoveFileCommand(dstDir.getAbsolutePath(), newFile.getName(),
                         dstDir.getAbsolutePath(), newNewFile.getName());
+
+        logAppender = new BufferedAppender();
     }
 
     @Test
@@ -108,6 +113,8 @@ public class FileCommandsTest extends AbstractTestWithRollbackStack
         assertTrue("The file should have been deleted", false == dstFile.exists());
         assertTrue("The directory should have been deleted", false == dstDir.exists());
         checkContentsOfFile(srcFile);
+
+        assertTrue(logAppender.getLogContent().length() > 0);
     }
 
     @Test
