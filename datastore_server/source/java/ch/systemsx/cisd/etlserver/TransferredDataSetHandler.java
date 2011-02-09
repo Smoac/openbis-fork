@@ -286,9 +286,9 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
                     };
         if (null != registrator)
         {
-            return new OverridingRegistrationHelper(this, incomingDataSetFile,
-                    cleanAftrewardsAction, preRegistrationAction, postRegistrationAction,
-                    registrator)
+            return new OverridingRegistrationHelper(this, incomingDataSetFile, getGlobalState()
+                    .getShareId(), cleanAftrewardsAction, preRegistrationAction,
+                    postRegistrationAction, registrator)
                 {
                     @Override
                     protected DataSetInformation extractDataSetInformation(File incomingDataSetPath)
@@ -299,8 +299,8 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
                 };
         } else
         {
-            return new RegistrationHelper(this, incomingDataSetFile, cleanAftrewardsAction,
-                    preRegistrationAction, postRegistrationAction);
+            return new RegistrationHelper(this, incomingDataSetFile, getGlobalState().getShareId(),
+                    cleanAftrewardsAction, preRegistrationAction, postRegistrationAction);
         }
     }
 
@@ -318,9 +318,9 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
                     };
         if (registrator != null)
         {
-            return new OverridingRegistrationHelper(this, incomingDataSetFile,
-                    cleanAftrewardsAction, preRegistrationAction, postRegistrationAction,
-                    registrator)
+            return new OverridingRegistrationHelper(this, incomingDataSetFile, getGlobalState()
+                    .getShareId(), cleanAftrewardsAction, preRegistrationAction,
+                    postRegistrationAction, registrator)
                 {
                     @Override
                     protected DataSetInformation extractDataSetInformation(File incomingDataSetPath)
@@ -331,8 +331,8 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
                 };
         } else
         {
-            return new RegistrationHelper(this, incomingDataSetFile, cleanAftrewardsAction,
-                    preRegistrationAction, postRegistrationAction);
+            return new RegistrationHelper(this, incomingDataSetFile, getGlobalState().getShareId(),
+                    cleanAftrewardsAction, preRegistrationAction, postRegistrationAction);
         }
     }
 
@@ -356,23 +356,23 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
     {
 
         RegistrationHelper(TransferredDataSetHandler transferredDataSetHandler,
-                File incomingDataSetFile,
+                File incomingDataSetFile, String shareId,
                 IDelegatedActionWithResult<Boolean> cleanAftrewardsAction,
                 IPreRegistrationAction preRegistrationAction,
                 IPostRegistrationAction postRegistrationAction)
         {
-            super(incomingDataSetFile, cleanAftrewardsAction, preRegistrationAction,
+            super(incomingDataSetFile, shareId, cleanAftrewardsAction, preRegistrationAction,
                     postRegistrationAction);
         }
 
         RegistrationHelper(TransferredDataSetHandler transferredDataSetHandler,
-                File incomingDataSetFile,
+                File incomingDataSetFile, String shareId,
                 IDelegatedActionWithResult<Boolean> cleanAftrewardsAction,
                 IPreRegistrationAction preRegistrationAction,
                 IPostRegistrationAction postRegistrationAction,
                 IDataSetInApplicationServerRegistrator appServerRegistrator)
         {
-            super(incomingDataSetFile, cleanAftrewardsAction, preRegistrationAction,
+            super(incomingDataSetFile, shareId, cleanAftrewardsAction, preRegistrationAction,
                     postRegistrationAction, appServerRegistrator);
         }
 
@@ -487,13 +487,13 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
          * @param postRegistrationAction
          */
         OverridingRegistrationHelper(TransferredDataSetHandler transferredDataSetHandler,
-                File incomingDataSetFile,
+                File incomingDataSetFile, String shareId,
                 IDelegatedActionWithResult<Boolean> cleanAftrewardsAction,
                 IPreRegistrationAction preRegistrationAction,
                 IPostRegistrationAction postRegistrationAction,
                 DataSetRegistrationAlgorithm.IDataSetInApplicationServerRegistrator registrator)
         {
-            super(transferredDataSetHandler, incomingDataSetFile, cleanAftrewardsAction,
+            super(transferredDataSetHandler, incomingDataSetFile, shareId, cleanAftrewardsAction,
                     preRegistrationAction, postRegistrationAction, registrator);
         }
 

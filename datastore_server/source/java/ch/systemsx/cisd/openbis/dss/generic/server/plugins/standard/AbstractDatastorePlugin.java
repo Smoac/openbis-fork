@@ -70,7 +70,7 @@ public abstract class AbstractDatastorePlugin implements Serializable
     {
         String location = dataset.getDataSetLocation();
         location = location.replace("\\", File.separator);
-        return new File(storeRoot, location);
+        return new File(new File(storeRoot, dataset.getDataSetShareId()), location);
     }
 
     /** returns a path relative to the store directory */

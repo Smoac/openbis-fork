@@ -35,6 +35,7 @@ import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProviders;
+import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PluginUtilTest;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -55,8 +56,6 @@ public class DataStoreServiceTest extends AssertJUnit
 
     private static final File TEST_STORE = new File(TEST_FOLDER, "store");
 
-    private static final String SHARE_ID = "share-id";
-    
     private static final class MockDataStoreService extends DataStoreService
     {
         private final ICIFEXRPCServiceFactory cifexServiceFactory;
@@ -70,7 +69,7 @@ public class DataStoreServiceTest extends AssertJUnit
                 PluginTaskProviders pluginTaskParameters)
         {
             super(sessionTokenManager, commandExecutorFactory, mailClientParameters,
-                    pluginTaskParameters, SHARE_ID);
+                    pluginTaskParameters);
             this.cifexServiceFactory = cifexServiceFactory;
             this.expectedCIFEXURL = expectedCIFEXURL;
         }
@@ -194,7 +193,7 @@ public class DataStoreServiceTest extends AssertJUnit
         DatasetDescriptionBuilder ds1 =
             new DatasetDescriptionBuilder("ds1").location(location);
         DatasetDescriptionBuilder ds2 = new DatasetDescriptionBuilder("ds2").location("unknown");
-        File share = new File(TEST_STORE, SHARE_ID);
+        File share = new File(TEST_STORE, Constants.DEFAULT_SHARE_ID);
         share.mkdirs();
         new File(share, location).createNewFile();
         
@@ -236,7 +235,7 @@ public class DataStoreServiceTest extends AssertJUnit
             });
         
         createService().deleteDataSets(sessionToken, dataSets);
-        assertEquals(SHARE_ID, d1.getDataSetShareId());
+        assertEquals(Constants.DEFAULT_SHARE_ID, d1.getDataSetShareId());
         context.assertIsSatisfied();
     }
 

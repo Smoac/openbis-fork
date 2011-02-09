@@ -49,7 +49,6 @@
     <bean id="openBIS-service" class="ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService">
        <constructor-arg ref="etl-lims-service"/>
        <constructor-arg ref="sessionHolder"/>
-       <constructor-arg value="${default-share-id}" />
     </bean>    
     
     <bean id="data-store-server"
@@ -66,7 +65,6 @@
                     </bean>
                 </constructor-arg>
                 <constructor-arg ref="plugin-tasks" />
-                <constructor-arg value="${default-share-id}" />
                 <property name="cifexAdminUserOrNull" value="${cifex-admin-username}" />
                 <property name="cifexAdminPasswordOrNull" value="${cifex-admin-password}" />
                 <property name="commandQueueDir" value="${commandqueue-dir}"/>

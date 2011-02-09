@@ -53,6 +53,7 @@ import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.test.AssertionUtil;
+import ch.systemsx.cisd.etlserver.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -721,7 +722,7 @@ public class DatasetDownloadServletTest
                 {
                     one(dataSetService).listDataSetsByCode(Arrays.asList(EXAMPLE_DATA_SET_CODE));
                     will(returnValue(Arrays.asList(new DataSetBuilder().code(EXAMPLE_DATA_SET_CODE)
-                            .shareId(DataStoreService.DEFAULT_SHARE_ID).getDataSet())));
+                            .shareId(ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID).getDataSet())));
                 }
             });
     }
@@ -789,14 +790,14 @@ public class DatasetDownloadServletTest
         locatorType.setCode(LocatorType.DEFAULT_LOCATOR_TYPE_CODE);
         externalData.setLocatorType(locatorType);
         externalData.setLocation(DatasetLocationUtil.getDatasetRelativeLocationPath(
-                EXAMPLE_DATA_SET_CODE, DataStoreService.DEFAULT_SHARE_ID, DATABASE_INSTANCE_UUID));
+                EXAMPLE_DATA_SET_CODE, ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID, DATABASE_INSTANCE_UUID));
         return externalData;
     }
 
     private static File getDatasetDirectoryLocation(final File baseDir, String dataSetCode)
     {
         return DatasetLocationUtil.getDatasetLocationPath(baseDir, dataSetCode,
-                DataStoreService.DEFAULT_SHARE_ID, DATABASE_INSTANCE_UUID);
+                ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID, DATABASE_INSTANCE_UUID);
     }
 
     private DatasetDownloadServlet createServlet()

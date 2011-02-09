@@ -166,6 +166,12 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
                 fileOrFolder.getPath(), fileOrFolder.isRecursive());
     }
 
+    public void setDirectories(File store, File incoming)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
     @Override
     public void setStoreDirectory(File aFile)
     {

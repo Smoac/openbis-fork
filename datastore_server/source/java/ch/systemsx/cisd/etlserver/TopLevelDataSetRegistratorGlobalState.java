@@ -31,6 +31,8 @@ public class TopLevelDataSetRegistratorGlobalState
 {
     private final String dssCode;
 
+    private final String shareId;
+    
     private final File storeRootDir;
 
     private final IEncapsulatedOpenBISService openBisService;
@@ -51,12 +53,13 @@ public class TopLevelDataSetRegistratorGlobalState
 
     private final String postRegistrationScriptOrNull;
 
-    public TopLevelDataSetRegistratorGlobalState(String dssCode, File storeRootDir,
+    public TopLevelDataSetRegistratorGlobalState(String dssCode, String shareId, File storeRootDir,
             IEncapsulatedOpenBISService openBisService, IMailClient mailClient,
             IDataSetValidator dataSetValidator, boolean notifySuccessfulRegistration,
             ThreadParameters threadParameters)
     {
         this.dssCode = dssCode;
+        this.shareId = shareId;
         this.storeRootDir = storeRootDir;
         this.openBisService = openBisService;
         this.mailClient = mailClient;
@@ -72,6 +75,11 @@ public class TopLevelDataSetRegistratorGlobalState
     public String getDssCode()
     {
         return dssCode;
+    }
+
+    public String getShareId()
+    {
+        return shareId;
     }
 
     public File getStoreRootDir()

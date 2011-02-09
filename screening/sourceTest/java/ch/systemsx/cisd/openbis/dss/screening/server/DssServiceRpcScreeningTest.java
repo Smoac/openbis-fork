@@ -45,9 +45,9 @@ import ch.systemsx.cisd.common.io.ByteArrayBasedContent;
 import ch.systemsx.cisd.common.io.ConcatenatedFileOutputStreamWriter;
 import ch.systemsx.cisd.common.io.FileBasedContent;
 import ch.systemsx.cisd.common.io.IContent;
+import ch.systemsx.cisd.etlserver.Constants;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.IImagingDatasetLoader;
-import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreService;
 import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor;
 import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor.DssServiceRpcAuthorizationMethodInterceptor;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtilsTest;
@@ -611,7 +611,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                 {
                     one(service).listDataSetsByCode(Arrays.asList(DATASET_CODE));
                     will(returnValue(Arrays.asList(new DataSetBuilder().code(DATASET_CODE)
-                            .shareId(DataStoreService.DEFAULT_SHARE_ID).getDataSet())));
+                            .shareId(ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID).getDataSet())));
                 }
             });
     }

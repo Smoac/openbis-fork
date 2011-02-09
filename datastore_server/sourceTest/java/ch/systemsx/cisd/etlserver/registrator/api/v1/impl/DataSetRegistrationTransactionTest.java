@@ -38,6 +38,7 @@ import ch.systemsx.cisd.common.logging.LogMatcher;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
+import ch.systemsx.cisd.etlserver.Constants;
 import ch.systemsx.cisd.etlserver.IStorageProcessor;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.etlserver.ThreadParameters;
@@ -310,8 +311,9 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
                 new ThreadParameters(threadProperties, "jython-handler-test");
 
         TopLevelDataSetRegistratorGlobalState globalState =
-                new TopLevelDataSetRegistratorGlobalState("dss", workingDirectory, openBisService,
-                        mailClient, dataSetValidator, true, threadParameters);
+                new TopLevelDataSetRegistratorGlobalState("dss", ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
+                        workingDirectory, openBisService, mailClient, dataSetValidator, true,
+                        threadParameters);
         return globalState;
     }
 

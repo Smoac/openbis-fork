@@ -59,12 +59,13 @@ public abstract class DataSetRegistrationHelper implements
 
     protected final DataSetRegistrationAlgorithm registrationAlgorithm;
 
-    public DataSetRegistrationHelper(File incomingDataSetFile,
+    public DataSetRegistrationHelper(File incomingDataSetFile, String shareId,
             IDelegatedActionWithResult<Boolean> cleanAftrewardsAction,
             IPreRegistrationAction preRegistrationAction,
             IPostRegistrationAction postRegistrationAction)
     {
         DataSetInformation dataSetInformation = extractDataSetInformation(incomingDataSetFile);
+        dataSetInformation.setShareId(shareId);
         IDataStoreStrategy dataStoreStrategy =
                 getDataStrategyStore()
                         .getDataStoreStrategy(dataSetInformation, incomingDataSetFile);
@@ -79,13 +80,14 @@ public abstract class DataSetRegistrationHelper implements
         this.incomingDataSetFile = algorithmState.getIncomingDataSetFile();
     }
 
-    public DataSetRegistrationHelper(File incomingDataSetFile,
+    public DataSetRegistrationHelper(File incomingDataSetFile, String shareId,
             IDelegatedActionWithResult<Boolean> cleanAftrewardsAction,
             IPreRegistrationAction preRegistrationAction,
             IPostRegistrationAction postRegistrationAction,
             IDataSetInApplicationServerRegistrator appServerRegistrator)
     {
         DataSetInformation dataSetInformation = extractDataSetInformation(incomingDataSetFile);
+        dataSetInformation.setShareId(shareId);
         IDataStoreStrategy dataStoreStrategy =
                 getDataStrategyStore()
                         .getDataStoreStrategy(dataSetInformation, incomingDataSetFile);

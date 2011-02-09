@@ -41,6 +41,7 @@ import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm.DataSetRegistrati
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm.IDataSetInApplicationServerRegistrator;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm.IRollbackDelegate;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
+import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -136,6 +137,7 @@ public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
         exceptionMatcher = new RecordingMatcher<Throwable>();
 
         dataSetInformation = new DataSetInformation();
+        dataSetInformation.setShareId(Constants.DEFAULT_SHARE_ID);
     }
 
     @Test
@@ -458,11 +460,12 @@ public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
     {
         String dataStoreCode = DATA_STORE_CODE;
         DataSetRegistrationAlgorithmState state =
-                new DataSetRegistrationAlgorithmState(incomingDataSetFile, openBisService,
-                        cleanAfterwardsAction, preRegistrationAction, postRegistrationAction,
-                        dataSetInformation, dataStoreStrategy, typeExtractor, storageProcessor,
-                        fileOperations, dataSetValidator, mailClient, shouldDeleteUnidentified,
-                        registrationLock, dataStoreCode, shouldNotifySuccessfulRegistration);
+                new DataSetRegistrationAlgorithmState(incomingDataSetFile,
+                        openBisService, cleanAfterwardsAction, preRegistrationAction,
+                        postRegistrationAction, dataSetInformation, dataStoreStrategy,
+                        typeExtractor, storageProcessor, fileOperations, dataSetValidator,
+                        mailClient, shouldDeleteUnidentified, registrationLock, dataStoreCode,
+                        shouldNotifySuccessfulRegistration);
         registrationAlgorithm =
                 new DataSetRegistrationAlgorithm(state, rollbackDelegate, appServerRegistrator);
     }

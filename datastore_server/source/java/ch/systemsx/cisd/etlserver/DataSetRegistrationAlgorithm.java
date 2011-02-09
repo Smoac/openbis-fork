@@ -40,7 +40,6 @@ import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.etlserver.IStorageProcessor.UnstoreDataAction;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
-import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -222,8 +221,7 @@ public class DataSetRegistrationAlgorithm
     public final void prepare()
     {
         final File baseDirectory =
-                createBaseDirectory(getDataStoreStrategy(), state.storeRoot,
-                        state.dataSetInformation);
+                createBaseDirectory(getDataStoreStrategy(), state.storeRoot);
         baseDirectoryHolder =
                 new BaseDirectoryHolder(getDataStoreStrategy(), baseDirectory,
                         state.incomingDataSetFile);
@@ -298,13 +296,10 @@ public class DataSetRegistrationAlgorithm
         }
     }
 
-    public final File createBaseDirectory(final IDataStoreStrategy strategy, final File baseDir,
-            final DataSetInformation dataSetInfo)
+    public final File createBaseDirectory(final IDataStoreStrategy strategy, final File baseDir)
     {
-        // TODO replace by mapping
-        dataSetInfo.setShareId(DataStoreService.DEFAULT_SHARE_ID);
         final File baseDirectory =
-                strategy.getBaseDirectory(baseDir, dataSetInfo, state.dataSetType);
+                strategy.getBaseDirectory(baseDir, dataSetInformation, state.dataSetType);
         baseDirectory.mkdirs();
         if (state.fileOperations.isDirectory(baseDirectory) == false)
         {

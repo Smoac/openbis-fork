@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
  */
 public class TSVViewReportingPluginTest extends AbstractFileSystemTestCase
 {
+    private static final String SHARE_ID = "42";
     private static final String TEST_FILE = "test.txt";
     
     private File store;
@@ -55,10 +56,11 @@ public class TSVViewReportingPluginTest extends AbstractFileSystemTestCase
     {
         store = new File(workingDirectory, "store");
         store.mkdirs();
-        dataSetInStore = new File(store, "dataset");
+        dataSetInStore = new File(new File(store, SHARE_ID), "dataset");
         dataSetInStore.mkdirs();
         datasetDescription = new DatasetDescription();
         datasetDescription.setDatasetCode("ds1");
+        datasetDescription.setDataSetShareId(SHARE_ID);
         datasetDescription.setMainDataSetPattern(".*");
         datasetDescription.setDataSetLocation(dataSetInStore.getName());
     }

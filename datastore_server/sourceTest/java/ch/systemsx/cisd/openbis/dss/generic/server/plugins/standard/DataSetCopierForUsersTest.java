@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DataSetCopier.DESTINATION_KEY;
+import static ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID;
 
 import java.io.File;
 import java.io.IOException;
@@ -97,10 +98,11 @@ public class DataSetCopierForUsersTest extends AbstractFileSystemTestCase
         properties.setProperty("ssh-executable", sshExecutableDummy.getPath());
         properties.setProperty("rsync-executable", rsyncExecutableDummy.getPath());
         DatasetDescriptionBuilder dsb =
-                new DatasetDescriptionBuilder("ds1").location(DS_LOCATION).sample("s").space("g")
-                        .project("p").experiment("e").databaseInstance("i");
+                new DatasetDescriptionBuilder("ds1").shareId(DEFAULT_SHARE_ID)
+                        .location(DS_LOCATION).sample("s").space("g").project("p").experiment("e")
+                        .databaseInstance("i");
         ds = dsb.getDatasetDescription();
-        File ds1Folder = new File(storeRoot, DS_LOCATION + "/original");
+        File ds1Folder = new File(new File(storeRoot, DEFAULT_SHARE_ID), DS_LOCATION + "/original");
         ds1Folder.mkdirs();
         dsData = new File(ds1Folder, "data.txt");
         dsData.createNewFile();
@@ -190,7 +192,8 @@ public class DataSetCopierForUsersTest extends AbstractFileSystemTestCase
 
     private void assertNoErrors(ProcessingStatus processingStatus)
     {
-        assertEquals(0, processingStatus.getErrorStatuses().size());
+        List<Status> errorStatuses = processingStatus.getErrorStatuses();
+        assertEquals("Unexcpected errors: " + errorStatuses, 0, errorStatuses.size());
     }
 
     private void checkStatus(ProcessingStatus processingStatus, Status status,

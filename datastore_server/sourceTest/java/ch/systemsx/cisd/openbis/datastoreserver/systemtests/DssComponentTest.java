@@ -34,7 +34,6 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DssComponentFactory;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
-import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssBuilder;
@@ -61,10 +60,13 @@ public class DssComponentTest extends SystemTestCase
                     }
                 };
     private IDssComponent dss;
+    private File store;
 
     @BeforeMethod
     public void beforeMethod()
     {
+        store = new File(rootDir, "store");
+        store.mkdirs();
         dss = DssComponentFactory.tryCreate("test", "a", "http://localhost:8888");
     }
 
@@ -121,7 +123,7 @@ public class DssComponentTest extends SystemTestCase
         SimpleDataSetInformationDTO dataSetInfo = getCodeOfLatestDataSet();
         String code = dataSetInfo.getDataSetCode();
         File fileIntoStore =
-                new File(new File(new File(rootDir, "store"), DataStoreService.DEFAULT_SHARE_ID),
+                new File(new File(store, ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID),
                         dataSetInfo.getDataSetLocation());
         
         IDataSetDss ds = dss.getDataSet(code);

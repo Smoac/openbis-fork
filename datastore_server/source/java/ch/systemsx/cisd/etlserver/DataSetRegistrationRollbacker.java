@@ -88,8 +88,7 @@ public class DataSetRegistrationRollbacker
                 final File baseDirectory =
                         registrationAlgorithm.createBaseDirectory(
                                 TransferredDataSetHandler.ERROR_DATA_STRATEGY,
-                                registrationAlgorithm.getStoreRoot(),
-                                registrationAlgorithm.getDataSetInformation());
+                                registrationAlgorithm.getStoreRoot());
                 registrationAlgorithm.setBaseDirectoryHolder(new BaseDirectoryHolder(
                         TransferredDataSetHandler.ERROR_DATA_STRATEGY, baseDirectory,
                         incomingDataSetFile));

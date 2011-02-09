@@ -52,7 +52,6 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.test.LogMonitoringAppender;
 import ch.systemsx.cisd.etlserver.IStorageProcessor.UnstoreDataAction;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
-import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreService;
 import ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.server.openbisauth.OpenBISSessionHolder;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProviders;
@@ -86,7 +85,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestCase
 {
 
-    private static final String SHARE_ID = DataStoreService.DEFAULT_SHARE_ID;
+    private static final String SHARE_ID = ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID;
 
     private static final String SAMPLE_CODE = "sample1";
 
@@ -265,7 +264,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         OpenBISSessionHolder sessionHolder = new OpenBISSessionHolder();
         sessionHolder.setToken(SESSION_TOKEN);
         authorizedLimsService =
-                new EncapsulatedOpenBISService(limsService, sessionHolder, "share-id");
+                new EncapsulatedOpenBISService(limsService, sessionHolder);
         dataSetValidator = context.mock(IDataSetValidator.class);
 
         Properties threadProperties = new Properties();
@@ -277,8 +276,9 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                 new ThreadParameters(threadProperties, "pre-registration-script-test");
 
         TopLevelDataSetRegistratorGlobalState globalState =
-                new TopLevelDataSetRegistratorGlobalState("dss", workingDirectory,
-                        authorizedLimsService, mailClient, dataSetValidator, true, threadParameters);
+                new TopLevelDataSetRegistratorGlobalState("dss", ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
+                        workingDirectory, authorizedLimsService, mailClient, dataSetValidator,
+                        true, threadParameters);
 
         context.checking(new Expectations()
             {
@@ -776,8 +776,9 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                 new ThreadParameters(threadProperties, "pre-registration-script-test");
 
         TopLevelDataSetRegistratorGlobalState globalState =
-                new TopLevelDataSetRegistratorGlobalState("dss", workingDirectory,
-                        authorizedLimsService, mailClient, dataSetValidator, true, threadParameters);
+                new TopLevelDataSetRegistratorGlobalState("dss", ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
+                        workingDirectory, authorizedLimsService, mailClient, dataSetValidator,
+                        true, threadParameters);
         context.checking(new Expectations()
             {
                 {

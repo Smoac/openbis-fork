@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPlugi
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProviders;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ProcessingStatus;
+import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
@@ -61,8 +62,6 @@ import ch.systemsx.cisd.openbis.generic.shared.util.UuidUtil;
 public class DataStoreService extends AbstractServiceWithLogger<IDataStoreService> implements
         IDataStoreService, InitializingBean
 {
-    public static final String DEFAULT_SHARE_ID = "1";
-    
     private final SessionTokenManager sessionTokenManager;
 
     private final IDataSetCommandExecutorFactory commandExecutorFactory;
@@ -71,8 +70,6 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
 
     private final PluginTaskProviders pluginTaskParameters;
 
-    private final String defaultShareId;
-    
     private String cifexAdminUserOrNull;
 
     private String cifexAdminPasswordOrNull;
@@ -84,7 +81,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     private IDataSetCommandExecutor commandExecutor;
 
     public DataStoreService(SessionTokenManager sessionTokenManager,
-            MailClientParameters mailClientParameters, PluginTaskProviders pluginTaskParameters, String defaultShareId)
+            MailClientParameters mailClientParameters, PluginTaskProviders pluginTaskParameters)
     {
         this(sessionTokenManager, new IDataSetCommandExecutorFactory()
             {
@@ -92,18 +89,17 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
                 {
                     return new DataSetCommandExecutor(store, queueDir);
                 }
-            }, mailClientParameters, pluginTaskParameters, defaultShareId);
+            }, mailClientParameters, pluginTaskParameters);
     }
 
     DataStoreService(SessionTokenManager sessionTokenManager,
             IDataSetCommandExecutorFactory commandExecutorFactory,
-            MailClientParameters mailClientParameters, PluginTaskProviders pluginTaskParameters, String defaultShareId)
+            MailClientParameters mailClientParameters, PluginTaskProviders pluginTaskParameters)
     {
         this.sessionTokenManager = sessionTokenManager;
         this.commandExecutorFactory = commandExecutorFactory;
         this.mailClientParameters = mailClientParameters;
         this.pluginTaskParameters = pluginTaskParameters;
-        this.defaultShareId = defaultShareId.startsWith("$") ? DEFAULT_SHARE_ID : defaultShareId;
         storeRoot = pluginTaskParameters.getStoreRoot();
     }
 
@@ -164,7 +160,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
 
     private void migrateStore()
     {
-        File defaultShare = new File(storeRoot, defaultShareId);
+        File defaultShare = new File(storeRoot, Constants.DEFAULT_SHARE_ID);
         if (defaultShare.exists() == false)
         {
             if (defaultShare.mkdirs() == false)
@@ -174,7 +170,6 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
             }
             File[] stores = storeRoot.listFiles(new FilenameFilter()
                 {
-                    
                     public boolean accept(File dir, String name)
                     {
                         return UuidUtil.isValidUUID(name);
@@ -239,7 +234,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         {
             if (dataSet.getShareId() == null)
             {
-                dataSet.setShareId(defaultShareId);
+                dataSet.setShareId(Constants.DEFAULT_SHARE_ID);
             }
         }
 
@@ -376,7 +371,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     {
         if (dataSetOrNull != null && dataSetOrNull.getDataSetShareId() == null)
         {
-            dataSetOrNull.setDataSetShareId(defaultShareId);
+            dataSetOrNull.setDataSetShareId(Constants.DEFAULT_SHARE_ID);
         }
     }
 

@@ -55,6 +55,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 @Friend(toClasses = {DataSetCopier.class, AbstractDropboxProcessingPlugin.class})
 public class DataSetCopierTest extends AbstractFileSystemTestCase
 {
+    private static final String SHARE_ID = "42";
+    
     private static final String USER_EMAIL = "a@bc.de";
 
     private static final String DS1_LOCATION = "ds1";
@@ -125,22 +127,23 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         properties.setProperty("ssh-executable", sshExecutableDummy.getPath());
         properties.setProperty("rsync-executable", rsyncExecutableDummy.getPath());
         ds1 = createDataSetDescription("ds1", DS1_LOCATION, true);
-        File ds1Folder = new File(storeRoot, DS1_LOCATION + "/original");
+        File share = new File(storeRoot, SHARE_ID);
+        File ds1Folder = new File(share, DS1_LOCATION + "/original");
         ds1Folder.mkdirs();
         ds1Data = new File(ds1Folder, "data.txt");
         ds1Data.createNewFile();
         ds2 = createDataSetDescription("ds2", DS2_LOCATION, true);
-        File ds2Folder = new File(storeRoot, DS2_LOCATION + "/original");
+        File ds2Folder = new File(share, DS2_LOCATION + "/original");
         ds2Folder.mkdirs();
         ds2Data = new File(ds2Folder, "images");
         ds2Data.mkdirs();
         ds3 = createDataSetDescription("ds3", DS3_LOCATION, false);
-        File ds3Folder = new File(storeRoot, DS3_LOCATION + "/original");
+        File ds3Folder = new File(share, DS3_LOCATION + "/original");
         ds3Folder.mkdirs();
         ds3Data = new File(ds3Folder, "existing");
         ds3Data.createNewFile();
         ds4 = createDataSetDescription("ds4", DS4_LOCATION, false);
-        File ds4Folder = new File(storeRoot, DS4_LOCATION + "/original");
+        File ds4Folder = new File(share, DS4_LOCATION + "/original");
         ds4Folder.mkdirs();
         ds4Data = new File(ds4Folder, "existing");
         ds4Data.mkdirs();
@@ -160,6 +163,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         description.setDatasetCode(dataSetCode);
         description.setDatasetTypeCode("MY_DATA");
         description.setDataSetLocation(location);
+        description.setDataSetShareId(SHARE_ID);
         description.setDatabaseInstanceCode("i");
         description.setSpaceCode("g");
         description.setProjectCode("p");

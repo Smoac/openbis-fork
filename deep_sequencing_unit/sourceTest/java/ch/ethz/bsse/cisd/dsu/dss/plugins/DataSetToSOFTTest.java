@@ -64,6 +64,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
 @Friend(toClasses = DataSetToSOFT.class)
 public class DataSetToSOFTTest<workingDirectory> extends AbstractFileSystemTestCase
 {
+    private static final String SHARE_ID = "42";
     private static final String USER_EMAIL = "user@ho.me";
 
     private static final String SRF_FILE_NAME = "sample.srf";
@@ -95,7 +96,7 @@ public class DataSetToSOFTTest<workingDirectory> extends AbstractFileSystemTestC
         mailClient = context.mock(IMailClient.class);
         dataSetProcessingContext =
                 new DataSetProcessingContext(new HashMap<String, String>(), mailClient, USER_EMAIL);
-        File testFolder = new File(workingDirectory, "test");
+        File testFolder = new File(new File(workingDirectory, SHARE_ID), "test");
         testFolder.mkdirs();
         File sampleSrfFile = new File(testFolder, SRF_FILE_NAME);
         FileUtilities.writeToFile(sampleSrfFile, SRF_FILE_CONTENT);
@@ -124,6 +125,7 @@ public class DataSetToSOFTTest<workingDirectory> extends AbstractFileSystemTestC
     {
         DatasetDescription datasetDescription = new DatasetDescription();
         datasetDescription.setDatasetCode(DATASET_CODE);
+        datasetDescription.setDataSetShareId(SHARE_ID);
         datasetDescription.setDataSetLocation(".");
         List<DatasetDescription> dataSets = Arrays.asList(datasetDescription);
         final Sample flowLaneSample = sample(42, FLOW_LANE_SAMPLE_CODE);

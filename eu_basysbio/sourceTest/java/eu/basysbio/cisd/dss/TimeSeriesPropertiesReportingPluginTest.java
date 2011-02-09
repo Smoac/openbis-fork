@@ -39,6 +39,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
  */
 public class TimeSeriesPropertiesReportingPluginTest extends AbstractFileSystemTestCase
 {
+    private static final String SHARE_ID = "42";
+
     @Test
     public void test()
     {
@@ -73,12 +75,13 @@ public class TimeSeriesPropertiesReportingPluginTest extends AbstractFileSystemT
 
     private DatasetDescription createDataSet(String dataSetCode, String header)
     {
-        File dir = new File(workingDirectory, dataSetCode + "/original");
+        File dir = new File(new File(workingDirectory, SHARE_ID), dataSetCode + "/original");
         dir.mkdirs();
         File file = new File(dir, "data.tsv");
         FileUtilities.writeToFile(file, header);
         DatasetDescription datasetDescription = new DatasetDescription();
         datasetDescription.setDataSetLocation(dataSetCode);
+        datasetDescription.setDataSetShareId(SHARE_ID);
         datasetDescription.setDatasetCode(dataSetCode);
         return datasetDescription;
     }

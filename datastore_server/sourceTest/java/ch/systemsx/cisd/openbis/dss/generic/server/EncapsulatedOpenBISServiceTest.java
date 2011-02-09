@@ -35,8 +35,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  */
 public class EncapsulatedOpenBISServiceTest
 {
-    private static final String DEFAULT_SHARE_ID = "share-id";
-
     private static final String SESSION_TOKEN = "session-token";
 
     private Mockery context;
@@ -54,7 +52,7 @@ public class EncapsulatedOpenBISServiceTest
         limsService = context.mock(IETLLIMSService.class);
         session = new OpenBISSessionHolder();
         session.setToken(SESSION_TOKEN);
-        encapsulatedLimsService = new EncapsulatedOpenBISService(limsService, session, DEFAULT_SHARE_ID);
+        encapsulatedLimsService = new EncapsulatedOpenBISService(limsService, session);
     }
 
     @AfterMethod

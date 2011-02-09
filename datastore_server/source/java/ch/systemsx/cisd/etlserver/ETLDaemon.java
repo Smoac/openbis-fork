@@ -69,6 +69,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.QueueingDataSetStatusUpdaterS
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetCodesWithStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 
@@ -221,10 +222,16 @@ public final class ETLDaemon
         IDataSetValidator dataSetValidator = new DataSetValidator(properties);
         final Properties mailProperties = Parameters.createMailProperties(properties);
         final IMailClient mailClient = new MailClient(mailProperties);
+        File storeRootDir = DssPropertyParametersUtil.getStoreRootDir(parameters.getProperties());
+        File[] shares = SegmentedStoreUtils.getImcomingShares(storeRootDir);
         for (final ThreadParameters threadParameters : threads)
         {
-            createProcessingThread(parameters, threadParameters, openBISService,
-                    highwaterMarkWatcher, mailClient, dataSetValidator,
+            File incomingDataDirectory = threadParameters.getIncomingDataDirectory();
+            String shareId = SegmentedStoreUtils.findIncomingShare(incomingDataDirectory, shares);
+            operationLog.info("[" + threadParameters.getThreadName() + "]: Data sets drop into '"
+                    + incomingDataDirectory + "' will stored in share " + shareId + ".");
+            createProcessingThread(parameters, threadParameters, shareId,
+                    openBISService, highwaterMarkWatcher, mailClient, dataSetValidator,
                     notifySuccessfulRegistration);
         }
         mailClient.sendTestEmail();
@@ -271,14 +278,14 @@ public final class ETLDaemon
     }
 
     private final static void createProcessingThread(final Parameters parameters,
-            final ThreadParameters threadParameters,
+            final ThreadParameters threadParameters, String shareId,
             final IEncapsulatedOpenBISService authorizedLimsService,
             final HighwaterMarkWatcher highwaterMarkWatcher, final IMailClient mailClient,
             final IDataSetValidator dataSetValidator, final boolean notifySuccessfulRegistration)
     {
         final File incomingDataDirectory = threadParameters.getIncomingDataDirectory();
         final ITopLevelDataSetRegistrator pathHandler =
-                createTopLevelDataSetRegistrator(parameters.getProperties(), threadParameters,
+                createTopLevelDataSetRegistrator(parameters.getProperties(), threadParameters, shareId, 
                         authorizedLimsService, mailClient, dataSetValidator,
                         notifySuccessfulRegistration);
         final HighwaterMarkDirectoryScanningHandler directoryScanningHandler =
@@ -300,7 +307,7 @@ public final class ETLDaemon
     }
 
     public static ITopLevelDataSetRegistrator createTopLevelDataSetRegistrator(
-            final Properties properties, final ThreadParameters threadParameters,
+            final Properties properties, final ThreadParameters threadParameters, String shareId,
             final IEncapsulatedOpenBISService openBISService, final IMailClient mailClient,
             final IDataSetValidator dataSetValidator, final boolean notifySuccessfulRegistration)
     {
@@ -308,7 +315,7 @@ public final class ETLDaemon
         migrateStoreRootDir(storeRootDir, openBISService.getHomeDatabaseInstance());
         String dssCode = DssPropertyParametersUtil.getDataStoreCode(properties);
         TopLevelDataSetRegistratorGlobalState globalState =
-                new TopLevelDataSetRegistratorGlobalState(dssCode, storeRootDir, openBISService,
+                new TopLevelDataSetRegistratorGlobalState(dssCode, shareId, storeRootDir, openBISService,
                         mailClient, dataSetValidator, notifySuccessfulRegistration,
                         threadParameters);
 

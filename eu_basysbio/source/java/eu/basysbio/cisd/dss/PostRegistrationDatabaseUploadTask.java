@@ -104,7 +104,8 @@ public class PostRegistrationDatabaseUploadTask implements IMaintenanceTask
         {
             if (knownDataSets.contains(dataSet.getDataSetCode()) == false)
             {
-                File pathToDataSet = new File(storeRoot, dataSet.getDataSetLocation());
+                File share = new File(storeRoot, dataSet.getDataSetShareId());
+                File pathToDataSet = new File(share, dataSet.getDataSetLocation());
                 File[] dataSetFiles = new File(pathToDataSet, "original").listFiles();
                 if (dataSetFiles != null && dataSetFiles.length > 0)
                 {

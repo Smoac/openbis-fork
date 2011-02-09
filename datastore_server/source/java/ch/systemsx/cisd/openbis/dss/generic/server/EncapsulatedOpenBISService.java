@@ -26,6 +26,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.openbisauth.OpenBISSessionHolder;
+import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
@@ -79,21 +80,17 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     // this session object is automatically kept up-to-date by an aspect
     private OpenBISSessionHolder session;
 
-    private final String defaultShareId;
-
     public static IETLLIMSService createOpenBisService(String openBISURL)
     {
         return new OpenBisServiceFactory(openBISURL, ResourceNames.ETL_SERVICE_URL).createService();
     }
 
-    public EncapsulatedOpenBISService(IETLLIMSService service, OpenBISSessionHolder sessionHolder, String defaultShareId)
+    public EncapsulatedOpenBISService(IETLLIMSService service, OpenBISSessionHolder sessionHolder)
     {
         assert service != null : "Given IETLLIMSService implementation can not be null.";
         assert sessionHolder != null : "Given OpenBISSessionHolder can not be null.";
         this.service = service;
         this.session = sessionHolder;
-        this.defaultShareId =
-                defaultShareId.startsWith("$") ? DataStoreService.DEFAULT_SHARE_ID : defaultShareId;
     }
 
 
@@ -370,7 +367,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         {
             if (dataSet.getDataSetShareId() == null)
             {
-                dataSet.setDataSetShareId(defaultShareId);
+                dataSet.setDataSetShareId(ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID);
             }
         }
         return dataSets;
@@ -453,7 +450,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     {
         if (dataSetOrNull != null && dataSetOrNull.getShareId() == null)
         {
-            dataSetOrNull.setShareId(defaultShareId);
+            dataSetOrNull.setShareId(Constants.DEFAULT_SHARE_ID);
         }
     }
     

@@ -27,7 +27,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
-import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreService;
+import ch.systemsx.cisd.etlserver.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
@@ -94,7 +94,7 @@ public class DssServiceRpcGenericTest extends AbstractFileSystemTestCase
         prepareListDataSetsByCode(dataSetCode);
         File location =
                 DatasetLocationUtil.getDatasetLocationPath(store, dataSetCode,
-                        DataStoreService.DEFAULT_SHARE_ID, DB_UUID);
+                        ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID, DB_UUID);
         location.mkdirs();
         
         FileInfoDssDTO[] dataSets = dssService.listFilesForDataSet(SESSION_TOKEN, dataSetCode, "abc/de", true);
@@ -111,7 +111,7 @@ public class DssServiceRpcGenericTest extends AbstractFileSystemTestCase
                 {
                     one(service).listDataSetsByCode(Arrays.asList(dataSetCode));
                     will(returnValue(Arrays.asList(new DataSetBuilder().code(dataSetCode)
-                            .shareId(DataStoreService.DEFAULT_SHARE_ID).getDataSet())));
+                            .shareId(ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID).getDataSet())));
                 }
             });
     }

@@ -286,7 +286,8 @@ public class DataSetToSOFT implements IProcessingPluginTask
 
     private File tryToFindSrfFile(DatasetDescription datasetDescription)
     {
-        File root = new File(storeRoot, datasetDescription.getDataSetLocation());
+        File share = new File(storeRoot, datasetDescription.getDataSetShareId());
+        File root = new File(share, datasetDescription.getDataSetLocation());
         return tryToFindSrfFile(root);
     }
 

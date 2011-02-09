@@ -198,11 +198,13 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     public DataSetStorageAlgorithm<T> createStorageAlgorithm(File dataSetFile,
             DataSetRegistrationDetails<T> dataSetDetails)
     {
-        IDataStoreStrategy strategy =
-                registratorContext.getDataStrategyStore().getDataStoreStrategy(
-                        dataSetDetails.getDataSetInformation(), dataSetFile);
-
         TopLevelDataSetRegistratorGlobalState globalContext = registratorContext.getGlobalState();
+        T dataSetInformation = dataSetDetails.getDataSetInformation();
+        dataSetInformation.setShareId(globalContext.getShareId());
+        IDataStoreStrategy strategy =
+                registratorContext.getDataStrategyStore().getDataStoreStrategy(dataSetInformation,
+                        dataSetFile);
+
         DataSetStorageAlgorithm<T> algorithm =
                 new DataSetStorageAlgorithm<T>(dataSetFile, dataSetDetails, strategy,
                         registratorContext.getStorageProcessor(),
@@ -242,6 +244,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     {
         final TopLevelDataSetRegistratorGlobalState globalState =
                 registratorContext.getGlobalState();
+        details.getDataSetInformation().setShareId(globalState.getShareId());
         final IDelegatedActionWithResult<Boolean> cleanAfterwardsAction =
                 new IDelegatedActionWithResult<Boolean>()
                     {
@@ -257,15 +260,15 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
 
         DataSetRegistrationAlgorithmState state =
                 new DataSetRegistrationAlgorithmState(incomingDataSetFile,
-                        globalState.getOpenBisService(), cleanAfterwardsAction,
-                        registratorContext.getPreRegistrationAction(),
+                        globalState.getOpenBisService(),
+                        cleanAfterwardsAction, registratorContext.getPreRegistrationAction(),
                         registratorContext.getPostRegistrationAction(),
-                        details.getDataSetInformation(), dataStoreStrategy, details,
-                        registratorContext.getStorageProcessor(),
-                        registratorContext.getFileOperations(), globalState.getDataSetValidator(),
-                        globalState.getMailClient(), globalState.isDeleteUnidentified(),
-                        registratorContext.getRegistrationLock(), globalState.getDssCode(),
-                        globalState.isNotifySuccessfulRegistration());
+                        details.getDataSetInformation(),
+                        dataStoreStrategy, details, registratorContext.getStorageProcessor(),
+                        registratorContext.getFileOperations(),
+                        globalState.getDataSetValidator(), globalState.getMailClient(),
+                        globalState.isDeleteUnidentified(), registratorContext.getRegistrationLock(),
+                        globalState.getDssCode(), globalState.isNotifySuccessfulRegistration());
         return new DataSetRegistrationAlgorithm(state, this,
                 new DefaultApplicationServerRegistrator(registrator,
                         details.getDataSetInformation()));

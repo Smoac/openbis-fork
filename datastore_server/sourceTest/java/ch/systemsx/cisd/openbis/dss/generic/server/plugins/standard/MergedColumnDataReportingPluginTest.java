@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
  */
 public class MergedColumnDataReportingPluginTest extends AssertJUnit
 {
+    private static final String SHARE_ID = "42";
 
     private final static File dir =
             new File("targets/unit-test-wd/MergedColumnDataReportingPluginTest");
@@ -48,9 +49,10 @@ public class MergedColumnDataReportingPluginTest extends AssertJUnit
     @Test
     public void testMerge()
     {
-        final File dirA = new File(dir, "a");
-        final File dirB = new File(dir, "b");
-        final File dirC = new File(dir, "c");
+        File share = new File(dir, SHARE_ID);
+        final File dirA = new File(share, "a");
+        final File dirB = new File(share, "b");
+        final File dirC = new File(share, "c");
         dirA.mkdirs();
         dirB.mkdirs();
         dirC.mkdirs();
@@ -97,6 +99,7 @@ public class MergedColumnDataReportingPluginTest extends AssertJUnit
     {
         DatasetDescription description = new DatasetDescription();
         description.setDataSetLocation(location);
+        description.setDataSetShareId(SHARE_ID);
         return description;
     }
 

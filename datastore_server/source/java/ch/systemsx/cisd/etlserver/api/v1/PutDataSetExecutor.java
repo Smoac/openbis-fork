@@ -497,8 +497,8 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
         public RegistrationHelper(PutDataSetService service, IETLServerPlugin plugin,
                 File incomingDataSetFile)
         {
-            super(incomingDataSetFile, new CleanAfterwardsAction(), new PreRegistrationAction(),
-                    new PostRegistrationAction());
+            super(incomingDataSetFile, service.getShareId(), new CleanAfterwardsAction(),
+                    new PreRegistrationAction(), new PostRegistrationAction());
         }
 
         @Override

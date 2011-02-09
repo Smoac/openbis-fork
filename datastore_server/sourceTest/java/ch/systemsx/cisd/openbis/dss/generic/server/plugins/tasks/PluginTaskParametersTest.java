@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
     { PluginTaskProviders.class, AbstractPluginTaskFactory.class })
 public class PluginTaskParametersTest extends AbstractFileSystemTestCase
 {
+    private static final String SHARE_ID = "42";
     private static final File STORE_ROOT = new File(".");
 
     @Test
@@ -143,6 +144,7 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
         DatasetDescription description = new DatasetDescription();
         description.setDatasetCode(".");
         description.setDataSetLocation("3123123123-123");
+        description.setDataSetShareId(SHARE_ID);
         description.setSampleCode("sampleCode");
         description.setSpaceCode("groupCode");
         description.setProjectCode("projCode");

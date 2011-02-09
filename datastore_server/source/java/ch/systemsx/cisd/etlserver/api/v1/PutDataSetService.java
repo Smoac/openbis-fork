@@ -27,6 +27,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
@@ -37,10 +38,12 @@ import ch.systemsx.cisd.etlserver.Parameters;
 import ch.systemsx.cisd.etlserver.ThreadParameters;
 import ch.systemsx.cisd.etlserver.validation.DataSetValidator;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
+import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 
 /**
@@ -76,6 +79,8 @@ public class PutDataSetService
     private IDataSetValidator dataSetValidator;
 
     private DatabaseInstance homeDatabaseInstance;
+
+    private String shareId;
 
     /**
      * The designated constructor.
@@ -123,9 +128,10 @@ public class PutDataSetService
         homeDatabaseInstance = openBisService.getHomeDatabaseInstance();
 
         dataSetValidator = validator;
+        
+        shareId = Constants.DEFAULT_SHARE_ID;
 
         isInitialized = true;
-
     }
 
     public String putDataSet(String sessionToken, NewDataSetDTO newDataSet, InputStream inputStream)
@@ -196,6 +202,18 @@ public class PutDataSetService
 
         dataSetValidator = initializer.getDataSetValidator();
 
+        File[] shares = SegmentedStoreUtils.getImcomingShares(storeDirectory);
+        if (shares.length == 0)
+        {
+            if (new File(storeDirectory, Constants.DEFAULT_SHARE_ID).mkdirs() == false)
+            {
+                throw new ConfigurationFailureException("Can not create default share in store: "
+                        + storeDirectory);
+            }
+        }
+        shareId = SegmentedStoreUtils.findIncomingShare(incomingDir, storeDirectory);
+        operationLog.info("Data sets registered via RPC are stored in share " + shareId + ".");
+        
         isInitialized = true;
     }
 
@@ -207,6 +225,11 @@ public class PutDataSetService
     IMailClient getMailClient()
     {
         return mailClient;
+    }
+    
+    String getShareId()
+    {
+        return shareId;
     }
 
     File getIncomingDir()
