@@ -46,7 +46,7 @@ public final class HCSImageCheckList
     {
         if (channelCodes.size() < 1)
         {
-            throw new IllegalArgumentException("Number of channels smaller than one.");
+            throw new IllegalArgumentException("No channels defined!");
         }
         if (plateGeometry == null)
         {
