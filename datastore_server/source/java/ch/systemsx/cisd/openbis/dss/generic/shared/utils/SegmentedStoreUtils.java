@@ -107,7 +107,7 @@ public class SegmentedStoreUtils
             }
         }
         throw new ConfigurationFailureException(
-                "Now share could be found for the following incomin folder: "
+                "Now share could be found for the following incoming folder: "
                         + testFile.getParentFile().getAbsolutePath());
     }
     
