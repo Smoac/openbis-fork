@@ -14,18 +14,18 @@
 		<antcall target="_dist"><param name="project" value="rtd_cina"/></antcall>
 		<antcall target="_dist"><param name="project" value="plasmid"/></antcall>
 	</target>
-	
+
 	<target name="_dist">
-                <exec executable="ant" failonerror="true">
-                        <arg value="-lib"/>
-                        <arg value="../build_resources/lib/ecj.jar"/>
-                        <arg value="-f"/>
-                        <arg value="../${project}/build/build.xml"/>
-                        <arg value="dist"/>
-                </exec>
-                <copy todir="${result.dir}">
-                        <fileset dir="../${project}/${dist}"/>
-                </copy>
+		<exec executable="ant" failonerror="true">
+			<arg value="-lib" />
+			<arg value="../build_resources/lib/ecj.jar" />
+			<arg value="-f" />
+			<arg value="../${project}/build/build.xml" />
+			<arg value="dist" />
+		</exec>
+		<copy todir="${result.dir}">
+			<fileset dir="../${project}/${dist}" />
+		</copy>
 	</target>
 
 	<target name="clean">
@@ -43,12 +43,37 @@
 
 	<target name="_clean">
 		<exec executable="ant" failonerror="true">
-			<arg value="-lib"/>
-			<arg value="../build_resources/lib/ecj.jar"/>
-			<arg value="-f"/>
-			<arg value="../${project}/build/build.xml"/>
-			<arg value="clean"/>
+			<arg value="-lib" />
+			<arg value="../build_resources/lib/ecj.jar" />
+			<arg value="-f" />
+			<arg value="../${project}/build/build.xml" />
+			<arg value="clean" />
 		</exec>
+	</target>
+	
+	<target name="javadoc">
+		  <javadoc 
+		      destdir="${result.dir}/javadoc" 
+		  	  author="true" 
+		  	  use="true" 
+		  	  useexternalfile="true"
+		  	  source="1.6"
+		  	  maxmemory="128M" verbose="true">
+		  	
+		    <fileset dir="../">
+		      <include name="*/source/java/ch/systemsx/cisd/**/api/**/*.java"/>
+		    </fileset>
+		  	
+		    <classpath>
+		      <fileset dir="../libraries">
+		        <include name="**/*.jar"/>
+		      </fileset>
+		      <dirset dir="..">
+		        <include name="*/targets/ant/classes"/>
+		      </dirset>
+		    </classpath>
+		  	
+		  </javadoc>
 	</target>
 
 </project>
