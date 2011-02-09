@@ -54,7 +54,7 @@ public class LogMatcher
                 }
                 if (false == actualLine.matches(expectedLine))
                 {
-                    throw new AssertionError(format("Line " + lineNumber, expectedLine, actualLine));
+                    throw new AssertionError(format(lineNumber, expectedLine, actualLine));
                 }
                 ++lineNumber;
             }
@@ -64,14 +64,9 @@ public class LogMatcher
         }
     }
 
-    private String format(String message, Object expected, Object actual)
+    private String format(int lineNumber, Object expected, Object actual)
     {
-        String formatted = "";
-        if (message != null)
-        {
-            formatted = message + " ";
-        }
-
-        return formatted + "expected:<" + expected + "> but was:<" + actual + ">";
+        return "Line " + lineNumber + " expected:<" + expected + "> but was:<" + actual + ">\n["
+                + logRecorder.getLogContent() + "]";
     }
 }
