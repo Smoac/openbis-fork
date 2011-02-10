@@ -113,17 +113,41 @@ public class FeatureVectorLoader
     }
 
     /**
-     * fetches all features of all wells in the specified dataset
+     * fetches all feature names of specified dataset
+     * 
+     * @throws UserFailureException if the specified dataset does not exist.
+     */
+    public static List<CodeAndLabel> fetchDatasetFeatureNames(String dataSetCode,
+            IImagingReadonlyQueryDAO dao)
+    {
+        final ImgDatasetDTO dataSet = dao.tryGetDatasetByPermId(dataSetCode);
+        if (dataSet == null)
+        {
+            throw new UserFailureException("Unkown data set " + dataSetCode);
+        }
+
+        final List<ImgFeatureDefDTO> featureDefs = dao.listFeatureDefsByDataSetId(dataSet.getId());
+        final List<CodeAndLabel> result = new ArrayList<CodeAndLabel>();
+        for (ImgFeatureDefDTO featureDef : featureDefs)
+        {
+            result.add(asCodeAndLabel(featureDef));
+        }
+
+        return result;
+    }
+
+    /**
+     * fetches specified features of all wells in the specified dataset
      * 
      * @throws UserFailureException if the specified dataset contains no feature vectors or does not
      *             exist.
      */
     public static WellFeatureCollection<FeatureVectorValues> fetchDatasetFeatures(
-            String datasetCode, IImagingReadonlyQueryDAO dao)
+            String datasetCode, List<CodeAndLabel> featureNames, IImagingReadonlyQueryDAO dao)
     {
-        List<String> allFeatures = new ArrayList<String>();
+        List<String> featureCodes = CodeAndLabel.asCodes(featureNames);
         WellFeatureCollection<FeatureTableRow> features =
-                fetchDatasetFeatures(Arrays.asList(datasetCode), allFeatures, dao, null);
+                fetchDatasetFeatures(Arrays.asList(datasetCode), featureCodes, dao, null);
         return asFeatureVectorValues(features);
     }
 
@@ -140,7 +164,6 @@ public class FeatureVectorLoader
                 featureRowsCollection.getFeatureCodesAndLabels());
     }
 
-    // TODO PTR use filtering by codes
     /**
      * fetches specified features of all wells
      * 
@@ -326,7 +349,7 @@ public class FeatureVectorLoader
             final ImgFeatureDefDTO featureDefinition = featureCodeToDefMap.get(featureCode);
             if (featureDefinition != null)
             {
-                CodeAndLabel codeAndLabel = getCodeAndLabel(featureDefinition);
+                CodeAndLabel codeAndLabel = asCodeAndLabel(featureDefinition);
                 if (featureCodeLabelToIndexMap.containsKey(codeAndLabel) == false)
                 {
                     featureCodeLabelToIndexMap.put(codeAndLabel, new Integer(
@@ -538,7 +561,7 @@ public class FeatureVectorLoader
             {
                 break;
             }
-            Integer index = featureCodeLabelToIndexMap.get(getCodeAndLabel(featureDefinition));
+            Integer index = featureCodeLabelToIndexMap.get(asCodeAndLabel(featureDefinition));
             assert index != null : "No index for feature " + featureDefinition.getCode();
             float floatValue =
                     featureValues.getForWellLocation(wellLocation.getRow(),
@@ -597,7 +620,7 @@ public class FeatureVectorLoader
         }
     }
 
-    private CodeAndLabel getCodeAndLabel(final ImgFeatureDefDTO featureDefinition)
+    private static CodeAndLabel asCodeAndLabel(final ImgFeatureDefDTO featureDefinition)
     {
         return new CodeAndLabel(featureDefinition.getCode(), featureDefinition.getLabel());
     }

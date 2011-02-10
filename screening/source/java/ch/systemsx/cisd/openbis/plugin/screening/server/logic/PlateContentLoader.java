@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -69,6 +70,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IImageDatasetLoa
  */
 public class PlateContentLoader
 {
+    // max number of initially loaded features
+    @SuppressWarnings("unused")
+    private static int MAX_FEATURES = 7;
+
     /**
      * Loads data about the plate for a specified sample id. Attaches information about images and
      * image analysis datasets.
@@ -274,14 +279,28 @@ public class PlateContentLoader
             IHCSFeatureVectorLoader loader =
                     businessObjectFactory.createHCSFeatureVectorLoader(datasetReference
                             .getDatastoreCode());
-            WellFeatureCollection<FeatureVectorValues> featureValues =
-                    loader.fetchDatasetFeatureValues(datasetReference.getCode());
-            FeatureVectorDataset featureVectorDataset =
-                    new FeatureVectorDataset(datasetReference, featureValues.getFeatures(),
-                            featureValues.getFeatureLabels());
+            FeatureVectorDataset featureVectorDataset = loadFeatureVector(datasetReference, loader);
             featureVectorDatasets.add(featureVectorDataset);
         }
         return featureVectorDatasets;
+    }
+
+    private FeatureVectorDataset loadFeatureVector(DatasetReference datasetReference,
+            IHCSFeatureVectorLoader loader)
+    {
+
+        List<CodeAndLabel> featureNames =
+                loader.fetchDatasetFeatureNames(datasetReference.getCode());
+        // TODO PTR limit names
+        WellFeatureCollection<FeatureVectorValues> featureValues =
+                loader.fetchDatasetFeatureValues(datasetReference.getCode(), featureNames);
+
+        List<FeatureVectorValues> featureVectors = featureValues.getFeatures();
+        List<String> featureLabels = CodeAndLabel.asLabels(featureNames);
+
+        FeatureVectorDataset featureVectorDataset =
+                new FeatureVectorDataset(datasetReference, featureVectors, featureLabels);
+        return featureVectorDataset;
     }
 
     private List<DatasetReference> createDatasetReferences(List<ExternalDataPE> datasets)

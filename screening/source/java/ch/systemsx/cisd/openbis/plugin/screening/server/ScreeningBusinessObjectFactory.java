@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
+import ch.systemsx.cisd.openbis.generic.shared.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.AbstractPluginBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningDAOFactory;
@@ -39,8 +40,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellFeatureVec
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.WellFeatureCollection;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.HCSDatasetLoader;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IImageDatasetLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSFeatureVectorLoader;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IImageDatasetLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 
 /**
@@ -78,9 +79,14 @@ public final class ScreeningBusinessObjectFactory extends AbstractPluginBusiness
                 }
 
                 public WellFeatureCollection<FeatureVectorValues> fetchDatasetFeatureValues(
-                        String dataSetCode)
+                        String dataSetCode, List<CodeAndLabel> featureNames)
                 {
-                    return FeatureVectorLoader.fetchDatasetFeatures(dataSetCode, dao);
+                    return FeatureVectorLoader.fetchDatasetFeatures(dataSetCode, featureNames, dao);
+                }
+
+                public List<CodeAndLabel> fetchDatasetFeatureNames(String dataSetCode)
+                {
+                    return FeatureVectorLoader.fetchDatasetFeatureNames(dataSetCode, dao);
                 }
             };
     }
