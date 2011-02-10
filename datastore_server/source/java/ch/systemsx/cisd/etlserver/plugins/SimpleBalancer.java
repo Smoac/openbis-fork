@@ -1,0 +1,197 @@
+/*
+ * Copyright 2011 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.etlserver.plugins;
+
+import static ch.systemsx.cisd.common.logging.LogLevel.INFO;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Properties;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.time.StopWatch;
+
+import ch.systemsx.cisd.common.logging.ISimpleLogger;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
+
+/**
+ * 
+ *
+ * @author Franz-Josef Elmer
+ */
+public class SimpleBalancer implements ISegmentedStoreBalancer
+{
+    private static final class ShareState
+    {
+        private final Share share;
+        private long freeSpace;
+
+        ShareState(Share share)
+        {
+            this.share = share;
+            recalculateFreeSpace();
+        }
+        
+        private void recalculateFreeSpace()
+        {
+            freeSpace = share.calculateFreeSpace();
+        }
+
+        long getFreeSpace()
+        {
+            return freeSpace;
+        }
+
+        Share getShare()
+        {
+            return share;
+        }
+
+        void removeDataSet(int dataSetIndex)
+        {
+            share.getDataSetsOrderedBySize().remove(dataSetIndex);
+            recalculateFreeSpace();
+        }
+
+        void addDataSet(SimpleDataSetInformationDTO dataSet)
+        {
+            List<SimpleDataSetInformationDTO> dataSets = share.getDataSetsOrderedBySize();
+            int index = Collections.binarySearch(dataSets, dataSet, Share.DATA_SET_SIZE_COMPARATOR);
+            if (index < 0)
+            {
+                index = -index - 1;
+            }
+            dataSets.add(index, dataSet);
+            recalculateFreeSpace();
+        }
+    }
+    
+    private final long minimumFreeSpace;
+
+    public SimpleBalancer(Properties properties)
+    {
+        minimumFreeSpace =
+                FileUtils.ONE_MB
+                        * PropertyUtils.getLong(properties, "minimum-free-space-in-MB", 1024);
+    }
+    
+    public void balanceStore(List<Share> shares, IEncapsulatedOpenBISService service,
+            ISimpleLogger logger)
+    {
+        List<ShareState> shareStates = getSortedShares(shares);
+        ShareState shareWithMostFree = shareStates.get(shareStates.size() - 1);
+        List<ShareState> fullShares = getFullShares(shareStates);
+        for (ShareState fullShare : fullShares)
+        {
+            List<SimpleDataSetInformationDTO> dataSets =
+                    fullShare.getShare().getDataSetsOrderedBySize();
+            long initalFreeSpaceAboveMinimum = fullShare.getFreeSpace() - minimumFreeSpace;
+            int numberOfDataSetsToMove =
+                    getNumberOfDataSetsToMove(dataSets, initalFreeSpaceAboveMinimum);
+            if (numberOfDataSetsToMove < 0)
+            {
+                throw new IllegalStateException("Share " + fullShare.getShare().getShareId()
+                        + " has not enough free space even if it is empty.");
+            }
+            for (int i = 0; i < numberOfDataSetsToMove; i++)
+            {
+                long dataSetSize = dataSets.get(i).getDataSetSize();
+                if (shareWithMostFree.getFreeSpace() - dataSetSize > minimumFreeSpace)
+                {
+                    copy(fullShare, 0, shareWithMostFree, service, logger);
+                }
+            }
+        }
+    }
+
+    private int getNumberOfDataSetsToMove(List<SimpleDataSetInformationDTO> dataSets,
+            long initalFreeSpaceAboveMinimum)
+    {
+        long freeSpaceAboveMinimum = initalFreeSpaceAboveMinimum;
+        for (int i = 0; i < dataSets.size(); i++)
+        {
+            if (freeSpaceAboveMinimum > 0)
+            {
+                return i;
+            }
+            freeSpaceAboveMinimum += dataSets.get(i).getDataSetSize();
+        }
+        return -1;
+    }
+
+    private void copy(ShareState from, int dataSetIndex, ShareState to,
+            IEncapsulatedOpenBISService service, ISimpleLogger logger)
+    {
+        Share fromShare = from.getShare();
+        Share toShare = to.getShare();
+        SimpleDataSetInformationDTO dataSet =
+                fromShare.getDataSetsOrderedBySize().get(dataSetIndex);
+        File dataSetDirInStore = new File(fromShare.getShare(), dataSet.getDataSetLocation());
+        String commonMessage =
+                "data set " + dataSet.getDataSetCode() + " from share " + fromShare.getShareId()
+                        + " to share " + toShare.getShareId();
+        logger.log(INFO, "Move " + commonMessage + " ...");
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+        SegmentedStoreUtils.moveDataSetToAnotherShare(dataSetDirInStore, toShare.getShare(),
+                service);
+        from.removeDataSet(dataSetIndex);
+        to.addDataSet(dataSet);
+        stopWatch.stop();
+        logger.log(INFO, "Moving " + commonMessage + " took " + stopWatch.toString());
+    }
+
+    private List<ShareState> getFullShares(List<ShareState> shareStates)
+    {
+        List<ShareState> fullShares = new ArrayList<ShareState>();
+        for (ShareState shareState : shareStates)
+        {
+            if (shareState.getFreeSpace() < minimumFreeSpace)
+            {
+                fullShares.add(shareState);
+            }
+        }
+        return fullShares;
+    }
+
+    private List<ShareState> getSortedShares(List<Share> shares)
+    {
+        List<ShareState> shareStates = new ArrayList<ShareState>();
+        for (Share share : shares)
+        {
+            shareStates.add(new ShareState(share));
+        }
+        Collections.sort(shareStates, new Comparator<ShareState>()
+            {
+                public int compare(ShareState o1, ShareState o2)
+                {
+                    long s1 = o1.getFreeSpace();
+                    long s2 = o2.getFreeSpace();
+                    return s1 < s2 ? -1 : (s1 > s2 ? 1 : 0);
+                }
+            });
+        return shareStates;
+    }
+
+}

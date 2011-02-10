@@ -36,6 +36,18 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
  */
 public final class Share
 {
+    public static final Comparator<SimpleDataSetInformationDTO> DATA_SET_SIZE_COMPARATOR =
+            new Comparator<SimpleDataSetInformationDTO>()
+                {
+                    public int compare(SimpleDataSetInformationDTO o1,
+                            SimpleDataSetInformationDTO o2)
+                    {
+                        long size1 = o1.getDataSetSize();
+                        long size2 = o2.getDataSetSize();
+                        return size1 < size2 ? 1 : (size1 > size2 ? -1 : 0);
+                    }
+                };
+
     private final File share;
 
     private final IFreeSpaceProvider freeSpaceProvider;
@@ -95,16 +107,7 @@ public final class Share
      */
     public List<SimpleDataSetInformationDTO> getDataSetsOrderedBySize()
     {
-        Collections.sort(dataSets, new Comparator<SimpleDataSetInformationDTO>()
-            {
-                public int compare(SimpleDataSetInformationDTO o1,
-                        SimpleDataSetInformationDTO o2)
-                {
-                    long size1 = o1.getDataSetSize();
-                    long size2 = o2.getDataSetSize();
-                    return size1 < size2 ? 1 : (size1 > size2 ? -1 : 0);
-                }
-            });
+        Collections.sort(dataSets, DATA_SET_SIZE_COMPARATOR);
         return dataSets;
     }
     

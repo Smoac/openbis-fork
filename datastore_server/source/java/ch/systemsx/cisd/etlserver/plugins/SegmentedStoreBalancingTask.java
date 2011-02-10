@@ -122,10 +122,12 @@ public class SegmentedStoreBalancingTask implements IMaintenanceTask
 
     public void execute()
     {
+        operationLog.info("Starting segmented store balancing.");
         List<Share> shares =
                 SegmentedStoreUtils.getDataSetsPerShare(storeRoot, dataStoreCode,
                         freeSpaceProvider, service, operationLogger);
         balancer.balanceStore(shares, service, operationLogger);
+        operationLog.info("Segmented store balancing finished.");
     }
 
 }
