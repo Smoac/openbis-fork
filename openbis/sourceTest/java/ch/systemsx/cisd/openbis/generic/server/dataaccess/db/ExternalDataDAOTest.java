@@ -155,7 +155,18 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
     }
 
     @Test
-    public void testUpdateDataSetAquiredFromSample()
+    public void testUpdateDataSetAquiredFromSampleWithoutDataSetSize()
+    {
+        checkUpdate(null);
+    }
+
+    @Test
+    public void testUpdateDataSetAquiredFromSampleWithDataSetSize()
+    {
+        checkUpdate(4711L);
+    }
+    
+    private void checkUpdate(Long size)
     {
         IExternalDataDAO externalDataDAO = daoFactory.getExternalDataDAO();
         DataPE data = new DataPE();
@@ -180,7 +191,7 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         externalData.setLocatorType(pickALocatorType());
         externalData.setLocation("abcd");
         externalData.setShareId("share-42");
-        externalData.setSize(4711L);
+        externalData.setSize(size);
         externalData.setComplete(BooleanOrUnknown.U);
         externalData.setStorageFormatVocabularyTerm(pickAStorageFormatVocabularyTerm());
         externalData.setPlaceholder(true);

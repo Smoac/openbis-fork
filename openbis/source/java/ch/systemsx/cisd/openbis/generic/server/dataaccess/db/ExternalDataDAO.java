@@ -363,12 +363,23 @@ final class ExternalDataDAO extends AbstractGenericEntityWithPropertiesDAO<Exter
             Long fileFormatTypeID = externalData.getFileFormatType().getId();
             char complete = externalData.getComplete().name().charAt(0);
             Long storageFormatTermID = externalData.getStorageFormatVocabularyTerm().getId();
-            executeUpdate(
-                    "insert into "
-                            + TableNames.EXTERNAL_DATA_TABLE
-                            + " (data_id, share_id, location, size, loty_id, ffty_id, is_complete, cvte_id_stor_fmt) "
-                            + "values (?, ?, ?, ?, ?, ?, ?, ?)", id, shareId, location, size,
-                    locatorTypeID, fileFormatTypeID, complete, storageFormatTermID);
+            if (size == null)
+            {
+                executeUpdate(
+                        "insert into "
+                                + TableNames.EXTERNAL_DATA_TABLE
+                                + " (data_id, share_id, location, loty_id, ffty_id, is_complete, cvte_id_stor_fmt) "
+                                + "values (?, ?, ?, ?, ?, ?, ?)", id, shareId, location,
+                        locatorTypeID, fileFormatTypeID, complete, storageFormatTermID);
+            } else
+            {
+                executeUpdate(
+                        "insert into "
+                                + TableNames.EXTERNAL_DATA_TABLE
+                                + " (data_id, share_id, location, size, loty_id, ffty_id, is_complete, cvte_id_stor_fmt) "
+                                + "values (?, ?, ?, ?, ?, ?, ?, ?)", id, shareId, location, size,
+                        locatorTypeID, fileFormatTypeID, complete, storageFormatTermID);
+            }
             hibernateTemplate.evict(loaded);
         }
         hibernateTemplate.update(externalData);
