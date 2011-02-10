@@ -37,7 +37,9 @@ public class ThumbnailsStorageFormat
 
     private boolean storeCompressed = DEFAULT_COMPRESS_THUMBNAILS;
 
-    private int allowedMachineLoadDuringGeneration = 1;
+    private double allowedMachineLoadDuringGeneration = 1;
+
+    private boolean highQuality = false;
 
     /**
      * Creates empty object which instructs that the thumbnails should be generated with default
@@ -62,10 +64,17 @@ public class ThumbnailsStorageFormat
         return storeCompressed;
     }
 
-    public int getAllowedMachineLoadDuringGeneration()
+    public double getAllowedMachineLoadDuringGeneration()
     {
         return allowedMachineLoadDuringGeneration;
     }
+
+    public boolean isHighQuality()
+    {
+        return highQuality;
+    }
+
+    // --- setters ---
 
     /** Sets the maximum width of a thumbnail. */
     public void setMaxWidth(int maxWidth)
@@ -89,8 +98,17 @@ public class ThumbnailsStorageFormat
      * The number of threads which will be used during thumbnails generation will be equal to number
      * of processor cores * machineLoad.
      */
-    public void setAllowedMachineLoadDuringGeneration(int machineLoad)
+    public void setAllowedMachineLoadDuringGeneration(double machineLoad)
     {
         this.allowedMachineLoadDuringGeneration = machineLoad;
+    }
+
+    /**
+     * Set to true if you want your thumbnails to be of higher quality. In such a case thumbnails
+     * generation during dataset registration will take longer. Recommended for overlay images.
+     */
+    public void setHighQuality(boolean highQuality)
+    {
+        this.highQuality = highQuality;
     }
 }

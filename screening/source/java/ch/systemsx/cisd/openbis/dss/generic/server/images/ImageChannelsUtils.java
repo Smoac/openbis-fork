@@ -143,9 +143,9 @@ public class ImageChannelsUtils
         return calculateSingleImages(imageContents);
     }
 
-    private static RequestedImageSize getSize(BufferedImage img)
+    private static RequestedImageSize getSize(BufferedImage img, boolean highQuality)
     {
-        return new RequestedImageSize(new Size(img.getWidth(), img.getHeight()), true);
+        return new RequestedImageSize(new Size(img.getWidth(), img.getHeight()), true, highQuality);
     }
 
     private static RequestedImageSize calcOverlaySize(BufferedImage imageOrNull,
@@ -155,15 +155,19 @@ public class ImageChannelsUtils
         {
             // thumbnais are not used, so use the original size even if it does not match
             return RequestedImageSize.createOriginal();
-        }
-        if (imageOrNull != null)
-        {
-            // all overlays have to be of the same size as the basic image
-            return getSize(imageOrNull);
         } else
         {
-            // if there is no basic image yet, enlarging too small images is not necessary
-            return new RequestedImageSize(thumbnailSizeOrNull, false);
+            // we want higher quality only if thumbnail overlays are generated
+            boolean highQuality = true;
+            if (imageOrNull != null)
+            {
+                // all overlays have to be of the same size as the basic image
+                return getSize(imageOrNull, highQuality);
+            } else
+            {
+                // if there is no basic image yet, enlarging too small images is not necessary
+                return new RequestedImageSize(thumbnailSizeOrNull, false, highQuality);
+            }
         }
     }
 
@@ -444,7 +448,7 @@ public class ImageChannelsUtils
             start = operationLog.isDebugEnabled() ? System.currentTimeMillis() : 0;
             image =
                     ImageUtil.rescale(image, size.getWidth(), size.getHeight(),
-                            requestedSize.enlargeIfNecessary());
+                            requestedSize.enlargeIfNecessary(), requestedSize.isHighQualityRescalingRequired());
             if (operationLog.isDebugEnabled())
             {
                 operationLog.debug("Create thumbnail: " + (System.currentTimeMillis() - start));

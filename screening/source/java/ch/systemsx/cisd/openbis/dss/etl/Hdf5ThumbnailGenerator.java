@@ -31,6 +31,7 @@ import ch.systemsx.cisd.common.concurrent.ParallelizedExecutor;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.etlserver.hdf5.Hdf5Container.IHdf5WriterClient;
 import ch.systemsx.cisd.hdf5.IHDF5SimpleWriter;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ThumbnailsStorageFormat;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 
 /**
@@ -44,41 +45,39 @@ class Hdf5ThumbnailGenerator implements IHdf5WriterClient
 
     private final File imagesInStoreFolder;
 
-    private final int thumbnailMaxWidth;
-
-    private final int thumbnailMaxHeight;
+    private final ThumbnailsStorageFormat thumbnailsStorageFormat;
 
     private final String relativeThumbnailFilePath;
-
-    private final int allowedMachineLoadDuringGeneration;
 
     private final Logger operationLog;
 
     Hdf5ThumbnailGenerator(List<AcquiredSingleImage> plateImages, File imagesInStoreFolder,
-            int thumbnailMaxWidth, int thumbnailMaxHeight, String relativeThumbnailFilePath,
-            int allowedMachineLoadDuringGeneration, Logger operationLog)
+            ThumbnailsStorageFormat thumbnailsStorageFormat, String relativeThumbnailFilePath,
+            Logger operationLog)
     {
         this.plateImages = plateImages;
         this.imagesInStoreFolder = imagesInStoreFolder;
-        this.thumbnailMaxWidth = thumbnailMaxWidth;
-        this.thumbnailMaxHeight = thumbnailMaxHeight;
+        this.thumbnailsStorageFormat = thumbnailsStorageFormat;
         this.relativeThumbnailFilePath = relativeThumbnailFilePath;
-        this.allowedMachineLoadDuringGeneration = allowedMachineLoadDuringGeneration;
         this.operationLog = operationLog;
     }
 
     private Status generateThumbnail(IHDF5SimpleWriter writer, AcquiredSingleImage plateImage)
     {
+        long start = System.currentTimeMillis();
         RelativeImageReference imageReference = plateImage.getImageReference();
         String imagePath = imageReference.getRelativeImagePath();
         File img = new File(imagesInStoreFolder, imagePath);
         BufferedImage image = ImageUtil.loadImage(img);
         BufferedImage thumbnail =
-                ImageUtil.rescale(image, thumbnailMaxWidth, thumbnailMaxHeight, false);
+                ImageUtil.rescale(image, thumbnailsStorageFormat.getMaxWidth(),
+                        thumbnailsStorageFormat.getMaxHeight(), false,
+                        thumbnailsStorageFormat.isHighQuality());
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         try
         {
             ImageIO.write(thumbnail, "png", output);
+
             String thumbnailPath = replaceExtensionToPng(imagePath);
 
             String path =
@@ -88,10 +87,16 @@ class Hdf5ThumbnailGenerator implements IHdf5WriterClient
             byte[] byteArray = output.toByteArray();
             if (operationLog.isDebugEnabled())
             {
-                operationLog.debug("thumbnail " + thumbnailPath + " (" + byteArray.length
-                        + " bytes)");
+                long now = System.currentTimeMillis();
+                operationLog.debug(Thread.currentThread().getName() + " thumbnail " + thumbnailPath
+                        + " (" + byteArray.length + " bytes) generated in " + (now - start)
+                        + " msec");
             }
-            writer.writeByteArray(thumbnailPath, byteArray);
+
+            synchronized (writer)
+            {
+                writer.writeByteArray(thumbnailPath, byteArray);
+            }
         } catch (IOException ex)
         {
             return Status.createError(ex.getMessage());
@@ -126,6 +131,7 @@ class Hdf5ThumbnailGenerator implements IHdf5WriterClient
     public void runWithSimpleWriter(IHDF5SimpleWriter writer)
     {
         ParallelizedExecutor.process(plateImages, createThumbnailGenerator(writer),
-                allowedMachineLoadDuringGeneration, 100, 1);
+                thumbnailsStorageFormat.getAllowedMachineLoadDuringGeneration(), 100,
+                "Thumbnails generation", 1);
     }
 }

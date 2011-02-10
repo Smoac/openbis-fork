@@ -265,7 +265,7 @@ public class ImageUtil
      */
     public static BufferedImage createThumbnail(BufferedImage image, int maxWidth, int maxHeight)
     {
-        return rescale(image, maxWidth, maxHeight, true);
+        return rescale(image, maxWidth, maxHeight, true, false);
     }
 
     /**
@@ -277,9 +277,11 @@ public class ImageUtil
      * @param maxHeight Maximum height of the result image.
      * @param enlargeIfNecessary if false and the image has smaller width and height than the
      *            specified limit, then the image is not changed.
+     * @param highQuality if true thumbnails will be of higher quality, but rescaling will take
+     *            longer (BICUBIC rescaling will be used instead of BILINEAR).
      */
     public static BufferedImage rescale(BufferedImage image, int maxWidth, int maxHeight,
-            boolean enlargeIfNecessary)
+            boolean enlargeIfNecessary, boolean highQuality)
     {
         int width = image.getWidth();
         int height = image.getHeight();
@@ -306,8 +308,10 @@ public class ImageUtil
                         : BufferedImage.TYPE_INT_RGB;
         BufferedImage thumbnail = new BufferedImage(thumbnailWidth, thumbnailHeight, imageType);
         Graphics2D graphics2D = thumbnail.createGraphics();
-        graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        Object renderingHint =
+                highQuality ? RenderingHints.VALUE_INTERPOLATION_BICUBIC
+                        : RenderingHints.VALUE_INTERPOLATION_BILINEAR;
+        graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, renderingHint);
         graphics2D.drawImage(image, 0, 0, thumbnailWidth, thumbnailHeight, null);
         return thumbnail;
     }

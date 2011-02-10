@@ -36,10 +36,19 @@ public class RequestedImageSize extends AbstractHashable
 
     private final boolean enlargeIfNecessary;
 
+    private final boolean highQualityRescalingRequired;
+
     public RequestedImageSize(Size thumbnailSizeOrNull, boolean enlargeIfNecessary)
+    {
+        this(thumbnailSizeOrNull, enlargeIfNecessary, false);
+    }
+
+    public RequestedImageSize(Size thumbnailSizeOrNull, boolean enlargeIfNecessary,
+            boolean highQualityRescalingRequired)
     {
         this.thumbnailSizeOrNull = thumbnailSizeOrNull;
         this.enlargeIfNecessary = enlargeIfNecessary;
+        this.highQualityRescalingRequired = highQualityRescalingRequired;
     }
 
     /** original size if null */
@@ -56,6 +65,11 @@ public class RequestedImageSize extends AbstractHashable
     public boolean enlargeIfNecessary()
     {
         return enlargeIfNecessary;
+    }
+
+    public boolean isHighQualityRescalingRequired()
+    {
+        return highQualityRescalingRequired;
     }
 
     @Override

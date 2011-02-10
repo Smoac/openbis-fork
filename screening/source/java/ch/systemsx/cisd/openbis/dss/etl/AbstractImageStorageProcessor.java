@@ -412,13 +412,11 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
         if (thumbnailsStorageFormatOrNull != null)
         {
             Hdf5Container container = new Hdf5Container(thumbnailsFile);
-            container.runWriterClient(
-                    thumbnailsStorageFormatOrNull.isStoreCompressed(),
-                    new Hdf5ThumbnailGenerator(plateImages, imagesInStoreFolder,
-                            thumbnailsStorageFormatOrNull.getMaxWidth(),
-                            thumbnailsStorageFormatOrNull.getMaxHeight(),
-                            relativeThumbnailFilePath, thumbnailsStorageFormatOrNull
-                                    .getAllowedMachineLoadDuringGeneration(), operationLog));
+            container
+                    .runWriterClient(thumbnailsStorageFormatOrNull.isStoreCompressed(),
+                            new Hdf5ThumbnailGenerator(plateImages, imagesInStoreFolder,
+                                    thumbnailsStorageFormatOrNull, relativeThumbnailFilePath,
+                                    operationLog));
         }
     }
 
@@ -625,7 +623,8 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
     {
         checkParameters(incomingDataSetDirectory, storedDataDirectory);
 
-        final File originalDataFile = tryGetProprietaryData(storedDataDirectory);
+        final File originalDataFile =
+                tryGetProprietaryData(storedDataDirectory);
         if (originalDataFile == null)
         {
             // nothing has been stored in the file system yet,
@@ -639,9 +638,10 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
             moveFileToDirectory(originalDataFile, incomingDirectory);
             if (operationLog.isInfoEnabled())
             {
-                operationLog.info(String.format(
-                        "Directory '%s' has moved to incoming directory '%s'.", originalDataFile,
-                        incomingDirectory.getAbsolutePath()));
+                operationLog
+                        .info(String
+                                .format("Storage operation rollback: directory '%s' has moved to incoming directory '%s'.",
+                                        originalDataFile, incomingDirectory.getAbsolutePath()));
             }
         } catch (final EnvironmentFailureException ex)
         {
