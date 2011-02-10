@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization;
+package ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.internal;
 
 import java.util.Set;
 
@@ -26,6 +26,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellRefe
 
 /**
  * A validator for a list of {@link PlateWellReferenceWithDatasets} objects.
+ * <p>
+ * <i>This is an internal class. Do not use it as a user of the API.</i>
  * 
  * @author Bernd Rinn
  */

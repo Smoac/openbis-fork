@@ -21,12 +21,11 @@ import java.io.InputStream;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.IDssServiceRpcGenericInternal;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal.IDssServiceRpcGenericInternal;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataSetFileDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * 
@@ -96,18 +95,6 @@ public class DssServiceRpcGenericLogger extends AbstractServerLogger implements
         return null;
     }
 
-    public boolean isDatasetAccessible(String sessionToken, String dataSetCode)
-    {
-        // server already logs
-        return false;
-    }
-
-    public boolean isSpaceWriteable(String sessionToken, SpaceIdentifier spaceId)
-    {
-        // server already logs
-        return false;
-    }
-    
     public void setStoreDirectory(File aFile)
     {
     }

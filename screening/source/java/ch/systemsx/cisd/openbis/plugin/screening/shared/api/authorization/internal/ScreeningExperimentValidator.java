@@ -1,4 +1,4 @@
-package ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization;
+package ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.internal;
 
 import java.util.Set;
 
@@ -11,6 +11,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIde
 /**
  * Filters the experiments for spaces to which the user has permissions. This code works only in the
  * case of one database instance.
+ * <p>
+ * <i>This is an internal class. Do not use it as a user of the API.</i>
  * 
  * @author Bernd Rinn
  */

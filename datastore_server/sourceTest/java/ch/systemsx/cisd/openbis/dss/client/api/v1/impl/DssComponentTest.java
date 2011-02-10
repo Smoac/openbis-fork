@@ -32,6 +32,7 @@ import org.springframework.aop.TargetSource;
 import org.springframework.aop.framework.autoproxy.AbstractAutoProxyCreator;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.beans.factory.support.StaticListableBeanFactory;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -42,14 +43,19 @@ import ch.systemsx.cisd.common.api.IRpcService;
 import ch.systemsx.cisd.common.api.IRpcServiceFactory;
 import ch.systemsx.cisd.common.api.RpcServiceInterfaceDTO;
 import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDssServiceRpc;
+import ch.systemsx.cisd.openbis.dss.generic.server.DatasetSessionAuthorizer;
 import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor;
 import ch.systemsx.cisd.openbis.dss.generic.server.api.v1.DssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.IDssServiceRpcGenericInternal;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal.DssSessionAuthorizationHolder;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal.IDssServiceRpcGenericInternal;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataSetFileDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataStoreApiUrlUtilities;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssBuilder;
@@ -73,13 +79,15 @@ public class DssComponentTest extends AbstractFileSystemTestCase
 
     private IGeneralInformationService openBisService;
 
+    private IEncapsulatedOpenBISService etlService;
+
     private IRpcServiceFactory dssServiceFactory;
 
     private DssComponent dssComponent;
 
     private File randomDataFile;
 
-    private static final String DUMMY_SESSSION_TOKEN = "DummySessionToken";
+    private static final String DUMMY_SESSION_TOKEN = "DummySessionToken";
 
     private static final String DUMMY_DSS_DOWNLOAD_URL = "http://localhost/"
             + GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
@@ -127,11 +135,16 @@ public class DssComponentTest extends AbstractFileSystemTestCase
     public void setUp() throws IOException
     {
         super.setUp();
+        DssSessionAuthorizationHolder.setAuthorizer(new DatasetSessionAuthorizer());
+        final StaticListableBeanFactory applicationContext = new StaticListableBeanFactory();
+        ServiceProvider.setBeanFactory(applicationContext);
         context = new Mockery();
         openBisService = context.mock(IGeneralInformationService.class);
         dssServiceFactory = context.mock(IRpcServiceFactory.class);
         dssComponent = new DssComponent(openBisService, dssServiceFactory, null);
         randomDataFile = getFileWithRandomData(1);
+        etlService = context.mock(IEncapsulatedOpenBISService.class);
+        applicationContext.addBean("openBIS-service", etlService);
     }
 
     @AfterMethod
@@ -177,7 +190,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
     public void testListDataSetFilesNoLogin() throws IOException
     {
         dssComponent =
-                new DssComponent(openBisService, dssServiceFactory, DUMMY_SESSSION_TOKEN);
+                new DssComponent(openBisService, dssServiceFactory, DUMMY_SESSION_TOKEN);
         setupExpectationsNoLogin();
         IDataSetDss dataSetProxy = dssComponent.getDataSet(DUMMY_DATA_SET_CODE);
         FileInfoDssDTO[] fileInfos = dataSetProxy.listFiles("/", true);
@@ -196,9 +209,9 @@ public class DssComponentTest extends AbstractFileSystemTestCase
             IDataSetDss dataSetProxy = dssComponent.getDataSet(DUMMY_DATA_SET_CODE);
             dataSetProxy.listFiles("/", true);
             fail("Unauthorized access to data set should have thrown an exception.");
-        } catch (IllegalArgumentException ex)
+        } catch (AuthorizationFailureException ex)
         {
-            assertEquals("Data set (" + DUMMY_DATA_SET_CODE + ") does not exist.", ex.getMessage());
+            assertEquals("Authorization failure: Not allowed.", ex.getMessage());
         }
 
         context.assertIsSatisfied();
@@ -237,7 +250,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
     @Test
     public void testLinkToContentsEarlierVersion() throws IOException
     {
-        setupExpectations(true, true);
+        setupExpectations(null, true);
 
         dssComponent.login("foo", "bar");
         IDataSetDss dataSetProxy = dssComponent.getDataSet(DUMMY_DATA_SET_CODE);
@@ -256,7 +269,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
     @Test
     public void testUnsupportedInterface() throws IOException
     {
-        setupExpectations("Some Server Interface", true, true, false);
+        setupExpectations("Some Server Interface", true, null, false);
 
         dssComponent.login("foo", "bar");
         try
@@ -309,12 +322,12 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         setupExpectations(true);
     }
 
-    private void setupExpectations(boolean isDataSetAccessible) throws IOException
+    private void setupExpectations(Boolean isDataSetAccessible) throws IOException
     {
         setupExpectations(IDssServiceRpcGeneric.DSS_SERVICE_NAME, true, isDataSetAccessible, false);
     }
 
-    private void setupExpectations(boolean isDataSetAccessible, boolean returnEarlierVersion)
+    private void setupExpectations(Boolean isDataSetAccessible, boolean returnEarlierVersion)
             throws IOException
     {
         setupExpectations(IDssServiceRpcGeneric.DSS_SERVICE_NAME, true, isDataSetAccessible,
@@ -327,7 +340,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
     }
 
     private void setupExpectations(String serviceName, final boolean needsLogin,
-            boolean isDataSetAccessible, boolean returnEarlierVersion) throws IOException
+            final Boolean isDataSetAccessible, boolean returnEarlierVersion) throws IOException
     {
         final SessionContextDTO session = getDummySession();
 
@@ -358,13 +371,28 @@ public class DssComponentTest extends AbstractFileSystemTestCase
 
         ifaces.add(iface);
 
+        if (isDataSetAccessible != null)
+        {
+            context.checking(new Expectations()
+                {
+                    {
+                        atLeast(1).of(etlService).checkDataSetAccess(DUMMY_SESSION_TOKEN,
+                                DUMMY_DATA_SET_CODE);
+                        if (isDataSetAccessible == false)
+                        {
+                            will(throwException(new UserFailureException("Not allowed.")));
+                        }
+                    }
+                });
+        }
+
         dssServiceV1_0 =
                 getAdvisedDssService(new MockDssServiceRpcV1_0(null, fileInfos,
-                        new FileInputStream(randomDataFile), isDataSetAccessible));
+                        new FileInputStream(randomDataFile), isDataSetAccessible == null ? true : isDataSetAccessible));
 
         dssServiceV1_1 =
                 getAdvisedDssService(new MockDssServiceRpcV1_1(null, fileInfos,
-                        new FileInputStream(randomDataFile), isDataSetAccessible));
+                        new FileInputStream(randomDataFile), isDataSetAccessible == null ? true : isDataSetAccessible));
 
         context.checking(new Expectations()
             {
@@ -396,7 +424,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
     private SessionContextDTO getDummySession()
     {
         final SessionContextDTO session = new SessionContextDTO();
-        session.setSessionToken(DUMMY_SESSSION_TOKEN);
+        session.setSessionToken(DUMMY_SESSION_TOKEN);
         return session;
     }
 
@@ -502,7 +530,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         }
 
         @Override
-        public boolean isDatasetAccessible(String sessionToken, String dataSetCode)
+        protected boolean isDatasetAccessible(String sessionToken, String dataSetCode)
         {
             return isDataSetAccessible;
         }

@@ -37,7 +37,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * Abstract superclass of DssServiceRpc implementations.
@@ -127,7 +126,7 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
      * Check with openBIS if the user with the given sessionToken is allowed to access the data set
      * specified by the dataSetCode.
      */
-    public boolean isDatasetAccessible(String sessionToken, String dataSetCode)
+    protected boolean isDatasetAccessible(String sessionToken, String dataSetCode)
     {
         boolean access;
         if (operationLog.isInfoEnabled())
@@ -139,27 +138,6 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
         try
         {
             openBISService.checkDataSetAccess(sessionToken, dataSetCode);
-            access = true;
-        } catch (UserFailureException ex)
-        {
-            access = false;
-        }
-
-        return access;
-    }
-
-    public boolean isSpaceWriteable(String sessionToken, SpaceIdentifier spaceId)
-    {
-        boolean access;
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info(String.format("Check access to the space '%s' on openBIS server.",
-                    spaceId));
-        }
-
-        try
-        {
-            openBISService.checkSpaceAccess(sessionToken, spaceId);
             access = true;
         } catch (UserFailureException ex)
         {

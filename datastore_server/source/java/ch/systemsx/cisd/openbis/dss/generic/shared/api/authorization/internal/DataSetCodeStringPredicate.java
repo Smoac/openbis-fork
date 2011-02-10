@@ -14,29 +14,39 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization;
+package ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal;
+
+import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
  * Predicate for checking that the current user has access to a data set specified by code.
+ * <p>
+ * <i>This is an internal class. Do not use it as a user of the API.</i>
  * 
  * @author Chandrasekhar Ramakrishnan
  */
 public class DataSetCodeStringPredicate implements
         IAuthorizationGuardPredicate<IDssServiceRpcGenericInternal, String>
 {
+    static protected final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            DataSetCodeStringPredicate.class);
+
     public Status evaluate(IDssServiceRpcGenericInternal receiver, String sessionToken,
-            String dataSetCode) throws UserFailureException
+            String datasetCode) throws UserFailureException
     {
-        if (receiver.isDatasetAccessible(sessionToken, dataSetCode))
+        if (operationLog.isInfoEnabled())
         {
-            return Status.OK;
-        } else
-        {
-            return Status.createError("Data set (" + dataSetCode + ") does not exist.");
+            operationLog.info(String.format("Check access to the data set '%s' on openBIS server.",
+                    datasetCode));
         }
+
+        return DssSessionAuthorizationHolder.getAuthorizer().checkDatasetAccess(sessionToken,
+                datasetCode);
     }
 
 }

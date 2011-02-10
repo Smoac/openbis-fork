@@ -79,7 +79,7 @@
             <bean class="org.springframework.aop.framework.ProxyFactoryBean">
                 <property name="proxyInterfaces">
                     <list>
-                        <value>ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.IDssServiceRpcGenericInternal</value>
+                        <value>ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal.IDssServiceRpcGenericInternal</value>
                     </list>
                 </property>
                 <property name="interceptorNames">

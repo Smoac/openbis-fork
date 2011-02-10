@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization;
+package ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.internal;
 
 import java.util.List;
 
@@ -29,6 +29,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIde
 
 /**
  * A predicate for {@link ExperimentIdentifier}.
+ * <p>
+ * <i>This is an internal class. Do not use it as a user of the API.</i>
  * 
  * @author Bernd Rinn
  */

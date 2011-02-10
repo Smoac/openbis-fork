@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization;
+package ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -23,14 +23,20 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Parameter annotation to specify which authorization class should be used to check user access.
+ * Annotation for service methods to automagically check that the user invoking the method has
+ * access to the data set.
+ * <p>
+ * <i>This is an internal class. Do not use it as a user of the API.</i>
  * 
  * @author Chandrasekhar Ramakrishnan
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.PARAMETER)
+@Target(ElementType.METHOD)
 @Inherited
-public @interface AuthorizationGuard
+public @interface DataSetAccessGuard
 {
-    Class<? extends IAuthorizationGuardPredicate<?, ?>> guardClass();
+    /**
+     * If calling this method requires instance admin privileges.
+     */
+    boolean requiresInstanceAdmin() default false;
 }

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
+import java.lang.reflect.Method;
 import java.util.List;
 
 import org.aopalliance.intercept.MethodInterceptor;
@@ -24,6 +25,7 @@ import org.apache.log4j.Logger;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.aop.support.annotation.AnnotationMatchingPointcut;
 
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -31,9 +33,11 @@ import ch.systemsx.cisd.common.utilities.AnnotationUtils;
 import ch.systemsx.cisd.common.utilities.AnnotationUtils.Parameter;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.MethodUtils;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.AuthorizationGuard;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.DataSetAccessGuard;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.IAuthorizationGuardPredicate;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal.AuthorizationGuard;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal.DataSetAccessGuard;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal.DssSessionAuthorizationHolder;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal.IAuthorizationGuardPredicate;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal.IDssSessionAuthorizer;
 
 /**
  * The advisor for authorization in the DSS RPC interfaces.
@@ -47,9 +51,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.IAuthorizat
  * code (second argument)</li>
  * </ul>
  * <p>
- * It does this check by invoking the method
- * {@link AbstractDssServiceRpc#isDatasetAccessible(String, String)} on the receiver of the method
- * containing the join point.
+ * It does this check by invoking method on {@link IDssSessionAuthorizer} which it gets from
+ * {@link DssSessionAuthorizationHolder}. The correct authorizer is expected to have been set in
+ * the holder at programm startup.
  * <p>
  * Though it is not necessary to subclass DefaultPointcutAdvisor for the implementation, we subclass
  * here because to make the configuration in spring a bit simpler.
@@ -59,6 +63,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.IAuthorizat
 public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
 {
     private static final long serialVersionUID = 1L;
+
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            DssServiceRpcAuthorizationAdvisor.class);
 
     private static final Logger authorizationLog = LogFactory.getLogger(LogCategory.AUTH,
             DssServiceRpcAuthorizationAdvisor.class);
@@ -99,10 +106,18 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
             List<Parameter<AuthorizationGuard>> annotatedParameters =
                     AnnotationUtils.getAnnotatedParameters(methodInvocation.getMethod(),
                             AuthorizationGuard.class);
+            final boolean requiresInstanceAdmin =
+                    checkRequiresInstanceAdmin(methodInvocation.getMethod(), sessionToken);
             // At least one of the parameters must be annotated
-            assert annotatedParameters.size() > 0 : "No guard defined";
+            assert requiresInstanceAdmin || annotatedParameters.size() > 0 : "No guard defined";
+            
+            if (requiresInstanceAdmin)
+            {
+                // An instance admin is allowed to work on all data sets.
+                return methodInvocation.proceed();
+            }
 
-            Object recv = methodInvocation.getThis();
+            final Object recv = methodInvocation.getThis();
 
             for (Parameter<AuthorizationGuard> param : annotatedParameters)
             {
@@ -120,11 +135,44 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
                         errorMessage = status.tryGetErrorMessage();
                     }
 
-                    throw new IllegalArgumentException(errorMessage);
+                    throw new AuthorizationFailureException(errorMessage);
                 }
             }
 
             return methodInvocation.proceed();
+        }
+
+        private boolean checkRequiresInstanceAdmin(final Method method, final String sessionToken)
+        {
+            final DataSetAccessGuard guard = method.getAnnotation(DataSetAccessGuard.class);
+            final boolean requiresInstanceAdmin =
+                    (guard != null) ? guard.requiresInstanceAdmin() : false;
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info("Check instance admin privileges.");
+            }
+
+            if (requiresInstanceAdmin)
+            {
+                final Status status =
+                        DssSessionAuthorizationHolder.getAuthorizer()
+                                .checkInstanceAdminAuthorization(sessionToken);
+                if (status != Status.OK)
+                {
+                    authorizationLog.info(String.format(
+                            "[SESSION:'%s']: Authorization failure while "
+                                    + "invoking method '%s', user is not an instance admin.",
+                            sessionToken, MethodUtils.describeMethod(method)));
+                    String errorMessage = "You are not an instance administrator.";
+                    if (null != status.tryGetErrorMessage())
+                    {
+                        errorMessage = status.tryGetErrorMessage();
+                    }
+
+                    throw new AuthorizationFailureException(errorMessage);
+                }
+            }
+            return requiresInstanceAdmin;
         }
 
         /**

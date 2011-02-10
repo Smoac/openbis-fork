@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.screening.shared.api.v1;
+package ch.systemsx.cisd.openbis.dss.screening.shared.api.authorization.internal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,18 +25,19 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.IAuthorizationGuardPredicate;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal.DssSessionAuthorizationHolder;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal.IAuthorizationGuardPredicate;
+import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 
 /**
  * Predicate that checks if the user has access to a collection of data set identifiers.
+ * <p>
+ * <i>This is an internal class. Do not use it as a user of the API.</i>
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class DatasetIdentifierPredicate
-        implements
+public class DatasetIdentifierPredicate implements
         IAuthorizationGuardPredicate<IDssServiceRpcScreening, List<? extends IDatasetIdentifier>>
 {
 
@@ -46,22 +47,14 @@ public class DatasetIdentifierPredicate
     public Status evaluate(IDssServiceRpcScreening receiver, String sessionToken,
             List<? extends IDatasetIdentifier> datasetIdentifiers) throws UserFailureException
     {
-        final IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(String.format(
                     "Check access to the data sets '%s' on openBIS server.", datasetIdentifiers));
         }
 
-        try
-        {
-            openBISService.checkDataSetCollectionAccess(sessionToken,
-                    getDatasetCodes(datasetIdentifiers));
-            return Status.OK;
-        } catch (UserFailureException ex)
-        {
-            return Status.createError(ex.getMessage());
-        }
+        return DssSessionAuthorizationHolder.getAuthorizer().checkDatasetAccess(
+                sessionToken, getDatasetCodes(datasetIdentifiers));
     }
 
     private List<String> getDatasetCodes(List<? extends IDatasetIdentifier> datasetIdentifiers)

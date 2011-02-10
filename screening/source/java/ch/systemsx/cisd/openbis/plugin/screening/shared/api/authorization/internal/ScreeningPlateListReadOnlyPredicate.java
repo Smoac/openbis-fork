@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization;
+package ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.internal;
 
 import java.util.List;
 
@@ -32,6 +32,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifi
  * A predicate for lists of entities which have {@link PlateIdentifier} as their super-class. This
  * predicate authorizes for read-only access, i.e. it will allow access to shared samples for all
  * users.
+ * <p>
+ * <i>This is an internal class. Do not use it as a user of the API.</i>
  * 
  * @author Bernd Rinn
  */

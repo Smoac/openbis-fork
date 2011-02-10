@@ -22,13 +22,17 @@ import java.util.Arrays;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.springframework.aop.framework.ProxyFactoryBean;
+import org.springframework.beans.factory.support.StaticListableBeanFactory;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.openbis.dss.generic.server.DatasetSessionAuthorizer;
 import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal.DssSessionAuthorizationHolder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
@@ -55,8 +59,12 @@ public class DssServiceRpcGenericTest extends AbstractFileSystemTestCase
     @BeforeMethod
     public void beforeMethod()
     {
+        DssSessionAuthorizationHolder.setAuthorizer(new DatasetSessionAuthorizer());
+        final StaticListableBeanFactory applicationContext = new StaticListableBeanFactory();
+        ServiceProvider.setBeanFactory(applicationContext);
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
+        applicationContext.addBean("openBIS-service", service);
         ProxyFactoryBean proxyFactoryBean = new ProxyFactoryBean();
         proxyFactoryBean.setInterfaces(new Class[] {IDssServiceRpcGeneric.class});
         DssServiceRpcGeneric nakedDssService = new DssServiceRpcGeneric(service);

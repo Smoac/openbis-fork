@@ -33,6 +33,7 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.springframework.aop.framework.ProxyFactory;
+import org.springframework.beans.factory.support.StaticListableBeanFactory;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -58,7 +59,9 @@ import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor.DssServiceRpcAuthorizationMethodInterceptor;
 import ch.systemsx.cisd.openbis.dss.generic.server.api.v1.DssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.IDssServiceRpcGenericInternal;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal.DssSessionAuthorizationHolder;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal.IDssServiceRpcGenericInternal;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataSetFileDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
@@ -129,8 +132,12 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
     public void setUp() throws IOException
     {
         super.setUp();
+        DssSessionAuthorizationHolder.setAuthorizer(new DatasetSessionAuthorizer());
+        final StaticListableBeanFactory applicationContext = new StaticListableBeanFactory();
+        ServiceProvider.setBeanFactory(applicationContext);
         context = new Mockery();
         openBisService = context.mock(IEncapsulatedOpenBISService.class);
+        applicationContext.addBean("openBIS-service", openBisService);
         mailClient = context.mock(IMailClient.class);
 
         codeExtractor = new DefaultDataSetInfoExtractor(new Properties());

@@ -642,7 +642,6 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             List<IDatasetIdentifier> dataSetIdentifiers, String channel,
             IImageTransformerFactory transformerFactory)
     {
-        getOpenBISService().checkInstanceAdminAuthorization(sessionToken);
         for (IDatasetIdentifier datasetIdentifier : dataSetIdentifiers)
         {
             ImgDatasetDTO dataset = getImagingDataset(datasetIdentifier);

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization;
+package ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.internal;
 
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DelegatedPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SamplePermIdPredicate;
@@ -23,6 +23,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifie
 
 /**
  * A predicate for {@link WellIdentifier}.
+ * <p>
+ * <i>This is an internal class. Do not use it as a user of the API.</i>
  * 
  * @author Piotr Buczek
  */

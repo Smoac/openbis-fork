@@ -42,12 +42,15 @@ import ch.systemsx.cisd.base.image.IImageTransformer;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.base.mdarray.MDFloatArray;
 import ch.systemsx.cisd.bds.hcs.Location;
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.ByteArrayBasedContent;
 import ch.systemsx.cisd.common.io.ConcatenatedFileOutputStreamWriter;
 import ch.systemsx.cisd.common.io.FileBasedContent;
 import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.IImagingDatasetLoader;
+import ch.systemsx.cisd.openbis.dss.generic.server.DatasetSessionAuthorizer;
 import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor;
 import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor.DssServiceRpcAuthorizationMethodInterceptor;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtilsTest;
@@ -55,6 +58,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackR
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal.DssSessionAuthorizationHolder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
@@ -125,8 +129,6 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
 
     private IImagingReadonlyQueryDAO dao;
 
-    private StaticListableBeanFactory applicationContext;
-
     private IFeatureVectorDatasetIdentifier featureVectorDatasetIdentifier1;
 
     private IFeatureVectorDatasetIdentifier featureVectorDatasetIdentifier2;
@@ -144,7 +146,8 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     @BeforeMethod
     public void beforeMethod()
     {
-        applicationContext = new StaticListableBeanFactory();
+        DssSessionAuthorizationHolder.setAuthorizer(new DatasetSessionAuthorizer());
+        final StaticListableBeanFactory applicationContext = new StaticListableBeanFactory();
         ServiceProvider.setBeanFactory(applicationContext);
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
@@ -215,7 +218,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         final List<WellPosition> wellPositions = Arrays.asList(new WellPosition(1, 3));
         final String channel = "dapi";
         prepareGetHomeDatabaseInstance();
-        prepareAssetDataSetsAreAccessible(ds.getPermId());
+        prepareAssetDataSetIsAccessible(ds.getPermId());
         prepareListDataSetsByCode();
 
         List<PlateImageReference> plateImageReferences =
@@ -299,7 +302,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     {
         final String channel = CHANNEL_CODE;
         prepareGetHomeDatabaseInstance();
-        prepareAssetDataSetsAreAccessible(DATASET_CODE);
+        prepareAssetDataSetIsAccessible(DATASET_CODE);
         prepareListDataSetsByCode();
         context.checking(new Expectations()
             {
@@ -406,12 +409,39 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     }
 
     @Test
+    public void testSaveImageTransformerFactoryForDatasetChannelFailedDueToInvalidAuthorization()
+    {
+        final DatasetIdentifier ds1 = new DatasetIdentifier(DATASET_CODE, "url1");
+        final DatasetIdentifier ds2 = new DatasetIdentifier("ds2", "url1");
+        final String channel = "dapi";
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).checkInstanceAdminAuthorization(SESSION_TOKEN);
+                    will(throwException(new UserFailureException("You are not an admin.")));
+                }
+            });
+
+        try
+        {
+            screeningService.saveImageTransformerFactory(SESSION_TOKEN,
+                    Arrays.<IDatasetIdentifier> asList(ds1, ds2), channel, transformerFactory);
+            fail("Unauthorized access not detected.");
+        } catch (AuthorizationFailureException ex)
+        {
+            assertEquals("Authorization failure: You are not an admin.", ex.getMessage());
+        }
+
+        assertTrue(testMethodInterceptor.methodInvoked);
+        context.assertIsSatisfied();
+    }
+
+    @Test
     public void testSaveImageTransformerFactoryForDatasetChannel()
     {
         final DatasetIdentifier ds1 = new DatasetIdentifier(DATASET_CODE, "url1");
         final DatasetIdentifier ds2 = new DatasetIdentifier("ds2", "url1");
         final String channel = "dapi";
-        prepareAssetDataSetsAreAccessible();
         context.checking(new Expectations()
             {
                 {
@@ -455,7 +485,6 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     public void testSaveImageTransformerFactoryForExperiment()
     {
         final DatasetIdentifier ds1 = new DatasetIdentifier(DATASET_CODE, "url1");
-        prepareAssetDataSetsAreAccessible(DATASET_CODE);
         context.checking(new Expectations()
             {
                 {
@@ -608,18 +637,28 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
             });
     }
 
+    private void prepareAssetDataSetIsAccessible(final String dsCode)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).checkDataSetAccess(SESSION_TOKEN, dsCode);
+                }
+            });
+    }
+
     private void prepareAssetDataSetsAreAccessible()
     {
         prepareAssetDataSetsAreAccessible("ds1", "ds2");
     }
-    
+
     private void prepareAssetDataSetsAreAccessible(final String... dsCodes)
     {
         context.checking(new Expectations()
             {
                 {
-                    one(service).checkDataSetCollectionAccess(SESSION_TOKEN,
-                            Arrays.asList(dsCodes));
+                    one(service)
+                            .checkDataSetCollectionAccess(SESSION_TOKEN, Arrays.asList(dsCodes));
                 }
             });
     }
@@ -655,8 +694,8 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         @Override
         public Object invoke(MethodInvocation methodInvocation) throws Throwable
         {
-            Object result = super.invoke(methodInvocation);
             methodInvoked = true;
+            Object result = super.invoke(methodInvocation);
             return result;
         }
     }

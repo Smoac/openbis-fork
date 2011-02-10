@@ -14,17 +14,23 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.screening.shared.api.v1;
+package ch.systemsx.cisd.openbis.dss.screening.shared.api.authorization.internal;
 
-import java.util.Collections;
+import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.IAuthorizationGuardPredicate;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal.DssSessionAuthorizationHolder;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal.IAuthorizationGuardPredicate;
+import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 
 /**
  * A predicate for testing a single data set identifier.
+ * <p>
+ * <i>This is an internal class. Do not use it as a user of the API.</i>
  *
  * @author Franz-Josef Elmer
  */
@@ -32,13 +38,20 @@ public class SingleDataSetIdentifierPredicate implements
         IAuthorizationGuardPredicate<IDssServiceRpcScreening, IDatasetIdentifier>
 
 {
-    private static final DatasetIdentifierPredicate PREDICATE = new DatasetIdentifierPredicate();
+    static protected final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            DatasetIdentifierPredicate.class);
 
     public Status evaluate(IDssServiceRpcScreening receiver, String sessionToken,
             IDatasetIdentifier datasetIdentifier) throws UserFailureException
     {
-        return PREDICATE.evaluate(receiver, sessionToken,
-                Collections.singletonList(datasetIdentifier));
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format(
+                    "Check access to the data set '%s' on openBIS server.", datasetIdentifier));
+        }
+
+        return DssSessionAuthorizationHolder.getAuthorizer().checkDatasetAccess(
+                sessionToken, datasetIdentifier.getDatasetCode());
     }
 
 }

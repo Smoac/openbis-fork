@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization;
+package ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal;
 
 import java.io.File;
 
 import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * The IDssServiceRpcGeneric interface extended with methods that are internal to the DSS server.
@@ -28,6 +27,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
  * This interface is necessary because the implementation of IDssServiceRpcGeneric that is visible
  * to the {@link DataStoreServer} is a proxy. The methods here are used internally, but need to be
  * known to the proxy as well. (See the dssApplicationContext.xml file as well.)
+ * <p>
+ * <i>This is an internal class. Do not use it as a user of the API.</i>
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -36,8 +37,4 @@ public interface IDssServiceRpcGenericInternal extends IDssServiceRpcGeneric
     public void setStoreDirectory(File aFile);
 
     public void setIncomingDirectory(File aFile);
-
-    public boolean isDatasetAccessible(String sessionToken, String dataSetCode);
-
-    public boolean isSpaceWriteable(String sessionToken, SpaceIdentifier spaceId);
 }

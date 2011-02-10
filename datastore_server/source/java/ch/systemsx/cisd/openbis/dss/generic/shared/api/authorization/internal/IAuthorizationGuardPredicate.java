@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization;
+package ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -24,6 +24,8 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
  * <p>
  * Predicates should return Status.OK if the user is authorized for the action; they should return a
  * status with an appropriate error message if the user is not authorized.
+ * <p>
+ * <i>This is an internal class. Do not use it as a user of the API.</i>
  * 
  * @author Chandrasekhar Ramakrishnan
  */

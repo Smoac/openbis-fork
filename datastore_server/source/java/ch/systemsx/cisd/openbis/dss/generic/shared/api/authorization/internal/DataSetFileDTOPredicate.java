@@ -14,32 +14,42 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization;
+package ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal;
+
+import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataSetFileDTO;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 
 /**
  * Predicate for checking that the current user has access to a data set specified by a
  * DataSetFileDTO
+ * <p>
+ * <i>This is an internal class. Do not use it as a user of the API.</i>
  * 
  * @author Chandrasekhar Ramakrishnan
  */
 public class DataSetFileDTOPredicate implements
-        IAuthorizationGuardPredicate<IDssServiceRpcGenericInternal, DataSetFileDTO>
+        IAuthorizationGuardPredicate<IDssServiceRpcGeneric, DataSetFileDTO>
 {
-    public Status evaluate(IDssServiceRpcGenericInternal receiver, String sessionToken,
+    static protected final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            DataSetFileDTOPredicate.class);
+
+    public Status evaluate(IDssServiceRpcGeneric receiver, String sessionToken,
             DataSetFileDTO dataSetFile) throws UserFailureException
     {
-        if (receiver.isDatasetAccessible(sessionToken, dataSetFile.getDataSetCode()))
+        if (operationLog.isInfoEnabled())
         {
-            return Status.OK;
-        } else
-        {
-            return Status.createError("Data set (" + dataSetFile.getDataSetCode()
-                    + ") does not exist.");
+            operationLog.info(String.format(
+                    "Check access to the data set file '%s' on openBIS server.", dataSetFile));
         }
+
+        return DssSessionAuthorizationHolder.getAuthorizer().checkDatasetAccess(sessionToken,
+                dataSetFile.getDataSetCode());
     }
 
 }
