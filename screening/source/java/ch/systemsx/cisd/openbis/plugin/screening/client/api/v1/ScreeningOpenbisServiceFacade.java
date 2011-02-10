@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreen
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
+import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.WellImageCache.CachedImage;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.WellImageCache.WellImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
@@ -990,7 +991,12 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                     }
                 });
         }
-        return images.getImage(imageReference).getImageData();
+        final CachedImage imageOrNull = images.getImage(imageReference);
+        if (imageOrNull == null)
+        {
+            throw new IOException(imageReference + " doesn't exist.");
+        }
+        return imageOrNull.getImageData();
     }
 
     public void loadImages(List<PlateImageReference> imageReferences, final ImageSize sizeOrNull,
@@ -1071,7 +1077,12 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                     }
                 });
         }
-        return images.getImage(imageReference).getImageData();
+        final CachedImage imageOrNull = images.getImage(imageReference);
+        if (imageOrNull == null)
+        {
+            throw new IOException(imageReference + " doesn't exist.");
+        }
+        return imageOrNull.getImageData();
     }
 
     public void loadThumbnailImages(List<PlateImageReference> imageReferences,
