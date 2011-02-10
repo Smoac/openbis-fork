@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Value object which has a label and a normalized code. Normalized means that the original code
  * arguments turn to upper case and any symbol which isn't from A-Z or 0-9 is replaced by an
@@ -80,4 +83,27 @@ public class CodeAndLabel
     {
         return "<" + code + "> " + label;
     }
+
+    // helper functions for convertions
+
+    public static List<String> asLabels(List<CodeAndLabel> codesAndLabels)
+    {
+        final List<String> result = new ArrayList<String>();
+        for (CodeAndLabel codeAndLabel : codesAndLabels)
+        {
+            result.add(codeAndLabel.getLabel());
+        }
+        return result;
+    }
+
+    public static List<String> asCodes(List<CodeAndLabel> codesAndLabels)
+    {
+        final List<String> result = new ArrayList<String>();
+        for (CodeAndLabel codeAndLabel : codesAndLabels)
+        {
+            result.add(codeAndLabel.getCode());
+        }
+        return result;
+    }
+
 }
