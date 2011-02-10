@@ -195,7 +195,7 @@ public class DataStoreServer
                 new ServletContextHandler(thisServer, "/", ServletContextHandler.SESSIONS);
         context.setAttribute(APPLICATION_CONTEXT_KEY, applicationContext);
         context.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE,
-                ServiceProvider.APPLICATION_CONTEXT);
+                ServiceProvider.getApplicationContext());
         String applicationName = "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME;
         context.addServlet(new ServletHolder(new DataStoreServlet()), "/"
                 + DATA_STORE_SERVER_SERVICE_NAME + "/*");

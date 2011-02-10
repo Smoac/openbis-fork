@@ -31,6 +31,7 @@ import org.apache.commons.lang.SerializationUtils;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.springframework.aop.framework.ProxyFactory;
+import org.springframework.beans.factory.support.StaticListableBeanFactory;
 import org.testng.AssertJUnit;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -53,6 +54,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtilsTest
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
@@ -123,11 +125,15 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
 
     private IImagingReadonlyQueryDAO dao;
 
+    private StaticListableBeanFactory applicationContext;
+
     private IFeatureVectorDatasetIdentifier featureVectorDatasetIdentifier1;
 
     private IFeatureVectorDatasetIdentifier featureVectorDatasetIdentifier2;
 
-    private DssServiceRpcScreening screeningService;
+    private TestMethodInterceptor testMethodInterceptor;
+
+    private IDssServiceRpcScreening screeningService;
 
     private ImageTransformerFactory transformerFactory;
 
@@ -138,8 +144,11 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     @BeforeMethod
     public void beforeMethod()
     {
+        applicationContext = new StaticListableBeanFactory();
+        ServiceProvider.setBeanFactory(applicationContext);
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
+        applicationContext.addBean("openBIS-service", service);
         dao = context.mock(IImagingReadonlyQueryDAO.class);
         transformerDAO = context.mock(IImagingTransformerDAO.class);
         imageLoader = context.mock(IImagingDatasetLoader.class);
@@ -160,8 +169,8 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                     will(returnValue(imageParameters));
                 }
             });
-
-        screeningService =
+        testMethodInterceptor = new TestMethodInterceptor();
+        DssServiceRpcScreening rawScreeningService =
                 new DssServiceRpcScreening("targets", dao, transformerDAO, service, false)
                     {
                         @Override
@@ -170,6 +179,11 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                             return imageLoader;
                         }
                     };
+        ProxyFactory pf = new ProxyFactory();
+        pf.addAdvisor(new DssServiceRpcAuthorizationAdvisor(testMethodInterceptor));
+        pf.setTarget(rawScreeningService);
+        pf.addInterface(IDssServiceRpcScreening.class);
+        screeningService = (IDssServiceRpcScreening) pf.getProxy();
     }
 
     private IFeatureVectorDatasetIdentifier create(final String dataSetCode)
@@ -201,6 +215,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         final List<WellPosition> wellPositions = Arrays.asList(new WellPosition(1, 3));
         final String channel = "dapi";
         prepareGetHomeDatabaseInstance();
+        prepareAssetDataSetsAreAccessible(ds.getPermId());
         prepareListDataSetsByCode();
 
         List<PlateImageReference> plateImageReferences =
@@ -211,6 +226,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                 + "Image for [dataset ds1, well [1, 3], channel DAPI, tile 1]]",
                 plateImageReferences.toString());
 
+        assertTrue(testMethodInterceptor.methodInvoked);
         context.assertIsSatisfied();
     }
 
@@ -221,11 +237,13 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         prepareGetFeatureDefinitions(1, "f1", "f2");
         prepareGetFeatureDefinitions(2, "f2", "f3");
 
+        @SuppressWarnings("deprecation")
         List<String> names =
                 screeningService.listAvailableFeatureNames(SESSION_TOKEN, Arrays.asList(
                         featureVectorDatasetIdentifier1, featureVectorDatasetIdentifier2));
 
         assertEquals("[f1, f2, f3]", names.toString());
+        assertTrue(testMethodInterceptor.methodInvoked);
         context.assertIsSatisfied();
     }
 
@@ -236,26 +254,12 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         prepareGetFeatureDefinitions(1, "f1", "f2");
         prepareGetFeatureDefinitions(2, "f2", "f3");
 
-        // Add the expectation for checkDataSetCollectionAccess again -- we expect it to be invoked
-        // once more from the authorization code.
-        context.checking(new Expectations()
-            {
-                {
-                    one(service).checkDataSetCollectionAccess(SESSION_TOKEN,
-                            Arrays.asList(DATASET_CODE, "ds2"));
-                }
-            });
-
-        TestMethodInterceptor interceptor = new TestMethodInterceptor();
-        IDssServiceRpcScreening serviceInternal = getAdvisedService(interceptor);
-
         List<String> names =
-                serviceInternal.listAvailableFeatureCodes(SESSION_TOKEN, Arrays.asList(
+                screeningService.listAvailableFeatureCodes(SESSION_TOKEN, Arrays.asList(
                         featureVectorDatasetIdentifier1, featureVectorDatasetIdentifier2));
 
-        assertTrue(interceptor.methodInvoked);
-
         assertEquals("[f1, f2, f3]", names.toString());
+        assertTrue(testMethodInterceptor.methodInvoked);
         context.assertIsSatisfied();
     }
 
@@ -285,6 +289,8 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         assertFeatureVector(1, 2, dataSets.get(1).getFeatureVectors().get(1), 244.5);
         assertEquals(2, dataSets.get(1).getFeatureVectors().size());
         assertEquals(2, dataSets.size());
+
+        assertTrue(testMethodInterceptor.methodInvoked);
         context.assertIsSatisfied();
     }
 
@@ -293,6 +299,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     {
         final String channel = CHANNEL_CODE;
         prepareGetHomeDatabaseInstance();
+        prepareAssetDataSetsAreAccessible(DATASET_CODE);
         prepareListDataSetsByCode();
         context.checking(new Expectations()
             {
@@ -328,6 +335,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         assertEquals(1, image2.getWidth());
         assertEquals(1, image2.getHeight());
 
+        assertTrue(testMethodInterceptor.methodInvoked);
         context.assertIsSatisfied();
     }
 
@@ -346,6 +354,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         final DatasetIdentifier ds1 = new DatasetIdentifier(DATASET_CODE, "url1");
         final DatasetIdentifier ds2 = new DatasetIdentifier("ds2", "url1");
         final String channel = "dapi";
+        prepareAssetDataSetsAreAccessible();
         prepareGetExperimentPermIDs(ds1, ds2);
         context.checking(new Expectations()
             {
@@ -364,6 +373,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                         Arrays.<IDatasetIdentifier> asList(ds1, ds2), channel);
 
         assertEquals(transformerFactory.id, ((ImageTransformerFactory) result).id);
+        assertTrue(testMethodInterceptor.methodInvoked);
         context.assertIsSatisfied();
     }
 
@@ -372,6 +382,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     {
         final DatasetIdentifier ds1 = new DatasetIdentifier(DATASET_CODE, "url1");
         final DatasetIdentifier ds2 = new DatasetIdentifier("ds2", "url1");
+        prepareAssetDataSetsAreAccessible();
         prepareGetExperimentPermIDs(ds1, ds2);
         context.checking(new Expectations()
             {
@@ -390,6 +401,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                         ScreeningConstants.MERGED_CHANNELS);
 
         assertEquals(transformerFactory.id, ((ImageTransformerFactory) result).id);
+        assertTrue(testMethodInterceptor.methodInvoked);
         context.assertIsSatisfied();
     }
 
@@ -399,6 +411,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         final DatasetIdentifier ds1 = new DatasetIdentifier(DATASET_CODE, "url1");
         final DatasetIdentifier ds2 = new DatasetIdentifier("ds2", "url1");
         final String channel = "dapi";
+        prepareAssetDataSetsAreAccessible();
         context.checking(new Expectations()
             {
                 {
@@ -427,6 +440,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         screeningService.saveImageTransformerFactory(SESSION_TOKEN,
                 Arrays.<IDatasetIdentifier> asList(ds1, ds2), channel, transformerFactory);
 
+        assertTrue(testMethodInterceptor.methodInvoked);
         context.assertIsSatisfied();
     }
 
@@ -441,6 +455,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     public void testSaveImageTransformerFactoryForExperiment()
     {
         final DatasetIdentifier ds1 = new DatasetIdentifier(DATASET_CODE, "url1");
+        prepareAssetDataSetsAreAccessible(DATASET_CODE);
         context.checking(new Expectations()
             {
                 {
@@ -476,6 +491,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                 Arrays.<IDatasetIdentifier> asList(ds1), ScreeningConstants.MERGED_CHANNELS,
                 transformerFactory);
 
+        assertTrue(testMethodInterceptor.methodInvoked);
         context.assertIsSatisfied();
     }
 
@@ -594,11 +610,16 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
 
     private void prepareAssetDataSetsAreAccessible()
     {
+        prepareAssetDataSetsAreAccessible("ds1", "ds2");
+    }
+    
+    private void prepareAssetDataSetsAreAccessible(final String... dsCodes)
+    {
         context.checking(new Expectations()
             {
                 {
                     one(service).checkDataSetCollectionAccess(SESSION_TOKEN,
-                            Arrays.asList(DATASET_CODE, "ds2"));
+                            Arrays.asList(dsCodes));
                 }
             });
     }
@@ -640,13 +661,4 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         }
     }
 
-    private IDssServiceRpcScreening getAdvisedService(
-            TestMethodInterceptor testMethodInterceptor)
-    {
-        ProxyFactory pf = new ProxyFactory();
-        pf.addAdvisor(new DssServiceRpcAuthorizationAdvisor(testMethodInterceptor));
-        pf.setTarget(screeningService);
-        pf.addInterface(IDssServiceRpcScreening.class);
-        return (IDssServiceRpcScreening) pf.getProxy();
-    }
 }

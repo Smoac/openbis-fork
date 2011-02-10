@@ -29,10 +29,20 @@ import com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter;
  */
 public class ServiceProvider
 {
-    public static final BeanFactory APPLICATION_CONTEXT =
+    private static BeanFactory APPLICATION_CONTEXT =
             new ClassPathXmlApplicationContext(new String[]
                 { "dssApplicationContext.xml" }, true);
 
+    public static void setBeanFactory(BeanFactory applicationContext)
+    {
+        APPLICATION_CONTEXT = applicationContext;
+    }
+    
+    public static BeanFactory getApplicationContext()
+    {
+        return APPLICATION_CONTEXT;
+    }
+    
     /**
      * Returns openBIS service singleton.
      */
