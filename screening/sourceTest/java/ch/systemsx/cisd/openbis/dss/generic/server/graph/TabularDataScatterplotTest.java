@@ -22,7 +22,7 @@ import java.io.IOException;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
-import ch.systemsx.cisd.openbis.generic.shared.dto.CodeAndLabel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 
 /**
  * @author Chandrasekhar Ramakrishnan

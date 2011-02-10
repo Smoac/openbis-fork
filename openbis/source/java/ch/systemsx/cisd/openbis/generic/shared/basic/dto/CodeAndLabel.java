@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.dto;
+package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Value object which has a label and a normalized code. Normalized means that the original code
@@ -26,11 +28,19 @@ import java.util.List;
  * 
  * @author Franz-Josef Elmer
  */
-public class CodeAndLabel
+public class CodeAndLabel implements ISerializable
 {
-    private final String label;
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private final String code;
+    private String label;
+
+    private String code;
+
+    @SuppressWarnings("unused")
+    // for GWT
+    private CodeAndLabel()
+    {
+    }
 
     /**
      * Creates an instance for specified code and label. The code should be already be normalized.

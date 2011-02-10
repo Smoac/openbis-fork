@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.imaging;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.CodeAndLabel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellFeatureVectorReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.WellFeatureCollection;

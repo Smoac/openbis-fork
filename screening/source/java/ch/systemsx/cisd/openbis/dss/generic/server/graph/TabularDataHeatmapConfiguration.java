@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.graph;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.CodeAndLabel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 
 /**
  * @author Chandrasekhar Ramakrishnan

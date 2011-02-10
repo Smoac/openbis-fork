@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.CodeAndLabel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 
 /**
  * Utility class to operate on codes and labels.

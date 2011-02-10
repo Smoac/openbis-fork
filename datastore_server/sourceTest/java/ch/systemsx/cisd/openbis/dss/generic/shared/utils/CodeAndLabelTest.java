@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.CodeAndLabel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 
 /**
  * @author Franz-Josef Elmer
