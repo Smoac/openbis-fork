@@ -107,7 +107,7 @@ function find_dataset_dir {
                         return
 	        fi
 	fi
-        report_error "$DATA/main-store/identified does not contain a directory matching $pattern: $dir"
+        report_error "$DATA/main-store/1/identified does not contain a directory matching $pattern: $dir"
 }
 
 function assert_empty_in_out_folders {
@@ -200,7 +200,7 @@ function assert_correct_content_of_invalid_plate_in_store {
     local cell_plate=$1
     echo ==== assert correct content of invalid plate $cell_plate in store ====
     
-    local error_dir=$DATA/main-store/error/DataSetType_HCS_IMAGE
+    local error_dir=$DATA/main-store/1/error/DataSetType_HCS_IMAGE
     assert_dir_exists $error_dir
     local data_set=$error_dir/microX_200801011213_$cell_plate
     assert_same_content $TEST_DATA/$cell_plate $data_set
@@ -220,7 +220,7 @@ function assert_correct_content_of_unidentified_plate_in_store {
     local cell_plate=$1
     echo ==== assert correct content of unidentified plate $cell_plate in store ====
     
-    local unidentified_dir=$DATA/main-store/unidentified
+    local unidentified_dir=$DATA/main-store/1/unidentified
     assert_dir_exists $unidentified_dir
     assert_same_content $TEST_DATA/$cell_plate $unidentified_dir/DataSetType_HCS_IMAGE/microX_200801011213_$cell_plate
     assert_same_content $TEST_DATA/$cell_plate $unidentified_dir/DataSetType_HCS_IMAGE_ANALYSIS_DATA/microX_200801011213_$cell_plate
