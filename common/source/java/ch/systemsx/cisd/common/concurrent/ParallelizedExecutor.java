@@ -136,7 +136,7 @@ public class ParallelizedExecutor
         {
             final StringBuilder errorMsgBuilder = new StringBuilder();
             errorMsgBuilder.append("The following items could not be successfully processed:\n");
-            for (FailureRecord r : failureRecords)
+            for (FailureRecord<T> r : failureRecords)
             {
                 errorMsgBuilder.append(String.format("%s (%s)\n", r.getFailedItem().toString(), r
                         .getFailureStatus().tryGetErrorMessage()));
