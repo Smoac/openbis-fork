@@ -319,11 +319,15 @@ public abstract class AbstractClientService implements IClientService,
         }
         if (sessionToken == null)
         {
-            String sessionId = (httpSession != null) ? httpSession.getId() : null;
-            String logMessage =
-                    String.format("Unable to find session token in session [%s], sessionId=[%s]",
-                            httpSession, sessionId);
-            operationLog.info(logMessage);
+            if (operationLog.isDebugEnabled())
+            {
+                String sessionId = (httpSession != null) ? httpSession.getId() : null;
+                String logMessage =
+                        String.format(
+                                "Unable to find session token in session [%s], sessionId=[%s]",
+                                httpSession, sessionId);
+                operationLog.debug(logMessage);
+            }
             throw new InvalidSessionException("Session expired. Please login again.");
         }
         return sessionToken;
