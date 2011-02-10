@@ -226,8 +226,10 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         // Don't rollback when this exception happens
         boolean stopped = ex instanceof InterruptedExceptionUnchecked;
 
-        for (DataSetStorageAlgorithm<T> storageAlgorithm : dataSetStorageAlgorithms)
+        // Rollback in the reverse order
+        for (int i = dataSetStorageAlgorithms.size() - 1; i >= 0; --i)
         {
+            DataSetStorageAlgorithm<T> storageAlgorithm = dataSetStorageAlgorithms.get(i);
             storageAlgorithm.rollbackStorageProcessor(ex);
 
             if (stopped == false)
