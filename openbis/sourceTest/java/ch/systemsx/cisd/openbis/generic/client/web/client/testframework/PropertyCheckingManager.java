@@ -32,7 +32,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.propert
  */
 public class PropertyCheckingManager extends Assert
 {
-    @SuppressWarnings("unchecked")
     private final Map<String, IValueAssertion> expectedProperties =
             new HashMap<String, IValueAssertion>();
 
