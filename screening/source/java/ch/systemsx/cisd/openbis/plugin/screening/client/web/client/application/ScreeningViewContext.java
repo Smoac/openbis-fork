@@ -11,6 +11,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningCli
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator.PlateLocationsMaterialLocatorResolver;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator.PlateMaterialReviewerLocatorResolver;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator.PlateMetadataBrowserLocatorResolver;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator.GlobalWellSearchLocatorResolver;
 
 /**
  * The <i>screening</i> plugin specific {@link IViewContext} implementation.
@@ -46,6 +47,7 @@ public final class ScreeningViewContext extends
         handlerRegistry.registerHandler(new PlateLocationsMaterialLocatorResolver(this));
         handlerRegistry.registerHandler(new PlateMetadataBrowserLocatorResolver(this));
         handlerRegistry.registerHandler(new PlateMaterialReviewerLocatorResolver(this));
+        handlerRegistry.registerHandler(new GlobalWellSearchLocatorResolver(this));
     }
 
     public static ScreeningDisplaySettingsManager getTechnologySpecificDisplaySettingsManager(

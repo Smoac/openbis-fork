@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific;
 
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.URLListEncoder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
@@ -37,6 +38,8 @@ public class ScreeningLinkExtractor extends LinkExtractor
     public final static String EXPERIMENT_PARAMETER_KEY = "experiment";
 
     public final static String WELL_SEARCH_ACTION = "WELL_SEARCH";
+
+    public final static String GLOBAL_WELL_SEARCH_ACTION = "GLOBAL_WELL_SEARCH";
 
     public final static String EXPERIMENT_PERM_ID_PARAMETER_KEY = "experimentPermId";
 
@@ -60,7 +63,10 @@ public class ScreeningLinkExtractor extends LinkExtractor
     {
         URLMethodWithParameters url = new URLMethodWithParameters("");
         url.addParameter(BasicConstant.LOCATOR_ACTION_PARAMETER, WELL_SEARCH_ACTION);
-        url.addParameter(EXPERIMENT_PERM_ID_PARAMETER_KEY, experimentPermId);
+        if (false == StringUtils.isBlank(experimentPermId))
+        {
+            url.addParameter(EXPERIMENT_PERM_ID_PARAMETER_KEY, experimentPermId);
+        }
         url.addParameter(WELL_SEARCH_IS_EXACT_PARAMETER_KEY,
                 materialCodesCriteria.isExactMatchOnly());
         url.addParameterWithoutEncoding(WELL_SEARCH_MATERIAL_TYPES_PARAMETER_KEY,

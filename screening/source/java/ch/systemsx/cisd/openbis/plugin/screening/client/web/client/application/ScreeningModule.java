@@ -69,7 +69,7 @@ public class ScreeningModule implements IModule
                                 IViewContext<IScreeningClientServiceAsync> context)
                         {
                             TabContent wellSearchTab =
-                                    new ExperimentPlateLocationsSection(viewContext);
+                                    new ExperimentPlateLocationsSection(viewContext, null, null);
                             return DatabaseModificationAwareComponent.wrapUnaware(wellSearchTab);
                         }
 

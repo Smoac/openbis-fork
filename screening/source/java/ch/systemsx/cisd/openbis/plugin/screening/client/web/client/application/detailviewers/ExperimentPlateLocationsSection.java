@@ -9,6 +9,7 @@ import com.extjs.gxt.ui.client.widget.layout.MarginData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
@@ -49,10 +50,26 @@ public class ExperimentPlateLocationsSection extends TabContent
 
     private List<MaterialType> materialTypesOrNull;
 
+    public static String getTabTitle(IViewContext<IScreeningClientServiceAsync> viewContext)
+    {
+        return viewContext.getMessage(Dict.EXPERIMENT_PLATE_MATERIAL_REVIEWER_SECTION);
+    }
+
     public ExperimentPlateLocationsSection(
-            IViewContext<IScreeningClientServiceAsync> screeningViewContext)
+            IViewContext<IScreeningClientServiceAsync> screeningViewContext, String materialListOrNull,
+            Boolean isExactMatchOrNull)
     {
         this(screeningViewContext, null);
+
+        if (!StringUtils.isBlank(materialListOrNull))
+        {
+            materialListField.setValue(materialListOrNull);
+        }
+        if (isExactMatchOrNull != null)
+        {
+            exactMatchOnly.setValue(isExactMatchOrNull);
+        }
+
         setContentVisible(true);
     }
 
@@ -60,7 +77,7 @@ public class ExperimentPlateLocationsSection extends TabContent
             IViewContext<IScreeningClientServiceAsync> screeningViewContext,
             IEntityInformationHolderWithIdentifier experimentOrNull)
     {
-        super(screeningViewContext.getMessage(Dict.EXPERIMENT_PLATE_MATERIAL_REVIEWER_SECTION),
+        super(getTabTitle(screeningViewContext),
                 screeningViewContext, experimentOrNull);
         this.screeningViewContext = screeningViewContext;
         this.experiment = experimentOrNull;
@@ -126,7 +143,8 @@ public class ExperimentPlateLocationsSection extends TabContent
                     {
                         return null;
                     }
-                    return ScreeningLinkExtractor.createWellsSearchLink(experiment.getPermId(),
+                    String experimentPermId = (experiment != null) ? experiment.getPermId() : null;
+                    return ScreeningLinkExtractor.createWellsSearchLink(experimentPermId,
                             materialCriteria);
                 }
             };

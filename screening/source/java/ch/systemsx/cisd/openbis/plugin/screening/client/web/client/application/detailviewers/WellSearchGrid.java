@@ -88,7 +88,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetPa
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialSearchCodesCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.SingleExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchGridColumnIds;
@@ -116,7 +115,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
     // by experiment perm id
     public static void openTab(
             final IViewContext<IScreeningClientServiceAsync> screeningViewContext,
-            final String experimentPermId, final MaterialSearchCodesCriteria materialCodesCriteria)
+            final String experimentPermId, final MaterialSearchCriteria materialSearchCriteria)
     {
         screeningViewContext.getCommonService().getEntityInformationHolder(EntityKind.EXPERIMENT,
                 experimentPermId,
@@ -128,7 +127,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
                         {
                             TechId experimentId = new TechId(experimentIdentifier.getId());
                             WellSearchGrid.openTab(screeningViewContext, experimentId,
-                                    MaterialSearchCriteria.create(materialCodesCriteria));
+                                    materialSearchCriteria);
                         }
                     });
     }

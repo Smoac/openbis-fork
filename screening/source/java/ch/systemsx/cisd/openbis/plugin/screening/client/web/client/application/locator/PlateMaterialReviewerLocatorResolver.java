@@ -1,5 +1,6 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator;
 
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.AbstractViewLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocator;
@@ -8,7 +9,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureE
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.WellSearchGrid;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialSearchCodesCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialSearchCriteria;
 
 /**
  * Locator resolver for plate metadata browser.
@@ -29,7 +32,7 @@ public class PlateMaterialReviewerLocatorResolver extends AbstractViewLocatorRes
     public void resolve(ViewLocator locator) throws UserFailureException
     {
         String experimentPermId =
-                getMandatoryParameter(locator,
+                getOptionalParameter(locator,
                         ScreeningLinkExtractor.EXPERIMENT_PERM_ID_PARAMETER_KEY);
         String materialCodesOrProperties =
                 getMandatoryParameter(locator,
@@ -44,7 +47,18 @@ public class PlateMaterialReviewerLocatorResolver extends AbstractViewLocatorRes
         MaterialSearchCodesCriteria materialCodesCriteria =
                 new MaterialSearchCodesCriteria(decodeList(materialCodesOrProperties),
                         decodeList(materialTypeCodes), exactMatchOnly);
-        WellSearchGrid.openTab(viewContext, experimentPermId, materialCodesCriteria);
+
+        MaterialSearchCriteria materialSearchCriteria =
+                MaterialSearchCriteria.create(materialCodesCriteria);
+        if (StringUtils.isBlank(experimentPermId))
+        {
+            WellSearchGrid.openTab(viewContext, ExperimentSearchCriteria.createAllExperiments(),
+                    materialSearchCriteria);
+        } else
+        {
+            WellSearchGrid.openTab(viewContext, experimentPermId, materialSearchCriteria);
+        }
+
     }
 
     private String[] decodeList(String itemsList)
