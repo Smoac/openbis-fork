@@ -42,7 +42,7 @@ public class ExperimentPlateLocationsSection extends TabContent
 
     private final IViewContext<IScreeningClientServiceAsync> screeningViewContext;
 
-    private final IEntityInformationHolderWithIdentifier experiment;
+    private final IEntityInformationHolderWithIdentifier experimentOrNull;
 
     private final MultilineItemsField materialListField;
 
@@ -80,7 +80,7 @@ public class ExperimentPlateLocationsSection extends TabContent
         super(getTabTitle(screeningViewContext),
                 screeningViewContext, experimentOrNull);
         this.screeningViewContext = screeningViewContext;
-        this.experiment = experimentOrNull;
+        this.experimentOrNull = experimentOrNull;
         this.materialListField = createMaterialListArea();
         this.exactMatchOnly =
                 new CheckBoxField(screeningViewContext.getMessage(Dict.EXACT_MATCH_ONLY), false);
@@ -143,7 +143,7 @@ public class ExperimentPlateLocationsSection extends TabContent
                     {
                         return null;
                     }
-                    String experimentPermId = (experiment != null) ? experiment.getPermId() : null;
+                    String experimentPermId = (experimentOrNull != null) ? experimentOrNull.getPermId() : null;
                     return ScreeningLinkExtractor.createWellsSearchLink(experimentPermId,
                             materialCriteria);
                 }
@@ -165,12 +165,12 @@ public class ExperimentPlateLocationsSection extends TabContent
 
     private ExperimentSearchCriteria getExperimentSearchCriteria()
     {
-        if (experiment == null)
+        if (experimentOrNull == null)
         {
             return ExperimentSearchCriteria.createAllExperiments();
         }
-        return ExperimentSearchCriteria.createExperiment(experiment.getId(),
-                experiment.getPermId(), experiment.getIdentifier());
+        return ExperimentSearchCriteria.createExperiment(experimentOrNull.getId(),
+                experimentOrNull.getPermId(), experimentOrNull.getIdentifier());
     }
 
     private MaterialSearchCodesCriteria tryGetMaterialSearchCriteria()
