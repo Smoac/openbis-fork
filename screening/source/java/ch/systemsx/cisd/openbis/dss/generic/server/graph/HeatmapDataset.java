@@ -100,12 +100,12 @@ public class HeatmapDataset implements XYZDataset
     }
 
     // The JFreeChart interface does not use generics
-    public Comparable getSeriesKey(int series)
+    public Comparable<?> getSeriesKey(int series)
     {
         return wrappedDataset.getSeriesKey(series);
     }
 
-    public int indexOf(Comparable seriesKey)
+    public int indexOf(@SuppressWarnings("rawtypes") Comparable seriesKey)
     {
         return wrappedDataset.indexOf(seriesKey);
     }

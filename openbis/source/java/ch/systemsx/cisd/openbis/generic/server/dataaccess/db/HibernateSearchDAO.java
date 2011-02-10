@@ -294,6 +294,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
             this.dataProvider = dataProvider;
         }
 
+        @SuppressWarnings("rawtypes")
         public List transformList(List collection)
         {
             throw new IllegalStateException("This method should not be called");

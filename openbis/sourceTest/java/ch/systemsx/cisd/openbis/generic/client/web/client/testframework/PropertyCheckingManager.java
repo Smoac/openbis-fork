@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.propert
  */
 public class PropertyCheckingManager extends Assert
 {
+    @SuppressWarnings("rawtypes")
     private final Map<String, IValueAssertion> expectedProperties =
             new HashMap<String, IValueAssertion>();
 
