@@ -113,7 +113,7 @@ public abstract class AbstractServerLogger implements IServer
         if (sessionManagerOrNull == null
                 || sessionManagerOrNull.isAWellFormedSessionToken(sessionToken) == false)
         {
-            return null;
+            return "[SESSION:" + sessionToken + "]";
         }
         try
         {
@@ -122,7 +122,7 @@ public abstract class AbstractServerLogger implements IServer
         } catch (InvalidSessionException e)
         {
             // ignore the situation when session is not available
-            return null;
+            return "[NO SESSION]";
         }
     }
 

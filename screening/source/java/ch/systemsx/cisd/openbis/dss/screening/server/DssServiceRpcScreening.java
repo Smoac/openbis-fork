@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -56,7 +55,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
-import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreeningInternal;
+import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -94,8 +93,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.Trans
  * 
  * @author Tomasz Pylak
  */
-public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpcScreeningInternal>
-        implements IDssServiceRpcScreeningInternal
+public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpcScreening>
+        implements IDssServiceRpcScreening
 {
 
     /**
@@ -158,7 +157,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         return listAvailableFeatureCodes(sessionToken, featureDatasets);
     }
 
-    public IDssServiceRpcScreeningInternal createLogger(IInvocationLoggerContext context)
+    public IDssServiceRpcScreening createLogger(IInvocationLoggerContext context)
     {
         return new DssServiceRpcScreeningLogger(context);
     }
@@ -166,7 +165,6 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     public List<String> listAvailableFeatureCodes(String sessionToken,
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
     {
-        checkDatasetsAuthorizationForIDatasetIdentifier(sessionToken, featureDatasets);
         List<String> result = new ArrayList<String>(); // keep the order
         for (IFeatureVectorDatasetIdentifier identifier : featureDatasets)
         {
@@ -187,14 +185,12 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     public List<ImageDatasetMetadata> listImageMetadata(String sessionToken,
             List<? extends IImageDatasetIdentifier> imageDatasets)
     {
-        checkDatasetsAuthorizationForIDatasetIdentifier(sessionToken, imageDatasets);
         Set<String> datasetCodes = new HashSet<String>();
         for (IImageDatasetIdentifier dataset : imageDatasets)
         {
             datasetCodes.add(dataset.getDatasetCode());
         }
-        Map<String, File> datasetRoots =
-                checkAccessAndGetRootDirectories(sessionToken, datasetCodes);
+        Map<String, File> datasetRoots = getRootDirectories(sessionToken, datasetCodes);
         List<ImageDatasetMetadata> result = new ArrayList<ImageDatasetMetadata>();
         for (IImageDatasetIdentifier dataset : imageDatasets)
         {
@@ -317,7 +313,6 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     public List<FeatureVectorDataset> loadFeatures(String sessionToken,
             List<FeatureVectorDatasetReference> featureDatasets, List<String> featureNames)
     {
-        checkDatasetsAuthorizationForIDatasetIdentifier(sessionToken, featureDatasets);
         List<String> codes = normalize(featureNames);
         List<FeatureVectorDataset> result = new ArrayList<FeatureVectorDataset>();
         for (FeatureVectorDatasetReference dataset : featureDatasets)
@@ -383,7 +378,6 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             String sessionToken, List<FeatureVectorDatasetWellReference> datasetWellReferences,
             List<String> featureNames)
     {
-        checkDatasetsAuthorizationForIDatasetIdentifier(sessionToken, datasetWellReferences);
         WellFeatureCollection<FeatureTableRow> features =
                 FeatureVectorLoader.fetchWellFeatures(datasetWellReferences, featureNames, dao,
                         createMetadataProvider());
@@ -438,7 +432,6 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     private InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
             final Size sizeOrNull, final boolean convertToPng)
     {
-        checkDatasetsAuthorizationForIDatasetIdentifier(sessionToken, imageReferences);
         final Map<String, IImagingDatasetLoader> imageLoadersMap =
                 getImageDatasetsMap(sessionToken, imageReferences);
         return loadImages(imageReferences, sizeOrNull, convertToPng, imageLoadersMap);
@@ -1020,17 +1013,6 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     {
         ImgDatasetDTO dataSet = getImagingDataset(identifier);
         return getDAO().listFeatureDefsByDataSetId(dataSet.getId());
-    }
-
-    public void checkDatasetsAuthorizationForIDatasetIdentifier(String sessionToken,
-            List<? extends IDatasetIdentifier> identifiers)
-    {
-        Set<String> dataSetCodes = new LinkedHashSet<String>();
-        for (IDatasetIdentifier identifier : identifiers)
-        {
-            dataSetCodes.add(identifier.getDatasetCode());
-        }
-        checkDatasetsAuthorization(sessionToken, dataSetCodes);
     }
 
     private IImagingReadonlyQueryDAO getDAO()

@@ -55,7 +55,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
-import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreeningInternal;
+import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -247,7 +247,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
             });
 
         TestMethodInterceptor interceptor = new TestMethodInterceptor();
-        IDssServiceRpcScreeningInternal serviceInternal = getAdvisedService(interceptor);
+        IDssServiceRpcScreening serviceInternal = getAdvisedService(interceptor);
 
         List<String> names =
                 serviceInternal.listAvailableFeatureCodes(SESSION_TOKEN, Arrays.asList(
@@ -640,13 +640,13 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         }
     }
 
-    private IDssServiceRpcScreeningInternal getAdvisedService(
+    private IDssServiceRpcScreening getAdvisedService(
             TestMethodInterceptor testMethodInterceptor)
     {
         ProxyFactory pf = new ProxyFactory();
         pf.addAdvisor(new DssServiceRpcAuthorizationAdvisor(testMethodInterceptor));
         pf.setTarget(screeningService);
-        pf.addInterface(IDssServiceRpcScreeningInternal.class);
-        return (IDssServiceRpcScreeningInternal) pf.getProxy();
+        pf.addInterface(IDssServiceRpcScreening.class);
+        return (IDssServiceRpcScreening) pf.getProxy();
     }
 }

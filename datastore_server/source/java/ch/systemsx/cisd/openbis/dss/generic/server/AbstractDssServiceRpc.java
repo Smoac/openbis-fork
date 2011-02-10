@@ -169,48 +169,6 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
         return access;
     }
 
-    /**
-     * Asserts that specified data sets are all accessible by the user of the specified session.
-     */
-    protected void checkDatasetsAuthorization(String sessionToken, Set<String> dataSetCodes)
-    {
-        if (isSessionAuthorizedForDatasets(sessionToken, dataSetCodes) == false)
-        {
-            throw new IllegalArgumentException(
-                    "User is not allowed to access at least one of the following data sets: "
-                            + dataSetCodes);
-        }
-    }
-
-    /**
-     * Check with openBIS and return a collection of the data sets the user with the given
-     * sessionToken is allowed to access.
-     * 
-     * @param sessionToken The session token for the user.
-     * @param dataSetCodes The data set codes we want to check access for.
-     * @return True if all the data sets are accessible, false if one or more are not accessible.
-     */
-    protected boolean isSessionAuthorizedForDatasets(String sessionToken, Set<String> dataSetCodes)
-    {
-        boolean access;
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info(String.format(
-                    "Check access to the data sets '%s' on openBIS server.", dataSetCodes));
-        }
-
-        try
-        {
-            openBISService.checkDataSetCollectionAccess(sessionToken, new ArrayList<String>(dataSetCodes));
-            access = true;
-        } catch (UserFailureException ex)
-        {
-            access = false;
-        }
-
-        return access;
-    }
-    
     protected File getRootDirectory(String datasetCode)
     {
         List<ExternalData> list = getOpenBISService().listDataSetsByCode(Arrays.asList(datasetCode));
@@ -245,14 +203,9 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
     /**
      * Return a map keyed by data set code with value root directory for that data set.
      */
-    protected Map<String, File> checkAccessAndGetRootDirectories(String sessionToken,
+    protected Map<String, File> getRootDirectories(String sessionToken,
             Set<String> dataSetCodes) throws IllegalArgumentException
     {
-        if (isSessionAuthorizedForDatasets(sessionToken, dataSetCodes) == false)
-        {
-            throw new IllegalArgumentException("Path does not exist.");
-        }
-
         HashMap<String, File> rootDirectories = new HashMap<String, File>();
         List<ExternalData> dataSets =
                 openBISService.listDataSetsByCode(new ArrayList<String>(dataSetCodes));

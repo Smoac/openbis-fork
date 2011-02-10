@@ -24,17 +24,17 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.IAuthorizat
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 
 /**
- * 
+ * A predicate for testing a single data set identifier.
  *
  * @author Franz-Josef Elmer
  */
 public class SingleDataSetIdentifierPredicate implements
-        IAuthorizationGuardPredicate<IDssServiceRpcScreeningInternal, IDatasetIdentifier>
+        IAuthorizationGuardPredicate<IDssServiceRpcScreening, IDatasetIdentifier>
 
 {
     private static final DatasetIdentifierPredicate PREDICATE = new DatasetIdentifierPredicate();
 
-    public Status evaluate(IDssServiceRpcScreeningInternal receiver, String sessionToken,
+    public Status evaluate(IDssServiceRpcScreening receiver, String sessionToken,
             IDatasetIdentifier datasetIdentifier) throws UserFailureException
     {
         return PREDICATE.evaluate(receiver, sessionToken,

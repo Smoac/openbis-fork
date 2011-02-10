@@ -16,10 +16,17 @@
 
 package ch.systemsx.cisd.openbis.dss.screening.shared.api.v1;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.IAuthorizationGuardPredicate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 
@@ -30,21 +37,41 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdent
  */
 public class DatasetIdentifierPredicate
         implements
-        IAuthorizationGuardPredicate<IDssServiceRpcScreeningInternal, List<? extends IDatasetIdentifier>>
+        IAuthorizationGuardPredicate<IDssServiceRpcScreening, List<? extends IDatasetIdentifier>>
 {
 
-    public Status evaluate(IDssServiceRpcScreeningInternal receiver, String sessionToken,
+    static protected final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            DatasetIdentifierPredicate.class);
+
+    public Status evaluate(IDssServiceRpcScreening receiver, String sessionToken,
             List<? extends IDatasetIdentifier> datasetIdentifiers) throws UserFailureException
     {
+        final IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format(
+                    "Check access to the data sets '%s' on openBIS server.", datasetIdentifiers));
+        }
+
         try
         {
-            receiver.checkDatasetsAuthorizationForIDatasetIdentifier(sessionToken,
-                    datasetIdentifiers);
-        } catch (IllegalArgumentException e)
+            openBISService.checkDataSetCollectionAccess(sessionToken,
+                    getDatasetCodes(datasetIdentifiers));
+            return Status.OK;
+        } catch (UserFailureException ex)
         {
-            return Status.createError(e.getMessage());
+            return Status.createError(ex.getMessage());
         }
-        return Status.OK;
+    }
+
+    private List<String> getDatasetCodes(List<? extends IDatasetIdentifier> datasetIdentifiers)
+    {
+        final List<String> result = new ArrayList<String>();
+        for (IDatasetIdentifier id : datasetIdentifiers)
+        {
+            result.add(id.getDatasetCode());
+        }
+        return result;
     }
 
 }

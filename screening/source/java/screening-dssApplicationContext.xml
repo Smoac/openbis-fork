@@ -28,12 +28,13 @@
             <bean class="org.springframework.aop.framework.ProxyFactoryBean">
                 <property name="proxyInterfaces">
                     <list>
-                        <value>ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreeningInternal</value>
+                        <value>ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening</value>
                     </list>
                  </property>
                 <property name="interceptorNames">
                     <list>
                         <value>screening-rpc-authorization-advisor</value>
+                        <value>screening-rpc-log-advisor</value>
                     </list>
                 </property>
                 <property name="target">
@@ -47,12 +48,6 @@
     </bean>
     
     <!-- 
-        // This discovers on-the-fly all <code>org.springframework.aop.Advisor</code> implementations.
-    -->
-    <bean id="bean-post-processor"
-        class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" />
-        
-    <!-- 
         // Authorization
     -->
 
@@ -62,5 +57,5 @@
         // Logging
     -->
 
-    <bean class="ch.systemsx.cisd.common.spring.LogAdvisor" />
+    <bean id="screening-rpc-log-advisor" class="ch.systemsx.cisd.common.spring.LogAdvisor" />
 </beans>
