@@ -29,48 +29,52 @@ import com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter;
  */
 public class ServiceProvider
 {
-    private static BeanFactory APPLICATION_CONTEXT =
-            new ClassPathXmlApplicationContext(new String[]
-                { "dssApplicationContext.xml" }, true);
+    // applicationContex it lazily initialized
+    private static BeanFactory applicationContext = null;
 
     public static void setBeanFactory(BeanFactory applicationContext)
     {
-        APPLICATION_CONTEXT = applicationContext;
+        ServiceProvider.applicationContext = applicationContext;
     }
-    
+
     public static BeanFactory getApplicationContext()
     {
-        return APPLICATION_CONTEXT;
+        if (applicationContext == null)
+        {
+            applicationContext = new ClassPathXmlApplicationContext(new String[]
+                { "dssApplicationContext.xml" }, true);
+        }
+        return applicationContext;
     }
-    
+
     /**
      * Returns openBIS service singleton.
      */
     public static IEncapsulatedOpenBISService getOpenBISService()
     {
-        return ((IEncapsulatedOpenBISService) APPLICATION_CONTEXT.getBean("openBIS-service"));
+        return ((IEncapsulatedOpenBISService) getApplicationContext().getBean("openBIS-service"));
     }
 
     public static HttpInvokerServiceExporter getDataStoreServer()
     {
-        return ((HttpInvokerServiceExporter) APPLICATION_CONTEXT.getBean("data-store-server"));
+        return ((HttpInvokerServiceExporter) getApplicationContext().getBean("data-store-server"));
     }
 
     public static HttpInvokerServiceExporter getRpcNameServiceExporter()
     {
-        return ((HttpInvokerServiceExporter) APPLICATION_CONTEXT
-                .getBean("data-store-rpc-name-server"));
+        return ((HttpInvokerServiceExporter) getApplicationContext().getBean(
+                "data-store-rpc-name-server"));
     }
 
     public static StreamSupportingHttpInvokerServiceExporter getDssServiceRpcGeneric()
     {
-        return ((StreamSupportingHttpInvokerServiceExporter) APPLICATION_CONTEXT
-                .getBean("data-store-rpc-service-generic"));
+        return ((StreamSupportingHttpInvokerServiceExporter) getApplicationContext().getBean(
+                "data-store-rpc-service-generic"));
     }
 
     public static DataSourceProvider getDataSourceProvider()
     {
-        return ((DataSourceProvider) APPLICATION_CONTEXT.getBean("data-source-provider"));
+        return ((DataSourceProvider) getApplicationContext().getBean("data-source-provider"));
     }
 
     private ServiceProvider()
