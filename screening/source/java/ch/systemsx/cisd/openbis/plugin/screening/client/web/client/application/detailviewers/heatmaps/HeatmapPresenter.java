@@ -8,17 +8,24 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.IRealNumberRenderer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.WellData;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.dto.Color;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.dto.HeatmapScaleElement;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureValue;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 
@@ -50,11 +57,15 @@ class HeatmapPresenter
 
     private final IRealNumberRenderer realNumberRenderer;
 
+    private final ScreeningViewContext viewContext;
+
     // ---
 
-    public HeatmapPresenter(PlateLayouterModel model, IRealNumberRenderer realNumberRenderer,
+    public HeatmapPresenter(ScreeningViewContext viewContext, PlateLayouterModel model,
+            IRealNumberRenderer realNumberRenderer,
             HeatmapPresenter.IHeatmapViewManipulator viewManipulations)
     {
+        this.viewContext = viewContext;
         this.model = model;
         this.viewManipulations = viewManipulations;
         this.realNumberRenderer = realNumberRenderer;
@@ -71,12 +82,53 @@ class HeatmapPresenter
     }
 
     /**
-     * Changes the presented heatmap to the one which shows the feature with given label.
+     * Changes the presented heatmap to the one which shows the feature with given name.
      */
-    public void setFeatureValueMode(String featureName)
+    public void setFeatureValueMode(CodeAndLabel featureName)
     {
-        IHeatmapRenderer<WellData> renderer = createFeatureHeatmapRenderer(featureName);
-        refreshHeatmap(renderer, featureName);
+        if (model.isFeatureAvailable(featureName.getLabel()))
+        {
+            doChangeFeatureValueMode(featureName);
+        } else
+        {
+            DatasetReference dataset = model.tryGetDatasetReference();
+            if (dataset != null)
+            {
+                viewContext.getService().getFeatureVectorDataset(dataset, featureName,
+                        createChangeHeatmapCallback(viewContext, featureName));
+            } else
+            {
+                MessageBox.alert("Error", "No data set selected", null);
+            }
+        }
+    }
+
+    private void doChangeFeatureValueMode(CodeAndLabel featureName)
+    {
+        IHeatmapRenderer<WellData> renderer = createFeatureHeatmapRenderer(featureName.getLabel());
+        refreshHeatmap(renderer, featureName.getLabel());
+    }
+
+    private AsyncCallback<FeatureVectorDataset> createChangeHeatmapCallback(
+            final ScreeningViewContext context, final CodeAndLabel featureName)
+    {
+        return new AbstractAsyncCallback<FeatureVectorDataset>(context)
+            {
+                @Override
+                protected void process(FeatureVectorDataset featureVector)
+                {
+                    model.updateFeatureVectorDataset(featureVector);
+
+                    if (model.isFeatureAvailable(featureName.getLabel()))
+                    {
+                        doChangeFeatureValueMode(featureName);
+                    } else
+                    {
+                        MessageBox.alert("Error",
+                                "No values found for feature " + featureName.getLabel(), null);
+                    }
+                }
+            };
     }
 
     private IHeatmapRenderer<WellData> createFeatureHeatmapRenderer(String featureLabel)
@@ -384,8 +436,7 @@ class HeatmapPresenter
 
         private int getNumberOfAllFeatures()
         {
-            List<String> featureLabels = model.tryGetFeatureLabels();
-            return featureLabels == null ? 0 : featureLabels.size();
+            return model.getAllFeatureNames().size();
         }
 
         private String generateOneFeatureDescription(WellData wellData, String featureLabel,

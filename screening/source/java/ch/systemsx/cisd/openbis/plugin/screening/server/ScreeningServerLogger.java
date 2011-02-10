@@ -25,6 +25,7 @@ import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -49,6 +50,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifi
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
@@ -91,6 +94,14 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         logAccess(sessionToken, "getPlateContent", "PLATE(%s)", plateId.getId());
         return null;
     }
+    
+    public FeatureVectorDataset getFeatureVectorDataset(String sessionToken,
+            DatasetReference dataset, CodeAndLabel featureName)
+    {
+        logAccess(sessionToken, "getFeatureVectorDataset", "DATA_SET(%s) FEATURE(%s)", dataset.getCode(), featureName);
+        return null;
+    }
+
 
     public PlateImages getPlateContentForDataset(String sessionToken, TechId datasetId)
     {

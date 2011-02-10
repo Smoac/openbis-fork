@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.annotation.DoNotEscape;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
@@ -26,13 +28,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  * 
  * @author Tomasz Pylak
  */
+@DoNotEscape
 public class FeatureVectorDataset implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private DatasetReference datasetReference;
 
-    private List<String> featureLabels;
+    private List<CodeAndLabel> featureNames;
 
     private List<FeatureVectorValues> datasetFeatures;
 
@@ -43,11 +46,11 @@ public class FeatureVectorDataset implements ISerializable
     }
 
     public FeatureVectorDataset(DatasetReference datasetReference,
-            List<FeatureVectorValues> datasetFeatures, List<String> featureLabels)
+            List<FeatureVectorValues> datasetFeatures, List<CodeAndLabel> featureNames)
     {
         this.datasetReference = datasetReference;
         this.datasetFeatures = datasetFeatures;
-        this.featureLabels = featureLabels;
+        this.featureNames = featureNames;
     }
 
     public DatasetReference getDatasetReference()
@@ -55,9 +58,9 @@ public class FeatureVectorDataset implements ISerializable
         return datasetReference;
     }
 
-    public List<String> getFeatureLabels()
+    public List<CodeAndLabel> getFeatureNames()
     {
-        return featureLabels;
+        return featureNames;
     }
 
     public List<? extends FeatureVectorValues> getDatasetFeatures()

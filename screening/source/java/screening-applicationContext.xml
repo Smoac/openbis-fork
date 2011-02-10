@@ -18,6 +18,10 @@
         <constructor-arg ref="${data-source-provider}"/>
     </bean>
     
+    <bean id="feature-count-limit-provider" class="ch.systemsx.cisd.openbis.plugin.screening.server.FeatureCountLimitProvider">
+        <property name="limitAsString" value="${feature-count-limit}"/>        
+    </bean>
+    
     <!--
         //Mail Client Parameters
     -->

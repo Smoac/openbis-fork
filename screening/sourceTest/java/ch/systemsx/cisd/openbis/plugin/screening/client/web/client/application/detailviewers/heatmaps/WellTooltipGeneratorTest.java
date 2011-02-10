@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.IRealNumberRenderer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -154,18 +155,18 @@ public class WellTooltipGeneratorTest extends AssertJUnit
     private static FeatureVectorDataset createLargeFeatureVectorDataset()
     {
         int size = 40;
-        List<String> featureLabels = new ArrayList<String>(size);
+        List<CodeAndLabel> featureNames = new ArrayList<CodeAndLabel>(size);
         Map<String, FeatureValue> featureValuesMap = new LinkedHashMap<String, FeatureValue>();
         for (int i = 0; i < size; i++)
         {
             final String label = "Feature" + i;
             final FeatureValue featureValue = FeatureValue.createFloat(i);
-            featureLabels.add("Feature" + i);
+            featureNames.add(new CodeAndLabel(label, label));
             featureValuesMap.put(label, featureValue);
         }
         List<FeatureVectorValues> features = new ArrayList<FeatureVectorValues>();
         features.add(new FeatureVectorValues(null, getLocation(WELL_A2), featureValuesMap));
-        return new FeatureVectorDataset(createDatasetReference(), features, featureLabels);
+        return new FeatureVectorDataset(createDatasetReference(), features, featureNames);
     }
 
     private static FeatureVectorDataset createFeatureVectorDataset()
@@ -181,8 +182,9 @@ public class WellTooltipGeneratorTest extends AssertJUnit
         features.add(new FeatureVectorValues(null, getLocation(WELL_B3), createFeatureVectorMap(
                 featureLabels, new FeatureValue[]
                     { FeatureValue.createFloat(-1), FeatureValue.createFloat(-2) })));
-        return new FeatureVectorDataset(createDatasetReference(), features,
-                Arrays.asList(featureLabels));
+        return new FeatureVectorDataset(createDatasetReference(), features, Arrays.asList(
+                new CodeAndLabel(featureLabels[0], featureLabels[0]), new CodeAndLabel(
+                        featureLabels[1], featureLabels[1])));
     }
 
     private static Map<String, FeatureValue> createFeatureVectorMap(String[] labels,

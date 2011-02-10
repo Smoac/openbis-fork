@@ -43,5 +43,7 @@ public final class ResourceNames
 
     public final static String SCREENING_SAMPLE_SERVER_PLUGIN = "screening-sample-server-plugin";
 
+    public final static String FEATURE_COUNT_LIMIT_PROVIDER = "feature-count-limit-provider";
+
     public static final String MAIL_CLIENT_PARAMETERS = "mail-client-parameters";
 }

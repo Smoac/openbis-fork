@@ -25,8 +25,8 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatase
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IImageDatasetLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSFeatureVectorLoader;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IImageDatasetLoader;
 
 /**
  * A <i>screening</i> plugin specific business object factory.
@@ -58,4 +58,7 @@ public interface IScreeningBusinessObjectFactory
     public IExternalDataBO createExternalDataBO(Session session);
 
     public IDatasetLister createDatasetLister(Session session);
+
+    public IFeatureCountLimitProvider getFeatureCountLimitProvider();
+
 }

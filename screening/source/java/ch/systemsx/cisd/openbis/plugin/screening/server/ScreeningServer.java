@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlug
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
@@ -82,6 +83,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifi
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
@@ -167,6 +170,14 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     {
         Session session = getSession(sessionToken);
         return PlateContentLoader.loadImagesAndMetadata(session, businessObjectFactory, plateId);
+    }
+
+    public FeatureVectorDataset getFeatureVectorDataset(String sessionToken,
+            DatasetReference dataset, CodeAndLabel featureName)
+    {
+        Session session = getSession(sessionToken);
+        return PlateContentLoader.loadFeatureVectorDataset(session, businessObjectFactory, dataset,
+                featureName);
     }
 
     public PlateImages getPlateContentForDataset(String sessionToken, TechId datasetId)

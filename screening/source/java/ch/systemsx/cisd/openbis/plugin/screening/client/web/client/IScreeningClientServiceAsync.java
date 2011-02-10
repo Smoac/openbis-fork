@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
@@ -23,11 +25,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
@@ -38,8 +43,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
-
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
  * Service interface for the <i>screening</i> <i>GWT</i> client.
@@ -55,6 +58,10 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
 
     /** @see IScreeningClientService#getPlateContent(TechId) */
     public void getPlateContent(TechId sampleId, final AsyncCallback<PlateContent> callback);
+
+    /** @see IScreeningClientService#getFeatureVectorDataset(DatasetReference, CodeAndLabel) */
+    public void getFeatureVectorDataset(DatasetReference dataset, CodeAndLabel featureName,
+            AsyncCallback<FeatureVectorDataset> callback);
 
     /** @see IScreeningClientService#getPlateContentForDataset(TechId) */
     public void getPlateContentForDataset(TechId datasetId,

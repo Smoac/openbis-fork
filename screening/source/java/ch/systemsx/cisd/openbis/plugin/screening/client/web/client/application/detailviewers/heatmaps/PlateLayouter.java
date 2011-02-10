@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SimpleModelComboBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.LayoutUtils;
@@ -99,7 +100,7 @@ public class PlateLayouter
 
     private final Widget view;
 
-    private final SimpleModelComboBox<String> heatmapKindChooser;
+    private final SimpleModelComboBox<CodeAndLabel> heatmapKindChooser;
 
     public PlateLayouter(ScreeningViewContext viewContext, PlateMetadata plateMetadata)
     {
@@ -108,7 +109,7 @@ public class PlateLayouter
         LayoutContainer legendContainer = new LayoutContainer();
         IRealNumberRenderer realNumberRenderer = createRealNumberRenderer(viewContext);
         this.presenter =
-                new HeatmapPresenter(model, realNumberRenderer, createViewManipulator(
+                new HeatmapPresenter(viewContext, model, realNumberRenderer, createViewManipulator(
                         renderedWells, legendContainer));
         this.heatmapKindChooser = createHeatmapKindComboBox(presenter, viewContext);
         this.view = renderView(renderedWells, heatmapKindChooser, legendContainer);
@@ -164,7 +165,7 @@ public class PlateLayouter
     public void changeDisplayedFeatureVectorDataset(FeatureVectorDataset dataset)
     {
         this.model.setFeatureVectorDataset(dataset);
-        updateHeatmapKindComboBox(heatmapKindChooser, model.tryGetFeatureLabels());
+        updateHeatmapKindComboBox(heatmapKindChooser, model.getAllFeatureNames());
     }
 
     /**
@@ -173,7 +174,7 @@ public class PlateLayouter
      * re-rendering.
      */
     private static Widget renderView(Component[][] renderedWells,
-            SimpleModelComboBox<String> heatmapKindChooser, LayoutContainer legendContainer)
+            SimpleModelComboBox<CodeAndLabel> heatmapKindChooser, LayoutContainer legendContainer)
     {
         LayoutContainer container = new LayoutContainer();
         container.setScrollMode(Scroll.AUTO);
@@ -370,20 +371,20 @@ public class PlateLayouter
 
     // ---------
 
-    private static SimpleModelComboBox<String> createHeatmapKindComboBox(
+    private static SimpleModelComboBox<CodeAndLabel> createHeatmapKindComboBox(
             final HeatmapPresenter presenter, IMessageProvider messageProvider)
     {
-        List<LabeledItem<String>> items = createHeatmapKindModel(null);
-        final SimpleModelComboBox<String> chooser =
-                new SimpleModelComboBox<String>(messageProvider, items,
+        List<LabeledItem<CodeAndLabel>> items = createHeatmapKindModel(null);
+        final SimpleModelComboBox<CodeAndLabel> chooser =
+                new SimpleModelComboBox<CodeAndLabel>(messageProvider, items,
                         HEATMAP_KIND_COMBOBOX_CHOOSER_WIDTH_PX);
-        chooser.addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<LabeledItem<String>>>()
+        chooser.addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<LabeledItem<CodeAndLabel>>>()
             {
                 @Override
                 public void selectionChanged(
-                        SelectionChangedEvent<SimpleComboValue<LabeledItem<String>>> se)
+                        SelectionChangedEvent<SimpleComboValue<LabeledItem<CodeAndLabel>>> se)
                 {
-                    String featureName = SimpleModelComboBox.getChosenItem(se);
+                    CodeAndLabel featureName = SimpleModelComboBox.getChosenItem(se);
                     if (featureName == null)
                     {
                         presenter.setWellMetadataMode();
@@ -396,25 +397,26 @@ public class PlateLayouter
         return chooser;
     }
 
-    private static void updateHeatmapKindComboBox(SimpleModelComboBox<String> chooser,
-            List<String> featureLabelsOrNull)
+    private static void updateHeatmapKindComboBox(SimpleModelComboBox<CodeAndLabel> chooser,
+            List<CodeAndLabel> featureNames)
     {
-        List<LabeledItem<String>> items = createHeatmapKindModel(featureLabelsOrNull);
+        List<LabeledItem<CodeAndLabel>> items = createHeatmapKindModel(featureNames);
         chooser.removeAll();
         chooser.add(items);
         GWTUtils.autoselect(chooser, false);
     }
 
-    private static List<LabeledItem<String>> createHeatmapKindModel(List<String> featureLabelsOrNull)
+    private static List<LabeledItem<CodeAndLabel>> createHeatmapKindModel(
+            List<CodeAndLabel> featureNamesOrNull)
     {
-        List<LabeledItem<String>> items = new ArrayList<LabeledItem<String>>();
-        items.add(new LabeledItem<String>(null, METADATA_HEATMAP_KIND_MSG));
-        if (featureLabelsOrNull != null)
+        List<LabeledItem<CodeAndLabel>> items = new ArrayList<LabeledItem<CodeAndLabel>>();
+        items.add(new LabeledItem<CodeAndLabel>(null, METADATA_HEATMAP_KIND_MSG));
+        if (featureNamesOrNull != null)
         {
-            for (String featureLabel : featureLabelsOrNull)
+            for (CodeAndLabel featureName : featureNamesOrNull)
             {
-                String label = FEATURE_HEATMAP_KIND_PREFIX_MSG + featureLabel;
-                items.add(new LabeledItem<String>(featureLabel, label));
+                String label = FEATURE_HEATMAP_KIND_PREFIX_MSG + featureName.getLabel();
+                items.add(new LabeledItem<CodeAndLabel>(featureName, label));
             }
         }
         return items;

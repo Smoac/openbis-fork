@@ -18,12 +18,15 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.WellData;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureValue;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
@@ -39,6 +42,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
  */
 class PlateLayouterModel
 {
+    private DatasetReference datasetReference; // currently shown dataset
+
     private final WellData[][] wellMatrix;
 
     private final List<WellData> wellList; // the same wells as in the matrix
@@ -47,8 +52,13 @@ class PlateLayouterModel
 
     private ImageDatasetEnrichedReference imageDatasetOrNull;
 
-    private List<String> featureLabelsOrNull; // names of all features
+    // names of all features
+    private List<CodeAndLabel> allFeatureNames = new ArrayList<CodeAndLabel>();
 
+    // labels of loaded features
+    private Set<String> availableFeatureLabels = new LinkedHashSet<String>();
+
+    // labels of loaded vocabulary features
     private Set<String> vocabularyFeatureLabels = new HashSet<String>();
 
     // ---
@@ -57,6 +67,11 @@ class PlateLayouterModel
     {
         this.wellMatrix = createWellMatrix(plateMetadata);
         this.wellList = asList(wellMatrix);
+    }
+
+    public DatasetReference tryGetDatasetReference()
+    {
+        return datasetReference;
     }
 
     public WellData[][] getWellMatrix()
@@ -79,9 +94,14 @@ class PlateLayouterModel
         this.imageDatasetOrNull = imageDataset;
     }
 
-    public List<String> tryGetFeatureLabels()
+    public List<CodeAndLabel> getAllFeatureNames()
     {
-        return featureLabelsOrNull;
+        return allFeatureNames;
+    }
+
+    public boolean isFeatureAvailable(String featureLabel)
+    {
+        return availableFeatureLabels.contains(featureLabel);
     }
 
     public boolean isVocabularyFeature(String featureLabel)
@@ -93,14 +113,12 @@ class PlateLayouterModel
 
     public void setFeatureVectorDataset(FeatureVectorDataset featureVectorDatasetOrNull)
     {
-        unsetFeatureVectors();
-        this.vocabularyFeatureLabels.clear(); // TODO PTR: don't clear on update
-        if (featureVectorDatasetOrNull == null)
+        cleanFeatureVectors();
+        this.datasetReference = null;
+        if (featureVectorDatasetOrNull != null)
         {
-            this.featureLabelsOrNull = null;
-        } else
-        {
-            this.featureLabelsOrNull = featureVectorDatasetOrNull.getFeatureLabels();
+            this.datasetReference = featureVectorDatasetOrNull.getDatasetReference();
+            this.allFeatureNames.addAll(featureVectorDatasetOrNull.getFeatureNames());
             List<? extends FeatureVectorValues> features =
                     featureVectorDatasetOrNull.getDatasetFeatures();
             if (features.isEmpty() == false)
@@ -118,9 +136,50 @@ class PlateLayouterModel
                             .entrySet())
                     {
                         String featureLabel = entry.getKey();
+                        availableFeatureLabels.add(featureLabel);
                         FeatureValue value = entry.getValue();
                         wellData.addFeatureValue(featureLabel, value);
                     }
+                }
+            }
+        }
+    }
+
+    private void cleanFeatureVectors()
+    {
+        this.vocabularyFeatureLabels.clear();
+        this.availableFeatureLabels.clear();
+        this.allFeatureNames.clear();
+        for (WellData well : wellList)
+        {
+            well.resetFeatureValues();
+        }
+    }
+
+    // add new feature to those already loaded
+    public void updateFeatureVectorDataset(FeatureVectorDataset featureVectorDataset)
+    {
+        assert datasetReference.getCode().equals(
+                featureVectorDataset.getDatasetReference().getCode());
+
+        List<? extends FeatureVectorValues> features = featureVectorDataset.getDatasetFeatures();
+        if (features.isEmpty() == false)
+        {
+            // NOTE: for each feature vector in the dataset this set is the same
+            this.vocabularyFeatureLabels.addAll(extractVocabularyFeatureLabels(features.get(0)));
+        }
+        for (FeatureVectorValues featureVector : features)
+        {
+            WellLocation loc = featureVector.getWellLocation();
+            WellData wellData = tryGetWellData(loc);
+            if (wellData != null)
+            {
+                for (Entry<String, FeatureValue> entry : featureVector.getFeatureMap().entrySet())
+                {
+                    String featureLabel = entry.getKey();
+                    availableFeatureLabels.add(featureLabel);
+                    FeatureValue value = entry.getValue();
+                    wellData.addFeatureValue(featureLabel, value);
                 }
             }
         }
@@ -152,14 +211,6 @@ class PlateLayouterModel
         {
             // can happen if the plate geometry is not in sync with the feature vector database
             return null;
-        }
-    }
-
-    private void unsetFeatureVectors()
-    {
-        for (WellData well : wellList)
-        {
-            well.resetFeatureValues(); // TODO PTR: needed? keep values of all datasets
         }
     }
 

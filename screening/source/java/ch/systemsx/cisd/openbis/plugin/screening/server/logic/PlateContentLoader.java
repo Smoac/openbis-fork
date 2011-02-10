@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -27,13 +28,13 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -70,9 +71,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IImageDatasetLoa
  */
 public class PlateContentLoader
 {
-    // max number of initially loaded features
-    @SuppressWarnings("unused")
-    private static int MAX_FEATURES = 7;
 
     /**
      * Loads data about the plate for a specified sample id. Attaches information about images and
@@ -82,6 +80,17 @@ public class PlateContentLoader
             IScreeningBusinessObjectFactory businessObjectFactory, TechId plateId)
     {
         return new PlateContentLoader(session, businessObjectFactory).getPlateContent(plateId);
+    }
+
+    /**
+     * Loads feature vector of specified dataset with one feature specified by name.
+     */
+    public static FeatureVectorDataset loadFeatureVectorDataset(Session session,
+            IScreeningBusinessObjectFactory businessObjectFactory, DatasetReference dataset,
+            CodeAndLabel featureName)
+    {
+        return new PlateContentLoader(session, businessObjectFactory).fetchFeatureVector(dataset,
+                featureName);
     }
 
     /**
@@ -270,36 +279,73 @@ public class PlateContentLoader
         return fetchFeatureVectors(featureVectorDatasetReferences);
     }
 
+    private FeatureVectorDataset fetchFeatureVector(DatasetReference datasetReference,
+            CodeAndLabel featureName)
+    {
+        IHCSFeatureVectorLoader loader =
+                businessObjectFactory.createHCSFeatureVectorLoader(datasetReference
+                        .getDatastoreCode());
+        FeatureVectorDataset result = loadFeatureVector(datasetReference, featureName, loader);
+        return result;
+    }
+
     private List<FeatureVectorDataset> fetchFeatureVectors(
             List<DatasetReference> featureVectorDatasetReferences)
     {
         List<FeatureVectorDataset> featureVectorDatasets = new ArrayList<FeatureVectorDataset>();
-        for (DatasetReference datasetReference : featureVectorDatasetReferences)
+        if (featureVectorDatasetReferences.isEmpty() == false)
         {
-            IHCSFeatureVectorLoader loader =
-                    businessObjectFactory.createHCSFeatureVectorLoader(datasetReference
-                            .getDatastoreCode());
-            FeatureVectorDataset featureVectorDataset = loadFeatureVector(datasetReference, loader);
-            featureVectorDatasets.add(featureVectorDataset);
+            int maxFeatures = businessObjectFactory.getFeatureCountLimitProvider().getLimit();
+            int maxFeaturesPerDataset =
+                    Math.max(1, maxFeatures / featureVectorDatasetReferences.size());
+            for (DatasetReference datasetReference : featureVectorDatasetReferences)
+            {
+                IHCSFeatureVectorLoader loader =
+                        businessObjectFactory.createHCSFeatureVectorLoader(datasetReference
+                                .getDatastoreCode());
+                FeatureVectorDataset featureVectorDataset =
+                        loadFeatureVector(datasetReference, loader, maxFeaturesPerDataset);
+                featureVectorDatasets.add(featureVectorDataset);
+            }
         }
         return featureVectorDatasets;
     }
 
+    // loads feature vector with limited number of features
     private FeatureVectorDataset loadFeatureVector(DatasetReference datasetReference,
-            IHCSFeatureVectorLoader loader)
+            IHCSFeatureVectorLoader loader, int maxFeaturesPerDataset)
     {
-
-        List<CodeAndLabel> featureNames =
+        List<CodeAndLabel> allFeatureNames =
                 loader.fetchDatasetFeatureNames(datasetReference.getCode());
-        // TODO PTR limit names
+        List<CodeAndLabel> featuresToLoad = allFeatureNames;
+        if (featuresToLoad.size() > maxFeaturesPerDataset)
+        {
+            featuresToLoad = featuresToLoad.subList(0, maxFeaturesPerDataset);
+        }
         WellFeatureCollection<FeatureVectorValues> featureValues =
-                loader.fetchDatasetFeatureValues(datasetReference.getCode(), featureNames);
-
+                loader.fetchDatasetFeatureValues(datasetReference.getCode(), featuresToLoad);
         List<FeatureVectorValues> featureVectors = featureValues.getFeatures();
-        List<String> featureLabels = CodeAndLabel.asLabels(featureNames);
 
         FeatureVectorDataset featureVectorDataset =
-                new FeatureVectorDataset(datasetReference, featureVectors, featureLabels);
+                new FeatureVectorDataset(datasetReference, featureVectors, allFeatureNames);
+        return featureVectorDataset;
+    }
+
+    // loads feature vector with only one feature specified by name
+    private FeatureVectorDataset loadFeatureVector(DatasetReference datasetReference,
+            CodeAndLabel featureName, IHCSFeatureVectorLoader loader)
+    {
+        List<CodeAndLabel> allFeatureNames =
+                loader.fetchDatasetFeatureNames(datasetReference.getCode());
+
+        WellFeatureCollection<FeatureVectorValues> featureValues =
+                loader.fetchDatasetFeatureValues(datasetReference.getCode(),
+                        Collections.singletonList(featureName));
+
+        List<FeatureVectorValues> featureVectors = featureValues.getFeatures();
+
+        FeatureVectorDataset featureVectorDataset =
+                new FeatureVectorDataset(datasetReference, featureVectors, allFeatureNames);
         return featureVectorDataset;
     }
 

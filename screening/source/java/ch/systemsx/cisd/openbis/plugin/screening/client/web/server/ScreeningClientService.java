@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ITableModelP
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
@@ -50,6 +51,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientService;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
@@ -135,6 +138,18 @@ public final class ScreeningClientService extends AbstractClientService implemen
         try
         {
             return server.getPlateContent(getSessionToken(), plateId);
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public FeatureVectorDataset getFeatureVectorDataset(DatasetReference dataset,
+            CodeAndLabel featureName) throws UserFailureException
+    {
+        try
+        {
+            return server.getFeatureVectorDataset(getSessionToken(), dataset, featureName);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

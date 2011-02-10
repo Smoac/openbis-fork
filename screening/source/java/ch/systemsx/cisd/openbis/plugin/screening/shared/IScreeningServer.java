@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractT
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -39,8 +40,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.authorization.DatasetReferencePredicate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.authorization.WellContentValidator;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.authorization.WellSearchCriteriaPredicate;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
@@ -58,13 +62,23 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCrit
 public interface IScreeningServer extends IServer
 {
     /**
-     * loads data about the plate for a specified sample id. Attaches information about images and
+     * Loads data about the plate for a specified sample id. Attaches information about images and
      * image analysis only if one dataset with such a data exist.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public PlateContent getPlateContent(String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId plateId);
+
+    /**
+     * Loads feature vector of specified dataset with one feature specified by name.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public FeatureVectorDataset getFeatureVectorDataset(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = DatasetReferencePredicate.class) DatasetReference dataset,
+            CodeAndLabel featureName);
 
     /**
      * Returns plate content for a specified HCS_IMAGE dataset. Loads data about the plate for a
