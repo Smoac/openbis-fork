@@ -100,7 +100,7 @@ public class ParallelizedExecutorTest extends AssertJUnit
     private Collection<FailureRecord<Integer>> process(List<Integer> items,
             ITaskExecutor<Integer> taskExecutor)
     {
-        return ParallelizedExecutor.process(items, taskExecutor, 10, 10, 1);
+        return ParallelizedExecutor.process(items, taskExecutor, 10, 10, "test", 1);
     }
 
     private static void assertAllExecuted(final boolean[] executed)

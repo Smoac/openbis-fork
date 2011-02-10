@@ -51,7 +51,7 @@ public class ParallelizedExecutor
     {
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("Found %d files to convert.",
+            operationLog.info(String.format("Found %d files to process.",
                     itemsToProcessOrNull.size()));
         }
         if (itemsToProcessOrNull.isEmpty())
@@ -62,10 +62,12 @@ public class ParallelizedExecutor
     }
 
     @Private
-    static int getInitialNumberOfWorkers(double machineLoad, int maxThreads)
+    static int getInitialNumberOfWorkers(double machineLoad, int maxThreads, int numberOfTaskItems)
     {
-        return (int) Math.max(1,
-                Math.min(Math.round(NUMBER_OF_CPU_CORES * machineLoad), maxThreads));
+        long threads = Math.round(NUMBER_OF_CPU_CORES * machineLoad);
+        threads = Math.min(threads, maxThreads);
+        threads = Math.min(threads, numberOfTaskItems);
+        return (int) Math.max(1, threads);
     }
 
     private static <T> void startUpWorkerThreads(AtomicInteger workersCounter,
@@ -94,9 +96,10 @@ public class ParallelizedExecutor
      */
     public static <T> Collection<FailureRecord<T>> process(List<T> itemsToProcessOrNull,
             ITaskExecutor<T> taskExecutor, double machineLoad, int maxThreads,
-            int retriesNumberWhenExecutionFails) throws InterruptedExceptionUnchecked,
-            EnvironmentFailureException
+            String processDescription, int retriesNumberWhenExecutionFails)
+            throws InterruptedExceptionUnchecked, EnvironmentFailureException
     {
+        long start = System.currentTimeMillis();
         final Queue<T> workerQueue = tryFillWorkerQueue(itemsToProcessOrNull);
         final Collection<FailureRecord<T>> failed =
                 Collections.synchronizedCollection(new ArrayList<FailureRecord<T>>());
@@ -105,7 +108,8 @@ public class ParallelizedExecutor
             return failed;
         }
         final AtomicInteger workersCounter =
-                new AtomicInteger(getInitialNumberOfWorkers(machineLoad, maxThreads));
+                new AtomicInteger(getInitialNumberOfWorkers(machineLoad, maxThreads,
+                        itemsToProcessOrNull.size()));
         startUpWorkerThreads(workersCounter, workerQueue, failed, taskExecutor,
                 retriesNumberWhenExecutionFails);
         synchronized (failed)
@@ -121,7 +125,18 @@ public class ParallelizedExecutor
                 }
             }
         }
+        logFinished(failed, processDescription, start);
         return failed;
+    }
+
+    private static <T> void logFinished(Collection<FailureRecord<T>> failureReport,
+            String processDescription, long startTimeMsec)
+    {
+        int errorsNumber = failureReport.size();
+        String time = "[" + (System.currentTimeMillis() - startTimeMsec) + " msec.] ";
+        operationLog.info(processDescription + " finished "
+                + (errorsNumber == 0 ? "successfully" : "with " + errorsNumber + " errors") + " "
+                + time + ".");
     }
 
     /**

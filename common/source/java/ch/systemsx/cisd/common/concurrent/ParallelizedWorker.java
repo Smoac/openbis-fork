@@ -98,7 +98,7 @@ class ParallelizedWorker<T> implements Runnable
                 final T taskOrNull = workerQueue.poll();
                 if (taskOrNull == null)
                 {
-                    operationLog.info(EXITING_MSG);
+                    operationLog.debug(EXITING_MSG);
                     return;
                 }
                 if (operationLog.isDebugEnabled())

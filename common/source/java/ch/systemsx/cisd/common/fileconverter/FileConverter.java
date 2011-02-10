@@ -83,7 +83,7 @@ public class FileConverter
         ITaskExecutor<File> taskExecutor = new FileConversionTaskExecutor(conversionStrategy);
         Collection<FailureRecord<File>> failureReport =
                 ParallelizedExecutor.process(itemsToProcess, taskExecutor, machineLoad, maxThreads,
-                        MAX_RETRY_OF_FAILED_COMPRESSIONS);
+                        "File conversion", MAX_RETRY_OF_FAILED_COMPRESSIONS);
         return ParallelizedExecutor.tryFailuresToString(failureReport);
     }
 
