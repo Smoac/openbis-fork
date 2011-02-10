@@ -979,17 +979,28 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         final WellImages images = imageCache.getWellImages(imageReference, size, imageMetadata);
         if (images.isLoaderCall())
         {
-            final List<PlateImageReference> imageReferences =
-                    createPlateImageReferences(imageDatasetId, imageMetadata, null,
-                            Collections.singletonList(imageReference.getWellPosition()));
-            loadImages(imageReferences, imageSizeOrNull, new IPlateImageHandler()
-                {
-                    public void handlePlateImage(PlateImageReference plateImageReference,
-                            byte[] imageFileBytes)
+            try
+            {
+                final List<PlateImageReference> imageReferences =
+                        createPlateImageReferences(imageDatasetId, imageMetadata, null,
+                                Collections.singletonList(imageReference.getWellPosition()));
+                loadImages(imageReferences, imageSizeOrNull, new IPlateImageHandler()
                     {
-                        images.putImage(plateImageReference, imageFileBytes);
-                    }
-                });
+                        public void handlePlateImage(PlateImageReference plateImageReference,
+                                byte[] imageFileBytes)
+                        {
+                            images.putImage(plateImageReference, imageFileBytes);
+                        }
+                    });
+            } catch (IOException ex)
+            {
+                images.cancel(ex);
+                throw ex;
+            } catch (RuntimeException ex)
+            {
+                images.cancel(ex);
+                throw ex;
+            }
         }
         final CachedImage imageOrNull = images.getImage(imageReference);
         if (imageOrNull == null)
@@ -1065,17 +1076,28 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                                 .getThumbnailHeight()), imageMetadata);
         if (images.isLoaderCall())
         {
-            final List<PlateImageReference> imageReferences =
-                    createPlateImageReferences(imageDatasetId, imageMetadata, null,
-                            Collections.singletonList(imageReference.getWellPosition()));
-            loadThumbnailImages(imageReferences, new IPlateImageHandler()
-                {
-                    public void handlePlateImage(PlateImageReference plateImageReference,
-                            byte[] imageFileBytes)
+            try
+            {
+                final List<PlateImageReference> imageReferences =
+                        createPlateImageReferences(imageDatasetId, imageMetadata, null,
+                                Collections.singletonList(imageReference.getWellPosition()));
+                loadThumbnailImages(imageReferences, new IPlateImageHandler()
                     {
-                        images.putImage(plateImageReference, imageFileBytes);
-                    }
-                });
+                        public void handlePlateImage(PlateImageReference plateImageReference,
+                                byte[] imageFileBytes)
+                        {
+                            images.putImage(plateImageReference, imageFileBytes);
+                        }
+                    });
+            } catch (IOException ex)
+            {
+                images.cancel(ex);
+                throw ex;
+            } catch (RuntimeException ex)
+            {
+                images.cancel(ex);
+                throw ex;
+            }
         }
         final CachedImage imageOrNull = images.getImage(imageReference);
         if (imageOrNull == null)

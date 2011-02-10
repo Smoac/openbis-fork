@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.api.v1;
 
+import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.util.HashMap;
 import java.util.Map;
@@ -156,6 +157,10 @@ final class WellImageCache
         private final CountDownLatch ready = new CountDownLatch(1);
 
         private byte[] imageData;
+        
+        private IOException ioe;
+        
+        private RuntimeException rex;
 
         void set(byte[] imageData)
         {
@@ -163,15 +168,38 @@ final class WellImageCache
             ready.countDown();
         }
 
-        byte[] getImageData()
+        byte[] getImageData() throws IOException
         {
             try
             {
                 ready.await();
+                if (ioe != null)
+                {
+                    throw ioe;
+                }
+                if (rex != null)
+                {
+                    throw rex;
+                }
                 return imageData;
             } catch (InterruptedException ex)
             {
                 throw new RuntimeException("Image fetching interrupted.");
+            }
+        }
+        
+        void release(IOException ex)
+        {
+            this.ioe = ex;
+            ready.countDown();
+        }
+        
+        void release(RuntimeException ex)
+        {
+            if (ready.getCount() > 0)
+            {
+                this.rex = ex;
+                ready.countDown();
             }
         }
     }
@@ -203,6 +231,22 @@ final class WellImageCache
         boolean isLoaderCall()
         {
             return loaderCall;
+        }
+        
+        void cancel(IOException ex)
+        {
+            for (CachedImage image : imageMap.values())
+            {
+                image.release(ex);
+            }
+        }
+
+        void cancel(RuntimeException ex)
+        {
+            for (CachedImage image : imageMap.values())
+            {
+                image.release(ex);
+            }
         }
 
     }
