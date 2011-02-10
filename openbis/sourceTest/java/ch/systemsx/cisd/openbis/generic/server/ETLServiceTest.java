@@ -144,6 +144,8 @@ public class ETLServiceTest extends AbstractServerTestCase
 
         List<SimpleDataSetInformationDTO> dataSets =
                 createService().listDataSets(SESSION_TOKEN, DSS_CODE);
+        
+        assertEquals(DSS_CODE, dataSets.get(0).getDataStoreCode());
         assertEquals("ds-1", dataSets.get(0).getDataSetCode());
         assertEquals("share-1", dataSets.get(0).getDataSetShareId());
         assertEquals("loc-a", dataSets.get(0).getDataSetLocation());
@@ -159,6 +161,9 @@ public class ETLServiceTest extends AbstractServerTestCase
     {
         ExternalDataPE dataSet = new ExternalDataPE();
         dataSet.setId(id);
+        DataStorePE store = new DataStorePE();
+        store.setCode(DSS_CODE);
+        dataSet.setDataStore(store);
         dataSet.setCode("ds-" + id);
         DataSetTypePE dataSetType = new DataSetTypePE();
         dataSetType.setCode("my-type");
