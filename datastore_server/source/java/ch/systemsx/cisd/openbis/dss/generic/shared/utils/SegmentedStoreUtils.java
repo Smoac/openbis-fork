@@ -25,10 +25,10 @@ import java.util.regex.Pattern;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.rsync.RsyncCopier;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 
 /**
