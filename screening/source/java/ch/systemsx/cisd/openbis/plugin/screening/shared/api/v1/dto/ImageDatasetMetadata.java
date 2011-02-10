@@ -37,8 +37,8 @@ public class ImageDatasetMetadata implements Serializable
     private final int thumbnailHeight;
 
     public ImageDatasetMetadata(IImageDatasetIdentifier dataset, List<String> channelCodes,
-            List<String> channelLabels, int tilesRows, int tilesCols, int width,
-            int height, int thumbnailWidth, int thumbnailHeight)
+            List<String> channelLabels, int tilesRows, int tilesCols, int width, int height,
+            int thumbnailWidth, int thumbnailHeight)
     {
         this.imageDataset = dataset;
         this.channelNames = channelCodes;
@@ -182,15 +182,11 @@ public class ImageDatasetMetadata implements Serializable
     @Override
     public String toString()
     {
-        if (hasThumbnails())
-        {
-            return "Dataset " + imageDataset + " has [" + getChannelCodes() + "] channels, "
-                    + tilesNumber + " tiles. Image resolution: " + width + "x" + height;
-        } else
-        {
-            return "Dataset " + imageDataset + " has [" + getChannelCodes() + "] channels, "
-                    + tilesNumber + " tiles. Image resolution: " + width + "x" + height
-                    + ". Thumbnail resolution: " + thumbnailWidth + "x" + thumbnailHeight + ".";
-        }
+        String thumbnailsDesc =
+                hasThumbnails() ? ". Thumbnail resolution: " + thumbnailWidth + "x"
+                        + thumbnailHeight + "." : "";
+        return "Dataset " + imageDataset + " has [" + getChannelCodes() + "] channels, "
+                + tilesNumber + " tiles. Image resolution: " + width + "x" + height
+                + thumbnailsDesc;
     }
 }
