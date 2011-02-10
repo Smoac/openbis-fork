@@ -42,12 +42,23 @@ RECOGNIZED_IMAGES_EXTENSIONS = ["tiff", "tif", "png", "gif", "jpg", "jpeg"]
 
 """ should thumbnails be generated? """
 GENERATE_THUMBNAILS = True
+""" the maximal width and height of the generated thumbnails """
+MAX_THUMNAIL_WIDTH_AND_HEIGHT = 256
+""" 
+number of threads that are used for thumbnail generation will be equal to:
+   this constant * number of processor cores 
+"""
+ALLOWED_MACHINE_LOAD_DURING_THUMBNAIL_GENERATION = 1.0
+
 """ should all dataset in one experiment use the same channels? """
-STORE_CHANNELS_ON_EXPERIMENT_LEVEL = True
+STORE_CHANNELS_ON_EXPERIMENT_LEVEL = False
 """ should the original data be stored in the original form or should we pack them into one container? """
 ORIGINAL_DATA_STORAGE_FORMAT = OriginalDataStorageFormat.UNCHANGED
 
 # ---------
+
+""" name of the color which should be treated as transparent in overlays """ 
+OVERLAYS_TRANSPARENT_COLOR = "black"
 
 """ sample type code of the plate, needed if a new sample is registered automatically """
 PLATE_TYPE_CODE = "PLATE"
@@ -243,7 +254,11 @@ def set_image_dataset_storage_config(image_dataset):
     config.setStoreChannelsOnExperimentLevel(STORE_CHANNELS_ON_EXPERIMENT_LEVEL)
     config.setOriginalDataStorageFormat(ORIGINAL_DATA_STORAGE_FORMAT)
     if GENERATE_THUMBNAILS:
-        config.switchOnThumbnailsGeneration()
+        thumbnailsStorageFormat = ThumbnailsStorageFormat()
+        thumbnailsStorageFormat.setAllowedMachineLoadDuringGeneration(ALLOWED_MACHINE_LOAD_DURING_THUMBNAIL_GENERATION)
+        thumbnailsStorageFormat.setMaxWidth(MAX_THUMNAIL_WIDTH_AND_HEIGHT)
+        thumbnailsStorageFormat.setMaxHeight(MAX_THUMNAIL_WIDTH_AND_HEIGHT)
+        config.setThumbnailsStorageFormat(thumbnailsStorageFormat)
     image_dataset.setImageStorageConfiguraton(config)
     
 """
@@ -397,11 +412,17 @@ def create_overlay_dataset_details(overlays_dir, image_dataset, img_dataset_code
     overlay_dataset = overlay_dataset_details.getDataSetInformation()
     set_overlay_dataset(overlays_dir, image_dataset, img_dataset_code, overlay_dataset, extension)
     set_dataset_details(overlay_dataset, overlay_dataset_details)
-    set_image_dataset_storage_config(image_dataset)
+    set_image_dataset_storage_config(overlay_dataset)
 
-    config = ImageStorageConfiguraton.createDefault()
+    config = overlay_dataset.getImageStorageConfiguraton()
     # channels will be connected to the dataset
     config.setStoreChannelsOnExperimentLevel(False)
+    if GENERATE_THUMBNAILS:
+        # overlay thumbnails should be generated with higher quality
+        thumbnailsStorageFormat = config.getThumbnailsStorageFormat()
+        thumbnailsStorageFormat.setHighQuality(True);
+        config.setThumbnailsStorageFormat(thumbnailsStorageFormat)
+    
     overlay_dataset.setImageStorageConfiguraton(config)
     return overlay_dataset_details
 
@@ -464,9 +485,10 @@ def debug(*msg):
     print "".join(msg)
     
 def convert_to_png(dir, transparent_color):
-    strategy = Tiff2PngConversionStrategy(transparent_color)
+    delete_original_files = True
+    strategy = Tiff2PngConversionStrategy(transparent_color, 0, delete_original_files)
     # Uses #cores * machineLoad threads for the conversion, but not more than maxThreads
-    machineLoad = 1
+    machineLoad = ALLOWED_MACHINE_LOAD_DURING_THUMBNAIL_GENERATION
     maxThreads = 100
     errorMsg = FileConverter.performConversion(File(dir), strategy, machineLoad, maxThreads)
     if errorMsg != None:
@@ -512,21 +534,25 @@ def register_images_with_overlays_and_analysis(incoming):
     # move overlays folder
     overlays_dir = find_dir(File(image_data_set_folder), OVERLAYS_DIR_PATTERN)
     if overlays_dir != None:
-        convert_to_png(overlays_dir.getPath(), "white")
+        tr_overlays = service.transaction(overlays_dir, factory)
+        convert_to_png(overlays_dir.getPath(), OVERLAYS_TRANSPARENT_COLOR)
         overlay_dataset_details = create_overlay_dataset_details(overlays_dir, 
                                      image_dataset_details.getDataSetInformation(), img_dataset_code, "png")
-        overlays_data_set = tr.createNewDataSet(overlay_dataset_details)
-        tr.moveFile(overlays_dir.getPath(), overlays_data_set, "overlays")
+        overlays_data_set = tr_overlays.createNewDataSet(overlay_dataset_details)
+        tr_overlays.moveFile(overlays_dir.getPath(), overlays_data_set, "overlays")
+        tr_overlays.commit()
 
     # transform and move analysis file
     analysis_file = find_file_by_ext(File(image_data_set_folder), "xml")
     if analysis_file != None:
+        tr_analysis = service.transaction(analysis_file, factory)
         analysis_registration_details = create_analysis_dataset_details(space_code, plate_code, img_dataset_code)
-        analysis_data_set = tr.createNewDataSet(analysis_registration_details)
-        analysis_data_set_file = tr.createNewFile(analysis_data_set, analysis_file.getName())
+        analysis_data_set = tr_analysis.createNewDataSet(analysis_registration_details)
+        analysis_data_set_file = tr_analysis.createNewFile(analysis_data_set, analysis_file.getName())
         GEExplorerImageAnalysisResultParser(analysis_file.getPath()).writeCSV(File(analysis_data_set_file))
+        tr_analysis.commit()
         
     service.commit()
     notify(plate_code)
-    
+  
 register_images_with_overlays_and_analysis(incoming)
