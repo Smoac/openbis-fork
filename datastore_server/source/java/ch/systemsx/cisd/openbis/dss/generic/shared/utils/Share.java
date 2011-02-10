@@ -1,0 +1,118 @@
+/*
+ * Copyright 2011 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.filesystem.HostAwareFile;
+import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
+
+/**
+ * Represents a share of a segmented store. Holds the root directory of the share as well as
+ * the data sets. It is able to calculate the free disk space.
+ *
+ * @author Franz-Josef Elmer
+ */
+public final class Share
+{
+    private final File share;
+
+    private final IFreeSpaceProvider freeSpaceProvider;
+
+    private final String shareId;
+
+    private final List<SimpleDataSetInformationDTO> dataSets =
+            new ArrayList<SimpleDataSetInformationDTO>();
+
+    private long size;
+
+    Share(File share, IFreeSpaceProvider freeSpaceProvider)
+    {
+        this.share = share;
+        this.freeSpaceProvider = freeSpaceProvider;
+        shareId = share.getName();
+    }
+    
+    /**
+     * Returns the share Id of this share.
+     */
+    public String getShareId()
+    {
+        return shareId;
+    }
+
+    /**
+     * Returns the root directory of this share. 
+     */
+    public File getShare()
+    {
+        return share;
+    }
+
+    /**
+     * Calculates the actual free space (in bytes) of the hard disk on which this share resides.
+     */
+    public long calculateFreeSpace()
+    {
+        try
+        {
+            return 1024 * freeSpaceProvider.freeSpaceKb(new HostAwareFile(share));
+        } catch (IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+    }
+    
+    void addDataSet(SimpleDataSetInformationDTO dataSet)
+    {
+        dataSets.add(dataSet);
+        size += dataSet.getDataSetSize();
+    }
+    
+    /**
+     * Returns all data sets of this shared ordered by size starting with the largest data set.
+     */
+    public List<SimpleDataSetInformationDTO> getDataSetsOrderedBySize()
+    {
+        Collections.sort(dataSets, new Comparator<SimpleDataSetInformationDTO>()
+            {
+                public int compare(SimpleDataSetInformationDTO o1,
+                        SimpleDataSetInformationDTO o2)
+                {
+                    long size1 = o1.getDataSetSize();
+                    long size2 = o2.getDataSetSize();
+                    return size1 < size2 ? 1 : (size1 > size2 ? -1 : 0);
+                }
+            });
+        return dataSets;
+    }
+    
+    /**
+     * Returns the total size (in bytes) of all data sets.
+     */
+    public long getTotalSizeOfDataSets()
+    {
+        return size;
+    }
+}

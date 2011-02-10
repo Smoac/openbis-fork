@@ -29,6 +29,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 public class SimpleDataSetInformationDTO implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+    
+    private String dataStoreCode;
 
     private String dataSetCode;
 
@@ -51,6 +53,16 @@ public class SimpleDataSetInformationDTO implements Serializable
     private String databaseInstanceCode;
 
     private Collection<String> parentDataSetCodes;
+
+    public void setDataStoreCode(String dataStoreCode)
+    {
+        this.dataStoreCode = dataStoreCode;
+    }
+
+    public String getDataStoreCode()
+    {
+        return dataStoreCode;
+    }
 
     public String getDataSetType()
     {

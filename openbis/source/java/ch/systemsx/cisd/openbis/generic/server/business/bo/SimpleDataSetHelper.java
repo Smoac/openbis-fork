@@ -50,6 +50,7 @@ public class SimpleDataSetHelper
     private static SimpleDataSetInformationDTO translate(ExternalDataPE data)
     {
         SimpleDataSetInformationDTO result = new SimpleDataSetInformationDTO();
+        result.setDataStoreCode(data.getDataStore().getCode());
         result.setDataSetCode(data.getCode());
         result.setDataSetShareId(data.getShareId());
         result.setDataSetLocation(data.getLocation());

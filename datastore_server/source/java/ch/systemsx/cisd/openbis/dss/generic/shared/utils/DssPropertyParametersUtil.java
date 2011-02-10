@@ -21,7 +21,6 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
@@ -36,10 +35,8 @@ public class DssPropertyParametersUtil
     /** Prefix of system properties which may override service.properties. */
     public static final String OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX = "openbis.dss.";
 
-    @Private
-    static final String DSS_CODE_KEY = "data-store-server-code";
+    public static final String DSS_CODE_KEY = "data-store-server-code";
 
-    @Private
     public static final String STOREROOT_DIR_KEY = "storeroot-dir";
 
     public static final String DOWNLOAD_URL_KEY = "download-url";

@@ -19,17 +19,30 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.time.StopWatch;
 
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.filesystem.rsync.RsyncCopier;
+import ch.systemsx.cisd.common.logging.ISimpleLogger;
+import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
  * Utility methods for segmented stores.
@@ -119,6 +132,67 @@ public class SegmentedStoreUtils
                 "Now share could be found for the following incoming folder: "
                         + testFile.getParentFile().getAbsolutePath());
     }
+
+    /**
+     * Gets a list of all shares of specified store root directory. As a side effect it calculates
+     * and updates the size of all data sets if necessary.
+     * 
+     * @param dataStoreCode Code of the data store to which the root belongs.
+     * @param freeSpaceProvider Provider of free space used for all shares.
+     * @param service Access to openBIS API in order to get all data sets and to update data set
+     *            size.
+     * @param log Logger for logging size calculations.
+     */
+    public static List<Share> getDataSetsPerShare(File storeRoot, String dataStoreCode,
+            IFreeSpaceProvider freeSpaceProvider, IEncapsulatedOpenBISService service,
+            ISimpleLogger log)
+    {
+        Map<String, Share> shares = new HashMap<String, Share>();
+        for (File file : getImcomingShares(storeRoot))
+        {
+            Share share = new Share(file, freeSpaceProvider);
+            shares.put(share.getShareId(), share);
+        }
+        for (SimpleDataSetInformationDTO dataSet : service.listDataSets())
+        {
+            String shareId = dataSet.getDataSetShareId();
+            if (dataStoreCode.equals(dataSet.getDataStoreCode()))
+            {
+                Share share = shares.get(shareId);
+                File dataSetInStore = new File(share.getShare(), dataSet.getDataSetLocation());
+                String dataSetCode = dataSet.getDataSetCode();
+                if (dataSetInStore.exists())
+                {
+                    if (dataSet.getDataSetSize() == null)
+                    {
+                        StopWatch stopWatch = new StopWatch();
+                        log.log(LogLevel.INFO, "Calculating size of " + dataSetInStore);
+                        stopWatch.start();
+                        long size = FileUtils.sizeOfDirectory(dataSetInStore);
+                        stopWatch.stop();
+                        log.log(LogLevel.INFO, dataSetInStore + " contains " + size
+                                + " bytes (calculated in " + stopWatch.getTime() + " msec)");
+                        service.updateShareIdAndSize(dataSetCode, shareId, size);
+                        dataSet.setDataSetSize(size);
+                    }
+                    share.addDataSet(dataSet);
+                } else
+                {
+                    log.log(LogLevel.WARN, "Data set " + dataSetCode
+                            + " no longer exists in share " + shareId + ".");
+                }
+            }
+        }
+        List<Share> list = new ArrayList<Share>(shares.values());
+        Collections.sort(list, new Comparator<Share>()
+            {
+                public int compare(Share o1, Share o2)
+                {
+                    return o1.getShareId().compareTo(o2.getShareId());
+                }
+            });
+        return list;
+    }
     
     /**
      * Moves the specified data set to the specified share. The data set is folder in the store
@@ -127,7 +201,8 @@ public class SegmentedStoreUtils
      * 
      * @param service to access openBIS AS.
      */
-    public static void moveDataSetToAnotherShare(File dataSetDirInStore, File share, IEncapsulatedOpenBISService service)
+    public static void moveDataSetToAnotherShare(File dataSetDirInStore, File share,
+            IEncapsulatedOpenBISService service)
     {
         String dataSetCode = dataSetDirInStore.getName();
         ExternalData dataSet = service.tryGetDataSet(dataSetCode);
@@ -135,7 +210,9 @@ public class SegmentedStoreUtils
         {
             throw new UserFailureException("Unknown data set " + dataSetCode);
         }
-        File oldShare = dataSetDirInStore.getParentFile().getParentFile().getParentFile().getParentFile().getParentFile();
+        File oldShare =
+                dataSetDirInStore.getParentFile().getParentFile().getParentFile().getParentFile()
+                        .getParentFile();
         String relativePath = FileUtilities.getRelativeFile(oldShare, dataSetDirInStore);
         File dataSetDirInNewShare = new File(share, relativePath);
         dataSetDirInNewShare.mkdirs();
