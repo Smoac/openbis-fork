@@ -65,6 +65,11 @@ public class DataSetRegistrationDetails<T extends DataSetInformation> implements
 
     public LocatorType getLocatorType(File incomingDataSetPath)
     {
+        return getLocatorType();
+    }
+
+    public LocatorType getLocatorType()
+    {
         return new LocatorType(LocatorType.DEFAULT_LOCATOR_TYPE_CODE);
     }
 

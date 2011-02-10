@@ -57,9 +57,9 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     private final File stagingDirectory;
 
     /**
-     * The currently live child transaction.
+     * All transactions ever created on this service.
      */
-    private DataSetRegistrationTransaction<T> liveTransactionOrNull;
+    private final ArrayList<DataSetRegistrationTransaction<T>> transactions;
 
     /**
      * A data set that will be created but might not yet exist.
@@ -106,6 +106,8 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
         {
             stagingDirectory = new File(stagingDirString);
         }
+
+        transactions = new ArrayList<DataSetRegistrationTransaction<T>>();
     }
 
     public OmniscientTopLevelDataSetRegistratorState getRegistratorContext()
@@ -147,18 +149,16 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     public IDataSetRegistrationTransaction transaction(File dataSetFile,
             IDataSetRegistrationDetailsFactory<T> detailsFactory)
     {
-        // If a transaction is hanging around, commit it before starting a new one
-        commitExtantTransaction();
-
         File workingDirectory = dataSetFile.getParentFile();
 
         // Clone this service for the transaction to keep them independent
-        liveTransactionOrNull =
+        DataSetRegistrationTransaction<T> transaction =
                 new DataSetRegistrationTransaction<T>(registrator.getGlobalState()
                         .getStoreRootDir(), workingDirectory, stagingDirectory, this,
                         detailsFactory);
 
-        return liveTransactionOrNull;
+        transactions.add(transaction);
+        return transaction;
     }
 
     /**
@@ -167,7 +167,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     public void commit()
     {
         // If a transaction is hanging around, commit it
-        commitExtantTransaction();
+        commitExtantTransactions();
 
         for (DataSetRegistrationAlgorithm registrationAlgorithm : dataSetRegistrations)
         {
@@ -181,7 +181,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
      */
     public void abort()
     {
-        rollbackExtantTransaction();
+        rollbackExtantTransactions();
         dataSetRegistrations.clear();
     }
 
@@ -221,21 +221,27 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     /**
      * If a transaction is hanging around, commit it
      */
-    private void commitExtantTransaction()
+    private void commitExtantTransactions()
     {
-        if (null != liveTransactionOrNull
-                && false == liveTransactionOrNull.isCommittedOrRolledback())
+        for (DataSetRegistrationTransaction<T> transaction : transactions)
         {
-            // Commit the existing transaction
-            liveTransactionOrNull.commit();
+            if (false == transaction.isCommittedOrRolledback())
+            {
+                // Commit the existing transaction
+                transaction.commit();
+            }
         }
     }
 
-    private void rollbackExtantTransaction()
+    private void rollbackExtantTransactions()
     {
-        if (null != liveTransactionOrNull)
+        for (DataSetRegistrationTransaction<T> transaction : transactions)
         {
-            liveTransactionOrNull.rollback();
+            if (false == transaction.isCommittedOrRolledback())
+            {
+                // Rollback the existing transaction
+                transaction.rollback();
+            }
         }
     }
 
@@ -260,15 +266,15 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
 
         DataSetRegistrationAlgorithmState state =
                 new DataSetRegistrationAlgorithmState(incomingDataSetFile,
-                        globalState.getOpenBisService(),
-                        cleanAfterwardsAction, registratorContext.getPreRegistrationAction(),
+                        globalState.getOpenBisService(), cleanAfterwardsAction,
+                        registratorContext.getPreRegistrationAction(),
                         registratorContext.getPostRegistrationAction(),
-                        details.getDataSetInformation(),
-                        dataStoreStrategy, details, registratorContext.getStorageProcessor(),
-                        registratorContext.getFileOperations(),
-                        globalState.getDataSetValidator(), globalState.getMailClient(),
-                        globalState.isDeleteUnidentified(), registratorContext.getRegistrationLock(),
-                        globalState.getDssCode(), globalState.isNotifySuccessfulRegistration());
+                        details.getDataSetInformation(), dataStoreStrategy, details,
+                        registratorContext.getStorageProcessor(),
+                        registratorContext.getFileOperations(), globalState.getDataSetValidator(),
+                        globalState.getMailClient(), globalState.isDeleteUnidentified(),
+                        registratorContext.getRegistrationLock(), globalState.getDssCode(),
+                        globalState.isNotifySuccessfulRegistration());
         return new DataSetRegistrationAlgorithm(state, this,
                 new DefaultApplicationServerRegistrator(registrator,
                         details.getDataSetInformation()));
