@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.time.StopWatch;
 
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
@@ -40,6 +39,8 @@ import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.filesystem.rsync.RsyncCopier;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
+import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
@@ -147,6 +148,14 @@ public class SegmentedStoreUtils
             IFreeSpaceProvider freeSpaceProvider, IEncapsulatedOpenBISService service,
             ISimpleLogger log)
     {
+        return getDataSetsPerShare(storeRoot, dataStoreCode, freeSpaceProvider, service, log,
+                SystemTimeProvider.SYSTEM_TIME_PROVIDER);
+    }
+
+    static List<Share> getDataSetsPerShare(File storeRoot, String dataStoreCode,
+            IFreeSpaceProvider freeSpaceProvider, IEncapsulatedOpenBISService service,
+            ISimpleLogger log, ITimeProvider timeProvider)
+    {
         Map<String, Share> shares = new HashMap<String, Share>();
         for (File file : getImcomingShares(storeRoot))
         {
@@ -165,13 +174,12 @@ public class SegmentedStoreUtils
                 {
                     if (dataSet.getDataSetSize() == null)
                     {
-                        StopWatch stopWatch = new StopWatch();
                         log.log(LogLevel.INFO, "Calculating size of " + dataSetInStore);
-                        stopWatch.start();
+                        long t0 = timeProvider.getTimeInMilliseconds();
                         long size = FileUtils.sizeOfDirectory(dataSetInStore);
-                        stopWatch.stop();
                         log.log(LogLevel.INFO, dataSetInStore + " contains " + size
-                                + " bytes (calculated in " + stopWatch.getTime() + " msec)");
+                                + " bytes (calculated in "
+                                + (timeProvider.getTimeInMilliseconds() - t0) + " msec)");
                         service.updateShareIdAndSize(dataSetCode, shareId, size);
                         dataSet.setDataSetSize(size);
                     }
