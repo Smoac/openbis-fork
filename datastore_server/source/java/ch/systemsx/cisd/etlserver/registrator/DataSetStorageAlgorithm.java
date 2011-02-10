@@ -230,6 +230,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         final BooleanOrUnknown isCompleteFlag = dataSetInformation.getIsCompleteFlag();
 
         data.setComplete(isCompleteFlag);
+        data.setLocatorType(registrationDetails.getLocatorType());
         data.setShareId(dataSetInformation.getShareId());
         data.setLocation(relativePath.substring(data.getShareId().length() + 1));
         data.setStorageFormat(storageFormat);
