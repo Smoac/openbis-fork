@@ -90,16 +90,16 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 public final class BDSStorageProcessor extends AbstractStorageProcessor implements
         IHCSImageFileAccepter
 {
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, BDSStorageProcessor.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            BDSStorageProcessor.class);
 
-    private static final Logger notificationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, BDSStorageProcessor.class);
+    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            BDSStorageProcessor.class);
 
     private static final String PROPERTY_PREFIX = "Property '%s': ";
 
-    private static final String NO_FORMAT_FORMAT =
-            PROPERTY_PREFIX + "no valid and known format could be extracted from text '%s'.";
+    private static final String NO_FORMAT_FORMAT = PROPERTY_PREFIX
+            + "no valid and known format could be extracted from text '%s'.";
 
     static final String VERSION_KEY = "version";
 
@@ -111,8 +111,8 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
 
     static final String FILE_EXTRACTOR_KEY = "file-extractor";
 
-    static final String NO_VERSION_FORMAT =
-            PROPERTY_PREFIX + "no version could be extracted from text '%s'.";
+    static final String NO_VERSION_FORMAT = PROPERTY_PREFIX
+            + "no version could be extracted from text '%s'.";
 
     private final Format format;
 
@@ -320,8 +320,8 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
         final DataSet dataSet =
                 new DataSet(dataSetCode, dataSetType.getCode(),
                         ch.systemsx.cisd.bds.Utilities.Boolean.fromBoolean(isMeasured),
-                        dataSetInformation.getProductionDate(), dataSetInformation
-                                .getProducerCode(), parentCodes);
+                        dataSetInformation.getProductionDate(),
+                        dataSetInformation.getProducerCode(), parentCodes);
         return dataSet;
     }
 
@@ -451,20 +451,20 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
         {
             imageFileRootDirectory = incomingDataSetDirectory;
             final HCSImageFileExtractionResult result =
-                    imageFileExtractor.process(NodeFactory
-                            .createDirectoryNode(incomingDataSetDirectory), dataSetInformation,
-                            this);
+                    imageFileExtractor.process(
+                            NodeFactory.createDirectoryNode(incomingDataSetDirectory),
+                            dataSetInformation, this);
             if (operationLog.isInfoEnabled())
             {
-                operationLog.info(String.format("Extraction of %d files took %s.", result
-                        .getTotalFiles(), DurationFormatUtils.formatDurationHMS(result
-                        .getDuration())));
+                operationLog.info(String.format("Extraction of %d files took %s.",
+                        result.getTotalFiles(),
+                        DurationFormatUtils.formatDurationHMS(result.getDuration())));
             }
             if (result.getInvalidFiles().size() > 0)
             {
                 throw UserFailureException.fromTemplate(
-                        "Following invalid files %s have been found.", CollectionUtils.abbreviate(
-                                result.getInvalidFiles(), 10));
+                        "Following invalid files %s have been found.",
+                        CollectionUtils.abbreviate(result.getInvalidFiles(), 10));
             }
             if (result.getTotalFiles() == 0)
             {
@@ -533,8 +533,8 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
             } catch (final EnvironmentFailureException ex)
             {
                 notificationLog.error(String.format(
-                        "Could not move '%s' to incoming directory '%s'.", node, incomingDirectory
-                                .getAbsolutePath()), ex);
+                        "Could not move '%s' to incoming directory '%s'.", node,
+                        incomingDirectory.getAbsolutePath()), ex);
                 return;
             }
         }

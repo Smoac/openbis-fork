@@ -27,8 +27,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IPostRegistrationDatasetHandl
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
- * Storage processor which delegates to a wrapped {@link IStorageProcessor}. In addition
- * a {@link IPostRegistrationDatasetHandler} handles the data set.
+ * Storage processor which delegates to a wrapped {@link IStorageProcessor}. In addition a
+ * {@link IPostRegistrationDatasetHandler} handles the data set.
  * <p>
  * The processor uses following properties: {@link #DELEGATE_PROCESSOR_CLASS_PROPERTY}. All the
  * properties are also passed for the default processor.
@@ -36,8 +36,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  * 
  * @author Tomasz Pylak
  */
-public class DelegatingStorageProcessorWithDropbox extends
-        AbstractDelegatingStorageProcessor
+public class DelegatingStorageProcessorWithDropbox extends AbstractDelegatingStorageProcessor
 {
     private final IPostRegistrationDatasetHandler dropboxHandler;
 
@@ -66,13 +65,13 @@ public class DelegatingStorageProcessorWithDropbox extends
     //
 
     @Override
-    public final File storeData(final DataSetInformation dataSetInformation, final ITypeExtractor typeExtractor,
-            final IMailClient mailClient, final File incomingDataSetDirectory,
-            final File rootDir)
+    public final File storeData(final DataSetInformation dataSetInformation,
+            final ITypeExtractor typeExtractor, final IMailClient mailClient,
+            final File incomingDataSetDirectory, final File rootDir)
     {
         File storeData =
-                super.storeData(dataSetInformation, typeExtractor, mailClient, incomingDataSetDirectory,
-                        rootDir);
+                super.storeData(dataSetInformation, typeExtractor, mailClient,
+                        incomingDataSetDirectory, rootDir);
         File originalData = super.tryGetProprietaryData(storeData);
         dropboxHandler.handle(originalData, dataSetInformation, null);
         return storeData;
