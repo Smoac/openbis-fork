@@ -17,14 +17,35 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v1;
 
 /**
- * Read-only interface to an existing experiment. 
- *
+ * Read-only interface to an existing experiment.
+ * 
  * @author Chandrasekhar Ramakrishnan
  */
 public interface IExperimentImmutable
 {
     /**
+     * Return the experiment identifier of this experiment.
+     */
+    String getExperimentIdentifier();
+
+    /**
      * Return true if the experiment is in openBIS.
      */
     boolean isExistingExperiment();
+
+    /**
+     * Return the code for this experiment. May be null.
+     */
+    String getCode();
+
+    /**
+     * Return the type for this experiment. May be null.
+     */
+    String getType();
+
+    /**
+     * Return the value of a property specified by a code. May return null of no such property with
+     * code <code>propertyCode</code> is found.
+     */
+    String getPropertyValue(String propertyCode);
 }

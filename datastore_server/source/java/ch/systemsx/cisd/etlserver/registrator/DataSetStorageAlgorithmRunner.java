@@ -23,7 +23,6 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
-import ch.systemsx.cisd.common.exceptions.HighLevelException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -110,10 +109,6 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             // Runs or throws a throwable
             runStorageProcessors();
 
-        } catch (final HighLevelException ex)
-        {
-            rollbackDuringStorageProcessorRun(ex);
-            return Collections.emptyList();
         } catch (final Throwable throwable)
         {
             rollbackDuringStorageProcessorRun(throwable);
@@ -125,10 +120,6 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             // Runs or throw a throwable
             registerDataSetsInApplicationServer();
 
-        } catch (final HighLevelException ex)
-        {
-            rollbackDuringMetadataRegistration(ex);
-            return Collections.emptyList();
         } catch (final Throwable throwable)
         {
             rollbackDuringMetadataRegistration(throwable);

@@ -22,4 +22,26 @@ package ch.systemsx.cisd.etlserver.registrator.api.v1;
 public interface ISample extends ISampleImmutable
 {
 
+    /**
+     * Set the experiment for this sample. The experiment need not be immutable, but the immutable
+     * one is the superclass.
+     */
+    void setExperiment(IExperimentImmutable experiment);
+
+    /**
+     * Set the code for this sample.
+     */
+    void setCode(String code);
+
+    /**
+     * Set the type for this sample.
+     */
+    void setType(String type);
+
+    /**
+     * Set the value for a property.
+     * 
+     * @throws IllegalArgumentException if no property for code <code>propertyCode</code> is found.
+     */
+    void setPropertyValue(String propertyCode, String propertyValue);
 }

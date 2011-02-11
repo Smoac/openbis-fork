@@ -18,8 +18,10 @@ package ch.systemsx.cisd.openbis.generic.shared.util;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -77,15 +79,12 @@ public class EntityHelper
     /**
      * does the same as {@link #tryFindProperty(Iterable, String)} but with arrays.
      */
-    // TODO 2011-01-13 KE : could we scratch the usage of arrays and only have lists ?
-    // if so, we could delete this method
     public static IEntityProperty tryFindProperty(IEntityProperty[] properties,
             final String propertyCode)
     {
         for (final IEntityProperty property : properties)
         {
             final PropertyType propertyType = property.getPropertyType();
-            // TODO KE : ugly, why is the extracting logic not uppercasing ??
             if (propertyType.getCode().equalsIgnoreCase(propertyCode))
             {
                 return property;
@@ -93,4 +92,44 @@ public class EntityHelper
         }
         return null;
     }
+
+    public static String tryFindPropertyValue(IEntityPropertiesHolder holder, String propertyCode)
+    {
+        IEntityProperty property = null;
+
+        if (holder.getProperties() != null)
+        {
+            property = EntityHelper.tryFindProperty(holder.getProperties(), propertyCode);
+        }
+
+        return (property != null) ? property.tryGetOriginalValue() : null;
+    }
+
+    /**
+     * Tries to set the value for a given property in an {@link IEntityPropertiesHolder} instance.
+     * Creates a new property if no property for the specified code is found.
+     */
+    public static void createOrUpdateProperty(IEntityPropertiesHolder holder, String propertyCode,
+            String propertyValue)
+    {
+        IEntityProperty property = tryFindProperty(holder.getProperties(), propertyCode);
+
+        if (property == null) {
+            property = createNewProperty(propertyCode);
+            holder.getProperties().add(property);
+        }
+        property.setValue(propertyValue);
+    }
+
+
+    private static IEntityProperty createNewProperty(String propertyCode)
+    {
+        IEntityProperty property;
+        property = new EntityProperty();
+        PropertyType propertyType = new PropertyType();
+        propertyType.setCode(propertyCode);
+        property.setPropertyType(propertyType);
+        return property;
+    }
+
 }

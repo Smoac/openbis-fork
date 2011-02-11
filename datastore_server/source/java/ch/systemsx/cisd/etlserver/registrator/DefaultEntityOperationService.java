@@ -24,12 +24,10 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityOperationDeta
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AtomicEntityOperationResult;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 
 public class DefaultEntityOperationService<T extends DataSetInformation> implements
         IEntityOperationService<T>
@@ -44,36 +42,29 @@ public class DefaultEntityOperationService<T extends DataSetInformation> impleme
     public AtomicEntityOperationResult performOperationsInApplcationServer(
             AtomicEntityOperationDetails<T> registrationDetails)
     {
-        ArrayList<Experiment> experimentsCreated = new ArrayList<Experiment>();
-        ArrayList<Sample> samplesUpdated = new ArrayList<Sample>();
-        ArrayList<Sample> samplesCreated = new ArrayList<Sample>();
-        ArrayList<ExternalData> dataSetsCreated = new ArrayList<ExternalData>();
-
         IEncapsulatedOpenBISService openBisService =
                 registrator.getGlobalState().getOpenBisService();
-        List<NewExperiment> experimentRegistrations =
-                registrationDetails.getExperimentRegistrations();
-        for (NewExperiment experiment : experimentRegistrations)
+
+        return openBisService.performEntityOperations(convert(registrationDetails));
+    }
+
+    private ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails convert(
+            AtomicEntityOperationDetails<T> details)
+    {
+
+        List<NewExperiment> experimentRegistrations = details.getExperimentRegistrations();
+        List<SampleUpdatesDTO> sampleUpdates = details.getSampleUpdates();
+        List<NewSample> sampleRegistrations = details.getSampleRegistrations();
+        List<NewExternalData> dataSetRegistrations = new ArrayList<NewExternalData>();
+
+        for (DataSetRegistrationInformation<?> dsRegistration : details.getDataSetRegistrations())
         {
-            openBisService.registerExperiment(experiment);
-            ExperimentIdentifier experimentIdentifier =
-                    new ExperimentIdentifierFactory(experiment.getIdentifier()).createIdentifier();
-            experimentsCreated.add(openBisService.tryToGetExperiment(experimentIdentifier));
+            NewExternalData newExternalData = dsRegistration.getExternalData();
+            dataSetRegistrations.add(newExternalData);
         }
 
-        List<DataSetRegistrationInformation<T>> dataSetRegistrations =
-                registrationDetails.getDataSetRegistrations();
-        for (DataSetRegistrationInformation<T> dataSetRegistration : dataSetRegistrations)
-        {
-            openBisService.registerDataSet(dataSetRegistration.getDataSetInformation(),
-                    dataSetRegistration.getExternalData());
-            dataSetsCreated.add(openBisService.tryGetDataSet(dataSetRegistration
-                    .getDataSetInformation().getDataSetCode()));
-        }
-
-        return new AtomicEntityOperationResult(experimentsCreated, samplesUpdated, samplesCreated,
-                dataSetsCreated);
-
+        return new ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails(
+                experimentRegistrations, sampleUpdates, sampleRegistrations, dataSetRegistrations);
     }
 
 }

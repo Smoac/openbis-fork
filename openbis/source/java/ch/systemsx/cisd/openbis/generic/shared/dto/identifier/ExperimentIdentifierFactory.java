@@ -38,10 +38,10 @@ public final class ExperimentIdentifierFactory extends AbstractIdentifierFactory
 
     public final ExperimentIdentifier createIdentifier() throws UserFailureException
     {
-        return parseIdentifier(getTextToParse());
+        return parse(getTextToParse());
     }
 
-    private static ExperimentIdentifier parseIdentifier(final String text)
+    public static ExperimentIdentifier parse(final String text)
     {
         final TokenLexer lexer = new TokenLexer(text);
         final ProjectIdentifier parentIdentifier = ProjectIdentifierFactory.parseIdentifier(lexer);

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -38,6 +39,12 @@ public class AtomicEntityOperationResult implements Serializable
     private final ArrayList<Sample> samplesCreated;
 
     private final ArrayList<ExternalData> dataSetsCreated;
+
+    public AtomicEntityOperationResult()
+    {
+        this(Collections.<Experiment> emptyList(), Collections.<Sample> emptyList(), Collections
+                .<Sample> emptyList(), Collections.<ExternalData> emptyList());
+    }
 
     public AtomicEntityOperationResult(List<Experiment> experimentsCreated,
             List<Sample> samplesUpdated, List<Sample> samplesCreated,

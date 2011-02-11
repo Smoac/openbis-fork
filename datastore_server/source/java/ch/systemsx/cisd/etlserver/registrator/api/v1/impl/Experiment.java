@@ -16,7 +16,13 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
 /**
  * Implementation of {@link IExperiment}.
@@ -31,6 +37,9 @@ class Experiment extends ExperimentImmutable implements IExperiment
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experiment = getExperiment();
         experiment.setIdentifier(identifier);
         experiment.setPermId(permID);
+
+        List<IEntityProperty> properties = new ArrayList<IEntityProperty>();
+        experiment.setProperties(properties);
     }
 
     @Override
@@ -39,6 +48,22 @@ class Experiment extends ExperimentImmutable implements IExperiment
         return false;
     }
     
+    public void setCode(String code)
+    {
+        getExperiment().setCode(code);
+    }
 
+    public void setPropertyValue(String propertyCode, String propertyValue)
+    {
+        EntityHelper.createOrUpdateProperty(getExperiment(), propertyCode, propertyValue);
+    }
+
+    public void setType(String experimentType)
+    {
+        ExperimentType type = new ExperimentType();
+        type.setCode(experimentType);
+
+        getExperiment().setExperimentType(type);
+    }
 
 }

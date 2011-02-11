@@ -179,7 +179,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     {
         SampleIdentifier sampleIdentifier =
                 new SampleIdentifierFactory(sampleIdentifierString).createIdentifier();
-        return new Sample(openBisService.tryGetSampleWithExperiment(sampleIdentifier));
+        return new SampleImmutable(openBisService.tryGetSampleWithExperiment(sampleIdentifier));
     }
 
     public ISample getSampleForUpdate(String sampleIdentifierString)

@@ -24,7 +24,34 @@ package ch.systemsx.cisd.etlserver.registrator.api.v1;
 public interface ISampleImmutable
 {
     /**
+     * Return the identifier for this sample.
+     */
+    String getSampleIdentifier();
+
+    /**
+     * Return the code for this sample. May be null.
+     */
+    String getCode();
+
+    /**
+     * Return the experiment for this sample. May be null.
+     */
+    IExperimentImmutable getExperiment();
+
+    /**
+     * Return the type for this sample. May be null.
+     */
+    String getType();
+
+    /**
      * Return true if the sample exists in the database.
      */
     boolean isExistingSample();
+
+    /**
+     * Return the value of a property specified by a code. May return null of no such property with
+     * code <code>propertyCode</code> is found.
+     */
+    String getPropertyValue(String propertyCode);
+
 }

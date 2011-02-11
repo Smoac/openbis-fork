@@ -18,8 +18,10 @@ package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
@@ -33,10 +35,16 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
 /**
  * Abstract superclass for the states a DataSetRegistrationTransaction can be in.
@@ -86,6 +94,10 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
 
         private final List<Experiment> experimentsToBeRegistered = new ArrayList<Experiment>();
 
+        private final List<Sample> samplesToBeRegistered = new ArrayList<Sample>();
+
+        private final List<Sample> samplesToBeUpdated = new ArrayList<Sample>();
+
         public LiveTransactionState(DataSetRegistrationTransaction<T> parent,
                 RollbackStack rollbackStack, File workingDirectory, File stagingDirectory,
                 DataSetRegistrationService<T> registrationService,
@@ -134,26 +146,39 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
 
         public ISample getSampleForUpdate(String sampleIdentifierString)
         {
-            // TODO Auto-generated method stub
-            return null;
+            SampleIdentifier sampleIdentifier =
+                    new SampleIdentifierFactory(sampleIdentifierString).createIdentifier();
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample =
+                    openBisService.tryGetSampleWithExperiment(sampleIdentifier);
+            // TODO KE: Ask Sekhar if we should throw an exception or simply return NULL
+            if (sample == null)
+            {
+                throw new IllegalArgumentException("Could not find sample with identifier"
+                        + sampleIdentifierString);
+            }
+            Sample result = new Sample(sample);
+            samplesToBeUpdated.add(result);
+            return result;
         }
 
         public ISample createNewSample(String sampleIdentifierString)
         {
-            // TODO Auto-generated method stub
-            return null;
+            // TODO KE: should we create a new method with a more sensible name (createPermId())
+            String permId = openBisService.createDataSetCode();
+            Sample sample = new Sample(sampleIdentifierString, permId);
+            samplesToBeRegistered.add(sample);
+            return sample;
         }
 
         public IExperiment getExperimentForUpdate(String experimentIdentifierString)
         {
-            // TODO Auto-generated method stub
-            return null;
+            throw new NotImplementedException();
         }
 
         public IExperiment createNewExperiment(String experimentIdentifierString)
         {
-            String permID = openBisService.createDataSetCode();
-            Experiment experiment = new Experiment(experimentIdentifierString, permID);
+            String permId = openBisService.createDataSetCode();
+            Experiment experiment = new Experiment(experimentIdentifierString, permId);
             experimentsToBeRegistered.add(experiment);
             return experiment;
         }
@@ -275,17 +300,74 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
         AtomicEntityOperationDetails<T> createEntityOperationDetails(
                 List<DataSetRegistrationInformation<T>> dataSetRegistrations)
         {
-            ArrayList<NewExperiment> experimentRegistrations = new ArrayList<NewExperiment>();
-            ArrayList<ExperimentUpdatesDTO> experimentUpdates =
+
+            List<NewExperiment> experimentRegistrations = convertExperimentsToBeRegistered();
+            List<SampleUpdatesDTO> sampleUpdates = convertSamplesToBeUpdated();
+            List<NewSample> sampleRegistrations = convertSamplesToBeRegistered();
+
+            // experiment updates not yet supported
+            List<ExperimentUpdatesDTO> experimentUpdates =
                     new ArrayList<ExperimentUpdatesDTO>();
-            ArrayList<SampleUpdatesDTO> sampleUpdates = new ArrayList<SampleUpdatesDTO>();
-            ArrayList<NewSample> sampleRegistrations = new ArrayList<NewSample>();
 
             AtomicEntityOperationDetails<T> registrationDetails =
                     new AtomicEntityOperationDetails<T>(experimentUpdates,
                             experimentRegistrations, sampleUpdates, sampleRegistrations,
                             dataSetRegistrations);
             return registrationDetails;
+        }
+
+        private List<NewExperiment> convertExperimentsToBeRegistered() {
+            List<NewExperiment> result = new ArrayList<NewExperiment>();
+            for (Experiment apiExperiment : experimentsToBeRegistered) {
+                ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experiment = apiExperiment.getExperiment();
+                NewExperiment newExperiment = new NewExperiment();
+                newExperiment.setIdentifier(experiment.getIdentifier());
+                newExperiment.setPermID(experiment.getPermId());
+                IEntityProperty[] properties =
+                        experiment.getProperties().toArray(new IEntityProperty[0]);
+                newExperiment.setProperties(properties);
+                result.add(newExperiment);
+            }
+            return result;
+        }
+
+        private List<NewSample> convertSamplesToBeRegistered()
+        {
+            List<NewSample> result = new ArrayList<NewSample>();
+            for (Sample apiSample : samplesToBeRegistered)
+            {
+                ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample =
+                        apiSample.getSample();
+                NewSample newSample = new NewSample();
+                newSample.setIdentifier(sample.getIdentifier());
+                newSample.setPermID(sample.getPermId());
+                IEntityProperty[] properties =
+                        sample.getProperties().toArray(new IEntityProperty[0]);
+                newSample.setProperties(properties);
+                newSample.setExperimentIdentifier(sample.getExperiment().getIdentifier());
+            }
+            return result;
+        }
+
+        private List<SampleUpdatesDTO> convertSamplesToBeUpdated() {
+            List<SampleUpdatesDTO> result = new ArrayList<SampleUpdatesDTO>();
+            for (Sample apiSample : samplesToBeRegistered) {
+                ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample =
+                    apiSample.getSample();
+                
+                List<NewAttachment> attachments = Collections.emptyList();
+                SampleUpdatesDTO sampleUpdate = new SampleUpdatesDTO(TechId.create(sample), // db id
+                        sample.getProperties(), // List<IEntityProperty>
+                        ExperimentIdentifierFactory.parse(sample.getExperiment().getIdentifier()), // ExperimentIdentifier
+                        attachments, // Collection<NewAttachment>
+                        sample.getModificationDate(), // Sample version
+                        SampleIdentifierFactory.parse(sample.getIdentifier()), // Sample Identifier
+                        sample.getContainer().getIdentifier(), // Container Identifier
+                        null // Parent Identifiers
+                        );
+                result.add(sampleUpdate);
+            }
+            return result;
         }
 
         @Override

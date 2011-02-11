@@ -218,6 +218,8 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         data.setFileFormatType(registrationDetails.getFileFormatType());
         data.setMeasured(registrationDetails.isMeasuredData());
         data.setDataStoreCode(dataStoreCode);
+        data.setExperimentIdentifierOrNull(dataSetInformation.getExperimentIdentifier());
+        data.setSampleIdentifierOrNull(dataSetInformation.getSampleIdentifier());
 
         File dataFile = ((StoredState<T>) state).getDataFile();
 

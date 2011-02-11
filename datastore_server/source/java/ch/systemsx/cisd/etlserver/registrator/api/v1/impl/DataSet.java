@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 
 /**
  * A generic class that represents a data set for the registration API. Can be subclassed.
@@ -148,7 +149,7 @@ public class DataSet<T extends DataSetInformation> implements IDataSet
     protected void setExperiment(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment exp)
     {
         registrationDetails.getDataSetInformation().setExperiment(exp);
-        ExperimentIdentifier experimentId = new ExperimentIdentifier(exp);
+        ExperimentIdentifier experimentId = ExperimentIdentifierFactory.parse(exp.getIdentifier());
         registrationDetails.getDataSetInformation().setExperimentIdentifier(experimentId);
     }
 }

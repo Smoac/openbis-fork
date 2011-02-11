@@ -50,13 +50,14 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperimentImmutable;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AtomicEntityOperationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
-import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 
@@ -157,7 +158,6 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         rollbackQueueFiles = listRollbackQueueFiles();
         assertEquals(0, rollbackQueueFiles.length);
 
-        // Commented out for the moment.
         context.assertIsSatisfied();
     }
 
@@ -365,13 +365,14 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
                                         .createIdentifier());
                         will(returnValue(experiment));
 
-                        exactly(1).of(openBisService).registerDataSet(
-                                with(any(DataSetInformation.class)),
-                                with(any(NewExternalData.class)));
+                        exactly(1).of(openBisService).performEntityOperations(
+                                with(any(AtomicEntityOperationDetails.class)));
+                        will(returnValue(new AtomicEntityOperationResult()));
                     }
                 }
             });
     }
+
 
     private void setUpDataSetValidatorExpectations()
     {

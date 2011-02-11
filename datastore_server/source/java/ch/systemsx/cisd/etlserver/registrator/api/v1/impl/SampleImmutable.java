@@ -18,29 +18,46 @@ package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperimentImmutable;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-class ExperimentImmutable implements IExperimentImmutable
+public class SampleImmutable implements ISampleImmutable
 {
-    private final ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experiment;
+    private final ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample;
 
-    public ExperimentImmutable(
-            ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experiment)
+    public SampleImmutable(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample)
     {
-        this.experiment = experiment;
+        this.sample = sample;
     }
 
-    public String getExperimentIdentifier()
+    public IExperimentImmutable getExperiment()
     {
-        return experiment.getIdentifier();
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experiment =
+                sample.getExperiment();
+        return (null != experiment) ? new ExperimentImmutable(experiment) : null;
     }
 
-    public boolean isExistingExperiment()
+    public String getSampleIdentifier()
     {
-        return null != experiment;
+        return sample.getIdentifier();
+    }
+
+    public String getCode()
+    {
+        return sample.getCode();
+    }
+
+    public ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample getSample()
+    {
+        return sample;
+    }
+
+    public boolean isExistingSample()
+    {
+        return null != sample;
     }
 
     /**
@@ -48,32 +65,22 @@ class ExperimentImmutable implements IExperimentImmutable
      */
     protected void checkExists()
     {
-        if (false == isExistingExperiment())
+        if (false == isExistingSample())
         {
-            throw new UserFailureException("Experiment does not exist.");
+            throw new UserFailureException("Sample does not exist.");
         }
-    }
-
-    public ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment getExperiment()
-    {
-        return experiment;
     }
 
     public String getPropertyValue(String propertyCode)
     {
-        return EntityHelper.tryFindPropertyValue(experiment, propertyCode);
-    }
-
-    public String getCode()
-    {
-        return experiment.getCode();
+        return EntityHelper.tryFindPropertyValue(sample, propertyCode);
     }
 
     public String getType()
     {
-        if (experiment.getExperimentType() != null)
+        if (sample.getSampleType() != null)
         {
-            return experiment.getExperimentType().getCode();
+            return sample.getSampleType().getCode();
         }
         return null;
     }

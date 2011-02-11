@@ -23,4 +23,20 @@ package ch.systemsx.cisd.etlserver.registrator.api.v1;
  */
 public interface IExperiment extends IExperimentImmutable
 {
+    /**
+     * Set the value for a property.
+     * 
+     * @throws IllegalArgumentException if no property for code <code>propertyCode</code> is found.
+     */
+    void setPropertyValue(String propertyCode, String propertyValue);
+
+    /**
+     * Set the code for this experiment.
+     */
+    void setCode(String code);
+
+    /**
+     * Set the experiment type for this experiment.
+     */
+    void setType(String experimentType);
 }
