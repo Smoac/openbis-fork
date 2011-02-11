@@ -15,6 +15,8 @@ from java.io import File
 from ch.systemsx.cisd.common.fileconverter import FileConverter, Tiff2PngConversionStrategy
 from ch.systemsx.cisd.common.mail import From
 
+from ch.systemsx.cisd.openbis.generic.shared.dto import NewProperty
+
 # ------------
 # Dropbox specific image dataset registration. You may want to modify this part.
 # ------------
@@ -67,6 +69,8 @@ DEFAULT_PROJECT_CODE = "TEST"
 DEFAULT_EXPERIMENT_CODE = "SANOFI"
 PLATE_GEOMETRY_PROPERTY_CODE = "$PLATE_GEOMETRY"
 PLATE_GEOMETRY = "384_WELLS_16X24"
+
+ANALYSIS_RUN_PROPERTY_CODE = "ANALYSIS_RUN"
 
 # ---------
 
@@ -446,10 +450,14 @@ Creates registration details of the analysis dataset.
 Returns:
     DataSetRegistrationDetails
 """
-def create_analysis_dataset_details(sample_space, sample_code, parent_dataset_code):
+def create_analysis_dataset_details(sample_space, sample_code, parent_dataset_code, analysis_run):
     registration_details = factory.createBasicRegistrationDetails()
     dataset = registration_details.getDataSetInformation()
     set_analysis_dataset(sample_space, sample_code, parent_dataset_code, dataset)
+    
+    analysis_run_property = NewProperty(ANALYSIS_RUN_PROPERTY_CODE, analysis_run)
+    dataset.setDataSetProperties([ analysis_run_property ])
+    
     set_dataset_details(dataset, registration_details)
     return registration_details
 
@@ -546,7 +554,9 @@ def register_images_with_overlays_and_analysis(incoming):
     analysis_file = find_file_by_ext(File(image_data_set_folder), "xml")
     if analysis_file != None:
         tr_analysis = service.transaction(analysis_file, factory)
-        analysis_registration_details = create_analysis_dataset_details(space_code, plate_code, img_dataset_code)
+        analysis_run = extract_file_basename(analysis_file.getName())
+        analysis_registration_details = create_analysis_dataset_details(
+                                            space_code, plate_code, img_dataset_code, analysis_run)
         analysis_data_set = tr_analysis.createNewDataSet(analysis_registration_details)
         analysis_data_set_file = tr_analysis.createNewFile(analysis_data_set, analysis_file.getName())
         GEExplorerImageAnalysisResultParser(analysis_file.getPath()).writeCSV(File(analysis_data_set_file))
@@ -555,4 +565,45 @@ def register_images_with_overlays_and_analysis(incoming):
     service.commit()
     notify(plate_code)
   
+# --- old way
+def register_images_with_overlays_and_analysis_oldstyle(incoming):
+    if not incoming.isDirectory():
+        return
+    
+    tr = service.transaction(incoming, factory)
+        
+    image_dataset_details = create_image_dataset_details(incoming)
+    plate_code = image_dataset_details.getDataSetInformation().getSampleCode()
+    space_code = image_dataset_details.getDataSetInformation().getSpaceCode()
+    register_sample_if_necessary(space_code, DEFAULT_PROJECT_CODE, DEFAULT_EXPERIMENT_CODE, plate_code)
+
+    # create the image data set and put everything in it initially
+    image_data_set = tr.createNewDataSet(image_dataset_details)
+    image_data_set_folder = tr.moveFile(incoming.getPath(), image_data_set)
+    img_dataset_code = image_data_set.getDataSetCode()
+          
+    # move overlays folder
+    overlays_dir = find_dir(File(image_data_set_folder), OVERLAYS_DIR_PATTERN)
+    if overlays_dir != None:
+        convert_to_png(overlays_dir.getPath(), OVERLAYS_TRANSPARENT_COLOR)
+        overlay_dataset_details = create_overlay_dataset_details(overlays_dir, 
+                                     image_dataset_details.getDataSetInformation(), img_dataset_code, "png")
+        overlays_data_set = tr.createNewDataSet(overlay_dataset_details)
+        tr.moveFile(overlays_dir.getPath(), overlays_data_set, "overlays")
+        tr.commit()
+
+    # transform and move analysis file
+    analysis_file = find_file_by_ext(File(image_data_set_folder), "xml")
+    if analysis_file != None:
+        analysis_run = extract_file_basename(analysis_file.getName())
+        analysis_registration_details = create_analysis_dataset_details(
+                                            space_code, plate_code, img_dataset_code, analysis_run)
+        analysis_data_set = tr.createNewDataSet(analysis_registration_details)
+        analysis_data_set_file = tr.createNewFile(analysis_data_set, analysis_file.getName())
+        GEExplorerImageAnalysisResultParser(analysis_file.getPath()).writeCSV(File(analysis_data_set_file))
+        tr.commit()
+        
+    service.commit()
+    notify(plate_code)
+    
 register_images_with_overlays_and_analysis(incoming)
