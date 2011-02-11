@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.managed_property;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -109,11 +110,11 @@ public final class ManagedPropertyGridActionDialog extends
         {
             ManagedUiTableActionDescription ma = (ManagedUiTableActionDescription) managedAction;
             List<Integer> selectedRows = new ArrayList<Integer>();
-            selectedRows.clear();
             for (TableModelRowWithObject<ReportRowModel> rowModel : data)
             {
                 selectedRows.add(rowModel.getObjectOrNull().getRowNumber());
             }
+            Collections.sort(selectedRows);
             ma.setSelectedRows(selectedRows);
         }
 
