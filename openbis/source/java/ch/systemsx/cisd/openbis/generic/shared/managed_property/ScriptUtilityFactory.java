@@ -15,6 +15,11 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.structured.XmlSt
  */
 public class ScriptUtilityFactory
 {
+    private static final IElementFactory ELEMENT_FACTORY_INSTANCE = new ElementFactory();
+
+    private static final IStructuredPropertyConverter STRUCTURED_PROPERTY_CONVERTER_INSTANCE =
+            new XmlStructuredPropertyConverter(ELEMENT_FACTORY_INSTANCE);
+
     /**
      * Creates a table builder.
      */
@@ -22,12 +27,12 @@ public class ScriptUtilityFactory
     {
         return SimpleTableModelBuilderAdaptor.create();
     }
-    
+
     /**
-     * Creates a {@link ValidationException} with specified message. 
+     * Creates a {@link ValidationException} with specified message.
      */
-    // Violates Java naming conventions for method because it should look like a constructor
-    // for invocations in jython. 
+    // NOTE: Violates Java naming conventions for method because it should look like a constructor
+    // for invocations in jython.
     public static ValidationException ValidationException(String message)
     {
         return new ValidationException(message);
@@ -36,16 +41,16 @@ public class ScriptUtilityFactory
     /**
      * @return a factory object that can be used to create {@link IElement}-s.
      */
-    public static IElementFactory createElementFactory()
+    public static IElementFactory getElementFactory()
     {
-        return new ElementFactory();
+        return ELEMENT_FACTORY_INSTANCE;
     }
 
     /**
      * @return a converter that can translate {@link IElement} to/from Strings.
      */
-    public static IStructuredPropertyConverter createPropertyConverter()
+    public static IStructuredPropertyConverter getPropertyConverter()
     {
-        return new XmlStructuredPropertyConverter(createElementFactory());
+        return STRUCTURED_PROPERTY_CONVERTER_INSTANCE;
     }
 }
