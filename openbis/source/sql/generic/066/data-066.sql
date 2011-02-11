@@ -172,6 +172,16 @@ insert into data_types
  ,'Address of a web page'
 );
 
+insert into data_types
+(id
+ ,code
+ ,description)
+ values 
+ (nextval('DATA_TYPE_ID_SEQ')
+ ,'XML'
+ ,'XML document'
+);
+
 ----------------------------------------------------------------------
 --  Purpose:  Insert an initial data set into the table PROPERTY_TYPES
 -----------------------------------------------------------------------
