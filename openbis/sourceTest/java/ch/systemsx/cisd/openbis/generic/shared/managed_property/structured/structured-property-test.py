@@ -1,5 +1,5 @@
-factory = createElementFactory()
-converter = createPropertyConverter()
+factory = getElementFactory()
+converter = getPropertyConverter()
 
 #
 # we use a function named "configureUI" to test something completely unrelated,
