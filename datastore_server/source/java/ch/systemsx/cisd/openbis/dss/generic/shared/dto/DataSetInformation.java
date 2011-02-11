@@ -50,10 +50,10 @@ public class DataSetInformation implements Serializable
     private String sampleCode;
 
     // top sample properties
-    private IEntityProperty[] properties = IEntityProperty.EMPTY_ARRAY;
+    private IEntityProperty[] topSampleProperties = IEntityProperty.EMPTY_ARRAY;
 
     private DataSetType dataSetType;
-    
+
     private String shareId;
 
     /**
@@ -90,7 +90,7 @@ public class DataSetInformation implements Serializable
      * Email of uploading user.
      */
     private String uploadingUserEmailOrNull;
-    
+
     private String uploadingUserIdOrNull;
 
     /** This constructor is for serialization. */
@@ -145,12 +145,12 @@ public class DataSetInformation implements Serializable
      */
     public final IEntityProperty[] getProperties()
     {
-        return properties == null ? new IEntityProperty[0] : properties;
+        return topSampleProperties == null ? new IEntityProperty[0] : topSampleProperties;
     }
 
     public final void setProperties(final IEntityProperty[] properties)
     {
-        this.properties = properties;
+        this.topSampleProperties = properties;
     }
 
     public DataSetType getDataSetType()
@@ -332,8 +332,8 @@ public class DataSetInformation implements Serializable
                     sampleCode);
         } else
         {
-            return String.format("CODE('%s') SAMPLE_CODE('%s') EXPERIMENT('%s')", extractableData
-                    .getCode(), sampleCode, experimentIdentifier.describe());
+            return String.format("CODE('%s') SAMPLE_CODE('%s') EXPERIMENT('%s')",
+                    extractableData.getCode(), sampleCode, experimentIdentifier.describe());
         }
     }
 
