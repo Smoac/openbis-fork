@@ -33,6 +33,10 @@ public class WebClientConfiguration implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
+    /**
+     * The key is here the pattern of the display id of the section.<br>
+     * Warning: this requires changing ids of the sections with a lot of care.
+     */
     private Map<String, DetailViewConfiguration> views =
             new HashMap<String, DetailViewConfiguration>();
 
