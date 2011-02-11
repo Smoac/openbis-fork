@@ -16,12 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal;
 
-import org.apache.log4j.Logger;
-
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataSetFileDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 
@@ -36,18 +32,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 public class DataSetFileDTOPredicate implements
         IAuthorizationGuardPredicate<IDssServiceRpcGeneric, DataSetFileDTO>
 {
-    static protected final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            DataSetFileDTOPredicate.class);
-
     public Status evaluate(IDssServiceRpcGeneric receiver, String sessionToken,
             DataSetFileDTO dataSetFile) throws UserFailureException
     {
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info(String.format(
-                    "Check access to the data set file '%s' on openBIS server.", dataSetFile));
-        }
-
         return DssSessionAuthorizationHolder.getAuthorizer().checkDatasetAccess(sessionToken,
                 dataSetFile.getDataSetCode());
     }

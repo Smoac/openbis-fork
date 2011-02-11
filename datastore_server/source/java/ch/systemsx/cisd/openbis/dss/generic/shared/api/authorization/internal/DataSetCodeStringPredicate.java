@@ -16,12 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal;
 
-import org.apache.log4j.Logger;
-
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
  * Predicate for checking that the current user has access to a data set specified by code.
@@ -33,18 +29,9 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 public class DataSetCodeStringPredicate implements
         IAuthorizationGuardPredicate<IDssServiceRpcGenericInternal, String>
 {
-    static protected final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            DataSetCodeStringPredicate.class);
-
     public Status evaluate(IDssServiceRpcGenericInternal receiver, String sessionToken,
             String datasetCode) throws UserFailureException
     {
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info(String.format("Check access to the data set '%s' on openBIS server.",
-                    datasetCode));
-        }
-
         return DssSessionAuthorizationHolder.getAuthorizer().checkDatasetAccess(sessionToken,
                 datasetCode);
     }

@@ -56,8 +56,17 @@ final class ConfigParameters
     private static final String KEYSTORE = "keystore.";
 
     static final String USE_SSL = "use-ssl";
-    
+
     static final String USE_NIO = "use-nio-selector-socket";
+
+    static final String AUTH_CACHE_EXPIRATION_TIME = "authorization-cache-expiration-time";
+
+    private static final int DEFAULT_AUTH_CACHE_EXPIRATION_TIME_MINS = 5;
+
+    static final String AUTH_CACHE_CLEANUP_TIMER_PERIOD =
+            "authorization-cache-cleanup-timer-period";
+
+    private static final int DEFAULT_AUTH_CACHE_CLEANUP_TIMER_PERIOD_MINS = 3 * 60;
 
     static final String KEYSTORE_PATH_KEY = KEYSTORE + "path";
 
@@ -86,7 +95,7 @@ final class ConfigParameters
     private final int sessionTimeout;
 
     private final boolean useSSL;
-    
+
     private final boolean useNIO;
 
     private final String keystorePath;
@@ -94,6 +103,10 @@ final class ConfigParameters
     private final String keystorePassword;
 
     private final String keystoreKeyPassword;
+
+    private final int authCacheExpirationTimeMins;
+
+    private final int authCacheCleanupTimerPeriodMins;
 
     private final List<PluginServlet> pluginServlets;
 
@@ -166,6 +179,12 @@ final class ConfigParameters
             keystorePath = keystorePassword = keystoreKeyPassword = null;
         }
         useNIO = PropertyUtils.getBoolean(properties, USE_NIO, false);
+        authCacheExpirationTimeMins =
+                PropertyUtils.getInt(properties, AUTH_CACHE_EXPIRATION_TIME,
+                        DEFAULT_AUTH_CACHE_EXPIRATION_TIME_MINS);
+        authCacheCleanupTimerPeriodMins =
+                PropertyUtils.getInt(properties, AUTH_CACHE_CLEANUP_TIMER_PERIOD,
+                        DEFAULT_AUTH_CACHE_CLEANUP_TIMER_PERIOD_MINS);
         pluginServlets = extractPluginServletsProperties(properties);
     }
 
@@ -273,6 +292,16 @@ final class ConfigParameters
         return useNIO;
     }
 
+    public int getAuthCacheExpirationTimeMins()
+    {
+        return authCacheExpirationTimeMins;
+    }
+
+    public int getAuthCacheCleanupTimerPeriodMins()
+    {
+        return authCacheCleanupTimerPeriodMins;
+    }
+
     public Properties getProperties()
     {
         return properties;
@@ -287,7 +316,13 @@ final class ConfigParameters
             operationLog.info(String.format("Port number: %d.", port));
             operationLog.info(String.format("URL of openBIS server: '%s'.", serverURL));
             operationLog.info(String.format("Session timeout (seconds): %d.", sessionTimeout));
-            operationLog.info(String.format("Use SSL: '%s'.", useSSL));
+            operationLog.info(String.format("Use SSL: %s.", useSSL));
+            operationLog.info(String.format("Use NIO sockets: %s", useNIO));
+            operationLog.info(String.format("Authorization cache expiration time (minutes): %s",
+                    authCacheExpirationTimeMins));
+            operationLog.info(String.format(
+                    "Authorization cache cleanup timer period (minutes): %s",
+                    authCacheCleanupTimerPeriodMins));
             operationLog.info(String.format("Keystore path: '%s'.", keystorePath));
             for (PluginServlet pluginServlet : pluginServlets)
             {

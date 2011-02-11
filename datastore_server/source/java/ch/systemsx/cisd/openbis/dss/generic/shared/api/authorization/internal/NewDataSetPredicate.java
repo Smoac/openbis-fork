@@ -16,12 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal;
 
-import org.apache.log4j.Logger;
-
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwner;
@@ -42,19 +38,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 public class NewDataSetPredicate implements
         IAuthorizationGuardPredicate<IDssServiceRpcGeneric, NewDataSetDTO>
 {
-    static protected final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            NewDataSetPredicate.class);
-
     public Status evaluate(IDssServiceRpcGeneric receiver, String sessionToken,
             NewDataSetDTO newDataSet) throws UserFailureException
     {
         SpaceIdentifier spaceId = getSpaceIdentifier(newDataSet);
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info(String.format("Check write access to space '%s' on openBIS server.",
-                    spaceId));
-        }
-
         return DssSessionAuthorizationHolder.getAuthorizer().checkSpaceWriteable(sessionToken,
                 spaceId);
     }

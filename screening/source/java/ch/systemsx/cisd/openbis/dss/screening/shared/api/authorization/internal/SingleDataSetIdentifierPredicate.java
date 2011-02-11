@@ -16,12 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.screening.shared.api.authorization.internal;
 
-import org.apache.log4j.Logger;
-
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal.DssSessionAuthorizationHolder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal.IAuthorizationGuardPredicate;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
@@ -38,18 +34,9 @@ public class SingleDataSetIdentifierPredicate implements
         IAuthorizationGuardPredicate<IDssServiceRpcScreening, IDatasetIdentifier>
 
 {
-    static protected final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            DatasetIdentifierPredicate.class);
-
     public Status evaluate(IDssServiceRpcScreening receiver, String sessionToken,
             IDatasetIdentifier datasetIdentifier) throws UserFailureException
     {
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info(String.format(
-                    "Check access to the data set '%s' on openBIS server.", datasetIdentifier));
-        }
-
         return DssSessionAuthorizationHolder.getAuthorizer().checkDatasetAccess(
                 sessionToken, datasetIdentifier.getDatasetCode());
     }

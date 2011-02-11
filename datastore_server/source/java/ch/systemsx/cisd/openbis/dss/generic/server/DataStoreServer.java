@@ -86,7 +86,6 @@ public class DataStoreServer
         public void init() throws ServletException
         {
             target = ServiceProvider.getDataStoreServer();
-            DssSessionAuthorizationHolder.setAuthorizer(new DatasetSessionAuthorizer());
         }
 
         // Code copied from org.springframework.web.context.support.HttpRequestHandlerServlet
@@ -130,9 +129,12 @@ public class DataStoreServer
     {
         assert server == null : "Server already started";
         final ConfigParameters configParameters = getConfigParameters();
-        IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
+        final IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
         final ApplicationContext applicationContext =
                 new ApplicationContext(openBISService, configParameters);
+        DssSessionAuthorizationHolder.setAuthorizer(new DatasetSessionAuthorizer(configParameters
+                .getAuthCacheExpirationTimeMins(), configParameters
+                .getAuthCacheCleanupTimerPeriodMins()));
         server = createServer(applicationContext);
         try
         {
@@ -297,10 +299,6 @@ public class DataStoreServer
 
     private static Connector createSocketConnector(ConfigParameters configParameters)
     {
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info("Use Java NIO selector-based socket: " + configParameters.isUseNIO());
-        }
         if (configParameters.isUseSSL())
         {
             final SslConnector socketConnector =
