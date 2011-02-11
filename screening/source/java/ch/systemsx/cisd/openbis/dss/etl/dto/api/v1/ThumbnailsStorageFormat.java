@@ -16,12 +16,14 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
 
+import ch.systemsx.cisd.common.utilities.AbstractHashable;
+
 /**
  * Configuration parameters which describe how thumbnails should be generated.
  * 
  * @author Tomasz Pylak
  */
-public class ThumbnailsStorageFormat
+public class ThumbnailsStorageFormat extends AbstractHashable
 {
     /** Maximum default width and height of a thumbnail */
     public static final int DEFAULT_THUMBNAIL_MAX_SIZE = 200;
