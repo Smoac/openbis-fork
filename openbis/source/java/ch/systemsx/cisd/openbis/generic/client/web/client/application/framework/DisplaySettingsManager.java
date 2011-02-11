@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -414,7 +416,16 @@ public class DisplaySettingsManager
      */
     public final DetailViewConfiguration tryGetDetailViewSettings(String entityDetailViewID)
     {
-        return webClientConfiguration.getViews().get(entityDetailViewID);
+        Map<String, DetailViewConfiguration> views = webClientConfiguration.getViews();
+        for (Entry<String, DetailViewConfiguration> entry : views.entrySet())
+        {
+            String keyPattern = entry.getKey();
+            if (entityDetailViewID.matches(keyPattern))
+            {
+                return entry.getValue();
+            }
+        }
+        return null;
     }
 
     /**
