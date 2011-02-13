@@ -260,7 +260,16 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             {
                 File contents = dataSet.getDataSetContents();
                 DataSetRegistrationDetails<T> details = dataSet.getRegistrationDetails();
-                algorithms.add(registrationService.createStorageAlgorithm(contents, details));
+
+                // The experiment does not yet exist
+                if (experimentsToBeRegistered.contains(dataSet.getExperiment()))
+                {
+                    algorithms.add(registrationService
+                            .createStorageAlgorithmWithIdentifiedStrategy(contents, details));
+                } else
+                {
+                    algorithms.add(registrationService.createStorageAlgorithm(contents, details));
+                }
             }
 
             DataSetStorageAlgorithmRunner<T> runner =
@@ -306,20 +315,21 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             List<NewSample> sampleRegistrations = convertSamplesToBeRegistered();
 
             // experiment updates not yet supported
-            List<ExperimentUpdatesDTO> experimentUpdates =
-                    new ArrayList<ExperimentUpdatesDTO>();
+            List<ExperimentUpdatesDTO> experimentUpdates = new ArrayList<ExperimentUpdatesDTO>();
 
             AtomicEntityOperationDetails<T> registrationDetails =
-                    new AtomicEntityOperationDetails<T>(experimentUpdates,
-                            experimentRegistrations, sampleUpdates, sampleRegistrations,
-                            dataSetRegistrations);
+                    new AtomicEntityOperationDetails<T>(experimentUpdates, experimentRegistrations,
+                            sampleUpdates, sampleRegistrations, dataSetRegistrations);
             return registrationDetails;
         }
 
-        private List<NewExperiment> convertExperimentsToBeRegistered() {
+        private List<NewExperiment> convertExperimentsToBeRegistered()
+        {
             List<NewExperiment> result = new ArrayList<NewExperiment>();
-            for (Experiment apiExperiment : experimentsToBeRegistered) {
-                ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experiment = apiExperiment.getExperiment();
+            for (Experiment apiExperiment : experimentsToBeRegistered)
+            {
+                ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experiment =
+                        apiExperiment.getExperiment();
                 NewExperiment newExperiment = new NewExperiment();
                 newExperiment.setIdentifier(experiment.getIdentifier());
                 newExperiment.setPermID(experiment.getPermId());
@@ -349,12 +359,14 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             return result;
         }
 
-        private List<SampleUpdatesDTO> convertSamplesToBeUpdated() {
+        private List<SampleUpdatesDTO> convertSamplesToBeUpdated()
+        {
             List<SampleUpdatesDTO> result = new ArrayList<SampleUpdatesDTO>();
-            for (Sample apiSample : samplesToBeRegistered) {
+            for (Sample apiSample : samplesToBeRegistered)
+            {
                 ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample =
-                    apiSample.getSample();
-                
+                        apiSample.getSample();
+
                 List<NewAttachment> attachments = Collections.emptyList();
                 SampleUpdatesDTO sampleUpdate = new SampleUpdatesDTO(TechId.create(sample), // db id
                         sample.getProperties(), // List<IEntityProperty>

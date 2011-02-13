@@ -359,11 +359,11 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         assertEquals(DATA_SET_TYPE, dataSet1.getDataSetType());
         File datasetLocation1 =
                 DatasetLocationUtil.getDatasetLocationPath(workingDirectory, DATA_SET_CODE + 1,
-                        ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID, DATABASE_INSTANCE_UUID);
+                        ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
+                        DATABASE_INSTANCE_UUID);
         assertEquals(FileUtilities.getRelativeFile(new File(workingDirectory,
                 ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID),
-                datasetLocation1), dataSet1
-                .getLocation());
+                datasetLocation1), dataSet1.getLocation());
         assertEquals(datasetLocation1, MockStorageProcessor.instance.rootDirs.get(0));
         File incomingDir1 = MockStorageProcessor.instance.incomingDirs.get(0);
         assertEquals(new File(new File(stagingDir, DATA_SET_CODE + 1), "sub_data_set_1"),
@@ -376,11 +376,11 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         assertEquals(DATA_SET_TYPE, dataSet2.getDataSetType());
         File datasetLocation2 =
                 DatasetLocationUtil.getDatasetLocationPath(workingDirectory, DATA_SET_CODE + 2,
-                        ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID, DATABASE_INSTANCE_UUID);
+                        ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
+                        DATABASE_INSTANCE_UUID);
         assertEquals(FileUtilities.getRelativeFile(new File(workingDirectory,
                 ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID),
-                datasetLocation2), dataSet2
-                .getLocation());
+                datasetLocation2), dataSet2.getLocation());
         assertEquals(datasetLocation2, MockStorageProcessor.instance.rootDirs.get(1));
         File incomingDir2 = MockStorageProcessor.instance.incomingDirs.get(1);
         assertEquals(new File(new File(stagingDir, DATA_SET_CODE + 2), "sub_data_set_2"),
@@ -416,8 +416,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
                 MockStorageProcessor.instance.dataSetInfoString);
     }
 
-    // TODO KE: 2011-02-11 Make this test run
-    //@Test
+    @Test
     public void testTransactionWithNewExperiment()
     {
         setUpHomeDataBaseExpectations();
@@ -427,8 +426,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         properties.setProperty(DataSetRegistrationService.STAGING_DIR, stagingDir.getPath());
         createHandler(properties, false, true);
         createData();
-        final ExperimentIdentifier experimentIdentifier =
-                ExperimentIdentifierFactory.parse("/SPACE/PROJECT/EXP");
         final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails =
                 new RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>();
         context.checking(new Expectations()
@@ -439,9 +436,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
 
                     one(openBisService).createDataSetCode();
                     will(returnValue(EXPERIMENT_PERM_ID));
-
-                    one(openBisService).tryToGetExperiment(experimentIdentifier);
-                    will(returnValue(null));
 
                     one(dataSetValidator).assertValidDataSet(DATA_SET_TYPE,
                             new File(new File(stagingDir, DATA_SET_CODE), "sub_data_set_1"));
@@ -725,7 +719,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
                 new ThreadParameters(threadProperties, "jython-handler-test");
 
         TopLevelDataSetRegistratorGlobalState globalState =
-                new TopLevelDataSetRegistratorGlobalState("dss", ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
+                new TopLevelDataSetRegistratorGlobalState("dss",
+                        ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
                         workingDirectory, openBisService, mailClient, dataSetValidator, true,
                         threadParameters);
         return globalState;

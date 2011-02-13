@@ -40,7 +40,7 @@ public final class IdentifiedDataStrategy implements IDataStoreStrategy
 
     static final String STORAGE_LAYOUT_ERROR_MSG_PREFIX = "Serious error in data store layout: ";
 
-    IdentifiedDataStrategy()
+    public IdentifiedDataStrategy()
     {
 
     }

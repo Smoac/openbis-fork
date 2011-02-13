@@ -26,6 +26,7 @@ import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm.DataSetRegistrationAlgorithmState;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithmRunner;
 import ch.systemsx.cisd.etlserver.IDataStoreStrategy;
+import ch.systemsx.cisd.etlserver.IdentifiedDataStrategy;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction;
@@ -204,6 +205,28 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
         IDataStoreStrategy strategy =
                 registratorContext.getDataStrategyStore().getDataStoreStrategy(dataSetInformation,
                         dataSetFile);
+
+        DataSetStorageAlgorithm<T> algorithm =
+                new DataSetStorageAlgorithm<T>(dataSetFile, dataSetDetails, strategy,
+                        registratorContext.getStorageProcessor(),
+                        globalContext.getDataSetValidator(), globalContext.getDssCode(),
+                        registratorContext.getFileOperations(), globalContext.getMailClient());
+        return algorithm;
+    }
+
+    /**
+     * Create a storage algorithm for storing an individual data set, bypassing the detection of
+     * whether the data set's owner is in the db. This is used if the owner will be registered in
+     * the same transaction. This is internally used by transactions. Other clients may find it
+     * useful as well.
+     */
+    public DataSetStorageAlgorithm<T> createStorageAlgorithmWithIdentifiedStrategy(
+            File dataSetFile, DataSetRegistrationDetails<T> dataSetDetails)
+    {
+        TopLevelDataSetRegistratorGlobalState globalContext = registratorContext.getGlobalState();
+        T dataSetInformation = dataSetDetails.getDataSetInformation();
+        dataSetInformation.setShareId(globalContext.getShareId());
+        IDataStoreStrategy strategy = new IdentifiedDataStrategy();
 
         DataSetStorageAlgorithm<T> algorithm =
                 new DataSetStorageAlgorithm<T>(dataSetFile, dataSetDetails, strategy,
