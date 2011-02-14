@@ -19,8 +19,11 @@ package ch.systemsx.cisd.etlserver;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.Timer;
 import java.util.concurrent.TimeUnit;
 
@@ -94,6 +97,13 @@ public final class ETLDaemon
 
     @Private
     static IExitHandler exitHandler = SystemExit.SYSTEM_EXIT;
+
+    private static final Set<String> incomingShares = new LinkedHashSet<String>();
+    
+    public static Set<String> getIdsOfIncomingShares()
+    {
+        return Collections.unmodifiableSet(incomingShares);
+    }
 
     private static void printInitialLogMessage(final Parameters parameters)
     {
@@ -210,7 +220,7 @@ public final class ETLDaemon
             throw new ConfigurationFailureException(errorMessage);
         }
     }
-
+    
     private static void startupServer(final Parameters parameters)
     {
         final ThreadParameters[] threads = parameters.getThreads();
@@ -223,11 +233,12 @@ public final class ETLDaemon
         final Properties mailProperties = Parameters.createMailProperties(properties);
         final IMailClient mailClient = new MailClient(mailProperties);
         File storeRootDir = DssPropertyParametersUtil.getStoreRootDir(parameters.getProperties());
-        File[] shares = SegmentedStoreUtils.getImcomingShares(storeRootDir);
+        File[] shares = SegmentedStoreUtils.getShares(storeRootDir);
         for (final ThreadParameters threadParameters : threads)
         {
             File incomingDataDirectory = threadParameters.getIncomingDataDirectory();
             String shareId = SegmentedStoreUtils.findIncomingShare(incomingDataDirectory, shares);
+            incomingShares.add(shareId);
             operationLog.info("[" + threadParameters.getThreadName() + "]: Data sets drop into '"
                     + incomingDataDirectory + "' will stored in share " + shareId + ".");
             createProcessingThread(parameters, threadParameters, shareId,

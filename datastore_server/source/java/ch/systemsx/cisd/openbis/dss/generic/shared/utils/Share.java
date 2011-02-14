@@ -56,6 +56,8 @@ public final class Share
 
     private final List<SimpleDataSetInformationDTO> dataSets =
             new ArrayList<SimpleDataSetInformationDTO>();
+    
+    private boolean incoming;
 
     private long size;
 
@@ -72,6 +74,19 @@ public final class Share
     public String getShareId()
     {
         return shareId;
+    }
+
+    public void setIncoming(boolean incoming)
+    {
+        this.incoming = incoming;
+    }
+
+    /**
+     * Returns <code>true</code> if this is an incoming share.
+     */
+    public boolean isIncoming()
+    {
+        return incoming;
     }
 
     /**

@@ -23,18 +23,16 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 
 /**
- * Strategy of balancing data sets between shares in segmented store.
- *
+ * Strategy of shuffling data sets from source shares to target shares. Source shares are incoming
+ * shares. Target shares are all shares.
+ * 
  * @author Franz-Josef Elmer
  */
-public interface ISegmentedStoreBalancer
+public interface ISegmentedStoreShuffling
 {
     /**
-     * Balances sizes of specified shares by moving data sets between them using specified data set mover. 
-     * 
-     * @param service
-     * 
+     * Moves data sets from source shares to some target shares if necessary.
      */
-    public void balanceStore(List<Share> shares, IEncapsulatedOpenBISService service,
-            IDataSetMover dataSetMover, ISimpleLogger logger);
+    public void shuffleDataSets(List<Share> sourceShares, List<Share> targetShares,
+            IEncapsulatedOpenBISService service, IDataSetMover dataSetMover, ISimpleLogger logger);
 }

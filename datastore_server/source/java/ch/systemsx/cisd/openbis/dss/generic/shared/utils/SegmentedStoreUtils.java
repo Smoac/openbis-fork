@@ -54,9 +54,9 @@ public class SegmentedStoreUtils
 {
     private static final String RSYNC_EXEC = "rsync";
     
-    private static final Pattern INCOMING_SHARE_ID_PATTERN = Pattern.compile("[0-9]+");
+    private static final Pattern SHARE_ID_PATTERN = Pattern.compile("[0-9]+");
 
-    private static final FileFilter FILTER_ON_INCOMING_SHARES = new FileFilter()
+    private static final FileFilter FILTER_ON_SHARES = new FileFilter()
         {
             public boolean accept(File pathname)
             {
@@ -65,16 +65,16 @@ public class SegmentedStoreUtils
                     return false;
                 }
                 String name = pathname.getName();
-                return INCOMING_SHARE_ID_PATTERN.matcher(name).matches();
+                return SHARE_ID_PATTERN.matcher(name).matches();
             }
         };
 
     /**
-     * Lists all folders in specified store root directory which match incoming share pattern.
+     * Lists all folders in specified store root directory which match share pattern.
      */
-    public static File[] getImcomingShares(File storeRootDir)
+    public static File[] getShares(File storeRootDir)
     {
-        File[] files = storeRootDir.listFiles(SegmentedStoreUtils.FILTER_ON_INCOMING_SHARES);
+        File[] files = storeRootDir.listFiles(SegmentedStoreUtils.FILTER_ON_SHARES);
         Arrays.sort(files);
         return files;
     }
@@ -95,7 +95,7 @@ public class SegmentedStoreUtils
             throw new ConfigurationFailureException(
                     "Store root does not exist or is not a folder: " + storeRoot);
         }
-        return findIncomingShare(incomingFolder, storeRoot.listFiles(FILTER_ON_INCOMING_SHARES));
+        return findIncomingShare(incomingFolder, storeRoot.listFiles(FILTER_ON_SHARES));
     }
 
     /**
@@ -129,6 +129,7 @@ public class SegmentedStoreUtils
                 return share;
             }
         }
+        testFile.delete();
         throw new ConfigurationFailureException(
                 "Now share could be found for the following incoming folder: "
                         + testFile.getParentFile().getAbsolutePath());
@@ -157,7 +158,7 @@ public class SegmentedStoreUtils
             ISimpleLogger log, ITimeProvider timeProvider)
     {
         Map<String, Share> shares = new HashMap<String, Share>();
-        for (File file : getImcomingShares(storeRoot))
+        for (File file : getShares(storeRoot))
         {
             Share share = new Share(file, freeSpaceProvider);
             shares.put(share.getShareId(), share);

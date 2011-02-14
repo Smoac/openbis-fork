@@ -37,12 +37,12 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
- * Simple balancer which moves data sets from full shares to the share with initial most free space
+ * Simple shuffling which moves data sets from full shares to the share with initial most free space
  * until it is full.
  * 
  * @author Franz-Josef Elmer
  */
-public class SimpleBalancer implements ISegmentedStoreBalancer
+public class SimpleShuffling implements ISegmentedStoreShuffling
 {
     @Private static final String MINIMUM_FREE_SPACE_KEY = "minimum-free-space-in-MB";
 
@@ -94,12 +94,12 @@ public class SimpleBalancer implements ISegmentedStoreBalancer
     private final long minimumFreeSpace;
     private final ITimeProvider timeProvider;
 
-    public SimpleBalancer(Properties properties)
+    public SimpleShuffling(Properties properties)
     {
         this(properties, SystemTimeProvider.SYSTEM_TIME_PROVIDER);
     }
     
-    SimpleBalancer(Properties properties, ITimeProvider timeProvider)
+    SimpleShuffling(Properties properties, ITimeProvider timeProvider)
     {
         this.timeProvider = timeProvider;
         minimumFreeSpace =
@@ -108,12 +108,12 @@ public class SimpleBalancer implements ISegmentedStoreBalancer
         
     }
     
-    public void balanceStore(List<Share> shares, IEncapsulatedOpenBISService service,
-            IDataSetMover dataSetMover, ISimpleLogger logger)
+    public void shuffleDataSets(List<Share> sourceShares, List<Share> targetShares,
+            IEncapsulatedOpenBISService service, IDataSetMover dataSetMover, ISimpleLogger logger)
     {
-        List<ShareState> shareStates = getSortedShares(shares);
+        List<ShareState> shareStates = getSortedShares(targetShares);
         ShareState shareWithMostFree = shareStates.get(shareStates.size() - 1);
-        List<ShareState> fullShares = getFullShares(shareStates);
+        List<ShareState> fullShares = getFullShares(sourceShares);
         for (ShareState fullShare : fullShares)
         {
             List<SimpleDataSetInformationDTO> dataSets =
@@ -172,10 +172,10 @@ public class SimpleBalancer implements ISegmentedStoreBalancer
                 + ((timeProvider.getTimeInMilliseconds() - t0 + 500) / 1000) + " seconds.");
     }
 
-    private List<ShareState> getFullShares(List<ShareState> shareStates)
+    private List<ShareState> getFullShares(List<Share> sourceShares)
     {
         List<ShareState> fullShares = new ArrayList<ShareState>();
-        for (ShareState shareState : shareStates)
+        for (ShareState shareState : getSortedShares(sourceShares))
         {
             if (shareState.getFreeSpace() < minimumFreeSpace)
             {

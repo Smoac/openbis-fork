@@ -202,7 +202,7 @@ public class PutDataSetService
 
         dataSetValidator = initializer.getDataSetValidator();
 
-        File[] shares = SegmentedStoreUtils.getImcomingShares(storeDirectory);
+        File[] shares = SegmentedStoreUtils.getShares(storeDirectory);
         if (shares.length == 0)
         {
             if (new File(storeDirectory, Constants.DEFAULT_SHARE_ID).mkdirs() == false)

@@ -52,8 +52,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
  *
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses=SimpleBalancer.class)
-public class SimpleBalancerTest extends AbstractFileSystemTestCase
+@Friend(toClasses=SimpleShuffling.class)
+public class SimpleShufflingTest extends AbstractFileSystemTestCase
 {
     private static final String STORE_PATH = "01/02/03/";
 
@@ -98,7 +98,7 @@ public class SimpleBalancerTest extends AbstractFileSystemTestCase
     private IEncapsulatedOpenBISService service;
     private IDataSetMover dataSetMover;
     private ISimpleLogger logger;
-    private SimpleBalancer balancer;
+    private SimpleShuffling balancer;
     private File store;
 
     @BeforeMethod
@@ -118,8 +118,8 @@ public class SimpleBalancerTest extends AbstractFileSystemTestCase
                 }
             });
         Properties properties = new Properties();
-        properties.setProperty(SimpleBalancer.MINIMUM_FREE_SPACE_KEY, "2");
-        balancer = new SimpleBalancer(properties, timeProvider);
+        properties.setProperty(SimpleShuffling.MINIMUM_FREE_SPACE_KEY, "2");
+        balancer = new SimpleShuffling(properties, timeProvider);
         store = new File(workingDirectory, "store");
     }
     
@@ -163,7 +163,8 @@ public class SimpleBalancerTest extends AbstractFileSystemTestCase
                 }
             });
         
-        balancer.balanceStore(Arrays.asList(share1, share2, share3, share4), service, dataSetMover, logger);
+        balancer.shuffleDataSets(Arrays.asList(share1, share2),
+                Arrays.asList(share1, share2, share3, share4), service, dataSetMover, logger);
         
         assertEquals(1, share1.getDataSetsOrderedBySize().size());
         assertEquals(1, share2.getDataSetsOrderedBySize().size());

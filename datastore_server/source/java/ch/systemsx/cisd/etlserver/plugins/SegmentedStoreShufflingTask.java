@@ -19,8 +19,10 @@ package ch.systemsx.cisd.etlserver.plugins;
 import static ch.systemsx.cisd.common.logging.LogLevel.INFO;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -40,6 +42,7 @@ import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.etlserver.ETLDaemon;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
@@ -48,26 +51,28 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
- * Maintenance task which tries to balance a segmented store.
- *
+ * Maintenance task which shuffles data sets between shares of a segmented store. This task is
+ * supposed to prevent incoming shares from having not enough space.
+ * 
  * @author Franz-Josef Elmer
  */
-public class SegmentedStoreBalancingTask implements IMaintenanceTask
+public class SegmentedStoreShufflingTask implements IMaintenanceTask
 {
-    private static final ISegmentedStoreBalancer DUMMY_BALANCER = new ISegmentedStoreBalancer()
+    private static final ISegmentedStoreShuffling DUMMY_SHUFFLING = new ISegmentedStoreShuffling()
         {
             private static final int N = 3;
 
-            public void balanceStore(List<Share> shares, IEncapsulatedOpenBISService service,
-                    IDataSetMover dataSetMover, ISimpleLogger logger)
+            public void shuffleDataSets(List<Share> sourceShares, List<Share> targetShares,
+                    IEncapsulatedOpenBISService service, IDataSetMover dataSetMover,
+                    ISimpleLogger logger)
             {
                 logger.log(INFO, "Data Store Shares:");
-                for (Share share : shares)
+                for (Share share : targetShares)
                 {
                     List<SimpleDataSetInformationDTO> dataSets = share.getDataSetsOrderedBySize();
                     logger.log(
                             INFO,
-                            "   Share "
+                            "   " + (share.isIncoming() ? "Incoming" : "External") + " share "
                                     + share.getShareId()
                                     + " (free space: "
                                     + FileUtils.byteCountToDisplaySize(share.calculateFreeSpace())
@@ -95,11 +100,13 @@ public class SegmentedStoreBalancingTask implements IMaintenanceTask
             }
         };
 
-    @Private static final String BALANCER_SECTION_NAME = "balancer";
+    @Private static final String SHUFFLING_SECTION_NAME = "shuffling";
     @Private static final String CLASS_PROPERTY_NAME = "class";
     
     private static final Logger operationLog =
-        LogFactory.getLogger(LogCategory.OPERATION, SegmentedStoreBalancingTask.class);
+        LogFactory.getLogger(LogCategory.OPERATION, SegmentedStoreShufflingTask.class);
+    
+    private final Set<String> incomingShares;
     
     private final IEncapsulatedOpenBISService service;
     private final IDataSetMover dataSetMover;
@@ -108,12 +115,12 @@ public class SegmentedStoreBalancingTask implements IMaintenanceTask
     
     private File storeRoot;
     private String dataStoreCode;
-    @Private ISegmentedStoreBalancer balancer;
-    
-    public SegmentedStoreBalancingTask()
+    @Private ISegmentedStoreShuffling shuffling;
+
+    public SegmentedStoreShufflingTask()
     {
-        this(ServiceProvider.getOpenBISService(), new SimpleFreeSpaceProvider(),
-                new IDataSetMover()
+        this(ETLDaemon.getIdsOfIncomingShares(), ServiceProvider.getOpenBISService(),
+                new SimpleFreeSpaceProvider(), new IDataSetMover()
                     {
 
                         public void moveDataSetToAnotherShare(File dataSetDirInStore, File share)
@@ -124,9 +131,10 @@ public class SegmentedStoreBalancingTask implements IMaintenanceTask
                     }, new Log4jSimpleLogger(operationLog));
     }
 
-    SegmentedStoreBalancingTask(final IEncapsulatedOpenBISService service,
+    SegmentedStoreShufflingTask(Set<String> incomingShares, IEncapsulatedOpenBISService service,
             IFreeSpaceProvider freeSpaceProvider, IDataSetMover dataSetMover, ISimpleLogger logger)
     {
+        this.incomingShares = incomingShares;
         LogInitializer.init();
         this.freeSpaceProvider = freeSpaceProvider;
         this.service = service;
@@ -148,43 +156,52 @@ public class SegmentedStoreBalancingTask implements IMaintenanceTask
                     "Store root does not exists or is not a directory: "
                             + storeRoot.getAbsolutePath());
         }
-        balancer = createBalancer(properties);
-        operationLog.info("Plugin '" + pluginName + "' initialized: balancer: "
-                + balancer.getClass().getName() + ", data store code: " + dataStoreCode
-                + ", data store root: " + storeRoot.getAbsolutePath());
+        shuffling = createShuffling(properties);
+        operationLog.info("Plugin '" + pluginName + "' initialized: shuffling strategy: "
+                + shuffling.getClass().getName() + ", data store code: " + dataStoreCode
+                + ", data store root: " + storeRoot.getAbsolutePath() + ", incoming shares: "
+                + incomingShares);
     }
     
-    private ISegmentedStoreBalancer createBalancer(Properties properties)
+    private ISegmentedStoreShuffling createShuffling(Properties properties)
     {
-        Properties balancerProps =
+        Properties shufflingProps =
                 PropertyParametersUtil.extractSingleSectionProperties(properties,
-                        BALANCER_SECTION_NAME, false).getProperties();
-        String className = balancerProps.getProperty(CLASS_PROPERTY_NAME);
+                        SHUFFLING_SECTION_NAME, false).getProperties();
+        String className = shufflingProps.getProperty(CLASS_PROPERTY_NAME);
         if (className == null)
         {
-            return DUMMY_BALANCER;
+            return DUMMY_SHUFFLING;
         }
         try
         {
-            return ClassUtils.create(ISegmentedStoreBalancer.class, className, balancerProps);
+            return ClassUtils.create(ISegmentedStoreShuffling.class, className, shufflingProps);
         } catch (ConfigurationFailureException ex)
         {
             throw ex;
         } catch (Exception ex)
         {
-            throw new ConfigurationFailureException("Cannot find balancer class '" + className
+            throw new ConfigurationFailureException("Cannot find shuffling class '" + className
                     + "'", CheckedExceptionTunnel.unwrapIfNecessary(ex));
         }
     }
 
     public void execute()
     {
-        operationLog.info("Starting segmented store balancing.");
+        operationLog.info("Starting segmented store shuffling.");
         List<Share> shares =
                 SegmentedStoreUtils.getDataSetsPerShare(storeRoot, dataStoreCode,
                         freeSpaceProvider, service, operationLogger);
-        balancer.balanceStore(shares, service, dataSetMover, operationLogger);
-        operationLog.info("Segmented store balancing finished.");
+        List<Share> sourceShares = new ArrayList<Share>();
+        for (Share share : shares)
+        {
+            if (incomingShares.contains(share.getShareId()))
+            {
+                sourceShares.add(share);
+            }
+        }
+        shuffling.shuffleDataSets(sourceShares, shares, service, dataSetMover, operationLogger);
+        operationLog.info("Segmented store shuffling finished.");
     }
 
 }
