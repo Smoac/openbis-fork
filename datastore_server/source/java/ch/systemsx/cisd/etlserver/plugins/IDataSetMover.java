@@ -16,25 +16,20 @@
 
 package ch.systemsx.cisd.etlserver.plugins;
 
-import java.util.List;
+import java.io.File;
 
-import ch.systemsx.cisd.common.logging.ISimpleLogger;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 
 /**
- * Strategy of balancing data sets between shares in segmented store.
+ * Strategy of moving a data set to another share.
  *
  * @author Franz-Josef Elmer
  */
-public interface ISegmentedStoreBalancer
+public interface IDataSetMover
 {
     /**
-     * Balances sizes of specified shares by moving data sets between them using specified data set mover. 
-     * 
-     * @param service
-     * 
+     * Moves the specified data set to the specified share. The data set is folder in the store
+     * its name is the data set code. The destination folder is <code>share</code>. Its name is
+     * the share id. Share id and size will be updated on openBIS.
      */
-    public void balanceStore(List<Share> shares, IEncapsulatedOpenBISService service,
-            IDataSetMover dataSetMover, ISimpleLogger logger);
+    public void moveDataSetToAnotherShare(File dataSetDirInStore, File share);
 }

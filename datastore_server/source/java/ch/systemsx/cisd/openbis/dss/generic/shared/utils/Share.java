@@ -59,7 +59,7 @@ public final class Share
 
     private long size;
 
-    Share(File share, IFreeSpaceProvider freeSpaceProvider)
+    public Share(File share, IFreeSpaceProvider freeSpaceProvider)
     {
         this.share = share;
         this.freeSpaceProvider = freeSpaceProvider;
@@ -96,7 +96,7 @@ public final class Share
         }
     }
     
-    void addDataSet(SimpleDataSetInformationDTO dataSet)
+    public void addDataSet(SimpleDataSetInformationDTO dataSet)
     {
         dataSets.add(dataSet);
         size += dataSet.getDataSetSize();

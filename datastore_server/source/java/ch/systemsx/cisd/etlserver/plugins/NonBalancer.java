@@ -39,21 +39,26 @@ public class NonBalancer implements ISegmentedStoreBalancer
     private static final int N = 3;
 
     public void balanceStore(List<Share> shares, IEncapsulatedOpenBISService service,
-            ISimpleLogger logger)
+            IDataSetMover dataSetMover, ISimpleLogger logger)
     {
         logger.log(INFO, "Data Store Shares:");
         for (Share share : shares)
         {
             List<SimpleDataSetInformationDTO> dataSets = share.getDataSetsOrderedBySize();
-            logger.log(INFO, "   Share " + share.getShareId() + " (free space: "
-                    + FileUtils.byteCountToDisplaySize(share.calculateFreeSpace()) + ") has "
-                    + dataSets.size() + " data sets occupying "
-                    + FileUtilities.byteCountToDisplaySize(share.getTotalSizeOfDataSets()) + ".");
+            logger.log(
+                    INFO,
+                    "   Share " + share.getShareId() + " (free space: "
+                            + FileUtils.byteCountToDisplaySize(share.calculateFreeSpace())
+                            + ") has " + dataSets.size() + " data sets occupying "
+                            + FileUtilities.byteCountToDisplaySize(share.getTotalSizeOfDataSets())
+                            + ".");
             for (int i = 0, n = Math.min(N, dataSets.size()); i < n; i++)
             {
                 SimpleDataSetInformationDTO dataSet = dataSets.get(i);
-                logger.log(INFO, "      " + dataSet.getDataSetCode() + " "
-                        + FileUtilities.byteCountToDisplaySize(dataSet.getDataSetSize()));
+                logger.log(
+                        INFO,
+                        "      " + dataSet.getDataSetCode() + " "
+                                + FileUtilities.byteCountToDisplaySize(dataSet.getDataSetSize()));
             }
             if (dataSets.size() > N)
             {

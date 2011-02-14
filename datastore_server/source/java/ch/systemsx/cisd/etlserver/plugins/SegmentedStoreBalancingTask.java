@@ -22,6 +22,7 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
@@ -42,38 +43,48 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 
 /**
- * 
+ * Maintenance task which tries to balance a segmented store.
  *
  * @author Franz-Josef Elmer
  */
 public class SegmentedStoreBalancingTask implements IMaintenanceTask
 {
-    private static final String BALANCER_SECTION_NAME = "balancer";
-    private static final String CLASS_PROPERTY_NAME = "class";
+    @Private static final String BALANCER_SECTION_NAME = "balancer";
+    @Private static final String CLASS_PROPERTY_NAME = "class";
     
     private static final Logger operationLog =
         LogFactory.getLogger(LogCategory.OPERATION, SegmentedStoreBalancingTask.class);
     
     private final IEncapsulatedOpenBISService service;
+    private final IDataSetMover dataSetMover;
     private final IFreeSpaceProvider freeSpaceProvider;
     private final ISimpleLogger operationLogger;
     
     private File storeRoot;
     private String dataStoreCode;
-    private ISegmentedStoreBalancer balancer;
+    @Private ISegmentedStoreBalancer balancer;
     
     public SegmentedStoreBalancingTask()
     {
         this(ServiceProvider.getOpenBISService(), new SimpleFreeSpaceProvider(),
-                new Log4jSimpleLogger(operationLog));
+                new IDataSetMover()
+                    {
+
+                        public void moveDataSetToAnotherShare(File dataSetDirInStore, File share)
+                        {
+                            SegmentedStoreUtils.moveDataSetToAnotherShare(dataSetDirInStore, share,
+                                    ServiceProvider.getOpenBISService());
+                        }
+                    }, new Log4jSimpleLogger(operationLog));
     }
 
-    SegmentedStoreBalancingTask(IEncapsulatedOpenBISService service,
-            IFreeSpaceProvider freeSpaceProvider, ISimpleLogger logger)
+    SegmentedStoreBalancingTask(final IEncapsulatedOpenBISService service,
+            IFreeSpaceProvider freeSpaceProvider, IDataSetMover dataSetMover, ISimpleLogger logger)
     {
         LogInitializer.init();
         this.freeSpaceProvider = freeSpaceProvider;
         this.service = service;
+        this.dataSetMover = dataSetMover;
         operationLogger = logger;
     }
 
@@ -126,7 +137,7 @@ public class SegmentedStoreBalancingTask implements IMaintenanceTask
         List<Share> shares =
                 SegmentedStoreUtils.getDataSetsPerShare(storeRoot, dataStoreCode,
                         freeSpaceProvider, service, operationLogger);
-        balancer.balanceStore(shares, service, operationLogger);
+        balancer.balanceStore(shares, service, dataSetMover, operationLogger);
         operationLog.info("Segmented store balancing finished.");
     }
 
