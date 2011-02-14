@@ -16,15 +16,19 @@
 
 package ch.systemsx.cisd.etlserver.plugins;
 
+import static ch.systemsx.cisd.common.logging.LogLevel.INFO;
+
 import java.io.File;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
@@ -41,6 +45,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
  * Maintenance task which tries to balance a segmented store.
@@ -49,6 +54,47 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
  */
 public class SegmentedStoreBalancingTask implements IMaintenanceTask
 {
+    private static final ISegmentedStoreBalancer DUMMY_BALANCER = new ISegmentedStoreBalancer()
+        {
+            private static final int N = 3;
+
+            public void balanceStore(List<Share> shares, IEncapsulatedOpenBISService service,
+                    IDataSetMover dataSetMover, ISimpleLogger logger)
+            {
+                logger.log(INFO, "Data Store Shares:");
+                for (Share share : shares)
+                {
+                    List<SimpleDataSetInformationDTO> dataSets = share.getDataSetsOrderedBySize();
+                    logger.log(
+                            INFO,
+                            "   Share "
+                                    + share.getShareId()
+                                    + " (free space: "
+                                    + FileUtils.byteCountToDisplaySize(share.calculateFreeSpace())
+                                    + ") has "
+                                    + dataSets.size()
+                                    + " data sets occupying "
+                                    + FileUtilities.byteCountToDisplaySize(share
+                                            .getTotalSizeOfDataSets()) + ".");
+                    for (int i = 0, n = Math.min(N, dataSets.size()); i < n; i++)
+                    {
+                        SimpleDataSetInformationDTO dataSet = dataSets.get(i);
+                        logger.log(
+                                INFO,
+                                "      "
+                                        + dataSet.getDataSetCode()
+                                        + " "
+                                        + FileUtilities.byteCountToDisplaySize(dataSet
+                                                .getDataSetSize()));
+                    }
+                    if (dataSets.size() > N)
+                    {
+                        logger.log(INFO, "      ...");
+                    }
+                }
+            }
+        };
+
     @Private static final String BALANCER_SECTION_NAME = "balancer";
     @Private static final String CLASS_PROPERTY_NAME = "class";
     
@@ -116,7 +162,7 @@ public class SegmentedStoreBalancingTask implements IMaintenanceTask
         String className = balancerProps.getProperty(CLASS_PROPERTY_NAME);
         if (className == null)
         {
-            return new NonBalancer();
+            return DUMMY_BALANCER;
         }
         try
         {

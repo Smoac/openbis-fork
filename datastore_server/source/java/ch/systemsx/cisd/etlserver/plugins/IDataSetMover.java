@@ -17,10 +17,12 @@
 package ch.systemsx.cisd.etlserver.plugins;
 
 import java.io.File;
+import java.util.Properties;
 
 
 /**
- * Strategy of moving a data set to another share.
+ * Strategy of moving a data set to another share. Implementations of this interface should
+ * have a public constructor with an argument of type {@link Properties}.
  *
  * @author Franz-Josef Elmer
  */
