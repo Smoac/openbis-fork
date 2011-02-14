@@ -77,8 +77,7 @@ ANALYSIS_RUN_PROPERTY_CODE = "ANALYSIS_RUN"
 """ extracts code of the sample from the directory name """
 def extract_sample_code(incoming_name):
     file_basename = extract_file_basename(incoming_name)
-    #return file_basename.split(".")[0]
-    code = file_basename[file_basename.find("plates_") + 7 : file_basename.rfind("_") ]
+    code = file_basename.split("_")[1]
     if code == "":
         code = file_basename
     return code
@@ -172,11 +171,11 @@ def ensurePatternFound(ix, file, pattern):
 
 """ Returns: name of the file without the extension """
 def extract_file_basename(filename):
-    lastDot = filename.rfind(".")
-    if lastDot != -1:
-        return filename[0:lastDot]
+    base_with_ext = os.path.split(filename)[1]
+    if os.path.isfile(base_with_ext) :
+        return os.path.splitext(base_with_ext)[0]
     else:
-        return filename
+        return base_with_ext
 
 """ Returns: extension of the file """
 def get_file_ext(file):
@@ -504,17 +503,16 @@ def convert_to_png(dir, transparent_color):
 
 def notify(plate_code):
     content  = "Dear Mr./Mrs.\n"
-    hostname = "http://bwl27.sanofi-aventis.com:8443/openbis"
-    plate_link = "<a href="+hostname+"#entity=SAMPLE&sample_type=PLATE&action=SEARCH&code="+plate_code+">"+plate_code+"</a>"
-    content += "Data for the plate " + plate_link + " has been registered.\n"
+    hostname = "http://bwdl27.bw.f2.enterprise:8080/openbis"
+    plate_link = hostname+"?viewMode=simple#entity=SAMPLE&action=SEARCH&code="+plate_code+"&sample_type=PLATE"
+    content += "Data for plate : " + plate_code + " has been registered : \n" + plate_link + "\n"
     content += "\n"
     content += "Have a nice day!\n"
     content += "   openBIS\n"
     replyAddress = "Matthew.Smicker@sanofi-aventis.com"
     fromAddress = From("openbis@sanofi-aventis.com")
-    recipients = [ "Matthew.Smicker@sanofi-aventis.com", "tpylak@ethz.ch" ] 
-    state.mailClient.sendMessage("openBIS: registration finished", content, replyAddress, fromAddress, recipients)
-
+    recipients = [ "Matthew.Smicker@sanofi-aventis.com" ]
+    state.mailClient.sendMessage("openBIS: registration finished - " + plate_code, content, replyAddress, fromAddress, recipients)
        
 """
 Allows to recognize that the subdirectory of the incoming dataset directory contains overlay images.
@@ -538,7 +536,6 @@ def register_images_with_overlays_and_analysis(incoming):
     image_data_set_folder = tr.moveFile(incoming.getPath(), image_data_set)
     img_dataset_code = image_data_set.getDataSetCode()
           
-        
     # move overlays folder
     overlays_dir = find_dir(File(image_data_set_folder), OVERLAYS_DIR_PATTERN)
     if overlays_dir != None:
@@ -561,47 +558,6 @@ def register_images_with_overlays_and_analysis(incoming):
         analysis_data_set_file = tr_analysis.createNewFile(analysis_data_set, analysis_file.getName())
         GEExplorerImageAnalysisResultParser(analysis_file.getPath()).writeCSV(File(analysis_data_set_file))
         tr_analysis.commit()
-        
-    service.commit()
-    notify(plate_code)
-  
-# --- old way
-def register_images_with_overlays_and_analysis_oldstyle(incoming):
-    if not incoming.isDirectory():
-        return
-    
-    tr = service.transaction(incoming, factory)
-        
-    image_dataset_details = create_image_dataset_details(incoming)
-    plate_code = image_dataset_details.getDataSetInformation().getSampleCode()
-    space_code = image_dataset_details.getDataSetInformation().getSpaceCode()
-    register_sample_if_necessary(space_code, DEFAULT_PROJECT_CODE, DEFAULT_EXPERIMENT_CODE, plate_code)
-
-    # create the image data set and put everything in it initially
-    image_data_set = tr.createNewDataSet(image_dataset_details)
-    image_data_set_folder = tr.moveFile(incoming.getPath(), image_data_set)
-    img_dataset_code = image_data_set.getDataSetCode()
-          
-    # move overlays folder
-    overlays_dir = find_dir(File(image_data_set_folder), OVERLAYS_DIR_PATTERN)
-    if overlays_dir != None:
-        convert_to_png(overlays_dir.getPath(), OVERLAYS_TRANSPARENT_COLOR)
-        overlay_dataset_details = create_overlay_dataset_details(overlays_dir, 
-                                     image_dataset_details.getDataSetInformation(), img_dataset_code, "png")
-        overlays_data_set = tr.createNewDataSet(overlay_dataset_details)
-        tr.moveFile(overlays_dir.getPath(), overlays_data_set, "overlays")
-        tr.commit()
-
-    # transform and move analysis file
-    analysis_file = find_file_by_ext(File(image_data_set_folder), "xml")
-    if analysis_file != None:
-        analysis_run = extract_file_basename(analysis_file.getName())
-        analysis_registration_details = create_analysis_dataset_details(
-                                            space_code, plate_code, img_dataset_code, analysis_run)
-        analysis_data_set = tr.createNewDataSet(analysis_registration_details)
-        analysis_data_set_file = tr.createNewFile(analysis_data_set, analysis_file.getName())
-        GEExplorerImageAnalysisResultParser(analysis_file.getPath()).writeCSV(File(analysis_data_set_file))
-        tr.commit()
         
     service.commit()
     notify(plate_code)
