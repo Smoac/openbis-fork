@@ -76,9 +76,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningCli
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplaySettingsManager;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplayTypeIDGenerator;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelWidgetWithListener.ISimpleChanneledViewerFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
@@ -247,7 +245,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
 
     private SingleExperimentSearchCriteria singleExperimentChooserStateOrNull;
 
-    private ChannelComboBox channelChooser;
+    private ChannelChooserPanel channelChooser;
 
     private WellSearchGrid(IViewContext<IScreeningClientServiceAsync> viewContext,
             ExperimentSearchCriteria experimentCriteriaOrNull,
@@ -261,7 +259,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
 
         final IDefaultChannelState defaultChannelState =
                 createDefaultChannelState(viewContext, experimentCriteriaOrNull);
-        channelChooser = new ChannelComboBox(defaultChannelState);
+        channelChooser = new ChannelChooserPanel(defaultChannelState);
         linkWellContent();
         linkExperiment();
         linkPlate();
@@ -274,35 +272,21 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
             final IViewContext<IScreeningClientServiceAsync> viewContext,
             ExperimentSearchCriteria experimentCriteriaOrNull)
     {
-        final ScreeningDisplaySettingsManager screeningDisplaySettingManager =
-                ScreeningViewContext.getTechnologySpecificDisplaySettingsManager(viewContext);
-
         // If there is a single experiment set in criteria reuse default channel settings,
         // otherwise use global settings.
-        final ScreeningDisplayTypeIDGenerator displayTypeIdGenerator =
+        ScreeningDisplayTypeIDGenerator displayTypeIdGenerator =
                 ScreeningDisplayTypeIDGenerator.EXPERIMENT_CHANNEL;
-        final String displayTypeId;
+        String displayTypeId;
         if (experimentCriteriaOrNull != null && experimentCriteriaOrNull.tryGetExperiment() != null)
         {
-            final String experimentPermId =
+            String experimentPermId =
                     experimentCriteriaOrNull.tryGetExperiment().getExperimentPermId();
             displayTypeId = displayTypeIdGenerator.createID(experimentPermId);
         } else
         {
             displayTypeId = displayTypeIdGenerator.createID(null);
         }
-        return new IDefaultChannelState()
-            {
-                public void setDefaultChannel(String channel)
-                {
-                    screeningDisplaySettingManager.setDefaultChannel(displayTypeId, channel);
-                }
-
-                public String tryGetDefaultChannel()
-                {
-                    return screeningDisplaySettingManager.tryGetDefaultChannel(displayTypeId);
-                }
-            };
+        return new DefaultChannelState(viewContext, displayTypeId);
     }
 
     private void linkWellContent()
@@ -630,23 +614,23 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
                     {
                         return null;
                     }
-                    ImageDatasetParameters imageParameters = images.getImageParameters();
                     final ISimpleChanneledViewerFactory viewerFactory =
                             new ISimpleChanneledViewerFactory()
                                 {
-                                    public Widget create(String channel)
+                                    public Widget create(List<String> channels)
                                     {
                                         return WellContentDialog.createImageViewerForChannel(
                                                 viewContext, entity, IMAGE_WIDTH_PX,
-                                                IMAGE_HEIGHT_PX, channel);
+                                                IMAGE_HEIGHT_PX, channels);
                                     }
                                 };
                     ChannelWidgetWithListener widgetWithListener =
                             new ChannelWidgetWithListener(viewerFactory);
-                    widgetWithListener.update(channelChooser.getSimpleValue());
 
-                    channelChooser.addCodesAndListener(imageParameters.getChannelsCodes(),
-                            widgetWithListener.asSelectionChangedListener());
+                    ImageDatasetParameters imageParameters = images.getImageParameters();
+                    channelChooser.setSelectionChangedListener(widgetWithListener);
+                    channelChooser.initializeCodesForWellSearchGrid(imageParameters.getChannelsCodes());
+
                     return widgetWithListener.asWidget();
                 }
 

@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application;
 
+import java.util.Arrays;
+import java.util.List;
+
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningDisplaySettings;
@@ -25,6 +29,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningDispl
  */
 public class ScreeningDisplaySettingsManager
 {
+
+    private static final String DELIMITER = ",";
+
     private final ScreeningDisplaySettings screeningSettings;
 
     @SuppressWarnings("deprecation")
@@ -46,15 +53,21 @@ public class ScreeningDisplaySettingsManager
     // delegate
 
     @SuppressWarnings("deprecation")
-    public String tryGetDefaultChannel(String displayTypeID)
+    public List<String> tryGetDefaultChannels(String displayTypeID)
     {
-        return screeningSettings.getDefaultChannels().get(displayTypeID);
+        String channelListString = screeningSettings.getDefaultChannels().get(displayTypeID);
+        if (channelListString != null)
+        {
+            return Arrays.asList(channelListString.split(","));
+        }
+        return null;
     }
 
     @SuppressWarnings("deprecation")
-    public void setDefaultChannel(String displayTypeID, String channel)
+    public void setDefaultChannels(String displayTypeID, List<String> channels)
     {
-        screeningSettings.getDefaultChannels().put(displayTypeID, channel);
+        String channelListString = StringUtils.join(channels.toArray(new String[0]), DELIMITER);
+        screeningSettings.getDefaultChannels().put(displayTypeID, channelListString);
     }
 
 }

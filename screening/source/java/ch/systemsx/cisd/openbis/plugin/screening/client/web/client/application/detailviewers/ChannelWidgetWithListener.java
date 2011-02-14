@@ -16,22 +16,20 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
-import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
-import com.extjs.gxt.ui.client.event.SelectionChangedListener;
+import java.util.List;
+
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
 
 /**
  * Allows to create a {@link Widget} ({@link #asWidget()}) containing channel view and allows to
- * manually update visible channel ({@link #update(String)}) or create a listener that can be added
- * to channel selector.
+ * manually update visible channel via the ({@link #selectionChanged(List)}) method.
  * 
  * @author Izabela Adamczyk
  */
-public class ChannelWidgetWithListener
+public class ChannelWidgetWithListener implements ChannelChooserPanel.ChannelSelectionListener
 {
     final private LayoutContainer container;
 
@@ -39,7 +37,7 @@ public class ChannelWidgetWithListener
 
     interface ISimpleChanneledViewerFactory
     {
-        Widget create(String channelCode);
+        Widget create(List<String> channelCodes);
     }
 
     public ChannelWidgetWithListener(final ISimpleChanneledViewerFactory viewerFactory)
@@ -48,30 +46,16 @@ public class ChannelWidgetWithListener
         this.viewerFactory = viewerFactory;
     }
 
-    public void update(String channelName)
-    {
-        if (channelName != null)
-        {
-            GuiUtils.replaceLastItem(container, viewerFactory.create(channelName));
-        }
-    }
-
-    public SelectionChangedListener<SimpleComboValue<String>> asSelectionChangedListener()
-    {
-        return new SelectionChangedListener<SimpleComboValue<String>>()
-            {
-
-                @Override
-                public void selectionChanged(SelectionChangedEvent<SimpleComboValue<String>> se)
-                {
-                    update(se.getSelectedItem().getValue());
-                }
-
-            };
-    }
-
     public Widget asWidget()
     {
         return container;
+    }
+
+    public void selectionChanged(List<String> channelNames)
+    {
+        if (channelNames != null)
+        {
+            GuiUtils.replaceLastItem(container, viewerFactory.create(channelNames));
+        }
     }
 }

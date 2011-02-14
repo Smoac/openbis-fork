@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
+import java.util.List;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.widget.Component;
@@ -139,12 +140,20 @@ public class ImageUrlUtils
             LogicalImageChannelsReference channelReferences)
     {
         LogicalImageReference images = channelReferences.getBasicImage();
-        String signature =
-                images.getTransformerFactorySignatureOrNull(channelReferences
-                        .getBasicImageChannelCode());
-        if (signature != null)
+
+        // TODO KE: Tomek, should we add a "transformerFactorySignature" for each selected channel ?
+        List<String> channels = channelReferences.getChannelCodes();
+        if (channels != null)
         {
-            url.addParameter("transformerFactorySignature", signature);
+            for (String channel : channels)
+            {
+                String signature = images.getTransformerFactorySignatureOrNull(channel);
+                if (signature != null)
+                {
+                    url.addParameter("transformerFactorySignature", signature);
+                }
+
+            }
         }
     }
 
@@ -158,15 +167,21 @@ public class ImageUrlUtils
         methodWithParameters.addParameter("sessionID", sessionID);
         methodWithParameters.addParameter(ImageServletUrlParameters.DATASET_CODE_PARAM,
                 images.getDatasetCode());
-        String channel = channelReferences.getBasicImageChannelCode();
-        if (channel.equals(ScreeningConstants.MERGED_CHANNELS))
+
+        List<String> channels = channelReferences.getChannelCodes();
+        if (channels.contains(ScreeningConstants.MERGED_CHANNELS))
         {
             methodWithParameters.addParameter(ImageServletUrlParameters.MERGE_CHANNELS_PARAM,
                     "true");
         } else
         {
-            methodWithParameters.addParameter(ImageServletUrlParameters.CHANNEL_PARAM, channel);
+            for (String channel : channelReferences.getChannelCodes())
+            {
+                methodWithParameters.addParameter(ImageServletUrlParameters.CHANNEL_PARAM, channel);
+            }
         }
+                
+
         addOverlayParameters(channelReferences.getOverlayChannels(), methodWithParameters);
         return methodWithParameters;
     }

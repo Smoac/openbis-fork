@@ -129,13 +129,15 @@ public class WellContentDialog extends Dialog
     }
 
     /**
-     * Creates a view for the specified channel.
+     * Creates a view for the specified channels.
      * 
-     * @param channel Channel numbers start with 1. Channel 0 consists of all other channels merged.
+     * @param channels the channel names. If "MERGED_CHANNELS" is specified, there must be no other
+     *            channel elements present.
      */
     public static Widget createImageViewerForChannel(
             final IViewContext<IScreeningClientServiceAsync> viewContext,
-            final WellContent wellContent, int imageWidthPx, int imageHeightPx, String channel)
+            final WellContent wellContent, int imageWidthPx, int imageHeightPx,
+            List<String> channels)
     {
         final ImageDatasetEnrichedReference imageDataset = tryGetImageDataset(wellContent);
         if (imageDataset == null)
@@ -148,8 +150,8 @@ public class WellContentDialog extends Dialog
             return new Text(INCORRECT_WELL_CODE_LABEL);
         }
         ImageDatasetParameters imageParameters = imageDataset.getImageDatasetParameters();
-        if (imageParameters.getChannelsCodes().contains(channel) == false
-                && channel.equals(ScreeningConstants.MERGED_CHANNELS) == false)
+        if (imageParameters.getChannelsCodes().containsAll(channels) == false
+                && channels.contains(ScreeningConstants.MERGED_CHANNELS) == false)
         {
             return new Text(UNKNOWN_CHANNEL_LABEL);
         }
@@ -159,7 +161,7 @@ public class WellContentDialog extends Dialog
         final LogicalImageReference wellImages =
                 new LogicalImageReference(imageDataset, locationOrNull);
         LogicalImageChannelsReference channelReferences =
-                LogicalImageChannelsReference.createWithoutOverlays(wellImages, channel);
+                LogicalImageChannelsReference.createWithoutOverlays(wellImages, channels);
         LayoutContainer staticTilesGrid =
                 LogicalImageViewer.createTilesGrid(channelReferences, sessionId, imageWidthPx,
                         imageHeightPx, createImageLinks);

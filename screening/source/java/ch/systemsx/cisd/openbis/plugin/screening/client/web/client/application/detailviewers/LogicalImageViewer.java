@@ -18,24 +18,6 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ParameterNames;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Constants;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplaySettingsManager;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplayTypeIDGenerator;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.IChanneledViewerFactory;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageChannelsReference;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageReference;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
-
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -51,6 +33,22 @@ import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Widget;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ParameterNames;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Constants;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.IChanneledViewerFactory;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageChannelsReference;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
  * A widget which displays one logical image pointed by {@link LogicalImageReference}.
@@ -81,7 +79,7 @@ public class LogicalImageViewer
 
     private final boolean showColorAdjustmentButton;
 
-    private String currentlySelectedChannelCode;
+    private List<String> currentlySelectedChannelCodes;
 
     public LogicalImageViewer(LogicalImageReference logicalImageReference,
             IViewContext<IScreeningClientServiceAsync> viewContext, String experimentIdentifier,
@@ -173,7 +171,7 @@ public class LogicalImageViewer
             {
                 public LayoutContainer create(LogicalImageChannelsReference channelReferences)
                 {
-                    currentlySelectedChannelCode = channelReferences.getBasicImageChannelCode();
+                    currentlySelectedChannelCodes = channelReferences.getChannelCodes();
                     String sessionId = getSessionId(viewContext);
                     int imageWidth = getImageWidth(logicalImageReference);
                     int imageHeight = getImageHeight(logicalImageReference);
@@ -277,7 +275,7 @@ public class LogicalImageViewer
             {
                 public LayoutContainer create(LogicalImageChannelsReference channelReferences)
                 {
-                    currentlySelectedChannelCode = channelReferences.getBasicImageChannelCode();
+                    currentlySelectedChannelCodes = channelReferences.getChannelCodes();
                     String sessionId = getSessionId(viewContext);
                     return createTilesGrid(channelReferences, sessionId);
                 }
@@ -288,24 +286,11 @@ public class LogicalImageViewer
     private static IDefaultChannelState createDefaultChannelState(
             final IViewContext<?> viewContext, final String experimentPermId)
     {
-        final ScreeningDisplaySettingsManager screeningDisplaySettingManager =
-                ScreeningViewContext.getTechnologySpecificDisplaySettingsManager(viewContext);
         final ScreeningDisplayTypeIDGenerator wellSearchChannelIdGenerator =
                 ScreeningDisplayTypeIDGenerator.EXPERIMENT_CHANNEL;
         final String displayTypeID = wellSearchChannelIdGenerator.createID(experimentPermId);
 
-        return new IDefaultChannelState()
-            {
-                public void setDefaultChannel(String channel)
-                {
-                    screeningDisplaySettingManager.setDefaultChannel(displayTypeID, channel);
-                }
-
-                public String tryGetDefaultChannel()
-                {
-                    return screeningDisplaySettingManager.tryGetDefaultChannel(displayTypeID);
-                }
-            };
+        return new DefaultChannelState(viewContext, displayTypeID);
     }
 
     /** Launches external image editor for the displayed image in the chosen channel. */
@@ -318,9 +303,10 @@ public class LogicalImageViewer
         urlParams.addParameter(ParameterNames.SERVER_URL, GWT.getHostPageBaseURL());
         urlParams.addParameter(ParameterNames.EXPERIMENT_ID, experimentIdentifier);
 
-        if (currentlySelectedChannelCode != null)
+        // TODO KE: How do we support the launching of ImageViewer with channel parameters ?
+        if (currentlySelectedChannelCodes != null)
         {
-            urlParams.addParameter(ParameterNames.CHANNEL, currentlySelectedChannelCode);
+            urlParams.addParameter(ParameterNames.CHANNEL, currentlySelectedChannelCodes);
         }
         WellLocation wellLocation = logicalImageReference.tryGetWellLocation();
         if (wellLocation != null)

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -27,9 +28,9 @@ import java.util.Set;
 public class LogicalImageChannelsReference
 {
     public static LogicalImageChannelsReference createWithoutOverlays(
-            LogicalImageReference basicImage, String channel)
+            LogicalImageReference basicImage, List<String> channels)
     {
-        return new LogicalImageChannelsReference(basicImage, channel,
+        return new LogicalImageChannelsReference(basicImage, channels,
                 new HashSet<ImageDatasetChannel>());
     }
 
@@ -37,15 +38,15 @@ public class LogicalImageChannelsReference
     
     private final LogicalImageReference basicImage;
 
-    private final String channel;
+    private final List<String> channels;
 
     private final Set<ImageDatasetChannel> overlayChannels;
 
-    public LogicalImageChannelsReference(LogicalImageReference basicImage, String channel,
+    public LogicalImageChannelsReference(LogicalImageReference basicImage, List<String> channels,
             Set<ImageDatasetChannel> overlayChannels)
     {
         this.basicImage = basicImage;
-        this.channel = channel;
+        this.channels = channels;
         this.overlayChannels = overlayChannels;
     }
 
@@ -54,9 +55,9 @@ public class LogicalImageChannelsReference
         return basicImage;
     }
 
-    public String getBasicImageChannelCode()
+    public List<String> getChannelCodes()
     {
-        return channel;
+        return channels;
     }
 
     public Set<ImageDatasetChannel> getOverlayChannels()

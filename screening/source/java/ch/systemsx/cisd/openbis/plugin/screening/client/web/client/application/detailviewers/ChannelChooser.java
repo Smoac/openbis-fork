@@ -21,6 +21,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.google.gwt.user.client.ui.Widget;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.CheckBoxGroupWithModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.CheckBoxGroupWithModel.CheckBoxGroupListner;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.LabeledItem;
@@ -30,13 +33,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
-
-import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
-import com.extjs.gxt.ui.client.event.SelectionChangedListener;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
-import com.google.gwt.user.client.ui.Widget;
 
 /**
  * Handles displaying images in different channels and allows to choose the overlays.
@@ -71,7 +67,7 @@ class ChannelChooser
 
     private Set<ImageDatasetChannel> selectedOverlayChannels;
 
-    private String basicImageChannelCode;
+    private List<String> basicChannelCodes;
 
     public ChannelChooser(LogicalImageReference basicImage, IChanneledViewerFactory viewerFactory,
             IDefaultChannelState defaultChannelState)
@@ -80,8 +76,8 @@ class ChannelChooser
         this.viewerFactory = viewerFactory;
         this.imageContainer = new LayoutContainer();
 
-        this.basicImageChannelCode =
-                getInitialChannelCode(defaultChannelState, basicImage.getChannelsCodes());
+        this.basicChannelCodes =
+                getInitialChannelCodes(defaultChannelState, basicImage.getChannelsCodes());
         this.defaultChannelState = defaultChannelState;
         this.selectedOverlayChannels = new HashSet<ImageDatasetChannel>();
     }
@@ -97,7 +93,7 @@ class ChannelChooser
     public void refresh()
     {
         LogicalImageChannelsReference state =
-                new LogicalImageChannelsReference(basicImage, basicImageChannelCode,
+                new LogicalImageChannelsReference(basicImage, basicChannelCodes,
                         selectedOverlayChannels);
         Widget view = viewerFactory.create(state);
         imageContainer.removeAll();
@@ -182,33 +178,31 @@ class ChannelChooser
 
     private Widget createBasicChannelChooser(List<String> channels)
     {
-        ChannelComboBox channelChooser =
-                new ChannelComboBox(channels, defaultChannelState, basicImageChannelCode);
+        final ChannelChooserPanel channelChooser =
+                new ChannelChooserPanel(defaultChannelState, channels, basicChannelCodes);
+
         channelChooser
-                .addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<String>>()
+                .setSelectionChangedListener(new ChannelChooserPanel.ChannelSelectionListener()
                     {
-                        @Override
-                        public void selectionChanged(
-                                SelectionChangedEvent<SimpleComboValue<String>> se)
+                        public void selectionChanged(List<String> newlySelectedChannels)
                         {
-                            String selectedChannelCode = se.getSelectedItem().getValue();
-                            basicImageChannelCode = selectedChannelCode;
+                            basicChannelCodes = newlySelectedChannels;
                             refresh();
                         }
                     });
+
         return GuiUtils.withLabel(channelChooser, CHANNEL_MSG);
     }
 
-    private static String getInitialChannelCode(IDefaultChannelState defaultChannelState,
+    private static List<String> getInitialChannelCodes(IDefaultChannelState defaultChannelState,
             List<String> channels)
     {
-        String initialChannel = defaultChannelState.tryGetDefaultChannel();
-        if (initialChannel == null || channels.indexOf(initialChannel) == -1)
+        List<String> defaultChannels = defaultChannelState.tryGetDefaultChannels();
+        if (defaultChannels == null || false == channels.containsAll(defaultChannels))
         {
-            initialChannel =
-                    channels.size() > 1 ? ScreeningConstants.MERGED_CHANNELS : channels.get(0);
+            return channels;
         }
-        return initialChannel;
+        return defaultChannels;
     }
 
 }
