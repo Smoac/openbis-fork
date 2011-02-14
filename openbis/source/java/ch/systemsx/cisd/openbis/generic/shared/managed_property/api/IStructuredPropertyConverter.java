@@ -23,6 +23,8 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.structured.Eleme
 
 /**
  * Abstracts the conversion of {@link Element} objects to/from database strings.
+ * <p>
+ * <b>All methods of this enum are part of the Managed Properties API.</b>
  * 
  * @author Kaloyan Enimanev
  */
@@ -34,10 +36,10 @@ public interface IStructuredPropertyConverter
      * @return an empty list if the value is undefined or special.
      */
     List<IElement> convertToElements(IManagedProperty property);
-    
+
     /**
      * @return a {@link String} representation of the specified elements that can be persisted in
-     *         the database. 
+     *         the database.
      */
     String convertToString(List<IElement> elements);
 

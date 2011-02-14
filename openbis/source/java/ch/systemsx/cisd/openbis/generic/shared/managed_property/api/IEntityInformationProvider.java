@@ -14,15 +14,21 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.managed_property;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+package ch.systemsx.cisd.openbis.generic.shared.managed_property.api;
 
 /**
+ * Provides required information about entities.
+ * <p>
+ * <b>All methods of this enum are part of the Managed Properties API.</b>
+ * 
  * @author Piotr Buczek
  */
 public interface IEntityInformationProvider
 {
-    /** @return identifier of entity with given kind and permid, <code>null</code> if such entity doesn't exist */
-    String getIdentifier(EntityKind entityKind, String permId); 
+    /**
+     * @return identifier of entity specified by given link, <code>null</code> if such an entity
+     *         doesn't exist
+     */
+    String getIdentifier(IEntityLinkElement entityLink);
+
 }

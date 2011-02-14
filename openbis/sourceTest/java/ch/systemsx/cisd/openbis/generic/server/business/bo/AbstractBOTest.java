@@ -36,7 +36,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGridCustomFilterDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
@@ -46,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRelationshipTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IScriptDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyTermDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IPermIdDAO;
@@ -186,6 +186,8 @@ public abstract class AbstractBOTest extends AssertJUnit
                     will(returnValue(scriptDAO));
                     allowing(daoFactory).getMaterialDAO();
                     will(returnValue(materialDAO));
+                    allowing(daoFactory).getExperimentDAO();
+                    will(returnValue(experimentDAO));
                 }
             });
     }

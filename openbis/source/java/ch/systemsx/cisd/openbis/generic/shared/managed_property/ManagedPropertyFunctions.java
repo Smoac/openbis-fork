@@ -8,6 +8,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ValidationException;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IElement;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IElementFactory;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IEntityInformationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTableModelBuilderAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IStructuredPropertyConverter;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.structured.ElementFactory;
@@ -19,7 +20,7 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.structured.XmlSt
  * All public methods of this class are part of the Managed Properties API.
  */
 @Component(value = ResourceNames.MANAGED_PROPERTY_SCRIPT_UTILITY_FACTORY)
-public class ScriptUtilityFactory
+public class ManagedPropertyFunctions
 {
     private static final IElementFactory ELEMENT_FACTORY_INSTANCE = new ElementFactory();
 
@@ -38,10 +39,10 @@ public class ScriptUtilityFactory
     @Resource(name = ResourceNames.ENTITY_INFORMATION_PROVIDER)
     public void setEntityInformationProvider(IEntityInformationProvider entityInformationProvider)
     {
-        ScriptUtilityFactory.entityInformationProvider = entityInformationProvider;
+        ManagedPropertyFunctions.entityInformationProvider = entityInformationProvider;
     }
 
-    private ScriptUtilityFactory()
+    private ManagedPropertyFunctions()
     {
 
     }
@@ -67,7 +68,7 @@ public class ScriptUtilityFactory
     /**
      * @return a factory object that can be used to create {@link IElement}-s.
      */
-    public static IElementFactory getElementFactory()
+    public static IElementFactory elementFactory()
     {
         return ELEMENT_FACTORY_INSTANCE;
     }
@@ -75,9 +76,17 @@ public class ScriptUtilityFactory
     /**
      * @return a converter that can translate {@link IElement} to/from Strings.
      */
-    public static IStructuredPropertyConverter getPropertyConverter()
+    public static IStructuredPropertyConverter propertyConverter()
     {
         return STRUCTURED_PROPERTY_CONVERTER_INSTANCE;
+    }
+
+    /**
+     * @return a provider of information about entities.
+     */
+    public static IEntityInformationProvider entityInformationProvider()
+    {
+        return entityInformationProvider;
     }
 
 }

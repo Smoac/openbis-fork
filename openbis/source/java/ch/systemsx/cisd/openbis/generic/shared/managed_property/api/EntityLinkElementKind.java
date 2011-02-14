@@ -19,15 +19,18 @@ package ch.systemsx.cisd.openbis.generic.shared.managed_property.api;
 /**
  * The type of an entity link.
  * <p>
+ * <b>All methods of this enum are part of the Managed Properties API.</b>
  * 
  * @author Kaloyan Enimanev
  */
 public enum EntityLinkElementKind
 {
 
-    EXPERIMENT("Experiment"), SAMPLE("Sample"), DATA_SET("Dataset", "Data Set"), MATERIAL("Material");
+    EXPERIMENT("Experiment"), SAMPLE("Sample"), DATA_SET("Dataset", "Data Set"), MATERIAL(
+            "Material");
 
     private final String elementName;
+
     private final String label;
 
     private EntityLinkElementKind(String elementName)
@@ -40,7 +43,7 @@ public enum EntityLinkElementKind
         this.elementName = elementName;
         this.label = label;
     }
-    
+
     /**
      * the {@link IElement} name corresponding to the link.
      */

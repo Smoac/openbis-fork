@@ -21,6 +21,7 @@ import java.util.Date;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IEntityInformationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IEntityLinkElement;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IRowBuilderAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTableModelBuilderAdaptor;
@@ -118,7 +119,7 @@ public class SimpleTableModelBuilderAdaptor implements ISimpleTableModelBuilderA
                     final EntityKind entityKind =
                             EntityLinkElementTranslator.translate(value.getEntityLinkKind());
                     final String permId = value.getPermId();
-                    final String identifierOrNull = tryExtractIdentifier(entityKind, permId);
+                    final String identifierOrNull = tryExtractIdentifier(value);
                     return new EntityTableCell(entityKind, permId, identifierOrNull);
                 }
 
@@ -135,8 +136,8 @@ public class SimpleTableModelBuilderAdaptor implements ISimpleTableModelBuilderA
         builder.addFullRow(values);
     }
 
-    private String tryExtractIdentifier(EntityKind entityKind, String permId)
+    private String tryExtractIdentifier(IEntityLinkElement entityLink)
     {
-        return entityInformationProvider.getIdentifier(entityKind, permId);
+        return entityInformationProvider.getIdentifier(entityLink);
     }
 }

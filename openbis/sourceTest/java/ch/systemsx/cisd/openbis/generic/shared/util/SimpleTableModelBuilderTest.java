@@ -196,9 +196,9 @@ public class SimpleTableModelBuilderTest extends AssertJUnit
         rowBuilder.setCell("datasetCol", createDataSetCell("d2"));
         rowBuilder = builder.addRow();
         rowBuilder.setCell("materialCol", SimpleTableModelBuilder.createNullCell());
-        rowBuilder.setCell("sampleCol", createSampleCell("s3"));
+        rowBuilder.setCell("sampleCol", createSampleCell("s3", null));
         rowBuilder.setCell("experimentCol", SimpleTableModelBuilder.createNullCell());
-        rowBuilder.setCell("datasetCol", createDataSetCell("d3"));
+        rowBuilder.setCell("datasetCol", createDataSetCell("d3", "d3 id"));
 
         TableModel tableModel = builder.getTableModel();
 
@@ -225,9 +225,13 @@ public class SimpleTableModelBuilderTest extends AssertJUnit
         assertEquals("d2", rows.get(1).getValues().get(3).toString());
         assertEquals(4, rows.get(2).getValues().size());
         assertEquals("", rows.get(2).getValues().get(0).toString());
-        assertEquals("s3", rows.get(2).getValues().get(1).toString());
+        assertEquals("s3 (missing)", rows.get(2).getValues().get(1).toString());
+        assertEquals(true, ((EntityTableCell) rows.get(2).getValues().get(1)).isMissing());
+        assertEquals("s3", ((EntityTableCell) rows.get(2).getValues().get(1)).getPermId());
         assertEquals("", rows.get(2).getValues().get(2).toString());
-        assertEquals("d3", rows.get(2).getValues().get(3).toString());
+        assertEquals("d3 id", rows.get(2).getValues().get(3).toString());
+        assertEquals(false, ((EntityTableCell) rows.get(2).getValues().get(3)).isMissing());
+        assertEquals("d3", ((EntityTableCell) rows.get(2).getValues().get(3)).getPermId());
     }
 
     private static EntityTableCell createMaterialCell(String permId)
@@ -240,6 +244,11 @@ public class SimpleTableModelBuilderTest extends AssertJUnit
         return new EntityTableCell(EntityKind.SAMPLE, permId);
     }
 
+    private static EntityTableCell createSampleCell(String permId, String identifierOrNull)
+    {
+        return new EntityTableCell(EntityKind.SAMPLE, permId, identifierOrNull);
+    }
+
     private static EntityTableCell createExperimentCell(String permId)
     {
         return new EntityTableCell(EntityKind.EXPERIMENT, permId);
@@ -248,6 +257,11 @@ public class SimpleTableModelBuilderTest extends AssertJUnit
     private static EntityTableCell createDataSetCell(String permId)
     {
         return new EntityTableCell(EntityKind.DATA_SET, permId);
+    }
+
+    private static EntityTableCell createDataSetCell(String permId, String identifierOrNull)
+    {
+        return new EntityTableCell(EntityKind.DATA_SET, permId, identifierOrNull);
     }
 
     private void assertHeader(String expectedTitle, String expectedID, int expectedDefaultWidth,

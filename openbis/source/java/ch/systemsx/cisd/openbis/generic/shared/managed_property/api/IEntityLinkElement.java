@@ -16,9 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.managed_property.api;
 
-
 /**
  * Denotes a link to an entity in the openBIS database.
+ * <p>
+ * <b>All methods of this enum are part of the Managed Properties API.</b>
  * 
  * @author Kaloyan Enimanev
  */

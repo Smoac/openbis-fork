@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluator;
-import ch.systemsx.cisd.openbis.generic.shared.managed_property.ScriptUtilityFactory;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyFunctions;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IElement;
 
 /**
@@ -55,7 +55,7 @@ public class StructuredPropertyConverterPythonTest extends AssertJUnit
 
         // the script will create several elements and serialize them in the property value
         List<IElement> elements =
-                ScriptUtilityFactory.getPropertyConverter().convertToElements(managedProperty);
+                ManagedPropertyFunctions.propertyConverter().convertToElements(managedProperty);
 
         assertEquals(3, elements.size());
     }

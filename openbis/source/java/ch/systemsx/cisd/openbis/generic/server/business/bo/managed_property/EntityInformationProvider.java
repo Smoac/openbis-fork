@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.EntityLinkElementTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.managed_property.IEntityInformationProvider;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IEntityInformationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IEntityLinkElement;
 
 /**
@@ -35,10 +35,17 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IEntityLinkE
 @Component(value = ResourceNames.ENTITY_INFORMATION_PROVIDER)
 public class EntityInformationProvider implements IEntityInformationProvider
 {
-    @Autowired
-    private IDAOFactory daoFactory;
+    // @Autowired
+    private final IDAOFactory daoFactory;
 
-    public String getIdentifier(EntityKind entityKind, String permId)
+    @Autowired
+    public EntityInformationProvider(IDAOFactory daoFactory)
+    {
+        assert daoFactory != null;
+        this.daoFactory = daoFactory;
+    }
+
+    private String getIdentifier(EntityKind entityKind, String permId)
     {
         IIdentifierHolder identifierHolderOrNull = null;
         switch (entityKind)

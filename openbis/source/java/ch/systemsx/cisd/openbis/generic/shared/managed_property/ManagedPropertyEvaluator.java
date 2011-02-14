@@ -106,7 +106,7 @@ public class ManagedPropertyEvaluator
 
     public ManagedPropertyEvaluator(String scriptExpression)
     {
-        evaluator = new Evaluator("", ScriptUtilityFactory.class, scriptExpression);
+        evaluator = new Evaluator("", ManagedPropertyFunctions.class, scriptExpression);
         updateFromBatchFunctionDefined = evaluator.hasFunction(UPDATE_FROM_BATCH_INPUT_FUNCTION);
         List<String> names = new ArrayList<String>();
         if (evaluator.hasFunction(BATCH_COLUMN_NAMES_FUNCTION))
