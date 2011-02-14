@@ -30,6 +30,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
@@ -107,9 +108,41 @@ public class ParallelizedExecutor
         {
             return failed;
         }
-        final AtomicInteger workersCounter =
-                new AtomicInteger(getInitialNumberOfWorkers(machineLoad, maxThreads,
-                        itemsToProcessOrNull.size()));
+        int numberOfWorkers =
+                getInitialNumberOfWorkers(machineLoad, maxThreads, itemsToProcessOrNull.size());
+        if (numberOfWorkers == 1)
+        {
+            processInTheSameThread(itemsToProcessOrNull, taskExecutor,
+                    retriesNumberWhenExecutionFails);
+        } else
+        {
+            processinParallel(taskExecutor, retriesNumberWhenExecutionFails, workerQueue, failed,
+                    numberOfWorkers);
+        }
+        logFinished(failed, processDescription, start);
+        return failed;
+    }
+
+    private static <T> void processInTheSameThread(List<T> itemsToProcess,
+            ITaskExecutor<T> taskExecutor, int retriesNumberWhenExecutionFails)
+    {
+        for (T item : itemsToProcess)
+        {
+            int counter = retriesNumberWhenExecutionFails;
+            Status status;
+            do
+            {
+                status = taskExecutor.execute(item);
+                counter--;
+            } while (counter > 0 && status.isError());
+        }
+    }
+
+    private static <T> void processinParallel(ITaskExecutor<T> taskExecutor,
+            int retriesNumberWhenExecutionFails, final Queue<T> workerQueue,
+            final Collection<FailureRecord<T>> failed, int numberOfWorkers)
+    {
+        final AtomicInteger workersCounter = new AtomicInteger(numberOfWorkers);
         startUpWorkerThreads(workersCounter, workerQueue, failed, taskExecutor,
                 retriesNumberWhenExecutionFails);
         synchronized (failed)
@@ -125,8 +158,6 @@ public class ParallelizedExecutor
                 }
             }
         }
-        logFinished(failed, processDescription, start);
-        return failed;
     }
 
     private static <T> void logFinished(Collection<FailureRecord<T>> failureReport,

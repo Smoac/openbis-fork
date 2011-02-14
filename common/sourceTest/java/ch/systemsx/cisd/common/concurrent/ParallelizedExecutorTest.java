@@ -36,6 +36,7 @@ public class ParallelizedExecutorTest extends AssertJUnit
     public void testAllExecuted()
     {
         int itemsNum = 20;
+        final long mainThreadId = getCurrentThreadId();
         final boolean executed[] = new boolean[itemsNum];
         List<Integer> items = createTaskItems(itemsNum);
         ITaskExecutor<Integer> taskExecutor = new ITaskExecutor<Integer>()
@@ -45,6 +46,10 @@ public class ParallelizedExecutorTest extends AssertJUnit
                     if (executed[item])
                     {
                         fail("Invalid attempt to perform job on the same item twice: item " + item);
+                    }
+                    if (mainThreadId == getCurrentThreadId())
+                    {
+                        fail("Task is executed in the same thread");
                     }
                     work(item, 10);
                     executed[item] = true;
@@ -81,6 +86,40 @@ public class ParallelizedExecutorTest extends AssertJUnit
         {
             assertEquals(0, error.getFailedItem().intValue());
         }
+    }
+
+    @Test
+    public void testExecutedInTheSameThread()
+    {
+        final int numberOfTries = 3;
+        List<Integer> items = createTaskItems(1);
+        final long mainThreadId = getCurrentThreadId();
+        ITaskExecutor<Integer> taskExecutor = new ITaskExecutor<Integer>()
+            {
+                int tryNumber = 1;
+
+                public Status execute(Integer item)
+                {
+                    assertEquals(mainThreadId, getCurrentThreadId());
+                    Status status = (tryNumber == 1) ? Status.createError() : Status.OK;
+                    if (tryNumber > 2)
+                    {
+                        fail("To many retries");
+                    }
+                    tryNumber++;
+                    return status;
+                }
+            };
+        // there is one item to process and maxThreads is 1, so the operation should be performed in
+        // the same thread
+        Collection<FailureRecord<Integer>> errors =
+                ParallelizedExecutor.process(items, taskExecutor, 1, 1, "test", numberOfTries);
+        assertEquals(0, errors.size());
+    }
+
+    private long getCurrentThreadId()
+    {
+        return Thread.currentThread().getId();
     }
 
     private static void work(Integer item, int timeMsec)
@@ -123,4 +162,5 @@ public class ParallelizedExecutorTest extends AssertJUnit
         }
         return items;
     }
+
 }

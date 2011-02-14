@@ -41,6 +41,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
  */
 class Hdf5ThumbnailGenerator implements IHdf5WriterClient
 {
+    private static final int MAX_RETRY_OF_FAILED_GENERATION = 3;
+
     private final List<AcquiredSingleImage> plateImages;
 
     private final File imagesInStoreFolder;
@@ -62,7 +64,13 @@ class Hdf5ThumbnailGenerator implements IHdf5WriterClient
         this.operationLog = operationLog;
     }
 
-    private Status generateThumbnail(IHDF5SimpleWriter writer, AcquiredSingleImage plateImage)
+    /**
+     * @param bufferOutputStream auxiliary stream which can be used as a temporary buffer to save
+     *            the thumbnail. Using it allows not to allocate memory each time when a thumbnail
+     *            is generated.
+     */
+    private Status generateThumbnail(IHDF5SimpleWriter writer, AcquiredSingleImage plateImage,
+            ByteArrayOutputStream bufferOutputStream)
     {
         long start = System.currentTimeMillis();
         RelativeImageReference imageReference = plateImage.getImageReference();
@@ -73,18 +81,16 @@ class Hdf5ThumbnailGenerator implements IHdf5WriterClient
                 ImageUtil.rescale(image, thumbnailsStorageFormat.getMaxWidth(),
                         thumbnailsStorageFormat.getMaxHeight(), false,
                         thumbnailsStorageFormat.isHighQuality());
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        String thumbnailPath = replaceExtensionToPng(imagePath);
         try
         {
-            ImageIO.write(thumbnail, "png", output);
-
-            String thumbnailPath = replaceExtensionToPng(imagePath);
+            ImageIO.write(thumbnail, "png", bufferOutputStream);
 
             String path =
                     relativeThumbnailFilePath + ContentRepository.ARCHIVE_DELIMITER + thumbnailPath;
             plateImage.setThumbnailFilePathOrNull(new RelativeImageReference(path, imageReference
                     .tryGetPage(), imageReference.tryGetColorComponent()));
-            byte[] byteArray = output.toByteArray();
+            byte[] byteArray = bufferOutputStream.toByteArray();
             if (operationLog.isDebugEnabled())
             {
                 long now = System.currentTimeMillis();
@@ -99,7 +105,9 @@ class Hdf5ThumbnailGenerator implements IHdf5WriterClient
             }
         } catch (IOException ex)
         {
-            return Status.createError(ex.getMessage());
+            ex.printStackTrace();
+            return Status.createRetriableError(String.format(
+                    "Could not generate a thumbnail '%s': %s", thumbnailPath, ex.getMessage()));
         }
         return Status.OK;
     }
@@ -121,9 +129,23 @@ class Hdf5ThumbnailGenerator implements IHdf5WriterClient
     {
         return new ITaskExecutor<AcquiredSingleImage>()
             {
+                private ThreadLocal<ByteArrayOutputStream> outputStreamBuffers =
+                        new ThreadLocal<ByteArrayOutputStream>()
+                            {
+                                @Override
+                                protected ByteArrayOutputStream initialValue()
+                                {
+                                    return new ByteArrayOutputStream();
+                                }
+                            };
+
                 public Status execute(AcquiredSingleImage plateImage)
                 {
-                    return generateThumbnail(writer, plateImage);
+                    // each thread will get its own buffer to avoid allocating memory for the
+                    // internal array each time
+                    ByteArrayOutputStream outputStreamBuffer = outputStreamBuffers.get();
+                    outputStreamBuffer.reset();
+                    return generateThumbnail(writer, plateImage, outputStreamBuffer);
                 }
             };
     }
@@ -132,6 +154,6 @@ class Hdf5ThumbnailGenerator implements IHdf5WriterClient
     {
         ParallelizedExecutor.process(plateImages, createThumbnailGenerator(writer),
                 thumbnailsStorageFormat.getAllowedMachineLoadDuringGeneration(), 100,
-                "Thumbnails generation", 1);
+                "Thumbnails generation", MAX_RETRY_OF_FAILED_GENERATION);
     }
 }

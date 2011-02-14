@@ -448,7 +448,8 @@ public class ImageChannelsUtils
             start = operationLog.isDebugEnabled() ? System.currentTimeMillis() : 0;
             image =
                     ImageUtil.rescale(image, size.getWidth(), size.getHeight(),
-                            requestedSize.enlargeIfNecessary(), requestedSize.isHighQualityRescalingRequired());
+                            requestedSize.enlargeIfNecessary(),
+                            requestedSize.isHighQualityRescalingRequired());
             if (operationLog.isDebugEnabled())
             {
                 operationLog.debug("Create thumbnail: " + (System.currentTimeMillis() - start));
@@ -741,7 +742,7 @@ public class ImageChannelsUtils
             case 1:
             case 2:
                 return new int[]
-                    { 2 - channelIndex };
+                    { 2 - (channelIndex % 6) };
             case 3:
                 return new int[]
                     { 0, 1 };

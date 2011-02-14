@@ -89,10 +89,7 @@ class ParallelizedWorker<T> implements Runnable
             {
                 if (Thread.interrupted())
                 {
-                    if (operationLog.isInfoEnabled())
-                    {
-                        operationLog.info(INTERRPTED_MSG);
-                    }
+                    operationLog.info(INTERRPTED_MSG);
                     return;
                 }
                 final T taskOrNull = workerQueue.poll();
@@ -109,6 +106,11 @@ class ParallelizedWorker<T> implements Runnable
                 int count = 0;
                 do
                 {
+                    if (Thread.interrupted())
+                    {
+                        operationLog.info(INTERRPTED_MSG);
+                        return;
+                    }
                     try
                     {
                         status = taskExecutor.execute(taskOrNull);
@@ -121,11 +123,15 @@ class ParallelizedWorker<T> implements Runnable
                         status = null;
                         break;
                     }
-                    logErrors(status);
+                    if (operationLog.isDebugEnabled())
+                    {
+                        logErrors(status);
+                    }
                 } while (StatusFlag.RETRIABLE_ERROR.equals(status.getFlag())
                         && ++count < retriesNumberWhenExecutionFails);
                 if (status != null && Status.OK.equals(status) == false)
                 {
+                    logErrors(status);
                     failures.add(new FailureRecord<T>(taskOrNull, status));
                 }
             } while (true);
