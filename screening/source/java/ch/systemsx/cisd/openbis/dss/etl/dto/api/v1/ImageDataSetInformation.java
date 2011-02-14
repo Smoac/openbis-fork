@@ -133,13 +133,12 @@ public class ImageDataSetInformation extends BasicDataSetInformation
     @Override
     public String toString()
     {
-        String imgConfig =
-                imageStorageConfiguratonOrNull != null ? ", config = "
-                        + imageStorageConfiguratonOrNull.toString() : "";
-        return "[ dataset: " + super.getDataSetCode() + ", tile: " + tileRowsNumber + "x"
-                + tileColumnsNumber + imgConfig + ", channels: "
-                + CollectionUtils.abbreviate(channels, -1) + ", images: "
-                + CollectionUtils.abbreviate(images, 20);
+        final StringBuilder buffer = new StringBuilder(super.toString());
+        appendNameAndObject(buffer, "config", imageStorageConfiguratonOrNull);
+        appendNameAndObject(buffer, "tile", tileRowsNumber + "x" + tileColumnsNumber);
+        appendNameAndObject(buffer, "channels", CollectionUtils.abbreviate(channels, -1));
+        appendNameAndObject(buffer, "images", CollectionUtils.abbreviate(images, 20));
+        return buffer.toString();
     }
 
 }
