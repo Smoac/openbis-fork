@@ -107,7 +107,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
             types.add(ScreeningConstants.CONTROL_WELL_SAMPLE_TYPE_PATTERN);
             types.add(ScreeningConstants.NON_CONTROL_WELL_SAMPLE_TYPE_PATTERN);
             // -- microscopy sample
-            types.add(ScreeningConstants.IMAGE_SAMPLE_TYPE_PATTERN);
+            types.add(ScreeningConstants.MICROSCOPY_IMAGE_SAMPLE_TYPE_PATTERN);
         } else if (entityKind == EntityKind.MATERIAL)
         {
             types.add(ScreeningConstants.GENE_PLUGIN_TYPE_CODE);
@@ -121,7 +121,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
 
         } else if (entityKind == EntityKind.DATA_SET)
         {
-            types.add(ScreeningConstants.HCS_IMAGE_DATASET_TYPE_PATTERN);
+            types.add(ScreeningConstants.ANY_HCS_IMAGE_DATASET_TYPE_PATTERN);
             types.add(ScreeningConstants.MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN);
         }
         return types;
@@ -246,7 +246,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                 final IEntityInformationHolderWithPermId entity)
         {
             String datasetTypeCode = entity.getEntityType().getCode();
-            if (datasetTypeCode.matches(ScreeningConstants.HCS_IMAGE_DATASET_TYPE_PATTERN))
+            if (datasetTypeCode.matches(ScreeningConstants.ANY_HCS_IMAGE_DATASET_TYPE_PATTERN))
             {
                 return createHCSImageDatasetTabItemFactory(entity);
             } else if (datasetTypeCode
@@ -362,7 +362,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
             {
                 throw new UserFailureException("Cannot browse objects of the "
                         + ScreeningConstants.LIBRARY_PLUGIN_TYPE_CODE + " type.");
-            } else if (sampleTypeCode.matches(ScreeningConstants.IMAGE_SAMPLE_TYPE_PATTERN))
+            } else if (sampleTypeCode.matches(ScreeningConstants.MICROSCOPY_IMAGE_SAMPLE_TYPE_PATTERN))
             {
                 return createImageSampleViewer(entity, false);
             } else

@@ -1003,7 +1003,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     private boolean isImageDataset(ExternalData dataset)
     {
         String datasetTypeCode = dataset.getDataSetType().getCode();
-        return datasetTypeCode.matches(ScreeningConstants.HCS_IMAGE_DATASET_TYPE_PATTERN)
+        return datasetTypeCode.matches(ScreeningConstants.ANY_HCS_IMAGE_DATASET_TYPE_PATTERN)
                 || datasetTypeCode
                         .matches(ScreeningConstants.MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN);
     }

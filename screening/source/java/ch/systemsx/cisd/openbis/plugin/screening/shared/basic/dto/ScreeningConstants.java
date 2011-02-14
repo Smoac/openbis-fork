@@ -35,35 +35,34 @@ public class ScreeningConstants
 
     // ---- required entity type patterns -----------
 
-    // type of the dataset which stores image analysis data, there should be at most one
-    public static final String HCS_IMAGE_ANALYSIS_DATASET_TYPE_PATTERN =
-            "HCS_IMAGE_ANALYSIS_DATA|.*HCS_WELL_FV.*";
+    // --- HCS dataset types
 
-    // type of the dataset which stores plate image overlays
-    public static final String IMAGE_OVERLAY_DATASET_TYPE_PATTERN = ".*OVERLAY.*";
+    private static final String HCS_IMAGE_DATASET_PREFIX = "HCS_IMAGE";
 
     // type of the dataset which stores plate image overlays
     public static final String HCS_SEGMENTATION_IMAGE_DATASET_TYPE_PATTERN =
-            "HCS_IMAGE_SEGMENTATION.*";
+            (HCS_IMAGE_DATASET_PREFIX + ".*OVERLAY.*") + "|" // legacy
+                    + (HCS_IMAGE_DATASET_PREFIX + "_SEGMENTATION.*");
 
     // Type of the dataset which stores raw plate images.
-    public static final String HCS_RAW_IMAGE_DATASET_TYPE_PATTERN = "HCS_IMAGE_RAW.*";
+    public static final String HCS_RAW_IMAGE_DATASET_TYPE_PATTERN = HCS_IMAGE_DATASET_PREFIX
+            + "_RAW.*";
 
     // The plain old legacy type for raw image data sets.
-    public static final String HCS_RAW_IMAGE_LEGACY_DATASET_TYPE = "HCS_IMAGE";
-    
-    // Type of the dataset which stores plate images.
+    public static final String HCS_RAW_IMAGE_LEGACY_DATASET_TYPE = HCS_IMAGE_DATASET_PREFIX;
+
+    // Type of the dataset which stores plate images (raw, overvies or overlays).
     // We do not want old analysis data to match to this pattern.
-    public static final String HCS_IMAGE_DATASET_TYPE_PATTERN =
-            ".*" + HCS_RAW_IMAGE_LEGACY_DATASET_TYPE + "($|[^_].*|_[^A].*|_A[^N].*|_AN[^A].*)";
+    public static final String ANY_HCS_IMAGE_DATASET_TYPE_PATTERN = HCS_IMAGE_DATASET_PREFIX
+            + "($|[^_].*|_[^A].*|_A[^N].*|_AN[^A].*)";
 
-    public static final String HCS_PLATE_SAMPLE_TYPE_PATTERN = ".*PLATE.*";
+    // type of the dataset which stores image analysis data, there should be at most one
+    public static final String HCS_IMAGE_ANALYSIS_DATASET_TYPE_PATTERN = "HCS_IMAGE_ANALYSIS_DATA|" // legacy
+            + "HCS_ANALYSIS_WELL_FEATURES.*";
 
-    // type of the dataset which stores microscopy images
-    public static final String MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN = "MICROSCOPY_IMAGE|.*IMG.*";
+    // --- HCS sample types
 
-    // the sample is considered to be a microscopy sample if its type code contains this string
-    public static final String IMAGE_SAMPLE_TYPE_PATTERN = ".*IMG.*";
+    public static final String HCS_PLATE_SAMPLE_TYPE_PATTERN = "PLATE.*";
 
     // the non-control well has to have a type code which contains this string
     public static final String NON_CONTROL_WELL_SAMPLE_TYPE_PATTERN =
@@ -71,6 +70,27 @@ public class ScreeningConstants
 
     // the well is considered to be a control well if its type code contains this string
     public static final String CONTROL_WELL_SAMPLE_TYPE_PATTERN = ".*CONTROL.*";
+
+    // --- Microscopy
+
+    // --- Microscopy dataset types
+
+    public static final String ANY_MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN = ".*IMG.*";
+
+    // type of the dataset which stores microscopy images
+    public static final String MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN = "MICROSCOPY_IMAGE|"// legacy
+            + ANY_MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN;
+
+    // type of the dataset which stores image overlays
+    public static final String MICROSCOPY_SEGMENTATION_IMAGE_DATASET_TYPE_PATTERN =
+            ANY_MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN + ".*OVERLAY.*|" + // legacy
+                    ANY_MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN + ".*SEGMENTATION.*";
+
+    // --- Microscopy sample types
+
+    // the sample is considered to be a microscopy sample if its type code contains this string
+    public static final String MICROSCOPY_IMAGE_SAMPLE_TYPE_PATTERN =
+            ANY_MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN;
 
     // ----
 

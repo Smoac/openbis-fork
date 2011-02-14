@@ -72,8 +72,8 @@ public class ScreeningUtils
     public static <T extends DataPE> List<T> filterImageOverlayDatasets(Collection<T> datasets)
     {
         return filterDatasetsByTypePattern(datasets,
-                ScreeningConstants.IMAGE_OVERLAY_DATASET_TYPE_PATTERN,
-                ScreeningConstants.HCS_SEGMENTATION_IMAGE_DATASET_TYPE_PATTERN);
+                ScreeningConstants.HCS_SEGMENTATION_IMAGE_DATASET_TYPE_PATTERN,
+                ScreeningConstants.MICROSCOPY_SEGMENTATION_IMAGE_DATASET_TYPE_PATTERN);
     }
 
     /** excludes overlay image data sets even when they match to the image dataset pattern */
@@ -81,13 +81,13 @@ public class ScreeningUtils
     {
         List<ExternalDataPE> allDatasets =
                 filterDatasetsByTypePattern(datasets,
-                        ScreeningConstants.HCS_IMAGE_DATASET_TYPE_PATTERN,
-                        ScreeningConstants.MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN);
+                        ScreeningConstants.ANY_HCS_IMAGE_DATASET_TYPE_PATTERN,
+                        ScreeningConstants.ANY_MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN);
 
         allDatasets =
                 excludeDatasetsByTypePattern(allDatasets,
-                        ScreeningConstants.IMAGE_OVERLAY_DATASET_TYPE_PATTERN,
-                        ScreeningConstants.HCS_SEGMENTATION_IMAGE_DATASET_TYPE_PATTERN);
+                        ScreeningConstants.HCS_SEGMENTATION_IMAGE_DATASET_TYPE_PATTERN,
+                        ScreeningConstants.MICROSCOPY_SEGMENTATION_IMAGE_DATASET_TYPE_PATTERN);
         return allDatasets;
     }
 
@@ -96,12 +96,8 @@ public class ScreeningUtils
     {
         return excludeDatasetsByTypePattern(datasets,
                 ScreeningConstants.HCS_IMAGE_ANALYSIS_DATASET_TYPE_PATTERN,
-                ScreeningConstants.HCS_IMAGE_DATASET_TYPE_PATTERN,
-                ScreeningConstants.HCS_RAW_IMAGE_DATASET_TYPE_PATTERN,
-                ScreeningConstants.HCS_RAW_IMAGE_LEGACY_DATASET_TYPE,
-                ScreeningConstants.IMAGE_OVERLAY_DATASET_TYPE_PATTERN,
-                ScreeningConstants.HCS_SEGMENTATION_IMAGE_DATASET_TYPE_PATTERN,
-                ScreeningConstants.MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN);
+                ScreeningConstants.ANY_HCS_IMAGE_DATASET_TYPE_PATTERN,
+                ScreeningConstants.ANY_MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN);
     }
 
     private static <T extends DataPE> List<T> excludeDatasetsByTypePattern(List<T> datasets,
@@ -147,13 +143,14 @@ public class ScreeningUtils
         return dataset.getDataSetType().getCode().matches(datasetTypeCodePattern);
     }
 
+    /**
+     * true if a dataset contains HCS images. Such a dataset can be a parent of a feature vector
+     * dataset or overlay dataset.
+     */
     public static boolean isHcsImageDataset(ExternalData externalData)
     {
         return isOneOfTypesMatching(externalData,
-                ScreeningConstants.HCS_IMAGE_DATASET_TYPE_PATTERN,
-                ScreeningConstants.HCS_RAW_IMAGE_DATASET_TYPE_PATTERN,
-                ScreeningConstants.HCS_RAW_IMAGE_LEGACY_DATASET_TYPE,
-                ScreeningConstants.HCS_SEGMENTATION_IMAGE_DATASET_TYPE_PATTERN);
+                ScreeningConstants.ANY_HCS_IMAGE_DATASET_TYPE_PATTERN);
     }
 
     public static boolean isRawHcsImageDataset(ExternalData externalData)
@@ -166,7 +163,6 @@ public class ScreeningUtils
     public static boolean isSegmentationHcsImageDataset(ExternalData externalData)
     {
         return isOneOfTypesMatching(externalData,
-                ScreeningConstants.IMAGE_OVERLAY_DATASET_TYPE_PATTERN,
                 ScreeningConstants.HCS_SEGMENTATION_IMAGE_DATASET_TYPE_PATTERN);
     }
 

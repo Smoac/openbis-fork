@@ -29,21 +29,21 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifi
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
- * Utility class for loading image datasets.
+ * Utility class for loading HCS image datasets.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-class ImageDatasetLoader extends PlateDatasetLoader
+class HCSImageDatasetLoader extends PlateDatasetLoader
 {
     // TODO 2010-05-27, CR : See PlateDatasetLoader todo comment
 
-    ImageDatasetLoader(Session session, IScreeningBusinessObjectFactory businessObjectFactory,
+    HCSImageDatasetLoader(Session session, IScreeningBusinessObjectFactory businessObjectFactory,
             String homeSpaceOrNull, Collection<? extends PlateIdentifier> plates,
             String... datasetTypeCodes)
     {
         super(session, businessObjectFactory, homeSpaceOrNull, plates,
                 (datasetTypeCodes.length == 0) ? new String[]
-                    { ScreeningConstants.HCS_IMAGE_DATASET_TYPE_PATTERN } : datasetTypeCodes);
+                    { ScreeningConstants.ANY_HCS_IMAGE_DATASET_TYPE_PATTERN } : datasetTypeCodes);
     }
 
     /**
@@ -141,7 +141,11 @@ class ImageDatasetLoader extends PlateDatasetLoader
         List<ImageDatasetReference> references = new ArrayList<ImageDatasetReference>();
         for (ExternalData imageDataset : imageDatasets)
         {
-            references.add(asImageDataset(imageDataset));
+            ImageDatasetReference reference = tryAsImageDataset(imageDataset);
+            if (reference != null)
+            {
+                references.add(reference);
+            }
         }
         return references;
     }
@@ -157,7 +161,7 @@ class ImageDatasetLoader extends PlateDatasetLoader
         }
     }
 
-    protected ImageDatasetReference asImageDataset(ExternalData externalData)
+    protected ImageDatasetReference tryAsImageDataset(ExternalData externalData)
     {
         if (externalData == null || ScreeningUtils.isHcsImageDataset(externalData) == false)
         {
@@ -168,6 +172,6 @@ class ImageDatasetLoader extends PlateDatasetLoader
                 getDataStoreUrlFromDataStore(dataStore), createPlateIdentifier(externalData),
                 createExperimentIdentifier(externalData), extractPlateGeometry(externalData),
                 externalData.getRegistrationDate(), extractProperties(externalData),
-                asImageDataset(tryGetParent(externalData)));
+                tryAsImageDataset(tryGetParent(externalData)));
     }
 }

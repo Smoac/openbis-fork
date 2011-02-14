@@ -124,19 +124,19 @@ public class ScreeningApiImpl
 
     public List<ImageDatasetReference> listImageDatasets(List<? extends PlateIdentifier> plates)
     {
-        return new ImageDatasetLoader(session, businessObjectFactory,
+        return new HCSImageDatasetLoader(session, businessObjectFactory,
                 session.tryGetHomeGroupCode(), plates).getImageDatasetReferences();
     }
 
     public List<ImageDatasetReference> listRawImageDatasets(List<? extends PlateIdentifier> plates)
     {
-        return new ImageDatasetLoader(session, businessObjectFactory,
+        return new HCSImageDatasetLoader(session, businessObjectFactory,
                 session.tryGetHomeGroupCode(), plates).getRawImageDatasetReferences();
     }
 
     public List<ImageDatasetReference> listSegmentationImageDatasets(List<? extends PlateIdentifier> plates)
     {
-        return new ImageDatasetLoader(session, businessObjectFactory,
+        return new HCSImageDatasetLoader(session, businessObjectFactory,
                 session.tryGetHomeGroupCode(), plates).getSegmentationImageDatasetReferences();
     }
 

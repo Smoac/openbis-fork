@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-class FeatureVectorDatasetLoader extends ImageDatasetLoader
+class FeatureVectorDatasetLoader extends HCSImageDatasetLoader
 {
     // TODO 2010-05-27, CR : See PlateDatasetLoader todo comment
 
@@ -51,7 +51,7 @@ class FeatureVectorDatasetLoader extends ImageDatasetLoader
             Collection<? extends PlateIdentifier> plates)
     {
         super(session, businessObjectFactory, homeSpaceOrNull, plates,
-                ScreeningConstants.HCS_IMAGE_DATASET_TYPE_PATTERN,
+                ScreeningConstants.ANY_HCS_IMAGE_DATASET_TYPE_PATTERN,
                 ScreeningConstants.HCS_IMAGE_ANALYSIS_DATASET_TYPE_PATTERN);
         featureVectorDatasetTypeCode = ScreeningConstants.HCS_IMAGE_ANALYSIS_DATASET_TYPE_PATTERN;
     }
@@ -113,7 +113,7 @@ class FeatureVectorDatasetLoader extends ImageDatasetLoader
             {
                 featureVectorDatasetSet.put(dataset.getId(), dataset);
             } else if (ScreeningUtils.isTypeMatching(dataset,
-                    ScreeningConstants.HCS_IMAGE_DATASET_TYPE_PATTERN))
+                    ScreeningConstants.ANY_HCS_IMAGE_DATASET_TYPE_PATTERN))
             {
                 imageDatasets.add(dataset);
             }
@@ -236,7 +236,7 @@ class FeatureVectorDatasetLoader extends ImageDatasetLoader
             return new FeatureVectorDatasetReference(externalData.getCode(),
                     getDataStoreUrlFromDataStore(dataStore), createPlateIdentifier(parentDataset),
                     createExperimentIdentifier(externalData), extractPlateGeometry(parentDataset),
-                    externalData.getRegistrationDate(), asImageDataset(parentDataset),
+                    externalData.getRegistrationDate(), tryAsImageDataset(parentDataset),
                     extractProperties(externalData));
         }
     }
