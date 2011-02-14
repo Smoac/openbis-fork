@@ -20,10 +20,10 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.StringUtils;
 
+import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
-import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -344,7 +344,41 @@ public class DataSetInformation implements Serializable
     @Override
     public String toString()
     {
-        return ToStringBuilder.reflectionToString(this,
-                ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
+        final StringBuilder buffer = new StringBuilder();
+        String userID = getUploadingUserIdOrNull();
+        String userEMail = tryGetUploadingUserEmail();
+        if (userID != null || userEMail != null)
+        {
+            appendNameAndObject(buffer, "User", userID == null ? userEMail : userID);
+        }
+        appendNameAndObject(buffer, "Data Set Code", getDataSetCode());
+        appendNameAndObject(buffer, "Data Set Type", getDataSetType().getCode());
+        appendNameAndObject(buffer, "Experiment Identifier", getExperimentIdentifier());
+        appendNameAndObject(buffer, "Sample Identifier", getSampleIdentifier());
+        appendNameAndObject(buffer, "Producer Code", getProducerCode());
+        appendNameAndObject(buffer, "Production Date", formatDate(getProductionDate()));
+        final List<String> parentDataSetCodes = getParentDataSetCodes();
+        if (parentDataSetCodes.isEmpty() == false)
+        {
+            appendNameAndObject(buffer, "Parent Data Sets",
+                    StringUtils.join(parentDataSetCodes, ' '));
+        }
+        appendNameAndObject(buffer, "Is complete", getIsCompleteFlag());
+        buffer.setLength(buffer.length() - 1);
+        return buffer.toString();
+    }
+
+    private static String formatDate(Date productionDate)
+    {
+        return productionDate == null ? "" : Constants.DATE_FORMAT.get().format(productionDate);
+    }
+
+    protected static final void appendNameAndObject(final StringBuilder buffer, final String name,
+            final Object object)
+    {
+        if (object != null)
+        {
+            buffer.append(name).append("::").append(object).append(";");
+        }
     }
 }

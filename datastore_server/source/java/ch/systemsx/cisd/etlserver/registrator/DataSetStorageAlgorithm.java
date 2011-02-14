@@ -20,11 +20,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Date;
-import java.util.List;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
 
@@ -242,49 +239,12 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
 
     public String getSuccessRegistrationMessage()
     {
-        final StringBuilder buffer = new StringBuilder();
-        String userID = dataSetInformation.getUploadingUserIdOrNull();
-        String userEMail = dataSetInformation.tryGetUploadingUserEmail();
-        if (userID != null || userEMail != null)
-        {
-            appendNameAndObject(buffer, "User", userID == null ? userEMail : userID);
-        }
-        appendNameAndObject(buffer, "Data Set Code", dataSetInformation.getDataSetCode());
-        appendNameAndObject(buffer, "Data Set Type", dataSetType.getCode());
-        appendNameAndObject(buffer, "Experiment Identifier",
-                dataSetInformation.getExperimentIdentifier());
-        appendNameAndObject(buffer, "Sample Identifier", dataSetInformation.getSampleIdentifier());
-        appendNameAndObject(buffer, "Producer Code", dataSetInformation.getProducerCode());
-        appendNameAndObject(buffer, "Production Date",
-                formatDate(dataSetInformation.getProductionDate()));
-        final List<String> parentDataSetCodes = dataSetInformation.getParentDataSetCodes();
-        if (parentDataSetCodes.isEmpty() == false)
-        {
-            appendNameAndObject(buffer, "Parent Data Sets",
-                    StringUtils.join(parentDataSetCodes, ' '));
-        }
-        appendNameAndObject(buffer, "Is complete", dataSetInformation.getIsCompleteFlag());
-        buffer.setLength(buffer.length() - 1);
-        return buffer.toString();
+        return dataSetInformation.toString();
     }
 
     public String getFailureRegistrationMessage()
     {
         return "Error when trying to register data set '" + incomingDataSetFile.getName() + "'.";
-    }
-
-    private String formatDate(Date productionDate)
-    {
-        return productionDate == null ? "" : Constants.DATE_FORMAT.get().format(productionDate);
-    }
-
-    private final void appendNameAndObject(final StringBuilder buffer, final String name,
-            final Object object)
-    {
-        if (object != null)
-        {
-            buffer.append(name).append("::").append(object).append(";");
-        }
     }
 
     protected DataSetType getDataSetType()
