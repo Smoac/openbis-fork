@@ -164,6 +164,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
         public ISample createNewSample(String sampleIdentifierString)
         {
             // TODO KE: should we create a new method with a more sensible name (createPermId())
+            // TPK: yes, we should.
             String permId = openBisService.createDataSetCode();
             Sample sample = new Sample(sampleIdentifierString, permId);
             samplesToBeRegistered.add(sample);
