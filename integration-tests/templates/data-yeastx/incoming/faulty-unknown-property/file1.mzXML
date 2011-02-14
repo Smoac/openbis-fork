@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<mzXML xmlns="http://sashimi.sourceforge.net/schema_revision/mzXML_3.0"
- xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<mzXML xmlns="http://sashimi.sourceforge.net/schema_revision/mzXML_3.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xsi:schemaLocation="http://sashimi.sourceforge.net/schema_revision/mzXML_3.0 http://sashimi.sourceforge.net/schema_revision/mzXML_3.0/mzXML_idx_3.0.xsd" >
- <msRun scanCount="73606" startTime="PT0.355S" endTime="PT1440.39S" >
+ <msRun scanCount="73606" startTime="PT0.355S" endTime="PT1440.39S">
   <parentFile fileName="file://IMSB-US-WS02/Y/Boris/09-02-27praktikum/glc1.RAW" fileType="RAWData" fileSha1="5f6d3e83dfc62fd234f6aad9c2bae318f0fd05f7" />
   <msInstrument>
-   <msManufacturer category="msManufacturer" value="Thermo Scientific" />
+   <msManufacturer category="msManufacturer" value="Thermo Scientific"/>
    <msModel category="msModel" value="TSQ Quantum" />
    <msIonisation category="msIonisation" value="ESI" />
-   <msMassAnalyzer category="msMassAnalyzer" value="ITMS" />
-   <msDetector category="msDetector" value="unknown" />
-   <software type="acquisition" name="Xcalibur" version="1.5" />
+   <msMassAnalyzer category="msMassAnalyzer" value="ITMS"/>
+   <msDetector category="msDetector" value="unknown"/>
+   <software type="acquisition" name="Xcalibur" version="1.5"/>
   </msInstrument>
   <dataProcessing>
    <software type="conversion" name="ReAdW" version="4.0.2(build Jul  1 2008 14:23:37)" />
