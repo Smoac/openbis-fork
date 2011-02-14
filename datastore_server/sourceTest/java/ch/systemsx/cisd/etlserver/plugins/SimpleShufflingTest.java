@@ -139,10 +139,12 @@ public class SimpleShufflingTest extends AbstractFileSystemTestCase
         share1.addDataSet(dataSet("ds2", ONE_MB));
         share1.addDataSet(dataSet("ds3", ONE_MB + 100));
         spaceProvider.addFreeSpaceExpectationFor(share1, 100l);
+        spaceProvider.addFreeSpaceExpectationFor(share1, 100l);
         spaceProvider.addFreeSpaceExpectationFor(share1, 1100l);
         spaceProvider.addFreeSpaceExpectationFor(share1, 2100l);
         final Share share2 = new Share(new File(store, "2"), spaceProvider);
         share2.addDataSet(dataSet("ds4", 2 * ONE_MB));
+        spaceProvider.addFreeSpaceExpectationFor(share2, 500l);
         spaceProvider.addFreeSpaceExpectationFor(share2, 500l);
         final Share share3 = new Share(new File(store, "3"), spaceProvider);
         spaceProvider.addFreeSpaceExpectationFor(share3, 4 * 1024l);
