@@ -21,7 +21,6 @@ import java.util.Date;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
-import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.EntityLinkElementKind;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IEntityLinkElement;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IRowBuilderAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTableModelBuilderAdaptor;
@@ -42,14 +41,20 @@ public class SimpleTableModelBuilderAdaptor implements ISimpleTableModelBuilderA
 
     private final SimpleTableModelBuilder builder;
 
-    public static SimpleTableModelBuilderAdaptor create()
+    private final IEntityInformationProvider entityInformationProvider;
+
+    public static SimpleTableModelBuilderAdaptor create(
+            IEntityInformationProvider entityInformationProvider)
     {
-        return new SimpleTableModelBuilderAdaptor(new SimpleTableModelBuilder(true));
+        return new SimpleTableModelBuilderAdaptor(new SimpleTableModelBuilder(true),
+                entityInformationProvider);
     }
 
-    private SimpleTableModelBuilderAdaptor(SimpleTableModelBuilder builder)
+    private SimpleTableModelBuilderAdaptor(SimpleTableModelBuilder builder,
+            IEntityInformationProvider entityInformationProvider)
     {
         this.builder = builder;
+        this.entityInformationProvider = entityInformationProvider;
     }
 
     //
@@ -110,8 +115,11 @@ public class SimpleTableModelBuilderAdaptor implements ISimpleTableModelBuilderA
 
                 private EntityTableCell asTableCell(IEntityLinkElement value)
                 {
-                    return new EntityTableCell(convert(value.getEntityLinkKind()),
-                            value.getPermId());
+                    final EntityKind entityKind =
+                            EntityLinkElementTranslator.translate(value.getEntityLinkKind());
+                    final String permId = value.getPermId();
+                    final String identifierOrNull = tryExtractIdentifier(entityKind, permId);
+                    return new EntityTableCell(entityKind, permId, identifierOrNull);
                 }
 
             };
@@ -127,20 +135,8 @@ public class SimpleTableModelBuilderAdaptor implements ISimpleTableModelBuilderA
         builder.addFullRow(values);
     }
 
-    private static EntityKind convert(EntityLinkElementKind linkElementKind)
+    private String tryExtractIdentifier(EntityKind entityKind, String permId)
     {
-        switch (linkElementKind)
-        {
-            case DATA_SET:
-                return EntityKind.DATA_SET;
-            case EXPERIMENT:
-                return EntityKind.EXPERIMENT;
-            case MATERIAL:
-                return EntityKind.MATERIAL;
-            case SAMPLE:
-                return EntityKind.SAMPLE;
-        }
-        return null; // won't happen
+        return entityInformationProvider.getIdentifier(entityKind, permId);
     }
-
 }

@@ -37,10 +37,15 @@ public final class ResourceNames
             "generic-data-set-type-slave-server-plugin";
 
     public final static String GENERIC_DATA_SET_SERVER_PLUGIN = "generic-data-set-server-plugin";
-    
+
     public final static String SAMPLE_PLUGIN_REGISTRY = "sample-plugin-registry";
-    
+
     public final static String DATA_SET_PLUGIN_REGISTRY = "data-set-plugin-registry";
+
+    public final static String MANAGED_PROPERTY_SCRIPT_UTILITY_FACTORY =
+            "managed-property-script-utility-factory";
+
+    public final static String ENTITY_INFORMATION_PROVIDER = "entity-information-provider";
 
     private ResourceNames()
     {
@@ -48,7 +53,7 @@ public final class ResourceNames
     }
 
     public final static String ETL_SERVICE = "etl-service";
-    
+
     public final static String ETL_SERVICE_URL = "/rmi-etl";
 
     public final static String COMMON_SERVICE = "common-service";

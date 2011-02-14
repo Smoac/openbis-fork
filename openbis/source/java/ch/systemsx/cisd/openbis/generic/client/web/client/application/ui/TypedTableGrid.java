@@ -130,6 +130,10 @@ public abstract class TypedTableGrid<T extends ISerializable>
             if (value instanceof EntityTableCell)
             {
                 EntityTableCell entityTableCell = (EntityTableCell) value;
+                if (entityTableCell.isMissing())
+                {
+                    return null; 
+                }
                 String permId = entityTableCell.getPermId();
                 if (entityTableCell.getEntityKind() == EntityKind.MATERIAL)
                 {
@@ -229,7 +233,7 @@ public abstract class TypedTableGrid<T extends ISerializable>
                 String id = header.getId();
                 if (listenerLinkGenerators.containsKey(id))
                 {
-                    definitions.setGridCellRendererFor(id, createInternalLinkCellRenderer());
+                    definitions.setGridCellRendererFor(id, LinkRenderer.createLinkRenderer(true));
                 } else
                 {
                     final GridCellRenderer<BaseEntityModel<?>> specificRendererOrNull =

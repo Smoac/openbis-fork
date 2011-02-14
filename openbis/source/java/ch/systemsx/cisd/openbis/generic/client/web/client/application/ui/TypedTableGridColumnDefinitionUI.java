@@ -80,6 +80,7 @@ public class TypedTableGridColumnDefinitionUI<T extends ISerializable> extends
         {
             return null;
         }
+        // TODO
         final ISerializableComparable value = entity.getValues().get(header.getIndex());
         final T objectOrNull = entity.getObjectOrNull();
         return objectOrNull == null ? null : linkGeneratorOrNull.tryGetLink(objectOrNull, value);

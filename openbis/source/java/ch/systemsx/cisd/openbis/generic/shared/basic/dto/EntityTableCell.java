@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-
 /**
  * Table cell for an entity link.
  * 
@@ -24,13 +23,22 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
  */
 public class EntityTableCell implements ISerializableComparable
 {
+    private static final String MISSING_ENTITY_SUFFIX = " (missing)";
+
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private EntityKind entityKind;
 
     private String permId;
 
+    private String identifierOrNull; // 'null' when entity is missing
+
     public EntityTableCell(EntityKind entityKind, String permId)
+    {
+        this(entityKind, permId, permId);
+    }
+
+    public EntityTableCell(EntityKind entityKind, String permId, String identifierOrNull)
     {
         if (entityKind == null)
         {
@@ -42,6 +50,7 @@ public class EntityTableCell implements ISerializableComparable
         }
         this.entityKind = entityKind;
         this.permId = permId;
+        this.identifierOrNull = identifierOrNull;
     }
 
     public int compareTo(ISerializableComparable o)
@@ -57,6 +66,11 @@ public class EntityTableCell implements ISerializableComparable
     public String getPermId()
     {
         return permId;
+    }
+
+    public boolean isMissing()
+    {
+        return identifierOrNull == null;
     }
 
     @Override
@@ -76,14 +90,14 @@ public class EntityTableCell implements ISerializableComparable
         {
             return false;
         }
-        EntityTableCell cell = (EntityTableCell) obj;
-        return getPermId().equals(cell.getPermId());
+        EntityTableCell otherCell = (EntityTableCell) obj;
+        return entityKind.equals(otherCell.entityKind) && permId.equals(otherCell.permId);
     }
 
     @Override
     public String toString()
     {
-        return getPermId().toString();
+        return isMissing() ? String.valueOf(permId) + MISSING_ENTITY_SUFFIX : identifierOrNull;
     }
 
     // ---------------------------

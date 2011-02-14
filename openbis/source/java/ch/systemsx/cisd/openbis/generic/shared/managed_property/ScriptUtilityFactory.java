@@ -1,5 +1,10 @@
 package ch.systemsx.cisd.openbis.generic.shared.managed_property;
 
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Component;
+
+import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ValidationException;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IElement;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IElementFactory;
@@ -9,10 +14,11 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.structured.Eleme
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.structured.XmlStructuredPropertyConverter;
 
 /**
- * This utility class with function to be used by jython scripts for managed properties.
+ * This is a utility class with functions to be used by Jython scripts for managed properties.
  * <p>
  * All public methods of this class are part of the Managed Properties API.
  */
+@Component(value = ResourceNames.MANAGED_PROPERTY_SCRIPT_UTILITY_FACTORY)
 public class ScriptUtilityFactory
 {
     private static final IElementFactory ELEMENT_FACTORY_INSTANCE = new ElementFactory();
@@ -20,12 +26,32 @@ public class ScriptUtilityFactory
     private static final IStructuredPropertyConverter STRUCTURED_PROPERTY_CONVERTER_INSTANCE =
             new XmlStructuredPropertyConverter(ELEMENT_FACTORY_INSTANCE);
 
+    // initialized by spring
+    private static IEntityInformationProvider entityInformationProvider;
+
+    public IEntityInformationProvider getEntityInformationProvider()
+    {
+        return entityInformationProvider;
+    }
+
+    // @Autowired
+    @Resource(name = ResourceNames.ENTITY_INFORMATION_PROVIDER)
+    public void setEntityInformationProvider(IEntityInformationProvider entityInformationProvider)
+    {
+        ScriptUtilityFactory.entityInformationProvider = entityInformationProvider;
+    }
+
+    private ScriptUtilityFactory()
+    {
+
+    }
+
     /**
      * Creates a table builder.
      */
     public static ISimpleTableModelBuilderAdaptor createTableBuilder()
     {
-        return SimpleTableModelBuilderAdaptor.create();
+        return SimpleTableModelBuilderAdaptor.create(entityInformationProvider);
     }
 
     /**
@@ -53,4 +79,5 @@ public class ScriptUtilityFactory
     {
         return STRUCTURED_PROPERTY_CONVERTER_INSTANCE;
     }
+
 }
