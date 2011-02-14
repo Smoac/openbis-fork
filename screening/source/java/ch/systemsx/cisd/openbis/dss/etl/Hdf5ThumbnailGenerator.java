@@ -105,7 +105,8 @@ class Hdf5ThumbnailGenerator implements IHdf5WriterClient
             }
         } catch (IOException ex)
         {
-            ex.printStackTrace();
+            operationLog
+                    .warn("Retriable error when creating thumbnail '" + thumbnailPath + "'", ex);
             return Status.createRetriableError(String.format(
                     "Could not generate a thumbnail '%s': %s", thumbnailPath, ex.getMessage()));
         }
