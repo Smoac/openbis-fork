@@ -64,6 +64,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
@@ -88,6 +90,10 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
     private static final DataSetType DATA_SET_TYPE = new DataSetType("O1");
 
     private static final String EXPERIMENT_PERM_ID = "experiment-perm-id";
+
+    private static final String EXPERIMENT_IDENTIFIER = "/SPACE/PROJECT/EXP";
+
+    private static final String SAMPLE_PERM_ID = "sample-perm-id";
 
     private JythonTopLevelDataSetHandler<DataSetInformation> handler;
 
@@ -151,7 +157,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         properties.setProperty(DataSetRegistrationService.STAGING_DIR, stagingDir.getPath());
         createHandler(properties, false, true);
         createData();
-        ExperimentBuilder builder = new ExperimentBuilder().identifier("/SPACE/PROJECT/EXP");
+
+        ExperimentBuilder builder = new ExperimentBuilder().identifier(EXPERIMENT_IDENTIFIER);
         final Experiment experiment = builder.getExperiment();
         final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails =
                 new RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>();
@@ -208,7 +215,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         properties.setProperty(DataSetRegistrationService.STAGING_DIR, stagingDir.getPath());
         createHandler(properties, true, false);
         createData();
-        ExperimentBuilder builder = new ExperimentBuilder().identifier("/SPACE/PROJECT/EXP");
+        ExperimentBuilder builder = new ExperimentBuilder().identifier(EXPERIMENT_IDENTIFIER);
         final Experiment experiment = builder.getExperiment();
         context.checking(new Expectations()
             {
@@ -255,7 +262,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         properties.setProperty(DataSetRegistrationService.STAGING_DIR, stagingDir.getPath());
         createHandler(properties, false, false);
         createData();
-        ExperimentBuilder builder = new ExperimentBuilder().identifier("/SPACE/PROJECT/EXP");
+        ExperimentBuilder builder = new ExperimentBuilder().identifier(EXPERIMENT_IDENTIFIER);
         final Experiment experiment = builder.getExperiment();
         context.checking(new Expectations()
             {
@@ -453,6 +460,79 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
 
         assertEquals(DATA_SET_CODE, dataSet.getCode());
         assertEquals(DATA_SET_TYPE, dataSet.getDataSetType());
+        File datasetLocation =
+                DatasetLocationUtil.getDatasetLocationPath(workingDirectory, DATA_SET_CODE,
+                        ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
+                        DATABASE_INSTANCE_UUID);
+        assertEquals(FileUtilities.getRelativeFile(new File(workingDirectory,
+                ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID),
+                datasetLocation),
+
+        dataSet.getLocation());
+        assertEquals(1, MockStorageProcessor.instance.calledCommitCount);
+        assertEquals(datasetLocation, MockStorageProcessor.instance.rootDirs.get(0));
+        File incomingDir = MockStorageProcessor.instance.incomingDirs.get(0);
+        assertEquals(new File(new File(stagingDir, DATA_SET_CODE), "sub_data_set_1"), incomingDir);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testTransactionWithNewSample()
+    {
+        setUpHomeDataBaseExpectations();
+        Properties properties =
+                createThreadProperties(SCRIPTS_FOLDER + "transaction-with-new-sample.py");
+        final File stagingDir = new File(workingDirectory, "staging");
+        properties.setProperty(DataSetRegistrationService.STAGING_DIR, stagingDir.getPath());
+        createHandler(properties, false, true);
+        createData();
+        final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails =
+                new RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>();
+        context.checking(new Expectations()
+            {
+                {
+                    one(openBisService).createDataSetCode();
+                    will(returnValue(DATA_SET_CODE));
+
+                    one(openBisService).createDataSetCode();
+                    will(returnValue(EXPERIMENT_PERM_ID));
+
+                    one(openBisService).createDataSetCode();
+                    will(returnValue(SAMPLE_PERM_ID));
+
+                    one(dataSetValidator).assertValidDataSet(DATA_SET_TYPE,
+                            new File(new File(stagingDir, DATA_SET_CODE), "sub_data_set_1"));
+                    one(openBisService).performEntityOperations(with(atomicatOperationDetails));
+                    will(returnValue(new AtomicEntityOperationResult()));
+                }
+            });
+
+        handler.handle(markerFile);
+
+        assertEquals(1, MockStorageProcessor.instance.incomingDirs.size());
+        ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails operations =
+                atomicatOperationDetails.recordedObject();
+
+        assertEquals(1, operations.getDataSetRegistrations().size());
+        assertEquals(0, operations.getExperimentUpdates().size());
+        assertEquals(0, operations.getSampleUpdates().size());
+        assertEquals(1, operations.getSampleRegistrations().size());
+        assertEquals(1, operations.getExperimentRegistrations().size());
+
+        NewSample newSample = operations.getSampleRegistrations().get(0);
+        assertEquals(SAMPLE_PERM_ID, newSample.getPermID());
+        assertEquals(EXPERIMENT_IDENTIFIER, newSample.getExperimentIdentifier());
+        assertEquals("sample_type", newSample.getSampleType().getCode());
+
+        NewExperiment newExperiment = operations.getExperimentRegistrations().get(0);
+        assertEquals(EXPERIMENT_PERM_ID, newExperiment.getPermID());
+        assertEquals(EXPERIMENT_IDENTIFIER, newExperiment.getIdentifier());
+        assertEquals("experiment_type", newExperiment.getExperimentTypeCode());
+
+        NewExternalData dataSet = operations.getDataSetRegistrations().get(0);
+        assertEquals(DATA_SET_CODE, dataSet.getCode());
+        assertEquals(DATA_SET_TYPE, dataSet.getDataSetType());
+
         File datasetLocation =
                 DatasetLocationUtil.getDatasetLocationPath(workingDirectory, DATA_SET_CODE,
                         ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,

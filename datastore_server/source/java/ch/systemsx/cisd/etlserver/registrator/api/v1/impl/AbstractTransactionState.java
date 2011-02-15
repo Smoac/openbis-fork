@@ -262,8 +262,9 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
                 File contents = dataSet.getDataSetContents();
                 DataSetRegistrationDetails<T> details = dataSet.getRegistrationDetails();
 
-                // The experiment does not yet exist
-                if (experimentsToBeRegistered.contains(dataSet.getExperiment()))
+                // The experiment/sample does not yet exist
+                if (experimentsToBeRegistered.contains(dataSet.getExperiment())
+                        || samplesToBeRegistered.contains(dataSet.getSample()))
                 {
                     algorithms.add(registrationService
                             .createStorageAlgorithmWithIdentifiedStrategy(contents, details));
@@ -334,9 +335,14 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
                 NewExperiment newExperiment = new NewExperiment();
                 newExperiment.setIdentifier(experiment.getIdentifier());
                 newExperiment.setPermID(experiment.getPermId());
+                if (experiment.getExperimentType() != null)
+                {
+                    newExperiment.setExperimentTypeCode(experiment.getExperimentType().getCode());
+                }
                 IEntityProperty[] properties =
                         experiment.getProperties().toArray(new IEntityProperty[0]);
                 newExperiment.setProperties(properties);
+
                 result.add(newExperiment);
             }
             return result;
@@ -352,10 +358,17 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
                 NewSample newSample = new NewSample();
                 newSample.setIdentifier(sample.getIdentifier());
                 newSample.setPermID(sample.getPermId());
+                if (sample.getExperiment() != null)
+                {
+                    newSample.setExperimentIdentifier(sample.getExperiment().getIdentifier());
+                }
+                newSample.setSampleType(sample.getSampleType());
+
                 IEntityProperty[] properties =
                         sample.getProperties().toArray(new IEntityProperty[0]);
                 newSample.setProperties(properties);
-                newSample.setExperimentIdentifier(sample.getExperiment().getIdentifier());
+
+                result.add(newSample);
             }
             return result;
         }
@@ -363,7 +376,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
         private List<SampleUpdatesDTO> convertSamplesToBeUpdated()
         {
             List<SampleUpdatesDTO> result = new ArrayList<SampleUpdatesDTO>();
-            for (Sample apiSample : samplesToBeRegistered)
+            for (Sample apiSample : samplesToBeUpdated)
             {
                 ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample =
                         apiSample.getSample();
