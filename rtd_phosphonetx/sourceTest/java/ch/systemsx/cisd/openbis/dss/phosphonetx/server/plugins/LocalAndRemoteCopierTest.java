@@ -49,7 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 @Friend(toClasses = LocalAndRemoteCopier.class)
 public class LocalAndRemoteCopierTest extends AbstractFileSystemTestCase
 {
-    private static final ProcessResult OK_RESULT = new ProcessResult(Arrays.asList(""), 0, null,
+    private static final ProcessResult OK_RESULT = new ProcessResult(Arrays.asList(""), 0, null, null,
             null, 0, null, null, null);
 
     private static final String SAMPLE_CODE = "my-sample";
