@@ -151,8 +151,13 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample =
                     openBisService.tryGetSampleWithExperiment(sampleIdentifier);
 
-            Sample result = new Sample(sample);
-            samplesToBeUpdated.add(result);
+            Sample result = null;
+            if (sample != null)
+            {
+                result = new Sample(sample);
+                samplesToBeUpdated.add(result);
+            }
+
             return result;
         }
 
