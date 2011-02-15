@@ -101,7 +101,7 @@ public class BatchMaterialRegistrationAndUpdateTest extends SystemTestCase
         assertProperties("[COMMENT: a & b, DESCRIPTION: compound 2, SIZE: 43]", "C2");
     }
 
-    @Test
+    @Test(groups = "broken")
     public void testUpdate()
     {
         logIntoCommonClientService();

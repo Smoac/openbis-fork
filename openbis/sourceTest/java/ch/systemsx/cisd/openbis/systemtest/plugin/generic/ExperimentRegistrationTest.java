@@ -348,7 +348,7 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         assertEquals("TESTGROUP", sample.getSpace().getCode());
     }
 
-    @Test
+    @Test(groups = "broken")
     public void testBulkUpdateExperimentsDeletingMandatoryProperty()
     {
         logIntoCommonClientService();

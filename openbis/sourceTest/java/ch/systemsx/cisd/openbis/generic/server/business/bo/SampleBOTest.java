@@ -411,8 +411,6 @@ public final class SampleBOTest extends AbstractBOTest
                             experimentIdentifier.getProjectCode());
                     will(returnValue(project));
 
-                    one(daoFactory).getExperimentDAO();
-                    will(returnValue(experimentDAO));
                     one(experimentDAO).tryFindByCodeAndProject(project,
                             experimentIdentifier.getExperimentCode());
                     will(returnValue(experimentToAttach));
