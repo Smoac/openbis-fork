@@ -26,7 +26,7 @@ public enum ColorComponent
     RED
     {
         @Override
-        int getComponent(Color color)
+        public int getComponent(Color color)
         {
             return color.getRed();
         }
@@ -41,7 +41,7 @@ public enum ColorComponent
     GREEN
     {
         @Override
-        int getComponent(Color color)
+        public int getComponent(Color color)
         {
             return color.getGreen();
         }
@@ -56,7 +56,7 @@ public enum ColorComponent
     BLUE
     {
         @Override
-        int getComponent(Color color)
+        public int getComponent(Color color)
         {
             return color.getBlue();
         }
@@ -68,7 +68,7 @@ public enum ColorComponent
         }
     };
 
-    abstract int getComponent(Color color);
+    public abstract int getComponent(Color color);
 
     /** creates the color which has only one component from the specified color, others are set to 0 */
     public abstract Color extractSingleComponent(int rgb);
