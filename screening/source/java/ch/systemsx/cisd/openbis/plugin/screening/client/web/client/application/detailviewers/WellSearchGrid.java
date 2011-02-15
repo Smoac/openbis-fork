@@ -626,6 +626,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
                                 };
                     ChannelWidgetWithListener widgetWithListener =
                             new ChannelWidgetWithListener(viewerFactory);
+                    widgetWithListener.selectionChanged(channelChooser.getSelectedValues());
 
                     ImageDatasetParameters imageParameters = images.getImageParameters();
                     channelChooser.setSelectionChangedListener(widgetWithListener);
