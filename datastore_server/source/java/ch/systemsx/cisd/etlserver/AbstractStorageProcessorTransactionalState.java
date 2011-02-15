@@ -18,7 +18,7 @@ package ch.systemsx.cisd.etlserver;
 
 import java.io.File;
 
-import ch.systemsx.cisd.etlserver.IStroageProcessorTransactional.IStorageProcessorTransaction;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
 
 /**
  * Abstract superclass that has the state necessary for most storage processors.

@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public interface IStroageProcessorTransactional extends IStorageProcessor
+public interface IStorageProcessorTransactional extends IStorageProcessor
 {
     public static interface IStorageProcessorTransaction
     {
