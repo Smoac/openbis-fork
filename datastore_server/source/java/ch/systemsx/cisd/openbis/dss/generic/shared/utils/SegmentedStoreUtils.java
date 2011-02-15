@@ -47,13 +47,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
  * Utility methods for segmented stores.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class SegmentedStoreUtils
 {
     private static final String RSYNC_EXEC = "rsync";
-    
+
     private static final Pattern SHARE_ID_PATTERN = Pattern.compile("[0-9]+");
 
     private static final FileFilter FILTER_ON_SHARES = new FileFilter()
@@ -112,12 +112,12 @@ public class SegmentedStoreUtils
         {
             throw new ConfigurationFailureException(
                     "Couldn't create a test file in the following incoming folder: "
-                    + incomingDataDirectory, ex);
+                            + incomingDataDirectory, ex);
         }
         File matchingShare = findShare(testFile, shares);
         return matchingShare.getName();
     }
-    
+
     private static File findShare(File testFile, File[] shares)
     {
         for (File share : shares)
@@ -131,7 +131,7 @@ public class SegmentedStoreUtils
         }
         testFile.delete();
         throw new ConfigurationFailureException(
-                "Now share could be found for the following incoming folder: "
+                "No share could be found for the following incoming folder: "
                         + testFile.getParentFile().getAbsolutePath());
     }
 
@@ -202,11 +202,11 @@ public class SegmentedStoreUtils
             });
         return list;
     }
-    
+
     /**
-     * Moves the specified data set to the specified share. The data set is folder in the store
-     * its name is the data set code. The destination folder is <code>share</code>. Its name is
-     * the share id.
+     * Moves the specified data set to the specified share. The data set is folder in the store its
+     * name is the data set code. The destination folder is <code>share</code>. Its name is the
+     * share id.
      * 
      * @param service to access openBIS AS.
      */
@@ -236,7 +236,7 @@ public class SegmentedStoreUtils
         RsyncCopier copier = new RsyncCopier(OSUtilities.findExecutable(RSYNC_EXEC));
         copier.copyContent(file, share);
     }
-    
+
     private static long assertEqualSizeAndChildren(File source, File destination)
     {
         assertSameName(source, destination);
@@ -259,15 +259,15 @@ public class SegmentedStoreUtils
         }
     }
 
-    private static void assertSameNumberOfChildren(File source, File[] sourceFiles, File destination,
-            File[] destinationFiles)
+    private static void assertSameNumberOfChildren(File source, File[] sourceFiles,
+            File destination, File[] destinationFiles)
     {
         if (sourceFiles.length != destinationFiles.length)
         {
             throw new EnvironmentFailureException("Destination directory '"
                     + destination.getAbsolutePath() + "' has " + destinationFiles.length
-                    + " files but source directory '" + source.getAbsolutePath()
-                    + "' has " + sourceFiles.length + " files.");
+                    + " files but source directory '" + source.getAbsolutePath() + "' has "
+                    + sourceFiles.length + " files.");
         }
     }
 
@@ -277,9 +277,9 @@ public class SegmentedStoreUtils
         long destinationSize = destination.length();
         if (sourceSize != destinationSize)
         {
-            throw new EnvironmentFailureException("Destination file '" + destination.getAbsolutePath()
-                    + "' has size " + destinationSize + " but source file '"
-                    + source.getAbsolutePath() + "' has size " + sourceSize
+            throw new EnvironmentFailureException("Destination file '"
+                    + destination.getAbsolutePath() + "' has size " + destinationSize
+                    + " but source file '" + source.getAbsolutePath() + "' has size " + sourceSize
                     + ".");
         }
         return sourceSize;
@@ -294,7 +294,7 @@ public class SegmentedStoreUtils
                     + source.getAbsolutePath() + ".");
         }
     }
-    
+
     private static void assertFile(File file)
     {
         if (file.exists() == false)
@@ -311,19 +311,20 @@ public class SegmentedStoreUtils
     {
         if (file.exists() == false)
         {
-            throw new EnvironmentFailureException("Directory does not exist: " + file.getAbsolutePath());
+            throw new EnvironmentFailureException("Directory does not exist: "
+                    + file.getAbsolutePath());
         }
         if (file.isDirectory() == false)
         {
             throw new EnvironmentFailureException("Directory is a file: " + file.getAbsolutePath());
         }
     }
-    
+
     private static File[] getFiles(File file)
     {
         File[] files = file.listFiles();
         Arrays.sort(files);
         return files;
     }
-    
+
 }
