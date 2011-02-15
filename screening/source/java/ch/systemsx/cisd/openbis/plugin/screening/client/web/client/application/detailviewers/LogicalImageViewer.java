@@ -79,7 +79,7 @@ public class LogicalImageViewer
 
     private final boolean showColorAdjustmentButton;
 
-    private List<String> currentlySelectedChannelCodes;
+    private String currentlySelectedChannelCode;
 
     public LogicalImageViewer(LogicalImageReference logicalImageReference,
             IViewContext<IScreeningClientServiceAsync> viewContext, String experimentIdentifier,
@@ -167,23 +167,26 @@ public class LogicalImageViewer
 
     private Widget createSeriesImageWidget(final List<ImageChannelStack> channelStackImages)
     {
+        final Button adjustColorsButton = createAdjustColorsButton();
         final IChanneledViewerFactory viewerFactory = new IChanneledViewerFactory()
             {
                 public LayoutContainer create(LogicalImageChannelsReference channelReferences)
                 {
-                    currentlySelectedChannelCodes = channelReferences.getChannelCodes();
+                    currentlySelectedChannelCode = getSelectedChannelCode(channelReferences);
                     String sessionId = getSessionId(viewContext);
+                    setAdjustColorsButtonState(adjustColorsButton,
+                            channelReferences.getChannelCodes());
                     int imageWidth = getImageWidth(logicalImageReference);
                     int imageHeight = getImageHeight(logicalImageReference);
                     return LogicalImageSeriesGrid.create(sessionId, channelStackImages,
                             channelReferences, imageWidth, imageHeight);
                 }
             };
-        return createViewerWithChannelChooser(viewerFactory);
+        return createViewerWithChannelChooser(viewerFactory, adjustColorsButton);
     }
 
     private LayoutContainer createViewerWithChannelChooser(
-            final IChanneledViewerFactory viewerFactory)
+            final IChanneledViewerFactory viewerFactory, final Button adjustColorsButton)
     {
         LayoutContainer container = createMainEmptyContainer();
         if (hasNoChannels())
@@ -200,16 +203,6 @@ public class LogicalImageViewer
         {
             LayoutContainer buttonToolbar = new LayoutContainer();
             buttonToolbar.setLayout(new ColumnLayout());
-            Button adjustColorsButton =
-                    new Button(viewContext.getMessage(Dict.IMAGE_VIEWER_BUTTON),
-                            new SelectionListener<ButtonEvent>()
-                                {
-                                    @Override
-                                    public void componentSelected(ButtonEvent ce)
-                                    {
-                                        launchImageEditor();
-                                    }
-                                });
             buttonToolbar.add(adjustColorsButton);
             Button refreshButton =
                     new Button(viewContext.getMessage(Dict.BUTTON_REFRESH),
@@ -231,6 +224,21 @@ public class LogicalImageViewer
             container.add(buttonToolbar, layoutData);
         }
         return container;
+    }
+
+    private Button createAdjustColorsButton()
+    {
+        final Button adjustColorsButton =
+                new Button(viewContext.getMessage(Dict.IMAGE_VIEWER_BUTTON),
+                        new SelectionListener<ButtonEvent>()
+                            {
+                                @Override
+                                public void componentSelected(ButtonEvent ce)
+                                {
+                                    launchImageEditor();
+                                }
+                            });
+        return adjustColorsButton;
     }
 
     private boolean hasNoChannels()
@@ -271,16 +279,20 @@ public class LogicalImageViewer
     private Widget getStaticImageWidget()
     {
 
+        final Button adjustColorsButton = createAdjustColorsButton();
         final IChanneledViewerFactory viewerFactory = new IChanneledViewerFactory()
             {
                 public LayoutContainer create(LogicalImageChannelsReference channelReferences)
                 {
-                    currentlySelectedChannelCodes = channelReferences.getChannelCodes();
+                    currentlySelectedChannelCode = getSelectedChannelCode(channelReferences);
+                    setAdjustColorsButtonState(adjustColorsButton,
+                            channelReferences.getChannelCodes());
                     String sessionId = getSessionId(viewContext);
                     return createTilesGrid(channelReferences, sessionId);
                 }
+
             };
-        return createViewerWithChannelChooser(viewerFactory);
+        return createViewerWithChannelChooser(viewerFactory, adjustColorsButton);
     }
 
     private static IDefaultChannelState createDefaultChannelState(
@@ -303,10 +315,9 @@ public class LogicalImageViewer
         urlParams.addParameter(ParameterNames.SERVER_URL, GWT.getHostPageBaseURL());
         urlParams.addParameter(ParameterNames.EXPERIMENT_ID, experimentIdentifier);
 
-        // TODO KE: How do we support the launching of ImageViewer with channel parameters ?
-        if (currentlySelectedChannelCodes != null)
+        if (currentlySelectedChannelCode != null)
         {
-            urlParams.addParameter(ParameterNames.CHANNEL, currentlySelectedChannelCodes);
+            urlParams.addParameter(ParameterNames.CHANNEL, currentlySelectedChannelCode);
         }
         WellLocation wellLocation = logicalImageReference.tryGetWellLocation();
         if (wellLocation != null)
@@ -352,6 +363,25 @@ public class LogicalImageViewer
             }
         }
         return container;
+    }
+
+    private static String getSelectedChannelCode(LogicalImageChannelsReference channelReferences)
+    {
+        String newChannelCode = null;
+        List<String> channelCodes = channelReferences.getChannelCodes();
+        if (channelCodes != null && false == channelCodes.isEmpty())
+        {
+            newChannelCode = channelCodes.get(0);
+        }
+        return newChannelCode;
+    }
+
+    private static void setAdjustColorsButtonState(Button adjustColorsButton,
+            List<String> channelCodes)
+    {
+        boolean enabled = channelCodes != null && channelCodes.size() == 1;
+        adjustColorsButton.setEnabled(enabled);
+
     }
 
     private static String getSessionId(IViewContext<?> viewContext)

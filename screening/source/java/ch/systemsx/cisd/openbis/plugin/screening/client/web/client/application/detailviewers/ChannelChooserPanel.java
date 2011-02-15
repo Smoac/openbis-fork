@@ -56,6 +56,9 @@ public class ChannelChooserPanel extends LayoutContainer
 
     private ChannelSelectionListener channelSelectionListener;
 
+    /** when set to to true will generate a checkbox per channel */
+    private boolean createCheckBoxes;
+
     private final Listener<BaseEvent> selectionChangeListener = new Listener<BaseEvent>()
         {
 
@@ -68,13 +71,15 @@ public class ChannelChooserPanel extends LayoutContainer
 
     public ChannelChooserPanel(IDefaultChannelState defChannelState)
     {
-        this(defChannelState, Collections.<String> emptyList(), Collections.<String> emptyList());
+        this(defChannelState, Collections.<String> emptyList(), Collections.<String> emptyList(),
+                false);
     }
 
     public ChannelChooserPanel(IDefaultChannelState defChannelState, List<String> names,
-            List<String> selectedChannelsOrNull)
+            List<String> selectedChannelsOrNull, boolean createCheckBoxes)
     {
         this.defaultChannelState = defChannelState;
+        this.createCheckBoxes = createCheckBoxes;
 
         setAutoHeight(true);
         setAutoWidth(true);
@@ -176,7 +181,8 @@ public class ChannelChooserPanel extends LayoutContainer
 
         for (String code : codes)
         {
-            if (addCodeToComboBox(code))
+            boolean codeAdded = addCodeToComboBox(code);
+            if (codeAdded && createCheckBoxes)
             {
                 // also add a checkBockbox for the channel
                 CheckBox checkBox = new CheckBox();
@@ -239,6 +245,7 @@ public class ChannelChooserPanel extends LayoutContainer
 
         String selectedComboValue = channelsComboBox.getSimpleValue();
         boolean showCheckBoxGroup = ScreeningConstants.MERGED_CHANNELS.equals(selectedComboValue);
+
         ensureAtLeastOneCheckboxChecked();
         channelsCheckBoxGroup.setVisible(showCheckBoxGroup);
 

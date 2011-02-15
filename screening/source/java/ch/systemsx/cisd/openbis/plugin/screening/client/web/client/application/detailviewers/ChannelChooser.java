@@ -179,7 +179,7 @@ class ChannelChooser
     private Widget createBasicChannelChooser(List<String> channels)
     {
         final ChannelChooserPanel channelChooser =
-                new ChannelChooserPanel(defaultChannelState, channels, basicChannelCodes);
+                new ChannelChooserPanel(defaultChannelState, channels, basicChannelCodes, true);
 
         channelChooser
                 .setSelectionChangedListener(new ChannelChooserPanel.ChannelSelectionListener()

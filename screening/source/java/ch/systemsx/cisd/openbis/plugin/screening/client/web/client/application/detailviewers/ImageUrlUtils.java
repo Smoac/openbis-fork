@@ -141,7 +141,6 @@ public class ImageUrlUtils
     {
         LogicalImageReference images = channelReferences.getBasicImage();
 
-        // TODO KE: Tomek, should we add a "transformerFactorySignature" for each selected channel ?
         List<String> channels = channelReferences.getChannelCodes();
         if (channels != null)
         {
