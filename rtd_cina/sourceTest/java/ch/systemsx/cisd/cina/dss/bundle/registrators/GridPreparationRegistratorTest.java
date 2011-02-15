@@ -74,7 +74,7 @@ public class GridPreparationRegistratorTest extends CinaBundleRegistrationTest
 
         setupExistingGridPrepExpectations();
         setupHandleRawDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/RawData/ReplicTest");
-        setupHandleReplicaMetadataDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/Annotations/ReplicTest");
+        setupHandleCollectionMetadataDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/Annotations/ReplicTest");
         setupHandleBundleMetadataDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/BundleMetadata.xml");
 
         createRegistrator(dataSetFile);
@@ -97,8 +97,8 @@ public class GridPreparationRegistratorTest extends CinaBundleRegistrationTest
                 new File("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/");
 
         setupExistingGridPrepExpectations();
-        setupExistingReplicaExpectations();
-        setupHandleReplicaMetadataDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/Annotations/ReplicTest");
+        setupExistingCollectionSampleExpectations();
+        setupHandleCollectionMetadataDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/Annotations/ReplicTest");
         setupHandleBundleMetadataDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/BundleMetadata.xml");
 
         createRegistrator(dataSetFile);

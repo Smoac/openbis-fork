@@ -38,15 +38,13 @@ public class ReplicaMetadataExtractorTest extends AssertJUnit
         metadata.prepare();
 
         Map<String, String> metadataMap = metadata.getMetadataMap();
+        System.out.println(metadataMap);
         assertEquals(7, metadataMap.size());
 
-        assertEquals("thomas.braun@bsse.ethz.ch", metadataMap.get("creator name (e-mail)"));
-        assertEquals("This replica is a test for imported MRC files",
-                metadataMap.get("description"));
-        assertEquals("602516637", metadataMap.get("id nummer"));
-        assertEquals("REPLICA-CODE", metadata.tryReplicaSampleCode());
+        assertEquals("cramakri@inf.ethz.ch", metadata.tryReplicaSampleCreatorName());
+        assertEquals("REPLICA54", metadata.tryReplicaSampleCode());
 
         List<ImageMetadataExtractor> extractors = metadata.getImageMetadataExtractors();
-        assertEquals(1, extractors.size());
+        assertEquals(2, extractors.size());
     }
 }

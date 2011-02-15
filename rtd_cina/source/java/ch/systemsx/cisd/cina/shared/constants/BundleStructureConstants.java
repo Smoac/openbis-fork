@@ -51,17 +51,17 @@ public class BundleStructureConstants
 
     public static final String BUNDLE_METADATA_FILE_NAME = "BundleMetadata.xml";
 
-    public static final String REPLICA_METADATA_FILE_NAME = "ReplicaMetadata.xml";
-
     public final static String IMAGE_METADATA_FILE_NAME = "metadata.xml";
 
     public static final String GRID_PREP_SAMPLE_CODE_KEY = "database link information";
 
-    public static final String REPLICA_SAMPLE_CODE_KEY = "database id (replica)";
+    public static final String COLLECTION_METADATA_FILE_NAME = "ReplicaMetadata.xml";
 
-    public static final String REPLICA_SAMPLE_DESCRIPTION_KEY = "description";
+    public static final String COLLECTION_SAMPLE_CODE_KEY = "database id";
 
-    public static final String REPLICA_SAMPLE_CREATOR_NAME = "creator name (e-mail)";
+    public static final String COLLECTION_SAMPLE_DESCRIPTION_KEY = "description";
+
+    public static final String COLLECTION_SAMPLE_CREATOR_NAME = "author";
 
     /**
      * No reason to instantiate this class.

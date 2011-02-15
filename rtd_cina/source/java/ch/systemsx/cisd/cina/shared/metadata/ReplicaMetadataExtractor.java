@@ -32,16 +32,16 @@ import ch.systemsx.cisd.cina.shared.labview.LVDataParser;
 public class ReplicaMetadataExtractor implements IMetadataExtractor
 {
     private static final String REPLICA_METADATA_FILE_NAME =
-            BundleStructureConstants.REPLICA_METADATA_FILE_NAME;
+            BundleStructureConstants.COLLECTION_METADATA_FILE_NAME;
 
     private static final String REPLICA_SAMPLE_CODE_KEY =
-            BundleStructureConstants.REPLICA_SAMPLE_CODE_KEY;
+            BundleStructureConstants.COLLECTION_SAMPLE_CODE_KEY;
 
     private static final String REPLICA_SAMPLE_DESCRIPTION_KEY =
-            BundleStructureConstants.REPLICA_SAMPLE_DESCRIPTION_KEY;
+            BundleStructureConstants.COLLECTION_SAMPLE_DESCRIPTION_KEY;
 
     private static final String REPLICA_SAMPLE_CREATOR_NAME =
-            BundleStructureConstants.REPLICA_SAMPLE_CREATOR_NAME;
+            BundleStructureConstants.COLLECTION_SAMPLE_CREATOR_NAME;
 
     private final ArrayList<ImageMetadataExtractor> metadataExtractors;
 
@@ -87,15 +87,15 @@ public class ReplicaMetadataExtractor implements IMetadataExtractor
         new LabViewXMLToHashMap(lvdata, metadataMap).appendIntoMap();
 
         // Then get the image metadata
-        File[] replicaContents = folder.listFiles();
-        for (File replicaFile : replicaContents)
+        File[] collectionContents = folder.listFiles();
+        for (File collectionFolder : collectionContents)
         {
-            if (false == replicaFile.isDirectory())
+            if (false == collectionFolder.isDirectory())
             {
                 continue;
             }
 
-            processDirectory(replicaFile);
+            processCollectionFolder(collectionFolder);
         }
     }
 
@@ -162,7 +162,21 @@ public class ReplicaMetadataExtractor implements IMetadataExtractor
         assert lvdata != null;
     }
 
-    private void processDirectory(File file)
+    private void processCollectionFolder(File file)
+    {
+        File[] collectionItems = file.listFiles();
+        for (File collectionItem : collectionItems)
+        {
+            if (false == collectionItem.isDirectory())
+            {
+                continue;
+            }
+
+            processCollectionItem(collectionItem);
+        }
+    }
+
+    private void processCollectionItem(File file)
     {
         if (false == file.isDirectory())
         {

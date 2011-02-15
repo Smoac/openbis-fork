@@ -46,7 +46,7 @@ public class ImageMetadataExtractor implements IMetadataExtractor
     {
         prefixMap = new HashMap<String, String>();
         prefixMap.put("Pixelsize (nm)", CinaConstants.SIZE_PREFIX);
-        prefixMap.put("Image dimension (px)", CinaConstants.DIMENSION_PREFIX);
+        prefixMap.put("Dimension (px)", CinaConstants.DIMENSION_PREFIX);
     }
 
     public static boolean doesFolderContainImageMetadata(File folder)

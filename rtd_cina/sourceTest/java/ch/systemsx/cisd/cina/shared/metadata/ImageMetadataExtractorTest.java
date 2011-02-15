@@ -34,30 +34,29 @@ public class ImageMetadataExtractorTest extends AssertJUnit
         HashMap<String, String> parentMetadata = new HashMap<String, String>();
         File folder =
                 new File(
-                        "sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/Annotations/ReplicTest/stem_134629_1.imag");
+                        "sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/Annotations/ReplicTest/DM3/Test.dm3");
         ImageMetadataExtractor metadata = new ImageMetadataExtractor(parentMetadata, folder);
         metadata.prepare();
         Map<String, String> metadataMap = metadata.getMetadataMap();
         assertEquals(19, metadataMap.size());
 
         assertEquals("", metadataMap.get("annotation"));
-        assertEquals("CM10", metadataMap.get("microscope"));
-        assertEquals("thomas.braun@unibas.ch", metadataMap.get("operator"));
-        assertEquals("stem_134629_1.imag", metadataMap.get("filename"));
+        assertEquals("", metadataMap.get("operator"));
+        assertEquals("Test.dm3", metadataMap.get("filename"));
 
-        assertEquals("0.9098240234375", metadataMap.get("sizex"));
-        assertEquals("0.9098240234375", metadataMap.get("sizey"));
-        assertEquals("0.0", metadataMap.get("sizez"));
+        assertEquals("0.00459136022254825", metadataMap.get("sizex"));
+        assertEquals("0.00459136022254825", metadataMap.get("sizey"));
+        assertEquals("1.0", metadataMap.get("sizez"));
 
-        assertEquals("512", metadataMap.get("dimensionx"));
-        assertEquals("512", metadataMap.get("dimensiony"));
+        assertEquals("256", metadataMap.get("dimensionx"));
+        assertEquals("256", metadataMap.get("dimensiony"));
         assertEquals("1", metadataMap.get("dimensionz"));
 
         assertEquals("false", metadataMap.get("stackflag"));
         assertEquals("false", metadataMap.get("colorflag"));
-        assertEquals("8 bit UI", metadataMap.get("data-type"));
-        assertEquals("30.0", metadataMap.get("min"));
-        assertEquals("0.0", metadataMap.get("max"));
-        assertEquals("2", metadataMap.get("rating"));
+        assertEquals("16 bit SI", metadataMap.get("data-type"));
+        assertEquals("1522.0", metadataMap.get("min"));
+        assertEquals("4.294920448E9", metadataMap.get("max"));
+        assertEquals("0", metadataMap.get("rating"));
     }
 }

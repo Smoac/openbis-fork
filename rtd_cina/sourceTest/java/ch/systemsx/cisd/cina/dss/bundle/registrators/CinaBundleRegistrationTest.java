@@ -79,10 +79,10 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
     protected static final String GRID_SAMPLE_IDENTIFIER = DB_CODE + ":/" + SPACE_CODE + "/"
             + GRID_SAMPLE_CODE;
 
-    private static final String REPLICA_SAMPLE_CODE = "REPLICA-CODE";
+    private static final String COLLECTION_SAMPLE_CODE = "REPLICA54";
 
-    protected static final String REPLICA_SAMPLE_IDENTIFIER = DB_CODE + ":/" + SPACE_CODE + "/"
-            + REPLICA_SAMPLE_CODE;
+    protected static final String COLLECTION_SAMPLE_IDENTIFIER = DB_CODE + ":/" + SPACE_CODE + "/"
+            + COLLECTION_SAMPLE_CODE;
 
     private static final String BUNDLE_METADATA_DATA_SET_CODE = "BUNDLE_METADATA";
 
@@ -211,7 +211,7 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
             });
     }
 
-    protected void setupExistingReplicaExpectations()
+    protected void setupExistingCollectionSampleExpectations()
     {
         final Sample sample = new Sample();
         Experiment exp = new Experiment();
@@ -228,7 +228,7 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
         exp.setProject(project);
         sample.setId((long) 1);
         sample.setExperiment(exp);
-        sample.setIdentifier(REPLICA_SAMPLE_IDENTIFIER);
+        sample.setIdentifier(COLLECTION_SAMPLE_IDENTIFIER);
 
         // set up the expectations
         context.checking(new Expectations()
@@ -236,7 +236,7 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
                 {
                     // Get the sample
                     one(openbisService).tryGetSampleWithExperiment(
-                            with(new SampleIdentifierFactory(REPLICA_SAMPLE_IDENTIFIER)
+                            with(new SampleIdentifierFactory(COLLECTION_SAMPLE_IDENTIFIER)
                                     .createIdentifier()));
                     will(returnValue(sample));
 
@@ -248,7 +248,7 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
                                 if (item instanceof SampleUpdatesDTO)
                                 {
                                     SampleUpdatesDTO sampleUpdatesDto = (SampleUpdatesDTO) item;
-                                    assertEquals(REPLICA_SAMPLE_IDENTIFIER, sampleUpdatesDto
+                                    assertEquals(COLLECTION_SAMPLE_IDENTIFIER, sampleUpdatesDto
                                             .getSampleIdentifier().toString());
                                     assertEquals(EXPERIMENT_IDENTIFIER, sampleUpdatesDto
                                             .getExperimentIdentifierOrNull().toString());
@@ -270,7 +270,7 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
                                         if (property.getPropertyType().getCode()
                                                 .equals(CinaConstants.CREATOR_EMAIL_PROPERTY_CODE))
                                         {
-                                            assertEquals("thomas.braun@bsse.ethz.ch",
+                                            assertEquals("cramakri@inf.ethz.ch",
                                                     property.getValue());
                                         }
                                     }
@@ -282,7 +282,7 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
 
                     // Return the sample
                     one(openbisService).tryGetSampleWithExperiment(
-                            with(new SampleIdentifierFactory(REPLICA_SAMPLE_IDENTIFIER)
+                            with(new SampleIdentifierFactory(COLLECTION_SAMPLE_IDENTIFIER)
                                     .createIdentifier()));
                     will(returnValue(sample));
                 }
@@ -294,7 +294,7 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
         // Create the Raw Images Data Set
         final DataSetInformation dataSetInformation = new DataSetInformation();
         dataSetInformation.setDataSetCode(RAW_IMAGES_DATA_SET_CODE);
-        dataSetInformation.setSampleCode(REPLICA_SAMPLE_CODE);
+        dataSetInformation.setSampleCode(COLLECTION_SAMPLE_CODE);
         dataSetInformation.setSpaceCode(SPACE_CODE);
         dataSetInformation.setInstanceCode(DB_CODE);
 
@@ -314,7 +314,7 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
                                             assertEquals(
                                                     rawImagesDataSetTypeWithTerms.getDataSetType(),
                                                     dataSetInfo.getDataSetType());
-                                            assertEquals(REPLICA_SAMPLE_CODE,
+                                            assertEquals(COLLECTION_SAMPLE_CODE,
                                                     dataSetInfo.getSampleCode());
                                             return true;
                                         }
@@ -326,12 +326,12 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
             });
     }
 
-    protected void setupHandleReplicaMetadataDataSetExpectations(final String path)
+    protected void setupHandleCollectionMetadataDataSetExpectations(final String path)
     {
         // Create the Raw Images Data Set
         final DataSetInformation dataSetInformation = new DataSetInformation();
         dataSetInformation.setDataSetCode(METADATA_DATA_SET_CODE);
-        dataSetInformation.setSampleCode(REPLICA_SAMPLE_CODE);
+        dataSetInformation.setSampleCode(COLLECTION_SAMPLE_CODE);
         dataSetInformation.setSpaceCode(SPACE_CODE);
         dataSetInformation.setInstanceCode(DB_CODE);
 
@@ -339,7 +339,9 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
         externalData.setCode(METADATA_DATA_SET_CODE);
 
         final File dataSetFile = new File(path);
-        final File imageDataSetFile = new File(dataSetFile, "stem_134629_1.imag");
+        final File dm3CollectionFile = new File(dataSetFile, "DM3");
+        final File imageDataSetFile1 = new File(dm3CollectionFile, "Test.dm3");
+        final File imageDataSetFile2 = new File(dm3CollectionFile, "Test2.dm3");
 
         // set up the expectations
         context.checking(new Expectations()
@@ -358,7 +360,7 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
                                             assertEquals(
                                                     metadataDataSetTypeWithTerms.getDataSetType(),
                                                     dataSetInfo.getDataSetType());
-                                            assertEquals(REPLICA_SAMPLE_CODE,
+                                            assertEquals(COLLECTION_SAMPLE_CODE,
                                                     dataSetInfo.getSampleCode());
                                             assertEquals(BUNDLE_METADATA_DATA_SET_CODE, dataSetInfo
                                                     .getParentDataSetCodes().get(0));
@@ -377,7 +379,7 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
                     will(returnValue(dataSetFile.getParentFile()));
 
                     // Register the images data set
-                    one(delegator).linkAndHandleDataSet(with(imageDataSetFile),
+                    one(delegator).linkAndHandleDataSet(with(imageDataSetFile1),
                             with(new MatcherNoDesc<DataSetInformation>()
                                 {
                                     public boolean matches(Object item)
@@ -389,7 +391,30 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
                                             assertEquals(
                                                     imageDataSetTypeWithTerms.getDataSetType(),
                                                     dataSetInfo.getDataSetType());
-                                            assertEquals(REPLICA_SAMPLE_CODE,
+                                            assertEquals(COLLECTION_SAMPLE_CODE,
+                                                    dataSetInfo.getSampleCode());
+                                            assertEquals(BUNDLE_METADATA_DATA_SET_CODE, dataSetInfo
+                                                    .getParentDataSetCodes().get(0));
+                                            return true;
+                                        }
+                                        return false;
+                                    }
+                                }));
+                    will(returnValue(Collections.singletonList(dataSetInformation)));
+
+                    one(delegator).linkAndHandleDataSet(with(imageDataSetFile2),
+                            with(new MatcherNoDesc<DataSetInformation>()
+                                {
+                                    public boolean matches(Object item)
+                                    {
+                                        if (item instanceof DataSetInformation)
+                                        {
+                                            DataSetInformation dataSetInfo =
+                                                    (DataSetInformation) item;
+                                            assertEquals(
+                                                    imageDataSetTypeWithTerms.getDataSetType(),
+                                                    dataSetInfo.getDataSetType());
+                                            assertEquals(COLLECTION_SAMPLE_CODE,
                                                     dataSetInfo.getSampleCode());
                                             assertEquals(BUNDLE_METADATA_DATA_SET_CODE, dataSetInfo
                                                     .getParentDataSetCodes().get(0));
@@ -517,7 +542,7 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
 
                     // The Replica does not yet exist
                     one(openbisService).tryGetSampleWithExperiment(
-                            with(new SampleIdentifierFactory(REPLICA_SAMPLE_IDENTIFIER)
+                            with(new SampleIdentifierFactory(COLLECTION_SAMPLE_IDENTIFIER)
                                     .createIdentifier()));
                     will(returnValue(null));
 
@@ -530,7 +555,7 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
                                 if (item instanceof NewSample)
                                 {
                                     NewSample newSample = (NewSample) item;
-                                    assertEquals(REPLICA_SAMPLE_IDENTIFIER,
+                                    assertEquals(COLLECTION_SAMPLE_IDENTIFIER,
                                             newSample.getIdentifier());
                                     assertEquals(EXPERIMENT_IDENTIFIER.toString(),
                                             newSample.getExperimentIdentifier());
@@ -548,9 +573,9 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
                     exp.setIdentifier(EXPERIMENT_IDENTIFIER);
                     sample.setId((long) 1);
                     sample.setExperiment(exp);
-                    sample.setIdentifier(REPLICA_SAMPLE_IDENTIFIER);
+                    sample.setIdentifier(COLLECTION_SAMPLE_IDENTIFIER);
                     one(openbisService).tryGetSampleWithExperiment(
-                            with(new SampleIdentifierFactory(REPLICA_SAMPLE_IDENTIFIER)
+                            with(new SampleIdentifierFactory(COLLECTION_SAMPLE_IDENTIFIER)
                                     .createIdentifier()));
                     will(returnValue(sample));
                 }
