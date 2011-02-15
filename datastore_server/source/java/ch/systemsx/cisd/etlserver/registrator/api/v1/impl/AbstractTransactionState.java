@@ -150,12 +150,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
                     new SampleIdentifierFactory(sampleIdentifierString).createIdentifier();
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample =
                     openBisService.tryGetSampleWithExperiment(sampleIdentifier);
-            // TODO KE: Ask Sekhar if we should throw an exception or simply return NULL
-            if (sample == null)
-            {
-                throw new IllegalArgumentException("Could not find sample with identifier"
-                        + sampleIdentifierString);
-            }
+
             Sample result = new Sample(sample);
             samplesToBeUpdated.add(result);
             return result;
