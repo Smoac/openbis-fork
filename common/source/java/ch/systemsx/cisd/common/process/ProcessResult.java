@@ -24,6 +24,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.utilities.OSUtilities;
+import ch.systemsx.cisd.common.concurrent.ExecutionResult;
 import ch.systemsx.cisd.common.concurrent.ExecutionStatus;
 
 /**
@@ -82,6 +83,8 @@ public final class ProcessResult
 
     private final boolean isBinaryOutput;
 
+    private final ExecutionResult<?> processIOResultOrNull;
+
     /**
      * Returns <code>true</code> if the <var>exitValue</var> indicates that the process has been
      * terminated on the Operating System level.
@@ -103,14 +106,16 @@ public final class ProcessResult
     }
 
     public ProcessResult(final List<String> commandLine, final int processNumber,
-            final ExecutionStatus status, final String startupFailureMessageOrNull,
-            final int exitValue, final List<String> processOutputOrNull, final Logger operationLog,
+            final ExecutionStatus status, ExecutionResult<?> processIOResult,
+            final String startupFailureMessageOrNull, final int exitValue,
+            final List<String> processOutputOrNull, final Logger operationLog,
             final Logger machineLog)
     {
         this.commandLine = commandLine;
         this.commandName = ProcessExecutionHelper.getCommandName(commandLine);
         this.processNumber = processNumber;
         this.status = status;
+        this.processIOResultOrNull = processIOResult;
         this.startupFailureMessage =
                 (startupFailureMessageOrNull == null) ? "" : startupFailureMessageOrNull;
         this.exitValue = exitValue;
@@ -132,15 +137,16 @@ public final class ProcessResult
     }
 
     public ProcessResult(final List<String> commandLine, final int processNumber,
-            final ExecutionStatus status, final String startupFailureMessageOrNull,
-            final int exitValue, final byte[] processBinaryOutputOrNull,
-            final List<String> processErrorOutputOrNull, final Logger operationLog,
-            final Logger machineLog)
+            final ExecutionStatus status, ExecutionResult<?> processIOResult,
+            final String startupFailureMessageOrNull, final int exitValue,
+            final byte[] processBinaryOutputOrNull, final List<String> processErrorOutputOrNull,
+            final Logger operationLog, final Logger machineLog)
     {
         this.commandLine = commandLine;
         this.commandName = ProcessExecutionHelper.getCommandName(commandLine);
         this.processNumber = processNumber;
         this.status = status;
+        this.processIOResultOrNull = processIOResult;
         this.startupFailureMessage =
                 (startupFailureMessageOrNull == null) ? "" : startupFailureMessageOrNull;
         this.exitValue = exitValue;
@@ -245,6 +251,18 @@ public final class ProcessResult
     public List<String> getOutput()
     {
         return output;
+    }
+
+    /**
+     * Returns the IO process result, or <code>null</code>, if this information is not available.
+     * <p>
+     * <b>Note that {@link ExecutionStatus#COMPLETE} does <i>not</i> necessarily mean that all
+     * output has been read from the process. You need to check {@link #isTimedOut()} in addition to
+     * see whether the process got terminated due to a timeout condition.</b>
+     */
+    public ExecutionResult<?> tryGetProcessIOResult()
+    {
+        return processIOResultOrNull;
     }
 
     /**
