@@ -98,6 +98,12 @@ public class ProcessExecutionHelperTest
                 "n=1; while [ 1 ]; do echo $n; n=$(($n+1)); done");
     }
 
+    private File createExecutableEndlessDevURandom(String name) throws IOException,
+            InterruptedException
+    {
+        return createExecutable(name, "#! /bin/sh", "cat < /dev/urandom");
+    }
+
     @BeforeClass
     public void init()
     {
@@ -294,7 +300,8 @@ public class ProcessExecutionHelperTest
                         operationLog, machineLog, WATCHDOG_WAIT_MILLIS);
         assertTrue(result.isTimedOut());
         assertFalse(result.isOK());
-        assertTrue(Integer.toString(result.getOutput().size()), result.getOutput().size() > 100);
+        assertTrue(Integer.toString(result.getOutput().size()),
+                result.getOutput().size() > 100);
         assertEquals(Integer.toString(result.getOutput().size()),
                 result.getOutput().get(result.getOutput().size() - 1));
     }
@@ -308,8 +315,8 @@ public class ProcessExecutionHelperTest
         final String stderr1 = "This goes to stderr, 1";
         final String stderr2 = "This goes to stderr, 2";
         final File dummyExec =
-                createExecutable("dummy.sh", "echo " + stdout1, "echo " + stderr1, "echo "
-                        + stdout2, "echo " + stderr2);
+                createExecutable("dummy.sh", "echo " + stdout1, "echo " + stderr1
+                        + " > /dev/stderr", "echo " + stdout2, "echo " + stderr2 + " > /dev/stderr");
         final ProcessResult result =
                 ProcessExecutionHelper.run(Arrays.asList(dummyExec.getAbsolutePath()),
                         operationLog, machineLog, ConcurrencyUtilities.NO_TIMEOUT,
@@ -318,11 +325,53 @@ public class ProcessExecutionHelperTest
         assertEquals(0, exitValue);
         result.log();
         assertTrue(result.isOutputAvailable());
+        assertFalse(result.isBinaryOutput());
         assertEquals(4, result.getOutput().size());
         assertEquals(stdout1, result.getOutput().get(0));
         assertEquals(stderr1, result.getOutput().get(1));
         assertEquals(stdout2, result.getOutput().get(2));
         assertEquals(stderr2, result.getOutput().get(3));
+    }
+
+    @Test(groups =
+        { "requires_unix", "slow" })
+    public void testTryExecutionReadBinaryProcessOutput() throws Exception
+    {
+        final String stdout1 = "This goes to stdout, 1";
+        final String stdout2 = "This goes to stdout, 2";
+        final String stderr1 = "This goes to stderr, 1";
+        final String stderr2 = "This goes to stderr, 2";
+        final File dummyExec =
+                createExecutable("dummy.sh", "echo " + stdout1, "echo " + stderr1
+                        + " > /dev/stderr", "echo " + stdout2, "echo " + stderr2 + " > /dev/stderr");
+        final ProcessResult result =
+                ProcessExecutionHelper.run(Arrays.asList(dummyExec.getAbsolutePath()),
+                        operationLog, machineLog, ConcurrencyUtilities.NO_TIMEOUT,
+                        OutputReadingStrategy.ALWAYS, true, false);
+        final int exitValue = result.getExitValue();
+        assertEquals(0, exitValue);
+        result.log();
+        assertTrue(result.isOutputAvailable());
+        assertTrue(result.isBinaryOutput());
+        assertEquals(2, result.getErrorOutput().size());
+        assertEquals(stderr1, result.getErrorOutput().get(0));
+        assertEquals(stderr2, result.getErrorOutput().get(1));
+        final String stdout = new String(result.getBinaryOutput());
+        assertEquals(stdout1 + "\n" + stdout2 + "\n", stdout);
+    }
+
+    @Test(groups =
+        { "requires_unix", "slow" })
+    public void testHangingExecLotsOfBinaryOutputOnStdOut() throws Exception
+    {
+        final File dummyExec = createExecutableEndlessDevURandom("iHangOnUrandom.sh");
+        final ProcessResult result =
+                ProcessExecutionHelper.run(Arrays.asList(dummyExec.getAbsolutePath()),
+                        operationLog, machineLog, WATCHDOG_WAIT_MILLIS,
+                        OutputReadingStrategy.ON_ERROR, true, false);
+        assertTrue(result.isTimedOut());
+        assertFalse(result.isOK());
+        assertTrue(result.getBinaryOutput().length > 1000);
     }
 
     @Test(groups = "requires_unix")

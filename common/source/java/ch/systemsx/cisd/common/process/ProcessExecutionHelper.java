@@ -17,9 +17,12 @@
 package ch.systemsx.cisd.common.process;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -32,10 +35,10 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.base.namedthread.NamedCallable;
 import ch.systemsx.cisd.base.namedthread.NamingThreadPoolExecutor;
-import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.concurrent.ExecutionResult;
 import ch.systemsx.cisd.common.concurrent.ExecutionStatus;
@@ -48,6 +51,8 @@ import ch.systemsx.cisd.common.utilities.ITerminable;
  */
 public final class ProcessExecutionHelper
 {
+
+    private static final int BUFFER_SIZE = 4096;
 
     /**
      * Strategy on whether to read the process output or not.
@@ -68,18 +73,45 @@ public final class ProcessExecutionHelper
     }
 
     /**
+     * Role for handling the process I/O.
+     */
+    public interface IProcessIOHandler
+    {
+        /**
+         * Method that gets the process' <code>stdin</code>, <code>stdout</code> and
+         * <code>stderr</code> and is expected to handlt the I/O of the process.
+         */
+        public void handle(OutputStream stdin, InputStream stdout, InputStream stderr)
+                throws IOException;
+    }
+
+    /**
      * Record to store process and its output.
      */
     private final class ProcessRecord
     {
         private final Process process;
 
-        private final List<String> processOutput;
+        private final List<String> processTextOutput;
+
+        private final List<String> processErrorOutput;
+
+        private final ByteArrayOutputStream processBinaryOutput;
 
         ProcessRecord(final Process process)
         {
             this.process = process;
-            this.processOutput = Collections.synchronizedList(new ArrayList<String>());
+            if (binaryOutput)
+            {
+                this.processTextOutput = null;
+                this.processErrorOutput = new ArrayList<String>();
+                this.processBinaryOutput = new ByteArrayOutputStream();
+            } else
+            {
+                this.processTextOutput = new ArrayList<String>();
+                this.processErrorOutput = null;
+                this.processBinaryOutput = null;
+            }
         }
 
         Process getProcess()
@@ -87,9 +119,19 @@ public final class ProcessExecutionHelper
             return process;
         }
 
-        List<String> getProcessOutput()
+        List<String> getTextProcessOutput()
         {
-            return processOutput;
+            return processTextOutput;
+        }
+
+        ByteArrayOutputStream getBinaryProcessOutput()
+        {
+            return processBinaryOutput;
+        }
+
+        List<String> getErrorProcessOutput()
+        {
+            return processErrorOutput;
         }
     }
 
@@ -122,6 +164,10 @@ public final class ProcessExecutionHelper
     private final long millisToWaitForCompletion;
 
     private final OutputReadingStrategy outputReadingStrategy;
+
+    private final boolean binaryOutput;
+
+    private final IProcessIOHandler processIOHandlerOrNull;
 
     /** The number used in thread names to distinguish the process. */
     private final int processNumber;
@@ -165,7 +211,8 @@ public final class ProcessExecutionHelper
             final Logger machineLog, boolean stopOnInterrupt) throws InterruptedExceptionUnchecked
     {
         return new ProcessExecutionHelper(cmd, ConcurrencyUtilities.NO_TIMEOUT,
-                DEFAULT_OUTPUT_READING_STRATEGY, operationLog, machineLog).run(stopOnInterrupt);
+                DEFAULT_OUTPUT_READING_STRATEGY, null, false, operationLog, machineLog)
+                .run(stopOnInterrupt);
     }
 
     /**
@@ -241,7 +288,8 @@ public final class ProcessExecutionHelper
             final long millisToWaitForCompletion) throws InterruptedExceptionUnchecked
     {
         return new ProcessExecutionHelper(cmd, millisToWaitForCompletion,
-                DEFAULT_OUTPUT_READING_STRATEGY, operationLog, machineLog).run(stopOnInterrupt);
+                DEFAULT_OUTPUT_READING_STRATEGY, null, false, operationLog, machineLog)
+                .run(stopOnInterrupt);
     }
 
     /**
@@ -309,7 +357,65 @@ public final class ProcessExecutionHelper
             throws InterruptedExceptionUnchecked
     {
         return new ProcessExecutionHelper(cmd, millisToWaitForCompletion, outputReadingStrategy,
-                operationLog, machineLog).run(stopOnInterrupt);
+                null, false, operationLog, machineLog).run(stopOnInterrupt);
+    }
+
+    /**
+     * Runs an Operating System process, specified by <var>cmd</var>.
+     * 
+     * @param cmd The command line to run.
+     * @param operationLog The {@link Logger} to use for all message on the higher level.
+     * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
+     * @param millisToWaitForCompletion The time to wait for the process to complete in milli
+     *            seconds. If the process is not finished after that time, it will be terminated by
+     *            a watch dog.
+     * @param outputReadingStrategy The strategy for when to read the output (both
+     *            <code>stdout</code> and <code>sterr</code>) of the process.
+     * @param binaryOutput If <code>true</code>, the process is expected to produce binary output on
+     *            <code>stdout</code>.
+     * @param stopOnInterrupt If <code>true</code>, throw a {@link InterruptedExceptionUnchecked} if
+     *            the thread gets interrupted while waiting on the future.
+     * @return The process result.
+     * @throws InterruptedExceptionUnchecked If the thread got interrupted and
+     *             <var>stopOnInterrupt</var> is <code>true</code>.
+     */
+    public static ProcessResult run(final List<String> cmd, final Logger operationLog,
+            final Logger machineLog, final long millisToWaitForCompletion,
+            final OutputReadingStrategy outputReadingStrategy, final boolean binaryOutput,
+            final boolean stopOnInterrupt) throws InterruptedExceptionUnchecked
+    {
+        return new ProcessExecutionHelper(cmd, millisToWaitForCompletion, outputReadingStrategy,
+                null, binaryOutput, operationLog, machineLog).run(stopOnInterrupt);
+    }
+
+    /**
+     * Runs an Operating System process, specified by <var>cmd</var>.
+     * 
+     * @param cmd The command line to run.
+     * @param operationLog The {@link Logger} to use for all message on the higher level.
+     * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
+     * @param millisToWaitForCompletion The time to wait for the process to complete in milli
+     *            seconds. If the process is not finished after that time, it will be terminated by
+     *            a watch dog.
+     * @param outputReadingStrategy The strategy for when to read the output (both
+     *            <code>stdout</code> and <code>sterr</code>) of the process.
+     * @param processIOHandler The handler in charge of dealing with the process input and output.
+     *            Beware that if the process reaches the I/O buffer limit and this handler doesn't
+     *            read the output, the process may hang indefinitely.
+     * @param stopOnInterrupt If <code>true</code>, throw a {@link InterruptedExceptionUnchecked} if
+     *            the thread gets interrupted while waiting on the future.
+     * @return The process result.
+     * @throws InterruptedExceptionUnchecked If the thread got interrupted and
+     *             <var>stopOnInterrupt</var> is <code>true</code>.
+     */
+    public static ProcessResult run(final List<String> cmd, final Logger operationLog,
+            final Logger machineLog, final long millisToWaitForCompletion,
+            final OutputReadingStrategy outputReadingStrategy,
+            final IProcessIOHandler processIOHandler, final boolean stopOnInterrupt)
+            throws InterruptedExceptionUnchecked
+    {
+        return new ProcessExecutionHelper(cmd, millisToWaitForCompletion, outputReadingStrategy,
+                processIOHandler, false, operationLog, machineLog).run(stopOnInterrupt);
     }
 
     /** Handler to a running process. Allows to wait for the result and stop the process. */
@@ -346,7 +452,7 @@ public final class ProcessExecutionHelper
             final Logger machineLog)
     {
         return new ProcessExecutionHelper(cmd, ConcurrencyUtilities.NO_TIMEOUT,
-                outputReadingStrategy, operationLog, machineLog).runUnblocking();
+                outputReadingStrategy, null, false, operationLog, machineLog).runUnblocking();
     }
 
     /**
@@ -377,6 +483,67 @@ public final class ProcessExecutionHelper
         } catch (final IllegalThreadStateException ex)
         {
             return ProcessResult.NO_EXIT_VALUE;
+        }
+    }
+
+    /**
+     * Reads the <code>stdout</code> and <code>stderr</code> of <var>process</var>.
+     */
+    private final void readProcessOutput(final ProcessRecord processRecord, final boolean discard)
+    {
+        readProcessOutput(processRecord, -1, discard);
+    }
+
+    /**
+     * Reads the <code>stdout</code> and <code>stderr</code> of <var>process</var>. If
+     * <code>maxBytes > 0</code>, read not more than so many bytes.
+     */
+    private final void readProcessOutput(final ProcessRecord processRecord, final long maxBytes,
+            final boolean discard)
+    {
+        assert processRecord != null;
+        assert machineLog != null;
+
+        final Process process = processRecord.getProcess();
+        if (binaryOutput)
+        {
+            try
+            {
+                copy(process, processRecord, maxBytes, discard);
+            } catch (final IOException e)
+            {
+                machineLog.warn(String.format("IOException when reading stdout/stderr, msg='%s'.",
+                        e.getMessage()));
+            }
+            final List<String> errorOutput = processRecord.getErrorProcessOutput();
+            final BufferedReader errorReader =
+                    new BufferedReader(new InputStreamReader(process.getErrorStream()));
+            readProcessOutputLines(errorOutput, errorReader, discard);
+        } else
+        {
+            final List<String> processOutput = processRecord.getTextProcessOutput();
+            final BufferedReader reader =
+                    new BufferedReader(new InputStreamReader(process.getInputStream()));
+            readProcessOutputLines(processOutput, reader, discard);
+        }
+    }
+
+    protected void copy(final Process process, final ProcessRecord processRecord,
+            final long maxBytes, final boolean discard) throws IOException
+    {
+        final InputStream input = process.getInputStream();
+        final OutputStream output = processRecord.getBinaryProcessOutput();
+        final byte[] buffer = new byte[BUFFER_SIZE];
+        long count = 0;
+        int n = 0;
+        while ((maxBytes <= 0 || count < maxBytes) && input.available() > 0
+                && -1 != (n = input.read(buffer)))
+        {
+            if (discard == false)
+            {
+                output.write(buffer, 0, n);
+            }
+            count += n;
         }
     }
 
@@ -413,13 +580,11 @@ public final class ProcessExecutionHelper
     }
 
     /**
-     * On Windows it is necessary to read the output stream during the process is running in order
-     * not to get dead-locked. This is less efficient (due to the limited interface of
-     * {@link Process}), so we don't do it if we don't have to.
+     * Returns <code>true</code>, if an I/O handler for the process I/O is available.
      */
-    private boolean hasLimitedOutputBuffer()
+    private boolean hasIOHandler()
     {
-        return OSUtilities.isWindows();
+        return processIOHandlerOrNull != null;
     }
 
     /**
@@ -432,7 +597,10 @@ public final class ProcessExecutionHelper
         private final Process launch() throws IOException
         {
             final ProcessBuilder processBuilder = new ProcessBuilder(commandLine);
-            processBuilder.redirectErrorStream(true);
+            if (binaryOutput == false && processIOHandlerOrNull == null)
+            {
+                processBuilder.redirectErrorStream(true);
+            }
             if (operationLog.isDebugEnabled())
             {
                 operationLog.debug("Running command: " + getCommand(commandLine));
@@ -453,18 +621,15 @@ public final class ProcessExecutionHelper
                 {
                     ProcessRecord processRecord = new ProcessRecord(process);
                     processWrapper.set(processRecord);
-                    final List<String> processOutput = processRecord.getProcessOutput();
-                    final BufferedReader reader =
-                            new BufferedReader(new InputStreamReader(process.getInputStream()));
 
                     int exitValue = ProcessResult.NO_EXIT_VALUE;
-                    if (hasLimitedOutputBuffer())
+                    if (hasIOHandler() == false)
                     {
                         final boolean discardOutput =
                                 (outputReadingStrategy == OutputReadingStrategy.NEVER);
                         while (exitValue == ProcessResult.NO_EXIT_VALUE)
                         {
-                            readProcessOutputLines(processOutput, reader, discardOutput);
+                            readProcessOutput(processRecord, discardOutput);
                             exitValue = getExitValue(process);
                             if (exitValue == ProcessResult.NO_EXIT_VALUE)
                             {
@@ -472,23 +637,67 @@ public final class ProcessExecutionHelper
                             }
                         }
                         processWrapper.set(null);
-                        readProcessOutputLines(processOutput, reader, discardOutput);
+                        readProcessOutput(processRecord, discardOutput);
+                        if (binaryOutput)
+                        {
+                            return new ProcessResult(commandLine, processNumber,
+                                    ExecutionStatus.COMPLETE, "", exitValue, processRecord
+                                            .getBinaryProcessOutput().toByteArray(),
+                                    processRecord.getErrorProcessOutput(), operationLog, machineLog);
+                        } else
+                        {
+                            return new ProcessResult(commandLine, processNumber,
+                                    ExecutionStatus.COMPLETE, "", exitValue,
+                                    processRecord.getTextProcessOutput(), operationLog, machineLog);
+                        }
                     } else
                     {
+                        final Future<?> future = executor.submit(new Runnable()
+                            {
+                                public void run()
+                                {
+                                    try
+                                    {
+                                        processIOHandlerOrNull.handle(process.getOutputStream(),
+                                                process.getInputStream(), process.getErrorStream());
+                                    } catch (IOException ex)
+                                    {
+                                        throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+                                    }
+                                }
+                            });
                         exitValue = process.waitFor();
-                        final boolean stillInCharge = (processWrapper.getAndSet(null) != null);
-
-                        if (stillInCharge
-                                && (OutputReadingStrategy.ALWAYS.equals(outputReadingStrategy) || (OutputReadingStrategy.ON_ERROR
-                                        .equals(outputReadingStrategy) && ProcessResult
-                                        .isProcessOK(exitValue) == false)))
+                        processWrapper.set(null);
+                        final ExecutionResult<?> result =
+                                ConcurrencyUtilities.getResult(future, SHORT_TIMEOUT);
+                        switch (result.getStatus())
                         {
-                            readProcessOutputLines(processOutput, reader, false);
+                            case COMPLETE:
+                                break;
+                            case EXCEPTION:
+                                final Throwable th = result.tryGetException();
+                                final Throwable cause =
+                                        (th == null) ? new RuntimeException("Unknown exception.")
+                                                : (th instanceof Error) ? (Error) th
+                                                        : CheckedExceptionTunnel
+                                                                .unwrapIfNecessary((Exception) th);
+                                machineLog
+                                        .warn(String
+                                                .format("Exception when reading stdout/stderr, type='%s', msg='%s'.",
+                                                        cause.getClass().getSimpleName(),
+                                                        cause.getMessage()));
+                                break;
+                            case INTERRUPTED:
+                                machineLog.warn("Interrupted when reading stdout/stderr.");
+                                break;
+                            case TIMED_OUT:
+                                machineLog.warn("Timeout when reading stdout/stderr.");
+                                break;
                         }
+                        return new ProcessResult(commandLine, processNumber,
+                                ExecutionStatus.COMPLETE, "", exitValue, null, operationLog,
+                                machineLog);
                     }
-                    return new ProcessResult(commandLine, processNumber, ExecutionStatus.COMPLETE,
-                            "", exitValue, processRecord.getProcessOutput(), operationLog,
-                            machineLog);
                 } finally
                 {
                     IOUtils.closeQuietly(process.getErrorStream());
@@ -536,22 +745,22 @@ public final class ProcessExecutionHelper
             if (processRecord != null)
             {
                 final Process process = processRecord.getProcess();
-                if (hasLimitedOutputBuffer() == false
-                        && OutputReadingStrategy.NEVER.equals(outputReadingStrategy) == false)
-                {
-                    final List<String> processOutput = processRecord.getProcessOutput();
-                    final BufferedReader reader =
-                            new BufferedReader(new InputStreamReader(process.getInputStream()));
-                    readProcessOutputLines(processOutput, reader, false);
-                }
                 process.destroy(); // Note: this also closes the I/O streams.
                 if (machineLog.isInfoEnabled())
                 {
                     machineLog.info(String.format("Killed '%s'.", getCommand(commandLine)));
                 }
                 final int exitValue = getExitValue(processRecord.getProcess());
-                return new ProcessResult(commandLine, processNumber, status, "", exitValue,
-                        processRecord.getProcessOutput(), operationLog, machineLog);
+                if (binaryOutput)
+                {
+                    return new ProcessResult(commandLine, processNumber, status, "", exitValue,
+                            processRecord.getBinaryProcessOutput().toByteArray(),
+                            processRecord.getErrorProcessOutput(), operationLog, machineLog);
+                } else
+                {
+                    return new ProcessResult(commandLine, processNumber, status, "", exitValue,
+                            processRecord.getTextProcessOutput(), operationLog, machineLog);
+                }
             } else
             {
                 return null; // Value signals that the ProcessRunner got us.
@@ -567,8 +776,9 @@ public final class ProcessExecutionHelper
 
     private ProcessExecutionHelper(final List<String> commandLine,
             final long millisToWaitForCompletion,
-            final OutputReadingStrategy outputReadingStrategy, final Logger operationLog,
-            final Logger machineLog)
+            final OutputReadingStrategy outputReadingStrategy,
+            final IProcessIOHandler processIOHandlerOrNull, final boolean binaryOutput,
+            final Logger operationLog, final Logger machineLog)
     {
         this.processNumber = processCounter.getAndIncrement();
         this.callingThreadName = Thread.currentThread().getName();
@@ -583,6 +793,8 @@ public final class ProcessExecutionHelper
             this.millisToWaitForCompletion = millisToWaitForCompletion;
         }
         this.outputReadingStrategy = outputReadingStrategy;
+        this.processIOHandlerOrNull = processIOHandlerOrNull;
+        this.binaryOutput = binaryOutput;
         this.commandLine = Collections.unmodifiableList(commandLine);
         this.processWrapper = new AtomicReference<ProcessRecord>();
     }
@@ -656,9 +868,17 @@ public final class ProcessExecutionHelper
                 // see the note above about termination from other thread
                 status = ExecutionStatus.INTERRUPTED;
             }
-            return new ProcessResult(commandLine, processNumber, status,
-                    tryGetStartupFailureMessage(executionResult.tryGetException()),
-                    ProcessResult.NO_EXIT_VALUE, null, operationLog, machineLog);
+            if (binaryOutput)
+            {
+                return new ProcessResult(commandLine, processNumber, status,
+                        tryGetStartupFailureMessage(executionResult.tryGetException()),
+                        ProcessResult.NO_EXIT_VALUE, null, null, operationLog, machineLog);
+            } else
+            {
+                return new ProcessResult(commandLine, processNumber, status,
+                        tryGetStartupFailureMessage(executionResult.tryGetException()),
+                        ProcessResult.NO_EXIT_VALUE, null, operationLog, machineLog);
+            }
         }
     }
 

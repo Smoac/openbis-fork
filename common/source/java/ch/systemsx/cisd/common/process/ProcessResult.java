@@ -76,6 +76,12 @@ public final class ProcessResult
 
     private final List<String> output;
 
+    private final byte[] binaryOutput;
+
+    private final List<String> errorOutput;
+
+    private final boolean isBinaryOutput;
+
     /**
      * Returns <code>true</code> if the <var>exitValue</var> indicates that the process has been
      * terminated on the Operating System level.
@@ -108,6 +114,7 @@ public final class ProcessResult
         this.startupFailureMessage =
                 (startupFailureMessageOrNull == null) ? "" : startupFailureMessageOrNull;
         this.exitValue = exitValue;
+        this.isBinaryOutput = false;
         this.outputAvailable = (processOutputOrNull != null);
         if (outputAvailable)
         {
@@ -118,6 +125,41 @@ public final class ProcessResult
             this.output = Collections.emptyList();
 
         }
+        this.errorOutput = null;
+        this.binaryOutput = null;
+        this.operationLog = operationLog;
+        this.machineLog = machineLog;
+    }
+
+    public ProcessResult(final List<String> commandLine, final int processNumber,
+            final ExecutionStatus status, final String startupFailureMessageOrNull,
+            final int exitValue, final byte[] processBinaryOutputOrNull,
+            final List<String> processErrorOutputOrNull, final Logger operationLog,
+            final Logger machineLog)
+    {
+        this.commandLine = commandLine;
+        this.commandName = ProcessExecutionHelper.getCommandName(commandLine);
+        this.processNumber = processNumber;
+        this.status = status;
+        this.startupFailureMessage =
+                (startupFailureMessageOrNull == null) ? "" : startupFailureMessageOrNull;
+        this.exitValue = exitValue;
+        this.isBinaryOutput = true;
+        this.outputAvailable = (processBinaryOutputOrNull != null);
+        if (outputAvailable)
+        {
+            this.errorOutput =
+                    (processErrorOutputOrNull == null) ? Collections.<String> emptyList()
+                            : Collections.unmodifiableList(processErrorOutputOrNull);
+            this.binaryOutput = processBinaryOutputOrNull;
+
+        } else
+        {
+            this.errorOutput = Collections.emptyList();
+            binaryOutput = new byte[0];
+
+        }
+        this.output = null;
         this.operationLog = operationLog;
         this.machineLog = machineLog;
     }
@@ -156,8 +198,49 @@ public final class ProcessResult
     }
 
     /**
-     * Returns the output of the process (<code>stdout</code> and <code>stderr</code>). If it not
-     * available (see {@link #isOutputAvailable()}, an empty list is returned.
+     * Returns <code>true</code>, if the output of the method is binary and <code>false</code>, if
+     * it is text. If the output is binary, the error output is available separately, otherwise it
+     * is merged with the regular output.
+     * <p>
+     * If this method returns <code>true</code>, you are supposed to call {@link #getBinaryOutput()}
+     * and {@link #getErrorOutput()}. If it is <code>false</code>, you are supposed to call
+     * {@link #getOutput()}.
+     */
+    public boolean isBinaryOutput()
+    {
+        return isBinaryOutput;
+    }
+
+    /**
+     * Returns the binary output of the process (<code>stdout</code>). If it not available (see
+     * {@link #isOutputAvailable()}, an empty array is returned.
+     * <p>
+     * <i>Only call this method, if {@link #isBinaryOutput()} is <code>true</code>. Otherwise this
+     * method will return <code>null</code></i>.
+     */
+    public byte[] getBinaryOutput()
+    {
+        return binaryOutput;
+    }
+
+    /**
+     * Returns the text error output of the process (<code>stderr</code>). If it not available (see
+     * {@link #isOutputAvailable()}, an empty array is returned.
+     * <p>
+     * <i>Only call this method, if {@link #isBinaryOutput()} is <code>true</code>. Otherwise this
+     * method will return <code>null</code></i>.
+     */
+    public List<String> getErrorOutput()
+    {
+        return errorOutput;
+    }
+
+    /**
+     * Returns the text output of the process (<code>stdout</code> and <code>stderr</code>). If it
+     * not available (see {@link #isOutputAvailable()}, an empty list is returned.
+     * <p>
+     * <i>Only call this method, if {@link #isBinaryOutput()} is <code>false</code>. Otherwise this
+     * method will return <code>null</code></i>.
      */
     public List<String> getOutput()
     {
@@ -255,16 +338,16 @@ public final class ProcessResult
                     processNumber, commandName, startupFailureMessage));
         } else if (isTimedOut())
         {
-            operationLog.log(logLevel, String.format("P%d-{%s} process has timed out.",
-                    processNumber, commandName));
+            operationLog.log(logLevel,
+                    String.format("P%d-{%s} process has timed out.", processNumber, commandName));
         } else if (isInterruped())
         {
-            operationLog.log(logLevel, String.format("P%d-{%s} thread was interrupted.",
-                    processNumber, commandName));
+            operationLog.log(logLevel,
+                    String.format("P%d-{%s} thread was interrupted.", processNumber, commandName));
         } else if (isTerminated())
         {
-            operationLog.log(logLevel, String.format("P%d-{%s} process was terminated.",
-                    processNumber, commandName));
+            operationLog.log(logLevel,
+                    String.format("P%d-{%s} process was terminated.", processNumber, commandName));
         } else
         {
             operationLog.log(logLevel, String.format(
@@ -277,17 +360,40 @@ public final class ProcessResult
     {
         assert logLevel != null;
 
-        final List<String> processOutputLines = getOutput();
-        if (processOutputLines.size() == 0)
+        if (isBinaryOutput)
         {
-            return;
-        }
-        machineLog.log(logLevel, String.format("[%s] output:", commandName));
-        for (final String ln : processOutputLines)
-        {
-            if (ln.trim().length() > 0)
+            if (getBinaryOutput().length != 0)
             {
-                machineLog.log(logLevel, String.format("\"%s\"", ln));
+                machineLog.log(logLevel, String.format("[%s] output: %d bytes", commandName,
+                        getBinaryOutput().length));
+            }
+            final List<String> processErrorOutputLines = getErrorOutput();
+            if (processErrorOutputLines.size() > 0)
+            {
+                machineLog.log(logLevel, String.format("[%s] error output:", commandName));
+                for (final String ln : processErrorOutputLines)
+                {
+                    if (ln.trim().length() > 0)
+                    {
+                        machineLog.log(logLevel, String.format("\"%s\"", ln));
+                    }
+                }
+            }
+
+        } else
+        {
+            final List<String> processOutputLines = getOutput();
+            if (processOutputLines.size() == 0)
+            {
+                return;
+            }
+            machineLog.log(logLevel, String.format("[%s] output:", commandName));
+            for (final String ln : processOutputLines)
+            {
+                if (ln.trim().length() > 0)
+                {
+                    machineLog.log(logLevel, String.format("\"%s\"", ln));
+                }
             }
         }
     }
