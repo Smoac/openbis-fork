@@ -240,7 +240,7 @@ public final class ETLDaemon
             String shareId = SegmentedStoreUtils.findIncomingShare(incomingDataDirectory, shares);
             incomingShares.add(shareId);
             operationLog.info("[" + threadParameters.getThreadName() + "]: Data sets drop into '"
-                    + incomingDataDirectory + "' will stored in share " + shareId + ".");
+                    + incomingDataDirectory + "' will be stored in share " + shareId + ".");
             createProcessingThread(parameters, threadParameters, shareId,
                     openBISService, highwaterMarkWatcher, mailClient, dataSetValidator,
                     notifySuccessfulRegistration);
