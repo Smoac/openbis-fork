@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders;
 import java.util.ArrayList;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -72,6 +73,12 @@ public class DataSetBuilder
     public DataSetBuilder sample(Sample sample)
     {
         dataSet.setSample(sample);
+        return this;
+    }
+    
+    public DataSetBuilder store(DataStore dataStore)
+    {
+        dataSet.setDataStore(dataStore);
         return this;
     }
     
