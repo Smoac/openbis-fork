@@ -456,19 +456,23 @@ def register_images_with_overlays_and_analysis(incoming):
     # move overlays folder
     overlays_dir = find_dir(File(image_data_set_folder), OVERLAYS_DIR_PATTERN)
     if overlays_dir != None:
+        tr_overlays = service.transaction(overlays_dir, factory)
         overlay_dataset_details = create_overlay_dataset_details(overlays_dir, 
                                      image_dataset_details.getDataSetInformation(), img_dataset_code)
-        overlays_data_set = tr.createNewDataSet(overlay_dataset_details)
-        tr.moveFile(overlays_dir.getPath(), overlays_data_set, "overlays")
-
+        overlays_data_set = tr_overlays.createNewDataSet(overlay_dataset_details)
+        tr_overlays.moveFile(overlays_dir.getPath(), overlays_data_set, "overlays")
+        tr_overlays.commit()
+        
     # transform and move analysis file
     analysis_file = find_file_by_ext(File(image_data_set_folder), "xml")
     if analysis_file != None:
+        tr_analysis = service.transaction(analysis_file, factory)
         analysis_registration_details = create_analysis_dataset_details(space_code, plate_code, img_dataset_code)
-        analysis_data_set = tr.createNewDataSet(analysis_registration_details)
-        analysis_data_set_file = tr.createNewFile(analysis_data_set, analysis_file.getName())
+        analysis_data_set = tr_analysis.createNewDataSet(analysis_registration_details)
+        analysis_data_set_file = tr_analysis.createNewFile(analysis_data_set, analysis_file.getName())
         GEExplorerImageAnalysisResultParser(analysis_file.getPath()).writeCSV(File(analysis_data_set_file))
-        
+        tr_analysis.commit()
+            
     service.commit()
     
 register_images_with_overlays_and_analysis(incoming)
