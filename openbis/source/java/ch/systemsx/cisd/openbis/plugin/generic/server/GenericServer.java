@@ -425,7 +425,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             throw UserFailureException.fromTemplate("Sample type with code '%s' does not exist.",
                     sampleTypeCode);
         }
-        getPropertiesBatchManager().manageProperties(sampleTypePE, updatedSamplesWithType,
+        getPropertiesBatchManager().manageProperties(sampleTypePE, updatedSamples,
                 session.tryGetPerson());
         getSampleTypeSlaveServerPlugin(sampleTypePE).updateSamples(session,
                 convertSamples(updatedSamples));
@@ -839,7 +839,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             throw UserFailureException.fromTemplate(
                     "Experiment type with code '%s' does not exist.", experimentTypePE);
         }
-        getPropertiesBatchManager().manageProperties(experimentTypePE, experiments,
+        getPropertiesBatchManager().manageProperties(experimentTypePE, newExperiments,
                 session.tryGetPerson());
         BatchOperationExecutor.executeInBatches(new ExperimentBatchRegistration(
                 businessObjectFactory.createExperimentTable(session), newExperiments,
@@ -874,6 +874,8 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             throw UserFailureException.fromTemplate(
                     "Experiment type with code '%s' does not exist.", experimentTypePE);
         }
+        getPropertiesBatchManager().manageProperties(experimentTypePE, newExperiments,
+                session.tryGetPerson());
         BatchOperationExecutor.executeInBatches(new ExperimentBatchUpdate(businessObjectFactory
                 .createExperimentTable(session), convertExperiments(newExperiments),
                 experimentTypePE));

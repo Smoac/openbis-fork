@@ -25,9 +25,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertiesBean;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewBasicExperiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperimentsWithType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.PropertyBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.ExperimentTypePEBuilder;
@@ -39,8 +37,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.builders.SampleTypePEBuilder;
 public class PropertiesBatchManagerTest extends AssertJUnit
 {
     private static final String MANAGED_SUBCOLUMNS = "MANAGED_SUBCOLUMNS";
-    private static final String MANAGED_NO_SUBCOLUMNS_BUT_UPDATE = "MANAGED-NO-SUBCOLUMNS-BUT-UPDATE";
+
+    private static final String MANAGED_NO_SUBCOLUMNS_BUT_UPDATE =
+            "MANAGED-NO-SUBCOLUMNS-BUT-UPDATE";
+
     private static final String MANAGED_NO_SUBCOLUMNS_NO_UPDATE = "MANAGED-NO-SUBCOLUMNS";
+
     private static final String UN_MANAGED = "UN-MANAGED";
 
     @Test
@@ -49,9 +51,10 @@ public class PropertiesBatchManagerTest extends AssertJUnit
         ExperimentTypePEBuilder builder = new ExperimentTypePEBuilder();
         builder.assign(UN_MANAGED);
         builder.assign(MANAGED_NO_SUBCOLUMNS_NO_UPDATE).script(ScriptType.MANAGED_PROPERTY, "");
-        builder.assign(MANAGED_NO_SUBCOLUMNS_BUT_UPDATE).script(ScriptType.MANAGED_PROPERTY,
-                "def updateFromBatchInput(columnValues):\n" +
-                "  property.setValue(columnValues.get('') + ' alpha')");
+        builder.assign(MANAGED_NO_SUBCOLUMNS_BUT_UPDATE).script(
+                ScriptType.MANAGED_PROPERTY,
+                "def updateFromBatchInput(columnValues):\n"
+                        + "  property.setValue(columnValues.get('') + ' alpha')");
         builder.assign(MANAGED_SUBCOLUMNS).script(
                 ScriptType.MANAGED_PROPERTY,
                 "def batchColumnNames():\n  return ['1', '2']\n"
@@ -66,33 +69,33 @@ public class PropertiesBatchManagerTest extends AssertJUnit
         PropertyBuilder p4 = new PropertyBuilder(MANAGED_SUBCOLUMNS + ":1").value("ab");
         PropertyBuilder p5 = new PropertyBuilder(MANAGED_SUBCOLUMNS + ":2").value("12");
         addProperties(e2, p3, p4, p5);
-        NewExperimentsWithType experiments = new NewExperimentsWithType("T", Arrays.asList(e1, e2));
-        
-        new PropertiesBatchManager().manageProperties(builder.getExperimentTypePE(), experiments,
-                null);
-        
+
+        new PropertiesBatchManager().manageProperties(builder.getExperimentTypePE(),
+                Arrays.asList(e1, e2), null);
+
         assertProperties("UN-MANAGED:hello, MANAGED-NO-SUBCOLUMNS:hi", e1);
         assertProperties("MANAGED-NO-SUBCOLUMNS-BUT-UPDATE:hi alpha, MANAGED_SUBCOLUMNS:ab12", e2);
     }
-    
+
     @Test
     public void testScriptErrorWhenExecutingUpdateFromBatchInput()
     {
         SampleTypePEBuilder builder = new SampleTypePEBuilder();
-        builder.assign(MANAGED_NO_SUBCOLUMNS_BUT_UPDATE).script(ScriptType.MANAGED_PROPERTY,
-                "def updateFromBatchInput(columnValues):\n" +
-                "  property.setValue(str(int(columnValues.get('')) + 42))");
+        builder.assign(MANAGED_NO_SUBCOLUMNS_BUT_UPDATE).script(
+                ScriptType.MANAGED_PROPERTY,
+                "def updateFromBatchInput(columnValues):\n"
+                        + "  property.setValue(str(int(columnValues.get('')) + 42))");
         NewSample s1 = new NewSample();
         PropertyBuilder p1 = new PropertyBuilder(MANAGED_NO_SUBCOLUMNS_BUT_UPDATE).value("1");
         addProperties(s1, p1);
         NewSample s2 = new NewSample();
         PropertyBuilder p2 = new PropertyBuilder(MANAGED_NO_SUBCOLUMNS_BUT_UPDATE).value("two");
         addProperties(s2, p2);
-        NewSamplesWithTypes samples = new NewSamplesWithTypes(null, Arrays.asList(s1, s2));
-        
+
         try
         {
-            new PropertiesBatchManager().manageProperties(builder.getSampleType(), samples, null);
+            new PropertiesBatchManager().manageProperties(builder.getSampleType(),
+                    Arrays.asList(s1, s2), null);
         } catch (UserFailureException ufe)
         {
             assertEquals(
@@ -103,34 +106,34 @@ public class PropertiesBatchManagerTest extends AssertJUnit
                             + "A detailed error report has been sent to your system administrator.",
                     ufe.getMessage());
         }
-        
+
         assertProperties("MANAGED-NO-SUBCOLUMNS-BUT-UPDATE:43", s1);
     }
-    
+
     @Test
     public void testScriptThrowingValidationException()
     {
         ExperimentTypePEBuilder builder = new ExperimentTypePEBuilder();
-        builder.assign(MANAGED_NO_SUBCOLUMNS_BUT_UPDATE).script(ScriptType.MANAGED_PROPERTY,
-                "def updateFromBatchInput(columnValues):\n" +
-        "  raise ValidationException('Oops!')");
+        builder.assign(MANAGED_NO_SUBCOLUMNS_BUT_UPDATE).script(
+                ScriptType.MANAGED_PROPERTY,
+                "def updateFromBatchInput(columnValues):\n"
+                        + "  raise ValidationException('Oops!')");
         NewBasicExperiment e1 = new NewBasicExperiment();
         PropertyBuilder p1 = new PropertyBuilder(MANAGED_NO_SUBCOLUMNS_BUT_UPDATE).value("hello");
         addProperties(e1, p1);
-        NewExperimentsWithType experiments = new NewExperimentsWithType("T", Arrays.asList(e1));
-        
+
         try
         {
             new PropertiesBatchManager().manageProperties(builder.getExperimentTypePE(),
-                    experiments, null);
+                    Arrays.asList(e1), null);
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
             assertEquals("Error in row 1: Oops!", ex.getMessage());
         }
-        
+
     }
-    
+
     @Test
     public void testSubColumnsButNoScript()
     {
@@ -139,19 +142,18 @@ public class PropertiesBatchManagerTest extends AssertJUnit
         NewBasicExperiment e1 = new NewBasicExperiment();
         PropertyBuilder p1 = new PropertyBuilder(UN_MANAGED + ":1").value("hello");
         addProperties(e1, p1);
-        NewExperimentsWithType experiments = new NewExperimentsWithType("T", Arrays.asList(e1));
-        
+
         try
         {
             new PropertiesBatchManager().manageProperties(builder.getExperimentTypePE(),
-                    experiments, null);
+                    Arrays.asList(e1), null);
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
             assertEquals("No subcolumns expected for property 'UN-MANAGED': [1]", ex.getMessage());
         }
     }
-    
+
     private void assertProperties(String expectedProperties, IPropertiesBean propertiesBean)
     {
         StringBuilder builder = new StringBuilder();
@@ -167,7 +169,7 @@ public class PropertiesBatchManagerTest extends AssertJUnit
         }
         assertEquals(expectedProperties, builder.toString());
     }
-    
+
     private void addProperties(IPropertiesBean propertiesBean, PropertyBuilder... builders)
     {
         IEntityProperty[] properties = new IEntityProperty[builders.length];

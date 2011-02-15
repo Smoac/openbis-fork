@@ -18,9 +18,9 @@ package ch.systemsx.cisd.openbis.generic.server.business;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperimentsWithType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewBasicExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -33,11 +33,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
  */
 public interface IPropertiesBatchManager
 {
-    public void manageProperties(SampleTypePE sampleType, NewSamplesWithTypes newSamplesWithTypes,
+    public void manageProperties(SampleTypePE sampleType, List<NewSample> newSamples,
             PersonPE registrator);
 
     public void manageProperties(ExperimentTypePE experimentType,
-            NewExperimentsWithType experiments, PersonPE registrator);
+            List<? extends NewBasicExperiment> experiments, PersonPE registrator);
 
     public void manageProperties(MaterialTypePE materialType, List<NewMaterial> newMaterials,
             PersonPE registrator);

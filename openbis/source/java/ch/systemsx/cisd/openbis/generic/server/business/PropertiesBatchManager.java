@@ -36,9 +36,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertiesBean;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperimentsWithType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewBasicExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ValidationException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
@@ -52,7 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyE
 
 /**
  * Handles Managed Properties of batch uploads/updates.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class PropertiesBatchManager implements IPropertiesBatchManager
@@ -67,27 +67,24 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
 
     private final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, getClass());
 
-    
-    
-    public void manageProperties(SampleTypePE sampleType, NewSamplesWithTypes newSamplesWithTypes,
+    public void manageProperties(SampleTypePE sampleType, List<NewSample> samples,
             PersonPE registrator)
     {
         Set<? extends EntityTypePropertyTypePE> sampleTypePropertyTypes =
                 sampleType.getSampleTypePropertyTypes();
-    
-        managePropertiesBeans(newSamplesWithTypes.getNewSamples(), sampleTypePropertyTypes,
-                registrator);
+
+        managePropertiesBeans(samples, sampleTypePropertyTypes, registrator);
     }
-    
+
     public void manageProperties(ExperimentTypePE experimentType,
-            NewExperimentsWithType experiments, PersonPE registrator)
+            List<? extends NewBasicExperiment> experiments, PersonPE registrator)
     {
         Set<? extends EntityTypePropertyTypePE> entityTypePropertyTypes =
                 experimentType.getExperimentTypePropertyTypes();
 
-        managePropertiesBeans(experiments.getNewExperiments(), entityTypePropertyTypes, registrator);
+        managePropertiesBeans(experiments, entityTypePropertyTypes, registrator);
     }
-    
+
     public void manageProperties(MaterialTypePE materialType, List<NewMaterial> newMaterials,
             PersonPE registrator)
     {
@@ -99,9 +96,9 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
     private void managePropertiesBeans(List<? extends IPropertiesBean> propertiesBeans,
             Set<? extends EntityTypePropertyTypePE> entityTypePropertyTypes, PersonPE registrator)
     {
-        Map<String, EvaluationContext> contexts =
-                createEvaluationContexts(entityTypePropertyTypes);
-        PropertiesBatchEvaluationErrors errors = new PropertiesBatchEvaluationErrors(registrator, propertiesBeans.size());
+        Map<String, EvaluationContext> contexts = createEvaluationContexts(entityTypePropertyTypes);
+        PropertiesBatchEvaluationErrors errors =
+                new PropertiesBatchEvaluationErrors(registrator, propertiesBeans.size());
 
         int rowNumber = 0;
         for (IPropertiesBean propertiesBean : propertiesBeans)
@@ -160,8 +157,8 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
         EntityProperty entityProperty = createNewEntityProperty(code);
         if (evalContext == null)
         {
-            ManagedPropertyEvaluator.assertBatchColumnNames(code,
-                    Collections.<String> emptyList(), bindings);
+            ManagedPropertyEvaluator.assertBatchColumnNames(code, Collections.<String> emptyList(),
+                    bindings);
             entityProperty.setValue(bindings.get(""));
         } else
         {
@@ -229,4 +226,4 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
         }
         return result;
     }
-}   
+}
