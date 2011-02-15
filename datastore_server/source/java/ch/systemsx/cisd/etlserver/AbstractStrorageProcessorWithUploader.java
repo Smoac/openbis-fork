@@ -82,7 +82,7 @@ public abstract class AbstractStrorageProcessorWithUploader extends
             uploader.rollback();
         }
         logDataSetFileError(incomingDataSetDirectory, exception);
-        return UnstoreDataAction.MOVE_TO_ERROR;
+        return UnstoreDataAction.LEAVE_UNTOUCHED;
     }
 
     @Override
