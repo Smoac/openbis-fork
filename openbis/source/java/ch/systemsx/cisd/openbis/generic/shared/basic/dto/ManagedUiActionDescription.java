@@ -22,6 +22,7 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IPerson;
 
 /**
  * Object that declaratively describes a UI for an action (e.g. describing UI of a dialog that
@@ -33,9 +34,11 @@ public class ManagedUiActionDescription implements IManagedUiAction, ISerializab
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    String name;
+    private String name;
 
     private String description;
+
+    private IPerson person; // invoker of the action
 
     private List<IManagedInputWidgetDescription> inputWidgets =
             new ArrayList<IManagedInputWidgetDescription>();
@@ -94,6 +97,16 @@ public class ManagedUiActionDescription implements IManagedUiAction, ISerializab
             }
         }
         return null;
+    }
+
+    public IPerson getPerson()
+    {
+        return person;
+    }
+
+    public void setPerson(IPerson person)
+    {
+        this.person = person;
     }
 
 }

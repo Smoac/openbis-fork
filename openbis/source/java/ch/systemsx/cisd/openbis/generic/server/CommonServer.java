@@ -116,6 +116,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedUiActionDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -129,6 +130,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PersonAdapter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
@@ -145,6 +147,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IPerson;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
@@ -2247,6 +2250,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                     experimentBO.getExperiment().getProperties();
             ManagedPropertyEvaluator evaluator =
                     tryManagedPropertyEvaluator(managedProperty, properties);
+            extendWithPerson(updateAction, session.tryGetPerson());
             evaluator.updateFromUI(managedProperty, updateAction);
 
             experimentBO.updateManagedProperty(managedProperty);
@@ -2271,6 +2275,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             Set<? extends EntityPropertyPE> properties = sampleBO.getSample().getProperties();
             ManagedPropertyEvaluator evaluator =
                     tryManagedPropertyEvaluator(managedProperty, properties);
+            extendWithPerson(updateAction, session.tryGetPerson());
             evaluator.updateFromUI(managedProperty, updateAction);
 
             sampleBO.updateManagedProperty(managedProperty);
@@ -2296,6 +2301,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                     dataSetBO.getExternalData().getProperties();
             ManagedPropertyEvaluator evaluator =
                     tryManagedPropertyEvaluator(managedProperty, properties);
+            extendWithPerson(updateAction, session.tryGetPerson());
             evaluator.updateFromUI(managedProperty, updateAction);
 
             dataSetBO.updateManagedProperty(managedProperty);
@@ -2320,6 +2326,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             Set<? extends EntityPropertyPE> properties = materialBO.getMaterial().getProperties();
             ManagedPropertyEvaluator evaluator =
                     tryManagedPropertyEvaluator(managedProperty, properties);
+            extendWithPerson(updateAction, session.tryGetPerson());
             evaluator.updateFromUI(managedProperty, updateAction);
 
             materialBO.updateManagedProperty(managedProperty);
@@ -2327,6 +2334,22 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);
+        }
+    }
+
+    private static void extendWithPerson(IManagedUiAction updateAction, PersonPE personOrNull)
+    {
+        if (personOrNull != null && updateAction instanceof ManagedUiActionDescription)
+        {
+            final String userId = personOrNull.getUserId();
+            String userName = userId;
+            if (personOrNull.getFirstName() != null && personOrNull.getLastName() != null)
+            {
+                userName = personOrNull.getFirstName() + " " + personOrNull.getLastName();
+            }
+            final IPerson person = new PersonAdapter(userId, userName);
+            final ManagedUiActionDescription action = (ManagedUiActionDescription) updateAction;
+            action.setPerson(person);
         }
     }
 

@@ -59,4 +59,7 @@ public interface IManagedUiAction extends ISerializable
      * doesn't exist.
      */
     public String getInputValue(String inputLabel);
+
+    /** Returns invoker of the action or <code>null</code> if action wasn't invoked yet. */
+    public IPerson getPerson();
 }
