@@ -284,7 +284,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         {
             if (samples.isAllowUpdateIfExist() == false)
             {
-                registerSamples(session, samples, null);
+                registerSamples(session, samples, session.tryGetPerson());
             } else
             {
                 BatchOperationExecutor.executeInBatches(new SampleBatchRegisterOrUpdate(
@@ -335,7 +335,8 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                     SampleRegisterOrUpdateUtil.getSamplesToUpdate(newSamples, existingSamples);
             List<NewSample> samplesToRegister = new ArrayList<NewSample>(newSamples);
             samplesToRegister.removeAll(samplesToUpdate);
-            registerSamples(session, new NewSamplesWithTypes(sampleType, samplesToRegister), null);
+            registerSamples(session, new NewSamplesWithTypes(sampleType, samplesToRegister),
+                    session.tryGetPerson());
             updateSamples(session, new NewSamplesWithTypes(sampleType, samplesToUpdate));
         }
 
@@ -363,7 +364,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         final Session session = getSession(sessionToken);
         for (NewSamplesWithTypes samples : newSamplesWithType)
         {
-            registerSamples(session, samples, null);
+            registerSamples(session, samples, session.tryGetPerson());
         }
     }
 
@@ -424,7 +425,8 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             throw UserFailureException.fromTemplate("Sample type with code '%s' does not exist.",
                     sampleTypeCode);
         }
-
+        getPropertiesBatchManager().manageProperties(sampleTypePE, updatedSamplesWithType,
+                session.tryGetPerson());
         getSampleTypeSlaveServerPlugin(sampleTypePE).updateSamples(session,
                 convertSamples(updatedSamples));
     }

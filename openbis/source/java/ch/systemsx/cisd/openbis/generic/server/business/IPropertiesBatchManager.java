@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 
 /**
  * Interface of classes which manage managed properties in batch updates.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IPropertiesBatchManager
