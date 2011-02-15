@@ -202,24 +202,6 @@ def find_dir(incoming_file, dir_name_marker):
             return File(incoming_path, file)
     return None
 
-def get_random_string():
-    return str(int(random.random()*1000000000))
-
-""" 
-Creates a temporary directory two levels above the specified incoming file.
-The name of the directory will contain the specified label and a random text. 
-Returns:
-    java.io.File - path to the temporary directory
-"""
-def get_tmp_dir(incoming, label):
-    dropbox_parent_dir = incoming.getParentFile().getParent()
-    tmp_dir = File(dropbox_parent_dir, "tmp")
-    if not os.path.exists(tmp_dir.getPath()):
-        os.mkdir(tmp_dir.getPath())
-    tmp_labeled_dir = File(tmp_dir, label + ".tmp." + get_random_string())
-    os.mkdir(tmp_labeled_dir.getPath())
-    return tmp_labeled_dir
-
 # ------------
 # Image dataset registration
 # ------------
