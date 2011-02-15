@@ -238,13 +238,23 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
                     Sample p1 = plateSample(pi1, "384_WELLS_16X24");
                     will(returnValue(Arrays.asList(p1)));
 
-                    one(screeningBOFactory).createDatasetLister(SESSION);
+                    allowing(screeningBOFactory).createDatasetLister(SESSION);
                     will(returnValue(datasetLister));
                     one(datasetLister).listBySampleIds(with(Arrays.asList((long) 1)));
                     final ExternalData rawImage = imageRawDataSet(p1, "2", 2);
+                    ExternalData imageSegmentationDataSet = imageSegmentationDataSet(p1, "3", 3, rawImage);
+                    ExternalData imageAnalysisDataSet = imageAnalysisDataSet(p1, "4", 4);
                     will(returnValue(Arrays.asList(imageDataSet(p1, "1", 1), rawImage,
-                            imageSegmentationDataSet(p1, "3", 3, rawImage),
-                            imageAnalysisDataSet(p1, "4", 4))));
+                            imageSegmentationDataSet,
+                            imageAnalysisDataSet)));
+                    
+                    one(datasetLister).listByParentTechIds(Arrays.asList(1l, 2l));
+                    will(returnValue(Arrays.asList(imageSegmentationDataSet, imageAnalysisDataSet)));
+                    
+                    one(datasetLister).listParentIds(Arrays.asList(3l));
+                    HashMap<Long, Set<Long>> result = new HashMap<Long, Set<Long>>();
+                    result.put(3l, Collections.singleton(2l));
+                    will(returnValue(result));
                 }
             });
 
