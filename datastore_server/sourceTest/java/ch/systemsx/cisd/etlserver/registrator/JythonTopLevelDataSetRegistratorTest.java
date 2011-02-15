@@ -418,7 +418,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         assertEquals(2, MockStorageProcessor.instance.incomingDirs.size());
         assertEquals(2, MockStorageProcessor.instance.calledCommitCount);
         assertEquals(
-                "DataSetInformation{sampleCode=<null>,topSampleProperties={},dataSetType=O1,shareId=1,instanceUUID=db-uuid,instanceCode=<null>,spaceCode=<null>,experimentIdentifier=/SPACE/PROJECT/EXP-CODE,isCompleteFlag=U,extractableData=ExtractableData{productionDate=<null>,dataProducerCode=<null>,parentDataSetCodes=[data-set-code1],dataSetProperties=[],code=data-set-code2},uploadingUserEmailOrNull=<null>,uploadingUserIdOrNull=<null>}",
+                "Data Set Code::data-set-code2;Data Set Type::O1;Experiment Identifier::/SPACE/PROJECT/EXP-CODE;Production Date::;Parent Data Sets::data-set-code1;Is complete::U",
                 MockStorageProcessor.instance.dataSetInfoString);
     }
 
