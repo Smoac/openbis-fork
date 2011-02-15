@@ -28,9 +28,18 @@ public class SampleImmutable implements ISampleImmutable
 {
     private final ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample;
 
+    private final boolean existingSample;
+
     public SampleImmutable(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample)
     {
+        this(sample, true);
+    }
+
+    public SampleImmutable(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample,
+            boolean existingSample)
+    {
         this.sample = sample;
+        this.existingSample = existingSample;
     }
 
     public IExperimentImmutable getExperiment()
@@ -52,7 +61,7 @@ public class SampleImmutable implements ISampleImmutable
 
     public boolean isExistingSample()
     {
-        return null != sample;
+        return existingSample;
     }
 
     /**

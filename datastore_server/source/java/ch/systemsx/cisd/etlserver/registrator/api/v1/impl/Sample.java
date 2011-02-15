@@ -16,13 +16,10 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperimentImmutable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
 /**
@@ -31,6 +28,13 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 public class Sample extends SampleImmutable implements ISample
 {
 
+    private static ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample buildSampleWithIdentifier(
+            String identifier)
+    {
+        SampleBuilder builder = new SampleBuilder(identifier);
+        return builder.getSample();
+    }
+
     public Sample(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample)
     {
         super(sample);
@@ -38,14 +42,9 @@ public class Sample extends SampleImmutable implements ISample
 
     public Sample(String sampleIdentifier, String permId)
     {
-        super(new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample());
-        getSample().setIdentifier(sampleIdentifier);
+        super(buildSampleWithIdentifier(sampleIdentifier), false);
         getSample().setPermId(permId);
-
-        List<IEntityProperty> properties = new ArrayList<IEntityProperty>();
-        getSample().setProperties(properties);
     }
-
 
     public void setExperiment(IExperimentImmutable experiment)
     {

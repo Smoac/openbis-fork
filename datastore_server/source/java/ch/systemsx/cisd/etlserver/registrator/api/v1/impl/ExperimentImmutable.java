@@ -40,7 +40,7 @@ class ExperimentImmutable implements IExperimentImmutable
 
     public boolean isExistingExperiment()
     {
-        return null != experiment;
+        return true;
     }
 
     /**

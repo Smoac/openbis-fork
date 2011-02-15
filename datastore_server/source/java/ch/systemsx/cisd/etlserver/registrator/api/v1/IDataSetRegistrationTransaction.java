@@ -39,12 +39,17 @@ public interface IDataSetRegistrationTransaction
     IDataSet createNewDataSet();
 
     /**
-     * Get a sample from the openBIS AS.
+     * Get a sample from the openBIS AS. Returns null if the sample does not exist.
+     * 
+     * @return A sample or null
      */
     ISampleImmutable getSample(String sampleIdentifierString);
 
     /**
-     * Get a sample from the openBIS AS for the purpose of modifying it.
+     * Get a sample from the openBIS AS for the purpose of modifying it. Returns null if the sample
+     * does not exist.
+     * 
+     * @return A sample or null
      */
     ISample getSampleForUpdate(String sampleIdentifierString);
 
@@ -114,8 +119,4 @@ public interface IDataSetRegistrationTransaction
      */
     String createNewFile(IDataSet dst, String dstInDataset, String fileName);
 
-    /**
-     * Delete a file a the given path.
-     */
-    void deleteFile(String src);
 }

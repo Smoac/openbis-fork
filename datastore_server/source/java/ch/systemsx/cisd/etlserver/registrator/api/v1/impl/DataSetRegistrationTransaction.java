@@ -179,7 +179,9 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     {
         SampleIdentifier sampleIdentifier =
                 new SampleIdentifierFactory(sampleIdentifierString).createIdentifier();
-        return new SampleImmutable(openBisService.tryGetSampleWithExperiment(sampleIdentifier));
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sampleOrNull =
+                openBisService.tryGetSampleWithExperiment(sampleIdentifier);
+        return (null == sampleOrNull) ? null : new SampleImmutable(sampleOrNull);
     }
 
     public ISample getSampleForUpdate(String sampleIdentifierString)
@@ -196,9 +198,9 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     {
         ExperimentIdentifier experimentIdentifier =
                 new ExperimentIdentifierFactory(experimentIdentifierString).createIdentifier();
-        ExperimentImmutable experiment =
-                new ExperimentImmutable(openBisService.tryToGetExperiment(experimentIdentifier));
-        return experiment;
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experimentOrNull =
+                openBisService.tryToGetExperiment(experimentIdentifier);
+        return (null == experimentOrNull) ? null : new ExperimentImmutable(experimentOrNull);
     }
 
     public IExperiment createNewExperiment(String experimentIdentifierString)

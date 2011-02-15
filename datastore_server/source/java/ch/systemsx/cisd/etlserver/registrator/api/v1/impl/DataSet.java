@@ -26,6 +26,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 
@@ -103,15 +104,22 @@ public class DataSet<T extends DataSetInformation> implements IDataSet
     {
         this.sampleOrNull = sampleOrNull;
 
+        DataSetInformation dataSetInformation = registrationDetails.getDataSetInformation();
         if (sampleOrNull == null)
         {
-            registrationDetails.getDataSetInformation().setSample(null);
-            registrationDetails.getDataSetInformation().setSampleCode(null);
+            dataSetInformation.setSample(null);
+            dataSetInformation.setSampleCode(null);
         } else
         {
             Sample sample = (Sample) sampleOrNull;
-            registrationDetails.getDataSetInformation().setSample(sample.getSample());
-            registrationDetails.getDataSetInformation().setSampleCode(sample.getSample().getCode());
+
+            dataSetInformation.setSample(sample.getSample());
+            dataSetInformation.setSampleCode(sample.getSample().getCode());
+            Space space = sample.getSample().getSpace();
+            if (null != space)
+            {
+                dataSetInformation.setSpaceCode(space.getCode());
+            }
             setExperiment(sample.getSample().getExperiment());
         }
     }
