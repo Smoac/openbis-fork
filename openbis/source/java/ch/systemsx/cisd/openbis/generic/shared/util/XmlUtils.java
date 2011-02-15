@@ -92,7 +92,8 @@ public class XmlUtils
         try
         {
             TransformerFactory transfac = TransformerFactory.newInstance();
-            transfac.setAttribute("indent-number", INDENTATION);
+            // throws exception in a running openBIS instance
+            // transfac.setAttribute("indent-number", INDENTATION);
             Transformer trans = transfac.newTransformer();
             trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
             trans.setOutputProperty(OutputKeys.INDENT, "yes");
@@ -180,5 +181,4 @@ public class XmlUtils
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
-
 }
