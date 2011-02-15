@@ -21,10 +21,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
-import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -103,7 +100,6 @@ class FeatureVectorDatasetLoader extends HCSImageDatasetLoader
     private void loadFeatureVectorDatasets()
     {
         final Map<Long, ExternalData> featureVectorDatasetSet = new HashMap<Long, ExternalData>();
-        IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
 
         List<ExternalData> imageDatasets = new ArrayList<ExternalData>();
         for (ExternalData dataset : getDatasets())
@@ -118,81 +114,9 @@ class FeatureVectorDatasetLoader extends HCSImageDatasetLoader
                 imageDatasets.add(dataset);
             }
         }
-
-        List<ExternalData> connectedFeatureVectorDatasets =
-                listChildrenFeatureVectorDatasets(datasetLister, extractIds(imageDatasets));
-        Map<Long, Set<Long>> featureVectorToImageDatasetIdsMap =
-                datasetLister.listParentIds(extractIds(connectedFeatureVectorDatasets));
-        Map<Long, List<ExternalData>> featureVectorToImageDatasetsMap =
-                createFeatureVectorToImageDatasetsMap(featureVectorToImageDatasetIdsMap,
-                        imageDatasets);
-        // Implementation note: some data sets in this loop may overwrite data from the first loop.
-        // This is intended as we want to keep the parent relationship of the feature vector data
-        // sets, if they exist.
-        for (ExternalData fv : connectedFeatureVectorDatasets)
-        {
-            List<ExternalData> parentImageDatasets =
-                    featureVectorToImageDatasetsMap.get(fv.getId());
-            if (parentImageDatasets != null)
-            {
-                fv.setParents(parentImageDatasets);
-            }
-            featureVectorDatasetSet.put(fv.getId(), fv);
-        }
+        
+        gatherChildrenDataSets(featureVectorDatasetSet, imageDatasets, featureVectorDatasetTypeCode);
         featureVectorDatasets = featureVectorDatasetSet.values();
-    }
-
-    private List<ExternalData> listChildrenFeatureVectorDatasets(IDatasetLister datasetLister,
-            Collection<Long> imageDatasetIds)
-    {
-        List<ExternalData> datasets = datasetLister.listByParentTechIds(imageDatasetIds);
-        return ScreeningUtils.filterExternalDataByTypePattern(datasets,
-                featureVectorDatasetTypeCode);
-    }
-
-    private static Map<Long/* feature vector dataset id */, List<ExternalData/* image dataset */>> createFeatureVectorToImageDatasetsMap(
-            Map<Long, Set<Long>> featureVectorToImageDatasetsMap, List<ExternalData> imageDatasets)
-    {
-        Map<Long, List<ExternalData>> featureVectorToImageDatasetMap =
-                new HashMap<Long, List<ExternalData>>();
-        for (Entry<Long, Set<Long>> entry : featureVectorToImageDatasetsMap.entrySet())
-        {
-            List<ExternalData> parentImageDatasets =
-                    findDatasetsWithIds(entry.getValue(), imageDatasets);
-            // NOTE: if a feature vector dataset has more than one image dataset parent, all the
-            // parents will be ignored.
-            if (parentImageDatasets.size() == 1)
-            {
-                Long featureVectorDatasetId = entry.getKey();
-                featureVectorToImageDatasetMap.put(featureVectorDatasetId, parentImageDatasets);
-            }
-        }
-        return featureVectorToImageDatasetMap;
-    }
-
-    // returns all dataset which have an id contained in the specified id set
-    private static List<ExternalData> findDatasetsWithIds(Set<Long> datasetIds,
-            List<ExternalData> datasets)
-    {
-        List<ExternalData> found = new ArrayList<ExternalData>();
-        for (ExternalData dataset : datasets)
-        {
-            if (datasetIds.contains(dataset.getId()))
-            {
-                found.add(dataset);
-            }
-        }
-        return found;
-    }
-
-    private static Collection<Long> extractIds(List<ExternalData> datasets)
-    {
-        List<Long> ids = new ArrayList<Long>();
-        for (ExternalData dataset : datasets)
-        {
-            ids.add(dataset.getId());
-        }
-        return ids;
     }
 
     private List<FeatureVectorDatasetReference> asFeatureVectorDatasetReferences()

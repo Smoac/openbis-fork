@@ -46,6 +46,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
 
@@ -153,6 +154,15 @@ public class ScreeningClientApiTester
                         loadImagesByDataSetCode();
                     }
                 });
+            JMenuItem overlayItem = new JMenuItem("List Overlay Data Sets");
+            callApiMenu.add(overlayItem);
+            overlayItem.addActionListener(new ActionListener()
+                {
+                    public void actionPerformed(ActionEvent e)
+                    {
+                        loadOverlays();
+                    }
+                });
         }
         
         void setUp(String[] args)
@@ -178,6 +188,36 @@ public class ScreeningClientApiTester
                 }
                 JOptionPane.showMessageDialog(this, "Successfully connected to openBIS.");
             }
+        }
+        
+        private void loadOverlays()
+        {
+            content.removeAll();
+            final JPanel panel = new JPanel();
+            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+            content.add(panel, BorderLayout.NORTH);
+            JTextArea textArea = new JTextArea();
+            textArea.setEditable(false);
+            content.add(textArea, BorderLayout.CENTER);
+            List<Plate> plates = facade.listPlates();
+            panel.add(new JLabel(plates.size() + " plates", JLabel.LEFT));
+            validate(panel);
+            List<ImageDatasetReference> rawImageDatasets = facade.listRawImageDatasets(plates);
+            panel.add(new JLabel(rawImageDatasets.size() + " raw image data sets", JLabel.LEFT));
+            validate(panel);
+            List<ImageDatasetReference> overlays = facade.listSegmentationImageDatasets(plates);
+            panel.add(new JLabel(overlays.size() + " overlay data sets:", JLabel.LEFT));
+            StringBuilder builder = new StringBuilder();
+            for (ImageDatasetReference overlay : overlays)
+            {
+                builder.append(overlay).append('\n');
+                ImageDatasetReference parent = overlay.getParentImageDatasetReference();
+                if (parent != null)
+                {
+                    builder.append("      overlay data set of ").append(parent).append('\n');
+                }
+            }
+            textArea.setText(builder.toString());
         }
         
         private void loadPlates()
