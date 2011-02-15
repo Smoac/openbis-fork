@@ -115,5 +115,7 @@ public class EntityInformationProviderTest extends AbstractBOTest
         assertNull(provider.getIdentifier(elementFactory.createDataSetLink(fakePermId)));
         assertNull(provider.getIdentifier(elementFactory.createMaterialLink(fakeMCode,
                 fakeMTypeCode)));
+
+        context.assertIsSatisfied();
     }
 }
