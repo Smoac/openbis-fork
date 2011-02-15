@@ -680,15 +680,51 @@ public class ImageChannelsUtils
             ImageWithReference image = images.get(index);
             int rgb = image.getBufferedImage().getRGB(x, y);
             Color singleColor = new Color(rgb, true);
-            int channelIndex = image.getReference().getChannelIndex();
-            for (int i : getRGBColorIndexes(channelIndex))
-            {
-                colorBuffer[i] = Math.max(colorBuffer[i], extractMaxColorIngredient(singleColor));
-            }
+            AbsoluteImageReference imageReference = image.getReference();
+            setColorComponents(colorBuffer, singleColor, imageReference);
             // merge alpha channel
             colorBuffer[3] = Math.max(colorBuffer[3], singleColor.getAlpha());
         }
         return asRGB(colorBuffer);
+    }
+
+    private static void setColorComponents(int[] colorBuffer, Color singleColor,
+            AbsoluteImageReference imageReference)
+    {
+        ColorComponent colorComponent = imageReference.tryGetColorComponent();
+        if (colorComponent != null)
+        {
+            int index = getColorComponentIndex(colorComponent);
+            colorBuffer[index] = colorComponent.getComponent(singleColor);
+        } else
+        {
+            int channelIndex = imageReference.getChannelIndex();
+            setColorComponentsForChannelIndex(colorBuffer, singleColor, channelIndex);
+        }
+    }
+
+    private static int getColorComponentIndex(ColorComponent colorComponent)
+    {
+        switch (colorComponent)
+        {
+            case RED:
+                return 0;
+            case GREEN:
+                return 1;
+            case BLUE:
+                return 2;
+            default:
+                throw new IllegalStateException("Unknown color " + colorComponent);
+        }
+    }
+
+    private static void setColorComponentsForChannelIndex(int[] colorBuffer, Color singleColor,
+            int channelIndex)
+    {
+        for (int i : getRGBColorIndexes(channelIndex))
+        {
+            colorBuffer[i] = Math.max(colorBuffer[i], extractMaxColorIngredient(singleColor));
+        }
     }
 
     // --------- common
