@@ -49,14 +49,14 @@ public class ReplicaRawImagesRegistrator extends BundleDataSetHelper
     public List<DataSetInformation> register()
     {
         // Create a DataSetInformation
-        DataSetInformation imagesDataSetInfo = createDataSetInformation();
+        DataSetInformation rawDataDataSetInfo = createDataSetInformation();
 
         // Import the metadata
         ArrayList<NewProperty> properties =
                 createDataSetProperties(globalState.getRawImagesDataSetType(),
                         replicaMetadataExtractor);
-        imagesDataSetInfo.setDataSetProperties(properties);
-        registerDataSet(dataSet, imagesDataSetInfo);
+        rawDataDataSetInfo.setDataSetProperties(properties);
+        registerDataSet(dataSet, rawDataDataSetInfo);
 
         return getDataSetInformation();
     }
