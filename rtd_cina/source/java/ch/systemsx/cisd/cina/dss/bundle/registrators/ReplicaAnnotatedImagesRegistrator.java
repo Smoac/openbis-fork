@@ -66,7 +66,8 @@ public class ReplicaAnnotatedImagesRegistrator extends BundleDataSetHelper
         DataSetInformation metadataDataSetInfo = createDataSetInformation();
 
         // Import the metadata
-        ArrayList<NewProperty> properties = createDataSetProperties(imageMetadataExtractor);
+        ArrayList<NewProperty> properties =
+                createDataSetProperties(globalState.getImageDataSetType(), imageMetadataExtractor);
         metadataDataSetInfo.setDataSetProperties(properties);
         registerLinkedDataSet(dataSet, metadataDataSetInfo);
 

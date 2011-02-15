@@ -24,6 +24,7 @@ import ch.systemsx.cisd.cina.shared.metadata.IMetadataExtractor;
 import ch.systemsx.cisd.etlserver.IDataSetHandlerRpc;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyTypeWithVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
@@ -109,10 +110,10 @@ abstract class BundleDataSetHelper
         return globalState.getSessionContext();
     }
 
-    protected ArrayList<NewProperty> createDataSetProperties(IMetadataExtractor metadata)
+    protected ArrayList<NewProperty> createDataSetProperties(DataSetTypeWithVocabularyTerms type,
+            IMetadataExtractor metadata)
     {
-        List<PropertyTypeWithVocabulary> propertyTypes =
-                globalState.getImageDataSetType().getPropertyTypes();
+        List<PropertyTypeWithVocabulary> propertyTypes = type.getPropertyTypes();
         ArrayList<NewProperty> properties = new ArrayList<NewProperty>();
         for (PropertyTypeWithVocabulary propertyType : propertyTypes)
         {

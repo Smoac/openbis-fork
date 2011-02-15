@@ -64,7 +64,9 @@ public class ReplicaMetadataRegistrator extends BundleDataSetHelper
         DataSetInformation metadataDataSetInfo = createDataSetInformation();
 
         // Import the metadata
-        ArrayList<NewProperty> properties = createDataSetProperties(replicaMetadataExtractor);
+        ArrayList<NewProperty> properties =
+                createDataSetProperties(globalState.getMetadataDataSetType(),
+                        replicaMetadataExtractor);
         metadataDataSetInfo.setDataSetProperties(properties);
         registerDataSet(dataSet, metadataDataSetInfo);
 
