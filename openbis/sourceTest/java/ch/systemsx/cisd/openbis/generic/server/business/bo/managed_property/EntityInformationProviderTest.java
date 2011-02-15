@@ -24,9 +24,10 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.AbstractBOTest;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IEntityLinkElement;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.structured.ElementFactory;
 
@@ -62,30 +63,57 @@ public class EntityInformationProviderTest extends AbstractBOTest
         IEntityLinkElement datasetLink = elementFactory.createDataSetLink(dPermId);
 
         final SamplePE sample = CommonTestUtils.createSample();
-        final ExperimentPE experiment =
-                CommonTestUtils.createExperiment(new ExperimentIdentifier("proj", "exp"));
+        final ExperimentPE experiment = CommonTestUtils.createExperiment();
+        final DataPE dataSet = CommonTestUtils.createDataSet();
+        final MaterialPE material = CommonTestUtils.createMaterial(mCode, mTypeCode);
         context.checking(new Expectations()
             {
                 {
                     one(sampleDAO).tryToFindByPermID(sPermId);
                     will(returnValue(sample));
-
                     one(experimentDAO).tryGetByPermID(ePermId);
                     will(returnValue(experiment));
-                    one(materialDAO).tryFindMaterial(new MaterialIdentifier(mCode, mTypeCode));
-                    // will(returnValue(any(MaterialPE.class)));
-
                     one(externalDataDAO).tryToFindDataSetByCode(dPermId);
-                    // will(returnValue(any(DataPE.class)));
+                    will(returnValue(dataSet));
+                    one(materialDAO).tryFindMaterial(new MaterialIdentifier(mCode, mTypeCode));
+                    will(returnValue(material));
                 }
             });
 
         String sIdentifier = provider.getIdentifier(sampleLink);
         assertEquals(sample.getIdentifier(), sIdentifier);
+
         String eIdentifier = provider.getIdentifier(experimentLink);
         assertEquals(experiment.getIdentifier(), eIdentifier);
-        String mIdentifier = provider.getIdentifier(materialLink);
-        String dIdentifier = provider.getIdentifier(datasetLink);
-    }
 
+        String dIdentifier = provider.getIdentifier(datasetLink);
+        assertEquals(dataSet.getIdentifier(), dIdentifier);
+
+        String mIdentifier = provider.getIdentifier(materialLink);
+        assertEquals(MaterialIdentifier.print(mCode, mTypeCode), mIdentifier);
+
+        // get identifiers of missing entities
+        final String fakePermId = "fakePermId";
+        final String fakeMCode = "fakeMCode";
+        final String fakeMTypeCode = "fakeMTypeCode";
+        context.checking(new Expectations()
+            {
+                {
+                    one(sampleDAO).tryToFindByPermID(fakePermId);
+                    will(returnValue(null));
+                    one(experimentDAO).tryGetByPermID(fakePermId);
+                    will(returnValue(null));
+                    one(externalDataDAO).tryToFindDataSetByCode(fakePermId);
+                    will(returnValue(null));
+                    one(materialDAO).tryFindMaterial(
+                            new MaterialIdentifier(fakeMCode, fakeMTypeCode));
+                    will(returnValue(null));
+                }
+            });
+        assertNull(provider.getIdentifier(elementFactory.createSampleLink(fakePermId)));
+        assertNull(provider.getIdentifier(elementFactory.createExperimentLink(fakePermId)));
+        assertNull(provider.getIdentifier(elementFactory.createDataSetLink(fakePermId)));
+        assertNull(provider.getIdentifier(elementFactory.createMaterialLink(fakeMCode,
+                fakeMTypeCode)));
+    }
 }

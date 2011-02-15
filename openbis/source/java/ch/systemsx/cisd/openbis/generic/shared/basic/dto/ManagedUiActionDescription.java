@@ -67,9 +67,9 @@ public class ManagedUiActionDescription implements IManagedUiAction, ISerializab
         return this;
     }
 
-    public IManagedInputWidgetDescription[] getInputWidgetDescriptions()
+    public List<IManagedInputWidgetDescription> getInputWidgetDescriptions()
     {
-        return inputWidgets.toArray(new IManagedInputWidgetDescription[inputWidgets.size()]);
+        return inputWidgets;
     }
 
     public void setInputWidgetDescriptions(List<IManagedInputWidgetDescription> widgetDescriptions)

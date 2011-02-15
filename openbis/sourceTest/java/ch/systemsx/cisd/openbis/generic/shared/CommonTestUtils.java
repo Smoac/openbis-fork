@@ -24,6 +24,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentContentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
@@ -33,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -80,6 +83,10 @@ public class CommonTestUtils
     private static final String SAMPLE_CODE = "CP001";
 
     private static final String SAMPLE_TYPE = "SAMPLE_TYPE";
+
+    private static final String DATA_SET_CODE = "20081105092158673-1";
+
+    private static final String DATA_SET_TYPE = "PROPRIETARY";
 
     public static final String USER_ID = "test";
 
@@ -288,11 +295,35 @@ public class CommonTestUtils
         return samplePE;
     }
 
+    public static final DataPE createDataSet()
+    {
+        final DataPE dataPE = new DataPE();
+        dataPE.setCode(CommonTestUtils.DATA_SET_CODE);
+        final DataSetTypePE dataSetTypePE = new DataSetTypePE();
+        dataSetTypePE.setCode(CommonTestUtils.DATA_SET_TYPE);
+        dataPE.setDataSetType(dataSetTypePE);
+        return dataPE;
+    }
+
+    public static final MaterialPE createMaterial(String materialCode, String typeCode)
+    {
+        final MaterialPE materialPE = new MaterialPE();
+        materialPE.setCode(materialCode);
+        final MaterialTypePE materialTypePE = createMaterialType(typeCode);
+        materialPE.setMaterialType(materialTypePE);
+        return materialPE;
+    }
+
     public static final ExperimentIdentifier createExperimentIdentifier()
     {
         final ExperimentIdentifier identifier =
                 new ExperimentIdentifier(createProjectIdentifier(), EXPERIMENT_CODE);
         return identifier;
+    }
+
+    public static final ExperimentPE createExperiment()
+    {
+        return createExperiment(createExperimentIdentifier());
     }
 
     public static final ExperimentPE createExperiment(final ExperimentIdentifier ei)
@@ -325,9 +356,13 @@ public class CommonTestUtils
 
     public static MaterialTypePE createMaterialType()
     {
+        return createMaterialType(MATERIAL_TYPE_VIRUS);
+    }
 
+    public static MaterialTypePE createMaterialType(String typeCode)
+    {
         final MaterialTypePE type = new MaterialTypePE();
-        type.setCode(MATERIAL_TYPE_VIRUS);
+        type.setCode(typeCode);
         type.setDatabaseInstance(createHomeDatabaseInstance());
         return type;
     }
