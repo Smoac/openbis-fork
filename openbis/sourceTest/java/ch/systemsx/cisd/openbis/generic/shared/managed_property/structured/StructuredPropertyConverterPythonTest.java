@@ -16,15 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.managed_property.structured;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
@@ -48,7 +45,8 @@ public class StructuredPropertyConverterPythonTest extends AssertJUnit
     public void testAPIUsageFromJython()
     {
         IManagedProperty managedProperty = new ManagedEntityProperty(new EntityProperty());
-        String script = getResourceAsString("structured-property-test.py");
+        String script =
+                CommonTestUtils.getResourceAsString(SCRIPT_FOLDER, "structured-property-test.py");
         ManagedPropertyEvaluator evaluator = new ManagedPropertyEvaluator(script);
 
         evaluator.configureUI(managedProperty);
@@ -60,19 +58,4 @@ public class StructuredPropertyConverterPythonTest extends AssertJUnit
         assertEquals(3, elements.size());
     }
 
-    /**
-     * if this becomes a common pattern, we might factor it out.
-     */
-    private String getResourceAsString(String resource)
-    {
-        File file = new File(SCRIPT_FOLDER, resource);
-        try
-        {
-            return FileUtils.readFileToString(file);
-        } catch (IOException ioex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ioex);
-        }
-
-    }
 }

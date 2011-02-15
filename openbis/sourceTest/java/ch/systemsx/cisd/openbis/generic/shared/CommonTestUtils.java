@@ -16,10 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.shared;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
+
 import ch.systemsx.cisd.authentication.Principal;
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentContentPE;
@@ -410,5 +415,17 @@ public class CommonTestUtils
         entityTypePropertyTypePE.setEntityType(entityTypePE);
         propertyPE.setEntityTypePropertyType(entityTypePropertyTypePE);
         propertyPE.setValue(value);
+    }
+
+    public static String getResourceAsString(String path, String resource)
+    {
+        File file = new File(path, resource);
+        try
+        {
+            return FileUtils.readFileToString(file);
+        } catch (IOException ioex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ioex);
+        }
     }
 }

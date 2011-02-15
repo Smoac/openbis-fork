@@ -5,6 +5,9 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedUiActionDescriptionFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescriptionFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ValidationException;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IElement;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IElementFactory;
@@ -22,6 +25,9 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.structured.XmlSt
 @Component(value = ResourceNames.MANAGED_PROPERTY_SCRIPT_UTILITY_FACTORY)
 public class ManagedPropertyFunctions
 {
+    private static final IManagedInputWidgetDescriptionFactory INPUT_WIDGET_FACTORY_INSTANCE =
+            new ManagedUiActionDescriptionFactory();
+
     private static final IElementFactory ELEMENT_FACTORY_INSTANCE = new ElementFactory();
 
     private static final IStructuredPropertyConverter STRUCTURED_PROPERTY_CONVERTER_INSTANCE =
@@ -63,6 +69,14 @@ public class ManagedPropertyFunctions
     public static ValidationException ValidationException(String message)
     {
         return new ValidationException(message);
+    }
+
+    /**
+     * @return a factory object that can be used to create {@link IManagedInputWidgetDescription}-s.
+     */
+    public static IManagedInputWidgetDescriptionFactory inputWidgetFactory()
+    {
+        return INPUT_WIDGET_FACTORY_INSTANCE;
     }
 
     /**

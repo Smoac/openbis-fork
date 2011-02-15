@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
@@ -77,36 +76,12 @@ public class ManagedUiActionDescription implements IManagedUiAction, ISerializab
         this.inputWidgets = widgetDescriptions;
     }
 
-    public void addInputWidgetDescription(IManagedInputWidgetDescription widgetDescription)
+    public void addInputWidgets(IManagedInputWidgetDescription... widgetDescriptions)
     {
-        inputWidgets.add(widgetDescription);
-    }
-
-    public IManagedInputWidgetDescription addTextInputField(String label)
-    {
-        ManagedTextInputWidgetDescription inputField = new ManagedTextInputWidgetDescription();
-        inputField.setLabel(label);
-        addInputWidgetDescription(inputField);
-        return inputField;
-    }
-
-    public IManagedInputWidgetDescription addMultilineTextInputField(String label)
-    {
-        ManagedMultilineTextInputWidgetDescription inputField =
-                new ManagedMultilineTextInputWidgetDescription();
-        inputField.setLabel(label);
-        addInputWidgetDescription(inputField);
-        return inputField;
-    }
-
-    public IManagedInputWidgetDescription addComboBoxInputField(String label, String[] values)
-    {
-        ManagedComboBoxInputWidgetDescription inputField =
-                new ManagedComboBoxInputWidgetDescription();
-        inputField.setLabel(label);
-        inputField.setOptions(Arrays.asList(values));
-        addInputWidgetDescription(inputField);
-        return inputField;
+        for (IManagedInputWidgetDescription widget : widgetDescriptions)
+        {
+            inputWidgets.add(widget);
+        }
     }
 
     public String getInputValue(String inputLabel)

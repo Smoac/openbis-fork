@@ -26,11 +26,13 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.evaluator.EvaluatorException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedComboBoxInputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedTableWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescriptionFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedOutputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
@@ -45,6 +47,15 @@ import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
  */
 public class ManagedPropertyEvaluatorTest extends AssertJUnit
 {
+    private static final String UPDATE_FROM_UI_TEST_PY = "updateFromUI-test.py";
+
+    private static final String CONFIGURE_UI_OUTPUT_TEST_PY = "configureUIOutput-test.py";
+
+    private static final String CONFIGURE_UI_INPUT_TEST_PY = "configureUIInput-test.py";
+
+    private static final String SCRIPT_FOLDER =
+            "sourceTest/java/ch/systemsx/cisd/openbis/generic/shared/managed_property/";
+
     @Test
     public void testEmptyScript()
     {
@@ -70,23 +81,11 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
     {
         IManagedProperty managedProperty = new ManagedProperty();
         managedProperty.setOwnTab(false);
-        ManagedPropertyEvaluator evaluator =
-                new ManagedPropertyEvaluator("def configureUI():\n"
-                        + "    tableBuilder = createTableBuilder()\n" + "\n"
-                        + "    tableBuilder.addHeader('column1')\n"
-                        + "    tableBuilder.addHeader('column2')\n"
-                        + "    tableBuilder.addHeader('column3')\n" + "\n"
-                        + "    row1 = tableBuilder.addRow()\n"
-                        + "    row1.setCell('column1','v1')\n" + "    row1.setCell('column2', 1)\n"
-                        + "    row1.setCell('column3', 1.5)\n" + "\n"
-                        + "    row2 = tableBuilder.addRow()\n"
-                        + "    row2.setCell('column1','v2')\n" + "    row2.setCell('column2', 2)\n"
-                        + "    row2.setCell('column3', 2.5)\n"
-                        + "    row3 = tableBuilder.addRow()\n"
-                        + "    row3.setCell('column1','v3')\n" + "\n"
-                        + "    property.setOwnTab(True)\n"
-                        + "    uiDesc = property.getUiDescription()\n"
-                        + "    uiDesc.useTableOutput(tableBuilder.getTableModel())");
+
+        String script =
+                CommonTestUtils.getResourceAsString(SCRIPT_FOLDER, CONFIGURE_UI_OUTPUT_TEST_PY);
+        ManagedPropertyEvaluator evaluator = new ManagedPropertyEvaluator(script);
+
         evaluator.configureUI(managedProperty);
         assertEquals(true, managedProperty.isOwnTab());
         IManagedOutputWidgetDescription outputWidgetDescripion =
@@ -139,15 +138,11 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
     {
         IManagedProperty managedProperty = new ManagedProperty();
         managedProperty.setOwnTab(false);
-        ManagedPropertyEvaluator evaluator =
-                new ManagedPropertyEvaluator(
-                        "def configureUI():\n"
-                                + "    uiAction = property.getUiDescription().addAction('Create')\n"
-                                + "    uiAction.addTextInputField('t1')\n"
-                                + "    uiAction.addTextInputField('t2').setValue('default 2')\n"
-                                + "    uiAction.addTextInputField('t3').setDescription('description 3')\n"
-                                + "    uiAction.addMultilineTextInputField('multi').setValue('default m').setDescription('multiline')\n"
-                                + "    uiAction.addComboBoxInputField('combo', ['v1', 'v2', 'v3']).setMandatory(True).setDescription('select from list')\n");
+
+        String script =
+                CommonTestUtils.getResourceAsString(SCRIPT_FOLDER, CONFIGURE_UI_INPUT_TEST_PY);
+        ManagedPropertyEvaluator evaluator = new ManagedPropertyEvaluator(script);
+
         evaluator.configureUI(managedProperty);
         assertEquals(false, managedProperty.isOwnTab());
 
@@ -186,47 +181,37 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
     {
         IManagedProperty managedProperty = new ManagedProperty();
         IManagedUiDescription uiDescription = managedProperty.getUiDescription();
+        IManagedInputWidgetDescriptionFactory widgetFactory =
+                ManagedPropertyFunctions.inputWidgetFactory();
 
         IManagedUiAction action1 = uiDescription.addAction("a1");
-        action1.addTextInputField("t1");
-        action1.addTextInputField("t2").setValue("v2");
-        action1.addMultilineTextInputField("multi").setValue("multi\nline\ninput");
-        action1.addComboBoxInputField("combo", new String[]
-            { "cv1", "cv2", "cv3" }).setValue("cv1");
+        IManagedInputWidgetDescription action1w1 = widgetFactory.createTextInputField("t1");
+        IManagedInputWidgetDescription action1w2 =
+                widgetFactory.createTextInputField("t2").setValue("v2");
+        IManagedInputWidgetDescription action1w3 =
+                widgetFactory.createMultilineTextInputField("multi").setValue("multi\nline\ninput");
+        IManagedInputWidgetDescription action1w4 =
+                widgetFactory.createComboBoxInputField("combo", new String[]
+                    { "cv1", "cv2", "cv3" }).setValue("cv1");
+        action1.addInputWidgets(action1w1, action1w2, action1w3, action1w4);
         assertEquals(null, action1.getInputValue("t1"));
         assertEquals("v2", action1.getInputValue("t2"));
         assertEquals(null, action1.getInputValue("t3"));
 
         IManagedUiAction action2 = uiDescription.addAction("a2");
-        action2.addTextInputField("t1").setValue("v11");
-        action2.addTextInputField("t2").setValue("v22");
+        IManagedInputWidgetDescription action2w1 =
+                widgetFactory.createTextInputField("t1").setValue("v11");
+        IManagedInputWidgetDescription action2w2 =
+                widgetFactory.createTextInputField("t2").setValue("v22");
+        action2.addInputWidgets(action2w1, action2w2);
         assertEquals("v11", action2.getInputValue("t1"));
         assertEquals("v22", action2.getInputValue("t2"));
         assertEquals(null, action2.getInputValue("t3"));
 
         IManagedUiAction action3 = uiDescription.addAction("a3");
 
-        ManagedPropertyEvaluator evaluator =
-                new ManagedPropertyEvaluator(
-                        "def updateFromUI(action):\n"
-                                + "    if action.getName() == 'a1':\n"
-                                + "        value = 'a1|'\n"
-                                + "        for input in action.getInputWidgetDescriptions():\n"
-                                + "            inputValue = input.getValue();\n"
-                                + "            if inputValue is None:\n "
-                                + "                inputValue = 'null'\n"
-                                + "            value = value + input.getLabel() + '=' + inputValue + '|'\n"
-                                + "        property.setValue(value)\n"
-                                + "    elif action.getName() == 'a2':\n"
-                                + "        value = 'a2!'\n"
-                                + "        for input in action.getInputWidgetDescriptions():\n"
-                                + "            inputValue = input.getValue();\n"
-                                + "            if inputValue is None:\n "
-                                + "                inputValue = 'null'\n"
-                                + "            value = value + input.getLabel() + '=' + inputValue + '!'\n"
-                                + "        property.setValue(value)\n"
-                                + "    else:\n"
-                                + "        raise ValidationException('action ' + action.getName() + ' is not supported')\n");
+        String script = CommonTestUtils.getResourceAsString(SCRIPT_FOLDER, UPDATE_FROM_UI_TEST_PY);
+        ManagedPropertyEvaluator evaluator = new ManagedPropertyEvaluator(script);
 
         evaluator.updateFromUI(managedProperty, action1);
         assertNotNull(managedProperty.getValue());

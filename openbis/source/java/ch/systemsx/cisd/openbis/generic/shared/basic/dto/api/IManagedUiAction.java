@@ -21,11 +21,7 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
- * <pre>
- * action has
- * - name (both for display and usage)
- * - description (for tooltip/message shown in dialog)
- * </pre>
+ * Description of action that a user can perform on the client side.
  * <p>
  * All methods of this interface are part of the Managed Properties API.
  * 
@@ -47,23 +43,10 @@ public interface IManagedUiAction extends ISerializable
     public IManagedUiAction setDescription(String description);
 
     /**
-     * Adds a text input field with given <var>label</var> to input widgets that will be used in
-     * user interface for modifcation of a managed property.
+     * Adds specified input widget descriptions that will be used in user interface for modifcation
+     * of a managed property.
      */
-    public IManagedInputWidgetDescription addTextInputField(String label);
-
-    /**
-     * Adds a multiline text with given <var>label</var> input field to input widgets that will be
-     * used in user interface for modification of the managed property.
-     */
-    public IManagedInputWidgetDescription addMultilineTextInputField(String label);
-
-    /**
-     * Adds a combo box input field with given <var>label</var> to input widgets that will be used
-     * in user interface for modification of the managed property. The combo box will contain list
-     * of provided <var>values</var>.
-     */
-    public IManagedInputWidgetDescription addComboBoxInputField(String labels, String[] values);
+    public void addInputWidgets(IManagedInputWidgetDescription... widgets);
 
     /**
      * Returns list of objects describing input widgets that will be used in user interface user
