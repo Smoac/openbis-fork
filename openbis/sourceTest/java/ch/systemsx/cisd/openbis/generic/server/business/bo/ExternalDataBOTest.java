@@ -545,8 +545,6 @@ public class ExternalDataBOTest extends AbstractBOTest
                             identifier.getSpaceCode(), identifier.getProjectCode());
                     will(returnValue(ManagerTestTool.EXAMPLE_PROJECT));
 
-                    one(daoFactory).getExperimentDAO();
-                    will(returnValue(experimentDAO));
                     one(experimentDAO).tryFindByCodeAndProject(ManagerTestTool.EXAMPLE_PROJECT,
                             identifier.getExperimentCode());
                     will(returnValue(experiment));
