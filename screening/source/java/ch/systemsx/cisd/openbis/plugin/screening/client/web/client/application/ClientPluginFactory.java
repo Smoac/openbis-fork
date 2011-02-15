@@ -110,19 +110,16 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
             types.add(ScreeningConstants.MICROSCOPY_IMAGE_SAMPLE_TYPE_PATTERN);
         } else if (entityKind == EntityKind.MATERIAL)
         {
+            // Should we do this for materials? (* pattern)
             types.add(ScreeningConstants.GENE_PLUGIN_TYPE_CODE);
             types.add(ScreeningConstants.SIRNA_PLUGIN_TYPE_NAME);
-            // NOTE: it would be better to fetch all the material types from the db, but we cannot
-            // do this - this code is executed before the user logs in.
-            // Another way not to hardcode material types would be to allow the plugin to be used
-            // for all material types.
             types.add("CONTROL");
             types.add("COMPOUND");
 
         } else if (entityKind == EntityKind.DATA_SET)
         {
             types.add(ScreeningConstants.ANY_HCS_IMAGE_DATASET_TYPE_PATTERN);
-            types.add(ScreeningConstants.MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN);
+            types.add(ScreeningConstants.ANY_MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN);
         }
         return types;
     }
@@ -250,7 +247,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
             {
                 return createHCSImageDatasetTabItemFactory(entity);
             } else if (datasetTypeCode
-                    .matches(ScreeningConstants.MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN))
+                    .matches(ScreeningConstants.ANY_MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN))
             {
                 return createMicroscopyImageDatasetTabItemFactory(entity);
             } else
@@ -362,7 +359,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
             {
                 throw new UserFailureException("Cannot browse objects of the "
                         + ScreeningConstants.LIBRARY_PLUGIN_TYPE_CODE + " type.");
-            } else if (sampleTypeCode.matches(ScreeningConstants.MICROSCOPY_IMAGE_SAMPLE_TYPE_PATTERN))
+            } else if (sampleTypeCode
+                    .matches(ScreeningConstants.MICROSCOPY_IMAGE_SAMPLE_TYPE_PATTERN))
             {
                 return createImageSampleViewer(entity, false);
             } else

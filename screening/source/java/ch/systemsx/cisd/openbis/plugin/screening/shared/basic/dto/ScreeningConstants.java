@@ -75,22 +75,21 @@ public class ScreeningConstants
 
     // --- Microscopy dataset types
 
-    public static final String ANY_MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN = ".*IMG.*";
+    private static final String MICROSCOPY_IMAGE_TYPE_PATTERN = ".*IMG.*";
 
     // type of the dataset which stores microscopy images
-    public static final String MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN = "MICROSCOPY_IMAGE|"// legacy
-            + ANY_MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN;
+    public static final String ANY_MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN = "MICROSCOPY_IMAGE|"// legacy
+            + MICROSCOPY_IMAGE_TYPE_PATTERN;
 
     // type of the dataset which stores image overlays
     public static final String MICROSCOPY_SEGMENTATION_IMAGE_DATASET_TYPE_PATTERN =
-            ANY_MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN + ".*OVERLAY.*|" + // legacy
-                    ANY_MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN + ".*SEGMENTATION.*";
+            MICROSCOPY_IMAGE_TYPE_PATTERN + ".*OVERLAY.*|" + // legacy
+                    MICROSCOPY_IMAGE_TYPE_PATTERN + ".*SEGMENTATION.*";
 
     // --- Microscopy sample types
 
     // the sample is considered to be a microscopy sample if its type code contains this string
-    public static final String MICROSCOPY_IMAGE_SAMPLE_TYPE_PATTERN =
-            ANY_MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN;
+    public static final String MICROSCOPY_IMAGE_SAMPLE_TYPE_PATTERN = MICROSCOPY_IMAGE_TYPE_PATTERN;
 
     // --- Default dataset type codes for screening datasets
 

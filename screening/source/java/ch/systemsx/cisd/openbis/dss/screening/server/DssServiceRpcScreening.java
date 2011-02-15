@@ -1005,7 +1005,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         String datasetTypeCode = dataset.getDataSetType().getCode();
         return datasetTypeCode.matches(ScreeningConstants.ANY_HCS_IMAGE_DATASET_TYPE_PATTERN)
                 || datasetTypeCode
-                        .matches(ScreeningConstants.MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN);
+                        .matches(ScreeningConstants.ANY_MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN);
     }
 
     private List<ImgFeatureDefDTO> getFeatureDefinitions(IDatasetIdentifier identifier)
