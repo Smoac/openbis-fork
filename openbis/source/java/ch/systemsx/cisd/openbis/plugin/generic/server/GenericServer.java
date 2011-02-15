@@ -605,6 +605,10 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         final Map<String/* code */, Material> existingMaterials =
                 listMaterials(sessionToken, materialTypeCode);
         final Session session = getSession(sessionToken);
+
+        final MaterialTypePE materialTypePE = findMaterialType(materialTypeCode);
+        getPropertiesBatchManager().manageProperties(materialTypePE, newMaterials,
+                session.tryGetPerson());
         IBatchOperation<NewMaterial> strategy = new IBatchOperation<NewMaterial>()
             {
                 public void execute(List<NewMaterial> entities)
