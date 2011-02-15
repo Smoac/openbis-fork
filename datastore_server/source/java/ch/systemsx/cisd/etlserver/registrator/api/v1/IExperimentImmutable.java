@@ -34,11 +34,6 @@ public interface IExperimentImmutable
     boolean isExistingExperiment();
 
     /**
-     * Return the code for this experiment. May be null.
-     */
-    String getCode();
-
-    /**
      * Return the type for this experiment. May be null.
      */
     String getType();

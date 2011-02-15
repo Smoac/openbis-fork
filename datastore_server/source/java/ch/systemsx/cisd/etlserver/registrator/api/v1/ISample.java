@@ -28,10 +28,6 @@ public interface ISample extends ISampleImmutable
      */
     void setExperiment(IExperimentImmutable experiment);
 
-    /**
-     * Set the code for this sample.
-     */
-    void setCode(String code);
 
     /**
      * Set the type for this sample.

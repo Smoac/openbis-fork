@@ -29,11 +29,6 @@ public interface ISampleImmutable
     String getSampleIdentifier();
 
     /**
-     * Return the code for this sample. May be null.
-     */
-    String getCode();
-
-    /**
      * Return the experiment for this sample. May be null.
      */
     IExperimentImmutable getExperiment();

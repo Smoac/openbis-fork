@@ -31,11 +31,6 @@ public interface IExperiment extends IExperimentImmutable
     void setPropertyValue(String propertyCode, String propertyValue);
 
     /**
-     * Set the code for this experiment.
-     */
-    void setCode(String code);
-
-    /**
      * Set the experiment type for this experiment.
      */
     void setType(String experimentType);
