@@ -23,7 +23,7 @@ import java.util.List;
 import ch.systemsx.cisd.cina.shared.constants.BundleStructureConstants;
 import ch.systemsx.cisd.cina.shared.constants.CinaConstants;
 import ch.systemsx.cisd.cina.shared.metadata.ImageMetadataExtractor;
-import ch.systemsx.cisd.cina.shared.metadata.ReplicaMetadataExtractor;
+import ch.systemsx.cisd.cina.shared.metadata.CollectionMetadataExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
@@ -43,12 +43,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class ReplicaRegistrator extends BundleDataSetHelper
+public class CollectionRegistrator extends BundleDataSetHelper
 {
     private static final String RAW_IMAGES_FOLDER_NAME =
             BundleStructureConstants.RAW_IMAGES_FOLDER_NAME;
 
-    private final ReplicaMetadataExtractor replicaMetadataExtractor;
+    private final CollectionMetadataExtractor collectionMetadataExtractor;
 
     private final Sample gridPrepSample;
 
@@ -57,20 +57,20 @@ public class ReplicaRegistrator extends BundleDataSetHelper
     private final DataSetInformation bundleMetadataDataSetInformation;
 
     // Processing State (gets set during the execution of registration)
-    private SampleIdentifier replicaSampleId;
+    private SampleIdentifier collectionSampleId;
 
-    private Sample replicaSample;
+    private Sample collectionSample;
 
     private boolean didCreateSample = false;
 
-    ReplicaRegistrator(BundleRegistrationState globalState,
-            ReplicaMetadataExtractor replicaMetadataExtractor, Sample gridPrepSample,
+    CollectionRegistrator(BundleRegistrationState globalState,
+            CollectionMetadataExtractor replicaMetadataExtractor, Sample gridPrepSample,
             SampleIdentifier gridPrepSampleId, DataSetInformation bundleMetadataDataSetInformation,
             File dataSet)
     {
         super(globalState, dataSet);
 
-        this.replicaMetadataExtractor = replicaMetadataExtractor;
+        this.collectionMetadataExtractor = replicaMetadataExtractor;
         this.gridPrepSample = gridPrepSample;
         this.gridPrepSampleId = gridPrepSampleId;
         this.bundleMetadataDataSetInformation = bundleMetadataDataSetInformation;
@@ -98,14 +98,14 @@ public class ReplicaRegistrator extends BundleDataSetHelper
 
     private void retrieveOrCreateReplicaSample()
     {
-        String sampleCode = replicaMetadataExtractor.tryReplicaSampleCode();
-        replicaSampleId = new SampleIdentifier(gridPrepSampleId.getSpaceLevel(), sampleCode);
-        replicaSample = getOpenbisService().tryGetSampleWithExperiment(replicaSampleId);
+        String sampleCode = collectionMetadataExtractor.tryReplicaSampleCode();
+        collectionSampleId = new SampleIdentifier(gridPrepSampleId.getSpaceLevel(), sampleCode);
+        collectionSample = getOpenbisService().tryGetSampleWithExperiment(collectionSampleId);
         didCreateSample = false;
 
         // Get the relevant metadata from the file
-        String sampleDescriptionOrNull = replicaMetadataExtractor.tryReplicaSampleDescription();
-        String sampleCreatorOrNull = replicaMetadataExtractor.tryReplicaSampleCreatorName();
+        String sampleDescriptionOrNull = collectionMetadataExtractor.tryReplicaSampleDescription();
+        String sampleCreatorOrNull = collectionMetadataExtractor.tryReplicaSampleCreatorName();
 
         ArrayList<IEntityProperty> properties = new ArrayList<IEntityProperty>();
         if (null != sampleDescriptionOrNull)
@@ -122,11 +122,11 @@ public class ReplicaRegistrator extends BundleDataSetHelper
             properties.add(prop);
         }
 
-        if (replicaSample == null)
+        if (collectionSample == null)
         {
             // Sample doesn't exist, create it
             NewSample newSample =
-                    NewSample.createWithParent(replicaSampleId.toString(),
+                    NewSample.createWithParent(collectionSampleId.toString(),
                             globalState.getReplicaSampleType(), null, gridPrepSampleId.toString());
             newSample.setExperimentIdentifier(gridPrepSample.getExperiment().getIdentifier());
             newSample.setProperties(properties.toArray(IEntityProperty.EMPTY_ARRAY));
@@ -137,31 +137,31 @@ public class ReplicaRegistrator extends BundleDataSetHelper
         } else
         {
             ExperimentIdentifier experimentId =
-                    new ExperimentIdentifier(replicaSample.getExperiment());
-            experimentId.setDatabaseInstanceCode(replicaSample.getExperiment().getProject()
+                    new ExperimentIdentifier(collectionSample.getExperiment());
+            experimentId.setDatabaseInstanceCode(collectionSample.getExperiment().getProject()
                     .getSpace().getInstance().getCode());
             // Sample does exist, update the metadata
             SampleUpdatesDTO sampleUpdate =
-                    new SampleUpdatesDTO(TechId.create(replicaSample), properties, experimentId,
-                            new ArrayList<NewAttachment>(), replicaSample.getModificationDate(),
-                            replicaSampleId, null, null);
+                    new SampleUpdatesDTO(TechId.create(collectionSample), properties, experimentId,
+                            new ArrayList<NewAttachment>(), collectionSample.getModificationDate(),
+                            collectionSampleId, null, null);
             getOpenbisService().updateSample(sampleUpdate);
             didCreateSample = false;
         }
 
-        replicaSample = getOpenbisService().tryGetSampleWithExperiment(replicaSampleId);
+        collectionSample = getOpenbisService().tryGetSampleWithExperiment(collectionSampleId);
 
-        assert replicaSample != null;
+        assert collectionSample != null;
     }
 
     private void registerRawImages()
     {
-        String replicaName = replicaMetadataExtractor.getFolder().getName();
+        String replicaName = collectionMetadataExtractor.getFolder().getName();
         File replicaOriginalImages =
                 new File(new File(dataSet, RAW_IMAGES_FOLDER_NAME), replicaName);
-        ReplicaRawImagesRegistrator registrator =
-                new ReplicaRawImagesRegistrator(globalState, replicaMetadataExtractor,
-                        replicaSample, replicaSampleId, replicaOriginalImages);
+        CollectionRawImagesRegistrator registrator =
+                new CollectionRawImagesRegistrator(globalState, collectionMetadataExtractor,
+                        collectionSample, collectionSampleId, replicaOriginalImages);
         List<DataSetInformation> registeredDataSetInfos = registrator.register();
         getDataSetInformation().addAll(registeredDataSetInfos);
     }
@@ -173,9 +173,9 @@ public class ReplicaRegistrator extends BundleDataSetHelper
      */
     private File registerMetadata()
     {
-        ReplicaMetadataRegistrator registrator =
-                new ReplicaMetadataRegistrator(globalState, replicaMetadataExtractor,
-                        replicaSample, replicaSampleId, bundleMetadataDataSetInformation);
+        CollectionMetadataRegistrator registrator =
+                new CollectionMetadataRegistrator(globalState, collectionMetadataExtractor,
+                        collectionSample, collectionSampleId, bundleMetadataDataSetInformation);
         List<DataSetInformation> registeredDataSetInfos = registrator.register();
         getDataSetInformation().addAll(registeredDataSetInfos);
         return registrator.getMetadataDataSetFile();
@@ -186,15 +186,15 @@ public class ReplicaRegistrator extends BundleDataSetHelper
         // Create a metadata extractor on the data set in the store (the ivar is a replica metadata
         // extractor on the data set in the incoming directory, so the paths it has are not
         // persistent)
-        ReplicaMetadataExtractor storeReplicaMetadataExtractor =
-                new ReplicaMetadataExtractor(registeredMetadataFile);
+        CollectionMetadataExtractor storeReplicaMetadataExtractor =
+                new CollectionMetadataExtractor(registeredMetadataFile);
         storeReplicaMetadataExtractor.prepare();
         for (ImageMetadataExtractor imageMetadataExtractor : storeReplicaMetadataExtractor
                 .getImageMetadataExtractors())
         {
-            ReplicaAnnotatedImagesRegistrator registrator =
-                    new ReplicaAnnotatedImagesRegistrator(globalState, imageMetadataExtractor,
-                            replicaSample, replicaSampleId, bundleMetadataDataSetInformation);
+            CollectionAnnotatedImagesRegistrator registrator =
+                    new CollectionAnnotatedImagesRegistrator(globalState, imageMetadataExtractor,
+                            collectionSample, collectionSampleId, bundleMetadataDataSetInformation);
             List<DataSetInformation> registeredDataSetInfos = registrator.register();
             getDataSetInformation().addAll(registeredDataSetInfos);
         }

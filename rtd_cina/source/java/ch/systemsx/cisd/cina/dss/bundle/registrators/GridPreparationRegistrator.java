@@ -21,7 +21,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.cina.shared.constants.BundleStructureConstants;
 import ch.systemsx.cisd.cina.shared.metadata.BundleMetadataExtractor;
-import ch.systemsx.cisd.cina.shared.metadata.ReplicaMetadataExtractor;
+import ch.systemsx.cisd.cina.shared.metadata.CollectionMetadataExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -78,11 +78,11 @@ public class GridPreparationRegistrator extends BundleDataSetHelper
         DataSetInformation registeredBundleMetadataDataSet =
                 registeredBundleMetadataDataSets.get(0);
 
-        for (ReplicaMetadataExtractor replicaMetadataExtractor : bundleMetadataExtractor
+        for (CollectionMetadataExtractor replicaMetadataExtractor : bundleMetadataExtractor
                 .getReplicaMetadataExtractors())
         {
             List<DataSetInformation> childRegisteredDataSets =
-                    new ReplicaRegistrator(globalState, replicaMetadataExtractor, gridPrepSample,
+                    new CollectionRegistrator(globalState, replicaMetadataExtractor, gridPrepSample,
                             gridPrepSampleId, registeredBundleMetadataDataSet, dataSet).register();
             getDataSetInformation().addAll(childRegisteredDataSets);
         }

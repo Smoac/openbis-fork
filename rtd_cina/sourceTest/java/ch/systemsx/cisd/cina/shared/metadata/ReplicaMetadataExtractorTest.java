@@ -34,7 +34,7 @@ public class ReplicaMetadataExtractorTest extends AssertJUnit
         File folder =
                 new File(
                         "sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/Annotations/ReplicTest/");
-        ReplicaMetadataExtractor metadata = new ReplicaMetadataExtractor(folder);
+        CollectionMetadataExtractor metadata = new CollectionMetadataExtractor(folder);
         metadata.prepare();
 
         Map<String, String> metadataMap = metadata.getMetadataMap();

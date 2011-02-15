@@ -20,7 +20,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.cina.shared.metadata.ReplicaMetadataExtractor;
+import ch.systemsx.cisd.cina.shared.metadata.CollectionMetadataExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
@@ -31,14 +31,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class ReplicaRawImagesRegistrator extends BundleDataSetHelper
+public class CollectionRawImagesRegistrator extends BundleDataSetHelper
 {
-    private final ReplicaMetadataExtractor replicaMetadataExtractor;
+    private final CollectionMetadataExtractor replicaMetadataExtractor;
 
     private final SampleIdentifier replicaSampleId;
 
-    ReplicaRawImagesRegistrator(BundleRegistrationState globalState,
-            ReplicaMetadataExtractor replicaMetadataExtractor, Sample replicaSample,
+    CollectionRawImagesRegistrator(BundleRegistrationState globalState,
+            CollectionMetadataExtractor replicaMetadataExtractor, Sample replicaSample,
             SampleIdentifier replicaSampleId, File dataSet)
     {
         super(globalState, dataSet);

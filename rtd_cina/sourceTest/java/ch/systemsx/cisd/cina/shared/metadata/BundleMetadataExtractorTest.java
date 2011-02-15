@@ -35,7 +35,7 @@ public class BundleMetadataExtractorTest extends AssertJUnit
         BundleMetadataExtractor metadata = new BundleMetadataExtractor(folder);
         metadata.prepare();
 
-        List<ReplicaMetadataExtractor> extractors = metadata.getReplicaMetadataExtractors();
+        List<CollectionMetadataExtractor> extractors = metadata.getReplicaMetadataExtractors();
         assertEquals(1, extractors.size());
     }
 }

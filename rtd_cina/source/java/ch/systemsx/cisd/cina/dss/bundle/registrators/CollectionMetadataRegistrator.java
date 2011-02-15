@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import ch.systemsx.cisd.cina.shared.metadata.ReplicaMetadataExtractor;
+import ch.systemsx.cisd.cina.shared.metadata.CollectionMetadataExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -33,9 +33,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class ReplicaMetadataRegistrator extends BundleDataSetHelper
+public class CollectionMetadataRegistrator extends BundleDataSetHelper
 {
-    private final ReplicaMetadataExtractor replicaMetadataExtractor;
+    private final CollectionMetadataExtractor replicaMetadataExtractor;
 
     private final SampleIdentifier replicaSampleId;
 
@@ -43,8 +43,8 @@ public class ReplicaMetadataRegistrator extends BundleDataSetHelper
 
     private File metadataDataSetFile = null;
 
-    ReplicaMetadataRegistrator(BundleRegistrationState globalState,
-            ReplicaMetadataExtractor replicaMetadataExtractor, Sample replicaSample,
+    CollectionMetadataRegistrator(BundleRegistrationState globalState,
+            CollectionMetadataExtractor replicaMetadataExtractor, Sample replicaSample,
             SampleIdentifier replicaSampleId, DataSetInformation bundleMetadataDataSetInformation)
     {
         super(globalState, replicaMetadataExtractor.getFolder());

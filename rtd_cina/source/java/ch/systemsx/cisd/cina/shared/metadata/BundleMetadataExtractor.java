@@ -39,7 +39,7 @@ public class BundleMetadataExtractor
     private static final String GRID_PREP_SAMPLE_CODE_KEY =
             BundleStructureConstants.GRID_PREP_SAMPLE_CODE_KEY;
 
-    private final ArrayList<ReplicaMetadataExtractor> replicaMetadataExtractors;
+    private final ArrayList<CollectionMetadataExtractor> replicaMetadataExtractors;
 
     private final File bundleMetadataFile;
 
@@ -59,7 +59,7 @@ public class BundleMetadataExtractor
     public BundleMetadataExtractor(File bundle)
     {
         this.bundle = bundle;
-        replicaMetadataExtractors = new ArrayList<ReplicaMetadataExtractor>();
+        replicaMetadataExtractors = new ArrayList<CollectionMetadataExtractor>();
         bundleMetadataFile = new File(bundle, BUNDLE_METADATA_FILE_NAME);
         this.metadataMap = new HashMap<String, String>();
     }
@@ -85,7 +85,7 @@ public class BundleMetadataExtractor
      * Get the metadata extractors for each of the replica files in this bundle. The method
      * {@link #prepare} must be called before getting the metadata extractors.
      */
-    public List<ReplicaMetadataExtractor> getReplicaMetadataExtractors()
+    public List<CollectionMetadataExtractor> getReplicaMetadataExtractors()
     {
         checkPrepared();
         return replicaMetadataExtractors;
@@ -109,12 +109,12 @@ public class BundleMetadataExtractor
             return;
         }
 
-        if (false == ReplicaMetadataExtractor.doesFolderContainReplicaMetadata(file))
+        if (false == CollectionMetadataExtractor.doesFolderContainReplicaMetadata(file))
         {
             return;
         }
 
-        ReplicaMetadataExtractor replicaMetadataExtractor = new ReplicaMetadataExtractor(file);
+        CollectionMetadataExtractor replicaMetadataExtractor = new CollectionMetadataExtractor(file);
         replicaMetadataExtractor.prepare();
 
         replicaMetadataExtractors.add(replicaMetadataExtractor);

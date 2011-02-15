@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class ReplicaAnnotatedImagesRegistrator extends BundleDataSetHelper
+public class CollectionAnnotatedImagesRegistrator extends BundleDataSetHelper
 {
     private final ImageMetadataExtractor imageMetadataExtractor;
 
@@ -50,7 +50,7 @@ public class ReplicaAnnotatedImagesRegistrator extends BundleDataSetHelper
      * @param replicaSampleId The owning sample id
      * @param bundleMetadataDataSetInformation
      */
-    ReplicaAnnotatedImagesRegistrator(BundleRegistrationState globalState,
+    CollectionAnnotatedImagesRegistrator(BundleRegistrationState globalState,
             ImageMetadataExtractor imageMetadataExtractor, Sample replicaSample,
             SampleIdentifier replicaSampleId, DataSetInformation bundleMetadataDataSetInformation)
     {

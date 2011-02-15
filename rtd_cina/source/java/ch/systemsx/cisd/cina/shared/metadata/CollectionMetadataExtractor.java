@@ -29,7 +29,7 @@ import ch.systemsx.cisd.cina.shared.labview.LVDataParser;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class ReplicaMetadataExtractor implements IMetadataExtractor
+public class CollectionMetadataExtractor implements IMetadataExtractor
 {
     private static final String REPLICA_METADATA_FILE_NAME =
             BundleStructureConstants.COLLECTION_METADATA_FILE_NAME;
@@ -57,7 +57,7 @@ public class ReplicaMetadataExtractor implements IMetadataExtractor
         return metadataFile.exists();
     }
 
-    public ReplicaMetadataExtractor(File folder)
+    public CollectionMetadataExtractor(File folder)
     {
         metadataExtractors = new ArrayList<ImageMetadataExtractor>();
         this.folder = folder;
