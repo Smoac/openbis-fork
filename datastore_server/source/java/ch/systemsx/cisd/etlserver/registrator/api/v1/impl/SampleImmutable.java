@@ -45,11 +45,6 @@ public class SampleImmutable implements ISampleImmutable
         return sample.getIdentifier();
     }
 
-    public String getCode()
-    {
-        return sample.getCode();
-    }
-
     public ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample getSample()
     {
         return sample;

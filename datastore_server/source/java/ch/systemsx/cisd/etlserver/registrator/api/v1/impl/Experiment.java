@@ -47,11 +47,6 @@ class Experiment extends ExperimentImmutable implements IExperiment
     {
         return false;
     }
-    
-    public void setCode(String code)
-    {
-        getExperiment().setCode(code);
-    }
 
     public void setPropertyValue(String propertyCode, String propertyValue)
     {

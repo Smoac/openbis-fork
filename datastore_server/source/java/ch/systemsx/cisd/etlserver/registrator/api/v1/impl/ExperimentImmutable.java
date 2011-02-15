@@ -64,11 +64,6 @@ class ExperimentImmutable implements IExperimentImmutable
         return EntityHelper.tryFindPropertyValue(experiment, propertyCode);
     }
 
-    public String getCode()
-    {
-        return experiment.getCode();
-    }
-
     public String getType()
     {
         if (experiment.getExperimentType() != null)
