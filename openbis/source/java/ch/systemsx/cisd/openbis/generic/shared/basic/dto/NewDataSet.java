@@ -23,7 +23,7 @@ import java.util.Set;
  * 
  * @author Izabela Adamczyk
  */
-public class NewDataSet extends Code<NewDataSet> implements Comparable<NewDataSet>
+public class NewDataSet extends Code<NewDataSet> implements Comparable<NewDataSet>, IPropertiesBean
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

@@ -37,10 +37,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertiesBean;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewBasicExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ValidationException;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
@@ -85,12 +87,20 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
         managePropertiesBeans(experiments, entityTypePropertyTypes, registrator);
     }
 
-    public void manageProperties(MaterialTypePE materialType, List<NewMaterial> newMaterials,
+    public void manageProperties(MaterialTypePE materialType, List<NewMaterial> materials,
             PersonPE registrator)
     {
         Set<? extends EntityTypePropertyTypePE> entityTypePropertyTypes =
                 materialType.getMaterialTypePropertyTypes();
-        managePropertiesBeans(newMaterials, entityTypePropertyTypes, registrator);
+        managePropertiesBeans(materials, entityTypePropertyTypes, registrator);
+    }
+
+    public void manageProperties(DataSetTypePE dataSetType, List<NewDataSet> dataSets,
+            PersonPE registrator)
+    {
+        Set<? extends EntityTypePropertyTypePE> entityTypePropertyTypes =
+                dataSetType.getDataSetTypePropertyTypes();
+        managePropertiesBeans(dataSets, entityTypePropertyTypes, registrator);
     }
 
     private void managePropertiesBeans(List<? extends IPropertiesBean> propertiesBeans,

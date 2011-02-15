@@ -399,6 +399,8 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             throw UserFailureException.fromTemplate("Data set type with code '%s' does not exist.",
                     dataSets.getDataSetType());
         }
+        getPropertiesBatchManager().manageProperties(dataSetType, newDataSets,
+                session.tryGetPerson());
         getDataSetTypeSlaveServerPlugin(dataSetType).updateDataSets(session, newDataSets);
     }
 
