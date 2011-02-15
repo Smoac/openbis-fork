@@ -352,7 +352,13 @@ public class DataSetInformation implements Serializable
             appendNameAndObject(buffer, "User", userID == null ? userEMail : userID);
         }
         appendNameAndObject(buffer, "Data Set Code", getDataSetCode());
-        appendNameAndObject(buffer, "Data Set Type", getDataSetType().getCode());
+        if (null != getDataSetType())
+        {
+            appendNameAndObject(buffer, "Data Set Type", getDataSetType().getCode());
+        } else
+        {
+            appendNameAndObject(buffer, "Data Set Type", "null");
+        }
         appendNameAndObject(buffer, "Experiment Identifier", getExperimentIdentifier());
         appendNameAndObject(buffer, "Sample Identifier", getSampleIdentifier());
         appendNameAndObject(buffer, "Producer Code", getProducerCode());
