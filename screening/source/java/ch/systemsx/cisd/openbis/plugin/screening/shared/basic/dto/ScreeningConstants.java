@@ -92,6 +92,23 @@ public class ScreeningConstants
     public static final String MICROSCOPY_IMAGE_SAMPLE_TYPE_PATTERN =
             ANY_MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN;
 
+    // --- Default dataset type codes for screening datasets
+
+    /** type of the new raw image dataset */
+    public static final String DEFAULT_RAW_IMAGE_DATASET_TYPE = "HCS_IMAGE_RAW";
+
+    /** type of the new overview image dataset */
+    public static final String DEFAULT_OVERVIEW_IMAGE_DATASET_TYPE = "HCS_IMAGE_OVERVIEW";
+
+    /** type of the new image segmentation (overlay) dataset */
+    public static final String DEFAULT_SEGMENTATION_IMAGE_DATASET_TYPE = "HCS_IMAGE_SEGMENTATION";
+
+    /** type of the new analysis dataset */
+    public static final String DEFAULT_ANALYSIS_DATASET_TYPE = "HCS_ANALYSIS_WELL_FEATURES ";
+
+    /** unknown file format code */
+    public static final String UNKNOWN_FILE_FORMAT = "UNKNOWN";
+
     // ----
 
     // code of plate geometry vocabulary
