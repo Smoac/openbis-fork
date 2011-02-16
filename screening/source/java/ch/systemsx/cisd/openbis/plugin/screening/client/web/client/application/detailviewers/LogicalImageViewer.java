@@ -63,7 +63,7 @@ public class LogicalImageViewer
 
     private static final int ONE_IMAGE_HEIGHT_PX = 120;
 
-    private static final int CHANNEL_SPLITER_AND_LABEL_HEIGHT_PX = 90;
+    private static final int CHANNEL_SPLITER_AND_LABEL_HEIGHT_PX = 110;
 
     private static final int ADJUST_COLORS_AND_REFRESH_BUTTON_WIDTH_PX = 80;
 
