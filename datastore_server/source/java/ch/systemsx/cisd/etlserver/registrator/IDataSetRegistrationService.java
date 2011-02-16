@@ -28,7 +28,7 @@ public interface IDataSetRegistrationService
 
     /**
      * Create a new transaction that atomically performs file operations and registers entities,
-     * using the file as the root for resolving relative paths.
+     * using the incoming data set as the root for resolving relative paths.
      * 
      * @return A new transaction
      */
@@ -44,8 +44,11 @@ public interface IDataSetRegistrationService
     public IDataSetRegistrationTransaction transaction(File dataSetFile);
 
     /**
-     * Move the incoming file to the error directory.
+     * Move the incoming file to the error directory for the given data set type.
+     * 
+     * @param dataSetTypeCodeOrNull The code of the data set type. Pass null to have the framework
+     *            default this value.
      */
-    public File moveIncomingToError(DataSetRegistrationDetails<?> dataSetDetails);
+    public File moveIncomingToError(String dataSetTypeCodeOrNull);
 
 }

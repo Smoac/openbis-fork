@@ -32,7 +32,7 @@ public interface ISample extends ISampleImmutable
     /**
      * Set the type for this sample.
      */
-    void setType(String type);
+    void setSampleType(String type);
 
     /**
      * Set the value for a property.

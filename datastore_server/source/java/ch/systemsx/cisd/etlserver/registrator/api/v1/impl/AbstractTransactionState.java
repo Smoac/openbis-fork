@@ -123,6 +123,16 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             return createNewDataSet(registrationDetails);
         }
 
+        public IDataSet createNewDataSet(String dataSetType)
+        {
+            // Create registration details for the new data set
+            DataSetRegistrationDetails<T> registrationDetails =
+                    registrationDetailsFactory.createDataSetRegistrationDetails();
+            registrationDetails.setDataSetType(dataSetType);
+
+            return createNewDataSet(registrationDetails);
+        }
+
         public IDataSet createNewDataSet(DataSetRegistrationDetails<T> registrationDetails)
         {
             // Request a code, so we can keep the staging file name and the data set code in sync
@@ -161,12 +171,11 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             return result;
         }
 
-        public ISample createNewSample(String sampleIdentifierString)
+        public ISample createNewSample(String sampleIdentifierString, String sampleTypeCode)
         {
-            // TODO KE: should we create a new method with a more sensible name (createPermId())
-            // TPK: yes, we should.
-            String permId = openBisService.createDataSetCode();
+            String permId = createPermId();
             Sample sample = new Sample(sampleIdentifierString, permId);
+            sample.setSampleType(sampleTypeCode);
             samplesToBeRegistered.add(sample);
             return sample;
         }
@@ -176,10 +185,12 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             throw new NotImplementedException();
         }
 
-        public IExperiment createNewExperiment(String experimentIdentifierString)
+        public IExperiment createNewExperiment(String experimentIdentifierString,
+                String experimentTypeCode)
         {
-            String permId = openBisService.createDataSetCode();
+            String permId = createPermId();
             Experiment experiment = new Experiment(experimentIdentifierString, permId);
+            experiment.setExperimentType(experimentTypeCode);
             experimentsToBeRegistered.add(experiment);
             return experiment;
         }
@@ -286,6 +297,12 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
         {
             rollbackStack.rollbackAll();
             registeredDataSets.clear();
+        }
+
+        private String createPermId()
+        {
+            String permId = openBisService.createDataSetCode();
+            return permId;
         }
 
         /**

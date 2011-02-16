@@ -94,7 +94,7 @@ public class Sample extends SampleImmutable implements ISample
         EntityHelper.createOrUpdateProperty(getSample(), propertyCode, propertyValue);
     }
 
-    public void setType(String type)
+    public void setSampleType(String type)
     {
         SampleType sampleType = new SampleType();
         sampleType.setCode(type);

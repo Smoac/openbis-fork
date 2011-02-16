@@ -37,6 +37,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTra
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
 
 /**
  * A service that registers many files as individual data sets in one transaction.
@@ -197,14 +198,17 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
         dataSetRegistrations.clear();
     }
 
-    public File moveIncomingToError(DataSetRegistrationDetails<?> dataSetDetails)
+    public File moveIncomingToError(String dataSetTypeCodeOrNull)
     {
         // Make sure the data set information is valid
-        DataSetInformation dataSetInfo = dataSetDetails.getDataSetInformation();
+        DataSetInformation dataSetInfo = new DataSetInformation();
         dataSetInfo.setShareId(registratorContext.getGlobalState().getShareId());
-        if (null == dataSetInfo.getDataSetType())
+        if (null == dataSetTypeCodeOrNull)
         {
-            dataSetInfo.setDataSetType(new DataSetType("UNKNOWN"));
+            dataSetInfo.setDataSetType(new DataSetType(DataSetTypeCode.UNKNOWN.getCode()));
+        } else
+        {
+            dataSetInfo.setDataSetType(new DataSetType(dataSetTypeCodeOrNull));
         }
 
         // Create the error directory
@@ -212,7 +216,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
                 DataSetStorageAlgorithm.createBaseDirectory(
                         TransferredDataSetHandler.ERROR_DATA_STRATEGY, registratorContext
                                 .getStorageProcessor().getStoreRootDirectory(), registratorContext
-                                .getFileOperations(), dataSetInfo, dataSetDetails.getDataSetType(),
+                                .getFileOperations(), dataSetInfo, dataSetInfo.getDataSetType(),
                         incomingDataSetFile);
         BaseDirectoryHolder baseDirectoryHolder =
                 new BaseDirectoryHolder(TransferredDataSetHandler.ERROR_DATA_STRATEGY,

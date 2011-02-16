@@ -21,6 +21,8 @@ import java.io.File;
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSet;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -43,6 +45,10 @@ public abstract class AbstractDataSetRegistrationDetailsFactory<T extends DataSe
     {
         DataSetRegistrationDetails<T> registrationDetails = new DataSetRegistrationDetails<T>();
         T dataSetInfo = createDataSetInformation();
+        if (null == dataSetInfo.getDataSetType())
+        {
+            dataSetInfo.setDataSetType(new DataSetType(DataSetTypeCode.UNKNOWN.getCode()));
+        }
         setDatabaseInstance(dataSetInfo);
         registrationDetails.setDataSetInformation(dataSetInfo);
         return registrationDetails;

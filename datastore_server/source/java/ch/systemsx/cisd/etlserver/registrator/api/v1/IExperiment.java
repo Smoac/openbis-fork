@@ -33,5 +33,5 @@ public interface IExperiment extends IExperimentImmutable
     /**
      * Set the experiment type for this experiment.
      */
-    void setType(String experimentType);
+    void setExperimentType(String experimentType);
 }

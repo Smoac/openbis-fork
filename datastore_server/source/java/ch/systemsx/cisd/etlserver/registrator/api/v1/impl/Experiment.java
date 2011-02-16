@@ -53,7 +53,7 @@ class Experiment extends ExperimentImmutable implements IExperiment
         EntityHelper.createOrUpdateProperty(getExperiment(), propertyCode, propertyValue);
     }
 
-    public void setType(String experimentType)
+    public void setExperimentType(String experimentType)
     {
         ExperimentType type = new ExperimentType();
         type.setCode(experimentType);

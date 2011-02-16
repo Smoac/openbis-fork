@@ -170,6 +170,11 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         return getStateAsLiveState().createNewDataSet();
     }
 
+    public IDataSet createNewDataSet(String dataSetType)
+    {
+        return getStateAsLiveState().createNewDataSet(dataSetType);
+    }
+
     public IDataSet createNewDataSet(DataSetRegistrationDetails<T> registrationDetails)
     {
         return getStateAsLiveState().createNewDataSet(registrationDetails);
@@ -189,9 +194,9 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         return getStateAsLiveState().getSampleForUpdate(sampleIdentifierString);
     }
 
-    public ISample createNewSample(String sampleIdentifierString)
+    public ISample createNewSample(String sampleIdentifierString, String sampleTypeCode)
     {
-        return getStateAsLiveState().createNewSample(sampleIdentifierString);
+        return getStateAsLiveState().createNewSample(sampleIdentifierString, sampleTypeCode);
     }
 
     public IExperimentImmutable getExperiment(String experimentIdentifierString)
@@ -203,9 +208,11 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         return (null == experimentOrNull) ? null : new ExperimentImmutable(experimentOrNull);
     }
 
-    public IExperiment createNewExperiment(String experimentIdentifierString)
+    public IExperiment createNewExperiment(String experimentIdentifierString,
+            String experimentTypeCode)
     {
-        return getStateAsLiveState().createNewExperiment(experimentIdentifierString);
+        return getStateAsLiveState().createNewExperiment(experimentIdentifierString,
+                experimentTypeCode);
     }
 
     public String moveFile(String src, IDataSet dst)

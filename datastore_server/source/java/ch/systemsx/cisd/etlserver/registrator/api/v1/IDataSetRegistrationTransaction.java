@@ -39,6 +39,11 @@ public interface IDataSetRegistrationTransaction
     IDataSet createNewDataSet();
 
     /**
+     * Create a new data set with the specified code.
+     */
+    IDataSet createNewDataSet(String dataSetType);
+
+    /**
      * Get a sample from the openBIS AS. Returns null if the sample does not exist.
      * 
      * @return A sample or null
@@ -55,8 +60,11 @@ public interface IDataSetRegistrationTransaction
 
     /**
      * Create a new sample to register with the openBIS AS. The sample will have a permId.
+     * 
+     * @param sampleIdentifierString The identifier for the new sample
+     * @param sampleTypeCode The code of the type for the new sample
      */
-    ISample createNewSample(String sampleIdentifierString);
+    ISample createNewSample(String sampleIdentifierString, String sampleTypeCode);
 
     /**
      * Get an experiment from the openBIS AS.
@@ -65,8 +73,11 @@ public interface IDataSetRegistrationTransaction
 
     /**
      * Create a new experiment to register with the openBIS AS. The experiment will have a permId.
+     * 
+     * @param experimentIdentifierString The identifier for the new experiment
+     * @param experimentTypeCode The code of the type for the new experiment
      */
-    IExperiment createNewExperiment(String experimentIdentifierString);
+    IExperiment createNewExperiment(String experimentIdentifierString, String experimentTypeCode);
 
     // File operations -- The source and destination paths are local to the incoming data set folder
     // or incoming directory if the data set is just one file

@@ -3,12 +3,12 @@ dataSet = transaction.createNewDataSet()
 transaction.moveFile(incoming.getPath() + '/sub_data_set_1', dataSet)
 dataSet.setDataSetType('O1')
 
-experiment = transaction.createNewExperiment('/SPACE/PROJECT/EXP')
+experiment = transaction.createNewExperiment('/SPACE/PROJECT/EXP', 'EXP_TYPE')
 experiment.setPropertyValue('propCode', 'propValue')
-experiment.setType('experiment_type')
+experiment.setExperimentType('experiment_type')
 
-sample = transaction.createNewSample('db:/PROJECT/SAMPLE')
-sample.setType('sample_type')
+sample = transaction.createNewSample('db:/PROJECT/SAMPLE', 'SAMP_TYPE')
+sample.setSampleType('sample_type')
 sample.setPropertyValue('samplePropCode', 'samplePropValue')
 sample.setExperiment(experiment)
 
