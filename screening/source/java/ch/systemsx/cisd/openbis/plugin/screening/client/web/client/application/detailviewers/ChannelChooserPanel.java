@@ -29,6 +29,7 @@ import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+import com.extjs.gxt.ui.client.widget.layout.ColumnLayout;
 
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
@@ -64,7 +65,7 @@ public class ChannelChooserPanel extends LayoutContainer
     private final Listener<BaseEvent> selectionChangeListener = new Listener<BaseEvent>()
         {
 
-        public void handleEvent(BaseEvent be)
+            public void handleEvent(BaseEvent be)
             {
                 selectionChanged();
             }
@@ -85,13 +86,13 @@ public class ChannelChooserPanel extends LayoutContainer
 
         setAutoHeight(true);
         setAutoWidth(true);
-        // TODO KE:2011-02-16 set layout as Tomek wants it
-        // setLayout(new HBoxLayout());
+        setLayout(new ColumnLayout());
 
         channelsComboBox = createChannelsComboBox();
         add(channelsComboBox);
 
         channelsCheckBoxGroup = new CheckBoxGroup();
+        channelsCheckBoxGroup.setStyleAttribute("margin-left", "20px");
         add(channelsCheckBoxGroup);
 
         initializeAvailableChannels(names);
@@ -174,7 +175,7 @@ public class ChannelChooserPanel extends LayoutContainer
         }
         return channels;
     }
-    
+
     private void initializeAvailableChannels(List<String> codes)
     {
         addCodeToComboBox(ScreeningConstants.MERGED_CHANNELS);
@@ -196,7 +197,7 @@ public class ChannelChooserPanel extends LayoutContainer
             }
         }
     }
-    
+
     private boolean addCodeToComboBox(String code)
     {
         if (channelsComboBox.findModel(code) == null)
@@ -206,7 +207,7 @@ public class ChannelChooserPanel extends LayoutContainer
         }
         return false;
     }
-    
+
     private void initializeChannelSelection(List<String> selectedChannels)
     {
         List<String> channels = selectedChannels;
@@ -223,7 +224,7 @@ public class ChannelChooserPanel extends LayoutContainer
         {
             comboBoxValue = channels.get(0);
         }
-        
+
         channelsComboBox.setSimpleValue(comboBoxValue);
 
         initializeCheckBoxValues(channels);
@@ -295,7 +296,6 @@ public class ChannelChooserPanel extends LayoutContainer
         }
 
     }
-
 
     private List<CheckBox> getAllCheckBoxes()
     {
