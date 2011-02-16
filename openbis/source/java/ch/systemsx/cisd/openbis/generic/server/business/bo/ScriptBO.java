@@ -20,6 +20,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataRetrievalFailureException;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.evaluator.EvaluatorException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.DynamicPropertyCalculator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -147,6 +148,7 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
     }
 
     private void checkScriptCompilation(ScriptType scriptType, String scriptExpression)
+            throws EvaluatorException
     {
         if (scriptType == ScriptType.MANAGED_PROPERTY)
         {
