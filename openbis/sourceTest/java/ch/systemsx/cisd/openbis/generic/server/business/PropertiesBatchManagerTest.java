@@ -101,8 +101,7 @@ public class PropertiesBatchManagerTest extends AssertJUnit
             assertEquals(
                     "Script malfunction in 1 out of 2 rows.\n"
                             + "Row 2 has failed due to the property 'MANAGED-NO-SUBCOLUMNS-BUT-UPDATE' causing a malfuction "
-                            + "in the script (name = 'null', registrator = ''): Error evaluating 'updateFromBatchInput({=two})': "
-                            + "ValueError: invalid literal for __int__: two\n"
+                            + "in the script (name = 'null', registrator = '')\n"
                             + "A detailed error report has been sent to your system administrator.",
                     ufe.getMessage());
         }
