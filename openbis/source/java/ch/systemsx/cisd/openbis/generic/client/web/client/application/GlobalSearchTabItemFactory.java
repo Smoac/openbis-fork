@@ -79,7 +79,8 @@ public class GlobalSearchTabItemFactory
     private static String createTabTitle(IViewContext<ICommonClientServiceAsync> viewContext,
             String chosenEntity, String queryText)
     {
-        return viewContext.getMessage(Dict.GLOBAL_SEARCH, chosenEntity, queryText);
+        String entity = (chosenEntity != null) ? chosenEntity : "All";
+        return viewContext.getMessage(Dict.GLOBAL_SEARCH, entity, queryText);
     }
 
     private static AbstractTabItemFactory createTabFactory(
