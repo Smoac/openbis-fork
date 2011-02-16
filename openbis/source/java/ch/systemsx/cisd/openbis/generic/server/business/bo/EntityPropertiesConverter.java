@@ -457,7 +457,6 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         return convertProperties(propsArray, entityTypeCode, registrator, false);
     }
 
-    // TODO 2011-01-12, Piotr Buczek: refactor - propertiesToUpdate are not used at all
     public <T extends EntityPropertyPE> Set<T> updateProperties(Collection<T> oldProperties,
             EntityTypePE entityType, List<IEntityProperty> newProperties, PersonPE registrator,
             Set<String> propertiesToUpdate)
@@ -469,7 +468,9 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         {
             final String oldPropertyCode =
                     oldProperty.getEntityTypePropertyType().getPropertyType().getCode();
-            if (propertiesToUpdate.contains(oldPropertyCode.toLowerCase()) == false)
+            // TODO 2011-02-16, Piotr Buczek: improve case sensitivity checks
+            if (propertiesToUpdate.contains(oldPropertyCode.toLowerCase()) == false
+                    && propertiesToUpdate.contains(oldPropertyCode) == false)
             {
                 set.add(oldProperty);
             }

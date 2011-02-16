@@ -721,17 +721,18 @@ public final class GenericServerTest extends AbstractServerTestCase
         context.assertIsSatisfied();
     }
 
-    @Test(groups = "broken")
+    @Test
     public void testBulkEditExperimentNothingChanged() throws Exception
     {
         final ExperimentBatchUpdateDetails updateDetails = new ExperimentBatchUpdateDetails();
-        UpdatedBasicExperiment updatedExperiment =
+        final UpdatedBasicExperiment updatedExperiment =
                 new UpdatedBasicExperiment(EXPERIMENT_IDENTIFIER1, null, updateDetails);
         ExperimentType expType = new ExperimentType();
         expType.setCode(EXPERIMENT_TYPE);
+        final List<UpdatedBasicExperiment> experiments =
+                Collections.singletonList(updatedExperiment);
         UpdatedExperimentsWithType updatedExperiments =
-                new UpdatedExperimentsWithType(expType,
-                        Collections.singletonList(updatedExperiment));
+                new UpdatedExperimentsWithType(expType, experiments);
         final ExperimentTypePE experimentTypePE = createExperimentType(EXPERIMENT_TYPE);
         prepareGetSession();
         context.checking(new Expectations()
@@ -741,6 +742,8 @@ public final class GenericServerTest extends AbstractServerTestCase
                     will(returnValue(entityTypeDAO));
                     one(entityTypeDAO).tryToFindEntityTypeByCode(EXPERIMENT_TYPE);
                     will(returnValue(experimentTypePE));
+                    one(propertiesBatchManager).manageProperties(experimentTypePE, experiments,
+                            null);
                     one(genericBusinessObjectFactory).createExperimentTable(SESSION);
                     will(returnValue(experimentTable));
                     one(experimentTable).prepareForUpdate(

@@ -101,7 +101,7 @@ public class BatchMaterialRegistrationAndUpdateTest extends SystemTestCase
         assertProperties("[COMMENT: a & b, DESCRIPTION: compound 2, SIZE: 43]", "C2");
     }
 
-    @Test(groups = "broken")
+    @Test
     public void testUpdate()
     {
         logIntoCommonClientService();
@@ -110,6 +110,8 @@ public class BatchMaterialRegistrationAndUpdateTest extends SystemTestCase
                 "code\tdescription\tsize\n" + "c1\tcompound 1\t42\n" + "c2\tcompound 2\t43";
         registerMaterials(materialBatchData);
 
+        // - size column is omitted - old values shouldn't be deleted
+        // - description of one of the materials should be deleted
         List<BatchRegistrationResult> result =
                 updateMaterials("code\tdescription\n" + "c1\tnew description\n" + "c2\t--DELETE--",
                         false);

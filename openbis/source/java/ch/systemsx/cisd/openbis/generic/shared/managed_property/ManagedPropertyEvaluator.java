@@ -93,7 +93,7 @@ public class ManagedPropertyEvaluator
             }
             if (missingColumns.isEmpty() == false)
             {
-                throw new UserFailureException("Following columns are missed: " + missingColumns);
+                throw new UserFailureException("Following columns are missing: " + missingColumns);
             }
         }
     }

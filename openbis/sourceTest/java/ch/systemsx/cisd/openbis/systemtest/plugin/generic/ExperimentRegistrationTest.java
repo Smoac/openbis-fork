@@ -348,7 +348,7 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         assertEquals("TESTGROUP", sample.getSpace().getCode());
     }
 
-    @Test(groups = "broken")
+    @Test
     public void testBulkUpdateExperimentsDeletingMandatoryProperty()
     {
         logIntoCommonClientService();
@@ -370,7 +370,7 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
             fail("Should have thrown an excption");
         } catch (UserFailureException ex)
         {
-            assertEquals("Value of mandatory property 'description' not specified.",
+            assertEquals("Value of mandatory property 'DESCRIPTION' not specified.",
                     ex.getMessage());
         }
     }

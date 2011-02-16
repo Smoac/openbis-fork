@@ -274,7 +274,7 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            assertEquals("Following columns are missed: [p:B]", ex.getMessage());
+            assertEquals("Following columns are missing: [p:B]", ex.getMessage());
         }
         bindings.put("B", "beta");
         ManagedPropertyEvaluator.assertBatchColumnNames("p", Arrays.<String> asList("A", "B"),
