@@ -37,16 +37,17 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.MatchingEntityModel.MatchingEntityColumnKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListenerAndLinkGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntitiesPanelColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
@@ -55,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
@@ -95,15 +97,23 @@ public final class MatchingEntitiesPanel extends TypedTableGrid<MatchingEntity>
 
         updateDefaultRefreshButton();
 
-        registerLinkClickListenerFor(MatchingEntityColumnKind.IDENTIFIER.id(),
-                new ICellListener<TableModelRowWithObject<MatchingEntity>>()
+        ICellListenerAndLinkGenerator<MatchingEntity> listenerLinkGenerator =
+                new ICellListenerAndLinkGenerator<MatchingEntity>()
                     {
                         public void handle(TableModelRowWithObject<MatchingEntity> rowItem,
-                                boolean keyPressed)
+                                boolean specialKeyPressed)
                         {
-                            showEntityViewer(rowItem, false, keyPressed);
+                            showEntityViewer(rowItem, false, specialKeyPressed);
                         }
-                    });
+
+                        public String tryGetLink(MatchingEntity entity,
+                                ISerializableComparable comparableValue)
+                        {
+                            return LinkExtractor.tryExtract(entity);
+                        }
+                    };
+        registerListenerAndLinkGenerator(MatchingEntitiesPanelColumnIDs.IDENTIFIER,
+                listenerLinkGenerator);
         extendBottomToolbar();
     }
 

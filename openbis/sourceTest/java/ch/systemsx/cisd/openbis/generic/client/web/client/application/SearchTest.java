@@ -16,10 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.MatchingEntityModel.MatchingEntityColumnKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.CommonExternalDataColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.RelatedDataSetGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntitiesPanelColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
@@ -181,7 +181,7 @@ public class SearchTest extends AbstractGWTTestCase
 
     private static Row createMatchingEntityRowWithIdentifier(String identifier)
     {
-        return new Row().withCell(MatchingEntityColumnKind.IDENTIFIER.id(), identifier);
+        return new Row().withCell(MatchingEntitiesPanelColumnIDs.IDENTIFIER, identifier);
     }
 
     private static Row createRelatedDatasetRowWithLocation(String location)
