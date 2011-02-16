@@ -2,546 +2,67 @@
 # This is an example Jython dropbox for importing HCS image datasets
 
 import os
-import shutil
-import random
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto as dto
-from ch.systemsx.cisd.openbis.generic.shared.basic.dto import SampleType, NewSample
-from ch.systemsx.cisd.openbis.generic.shared.dto.identifier import SampleIdentifier
 from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import *
-from ch.systemsx.cisd.openbis.dss.etl.custom.geexplorer import GEExplorerImageAnalysisResultParser
-from java.io import File
+from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import Geometry
 
-from ch.systemsx.cisd.common.fileconverter import FileConverter, Tiff2PngConversionStrategy
-from ch.systemsx.cisd.common.mail import From
-
-from ch.systemsx.cisd.openbis.generic.shared.dto import NewProperty
-
-# ------------
-# Dropbox specific image dataset registration. You may want to modify this part.
-# ------------
-
-""" type of the new image dataset """
-IMAGE_DATASET_TYPE = "HCS_IMAGE"
-""" file format code of files in a new image dataset """
-IMAGE_FILE_FORMAT = "TIFF"
-
-""" type of the new analysis dataset """
-ANALYSIS_DATASET_TYPE = "HCS_IMAGE_ANALYSIS_DATA"
-""" file format of the analysis dataset """
-ANALYSIS_FILE_FORMAT = "CSV"
-
-""" type of the new image overlay dataset """
-OVERLAY_IMAGE_DATASET_TYPE = "HCS_IMAGE_SEGMENTATION_OVERLAY"
-""" file format of the image overlay dataset """
-OVERLAY_IMAGE_FILE_FORMAT = "PNG"
-
-""" space where the plate for which the dataset has been acquired exist """
-PLATE_SPACE = "DEMO"
-
-""" only files with these extensions will be recognized as images """
-RECOGNIZED_IMAGES_EXTENSIONS = ["tiff", "tif", "png", "gif", "jpg", "jpeg"]
-
-""" should thumbnails be generated? """
-GENERATE_THUMBNAILS = True
-""" the maximal width and height of the generated thumbnails """
-MAX_THUMNAIL_WIDTH_AND_HEIGHT = 256
-""" 
-number of threads that are used for thumbnail generation will be equal to:
-   this constant * number of processor cores 
-"""
-ALLOWED_MACHINE_LOAD_DURING_THUMBNAIL_GENERATION = 1.0
-
-""" should all dataset in one experiment use the same channels? """
-STORE_CHANNELS_ON_EXPERIMENT_LEVEL = False
-""" should the original data be stored in the original form or should we pack them into one container? """
-ORIGINAL_DATA_STORAGE_FORMAT = OriginalDataStorageFormat.UNCHANGED
-
-# ---------
-
-""" name of the color which should be treated as transparent in overlays """ 
-OVERLAYS_TRANSPARENT_COLOR = "black"
-
-""" sample type code of the plate, needed if a new sample is registered automatically """
-PLATE_TYPE_CODE = "PLATE"
-""" project and experiment where new plates will be registered """
-DEFAULT_PROJECT_CODE = "TEST"
-DEFAULT_EXPERIMENT_CODE = "SANOFI"
-PLATE_GEOMETRY_PROPERTY_CODE = "$PLATE_GEOMETRY"
-PLATE_GEOMETRY = "384_WELLS_16X24"
-
-ANALYSIS_RUN_PROPERTY_CODE = "ANALYSIS_RUN"
-
-# ---------
-
-""" extracts code of the sample from the directory name """
-def extract_sample_code(incoming_name):
-    file_basename = extract_file_basename(incoming_name)
-    code = file_basename.split("_")[1]
-    if code == "":
-        code = file_basename
-    return code
-
-""" 
-For a given tile number and tiles geometry returns a (x,y) tuple which describes where the tile
-is located on the well.
-"""
-def get_tile_coords(tile_num, tile_geometry):
-    columns = tile_geometry[1]
-    row = ((tile_num - 1) / columns) + 1
-    col = ((tile_num - 1) % columns) + 1
-    return (row, col)
-
-""" 
-Parameters:
-    image_tokens_list - list of ImageTokens
-Returns:  (rows, columns) tuple describing the matrix of tiles (aka fields or sides) in the well  
-"""
-def get_tile_geometry(image_tokens_list):
-    max_tile = get_max_tile_number(image_tokens_list)
-    if max_tile % 4 == 0 and max_tile != 4:
-        return (max_tile / 4, 4)
-    elif max_tile % 3 == 0:
-        return (max_tile / 3, 3)
-    elif max_tile % 2 == 0:
-        return (max_tile / 2, 2)
-    else:
-        return (max_tile, 1)
-
-"""
-Creates ImageFileInfo for a given ImageTokens.
-Converts tile number to coordinates on the 'well matrix'.
-Example file name: A - 1(fld 1 wv Cy5 - Cy5).tif
-Returns:
-    ImageTokens
-"""
-def create_image_tokens(path):
-    image_tokens = ImageTokens()
-    image_tokens.path = path
-
-    basename = os.path.splitext(path)[0]
-
-    wellText = basename[0:find(basename, "(")] # A - 1
-    image_tokens.well = wellText.replace(" - ", "")
     
-    if " wv " in basename:
-        fieldText = basename[find(basename, "fld ") + 4 : find(basename, " wv")]
-        image_tokens.channel = basename[rfind(basename, " - ") + 3 :-1]
-    else:
-        fieldText = basename[find(basename, "fld ") + 4 : find(basename, ")")]
-        image_tokens.channel = "DEFAULT"
+class ImageDataSetFlexible(SimpleImageDataConfig):
+    """
+    Extracts tile number, channel code and well code for a given relative path to an image.
+    Will be called for each file found in the incoming directory which has the allowed image extension.
+      
+    Example file name: bDZ01-1A_wD17_s3_z123_t321_cGFP
+    Returns:
+        ImageMetadata
+    """
+    def extractImageMetadata(self, imagePath):
+        image_tokens = ImageMetadata()
     
-    try:
-        image_tokens.tile = int(fieldText)
-        #print "image_tokens.tile", image_tokens.tile
-    except ValueError:
-        raise Exception("Cannot parse field number from '" + fieldText + "' in '" + basename + "' file name.")
-
-    return image_tokens
-
-# ------------
-# END of the part which you will probably need to modify
-# ------------
-
-# ------------
-# Generic utility
-# ------------
-
-""" 
-Finds first occurence of the patter from the right.
-Throws exception if the pattern cannot be found.
-"""
-def rfind(text, pattern):
-    ix = text.rfind(pattern)
-    ensurePatternFound(ix, text, pattern)
-    return ix
-
-""" 
-Finds first occurence of the patter from the left. 
-Throws exception if the pattern cannot be found.
-"""
-def find(text, pattern):
-    ix = text.find(pattern)
-    ensurePatternFound(ix, text, pattern)
-    return ix
-
-def ensurePatternFound(ix, file, pattern):
-    if ix == -1:
-        raise Exception("Cannot find '" + pattern + "' pattern in file name '" + file + "'")    
-
-""" Returns: name of the file without the extension """
-def extract_file_basename(filename):
-    base_with_ext = os.path.split(filename)[1]
-    if os.path.isfile(base_with_ext) :
-        return os.path.splitext(base_with_ext)[0]
-    else:
-        return base_with_ext
-
-""" Returns: extension of the file """
-def get_file_ext(file):
-    return os.path.splitext(file)[1][1:].lower()
-
-""" Returns: java.io.File - first file with the specified extension or None if no file matches """
-def find_file_by_ext(incoming_file, expected_ext):
-    if not incoming_file.isDirectory():
-        return None
-    incoming_path = incoming_file.getPath()
-    for file in os.listdir(incoming_path):
-        ext = get_file_ext(file)
-        if ext.upper() == expected_ext.upper():
-            return File(incoming_path, file)
-    return None
-
-""" Returns: java.io.File - subdirectory which contains the specified marker in the name """
-def find_dir(incoming_file, dir_name_marker):
-    if not incoming_file.isDirectory():
-        return None
-    incoming_path = incoming_file.getPath()
-    for file in os.listdir(incoming_path):
-        if dir_name_marker.upper() in file.upper():
-            return File(incoming_path, file)
-    return None
-
-# ------------
-# Image dataset registration
-# ------------
-
-"""
-Auxiliary function to extract all channel codes used by specified images.
-The channel label will be equal to channel code.
-Parameters:
-    images - list of ImageFileInfo
-Returns: 
-    list of Channel
-"""
-def get_available_channels(images):
-    channel_codes = {}
-    for image in images:
-        channel_codes[image.getChannelCode()] = 1
-    channels = []
-    for channelCode in channel_codes.keys():
-        channels.append(Channel(channelCode, channelCode))
-    return channels
-
-"""
-Parameters:
-    dataset - BasicDataSetInformation
-    registration_details - DataSetRegistrationDetails
-"""
-def set_dataset_details(dataset, registration_details):
-    registration_details.setDataSetInformation(dataset)
-    registration_details.setFileFormatType(dataset.getFileFormatTypeCode())
-    registration_details.setDataSetType(dataset.getDataSetType())
-    registration_details.setMeasuredData(dataset.isMeasured())
-
-def set_image_dataset_storage_config(image_dataset):
-    config = ImageStorageConfiguraton.createDefault()
-    config.setStoreChannelsOnExperimentLevel(STORE_CHANNELS_ON_EXPERIMENT_LEVEL)
-    config.setOriginalDataStorageFormat(ORIGINAL_DATA_STORAGE_FORMAT)
-    if GENERATE_THUMBNAILS:
-        thumbnailsStorageFormat = ThumbnailsStorageFormat()
-        thumbnailsStorageFormat.setAllowedMachineLoadDuringGeneration(ALLOWED_MACHINE_LOAD_DURING_THUMBNAIL_GENERATION)
-        thumbnailsStorageFormat.setMaxWidth(MAX_THUMNAIL_WIDTH_AND_HEIGHT)
-        thumbnailsStorageFormat.setMaxHeight(MAX_THUMNAIL_WIDTH_AND_HEIGHT)
-        config.setThumbnailsStorageFormat(thumbnailsStorageFormat)
-    image_dataset.setImageStorageConfiguraton(config)
-    
-"""
-Parameters:
-    dataset - BasicDataSetInformation
-Returns: 
-    DataSetRegistrationDetails
-"""
-def create_image_dataset_details(incoming):
-    registration_details = factory.createImageRegistrationDetails()
-    image_dataset = registration_details.getDataSetInformation()
-    set_image_dataset(incoming, image_dataset)
-    
-    set_image_dataset_storage_config(image_dataset)
-    set_dataset_details(image_dataset, registration_details)
-    return registration_details
-
-
-""" Returns: integer - maximal tile number """
-def get_max_tile_number(image_tokens_list):
-    max_tile = 0
-    for image_tokens in image_tokens_list:
-        max_tile = max(max_tile, image_tokens.tile)
-    return max_tile
-
-""" Auxiliary structure to store tokens of the image file name.  """
-class ImageTokens:
-    # channel code
-    channel = None
-    # tile number
-    tile = -1
-    # path to the image
-    path = ""
-    # well code, e.g. A1
-    well = ""
-
-""" 
-Creates ImageFileInfo for a given path to an image
-Example of the accepted file name: A - 1(fld 1 wv Cy5 - Cy5).tif
-Returns:
-   ImageFileInfo 
-"""
-def create_image_info(image_tokens, tile_geometry):
-    tileCoords = get_tile_coords(image_tokens.tile, tile_geometry)
-    img = ImageFileInfo(image_tokens.channel, tileCoords[0], tileCoords[1], image_tokens.path)
-    img.setWell(image_tokens.well)
-    return img
-
-"""
-Tokenizes file names of all images in the directory.
-Returns: 
-  list of ImageTokens
-"""
-def parse_image_tokens(dir, recognized_image_extensions):
-    image_tokens_list = []
-    dir_path = dir.getPath()
-    for file in os.listdir(dir_path):
-        ext = get_file_ext(file)
+        basename = os.path.splitext(imagePath)[0]
+        # 
+        token_dict = {}
+        for token in basename.split("_"):
+            token_dict[token[:1]] = token[1:]
+        
+        image_tokens.well = token_dict["w"]
+        fieldText = token_dict["s"]
         try:
-            extIx = recognized_image_extensions.index(ext)
-            # not reached if extension not found
-            image_tokens = create_image_tokens(file)
-            #print "tile", image_tokens.tile, "path", image_tokens.path, "well", image_tokens.well
-            image_tokens_list.append(image_tokens)    
+            image_tokens.tileNumber = int(fieldText)
         except ValueError:
-            pass # extension not recognized    
-    return image_tokens_list
-
-"""
-Parameters:
-- image_tokens_list - list of ImageTokens for each image
-- tile_geometry - (rows, columns) tuple describing the matrix of tiles (aka fields or sides) in the well  
-Returns: 
-  list of ImageFileInfo
-"""    
-def create_image_infos(image_tokens_list, tile_geometry):
-    images = []
-    for image_tokens in image_tokens_list:
-        image = create_image_info(image_tokens, tile_geometry)
-        images.append(image)    
-    return images
-
-# ---------------------
-
-"""
-Extracts all images from the incoming directory.
-Parameters:
-    incoming - java.io.File, folder with images
-    dataset - ImageDataSetInformation where the result will be stored
-"""
-def set_image_dataset(incoming, dataset):
-    dataset.setDatasetTypeCode(IMAGE_DATASET_TYPE)
-    dataset.setFileFormatCode(IMAGE_FILE_FORMAT)
-
-    sample_code = extract_sample_code(incoming.getName())
-    dataset.setSample(PLATE_SPACE, sample_code)
-    dataset.setMeasured(True)
-
-    image_tokens_list = parse_image_tokens(incoming, RECOGNIZED_IMAGES_EXTENSIONS)
-    tile_geometry = get_tile_geometry(image_tokens_list)
-    images = create_image_infos(image_tokens_list, tile_geometry)
-    channels = get_available_channels(images)
+            raise Exception("Cannot parse field number from '" + fieldText + "' in '" + basename + "' file name.")
     
-    dataset.setImages(images)
-    dataset.setChannels(channels)
-    dataset.setTileGeometry(tile_geometry[0], tile_geometry[1])
+        image_tokens.channelCode = token_dict["c"]
+        return image_tokens
 
-    return dataset
-
-"""
-Extracts all overlay images from the overlays_dir directory.
-Parameters:
-    overlays_dir - java.io.File, folder with 
-    image_dataset - ImageDataSetInformation, image dataset to which the overlay dataset belongs
-    img_dataset_code - string, code of the  image dataset to which the overlay dataset belongs
-    overlay_dataset - ImageDataSetInformation where the result will be stored
-    extension - accepted image file extensions
-"""
-def set_overlay_dataset(overlays_dir, image_dataset, img_dataset_code, overlay_dataset, extension):
-    overlay_dataset.setDatasetTypeCode(OVERLAY_IMAGE_DATASET_TYPE)
-    overlay_dataset.setFileFormatCode(OVERLAY_IMAGE_FILE_FORMAT)
-
-    overlay_dataset.setSample(image_dataset.getSpaceCode(), image_dataset.getSampleCode())
-    overlay_dataset.setMeasured(False)
-    overlay_dataset.setParentDatasetCode(img_dataset_code)
-
-    if extension == None:
-        recognized_image_exts = RECOGNIZED_IMAGES_EXTENSIONS
-    else:
-        recognized_image_exts = [ extension ]
-    image_tokens_list = parse_image_tokens(overlays_dir, recognized_image_exts)
-    tile_geometry = (image_dataset.getTileRowsNumber(), image_dataset.getTileColumnsNumber())
-    images = create_image_infos(image_tokens_list, tile_geometry)
-    channels = get_available_channels(images)
-
-    overlay_dataset.setImages(images)
-    overlay_dataset.setChannels(channels)
-    overlay_dataset.setTileGeometry(tile_geometry[0], tile_geometry[1])
-
-"""
-Creates registration details of the image overlays dataset.
-Parameters:
-    overlays_dir - java.io.File, folder with 
-    image_dataset - ImageDataset, image dataset to which the overlay dataset belongs
-    img_dataset_code - string, code of the  image dataset to which the overlay dataset belongs
-Returns:
-    DataSetRegistrationDetails
-"""
-def create_overlay_dataset_details(overlays_dir, image_dataset, img_dataset_code, extension):
-    overlay_dataset_details = factory.createImageRegistrationDetails()
-    overlay_dataset = overlay_dataset_details.getDataSetInformation()
-    set_overlay_dataset(overlays_dir, image_dataset, img_dataset_code, overlay_dataset, extension)
-    set_dataset_details(overlay_dataset, overlay_dataset_details)
-    set_image_dataset_storage_config(overlay_dataset)
-
-    config = overlay_dataset.getImageStorageConfiguraton()
-    # channels will be connected to the dataset
-    config.setStoreChannelsOnExperimentLevel(False)
-    if GENERATE_THUMBNAILS:
-        # overlay thumbnails should be generated with higher quality
-        thumbnailsStorageFormat = config.getThumbnailsStorageFormat()
-        thumbnailsStorageFormat.setHighQuality(True);
-        config.setThumbnailsStorageFormat(thumbnailsStorageFormat)
+    """
+    Calculates the width and height of the matrix of tiles (a.k.a. fields or sides) in the well.
     
-    overlay_dataset.setImageStorageConfiguraton(config)
-    return overlay_dataset_details
-
-# ---------------------
-
-"""
-Creates the analysis dataset description. 
-The dataset will be connected to the specified sample and parent dataset.
-Parameters:
-    dataset - BasicDataSetInformation where the result will be stored
-"""
-def set_analysis_dataset(sample_space, sample_code, parent_dataset_code, dataset):
-    dataset.setDatasetTypeCode(ANALYSIS_DATASET_TYPE)
-    dataset.setFileFormatCode(ANALYSIS_FILE_FORMAT)
-    dataset.setSample(sample_space, sample_code)
-    dataset.setMeasured(False)
-    dataset.setParentDatasetCode(parent_dataset_code)
-
-"""
-Creates registration details of the analysis dataset.
-Returns:
-    DataSetRegistrationDetails
-"""
-def create_analysis_dataset_details(sample_space, sample_code, parent_dataset_code, analysis_run):
-    registration_details = factory.createBasicRegistrationDetails()
-    dataset = registration_details.getDataSetInformation()
-    set_analysis_dataset(sample_space, sample_code, parent_dataset_code, dataset)
+    Parameter imageMetadataList: a list of metadata for each encountered image
+    Parameter maxTileNumber: the biggest tile number among all encountered images
+    Returns:
+        Geometry
+    """
+    def getTileGeometry(self, imageTokens, maxTileNumber):
+        return Geometry.createFromRowColDimensions(maxTileNumber / 3, 3);
     
-    analysis_run_property = NewProperty(ANALYSIS_RUN_PROPERTY_CODE, analysis_run)
-    dataset.setDataSetProperties([ analysis_run_property ])
+    """
+    For a given tile number and tiles geometry returns (x,y) which describes where the tile is
+    located on the well.
     
-    set_dataset_details(dataset, registration_details)
-    return registration_details
+    Parameter tileNumber: number of the tile
+    Parameter tileGeometry: the geometry of the well matrix
+    Returns:
+         Location
+    """
+    def getTileCoordinates(self, tileNumber, tileGeometry):
+        columns = tileGeometry.getWidth()
+        row = ((tileNumber - 1) / columns) + 1
+        col = ((tileNumber - 1) % columns) + 1
+        return Location(row, col)
 
-""" registers sample if it does not exist already """
-def register_sample_if_necessary(space_code, project_code, experiment_code, sample_code):   
-    openbis = state.getOpenBisService()
-    sampleIdentifier = SampleIdentifier.create(space_code, sample_code)
-    if (openbis.tryGetSampleWithExperiment(sampleIdentifier) == None):
-        sample = NewSample()
-        sampleType = SampleType()
-        sampleType.setCode(PLATE_TYPE_CODE)
-        sample.setSampleType(sampleType)
-        sample.setIdentifier(sampleIdentifier.toString())
-        
-        property = dto.VocabularyTermEntityProperty();
-        vocabularyTerm = dto.VocabularyTerm();
-        vocabularyTerm.setCode(PLATE_GEOMETRY);
-        property.setVocabularyTerm(vocabularyTerm);
-        propertyType = dto.PropertyType();
-        dataType = dto.DataType();
-        dataType.setCode(dto.DataTypeCode.CONTROLLEDVOCABULARY);
-        propertyType.setDataType(dataType);
-        propertyType.setCode(PLATE_GEOMETRY_PROPERTY_CODE);
-        property.setPropertyType(propertyType);
-        sample.setProperties([ property ])
-        
-        sample.setExperimentIdentifier("/" + space_code + "/" + project_code + "/" + experiment_code)
-        openbis.registerSample(sample, None)
+if incoming.isDirectory(): 
+    imageDataset = ImageDataSetFlexible()
+    imageDataset.setRawImageDatasetType()
+    imageDataset.setPlate("TEST", incoming.getName())
+    factory.registerImageDataset(imageDataset, incoming, service)
 
-# ---------------------
-
-def debug(*msg):
-    print "".join(msg)
-    
-def convert_to_png(dir, transparent_color):
-    delete_original_files = True
-    strategy = Tiff2PngConversionStrategy(transparent_color, 0, delete_original_files)
-    # Uses #cores * machineLoad threads for the conversion, but not more than maxThreads
-    machineLoad = ALLOWED_MACHINE_LOAD_DURING_THUMBNAIL_GENERATION
-    maxThreads = 100
-    errorMsg = FileConverter.performConversion(File(dir), strategy, machineLoad, maxThreads)
-    if errorMsg != None:
-        raise Exception("Error", errorMsg)
-
-def notify(plate_code):
-    content  = "Dear Mr./Mrs.\n"
-    hostname = "http://bwdl27.bw.f2.enterprise:8080/openbis"
-    plate_link = hostname+"?viewMode=simple#entity=SAMPLE&action=SEARCH&code="+plate_code+"&sample_type=PLATE"
-    content += "Data for plate : " + plate_code + " has been registered : \n" + plate_link + "\n"
-    content += "\n"
-    content += "Have a nice day!\n"
-    content += "   openBIS\n"
-    replyAddress = "Matthew.Smicker@sanofi-aventis.com"
-    fromAddress = From("openbis@sanofi-aventis.com")
-    recipients = [ "Matthew.Smicker@sanofi-aventis.com" ]
-    state.mailClient.sendMessage("openBIS: registration finished - " + plate_code, content, replyAddress, fromAddress, recipients)
-       
-"""
-Allows to recognize that the subdirectory of the incoming dataset directory contains overlay images.
-This text has to appear in the subdirectory name. 
-"""
-OVERLAYS_DIR_PATTERN = "_ROITiff"
-
-def register_images_with_overlays_and_analysis(incoming):
-    if not incoming.isDirectory():
-        return
-    
-    tr = service.transaction(incoming, factory)
-        
-    image_dataset_details = create_image_dataset_details(incoming)
-    plate_code = image_dataset_details.getDataSetInformation().getSampleCode()
-    space_code = image_dataset_details.getDataSetInformation().getSpaceCode()
-    register_sample_if_necessary(space_code, DEFAULT_PROJECT_CODE, DEFAULT_EXPERIMENT_CODE, plate_code)
-
-    # create the image data set and put everything in it initially
-    image_data_set = tr.createNewDataSet(image_dataset_details)
-    image_data_set_folder = tr.moveFile(incoming.getPath(), image_data_set)
-    img_dataset_code = image_data_set.getDataSetCode()
-          
-    # move overlays folder
-    overlays_dir = find_dir(File(image_data_set_folder), OVERLAYS_DIR_PATTERN)
-    if overlays_dir != None:
-        tr_overlays = service.transaction(overlays_dir, factory)
-        convert_to_png(overlays_dir.getPath(), OVERLAYS_TRANSPARENT_COLOR)
-        overlay_dataset_details = create_overlay_dataset_details(overlays_dir, 
-                                     image_dataset_details.getDataSetInformation(), img_dataset_code, "png")
-        overlays_data_set = tr_overlays.createNewDataSet(overlay_dataset_details)
-        tr_overlays.moveFile(overlays_dir.getPath(), overlays_data_set, "overlays")
-        tr_overlays.commit()
-
-    # transform and move analysis file
-    analysis_file = find_file_by_ext(File(image_data_set_folder), "xml")
-    if analysis_file != None:
-        tr_analysis = service.transaction(analysis_file, factory)
-        analysis_run = extract_file_basename(analysis_file.getName())
-        analysis_registration_details = create_analysis_dataset_details(
-                                            space_code, plate_code, img_dataset_code, analysis_run)
-        analysis_data_set = tr_analysis.createNewDataSet(analysis_registration_details)
-        analysis_data_set_file = tr_analysis.createNewFile(analysis_data_set, analysis_file.getName())
-        GEExplorerImageAnalysisResultParser(analysis_file.getPath()).writeCSV(File(analysis_data_set_file))
-        tr_analysis.commit()
-        
-    service.commit()
-    notify(plate_code)
-    
-register_images_with_overlays_and_analysis(incoming)

@@ -56,12 +56,33 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
  * 'getTileCoordinates' methods, e.g.:
  * 
  * <pre>
+ * from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import Geometry
+ * 
+ * ...
+ * 
  * class MyImageDataSetConfig(SimpleImageDataConfig):
  *     ...
  *     
+ *     """
+ *     Calculates the width and height of the matrix of tiles (a.k.a. fields or sides) in the well.
+ *     
+ *     Parameter imageMetadataList: a list of metadata for each encountered image
+ *     Parameter maxTileNumber: the biggest tile number among all encountered images
+ *     Returns:
+ *         Geometry
+ *     """
  *     def getTileGeometry(self, imageTokens, maxTileNumber):
  *         return Geometry.createFromRowColDimensions(maxTileNumber / 3, 3);
  *     
+ *     """
+ *     For a given tile number and tiles geometry returns (x,y) which describes where the tile is
+ *     located on the well.
+ *     
+ *     Parameter tileNumber: number of the tile
+ *     Parameter tileGeometry: the geometry of the well matrix
+ *     Returns:
+ *          Location
+ *     """
  *     def getTileCoordinates(self, tileNumber, tileGeometry):
  *         columns = tileGeometry.getWidth()
  *         row = ((tileNumber - 1) / columns) + 1
@@ -90,16 +111,23 @@ abstract public class SimpleImageDataConfig
      * By default layouts all images in one row by returning (1, maxTileNumber) geometry.Can be
      * overridden in subclasses.
      * 
+     * @param imageMetadataList a list of metadata for each encountered image
+     * @param maxTileNumber the biggest tile number among all encountered images
      * @return the width and height of the matrix of tiles (a.k.a. fields or sides) in the well.
      */
-    public Geometry getTileGeometry(List<? extends ImageMetadata> imageTokens, int maxTileNumber)
+    public Geometry getTileGeometry(List<? extends ImageMetadata> imageMetadataList,
+            int maxTileNumber)
     {
         return Geometry.createFromRowColDimensions(1, maxTileNumber);
     }
 
     /**
      * For a given tile number and tiles geometry returns (x,y) which describes where the tile is
-     * located on the well. Can be overridden in subclasses.
+     * located on the well. Can be overridden in subclasses.<br>
+     * Note: The top left tile has coordinates (1,1).
+     * 
+     * @param tileNumber number of the tile extracted by {@link #extractImageMetadata}.
+     * @param tileGeometry the geometry of the well matrix returned by {@link #getTileGeometry}.
      */
     public Location getTileCoordinates(int tileNumber, Geometry tileGeometry)
     {
