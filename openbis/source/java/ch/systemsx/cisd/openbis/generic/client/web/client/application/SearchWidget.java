@@ -24,8 +24,6 @@ import com.google.gwt.user.client.History;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.GlobalSearchLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EnterKeyListener;
@@ -143,17 +141,13 @@ public final class SearchWidget extends LayoutContainer
         if (viewContext.isSimpleMode())
         {
             // redirect to another URL
-            String entityDescription =
- (selectedEntity != null) ? selectedEntity.getName() : null;
+            String entityDescription = (selectedEntity != null) ? selectedEntity.getName() : null;
             String url = createGlobalSearchLink(entityDescription, queryText);
             History.newItem(url);
         } else
         {
-
-            AbstractTabItemFactory tabItemFactory =
-                    GlobalSearchTabItemFactory.create(viewContext, selectedEntity, queryText);
-
-            DispatcherHelper.dispatchNaviEvent(tabItemFactory);
+            GlobalSearchTabItemFactory.openTabIfEntitiesFound(viewContext, selectedEntity,
+                    queryText);
         }
 
     }

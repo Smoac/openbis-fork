@@ -3,8 +3,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.locator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GlobalSearchTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
@@ -37,10 +35,7 @@ public class GlobalSearchLocatorResolver extends AbstractViewLocatorResolver
         // TODO KE: 2011-02-16 we should parse queries that can contain spaces
         final String queryText = getMandatoryParameter(locator, QUERY_PARAMETER_KEY);
 
-        AbstractTabItemFactory tabItemFactory =
-                GlobalSearchTabItemFactory.create(viewContext, selectedSearchableEntity, queryText);
-
-        DispatcherHelper.dispatchNaviEvent(tabItemFactory);
+        GlobalSearchTabItemFactory.openTab(viewContext, selectedSearchableEntity, queryText);
     }
 
 

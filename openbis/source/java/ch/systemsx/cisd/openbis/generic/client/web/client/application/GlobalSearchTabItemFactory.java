@@ -21,6 +21,7 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
@@ -34,9 +35,32 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 public class GlobalSearchTabItemFactory
 {
 
-    public static AbstractTabItemFactory create(
+
+    /**
+     * opens a new tab if there are search results.
+     */
+    public static void openTabIfEntitiesFound(
             final IViewContext<ICommonClientServiceAsync> viewContext,
             final SearchableEntity searchableEntity, final String queryText)
+    {
+
+        openTab(viewContext, searchableEntity, queryText, false);
+    }
+
+    /**
+     * always opens a new tab, regardless if there were any search entities found.
+     */
+    public static void openTab(
+            final IViewContext<ICommonClientServiceAsync> viewContext,
+            final SearchableEntity searchableEntity, final String queryText)
+    {
+
+        openTab(viewContext, searchableEntity, queryText, true);
+    }
+
+    private static void openTab(final IViewContext<ICommonClientServiceAsync> viewContext,
+            final SearchableEntity searchableEntity, final String queryText,
+            final boolean openIfNoEntitiesFound)
     {
 
         final boolean useWildcardSearchMode =
@@ -56,10 +80,6 @@ public class GlobalSearchTabItemFactory
             {
                 public void postRefresh(boolean wasSuccessful)
                 {
-                    if (wasSuccessful == false)
-                    {
-                        return;
-                    }
                     if (matchingEntitiesGrid.getRowNumber() == 0)
                     {
                         Object[] msgParameters = (useWildcardSearchMode == true) ? new String[]
@@ -67,14 +87,19 @@ public class GlobalSearchTabItemFactory
                             { queryText, "not", "on" };
                         MessageBox.alert(viewContext.getMessage(Dict.MESSAGEBOX_WARNING),
                                 viewContext.getMessage(Dict.NO_MATCH, msgParameters), null);
-                        return;
+
+                        if (openIfNoEntitiesFound == false)
+                        {
+                            return;
+                        }
                     }
+
+                    DispatcherHelper.dispatchNaviEvent(tabFactory);
+
                 }
             });
-
-        return tabFactory;
-
     }
+
 
     private static String createTabTitle(IViewContext<ICommonClientServiceAsync> viewContext,
             String chosenEntity, String queryText)
