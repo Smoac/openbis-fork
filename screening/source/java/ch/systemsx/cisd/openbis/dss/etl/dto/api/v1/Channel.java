@@ -49,13 +49,13 @@ public final class Channel extends AbstractHashable
         return label;
     }
 
-    /** Optional. Sets the description of the channel. */
+    /** Sets the description of the channel.Optional. */
     public void setDescription(String description)
     {
         this.description = description;
     }
 
-    /** Optional. Sets the wavelength of the channel. */
+    /** Sets the wavelength of the channel.Optional. */
     public void setWavelength(Integer wavelength)
     {
         this.wavelength = wavelength;

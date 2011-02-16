@@ -3,8 +3,8 @@ package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Store well, channel and tile number to which an image belongs. 
- * Optionally stores timepoint/depth-scan/image series number.
+ * Store well, channel and tile number to which an image belongs. Optionally stores
+ * timepoint/depth-scan/image series number.
  * 
  * @author Tomasz Pylak
  */
@@ -49,26 +49,26 @@ public class ImageMetadata
         return well;
     }
 
-    /** Sets well code, e.g. A1 */
+    /** Sets well code (example: "A1") */
     public void setWell(String well)
     {
         this.well = well;
     }
 
-    /** Optional. Sets the timepoint of the image. */
+    /** Sets the timepoint of the image. Optional. */
     public void setTimepoint(Float value)
     {
         this.timepointOrNull = value;
     }
 
-    /** Optional. Sets the depth at which the image has been scanned. */
+    /** Sets the depth at which the image has been scanned. Optional. */
     public void setDepth(Float value)
     {
         this.depthOrNull = value;
     }
 
     /**
-     * Optional. Sets the integer series number of the image. Used to order images when there are no
+     * Sets the integer series number of the image. Optional. Used to order images when there are no
      * time or depth dimentions but there is a series of images for one well, channel and tile. Can
      * be also used together with time and depth dimention.
      */
