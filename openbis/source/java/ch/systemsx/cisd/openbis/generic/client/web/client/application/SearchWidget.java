@@ -20,21 +20,18 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.TableRowLayout;
+import com.google.gwt.user.client.History;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.GlobalSearchLocatorResolver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EnterKeyListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ButtonWithLoadingMask;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
+import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 
 /**
  * A <code>LayoutContainer</code> extension for searching.
@@ -96,11 +93,6 @@ public final class SearchWidget extends LayoutContainer
         layout();
     }
 
-    private final void enableSearch(final boolean enable)
-    {
-        searchButton.setEnabled(enable);
-    }
-
     private final SearchableEntitySelectionWidget createEntityChooser()
     {
         final SearchableEntitySelectionWidget comboBox =
@@ -132,11 +124,6 @@ public final class SearchWidget extends LayoutContainer
 
     private final void doSearch()
     {
-        // Do not trigger another search when already searching.
-        if (searchButton.isEnabled() == false)
-        {
-            return;
-        }
         final String queryText = textField.getValue();
         if (StringUtils.isBlank(queryText))
         {
@@ -148,93 +135,27 @@ public final class SearchWidget extends LayoutContainer
                     viewContext.getMessage(Dict.TOO_GENERIC, queryText), null);
             return;
         }
-        enableSearch(false);
-        final SearchableEntity selectedSearchableEntityOrNull =
-                entityChooser.getSelectedSearchableEntity();
-        final boolean useWildcardSearchMode =
-                viewContext.getDisplaySettingsManager().isUseWildcardSearchMode();
 
-        final MatchingEntitiesPanel matchingEntitiesGrid =
-                new MatchingEntitiesPanel(viewContext, selectedSearchableEntityOrNull, queryText,
-                        useWildcardSearchMode);
-        String title = createTabTitle(queryText);
-        final AbstractTabItemFactory tabFactory =
-                createTabFactory(matchingEntitiesGrid, title, viewContext);
+        // reset the text field
+        textField.setValue("");
 
-        matchingEntitiesGrid.refresh(new IDataRefreshCallback()
-            {
-                public void postRefresh(boolean wasSuccessful)
-                {
-                    enableSearch(true);
-                    if (wasSuccessful == false)
-                    {
-                        return;
-                    }
-                    if (matchingEntitiesGrid.getRowNumber() == 0)
-                    {
-                        Object[] msgParameters = (useWildcardSearchMode == true) ? new String[]
-                            { queryText, "", "off", } : new String[]
-                            { queryText, "not", "on" };
-                        MessageBox.alert(viewContext.getMessage(Dict.MESSAGEBOX_WARNING),
-                                viewContext.getMessage(Dict.NO_MATCH, msgParameters), null);
-                        return;
-                    } else
-                    {
-                        textField.reset();
-                        DispatcherHelper.dispatchNaviEvent(tabFactory);
-                    }
-                }
-            });
-    }
+        SearchableEntity selectedEntity = entityChooser.getSelectedSearchableEntity();
+        if (viewContext.isSimpleMode())
+        {
+            // redirect to another URL
+            String entityDescription =
+ (selectedEntity != null) ? selectedEntity.getName() : null;
+            String url = createGlobalSearchLink(entityDescription, queryText);
+            History.newItem(url);
+        } else
+        {
 
-    private String createTabTitle(final String queryText)
-    {
-        final String selectedText =
-                entityChooser.getValue().get(ModelDataPropertyNames.DESCRIPTION);
-        return viewContext.getMessage(Dict.GLOBAL_SEARCH, selectedText, queryText);
-    }
+            AbstractTabItemFactory tabItemFactory =
+                    GlobalSearchTabItemFactory.create(viewContext, selectedEntity, queryText);
 
-    private static AbstractTabItemFactory createTabFactory(
-            final MatchingEntitiesPanel matchingEntitiesPanel, final String title,
-            IViewContext<?> viewContext)
-    {
-        final ITabItem tab =
-                DefaultTabItem.create(title, matchingEntitiesPanel.asDisposableComponent(),
-                        viewContext);
-        // this tab cannot be opened for the second time, so we can create it outside of the
-        // factory
-        return new AbstractTabItemFactory()
-            {
-                @Override
-                public ITabItem create()
-                {
-                    return tab;
-                }
+            DispatcherHelper.dispatchNaviEvent(tabItemFactory);
+        }
 
-                @Override
-                public String getId()
-                {
-                    return matchingEntitiesPanel.getId();
-                }
-
-                @Override
-                public HelpPageIdentifier getHelpPageIdentifier()
-                {
-                    return new HelpPageIdentifier(HelpPageDomain.SEARCH, HelpPageAction.ACTION);
-                }
-
-                @Override
-                public String getTabTitle()
-                {
-                    return title;
-                }
-
-                @Override
-                public String tryGetLink()
-                {
-                    return null;
-                }
-            };
     }
 
     private static boolean hasOnlyWildcards(final String queryText)
@@ -249,6 +170,20 @@ public final class SearchWidget extends LayoutContainer
             }
         }
         return onlyWildcard;
+    }
+
+    public static String createGlobalSearchLink(String searchableEntity, String queryText)
+    {
+        // forward to a new url
+        URLMethodWithParameters url = new URLMethodWithParameters("");
+        url.addParameter(ViewLocator.ACTION_PARAMETER,
+                GlobalSearchLocatorResolver.GLOBAL_SEARCH_ACTION);
+        if (searchableEntity != null)
+        {
+            url.addParameter(GlobalSearchLocatorResolver.ENTITY_PARAMETER_KEY, searchableEntity);
+        }
+        url.addParameter(GlobalSearchLocatorResolver.QUERY_PARAMETER_KEY, queryText);
+        return url.toStringWithoutDelimiterPrefix();
     }
 
     private final ButtonWithLoadingMask createSearchButton()
@@ -267,6 +202,8 @@ public final class SearchWidget extends LayoutContainer
                             doSearch();
                         }
                     };
+
         return button;
     }
+
 }

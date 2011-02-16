@@ -50,11 +50,13 @@ public class ChannelChooserPanel extends LayoutContainer
 
     private IDefaultChannelState defaultChannelState;
 
+    // TODO KE: 2011-02-16 refactor this to use CheckBoxGroupWithModel
     private CheckBoxGroup channelsCheckBoxGroup;
 
     private SimpleComboBox<String> channelsComboBox;
 
-    private ChannelSelectionListener channelSelectionListener;
+    private List<ChannelSelectionListener> channelSelectionListeners =
+            new ArrayList<ChannelSelectionListener>();
 
     /** when set to to true will generate a checkbox per channel */
     private boolean createCheckBoxes;
@@ -83,6 +85,8 @@ public class ChannelChooserPanel extends LayoutContainer
 
         setAutoHeight(true);
         setAutoWidth(true);
+        // TODO KE:2011-02-16 set layout as Tomek wants it
+        // setLayout(new HBoxLayout());
 
         channelsComboBox = createChannelsComboBox();
         add(channelsComboBox);
@@ -108,12 +112,12 @@ public class ChannelChooserPanel extends LayoutContainer
     }
 
     /**
-     * sets a {@link ChannelSelectionListener} that will be receiving notifications when the
+     * adds a {@link ChannelSelectionListener} that will be receiving notifications when the
      * selection changes.
      */
-    public void setSelectionChangedListener(ChannelSelectionListener selectionListener)
+    public void addSelectionChangedListener(ChannelSelectionListener selectionListener)
     {
-        this.channelSelectionListener = selectionListener;
+        channelSelectionListeners.add(selectionListener);
     }
 
     /**
@@ -249,9 +253,14 @@ public class ChannelChooserPanel extends LayoutContainer
         ensureAtLeastOneCheckboxChecked();
         channelsCheckBoxGroup.setVisible(showCheckBoxGroup);
 
-        if (channelSelectionListener != null)
+        notifySelectionListeners(selection);
+    }
+
+    private void notifySelectionListeners(List<String> selection)
+    {
+        for (ChannelSelectionListener listener : channelSelectionListeners)
         {
-            channelSelectionListener.selectionChanged(selection);
+            listener.selectionChanged(selection);
         }
     }
 

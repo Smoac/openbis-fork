@@ -182,7 +182,7 @@ class ChannelChooser
                 new ChannelChooserPanel(defaultChannelState, channels, basicChannelCodes, true);
 
         channelChooser
-                .setSelectionChangedListener(new ChannelChooserPanel.ChannelSelectionListener()
+                .addSelectionChangedListener(new ChannelChooserPanel.ChannelSelectionListener()
                     {
                         public void selectionChanged(List<String> newlySelectedChannels)
                         {

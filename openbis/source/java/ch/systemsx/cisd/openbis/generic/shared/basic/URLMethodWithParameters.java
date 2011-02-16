@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.shared.basic;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+
 /**
  * Helper class to create URL's with parameters. Characters in path, parameter names and values are
  * URL encoded except '0'-'9', 'a'-'z', 'A'-'Z', ':', '/', '.', '*', '-', and '_'. Space character
@@ -27,9 +29,11 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public class URLMethodWithParameters implements IsSerializable
 {
+    private static final char STARTING_DELIMITER = '?';
+
     private final StringBuilder builder;
 
-    private char delim = '?';
+    private char delim = STARTING_DELIMITER;
 
     /**
      * Create an instance with specified method URL without parameters.
@@ -85,6 +89,23 @@ public class URLMethodWithParameters implements IsSerializable
     public String toString()
     {
         return builder.toString();
+    }
+
+    public String toStringWithoutDelimiterPrefix()
+    {
+        String string = toString();
+
+        if (StringUtils.isBlank(string))
+        {
+            // do nothing
+
+        } else if (string.charAt(0) == STARTING_DELIMITER)
+        {
+            return string.substring(1);
+
+        }
+        return string;
+
     }
 
     /** Creates HTML which displays an image linking to the given URL (if it is specified). */

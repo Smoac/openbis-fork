@@ -70,24 +70,29 @@ public class CheckBoxGroupWithModel<T> extends CheckBoxGroup
 
         for (LabeledItem<T> item : items)
         {
-            final CheckBoxWithModel<T> checkBox = new CheckBoxWithModel<T>(item, false);
-            checkBox.addListener(Events.Change, new Listener<BaseEvent>()
-                {
-                    public void handleEvent(BaseEvent be)
-                    {
-                        T changedItem = checkBox.getItem();
-                        if (checkBox.getValue())
-                        {
-                            selected.add(changedItem);
-                        } else
-                        {
-                            selected.remove(changedItem);
-                        }
-                        notifyListeners();
-                    }
-                });
-            add(checkBox);
+            addCheckBox(item);
         }
+    }
+
+    public void addCheckBox(LabeledItem<T> item)
+    {
+        final CheckBoxWithModel<T> checkBox = new CheckBoxWithModel<T>(item, false);
+        checkBox.addListener(Events.Change, new Listener<BaseEvent>()
+            {
+                public void handleEvent(BaseEvent be)
+                {
+                    T changedItem = checkBox.getItem();
+                    if (checkBox.getValue())
+                    {
+                        selected.add(changedItem);
+                    } else
+                    {
+                        selected.remove(changedItem);
+                    }
+                    notifyListeners();
+                }
+            });
+        add(checkBox);
     }
 
     private void notifyListeners()
