@@ -83,6 +83,6 @@ public class GlobalWellSearchLocatorResolver extends AbstractViewLocatorResolver
         URLMethodWithParameters url = new URLMethodWithParameters("");
         url.addParameter(ViewLocator.ACTION_PARAMETER,
                 ScreeningLinkExtractor.GLOBAL_WELL_SEARCH_ACTION);
-        return url.toString().substring(1);
+        return url.toStringWithoutDelimiterPrefix();
     }
 }
