@@ -74,7 +74,7 @@ public class ChannelChooserPanel extends LayoutContainer
     public ChannelChooserPanel(IDefaultChannelState defChannelState)
     {
         this(defChannelState, Collections.<String> emptyList(), Collections.<String> emptyList(),
-                false);
+                true);
     }
 
     public ChannelChooserPanel(IDefaultChannelState defChannelState, List<String> names,
