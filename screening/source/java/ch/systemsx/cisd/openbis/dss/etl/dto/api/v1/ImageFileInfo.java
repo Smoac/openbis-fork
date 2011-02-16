@@ -21,7 +21,7 @@ public final class ImageFileInfo
 
     private Float depthOrNull;
 
-    private Integer seriesNumber;
+    private Integer seriesNumberOrNull;
 
     public ImageFileInfo(String channelCode, int tileRow, int tileColumn, String imageRelativePath)
     {
@@ -80,7 +80,7 @@ public final class ImageFileInfo
 
     public Integer tryGetSeriesNumber()
     {
-        return seriesNumber;
+        return seriesNumberOrNull;
     }
 
     // --- setters
@@ -115,7 +115,7 @@ public final class ImageFileInfo
 
     public void setSeriesNumber(Integer value)
     {
-        this.seriesNumber = value;
+        this.seriesNumberOrNull = value;
     }
 
     @Override
@@ -123,7 +123,7 @@ public final class ImageFileInfo
     {
         return "ImageFileInfo [well=" + wellLocationOrNull + ", tile=" + tileLocation
                 + ", channel=" + channelCode + ", path=" + imageRelativePath + ", timepoint="
-                + timepointOrNull + ", depth=" + depthOrNull + ", seriesNumber=" + seriesNumber
+                + timepointOrNull + ", depth=" + depthOrNull + ", seriesNumber=" + seriesNumberOrNull
                 + "]";
     }
 

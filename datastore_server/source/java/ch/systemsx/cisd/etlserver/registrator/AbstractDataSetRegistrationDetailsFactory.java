@@ -48,7 +48,7 @@ public abstract class AbstractDataSetRegistrationDetailsFactory<T extends DataSe
         return registrationDetails;
     }
 
-    protected final void setDatabaseInstance(T dataSetInfo)
+    protected final void setDatabaseInstance(DataSetInformation dataSetInfo)
     {
         dataSetInfo.setInstanceCode(registratorState.getHomeDatabaseInstance().getCode());
         dataSetInfo.setInstanceUUID(registratorState.getHomeDatabaseInstance().getUuid());

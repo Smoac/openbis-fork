@@ -1,0 +1,115 @@
+package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
+
+import org.apache.commons.lang.StringUtils;
+
+/**
+ * Store well, channel and tile number to which an image belongs. 
+ * Optionally stores timepoint/depth-scan/image series number.
+ * 
+ * @author Tomasz Pylak
+ */
+public class ImageMetadata
+{
+    private String channelCode;
+
+    private int tileNumber;
+
+    private String well;
+
+    private Float timepointOrNull;
+
+    private Float depthOrNull;
+
+    private Integer seriesNumberOrNull;
+
+    public String getChannelCode()
+    {
+        return channelCode;
+    }
+
+    /** Sets channel code. */
+    public void setChannelCode(String channelCode)
+    {
+        this.channelCode = channelCode;
+    }
+
+    public int getTileNumber()
+    {
+        return tileNumber;
+    }
+
+    /** Sets tile number. It should start from 1. */
+    public void setTileNumber(int tileNumber)
+    {
+        this.tileNumber = tileNumber;
+    }
+
+    public String getWell()
+    {
+        return well;
+    }
+
+    /** Sets well code, e.g. A1 */
+    public void setWell(String well)
+    {
+        this.well = well;
+    }
+
+    /** Optional. Sets the timepoint of the image. */
+    public void setTimepoint(Float value)
+    {
+        this.timepointOrNull = value;
+    }
+
+    /** Optional. Sets the depth at which the image has been scanned. */
+    public void setDepth(Float value)
+    {
+        this.depthOrNull = value;
+    }
+
+    /**
+     * Optional. Sets the integer series number of the image. Used to order images when there are no
+     * time or depth dimentions but there is a series of images for one well, channel and tile. Can
+     * be also used together with time and depth dimention.
+     */
+    public void setSeriesNumber(Integer value)
+    {
+        this.seriesNumberOrNull = value;
+    }
+
+    public Float tryGetTimepoint()
+    {
+        return timepointOrNull;
+    }
+
+    public Float tryGetDepth()
+    {
+        return depthOrNull;
+    }
+
+    public Integer tryGetSeriesNumber()
+    {
+        return seriesNumberOrNull;
+    }
+
+    /**
+     * Validates that tile number, well and channel have been specified.
+     * 
+     * @throws IllegalStateException if the object is not valid.
+     */
+    public void ensureValid()
+    {
+        if (tileNumber <= 0)
+        {
+            throw new IllegalStateException("Tile number has to be > 0, but is " + tileNumber);
+        }
+        if (StringUtils.isBlank(channelCode))
+        {
+            throw new IllegalStateException("Channel code is not specified");
+        }
+        if (StringUtils.isBlank(well))
+        {
+            throw new IllegalStateException("Well is not specified");
+        }
+    }
+}
