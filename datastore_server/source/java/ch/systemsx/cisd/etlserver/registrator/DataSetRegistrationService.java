@@ -22,16 +22,20 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.etlserver.BaseDirectoryHolder;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm.DataSetRegistrationAlgorithmState;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithmRunner;
+import ch.systemsx.cisd.etlserver.FileRenamer;
 import ch.systemsx.cisd.etlserver.IDataStoreStrategy;
 import ch.systemsx.cisd.etlserver.IdentifiedDataStrategy;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
+import ch.systemsx.cisd.etlserver.TransferredDataSetHandler;
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 
 /**
@@ -40,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
  * @author Chandrasekhar Ramakrishnan
  */
 public class DataSetRegistrationService<T extends DataSetInformation> implements
-        DataSetRegistrationAlgorithm.IRollbackDelegate
+        DataSetRegistrationAlgorithm.IRollbackDelegate, IDataSetRegistrationService
 {
     static final String STAGING_DIR = "staging-dir";
 
@@ -56,6 +60,8 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     private final IDataSetRegistrationDetailsFactory<T> dataSetRegistrationDetailsFactory;
 
     private final File stagingDirectory;
+
+    private final File incomingDataSetFile;
 
     /**
      * All transactions ever created on this service.
@@ -89,11 +95,13 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
      * @param globalCleanAfterwardsAction An action to execute when the service has finished
      */
     public DataSetRegistrationService(AbstractOmniscientTopLevelDataSetRegistrator<T> registrator,
+            File incomingDataSetFile,
             IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory,
             IDelegatedActionWithResult<Boolean> globalCleanAfterwardsAction)
     {
         this.registrator = registrator;
         this.registratorContext = registrator.getRegistratorState();
+        this.incomingDataSetFile = incomingDataSetFile;
         this.globalCleanAfterwardsAction = globalCleanAfterwardsAction;
         this.dataSetRegistrationDetailsFactory = registrationDetailsFactory;
 
@@ -134,14 +142,17 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     /**
      * Create a new transaction that atomically performs file operations and registers entities.
      */
+    public IDataSetRegistrationTransaction transaction()
+    {
+        return transaction(incomingDataSetFile, getDataSetRegistrationDetailsFactory());
+    }
+
+    /**
+     * Create a new transaction that atomically performs file operations and registers entities.
+     */
     public IDataSetRegistrationTransaction transaction(File dataSetFile)
     {
         return transaction(dataSetFile, getDataSetRegistrationDetailsFactory());
-    }
-
-    protected IDataSetRegistrationDetailsFactory<T> getDataSetRegistrationDetailsFactory()
-    {
-        return dataSetRegistrationDetailsFactory;
     }
 
     /**
@@ -184,6 +195,32 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     {
         rollbackExtantTransactions();
         dataSetRegistrations.clear();
+    }
+
+    public File moveIncomingToError(DataSetRegistrationDetails<?> dataSetDetails)
+    {
+        // Make sure the data set information is valid
+        DataSetInformation dataSetInfo = dataSetDetails.getDataSetInformation();
+        dataSetInfo.setShareId(registratorContext.getGlobalState().getShareId());
+        if (null == dataSetInfo.getDataSetType())
+        {
+            dataSetInfo.setDataSetType(new DataSetType("UNKNOWN"));
+        }
+
+        // Create the error directory
+        File baseDirectory =
+                DataSetStorageAlgorithm.createBaseDirectory(
+                        TransferredDataSetHandler.ERROR_DATA_STRATEGY, registratorContext
+                                .getStorageProcessor().getStoreRootDirectory(), registratorContext
+                                .getFileOperations(), dataSetInfo, dataSetDetails.getDataSetType(),
+                        incomingDataSetFile);
+        BaseDirectoryHolder baseDirectoryHolder =
+                new BaseDirectoryHolder(TransferredDataSetHandler.ERROR_DATA_STRATEGY,
+                        baseDirectory, incomingDataSetFile);
+
+        // Move the incoming there
+        FileRenamer.renameAndLog(incomingDataSetFile, baseDirectoryHolder.getTargetFile());
+        return baseDirectoryHolder.getTargetFile();
     }
 
     public void rollbackTransaction(DataSetRegistrationTransaction<T> transaction,
@@ -241,6 +278,11 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
         return new DefaultEntityOperationService<T>(registrator);
     }
 
+    protected IDataSetRegistrationDetailsFactory<T> getDataSetRegistrationDetailsFactory()
+    {
+        return dataSetRegistrationDetailsFactory;
+    }
+
     /**
      * If a transaction is hanging around, commit it
      */
@@ -268,7 +310,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
         }
     }
 
-    private DataSetRegistrationAlgorithm createRegistrationAlgorithm(File incomingDataSetFile,
+    private DataSetRegistrationAlgorithm createRegistrationAlgorithm(File aDataSetFile,
             DataSetRegistrationDetails<T> details)
     {
         final TopLevelDataSetRegistratorGlobalState globalState =
@@ -285,10 +327,10 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
 
         IDataStoreStrategy dataStoreStrategy =
                 registratorContext.getDataStrategyStore().getDataStoreStrategy(
-                        details.getDataSetInformation(), incomingDataSetFile);
+                        details.getDataSetInformation(), aDataSetFile);
 
         DataSetRegistrationAlgorithmState state =
-                new DataSetRegistrationAlgorithmState(incomingDataSetFile,
+                new DataSetRegistrationAlgorithmState(aDataSetFile,
                         globalState.getOpenBisService(), cleanAfterwardsAction,
                         registratorContext.getPreRegistrationAction(),
                         registratorContext.getPostRegistrationAction(),

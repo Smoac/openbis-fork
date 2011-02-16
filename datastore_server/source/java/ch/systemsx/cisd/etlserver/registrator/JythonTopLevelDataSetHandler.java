@@ -136,12 +136,13 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
      */
     @Override
     protected DataSetRegistrationService<T> createDataSetRegistrationService(
-            IDelegatedActionWithResult<Boolean> cleanAfterwardsAction)
+            File incomingDataSetFile, IDelegatedActionWithResult<Boolean> cleanAfterwardsAction)
     {
         PythonInterpreter interpreter = new PythonInterpreter();
         interpreter.set(STATE_VARIABLE_NAME, getGlobalState());
         JythonDataSetRegistrationService<T> service =
-                createJythonDataSetRegistrationService(cleanAfterwardsAction, interpreter);
+                createJythonDataSetRegistrationService(incomingDataSetFile, cleanAfterwardsAction,
+                        interpreter);
         return service;
     }
 
@@ -149,10 +150,12 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
      * Create a Jython registration service that includes access to the interpreter.
      */
     protected JythonDataSetRegistrationService<T> createJythonDataSetRegistrationService(
-            IDelegatedActionWithResult<Boolean> cleanAfterwardsAction, PythonInterpreter interpreter)
+            File incomingDataSetFile, IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
+            PythonInterpreter interpreter)
     {
         JythonDataSetRegistrationService<T> service =
-                new JythonDataSetRegistrationService<T>(this, cleanAfterwardsAction, interpreter);
+                new JythonDataSetRegistrationService<T>(this, incomingDataSetFile,
+                        cleanAfterwardsAction, interpreter);
         return service;
     }
 
@@ -289,10 +292,11 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
          * @param globalCleanAfterwardsAction
          */
         public JythonDataSetRegistrationService(JythonTopLevelDataSetHandler<T> registrator,
+                File incomingDataSetFile,
                 IDelegatedActionWithResult<Boolean> globalCleanAfterwardsAction,
                 PythonInterpreter interpreter)
         {
-            super(registrator, registrator.createObjectFactory(interpreter),
+            super(registrator, incomingDataSetFile, registrator.createObjectFactory(interpreter),
                     globalCleanAfterwardsAction);
             this.interpreter = interpreter;
         }

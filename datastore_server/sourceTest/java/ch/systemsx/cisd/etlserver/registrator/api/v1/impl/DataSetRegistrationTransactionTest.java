@@ -302,7 +302,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         TopLevelDataSetRegistratorGlobalState globalState = createGlobalState(threadProperties);
 
         handler = new TestingDataSetHandler(globalState);
-        service = handler.createNewService();
+        service = handler.createNewService(workingDirectory);
     }
 
     private TopLevelDataSetRegistratorGlobalState createGlobalState(Properties threadProperties)
@@ -372,7 +372,6 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
                 }
             });
     }
-
 
     private void setUpDataSetValidatorExpectations()
     {
@@ -481,7 +480,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
 
         }
 
-        public DataSetRegistrationService<DataSetInformation> createNewService()
+        public DataSetRegistrationService<DataSetInformation> createNewService(File dataSetFile)
         {
             IDelegatedActionWithResult<Boolean> cleanAfterwardsAction =
                     new IDelegatedActionWithResult<Boolean>()
@@ -491,7 +490,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
                                 return true; // do nothing
                             }
                         };
-            return createDataSetRegistrationService(cleanAfterwardsAction);
+            return createDataSetRegistrationService(dataSetFile, cleanAfterwardsAction);
         }
 
         /**

@@ -98,6 +98,24 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
     // State that changes during execution
     private DataSetStorageAlgorithmState<T> state;
 
+    /**
+     * Utility method for creating base directories
+     */
+    public static File createBaseDirectory(final IDataStoreStrategy strategy, final File baseDir,
+            IFileOperations fileOperations, final DataSetInformation dataSetInfo,
+            DataSetType dataSetType, File incomingDataSetFile)
+    {
+        final File baseDirectory = strategy.getBaseDirectory(baseDir, dataSetInfo, dataSetType);
+        baseDirectory.mkdirs();
+        if (fileOperations.isDirectory(baseDirectory) == false)
+        {
+            throw EnvironmentFailureException.fromTemplate(
+                    "Creating data set base directory '%s' for data set '%s' failed.",
+                    baseDirectory.getAbsolutePath(), incomingDataSetFile);
+        }
+        return baseDirectory;
+    }
+
     public DataSetStorageAlgorithm(File incomingDataSetFile,
             DataSetRegistrationDetails<T> registrationDetails,
             IDataStoreStrategy dataStoreStrategy, IStorageProcessor storageProcessor,
@@ -297,17 +315,10 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         protected final File createBaseDirectory(final IDataStoreStrategy strategy,
                 final File baseDir, final DataSetInformation dataSetInfo)
         {
-            final File baseDirectory =
-                    strategy.getBaseDirectory(baseDir, dataSetInfo,
-                            storageAlgorithm.getDataSetType());
-            baseDirectory.mkdirs();
-            if (getFileOperations().isDirectory(baseDirectory) == false)
-            {
-                throw EnvironmentFailureException.fromTemplate(
-                        "Creating data set base directory '%s' for data set '%s' failed.",
-                        baseDirectory.getAbsolutePath(), incomingDataSetFile);
-            }
-            return baseDirectory;
+
+            return DataSetStorageAlgorithm.createBaseDirectory(strategy, baseDir,
+                    getFileOperations(), dataSetInfo, storageAlgorithm.getDataSetType(),
+                    incomingDataSetFile);
         }
     }
 

@@ -235,7 +235,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         }
 
         DataSetRegistrationService<T> service =
-                createDataSetRegistrationService(cleanAfterwardsAction);
+                createDataSetRegistrationService(incomingDataSetFile, cleanAfterwardsAction);
 
         try
         {
@@ -311,14 +311,18 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
 
     /**
      * Create the data set registration service.
+     * 
+     * @param incomingDataSetFile
      */
     protected DataSetRegistrationService<T> createDataSetRegistrationService(
+            File incomingDataSetFile,
             final IDelegatedActionWithResult<Boolean> cleanAfterwardsAction)
     {
         @SuppressWarnings("unchecked")
         DataSetRegistrationService<T> service =
-                new DataSetRegistrationService(this, new DefaultDataSetRegistrationDetailsFactory(
-                        getRegistratorState()), cleanAfterwardsAction);
+                new DataSetRegistrationService(this, incomingDataSetFile,
+                        new DefaultDataSetRegistrationDetailsFactory(getRegistratorState()),
+                        cleanAfterwardsAction);
         return service;
     }
 

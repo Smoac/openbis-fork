@@ -119,6 +119,11 @@ public class DataSetRegistrationDetails<T extends DataSetInformation> implements
         dataSetInformation.setDataSetType(dataSetType);
     }
 
+    public void setDataSetType(String dataSetTypeCode)
+    {
+        setDataSetType(new DataSetType(dataSetTypeCode));
+    }
+
     public T getDataSetInformation()
     {
         return dataSetInformation;

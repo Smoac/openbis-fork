@@ -1064,12 +1064,12 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
 
         @Override
         protected JythonDataSetRegistrationService<DataSetInformation> createJythonDataSetRegistrationService(
-                IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
+                File aDataSetFile, IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
                 PythonInterpreter interpreter)
         {
             JythonDataSetRegistrationService<DataSetInformation> service =
-                    new TestDataRegistrationService(this, cleanAfterwardsAction, interpreter,
-                            shouldRegistrationFail);
+                    new TestDataRegistrationService(this, aDataSetFile, cleanAfterwardsAction,
+                            interpreter, shouldRegistrationFail);
             return service;
         }
 
@@ -1086,11 +1086,11 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
          * @param interpreter
          */
         public TestDataRegistrationService(
-                JythonTopLevelDataSetHandler<DataSetInformation> registrator,
+                JythonTopLevelDataSetHandler<DataSetInformation> registrator, File aDataSetFile,
                 IDelegatedActionWithResult<Boolean> globalCleanAfterwardsAction,
                 PythonInterpreter interpreter, boolean shouldRegistrationFail)
         {
-            super(registrator, globalCleanAfterwardsAction, interpreter);
+            super(registrator, aDataSetFile, globalCleanAfterwardsAction, interpreter);
             this.shouldRegistrationFail = shouldRegistrationFail;
         }
 
