@@ -96,25 +96,31 @@ public class ScreeningClientApiTest
             plateWells = facade.listPlateWells(experimentIdentifer, gene, true);
             print(String.format("Wells with gene '%s' in experiment '%s': %s", gene,
                     experimentIdentifer, plateWells));
-            featuresForPlateWells = facade.loadFeaturesForPlateWells(experimentIdentifer, gene, null);
+            featuresForPlateWells =
+                    facade.loadFeaturesForPlateWells(experimentIdentifer, gene, null);
             print("Features for wells: " + featuresForPlateWells);
-            featuresForPlateWellsCheck = facade.loadFeaturesForDatasetWellReferences(
-                    facade.convertToFeatureVectorDatasetWellIdentifier(plateWells), null);
+            featuresForPlateWellsCheck =
+                    facade.loadFeaturesForDatasetWellReferences(
+                            facade.convertToFeatureVectorDatasetWellIdentifier(plateWells), null);
         } catch (Exception e)
         {
             print(e.toString());
         }
-        if (featuresForPlateWells != null && featuresForPlateWells.equals(featuresForPlateWellsCheck) == false)
+        if (featuresForPlateWells != null
+                && featuresForPlateWells.equals(featuresForPlateWellsCheck) == false)
         {
             throw new IllegalStateException(String.format(
                     "Inconsistent results to fetch feature vectors, expected:\n%s\nbut got:\n%s",
                     featuresForPlateWells, featuresForPlateWellsCheck));
         }
-        
 
         List<Plate> plates = facade.listPlates();
         print("Plates: " + plates);
-        List<ImageDatasetReference> imageDatasets = facade.listRawImageDatasets(plates);
+        @SuppressWarnings("deprecation")
+        // TODO 2011-02-16, CR, There is no non-deprecated method to get all data sets.
+        // In the Test, Plate1 has a raw image data set, plates 2 and 3 have overlay image data
+        // sets. There is no other way to get the overlay image data sets.
+        List<ImageDatasetReference> imageDatasets = facade.listImageDatasets(plates);
         Collections.sort(imageDatasets, new Comparator<ImageDatasetReference>()
             {
                 public int compare(ImageDatasetReference r1, ImageDatasetReference r2)
@@ -127,13 +133,15 @@ public class ScreeningClientApiTest
         List<FeatureVectorDatasetReference> featureVectorDatasets =
                 facade.listFeatureVectorDatasets(plates);
         Collections.sort(featureVectorDatasets, new Comparator<FeatureVectorDatasetReference>()
+            {
+                public int compare(FeatureVectorDatasetReference r1,
+                        FeatureVectorDatasetReference r2)
                 {
-                    public int compare(FeatureVectorDatasetReference r1, FeatureVectorDatasetReference r2)
-                    {
-                        return r2.getPlate().getPlateCode().compareTo(r1.getPlate().getPlateCode());
-                    }
-                });
-        print("Feature vector datasets: " + featureVectorDatasets.subList(0, Math.min(5, featureVectorDatasets.size())));
+                    return r2.getPlate().getPlateCode().compareTo(r1.getPlate().getPlateCode());
+                }
+            });
+        print("Feature vector datasets: "
+                + featureVectorDatasets.subList(0, Math.min(5, featureVectorDatasets.size())));
 
         List<String> featureCodes = facade.listAvailableFeatureCodes(featureVectorDatasets);
         Collections.sort(featureCodes);
@@ -141,12 +149,13 @@ public class ScreeningClientApiTest
         List<FeatureVectorDataset> features =
                 facade.loadFeatures(featureVectorDatasets, featureCodes);
         Collections.sort(features, new Comparator<FeatureVectorDataset>()
+            {
+                public int compare(FeatureVectorDataset f1, FeatureVectorDataset f2)
                 {
-                    public int compare(FeatureVectorDataset f1, FeatureVectorDataset f2)
-                    {
-                        return f2.getDataset().getPlate().getPlateCode().compareTo(f1.getDataset().getPlate().getPlateCode());
-                    }
-                });
+                    return f2.getDataset().getPlate().getPlateCode()
+                            .compareTo(f1.getDataset().getPlate().getPlateCode());
+                }
+            });
         print("Loaded feature datasets: " + features.size());
         if (features.size() > 0)
         {
