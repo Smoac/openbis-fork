@@ -51,8 +51,12 @@ public final class ScriptBOTest extends AbstractBOTest
     {
         return new Object[][]
             {
-                { ScriptType.DYNAMIC_PROPERTY },
-                { ScriptType.MANAGED_PROPERTY }
+                        {
+                                ScriptType.DYNAMIC_PROPERTY,
+                                "Error evaluating '1+': SyntaxError: ('invalid syntax', "
+                                        + "('expression: 1+', 1, 15, '__result__=(1+)'))" },
+                        { ScriptType.MANAGED_PROPERTY,
+                                "SyntaxError: ('invalid syntax', ('<string>', 1, 3, '1+'))" }
 
             };
     }
@@ -84,7 +88,7 @@ public final class ScriptBOTest extends AbstractBOTest
     }
 
     @Test(dataProvider = "scriptTypes")
-    public final void testDefineAndSave(ScriptType scriptType)
+    public final void testDefineAndSave(ScriptType scriptType, String expectedErrorMessage)
     {
         final ScriptBO scriptBO = createScriptBO();
         final DatabaseInstancePE instance = createDatabaseInstance();
@@ -122,7 +126,7 @@ public final class ScriptBOTest extends AbstractBOTest
     }
 
     @Test(dataProvider = "scriptTypes")
-    public final void testDefineAndSaveScriptCompilationFail(ScriptType scriptType)
+    public final void testDefineAndSaveScriptCompilationFail(ScriptType scriptType, String expectedErrorMessage)
     {
         final ScriptBO scriptBO = createScriptBO();
         final DatabaseInstancePE instance = createDatabaseInstance();
@@ -152,8 +156,7 @@ public final class ScriptBOTest extends AbstractBOTest
             fail("EvaluatorException expected");
         } catch (EvaluatorException ex)
         {
-            assertEquals("Script compilation failed with message:\n\n"
-                    + "SyntaxError: ('invalid syntax', ('<string>', 1, 3, '1+'))", ex.getMessage());
+            assertEquals(expectedErrorMessage, ex.getMessage());
         }
         context.assertIsSatisfied();
     }
@@ -236,7 +239,7 @@ public final class ScriptBOTest extends AbstractBOTest
     }
 
     @Test(dataProvider = "scriptTypes")
-    public void testUpdateScriptNotChanged(ScriptType scriptType) throws Exception
+    public void testUpdateScriptNotChanged(ScriptType scriptType, String expectedErrorMessage) throws Exception
     {
         final ScriptBO scriptBO = createScriptBO();
 
@@ -279,7 +282,7 @@ public final class ScriptBOTest extends AbstractBOTest
 
     @SuppressWarnings("deprecation")
     @Test(dataProvider = "scriptTypes")
-    public void testUpdateScriptChanged(final ScriptType scriptType) throws Exception
+    public void testUpdateScriptChanged(final ScriptType scriptType, String expectedErrorMessage) throws Exception
     {
         final ScriptBO scriptBO = createScriptBO();
 
