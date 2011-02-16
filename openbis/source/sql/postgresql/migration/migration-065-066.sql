@@ -78,6 +78,7 @@ $$ LANGUAGE 'plpgsql';
 CREATE OR REPLACE FUNCTION CREATE_HCS_DATASET_TYPES() RETURNS void AS $$
 DECLARE
 	hcs_image_dataset_exists bool;
+	unknown_file_format_exists bool;
 BEGIN
 	
 	select true 
@@ -88,6 +89,22 @@ BEGIN
 	if hcs_image_dataset_exists IS NULL then 
 		-- skip migration if there is not HCS_IMAGE dataset type
 		return;
+	end if;   
+	
+	-- insert unknown file format if it is not yet present -- 
+	select true into unknown_file_format_exists from file_format_types where code = 'UNKNOWN';
+	if unknown_file_format_exists IS NULL then 
+			insert into file_format_types(
+				id, 
+				code, 
+				description,
+				dbin_id) 
+			values(
+				nextval('file_format_type_id_seq'), 
+				'UNKNOWN', 
+				'Unknown file format',
+				(select id from database_instances where is_original_source = 'T')
+			);	
 	end if;   
 	
 	PERFORM INSERT_DATASET_TYPE_IF_NOT_PRESENT(

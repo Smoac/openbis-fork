@@ -2247,6 +2247,17 @@ COPY file_format_types (id, code, description, dbin_id) FROM stdin;
 9	JPG	\N	1
 \.
 
+insert into file_format_types(
+	id, 
+	code, 
+	description,
+	dbin_id) 
+values(
+	nextval('file_format_type_id_seq'), 
+	'UNKNOWN', 
+	'Unknown file format',
+	(select id from database_instances where is_original_source = 'T')
+);	
 
 --
 -- Data for Name: filters; Type: TABLE DATA; Schema: public; Owner: -
