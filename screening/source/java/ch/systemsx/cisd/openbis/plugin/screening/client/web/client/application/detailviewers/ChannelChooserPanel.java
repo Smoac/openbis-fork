@@ -29,7 +29,6 @@ import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
-import com.extjs.gxt.ui.client.widget.layout.ColumnLayout;
 
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
@@ -51,16 +50,12 @@ public class ChannelChooserPanel extends LayoutContainer
 
     private IDefaultChannelState defaultChannelState;
 
-    // TODO KE: 2011-02-16 refactor this to use CheckBoxGroupWithModel
     private CheckBoxGroup channelsCheckBoxGroup;
 
     private SimpleComboBox<String> channelsComboBox;
 
     private List<ChannelSelectionListener> channelSelectionListeners =
             new ArrayList<ChannelSelectionListener>();
-
-    /** when set to to true will generate a checkbox per channel */
-    private boolean createCheckBoxes;
 
     private final Listener<BaseEvent> selectionChangeListener = new Listener<BaseEvent>()
         {
@@ -74,29 +69,26 @@ public class ChannelChooserPanel extends LayoutContainer
 
     public ChannelChooserPanel(IDefaultChannelState defChannelState)
     {
-        this(defChannelState, Collections.<String> emptyList(), Collections.<String> emptyList(),
-                true);
+        this(defChannelState, Collections.<String> emptyList(), Collections.<String> emptyList());
     }
 
     public ChannelChooserPanel(IDefaultChannelState defChannelState, List<String> names,
-            List<String> selectedChannelsOrNull, boolean createCheckBoxes)
+            List<String> selectedChannelsOrNull)
     {
         this.defaultChannelState = defChannelState;
-        this.createCheckBoxes = createCheckBoxes;
 
         setAutoHeight(true);
         setAutoWidth(true);
-        setLayout(new ColumnLayout());
+        // setLayout(new ColumnLayout());
 
         channelsComboBox = createChannelsComboBox();
         add(channelsComboBox);
 
-        channelsCheckBoxGroup = new CheckBoxGroup();
-        channelsCheckBoxGroup.setStyleAttribute("margin-left", "20px");
+        channelsCheckBoxGroup = createCheckBoxGroup();
         add(channelsCheckBoxGroup);
 
-        initializeAvailableChannels(names);
-        initializeChannelSelection(selectedChannelsOrNull);
+        addChannels(names);
+        updateChannelSelection(selectedChannelsOrNull);
     }
 
     private SimpleComboBox<String> createChannelsComboBox()
@@ -111,6 +103,14 @@ public class ChannelChooserPanel extends LayoutContainer
 
         return comboBox;
     }
+    
+
+    private CheckBoxGroup createCheckBoxGroup()
+    {
+        CheckBoxGroup group = new CheckBoxGroup();
+        // group.setStyleAttribute("margin-left", "20px");
+        return group;
+    }    
 
     /**
      * adds a {@link ChannelSelectionListener} that will be receiving notifications when the
@@ -124,10 +124,10 @@ public class ChannelChooserPanel extends LayoutContainer
     /**
      * a quite specific method, currently only needed by the well-search grid.
      */
-    public void initializeCodesForWellSearchGrid(List<String> codes)
+    public void addCodes(List<String> codes)
     {
-        initializeAvailableChannels(codes);
-        initializeChannelSelection(null);
+        addChannels(codes);
+        updateChannelSelection(null);
     }
 
     /**
@@ -176,7 +176,7 @@ public class ChannelChooserPanel extends LayoutContainer
         return channels;
     }
 
-    private void initializeAvailableChannels(List<String> codes)
+    private void addChannels(List<String> codes)
     {
         addCodeToComboBox(ScreeningConstants.MERGED_CHANNELS);
         if (codes == null || codes.isEmpty())
@@ -184,18 +184,21 @@ public class ChannelChooserPanel extends LayoutContainer
             return;
         }
 
+        List<CheckBox> newCheckBoxes = new ArrayList<CheckBox>();
         for (String code : codes)
         {
             boolean codeAdded = addCodeToComboBox(code);
-            if (codeAdded && createCheckBoxes)
+            if (codeAdded)
             {
                 // also add a checkBockbox for the channel
                 CheckBox checkBox = new CheckBox();
                 checkBox.setBoxLabel(code);
                 checkBox.addListener(Events.Change, selectionChangeListener);
-                channelsCheckBoxGroup.add(checkBox);
+                newCheckBoxes.add(checkBox);
             }
         }
+
+        updateCheckBoxGroup(newCheckBoxes);
     }
 
     private boolean addCodeToComboBox(String code)
@@ -208,7 +211,7 @@ public class ChannelChooserPanel extends LayoutContainer
         return false;
     }
 
-    private void initializeChannelSelection(List<String> selectedChannels)
+    private void updateChannelSelection(List<String> selectedChannels)
     {
         List<String> channels = selectedChannels;
         if (channels == null || channels.size() == 0)
@@ -263,6 +266,37 @@ public class ChannelChooserPanel extends LayoutContainer
         {
             listener.selectionChanged(selection);
         }
+    }
+
+    private void updateCheckBoxGroup(List<CheckBox> newCheckBoxes)
+    {
+        if (newCheckBoxes.isEmpty())
+        {
+            return;
+        }
+
+        boolean recreateCheckBoxGroup = channelsCheckBoxGroup.isRendered();
+
+        if (recreateCheckBoxGroup)
+        {
+            // we must create a new CheckBoxGroup because the old one
+            // wouldn't accept new checkboxes after rendering
+            newCheckBoxes.addAll(0, getAllCheckBoxes());
+            remove(channelsCheckBoxGroup);
+            channelsCheckBoxGroup = createCheckBoxGroup();
+        }
+
+        for (CheckBox cb : newCheckBoxes)
+        {
+            channelsCheckBoxGroup.add(cb);
+        }
+
+        if (recreateCheckBoxGroup)
+        {
+            add(channelsCheckBoxGroup);
+            layout(true);
+        }
+
     }
 
     private void ensureAtLeastOneCheckboxChecked()
