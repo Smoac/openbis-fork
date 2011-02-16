@@ -10,6 +10,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.AbstractViewLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningModule;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ExperimentPlateLocationsSection;
@@ -24,8 +25,7 @@ public class GlobalWellSearchLocatorResolver extends AbstractViewLocatorResolver
 {
     private final IViewContext<IScreeningClientServiceAsync> viewContext;
 
-    public GlobalWellSearchLocatorResolver(
-            IViewContext<IScreeningClientServiceAsync> viewContext)
+    public GlobalWellSearchLocatorResolver(IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         super(ScreeningLinkExtractor.GLOBAL_WELL_SEARCH_ACTION);
         this.viewContext = viewContext;
@@ -56,6 +56,7 @@ public class GlobalWellSearchLocatorResolver extends AbstractViewLocatorResolver
                                     exactMatchOnly);
                     return DefaultTabItem.createUnaware(wellSearchTab, false);
                 }
+
                 @Override
                 public String tryGetLink()
                 {
@@ -68,7 +69,6 @@ public class GlobalWellSearchLocatorResolver extends AbstractViewLocatorResolver
                     return ExperimentPlateLocationsSection.getTabTitle(viewContext);
                 }
 
-
                 @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
@@ -76,5 +76,13 @@ public class GlobalWellSearchLocatorResolver extends AbstractViewLocatorResolver
                 }
 
             });
+    }
+
+    public static String createQueryBrowserLink()
+    {
+        URLMethodWithParameters url = new URLMethodWithParameters("");
+        url.addParameter(ViewLocator.ACTION_PARAMETER,
+                ScreeningLinkExtractor.GLOBAL_WELL_SEARCH_ACTION);
+        return url.toString().substring(1);
     }
 }

@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ExperimentPlateLocationsSection;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ExperimentWellMaterialsSection;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator.GlobalWellSearchLocatorResolver;
 
 /**
  * Screening extensions: reviewing panel section for the experiment (batch search for gene
@@ -65,6 +66,11 @@ public class ScreeningModule implements IModule
                             return Dict.WELLS_SEARCH_MENU_ITEM;
                         }
 
+                        public String getHelpPageTitle()
+                        {
+                            return "Global Well Search";
+                        }
+
                         public DatabaseModificationAwareComponent createComponent(
                                 IViewContext<IScreeningClientServiceAsync> context)
                         {
@@ -75,13 +81,9 @@ public class ScreeningModule implements IModule
 
                         public String tryGetLink()
                         {
-                            return null;
+                            return GlobalWellSearchLocatorResolver.createQueryBrowserLink();
                         }
 
-                        public String getHelpPageTitle()
-                        {
-                            return null;
-                        }
                     }));
     }
 
