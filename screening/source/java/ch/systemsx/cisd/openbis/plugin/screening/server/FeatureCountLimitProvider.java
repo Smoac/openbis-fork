@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 public final class FeatureCountLimitProvider implements IFeatureCountLimitProvider
 {
 
-    private static int DEFAULT_FEATURE_COUNT_LIMIT = 5;
+    private static int DEFAULT_FEATURE_COUNT_LIMIT = 20;
 
     private int limit = DEFAULT_FEATURE_COUNT_LIMIT;
 
