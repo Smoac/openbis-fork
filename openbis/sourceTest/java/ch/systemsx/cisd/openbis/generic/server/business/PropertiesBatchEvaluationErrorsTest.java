@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business;
 
-import static ch.systemsx.cisd.openbis.generic.server.business.PropertiesBatchEvaluationErrors.MAX_ERRORS_IN_USER_MESSAGE;
 import static ch.systemsx.cisd.openbis.generic.server.business.PropertiesBatchEvaluationErrors.MAX_ERROR_DETAILS_KEPT;
 
 import org.apache.commons.lang.StringUtils;
@@ -40,6 +39,8 @@ public class PropertiesBatchEvaluationErrorsTest extends AssertJUnit
 
     private final int totalRows = 100;
 
+    private final int totalErrors = totalRows / 2;
+
     private PropertiesBatchEvaluationErrors errors;
 
     private ScriptPE script;
@@ -55,16 +56,16 @@ public class PropertiesBatchEvaluationErrorsTest extends AssertJUnit
     @Test
     public void testAllRowsFailWithTheSameErrorMessage()
     {
-        for (int i = 1; i <= totalRows; i++)
+        for (int i = 1; i <= totalErrors; i++)
         {
             errors.accumulateError(i, new EvaluatorException(ERROR_TEXT), CODE, script);
         }
 
         assertTrue(errors.hasErrors());
         assertEquals(
-                "Script malfunction in 100 out of 100 rows.\n"
-                        + "100 rows including [1, 2, 3] have failed due to the property 'propcode' causing a malfuction in the script "
-                        + "(name = 'script.py', registrator = 'admin@vip.net'): errtext\n"
+                "Script malfunction in 50 out of 100 rows.\n"
+                        + "50 rows including [1, 2, 3] have failed due to the property 'propcode' causing a malfuction in the script "
+                        + "(name = 'script.py', registrator = 'admin@vip.net')\n"
                         + "A detailed error report has been sent to your system administrator.",
                 errors.constructUserFailureMessage());
 
@@ -73,14 +74,15 @@ public class PropertiesBatchEvaluationErrorsTest extends AssertJUnit
         assertEquals(1, StringUtils.countMatches(email, ERROR_TEXT));
 
         String pattern =
-                "100 rows including [1, 2, 3] have failed due to the property 'propcode' causing a malfuction";
+                totalErrors
+                        + " rows including [1, 2, 3] have failed due to the property 'propcode' causing a malfuction";
         assertEquals(1, StringUtils.countMatches(email, pattern));
     }
 
     @Test
     public void testAllRowsFailWithADifferentErrorMessage()
     {
-        for (int i = 1; i <= totalRows; i++)
+        for (int i = 1; i <= totalErrors; i++)
         {
             errors.accumulateError(i, new EvaluatorException(ERROR_TEXT + i), CODE, script);
         }
@@ -88,8 +90,7 @@ public class PropertiesBatchEvaluationErrorsTest extends AssertJUnit
         assertTrue(errors.hasErrors());
 
         String errorMessage = errors.constructUserFailureMessage();
-        // not more than 3 messages shown to the user
-        assertEquals(MAX_ERRORS_IN_USER_MESSAGE, StringUtils.countMatches(errorMessage, ERROR_TEXT));
+        assertEquals(1, StringUtils.countMatches(errorMessage, "script.py"));
 
         String email = errors.constructErrorReportEmail();
         // only the first 10 stack traces are included

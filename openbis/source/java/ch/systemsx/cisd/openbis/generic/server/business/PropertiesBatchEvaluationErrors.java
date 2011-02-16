@@ -72,7 +72,7 @@ class PropertiesBatchEvaluationErrors
             ScriptPE script)
     {
         totalFailedRowsNumber++;
-        String errorMessage = evaluationError.getMessage();
+        String errorMessage = getErrorMessage(evaluationError);
         if (shouldSkipDetailsAccumulation(errorMessage))
         {
             return;
@@ -88,6 +88,26 @@ class PropertiesBatchEvaluationErrors
         }
         details.rows.add(row);
         errorDetails.put(errorMessage, details);
+    }
+
+    private String getErrorMessage(EvaluatorException evaluationError)
+    {
+        String result = null;
+        if (evaluationError.getCause() != null)
+        {
+            return evaluationError.getCause().getMessage();
+        } else
+        {
+            result = evaluationError.getMessage();
+        }
+
+        if (result == null)
+        {
+            // do not return null
+            return "";
+        }
+
+        return result;
     }
 
     /**
@@ -118,14 +138,29 @@ class PropertiesBatchEvaluationErrors
         message.append(totalRowsNumber);
         message.append(" rows.");
         
-        int numDisplayErrors = Math.min(errorDetails.size(), MAX_ERRORS_IN_USER_MESSAGE);
-        List<ErrorDetail> formatDetails = sortErrorDetailsByRow().subList(0, numDisplayErrors);
-        for (ErrorDetail errDetail : formatDetails)
+        // construct a mapping between message line and failed rows
+        List<String> errorMessageLines = new ArrayList<String>();
+        Map<String, List<Integer>> failedRows = new HashMap<String, List<Integer>>();
+        for (ErrorDetail errDetails : errorDetails.values())
+        {
+            String msgLine = createUserFailureMsgLine(errDetails);
+            if (errorMessageLines.contains(msgLine))
+            {
+                List<Integer> accumulatedRows = failedRows.get(msgLine);
+                accumulatedRows.addAll(errDetails.rows);
+            } else
+            {
+                errorMessageLines.add(msgLine);
+                failedRows.put(msgLine, new ArrayList<Integer>(errDetails.rows));
+            }
+        }
+
+        for (String msgLine : errorMessageLines)
         {
             message.append("\n");
-            appendErrorDetails(message, errDetail, false);
-            message.append(": ");
-            message.append(errDetail.evaluationError.getMessage());
+            List<Integer> rows = failedRows.get(msgLine);
+            message.append(formatRows(rows));
+            message.append(msgLine);
         }
 
         message.append("\n");
@@ -153,6 +188,7 @@ class PropertiesBatchEvaluationErrors
         for (ErrorDetail errDetail : sortErrorDetailsByRow())
         {
             message.append("\n\n");
+            message.append(formatRows(errDetail.rows));
             appendErrorDetails(message, errDetail, true);
             message.append(": ");
             StringWriter sw = new StringWriter();
@@ -176,10 +212,16 @@ class PropertiesBatchEvaluationErrors
         return result;
     }
 
+    private String createUserFailureMsgLine(ErrorDetail details)
+    {
+        StringBuilder builder = new StringBuilder();
+        appendErrorDetails(builder, details, false);
+        return builder.toString();
+    }
+
     private void appendErrorDetails(StringBuilder message, ErrorDetail errDetail,
             boolean includeFullRegistratorDetails)
     {
-        message.append(formatRows(errDetail.rows));
         message.append(" failed due to the property '");
         message.append(errDetail.propertyCode);
         message.append("' causing a malfuction in the script (name = '");
