@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.RoleAssignmentColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignmentGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.RowWithProperties;
 
 /**
@@ -44,11 +44,11 @@ public class RoleAssignmentRow extends RowWithProperties
     {
         super();
         assert userId == null && authGroupId != null || userId != null && authGroupId == null;
-        withCell(RoleAssignmentColDefKind.GROUP.id(), groupCode);
+        withCell(RoleAssignmentGridColumnIDs.SPACE, groupCode);
         if (userId != null)
-            withCell(RoleAssignmentColDefKind.PERSON.id(), userId);
+            withCell(RoleAssignmentGridColumnIDs.PERSON, userId);
         if (authGroupId != null)
-            withCell(RoleAssignmentColDefKind.AUTHORIZATION_GROUP.id(), authGroupId);
-        withCell(RoleAssignmentColDefKind.ROLE.id(), roleCode);
+            withCell(RoleAssignmentGridColumnIDs.AUTHORIZATION_GROUP, authGroupId);
+        withCell(RoleAssignmentGridColumnIDs.ROLE, roleCode);
     }
 }

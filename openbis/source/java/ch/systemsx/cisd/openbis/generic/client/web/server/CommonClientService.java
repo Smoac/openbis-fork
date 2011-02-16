@@ -73,6 +73,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ITableModelProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.MatchingEntitiesProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ProjectsProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.RoleAssignmentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.SampleProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ScriptProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.SpacesProvider;
@@ -513,7 +514,7 @@ public final class CommonClientService extends AbstractClientService implements
         return prepareExportEntities(criteria);
     }
 
-    public String prepareExportRoleAssignments(TableExportCriteria<RoleAssignment> criteria)
+    public String prepareExportRoleAssignments(TableExportCriteria<TableModelRowWithObject<RoleAssignment>> criteria)
     {
         return prepareExportEntities(criteria);
     }
@@ -729,20 +730,11 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public ResultSet<RoleAssignment> listRoleAssignments(
-            DefaultResultSetConfig<String, RoleAssignment> criteria)
+    public TypedTableResultSet<RoleAssignment> listRoleAssignments(
+            DefaultResultSetConfig<String, TableModelRowWithObject<RoleAssignment>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(criteria,
-                new AbstractOriginalDataProviderWithoutHeaders<RoleAssignment>()
-                    {
-                        @Override
-                        public List<RoleAssignment> getFullOriginalData()
-                                throws UserFailureException
-                        {
-                            return listRoleAssignments();
-                        }
-                    });
+        return listEntities(new RoleAssignmentProvider(commonServer, getSessionToken()), criteria);
     }
 
     public final List<RoleAssignment> listRoleAssignments()

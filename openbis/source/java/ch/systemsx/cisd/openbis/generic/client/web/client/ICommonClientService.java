@@ -192,13 +192,15 @@ public interface ICommonClientService extends IClientService
     /**
      * Returns a list of all role assignments.
      */
-    public ResultSet<RoleAssignment> listRoleAssignments(
-            DefaultResultSetConfig<String, RoleAssignment> criteria) throws UserFailureException;
+    public TypedTableResultSet<RoleAssignment> listRoleAssignments(
+            DefaultResultSetConfig<String, TableModelRowWithObject<RoleAssignment>> criteria)
+            throws UserFailureException;
 
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for role assignments.
      */
-    public String prepareExportRoleAssignments(final TableExportCriteria<RoleAssignment> criteria)
+    public String prepareExportRoleAssignments(
+            final TableExportCriteria<TableModelRowWithObject<RoleAssignment>> criteria)
             throws UserFailureException;
 
     /**

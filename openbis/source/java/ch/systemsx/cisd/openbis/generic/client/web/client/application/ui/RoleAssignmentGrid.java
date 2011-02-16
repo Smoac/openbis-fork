@@ -16,11 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
+import java.util.Arrays;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -31,32 +33,30 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddRoleAssignmentDialog;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.RoleAssignmentColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignmentGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * Grid displaying persons.
  * 
  * @author Piotr Buczek
  */
-public class RoleAssignmentGrid extends AbstractSimpleBrowserGrid<RoleAssignment>
+public class RoleAssignmentGrid extends TypedTableGrid<RoleAssignment>
 {
     // browser consists of the grid and the paging toolbar
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "role-browser";
 
-    public static final String GRID_ID = BROWSER_ID + "_grid";
+    public static final String GRID_ID = BROWSER_ID + TypedTableGrid.GRID_POSTFIX;
 
     public static final String ASSIGN_BUTTON_ID = BROWSER_ID + "_assign-button";
 
@@ -70,7 +70,7 @@ public class RoleAssignmentGrid extends AbstractSimpleBrowserGrid<RoleAssignment
 
     private RoleAssignmentGrid(IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(viewContext, BROWSER_ID, GRID_ID, DisplayTypeIDGenerator.PROJECT_BROWSER_GRID);
+        super(viewContext, BROWSER_ID, true, DisplayTypeIDGenerator.PROJECT_BROWSER_GRID);
     }
 
     private void extendBottomToolbar()
@@ -95,15 +95,17 @@ public class RoleAssignmentGrid extends AbstractSimpleBrowserGrid<RoleAssignment
 
         // refactor
         final Button removeRoleButton =
-                createSelectedItemButton(viewContext
-                        .getMessage(Dict.BUTTON_RELEASE_ROLE_ASSIGNMENT),
-                        new ISelectedEntityInvoker<BaseEntityModel<RoleAssignment>>()
+                createSelectedItemButton(
+                        viewContext.getMessage(Dict.BUTTON_RELEASE_ROLE_ASSIGNMENT),
+                        new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<RoleAssignment>>>()
                             {
 
-                                public void invoke(BaseEntityModel<RoleAssignment> selectedItem,
+                                public void invoke(
+                                        BaseEntityModel<TableModelRowWithObject<RoleAssignment>> selectedItem,
                                         boolean keyPressed)
                                 {
-                                    RoleAssignment assignment = selectedItem.getBaseObject();
+                                    RoleAssignment assignment =
+                                            selectedItem.getBaseObject().getObjectOrNull();
                                     new RemoveRoleDialog(assignment).show();
                                 }
                             });
@@ -163,38 +165,35 @@ public class RoleAssignmentGrid extends AbstractSimpleBrowserGrid<RoleAssignment
     }
 
     @Override
-    protected IColumnDefinitionKind<RoleAssignment>[] getStaticColumnsDefinition()
+    protected String translateColumnIdToDictionaryKey(String columnID)
     {
-        return RoleAssignmentColDefKind.values();
+        return columnID.toLowerCase();
     }
 
     @Override
-    protected void listEntities(DefaultResultSetConfig<String, RoleAssignment> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<RoleAssignment>> callback)
+    protected void listTableRows(
+            DefaultResultSetConfig<String, TableModelRowWithObject<RoleAssignment>> resultSetConfig,
+            AsyncCallback<TypedTableResultSet<RoleAssignment>> callback)
     {
         viewContext.getService().listRoleAssignments(resultSetConfig, callback);
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<RoleAssignment> exportCriteria,
+    protected void prepareExportEntities(TableExportCriteria<TableModelRowWithObject<RoleAssignment>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportRoleAssignments(exportCriteria, callback);
     }
 
     @Override
-    protected List<IColumnDefinition<RoleAssignment>> getInitialFilters()
+    protected List<String> getColumnIdsOfFilters()
     {
-        return asColumnFilters(RoleAssignmentColDefKind.values());
+        return Arrays.asList(RoleAssignmentGridColumnIDs.AUTHORIZATION_GROUP,
+                RoleAssignmentGridColumnIDs.DATABASE_INSTANCE, RoleAssignmentGridColumnIDs.PERSON,
+                RoleAssignmentGridColumnIDs.ROLE, RoleAssignmentGridColumnIDs.SPACE);
     }
 
     @Override
-    protected void showEntityViewer(final RoleAssignment roleAssignment, boolean editMode,
-            boolean active)
-    {
-        assert false : "not implemented";
-    }
-
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]

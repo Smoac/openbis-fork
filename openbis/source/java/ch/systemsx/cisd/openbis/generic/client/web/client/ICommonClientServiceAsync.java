@@ -161,11 +161,13 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void registerPerson(String code, AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#listRoleAssignments(DefaultResultSetConfig) */
-    public void listRoleAssignments(DefaultResultSetConfig<String, RoleAssignment> criteria,
-            AsyncCallback<ResultSet<RoleAssignment>> asyncCallback);
+    public void listRoleAssignments(
+            DefaultResultSetConfig<String, TableModelRowWithObject<RoleAssignment>> criteria,
+            AsyncCallback<TypedTableResultSet<RoleAssignment>> asyncCallback);
 
     /** @see ICommonClientService#prepareExportRoleAssignments(TableExportCriteria) */
-    public void prepareExportRoleAssignments(TableExportCriteria<RoleAssignment> exportCriteria,
+    public void prepareExportRoleAssignments(
+            TableExportCriteria<TableModelRowWithObject<RoleAssignment>> exportCriteria,
             AsyncCallback<String> callback);
 
     /** @see ICommonClientService#registerGroupRole(RoleWithHierarchy, String, Grantee) */
