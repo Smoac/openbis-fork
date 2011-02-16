@@ -33,10 +33,23 @@ public interface IManagedUiDescription extends ISerializable
      */
     void useTableOutput(ITableModel tableModel);
 
-    IManagedUiAction addAction(String name);
-
+    /**
+     * Adds a table action with given name to actions that can be performed in the user interface
+     * for modification of the managed property.
+     */
     IManagedUiTableAction addTableAction(String name);
 
+    /**
+     * Adds an action with given <var>name</var> to actions that can be performed in the user
+     * interface for modification of the managed property.
+     * <p>
+     * NOTE: currently there is only support for table actions
+     */
+    IManagedUiAction addAction(String name);
+
+    /**
+     * Get all actions defined for the managed property.
+     */
     List<IManagedUiAction> getActions();
 
     /**

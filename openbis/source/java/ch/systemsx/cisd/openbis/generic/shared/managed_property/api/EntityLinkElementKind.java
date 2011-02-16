@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.managed_property.api;
 /**
  * The type of an entity link.
  * <p>
- * <b>All methods of this enum are part of the Managed Properties API.</b>
+ * NOTE: This enumeration is part of the Managed Properties API.
  * 
  * @author Kaloyan Enimanev
  */
