@@ -158,18 +158,21 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
     private void rollbackDuringStorageProcessorRun(Throwable ex)
     {
+        operationLog.error("Failed to run storage processor", ex);
         rollbackStorageProcessors(ex);
         rollbackDelegate.rollback(this, ex);
     }
 
     private void rollbackDuringMetadataRegistration(Throwable ex)
     {
+        operationLog.error("Failed to register metadata", ex);
         rollbackStorageProcessors(ex);
         rollbackDelegate.rollback(this, ex);
     }
 
     private void rollbackAfterStorageProcessorAndMetadataRegistration(Throwable ex)
     {
+        operationLog.error("Failed to complete transaction", ex);
         rollbackStorageProcessors(ex);
         rollbackDelegate.rollback(this, ex);
     }

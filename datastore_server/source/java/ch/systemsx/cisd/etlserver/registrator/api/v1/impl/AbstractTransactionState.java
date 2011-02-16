@@ -246,8 +246,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
 
         public void deleteFile(String src)
         {
-            // TODO Auto-generated method stub
-
+            throw new NotImplementedException();
         }
 
         /**
