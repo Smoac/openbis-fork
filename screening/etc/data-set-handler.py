@@ -35,6 +35,8 @@ class ImageDataSetFlexible(SimpleImageDataConfig):
         return image_tokens
 
     """
+    Overrides the default implementation which returns (1, maxTileNumber) geometry.
+    
     Calculates the width and height of the matrix of tiles (a.k.a. fields or sides) in the well.
     
     Parameter imageMetadataList: a list of metadata for each encountered image
@@ -46,6 +48,8 @@ class ImageDataSetFlexible(SimpleImageDataConfig):
         return Geometry.createFromRowColDimensions(maxTileNumber / 3, 3);
     
     """
+    Overrides the default implementation which does the same thing (to demonstrate how this can be done). 
+    
     For a given tile number and tiles geometry returns (x,y) which describes where the tile is
     located on the well.
     
