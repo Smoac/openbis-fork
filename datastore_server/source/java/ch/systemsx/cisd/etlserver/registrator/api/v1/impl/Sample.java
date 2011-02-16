@@ -16,10 +16,17 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
+import java.util.ArrayList;
+
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperimentImmutable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
 /**
@@ -28,11 +35,41 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 public class Sample extends SampleImmutable implements ISample
 {
 
+    /**
+     * This code is derived from
+     * {@link ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleBuilder}, which is in
+     * a test source folder.
+     */
     private static ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample buildSampleWithIdentifier(
             String identifier)
     {
-        SampleBuilder builder = new SampleBuilder(identifier);
-        return builder.getSample();
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample =
+                new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample();
+        sample.setProperties(new ArrayList<IEntityProperty>());
+
+        sample.setIdentifier(identifier);
+        SampleIdentifier sampleIdentifier = SampleIdentifierFactory.parse(identifier);
+        sample.setCode(sampleIdentifier.getSampleCode());
+        String sampleSubCode = sampleIdentifier.getSampleSubCode();
+        sample.setSubCode(sampleSubCode);
+        if (sampleIdentifier.isSpaceLevel())
+        {
+            Space space = new Space();
+            SpaceIdentifier spaceLevel = sampleIdentifier.getSpaceLevel();
+            space.setCode(spaceLevel.getSpaceCode());
+            DatabaseInstance databaseInstance = new DatabaseInstance();
+            databaseInstance.setCode(spaceLevel.getDatabaseInstanceCode());
+            space.setInstance(databaseInstance);
+            sample.setSpace(space);
+        } else
+        {
+            DatabaseInstance databaseInstance = new DatabaseInstance();
+            databaseInstance.setCode(sampleIdentifier.getDatabaseInstanceLevel()
+                    .getDatabaseInstanceCode());
+            sample.setDatabaseInstance(databaseInstance);
+        }
+
+        return sample;
     }
 
     public Sample(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample)
