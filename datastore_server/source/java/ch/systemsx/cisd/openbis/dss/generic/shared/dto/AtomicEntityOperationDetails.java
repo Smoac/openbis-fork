@@ -31,10 +31,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class AtomicEntityOperationDetails<T extends DataSetInformation> implements
-        Serializable
+public class AtomicEntityOperationDetails<T extends DataSetInformation> implements Serializable
 {
     private static final long serialVersionUID = 1L;
+
+    // The userid on whose behalf the operations are done.
+    private final String userIdOrNull;
 
     private final ArrayList<ExperimentUpdatesDTO> experimentUpdates;
 
@@ -46,17 +48,24 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
 
     private final ArrayList<DataSetRegistrationInformation<T>> dataSetRegistrations;
 
-    public AtomicEntityOperationDetails(List<ExperimentUpdatesDTO> experimentUpdates,
+    public AtomicEntityOperationDetails(String userIdOrNull,
+            List<ExperimentUpdatesDTO> experimentUpdates,
             List<NewExperiment> experimentRegistrations, List<SampleUpdatesDTO> sampleUpdates,
             List<NewSample> sampleRegistrations,
             List<DataSetRegistrationInformation<T>> dataSetRegistrations)
     {
+        this.userIdOrNull = userIdOrNull;
         this.experimentUpdates = new ArrayList<ExperimentUpdatesDTO>(experimentUpdates);
         this.experimentRegistrations = new ArrayList<NewExperiment>(experimentRegistrations);
         this.sampleUpdates = new ArrayList<SampleUpdatesDTO>(sampleUpdates);
         this.sampleRegistrations = new ArrayList<NewSample>(sampleRegistrations);
         this.dataSetRegistrations =
                 new ArrayList<DataSetRegistrationInformation<T>>(dataSetRegistrations);
+    }
+
+    public String tryUserIdOrNull()
+    {
+        return userIdOrNull;
     }
 
     public ArrayList<ExperimentUpdatesDTO> getExperimentUpdates()

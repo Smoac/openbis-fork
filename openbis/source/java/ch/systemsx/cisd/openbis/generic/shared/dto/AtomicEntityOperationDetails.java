@@ -36,6 +36,9 @@ public class AtomicEntityOperationDetails implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
+    // The userid on whose behalf the operations are done.
+    private final String userIdOrNull;
+
     // This is always an empty list, since it is not currently possible to update experiments from
     // the DSS
     private final ArrayList<ExperimentUpdatesDTO> experimentUpdates;
@@ -48,15 +51,21 @@ public class AtomicEntityOperationDetails implements Serializable
 
     private final ArrayList<NewExternalData> dataSetRegistrations;
 
-    public AtomicEntityOperationDetails(List<NewExperiment> experimentRegistrations,
-            List<SampleUpdatesDTO> sampleUpdates, List<NewSample> sampleRegistrations,
-            List<NewExternalData> dataSetRegistrations)
+    public AtomicEntityOperationDetails(String userIdOrNull,
+            List<NewExperiment> experimentRegistrations, List<SampleUpdatesDTO> sampleUpdates,
+            List<NewSample> sampleRegistrations, List<NewExternalData> dataSetRegistrations)
     {
+        this.userIdOrNull = userIdOrNull;
         this.experimentUpdates = new ArrayList<ExperimentUpdatesDTO>();
         this.experimentRegistrations = new ArrayList<NewExperiment>(experimentRegistrations);
         this.sampleUpdates = new ArrayList<SampleUpdatesDTO>(sampleUpdates);
         this.sampleRegistrations = new ArrayList<NewSample>(sampleRegistrations);
         this.dataSetRegistrations = new ArrayList<NewExternalData>(dataSetRegistrations);
+    }
+
+    public String tryUserIdOrNull()
+    {
+        return userIdOrNull;
     }
 
     public ArrayList<ExperimentUpdatesDTO> getExperimentUpdates()
@@ -88,6 +97,7 @@ public class AtomicEntityOperationDetails implements Serializable
     public String toString()
     {
         ToStringBuilder sb = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
+        sb.append("userIdOrNull", userIdOrNull);
         sb.append("experimentUpdates", experimentUpdates);
         sb.append("experimentRegistrations", experimentRegistrations);
         sb.append("sampleUpdates", sampleUpdates);

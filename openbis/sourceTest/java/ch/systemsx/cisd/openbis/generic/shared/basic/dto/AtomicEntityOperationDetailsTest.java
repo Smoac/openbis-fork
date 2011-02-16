@@ -55,11 +55,11 @@ public class AtomicEntityOperationDetailsTest extends AssertJUnit
         dataSetRegistrations.add(newExternalData);
 
         AtomicEntityOperationDetails details =
-                new AtomicEntityOperationDetails(experimentRegistrations, sampleUpdates,
+                new AtomicEntityOperationDetails(null, experimentRegistrations, sampleUpdates,
                         sampleRegistrations, dataSetRegistrations);
 
         assertEquals(
-                "AtomicEntityOperationDetails[experimentUpdates=[]"
+                "AtomicEntityOperationDetails[userIdOrNull=<null>,experimentUpdates=[]"
                         + ",experimentRegistrations=[/SPACE/PROJECT/EXP-ID1, /SPACE/PROJECT/EXP-ID2]"
                         + ",sampleUpdates=[]"
                         + ",sampleRegistrations=[/SPACE/SAMPLE-ID1, /SPACE/SAMPLE-ID2]"

@@ -98,6 +98,8 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
 
         private final List<Sample> samplesToBeUpdated = new ArrayList<Sample>();
 
+        private String userIdOrNull = null;
+
         public LiveTransactionState(DataSetRegistrationTransaction<T> parent,
                 RollbackStack rollbackStack, File workingDirectory, File stagingDirectory,
                 DataSetRegistrationService<T> registrationService,
@@ -112,6 +114,16 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
                     this.registrationService.getRegistratorContext().getGlobalState()
                             .getOpenBisService();
             this.registrationDetailsFactory = registrationDetailsFactory;
+        }
+
+        public String getUserId()
+        {
+            return userIdOrNull;
+        }
+
+        public void setUserId(String userIdOrNull)
+        {
+            this.userIdOrNull = userIdOrNull;
         }
 
         public IDataSet createNewDataSet()
@@ -336,8 +348,9 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             List<ExperimentUpdatesDTO> experimentUpdates = new ArrayList<ExperimentUpdatesDTO>();
 
             AtomicEntityOperationDetails<T> registrationDetails =
-                    new AtomicEntityOperationDetails<T>(experimentUpdates, experimentRegistrations,
-                            sampleUpdates, sampleRegistrations, dataSetRegistrations);
+                    new AtomicEntityOperationDetails<T>(getUserId(), experimentUpdates,
+                            experimentRegistrations, sampleUpdates, sampleRegistrations,
+                            dataSetRegistrations);
             return registrationDetails;
         }
 

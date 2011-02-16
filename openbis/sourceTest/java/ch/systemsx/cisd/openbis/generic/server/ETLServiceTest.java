@@ -144,7 +144,7 @@ public class ETLServiceTest extends AbstractServerTestCase
 
         List<SimpleDataSetInformationDTO> dataSets =
                 createService().listDataSets(SESSION_TOKEN, DSS_CODE);
-        
+
         assertEquals(DSS_CODE, dataSets.get(0).getDataStoreCode());
         assertEquals("ds-1", dataSets.get(0).getDataSetCode());
         assertEquals("share-1", dataSets.get(0).getDataSetShareId());
@@ -938,7 +938,7 @@ public class ETLServiceTest extends AbstractServerTestCase
             });
 
         AtomicEntityOperationDetails details =
-                new AtomicEntityOperationDetails(new ArrayList<NewExperiment>(),
+                new AtomicEntityOperationDetails(null, new ArrayList<NewExperiment>(),
                         Collections.singletonList(sampleUpdate),
                         Collections.singletonList(newSample),
                         Collections.singletonList(externalData));

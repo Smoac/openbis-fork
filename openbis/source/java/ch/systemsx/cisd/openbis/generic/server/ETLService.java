@@ -946,7 +946,9 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         List<NewSample> newSamples = operationDetails.getSampleRegistrations();
         for (NewSample newSample : newSamples)
         {
-            SamplePE samplePE = registerSampleInternal(sessionToken, newSample, null);
+            SamplePE samplePE =
+                    registerSampleInternal(sessionToken, newSample,
+                            operationDetails.tryUserIdOrNull());
             samplePEsCreated.add(samplePE);
         }
         final Session session = getSession(sessionToken);

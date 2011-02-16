@@ -165,6 +165,16 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
                         .getOpenBisService();
     }
 
+    public String getUserId()
+    {
+        return getStateAsLiveState().getUserId();
+    }
+
+    public void setUserId(String userIdOrNull)
+    {
+        getStateAsLiveState().setUserId(userIdOrNull);
+    }
+
     public IDataSet createNewDataSet()
     {
         return getStateAsLiveState().createNewDataSet();

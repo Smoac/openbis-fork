@@ -64,7 +64,8 @@ public class DefaultEntityOperationService<T extends DataSetInformation> impleme
         }
 
         return new ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails(
-                experimentRegistrations, sampleUpdates, sampleRegistrations, dataSetRegistrations);
+                details.tryUserIdOrNull(), experimentRegistrations, sampleUpdates,
+                sampleRegistrations, dataSetRegistrations);
     }
 
 }
