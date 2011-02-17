@@ -70,7 +70,7 @@ public class RoleAssignmentGrid extends TypedTableGrid<RoleAssignment>
 
     private RoleAssignmentGrid(IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(viewContext, BROWSER_ID, true, DisplayTypeIDGenerator.PROJECT_BROWSER_GRID);
+        super(viewContext, BROWSER_ID, true, DisplayTypeIDGenerator.ROLE_ASSIGNMENT_BROWSER_GRID);
     }
 
     private void extendBottomToolbar()
