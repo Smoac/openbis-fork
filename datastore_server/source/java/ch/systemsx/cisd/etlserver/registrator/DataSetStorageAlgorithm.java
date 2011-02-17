@@ -34,7 +34,6 @@ import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
-import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.etlserver.BaseDirectoryHolder;
 import ch.systemsx.cisd.etlserver.DataStoreStrategyKey;
 import ch.systemsx.cisd.etlserver.FileRenamer;
@@ -42,6 +41,7 @@ import ch.systemsx.cisd.etlserver.IDataStoreStrategy;
 import ch.systemsx.cisd.etlserver.IStorageProcessor;
 import ch.systemsx.cisd.etlserver.IStorageProcessor.UnstoreDataAction;
 import ch.systemsx.cisd.etlserver.TransferredDataSetHandler;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.ConversionUtils;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -225,34 +225,16 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
 
     public NewExternalData createExternalData()
     {
-        final NewExternalData data = new NewExternalData();
-        data.setUserId(dataSetInformation.getUploadingUserIdOrNull());
-        data.setUserEMail(dataSetInformation.tryGetUploadingUserEmail());
-        data.setExtractableData(dataSetInformation.getExtractableData());
-        data.setDataSetType(registrationDetails.getDataSetType());
-        data.setFileFormatType(registrationDetails.getFileFormatType());
-        data.setMeasured(registrationDetails.isMeasuredData());
-        data.setDataStoreCode(dataStoreCode);
-        data.setExperimentIdentifierOrNull(dataSetInformation.getExperimentIdentifier());
-        data.setSampleIdentifierOrNull(dataSetInformation.getSampleIdentifier());
-
         File dataFile = ((StoredState<T>) state).getDataFile();
-
-        final String relativePath = FileUtilities.getRelativeFile(storeRoot, dataFile);
+        String relativePath = FileUtilities.getRelativeFile(storeRoot, dataFile);
         String absolutePath = dataFile.getAbsolutePath();
         assert relativePath != null : String.format(
                 TransferredDataSetHandler.TARGET_NOT_RELATIVE_TO_STORE_ROOT, absolutePath,
                 storeRoot.getAbsolutePath());
-        final StorageFormat storageFormat = storageProcessor.getStorageFormat();
-        final BooleanOrUnknown isCompleteFlag = dataSetInformation.getIsCompleteFlag();
+        StorageFormat storageFormat = storageProcessor.getStorageFormat();
 
-        data.setComplete(isCompleteFlag);
-        data.setLocatorType(registrationDetails.getLocatorType());
-        data.setShareId(dataSetInformation.getShareId());
-        data.setLocation(relativePath.substring(data.getShareId().length() + 1));
-        data.setStorageFormat(storageFormat);
-
-        return data;
+        return ConversionUtils.convertToNewExternalData(registrationDetails, dataStoreCode,
+                storageFormat, relativePath);
     }
 
     public String getSuccessRegistrationMessage()

@@ -99,4 +99,14 @@ public interface IDataSet
      * Set the data set type.
      */
     public void setDataSetType(String dataSetTypeCode);
+
+    /**
+     * Get the value for a property.
+     */
+    String getPropertyValue(String propertyCode);
+
+    /**
+     * Set the value for a property.
+     */
+    void setPropertyValue(String propertyCode, String propertyValue);
 }

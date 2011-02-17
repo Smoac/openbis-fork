@@ -36,7 +36,7 @@ public interface IExperimentImmutable
     /**
      * Return the type for this experiment. May be null.
      */
-    String getType();
+    String getExperimentType();
 
     /**
      * Return the value of a property specified by a code. May return null of no such property with

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import ch.systemsx.cisd.common.annotation.BeanProperty;
@@ -73,5 +74,30 @@ public class NewProperty implements Serializable
         return ToStringBuilder.reflectionToString(this,
                 ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
     }
+
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((property == null) ? 0 : property.hashCode());
+        result = prime * result + ((value == null) ? 0 : value.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (obj instanceof NewProperty)
+        {
+            NewProperty that = (NewProperty) obj;
+            EqualsBuilder builder = new EqualsBuilder();
+            builder.append(property, that.property);
+            builder.append(value, that.value);
+            return builder.isEquals();
+        }
+        return false;
+    }
+
 
 }

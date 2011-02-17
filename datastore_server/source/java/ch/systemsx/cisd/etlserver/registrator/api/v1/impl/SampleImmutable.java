@@ -80,7 +80,7 @@ public class SampleImmutable implements ISampleImmutable
         return EntityHelper.tryFindPropertyValue(sample, propertyCode);
     }
 
-    public String getType()
+    public String getSampleType()
     {
         if (sample.getSampleType() != null)
         {

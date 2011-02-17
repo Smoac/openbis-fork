@@ -122,10 +122,16 @@ public class EntityHelper
     }
 
 
+    public static IEntityProperty createNewProperty(String propertyCode, String propertyValue)
+    {
+        IEntityProperty property = createNewProperty(propertyCode);
+        property.setValue(propertyValue);
+        return property;
+    }
+
     private static IEntityProperty createNewProperty(String propertyCode)
     {
-        IEntityProperty property;
-        property = new EntityProperty();
+        IEntityProperty property = new EntityProperty();
         PropertyType propertyType = new PropertyType();
         propertyType.setCode(propertyCode);
         property.setPropertyType(propertyType);

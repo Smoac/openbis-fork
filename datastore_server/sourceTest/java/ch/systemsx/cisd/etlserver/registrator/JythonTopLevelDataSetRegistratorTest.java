@@ -70,6 +70,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 
@@ -460,6 +461,10 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
 
         assertEquals(DATA_SET_CODE, dataSet.getCode());
         assertEquals(DATA_SET_TYPE, dataSet.getDataSetType());
+
+        NewProperty newProp = new NewProperty("dataSetProp", "dataSetPropValue");
+        assertTrue(dataSet.getExtractableData().getDataSetProperties().contains(newProp));
+
         File datasetLocation =
                 DatasetLocationUtil.getDatasetLocationPath(workingDirectory, DATA_SET_CODE,
                         ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,

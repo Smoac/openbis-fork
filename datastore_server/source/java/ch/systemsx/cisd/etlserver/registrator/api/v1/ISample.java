@@ -36,8 +36,6 @@ public interface ISample extends ISampleImmutable
 
     /**
      * Set the value for a property.
-     * 
-     * @throws IllegalArgumentException if no property for code <code>propertyCode</code> is found.
      */
     void setPropertyValue(String propertyCode, String propertyValue);
 }

@@ -36,7 +36,7 @@ public interface ISampleImmutable
     /**
      * Return the type for this sample. May be null.
      */
-    String getType();
+    String getSampleType();
 
     /**
      * Return true if the sample exists in the database.
