@@ -381,6 +381,13 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     public String createDataSetCode(final String sessionToken) throws UserFailureException;
 
     /**
+     * Create and return a new permanent id that can be used to identify samples, experiments etc.
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    public String createPermId(final String sessionToken) throws UserFailureException;
+
+    /**
      * Draw a new unique ID. The returned value can be used as a part of a code for samples,
      * experiments etc. which is guaranteed to be unique.
      */

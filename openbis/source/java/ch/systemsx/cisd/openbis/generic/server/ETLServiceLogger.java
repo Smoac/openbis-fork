@@ -76,6 +76,12 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
         return null;
     }
 
+    public String createPermId(String sessionToken) throws UserFailureException
+    {
+        logTracking(sessionToken, "createPermId", "");
+        return null;
+    }
+
     public long drawANewUniqueID(String sessionToken) throws UserFailureException
     {
         logTracking(sessionToken, "drawANewUniqueID", "");

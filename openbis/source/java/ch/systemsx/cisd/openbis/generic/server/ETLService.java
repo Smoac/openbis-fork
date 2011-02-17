@@ -311,6 +311,11 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
 
     public String createDataSetCode(String sessionToken) throws UserFailureException
     {
+        return createPermId(sessionToken);
+    }
+
+    public String createPermId(String sessionToken) throws UserFailureException
+    {
         checkSession(sessionToken); // throws exception if invalid sessionToken
         return daoFactory.getPermIdDAO().createPermId();
     }

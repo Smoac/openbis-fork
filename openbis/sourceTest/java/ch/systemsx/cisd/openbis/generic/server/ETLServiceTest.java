@@ -333,6 +333,28 @@ public class ETLServiceTest extends AbstractServerTestCase
     }
 
     @Test
+    public void testPermId()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(sessionManager).getSession(SESSION_TOKEN);
+
+                    one(daoFactory).getPermIdDAO();
+                    will(returnValue(permIdDAO));
+
+                    one(permIdDAO).createPermId();
+                    will(returnValue("permId"));
+                }
+            });
+
+        String dataSetCode = createService().createPermId(SESSION_TOKEN);
+
+        assertEquals("permId", dataSetCode);
+        context.assertIsSatisfied();
+    }
+
+    @Test
     public void testTryGetSampleWithExperimentForAnUnknownSample()
     {
         final SampleIdentifier sampleIdentifier =

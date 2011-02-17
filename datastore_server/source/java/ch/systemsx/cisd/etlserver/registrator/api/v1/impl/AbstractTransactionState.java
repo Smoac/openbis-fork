@@ -180,7 +180,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
 
         public ISample createNewSample(String sampleIdentifierString, String sampleTypeCode)
         {
-            String permId = createPermId();
+            String permId = openBisService.createPermId();
             Sample sample = new Sample(sampleIdentifierString, permId);
             sample.setSampleType(sampleTypeCode);
             samplesToBeRegistered.add(sample);
@@ -195,7 +195,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
         public IExperiment createNewExperiment(String experimentIdentifierString,
                 String experimentTypeCode)
         {
-            String permId = createPermId();
+            String permId = openBisService.createPermId();
             Experiment experiment = new Experiment(experimentIdentifierString, permId);
             experiment.setExperimentType(experimentTypeCode);
             experimentsToBeRegistered.add(experiment);
@@ -304,12 +304,6 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
         {
             rollbackStack.rollbackAll();
             registeredDataSets.clear();
-        }
-
-        private String createPermId()
-        {
-            String permId = openBisService.createDataSetCode();
-            return permId;
         }
 
         /**

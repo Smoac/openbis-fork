@@ -441,7 +441,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
                     one(openBisService).createDataSetCode();
                     will(returnValue(DATA_SET_CODE));
 
-                    one(openBisService).createDataSetCode();
+                    one(openBisService).createPermId();
                     will(returnValue(EXPERIMENT_PERM_ID));
 
                     one(dataSetValidator).assertValidDataSet(DATA_SET_TYPE,
@@ -499,10 +499,10 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
                     one(openBisService).createDataSetCode();
                     will(returnValue(DATA_SET_CODE));
 
-                    one(openBisService).createDataSetCode();
+                    one(openBisService).createPermId();
                     will(returnValue(EXPERIMENT_PERM_ID));
 
-                    one(openBisService).createDataSetCode();
+                    one(openBisService).createPermId();
                     will(returnValue(SAMPLE_PERM_ID));
 
                     one(dataSetValidator).assertValidDataSet(DATA_SET_TYPE,

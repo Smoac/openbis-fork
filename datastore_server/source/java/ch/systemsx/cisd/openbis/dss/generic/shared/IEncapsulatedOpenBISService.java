@@ -254,6 +254,12 @@ public interface IEncapsulatedOpenBISService
     public String createDataSetCode();
 
     /**
+     * Creates and returns a new permanent ID that can be used to identify experiments, samples etc.
+     */
+    @ManagedAuthentication
+    public String createPermId();
+
+    /**
      * Creates a new unique ID which can be used to create codes which are guaranteed to be unique.
      */
     @ManagedAuthentication

@@ -330,6 +330,11 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         return service.createDataSetCode(session.getToken());
     }
 
+    public final String createPermId()
+    {
+        return service.createPermId(session.getToken());
+    }
+
     public long drawANewUniqueID()
     {
         return service.drawANewUniqueID(session.getToken());
