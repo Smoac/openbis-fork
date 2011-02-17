@@ -72,7 +72,9 @@ public class SegmentedStoreShufflingTask implements IMaintenanceTask
                     List<SimpleDataSetInformationDTO> dataSets = share.getDataSetsOrderedBySize();
                     logger.log(
                             INFO,
-                            "   " + (share.isIncoming() ? "Incoming" : "External") + " share "
+                            "   "
+                                    + (share.isIncoming() ? "Incoming" : "External")
+                                    + " share "
                                     + share.getShareId()
                                     + " (free space: "
                                     + FileUtils.byteCountToDisplaySize(share.calculateFreeSpace())
@@ -100,22 +102,31 @@ public class SegmentedStoreShufflingTask implements IMaintenanceTask
             }
         };
 
-    @Private static final String SHUFFLING_SECTION_NAME = "shuffling";
-    @Private static final String CLASS_PROPERTY_NAME = "class";
-    
-    private static final Logger operationLog =
-        LogFactory.getLogger(LogCategory.OPERATION, SegmentedStoreShufflingTask.class);
-    
+    @Private
+    static final String SHUFFLING_SECTION_NAME = "shuffling";
+
+    @Private
+    static final String CLASS_PROPERTY_NAME = "class";
+
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            SegmentedStoreShufflingTask.class);
+
     private final Set<String> incomingShares;
-    
+
     private final IEncapsulatedOpenBISService service;
+
     private final IDataSetMover dataSetMover;
+
     private final IFreeSpaceProvider freeSpaceProvider;
+
     private final ISimpleLogger operationLogger;
-    
+
     private File storeRoot;
+
     private String dataStoreCode;
-    @Private ISegmentedStoreShuffling shuffling;
+
+    @Private
+    ISegmentedStoreShuffling shuffling;
 
     public SegmentedStoreShufflingTask()
     {
@@ -146,7 +157,7 @@ public class SegmentedStoreShufflingTask implements IMaintenanceTask
     {
         dataStoreCode =
                 PropertyUtils.getMandatoryProperty(properties,
-                        DssPropertyParametersUtil.DSS_CODE_KEY);
+                        DssPropertyParametersUtil.DSS_CODE_KEY).toUpperCase();
         storeRoot =
                 new File(PropertyUtils.getMandatoryProperty(properties,
                         DssPropertyParametersUtil.STOREROOT_DIR_KEY));
@@ -162,7 +173,7 @@ public class SegmentedStoreShufflingTask implements IMaintenanceTask
                 + ", data store root: " + storeRoot.getAbsolutePath() + ", incoming shares: "
                 + incomingShares);
     }
-    
+
     private ISegmentedStoreShuffling createShuffling(Properties properties)
     {
         Properties shufflingProps =
