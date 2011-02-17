@@ -17,46 +17,47 @@
 package ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.module;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Constants;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.DisplayTypeIDGenerator;
-import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.ui.columns.QueryColDefKind;
+import ch.systemsx.cisd.openbis.plugin.query.client.web.client.dto.QueryBrowserGridColumnIDs;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
 
 /**
  * @author Franz-Josef Elmer
  */
-public class QueryBrowserGrid extends AbstractSimpleBrowserGrid<QueryExpression>
+public class QueryBrowserGrid extends TypedTableGrid<QueryExpression>
 {
     private static final String BROWSER_ID = Constants.QUERY_ID_PREFIX + "queries_browser";
 
-    private static final String GRID_ID = BROWSER_ID + "_grid";
-
     private static class DeletionConfirmationDialog extends
-            AbstractDataConfirmationDialog<List<QueryExpression>>
+            AbstractDataConfirmationDialog<List<TableModelRowWithObject<QueryExpression>>>
     {
         private static final int LABEL_WIDTH = 60;
 
@@ -67,7 +68,8 @@ public class QueryBrowserGrid extends AbstractSimpleBrowserGrid<QueryExpression>
         private final AbstractAsyncCallback<Void> callback;
 
         public DeletionConfirmationDialog(IViewContext<IQueryClientServiceAsync> viewContext,
-                List<QueryExpression> data, AbstractAsyncCallback<Void> callback)
+                List<TableModelRowWithObject<QueryExpression>> data,
+                AbstractAsyncCallback<Void> callback)
         {
             super(viewContext, data, viewContext.getMessage(Dict.DELETE_CONFIRMATION_TITLE));
             this.callback = callback;
@@ -85,9 +87,9 @@ public class QueryBrowserGrid extends AbstractSimpleBrowserGrid<QueryExpression>
         protected String createMessage()
         {
             List<String> names = new ArrayList<String>();
-            for (QueryExpression query : data)
+            for (TableModelRowWithObject<QueryExpression> query : data)
             {
-                names.add(query.getName());
+                names.add(query.getObjectOrNull().getName());
             }
             return viewContext.getMessage(Dict.QUERY_DELETION_CONFIRMATION, names);
         }
@@ -111,7 +113,7 @@ public class QueryBrowserGrid extends AbstractSimpleBrowserGrid<QueryExpression>
 
     QueryBrowserGrid(IViewContext<IQueryClientServiceAsync> viewContext)
     {
-        super(viewContext.getCommonViewContext(), BROWSER_ID, GRID_ID,
+        super(viewContext.getCommonViewContext(), BROWSER_ID, true,
                 DisplayTypeIDGenerator.QUERY_EDITOR);
         this.viewContext = viewContext;
         extendBottomToolbar();
@@ -134,13 +136,16 @@ public class QueryBrowserGrid extends AbstractSimpleBrowserGrid<QueryExpression>
                             });
         addButton(addButton);
         final Button editButton =
-                createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
-                        new ISelectedEntityInvoker<BaseEntityModel<QueryExpression>>()
+                createSelectedItemButton(
+                        viewContext.getMessage(Dict.BUTTON_EDIT),
+                        new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<QueryExpression>>>()
                             {
-                                public void invoke(BaseEntityModel<QueryExpression> selectedItem,
+                                public void invoke(
+                                        BaseEntityModel<TableModelRowWithObject<QueryExpression>> selectedItem,
                                         boolean keyPressed)
                                 {
-                                    QueryExpression query = selectedItem.getBaseObject();
+                                    QueryExpression query =
+                                            selectedItem.getBaseObject().getObjectOrNull();
                                     new QueryEditor(viewContext, query, createRefreshGridAction(),
                                             getWidth(), getHeight()).show();
                                 }
@@ -152,7 +157,8 @@ public class QueryBrowserGrid extends AbstractSimpleBrowserGrid<QueryExpression>
                         new AbstractCreateDialogListener()
                             {
                                 @Override
-                                protected Dialog createDialog(List<QueryExpression> selected,
+                                protected Dialog createDialog(
+                                        List<TableModelRowWithObject<QueryExpression>> selected,
                                         IBrowserGridActionInvoker invoker)
                                 {
                                     return new DeletionConfirmationDialog(viewContext, selected,
@@ -165,32 +171,44 @@ public class QueryBrowserGrid extends AbstractSimpleBrowserGrid<QueryExpression>
     }
 
     @Override
-    protected IColumnDefinitionKind<QueryExpression>[] getStaticColumnsDefinition()
+    protected String translateColumnIdToDictionaryKey(String columnID)
     {
-        return QueryColDefKind.values();
+        return columnID.toLowerCase();
+    }
+    
+    @Override
+    protected ColumnDefsAndConfigs<TableModelRowWithObject<QueryExpression>> createColumnsDefinition()
+    {
+        ColumnDefsAndConfigs<TableModelRowWithObject<QueryExpression>> definitions =
+                    super.createColumnsDefinition();
+        definitions.setGridCellRendererFor(QueryBrowserGridColumnIDs.REGISTRATOR,
+                    PersonRenderer.REGISTRATOR_RENDERER);
+        return definitions;
+    }
+    
+    @Override
+    protected List<String> getColumnIdsOfFilters()
+    {
+        return Arrays.asList(QueryBrowserGridColumnIDs.NAME, QueryBrowserGridColumnIDs.IS_PUBLIC);
     }
 
     @Override
-    protected List<IColumnDefinition<QueryExpression>> getInitialFilters()
-    {
-        return asColumnFilters(new QueryColDefKind[]
-            { QueryColDefKind.NAME, QueryColDefKind.PUBLIC });
-    }
-
-    @Override
-    protected void listEntities(DefaultResultSetConfig<String, QueryExpression> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<QueryExpression>> callback)
+    protected void listTableRows(
+            DefaultResultSetConfig<String, TableModelRowWithObject<QueryExpression>> resultSetConfig,
+            AsyncCallback<TypedTableResultSet<QueryExpression>> callback)
     {
         viewContext.getService().listQueries(resultSetConfig, callback);
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<QueryExpression> exportCriteria,
+    protected void prepareExportEntities(
+            TableExportCriteria<TableModelRowWithObject<QueryExpression>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportQueries(exportCriteria, callback);
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return DatabaseModificationKind.any(ObjectKind.QUERY);

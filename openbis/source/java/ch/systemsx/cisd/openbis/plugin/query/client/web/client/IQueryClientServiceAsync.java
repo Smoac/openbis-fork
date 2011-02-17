@@ -22,14 +22,15 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ParameterValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.IQueryUpdates;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.NewQuery;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryDatabase;
@@ -66,15 +67,15 @@ public interface IQueryClientServiceAsync extends IClientServiceAsync
             AsyncCallback<List<ParameterValue>> listParameterValuesCallback);
 
     /** @see IQueryClientService#listQueries(IResultSetConfig) */
-    public void listQueries(IResultSetConfig<String, QueryExpression> resultSetConfig,
-            AsyncCallback<ResultSet<QueryExpression>> callback);
+    public void listQueries(IResultSetConfig<String, TableModelRowWithObject<QueryExpression>> resultSetConfig,
+            AsyncCallback<TypedTableResultSet<QueryExpression>> callback);
 
     /** @see IQueryClientService#listQueries(QueryType, BasicEntityType) */
     public void listQueries(QueryType queryType, BasicEntityType entityTypeOrNull,
             AsyncCallback<List<QueryExpression>> callback) throws UserFailureException;
 
     /** @see IQueryClientService#prepareExportQueries(TableExportCriteria) */
-    public void prepareExportQueries(TableExportCriteria<QueryExpression> criteria,
+    public void prepareExportQueries(TableExportCriteria<TableModelRowWithObject<QueryExpression>> criteria,
             AsyncCallback<String> callback);
 
     /** @see IQueryClientService#registerQuery(NewQuery) */

@@ -29,11 +29,10 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService;
-import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractOriginalDataProviderWithoutHeaders;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -42,7 +41,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ParameterValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientService;
+import ch.systemsx.cisd.openbis.plugin.query.client.web.server.resultset.QueryExpressionProvider;
 import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryServer;
 import ch.systemsx.cisd.openbis.plugin.query.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.IQueryUpdates;
@@ -190,29 +191,13 @@ public class QueryClientService extends AbstractClientService implements IQueryC
         }
     }
 
-    public ResultSet<QueryExpression> listQueries(
-            final IResultSetConfig<String, QueryExpression> resultSetConfig)
+    public TypedTableResultSet<QueryExpression> listQueries(
+            final IResultSetConfig<String, TableModelRowWithObject<QueryExpression>> resultSetConfig)
     {
-        try
-        {
-            return listEntities(resultSetConfig,
-                    new AbstractOriginalDataProviderWithoutHeaders<QueryExpression>()
-                        {
-                            @Override
-                            public List<QueryExpression> getFullOriginalData()
-                                    throws UserFailureException
-                            {
-                                return queryServer.listQueries(getSessionToken(),
-                                        QueryType.UNSPECIFIED, BasicEntityType.UNSPECIFIED);
-                            }
-                        });
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        return listEntities(new QueryExpressionProvider(queryServer, getSessionToken()), resultSetConfig);
     }
 
-    public String prepareExportQueries(TableExportCriteria<QueryExpression> criteria)
+    public String prepareExportQueries(TableExportCriteria<TableModelRowWithObject<QueryExpression>> criteria)
     {
         return prepareExportEntities(criteria);
     }

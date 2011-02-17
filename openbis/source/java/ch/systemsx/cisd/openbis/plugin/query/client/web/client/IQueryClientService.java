@@ -20,14 +20,15 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ParameterValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.IQueryUpdates;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.NewQuery;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryDatabase;
@@ -72,13 +73,13 @@ public interface IQueryClientService extends IClientService
     /**
      * Returns all queries for the specified configuration.
      */
-    public ResultSet<QueryExpression> listQueries(
-            IResultSetConfig<String, QueryExpression> resultSetConfig) throws UserFailureException;
+    public TypedTableResultSet<QueryExpression> listQueries(
+            IResultSetConfig<String, TableModelRowWithObject<QueryExpression>> resultSetConfig) throws UserFailureException;
 
     /**
      * Prepares export of queries.
      */
-    public String prepareExportQueries(TableExportCriteria<QueryExpression> criteria)
+    public String prepareExportQueries(TableExportCriteria<TableModelRowWithObject<QueryExpression>> criteria)
             throws UserFailureException;
 
     /**

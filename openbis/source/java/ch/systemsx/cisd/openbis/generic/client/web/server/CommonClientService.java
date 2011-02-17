@@ -66,11 +66,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSe
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.InvalidSessionException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.ITableDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager;
-import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DataProviderAdapter;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.FileFormatTypesProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
-import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ITableModelProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.MatchingEntitiesProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ProjectsProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.RoleAssignmentProvider;
@@ -90,7 +88,6 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
@@ -652,21 +649,6 @@ public final class CommonClientService extends AbstractClientService implements
         for (DataSetTypePropertyType etpt : propertyType.getDataSetTypePropertyTypes())
         {
             result.add(etpt);
-        }
-    }
-
-    private <T extends ISerializable> TypedTableResultSet<T> listEntities(
-            ITableModelProvider<T> provider,
-            IResultSetConfig<String, TableModelRowWithObject<T>> criteria)
-    {
-        try
-        {
-            DataProviderAdapter<T> dataProvider = new DataProviderAdapter<T>(provider);
-            ResultSet<TableModelRowWithObject<T>> resultSet = listEntities(criteria, dataProvider);
-            return new TypedTableResultSet<T>(resultSet);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
         }
     }
 
