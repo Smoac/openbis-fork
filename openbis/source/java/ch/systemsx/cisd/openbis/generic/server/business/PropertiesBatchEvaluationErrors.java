@@ -247,6 +247,7 @@ class PropertiesBatchEvaluationErrors
             return "Row " + rows.get(0) + " has";
         }
         int displayRows = Math.min(rows.size(), 3);
+        Collections.sort(rows);
         List<Integer> displayRowsList = rows.subList(0, displayRows);
         if (displayRows == rows.size())
         {
