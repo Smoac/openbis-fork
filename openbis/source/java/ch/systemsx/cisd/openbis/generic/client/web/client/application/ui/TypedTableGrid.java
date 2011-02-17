@@ -341,7 +341,10 @@ public abstract class TypedTableGrid<T extends ISerializable>
                     TypedTableGridColumnDefinitionUI<T> definition =
                             new TypedTableGridColumnDefinitionUI<T>(header, title, downloadURL,
                                     sessionID, linkGeneratorOrNull);
-                    definition.setHidden(list.size() > MAX_SHOWN_COLUMNS);
+                    if (list.size() > MAX_SHOWN_COLUMNS)
+                    {
+                        definition.setHidden(true);
+                    }
                     list.add(definition);
                 }
             }
