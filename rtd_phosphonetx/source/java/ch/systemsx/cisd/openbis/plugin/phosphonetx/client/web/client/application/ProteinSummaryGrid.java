@@ -16,23 +16,25 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application;
 
+import java.util.Arrays;
 import java.util.List;
+
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application.columns.ProteinSummaryColDefKind;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinSummaryByExperimentCriteria;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ProteinSummaryGridColumnIDs;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSummary;
 
 /**
@@ -40,7 +42,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSumma
  *
  * @author Franz-Josef Elmer
  */
-class ProteinSummaryGrid extends AbstractSimpleBrowserGrid<ProteinSummary>
+class ProteinSummaryGrid extends TypedTableGrid<ProteinSummary>
 {
     private static final String PREFIX =
             GenericConstants.ID_PREFIX + "protein-summary";
@@ -48,7 +50,7 @@ class ProteinSummaryGrid extends AbstractSimpleBrowserGrid<ProteinSummary>
     // browser consists of the grid and additional toolbars (paging, filtering)
     public static final String BROWSER_ID = PREFIX + "_main";
 
-    public static final String GRID_ID = PREFIX + "_grid";
+    public static final String GRID_ID = PREFIX + TypedTableGrid.GRID_POSTFIX;
 
     static IDisposableComponent create(IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
     {
@@ -61,7 +63,7 @@ class ProteinSummaryGrid extends AbstractSimpleBrowserGrid<ProteinSummary>
 
     ProteinSummaryGrid(IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
     {
-        super(viewContext.getCommonViewContext(), BROWSER_ID, GRID_ID, false,
+        super(viewContext.getCommonViewContext(), BROWSER_ID, true,
                 PhosphoNetXDisplayTypeIDGenerator.PROTEIN_SUMMARY_BROWSER_GRID);
         specificViewContext = viewContext;
     }
@@ -74,20 +76,22 @@ class ProteinSummaryGrid extends AbstractSimpleBrowserGrid<ProteinSummary>
     }
     
     @Override
-    protected IColumnDefinitionKind<ProteinSummary>[] getStaticColumnsDefinition()
+    protected String translateColumnIdToDictionaryKey(String columnID)
     {
-        return ProteinSummaryColDefKind.values();
+        return ProteinSummaryGridColumnIDs.FDR.equals(columnID) ? "false_discovery_rate_column"
+                : columnID.toLowerCase();
+    }
+    
+    @Override
+    protected List<String> getColumnIdsOfFilters()
+    {
+        return Arrays.asList(ProteinSummaryGridColumnIDs.FDR);
     }
 
     @Override
-    protected List<IColumnDefinition<ProteinSummary>> getInitialFilters()
-    {
-        return asColumnFilters(new ProteinSummaryColDefKind[0]);
-    }
-
-    @Override
-    protected void listEntities(DefaultResultSetConfig<String, ProteinSummary> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<ProteinSummary>> callback)
+    protected void listTableRows(
+            DefaultResultSetConfig<String, TableModelRowWithObject<ProteinSummary>> resultSetConfig,
+            AsyncCallback<TypedTableResultSet<ProteinSummary>> callback)
     {
         if (criteria != null)
         {
@@ -97,12 +101,13 @@ class ProteinSummaryGrid extends AbstractSimpleBrowserGrid<ProteinSummary>
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<ProteinSummary> exportCriteria,
+    protected void prepareExportEntities(TableExportCriteria<TableModelRowWithObject<ProteinSummary>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         specificViewContext.getService().prepareExportProteinSummary(exportCriteria, callback);
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[0];

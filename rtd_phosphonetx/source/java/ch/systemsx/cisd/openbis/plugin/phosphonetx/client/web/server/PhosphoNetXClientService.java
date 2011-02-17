@@ -62,6 +62,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListPro
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinSequenceCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinSummaryByExperimentCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListSampleAbundanceByProteinCriteria;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.server.resultset.ProteinSummaryProvider;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.CacheData;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IPhosphoNetXServer;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IProteomicsDataServiceInternal;
@@ -199,7 +200,7 @@ public class PhosphoNetXClientService extends AbstractClientService implements
         return prepareExportEntities(exportCriteria);
     }
 
-    public ResultSet<ProteinSummary> listProteinSummariesByExperiment(
+    public TypedTableResultSet<ProteinSummary> listProteinSummariesByExperiment(
             ListProteinSummaryByExperimentCriteria criteria)
     {
         StopWatch stopWatch = new StopWatch();
@@ -207,15 +208,17 @@ public class PhosphoNetXClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            return listEntities(criteria, new ListProteinSummaryProvider(server, sessionToken,
-                    criteria.getExperimentID()));
+            return listEntities(
+                    new ProteinSummaryProvider(server, sessionToken, criteria.getExperimentID()),
+                    criteria);
         } finally
         {
             operationLog.info(stopWatch.getTime() + " msec for listProteinSummariesByExperiment");
         }
     }
 
-    public String prepareExportProteinSummary(TableExportCriteria<ProteinSummary> exportCriteria)
+    public String prepareExportProteinSummary(
+            TableExportCriteria<TableModelRowWithObject<ProteinSummary>> exportCriteria)
     {
         return prepareExportEntities(exportCriteria);
     }

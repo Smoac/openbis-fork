@@ -64,10 +64,10 @@ public interface IPhosphoNetXClientService extends IClientService
     public String prepareExportProteins(TableExportCriteria<ProteinInfo> exportCriteria)
             throws UserFailureException;
 
-    public ResultSet<ProteinSummary> listProteinSummariesByExperiment(
+    public TypedTableResultSet<ProteinSummary> listProteinSummariesByExperiment(
             ListProteinSummaryByExperimentCriteria criteria) throws UserFailureException;
 
-    public String prepareExportProteinSummary(TableExportCriteria<ProteinSummary> exportCriteria)
+    public String prepareExportProteinSummary(TableExportCriteria<TableModelRowWithObject<ProteinSummary>> exportCriteria)
             throws UserFailureException;
 
     public ProteinByExperiment getProteinByExperiment(TechId experimentID, TechId proteinReferenceID)

@@ -20,6 +20,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSummary;
 
 /**
@@ -27,8 +28,9 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSumma
  *
  * @author Franz-Josef Elmer
  */
-public class ListProteinSummaryByExperimentCriteria extends DefaultResultSetConfig<String, ProteinSummary>
-        implements IsSerializable
+public class ListProteinSummaryByExperimentCriteria extends
+        DefaultResultSetConfig<String, TableModelRowWithObject<ProteinSummary>> implements
+        IsSerializable
 {
     private TechId experimentID;
 

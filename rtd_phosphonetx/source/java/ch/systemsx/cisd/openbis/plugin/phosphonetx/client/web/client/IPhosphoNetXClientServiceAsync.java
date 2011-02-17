@@ -68,10 +68,11 @@ public interface IPhosphoNetXClientServiceAsync extends IClientServiceAsync
 
     /** @see IPhosphoNetXClientService#listProteinSummariesByExperiment(ListProteinSummaryByExperimentCriteria) */
     public void listProteinSummariesByExperiment(ListProteinSummaryByExperimentCriteria criteria,
-            AsyncCallback<ResultSet<ProteinSummary>> callback);
-    
+            AsyncCallback<TypedTableResultSet<ProteinSummary>> callback);
+
     /** @see IPhosphoNetXClientService#prepareExportProteinSummary(TableExportCriteria) */
-    public void prepareExportProteinSummary(TableExportCriteria<ProteinSummary> exportCriteria,
+    public void prepareExportProteinSummary(
+            TableExportCriteria<TableModelRowWithObject<ProteinSummary>> exportCriteria,
             AsyncCallback<String> callback);
     
     /** @see IPhosphoNetXClientService#getProteinByExperiment(TechId, TechId) */
