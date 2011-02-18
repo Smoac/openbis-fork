@@ -250,7 +250,11 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
                 Experiment experiment = dataSetInformation.tryToGetExperiment();
                 assert experiment != null : "dataset not connected to an experiment: "
                         + dataSetInformation;
-                final String email = experiment.getRegistrator().getEmail();
+                String email = null;
+                if (experiment.getRegistrator() != null)
+                {
+                    email = experiment.getRegistrator().getEmail();
+                }
                 if (StringUtils.isBlank(email) == false)
                 {
                     try

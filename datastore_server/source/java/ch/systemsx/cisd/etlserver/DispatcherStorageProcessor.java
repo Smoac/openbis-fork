@@ -139,9 +139,13 @@ public class DispatcherStorageProcessor extends AbstractStorageProcessor
     @Override
     public void commit(File incomingDataSetDirectory, File storedDataDirectory)
     {
-        ensureTransactionStarted();
-        currentStorageProcessor.commit(incomingDataSetDirectory, storedDataDirectory);
-        currentStorageProcessor = null;
+        if (currentStorageProcessor != null)
+        {
+            currentStorageProcessor.commit(incomingDataSetDirectory, storedDataDirectory);
+            currentStorageProcessor = null;
+        } else {
+            operationLog.warn("Commit call has been ignored because no transaction has been started.");
+        }
     }
 
     public UnstoreDataAction rollback(final File incomingDataSetDirectory,
