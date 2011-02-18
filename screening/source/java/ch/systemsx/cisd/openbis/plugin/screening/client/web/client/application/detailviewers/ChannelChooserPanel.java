@@ -253,10 +253,9 @@ public class ChannelChooserPanel extends LayoutContainer
 
         String selectedComboValue = channelsComboBox.getSimpleValue();
         boolean showCheckBoxGroup = ScreeningConstants.MERGED_CHANNELS.equals(selectedComboValue);
-
-        ensureAtLeastOneCheckboxChecked();
         channelsCheckBoxGroup.setVisible(showCheckBoxGroup);
 
+        ensureAtLeastOneCheckboxChecked();
         notifySelectionListeners(selection);
     }
 
