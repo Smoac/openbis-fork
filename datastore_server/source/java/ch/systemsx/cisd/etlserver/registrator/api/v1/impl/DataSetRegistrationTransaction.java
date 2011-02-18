@@ -100,8 +100,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
             {
                 // This should ever happen since rollbackAll should handle execptions, but is here
                 // as a safeguard.
-                operationLog.error("Encountered error rolling back transaction:");
-                operationLog.error(ex);
+                operationLog.error("Encountered error rolling back transaction:", ex);
             }
             stack.discard();
         }

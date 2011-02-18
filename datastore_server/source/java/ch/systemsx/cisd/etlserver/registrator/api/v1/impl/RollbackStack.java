@@ -165,8 +165,7 @@ class RollbackStack
         {
             Logger operationLog = getOperationLog();
             // If any problems happen rolling back a command, log them
-            operationLog.error("Encountered error rolling back command " + elt.toString());
-            operationLog.error(ex);
+            operationLog.error("Encountered error rolling back command " + elt.toString(), ex);
         }
 
         // Remove it from the live stack

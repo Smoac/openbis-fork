@@ -209,6 +209,8 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
     private void rollbackStorageProcessors(Throwable ex)
     {
+        operationLog.error("Error during dataset registertion", ex);
+
         // Errors which are not AssertionErrors leave the system in a state that we don't
         // know and can't trust. Thus we will not perform any operations any more in this
         // case.
