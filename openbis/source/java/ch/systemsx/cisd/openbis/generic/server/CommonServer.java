@@ -52,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGridCustomFilterOrColumnBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeTable;
@@ -2120,17 +2121,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     public void deleteMaterials(String sessionToken, List<TechId> materialIds, String reason)
     {
         Session session = getSession(sessionToken);
-        try
-        {
-            IMaterialBO materialBO = businessObjectFactory.createMaterialBO(session);
-            for (TechId id : materialIds)
-            {
-                materialBO.deleteByTechId(id, reason);
-            }
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
-        }
+        IMaterialTable materialTable = businessObjectFactory.createMaterialTable(session);
+        materialTable.deleteByTechIds(materialIds, reason);
     }
 
     public int lockDatasets(String sessionToken, List<String> datasetCodes)

@@ -22,8 +22,11 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
+import org.hibernate.StatelessSession;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
@@ -32,11 +35,17 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SequenceNames;
+import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 
 /**
  * Data access object for {@link MaterialPE}.
@@ -153,6 +162,84 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
                     list.size(), CollectionUtils.abbreviate(ids, 10)));
         }
         return list;
+    }
+
+    public void delete(final List<TechId> materialIds, final PersonPE registrator,
+            final String reason) throws DataAccessException
+    {
+        final String sqlCodeAndType =
+                String.format("SELECT m.code, mt.code as typeCode "
+                        + " FROM %s as m, %s as mt WHERE m.id = :mId AND m.maty_id = mt.id",
+                        TableNames.MATERIALS_TABLE,
+                        TableNames.MATERIAL_TYPES_TABLE);
+        final String sqlDeleteProperties =
+                "DELETE FROM " + TableNames.MATERIAL_PROPERTIES_TABLE + " WHERE mate_id = :mId";
+        final String sqlDeleteSample =
+                "DELETE FROM " + TableNames.MATERIALS_TABLE + " WHERE id = :mId";
+        final String sqlInsertEvent =
+                String.format(
+                        "INSERT INTO %s (id, event_type, description, reason, pers_id_registerer, entity_type, identifier) "
+                                + "VALUES (nextval('%s'), :eventType, :description, :reason, :registratorId, :entityType, :identifier)",
+                        TableNames.EVENTS_TABLE, SequenceNames.EVENT_SEQUENCE);
+
+
+        executeStatelessAction(new StatelessHibernateCallback()
+            {
+                public Object doInStatelessSession(StatelessSession session)
+                {
+                    final SQLQuery sqlQueryCodeAndType = session.createSQLQuery(sqlCodeAndType);
+                    final SQLQuery sqlQueryDeleteProperties =
+                            session.createSQLQuery(sqlDeleteProperties);
+                    final SQLQuery sqlQueryDeleteSample = session.createSQLQuery(sqlDeleteSample);
+                    final SQLQuery sqlQueryInsertEvent = session.createSQLQuery(sqlInsertEvent);
+                    sqlQueryInsertEvent.setParameter("eventType", EventType.DELETION.name());
+                    sqlQueryInsertEvent.setParameter("reason", reason);
+                    sqlQueryInsertEvent.setParameter("registratorId", registrator.getId());
+                    sqlQueryInsertEvent.setParameter("entityType", EntityType.MATERIAL.name());
+                    int counter = 0;
+                    for (TechId techId : materialIds)
+                    {
+                        sqlQueryCodeAndType.setParameter("mId", techId.getId());
+                        Object[] codeAndType = (Object[]) sqlQueryCodeAndType.uniqueResult();
+                        if (codeAndType != null)
+                        {
+                            String materialCode = (String) codeAndType[0];
+                            String materialTypeCode = (String) codeAndType[1];
+                            String permId = MaterialPE.createPermId(materialCode, materialTypeCode);
+                            try
+                            {
+                                // delete properties
+                                sqlQueryDeleteProperties.setParameter("mId", techId.getId());
+                                sqlQueryDeleteProperties.executeUpdate();
+                                // delete material
+                                sqlQueryDeleteSample.setParameter("mId", techId.getId());
+                                sqlQueryDeleteSample.executeUpdate();
+                                // create event
+                                sqlQueryInsertEvent.setParameter("description",
+                                        permId);
+                                sqlQueryInsertEvent.setParameter("identifier", materialCode);
+                                sqlQueryInsertEvent.executeUpdate();
+                                if (++counter % 1000 == 0)
+                                {
+                                    operationLog.info(String.format(
+                                            "%d materials have been deleted...", counter));
+                                }
+                            } catch (ConstraintViolationException cve)
+                            {
+                                // re-wrap ConstraintViolationException to contain
+                                // information about the problematic material.
+                                throw new ConstraintViolationException(permId,
+                                        cve.getSQLException(), cve.getSQL(),
+                                        cve.getConstraintName());
+                            }
+                        }
+                    }
+                    return null;
+                }
+            });
+
+        List<Long> ids = TechId.asLongs(materialIds);
+        scheduleRemoveFromFullTextIndex(ids);
     }
 
 }

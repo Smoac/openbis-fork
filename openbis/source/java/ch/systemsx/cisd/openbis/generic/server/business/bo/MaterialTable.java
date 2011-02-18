@@ -26,7 +26,9 @@ import java.util.Set;
 import org.springframework.dao.DataAccessException;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
@@ -36,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * The only productive implementation of {@link IMaterialTable}.
@@ -202,4 +205,25 @@ public final class MaterialTable extends AbstractMaterialBusinessObject implemen
         }
         return names;
     }
+
+    public void deleteByTechIds(List<TechId> materialIds, String reason)
+            throws UserFailureException
+    {
+        try
+        {
+            getSessionFactory().getCurrentSession().flush();
+            getSessionFactory().getCurrentSession().clear();
+            getMaterialDAO().delete(materialIds, session.tryGetPerson(), reason);
+        } catch (final DataAccessException ex)
+        {
+            String errorSubject = "Material";
+            if (ex.getCause() != null)
+            {
+                String materialPermId = ex.getCause().getMessage();
+                errorSubject += " '" + materialPermId + "'";
+            }
+            throwException(ex, errorSubject, EntityKind.MATERIAL);
+        }
+    }
+
 }

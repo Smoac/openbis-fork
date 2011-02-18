@@ -19,11 +19,14 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 import java.util.List;
 
 import org.hibernate.Session;
+import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
  * <i>Data Access Object</i> for {@link MaterialPE}.
@@ -52,5 +55,11 @@ public interface IMaterialDAO extends IGenericDAO<MaterialPE>
     public MaterialPE tryFindMaterial(Session session, MaterialIdentifier identifier);
 
     public List<MaterialPE> listMaterialsById(final List<Long> ids);
+
+    /**
+     * Delete materials by specified registrator and reason.
+     */
+    void delete(List<TechId> materialIds, PersonPE registrator, String reason)
+            throws DataAccessException;
 
 }

@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.List;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
@@ -49,5 +51,14 @@ public interface IMaterialTable
      * Saves new materials in the database.
      */
     public void save();
+
+    /**
+     * Deletes materials for specified reason.
+     * 
+     * @param materialIds sample technical identifiers
+     * @throws UserFailureException if one of the materials can not be deleted.
+     */
+    public void deleteByTechIds(List<TechId> materialIds, String reason)
+            throws UserFailureException;
 
 }

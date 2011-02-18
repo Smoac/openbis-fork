@@ -427,7 +427,7 @@ final class ExternalDataDAO extends AbstractGenericEntityWithPropertiesDAO<Exter
                         public final Object doInHibernate(final Session session)
                         {
                             // we could remove this transformation if we choose to pass Long values
-                            final List<Long> longIds = transformTechIds2Longs(dataSetIds);
+                            final List<Long> longIds = TechId.asLongs(dataSetIds);
                             return session.createSQLQuery(query).setParameterList("ids", longIds)
                                     .list();
                         }

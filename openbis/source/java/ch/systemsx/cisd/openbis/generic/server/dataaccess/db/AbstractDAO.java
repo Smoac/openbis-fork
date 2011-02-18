@@ -384,16 +384,6 @@ public abstract class AbstractDAO extends HibernateDaoSupport
         }
     }
 
-    protected static List<Long> transformTechIds2Longs(Collection<TechId> techIds)
-    {
-        final List<Long> result = new ArrayList<Long>(techIds.size());
-        for (TechId techId : techIds)
-        {
-            result.add(techId.getId());
-        }
-        return result;
-    }
-
     protected static Set<TechId> transformNumbers2TechIds(Collection<? extends Number> numbers)
     {
         final Set<TechId> result = new HashSet<TechId>();

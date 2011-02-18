@@ -435,7 +435,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
                 }
             });
 
-        List<Long> ids = transformTechIds2Longs(sampleIds);
+        List<Long> ids = TechId.asLongs(sampleIds);
         scheduleRemoveFromFullTextIndex(ids);
     }
 
@@ -451,7 +451,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
 
                         public final Object doInHibernate(final Session session)
                         {
-                            final List<Long> longIds = transformTechIds2Longs(children);
+                            final List<Long> longIds = TechId.asLongs(children);
                             return session.createSQLQuery(query).setParameterList("ids", longIds)
                                     .setParameter("r", relationship.getId()).list();
                         }

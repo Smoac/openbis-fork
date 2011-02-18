@@ -855,6 +855,28 @@ public final class CommonServerTest extends AbstractServerTestCase
     }
 
     @Test
+    public void testDeleteMaterials()
+    {
+        final List<TechId> materialIds = Arrays.asList(new TechId(1L), new TechId(2L));
+        final String reason = "reason";
+
+        prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    one(commonBusinessObjectFactory).createMaterialTable(SESSION);
+                    will(returnValue(materialTable));
+
+                    one(materialTable).deleteByTechIds(materialIds, reason);
+                }
+            });
+
+        createServer().deleteMaterials(SESSION_TOKEN, materialIds, reason);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
     public void testRegisterFileFormatType()
     {
         prepareGetSession();

@@ -122,8 +122,7 @@ public final class MaterialBO extends AbstractMaterialBusinessObject implements 
             getEventDAO().persist(createDeletionEvent(material, session.tryGetPerson(), reason));
         } catch (final DataAccessException ex)
         {
-            throwException(ex, String.format("Material '%s' (%s)", material.getCode(), material
-                    .getMaterialType().getCode()), EntityKind.MATERIAL);
+            throwException(ex, material.getPermId(), EntityKind.MATERIAL);
         }
     }
 
@@ -134,16 +133,12 @@ public final class MaterialBO extends AbstractMaterialBusinessObject implements 
         event.setEventType(EventType.DELETION);
         event.setEntityType(EntityType.MATERIAL);
         event.setIdentifier(material.getCode());
-        event.setDescription(getDeletionDescription(material));
+        event.setDescription(material.getPermId());
         event.setReason(reason);
         event.setRegistrator(registrator);
         return event;
     }
 
-    private static String getDeletionDescription(MaterialPE material)
-    {
-        return String.format("%s (%s)", material.getCode(), material.getMaterialType().getCode());
-    }
 
     public void updateManagedProperty(IManagedProperty managedProperty)
     {

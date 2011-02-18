@@ -80,6 +80,8 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
 {
     private static final long serialVersionUID = IServer.VERSION;
 
+    public static final MaterialPE[] EMPTY_ARRAY = new MaterialPE[0];
+
     private transient Long id;
 
     private MaterialTypePE materialType;
@@ -90,7 +92,15 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
 
     private Set<MaterialPropertyPE> properties = new HashSet<MaterialPropertyPE>();
 
-    public static final MaterialPE[] EMPTY_ARRAY = new MaterialPE[0];
+    /**
+     * NOTE: Materials do not have permanent ids stored in the database.
+     * 
+     * @return a material permanent id for the given code and typeCode
+     */
+    public static String createPermId(String code, String materialTypeCode)
+    {
+        return code + " (" + materialTypeCode + ")";
+    }
 
     public MaterialPE()
     {
@@ -350,7 +360,7 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
     @Transient
     public String getPermId()
     {
-        return code + " (" + materialType.getCode() + ")";
+        return createPermId(code, materialType.getCode());
     }
 
 }

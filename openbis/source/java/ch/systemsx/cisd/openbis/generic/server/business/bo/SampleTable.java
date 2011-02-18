@@ -350,7 +350,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
             getSampleDAO().delete(sampleIds, session.tryGetPerson(), reason);
         } catch (final DataAccessException ex)
         {
-            throwException(ex, "Samples", EntityKind.SAMPLE);
+            throwException(ex, "Sample", EntityKind.SAMPLE);
         }
     }
 

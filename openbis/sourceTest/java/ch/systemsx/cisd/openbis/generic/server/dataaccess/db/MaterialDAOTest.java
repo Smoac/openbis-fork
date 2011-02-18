@@ -28,9 +28,11 @@ import java.util.List;
 import junit.framework.Assert;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
@@ -56,22 +58,28 @@ public final class MaterialDAOTest extends AbstractDAOTest
 
     private final int NUMBER_OF_BACTERIA = 4;
 
+    private IMaterialDAO materialDAO;
+
+    @BeforeMethod
+    @Override
+    public void setUp()
+    {
+        super.setUp();
+        materialDAO = daoFactory.getMaterialDAO();
+    }
+
     @Test
     public void testCreateMaterials() throws Exception
     {
-        MaterialTypePE type =
-                (MaterialTypePE) daoFactory.getEntityTypeDAO(EntityKind.MATERIAL)
-                        .tryToFindEntityTypeByCode(BACTERIUM);
-        List<MaterialPE> bacteria_before =
-                daoFactory.getMaterialDAO().listMaterialsWithProperties(type);
+        MaterialTypePE type = getMaterialType();
+        List<MaterialPE> bacteria_before = materialDAO.listMaterialsWithProperties(type);
         Assert.assertEquals(NUMBER_OF_BACTERIA, bacteria_before.size());
         List<MaterialPE> newMaterials = new ArrayList<MaterialPE>();
         newMaterials.add(createMaterial(type, "BRAND_NEW_BACTERIUM_1"));
         newMaterials.add(createMaterial(type, "BRAND_NEW_BACTERIUM_2"));
         Collections.sort(newMaterials);
-        daoFactory.getMaterialDAO().createOrUpdateMaterials(newMaterials);
-        List<MaterialPE> bacteria_after =
-                daoFactory.getMaterialDAO().listMaterialsWithProperties(type);
+        materialDAO.createOrUpdateMaterials(newMaterials);
+        List<MaterialPE> bacteria_after = materialDAO.listMaterialsWithProperties(type);
         Assert.assertEquals(NUMBER_OF_BACTERIA + newMaterials.size(), bacteria_after.size());
         bacteria_after.removeAll(bacteria_before);
         Collections.sort(bacteria_after);
@@ -84,34 +92,27 @@ public final class MaterialDAOTest extends AbstractDAOTest
     @Test(expectedExceptions = DataIntegrityViolationException.class)
     public void testFailCreateMaterialsWithTheSameCode() throws Exception
     {
-        MaterialTypePE type =
-                (MaterialTypePE) daoFactory.getEntityTypeDAO(EntityKind.MATERIAL)
-                        .tryToFindEntityTypeByCode(BACTERIUM);
+        MaterialTypePE type = getMaterialType();
         List<MaterialPE> newMaterials = new ArrayList<MaterialPE>();
         newMaterials.add(createMaterial(type, BRAND_NEW_BACTERIUM));
         newMaterials.add(createMaterial(type, BRAND_NEW_BACTERIUM));
-        daoFactory.getMaterialDAO().createOrUpdateMaterials(newMaterials);
+        materialDAO.createOrUpdateMaterials(newMaterials);
     }
 
     @Test(expectedExceptions = DataIntegrityViolationException.class)
     public void testFailCreateMaterialsWithExistingCode() throws Exception
     {
-        MaterialTypePE type =
-                (MaterialTypePE) daoFactory.getEntityTypeDAO(EntityKind.MATERIAL)
-                        .tryToFindEntityTypeByCode(BACTERIUM);
-        List<MaterialPE> bacteria_before =
-                daoFactory.getMaterialDAO().listMaterialsWithProperties(type);
+        MaterialTypePE type = getMaterialType();
+        List<MaterialPE> bacteria_before = materialDAO.listMaterialsWithProperties(type);
         String existingBacteriumCode = bacteria_before.get(0).getCode();
         List<MaterialPE> newMaterials = new ArrayList<MaterialPE>();
         newMaterials.add(createMaterial(type, existingBacteriumCode));
-        daoFactory.getMaterialDAO().createOrUpdateMaterials(newMaterials);
+        materialDAO.createOrUpdateMaterials(newMaterials);
     }
 
     @Test
     public final void testDeleteWithProperties()
     {
-        final IMaterialDAO materialDAO = daoFactory.getMaterialDAO();
-
         // BACTERIUM2 has not been used as a property value
         MaterialIdentifier identifier = new MaterialIdentifier("BACTERIUM2", "BACTERIUM");
         final MaterialPE deletedMaterial = materialDAO.tryFindMaterial(identifier);
@@ -136,8 +137,6 @@ public final class MaterialDAOTest extends AbstractDAOTest
     @Test(expectedExceptions = DataIntegrityViolationException.class)
     public final void testFailDeleteMaterialUsedAsPropertyValue()
     {
-        final IMaterialDAO materialDAO = daoFactory.getMaterialDAO();
-
         String bacteriumX = "BACTERIUM-X";
         MaterialIdentifier identifier = new MaterialIdentifier(bacteriumX, BACTERIUM);
         final MaterialPE usedMaterial = materialDAO.tryFindMaterial(identifier);
@@ -160,5 +159,33 @@ public final class MaterialDAOTest extends AbstractDAOTest
         assertTrue(bacteriumFound);
 
         materialDAO.delete(usedMaterial);
+    }
+
+    @Test
+    public void testMaterialBulkDeletion() throws Exception
+    {
+        final int bulkSize = 10;
+        MaterialTypePE type = getMaterialType();
+        List<MaterialPE> preExistingBacterias = materialDAO.listMaterialsWithProperties(type);
+
+        List<MaterialPE> newBacterias = new ArrayList<MaterialPE>();
+        for (int i = 0; i < bulkSize; i++)
+        {
+            newBacterias.add(createMaterial(type, "BULK_BACTERIUM_" + i));
+        }
+
+        materialDAO.createOrUpdateMaterials(newBacterias);
+
+        List<MaterialPE> allBacterias = materialDAO.listMaterialsWithProperties(type);
+        Assert.assertEquals(NUMBER_OF_BACTERIA + bulkSize, allBacterias.size());
+
+        allBacterias.removeAll(preExistingBacterias);
+        materialDAO.delete(TechId.createList(allBacterias), getSystemPerson(), "test reason");
+    }
+
+    private MaterialTypePE getMaterialType()
+    {
+        return (MaterialTypePE) daoFactory.getEntityTypeDAO(EntityKind.MATERIAL)
+                .tryToFindEntityTypeByCode(BACTERIUM);
     }
 }

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
@@ -78,7 +79,7 @@ public class TechId implements IIdHolder, IsSerializable, Serializable
      * 
      * @see #create(IIdHolder)
      */
-    public static List<TechId> createList(List<? extends IIdHolder> idHolders)
+    public static List<TechId> createList(Collection<? extends IIdHolder> idHolders)
     {
         List<TechId> results = new ArrayList<TechId>();
         for (IIdHolder idHolder : idHolders)
@@ -93,7 +94,7 @@ public class TechId implements IIdHolder, IsSerializable, Serializable
      * 
      * @see #create(IIdHolder)
      */
-    public static List<Long> asLongs(List<TechId> techIds)
+    public static List<Long> asLongs(Collection<TechId> techIds)
     {
         List<Long> results = new ArrayList<Long>();
         for (TechId techId : techIds)
