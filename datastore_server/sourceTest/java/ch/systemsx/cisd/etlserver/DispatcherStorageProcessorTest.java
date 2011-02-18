@@ -127,14 +127,6 @@ public class DispatcherStorageProcessorTest extends AssertJUnit
         {
             assertEquals("Transaction has not been started!", ex.getMessage());
         }
-        try
-        {
-            commit(dispatcher);
-            fail("IllegalStateException expected, transaction not started");
-        } catch (IllegalStateException ex)
-        {
-            assertEquals("Transaction has not been started!", ex.getMessage());
-        }
 
     }
 
