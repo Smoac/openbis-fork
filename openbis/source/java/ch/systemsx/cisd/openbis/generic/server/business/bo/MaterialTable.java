@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -217,7 +218,10 @@ public final class MaterialTable extends AbstractMaterialBusinessObject implemen
         } catch (final DataAccessException ex)
         {
             String errorSubject = "Material";
-            if (ex.getCause() != null)
+
+            // when deletion fails because of a constraint violation
+            // the permId of the problematic material is kept in the error message
+            if (ex.getCause() != null && (ex instanceof DataIntegrityViolationException))
             {
                 String materialPermId = ex.getCause().getMessage();
                 errorSubject += " '" + materialPermId + "'";
