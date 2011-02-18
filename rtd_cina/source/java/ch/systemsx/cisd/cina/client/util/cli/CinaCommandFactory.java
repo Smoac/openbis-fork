@@ -31,13 +31,13 @@ public class CinaCommandFactory extends AbstractCommandFactory
 
     private static enum Command
     {
-        LISTSAMPS, GENCODE, LISTEXPS, GETREPLICA, GETBUNDLE, HELP
+        LISTSAMPS, GENCODE, LISTEXPS, GETREPLICA, GETBUNDLE, LISTPREFS, HELP
     }
 
     public List<String> getKnownCommands()
     {
         String[] commands =
-            { "listsamps", "gencode", "listexps", "getreplica", "getbundle" };
+            { "listsamps", "gencode", "listexps", "getreplica", "getbundle", "listprefs" };
         return Arrays.asList(commands);
     }
 
@@ -80,6 +80,9 @@ public class CinaCommandFactory extends AbstractCommandFactory
                 break;
             case GETBUNDLE:
                 result = new CommandGetBundle();
+                break;
+            case LISTPREFS:
+                result = new CommandPreferencesLister();
                 break;
             case HELP:
                 result = getHelpCommand();

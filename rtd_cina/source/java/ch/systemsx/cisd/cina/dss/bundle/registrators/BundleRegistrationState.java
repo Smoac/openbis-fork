@@ -50,7 +50,7 @@ public class BundleRegistrationState
         this.gridPrepSampleType =
                 openbisService.getSampleType(CinaConstants.GRID_PREP_SAMPLE_TYPE_CODE);
         this.replicaSampleType =
-                openbisService.getSampleType(CinaConstants.REPLICA_SAMPLE_TYPE_CODE);
+                openbisService.getSampleType(CinaConstants.COLLECTION_SAMPLE_TYPE_CODE);
         this.rawImagesDataSetType =
                 openbisService.getDataSetType(CinaConstants.RAW_IMAGES_DATA_SET_TYPE_CODE);
         this.metadataDataSetType =

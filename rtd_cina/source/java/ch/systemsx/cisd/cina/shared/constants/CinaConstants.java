@@ -31,7 +31,7 @@ public class CinaConstants
 
     public static final String GRID_PREP_SAMPLE_TYPE_CODE = "GRID_PREP";
 
-    public final static String REPLICA_SAMPLE_TYPE_CODE = "GRID_REPLICA";
+    public final static String COLLECTION_SAMPLE_TYPE_CODE = "GRID_REPLICA";
 
     public static final String DIMENSION_PREFIX = "Dimension";
 
@@ -40,6 +40,8 @@ public class CinaConstants
     public static final String DESCRIPTION_PROPERTY_CODE = "DESCRIPTION";
 
     public static final String CREATOR_EMAIL_PROPERTY_CODE = "CREATOR_EMAIL";
+
+    public static final String CINA_BROWSER_PREFERENCES_TYPE_CODE = "CINA_BROWSER_PREFERENCES";
 
     // No need to instantiate this class
     private CinaConstants()

@@ -176,6 +176,8 @@ COPY experiments (id, perm_id, code, exty_id, mate_id_study_object, pers_id_regi
 1	20101125083133963-1	E1	1	\N	2	2010-11-25 08:31:33.818753+01	2010-11-25 10:38:05.38+01	1	\N	f
 \.
 
+select setval('experiment_id_seq', 1);
+
 --
 -- TOC entry 2575 (class 0 OID 1366560)
 -- Dependencies: 1742

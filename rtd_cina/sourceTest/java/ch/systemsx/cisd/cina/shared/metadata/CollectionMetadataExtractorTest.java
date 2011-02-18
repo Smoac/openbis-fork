@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class ReplicaMetadataExtractorTest extends AssertJUnit
+public class CollectionMetadataExtractorTest extends AssertJUnit
 {
     @Test
     public void testMetadataExtraction()

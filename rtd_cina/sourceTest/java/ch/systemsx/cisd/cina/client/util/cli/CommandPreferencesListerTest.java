@@ -25,7 +25,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.cina.client.util.cli.CommandSampleLister;
 import ch.systemsx.cisd.cina.client.util.v1.ICinaUtilities;
 import ch.systemsx.cisd.cina.shared.constants.CinaConstants;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -33,6 +32,7 @@ import ch.systemsx.cisd.openbis.dss.client.api.cli.ICommand;
 import ch.systemsx.cisd.openbis.dss.client.api.cli.ResultCode;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
@@ -41,9 +41,9 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class CommandSampleListerTest extends AssertJUnit
+public class CommandPreferencesListerTest extends AssertJUnit
 {
-    private final class MockCommandSampleLister extends CommandSampleLister
+    private final class MockPreferencesList extends CommandPreferencesLister
     {
         @Override
         protected ICinaUtilities login()
@@ -93,7 +93,8 @@ public class CommandSampleListerTest extends AssertJUnit
                 {
                     final SearchCriteria searchCriteria = new SearchCriteria();
                     searchCriteria.addMatchClause(MatchClause.createAttributeMatch(
-                            MatchClauseAttribute.TYPE, CinaConstants.COLLECTION_SAMPLE_TYPE_CODE));
+                            MatchClauseAttribute.TYPE,
+                            CinaConstants.CINA_BROWSER_PREFERENCES_TYPE_CODE));
 
                     final ArrayList<Sample> samples = new ArrayList<Sample>();
 
@@ -106,11 +107,16 @@ public class CommandSampleListerTest extends AssertJUnit
                     one(service).searchForSamples(SESSION_TOKEN, searchCriteria);
                     will(returnValue(samples));
 
+                    final ArrayList<DataSet> dataSets = new ArrayList<DataSet>();
+
+                    one(service).listDataSets(SESSION_TOKEN, samples);
+                    will(returnValue(dataSets));
+
                     one(service).logout(SESSION_TOKEN);
                 }
             });
 
-        ICommand command = new MockCommandSampleLister();
+        ICommand command = new MockPreferencesList();
 
         ResultCode exitCode = command.execute(new String[]
             { "-s", "url", "-u", USER_ID, "-p", PASSWORD });
@@ -127,7 +133,8 @@ public class CommandSampleListerTest extends AssertJUnit
                 {
                     final SearchCriteria searchCriteria = new SearchCriteria();
                     searchCriteria.addMatchClause(MatchClause.createAttributeMatch(
-                            MatchClauseAttribute.TYPE, CinaConstants.GRID_PREP_SAMPLE_TYPE_CODE));
+                            MatchClauseAttribute.TYPE,
+                            CinaConstants.CINA_BROWSER_PREFERENCES_TYPE_CODE));
 
                     final ArrayList<Sample> samples = new ArrayList<Sample>();
 
@@ -140,16 +147,21 @@ public class CommandSampleListerTest extends AssertJUnit
                     one(service).searchForSamples(SESSION_TOKEN, searchCriteria);
                     will(returnValue(samples));
 
+                    final ArrayList<DataSet> dataSets = new ArrayList<DataSet>();
+
+                    one(service).listDataSets(SESSION_TOKEN, samples);
+                    will(returnValue(dataSets));
+
                     one(service).logout(SESSION_TOKEN);
                 }
             });
 
-        ICommand command = new MockCommandSampleLister();
+        ICommand command = new MockPreferencesList();
 
         ResultCode exitCode =
                 command.execute(new String[]
                     { "-s", "url", "-u", USER_ID, "-p", PASSWORD,
-                            CinaConstants.GRID_PREP_SAMPLE_TYPE_CODE });
+                            CinaConstants.CINA_BROWSER_PREFERENCES_TYPE_CODE });
 
         assertEquals(ResultCode.OK, exitCode);
         context.assertIsSatisfied();
@@ -172,7 +184,7 @@ public class CommandSampleListerTest extends AssertJUnit
                 }
             });
 
-        ICommand command = new MockCommandSampleLister();
+        ICommand command = new MockPreferencesList();
 
         try
         {
