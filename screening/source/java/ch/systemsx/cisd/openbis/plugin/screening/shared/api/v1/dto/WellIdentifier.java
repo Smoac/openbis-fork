@@ -1,7 +1,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
 /**
- * Contains data which uniquely define a plate.
+ * Contains data which uniquely define a well on a plate.
  * 
  * @author Piotr Buczek
  */
