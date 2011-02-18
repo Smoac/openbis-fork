@@ -112,7 +112,7 @@ public class DataSet<T extends DataSetInformation> implements IDataSet
             dataSetInformation.setSampleCode(null);
         } else
         {
-            Sample sample = (Sample) sampleOrNull;
+            SampleImmutable sample = (SampleImmutable) sampleOrNull;
 
             dataSetInformation.setSample(sample.getSample());
             dataSetInformation.setSampleCode(sample.getSample().getCode());
