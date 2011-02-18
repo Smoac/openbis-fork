@@ -134,16 +134,11 @@ public final class LocationTest
     @Test
     public final void testCreateMatrixCoordinateFromLocation()
     {
-        assertEquals("A1", Location.tryCreateMatrixCoordinateFromLocation(new Location(1, 1)));
-        assertEquals("A2", Location.tryCreateMatrixCoordinateFromLocation(new Location(2, 1)));
-        assertEquals("Z7", Location.tryCreateMatrixCoordinateFromLocation(new Location(7, 26)));
-        assertEquals("O34", Location.tryCreateMatrixCoordinateFromLocation(new Location(34, 15)));
-        assertEquals("AA134", Location.tryCreateMatrixCoordinateFromLocation(new Location(134, 27)));
+        assertEquals("A1", new Location(1, 1).createMatrixCoordinateFromLocation());
+        assertEquals("A2", new Location(2, 1).createMatrixCoordinateFromLocation());
+        assertEquals("Z7", new Location(7, 26).createMatrixCoordinateFromLocation());
+        assertEquals("O34", new Location(34, 15).createMatrixCoordinateFromLocation());
+        assertEquals("AA134", new Location(134, 27).createMatrixCoordinateFromLocation());
     }
 
-    @Test(expectedExceptions = IllegalArgumentException.class)
-    public final void testCreateMatrixCoordinateFromNullLocation()
-    {
-        Location.tryCreateMatrixCoordinateFromLocation(null);
-    }
 }
