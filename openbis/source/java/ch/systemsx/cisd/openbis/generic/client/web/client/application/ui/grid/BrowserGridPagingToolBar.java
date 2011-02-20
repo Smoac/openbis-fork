@@ -73,7 +73,6 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
     {
         // WORKAROUND GXT2.1: to access all the elements of the paging toolbar
         Component separator1 = getItem(indexOf(prev) + 1);
-        Component beforePage = getItem(indexOf(separator1) + 1);
         Component pageTextWidget = getItem(indexOf(beforePage) + 1);
         Component separator2 = getItem(indexOf(afterText) + 1);
         Component separator3 = getItem(indexOf(last) + 1);

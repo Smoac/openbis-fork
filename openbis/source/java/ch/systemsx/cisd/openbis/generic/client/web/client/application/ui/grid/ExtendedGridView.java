@@ -30,11 +30,11 @@ class ExtendedGridView extends GridView
             {
                 @Override
                 protected ComponentEvent createColumnEvent(ColumnHeader pHeader, int column,
-                        Menu menu)
+                        Menu componentMenu)
                 {
                     GridEvent<ModelData> event = new GridEvent<ModelData>(grid);
                     event.setColIndex(column);
-                    event.setMenu(menu);
+                    event.setMenu(componentMenu);
                     return event;
                 }
 
