@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
@@ -150,6 +151,19 @@ public final class ScreeningClientService extends AbstractClientService implemen
         try
         {
             return server.getFeatureVectorDataset(getSessionToken(), dataset, featureName);
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public FeatureVectorValues getWellFeatureVectorValues(String datasetCode, String datastoreCode,
+            WellLocation location)
+    {
+        try
+        {
+            return server.getWellFeatureVectorValues(getSessionToken(), datasetCode, datastoreCode,
+                    location);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -284,4 +298,5 @@ public final class ScreeningClientService extends AbstractClientService implemen
             throw UserFailureExceptionTranslator.translate(e);
         }
     }
+
 }

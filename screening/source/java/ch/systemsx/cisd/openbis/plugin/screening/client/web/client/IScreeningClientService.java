@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
@@ -78,6 +79,12 @@ public interface IScreeningClientService extends IClientService
      */
     public FeatureVectorDataset getFeatureVectorDataset(DatasetReference dataset,
             CodeAndLabel featureName);
+
+    /**
+     * Fetches feature vector of specified dataset with one feature specified by name.
+     */
+    public FeatureVectorValues getWellFeatureVectorValues(String datasetCode, String datastoreCode,
+            WellLocation location);
 
     /**
      * Fetches information about a plate: metadata and images for wells. The specified dataset is

@@ -85,6 +85,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellRefe
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
@@ -192,6 +193,14 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         Session session = getSession(sessionToken);
         return WellContentLoader.load(session, businessObjectFactory, getDAOFactory(),
                 materialCriteria);
+    }
+
+    public FeatureVectorValues getWellFeatureVectorValues(String sessionToken, String datasetCode,
+            String datastoreCode, WellLocation wellLocation)
+    {
+        Session session = getSession(sessionToken);
+        return WellContentLoader.loadFeatureVectorValues(session, businessObjectFactory,
+                getDAOFactory(), datasetCode, datastoreCode, wellLocation);
     }
 
     public LogicalImageInfo getImageDatasetInfo(String sessionToken, String datasetCode,

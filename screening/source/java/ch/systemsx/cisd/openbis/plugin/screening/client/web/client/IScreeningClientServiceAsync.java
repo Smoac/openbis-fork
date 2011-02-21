@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
@@ -62,6 +63,10 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
     /** @see IScreeningClientService#getFeatureVectorDataset(DatasetReference, CodeAndLabel) */
     public void getFeatureVectorDataset(DatasetReference dataset, CodeAndLabel featureName,
             AsyncCallback<FeatureVectorDataset> callback);
+
+    /** @see IScreeningClientService#getWellFeatureVectorValues(String, String, WellLocation) */
+    public void getWellFeatureVectorValues(String datasetCode, String datastoreCode,
+            WellLocation location, AsyncCallback<FeatureVectorValues> callback);
 
     /** @see IScreeningClientService#getPlateContentForDataset(TechId) */
     public void getPlateContentForDataset(TechId datasetId,

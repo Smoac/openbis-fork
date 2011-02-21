@@ -65,8 +65,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesR
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.NamedFeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.NamedFeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellFeatureVectorReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
@@ -123,6 +123,14 @@ public class WellContentLoader
                 .loadLocationsAndEnrich(materialCriteria);
     }
 
+    public static FeatureVectorValues loadFeatureVectorValues(Session session,
+            IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
+            String datasetCode, String datastoreCode, WellLocation wellLocation)
+    {
+        return new WellContentLoader(session, businessObjectFactory, daoFactory)
+                .getFeatureVectorValues(datasetCode, datastoreCode, wellLocation);
+    }
+
     private final Session session;
 
     private final IScreeningBusinessObjectFactory businessObjectFactory;
@@ -135,6 +143,29 @@ public class WellContentLoader
         this.session = session;
         this.businessObjectFactory = businessObjectFactory;
         this.daoFactory = daoFactory;
+    }
+
+    private FeatureVectorValues getFeatureVectorValues(String dataSetCode, String datastoreCode,
+            WellLocation wellLocation)
+    {
+        IHCSFeatureVectorLoader loader =
+                businessObjectFactory.createHCSFeatureVectorLoader(datastoreCode);
+
+        List<WellFeatureVectorReference> wellReferences =
+                Arrays.asList(new WellFeatureVectorReference(dataSetCode, wellLocation));
+        WellFeatureCollection<FeatureVectorValues> featureVectors =
+                loader.fetchWellFeatureValuesIfPossible(wellReferences);
+
+        List<FeatureVectorValues> features = featureVectors.getFeatures();
+        if (features.size() == 0)
+        {
+            // TODO throw exception?
+            // shouldn't happen
+            return null;
+        } else
+        {
+            return featureVectors.getFeatures().get(0);
+        }
     }
 
     private List<WellContent> loadLocationsAndEnrich(WellSearchCriteria materialCriteria)
@@ -448,7 +479,8 @@ public class WellContentLoader
     }
 
     private static DatasetImagesReference tryGetSingleImageDataset(
-            List<ExternalData> childlessImageDatasets, Map<String, ImageDatasetParameters> imageParams)
+            List<ExternalData> childlessImageDatasets,
+            Map<String, ImageDatasetParameters> imageParams)
     {
         if (childlessImageDatasets != null && childlessImageDatasets.size() == 1)
         {
@@ -741,4 +773,5 @@ public class WellContentLoader
         }
         return experiment.getId();
     }
+
 }

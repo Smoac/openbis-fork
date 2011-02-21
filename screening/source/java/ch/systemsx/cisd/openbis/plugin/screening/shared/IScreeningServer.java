@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.authorization.WellConten
 import ch.systemsx.cisd.openbis.plugin.screening.shared.authorization.WellSearchCriteriaPredicate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
@@ -79,6 +80,16 @@ public interface IScreeningServer extends IServer
             String sessionToken,
             @AuthorizationGuard(guardClass = DatasetReferencePredicate.class) DatasetReference dataset,
             CodeAndLabel featureName);
+
+    /**
+     * Loads all feature vector values for specified well.
+     */
+    // TODO can return null
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public FeatureVectorValues getWellFeatureVectorValues(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String datasetCode,
+            String datastoreCode, WellLocation wellLocation);
 
     /**
      * Returns plate content for a specified HCS_IMAGE dataset. Loads data about the plate for a

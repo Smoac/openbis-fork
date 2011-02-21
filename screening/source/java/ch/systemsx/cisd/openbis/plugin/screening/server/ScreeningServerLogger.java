@@ -52,6 +52,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellRefe
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
@@ -94,14 +95,14 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         logAccess(sessionToken, "getPlateContent", "PLATE(%s)", plateId.getId());
         return null;
     }
-    
+
     public FeatureVectorDataset getFeatureVectorDataset(String sessionToken,
             DatasetReference dataset, CodeAndLabel featureName)
     {
-        logAccess(sessionToken, "getFeatureVectorDataset", "DATA_SET(%s) FEATURE(%s)", dataset.getCode(), featureName);
+        logAccess(sessionToken, "getFeatureVectorDataset", "DATA_SET(%s) FEATURE(%s)",
+                dataset.getCode(), featureName);
         return null;
     }
-
 
     public PlateImages getPlateContentForDataset(String sessionToken, TechId datasetId)
     {
@@ -112,6 +113,14 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
     public List<WellContent> listPlateWells(String sessionToken, WellSearchCriteria materialCriteria)
     {
         logAccess(sessionToken, "getPlateLocations", "criteria(%s)", materialCriteria);
+        return null;
+    }
+
+    public FeatureVectorValues getWellFeatureVectorValues(String sessionToken, String datasetCode,
+            String datastoreCode, WellLocation wellLocation)
+    {
+        logAccess(sessionToken, "getWellFeatureVectorValues", "dataset(%s) well(%s)", datasetCode,
+                datasetCode);
         return null;
     }
 
