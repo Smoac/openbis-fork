@@ -155,6 +155,12 @@ public class SimpleShufflingTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
+                    one(logger).log(LogLevel.INFO, "BEGIN Computing number of data sets to move for share 1");
+                    one(logger).log(LogLevel.INFO, "\tSpace needed to free: 1994752 bytes (1948.00 kB, 1.90 MB)");
+                    one(logger).log(LogLevel.INFO, "\tInspecting 3 data sets.");
+                    one(logger).log(LogLevel.INFO, "END Computing number of data sets to move for share 1");
+                    one(logger).log(LogLevel.INFO, "\t2 data sets to move, available space : 102500");
+                    
                     one(logger).log(LogLevel.INFO, "Moving data set ds3 from share 1 to share 3 ...");
                     one(dataSetMover).moveDataSetToAnotherShare(new File(share1.getShare(), STORE_PATH + "ds3"), share3.getShare());
                     one(logger).log(LogLevel.INFO, "Moving data set ds3 from share 1 to share 3 took 0 seconds.");
@@ -162,6 +168,11 @@ public class SimpleShufflingTest extends AbstractFileSystemTestCase
                     one(logger).log(LogLevel.INFO, "Moving data set ds2 from share 1 to share 3 ...");
                     one(dataSetMover).moveDataSetToAnotherShare(new File(share1.getShare(), STORE_PATH + "ds2"), share3.getShare());
                     one(logger).log(LogLevel.INFO, "Moving data set ds2 from share 1 to share 3 took 0 seconds.");
+                    
+                    one(logger).log(LogLevel.INFO, "BEGIN Computing number of data sets to move for share 2");
+                    one(logger).log(LogLevel.INFO, "\tSpace needed to free: 1585152 bytes (1548.00 kB, 1.51 MB)");
+                    one(logger).log(LogLevel.INFO, "\tInspecting 1 data sets.");
+                    one(logger).log(LogLevel.INFO, "END Computing number of data sets to move for share 2");
                 }
             });
         
