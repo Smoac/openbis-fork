@@ -17,8 +17,10 @@
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -106,6 +108,7 @@ public class ShareIdManager implements IShareIdManager
 
     private final IEncapsulatedOpenBISService service;
     private final int lockingTimeOut;
+    private final Map<String, Set<Thread>> lockedDataSets = new HashMap<String, Set<Thread>>();
     
     private Map<String, GuardedShareID> dataSetCodeToShareIdMap;
 
@@ -137,20 +140,83 @@ public class ShareIdManager implements IShareIdManager
         } else
         {
             addShareId(map, dataSetCode, shareId);
-            operationLog.info("Data set " + dataSetCode + " for share " + shareId);
+            operationLog.info("Register data set " + dataSetCode + " for share " + shareId);
         }
     }
 
     public void lock(String dataSetCode)
     {
-        getGuardedShareId(dataSetCode).lock();
+        synchronized (lockedDataSets)
+        {
+            Set<Thread> set = lockedDataSets.get(dataSetCode);
+            if (set == null)
+            {
+                set = new LinkedHashSet<Thread>();
+                lockedDataSets.put(dataSetCode, set);
+                getGuardedShareId(dataSetCode).lock();
+                if (operationLog.isDebugEnabled())
+                {
+                    operationLog.debug("Data set " + dataSetCode + " has been locked.");
+                }
+            }
+            set.add(Thread.currentThread());
+            log(dataSetCode, set);
+        }
     }
 
     public void releaseLock(String dataSetCode)
     {
-        getGuardedShareId(dataSetCode).unlock();
+        synchronized (lockedDataSets)
+        {
+            Set<Thread> set = lockedDataSets.get(dataSetCode);
+            if (set == null)
+            {
+                throw new IllegalArgumentException("Unknown data set: " + dataSetCode);
+            }
+            set.remove(Thread.currentThread());
+            if (set.isEmpty())
+            {
+                getGuardedShareId(dataSetCode).unlock();
+                lockedDataSets.remove(dataSetCode);
+                if (operationLog.isDebugEnabled())
+                {
+                    operationLog.debug("Data set " + dataSetCode + " has been unlocked.");
+                }
+            }
+            log(dataSetCode, set);
+        }
     }
 
+    public void releaseLocks()
+    {
+        synchronized (lockedDataSets)
+        {
+            Set<String> dataSets = lockedDataSets.keySet();
+            for (String dataSet : dataSets)
+            {
+                releaseLock(dataSet);
+            }
+        }
+    }
+
+    private void log(String dataSetCode, Set<Thread> set)
+    {
+        if (operationLog.isDebugEnabled() && set.isEmpty() == false)
+        {
+            StringBuilder builder = new StringBuilder();
+            for (Thread thread : set)
+            {
+                if (builder.length() > 0)
+                {
+                    builder.append(", ");
+                }
+                builder.append(thread.getName());
+            }
+            operationLog.debug("Data set " + dataSetCode
+                    + " is locked by the following threads: " + builder);
+        }
+    }
+    
     private GuardedShareID getGuardedShareId(String dataSetCode)
     {
         GuardedShareID shareId = getDataSetCodeToShareIdMap().get(dataSetCode);

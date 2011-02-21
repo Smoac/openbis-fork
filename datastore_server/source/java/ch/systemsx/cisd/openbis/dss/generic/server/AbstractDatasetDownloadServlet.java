@@ -21,10 +21,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.activation.MimetypesFileTypeMap;
@@ -46,6 +44,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
@@ -124,6 +123,19 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
             notificationLog.fatal("Failure during '" + servletConfig.getServletName()
                     + "' servlet initialization.", ex);
             throw new ServletException(ex);
+        }
+    }
+
+    @Override
+    protected void service(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException
+    {
+        try
+        {
+            super.service(request, response);
+        } finally
+        {
+            applicationContext.getShareIdManager().releaseLocks();
         }
     }
 
@@ -315,15 +327,11 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
 
     protected final File createDataSetRootDirectory(String dataSetCode, HttpSession session)
     {
-        List<ExternalData> list =
-                applicationContext.getDataSetService().listDataSetsByCode(
-                        Arrays.asList(dataSetCode));
-        if (list.isEmpty())
-        {
-            throw new IllegalArgumentException("Unknown data set " + dataSetCode);
-        }
+        IShareIdManager shareIdManager = applicationContext.getShareIdManager();
+        shareIdManager.lock(dataSetCode);
+        String shareId = shareIdManager.getShareId(dataSetCode);
         return DatasetLocationUtil.getDatasetLocationPathCheckingIfExists(dataSetCode,
-                list.get(0).getShareId(), getDatabaseInstance(session), getStoreRootPath());
+                shareId, getDatabaseInstance(session), getStoreRootPath());
     }
 
     protected final File getStoreRootPath()

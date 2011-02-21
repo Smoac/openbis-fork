@@ -49,4 +49,9 @@ public interface IShareIdManager
      * @throws IllegalArgumentException if data set is unknown.
      */
     public void releaseLock(String dataSetCode);
+    
+    /**
+     * Release all locks which have been requested in the same thread calling this method.
+     */
+    public void releaseLocks();
 }
