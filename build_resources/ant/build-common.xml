@@ -73,7 +73,7 @@
 	</target>
 	<target name="_plain-compile-tests">
 		<antcall target="_plain-compile">
-			<param name="src" value="${sources}" />
+			<param name="src" value="${sources.test}" />
 		</antcall>
 	</target>
 
