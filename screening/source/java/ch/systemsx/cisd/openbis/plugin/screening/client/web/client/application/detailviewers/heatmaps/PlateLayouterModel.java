@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -172,7 +173,7 @@ class PlateLayouterModel
         {
             WellLocation loc = featureVector.getWellLocation();
             WellData wellData = tryGetWellData(loc);
-            if (wellData != null)
+            if (wellData != null && wellData.isFullyLoaded() == false)
             {
                 for (Entry<String, FeatureValue> entry : featureVector.getFeatureMap().entrySet())
                 {
@@ -182,6 +183,20 @@ class PlateLayouterModel
                     wellData.addFeatureValue(featureLabel, value);
                 }
             }
+        }
+    }
+
+    // set all well features
+    public void updateWellFeatureValue(FeatureVectorValues wellFeatureVectorValues)
+    {
+        assert datasetReference.getCode().equals(wellFeatureVectorValues.getDataSetCode());
+
+        final WellLocation loc = wellFeatureVectorValues.getWellLocation();
+        final WellData wellData = tryGetWellData(loc);
+        if (wellData != null)
+        {
+            final Map<String, FeatureValue> allValues = wellFeatureVectorValues.getFeatureMap();
+            wellData.setAllFeatureValues(allValues);
         }
     }
 

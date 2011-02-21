@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -38,6 +39,8 @@ public class WellData
 
     private WellMetadata wellMetadataOrNull;
 
+    private boolean fullyLoaded = false;
+
     // ordered map from feature labels to feature values
     // NOTE: it contains a subset of all feature values of a well (only the ones that were loaded)
     private Map<String /* feature label */, FeatureValue> featureValuesMap =
@@ -52,6 +55,16 @@ public class WellData
     public void addFeatureValue(String featureName, FeatureValue value)
     {
         featureValuesMap.put(featureName, value);
+    }
+
+    public void setAllFeatureValues(Map<String, FeatureValue> values)
+    {
+        resetFeatureValues();
+        for (Entry<String, FeatureValue> entry : values.entrySet())
+        {
+            addFeatureValue(entry.getKey(), entry.getValue());
+        }
+        fullyLoaded = true;
     }
 
     public void resetFeatureValues()
@@ -89,4 +102,10 @@ public class WellData
     {
         return experiment;
     }
+
+    public boolean isFullyLoaded()
+    {
+        return fullyLoaded;
+    }
+
 }

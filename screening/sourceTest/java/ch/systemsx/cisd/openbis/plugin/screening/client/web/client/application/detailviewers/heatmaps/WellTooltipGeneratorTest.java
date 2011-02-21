@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps;
 
-import static ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.HeatmapPresenter.WellTooltipGenerator.printFriendlyCode;
+import static ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.WellTooltipGenerator.printFriendlyCode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,7 +34,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.HeatmapPresenter.WellTooltipGenerator;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ScreeningUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ObjectCreationUtilForTests;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
@@ -78,8 +77,8 @@ public class WellTooltipGeneratorTest extends AssertJUnit
     private static String tryGenerateShortDescription(PlateLayouterModel model, int rowIx,
             int colIx, String featureLabelOrNull)
     {
-        return WellTooltipGenerator.tryGenerateTooltip(model, rowIx, colIx, featureLabelOrNull,
-                createDummyRealNumberRenderer());
+        return new WellTooltipGenerator(model, createDummyRealNumberRenderer()).generateTooltip(
+                rowIx, colIx, featureLabelOrNull);
     }
 
     private static IRealNumberRenderer createDummyRealNumberRenderer()

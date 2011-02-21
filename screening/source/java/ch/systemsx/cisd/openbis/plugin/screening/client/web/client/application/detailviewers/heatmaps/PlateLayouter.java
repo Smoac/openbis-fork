@@ -126,10 +126,15 @@ public class PlateLayouter
     {
         return new HeatmapPresenter.IHeatmapViewManipulator()
             {
-                public void refreshWellStyle(int rowIx, int colIx, Color color, String tooltipOrNull)
+                public void updateWellStyle(int rowIx, int colIx, Color bakgroundColor)
                 {
                     Component wellComponent = renderedWells[rowIx][colIx];
-                    PlateStyleSetter.setBackgroudColor(wellComponent, color.getHexColor());
+                    PlateStyleSetter.setBackgroudColor(wellComponent, bakgroundColor.getHexColor());
+                }
+
+                public void updateTooltip(int rowIx, int colIx, String tooltipOrNull)
+                {
+                    Component wellComponent = renderedWells[rowIx][colIx];
                     if (tooltipOrNull != null)
                     {
                         GWTUtils.setToolTip(wellComponent, tooltipOrNull);
