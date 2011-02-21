@@ -58,7 +58,7 @@ public class ScreeningConstants
 
     // type of the dataset which stores image analysis data, there should be at most one
     public static final String HCS_IMAGE_ANALYSIS_DATASET_TYPE_PATTERN = "HCS_IMAGE_ANALYSIS_DATA|" // legacy
-            + "HCS_ANALYSIS_WELL_FEATURES.*";
+            + "HCS_ANALYSIS_WELL_.*";
 
     // --- HCS sample types
 
