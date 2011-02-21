@@ -82,11 +82,7 @@ public class ShareIdManager implements IShareIdManager
             {
                 try
                 {
-//                    long t1 = System.currentTimeMillis();
                     boolean successful  = countDownLatch.await(lockingTimeOut, TimeUnit.SECONDS);
-//                    System.out.println(t1+" await for "+dataSetCode);
-//                    long t2 = System.currentTimeMillis();
-//                    System.out.println(t2+" awaiting finished for "+dataSetCode+ " "+successful);
                     if (successful == false)
                     {
                         throw new EnvironmentFailureException("Lock for data set " + dataSetCode
