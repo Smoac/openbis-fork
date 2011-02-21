@@ -22,6 +22,8 @@ import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 
 import com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter;
 
+import ch.systemsx.cisd.openbis.dss.generic.server.ShareIdManager;
+
 /**
  * Provider of remote service onto openBIS.
  * 
@@ -31,6 +33,8 @@ public class ServiceProvider
 {
     // applicationContex it lazily initialized
     private static BeanFactory applicationContext = null;
+    
+    private static IShareIdManager shareIdManager;
 
     public static void setBeanFactory(BeanFactory applicationContext)
     {
@@ -55,6 +59,15 @@ public class ServiceProvider
         return ((IEncapsulatedOpenBISService) getApplicationContext().getBean("openBIS-service"));
     }
 
+    public static IShareIdManager getShareIdManager()
+    {
+        if (shareIdManager == null)
+        {
+            shareIdManager = new ShareIdManager(getOpenBISService(), 86400);
+        }
+        return shareIdManager;
+    }
+    
     public static HttpInvokerServiceExporter getDataStoreServer()
     {
         return ((HttpInvokerServiceExporter) getApplicationContext().getBean("data-store-server"));

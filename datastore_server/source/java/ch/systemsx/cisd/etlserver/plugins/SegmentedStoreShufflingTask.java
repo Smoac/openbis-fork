@@ -44,6 +44,7 @@ import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.ETLDaemon;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
@@ -133,11 +134,15 @@ public class SegmentedStoreShufflingTask implements IMaintenanceTask
         this(ETLDaemon.getIdsOfIncomingShares(), ServiceProvider.getOpenBISService(),
                 new SimpleFreeSpaceProvider(), new IDataSetMover()
                     {
+                        private IEncapsulatedOpenBISService service = ServiceProvider
+                                .getOpenBISService();
+
+                        private IShareIdManager manager = ServiceProvider.getShareIdManager();
 
                         public void moveDataSetToAnotherShare(File dataSetDirInStore, File share)
                         {
                             SegmentedStoreUtils.moveDataSetToAnotherShare(dataSetDirInStore, share,
-                                    ServiceProvider.getOpenBISService());
+                                    service, manager);
                         }
                     }, new Log4jSimpleLogger(operationLog));
     }

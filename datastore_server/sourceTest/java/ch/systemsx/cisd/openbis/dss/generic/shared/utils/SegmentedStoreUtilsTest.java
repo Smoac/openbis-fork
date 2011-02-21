@@ -37,6 +37,7 @@ import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
@@ -67,6 +68,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
     
     private Mockery context;
     private IEncapsulatedOpenBISService service;
+    private IShareIdManager shareIdManager;
     private ISimpleLogger log;
     private IFreeSpaceProvider freeSpaceProvider;
     private ITimeProvider timeProvider;
@@ -78,6 +80,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
     {
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
+        shareIdManager = context.mock(IShareIdManager.class);
         freeSpaceProvider = context.mock(IFreeSpaceProvider.class);
         timeProvider = context.mock(ITimeProvider.class);
         context.checking(new Expectations()
@@ -199,12 +202,13 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
                     will(returnValue(new ExternalData()));
                     
                     one(service).updateShareIdAndSize("ds-1", "2", 11L);
+                    one(shareIdManager).setShareId("ds-1", "2");
                 }
             });
         assertEquals(true, dataSetDirInStore.exists());
         assertFileNames(share2uuid01, "22");
         
-        SegmentedStoreUtils.moveDataSetToAnotherShare(dataSetDirInStore, share2, service);
+        SegmentedStoreUtils.moveDataSetToAnotherShare(dataSetDirInStore, share2, service, shareIdManager);
 
         assertEquals(false, dataSetDirInStore.exists());
         assertFileNames(share2uuid01, "02", "22");

@@ -42,6 +42,7 @@ import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
@@ -211,7 +212,7 @@ public class SegmentedStoreUtils
      * @param service to access openBIS AS.
      */
     public static void moveDataSetToAnotherShare(File dataSetDirInStore, File share,
-            IEncapsulatedOpenBISService service)
+            IEncapsulatedOpenBISService service, IShareIdManager shareIdManager)
     {
         String dataSetCode = dataSetDirInStore.getName();
         ExternalData dataSet = service.tryGetDataSet(dataSetCode);
@@ -227,7 +228,9 @@ public class SegmentedStoreUtils
         dataSetDirInNewShare.mkdirs();
         copyToShare(dataSetDirInStore, dataSetDirInNewShare);
         long size = assertEqualSizeAndChildren(dataSetDirInStore, dataSetDirInNewShare);
-        service.updateShareIdAndSize(dataSetCode, share.getName(), size);
+        String shareId = share.getName();
+        shareIdManager.setShareId(dataSetCode, shareId);
+        service.updateShareIdAndSize(dataSetCode, shareId, size);
         FileUtilities.deleteRecursively(dataSetDirInStore);
     }
 
