@@ -27,11 +27,7 @@ import org.apache.tools.ant.Task;
  */
 public abstract class AbstractEclipseClasspathExecutor
 {
-    /**
-     * Name of the shadow dependencies file that has the same syntax as a classpath file and can be
-     * used to specify additional dependencies.
-     */
-    private static final String SHADOW_DEPENDENCIES_FILE = ".shadow_dependencies";
+
 
     public void executeFor(Task task)
     {
@@ -41,7 +37,7 @@ public abstract class AbstractEclipseClasspathExecutor
 
     public void execute(File baseDir)
     {
-        final File eclipseClasspathFile = new File(baseDir, EclipseClasspathReader.CLASSPATH_FILE);
+        final File eclipseClasspathFile = EclipseProjectUtils.getEclipseClassPathFile(baseDir);
         if (eclipseClasspathFile.exists() == false)
         {
             handleAbsentsOfClasspathFile(eclipseClasspathFile);
@@ -49,17 +45,9 @@ public abstract class AbstractEclipseClasspathExecutor
         {
             try
             {
-                final IEclipseClasspathLocation loc =
-                        new FileBaseEclipseClasspathLocation(eclipseClasspathFile);
-                executeEntries(EclipseClasspathReader.readClasspathEntries(loc));
-                final File shadowDependenciesFile = new File(baseDir, SHADOW_DEPENDENCIES_FILE);
-                // The shadow dependencies file is optional.
-                if (shadowDependenciesFile.exists())
-                {
-                    final IEclipseClasspathLocation loc2 =
-                            new FileBaseEclipseClasspathLocation(shadowDependenciesFile);
-                    executeEntries(EclipseClasspathReader.readClasspathEntries(loc2));
-                }
+                List<EclipseClasspathEntry> entries =
+                        EclipseProjectUtils.readClasspathEntriesForProject(baseDir);
+                executeEntries(entries);
             } catch (BuildException ex)
             {
                 throw ex;

@@ -35,6 +35,12 @@ public class EclipseClasspathReader
     /** Name of the Eclipse classpath file. */
     public static final String CLASSPATH_FILE = ".classpath";
 
+    /**
+     * Name of the shadow dependencies file that has the same syntax as a classpath file and can be
+     * used to specify additional dependencies.
+     */
+    public static final String SHADOW_DEPENDENCIES_FILE = ".shadow_dependencies";
+
     private static final String CLASSPATH = "classpath";
 
     private static final String PATH_ATTRIBUTE = "path";

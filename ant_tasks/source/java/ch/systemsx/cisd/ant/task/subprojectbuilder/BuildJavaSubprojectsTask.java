@@ -19,67 +19,56 @@ package ch.systemsx.cisd.ant.task.subprojectbuilder;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.taskdefs.Ant;
 import org.apache.tools.ant.taskdefs.Property;
 
-import ch.systemsx.cisd.ant.common.AbstractEclipseClasspathExecutor;
-import ch.systemsx.cisd.ant.common.EclipseClasspathEntry;
-import ch.systemsx.cisd.ant.common.EclipseClasspathReader;
+import ch.systemsx.cisd.ant.common.MultiprojectBuildExecutor;
 
 /**
  * @author felmer
  */
 public class BuildJavaSubprojectsTask extends Task
 {
-    private final class SubprojectsExecutor extends AbstractEclipseClasspathExecutor
+
+    private final class SubprojectsExecutor extends MultiprojectBuildExecutor
     {
-        @Override
-        protected void handleAbsentsOfClasspathFile(File eclipseClasspathFile)
+        public SubprojectsExecutor(File baseDir)
         {
-            log("No Eclipse " + EclipseClasspathReader.CLASSPATH_FILE + " file found in '"
-                    + eclipseClasspathFile.getParent() + "'.");
+            super(baseDir);
         }
 
         @Override
-        protected void executeEntries(List<EclipseClasspathEntry> entries)
+        protected void executeProjectBuild(File baseDir)
         {
-            File baseDir = getProject().getBaseDir();
-            for (EclipseClasspathEntry entry : entries)
+            File projectAntFile = new File(baseDir, antFile);
+            if (projectAntFile.exists())
             {
-                if (entry.isSubprojectEntry())
+                Ant ant = new Ant();
+                String targetForMessage;
+                if (target == null)
                 {
-                    String path = entry.getPath();
-                    File subprojectBaseDir = new File(baseDir.getParentFile(), path.substring(1));
-                    File file = new File(subprojectBaseDir, antFile);
-                    if (file.exists())
-                    {
-                        Ant ant = new Ant();
-                        String targetForMessage;
-                        if (target == null)
-                        {
-                            targetForMessage = "default target";
-                        } else
-                        {
-                            ant.setTarget(target);
-                            targetForMessage = "target '" + target + "'";
-                        }
-                        ant.setOwningTarget(getOwningTarget());
-                        ant.setDir(subprojectBaseDir);
-                        ant.setAntfile(antFile);
-                        ant.setProject(getProject());
-                        for (Property property : properties)
-                        {
-                            Property clonedProperty = ant.createProperty();
-                            clonedProperty.setName(property.getName());
-                            clonedProperty.setValue(property.getValue());
-                        }
-                        ant.init();
-                        log("Execute " + targetForMessage + " of build file '" + file + "'.");
-                        ant.execute();
-                    }
+                    targetForMessage = "default target";
+                } else
+                {
+                    ant.setTarget(target);
+                    targetForMessage = "target '" + target + "'";
                 }
+                ant.setOwningTarget(getOwningTarget());
+                ant.setDir(baseDir);
+                ant.setAntfile(antFile);
+                ant.setProject(getProject());
+                for (Property property : properties)
+                {
+                    Property clonedProperty = ant.createProperty();
+                    clonedProperty.setName(property.getName());
+                    clonedProperty.setValue(property.getValue());
+                }
+                ant.init();
+                log("Execute " + targetForMessage + " of build file '" + projectAntFile + "'.");
+                ant.execute();
             }
         }
 
@@ -113,7 +102,7 @@ public class BuildJavaSubprojectsTask extends Task
     @Override
     public void execute() throws BuildException
     {
-        new SubprojectsExecutor().executeFor(this);
+        new SubprojectsExecutor(getProject().getBaseDir()).execute();
     }
 
 }
