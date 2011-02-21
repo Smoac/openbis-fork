@@ -161,11 +161,11 @@ public class SimpleShuffling implements ISegmentedStoreShuffling
         {
             if (freeSpaceAboveMinimum > 0)
             {
+                logger.log(INFO, "\t" + i + " data sets to move, available space : "
+                        + freeSpaceAboveMinimum);
                 return i;
             }
             freeSpaceAboveMinimum += dataSets.get(i).getDataSetSize();
-            logger.log(INFO, "\t" + i + " data sets to move, available space : "
-                    + freeSpaceAboveMinimum);
         }
         return freeSpaceAboveMinimum > 0 ? dataSets.size() : -1;
     }
