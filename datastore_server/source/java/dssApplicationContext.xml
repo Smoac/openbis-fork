@@ -51,6 +51,11 @@
        <constructor-arg ref="sessionHolder"/>
     </bean>    
     
+    <bean id="share-id-manager" class="ch.systemsx.cisd.openbis.dss.generic.server.ShareIdManager">
+        <constructor-arg ref="openBIS-service"/>
+        <constructor-arg value="86400"/>
+    </bean>
+    
     <bean id="data-store-server"
         class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter">
         <property name="service">

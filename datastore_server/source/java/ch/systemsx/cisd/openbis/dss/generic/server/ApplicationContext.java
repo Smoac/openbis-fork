@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 
 /**
  *  Application context. It contains the object accessing the openBIS for retrieving the data set,
@@ -28,11 +29,14 @@ class ApplicationContext
 {
     private final IEncapsulatedOpenBISService dataSetService;
     
+    private final IShareIdManager shareIdManager;
+    
     private final ConfigParameters configParameters;
 
-    ApplicationContext(IEncapsulatedOpenBISService service, ConfigParameters configParameters)
+    ApplicationContext(IEncapsulatedOpenBISService service, IShareIdManager shareIdManager, ConfigParameters configParameters)
     {
         this.dataSetService = service;
+        this.shareIdManager = shareIdManager;
         this.configParameters = configParameters;
     }
 
@@ -41,6 +45,11 @@ class ApplicationContext
         return dataSetService;
     }
 
+    public IShareIdManager getShareIdManager()
+    {
+        return shareIdManager;
+    }
+    
     public final ConfigParameters getConfigParameters()
     {
         return configParameters;

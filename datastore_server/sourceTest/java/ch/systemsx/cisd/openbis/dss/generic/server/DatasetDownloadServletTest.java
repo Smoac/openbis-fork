@@ -54,6 +54,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -135,6 +136,8 @@ public class DatasetDownloadServletTest
 
     private HttpSession httpSession;
 
+    private IShareIdManager shareIdManager;
+
     @BeforeMethod
     public void setUp()
     {
@@ -144,6 +147,7 @@ public class DatasetDownloadServletTest
         request = context.mock(HttpServletRequest.class);
         response = context.mock(HttpServletResponse.class);
         dataSetService = context.mock(IEncapsulatedOpenBISService.class);
+        shareIdManager = context.mock(IShareIdManager.class);
         httpSession = context.mock(HttpSession.class);
         TEST_FOLDER.mkdirs();
         EXAMPLE_DATA_SET_FOLDER.mkdirs();
@@ -811,7 +815,8 @@ public class DatasetDownloadServletTest
         properties.setProperty(ConfigParameters.KEYSTORE_KEY_PASSWORD_KEY, "y");
         properties.setProperty(ConfigParameters.DOWNLOAD_URL, "http://localhost:8080");
         ConfigParameters configParameters = new ConfigParameters(properties);
-        return new DatasetDownloadServlet(new ApplicationContext(dataSetService, configParameters));
+        return new DatasetDownloadServlet(new ApplicationContext(dataSetService, shareIdManager,
+                configParameters));
     }
 
     private String getNormalizedLogContent()

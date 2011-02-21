@@ -22,8 +22,12 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.log4j.Logger;
+
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
@@ -97,24 +101,24 @@ public class ShareIdManager implements IShareIdManager
         }
     }
     
-    private final Map<String, GuardedShareID> dataSetCodeToShareIdMap =
-            new HashMap<String, GuardedShareID>();
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            ShareIdManager.class);
+
+    private final IEncapsulatedOpenBISService service;
     private final int lockingTimeOut;
+    
+    private Map<String, GuardedShareID> dataSetCodeToShareIdMap;
 
     public ShareIdManager(IEncapsulatedOpenBISService service, int lockingTimeOutInSeconds)
     {
+        this.service = service;
         this.lockingTimeOut = lockingTimeOutInSeconds;
-        List<SimpleDataSetInformationDTO> dataSets = service.listDataSets();
-        for (SimpleDataSetInformationDTO dataSet : dataSets)
-        {
-            addShareId(dataSet.getDataSetCode(), dataSet.getDataSetShareId());
-        }
     }
 
-    private void addShareId(String dataSetCode, String shareId)
+    private void addShareId(Map<String, GuardedShareID> map, String dataSetCode, String shareId)
     {
         GuardedShareID guardedShareId = new GuardedShareID(dataSetCode, shareId, lockingTimeOut);
-        dataSetCodeToShareIdMap.put(dataSetCode, guardedShareId);
+        map.put(dataSetCode, guardedShareId);
     }
 
     public String getShareId(String dataSetCode)
@@ -124,12 +128,17 @@ public class ShareIdManager implements IShareIdManager
 
     public void setShareId(String dataSetCode, String shareId)
     {
-        GuardedShareID guardedShareId = dataSetCodeToShareIdMap.get(dataSetCode);
+        Map<String, GuardedShareID> map = getDataSetCodeToShareIdMap();
+        GuardedShareID guardedShareId = map.get(dataSetCode);
         if (guardedShareId != null)
         {
             guardedShareId.setShareId(shareId);
+            operationLog.info("New share of data set " + dataSetCode + " is " + shareId);
+        } else
+        {
+            addShareId(map, dataSetCode, shareId);
+            operationLog.info("Data set " + dataSetCode + " for share " + shareId);
         }
-        addShareId(dataSetCode, shareId);
     }
 
     public void lock(String dataSetCode)
@@ -144,12 +153,29 @@ public class ShareIdManager implements IShareIdManager
 
     private GuardedShareID getGuardedShareId(String dataSetCode)
     {
-        GuardedShareID shareId = dataSetCodeToShareIdMap.get(dataSetCode);
+        GuardedShareID shareId = getDataSetCodeToShareIdMap().get(dataSetCode);
         if (shareId == null)
         {
             throw new IllegalArgumentException("Unknown data set: " + dataSetCode);
         }
         return shareId;
+    }
+    
+    private Map<String, GuardedShareID> getDataSetCodeToShareIdMap()
+    {
+        if (dataSetCodeToShareIdMap == null)
+        {
+            dataSetCodeToShareIdMap  =
+                new HashMap<String, GuardedShareID>();
+            List<SimpleDataSetInformationDTO> dataSets = service.listDataSets();
+            for (SimpleDataSetInformationDTO dataSet : dataSets)
+            {
+                String dataSetCode = dataSet.getDataSetCode();
+                addShareId(dataSetCodeToShareIdMap, dataSetCode, dataSet.getDataSetShareId());
+            }
+            operationLog.info("Share id manager initialized with " + dataSets.size() + " data sets.");
+        }
+        return dataSetCodeToShareIdMap;
     }
     
 }
