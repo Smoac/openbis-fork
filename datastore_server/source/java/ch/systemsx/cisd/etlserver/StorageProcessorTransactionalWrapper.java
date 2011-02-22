@@ -58,7 +58,7 @@ public class StorageProcessorTransactionalWrapper implements IStorageProcessorTr
     public IStorageProcessorTransaction createTransaction()
     {
 
-        return new AbstractStorageProcessorTransactionalState()
+        return new AbstractStorageProcessorTransaction()
             {
                 @Override
                 public File doStoreData(DataSetInformation dataSetInformation,

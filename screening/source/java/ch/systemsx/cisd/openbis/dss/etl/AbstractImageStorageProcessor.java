@@ -48,7 +48,7 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.AbstractStorageProcessor;
-import ch.systemsx.cisd.etlserver.AbstractStorageProcessorTransactionalState;
+import ch.systemsx.cisd.etlserver.AbstractStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.DispatcherStorageProcessor.IDispatchableStorageProcessor;
 import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
@@ -250,7 +250,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
 
     // ---------------------------------
     private class AbstractImageStorageProcessorTransaction extends
-            AbstractStorageProcessorTransactionalState
+            AbstractStorageProcessorTransaction
     {
         private IImagingQueryDAO dbTransaction;
         // used when HDF5 is used to store original data
