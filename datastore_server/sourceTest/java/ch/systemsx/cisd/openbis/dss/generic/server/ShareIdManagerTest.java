@@ -118,14 +118,7 @@ public class ShareIdManagerTest extends AssertJUnit
     @Test
     public void testReleaseLockOfUnknownDataSet()
     {
-        try
-        {
-            manager.releaseLock("ds?");
-            fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException ex)
-        {
-            assertEquals("Unknown data set: ds?", ex.getMessage());
-        }
+        manager.releaseLock("ds?");
     }
     
     @Test

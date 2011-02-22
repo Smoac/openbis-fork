@@ -171,7 +171,7 @@ public class ShareIdManager implements IShareIdManager
             Set<Thread> set = lockedDataSets.get(dataSetCode);
             if (set == null)
             {
-                throw new IllegalArgumentException("Unknown data set: " + dataSetCode);
+                return;
             }
             set.remove(Thread.currentThread());
             if (set.isEmpty())
