@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
+import java.util.Arrays;
+import java.util.Date;
+
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.AfterMethod;
@@ -23,9 +26,17 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.dss.generic.server.openbisauth.OpenBISSessionHolder;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -45,14 +56,18 @@ public class EncapsulatedOpenBISServiceTest
 
     private OpenBISSessionHolder session;
 
+    private IShareIdManager shareIdManager;
+
     @BeforeMethod
     public void setUp()
     {
         context = new Mockery();
         limsService = context.mock(IETLLIMSService.class);
+        shareIdManager = context.mock(IShareIdManager.class);
         session = new OpenBISSessionHolder();
         session.setToken(SESSION_TOKEN);
         encapsulatedLimsService = new EncapsulatedOpenBISService(limsService, session);
+        encapsulatedLimsService.setShareIdManager(shareIdManager);
     }
 
     @AfterMethod
@@ -74,6 +89,7 @@ public class EncapsulatedOpenBISServiceTest
             });
         encapsulatedLimsService
                 .tryGetSampleWithExperiment(dataSetInformation.getSampleIdentifier());
+        context.assertIsSatisfied();
     }
 
     @Test
@@ -81,16 +97,79 @@ public class EncapsulatedOpenBISServiceTest
     {
         final DataSetInformation dataSetInfo = createDataSetInformation();
         final NewExternalData data = new NewExternalData();
+        data.setCode("ds1");
+        data.setShareId("42");
         context.checking(new Expectations()
             {
                 {
                     one(limsService).registerDataSet(SESSION_TOKEN,
                             dataSetInfo.getSampleIdentifier(), data);
+                    one(shareIdManager).setShareId("ds1", "42");
                 }
             });
         encapsulatedLimsService.registerDataSet(dataSetInfo, data);
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public final void testRegisterSampleAndDataSet()
+    {
+        final NewSample sample = new NewSample();
+        final NewExternalData data = new NewExternalData();
+        data.setCode("ds1");
+        data.setShareId("42");
+        context.checking(new Expectations()
+        {
+            {
+                one(limsService).registerSampleAndDataSet(SESSION_TOKEN, sample, data, "user-id");
+                one(shareIdManager).setShareId("ds1", "42");
+            }
+        });
+        encapsulatedLimsService.registerSampleAndDataSet(sample, data, "user-id");
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public final void testUpdateSampleAndRegisterDataSet()
+    {
+        final SampleUpdatesDTO sample =
+                new SampleUpdatesDTO(new TechId(1), Arrays.<IEntityProperty> asList(), null,
+                        Arrays.<NewAttachment> asList(), new Date(), null, null, null);
+        final NewExternalData data = new NewExternalData();
+        data.setCode("ds1");
+        data.setShareId("42");
+        context.checking(new Expectations()
+            {
+                {
+                    one(limsService).updateSampleAndRegisterDataSet(SESSION_TOKEN, sample, data);
+                    one(shareIdManager).setShareId("ds1", "42");
+                }
+            });
+        encapsulatedLimsService.updateSampleAndRegisterDataSet(sample, data);
+        context.assertIsSatisfied();
     }
 
+    @Test
+    public final void testPerformEntityOperations()
+    {
+        final NewExternalData data = new NewExternalData();
+        data.setCode("ds1");
+        data.setShareId("42");
+        final AtomicEntityOperationDetails operationDetails =
+                new AtomicEntityOperationDetails(null, Arrays.<NewExperiment> asList(),
+                        Arrays.<SampleUpdatesDTO> asList(), Arrays.<NewSample> asList(),
+                        Arrays.asList(data));
+        context.checking(new Expectations()
+        {
+            {
+                one(limsService).performEntityOperations(SESSION_TOKEN, operationDetails);
+                one(shareIdManager).setShareId("ds1", "42");
+            }
+        });
+        encapsulatedLimsService.performEntityOperations(operationDetails);
+        context.assertIsSatisfied();
+    }
+    
     @Test
     public final void testIsSampleRegisteredForDataSet()
     {
@@ -103,6 +182,7 @@ public class EncapsulatedOpenBISServiceTest
                 }
             });
         encapsulatedLimsService.getPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
+        context.assertIsSatisfied();
     }
 
     private final DataSetInformation createDataSetInformation()

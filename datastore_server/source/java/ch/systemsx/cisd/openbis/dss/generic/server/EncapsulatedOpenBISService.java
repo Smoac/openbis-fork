@@ -28,6 +28,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.openbisauth.OpenBISSessionHolder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
@@ -81,6 +83,8 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
 
     // this session object is automatically kept up-to-date by an aspect
     private OpenBISSessionHolder session;
+    
+    private IShareIdManager shareIdManager;
 
     public static IETLLIMSService createOpenBisService(String openBISURL)
     {
@@ -95,6 +99,19 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         this.session = sessionHolder;
     }
 
+    void setShareIdManager(IShareIdManager shareIdManager)
+    {
+        this.shareIdManager = shareIdManager;
+    }
+    
+    private IShareIdManager getShareIdManager()
+    {
+        if (shareIdManager == null)
+        {
+            shareIdManager = ServiceProvider.getShareIdManager();
+        }
+        return shareIdManager;
+    }
 
     public Object getObject() throws Exception
     {
@@ -236,6 +253,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         {
             service.registerDataSet(session.getToken(), sampleIdentifier, data);
         }
+        setShareId(data);
 
         if (operationLog.isInfoEnabled())
         {
@@ -447,14 +465,20 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     public Sample registerSampleAndDataSet(NewSample newSample, NewExternalData externalData,
             String userIdOrNull) throws UserFailureException
     {
-        return service.registerSampleAndDataSet(session.getToken(), newSample, externalData,
-                    userIdOrNull);
+        Sample sample =
+                service.registerSampleAndDataSet(session.getToken(), newSample, externalData,
+                        userIdOrNull);
+        setShareId(externalData);
+        return sample;
     }
 
     public Sample updateSampleAndRegisterDataSet(SampleUpdatesDTO newSample,
             NewExternalData externalData)
     {
-        return service.updateSampleAndRegisterDataSet(session.getToken(), newSample, externalData);
+        Sample sample =
+                service.updateSampleAndRegisterDataSet(session.getToken(), newSample, externalData);
+        setShareId(externalData);
+        return sample;
     }
 
     private void injectDefaultShareId(List<ExternalData> dataSets)
@@ -476,7 +500,19 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     public AtomicEntityOperationResult performEntityOperations(
             AtomicEntityOperationDetails operationDetails)
     {
-        return service.performEntityOperations(session.getToken(), operationDetails);
+        AtomicEntityOperationResult operations =
+                service.performEntityOperations(session.getToken(), operationDetails);
+        List<NewExternalData> dataSets = operationDetails.getDataSetRegistrations();
+        for (NewExternalData dataSet : dataSets)
+        {
+            setShareId(dataSet);
+        }
+        return operations;
     }
     
+    private void setShareId(NewExternalData data)
+    {
+        getShareIdManager().setShareId(data.getCode(), data.getShareId());
+    }
+
 }
