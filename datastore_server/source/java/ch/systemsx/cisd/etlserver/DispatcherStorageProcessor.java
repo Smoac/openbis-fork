@@ -44,7 +44,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  * 
  * @author Tomasz Pylak
  */
-public class DispatcherStorageProcessor extends AbstractStorageProcessor
+public class DispatcherStorageProcessor extends AbstractStorageProcessor implements
+        IStorageProcessorTransactional
 {
     /**
      * A storage processor can be used by the {@link DispatcherStorageProcessor} only if extends
@@ -67,8 +68,6 @@ public class DispatcherStorageProcessor extends AbstractStorageProcessor
 
     private final List<IDispatchableStorageProcessor> delegates;
 
-    private IStorageProcessor currentStorageProcessor;
-
     public DispatcherStorageProcessor(Properties properties)
     {
         this(createDispatcherStorageProcessors(properties), properties);
@@ -80,7 +79,6 @@ public class DispatcherStorageProcessor extends AbstractStorageProcessor
     {
         super(properties);
         this.delegates = delegates;
-        this.currentStorageProcessor = null;
     }
 
     private IStorageProcessor chooseStorageProcessor(DataSetInformation dataSetInformation,
@@ -121,55 +119,71 @@ public class DispatcherStorageProcessor extends AbstractStorageProcessor
 
     // --- dispatcher implementation
 
-    public File storeData(final DataSetInformation dataSetInformation,
-            final ITypeExtractor typeExtractor, final IMailClient mailClient,
-            final File incomingDataSetDirectory, final File rootDir)
+    public File storeData(DataSetInformation dataSetInformation, ITypeExtractor typeExtractor,
+            IMailClient mailClient, File incomingDataSetDirectory, File rootDir)
     {
-        if (currentStorageProcessor != null)
-        {
-            throw new IllegalStateException(
-                    "Previous storage operation has neither been commited not rollbacked!");
-        }
-        this.currentStorageProcessor =
-                chooseStorageProcessor(dataSetInformation, incomingDataSetDirectory);
-        return currentStorageProcessor.storeData(dataSetInformation, typeExtractor, mailClient,
-                incomingDataSetDirectory, rootDir);
+        throw new IllegalStateException(
+                "This method is deprecated. Please use 'createTransaction' to create a "
+                        + "transaction object and call 'storeData' on it.");
     }
 
     @Override
     public void commit(File incomingDataSetDirectory, File storedDataDirectory)
     {
-        if (currentStorageProcessor != null)
-        {
-            currentStorageProcessor.commit(incomingDataSetDirectory, storedDataDirectory);
-            currentStorageProcessor = null;
-        } else {
-            operationLog.warn("Commit call has been ignored because no transaction has been started.");
-        }
+        throw new IllegalStateException(
+                "This method is deprecated. Please use 'createTransaction' to create a "
+                        + "transaction object and call 'storeData' on it.");
     }
 
-    public UnstoreDataAction rollback(final File incomingDataSetDirectory,
-            final File storedDataDirectory, Throwable exception)
+    public UnstoreDataAction rollback(File incomingDataSetDirectory, File storedDataDirectory,
+            Throwable exception)
     {
-        ensureTransactionStarted();
-        UnstoreDataAction rollbackResult =
-                currentStorageProcessor.rollback(incomingDataSetDirectory, storedDataDirectory,
-                        exception);
-        currentStorageProcessor = null;
-        return rollbackResult;
-    }
-
-    private void ensureTransactionStarted()
-    {
-        if (currentStorageProcessor == null)
-        {
-            throw new IllegalStateException("Transaction has not been started!");
-        }
+        throw new IllegalStateException(
+                "This method is deprecated. Please use 'createTransaction' to create a "
+                        + "transaction object and call 'storeData' on it.");
     }
 
     public File tryGetProprietaryData(File storedDataDirectory)
     {
-        ensureTransactionStarted();
-        return currentStorageProcessor.tryGetProprietaryData(storedDataDirectory);
+        throw new IllegalStateException("Method not supported for now...");
     }
+
+    public IStorageProcessorTransaction createTransaction()
+    {
+        return new IStorageProcessorTransaction()
+            {
+
+                private IStorageProcessorTransaction transaction;
+            
+                public void storeData(DataSetInformation dataSetInformation, ITypeExtractor typeExtractor,
+                        IMailClient mailClient, File incomingDataSetDirectory, File rootDir)
+                {
+                    IStorageProcessor storageProcessor =
+                        chooseStorageProcessor(dataSetInformation, incomingDataSetDirectory);
+
+                    IStorageProcessorTransactional storageProcessorTransactional =
+                        StorageProcessorTransactionalWrapper.wrapIfNecessary(storageProcessor);
+                    
+                    transaction = storageProcessorTransactional.createTransaction();
+                    transaction.storeData(dataSetInformation, typeExtractor, mailClient,
+                            incomingDataSetDirectory, rootDir);
+                }
+                
+                public UnstoreDataAction rollback(Throwable exception)
+                {
+                    return transaction.rollback(exception);
+                }
+                
+                public File getStoredDataDirectory()
+                {
+                    return (transaction != null) ? transaction.getStoredDataDirectory() : null;
+                }
+                
+                public void commit()
+                {
+                    transaction.commit();
+                }
+            };
+    }
+
 }

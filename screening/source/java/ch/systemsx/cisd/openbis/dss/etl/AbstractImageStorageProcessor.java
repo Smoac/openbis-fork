@@ -48,8 +48,10 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.AbstractStorageProcessor;
+import ch.systemsx.cisd.etlserver.AbstractStorageProcessorTransactionalState;
 import ch.systemsx.cisd.etlserver.DispatcherStorageProcessor.IDispatchableStorageProcessor;
 import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.etlserver.hdf5.Hdf5Container;
 import ch.systemsx.cisd.etlserver.hdf5.HierarchicalStructureDuplicatorFileToHdf5;
@@ -105,8 +107,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.Color
  * 
  * @author Tomasz Pylak
  */
-abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor implements
-        IDispatchableStorageProcessor
+abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
+        implements IDispatchableStorageProcessor, IStorageProcessorTransactional
 {
     /**
      * Stores the references to the extracted images in the imaging database.
@@ -163,13 +165,6 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
 
     protected final IImageFileExtractor imageFileExtractorOrNull;
 
-    // --- internal state -------------
-
-    private IImagingQueryDAO currentTransaction;
-
-    // used when HDF5 is used to store original data
-    private boolean shouldDeleteOriginalDataOnCommit;
-
     // ---
 
     public AbstractImageStorageProcessor(final Properties properties)
@@ -185,8 +180,6 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
         this.globalImageStorageConfiguraton = getGlobalImageStorageConfiguraton(properties);
 
         this.dataSource = ServiceProvider.getDataSourceProvider().getDataSource(properties);
-        this.currentTransaction = null;
-        this.shouldDeleteOriginalDataOnCommit = false;
     }
 
     // --- ImageStorageConfiguraton ---
@@ -256,41 +249,101 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
     }
 
     // ---------------------------------
-
-    public final File storeData(final DataSetInformation dataSetInformation,
-            final ITypeExtractor typeExtractor, final IMailClient mailClient,
-            final File incomingDataSetDirectory, final File rootDirectory)
+    private class AbstractImageStorageProcessorTransaction extends
+            AbstractStorageProcessorTransactionalState
     {
-        assert rootDirectory != null : "Root directory can not be null.";
-        assert incomingDataSetDirectory != null : "Incoming data set directory can not be null.";
-        assert typeExtractor != null : "Unspecified IProcedureAndDataTypeExtractor implementation.";
+        private IImagingQueryDAO dbTransaction;
+        // used when HDF5 is used to store original data
+        private boolean shouldDeleteOriginalDataOnCommit;
 
-        File unzipedFolder = tryUnzipToFolder(incomingDataSetDirectory);
-        if (unzipedFolder != null)
+
+        @Override
+        public void storeData(final DataSetInformation dataSetInformation,
+                final ITypeExtractor typeExtractor, final IMailClient mailClient,
+                final File incomingDataDirectory, final File rootDir)
         {
-            return storeData(dataSetInformation, typeExtractor, mailClient, unzipedFolder,
-                    rootDirectory);
+            assert rootDir != null : "Root directory can not be null.";
+            assert incomingDataDirectory != null : "Incoming data set directory can not be null.";
+            assert typeExtractor != null : "Unspecified IProcedureAndDataTypeExtractor implementation.";
+
+            File unzipedFolder = tryUnzipToFolder(incomingDataDirectory);
+            if (unzipedFolder != null)
+            {
+                storeData(dataSetInformation, typeExtractor, mailClient, unzipedFolder, rootDir);
+            } else
+            {
+                super.storeData(dataSetInformation, typeExtractor, mailClient,
+                        incomingDataDirectory, rootDir);
+            }
+
         }
 
-        ImageFileExtractionWithConfig extractionResultWithConfig =
-                extractImages(dataSetInformation, incomingDataSetDirectory);
-        ImageFileExtractionResult extractionResult =
-                extractionResultWithConfig.getExtractionResult();
+        @Override
+        public final File doStoreData(final DataSetInformation dataSetInformation,
+                final ITypeExtractor typeExtractor, final IMailClient mailClient,
+                final File incomingDataDirectory, final File rootDir)
+        {
 
-        validateImages(dataSetInformation, mailClient, incomingDataSetDirectory, extractionResult);
-        List<AcquiredSingleImage> plateImages = extractionResult.getImages();
-        ImageStorageConfiguraton imageStorageConfiguraton =
-                extractionResultWithConfig.getImageStorageConfiguraton();
+            ImageFileExtractionWithConfig extractionResultWithConfig =
+                    extractImages(dataSetInformation, incomingDataSetDirectory);
+            ImageFileExtractionResult extractionResult =
+                    extractionResultWithConfig.getExtractionResult();
 
-        File imagesInStoreFolder = moveToStore(incomingDataSetDirectory, rootDirectory);
+            validateImages(dataSetInformation, mailClient, incomingDataSetDirectory,
+                    extractionResult);
+            List<AcquiredSingleImage> plateImages = extractionResult.getImages();
+            ImageStorageConfiguraton imageStorageConfiguraton =
+                    extractionResultWithConfig.getImageStorageConfiguraton();
 
-        // NOTE: plateImages will be changed by reference
-        processImages(rootDirectory, plateImages, imagesInStoreFolder, imageStorageConfiguraton);
+            File imagesInStoreFolder = moveToStore(incomingDataSetDirectory, rootDir);
 
-        this.shouldDeleteOriginalDataOnCommit =
-                imageStorageConfiguraton.getOriginalDataStorageFormat().isHdf5();
-        storeInDatabase(dataSetInformation, extractionResult);
-        return rootDirectory;
+            // NOTE: plateImages will be changed by reference
+            processImages(rootDir, plateImages, imagesInStoreFolder, imageStorageConfiguraton);
+
+            shouldDeleteOriginalDataOnCommit =
+                    imageStorageConfiguraton.getOriginalDataStorageFormat().isHdf5();
+
+            IImagingQueryDAO transaction = createQuery();
+            storeInDatabase(transaction, dataSetInformation, extractionResult);
+
+            return rootDir;
+        }
+
+        @Override
+        protected void doCommit()
+        {
+            if (shouldDeleteOriginalDataOnCommit)
+            {
+                commitHdf5StorageFormatChanges(storedDataDirectory);
+            }
+
+            // commit the database transaction
+            dbTransaction.close(true);
+        }
+
+        @Override
+        protected UnstoreDataAction doRollback(Throwable exception)
+        {
+            unstoreFiles(incomingDataSetDirectory, storedDataDirectory);
+            rollbackDatabaseChanges();
+            return UnstoreDataAction.MOVE_TO_ERROR;
+        }
+
+        private void rollbackDatabaseChanges()
+        {
+            try
+            {
+                dbTransaction.rollback();
+            } finally
+            {
+                dbTransaction.close();
+            }
+        }
+    }
+
+    public final IStorageProcessorTransaction createTransaction()
+    {
+        return new AbstractImageStorageProcessorTransaction();
     }
 
     private final class ImageFileExtractionWithConfig
@@ -563,59 +616,26 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
         return imageFileExtractorOrNull;
     }
 
+    public final File storeData(DataSetInformation dataSetInformation,
+            ITypeExtractor typeExtractor, IMailClient mailClient, File incomingDataSetDirectory,
+            File rootDir)
+    {
+        throw new IllegalStateException(
+                "This method is deprecated. Please use transactions (see 'createTransaction').");
+    }
+
     @Override
-    public void commit(File incomingDataSetDirectory, File storedDataDirectory)
+    public final void commit(File incomingDataSetDirectory, File storedDataDirectory)
     {
-        if (shouldDeleteOriginalDataOnCommit)
-        {
-            commitHdf5StorageFormatChanges(storedDataDirectory);
-        }
-        commitDatabaseChanges();
+        throw new IllegalStateException("You can only call 'commit' on a transaction object "
+                + "obtained via the method 'storeDataTransactionally'.");
     }
 
-    private static void commitHdf5StorageFormatChanges(File storedDataDirectory)
+    public final UnstoreDataAction rollback(File incomingDataSetDirectory,
+            File storedDataDirectory, Throwable exception)
     {
-        File originalFolder = getOriginalFolder(storedDataDirectory);
-        File hdf5OriginalContainer = getHdf5OriginalContainer(storedDataDirectory);
-        if (hdf5OriginalContainer.exists()) // this should be always true
-        {
-            final IFileOperations fileOps = FileOperations.getMonitoredInstanceForCurrentThread();
-            if (fileOps.removeRecursivelyQueueing(originalFolder) == false)
-            {
-                operationLog.error("Cannot delete original data '"
-                        + originalFolder.getAbsolutePath() + "'.");
-            }
-        } else
-        {
-            notificationLog.error(String.format(
-                    "HDF5 container with original data '%s' could not be found, this should not happen! "
-                            + "Dataset should be registered again! "
-                            + "Keeping the original directory '%s'.", hdf5OriginalContainer,
-                    originalFolder));
-        }
-    }
-
-    private void commitDatabaseChanges()
-    {
-        if (currentTransaction == null)
-        {
-            throw new IllegalStateException("there is no transaction to commit");
-        }
-        try
-        {
-            currentTransaction.close(true);
-        } finally
-        {
-            currentTransaction = null;
-        }
-    }
-
-    public UnstoreDataAction rollback(File incomingDataSetDirectory, File storedDataDirectory,
-            Throwable exception)
-    {
-        unstoreFiles(incomingDataSetDirectory, storedDataDirectory);
-        rollbackDatabaseChanges();
-        return UnstoreDataAction.MOVE_TO_ERROR;
+        throw new IllegalStateException("You can only call 'rollback' on a transaction object "
+                + "obtained via the method 'storeDataTransactionally'.");
     }
 
     private final void unstoreFiles(final File incomingDataSetDirectory,
@@ -623,8 +643,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
     {
         checkParameters(incomingDataSetDirectory, storedDataDirectory);
 
-        final File originalDataFile =
-                tryGetProprietaryData(storedDataDirectory);
+        final File originalDataFile = tryGetProprietaryData(storedDataDirectory);
         if (originalDataFile == null)
         {
             // nothing has been stored in the file system yet,
@@ -666,31 +685,25 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
         }
     }
 
-    private void storeInDatabase(DataSetInformation dataSetInformation,
-            ImageFileExtractionResult extractionResult)
+    private static void commitHdf5StorageFormatChanges(File storedDataDirectory)
     {
-        if (currentTransaction != null)
+        File originalFolder = getOriginalFolder(storedDataDirectory);
+        File hdf5OriginalContainer = getHdf5OriginalContainer(storedDataDirectory);
+        if (hdf5OriginalContainer.exists()) // this should be always true
         {
-            throw new IllegalStateException("previous transaction has not been commited!");
-        }
-        currentTransaction = createQuery();
-
-        storeInDatabase(currentTransaction, dataSetInformation, extractionResult);
-    }
-
-    private void rollbackDatabaseChanges()
-    {
-        if (currentTransaction == null)
+            final IFileOperations fileOps = FileOperations.getMonitoredInstanceForCurrentThread();
+            if (fileOps.removeRecursivelyQueueing(originalFolder) == false)
+            {
+                operationLog.error("Cannot delete original data '"
+                        + originalFolder.getAbsolutePath() + "'.");
+            }
+        } else
         {
-            return; // storing in the imaging db has not started
-        }
-        try
-        {
-            currentTransaction.rollback();
-        } finally
-        {
-            currentTransaction.close();
-            currentTransaction = null;
+            notificationLog.error(String.format(
+                    "HDF5 container with original data '%s' could not be found, this should not happen! "
+                            + "Dataset should be registered again! "
+                            + "Keeping the original directory '%s'.", hdf5OriginalContainer,
+                    originalFolder));
         }
     }
 

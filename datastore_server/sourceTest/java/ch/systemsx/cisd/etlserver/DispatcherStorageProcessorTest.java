@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.etlserver;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Properties;
 
@@ -28,6 +29,7 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.etlserver.DispatcherStorageProcessor.IDispatchableStorageProcessor;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
@@ -78,19 +80,18 @@ public class DispatcherStorageProcessorTest extends AssertJUnit
                     one(dummyA).accepts(dataset2, null);
                     will(returnValue(true));
                     store(one(dummyA), dataset2);
-                    rollback(one(dummyA));
+                    
+                    one(dummyA).rollback(with(aNull(File.class)), with(aNull(File.class)),
+                            with(any(Throwable.class)));
                 }
             });
 
-        store(dispatcher, dataset1);
-        commit(dispatcher);
-
-        store(dispatcher, dataset2);
-        rollback(dispatcher);
+        storeTransactionally(dispatcher, dataset1).commit();
+        storeTransactionally(dispatcher, dataset2).rollback(new Throwable());
     }
 
     @Test
-    public void testDispatchingRequiresCommit()
+    public void testStateErrorsAfterCommit()
     {
         DispatcherStorageProcessor dispatcher =
                 new DispatcherStorageProcessor(Arrays.asList(dummyA, dummyB), new Properties());
@@ -103,31 +104,41 @@ public class DispatcherStorageProcessorTest extends AssertJUnit
                     will(returnValue(true));
 
                     store(allowing(dummyA), dataset1);
-                    commit(allowing(dummyA));
-                    rollback(allowing(dummyA));
+                    commit(one(dummyA));
+                    one(dummyA).rollback(with(aNull(File.class)), with(aNull(File.class)),
+                            with(any(Throwable.class)));
                 }
             });
 
-        store(dispatcher, dataset1);
+        IStorageProcessorTransaction transaction1 = storeTransactionally(dispatcher, dataset1);
+        transaction1.commit();
+        assertTransactionNotUsable(transaction1);
+
+        IStorageProcessorTransaction transaction2 = storeTransactionally(dispatcher, dataset1);
+        transaction2.rollback(new Throwable());
+        assertTransactionNotUsable(transaction2);
+    }
+
+    private void assertTransactionNotUsable(IStorageProcessorTransaction transaction)
+    {
+        String failMessage = "Transaction should not be usable after commit or rollback.";
         try
         {
-            store(dispatcher, dataset1);
-            fail("IllegalStateException expected, previous transaction unfinished");
+            transaction.rollback(new Throwable());
+            fail(failMessage);
         } catch (IllegalStateException ex)
         {
-            assertEquals("Previous storage operation has neither been commited not rollbacked!",
-                    ex.getMessage());
-        }
-        commit(dispatcher);
-        try
-        {
-            rollback(dispatcher);
-            fail("IllegalStateException expected, transaction not started");
-        } catch (IllegalStateException ex)
-        {
-            assertEquals("Transaction has not been started!", ex.getMessage());
+            // test passed
         }
 
+        try
+        {
+            transaction.commit();
+            fail(failMessage);
+        } catch (IllegalStateException ex)
+        {
+            // test passed
+        }
     }
 
     private void commit(IStorageProcessor storageProcessor)
@@ -135,14 +146,18 @@ public class DispatcherStorageProcessorTest extends AssertJUnit
         storageProcessor.commit(null, null);
     }
 
-    private void rollback(IStorageProcessor storageProcessor)
-    {
-        storageProcessor.rollback(null, null, null);
-    }
-
-    private void store(IStorageProcessor storageProcessor, final DataSetInformation dataset)
+    private void store(IStorageProcessor storageProcessor,
+            final DataSetInformation dataset)
     {
         storageProcessor.storeData(dataset, null, null, null, null);
+    }
+
+    private IStorageProcessorTransaction storeTransactionally(
+            IStorageProcessorTransactional storageProcessor, final DataSetInformation dataset)
+    {
+        IStorageProcessorTransaction transaction = storageProcessor.createTransaction();
+        transaction.storeData(dataset, null, null, null, null);
+        return transaction;
     }
 
     private static DataSetInformation createDatasetInfo(String datasetCode)

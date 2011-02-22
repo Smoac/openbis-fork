@@ -39,6 +39,7 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.etlserver.IStorageProcessor.UnstoreDataAction;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -94,7 +95,9 @@ public class DataSetRegistrationAlgorithm
 
         private final ITypeExtractor typeExtractor;
 
-        private final IStorageProcessor storageProcessor;
+        private final IStorageProcessorTransactional storageProcessor;
+
+        private IStorageProcessorTransaction transaction;
 
         private final IFileOperations fileOperations;
 
@@ -137,7 +140,8 @@ public class DataSetRegistrationAlgorithm
             this.dataSetInformation = dataSetInformation;
             this.dataStoreStrategy = dataStoreStrategy;
             this.typeExtractor = typeExtractor;
-            this.storageProcessor = storageProcessor;
+            this.storageProcessor =
+                    StorageProcessorTransactionalWrapper.wrapIfNecessary(storageProcessor);
             this.fileOperations = fileOperations;
             this.dataSetValidator = dataSetValidator;
             this.mailClient = mailClient;
@@ -340,10 +344,7 @@ public class DataSetRegistrationAlgorithm
      */
     public UnstoreDataAction rollbackStorageProcessor(final Throwable throwable)
     {
-        UnstoreDataAction action =
-                getStorageProcessor().rollback(incomingDataSetFile,
-                        baseDirectoryHolder.getBaseDirectory(), throwable);
-        return action;
+        return state.transaction.rollback(throwable);
     }
 
     protected boolean clean()
@@ -405,8 +406,10 @@ public class DataSetRegistrationAlgorithm
             NewExternalData data = createExternalData();
             state.preRegistrationAction.execute(data.getCode(),
                     incomingDataSetFile.getAbsolutePath());
-            File dataFile =
-                    getStorageProcessor().storeData(dataSetInformation, getTypeExtractor(),
+
+            state.transaction = getStorageProcessor().createTransaction();
+            state.transaction.storeData(dataSetInformation,
+                            getTypeExtractor(),
                             state.mailClient, incomingDataSetFile,
                             baseDirectoryHolder.getBaseDirectory());
             if (getOperationLog().isInfoEnabled())
@@ -414,9 +417,10 @@ public class DataSetRegistrationAlgorithm
                 getOperationLog().info(
                         "Finished storing data set for " + entityDescription + ", took " + watch);
             }
-            assert dataFile != null : "The folder that contains the stored data should not be null.";
-            final String relativePath = FileUtilities.getRelativeFile(state.storeRoot, dataFile);
-            String absolutePath = dataFile.getAbsolutePath();
+            File dataFolder = state.transaction.getStoredDataDirectory();
+            assert dataFolder != null : "The folder that contains the stored data should not be null.";
+            final String relativePath = FileUtilities.getRelativeFile(state.storeRoot, dataFolder);
+            String absolutePath = dataFolder.getAbsolutePath();
             assert relativePath != null : String.format(
                     TransferredDataSetHandler.TARGET_NOT_RELATIVE_TO_STORE_ROOT, absolutePath,
                     state.storeRoot.getAbsolutePath());
@@ -435,8 +439,7 @@ public class DataSetRegistrationAlgorithm
             {
                 state.registrationLock.unlock();
             }
-            getStorageProcessor().commit(incomingDataSetFile,
-                    baseDirectoryHolder.getBaseDirectory());
+            state.transaction.commit();
         } finally
         {
             getFileOperations().delete(markerFile);
@@ -601,7 +604,7 @@ public class DataSetRegistrationAlgorithm
         return state.fileOperations;
     }
 
-    private IStorageProcessor getStorageProcessor()
+    private IStorageProcessorTransactional getStorageProcessor()
     {
         return state.storageProcessor;
     }

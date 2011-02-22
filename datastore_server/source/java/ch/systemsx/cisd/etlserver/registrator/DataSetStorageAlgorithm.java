@@ -40,6 +40,9 @@ import ch.systemsx.cisd.etlserver.FileRenamer;
 import ch.systemsx.cisd.etlserver.IDataStoreStrategy;
 import ch.systemsx.cisd.etlserver.IStorageProcessor;
 import ch.systemsx.cisd.etlserver.IStorageProcessor.UnstoreDataAction;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
+import ch.systemsx.cisd.etlserver.StorageProcessorTransactionalWrapper;
 import ch.systemsx.cisd.etlserver.TransferredDataSetHandler;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.ConversionUtils;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
@@ -82,7 +85,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
 
     private final IDataStoreStrategy dataStoreStrategy;
 
-    private final IStorageProcessor storageProcessor;
+    private final IStorageProcessorTransactional storageProcessor;
 
     private final String dataStoreCode;
 
@@ -126,7 +129,8 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         this.registrationDetails = registrationDetails;
         this.dataSetInformation = registrationDetails.getDataSetInformation();
         this.dataStoreStrategy = dataStoreStrategy;
-        this.storageProcessor = storageProcessor;
+        this.storageProcessor =
+                StorageProcessorTransactionalWrapper.wrapIfNecessary(storageProcessor);
         this.dataStoreCode = dataStoreCode;
         this.fileOperations = fileOperations;
         this.mailClient = mailClient;
@@ -225,7 +229,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
 
     public NewExternalData createExternalData()
     {
-        File dataFile = ((StoredState<T>) state).getDataFile();
+        File dataFile = ((StoredState<T>) state).getStoredDirectory();
         String relativePath = FileUtilities.getRelativeFile(storeRoot, dataFile);
         String absolutePath = dataFile.getAbsolutePath();
         assert relativePath != null : String.format(
@@ -262,7 +266,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         return storeRoot;
     }
 
-    protected IStorageProcessor getStorageProcessor()
+    protected IStorageProcessorTransactional getStorageProcessor()
     {
         return storageProcessor;
     }
@@ -333,13 +337,13 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
     {
         protected final BaseDirectoryHolder baseDirectoryHolder;
 
-        protected final IStorageProcessor storageProcessor;
+        protected final IStorageProcessorTransactional storageProcessor;
 
         protected final DataSetInformation dataSetInformation;
 
         protected File markerFile;
 
-        protected File dataFile;
+        protected IStorageProcessorTransaction transaction;
 
         public PreparedState(InitializedState<T> oldState)
         {
@@ -360,8 +364,9 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
             final StopWatch watch = new StopWatch();
             watch.start();
 
-            dataFile =
-                    storageProcessor.storeData(storageAlgorithm.getDataSetInformation(),
+            transaction = storageProcessor.createTransaction();
+            transaction.storeData(
+                            storageAlgorithm.getDataSetInformation(),
                             storageAlgorithm.getRegistrationDetails(), getMailClient(),
                             incomingDataSetFile, baseDirectoryHolder.getBaseDirectory());
             if (getOperationLog().isInfoEnabled())
@@ -369,7 +374,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
                 getOperationLog().info(
                         "Finished storing data set for " + entityDescription + ", took " + watch);
             }
-            assert dataFile != null : "The folder that contains the stored data should not be null.";
+            assert transaction.getStoredDataDirectory() != null : "The folder that contains the stored data should not be null.";
         }
 
         private IMailClient getMailClient()
@@ -409,27 +414,19 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
     private static class StoredState<T extends DataSetInformation> extends
             DataSetStorageAlgorithmState<T>
     {
-        protected final IStorageProcessor storageProcessor;
+        protected final IStorageProcessorTransactional storageProcessor;
 
-        protected final BaseDirectoryHolder baseDirectoryHolder;
+        protected final IStorageProcessorTransaction transaction;
 
         protected final File markerFile;
 
-        protected final File dataFile;
 
         public StoredState(PreparedState<T> oldState)
         {
             super(oldState.storageAlgorithm);
             this.storageProcessor = storageAlgorithm.getStorageProcessor();
-            this.baseDirectoryHolder = oldState.baseDirectoryHolder;
-
+            this.transaction = oldState.transaction;
             this.markerFile = oldState.markerFile;
-            this.dataFile = oldState.dataFile;
-        }
-
-        protected File getDataFile()
-        {
-            return dataFile;
         }
 
         /**
@@ -437,9 +434,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
          */
         public UnstoreDataAction rollbackStorageProcessor(final Throwable throwable)
         {
-            UnstoreDataAction action =
-                    storageProcessor.rollback(incomingDataSetFile,
-                            baseDirectoryHolder.getBaseDirectory(), throwable);
+            UnstoreDataAction action = transaction.rollback(throwable);
             cleanUp();
             return action;
         }
@@ -449,8 +444,16 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
          */
         public void commitStorageProcessor()
         {
-            storageProcessor.commit(incomingDataSetFile, baseDirectoryHolder.getBaseDirectory());
+            transaction.commit();
             cleanUp();
+        }
+
+        /**
+         * The directory with the stored dataset.
+         */
+        public File getStoredDirectory()
+        {
+            return transaction.getStoredDataDirectory();
         }
 
         /**
@@ -490,10 +493,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
             super(oldState.storageAlgorithm);
             this.action = action;
             this.throwable = throwable;
-
             this.storeRoot = oldState.storageProcessor.getStoreRootDirectory();
-
-            this.baseDirectoryHolder = oldState.baseDirectoryHolder;
         }
 
         public void executeUndoAction()

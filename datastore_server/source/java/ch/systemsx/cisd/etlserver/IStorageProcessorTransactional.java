@@ -31,8 +31,29 @@ public interface IStorageProcessorTransactional extends IStorageProcessor
     public static interface IStorageProcessorTransaction
     {
         /**
-         * Commits the changes done by the recent {@link #storeData} call if the dataset has been
-         * also successfully registered openBIS.
+         * Stores the specified incoming data set file to the specified directory. In general some
+         * processing and/or transformation of the incoming data takes place.
+         * <p>
+         * Do not try/catch exceptions that could occur here. Preferably let the upper layer handle
+         * them.
+         * </p>
+         * 
+         * @param dataSetInformation Information about the data set.
+         * @param typeExtractor the {@link ITypeExtractor} implementation.
+         * @param mailClient mail client.
+         * @param incomingDataSetDirectory folder to store. Do not remove it after the
+         *            implementation has finished processing. {@link TransferredDataSetHandler}
+         *            takes care of this.
+         * @param rootDir directory to whom the data will be stored.
+         */
+        public void storeData(final DataSetInformation dataSetInformation,
+                final ITypeExtractor typeExtractor, final IMailClient mailClient,
+                final File incomingDataSetDirectory, final File rootDir);
+
+        /**
+         * Commits the changes done by the recent
+         * {@link #storeData(DataSetInformation, ITypeExtractor, IMailClient, File, File)} call if
+         * the dataset has been also successfully registered openBIS.
          * <p>
          * This operation is useful when the storage processor adds the data to an additional
          * database. If all the storage processor operations are done on the file system, the
@@ -55,27 +76,17 @@ public interface IStorageProcessorTransactional extends IStorageProcessor
          * @return an instruction what to do with the data in incoming directory
          */
         public UnstoreDataAction rollback(Throwable exception);
+
+        /**
+         * Returns the directory where the data set is stored.
+         */
+        public File getStoredDataDirectory();
     }
 
     /**
-     * Stores the specified incoming data set file to the specified directory. In general some
-     * processing and/or transformation of the incoming data takes place.
-     * <p>
-     * Do not try/catch exceptions that could occur here. Preferably let the upper layer handle
-     * them.
-     * </p>
-     * 
-     * @param dataSetInformation Information about the data set.
-     * @param typeExtractor the {@link ITypeExtractor} implementation.
-     * @param mailClient mail client.
-     * @param incomingDataSetDirectory folder to store. Do not remove it after the implementation
-     *            has finished processing. {@link TransferredDataSetHandler} takes care of this.
-     * @param rootDir directory to whom the data will be stored.
-     * @return folder which contains the stored data. This folder <i>must</i> be below the
-     *         <var>rootDir</var>. Never returns <code>null</code> but prefers to throw an exception
-     *         in case of unexpected behavior.
+     * Create a new {@link IStorageProcessorTransaction} object.
      */
-    public IStorageProcessorTransaction storeDataTransactionally(
-            final DataSetInformation dataSetInformation, final ITypeExtractor typeExtractor,
-            final IMailClient mailClient, final File incomingDataSetDirectory, final File rootDir);
+    public IStorageProcessorTransaction createTransaction();
+
+
 }
