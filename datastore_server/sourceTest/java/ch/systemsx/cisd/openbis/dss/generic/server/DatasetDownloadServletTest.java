@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import static ch.systemsx.cisd.common.test.AssertionUtil.assertContains;
+import static ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID;
 import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
 import static org.testng.AssertJUnit.assertEquals;
 
@@ -29,7 +30,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -62,7 +62,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 
 /**
@@ -723,9 +722,9 @@ public class DatasetDownloadServletTest
         context.checking(new Expectations()
             {
                 {
-                    one(dataSetService).listDataSetsByCode(Arrays.asList(EXAMPLE_DATA_SET_CODE));
-                    will(returnValue(Arrays.asList(new DataSetBuilder().code(EXAMPLE_DATA_SET_CODE)
-                            .shareId(ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID).getDataSet())));
+                    one(shareIdManager).lock(EXAMPLE_DATA_SET_CODE);
+                    one(shareIdManager).getShareId(EXAMPLE_DATA_SET_CODE);
+                    will(returnValue(DEFAULT_SHARE_ID));
                 }
             });
     }
@@ -793,14 +792,14 @@ public class DatasetDownloadServletTest
         locatorType.setCode(LocatorType.DEFAULT_LOCATOR_TYPE_CODE);
         externalData.setLocatorType(locatorType);
         externalData.setLocation(DatasetLocationUtil.getDatasetRelativeLocationPath(
-                EXAMPLE_DATA_SET_CODE, ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID, DATABASE_INSTANCE_UUID));
+                EXAMPLE_DATA_SET_CODE, DEFAULT_SHARE_ID, DATABASE_INSTANCE_UUID));
         return externalData;
     }
 
     private static File getDatasetDirectoryLocation(final File baseDir, String dataSetCode)
     {
         return DatasetLocationUtil.getDatasetLocationPath(baseDir, dataSetCode,
-                ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID, DATABASE_INSTANCE_UUID);
+                DEFAULT_SHARE_ID, DATABASE_INSTANCE_UUID);
     }
 
     private DatasetDownloadServlet createServlet()
