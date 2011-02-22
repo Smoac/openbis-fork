@@ -25,7 +25,7 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.openbis.dss.generic.server.IDataSetDirectoryProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**

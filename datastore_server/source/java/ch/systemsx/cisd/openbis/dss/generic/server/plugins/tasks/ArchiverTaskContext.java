@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks;
 
-import ch.systemsx.cisd.openbis.dss.generic.server.IDataSetDirectoryProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 
 /**
  * Context for perfoming archiving/unarchiving.

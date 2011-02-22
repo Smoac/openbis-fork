@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 import java.io.Serializable;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
+
 /**
  * Interface of all commands operating on data sets in a data store.
  *

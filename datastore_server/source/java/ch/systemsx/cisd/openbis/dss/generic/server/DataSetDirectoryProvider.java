@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.File;
 
+import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 

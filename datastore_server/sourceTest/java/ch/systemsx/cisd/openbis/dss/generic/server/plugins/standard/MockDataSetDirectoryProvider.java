@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
 import java.io.File;
 
-import ch.systemsx.cisd.openbis.dss.generic.server.IDataSetDirectoryProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 public final class MockDataSetDirectoryProvider implements IDataSetDirectoryProvider

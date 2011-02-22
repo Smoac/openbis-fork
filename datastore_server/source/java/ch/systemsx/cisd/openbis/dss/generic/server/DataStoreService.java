@@ -249,13 +249,6 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
             DataSetUploadContext context) throws InvalidAuthenticationException
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);
-        for (ExternalData dataSet : dataSets)
-        {
-            if (dataSet.getShareId() == null)
-            {
-                dataSet.setShareId(Constants.DEFAULT_SHARE_ID);
-            }
-        }
 
         if (context.getCifexURL() == null)
         {
