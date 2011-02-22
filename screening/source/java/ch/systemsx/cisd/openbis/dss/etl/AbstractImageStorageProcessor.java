@@ -280,8 +280,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
 
         @Override
         public final File doStoreData(final DataSetInformation dataSetInformation,
-                final ITypeExtractor typeExtractor, final IMailClient mailClient,
-                final File incomingDataDirectory, final File rootDir)
+                final ITypeExtractor typeExtractor, final IMailClient mailClient)
         {
 
             ImageFileExtractionWithConfig extractionResultWithConfig =
@@ -295,10 +294,10 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
             ImageStorageConfiguraton imageStorageConfiguraton =
                     extractionResultWithConfig.getImageStorageConfiguraton();
 
-            File imagesInStoreFolder = moveToStore(incomingDataSetDirectory, rootDir);
+            File imagesInStoreFolder = moveToStore(incomingDataSetDirectory, rootDirectory);
 
             // NOTE: plateImages will be changed by reference
-            processImages(rootDir, plateImages, imagesInStoreFolder, imageStorageConfiguraton);
+            processImages(rootDirectory, plateImages, imagesInStoreFolder, imageStorageConfiguraton);
 
             shouldDeleteOriginalDataOnCommit =
                     imageStorageConfiguraton.getOriginalDataStorageFormat().isHdf5();
@@ -306,7 +305,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
             IImagingQueryDAO transaction = createQuery();
             storeInDatabase(transaction, dataSetInformation, extractionResult);
 
-            return rootDir;
+            return rootDirectory;
         }
 
         @Override

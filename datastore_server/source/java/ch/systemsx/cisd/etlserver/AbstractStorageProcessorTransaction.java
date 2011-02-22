@@ -50,9 +50,8 @@ public abstract class AbstractStorageProcessorTransaction implements
     // abstract methods to be implemented by extenders
     // --------------
 
-    protected abstract File doStoreData(final DataSetInformation dataSetInformation,
-            final ITypeExtractor typeExtractor, final IMailClient mailClient,
-            final File incomingDataDirectory, final File rootDir);
+    protected abstract File doStoreData(DataSetInformation dataSetInformation,
+            ITypeExtractor typeExtractor, IMailClient mailClient);
 
     protected abstract void doCommit();
 
@@ -70,9 +69,7 @@ public abstract class AbstractStorageProcessorTransaction implements
         ensureState("storeData", TransactionState.INITIAL);
         this.incomingDataSetDirectory = incomingDataDirectory;
         this.rootDirectory = rootDir;
-        this.storedDataDirectory =
-                doStoreData(dataSetInformation, typeExtractor, mailClient, incomingDataDirectory,
-                        rootDir);
+        this.storedDataDirectory = doStoreData(dataSetInformation, typeExtractor, mailClient);
 
         state = TransactionState.STORED;
     }

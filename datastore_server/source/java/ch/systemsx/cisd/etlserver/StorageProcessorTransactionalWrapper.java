@@ -62,11 +62,10 @@ public class StorageProcessorTransactionalWrapper implements IStorageProcessorTr
             {
                 @Override
                 public File doStoreData(DataSetInformation dataSetInformation,
-                        ITypeExtractor typeExtractor, IMailClient mailClient,
-                        File incomingDataDirectory, File rootDir)
+                        ITypeExtractor typeExtractor, IMailClient mailClient)
                 {
                     return wrappedStorageProcessor.storeData(dataSetInformation, typeExtractor,
-                            mailClient, incomingDataDirectory, rootDir);
+                            mailClient, incomingDataSetDirectory, rootDirectory);
                 }
 
                 @Override
