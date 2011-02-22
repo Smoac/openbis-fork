@@ -220,9 +220,9 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
         return getOpenBisService().tryGetSession(sessionToken);
     }
 
-    public File getFileForExternalData(ExternalData externalData)
+    public File getFileForExternalData(ExternalData externalData, String shareId)
     {
-        File share = new File(service.getStoreRootDirectory(), externalData.getShareId());
+        File share = new File(service.getStoreRootDirectory(), shareId);
         File dataSetFile = new File(share, externalData.getLocation());
         return DefaultStorageProcessor.getOriginalDirectory(dataSetFile);
     }

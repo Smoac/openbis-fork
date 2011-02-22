@@ -135,7 +135,6 @@ public class ExternalDataTranslatorTest extends AssertJUnit
         assertEquals("fileFormatTypeCode", externalData.getFileFormatType().getCode());
         assertEquals("fileFormatTypeDescription", externalData.getFileFormatType().getDescription());
         assertEquals("location", externalData.getLocation());
-        assertEquals("share id", externalData.getShareId());
         assertEquals(4711L, externalData.getSize().longValue());
         assertEquals("locatorTypeCode", externalData.getLocatorType().getCode());
         assertEquals("locatorTypeDescription", externalData.getLocatorType().getDescription());

@@ -18,22 +18,18 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.collections.IKeyExtractor;
-import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.spring.AbstractServiceWithLogger;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -55,6 +51,8 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
     private File storeDirectory;
 
     private DatabaseInstance homeDatabaseInstance;
+
+    protected final IShareIdManager shareIdManager;
 
     /**
      * Configuration method to set the path to the DSS store. Should only be called by the object
@@ -79,9 +77,11 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
      * 
      * @param openBISService
      */
-    protected AbstractDssServiceRpc(IEncapsulatedOpenBISService openBISService)
+    protected AbstractDssServiceRpc(IEncapsulatedOpenBISService openBISService,
+            IShareIdManager shareIdManager)
     {
         this.openBISService = openBISService;
+        this.shareIdManager = shareIdManager;
     }
 
     protected IEncapsulatedOpenBISService getOpenBISService()
@@ -149,18 +149,13 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
 
     protected File getRootDirectory(String datasetCode)
     {
-        List<ExternalData> list = getOpenBISService().listDataSetsByCode(Arrays.asList(datasetCode));
-        if (list.isEmpty())
-        {
-            throw new IllegalArgumentException("Unknown data set " + datasetCode);
-        }
-        return getRootDirectoryForDataSet(datasetCode, list.get(0).getShareId());
+        return getRootDirectoryForDataSet(datasetCode, shareIdManager.getShareId(datasetCode));
     }
 
     /**
      * Get the top level of the folder for the data set.
      */
-    protected File getRootDirectoryForDataSet(String code, String shareId)
+    private File getRootDirectoryForDataSet(String code, String shareId)
     {
         File dataSetRootDirectory =
                 DatasetLocationUtil.getDatasetLocationPath(getStoreDirectory(), code, shareId,
@@ -181,41 +176,22 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
     /**
      * Return a map keyed by data set code with value root directory for that data set.
      */
-    protected Map<String, File> getRootDirectories(String sessionToken,
-            Set<String> dataSetCodes) throws IllegalArgumentException
+    protected Map<String, File> getRootDirectories(String sessionToken, Set<String> dataSetCodes)
+            throws IllegalArgumentException
     {
         HashMap<String, File> rootDirectories = new HashMap<String, File>();
-        List<ExternalData> dataSets =
-                openBISService.listDataSetsByCode(new ArrayList<String>(dataSetCodes));
-        TableMap<String, ExternalData> tableMap =
-                new TableMap<String, ExternalData>(dataSets,
-                        new IKeyExtractor<String, ExternalData>()
-                            {
-                                public String getKey(ExternalData e)
-                                {
-                                    return e.getCode();
-                                }
-                            });
         for (String datasetCode : dataSetCodes)
         {
-            ExternalData dataSet = tableMap.tryGet(datasetCode);
-            if (dataSet == null)
+            String shareId = shareIdManager.getShareId(datasetCode);
+            File dataSetRootDirectory = getRootDirectoryForDataSet(datasetCode, shareId);
+            if (dataSetRootDirectory.exists() == false)
             {
-                throw new IllegalArgumentException("Unknown data set " + datasetCode);
+                throw new IllegalArgumentException("Path does not exist: " + dataSetRootDirectory);
             }
-            rootDirectories.put(datasetCode, getRootDirectory(datasetCode, dataSet.getShareId()));
+            File rootDirectory = dataSetRootDirectory;
+            rootDirectories.put(datasetCode, rootDirectory);
         }
         return rootDirectories;
-    }
-
-    private File getRootDirectory(String dataSetCode, String shareId)
-    {
-        File dataSetRootDirectory = getRootDirectoryForDataSet(dataSetCode, shareId);
-        if (dataSetRootDirectory.exists() == false)
-        {
-            throw new IllegalArgumentException("Path does not exist: " + dataSetRootDirectory);
-        }
-        return dataSetRootDirectory;
     }
 
     protected File checkAccessAndGetFile(String sessionToken, String dataSetCode, String path)

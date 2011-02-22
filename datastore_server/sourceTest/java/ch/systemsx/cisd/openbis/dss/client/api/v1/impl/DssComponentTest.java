@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.DatasetSessionAuthorizer;
 import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor;
 import ch.systemsx.cisd.openbis.dss.generic.server.api.v1.DssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal.DssSessionAuthorizationHolder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal.IDssServiceRpcGenericInternal;
@@ -99,6 +100,8 @@ public class DssComponentTest extends AbstractFileSystemTestCase
 
     private IDssServiceRpcGeneric dssServiceV1_1;
 
+    private IShareIdManager shareIdManager;
+
     @SuppressWarnings("unchecked")
     public static <T extends IRpcService> T getAdvisedDssService(final T service)
     {
@@ -140,6 +143,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         ServiceProvider.setBeanFactory(applicationContext);
         context = new Mockery();
         openBisService = context.mock(IGeneralInformationService.class);
+        shareIdManager = context.mock(IShareIdManager.class);
         dssServiceFactory = context.mock(IRpcServiceFactory.class);
         dssComponent = new DssComponent(openBisService, dssServiceFactory, null);
         randomDataFile = getFileWithRandomData(1);
@@ -387,11 +391,11 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         }
 
         dssServiceV1_0 =
-                getAdvisedDssService(new MockDssServiceRpcV1_0(null, fileInfos,
+                getAdvisedDssService(new MockDssServiceRpcV1_0(null, shareIdManager, fileInfos,
                         new FileInputStream(randomDataFile), isDataSetAccessible == null ? true : isDataSetAccessible));
 
         dssServiceV1_1 =
-                getAdvisedDssService(new MockDssServiceRpcV1_1(null, fileInfos,
+                getAdvisedDssService(new MockDssServiceRpcV1_1(null, shareIdManager, fileInfos,
                         new FileInputStream(randomDataFile), isDataSetAccessible == null ? true : isDataSetAccessible));
 
         context.checking(new Expectations()
@@ -479,10 +483,10 @@ public class DssComponentTest extends AbstractFileSystemTestCase
          * @param openBISService
          */
         public MockDssServiceRpcV1_0(IEncapsulatedOpenBISService openBISService,
-                FileInfoDssDTO[] fileInfos, FileInputStream fileInputStream,
-                boolean isDataSetAccessible)
+                IShareIdManager shareIdManager, FileInfoDssDTO[] fileInfos,
+                FileInputStream fileInputStream, boolean isDataSetAccessible)
         {
-            super(openBISService);
+            super(openBISService, shareIdManager);
             this.fileInfos = fileInfos;
             this.fileInputStream = fileInputStream;
             this.isDataSetAccessible = isDataSetAccessible;
@@ -558,10 +562,10 @@ public class DssComponentTest extends AbstractFileSystemTestCase
          * @param isDataSetAccessible
          */
         public MockDssServiceRpcV1_1(IEncapsulatedOpenBISService openBISService,
-                FileInfoDssDTO[] fileInfos, FileInputStream fileInputStream,
-                boolean isDataSetAccessible)
+                IShareIdManager shareIdManager, FileInfoDssDTO[] fileInfos,
+                FileInputStream fileInputStream, boolean isDataSetAccessible)
         {
-            super(openBISService, fileInfos, fileInputStream, isDataSetAccessible);
+            super(openBISService, shareIdManager, fileInfos, fileInputStream, isDataSetAccessible);
         }
 
         @Override

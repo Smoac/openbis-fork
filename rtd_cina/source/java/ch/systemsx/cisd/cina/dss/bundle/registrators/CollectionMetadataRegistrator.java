@@ -103,7 +103,8 @@ public class CollectionMetadataRegistrator extends BundleDataSetHelper
         ExternalData metadataExternalData =
                 getOpenbisService().tryGetDataSet(getSessionContext().getSessionToken(),
                         registeredDataSetInformation.getDataSetCode());
-        File containerFile = getDelegator().getFileForExternalData(metadataExternalData);
+        String shareId = registeredDataSetInformation.getShareId();
+        File containerFile = getDelegator().getFileForExternalData(metadataExternalData, shareId);
         metadataDataSetFile = new File(containerFile, dataSetFileName);
     }
 }

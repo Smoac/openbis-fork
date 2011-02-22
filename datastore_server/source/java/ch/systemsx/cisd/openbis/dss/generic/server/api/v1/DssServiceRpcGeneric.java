@@ -27,6 +27,7 @@ import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.etlserver.api.v1.PutDataSetService;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDssServiceRpc;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal.IDssServiceRpcGenericInternal;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataSetFileDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssBuilder;
@@ -48,9 +49,10 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
      * 
      * @param openBISService
      */
-    public DssServiceRpcGeneric(IEncapsulatedOpenBISService openBISService)
+    public DssServiceRpcGeneric(IEncapsulatedOpenBISService openBISService,
+            IShareIdManager shareIdManager)
     {
-        super(openBISService);
+        super(openBISService, shareIdManager);
         putService = new PutDataSetService(openBISService, operationLog);
         operationLog.info("[rpc] Started DSS API V1 service.");
     }
@@ -62,9 +64,9 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
      * @param service
      */
     public DssServiceRpcGeneric(IEncapsulatedOpenBISService openBISService,
-            PutDataSetService service)
+            IShareIdManager shareIdManager, PutDataSetService service)
     {
-        super(openBISService);
+        super(openBISService, shareIdManager);
         putService = service;
         operationLog.info("[rpc] Started DSS API V1 service.");
     }

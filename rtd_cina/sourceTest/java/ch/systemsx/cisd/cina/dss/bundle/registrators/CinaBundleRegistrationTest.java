@@ -297,6 +297,7 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
         dataSetInformation.setSampleCode(COLLECTION_SAMPLE_CODE);
         dataSetInformation.setSpaceCode(SPACE_CODE);
         dataSetInformation.setInstanceCode(DB_CODE);
+        dataSetInformation.setShareId("42");
 
         // set up the expectations
         context.checking(new Expectations()
@@ -334,6 +335,7 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
         dataSetInformation.setSampleCode(COLLECTION_SAMPLE_CODE);
         dataSetInformation.setSpaceCode(SPACE_CODE);
         dataSetInformation.setInstanceCode(DB_CODE);
+        dataSetInformation.setShareId("42");
 
         externalData = new ExternalData();
         externalData.setCode(METADATA_DATA_SET_CODE);
@@ -375,7 +377,7 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
                     one(openbisService).tryGetDataSet(SESSION_TOKEN, METADATA_DATA_SET_CODE);
                     will(returnValue(externalData));
                     // Retrieve the registered data set from the store
-                    one(delegator).getFileForExternalData(externalData);
+                    one(delegator).getFileForExternalData(externalData, "42");
                     will(returnValue(dataSetFile.getParentFile()));
 
                     // Register the images data set

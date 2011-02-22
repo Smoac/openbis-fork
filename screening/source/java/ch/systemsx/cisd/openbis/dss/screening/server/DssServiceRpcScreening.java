@@ -51,6 +51,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
@@ -121,14 +122,16 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     {
         this(storeRootDir, null, QueryTool.getQuery(ServiceProvider.getDataSourceProvider()
                 .getDataSource(ScreeningConstants.IMAGING_DATA_SOURCE),
-                IImagingTransformerDAO.class), ServiceProvider.getOpenBISService(), true);
+                IImagingTransformerDAO.class), ServiceProvider.getOpenBISService(), ServiceProvider
+                .getShareIdManager(), true);
     }
 
     DssServiceRpcScreening(String storeRootDir, IImagingReadonlyQueryDAO dao,
             IImagingTransformerDAO transformerDAO, IEncapsulatedOpenBISService service,
+            IShareIdManager shareIdManager,
             boolean registerAtNameService)
     {
-        super(service);
+        super(service, shareIdManager);
         this.dao = dao;
         this.transformerDAO = transformerDAO;
         setStoreDirectory(new File(storeRootDir));
@@ -188,19 +191,27 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         Set<String> datasetCodes = new HashSet<String>();
         for (IImageDatasetIdentifier dataset : imageDatasets)
         {
-            datasetCodes.add(dataset.getDatasetCode());
+            String datasetCode = dataset.getDatasetCode();
+            datasetCodes.add(datasetCode);
+            shareIdManager.lock(datasetCode);
         }
-        Map<String, File> datasetRoots = getRootDirectories(sessionToken, datasetCodes);
-        List<ImageDatasetMetadata> result = new ArrayList<ImageDatasetMetadata>();
-        for (IImageDatasetIdentifier dataset : imageDatasets)
+        try
         {
-            File rootDirectoryOrNull = datasetRoots.get(dataset.getDatasetCode());
-            if (rootDirectoryOrNull != null)
+            Map<String, File> datasetRoots = getRootDirectories(sessionToken, datasetCodes);
+            List<ImageDatasetMetadata> result = new ArrayList<ImageDatasetMetadata>();
+            for (IImageDatasetIdentifier dataset : imageDatasets)
             {
-                result.add(extractImageMetadata(dataset, rootDirectoryOrNull));
+                File rootDirectoryOrNull = datasetRoots.get(dataset.getDatasetCode());
+                if (rootDirectoryOrNull != null)
+                {
+                    result.add(extractImageMetadata(dataset, rootDirectoryOrNull));
+                }
             }
+            return result;
+        } finally
+        {
+            shareIdManager.releaseLocks();
         }
-        return result;
     }
 
     private ImageDatasetMetadata extractImageMetadata(IImageDatasetIdentifier dataset,

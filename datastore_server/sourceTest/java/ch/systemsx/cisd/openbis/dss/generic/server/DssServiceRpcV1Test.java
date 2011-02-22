@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -59,6 +58,7 @@ import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor.DssServiceRpcAuthorizationMethodInterceptor;
 import ch.systemsx.cisd.openbis.dss.generic.server.api.v1.DssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal.DssSessionAuthorizationHolder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal.IDssServiceRpcGenericInternal;
@@ -78,7 +78,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
@@ -127,6 +126,8 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
 
     private IDataSetValidator validator;
 
+    private IShareIdManager shareIdManager;
+
     @Override
     @BeforeMethod
     public void setUp() throws IOException
@@ -137,6 +138,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         ServiceProvider.setBeanFactory(applicationContext);
         context = new Mockery();
         openBisService = context.mock(IEncapsulatedOpenBISService.class);
+        shareIdManager = context.mock(IShareIdManager.class);
         applicationContext.addBean("openBIS-service", openBisService);
         mailClient = context.mock(IMailClient.class);
 
@@ -157,7 +159,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
                         DssServiceRpcV1Test.class), storeDir, incomingDir,
                         new TestDataSetTypeToPluginMapper(serverPlugin), mailClient, "TEST",
                         validator);
-        rpcService = new DssServiceRpcGeneric(openBisService, putService);
+        rpcService = new DssServiceRpcGeneric(openBisService, shareIdManager, putService);
         rpcService.setStoreDirectory(storeDir);
         rpcService.setIncomingDirectory(incomingDir);
     }
@@ -284,7 +286,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
     @Test
     public void testDataSetListingNonRecursive()
     {
-        prepareListDataSetsByCode();
+        prepareGetShareId();
         FileInfoDssDTO[] fileInfos =
                 rpcService.listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "/", false);
         assertEquals(2, fileInfos.length);
@@ -314,7 +316,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
     @Test
     public void testDataSetListingRecursive()
     {
-        prepareListDataSetsByCode();
+        prepareGetShareId();
         FileInfoDssDTO[] fileInfos =
                 rpcService.listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "/", true);
         assertEquals(3, fileInfos.length);
@@ -357,7 +359,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
     @Test
     public void testDataSetListingOfChild()
     {
-        prepareListDataSetsByCode();
+        prepareGetShareId();
         FileInfoDssDTO[] fileInfos =
                 rpcService.listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "/stuff/", false);
         assertEquals(1, fileInfos.length);
@@ -387,7 +389,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
     @Test
     public void testDataSetListingOfRelativeChild()
     {
-        prepareListDataSetsByCode();
+        prepareGetShareId();
         FileInfoDssDTO[] fileInfos =
                 rpcService.listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "stuff/", false);
         assertEquals(1, fileInfos.length);
@@ -401,7 +403,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
     @Test
     public void testDataSetListingOfFile()
     {
-        prepareListDataSetsByCode();
+        prepareGetShareId();
         FileInfoDssDTO[] fileInfos =
                 rpcService
                         .listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "stuff/bar.txt", false);
@@ -440,8 +442,8 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
     @Test
     public void testDataSetListingWithSneakyPath()
     {
-        prepareListDataSetsByCode();
-        prepareListDataSetsByCode();
+        prepareGetShareId();
+        prepareGetShareId();
         try
         {
             rpcService.listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "../", true);
@@ -466,8 +468,8 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
     @Test
     public void testDataSetFileRetrieval() throws IOException
     {
-        prepareListDataSetsByCode();
-        prepareListDataSetsByCode();
+        prepareGetShareId();
+        prepareGetShareId();
         FileInfoDssDTO[] fileInfos =
                 rpcService
                         .listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "stuff/bar.txt", false);
@@ -544,7 +546,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
     @Test
     public void testAuthorizationForStringCode()
     {
-        prepareListDataSetsByCode();
+        prepareGetShareId();
         TestMethodInterceptor testMethodInterceptor = new TestMethodInterceptor();
         IDssServiceRpcGenericInternal service = getAdvisedService(testMethodInterceptor);
         service.listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "/", false);
@@ -554,7 +556,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
     @Test
     public void testAuthorizationDataSetFile()
     {
-        prepareListDataSetsByCode();
+        prepareGetShareId();
         TestMethodInterceptor testMethodInterceptor = new TestMethodInterceptor();
         IDssServiceRpcGenericInternal service = getAdvisedService(testMethodInterceptor);
         DataSetFileDTO dataSetFile = new DataSetFileDTO(DATA_SET_CODE, "/", false);
@@ -628,14 +630,13 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         return fileInfos;
     }
     
-    private void prepareListDataSetsByCode()
+    private void prepareGetShareId()
     {
         context.checking(new Expectations()
             {
                 {
-                    one(openBisService).listDataSetsByCode(Arrays.asList(DATA_SET_CODE));
-                    will(returnValue(Arrays.asList(new DataSetBuilder().code(DATA_SET_CODE)
-                            .shareId(SHARE_ID).getDataSet())));
+                    one(shareIdManager).getShareId(DATA_SET_CODE);
+                    will(returnValue(SHARE_ID));
                 }
             });
     }

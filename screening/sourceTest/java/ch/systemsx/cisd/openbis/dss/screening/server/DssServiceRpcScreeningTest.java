@@ -56,7 +56,9 @@ import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdv
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtilsTest;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
+import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal.DssSessionAuthorizationHolder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
@@ -65,7 +67,6 @@ import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreen
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetIdentifier;
@@ -143,6 +144,8 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
 
     private IImagingDatasetLoader imageLoader;
 
+    private IShareIdManager shareIdManager;
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -155,6 +158,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         dao = context.mock(IImagingReadonlyQueryDAO.class);
         transformerDAO = context.mock(IImagingTransformerDAO.class);
         imageLoader = context.mock(IImagingDatasetLoader.class);
+        shareIdManager = context.mock(IShareIdManager.class);
         transformerFactory = new ImageTransformerFactory();
         featureVectorDatasetIdentifier1 = create(DATASET_CODE);
         featureVectorDatasetIdentifier2 = create("ds2");
@@ -174,7 +178,8 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
             });
         testMethodInterceptor = new TestMethodInterceptor();
         DssServiceRpcScreening rawScreeningService =
-                new DssServiceRpcScreening("targets", dao, transformerDAO, service, false)
+                new DssServiceRpcScreening("targets", dao, transformerDAO, service, shareIdManager,
+                        false)
                     {
                         @Override
                         IImagingDatasetLoader createImageLoader(String datasetCode, File datasetRoot)
@@ -219,7 +224,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         final String channel = "dapi";
         prepareGetHomeDatabaseInstance();
         prepareAssetDataSetIsAccessible(ds.getPermId());
-        prepareListDataSetsByCode();
+        prepareGetShareId();
 
         List<PlateImageReference> plateImageReferences =
                 screeningService
@@ -303,7 +308,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         final String channel = CHANNEL_CODE;
         prepareGetHomeDatabaseInstance();
         prepareAssetDataSetIsAccessible(DATASET_CODE);
-        prepareListDataSetsByCode();
+        prepareGetShareId();
         context.checking(new Expectations()
             {
                 {
@@ -663,18 +668,13 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
             });
     }
 
-    private void prepareListDataSetsByCode()
+    private void prepareGetShareId()
     {
         context.checking(new Expectations()
             {
                 {
-                    one(service).listDataSetsByCode(Arrays.asList(DATASET_CODE));
-                    will(returnValue(Arrays
-                            .asList(new DataSetBuilder()
-                                    .code(DATASET_CODE)
-                                    .shareId(
-                                            ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID)
-                                    .getDataSet())));
+                    one(shareIdManager).getShareId(DATASET_CODE);
+                    will(returnValue(Constants.DEFAULT_SHARE_ID));
                 }
             });
     }

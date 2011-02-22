@@ -58,8 +58,9 @@ public interface IDataSetHandlerRpc extends IDataSetHandler
 
     /**
      * Get the file for an external data from the data store.
+     * @param shareId 
      */
-    public File getFileForExternalData(ExternalData data);
+    public File getFileForExternalData(ExternalData data, String shareId);
 
     /**
      * Get the owner information provided by the caller.

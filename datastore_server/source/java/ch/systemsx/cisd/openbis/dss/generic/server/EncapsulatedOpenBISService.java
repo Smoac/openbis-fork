@@ -26,7 +26,6 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.openbisauth.OpenBISSessionHolder;
-import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
@@ -186,27 +185,20 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
             throws UserFailureException
     {
         TechId id = new TechId(experimentID);
-        List<ExternalData> result = service.listDataSetsByExperimentID(session.getToken(), id);
-        injectDefaultShareId(result);
-        return result;
+        return service.listDataSetsByExperimentID(session.getToken(), id);
     }
     
     public List<ExternalData> listDataSetsBySampleID(long sampleID,
             boolean showOnlyDirectlyConnected)
     {
         TechId id = new TechId(sampleID);
-        List<ExternalData> result =
-                service.listDataSetsBySampleID(session.getToken(), id, showOnlyDirectlyConnected);
-        injectDefaultShareId(result);
-        return result;
+        return service.listDataSetsBySampleID(session.getToken(), id, showOnlyDirectlyConnected);
     }
 
     public List<ExternalData> listDataSetsByCode(List<String> dataSetCodes)
             throws UserFailureException
     {
-        List<ExternalData> dataSets = service.listDataSetsByCode(session.getToken(), dataSetCodes);
-        injectDefaultShareId(dataSets);
-        return dataSets;
+        return service.listDataSetsByCode(session.getToken(), dataSetCodes);
     }
 
     public long registerExperiment(NewExperiment experiment) throws UserFailureException
@@ -362,17 +354,13 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
 
     public ExternalData tryGetDataSet(String dataSetCode) throws UserFailureException
     {
-        ExternalData dataSet = service.tryGetDataSet(session.getToken(), dataSetCode);
-        injectDefaultShareId(dataSet);
-        return dataSet;
+        return service.tryGetDataSet(session.getToken(), dataSetCode);
     }
 
     public ExternalData tryGetDataSet(String sToken, String dataSetCode)
             throws UserFailureException
     {
-        ExternalData dataSet = service.tryGetDataSet(sToken, dataSetCode);
-        injectDefaultShareId(dataSet);
-        return dataSet;
+        return service.tryGetDataSet(sToken, dataSetCode);
     }
 
     public void checkInstanceAdminAuthorization(String sToken)
@@ -415,11 +403,8 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     public List<ExternalData> listAvailableDataSets(ArchiverDataSetCriteria criteria)
             throws UserFailureException
     {
-        List<ExternalData> result =
-                service.listAvailableDataSets(session.getToken(), session.getDataStoreCode(),
-                        criteria);
-        injectDefaultShareId(result);
-        return result;
+        return service.listAvailableDataSets(session.getToken(), session.getDataStoreCode(),
+                criteria);
     }
 
     public List<DeletedDataSet> listDeletedDataSets(Long lastSeenDeletionEventIdOrNull)
@@ -444,9 +429,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
 
     public ExternalData tryGetDataSetForServer(String dataSetCode) throws UserFailureException
     {
-        ExternalData dataSet = service.tryGetDataSetForServer(session.getToken(), dataSetCode);
-        injectDefaultShareId(dataSet);
-        return dataSet;
+        return service.tryGetDataSetForServer(session.getToken(), dataSetCode);
     }
 
     public List<String> generateCodes(String prefix, int size)
@@ -481,22 +464,6 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
                 service.updateSampleAndRegisterDataSet(session.getToken(), newSample, externalData);
         setShareId(externalData);
         return sample;
-    }
-
-    private void injectDefaultShareId(List<ExternalData> dataSets)
-    {
-        for (ExternalData dataSet : dataSets)
-        {
-            injectDefaultShareId(dataSet);
-        }
-    }
-
-    private void injectDefaultShareId(ExternalData dataSetOrNull)
-    {
-        if (dataSetOrNull != null && dataSetOrNull.getShareId() == null)
-        {
-            dataSetOrNull.setShareId(Constants.DEFAULT_SHARE_ID);
-        }
     }
 
     public AtomicEntityOperationResult performEntityOperations(

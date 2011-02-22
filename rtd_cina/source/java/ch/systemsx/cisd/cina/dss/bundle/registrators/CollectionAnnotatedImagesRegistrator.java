@@ -85,6 +85,7 @@ public class CollectionAnnotatedImagesRegistrator extends BundleDataSetHelper
         List<String> parentDataSetCodes =
                 Collections.singletonList(bundleMetadataDataSetInformation.getDataSetCode());
         metadataDataSetInfo.setParentDataSetCodes(parentDataSetCodes);
+        metadataDataSetInfo.setShareId(bundleMetadataDataSetInformation.getShareId());
         return metadataDataSetInfo;
     }
 }

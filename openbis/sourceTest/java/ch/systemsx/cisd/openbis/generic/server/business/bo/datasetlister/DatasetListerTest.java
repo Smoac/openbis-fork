@@ -183,12 +183,10 @@ public class DatasetListerTest extends AbstractDAOTest
             });
         assertEquals(2L, dataSets.get(0).getId().longValue());
         assertEquals("20081105092158673-1", dataSets.get(0).getCode());
-        assertEquals("42", dataSets.get(0).getShareId());
         assertEquals("xxx/yyy/zzz", dataSets.get(0).getLocation());
         assertEquals(4711L, dataSets.get(0).getSize().longValue());
         assertEquals(4L, dataSets.get(1).getId().longValue());
         assertEquals("20081105092159188-3", dataSets.get(1).getCode());
-        assertEquals(null, dataSets.get(1).getShareId());
         assertEquals("analysis/result", dataSets.get(1).getLocation());
         assertEquals(null, dataSets.get(1).getSize());
         assertEquals(2, dataSets.size());

@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.api.v1;
 
 import java.io.File;
-import java.util.Arrays;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -30,14 +29,15 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.openbis.dss.generic.server.DatasetSessionAuthorizer;
 import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor;
+import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal.DssSessionAuthorizationHolder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 
 
 /**
@@ -56,6 +56,8 @@ public class DssServiceRpcGenericTest extends AbstractFileSystemTestCase
     private IDssServiceRpcGeneric dssService;
     private File store;
 
+    private IShareIdManager shareIdManager;
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -64,10 +66,11 @@ public class DssServiceRpcGenericTest extends AbstractFileSystemTestCase
         ServiceProvider.setBeanFactory(applicationContext);
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
+        shareIdManager = context.mock(IShareIdManager.class);
         applicationContext.addBean("openBIS-service", service);
         ProxyFactoryBean proxyFactoryBean = new ProxyFactoryBean();
         proxyFactoryBean.setInterfaces(new Class[] {IDssServiceRpcGeneric.class});
-        DssServiceRpcGeneric nakedDssService = new DssServiceRpcGeneric(service);
+        DssServiceRpcGeneric nakedDssService = new DssServiceRpcGeneric(service, shareIdManager);
         proxyFactoryBean.setTarget(nakedDssService);
         proxyFactoryBean.addAdvisor(new DssServiceRpcAuthorizationAdvisor());
         dssService = (IDssServiceRpcGeneric) proxyFactoryBean.getObject();
@@ -98,27 +101,27 @@ public class DssServiceRpcGenericTest extends AbstractFileSystemTestCase
         final String dataSetCode = "ds-1";
         prepareCheckDataSetAccess(dataSetCode);
         prepareCheckDataSetAccess(dataSetCode);
-        prepareListDataSetsByCode(dataSetCode);
+        prepareGetShareId(dataSetCode);
         File location =
                 DatasetLocationUtil.getDatasetLocationPath(store, dataSetCode,
-                        ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID, DB_UUID);
+                        Constants.DEFAULT_SHARE_ID, DB_UUID);
         location.mkdirs();
-        
-        FileInfoDssDTO[] dataSets = dssService.listFilesForDataSet(SESSION_TOKEN, dataSetCode, "abc/de", true);
-        
+
+        FileInfoDssDTO[] dataSets =
+                dssService.listFilesForDataSet(SESSION_TOKEN, dataSetCode, "abc/de", true);
+
         assertEquals("FileInfoDssDTO[/abc/de,0]", dataSets[0].toString());
         assertEquals(1, dataSets.length);
         context.assertIsSatisfied();
     }
 
-    private void prepareListDataSetsByCode(final String dataSetCode)
+    private void prepareGetShareId(final String dataSetCode)
     {
         context.checking(new Expectations()
             {
                 {
-                    one(service).listDataSetsByCode(Arrays.asList(dataSetCode));
-                    will(returnValue(Arrays.asList(new DataSetBuilder().code(dataSetCode)
-                            .shareId(ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID).getDataSet())));
+                    one(shareIdManager).getShareId(dataSetCode);
+                    will(returnValue(Constants.DEFAULT_SHARE_ID));
                 }
             });
     }
