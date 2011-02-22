@@ -30,6 +30,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.spring.AbstractServiceWithLogger;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -52,7 +53,7 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
 
     private DatabaseInstance homeDatabaseInstance;
 
-    protected final IShareIdManager shareIdManager;
+    private IShareIdManager shareIdManager;
 
     /**
      * Configuration method to set the path to the DSS store. Should only be called by the object
@@ -82,6 +83,15 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
     {
         this.openBISService = openBISService;
         this.shareIdManager = shareIdManager;
+    }
+    
+    protected IShareIdManager getShareIdManager()
+    {
+        if (shareIdManager == null)
+        {
+            shareIdManager = ServiceProvider.getShareIdManager();
+        }
+        return shareIdManager;
     }
 
     protected IEncapsulatedOpenBISService getOpenBISService()
@@ -149,7 +159,7 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
 
     protected File getRootDirectory(String datasetCode)
     {
-        return getRootDirectoryForDataSet(datasetCode, shareIdManager.getShareId(datasetCode));
+        return getRootDirectoryForDataSet(datasetCode, getShareIdManager().getShareId(datasetCode));
     }
 
     /**
@@ -182,7 +192,7 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
         HashMap<String, File> rootDirectories = new HashMap<String, File>();
         for (String datasetCode : dataSetCodes)
         {
-            String shareId = shareIdManager.getShareId(datasetCode);
+            String shareId = getShareIdManager().getShareId(datasetCode);
             File dataSetRootDirectory = getRootDirectoryForDataSet(datasetCode, shareId);
             if (dataSetRootDirectory.exists() == false)
             {

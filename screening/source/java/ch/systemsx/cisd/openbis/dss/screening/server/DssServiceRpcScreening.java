@@ -122,8 +122,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     {
         this(storeRootDir, null, QueryTool.getQuery(ServiceProvider.getDataSourceProvider()
                 .getDataSource(ScreeningConstants.IMAGING_DATA_SOURCE),
-                IImagingTransformerDAO.class), ServiceProvider.getOpenBISService(), ServiceProvider
-                .getShareIdManager(), true);
+                IImagingTransformerDAO.class), ServiceProvider.getOpenBISService(), null, true);
     }
 
     DssServiceRpcScreening(String storeRootDir, IImagingReadonlyQueryDAO dao,
@@ -189,6 +188,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             List<? extends IImageDatasetIdentifier> imageDatasets)
     {
         Set<String> datasetCodes = new HashSet<String>();
+        IShareIdManager shareIdManager = getShareIdManager();
         for (IImageDatasetIdentifier dataset : imageDatasets)
         {
             String datasetCode = dataset.getDatasetCode();

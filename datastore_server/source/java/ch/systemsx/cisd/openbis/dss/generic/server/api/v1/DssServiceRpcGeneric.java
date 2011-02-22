@@ -49,14 +49,18 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
      * 
      * @param openBISService
      */
-    public DssServiceRpcGeneric(IEncapsulatedOpenBISService openBISService,
-            IShareIdManager shareIdManager)
+    public DssServiceRpcGeneric(IEncapsulatedOpenBISService openBISService)
+    {
+        this(openBISService, null);
+    }
+
+    DssServiceRpcGeneric(IEncapsulatedOpenBISService openBISService, IShareIdManager shareIdManager)
     {
         super(openBISService, shareIdManager);
         putService = new PutDataSetService(openBISService, operationLog);
         operationLog.info("[rpc] Started DSS API V1 service.");
     }
-
+    
     /**
      * A constructor for testing.
      * 
