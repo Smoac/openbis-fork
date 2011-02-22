@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 import java.util.Arrays;
 
 import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.AssertJUnit;
@@ -46,10 +47,13 @@ public class ShareIdManagerTest extends AssertJUnit
     private Mockery context;
     private IEncapsulatedOpenBISService service;
     private ShareIdManager manager;
+    private Level level;
     
     @BeforeMethod
     public void setUp()
     {
+        level = Logger.getRootLogger().getLevel();
+        Logger.getRootLogger().setLevel(Level.DEBUG);
         logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.DEBUG);
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
@@ -75,6 +79,7 @@ public class ShareIdManagerTest extends AssertJUnit
         // To following line of code should also be called at the end of each test method.
         // Otherwise one does not known which test failed.
         context.assertIsSatisfied();
+        Logger.getRootLogger().setLevel(level);
     }
 
     @Test
