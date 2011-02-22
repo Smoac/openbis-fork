@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 ETH Zuerich, CISD
+ * Copyright 2011 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,28 +16,24 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
-import java.io.Serializable;
-import java.util.List;
+import java.io.File;
+
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
- * Interface of all commands operating on data sets in a data store.
+ * Provider of the root directory of a data set in the data store.
  *
  * @author Franz-Josef Elmer
  */
-interface IDataSetCommand extends Serializable
+public interface IDataSetDirectoryProvider
 {
     /**
-     * Executes the command on files in the provided data set directories. 
+     * Returns the root directory of data store.
      */
-    void execute(IDataSetDirectoryProvider dataSetDirectoryProvider);
+    public File getStoreRoot();
     
     /**
-     * Returns a textual description of this command.
+     * Returns the root directory of specified data set.
      */
-    String getDescription();
-
-    /**
-     * Returns the codes of all data sets involved in this command.
-     */
-    List<String> getDataSetCodes();
+    public File getDataSetDirectory(DatasetDescription dataSet);
 }

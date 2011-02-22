@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.AbstractTabularDataGraphServl
 import ch.systemsx.cisd.openbis.dss.generic.server.graph.TabularDataGraphCollectionConfiguration;
 import ch.systemsx.cisd.openbis.dss.generic.server.graph.TabularDataGraphConfiguration;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDataMergingReportingPlugin;
+import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GeneratedImageTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -71,7 +72,7 @@ public class FileBasedImageAnalysisGraphReportingPlugin extends AbstractDataMerg
                 TabularDataGraphCollectionConfiguration.getConfiguration(propertiesFilePath);
     }
 
-    public TableModel createReport(List<DatasetDescription> datasets)
+    public TableModel createReport(List<DatasetDescription> datasets, DataSetProcessingContext context)
     {
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
         addHeaders(builder);
@@ -81,7 +82,7 @@ public class FileBasedImageAnalysisGraphReportingPlugin extends AbstractDataMerg
         }
         for (DatasetDescription dataset : datasets)
         {
-            final File dir = getDataSubDir(dataset);
+            final File dir = getDataSubDir(context.getDirectoryProvider(), dataset);
             List<File> matchingFiles = findMatchingFiles(dataset, dir);
             if (matchingFiles.size() > 1)
             {

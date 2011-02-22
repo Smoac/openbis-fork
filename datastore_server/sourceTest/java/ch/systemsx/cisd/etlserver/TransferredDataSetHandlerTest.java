@@ -56,6 +56,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.server.openbisauth.OpenBISSessionHolder;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProviders;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
@@ -219,6 +220,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
     private EncapsulatedOpenBISService authorizedLimsService;
 
+    private IShareIdManager shareIdManager;
+
     @BeforeTest
     public void init()
     {
@@ -257,6 +260,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         storageProcessor = context.mock(IStorageProcessor.class);
         limsService = context.mock(IETLLIMSService.class);
         mailClient = context.mock(IMailClient.class);
+        shareIdManager = context.mock(IShareIdManager.class);
         plugin =
                 new ETLServerPlugin(new MockDataSetInfoExtractor(dataSetInfoExtractor),
                         typeExtractor, storageProcessor);
@@ -264,7 +268,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         OpenBISSessionHolder sessionHolder = new OpenBISSessionHolder();
         sessionHolder.setToken(SESSION_TOKEN);
         authorizedLimsService =
-                new EncapsulatedOpenBISService(limsService, sessionHolder);
+                new EncapsulatedOpenBISService(limsService, sessionHolder, shareIdManager);
         dataSetValidator = context.mock(IDataSetValidator.class);
 
         Properties threadProperties = new Properties();
@@ -539,6 +543,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                     final File finalDataSetPath = new File(baseDir, DATA1_NAME);
                     will(returnValue(finalDataSetPath));
                     one(storageProcessor).commit(data1, baseDir);
+                    
+                    one(shareIdManager).setShareId(DATA_SET_CODE, "1");
                 }
             });
         final LogMonitoringAppender appender =
@@ -581,6 +587,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                     final File finalDataSetPath = new File(baseDir, DATA1_NAME);
                     will(returnValue(finalDataSetPath));
                     one(storageProcessor).commit(data1, baseDir);
+                    
+                    one(shareIdManager).setShareId(DATA_SET_CODE, "1");
                 }
             });
         final LogMonitoringAppender appender =
@@ -810,6 +818,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                     final File finalDataSetPath = new File(baseDir, DATA1_NAME);
                     will(returnValue(finalDataSetPath));
                     one(storageProcessor).commit(data1, baseDir);
+                    
+                    one(shareIdManager).setShareId(DATA_SET_CODE, "1");
                 }
             });
         final LogMonitoringAppender appender =

@@ -23,6 +23,7 @@ import java.util.Properties;
 import javax.sql.DataSource;
 
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractTableModelReportingPlugin;
+import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSourceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -50,7 +51,7 @@ abstract public class AbstractEICMLDatastoreReportingPlugin extends
         dataSourceName = DataSourceProvider.extractDataSourceName(properties);
     }
 
-    public TableModel createReport(List<DatasetDescription> datasets)
+    public TableModel createReport(List<DatasetDescription> datasets, DataSetProcessingContext context)
     {
         DataSource dataSource =
                 ServiceProvider.getDataSourceProvider().getDataSource(dataSourceName);

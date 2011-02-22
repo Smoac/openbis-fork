@@ -24,7 +24,9 @@ import java.util.Properties;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.dss.generic.server.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
+import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
@@ -46,21 +48,22 @@ public class MergedRowDataReportingPlugin extends AbstractDataMergingReportingPl
         super(properties, storeRoot);
     }
 
-    public TableModel createReport(List<DatasetDescription> datasets)
+    public TableModel createReport(List<DatasetDescription> datasets, DataSetProcessingContext context)
     {
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
         builder.addHeader("Data Set Code");
         if (datasets.isEmpty() == false)
         {
+            IDataSetDirectoryProvider directoryProvider = context.getDirectoryProvider();
             final DatasetDescription firstDataset = datasets.get(0);
-            final String[] titles = getHeaderTitles(firstDataset);
+            final String[] titles = getHeaderTitles(firstDataset, directoryProvider);
             for (String title : titles)
             {
                 builder.addHeader(title);
             }
             for (DatasetDescription dataset : datasets)
             {
-                final File dir = getDataSubDir(dataset);
+                final File dir = getDataSubDir(directoryProvider, dataset);
                 final DatasetFileLines lines = loadFromDirectory(dataset, dir);
                 if (Arrays.equals(titles, lines.getHeaderLabels()) == false)
                 {

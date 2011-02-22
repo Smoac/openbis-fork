@@ -25,13 +25,21 @@ import java.util.List;
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
@@ -47,6 +55,57 @@ public class ExternalDataTranslator
 {
     private ExternalDataTranslator()
     {
+    }
+    
+    public static DatasetDescription translateToDescription(ExternalData data)
+    {
+        DatasetDescription description = new DatasetDescription();
+        description.setDatasetCode(data.getCode());
+        description.setDataSetLocation(data.getLocation());
+        description.setDataSetSize(data.getSize());
+        DataSetType dataSetType = data.getDataSetType();
+        if (dataSetType != null)
+        {
+            description.setDatasetTypeCode(dataSetType.getCode());
+        }
+        Experiment experiment = data.getExperiment();
+        if (experiment != null)
+        {
+            description.setExperimentCode(experiment.getCode());
+            description.setExperimentIdentifier(experiment.getIdentifier());
+            Project project = experiment.getProject();
+            if (project != null)
+            {
+                description.setProjectCode(project.getCode());
+                Space space = project.getSpace();
+                if (space != null)
+                {
+                    description.setSpaceCode(space.getCode());
+                    DatabaseInstance instance = space.getInstance();
+                    if (instance != null)
+                    {
+                        description.setDatabaseInstanceCode(instance.getCode());
+                    }
+                }
+            }
+            ExperimentType experimentType = experiment.getExperimentType();
+            if (experimentType != null)
+            {
+                description.setExperimentTypeCode(experimentType.getCode());
+            }
+        }
+        Sample sample = data.getSample();
+        if (sample != null)
+        {
+            description.setSampleCode(sample.getCode());
+            description.setSampleIdentifier(sample.getIdentifier());
+            SampleType sampleType = sample.getSampleType();
+            if (sampleType != null)
+            {
+                description.setSampleTypeCode(sampleType.getCode());
+            }
+        }
+        return description;
     }
 
     public static List<ExternalData> translate(List<ExternalDataPE> list,

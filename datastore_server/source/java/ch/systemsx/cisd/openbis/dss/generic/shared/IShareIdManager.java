@@ -24,6 +24,11 @@ package ch.systemsx.cisd.openbis.dss.generic.shared;
 public interface IShareIdManager
 {
     /**
+     * Returns <code>true</code> if the specified data set is known.
+     */
+    public boolean isKnown(String dataSetCode);
+    
+    /**
      * Returns current share id of specified data set.
      * 
      * @throws IllegalArgumentException if data set is unknown.

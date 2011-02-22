@@ -30,6 +30,7 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
@@ -122,6 +123,11 @@ public class ShareIdManager implements IShareIdManager
     {
         GuardedShareID guardedShareId = new GuardedShareID(dataSetCode, shareId, lockingTimeOut);
         map.put(dataSetCode, guardedShareId);
+    }
+
+    public boolean isKnown(String dataSetCode)
+    {
+        return getDataSetCodeToShareIdMap().containsKey(dataSetCode);
     }
 
     public String getShareId(String dataSetCode)
@@ -237,7 +243,9 @@ public class ShareIdManager implements IShareIdManager
             for (SimpleDataSetInformationDTO dataSet : dataSets)
             {
                 String dataSetCode = dataSet.getDataSetCode();
-                addShareId(dataSetCodeToShareIdMap, dataSetCode, dataSet.getDataSetShareId());
+                String shareId = dataSet.getDataSetShareId();
+                addShareId(dataSetCodeToShareIdMap, dataSetCode,
+                        shareId == null ? Constants.DEFAULT_SHARE_ID : shareId);
             }
             operationLog.info("Share id manager initialized with " + dataSets.size() + " data sets.");
         }

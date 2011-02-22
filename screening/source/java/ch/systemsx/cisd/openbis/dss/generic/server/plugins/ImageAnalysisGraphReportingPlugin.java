@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.AbstractTabularDataGraphServl
 import ch.systemsx.cisd.openbis.dss.generic.server.graph.TabularDataGraphCollectionConfiguration;
 import ch.systemsx.cisd.openbis.dss.generic.server.graph.TabularDataGraphConfiguration;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDataMergingReportingPlugin;
+import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GeneratedImageTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -70,7 +71,7 @@ public class ImageAnalysisGraphReportingPlugin extends AbstractDataMergingReport
                 TabularDataGraphCollectionConfiguration.getConfiguration(propertiesFilePath);
     }
 
-    public TableModel createReport(List<DatasetDescription> datasets)
+    public TableModel createReport(List<DatasetDescription> datasets, DataSetProcessingContext context)
     {
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
         addHeaders(builder);

@@ -151,7 +151,7 @@ public class ImageAnalysisMergedRowsReportingPluginTest extends AssertJUnit
                 }
             });
 
-        TableModel tableModel = plugin.createReport(Arrays.asList(ds1, ds2));
+        TableModel tableModel = plugin.createReport(Arrays.asList(ds1, ds2), null);
 
         List<TableModelColumnHeader> headers = tableModel.getHeader();
         assertEquals("[Data Set Code, Plate Identifier, Row, Column, f1, f2, f3]",

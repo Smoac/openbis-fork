@@ -140,15 +140,12 @@ public class DataSetToSOFT implements IProcessingPluginTask
 
     private static final long serialVersionUID = 1L;
 
-    private final File storeRoot;
-
     private final Map<String, String> translation;
 
     private transient IEncapsulatedOpenBISService service;
 
     public DataSetToSOFT(Properties properties, File storeRoot)
     {
-        this.storeRoot = storeRoot;
         translation = new HashMap<String, String>();
         translation.put("GENOMIC_DNA", "genomic");
         translation.put("FRAGMENTED_GENOMIC_DNA", "genomic");
@@ -181,7 +178,7 @@ public class DataSetToSOFT implements IProcessingPluginTask
                 Sample flowLaneSample = getFlowLaneSample(srfDataSet);
                 Sample flowCellSample = getFlowCellSample(flowLaneSample);
                 Sample sequencingSample = getSequencingSample(flowLaneSample);
-                File srfFile = tryToFindSrfFile(datasetDescription);
+                File srfFile = tryToFindSrfFile(datasetDescription, context);
                 if (srfFile == null)
                 {
                     status.addDatasetStatus(datasetDescription,
@@ -284,11 +281,11 @@ public class DataSetToSOFT implements IProcessingPluginTask
         return checkSum;
     }
 
-    private File tryToFindSrfFile(DatasetDescription datasetDescription)
+    private File tryToFindSrfFile(DatasetDescription datasetDescription,
+            DataSetProcessingContext context)
     {
-        File share = new File(storeRoot, datasetDescription.getDataSetShareId());
-        File root = new File(share, datasetDescription.getDataSetLocation());
-        return tryToFindSrfFile(root);
+        return tryToFindSrfFile(context.getDirectoryProvider().getDataSetDirectory(
+                datasetDescription));
     }
 
     private File tryToFindSrfFile(File file)

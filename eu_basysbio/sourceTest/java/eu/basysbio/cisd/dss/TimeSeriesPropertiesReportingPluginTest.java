@@ -27,7 +27,9 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.MockDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
+import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -52,7 +54,10 @@ public class TimeSeriesPropertiesReportingPluginTest extends AbstractFileSystemT
         IReportingPluginTask plugin =
                 new TimeSeriesPropertiesReportingPlugin(new Properties(), workingDirectory);
 
-        TableModel table = plugin.createReport(Arrays.asList(ds1, ds2));
+        TableModel table =
+                plugin.createReport(Arrays.asList(ds1, ds2), new DataSetProcessingContext(
+                        new MockDataSetDirectoryProvider(workingDirectory, SHARE_ID), null, null,
+                        null));
         assertEquals("[CODE, TECHNICAL_REPLICATE_CODE_LIST, BIOLOGICAL_REPLICATE_CODE, "
                 + "TIME_SERIES_DATA_SET_TYPE, CEL_LOC, CG_LIST, "
                 + "CULTIVATION_METHOD_EXPERIMENT_CODE, EXPERIMENT_CODE, GENOTYPE, "
@@ -81,7 +86,6 @@ public class TimeSeriesPropertiesReportingPluginTest extends AbstractFileSystemT
         FileUtilities.writeToFile(file, header);
         DatasetDescription datasetDescription = new DatasetDescription();
         datasetDescription.setDataSetLocation(dataSetCode);
-        datasetDescription.setDataSetShareId(SHARE_ID);
         datasetDescription.setDatasetCode(dataSetCode);
         return datasetDescription;
     }

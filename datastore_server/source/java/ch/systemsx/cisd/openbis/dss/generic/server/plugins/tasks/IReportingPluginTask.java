@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportingPluginType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -47,7 +48,7 @@ public interface IReportingPluginTask
      * <p>
      * Implemented by all ReportingPluginTypes.
      */
-    TableModel createReport(List<DatasetDescription> datasets);
+    TableModel createReport(List<DatasetDescription> datasets, DataSetProcessingContext context);
 
     /**
      * Returns a link that refers to a particular file within the data set.

@@ -33,6 +33,8 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.demo.DemoProcessingPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.demo.DemoReportingPlugin;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.MockDataSetDirectoryProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
@@ -68,7 +70,8 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
         factories.check(false);
         factories.logConfigurations();
         IReportingPluginTask pluginInstance1 = factories.getPluginInstance(plugin1);
-        pluginInstance1.createReport(createDatasetDescriptions());
+        pluginInstance1.createReport(createDatasetDescriptions(), new DataSetProcessingContext(
+                new MockDataSetDirectoryProvider(STORE_ROOT, SHARE_ID), null, null, null));
 
         List<DatastoreServiceDescription> descriptions = factories.getPluginDescriptions();
         assertEquals(2, descriptions.size());
@@ -144,7 +147,6 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
         DatasetDescription description = new DatasetDescription();
         description.setDatasetCode(".");
         description.setDataSetLocation("3123123123-123");
-        description.setDataSetShareId(SHARE_ID);
         description.setSampleCode("sampleCode");
         description.setSpaceCode("groupCode");
         description.setProjectCode("projCode");

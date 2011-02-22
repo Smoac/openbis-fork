@@ -98,9 +98,8 @@ public class DataSetCopierForUsersTest extends AbstractFileSystemTestCase
         properties.setProperty("ssh-executable", sshExecutableDummy.getPath());
         properties.setProperty("rsync-executable", rsyncExecutableDummy.getPath());
         DatasetDescriptionBuilder dsb =
-                new DatasetDescriptionBuilder("ds1").shareId(DEFAULT_SHARE_ID)
-                        .location(DS_LOCATION).sample("s").space("g").project("p").experiment("e")
-                        .databaseInstance("i");
+                new DatasetDescriptionBuilder("ds1").location(DS_LOCATION).sample("s").space("g")
+                        .project("p").experiment("e").databaseInstance("i");
         ds = dsb.getDatasetDescription();
         File ds1Folder = new File(new File(storeRoot, DEFAULT_SHARE_ID), DS_LOCATION + "/original");
         ds1Folder.mkdirs();
@@ -108,7 +107,10 @@ public class DataSetCopierForUsersTest extends AbstractFileSystemTestCase
         dsData.createNewFile();
         Map<String, String> parameterBindings = new HashMap<String, String>();
         parameterBindings.put(Constants.USER_PARAMETER, USER_ID);
-        dataSetProcessingContext = new DataSetProcessingContext(parameterBindings, null, null);
+        MockDataSetDirectoryProvider directoryProvider =
+                new MockDataSetDirectoryProvider(storeRoot, DEFAULT_SHARE_ID);
+        dataSetProcessingContext =
+                new DataSetProcessingContext(directoryProvider, parameterBindings, null, null);
     }
 
     @AfterMethod

@@ -35,7 +35,7 @@ public interface IArchiverTask extends Serializable
      *          all scheduled data sets or null if processing succeeded for all datasets and no
      *          additional information is provided.
      */
-    ProcessingStatus archive(List<DatasetDescription> datasets);
+    ProcessingStatus archive(List<DatasetDescription> datasets, ArchiverTaskContext context);
 
     /**
      * Asynchronously processes unarchiving of the specified datasets.
@@ -44,5 +44,5 @@ public interface IArchiverTask extends Serializable
      *          all scheduled data sets or null if processing succeeded for all datasets and no
      *          additional information is provided.
      */
-    ProcessingStatus unarchive(List<DatasetDescription> datasets);
+    ProcessingStatus unarchive(List<DatasetDescription> datasets, ArchiverTaskContext context);
 }

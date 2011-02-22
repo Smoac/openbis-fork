@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Properties;
 
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractTableModelReportingPlugin;
+import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
@@ -82,7 +83,7 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractTableModelRe
         this.dao = dao;
     }
 
-    public TableModel createReport(List<DatasetDescription> datasets)
+    public TableModel createReport(List<DatasetDescription> datasets, DataSetProcessingContext context)
     {
         List<String> datasetCodes = extractDatasetCodes(datasets);
         ArrayList<String> featureCodes = new ArrayList<String>(); // fetch all

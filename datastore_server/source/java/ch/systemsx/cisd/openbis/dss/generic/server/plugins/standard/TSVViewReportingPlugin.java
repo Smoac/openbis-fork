@@ -24,6 +24,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.AutoResolveUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
+import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
@@ -47,11 +48,11 @@ public class TSVViewReportingPlugin extends AbstractFileTableReportingPlugin
         this.transpose = PropertyUtils.getBoolean(properties, TRANSPOSE_KEY, false);
     }
 
-    public TableModel createReport(List<DatasetDescription> datasets)
+    public TableModel createReport(List<DatasetDescription> datasets, DataSetProcessingContext context)
     {
         assureOnlyOneDataSetSelected(datasets);
         DatasetDescription dataset = datasets.get(0);
-        File root = getDatasetDir(dataset);
+        File root = getDatasetDir(context.getDirectoryProvider(), dataset);
         File fileToOpenOrNull =
                 tryFindFileToOpen(dataset.getMainDataSetPattern(), dataset.getMainDataSetPath(),
                         root);

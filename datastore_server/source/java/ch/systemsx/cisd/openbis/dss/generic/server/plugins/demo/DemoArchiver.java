@@ -23,6 +23,7 @@ import java.util.Properties;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractArchiverProcessingPlugin;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -38,16 +39,16 @@ public class DemoArchiver extends AbstractArchiverProcessingPlugin
     }
 
     @Override
-    protected DatasetProcessingStatuses doArchive(List<DatasetDescription> datasets)
-            throws UserFailureException
+    protected DatasetProcessingStatuses doArchive(List<DatasetDescription> datasets,
+            ArchiverTaskContext context) throws UserFailureException
     {
         System.out.println("DemoArchiver - Archived: " + datasets);
         return createStatusesFrom(Status.OK, datasets, true);
     }
 
     @Override
-    protected DatasetProcessingStatuses doUnarchive(List<DatasetDescription> datasets)
-            throws UserFailureException
+    protected DatasetProcessingStatuses doUnarchive(List<DatasetDescription> datasets,
+            ArchiverTaskContext context) throws UserFailureException
     {
         System.out.println("DemoArchiver - Unarchived: " + datasets);
         return createStatusesFrom(Status.OK, datasets, false);

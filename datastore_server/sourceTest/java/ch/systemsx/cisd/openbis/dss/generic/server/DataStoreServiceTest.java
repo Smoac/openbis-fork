@@ -35,7 +35,7 @@ import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProviders;
-import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PluginUtilTest;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -100,6 +100,8 @@ public class DataStoreServiceTest extends AssertJUnit
 
     private PluginTaskProviders pluginTaskParameters;
 
+    private IShareIdManager shareIdManager;
+
     @BeforeMethod
     public void setup()
     {
@@ -108,6 +110,7 @@ public class DataStoreServiceTest extends AssertJUnit
         sessionToken = sessionTokenManager.drawSessionToken();
         commandExecutorFactory = context.mock(IDataSetCommandExecutorFactory.class);
         commandExecutor = context.mock(IDataSetCommandExecutor.class);
+        shareIdManager = context.mock(IShareIdManager.class);
         cifexServiceFactory = context.mock(ICIFEXRPCServiceFactory.class);
         cifex = context.mock(ICIFEXComponent.class);
         mailClientParameters = new MailClientParameters();
@@ -167,14 +170,29 @@ public class DataStoreServiceTest extends AssertJUnit
     @Test
     public void testGetKnownDataSets() throws IOException
     {
-        String shareId = "share-1";
+        final String shareId = "share-1";
         String location = "ds1";
-        DatasetDescriptionBuilder ds1 =
-                new DatasetDescriptionBuilder("ds1").shareId(shareId).location(location);
+        DatasetDescriptionBuilder ds1 = new DatasetDescriptionBuilder("ds1").location(location);
         DatasetDescriptionBuilder ds2 = new DatasetDescriptionBuilder("ds2").location(location);
         File share = new File(TEST_STORE, shareId);
         share.mkdirs();
         new File(share, location).createNewFile();
+        context.checking(new Expectations()
+            {
+                {
+                    one(shareIdManager).lock("ds1");
+                    one(shareIdManager).isKnown("ds1");
+                    will(returnValue(true));
+                    one(shareIdManager).getShareId("ds1");
+                    will(returnValue(shareId));
+                    one(shareIdManager).releaseLock("ds1");
+                    
+                    one(shareIdManager).lock("ds2");
+                    one(shareIdManager).isKnown("ds2");
+                    will(returnValue(false));
+                    one(shareIdManager).releaseLock("ds2");
+                }
+            });
 
         IDataStoreService service = createService();
         List<String> knownDataSets =
@@ -186,27 +204,6 @@ public class DataStoreServiceTest extends AssertJUnit
         context.assertIsSatisfied();
     }
 
-    @Test
-    public void testGetKnownDataSetsForDefaultShareId() throws IOException
-    {
-        String location = "ds1";
-        DatasetDescriptionBuilder ds1 =
-            new DatasetDescriptionBuilder("ds1").location(location);
-        DatasetDescriptionBuilder ds2 = new DatasetDescriptionBuilder("ds2").location("unknown");
-        File share = new File(TEST_STORE, Constants.DEFAULT_SHARE_ID);
-        share.mkdirs();
-        new File(share, location).createNewFile();
-        
-        IDataStoreService service = createService();
-        List<String> knownDataSets =
-            service.getKnownDataSets(sessionToken,
-                    Arrays.asList(ds1.getDatasetDescription(), ds2.getDatasetDescription()));
-        
-        assertEquals(1, knownDataSets.size());
-        assertSame(location, knownDataSets.get(0));
-        context.assertIsSatisfied();
-    }
-    
     @Test
     public void testDeleteDataSetsForInvalidSessionToken()
     {
@@ -235,7 +232,6 @@ public class DataStoreServiceTest extends AssertJUnit
             });
         
         createService().deleteDataSets(sessionToken, dataSets);
-        assertEquals(Constants.DEFAULT_SHARE_ID, d1.getDataSetShareId());
         context.assertIsSatisfied();
     }
 
@@ -327,6 +323,7 @@ public class DataStoreServiceTest extends AssertJUnit
         MockDataStoreService service =
                 new MockDataStoreService(sessionTokenManager, commandExecutorFactory,
                         mailClientParameters, cifexServiceFactory, CIFEX_URL, pluginTaskParameters);
+        service.setShareIdManager(shareIdManager);
         service.afterPropertiesSet();
         return service;
     }

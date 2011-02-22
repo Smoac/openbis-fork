@@ -44,6 +44,7 @@ import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.common.utilities.Template;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.MockDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
@@ -95,7 +96,8 @@ public class DataSetToSOFTTest<workingDirectory> extends AbstractFileSystemTestC
         service = context.mock(IEncapsulatedOpenBISService.class);
         mailClient = context.mock(IMailClient.class);
         dataSetProcessingContext =
-                new DataSetProcessingContext(new HashMap<String, String>(), mailClient, USER_EMAIL);
+                new DataSetProcessingContext(new MockDataSetDirectoryProvider(workingDirectory,
+                        SHARE_ID), new HashMap<String, String>(), mailClient, USER_EMAIL);
         File testFolder = new File(new File(workingDirectory, SHARE_ID), "test");
         testFolder.mkdirs();
         File sampleSrfFile = new File(testFolder, SRF_FILE_NAME);
@@ -125,7 +127,6 @@ public class DataSetToSOFTTest<workingDirectory> extends AbstractFileSystemTestC
     {
         DatasetDescription datasetDescription = new DatasetDescription();
         datasetDescription.setDatasetCode(DATASET_CODE);
-        datasetDescription.setDataSetShareId(SHARE_ID);
         datasetDescription.setDataSetLocation(".");
         List<DatasetDescription> dataSets = Arrays.asList(datasetDescription);
         final Sample flowLaneSample = sample(42, FLOW_LANE_SAMPLE_CODE);

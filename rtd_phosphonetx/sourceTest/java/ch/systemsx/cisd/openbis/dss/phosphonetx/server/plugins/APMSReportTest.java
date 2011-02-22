@@ -46,7 +46,9 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.MockDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ProcessingStatus;
+import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -85,6 +87,8 @@ public class APMSReportTest extends AbstractFileSystemTestCase
     private IEncapsulatedOpenBISService service;
 
     private IMailClient mailClient;
+
+    private DataSetProcessingContext processingContext;
     
     @BeforeMethod
     public void beforeMethod()
@@ -99,11 +103,17 @@ public class APMSReportTest extends AbstractFileSystemTestCase
         mailClient = context.mock(IMailClient.class);
         report = new APMSReport(new Properties(), workingDirectory);
         report.setService(service);
+        MockDataSetDirectoryProvider directoryProvider =
+                new MockDataSetDirectoryProvider(workingDirectory, Constants.DEFAULT_SHARE_ID);
+        processingContext =
+                new DataSetProcessingContext(directoryProvider,
+                        Collections.<String, String> emptyMap(), mailClient, "a@bc.de");
     }
 
     private File createDataSet(String location)
     {
-        File originalFolder = new File(new File(workingDirectory, location), "original");
+        File share = new File(workingDirectory, Constants.DEFAULT_SHARE_ID);
+        File originalFolder = new File(new File(share, location), "original");
         originalFolder.mkdirs();
         File dataSetFolder = new File(originalFolder, "data-set-folder");
         dataSetFolder.mkdirs();
@@ -131,9 +141,6 @@ public class APMSReportTest extends AbstractFileSystemTestCase
         DatasetDescriptionBuilder ds2 = new DatasetDescriptionBuilder("ds2").location("2");
         List<DatasetDescription> dataSets =
                 Arrays.asList(ds1.getDatasetDescription(), ds2.getDatasetDescription());
-        DataSetProcessingContext processingContext =
-                new DataSetProcessingContext(Collections.<String, String> emptyMap(), mailClient,
-                        "a@bc.de");
         final RecordingMatcher<String> subjectMatcher = new RecordingMatcher<String>();
         final RecordingMatcher<String> contentMatcher = new RecordingMatcher<String>();
         final RecordingMatcher<String> fileNameMatcher = new RecordingMatcher<String>();
@@ -184,7 +191,7 @@ public class APMSReportTest extends AbstractFileSystemTestCase
         DatasetDescriptionBuilder ds1 = new DatasetDescriptionBuilder("ds1").location("1");
         List<DatasetDescription> dataSets = Arrays.asList(ds1.getDatasetDescription());
 
-        TableModel table = report.createReport(dataSets);
+        TableModel table = report.createReport(dataSets, processingContext);
 
         List<TableModelColumnHeader> headers = table.getHeader();
         assertEquals("[Sample ID, Bait, Prey, freq of obs, "
@@ -208,7 +215,7 @@ public class APMSReportTest extends AbstractFileSystemTestCase
         DatasetDescriptionBuilder ds = new DatasetDescriptionBuilder("ds2").location("2");
         try
         {
-            report.createReport(Arrays.asList(ds.getDatasetDescription()));
+            report.createReport(Arrays.asList(ds.getDatasetDescription()), processingContext);
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
@@ -226,7 +233,7 @@ public class APMSReportTest extends AbstractFileSystemTestCase
         try
         {
             report.createReport(Arrays.asList(ds1.getDatasetDescription(),
-                    ds2.getDatasetDescription()));
+                    ds2.getDatasetDescription()), null);
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {

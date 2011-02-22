@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.shared;
 import java.util.Map;
 
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.openbis.dss.generic.server.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 
 /**
@@ -34,15 +35,24 @@ public class DataSetProcessingContext
 
     private final String userEmailOrNull;
 
+    private final IDataSetDirectoryProvider directoryProvider;
+
     /**
-     * Creates an instance for specified parameter bindings, e-mail client, and user e-mail address.
+     * Creates an instance for specified directory provider, parameter bindings, e-mail client, and
+     * optional user e-mail address.
      */
-    public DataSetProcessingContext(Map<String, String> parameterBindings, IMailClient mailClient,
-            String userEmailOrNull)
+    public DataSetProcessingContext(IDataSetDirectoryProvider directoryProvider,
+            Map<String, String> parameterBindings, IMailClient mailClient, String userEmailOrNull)
     {
+        this.directoryProvider = directoryProvider;
         this.parameterBindings = parameterBindings;
         this.mailClient = mailClient;
         this.userEmailOrNull = userEmailOrNull;
+    }
+
+    public IDataSetDirectoryProvider getDirectoryProvider()
+    {
+        return directoryProvider;
     }
 
     public final Map<String, String> getParameterBindings()

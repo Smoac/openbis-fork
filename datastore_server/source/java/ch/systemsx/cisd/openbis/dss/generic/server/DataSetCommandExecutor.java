@@ -30,6 +30,8 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
@@ -50,12 +52,19 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
 
     private final IExtendedBlockingQueue<IDataSetCommand> commandQueue;
 
+    private IShareIdManager shareIdManager;
+
     public DataSetCommandExecutor(File store, File queueDir)
     {
         this.store = store;
         File queueFile = getCommandQueueFile(queueDir);
         commandQueue =
                 ExtendedBlockingQueueFactory.<IDataSetCommand> createPersistRecordBased(queueFile);
+    }
+    
+    void setShareIdManager(IShareIdManager shareIdManager)
+    {
+        this.shareIdManager = shareIdManager;
     }
 
     private static File getCommandQueueFile(File store)
@@ -84,11 +93,20 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
                             stopWatch.start();
                             try
                             {
-                                command.execute(store);
+                                IShareIdManager manager = getShareIdManager();
+                                List<String> dataSetCodes = command.getDataSetCodes();
+                                for (String dataSetCode : dataSetCodes)
+                                {
+                                    manager.lock(dataSetCode);
+                                }
+                                command.execute(new DataSetDirectoryProvider(store, manager));
                             } catch (RuntimeException e)
                             {
                                 notificationLog.error("Error executing command '" + description
                                         + "'.", e);
+                            } finally
+                            {
+                                getShareIdManager().releaseLocks();
                             }
                             if (operationLog.isInfoEnabled())
                             {
@@ -104,6 +122,7 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
                     {
                         // Exit thread.
                     }
+                    operationLog.info("Executor stopped");
                 }
             }, "Data Set Command Execution");
         thread.setDaemon(true);
@@ -142,6 +161,15 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
         commandQueue.add(command);
     }
 
+    private IShareIdManager getShareIdManager()
+    {
+        if (shareIdManager == null)
+        {
+            shareIdManager = ServiceProvider.getShareIdManager();
+        }
+        return shareIdManager;
+    }
+    
     /**
      * Writes the list of items in the command store of the given <var>store</var> directory to
      * stdout.

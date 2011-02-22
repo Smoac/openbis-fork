@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Properties;
 
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractTableModelReportingPlugin;
+import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -43,7 +44,7 @@ public class TimeSeriesPropertiesReportingPlugin extends AbstractTableModelRepor
         super(properties, storeRoot);
     }
 
-    public TableModel createReport(List<DatasetDescription> datasets)
+    public TableModel createReport(List<DatasetDescription> datasets, DataSetProcessingContext context)
     {
         List<String> headers = new ArrayList<String>();
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
@@ -60,7 +61,7 @@ public class TimeSeriesPropertiesReportingPlugin extends AbstractTableModelRepor
                 row.add(new StringTableCell(""));
             }
             addTableCellValue(row, headers, "CODE", dataset.getDatasetCode());
-            File file = getDataSubDir(dataset);
+            File file = getDataSubDir(context.getDirectoryProvider(), dataset);
             List<NewProperty> properies = HeaderUtils.extractHeaderProps(file, true, false, true);
             for (NewProperty p : properies)
             {

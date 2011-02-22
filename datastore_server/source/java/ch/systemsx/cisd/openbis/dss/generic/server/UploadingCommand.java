@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -54,6 +55,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
 
 import de.schlichtherle.util.zip.ZipEntry;
 import de.schlichtherle.util.zip.ZipOutputStream;
@@ -299,12 +302,23 @@ class UploadingCommand implements IDataSetCommand
         tokenGenerator = new TokenGenerator();
     }
 
-    public void execute(File store)
+    public List<String> getDataSetCodes()
     {
-        File tempFolder = new File(store, "tmp");
+        List<String> result = new ArrayList<String>();
+        for (ExternalData dataSet : dataSets)
+        {
+            result.add(dataSet.getCode());
+        }
+        return result;
+    }
+
+    public void execute(IDataSetDirectoryProvider dataSetDirectoryProvider)
+    {
+        File root = dataSetDirectoryProvider.getStoreRoot();
+        File tempFolder = new File(root, "tmp");
         tempFolder.mkdirs();
         final File zipFile = new File(tempFolder, createFileName());
-        boolean successful = fillZipFile(store, zipFile);
+        boolean successful = fillZipFile(dataSetDirectoryProvider, zipFile);
         if (successful)
         {
             if (operationLog.isInfoEnabled())
@@ -386,7 +400,7 @@ class UploadingCommand implements IDataSetCommand
         return fileName.toLowerCase().endsWith(".zip") ? fileName : fileName + ".zip";
     }
 
-    private boolean fillZipFile(File store, File zipFile)
+    private boolean fillZipFile(IDataSetDirectoryProvider dataSetDirectoryProvider, File zipFile)
     {
         OutputStream outputStream = null;
         ZipOutputStream zipOutputStream = null;
@@ -396,12 +410,12 @@ class UploadingCommand implements IDataSetCommand
             zipOutputStream = new ZipOutputStream(outputStream);
             for (ExternalData dataSet : dataSets)
             {
-                String location = dataSet.getLocation();
-                String path = dataSet.getShareId() + "/" + location;
-                File dataSetFile = new File(new File(store, dataSet.getShareId()), location);
+                DatasetDescription dataSetDescription =
+                        ExternalDataTranslator.translateToDescription(dataSet);
+                File dataSetFile = dataSetDirectoryProvider.getDataSetDirectory(dataSetDescription);
                 if (dataSetFile.exists() == false)
                 {
-                    notificationLog.error("Data set '" + path + "' does not exist.");
+                    notificationLog.error("Data set '" + dataSetFile + "' does not exist.");
                     return false;
                 }
                 String newRootPath = createRootPath(dataSet);
@@ -422,7 +436,7 @@ class UploadingCommand implements IDataSetCommand
                             dataSetFile);
                 } catch (IOException ex)
                 {
-                    notificationLog.error("Couldn't add data set '" + path + "' to zip file.",
+                    notificationLog.error("Couldn't add data set '" + dataSetFile + "' to zip file.",
                             ex);
                     return false;
                 }

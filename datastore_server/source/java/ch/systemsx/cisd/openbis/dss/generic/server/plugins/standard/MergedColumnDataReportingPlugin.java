@@ -22,6 +22,7 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IterativeTableModelBuilder;
+import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
@@ -60,13 +61,15 @@ public class MergedColumnDataReportingPlugin extends AbstractDataMergingReportin
                 (rowIdColumnHeaderOrNull == null) ? "id" : rowIdColumnHeaderOrNull;
     }
 
-    public TableModel createReport(List<DatasetDescription> datasets)
+    public TableModel createReport(List<DatasetDescription> datasets,
+            DataSetProcessingContext context)
     {
         final IterativeTableModelBuilder builder =
                 new IterativeTableModelBuilder(rowIdentifierColumnHeader);
         for (DatasetDescription dataset : datasets)
         {
-            final DatasetFileLines lines = loadFromDirectory(dataset, getDataSubDir(dataset));
+            File dir = getDataSubDir(context.getDirectoryProvider(), dataset);
+            final DatasetFileLines lines = loadFromDirectory(dataset, dir);
             builder.addFile(lines);
         }
         return builder.getTableModel();

@@ -93,17 +93,19 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
 
     public EncapsulatedOpenBISService(IETLLIMSService service, OpenBISSessionHolder sessionHolder)
     {
+        this(service, sessionHolder, null);
+    }
+    
+    public EncapsulatedOpenBISService(IETLLIMSService service, OpenBISSessionHolder sessionHolder,
+            IShareIdManager shareIdManager)
+    {
+        this.shareIdManager = shareIdManager;
         assert service != null : "Given IETLLIMSService implementation can not be null.";
         assert sessionHolder != null : "Given OpenBISSessionHolder can not be null.";
         this.service = service;
         this.session = sessionHolder;
     }
 
-    void setShareIdManager(IShareIdManager shareIdManager)
-    {
-        this.shareIdManager = shareIdManager;
-    }
-    
     private IShareIdManager getShareIdManager()
     {
         if (shareIdManager == null)

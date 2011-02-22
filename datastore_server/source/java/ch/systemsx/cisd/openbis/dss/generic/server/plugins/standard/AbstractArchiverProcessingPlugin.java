@@ -28,6 +28,7 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IArchiverTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.QueueingDataSetStatusUpdaterService;
@@ -61,13 +62,14 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         this.unarchivePrerequisiteOrNull = unarchivePrerequisiteOrNull;
     }
 
-    abstract protected DatasetProcessingStatuses doArchive(List<DatasetDescription> datasets)
-            throws UserFailureException;
+    abstract protected DatasetProcessingStatuses doArchive(List<DatasetDescription> datasets,
+            ArchiverTaskContext context) throws UserFailureException;
 
-    abstract protected DatasetProcessingStatuses doUnarchive(List<DatasetDescription> datasets)
-            throws UserFailureException;
+    abstract protected DatasetProcessingStatuses doUnarchive(List<DatasetDescription> datasets,
+            ArchiverTaskContext context) throws UserFailureException;
 
-    public ProcessingStatus archive(List<DatasetDescription> datasets)
+    public ProcessingStatus archive(List<DatasetDescription> datasets,
+            final ArchiverTaskContext context)
     {
         operationLog.info("Archiving of the following datasets has been requested: "
                 + CollectionUtils.abbreviate(datasets, 10));
@@ -82,13 +84,14 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
                                 return createStatusesFrom(prerequisiteStatus, allDatasets, true);
                             } else
                             {
-                                return doArchive(allDatasets);
+                                return doArchive(allDatasets, context);
                             }
                         }
                     });
     }
 
-    public ProcessingStatus unarchive(List<DatasetDescription> datasets)
+    public ProcessingStatus unarchive(List<DatasetDescription> datasets,
+            final ArchiverTaskContext contex)
     {
         operationLog.info("Unarchiving of the following datasets has been requested: "
                 + CollectionUtils.abbreviate(datasets, 10));
@@ -103,7 +106,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
                                 return createStatusesFrom(prerequisiteStatus, allDatasets, false);
                             } else
                             {
-                                return doUnarchive(allDatasets);
+                                return doUnarchive(allDatasets, contex);
                             }
                         }
                     });

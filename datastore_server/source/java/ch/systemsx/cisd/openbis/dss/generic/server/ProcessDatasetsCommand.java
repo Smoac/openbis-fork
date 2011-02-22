@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -46,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
  * 
  * @author Tomasz Pylak
  */
-public class ProcessDatasetsCommand implements IDataSetCommand
+public class ProcessDatasetsCommand extends AbstractDataSetDescriptionBasedCommand
 {
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, ProcessDatasetsCommand.class);
@@ -54,8 +52,6 @@ public class ProcessDatasetsCommand implements IDataSetCommand
     private static final long serialVersionUID = 1L;
 
     private final IProcessingPluginTask task;
-
-    private final List<DatasetDescription> datasets;
 
     private final Map<String, String> parameterBindings;
 
@@ -72,7 +68,8 @@ public class ProcessDatasetsCommand implements IDataSetCommand
             DatastoreServiceDescription serviceDescription,
             MailClientParameters mailClientParameters)
     {
-        this(task, datasets, parameterBindings, userEmailOrNull, serviceDescription, new MailClient(mailClientParameters));
+        this(task, datasets, parameterBindings, userEmailOrNull, serviceDescription,
+                new MailClient(mailClientParameters));
         this.mailClientParameters = mailClientParameters;
     }
     
@@ -81,8 +78,8 @@ public class ProcessDatasetsCommand implements IDataSetCommand
             DatastoreServiceDescription serviceDescription,
             IMailClient mailClient)
     {
+        super(datasets);
         this.task = task;
-        this.datasets = datasets;
         this.parameterBindings = parameterBindings;
         this.userEmailOrNull = userEmailOrNull;
         this.serviceDescription = serviceDescription;
@@ -145,7 +142,7 @@ public class ProcessDatasetsCommand implements IDataSetCommand
 
     }
 
-    public void execute(File store)
+    public void execute(IDataSetDirectoryProvider dataSetDirectoryProvider)
     {
         String errorMessageOrNull = null;
         ProcessingStatus processingStatusOrNull = null;
@@ -153,9 +150,9 @@ public class ProcessDatasetsCommand implements IDataSetCommand
         try
         {
             DataSetProcessingContext context =
-                    new DataSetProcessingContext(parameterBindings, proxyMailClient,
-                            userEmailOrNull);
-            processingStatusOrNull = task.process(datasets, context);
+                    new DataSetProcessingContext(dataSetDirectoryProvider, parameterBindings,
+                            proxyMailClient, userEmailOrNull);
+            processingStatusOrNull = task.process(dataSets, context);
         } catch (RuntimeException e)
         {
             // exception message should be readable for users
@@ -224,18 +221,8 @@ public class ProcessDatasetsCommand implements IDataSetCommand
 
     private String getDescription(String prefix)
     {
-        return String.format("%s on %d data set(s): \n%s", prefix, datasets.size(),
-                getDataSetCodes(asCodes(datasets)));
-    }
-
-    private static List<String> asCodes(List<DatasetDescription> datasets)
-    {
-        List<String> codes = new ArrayList<String>();
-        for (DatasetDescription dataset : datasets)
-        {
-            codes.add(dataset.getDatasetCode());
-        }
-        return codes;
+        return String.format("%s on %d data set(s): \n%s", prefix, dataSets.size(),
+                getDataSetCodes(getDataSetCodes()));
     }
 
     public String getDescription()

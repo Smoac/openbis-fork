@@ -22,6 +22,7 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.dss.generic.server.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDatastorePlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ProcessingStatus;
@@ -53,17 +54,18 @@ public class TimeSeriesPropertiesUpdateProcessingPlugin extends AbstractDatastor
         final ProcessingStatus result = new ProcessingStatus();
         for (DatasetDescription dataset : datasets)
         {
-            Status status = processDataset(dataset);
+            Status status = processDataset(context.getDirectoryProvider(), dataset);
             result.addDatasetStatus(dataset, status);
         }
         return result;
     }
 
-    private Status processDataset(DatasetDescription dataset)
+    private Status processDataset(IDataSetDirectoryProvider directoryProvider,
+            DatasetDescription dataset)
     {
         try
         {
-            File file = getDataSubDir(dataset);
+            File file = getDataSubDir(directoryProvider, dataset);
             List<NewProperty> newProperties = HeaderUtils.extractHeaderProperties(file, true);
             SpaceIdentifier space =
                     new SpaceIdentifier(dataset.getDatabaseInstanceCode(), dataset.getSpaceCode());

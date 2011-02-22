@@ -26,6 +26,7 @@ import org.apache.commons.io.FileUtils;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractTableModelReportingPlugin;
+import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
@@ -50,7 +51,7 @@ public class DemoReportingPlugin extends AbstractTableModelReportingPlugin
         super(properties, storeRoot);
     }
 
-    public TableModel createReport(List<DatasetDescription> datasets)
+    public TableModel createReport(List<DatasetDescription> datasets, DataSetProcessingContext context)
     {
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
         builder.addHeader("Dataset Code");
@@ -60,7 +61,7 @@ public class DemoReportingPlugin extends AbstractTableModelReportingPlugin
         builder.addHeader("Size");
         for (DatasetDescription dataset : datasets)
         {
-            File file = getDataSubDir(dataset);
+            File file = getDataSubDir(context.getDirectoryProvider(), dataset);
             if (file.isDirectory())
             {
                 describe(builder, dataset, file);

@@ -25,6 +25,7 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.openbis.dss.generic.server.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -55,22 +56,20 @@ public abstract class AbstractDatastorePlugin implements Serializable
         subDirectory = properties.getProperty(SUB_DIRECTORY_NAME, "original");
     }
 
-    protected File getDataSubDir(DatasetDescription dataset)
+    protected File getDataSubDir(IDataSetDirectoryProvider provider, DatasetDescription dataset)
     {
         if (StringUtils.isBlank(subDirectory))
         {
-            return getDatasetDir(dataset);
+            return getDatasetDir(provider, dataset);
         } else
         {
-            return new File(getDatasetDir(dataset), subDirectory);
+            return new File(getDatasetDir(provider, dataset), subDirectory);
         }
     }
 
-    protected File getDatasetDir(DatasetDescription dataset)
+    protected File getDatasetDir(IDataSetDirectoryProvider provider, DatasetDescription dataset)
     {
-        String location = dataset.getDataSetLocation();
-        location = location.replace("\\", File.separator);
-        return new File(new File(storeRoot, dataset.getDataSetShareId()), location);
+        return provider.getDataSetDirectory(dataset);
     }
 
     /** returns a path relative to the store directory */

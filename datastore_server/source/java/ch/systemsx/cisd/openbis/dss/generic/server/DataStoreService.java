@@ -35,6 +35,7 @@ import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.common.spring.AbstractServiceWithLogger;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ArchiverTaskFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IArchiverTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
@@ -44,6 +45,8 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProvi
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -69,6 +72,8 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     private final MailClientParameters mailClientParameters;
 
     private final PluginTaskProviders pluginTaskParameters;
+    
+    private IShareIdManager shareIdManager;
 
     private String cifexAdminUserOrNull;
 
@@ -101,6 +106,11 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         this.mailClientParameters = mailClientParameters;
         this.pluginTaskParameters = pluginTaskParameters;
         storeRoot = pluginTaskParameters.getStoreRoot();
+    }
+    
+    void setShareIdManager(IShareIdManager shareIdManager)
+    {
+        this.shareIdManager = shareIdManager;
     }
 
     public final void setCommandQueueDir(String queueDirOrNull)
@@ -203,15 +213,25 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
             throws InvalidAuthenticationException
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);
-        injectDefaultShareId(dataSets);
 
         List<String> knownLocations = new ArrayList<String>();
+        IShareIdManager manager = getShareIdManager();
         for (DatasetDescription dataSet : dataSets)
         {
+            String datasetCode = dataSet.getDatasetCode();
             String location = dataSet.getDataSetLocation();
-            if (new File(new File(storeRoot, dataSet.getDataSetShareId()), location).exists())
+            manager.lock(datasetCode);
+            try
             {
-                knownLocations.add(location);
+                if (manager.isKnown(datasetCode)
+                        && new File(new File(storeRoot, manager.getShareId(datasetCode)), location)
+                                .exists())
+                {
+                    knownLocations.add(location);
+                }
+            } finally
+            {
+                manager.releaseLock(datasetCode);
             }
         }
         return knownLocations;
@@ -221,7 +241,6 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
             throws InvalidAuthenticationException
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);
-        injectDefaultShareId(dataSets);
 
         commandExecutor.scheduleDeletionOfDataSets(dataSets);
     }
@@ -266,12 +285,22 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
             List<DatasetDescription> datasets)
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);
-        injectDefaultShareId(datasets);
 
         PluginTaskProvider<IReportingPluginTask> reportingPlugins =
                 pluginTaskParameters.getReportingPluginsProvider();
         IReportingPluginTask task = reportingPlugins.getPluginInstance(serviceKey);
-        return task.createReport(datasets);
+        for (DatasetDescription dataSet : datasets)
+        {
+            getShareIdManager().lock(dataSet.getDatasetCode());
+        }
+        try
+        {
+            return task.createReport(datasets, null);
+            
+        } finally
+        {
+            getShareIdManager().releaseLocks();
+        }
     }
 
     public void processDatasets(String sessionToken, String serviceKey,
@@ -279,7 +308,6 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
             String userEmailOrNull)
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);
-        injectDefaultShareId(datasets);
 
         PluginTaskProvider<IProcessingPluginTask> plugins =
                 pluginTaskParameters.getProcessingPluginsProvider();
@@ -306,7 +334,6 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
             String userEmailOrNull, boolean archive)
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);
-        injectDefaultShareId(datasets);
 
         String description = archive ? "Archiving" : "Unarchiving";
         ArchiverTaskFactory factory = pluginTaskParameters.getArchiverTaskFactory();
@@ -337,12 +364,14 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         public ProcessingStatus process(List<DatasetDescription> datasets,
                 DataSetProcessingContext context)
         {
+            ArchiverTaskContext archiverContext =
+                    new ArchiverTaskContext(context.getDirectoryProvider());
             if (archive)
             {
-                return archiverTask.archive(datasets);
+                return archiverTask.archive(datasets, archiverContext);
             } else
             {
-                return archiverTask.unarchive(datasets);
+                return archiverTask.unarchive(datasets, archiverContext);
             }
         }
     }
@@ -351,7 +380,6 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
             DatasetDescription dataSet)
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);
-        injectDefaultShareId(dataSet);
 
         PluginTaskProvider<IReportingPluginTask> reportingPlugins =
                 pluginTaskParameters.getReportingPluginsProvider();
@@ -359,20 +387,13 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         return task.createLink(dataSet);
     }
     
-    private void injectDefaultShareId(List<DatasetDescription> dataSets)
+    private IShareIdManager getShareIdManager()
     {
-        for (DatasetDescription dataSet : dataSets)
+        if (shareIdManager == null)
         {
-            injectDefaultShareId(dataSet);
+            shareIdManager = ServiceProvider.getShareIdManager();
         }
-    }
-
-    private void injectDefaultShareId(DatasetDescription dataSetOrNull)
-    {
-        if (dataSetOrNull != null && dataSetOrNull.getDataSetShareId() == null)
-        {
-            dataSetOrNull.setDataSetShareId(Constants.DEFAULT_SHARE_ID);
-        }
+        return shareIdManager;
     }
 
 }

@@ -20,7 +20,6 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -100,7 +99,7 @@ abstract public class AbstractDropboxProcessingPlugin extends AbstractDatastoreP
         for (DatasetDescription dataset : datasets)
         {
             long startTime = timeProvider.getTimeInMilliseconds();
-            Status status = processDataset(dataset, context.getParameterBindings());
+            Status status = processDataset(dataset, context);
             if (sendingDetailedEMail)
             {
                 sendDetailedEMail(startTime, dataset, status, context);
@@ -172,9 +171,9 @@ abstract public class AbstractDropboxProcessingPlugin extends AbstractDatastoreP
         return entity == null ? null : entity + " [" + entityType + "]";
     }
 
-    private Status processDataset(DatasetDescription dataset, Map<String, String> parameterBindings)
+    private Status processDataset(DatasetDescription dataset, DataSetProcessingContext context)
     {
-        File originalDir = getDataSubDir(dataset);
+        File originalDir = getDataSubDir(context.getDirectoryProvider(), dataset);
         if (originalDir.isDirectory() == false)
         {
             operationLog
@@ -186,7 +185,7 @@ abstract public class AbstractDropboxProcessingPlugin extends AbstractDatastoreP
         if (datasetFiles.length == 1)
         {
             DataSetInformation datasetInfo = createDatasetInfo(dataset);
-            return dropboxHandler.handle(datasetFiles[0], datasetInfo, parameterBindings);
+            return dropboxHandler.handle(datasetFiles[0], datasetInfo, context.getParameterBindings());
         } else
         {
             operationLog.error(String.format("Exactly one item was expected in the '%s' directory,"

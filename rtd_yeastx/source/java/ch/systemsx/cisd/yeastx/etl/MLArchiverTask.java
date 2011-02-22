@@ -25,9 +25,11 @@ import javax.sql.DataSource;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.openbis.dss.generic.server.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractArchiverProcessingPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.HighWaterMarkChecker;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.IStatusChecker;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSourceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -104,7 +106,8 @@ public class MLArchiverTask extends AbstractArchiverProcessingPlugin
     /**
      * Adds data related to given data set to metabol database.
      */
-    private Status doUnarchive(DatasetDescription dataset, ML2DatabaseUploader databaseUploader)
+    private Status doUnarchive(DatasetDescription dataset,
+            IDataSetDirectoryProvider directoryProvider, ML2DatabaseUploader databaseUploader)
             throws UserFailureException
     {
         try
@@ -115,8 +118,8 @@ public class MLArchiverTask extends AbstractArchiverProcessingPlugin
                 sample = fetchSample(dataset);
             }
             Experiment experiment = getOrFetchExperiment(dataset, sample);
-            databaseUploader.upload(getDataFile(dataset), sample, experiment, dataset
-                    .getDatasetCode());
+            File dataFile = getDataFile(dataset, directoryProvider);
+            databaseUploader.upload(dataFile, sample, experiment, dataset.getDatasetCode());
             databaseUploader.commit();
         } catch (Exception ex)
         {
@@ -160,9 +163,9 @@ public class MLArchiverTask extends AbstractArchiverProcessingPlugin
         return experiment;
     }
 
-    private File getDataFile(DatasetDescription dataset)
+    private File getDataFile(DatasetDescription dataset, IDataSetDirectoryProvider directoryProvider)
     {
-        File datasetDir = getDataSubDir(dataset);
+        File datasetDir = getDataSubDir(directoryProvider, dataset);
         File[] files = datasetDir.listFiles();
         if (files == null || files.length < 1)
         {
@@ -179,8 +182,8 @@ public class MLArchiverTask extends AbstractArchiverProcessingPlugin
     }
 
     @Override
-    protected DatasetProcessingStatuses doArchive(List<DatasetDescription> datasets)
-            throws UserFailureException
+    protected DatasetProcessingStatuses doArchive(List<DatasetDescription> datasets,
+            ArchiverTaskContext context) throws UserFailureException
     {
         DataSource dataSource = getDataSource(dataSourceName);
         final IDMGenericDAO dao = DBUtils.getQuery(dataSource, IDMGenericDAO.class);
@@ -207,8 +210,8 @@ public class MLArchiverTask extends AbstractArchiverProcessingPlugin
     }
 
     @Override
-    protected DatasetProcessingStatuses doUnarchive(List<DatasetDescription> datasets)
-            throws UserFailureException
+    protected DatasetProcessingStatuses doUnarchive(List<DatasetDescription> datasets,
+            ArchiverTaskContext context) throws UserFailureException
     {
         ML2DatabaseUploader databaseUploader = new ML2DatabaseUploader(properties);
 
@@ -216,7 +219,7 @@ public class MLArchiverTask extends AbstractArchiverProcessingPlugin
         int counter = 0;
         for (DatasetDescription dataset : datasets)
         {
-            Status status = doUnarchive(dataset, databaseUploader);
+            Status status = doUnarchive(dataset, context.getDirectoryProvider(), databaseUploader);
             statuses.addResult(dataset.getDatasetCode(), status, false);
             counter++;
             if (counter % 100 == 0)

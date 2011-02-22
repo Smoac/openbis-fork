@@ -147,7 +147,9 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         ds4Folder.mkdirs();
         ds4Data = new File(ds4Folder, "existing");
         ds4Data.mkdirs();
-        dummyContext = new DataSetProcessingContext(null, mailClient, USER_EMAIL);
+        dummyContext =
+                new DataSetProcessingContext(new MockDataSetDirectoryProvider(storeRoot, SHARE_ID),
+                        null, mailClient, USER_EMAIL);
         context.checking(new Expectations()
             {
                 {
@@ -163,7 +165,6 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         description.setDatasetCode(dataSetCode);
         description.setDatasetTypeCode("MY_DATA");
         description.setDataSetLocation(location);
-        description.setDataSetShareId(SHARE_ID);
         description.setDatabaseInstanceCode("i");
         description.setSpaceCode("g");
         description.setProjectCode("p");

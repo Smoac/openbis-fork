@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Properties;
 
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractTableModelReportingPlugin;
+import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -44,14 +45,14 @@ public class DatasetModificationReportingPlugin extends AbstractTableModelReport
         super(properties, storeRoot);
     }
 
-    public TableModel createReport(List<DatasetDescription> datasets)
+    public TableModel createReport(List<DatasetDescription> datasets, DataSetProcessingContext context)
     {
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
         builder.addHeader("File");
         builder.addHeader("Modification date");
         for (DatasetDescription dataset : datasets)
         {
-            File file = getDataSubDir(dataset);
+            File file = getDataSubDir(context.getDirectoryProvider(), dataset);
             String datasetCode = dataset.getDatasetCode();
             List<ISerializableComparable> row =
                     Arrays.<ISerializableComparable> asList(new StringTableCell(datasetCode),

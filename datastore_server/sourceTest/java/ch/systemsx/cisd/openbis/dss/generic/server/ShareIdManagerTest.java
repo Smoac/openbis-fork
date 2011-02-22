@@ -30,6 +30,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.concurrent.MessageChannel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
+import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
@@ -85,7 +86,7 @@ public class ShareIdManagerTest extends AssertJUnit
     @Test
     public void testUnlockedGetShareId()
     {
-        assertEquals(null, manager.getShareId(DS1));
+        assertEquals(Constants.DEFAULT_SHARE_ID, manager.getShareId(DS1));
         assertEquals("2", manager.getShareId(DS2));
     }
     

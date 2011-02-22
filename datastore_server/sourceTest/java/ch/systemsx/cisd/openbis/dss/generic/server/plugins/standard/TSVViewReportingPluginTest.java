@@ -30,6 +30,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
@@ -50,6 +51,7 @@ public class TSVViewReportingPluginTest extends AbstractFileSystemTestCase
     private File dataSetInStore;
 
     private DatasetDescription datasetDescription;
+    private DataSetProcessingContext processingContext;
     
     @BeforeMethod
     public void beforeMethod()
@@ -60,9 +62,10 @@ public class TSVViewReportingPluginTest extends AbstractFileSystemTestCase
         dataSetInStore.mkdirs();
         datasetDescription = new DatasetDescription();
         datasetDescription.setDatasetCode("ds1");
-        datasetDescription.setDataSetShareId(SHARE_ID);
         datasetDescription.setMainDataSetPattern(".*");
         datasetDescription.setDataSetLocation(dataSetInStore.getName());
+        processingContext = new DataSetProcessingContext(
+                new MockDataSetDirectoryProvider(store, SHARE_ID), null, null, null);
     }
 
     @Test
@@ -70,7 +73,8 @@ public class TSVViewReportingPluginTest extends AbstractFileSystemTestCase
     {
         FileUtilities.writeToFile(new File(dataSetInStore, TEST_FILE), "a\t<1?a:b>b\n1\t2\n\t4");
         TSVViewReportingPlugin plugin = new TSVViewReportingPlugin(new Properties(), store);
-        TableModel tableModel = plugin.createReport(Arrays.asList(datasetDescription));
+        TableModel tableModel =
+                plugin.createReport(Arrays.asList(datasetDescription), processingContext);
         
         List<TableModelColumnHeader> headers = tableModel.getHeader();
         assertEquals("a", headers.get(0).getTitle());
@@ -94,7 +98,7 @@ public class TSVViewReportingPluginTest extends AbstractFileSystemTestCase
         
         try
         {
-            plugin.createReport(Arrays.asList(datasetDescription));
+            plugin.createReport(Arrays.asList(datasetDescription), processingContext);
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
@@ -117,7 +121,8 @@ public class TSVViewReportingPluginTest extends AbstractFileSystemTestCase
         properties.setProperty(IGNORE_COMMENTS_PROPERTY_KEY, "true");
         properties.setProperty(IGNORE_TRAILING_EMPTY_CELLS_PROPERTY_KEY, "true");
         TSVViewReportingPlugin plugin = new TSVViewReportingPlugin(properties, store);
-        TableModel tableModel = plugin.createReport(Arrays.asList(datasetDescription));
+        TableModel tableModel =
+                plugin.createReport(Arrays.asList(datasetDescription), processingContext);
         
         assertEquals("[a, b]", tableModel.getHeader().toString());
         List<TableModelRow> rows = tableModel.getRows();

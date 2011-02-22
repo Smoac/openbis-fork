@@ -49,6 +49,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.utilities.Template;
+import ch.systemsx.cisd.openbis.dss.generic.server.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractTableModelReportingPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ProcessingStatus;
@@ -209,14 +210,14 @@ public class APMSReport extends AbstractTableModelReportingPlugin implements IPr
         proteinPropertyCode = properties.getProperty(PROTEIN_PROPERTY_CODE_KEY, DEFAULT_PROTEIN_PROPERTY_CODE);
     }
 
-    public TableModel createReport(List<DatasetDescription> datasets)
+    public TableModel createReport(List<DatasetDescription> datasets, DataSetProcessingContext context)
     {
         if (datasets.size() != 1)
         {
             throw new UserFailureException("Chosen plugin works with exactly one data set. "
                     + datasets.size() + " data sets selected.");
         }
-        return createTableModel(datasets.get(0));
+        return createTableModel(datasets.get(0), context.getDirectoryProvider());
     }
     
     public ProcessingStatus process(List<DatasetDescription> datasets,
@@ -243,7 +244,8 @@ public class APMSReport extends AbstractTableModelReportingPlugin implements IPr
     {
         try
         {
-            TableModel tableModel = createTableModel(datasetDescription);
+            TableModel tableModel =
+                    createTableModel(datasetDescription, context.getDirectoryProvider());
             StringWriter writer = new StringWriter();
             CsvWriter csvWriter = new CsvWriter(writer, ',');
             List<TableModelColumnHeader> headers = tableModel.getHeader();
@@ -283,9 +285,10 @@ public class APMSReport extends AbstractTableModelReportingPlugin implements IPr
         }
     }
 
-    private TableModel createTableModel(DatasetDescription datasetDescription)
+    private TableModel createTableModel(DatasetDescription datasetDescription,
+            IDataSetDirectoryProvider directoryProvider)
     {
-        File proteinFile = getProteinFile(datasetDescription);
+        File proteinFile = getProteinFile(datasetDescription, directoryProvider);
         Table table = readTable(proteinFile);
         addHeaderMetaData(table);
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
@@ -526,9 +529,10 @@ public class APMSReport extends AbstractTableModelReportingPlugin implements IPr
         return map;
     }
 
-    private File getProteinFile(DatasetDescription datasetDescription)
+    private File getProteinFile(DatasetDescription datasetDescription,
+            IDataSetDirectoryProvider directoryProvider)
     {
-        File dataSetDir = getDataSubDir(datasetDescription);
+        File dataSetDir = getDataSubDir(directoryProvider, datasetDescription);
         if (dataSetDir.isDirectory() == false)
         {
             throw new EnvironmentFailureException("Data set folder is not a directory: " + dataSetDir);

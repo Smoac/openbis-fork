@@ -25,6 +25,7 @@ import java.util.Properties;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.xml.JaxbXmlParser;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractTableModelReportingPlugin;
+import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -68,7 +69,7 @@ public class IlluminaSummaryReportingPlugin extends AbstractTableModelReportingP
         super(properties, storeRoot);
     }
 
-    public TableModel createReport(List<DatasetDescription> datasets)
+    public TableModel createReport(List<DatasetDescription> datasets, DataSetProcessingContext context)
     {
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
         builder.addHeader("Sample Code");
@@ -90,7 +91,7 @@ public class IlluminaSummaryReportingPlugin extends AbstractTableModelReportingP
 
         for (DatasetDescription dataset : datasets)
         {
-            File originalData = getDataSubDir(dataset);
+            File originalData = getDataSubDir(context.getDirectoryProvider(), dataset);
 
             // set the directory containing the Summary.xml
             File childDirectory =

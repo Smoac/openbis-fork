@@ -27,6 +27,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
+import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
@@ -73,7 +74,9 @@ public class MergedColumnDataReportingPluginTest extends AssertJUnit
         final DatasetDescription dsd1 = createDatasetDescription("a");
         final DatasetDescription dsd2 = createDatasetDescription("b");
         final DatasetDescription dsd3 = createDatasetDescription("c");
-        final TableModel model = plugin.createReport(Arrays.asList(dsd1, dsd2, dsd3));
+        final TableModel model =
+                plugin.createReport(Arrays.asList(dsd1, dsd2, dsd3), new DataSetProcessingContext(
+                        new MockDataSetDirectoryProvider(dir, SHARE_ID), null, null, null));
         assertEquals(4, model.getHeader().size());
         assertEquals("key", model.getHeader().get(0).getTitle());
         assertEquals("val1", model.getHeader().get(1).getTitle());
@@ -99,7 +102,6 @@ public class MergedColumnDataReportingPluginTest extends AssertJUnit
     {
         DatasetDescription description = new DatasetDescription();
         description.setDataSetLocation(location);
-        description.setDataSetShareId(SHARE_ID);
         return description;
     }
 

@@ -55,13 +55,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
 
@@ -71,8 +72,23 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator
 @Friend(toClasses = UploadingCommand.class)
 public class UploadingCommandTest extends AssertJUnit
 {
+    private static final File TEST_FOLDER = new File("targets/upload-test");
+    private static final File STORE = new File(TEST_FOLDER, "store");
     private static final String SHARE_ID = "share-id";
+    
+    private static final class MockDataSetDirectoryProvider implements IDataSetDirectoryProvider
+    {
+        public File getStoreRoot()
+        {
+            return STORE;
+        }
 
+        public File getDataSetDirectory(DatasetDescription dataSet)
+        {
+            return new File(new File(getStoreRoot(), SHARE_ID), dataSet.getDataSetLocation());
+        }
+    }
+    
     private static final String ZIP_FILENAME = "myData";
 
     private static final String INFO_UPLOAD_PREFIX = "INFO  OPERATION.UploadingCommand - ";
@@ -81,9 +97,7 @@ public class UploadingCommandTest extends AssertJUnit
 
     private static final String INFO_MAIL_PREFIX = "INFO  OPERATION.MailClient - ";
 
-    private static final File TEST_FOLDER = new File("targets/upload-test");
 
-    private static final File STORE = new File(TEST_FOLDER, "store");
 
     private static final File TMP = new File(STORE, "tmp");
 
@@ -122,6 +136,7 @@ public class UploadingCommandTest extends AssertJUnit
     private UploadingCommand commandAdminSessionNotAuthenticated;
 
     private File ds2;
+    private IDataSetDirectoryProvider directoryProvider;
 
     @BeforeMethod
     public void setup()
@@ -131,6 +146,7 @@ public class UploadingCommandTest extends AssertJUnit
         factory = context.mock(ICIFEXRPCServiceFactory.class);
         cifex = context.mock(ICIFEXComponent.class);
         uploader = context.mock(ICIFEXUploader.class);
+        directoryProvider = new MockDataSetDirectoryProvider();
         mailClientParameters = new MailClientParameters();
         mailClientParameters.setFrom("a@bc.de");
         mailClientParameters.setSmtpHost("file://" + EMAILS);
@@ -313,7 +329,7 @@ public class UploadingCommandTest extends AssertJUnit
             });
 
         logRecorder.resetLogContent();
-        command.execute(STORE);
+        command.execute(directoryProvider);
 
         assertEquals("no emails expected", false, EMAILS.exists());
         assertEquals(1, TMP.listFiles().length);
@@ -369,7 +385,7 @@ public class UploadingCommandTest extends AssertJUnit
             });
 
         logRecorder.resetLogContent();
-        commandAdminSession.execute(STORE);
+        commandAdminSession.execute(directoryProvider);
 
         assertEquals("no emails expected", false, EMAILS.exists());
         assertEquals(1, TMP.listFiles().length);
@@ -399,7 +415,7 @@ public class UploadingCommandTest extends AssertJUnit
                 });
 
             logRecorder.resetLogContent();
-            commandAdminSessionNotAuthenticated.execute(STORE);
+            commandAdminSessionNotAuthenticated.execute(directoryProvider);
         } finally
         {
             context.assertIsSatisfied();
@@ -411,10 +427,11 @@ public class UploadingCommandTest extends AssertJUnit
     {
         uploadContext.setPassword("pwd");
         FileUtilities.deleteRecursively(ds2);
-        command.execute(STORE);
+        command.execute(directoryProvider);
 
         checkEmail("Couldn't create zip file");
-        assertEquals("ERROR NOTIFY.UploadingCommand - Data set 'share-id/ds2' does not exist."
+        assertEquals("ERROR NOTIFY.UploadingCommand"
+                + " - Data set 'targets/upload-test/store/share-id/ds2' does not exist."
                 + OSUtilities.LINE_SEPARATOR + INFO_MAIL_PREFIX
                 + "Sending message from 'a@bc.de' to recipients '[user@bc.de]'",
                 getNormalizedLogContent());
@@ -462,7 +479,7 @@ public class UploadingCommandTest extends AssertJUnit
                 }
             });
 
-        command.execute(STORE);
+        command.execute(directoryProvider);
 
         checkEmail("Uploading of zip file");
         assertEquals(INFO_UPLOAD_PREFIX

@@ -27,6 +27,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.parser.ParserException;
 import ch.systemsx.cisd.common.parser.ParsingException;
+import ch.systemsx.cisd.openbis.dss.generic.server.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
@@ -74,9 +75,9 @@ public abstract class AbstractDataMergingReportingPlugin extends AbstractFileTab
         this.includePatternOrNull = properties.getProperty(FILE_INCLUDE_PATTERN);
     }
 
-    protected String[] getHeaderTitles(DatasetDescription dataset)
+    protected String[] getHeaderTitles(DatasetDescription dataset, IDataSetDirectoryProvider dirProvider)
     {
-        File dir = getDataSubDir(dataset);
+        File dir = getDataSubDir(dirProvider, dataset);
         final DatasetFileLines lines = loadFromDirectory(dataset, dir);
         return lines.getHeaderLabels();
     }
