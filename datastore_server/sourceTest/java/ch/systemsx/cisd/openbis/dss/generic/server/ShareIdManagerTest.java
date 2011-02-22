@@ -205,7 +205,7 @@ public class ShareIdManagerTest extends AssertJUnit
                 + "DEBUG OPERATION.ShareIdManager - Data set ds1 has been locked.\n"
                 + "DEBUG OPERATION.ShareIdManager"
                 + " - Data set ds1 is locked by the following threads: T1\n"
-                + "DEBUG OPERATION.ShareIdManager - Data set ds1 has been unlocked.\n"
+                + "DEBUG OPERATION.ShareIdManager - Unlock data set ds1\n"
                 + "INFO  OPERATION.ShareIdManager - New share of data set ds1 is 1",
                 logRecorder.getLogContent());
     }

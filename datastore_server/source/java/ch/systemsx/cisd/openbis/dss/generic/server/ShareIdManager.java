@@ -176,12 +176,12 @@ public class ShareIdManager implements IShareIdManager
             set.remove(Thread.currentThread());
             if (set.isEmpty())
             {
-                getGuardedShareId(dataSetCode).unlock();
-                lockedDataSets.remove(dataSetCode);
                 if (operationLog.isDebugEnabled())
                 {
-                    operationLog.debug("Data set " + dataSetCode + " has been unlocked.");
+                    operationLog.debug("Unlock data set " + dataSetCode);
                 }
+                getGuardedShareId(dataSetCode).unlock();
+                lockedDataSets.remove(dataSetCode);
             }
             log(dataSetCode, set);
         }
