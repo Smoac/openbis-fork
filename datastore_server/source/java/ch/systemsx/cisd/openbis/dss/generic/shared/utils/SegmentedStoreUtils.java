@@ -170,26 +170,34 @@ public class SegmentedStoreUtils
             if (dataStoreCode.equals(dataSet.getDataStoreCode()))
             {
                 Share share = shares.get(shareId);
-                File dataSetInStore = new File(share.getShare(), dataSet.getDataSetLocation());
                 String dataSetCode = dataSet.getDataSetCode();
-                if (dataSetInStore.exists())
-                {
-                    if (dataSet.getDataSetSize() == null)
-                    {
-                        log.log(LogLevel.INFO, "Calculating size of " + dataSetInStore);
-                        long t0 = timeProvider.getTimeInMilliseconds();
-                        long size = FileUtils.sizeOfDirectory(dataSetInStore);
-                        log.log(LogLevel.INFO, dataSetInStore + " contains " + size
-                                + " bytes (calculated in "
-                                + (timeProvider.getTimeInMilliseconds() - t0) + " msec)");
-                        service.updateShareIdAndSize(dataSetCode, shareId, size);
-                        dataSet.setDataSetSize(size);
-                    }
-                    share.addDataSet(dataSet);
-                } else
+                if (share == null)
                 {
                     log.log(LogLevel.WARN, "Data set " + dataSetCode
-                            + " no longer exists in share " + shareId + ".");
+                            + " not accessible because of unknown or unmounted share " + shareId
+                            + ".");
+                } else
+                {
+                    File dataSetInStore = new File(share.getShare(), dataSet.getDataSetLocation());
+                    if (dataSetInStore.exists())
+                    {
+                        if (dataSet.getDataSetSize() == null)
+                        {
+                            log.log(LogLevel.INFO, "Calculating size of " + dataSetInStore);
+                            long t0 = timeProvider.getTimeInMilliseconds();
+                            long size = FileUtils.sizeOfDirectory(dataSetInStore);
+                            log.log(LogLevel.INFO, dataSetInStore + " contains " + size
+                                    + " bytes (calculated in "
+                                    + (timeProvider.getTimeInMilliseconds() - t0) + " msec)");
+                            service.updateShareIdAndSize(dataSetCode, shareId, size);
+                            dataSet.setDataSetSize(size);
+                        }
+                        share.addDataSet(dataSet);
+                    } else
+                    {
+                        log.log(LogLevel.WARN, "Data set " + dataSetCode
+                                + " no longer exists in share " + shareId + ".");
+                    }
                 }
             }
         }

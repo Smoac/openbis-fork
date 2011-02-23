@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -197,7 +198,7 @@ public class ShareIdManager implements IShareIdManager
     {
         synchronized (lockedDataSets)
         {
-            Set<String> dataSets = lockedDataSets.keySet();
+            List<String> dataSets = new ArrayList<String>(lockedDataSets.keySet());
             for (String dataSet : dataSets)
             {
                 releaseLock(dataSet);
