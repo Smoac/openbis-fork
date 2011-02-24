@@ -123,11 +123,11 @@ public class PlasMapperUploader
 
     private final static String FILE_PART_NAME = "fastaFile";
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, PlasMapperUploader.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            PlasMapperUploader.class);
 
-    private static final Logger notificationLog =
-            LogFactory.getLogger(LogCategory.NOTIFY, PlasMapperUploader.class);
+    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
+            PlasMapperUploader.class);
 
     public static void main(String[] args)
     {
@@ -164,7 +164,8 @@ public class PlasMapperUploader
      * @return the server's response to the request depending on the service (path to output image
      *         or sequence in genebank format)
      */
-    public String upload(File seqFile, PlasMapperService service)
+    // Synchronization is needed because PlasMapper servlet is not thread safe (see LMS-2086)
+    public synchronized String upload(File seqFile, PlasMapperService service)
     {
         final PostMethod post = new PostMethod(baseUrl + service.getServletPath());
         try
