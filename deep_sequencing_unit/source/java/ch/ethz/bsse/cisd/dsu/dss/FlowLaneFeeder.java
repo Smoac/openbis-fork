@@ -52,6 +52,7 @@ import ch.systemsx.cisd.common.filesystem.IImmutableCopier;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
+import ch.systemsx.cisd.common.process.ProcessIOStrategy;
 import ch.systemsx.cisd.common.process.ProcessResult;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
@@ -255,7 +256,7 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
         ProcessResult result =
                 ProcessExecutionHelper.run(command, operationLog, operationLog,
                         ConcurrencyUtilities.NO_TIMEOUT,
-                        ProcessExecutionHelper.OutputReadingStrategy.ALWAYS, true);
+                        ProcessIOStrategy.DEFAULT_IO_STRATEGY, true);
         List<String> output = result.getOutput();
         if (result.isOK() == false)
         {

@@ -40,9 +40,9 @@ import ch.systemsx.cisd.common.filesystem.rsync.RsyncVersionChecker.RsyncVersion
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
+import ch.systemsx.cisd.common.process.ProcessIOStrategy;
 import ch.systemsx.cisd.common.process.ProcessResult;
-import ch.systemsx.cisd.common.process.ProcessExecutionHelper.IProcessHandler;
-import ch.systemsx.cisd.common.process.ProcessExecutionHelper.OutputReadingStrategy;
+import ch.systemsx.cisd.common.process.IProcessHandler;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 
 /**
@@ -271,8 +271,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
                         createTargetDirectory(sourceDirectory, destinationDirectory,
                                 targetNameOrNull));
         final ProcessResult processResult =
-                runCommand(commandLine, ProcessExecutionHelper.DEFAULT_OUTPUT_READING_STRATEGY,
-                        ConcurrencyUtilities.NO_TIMEOUT);
+                runCommand(commandLine, ConcurrencyUtilities.NO_TIMEOUT);
         return processResult.isOK();
     }
 
@@ -386,8 +385,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         }
         commandLineList.add(buildUnixPathForServer(host, new File("/"), rsyncModule, false));
         final ProcessResult processResult =
-                runCommand(commandLineList, ProcessExecutionHelper.DEFAULT_OUTPUT_READING_STRATEGY,
-                        millisToWaitForCompletion);
+                runCommand(commandLineList, millisToWaitForCompletion);
         processResult.log();
         return processResult.isOK();
     }
@@ -424,7 +422,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         final List<String> commandLineList =
                 createSshCommand(host, sshExecutable, rsyncExec + " --version");
         final ProcessResult verResult =
-                runCommand(commandLineList, OutputReadingStrategy.ALWAYS, millisToWaitForCompletion);
+                runCommand(commandLineList, millisToWaitForCompletion);
         verResult.log();
         if (verResult.isOK() == false || verResult.getOutput().size() == 0)
         {
@@ -455,7 +453,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
     {
         List<String> commandLineList = createSshCommand(host, sshExecutable, "type -p rsync");
         final ProcessResult result =
-                runCommand(commandLineList, OutputReadingStrategy.ALWAYS, millisToWaitForCompletion);
+                runCommand(commandLineList, millisToWaitForCompletion);
         result.log();
         if (result.isOK() && result.getOutput().size() != 1)
         {
@@ -495,7 +493,6 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
                         destinationHostOrNull, rsyncModuleNameOrNull, rsyncPasswordFileOrNull,
                         copyDirectoryContent);
         return createStatus(runCommand(commandLine,
-                ProcessExecutionHelper.DEFAULT_OUTPUT_READING_STRATEGY,
                 ConcurrencyUtilities.NO_TIMEOUT));
     }
 
@@ -670,7 +667,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
     }
 
     private ProcessResult runCommand(final List<String> commandLine,
-            OutputReadingStrategy outputReadingStrategy, long millisToWaitForCompletion)
+            long millisToWaitForCompletion)
     {
         IProcessHandler processHandler;
         if (operationLog.isTraceEnabled())
@@ -685,8 +682,8 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
                 operationLog.debug(String.format("Running command '%s'", commandLine));
             }
             processHandler =
-                    ProcessExecutionHelper.runUnblocking(commandLine, outputReadingStrategy,
-                            operationLog, machineLog);
+                    ProcessExecutionHelper.runUnblocking(commandLine,
+                            operationLog, machineLog, ProcessIOStrategy.DEFAULT_IO_STRATEGY);
             rsyncTerminator.set(processHandler);
         }
         if (operationLog.isTraceEnabled())

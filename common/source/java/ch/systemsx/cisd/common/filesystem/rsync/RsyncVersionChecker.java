@@ -25,8 +25,8 @@ import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
+import ch.systemsx.cisd.common.process.ProcessIOStrategy;
 import ch.systemsx.cisd.common.process.ProcessResult;
-import ch.systemsx.cisd.common.process.ProcessExecutionHelper.OutputReadingStrategy;
 
 /**
  * A class that helps checking an <code>rsync</code> binary for its version.
@@ -242,7 +242,7 @@ final class RsyncVersionChecker
         final ProcessResult result =
                 ProcessExecutionHelper.run(Arrays.asList(rsyncExecutableToCheck, "--version"),
                         operationLog, machineLog, Constants.MILLIS_TO_WAIT_BEFORE_TIMEOUT,
-                        OutputReadingStrategy.ALWAYS, false);
+                        ProcessIOStrategy.DEFAULT_IO_STRATEGY, false);
         result.log();
         final List<String> processOutput = result.getOutput();
         if (processOutput.size() == 0)

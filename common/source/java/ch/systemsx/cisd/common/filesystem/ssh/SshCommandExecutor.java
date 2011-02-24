@@ -29,8 +29,8 @@ import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
+import ch.systemsx.cisd.common.process.ProcessIOStrategy;
 import ch.systemsx.cisd.common.process.ProcessResult;
-import ch.systemsx.cisd.common.process.ProcessExecutionHelper.OutputReadingStrategy;
 
 /**
  * Executor of commands on remote machine through SSH.
@@ -153,7 +153,7 @@ public class SshCommandExecutor implements ISshCommandExecutor, Serializable
         final List<String> cmdLine = sshCommandBuilder.createSshCommand(localCmd, getHost());
         final ProcessResult result =
                 ProcessExecutionHelper.run(cmdLine, operationLog, machineLog, timeOutMillis,
-                        OutputReadingStrategy.ALWAYS, false);
+                        ProcessIOStrategy.DEFAULT_IO_STRATEGY, false);
         if (logResult)
         {
             result.log();

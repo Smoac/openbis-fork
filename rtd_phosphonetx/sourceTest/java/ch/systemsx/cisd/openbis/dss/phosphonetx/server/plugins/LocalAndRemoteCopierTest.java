@@ -21,6 +21,7 @@ import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DataS
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
 
 import org.jmock.Expectations;
@@ -50,7 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 public class LocalAndRemoteCopierTest extends AbstractFileSystemTestCase
 {
     private static final ProcessResult OK_RESULT = new ProcessResult(Arrays.asList(""), 0, null, null,
-            null, 0, null, null, null);
+            null, 0, (List<String>) null, null, null, null);
 
     private static final String SAMPLE_CODE = "my-sample";
 

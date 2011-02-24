@@ -39,8 +39,7 @@ import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
-import ch.systemsx.cisd.common.process.ProcessExecutionHelper.IProcessHandler;
-import ch.systemsx.cisd.common.process.ProcessExecutionHelper.OutputReadingStrategy;
+import ch.systemsx.cisd.common.process.IProcessHandler;
 
 /**
  * Test cases for the {@link ProcessExecutionHelper}.
@@ -162,6 +161,18 @@ public class ProcessExecutionHelperTest
 
     @Test(groups =
         { "requires_unix" })
+    public void testExecutionOKSameThreadWithTimeOut() throws Exception
+    {
+        final File dummyExec = createExecutable("dummyOKSameThreadWithTimeOut.sh", 0);
+        final boolean ok =
+                ProcessExecutionHelper.runAndLog(Arrays.asList(dummyExec.getAbsolutePath()),
+                        operationLog, machineLog, WATCHDOG_WAIT_MILLIS,
+                        ProcessIOStrategy.TEXT_SAME_THREAD_IO_STRATEGY);
+        assertTrue(ok);
+    }
+
+    @Test(groups =
+        { "requires_unix" })
     public void testExecutionFailedWithTimeOut() throws Exception
     {
         final File dummyExec = createExecutable("dummyFailingWithTimeOut.sh", 1);
@@ -235,8 +246,8 @@ public class ProcessExecutionHelperTest
                             2 * WATCHDOG_WAIT_MILLIS);
             final IProcessHandler processHandler =
                     ProcessExecutionHelper.runUnblocking(
-                            Arrays.asList(dummyExec.getAbsolutePath()),
-                            OutputReadingStrategy.ALWAYS, operationLog, machineLog);
+                            Arrays.asList(dummyExec.getAbsolutePath()), operationLog, machineLog,
+                            ProcessIOStrategy.DEFAULT_IO_STRATEGY);
             processHandler.getResult();
         } finally
         {
@@ -266,7 +277,7 @@ public class ProcessExecutionHelperTest
             final ProcessResult result =
                     ProcessExecutionHelper.run(Arrays.asList(dummyExec.getAbsolutePath()),
                             operationLog, machineLog, WATCHDOG_WAIT_MILLIS,
-                            ProcessExecutionHelper.DEFAULT_OUTPUT_READING_STRATEGY, false);
+                            ProcessIOStrategy.DEFAULT_IO_STRATEGY, false);
             assertTrue(result.isInterruped());
         } finally
         {
@@ -300,8 +311,7 @@ public class ProcessExecutionHelperTest
                         operationLog, machineLog, WATCHDOG_WAIT_MILLIS);
         assertTrue(result.isTimedOut());
         assertFalse(result.isOK());
-        assertTrue(Integer.toString(result.getOutput().size()),
-                result.getOutput().size() > 100);
+        assertTrue(Integer.toString(result.getOutput().size()), result.getOutput().size() > 100);
         assertEquals(Integer.toString(result.getOutput().size()),
                 result.getOutput().get(result.getOutput().size() - 1));
     }
@@ -320,10 +330,9 @@ public class ProcessExecutionHelperTest
         final ProcessResult result =
                 ProcessExecutionHelper.run(Arrays.asList(dummyExec.getAbsolutePath()),
                         operationLog, machineLog, ConcurrencyUtilities.NO_TIMEOUT,
-                        OutputReadingStrategy.ALWAYS, false);
-        final int exitValue = result.getExitValue();
-        assertEquals(0, exitValue);
+                        ProcessIOStrategy.DEFAULT_IO_STRATEGY, false);
         result.log();
+        assertTrue(result.isOK());
         assertTrue(result.isOutputAvailable());
         assertFalse(result.isBinaryOutput());
         assertEquals(4, result.getOutput().size());
@@ -331,6 +340,84 @@ public class ProcessExecutionHelperTest
         assertEquals(stderr1, result.getOutput().get(1));
         assertEquals(stdout2, result.getOutput().get(2));
         assertEquals(stderr2, result.getOutput().get(3));
+        assertEquals(0, result.getExitValue());
+    }
+
+    @Test(groups =
+        { "requires_unix", "slow" })
+    public void testTryExecutionReadProcessOutputDiscardStderr() throws Exception
+    {
+        final String stdout1 = "This goes to stdout, 1";
+        final String stdout2 = "This goes to stdout, 2";
+        final String stderr1 = "This goes to stderr, 1";
+        final String stderr2 = "This goes to stderr, 2";
+        final File dummyExec =
+                createExecutable("dummy.sh", "echo " + stdout1, "echo " + stderr1
+                        + " > /dev/stderr", "echo " + stdout2, "echo " + stderr2 + " > /dev/stderr");
+        final ProcessResult result =
+                ProcessExecutionHelper.run(Arrays.asList(dummyExec.getAbsolutePath()),
+                        operationLog, machineLog, ConcurrencyUtilities.NO_TIMEOUT,
+                        ProcessIOStrategy.TEXT_DISCARD_STDERR_IO_STRATEGY, false);
+        result.log();
+        assertTrue(result.isOK());
+        assertTrue(result.isOutputAvailable());
+        assertFalse(result.isBinaryOutput());
+        assertEquals(2, result.getOutput().size());
+        assertEquals(stdout1, result.getOutput().get(0));
+        assertEquals(stdout2, result.getOutput().get(1));
+        assertEquals(0, result.getExitValue());
+    }
+
+    @Test(groups =
+        { "requires_unix", "slow" })
+    public void testTryExecutionReadProcessOutputDiscardStdout() throws Exception
+    {
+        final String stdout1 = "This goes to stdout, 1";
+        final String stdout2 = "This goes to stdout, 2";
+        final String stderr1 = "This goes to stderr, 1";
+        final String stderr2 = "This goes to stderr, 2";
+        final File dummyExec =
+                createExecutable("dummy.sh", "echo " + stdout1, "echo " + stderr1
+                        + " > /dev/stderr", "echo " + stdout2, "echo " + stderr2 + " > /dev/stderr");
+        final ProcessResult result =
+                ProcessExecutionHelper.run(Arrays.asList(dummyExec.getAbsolutePath()),
+                        operationLog, machineLog, ConcurrencyUtilities.NO_TIMEOUT,
+                        ProcessIOStrategy.DISCARD_STDOUT_IO_STRATEGY, false);
+        result.log();
+        assertTrue(result.isOK());
+        assertTrue(result.isOutputAvailable());
+        assertFalse(result.isBinaryOutput());
+        assertEquals(0, result.getOutput().size());
+        assertEquals(2, result.getErrorOutput().size());
+        assertEquals(stderr1, result.getErrorOutput().get(0));
+        assertEquals(stderr2, result.getErrorOutput().get(1));
+        assertEquals(0, result.getExitValue());
+    }
+
+    @Test(groups =
+        { "requires_unix", "slow" })
+    public void testTryExecutionReadProcessOutputDiscardStdoutSameThread() throws Exception
+    {
+        final String stdout1 = "This goes to stdout, 1";
+        final String stdout2 = "This goes to stdout, 2";
+        final String stderr1 = "This goes to stderr, 1";
+        final String stderr2 = "This goes to stderr, 2";
+        final File dummyExec =
+                createExecutable("dummy.sh", "echo " + stdout1, "echo " + stderr1
+                        + " > /dev/stderr", "echo " + stdout2, "echo " + stderr2 + " > /dev/stderr");
+        final ProcessResult result =
+                ProcessExecutionHelper.run(Arrays.asList(dummyExec.getAbsolutePath()),
+                        operationLog, machineLog, ConcurrencyUtilities.NO_TIMEOUT,
+                        ProcessIOStrategy.DISCARD_STDOUT_SAME_THREAD_IO_STRATEGY, false);
+        result.log();
+        assertTrue(result.isOK());
+        assertTrue(result.isOutputAvailable());
+        assertFalse(result.isBinaryOutput());
+        assertEquals(0, result.getOutput().size());
+        assertEquals(2, result.getErrorOutput().size());
+        assertEquals(stderr1, result.getErrorOutput().get(0));
+        assertEquals(stderr2, result.getErrorOutput().get(1));
+        assertEquals(0, result.getExitValue());
     }
 
     @Test(groups =
@@ -347,10 +434,39 @@ public class ProcessExecutionHelperTest
         final ProcessResult result =
                 ProcessExecutionHelper.run(Arrays.asList(dummyExec.getAbsolutePath()),
                         operationLog, machineLog, ConcurrencyUtilities.NO_TIMEOUT,
-                        OutputReadingStrategy.ALWAYS, true, false);
+                        ProcessIOStrategy.BINARY_IO_STRATEGY, false);
         final int exitValue = result.getExitValue();
         assertEquals(0, exitValue);
         result.log();
+        assertTrue(result.isOK());
+        assertTrue(result.isOutputAvailable());
+        assertTrue(result.isBinaryOutput());
+        assertEquals(2, result.getErrorOutput().size());
+        assertEquals(stderr1, result.getErrorOutput().get(0));
+        assertEquals(stderr2, result.getErrorOutput().get(1));
+        final String stdout = new String(result.getBinaryOutput());
+        assertEquals(stdout1 + "\n" + stdout2 + "\n", stdout);
+    }
+
+    @Test(groups =
+        { "requires_unix", "slow" })
+    public void testTryExecutionReadBinaryProcessOutputSameThread() throws Exception
+    {
+        final String stdout1 = "This goes to stdout, 1";
+        final String stdout2 = "This goes to stdout, 2";
+        final String stderr1 = "This goes to stderr, 1";
+        final String stderr2 = "This goes to stderr, 2";
+        final File dummyExec =
+                createExecutable("dummy.sh", "echo " + stdout1, "echo " + stderr1
+                        + " > /dev/stderr", "echo " + stdout2, "echo " + stderr2 + " > /dev/stderr");
+        final ProcessResult result =
+                ProcessExecutionHelper.run(Arrays.asList(dummyExec.getAbsolutePath()),
+                        operationLog, machineLog, ConcurrencyUtilities.NO_TIMEOUT,
+                        ProcessIOStrategy.BINARY_SAME_THREAD_IO_STRATEGY, false);
+        final int exitValue = result.getExitValue();
+        assertEquals(0, exitValue);
+        result.log();
+        assertTrue(result.isOK());
         assertTrue(result.isOutputAvailable());
         assertTrue(result.isBinaryOutput());
         assertEquals(2, result.getErrorOutput().size());
@@ -368,7 +484,7 @@ public class ProcessExecutionHelperTest
         final ProcessResult result =
                 ProcessExecutionHelper.run(Arrays.asList(dummyExec.getAbsolutePath()),
                         operationLog, machineLog, WATCHDOG_WAIT_MILLIS,
-                        OutputReadingStrategy.ON_ERROR, true, false);
+                        ProcessIOStrategy.BINARY_IO_STRATEGY, false);
         assertTrue(result.isTimedOut());
         assertFalse(result.isOK());
         assertTrue(result.getBinaryOutput().length > 1000);
@@ -393,8 +509,7 @@ public class ProcessExecutionHelperTest
         final File dummyExec = createSleepingExecutable("sleep.sh", 2 * WATCHDOG_WAIT_MILLIS);
         final IProcessHandler handler =
                 ProcessExecutionHelper.runUnblocking(Arrays.asList(dummyExec.getAbsolutePath()),
-                        ProcessExecutionHelper.DEFAULT_OUTPUT_READING_STRATEGY, operationLog,
-                        machineLog);
+                        operationLog, machineLog, ProcessIOStrategy.DEFAULT_IO_STRATEGY);
         final AtomicReference<ProcessResult> result = new AtomicReference<ProcessResult>(null);
         final Runnable resultGetter = new Runnable()
             {

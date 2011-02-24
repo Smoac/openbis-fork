@@ -27,8 +27,8 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.fileconverter.TiffCompressionStrategy;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
+import ch.systemsx.cisd.common.process.ProcessIOStrategy;
 import ch.systemsx.cisd.common.process.ProcessResult;
-import ch.systemsx.cisd.common.process.ProcessExecutionHelper.OutputReadingStrategy;
 
 /**
  * A compression method for TIFF files using the ImageMagick <code>convert</code> utility with
@@ -52,7 +52,7 @@ public class TiffConvertCompressionMethod extends AbstractTiffCompressionMethod
         final ProcessResult result =
                 ProcessExecutionHelper.run(Arrays.asList(convertExecutableToCheck, "--version"),
                         operationLog, machineLog, Constants.MILLIS_TO_WAIT_BEFORE_TIMEOUT,
-                        OutputReadingStrategy.ALWAYS, true);
+                        ProcessIOStrategy.DEFAULT_IO_STRATEGY, true);
         result.log();
         final String versionString = extractImageMagickVersion(result.getOutput().get(0));
         return versionString;

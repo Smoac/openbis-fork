@@ -108,8 +108,8 @@ public final class ProcessResult
     public ProcessResult(final List<String> commandLine, final int processNumber,
             final ExecutionStatus status, ExecutionResult<?> processIOResult,
             final String startupFailureMessageOrNull, final int exitValue,
-            final List<String> processOutputOrNull, final Logger operationLog,
-            final Logger machineLog)
+            final List<String> processOutputOrNull, final List<String> processErrorOutputOrNull,
+            final Logger operationLog, final Logger machineLog)
     {
         this.commandLine = commandLine;
         this.commandName = ProcessExecutionHelper.getCommandName(commandLine);
@@ -130,7 +130,7 @@ public final class ProcessResult
             this.output = Collections.emptyList();
 
         }
-        this.errorOutput = null;
+        this.errorOutput = processErrorOutputOrNull;
         this.binaryOutput = null;
         this.operationLog = operationLog;
         this.machineLog = machineLog;
