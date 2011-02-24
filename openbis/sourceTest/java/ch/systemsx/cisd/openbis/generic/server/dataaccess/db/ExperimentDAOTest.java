@@ -150,9 +150,9 @@ public class ExperimentDAOTest extends AbstractDAOTest
                 daoFactory.getExperimentDAO()
                         .listExperimentsWithProperties(expType, projectDefault);
         Collections.sort(experiments);
-        assertEquals(2, experiments.size());
-        assertEquals(CISD_CISD_DEFAULT_EXP_REUSE, experiments.get(0).getIdentifier());
-        assertEquals(CISD_CISD_DEFAULT_EXP_X, experiments.get(1).getIdentifier());
+        assertEquals(3, experiments.size());
+        assertContains(experiments, CISD_CISD_DEFAULT_EXP_REUSE);
+        assertContains(experiments, CISD_CISD_DEFAULT_EXP_X);
     }
 
     @Test
@@ -528,6 +528,18 @@ public class ExperimentDAOTest extends AbstractDAOTest
     {
         return DynamicPropertyEvaluationOperation.evaluate(ExperimentPE.class,
                 Collections.singletonList(experiment.getId()));
+    }
+
+    private void assertContains(List<ExperimentPE> experiments, String identifier)
+    {
+        for (ExperimentPE exp : experiments)
+        {
+            if (identifier.equals(exp.getIdentifier()))
+            {
+                return;
+            }
+        }
+        fail("Failed to find expected experiment with identifier=" + identifier);
     }
 
 }

@@ -41,6 +41,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
@@ -49,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityReference;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -171,8 +173,35 @@ public class WellContentLoader
     private List<WellContent> loadLocationsAndEnrich(WellSearchCriteria materialCriteria)
     {
         List<WellContent> locations = loadLocations(materialCriteria);
-        List<WellContent> enriched = enrichWithDatasets(locations);
-        return enrichWithFeatureVectors(enriched);
+        List<WellContent> withProperties = enrichWithWellProperties(locations);
+        List<WellContent> withPropsAndDataSets = enrichWithDatasets(withProperties);
+        return enrichWithFeatureVectors(withPropsAndDataSets);
+    }
+
+    private List<WellContent> enrichWithWellProperties(List<WellContent> locations)
+    {
+        Map<Long /* id */, WellContent> wellContents = new HashMap<Long/* id */, WellContent>();
+        for (WellContent wellContent : locations)
+        {
+            EntityReference wellReference = wellContent.getWell();
+            if (wellReference != null)
+            {
+                wellContents.put(wellReference.getId(), wellContent);
+            }
+        }
+
+        // load the wells with properties
+        ListOrSearchSampleCriteria criteria = new ListOrSearchSampleCriteria(wellContents.keySet());
+        ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
+        List<Sample> wells = sampleLister.list(criteria);
+
+        for (Sample well : wells)
+        {
+            WellContent content = wellContents.get(well.getId());
+            content.setWellProperties(well.getProperties());
+        }
+
+        return locations;
     }
 
     private List<WellContent> enrichWithDatasets(List<WellContent> locations)

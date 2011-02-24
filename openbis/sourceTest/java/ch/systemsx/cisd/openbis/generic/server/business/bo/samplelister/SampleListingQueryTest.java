@@ -143,7 +143,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
     @Test
     public void testSampleCount()
     {
-        assertEquals(1020, query.getSampleCount(dbInstanceId));
+        assertEquals(1023, query.getSampleCount(dbInstanceId));
     }
 
     @Test
@@ -266,7 +266,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
             assertTrue(msg, EqualsBuilder.reflectionEquals(sample, sample2));
             ++sampleCount;
         }
-        assertEquals(40, sampleCount);
+        assertEquals(41, sampleCount);
     }
 
     @Test
@@ -324,7 +324,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
             assertNotNull(msg, sample.expe_id);
             ++sampleCount;
         }
-        assertEquals(15, sampleCount);
+        assertEquals(18, sampleCount);
     }
 
     @Test

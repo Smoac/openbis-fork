@@ -324,7 +324,10 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
         protected UnstoreDataAction doRollback(Throwable exception)
         {
             unstoreFiles(incomingDataSetDirectory, storedDataDirectory);
-            rollbackDatabaseChanges();
+            if (dbTransaction != null)
+            {
+                rollbackDatabaseChanges();
+            }
             return UnstoreDataAction.MOVE_TO_ERROR;
         }
 

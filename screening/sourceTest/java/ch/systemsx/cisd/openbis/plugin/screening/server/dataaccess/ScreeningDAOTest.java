@@ -23,16 +23,12 @@ import javax.sql.DataSource;
 
 import net.lemnik.eodsql.QueryTool;
 
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOWithoutContextTest;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
@@ -40,15 +36,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
  * 
  * @author Tomasz Pylak
  */
-@ContextConfiguration(locations = "classpath:screening-applicationContext.xml")
-// In 'commonContext.xml', our transaction manager is called 'transaction-manager' (by default
-// Spring looks for 'transactionManager').
-@TransactionConfiguration(transactionManager = "transaction-manager")
-@Friend(toClasses =
-    { IScreeningQuery.class, WellContent.class })
 @Test(groups =
-    { "db", "screening"})
-public class ScreeningDAOTest extends AbstractDAOWithoutContextTest
+    { "db", "screening" })
+public class ScreeningDAOTest extends AbstractScreeningDAOTest
 {
 
     static

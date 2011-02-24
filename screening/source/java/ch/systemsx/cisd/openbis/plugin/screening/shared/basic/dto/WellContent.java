@@ -16,8 +16,12 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
+import java.util.Collections;
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityReference;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
@@ -36,6 +40,8 @@ public class WellContent implements ISerializable
     private WellLocation locationOrNull; // null only if well code was incorrect
 
     private EntityReference well;
+
+    private List<IEntityProperty> wellProperties = Collections.emptyList();
 
     private EntityReference plate;
 
@@ -142,5 +148,15 @@ public class WellContent implements ISerializable
     {
         return "location = " + locationOrNull + ", experiment = " + experiment + ", plate = "
                 + plate + ", well = " + well + ", content = " + materialContent;
+    }
+
+    public List<IEntityProperty> getWellProperties()
+    {
+        return Collections.unmodifiableList(wellProperties);
+    }
+
+    public void setWellProperties(List<IEntityProperty> properties)
+    {
+        this.wellProperties = properties;
     }
 }

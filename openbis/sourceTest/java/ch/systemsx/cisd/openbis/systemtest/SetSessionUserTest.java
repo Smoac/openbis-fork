@@ -144,7 +144,7 @@ public class SetSessionUserTest extends SystemTestCase
         criteria.setSampleType(sampleType);
         criteria.setIncludeSpace(true);
         // INSTANCE ADMIN sees all samples
-        assertEquals(15, commonServer.listSamples(sessionToken, criteria).size());
+        assertEquals(16, commonServer.listSamples(sessionToken, criteria).size());
 
         commonServer.setSessionUser(sessionToken, "test");
         commonServer.setSessionUser(sessionToken, "observer"); // allowed because still user 'test'

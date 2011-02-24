@@ -82,8 +82,8 @@ public class ExperimentBrowsingTest extends SystemTestCase
         Experiment e2 = getOriginalObjectByCode(resultSet, "EXP-X");
         assertEquals(null, e2.getInvalidation().getReason());
         assertEquals(false, resultSet.isPartial());
-        assertEquals(2, resultSet.getTotalLength());
-        assertEquals(2, resultSet.getList().size());
+        assertEquals(3, resultSet.getTotalLength());
+        assertEquals(3, resultSet.getList().size());
     }
     
     @Test
