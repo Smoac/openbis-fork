@@ -550,9 +550,7 @@ public final class RsyncCopierTest
             });
         thread.start();
         final Status status = copier.copy(sourceFile, destinationDirectory);
-        assertTrue(status.isError());
-        //TODO: check why this is now an INTERRUPTED_STATUS.
-        //assertEquals(RsyncCopier.TERMINATED_STATUS, status);
+        assertEquals(RsyncCopier.TERMINATED_STATUS, status);
     }
 
     private File createSleepProcess(int seconds) throws IOException, InterruptedException

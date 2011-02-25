@@ -259,7 +259,7 @@ class ProcessExecutor
      * Since we observed hangs of several process-related methods we call all of this in a separate
      * thread.
      * <p>
-     * Does no handling of the process I/O.
+     * Spawns a separate thread for the handling of the process I/O.
      */
     private class ProcessRunnerWithIOHandler implements NamedCallable<ProcessResult>
     {
@@ -316,11 +316,7 @@ class ProcessExecutor
                 exitValue = process.waitFor();
                 // Give the I/O handler time to finish up.
                 tryGetAndLogProcessIOResult(processRecord, SHORT_TIMEOUT / 4);
-                final boolean stillInCharge = (processWrapper.getAndSet(null) != null);
-                if (stillInCharge == false)
-                {
-                    return null;
-                }
+                processWrapper.set(null);
 
                 if (processIOStrategy.isBinaryOutput())
                 {
