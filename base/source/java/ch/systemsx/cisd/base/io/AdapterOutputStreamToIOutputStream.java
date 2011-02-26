@@ -17,89 +17,92 @@
 package ch.systemsx.cisd.base.io;
 
 import java.io.IOException;
-import java.io.OutputStream;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 
 /**
- * An adapter for {@link IOutputStream} that extends {@link java.io.OutputStream}.
+ * An adapter for {@link java.io.OutputStream} that implements {@link IOutputStream}.
  *
  * @author Bernd Rinn
  */
-public class OutputStreamAdapter extends OutputStream
+public class AdapterOutputStreamToIOutputStream implements IOutputStream
 {
-
-    private final IOutputStream delegate;
     
-    public OutputStreamAdapter(IOutputStream delegate)
+    private final java.io.OutputStream delegate;
+
+    public AdapterOutputStreamToIOutputStream(java.io.OutputStream delegate)
     {
         this.delegate = delegate;
     }
+
+    //
+    // IOutputStream
+    //
     
-    @Override
-    public void write(int b) throws IOException
-    {
-        try
-        {
-            delegate.write(b);
-        } catch (IOExceptionUnchecked ex)
-        {
-            throw ex.getCause();
-        }
-    }
-
-    @Override
-    public void close() throws IOException
-    {
-        try
-        {
-            delegate.close();
-        } catch (IOExceptionUnchecked ex)
-        {
-            throw ex.getCause();
-        }
-    }
-
-    @Override
-    public void flush() throws IOException
-    {
-        try
-        {
-            delegate.flush();
-        } catch (IOExceptionUnchecked ex)
-        {
-            throw ex.getCause();
-        }
-    }
-
-    @Override
-    public void write(byte[] b, int off, int len) throws IOException
+    public void write(byte[] b, int off, int len) throws IOExceptionUnchecked
     {
         try
         {
             delegate.write(b, off, len);
-        } catch (IOExceptionUnchecked ex)
+        } catch (IOException ex)
         {
-            throw ex.getCause();
+            throw new IOExceptionUnchecked(ex);
         }
     }
 
-    @Override
-    public void write(byte[] b) throws IOException
+    public void write(byte[] b) throws IOExceptionUnchecked
     {
         try
         {
             delegate.write(b);
-        } catch (IOExceptionUnchecked ex)
+        } catch (IOException ex)
         {
-            throw ex.getCause();
+            throw new IOExceptionUnchecked(ex);
         }
+    }
+
+    public void write(int b) throws IOExceptionUnchecked
+    {
+        try
+        {
+            delegate.write(b);
+        } catch (IOException ex)
+        {
+            throw new IOExceptionUnchecked(ex);
+        }
+    }
+
+    public void close() throws IOExceptionUnchecked
+    {
+        try
+        {
+            delegate.close();
+        } catch (IOException ex)
+        {
+            throw new IOExceptionUnchecked(ex);
+        }
+    }
+
+    public void flush() throws IOExceptionUnchecked
+    {
+        try
+        {
+            delegate.flush();
+        } catch (IOException ex)
+        {
+            throw new IOExceptionUnchecked(ex);
+        }
+    }
+
+    public void synchronize() throws IOExceptionUnchecked
+    {
+        flush();
     }
 
     //
     // Object
     //
-    
+
     @Override
     public boolean equals(Object obj)
     {

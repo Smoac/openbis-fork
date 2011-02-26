@@ -26,12 +26,12 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
  *
  * @author Bernd Rinn
  */
-public class InputStreamAdapter extends InputStream
+public class AdapterIInputStreamToInputStream extends InputStream
 {
 
     private final IInputStream delegate;
     
-    public InputStreamAdapter(IInputStream delegate)
+    public AdapterIInputStreamToInputStream(IInputStream delegate)
     {
         this.delegate = delegate;
     }
