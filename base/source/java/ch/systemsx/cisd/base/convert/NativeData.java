@@ -52,6 +52,9 @@ public class NativeData
     /** Size of a <code>short</code> value in <code>byte</code>s. */
     public final static int SHORT_SIZE = 2;
 
+    /** Size of a <code>char</code> value in <code>byte</code>s. */
+    public final static int CHAR_SIZE = 2;
+
     /** Size of an <code>int</code> value in <code>byte</code>s. */
     public final static int INT_SIZE = 4;
 
@@ -87,7 +90,7 @@ public class NativeData
             return nioByteOrder;
         }
 
-        static ByteOrder getNativeByteOder()
+        static ByteOrder getNativeByteOrder()
         {
             return NATIVE.nioByteOrder.equals(LITTLE_ENDIAN.nioByteOrder) ? LITTLE_ENDIAN
                     : BIG_ENDIAN;
@@ -197,6 +200,38 @@ public class NativeData
             int outStart, int len, int byteOrder);
 
     /**
+     * Copies a range from an array of <code>char</code> into an array of <code>byte</code>.
+     * 
+     * @param inData The input array of <code>char</code> values.
+     * @param inStart The position in the input array <code>inData</code> of <code>char</code> to
+     *            start
+     * @param outData The output array of <code>byte</code> values.
+     * @param outStart The start in the output array <code>byteData</code> of <code>byte</code> to
+     *            start
+     * @param len The number of <code>char</code> to copy
+     * @param byteOrder The ordinal of {@link ByteOrder}, encoding what byte order the
+     *            <var>outData</var> should be in.
+     */
+    private static native void copyCharToByte(char[] inData, int inStart, byte[] outData,
+            int outStart, int len, int byteOrder);
+
+    /**
+     * Copies a range from an array of <code>byte</code> into an array of <code>char</code>.
+     * 
+     * @param inData The input array of <code>byte</code> values.
+     * @param inStart The position in the input array <code>inData</code> of <code>byte</code> to
+     *            start
+     * @param outData The output array of <code>char</code> values.
+     * @param outStart The start in the output array <code>byteData</code> of <code>char</code> to
+     *            start
+     * @param len The number of <code>char</code> to copy
+     * @param byteOrder The ordinal of {@link ByteOrder}, encoding what byte order the
+     *            <var>outData</var> should be in.
+     */
+    private static native void copyByteToChar(byte[] inData, int inStart, char[] outData,
+            int outStart, int len, int byteOrder);
+
+    /**
      * Copies a range from an array of <code>float</code> into an array of <code>byte</code>.
      * 
      * @param inData The input array of <code>float</code> values.
@@ -270,11 +305,20 @@ public class NativeData
     }
 
     /**
+     * Returns <code>true</code>, if this class uses the native library and <code>false</code>
+     * otherwise.
+     */
+    public static boolean isUseNativeLib()
+    {
+        return useNativeLib;
+    }
+
+    /**
      * Returns the native byte order of the host running this JRE.
      */
     public static ByteOrder getNativeByteOrder()
     {
-        return ByteOrder.getNativeByteOder();
+        return ByteOrder.getNativeByteOrder();
     }
 
     /**
@@ -461,6 +505,33 @@ public class NativeData
     }
 
     /**
+     * Copies a range from an array of <code>char</code> into an array of <code>byte</code>.
+     * 
+     * @param inData The input array of <code>char</code> values.
+     * @param inStart The position in the input array <code>inData</code> of <code>char</code> to
+     *            start
+     * @param outData The output array of <code>byte</code> values.
+     * @param outStart The start in the output array <code>byteData</code> of <code>byte</code> to
+     *            start
+     * @param len The number of <code>char</code> to copy
+     * @param byteOrder The {@link ByteOrder}, encoding what byte order the <var>outData</var>
+     *            should be in.
+     */
+    public static void copyCharToByte(char[] inData, int inStart, byte[] outData, int outStart,
+            int len, ByteOrder byteOrder)
+    {
+        if (useNativeLib)
+        {
+            copyCharToByte(inData, inStart, outData, outStart, len, byteOrder.ordinal());
+        } else
+        {
+            final ByteBuffer bb = ByteBuffer.wrap(outData, outStart, len * SHORT_SIZE);
+            bb.order(byteOrder.getNioByteOrder());
+            bb.asCharBuffer().put(inData, inStart, len);
+        }
+    }
+
+    /**
      * Copies a range from an array of <code>byte</code> into an array of <code>short</code>.
      * 
      * @param inData The input array of <code>byte</code> values.
@@ -484,6 +555,33 @@ public class NativeData
             final ByteBuffer bb = ByteBuffer.wrap(inData, inStart, len * SHORT_SIZE);
             bb.order(byteOrder.getNioByteOrder());
             bb.asShortBuffer().get(outData, outStart, len);
+        }
+    }
+
+    /**
+     * Copies a range from an array of <code>byte</code> into an array of <code>char</code>.
+     * 
+     * @param inData The input array of <code>byte</code> values.
+     * @param inStart The position in the input array <code>inData</code> of <code>byte</code> to
+     *            start
+     * @param outData The output array of <code>short</code> values.
+     * @param outStart The start in the output array <code>byteData</code> of <code>short</code> to
+     *            start
+     * @param len The number of <code>short</code> to copy
+     * @param byteOrder The {@link ByteOrder}, encoding what byte order the <var>outData</var>
+     *            should be in.
+     */
+    public static void copyByteToChar(byte[] inData, int inStart, char[] outData, int outStart,
+            int len, ByteOrder byteOrder)
+    {
+        if (useNativeLib)
+        {
+            copyByteToChar(inData, inStart, outData, outStart, len, byteOrder.ordinal());
+        } else
+        {
+            final ByteBuffer bb = ByteBuffer.wrap(inData, inStart, len * CHAR_SIZE);
+            bb.order(byteOrder.getNioByteOrder());
+            bb.asCharBuffer().get(outData, outStart, len);
         }
     }
 
@@ -596,6 +694,41 @@ public class NativeData
     }
 
     /**
+     * Converts a <code>byte[]</code> array into a <code>char[]</code> array.
+     * 
+     * @param byteArr The <code>byte[]</code> to convert.
+     * @param byteOrder The byte order of <var>byteArr</var>.
+     * @param start The position in the <var>byteArr</var> to start the conversion.
+     * @param len The number of <code>short</code> values to convert.
+     * @return The <code>char[]</code> array.
+     */
+    public static char[] byteToChar(byte[] byteArr, ByteOrder byteOrder, int start, int len)
+    {
+        final char[] array = new char[len];
+        copyByteToChar(byteArr, start, array, 0, len, byteOrder);
+        return array;
+    }
+
+    /**
+     * Converts a <code>byte[]</code> array into a <code>char[]</code> array.
+     * 
+     * @param byteArr The <code>byte[]</code> to convert.
+     * @param byteOrder The byte order of <var>byteArr</var>.
+     * @return The <code>char[]</code> array.
+     */
+    public static char[] byteToChar(byte[] byteArr, ByteOrder byteOrder)
+    {
+        if (byteArr.length % CHAR_SIZE != 0)
+        {
+            throw new IllegalArgumentException("Length of byteArr does not match size of data type");
+        }
+        final int len = byteArr.length / SHORT_SIZE;
+        final char[] array = new char[len];
+        copyByteToChar(byteArr, 0, array, 0, len, byteOrder);
+        return array;
+    }
+
+    /**
      * Converts a <code>byte[]</code> array into a <code>short[]</code> array.
      * 
      * @param byteArr The <code>byte[]</code> to convert.
@@ -657,6 +790,36 @@ public class NativeData
     {
         final byte[] byteArr = new byte[SHORT_SIZE * data.length];
         copyShortToByte(data, 0, byteArr, 0, data.length, byteOrder);
+        return byteArr;
+    }
+
+    /**
+     * Converts a <code>char[]</code> array to a <code>byte[]</code> array.
+     * 
+     * @param data The array to convert.
+     * @param byteOrder The byte order of the returned <code>byte[]</code>.
+     * @param start The position in <var>data</var> to start the conversion.
+     * @param len The number of <code>char</code> values to convert.
+     * @return The converted <code>byte[]</code> array.
+     */
+    public static byte[] charToByte(char[] data, ByteOrder byteOrder, int start, int len)
+    {
+        final byte[] byteArr = new byte[CHAR_SIZE * len];
+        copyCharToByte(data, start, byteArr, 0, len, byteOrder);
+        return byteArr;
+    }
+
+    /**
+     * Converts a <code>char[]</code> array to a <code>byte[]</code> array.
+     * 
+     * @param data The array to convert.
+     * @param byteOrder The byte order of the returned <code>byte[]</code>.
+     * @return The converted <code>byte[]</code> array.
+     */
+    public static byte[] charToByte(char[] data, ByteOrder byteOrder)
+    {
+        final byte[] byteArr = new byte[CHAR_SIZE * data.length];
+        copyCharToByte(data, 0, byteArr, 0, data.length, byteOrder);
         return byteArr;
     }
 

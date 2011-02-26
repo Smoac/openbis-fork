@@ -39,7 +39,6 @@ import ch.systemsx.cisd.base.convert.NativeData.ByteOrder;
 public class NativeDataTests
 {
 
-    @SuppressWarnings("unused")
     @DataProvider(name = "getOfs")
     private Object[][] getOfs()
     {
@@ -163,6 +162,7 @@ public class NativeDataTests
     @Test(dataProvider = "getOfs")
     public void testLongToByteToLong(int sourceOfs, int targetOfs)
     {
+        assertTrue(NativeData.isUseNativeLib());
         final int sizeOfTarget = 8;
         final long[] orignalArr = new long[]
             { -1, 17, 100000, -1000000 };
@@ -180,6 +180,7 @@ public class NativeDataTests
     @Test(dataProvider = "getOfs")
     public void testShortToByteToShort(int sourceOfs, int targetOfs)
     {
+        assertTrue(NativeData.isUseNativeLib());
         final int sizeOfTarget = 2;
         final short[] orignalArr = new short[]
             { -1, 17, 20000, (short) -50000 };
@@ -195,8 +196,27 @@ public class NativeDataTests
     }
 
     @Test(dataProvider = "getOfs")
+    public void testCharToByteToChar(int sourceOfs, int targetOfs)
+    {
+        assertTrue(NativeData.isUseNativeLib());
+        final int sizeOfTarget = 2;
+        final char[] orignalArr = new char[]
+            { 'c', ';', '\u0222', '\u1000' };
+        final char[] iarr = new char[sourceOfs + orignalArr.length];
+        System.arraycopy(orignalArr, 0, iarr, sourceOfs, orignalArr.length);
+        final byte[] barr = new byte[iarr.length * sizeOfTarget + targetOfs];
+        NativeData.copyCharToByte(iarr, sourceOfs, barr, targetOfs, orignalArr.length,
+                NativeData.ByteOrder.NATIVE);
+        final char[] iarr2 = new char[(barr.length - targetOfs) / sizeOfTarget];
+        NativeData.copyByteToChar(barr, targetOfs, iarr2, sourceOfs, orignalArr.length,
+                NativeData.ByteOrder.NATIVE);
+        assertTrue(Arrays.equals(iarr, iarr2));
+    }
+
+    @Test(dataProvider = "getOfs")
     public void testFloatToByteToFloat(int sourceOfs, int targetOfs)
     {
+        assertTrue(NativeData.isUseNativeLib());
         final int sizeOfTarget = 4;
         final float[] orignalArr = new float[]
             { -1, 17, 3.14159f, -1e6f };
@@ -214,6 +234,7 @@ public class NativeDataTests
     @Test(dataProvider = "getOfs")
     public void testDoubleToByteToDouble(int sourceOfs, int targetOfs)
     {
+        assertTrue(NativeData.isUseNativeLib());
         final int sizeOfTarget = 8;
         final double[] orignalArr = new double[]
             { -1, 17, 3.14159, -1e42 };
@@ -231,7 +252,7 @@ public class NativeDataTests
     @Test
     public void testShortEndianConversion()
     {
-
+        assertTrue(NativeData.isUseNativeLib());
         final short[] values = new short[]
             { 1, 2, 4, 8, 16, 256, 512 };
         final short[] convertedValuesExpected = new short[]
@@ -245,7 +266,7 @@ public class NativeDataTests
     @Test
     public void testIntEndianConversion()
     {
-
+        assertTrue(NativeData.isUseNativeLib());
         final int[] values = new int[]
             { 1, 2, 4, 8, 16, 256, 1 << 16 };
         final int[] convertedValuesExpected = new int[]
@@ -259,7 +280,7 @@ public class NativeDataTests
     @Test
     public void testLongEndianConversion()
     {
-
+        assertTrue(NativeData.isUseNativeLib());
         final long[] values = new long[]
             { 1, 2, 4, 8, 16, 256, 1L << 16, 1L << 24 };
         final long[] convertedValuesExpected = new long[]
@@ -273,7 +294,7 @@ public class NativeDataTests
     @Test
     public void testFloatLittleEndianRoundtrip()
     {
-
+        assertTrue(NativeData.isUseNativeLib());
         final float[] values = new float[]
             { 1.1f, 2.2f, 3.3f, 1e-25f, 1e25f };
         final float[] convertedValuesFound =
@@ -285,7 +306,7 @@ public class NativeDataTests
     @Test
     public void testFloatBigEndianRoundtrip()
     {
-
+        assertTrue(NativeData.isUseNativeLib());
         final float[] values = new float[]
             { 1.1f, 2.2f, 3.3f, 1e-25f, 1e25f };
         final float[] convertedValuesFound =
@@ -297,7 +318,7 @@ public class NativeDataTests
     @Test
     public void testDoubleLittleEndianRoundtrip()
     {
-
+        assertTrue(NativeData.isUseNativeLib());
         final double[] values = new double[]
             { 1.1f, 2.2f, 3.3f, 1e-25f, 1e25f };
         final double[] convertedValuesFound =
@@ -309,7 +330,7 @@ public class NativeDataTests
     @Test
     public void testDoubleBigEndianRoundtrip()
     {
-
+        assertTrue(NativeData.isUseNativeLib());
         final double[] values = new double[]
             { 1.1, 2.2, 3.3, 1e-25, 1e25 };
         final double[] convertedValuesFound =
@@ -321,24 +342,28 @@ public class NativeDataTests
     @Test(expectedExceptions = NullPointerException.class)
     public void testNPE()
     {
+        assertTrue(NativeData.isUseNativeLib());
         NativeData.copyByteToLong(null, 0, null, 0, 0, ByteOrder.NATIVE);
     }
 
     @Test(expectedExceptions = IndexOutOfBoundsException.class)
     public void testIOOB()
     {
+        assertTrue(NativeData.isUseNativeLib());
         NativeData.copyByteToLong(new byte[] {}, -1, new long[] {}, 0, 0, ByteOrder.NATIVE);
     }
 
     @Test(expectedExceptions = IndexOutOfBoundsException.class)
     public void testIOOB2()
     {
+        assertTrue(NativeData.isUseNativeLib());
         NativeData.copyByteToLong(new byte[] {}, 0, new long[] {}, 10, 0, ByteOrder.NATIVE);
     }
 
     @Test
     public void testPlatformEndiness()
     {
+        assertTrue(NativeData.isUseNativeLib());
         final double[] values = new double[]
             { 1.1, 2.2, 3.3, 1e-200, 1e200 };
         final double[] valuesLE =
@@ -362,6 +387,7 @@ public class NativeDataTests
     @Test
     public void testFloatToByteNonNativeByteOrderPartialOutputArray()
     {
+        assertTrue(NativeData.isUseNativeLib());
         final int sizeOfTarget = 4;
         final ByteOrder nonNativeByteOrder =
                 (NativeData.getNativeByteOrder() == ByteOrder.LITTLE_ENDIAN) ? ByteOrder.BIG_ENDIAN
@@ -406,30 +432,64 @@ public class NativeDataTests
             for (Method m : NativeDataTests.class.getMethods())
             {
                 final Test testAnnotation = m.getAnnotation(Test.class);
-                if (testAnnotation == null || m.getParameterTypes().length > 0)
+                if (testAnnotation == null)
                 {
                     continue;
                 }
-                System.out.println("Running " + m.getName());
-                test.setUp();
-                try
+                if (m.getParameterTypes().length == 0)
                 {
-                    m.invoke(test);
-                } catch (InvocationTargetException wrapperThrowable)
-                {
-                    final Throwable th = wrapperThrowable.getCause();
-                    boolean exceptionFound = false;
-                    for (Class<?> expectedExClazz : testAnnotation.expectedExceptions())
+                    System.out.println("Running " + m.getName());
+                    test.setUp();
+                    try
                     {
-                        if (expectedExClazz == th.getClass())
+                        m.invoke(test);
+                    } catch (InvocationTargetException wrapperThrowable)
+                    {
+                        final Throwable th = wrapperThrowable.getCause();
+                        boolean exceptionFound = false;
+                        for (Class<?> expectedExClazz : testAnnotation.expectedExceptions())
                         {
-                            exceptionFound = true;
-                            break;
+                            if (expectedExClazz == th.getClass())
+                            {
+                                exceptionFound = true;
+                                break;
+                            }
+                        }
+                        if (exceptionFound == false)
+                        {
+                            throw th;
                         }
                     }
-                    if (exceptionFound == false)
+                }
+                if (m.getParameterTypes().length == 2
+                        && "getOfs".equals(testAnnotation.dataProvider()))
+                {
+                    System.out.println("Running " + m.getName());
+                    test.setUp();
+                    try
                     {
-                        throw th;
+                        final Object[][] testArgs = test.getOfs();
+                        for (Object[] a : testArgs)
+                        {
+                            System.out.println(" Arguments: " + Arrays.toString(a));
+                            m.invoke(test, a);
+                        }
+                    } catch (InvocationTargetException wrapperThrowable)
+                    {
+                        final Throwable th = wrapperThrowable.getCause();
+                        boolean exceptionFound = false;
+                        for (Class<?> expectedExClazz : testAnnotation.expectedExceptions())
+                        {
+                            if (expectedExClazz == th.getClass())
+                            {
+                                exceptionFound = true;
+                                break;
+                            }
+                        }
+                        if (exceptionFound == false)
+                        {
+                            throw th;
+                        }
                     }
                 }
             }

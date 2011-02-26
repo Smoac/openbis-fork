@@ -120,7 +120,8 @@ LINK_OBJS= \
 	"$(INTDIR)\copyByteFloat.obj" \
 	"$(INTDIR)\copyByteInt.obj" \
 	"$(INTDIR)\copyByteLong.obj" \
-	"$(INTDIR)\copyByteShort.obj"
+	"$(INTDIR)\copyByteShort.obj" \
+	"$(INTDIR)\copyByteChar.obj"
 
 "$(OUTDIR)\nativedata.dll" : "$(OUTDIR)" $(DEF_FILE) $(LINK_OBJS)
     $(LINK) @<<
@@ -159,7 +160,10 @@ SOURCE=$(SRCDIR)\copyByteShort.c
 "$(INTDIR)\copyByteShort.obj" : $(SOURCE) $(INCLUDES) "$(INTDIR)"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
+SOURCE=$(SRCDIR)\copyByteChar.c
 
+"$(INTDIR)\copyByteChar.obj" : $(SOURCE) $(INCLUDES) "$(INTDIR)"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 CLEAN :
 	-@erase "$(INTDIR)\copyCommon.obj"
@@ -168,7 +172,8 @@ CLEAN :
 	-@erase "$(INTDIR)\copyByteInt.obj"
 	-@erase "$(INTDIR)\copyByteLong.obj"
 	-@erase "$(INTDIR)\copyByteShort.obj"
-	-@erase "$(INTDIR)\vc80.idb"
+	-@erase "$(INTDIR)\copyByteChar.obj"
+	-@erase "$(INTDIR)\vc90.idb"
 	-@erase "$(INTDIR)\nativedata.exp"
 	-@erase "$(INTDIR)\nativedata.lib"
 	-@erase "$(OUTDIR)\nativedata.dll"
