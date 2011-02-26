@@ -35,21 +35,24 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ShareIdManagerTest extends AssertJUnit
 {
     private static final String DS1 = "ds1";
+
     private static final String DS2 = "ds2";
-    
+
     private BufferedAppender logRecorder;
+
     private Mockery context;
+
     private IEncapsulatedOpenBISService service;
+
     private ShareIdManager manager;
+
     private Level level;
-    
+
     @BeforeMethod
     public void setUp()
     {
@@ -89,7 +92,7 @@ public class ShareIdManagerTest extends AssertJUnit
         assertEquals(Constants.DEFAULT_SHARE_ID, manager.getShareId(DS1));
         assertEquals("2", manager.getShareId(DS2));
     }
-    
+
     @Test
     public void testGetShareIdOfUnknownDataSet()
     {
@@ -102,7 +105,7 @@ public class ShareIdManagerTest extends AssertJUnit
             assertEquals("Unknown data set: ds?", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testLockOfUnknownDataSet()
     {
@@ -115,13 +118,13 @@ public class ShareIdManagerTest extends AssertJUnit
             assertEquals("Unknown data set: ds?", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testReleaseLockOfUnknownDataSet()
     {
         manager.releaseLock("ds?");
     }
-    
+
     @Test
     public void testUnlockedSetShareId()
     {
@@ -129,7 +132,7 @@ public class ShareIdManagerTest extends AssertJUnit
         assertEquals("1", manager.getShareId(DS1));
         assertEquals("2", manager.getShareId(DS2));
     }
-    
+
     @Test
     public void testSetShareIdForNewDataSet()
     {
@@ -137,7 +140,7 @@ public class ShareIdManagerTest extends AssertJUnit
         assertEquals("42", manager.getShareId("new data set"));
     }
 
-    @Test
+    @Test(groups = "broken")
     public void testLockingTimeOut()
     {
         final MessageChannel ch = new MessageChannel(2000);
@@ -166,7 +169,7 @@ public class ShareIdManagerTest extends AssertJUnit
                 logRecorder.getLogContent());
         ch.assertEmpty();
     }
-    
+
     @Test
     public void testLocking()
     {
@@ -189,9 +192,9 @@ public class ShareIdManagerTest extends AssertJUnit
                 }
             }, "T1").start();
         ch1.assertNextMessage("locked"); // wait until data set is really locked.
-        
+
         manager.setShareId(DS1, "1");
-        
+
         assertEquals("1", manager.getShareId(DS1));
         ch1.assertNextMessage("unlocked"); // wait until thread is finished
         assertEquals("INFO  OPERATION.ShareIdManager"
@@ -203,7 +206,7 @@ public class ShareIdManagerTest extends AssertJUnit
                 + "INFO  OPERATION.ShareIdManager - New share of data set ds1 is 1",
                 logRecorder.getLogContent());
     }
-    
+
     @Test
     public void testMultipleLocking()
     {
