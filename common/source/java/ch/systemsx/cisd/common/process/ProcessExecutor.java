@@ -100,13 +100,13 @@ class ProcessExecutor
 
         private final Future<?> processIOFutureOrNull;
 
-        private final AtomicBoolean processRunningForIO;
+        private final AtomicBoolean processRunning;
 
         ProcessRecord(final Process process, final Future<?> processIOFutureOrNull,
-                final AtomicBoolean processRunningForIO)
+                final AtomicBoolean processRunning)
         {
             this.process = process;
-            this.processRunningForIO = processRunningForIO;
+            this.processRunning = processRunning;
             this.processIOFutureOrNull = processIOFutureOrNull;
         }
 
@@ -115,9 +115,9 @@ class ProcessExecutor
             return processIOFutureOrNull;
         }
 
-        AtomicBoolean getProcessRunningForIO()
+        AtomicBoolean isProcessRunning()
         {
-            return processRunningForIO;
+            return processRunning;
         }
 
         Process getProcess()
@@ -289,7 +289,7 @@ class ProcessExecutor
                 final Process process = launch();
                 int exitValue = ProcessResult.NO_EXIT_VALUE;
                 final AtomicBoolean processRunning = new AtomicBoolean(true);
-                final Future<?> future = executor.submit(new Runnable()
+                final Future<?> ioFuture = executor.submit(new Runnable()
                     {
                         public void run()
                         {
@@ -310,24 +310,25 @@ class ProcessExecutor
                         }
                     });
                 final ProcessRecord processRecord =
-                        new ProcessRecord(process, future, processRunning);
+                        new ProcessRecord(process, ioFuture, processRunning);
 
                 processWrapper.set(processRecord);
                 exitValue = process.waitFor();
                 // Give the I/O handler time to finish up.
-                tryGetAndLogProcessIOResult(processRecord, SHORT_TIMEOUT / 4);
+                final ExecutionResult<?> processIOResult =
+                        getAndLogProcessIOResult(processRecord, SHORT_TIMEOUT / 4);
                 processWrapper.set(null);
 
                 if (processIOStrategy.isBinaryOutput())
                 {
                     return new ProcessResult(commandLine, processNumber, ExecutionStatus.COMPLETE,
-                            null, "", exitValue, processOutput.getBinaryProcessOutput()
+                            processIOResult, "", exitValue, processOutput.getBinaryProcessOutput()
                                     .toByteArray(), processOutput.getErrorProcessOutput(),
                             operationLog, machineLog);
                 } else
                 {
                     return new ProcessResult(commandLine, processNumber, ExecutionStatus.COMPLETE,
-                            null, "", exitValue, processOutput.getTextProcessOutput(),
+                            processIOResult, "", exitValue, processOutput.getTextProcessOutput(),
                             processOutput.getErrorProcessOutput(), operationLog, machineLog);
                 }
             } catch (final Exception ex)
@@ -403,14 +404,14 @@ class ProcessExecutor
                     if (processIOStrategy.isBinaryOutput())
                     {
                         return new ProcessResult(commandLine, processNumber,
-                                ExecutionStatus.COMPLETE, null, "", exitValue, processOutput
-                                        .getBinaryProcessOutput().toByteArray(),
+                                ExecutionStatus.COMPLETE, ExecutionResult.create(null), "",
+                                exitValue, processOutput.getBinaryProcessOutput().toByteArray(),
                                 processOutput.getErrorProcessOutput(), operationLog, machineLog);
                     } else
                     {
                         return new ProcessResult(commandLine, processNumber,
-                                ExecutionStatus.COMPLETE, null, "", exitValue,
-                                processOutput.getTextProcessOutput(),
+                                ExecutionStatus.COMPLETE, ExecutionResult.create(null), "",
+                                exitValue, processOutput.getTextProcessOutput(),
                                 processOutput.getErrorProcessOutput(), operationLog, machineLog);
                     }
                 } finally
@@ -461,7 +462,7 @@ class ProcessExecutor
             if (processRecord != null)
             {
                 final ExecutionResult<?> processIOResultOrNull =
-                        tryGetAndLogProcessIOResult(processRecord, SHORT_TIMEOUT / 4);
+                        getAndLogProcessIOResult(processRecord, SHORT_TIMEOUT / 4);
                 final Process process = processRecord.getProcess();
                 process.destroy(); // Note: this also closes the I/O streams.
                 if (machineLog.isInfoEnabled())
@@ -606,13 +607,17 @@ class ProcessExecutor
             };
     }
 
-    private ExecutionResult<?> tryGetAndLogProcessIOResult(ProcessRecord record, long timeout)
+    private ExecutionResult<?> getAndLogProcessIOResult(ProcessRecord record, long timeout)
     {
+        if (processIOStrategy.isUseNoIOHandler())
+        {
+            return ExecutionResult.create(null);
+        }
         if (record.tryGetProcessIOFuture() == null)
         {
-            return null;
+            return ExecutionResult.createExceptional(new Error("Missing IO result."));
         }
-        record.getProcessRunningForIO().set(false);
+        record.isProcessRunning().set(false);
         final ExecutionResult<?> processIOResult =
                 ConcurrencyUtilities.getResult(record.tryGetProcessIOFuture(), timeout);
         logProcessIOFailures(processIOResult);
@@ -686,12 +691,12 @@ class ProcessExecutor
             }
             if (processIOStrategy.isBinaryOutput())
             {
-                return new ProcessResult(commandLine, processNumber, status, null,
+                return new ProcessResult(commandLine, processNumber, status, executionResult,
                         tryGetStartupFailureMessage(executionResult.tryGetException()),
                         ProcessResult.NO_EXIT_VALUE, (byte[]) null, null, operationLog, machineLog);
             } else
             {
-                return new ProcessResult(commandLine, processNumber, status, null,
+                return new ProcessResult(commandLine, processNumber, status, executionResult,
                         tryGetStartupFailureMessage(executionResult.tryGetException()),
                         ProcessResult.NO_EXIT_VALUE, (List<String>) null, null, operationLog,
                         machineLog);

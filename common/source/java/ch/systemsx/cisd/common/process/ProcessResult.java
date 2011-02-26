@@ -83,7 +83,7 @@ public final class ProcessResult
 
     private final boolean isBinaryOutput;
 
-    private final ExecutionResult<?> processIOResultOrNull;
+    private final ExecutionResult<?> processIOResult;
 
     /**
      * Returns <code>true</code> if the <var>exitValue</var> indicates that the process has been
@@ -115,7 +115,7 @@ public final class ProcessResult
         this.commandName = ProcessExecutionHelper.getCommandName(commandLine);
         this.processNumber = processNumber;
         this.status = status;
-        this.processIOResultOrNull = processIOResult;
+        this.processIOResult = processIOResult;
         this.startupFailureMessage =
                 (startupFailureMessageOrNull == null) ? "" : startupFailureMessageOrNull;
         this.exitValue = exitValue;
@@ -146,7 +146,7 @@ public final class ProcessResult
         this.commandName = ProcessExecutionHelper.getCommandName(commandLine);
         this.processNumber = processNumber;
         this.status = status;
-        this.processIOResultOrNull = processIOResult;
+        this.processIOResult = processIOResult;
         this.startupFailureMessage =
                 (startupFailureMessageOrNull == null) ? "" : startupFailureMessageOrNull;
         this.exitValue = exitValue;
@@ -254,15 +254,16 @@ public final class ProcessResult
     }
 
     /**
-     * Returns the IO process result, or <code>null</code>, if this information is not available.
+     * Returns the process' I/O result which tells whether there was an error condition on doing
+     * process <code>stdin / stdout / stderr</code> I/O.
      * <p>
-     * <b>Note that {@link ExecutionStatus#COMPLETE} does <i>not</i> necessarily mean that all
-     * output has been read from the process. You need to check {@link #isTimedOut()} in addition to
-     * see whether the process got terminated due to a timeout condition.</b>
+     * <b>Note that {@link ExecutionResult#isOK()} does <i>not</i> necessarily mean that all output
+     * has been read from the process. You need to check {@link #isTimedOut()} in addition to see
+     * whether the process got terminated due to a timeout condition.</b>
      */
-    public ExecutionResult<?> tryGetProcessIOResult()
+    public ExecutionResult<?> getProcessIOResult()
     {
-        return processIOResultOrNull;
+        return processIOResult;
     }
 
     /**
@@ -287,6 +288,15 @@ public final class ProcessResult
      * Returns <code>true</code>, if the process has completed successfully.
      */
     public boolean isOK()
+    {
+        return isProcessOK(exitValue) && processIOResult.isOK();
+    }
+
+    /**
+     * Returns <code>true</code>, if the process has completed successfully. Do not consider the
+     * state of {@link #getProcessIOResult()} for the check.
+     */
+    public boolean isOKIgnoreIO()
     {
         return isProcessOK(exitValue);
     }

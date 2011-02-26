@@ -50,7 +50,7 @@ public final class ExecutionResult<T>
      * {@link Runnable} can also provide a <code>null</code> result, <code>null</code> is an
      * accepted value for the result.
      */
-    static final <T> ExecutionResult<T> create(final T resultOrNull)
+    public static final <T> ExecutionResult<T> create(final T resultOrNull)
     {
         return new ExecutionResult<T>(ExecutionStatus.COMPLETE, resultOrNull, null);
     }
@@ -58,7 +58,7 @@ public final class ExecutionResult<T>
     /**
      * Creates an {@link ExecutionResult} that corresponds to an exception.
      */
-    static final <T> ExecutionResult<T> createExceptional(final Throwable exception)
+    public static final <T> ExecutionResult<T> createExceptional(final Throwable exception)
     {
         assert exception != null;
 
@@ -68,7 +68,7 @@ public final class ExecutionResult<T>
     /**
      * Creates an {@link ExecutionResult} that corresponds to a time out.
      */
-    static final <T> ExecutionResult<T> createTimedOut()
+    public static final <T> ExecutionResult<T> createTimedOut()
     {
         return new ExecutionResult<T>(ExecutionStatus.TIMED_OUT, null, null);
     }
@@ -76,7 +76,7 @@ public final class ExecutionResult<T>
     /**
      * Creates an {@link ExecutionResult} that corresponds to an interruption.
      */
-    static final <T> ExecutionResult<T> createInterrupted()
+    public static final <T> ExecutionResult<T> createInterrupted()
     {
         return new ExecutionResult<T>(ExecutionStatus.INTERRUPTED, null, null);
     }
@@ -84,16 +84,24 @@ public final class ExecutionResult<T>
     /**
      * Returns the {@link ExecutionStatus} of the execution.
      */
-    public final ExecutionStatus getStatus()
+    public ExecutionStatus getStatus()
     {
         return status;
+    }
+    
+    /**
+     * Returns <code>true</code>, if the execution status is {@link ExecutionStatus#COMPLETE}.
+     */
+    public boolean isOK()
+    {
+        return ExecutionStatus.COMPLETE == status;
     }
 
     /**
      * Returns the returned result of the execution, or <code>null</code>, if either the status
      * is not {@link ExecutionStatus#COMPLETE} or if the execution didn't provide a result.
      */
-    public final T tryGetResult()
+    public T tryGetResult()
     {
         return resultOrNull;
     }
@@ -102,7 +110,7 @@ public final class ExecutionResult<T>
      * Returns the thrown exception (or error) of the execution, or <code>null</code>, if the
      * status is not {@link ExecutionStatus#EXCEPTION}.
      */
-    public final Throwable tryGetException()
+    public Throwable tryGetException()
     {
         return exceptionOrNull;
     }

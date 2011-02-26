@@ -484,7 +484,7 @@ public class ProcessExecutionHelperTest
         final ProcessResult result =
                 ProcessExecutionHelper.run(Arrays.asList(dummyExec.getAbsolutePath()),
                         operationLog, machineLog, WATCHDOG_WAIT_MILLIS,
-                        ProcessIOStrategy.BINARY_IO_STRATEGY, false);
+                        ProcessIOStrategy.BINARY_SAME_THREAD_IO_STRATEGY, false);
         assertTrue(result.isTimedOut());
         assertFalse(result.isOK());
         assertTrue(result.getBinaryOutput().length > 1000);
