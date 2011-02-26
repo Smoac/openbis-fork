@@ -25,13 +25,11 @@ import java.util.List;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.filesystem.OutputStreamAdapter;
+import ch.systemsx.cisd.base.io.AdapterOutputStreamToIOutputStream;
 import ch.systemsx.cisd.etlserver.utils.Column;
 import ch.systemsx.cisd.etlserver.utils.TabSeparatedValueTable;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class TSVOutputWriterTest extends AssertJUnit
@@ -40,27 +38,32 @@ public class TSVOutputWriterTest extends AssertJUnit
     public void testIgnoringEmptyLines()
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        TSVOutputWriter writer = new TSVOutputWriter(new OutputStreamAdapter(outputStream));
+        TSVOutputWriter writer =
+                new TSVOutputWriter(new AdapterOutputStreamToIOutputStream(outputStream));
         String content = "a\tb\n11\t12\n\n";
-        TabSeparatedValueTable table = new TabSeparatedValueTable(new StringReader(content), content, true);
+        TabSeparatedValueTable table =
+                new TabSeparatedValueTable(new StringReader(content), content, true);
         List<Column> columns = table.getColumns();
-        
+
         writer.write(columns);
-        
+
         assertEquals("a\tb" + LINE_SEPARATOR + "11\t12" + LINE_SEPARATOR, outputStream.toString());
     }
-    
+
     @Test
     public void testWithEmptyLines()
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        TSVOutputWriter writer = new TSVOutputWriter(new OutputStreamAdapter(outputStream));
+        TSVOutputWriter writer =
+                new TSVOutputWriter(new AdapterOutputStreamToIOutputStream(outputStream));
         String content = "a\tb\n11\t12\n\n";
-        TabSeparatedValueTable table = new TabSeparatedValueTable(new StringReader(content), content, false);
+        TabSeparatedValueTable table =
+                new TabSeparatedValueTable(new StringReader(content), content, false);
         List<Column> columns = table.getColumns();
-        
+
         writer.write(columns);
-        
-        assertEquals("a\tb" + LINE_SEPARATOR + "11\t12" + LINE_SEPARATOR + "\t" + LINE_SEPARATOR, outputStream.toString());
+
+        assertEquals("a\tb" + LINE_SEPARATOR + "11\t12" + LINE_SEPARATOR + "\t" + LINE_SEPARATOR,
+                outputStream.toString());
     }
 }

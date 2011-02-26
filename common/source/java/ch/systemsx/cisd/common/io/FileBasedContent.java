@@ -25,8 +25,8 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.filesystem.IRandomAccessFile;
-import ch.systemsx.cisd.common.filesystem.RandomAccessFileImpl;
+import ch.systemsx.cisd.base.io.IRandomAccessFile;
+import ch.systemsx.cisd.base.io.RandomAccessFileImpl;
 
 /**
  * File content. Wraps an instance of {@link File}.

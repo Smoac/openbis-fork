@@ -18,7 +18,7 @@ package ch.systemsx.cisd.common.io;
 
 import java.io.InputStream;
 
-import ch.systemsx.cisd.common.filesystem.IRandomAccessFile;
+import ch.systemsx.cisd.base.io.IRandomAccessFile;
 
 /**
  * Content based on a {@link IContentProvider}.

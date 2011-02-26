@@ -19,8 +19,8 @@ package eu.basysbio.cisd.dss;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.base.io.IOutputStream;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
-import ch.systemsx.cisd.common.filesystem.IOutputStream;
 import ch.systemsx.cisd.etlserver.utils.Column;
 
 /**

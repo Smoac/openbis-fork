@@ -18,7 +18,7 @@ package ch.systemsx.cisd.common.io;
 
 import java.io.InputStream;
 
-import ch.systemsx.cisd.common.filesystem.IRandomAccessFile;
+import ch.systemsx.cisd.base.io.IRandomAccessFile;
 
 /**
  * Abstract of streamable and random-accessible binary content with name and known size.

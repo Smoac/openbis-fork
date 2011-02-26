@@ -21,8 +21,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
-import ch.systemsx.cisd.common.filesystem.ICloseable;
-import ch.systemsx.cisd.common.filesystem.ISynchronizable;
+import ch.systemsx.cisd.base.io.ICloseable;
+import ch.systemsx.cisd.base.io.ISynchronizable;
 
 /**
  * A decorator of a {@link IExtendedBlockingQueue} that keeps the current state of the queue current

@@ -24,6 +24,7 @@ import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
+import ch.systemsx.cisd.base.io.ICloseable;
 import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.collections.ExtendedBlockingQueueFactory;
 import ch.systemsx.cisd.common.collections.ExtendedLinkedBlockingQueue;

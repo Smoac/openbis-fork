@@ -37,6 +37,12 @@ import org.apache.log4j.Logger;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.base.io.AdapterIInputStreamToInputStream;
+import ch.systemsx.cisd.base.io.AdapterIOutputStreamToOutputStream;
+import ch.systemsx.cisd.base.io.AdapterInputStreamToIInputStream;
+import ch.systemsx.cisd.base.io.AdapterOutputStreamToIOutputStream;
+import ch.systemsx.cisd.base.io.IInputStream;
+import ch.systemsx.cisd.base.io.IOutputStream;
 import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.concurrent.IActivityObserver;
 import ch.systemsx.cisd.common.concurrent.MonitoringProxy;
@@ -538,7 +544,7 @@ public class FileOperations implements IFileOperations, Serializable
 
     public InputStream getInputStream(File file) throws IOExceptionUnchecked
     {
-        return new IInputStreamAdapter(getIInputStream(file));
+        return new AdapterIInputStreamToInputStream(getIInputStream(file));
     }
 
     public IInputStream getIInputStream(File file) throws IOExceptionUnchecked
@@ -564,12 +570,12 @@ public class FileOperations implements IFileOperations, Serializable
     @Private
     IInputStream internalGetIInputStream(File file) throws FileNotFoundException
     {
-        return new InputStreamAdapter(new FileInputStream(file));
+        return new AdapterInputStreamToIInputStream(new FileInputStream(file));
     }
 
     public OutputStream getOutputStream(File file) throws IOExceptionUnchecked
     {
-        return new IOutputStreamAdapter(getIOutputStream(file));
+        return new AdapterIOutputStreamToOutputStream(getIOutputStream(file));
     }
 
     public IOutputStream getIOutputStream(File file) throws IOExceptionUnchecked
@@ -595,7 +601,7 @@ public class FileOperations implements IFileOperations, Serializable
     @Private
     IOutputStream internalGetIOutputStream(File file) throws FileNotFoundException
     {
-        return new OutputStreamAdapter(new FileOutputStream(file));
+        return new AdapterOutputStreamToIOutputStream(new FileOutputStream(file));
     }
 
     public void writeToFile(File file, String content) throws IOExceptionUnchecked

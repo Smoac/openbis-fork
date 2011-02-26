@@ -25,7 +25,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.filesystem.IRandomAccessFile;
+import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.common.io.FileBasedContent;
 import ch.systemsx.cisd.common.io.IContent;
 

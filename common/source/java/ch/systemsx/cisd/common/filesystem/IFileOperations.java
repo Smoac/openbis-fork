@@ -26,6 +26,8 @@ import java.util.List;
 import org.apache.commons.io.FileSystemUtils;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.base.io.IInputStream;
+import ch.systemsx.cisd.base.io.IOutputStream;
 import ch.systemsx.cisd.common.exceptions.UnknownLastChangedException;
 
 /**

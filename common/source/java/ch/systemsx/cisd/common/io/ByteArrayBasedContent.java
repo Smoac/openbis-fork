@@ -20,8 +20,8 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
-import ch.systemsx.cisd.common.filesystem.ByteBufferRandomAccessFile;
-import ch.systemsx.cisd.common.filesystem.IRandomAccessFile;
+import ch.systemsx.cisd.base.io.ByteBufferRandomAccessFile;
+import ch.systemsx.cisd.base.io.IRandomAccessFile;
 
 /**
  * Content based on an array of bytes.

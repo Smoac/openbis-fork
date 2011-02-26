@@ -23,6 +23,7 @@ import org.apache.log4j.Logger;
 import org.springframework.remoting.RemoteAccessException;
 
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
+import ch.systemsx.cisd.base.io.ICloseable;
 import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.collections.ExtendedBlockingQueueFactory;
@@ -30,7 +31,6 @@ import ch.systemsx.cisd.common.collections.IExtendedBlockingQueue;
 import ch.systemsx.cisd.common.collections.PersistentExtendedBlockingQueueDecorator;
 import ch.systemsx.cisd.common.collections.RecordBasedQueuePersister;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.filesystem.ICloseable;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetCodesWithStatus;
