@@ -58,6 +58,18 @@ public abstract class AbstractFileSystemTestCase extends AssertJUnit
         this.cleanAfterMethod = cleanAfterMethod;
     }
 
+    /**
+     * Creates a {@link File} with <var>name</var> in the working directory. Ensure it doesn't
+     * exist and is deleted on exit.
+     */
+    protected File create(String name)
+    {
+        final File file = new File(workingDirectory, name);
+        file.delete();
+        file.deleteOnExit();
+        return file;
+    }
+
     private final File createWorkingDirectory()
     {
         final File directory = new File(UNIT_TEST_ROOT_DIRECTORY, getClass().getName());
