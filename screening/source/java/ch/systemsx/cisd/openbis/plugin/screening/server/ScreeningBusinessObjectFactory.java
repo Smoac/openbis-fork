@@ -57,9 +57,6 @@ public final class ScreeningBusinessObjectFactory extends AbstractPluginBusiness
     @Resource(name = ResourceNames.SCREENING_DAO_FACTORY)
     private IScreeningDAOFactory specificDAOFactory;
 
-    @Resource(name = ResourceNames.FEATURE_COUNT_LIMIT_PROVIDER)
-    private IFeatureCountLimitProvider featureCountLimitProvider;
-
     public ScreeningBusinessObjectFactory()
     {
     }
@@ -134,8 +131,4 @@ public final class ScreeningBusinessObjectFactory extends AbstractPluginBusiness
         return getCommonBusinessObjectFactory().createDatasetLister(session);
     }
 
-    public IFeatureCountLimitProvider getFeatureCountLimitProvider()
-    {
-        return featureCountLimitProvider;
-    }
 }

@@ -295,32 +295,30 @@ public class PlateContentLoader
         List<FeatureVectorDataset> featureVectorDatasets = new ArrayList<FeatureVectorDataset>();
         if (featureVectorDatasetReferences.isEmpty() == false)
         {
-            int maxFeatures = businessObjectFactory.getFeatureCountLimitProvider().getLimit();
-            int maxFeaturesPerDataset =
-                    Math.max(1, maxFeatures / featureVectorDatasetReferences.size());
             for (DatasetReference datasetReference : featureVectorDatasetReferences)
             {
                 IHCSFeatureVectorLoader loader =
                         businessObjectFactory.createHCSFeatureVectorLoader(datasetReference
                                 .getDatastoreCode());
                 FeatureVectorDataset featureVectorDataset =
-                        loadFeatureVector(datasetReference, loader, maxFeaturesPerDataset);
+                        loadFeatureVector(datasetReference, loader);
                 featureVectorDatasets.add(featureVectorDataset);
             }
         }
         return featureVectorDatasets;
     }
 
-    // loads feature vector with limited number of features
+    // loads feature vector with only 1 feature
     private FeatureVectorDataset loadFeatureVector(DatasetReference datasetReference,
-            IHCSFeatureVectorLoader loader, int maxFeaturesPerDataset)
+            IHCSFeatureVectorLoader loader)
     {
         List<CodeAndLabel> allFeatureNames =
                 loader.fetchDatasetFeatureNames(datasetReference.getCode());
         List<CodeAndLabel> featuresToLoad = allFeatureNames;
-        if (featuresToLoad.size() > maxFeaturesPerDataset)
+        // TODO 2011-02-25, Piotr Buczek: we don't need feature values at all
+        if (featuresToLoad.size() > 1)
         {
-            featuresToLoad = featuresToLoad.subList(0, maxFeaturesPerDataset);
+            featuresToLoad = featuresToLoad.subList(0, 1);
         }
         WellFeatureCollection<FeatureVectorValues> featureValues =
                 loader.fetchDatasetFeatureValues(datasetReference.getCode(), featuresToLoad);

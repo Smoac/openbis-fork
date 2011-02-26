@@ -70,6 +70,7 @@ public class WellData
     public void resetFeatureValues()
     {
         featureValuesMap.clear();
+        fullyLoaded = false;
     }
 
     public FeatureValue tryGetFeatureValue(String featureLabel)

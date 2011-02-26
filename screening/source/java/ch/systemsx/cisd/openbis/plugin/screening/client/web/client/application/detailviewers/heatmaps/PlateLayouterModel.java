@@ -186,8 +186,8 @@ class PlateLayouterModel
         }
     }
 
-    // set all well features
-    public void updateWellFeatureValue(FeatureVectorValues wellFeatureVectorValues)
+    // set all well's features
+    public void updateWellFeatureValues(FeatureVectorValues wellFeatureVectorValues)
     {
         assert datasetReference.getCode().equals(wellFeatureVectorValues.getDataSetCode());
 

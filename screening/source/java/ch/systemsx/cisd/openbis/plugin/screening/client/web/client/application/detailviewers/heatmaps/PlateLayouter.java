@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.BaseEvent;
@@ -32,6 +34,7 @@ import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.layout.ColumnLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
+import com.extjs.gxt.ui.client.widget.tips.ToolTipConfig;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -40,7 +43,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.R
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.LabeledItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SimpleModelComboBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.ToolTipAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
@@ -126,21 +131,58 @@ public class PlateLayouter
     {
         return new HeatmapPresenter.IHeatmapViewManipulator()
             {
+                // needed because well components are reused between datasets
+                private Map<Component, ToolTipAction> toolTipActions =
+                        new HashMap<Component, ToolTipAction>();
+
                 public void updateWellStyle(int rowIx, int colIx, Color bakgroundColor)
                 {
-                    Component wellComponent = renderedWells[rowIx][colIx];
+                    Component wellComponent = getWellComponent(rowIx, colIx);
                     PlateStyleSetter.setBackgroudColor(wellComponent, bakgroundColor.getHexColor());
+                }
+
+                public void addEmptyTooltip(int rowIx, int colIx)
+                {
+                    Component wellComponent = getWellComponent(rowIx, colIx);
+                    final String anchor =
+                            (colIx < (renderedWells[0].length / 2)) ? "left" : "right";
+                    final ToolTipConfig config = new ToolTipConfig("Loading...");
+                    config.setMouseOffset(new int[]
+                        { 0, 0 });
+                    config.setAnchor(anchor);
+                    // WORKAROUND width isn't properly updated - we set fixed value 
+                    config.setMinWidth(150); 
+                    // config.setCloseable(true);
+                    config.setDismissDelay(10000); // 10s to hide
+                    GWTUtils.setToolTip(wellComponent, config);
                 }
 
                 public void updateTooltip(int rowIx, int colIx, String tooltipOrNull)
                 {
-                    Component wellComponent = renderedWells[rowIx][colIx];
+                    Component wellComponent = getWellComponent(rowIx, colIx);
                     if (tooltipOrNull != null)
                     {
-                        GWTUtils.setToolTip(wellComponent, tooltipOrNull);
+                        String preparedText = GWTUtils.translateToHtmlLineBreaks(tooltipOrNull);
+                        wellComponent.setToolTip(preparedText);
                     } else
                     {
                         wellComponent.removeToolTip();
+                    }
+                }
+
+                public void scheduleUpdateTooltip(final int rowIx, final int colIx,
+                        IDelegatedAction refreshTooltipAction)
+                {
+                    Component wellComponent = getWellComponent(rowIx, colIx);
+                    ToolTipAction toolTipAction = toolTipActions.get(wellComponent);
+                    if (toolTipAction == null)
+                    {
+                        toolTipAction = new ToolTipAction(wellComponent);
+                        toolTipAction.setAction(refreshTooltipAction);
+                        toolTipActions.put(wellComponent, toolTipAction);
+                    } else
+                    {
+                        toolTipAction.setAction(refreshTooltipAction);
                     }
                 }
 
@@ -151,6 +193,11 @@ public class PlateLayouter
                     legendContainer.layout();
                 }
 
+                private Component getWellComponent(int rowIx, int colIx)
+                {
+                    Component wellComponent = renderedWells[rowIx][colIx];
+                    return wellComponent;
+                }
             };
     }
 

@@ -292,10 +292,30 @@ public final class GWTUtils
         ToolTipConfig config = null;
         if (textOrNull != null)
         {
-            String preparedText = textOrNull.replace("\n", "<br>");
+            String preparedText = translateToHtmlLineBreaks(textOrNull);
             config = new ToolTipConfig(preparedText);
         }
         component.setToolTip(config);
+    }
+
+    /**
+     * Sets the tooltip of the component using given configuration and replaces new lines with html
+     * breaks.
+     */
+    public static void setToolTip(Component component, ToolTipConfig config)
+    {
+        String textOrNull = config.getText();
+        if (textOrNull != null)
+        {
+            String preparedText = translateToHtmlLineBreaks(textOrNull);
+            config.setText(preparedText);
+        }
+        component.setToolTip(config);
+    }
+
+    public static String translateToHtmlLineBreaks(String text)
+    {
+        return text.replace("\n", "<br>");
     }
 
     /** @return specified model from the list if it's found, null otherwise */

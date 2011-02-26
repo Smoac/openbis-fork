@@ -59,6 +59,4 @@ public interface IScreeningBusinessObjectFactory
 
     public IDatasetLister createDatasetLister(Session session);
 
-    public IFeatureCountLimitProvider getFeatureCountLimitProvider();
-
 }

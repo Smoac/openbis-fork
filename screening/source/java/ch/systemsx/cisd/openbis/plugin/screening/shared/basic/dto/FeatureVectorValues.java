@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.annotation.DoNotEscape;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
- * Bean for one feature vector of the well. Contains data set code, well position and array of
+ * Bean for one feature vector of the well. Contains data set code, well position and a map of
  * feature values. Float.NaN is used for unknown feature value in this array.
  * 
  * @author Tomasz Pylak
@@ -56,7 +56,8 @@ public class FeatureVectorValues implements ISerializable
         this.featureMap = featureMap;
     }
 
-    // NOTE: don't use this method multiple times for performance reasons
+    // NOTE: For performance reasons it is better not to call this method multiple times.
+    // Use getFeatureMap() instead.
     public FeatureValue[] getFeatureValues()
     {
         return featureMap.values().toArray(new FeatureValue[0]);

@@ -14,6 +14,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.IRealNumberRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.WellData;
@@ -22,7 +23,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureValue;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 
 /**
@@ -38,8 +41,14 @@ class HeatmapPresenter
         /** updates background color of the well with given coordinates */
         void updateWellStyle(int rowIx, int colIx, Color bakgroundColor);
 
+        /** sets up an 'empty' tooltip ('Loading...') for the well with given coordinates */
+        void addEmptyTooltip(int rowIx, int colIx);
+
         /** updates tooltip of the well with given coordinates */
         void updateTooltip(int rowIx, int colIx, String tooltipOrNull);
+
+        /** schedules given action to be invoked as tooltip action for well with given coordinates */
+        void scheduleUpdateTooltip(int rowIx, int colIx, IDelegatedAction refreshTooltipAction);
 
         /** updates legend of the heatmap to the new one */
         void updateLegend(Widget legend);
@@ -85,7 +94,6 @@ class HeatmapPresenter
         this.tooltipGenerator = new WellTooltipGenerator(model, realNumberRenderer);
         this.cachedMetadataHeatmapRenderer =
                 WellMetadataHeatmapRenderer.create(model.getWellList());
-        setWellMetadataMode();
     }
 
     /** Changes the presented heatmap to the one which shows well types. */
@@ -193,19 +201,75 @@ class HeatmapPresenter
     private void refreshHeatmap(IHeatmapRenderer<WellData> renderer, final String featureLabelOrNull)
     {
         WellData[][] wellMatrix = model.getWellMatrix();
+
         for (int rowIx = 0; rowIx < wellMatrix.length; rowIx++)
         {
             for (int colIx = 0; colIx < wellMatrix[rowIx].length; colIx++)
             {
-                WellData wellData = wellMatrix[rowIx][colIx];
+                final WellData wellData = wellMatrix[rowIx][colIx];
                 Color color = renderer.getColor(wellData);
 
-                String tooltip = tooltipGenerator.generateTooltip(rowIx, colIx, featureLabelOrNull);
                 viewManipulations.updateWellStyle(rowIx, colIx, color);
-                viewManipulations.updateTooltip(rowIx, colIx, tooltip);
+
+                final int ri = rowIx;
+                final int ci = colIx;
+                final IDelegatedAction refreshTooltipAction = new IDelegatedAction()
+                    {
+                        public void execute()
+                        {
+                            viewContext.log("Update tooltip: "
+                                    + wellData.getWellLocation().toString());
+                            final String tooltip =
+                                    tooltipGenerator.generateTooltip(ri, ci, featureLabelOrNull);
+                            viewManipulations.updateTooltip(ri, ci, tooltip);
+                        }
+                    };
+
+                if (wellData.isFullyLoaded())
+                {
+                    refreshTooltipAction.execute();
+                } else
+                {
+                    viewManipulations.addEmptyTooltip(rowIx, colIx);
+                    viewManipulations.scheduleUpdateTooltip(rowIx, colIx, new IDelegatedAction()
+                        {
+                            public void execute()
+                            {
+                                viewContext.log("Fetch Well Values: "
+                                        + wellData.getWellLocation().toString());
+                                fetchWellFeatures(wellData, refreshTooltipAction);
+                            }
+                        });
+                }
             }
         }
         refreshLegend(renderer);
+    }
+
+    private void fetchWellFeatures(final WellData wellData,
+            final IDelegatedAction refreshTooltipAction)
+    {
+        final DatasetReference datasetReference = model.tryGetDatasetReference();
+        if (datasetReference != null)
+        {
+            final String datasetCode = datasetReference.getCode();
+            final String datastoreCode = datasetReference.getDatastoreCode();
+            final WellLocation location = wellData.getWellLocation();
+            final AsyncCallback<FeatureVectorValues> callback =
+                    new AbstractAsyncCallback<FeatureVectorValues>(viewContext)
+                        {
+                            @Override
+                            protected void process(FeatureVectorValues result)
+                            {
+                                viewContext.log("Update Well Feature Values: "
+                                        + wellData.getWellLocation().toString());
+                                model.updateWellFeatureValues(result);
+                                refreshTooltipAction.execute();
+                            }
+                        };
+            viewContext.getService().getWellFeatureVectorValues(datasetCode, datastoreCode,
+                    location, callback);
+        }
     }
 
     private void refreshLegend(IHeatmapRenderer<WellData> renderer)
