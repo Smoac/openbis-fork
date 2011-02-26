@@ -122,4 +122,20 @@ public class CheckedExceptionTunnel extends RuntimeException
         return exception;
     }
 
+    /**
+     * Returns the original throwable before being wrapped, if the throwable has been wrapped, or
+     * <var>exception</var> otherwise.
+     */
+    public final static Throwable unwrapIfNecessary(final Throwable throwable)
+    {
+        assert throwable != null : "Exception not specified.";
+        if (throwable instanceof Error)
+        {
+            return throwable;
+        } else
+        {
+            return unwrapIfNecessary((Exception) throwable);
+        }
+    }
+
 }
