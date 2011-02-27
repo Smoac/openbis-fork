@@ -258,8 +258,8 @@ public final class ProcessResult
      * process <code>stdin / stdout / stderr</code> I/O.
      * <p>
      * <b>Note that {@link ExecutionResult#isOK()} does <i>not</i> necessarily mean that all output
-     * has been read from the process. You need to check {@link #isTimedOut()} in addition to see
-     * whether the process got terminated due to a timeout condition.</b>
+     * has been read from the process. Check {@link ProcessResult#isOK()} instead which also
+     * considers the exit value of the process.</b>
      */
     public ExecutionResult<?> getProcessIOResult()
     {
