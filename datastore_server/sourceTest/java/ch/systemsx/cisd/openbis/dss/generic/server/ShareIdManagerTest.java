@@ -140,7 +140,7 @@ public class ShareIdManagerTest extends AssertJUnit
         assertEquals("42", manager.getShareId("new data set"));
     }
 
-    @Test(groups = "broken")
+    @Test
     public void testLockingTimeOut()
     {
         final MessageChannel ch = new MessageChannel(2000);
