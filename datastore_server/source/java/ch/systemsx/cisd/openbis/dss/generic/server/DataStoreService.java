@@ -21,6 +21,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -282,17 +283,20 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         PluginTaskProvider<IReportingPluginTask> reportingPlugins =
                 pluginTaskParameters.getReportingPluginsProvider();
         IReportingPluginTask task = reportingPlugins.getPluginInstance(serviceKey);
+        IShareIdManager manager = getShareIdManager();
         for (DatasetDescription dataSet : datasets)
         {
-            getShareIdManager().lock(dataSet.getDatasetCode());
+            manager.lock(dataSet.getDatasetCode());
         }
         try
         {
-            return task.createReport(datasets, null);
+            return task.createReport(datasets, new DataSetProcessingContext(
+                    new DataSetDirectoryProvider(storeRoot, manager),
+                    new HashMap<String, String>(), null, null));
             
         } finally
         {
-            getShareIdManager().releaseLocks();
+            manager.releaseLocks();
         }
     }
 
