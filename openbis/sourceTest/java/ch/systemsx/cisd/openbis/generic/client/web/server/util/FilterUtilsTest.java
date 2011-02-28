@@ -83,7 +83,6 @@ public class FilterUtilsTest extends AssertJUnit
         dataProvider = new MockDataProvider("VALUE", Arrays.asList(50), Arrays.asList(40));
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void test()
     {
