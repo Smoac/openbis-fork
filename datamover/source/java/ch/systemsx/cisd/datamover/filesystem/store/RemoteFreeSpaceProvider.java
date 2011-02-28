@@ -30,7 +30,6 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.process.ProcessResult;
-import ch.systemsx.cisd.common.process.ProcessExecutionHelper.OutputReadingStrategy;
 
 /**
  * An <code>IFreeSpaceProvider</code> implementation for computing the free space on a remote
@@ -44,11 +43,11 @@ final class RemoteFreeSpaceProvider implements IFreeSpaceProvider
 
     private static final String DF_COMMAND_TEMPLATE = "df -k %s";
 
-    private static final Logger machineLog =
-            LogFactory.getLogger(LogCategory.MACHINE, RemoteFreeSpaceProvider.class);
+    private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE,
+            RemoteFreeSpaceProvider.class);
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, RemoteFreeSpaceProvider.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            RemoteFreeSpaceProvider.class);
 
     private final ISshCommandBuilder sshCommandBuilder;
 
@@ -91,9 +90,11 @@ final class RemoteFreeSpaceProvider implements IFreeSpaceProvider
         final String dfCommand = String.format(DF_COMMAND_TEMPLATE, path);
         final List<String> command =
                 sshCommandBuilder.createSshCommand(dfCommand, file.tryGetHost());
+        @SuppressWarnings("deprecation")
         final ProcessResult processResult =
                 ProcessExecutionHelper.run(command, operationLog, machineLog,
-                        millisToWaitForCompletion, OutputReadingStrategy.ALWAYS, false);
+                        millisToWaitForCompletion,
+                        ProcessExecutionHelper.OutputReadingStrategy.ALWAYS, false);
         processResult.log();
         final List<String> processOutput = processResult.getOutput();
         final String commandLine = StringUtils.join(processResult.getCommandLine(), SPACE);
