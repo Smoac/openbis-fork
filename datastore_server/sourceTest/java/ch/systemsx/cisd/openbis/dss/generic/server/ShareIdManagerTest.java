@@ -58,7 +58,7 @@ public class ShareIdManagerTest extends AssertJUnit
     {
         level = Logger.getRootLogger().getLevel();
         Logger.getRootLogger().setLevel(Level.DEBUG);
-        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.DEBUG);
+        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.DEBUG, ShareIdManager.class);
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
         context.checking(new Expectations()

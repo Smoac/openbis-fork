@@ -23,6 +23,8 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.WriterAppender;
+import org.apache.log4j.spi.Filter;
+import org.apache.log4j.spi.LoggingEvent;
 
 /**
  * A <code>WriterAppender</code> extension that buffers its output in a
@@ -61,10 +63,33 @@ public final class BufferedAppender extends WriterAppender
 
     public BufferedAppender(final String pattern, final Level logLevel)
     {
-        super();
+        this(pattern, logLevel, null);
+    }
+
+    /**
+     * Creates an instance for specified optional pattern, log level and optional class onto which
+     * log entries are filtered.
+     */
+    public BufferedAppender(final String patternOrNull, final Level logLevel,
+            final Class<?> classToFilterOnOrNull)
+    {
         logRecorder = new ByteArrayOutputStream();
+        if (classToFilterOnOrNull != null)
+        {
+            this.addFilter(new Filter()
+                {
+                    String className = classToFilterOnOrNull.getSimpleName();
+
+                    @Override
+                    public int decide(LoggingEvent event)
+                    {
+                        return event.getLoggerName().endsWith(className) ? Filter.ACCEPT
+                                : Filter.NEUTRAL;
+                    }
+                });
+        }
         setWriter(createWriter(logRecorder));
-        setLayout(createLayout(pattern));
+        setLayout(createLayout(patternOrNull));
         configureRootLogger();
         setThreshold(logLevel);
     }
