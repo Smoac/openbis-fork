@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -123,7 +125,7 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
             List<Parameter<AuthorizationGuard>> annotatedParameters =
                     AnnotationUtils.getAnnotatedParameters(methodInvocation.getMethod(),
                             AuthorizationGuard.class);
-            IShareIdManager manager = getShareIdManager();
+            final IShareIdManager manager = getShareIdManager();
             for (Parameter<AuthorizationGuard> param : annotatedParameters)
             {
                 Object guarded = args[param.getIndex()];
@@ -133,6 +135,7 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
                     manager.lock(dataSetCode);
                 }
             }
+            boolean shouldLocksAutomaticallyBeReleased = shouldLocksAutomaticallyBeReleased(methodInvocation.getMethod());
             try
             {
                 final boolean requiresInstanceAdmin =
@@ -140,39 +143,66 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
                 // At least one of the parameters must be annotated
                 assert requiresInstanceAdmin || annotatedParameters.size() > 0 : "No guard defined";
                 
-                if (requiresInstanceAdmin)
+                if (requiresInstanceAdmin == false) // An instance admin is allowed to work on all data sets.
                 {
-                    // An instance admin is allowed to work on all data sets.
-                    return methodInvocation.proceed();
-                }
-                
-                final Object recv = methodInvocation.getThis();
-                
-                for (Parameter<AuthorizationGuard> param : annotatedParameters)
-                {
-                    Object guarded = args[param.getIndex()];
-                    Status status = evaluateGuard(sessionToken, recv, param, guarded);
-                    if (status != Status.OK)
+                    final Object recv = methodInvocation.getThis();
+                    
+                    for (Parameter<AuthorizationGuard> param : annotatedParameters)
                     {
-                        authorizationLog.info(String.format(
-                                "[SESSION:'%s' DATA_SET:%s]: Authorization failure while "
-                                + "invoking method '%s'", sessionToken, guarded,
-                                MethodUtils.describeMethod(methodInvocation.getMethod())));
-                        String errorMessage = "Data set does not exist.";
-                        if (null != status.tryGetErrorMessage())
+                        Object guarded = args[param.getIndex()];
+                        Status status = evaluateGuard(sessionToken, recv, param, guarded);
+                        if (status != Status.OK)
                         {
-                            errorMessage = status.tryGetErrorMessage();
+                            authorizationLog.info(String.format(
+                                    "[SESSION:'%s' DATA_SET:%s]: Authorization failure while "
+                                    + "invoking method '%s'", sessionToken, guarded,
+                                    MethodUtils.describeMethod(methodInvocation.getMethod())));
+                            String errorMessage = "Data set does not exist.";
+                            if (null != status.tryGetErrorMessage())
+                            {
+                                errorMessage = status.tryGetErrorMessage();
+                            }
+                            
+                            throw new AuthorizationFailureException(errorMessage);
                         }
-                        
-                        throw new AuthorizationFailureException(errorMessage);
                     }
                 }
-                
-                return methodInvocation.proceed();
+                Object result = methodInvocation.proceed();
+                if (result instanceof InputStream)
+                {
+                    shouldLocksAutomaticallyBeReleased = false;
+                    final InputStream inputStream = (InputStream) result;
+                    result = new InputStream()
+                        {
+                            @Override
+                            public int read() throws IOException
+                            {
+                                return inputStream.read();
+                            }
+
+                            @Override
+                            public void close() throws IOException
+                            {
+                                super.close();
+                                manager.releaseLocks();
+                            }
+                            
+                        };
+                }
+                return result;
             } finally
             {
-                manager.releaseLocks();
+                if (shouldLocksAutomaticallyBeReleased)
+                {
+                    manager.releaseLocks();
+                }
             }
+        }
+        
+        private boolean shouldLocksAutomaticallyBeReleased(Method method)
+        {
+            DataSetAccessGuard guard = method.getAnnotation(DataSetAccessGuard.class);
+            return guard == null ? true : guard.releaseDataSetLocks();
         }
 
         private boolean checkRequiresInstanceAdmin(final Method method, final String sessionToken)

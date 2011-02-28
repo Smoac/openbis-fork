@@ -225,7 +225,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
     @Test
     public void testLinkToContents() throws IOException
     {
-        setupExpectations(true, false, 3);
+        setupExpectations(true, false, 3, false);
 
         dssComponent.login("foo", "bar");
         IDataSetDss dataSetProxy = dssComponent.getDataSet(DUMMY_DATA_SET_CODE);
@@ -255,7 +255,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
     @Test
     public void testLinkToContentsEarlierVersion() throws IOException
     {
-        setupExpectations(null, true, 1);
+        setupExpectations(null, true, 1, true);
 
         dssComponent.login("foo", "bar");
         IDataSetDss dataSetProxy = dssComponent.getDataSet(DUMMY_DATA_SET_CODE);
@@ -274,7 +274,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
     @Test
     public void testUnsupportedInterface() throws IOException
     {
-        setupExpectations("Some Server Interface", true, null, false, 1);
+        setupExpectations("Some Server Interface", true, null, false, 1, false);
 
         dssComponent.login("foo", "bar");
         try
@@ -318,6 +318,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         {
             ++byteCount;
         }
+        is.close();
 
         assertEquals(fileFileInfo.getFileSize(), byteCount);
         context.assertIsSatisfied();
@@ -332,23 +333,23 @@ public class DssComponentTest extends AbstractFileSystemTestCase
             throws IOException
     {
         setupExpectations(IDssServiceRpcGeneric.DSS_SERVICE_NAME, true, isDataSetAccessible, false,
-                lockingCount);
+                lockingCount, true);
     }
 
     private void setupExpectations(Boolean isDataSetAccessible, boolean returnEarlierVersion,
-            int lockingCount) throws IOException
+            int lockingCount, boolean releaseLock) throws IOException
     {
         setupExpectations(IDssServiceRpcGeneric.DSS_SERVICE_NAME, true, isDataSetAccessible,
-                returnEarlierVersion, lockingCount);
+                returnEarlierVersion, lockingCount, releaseLock);
     }
 
     private void setupExpectationsNoLogin() throws IOException
     {
-        setupExpectations(IDssServiceRpcGeneric.DSS_SERVICE_NAME, false, true, false, 1);
+        setupExpectations(IDssServiceRpcGeneric.DSS_SERVICE_NAME, false, true, false, 1, true);
     }
 
     private void setupExpectations(String serviceName, final boolean needsLogin,
-            final Boolean isDataSetAccessible, boolean returnEarlierVersion, final int lockingCount) throws IOException
+            final Boolean isDataSetAccessible, boolean returnEarlierVersion, final int lockingCount, final boolean releaseLock) throws IOException
     {
         final SessionContextDTO session = getDummySession();
 
@@ -391,7 +392,10 @@ public class DssComponentTest extends AbstractFileSystemTestCase
                             will(throwException(new UserFailureException("Not allowed.")));
                         }
                         exactly(lockingCount).of(shareIdManager).lock(DUMMY_DATA_SET_CODE);
-                        exactly(lockingCount).of(shareIdManager).releaseLocks();
+                        if (releaseLock)
+                        {
+                            exactly(lockingCount).of(shareIdManager).releaseLocks();
+                        }
                     }
                 });
         }
