@@ -22,6 +22,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 import org.apache.commons.io.IOUtils;
@@ -103,9 +104,9 @@ public class DssComponentTest extends AbstractFileSystemTestCase
     private IShareIdManager shareIdManager;
 
     @SuppressWarnings("unchecked")
-    public static <T extends IRpcService> T getAdvisedDssService(final T service)
+    private <T extends IRpcService> T getAdvisedDssService(final T service)
     {
-        final Advisor advisor = new DssServiceRpcAuthorizationAdvisor();
+        final Advisor advisor = new DssServiceRpcAuthorizationAdvisor(shareIdManager);
         final BeanPostProcessor processor = new AbstractAutoProxyCreator()
             {
                 private static final long serialVersionUID = 1L;
@@ -180,7 +181,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
     @Test
     public void testListDataSetFiles() throws IOException
     {
-        setupExpectations();
+        setupExpectations(true, 1);
 
         dssComponent.login("foo", "bar");
         IDataSetDss dataSetProxy = dssComponent.getDataSet(DUMMY_DATA_SET_CODE);
@@ -206,7 +207,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
     @Test
     public void testListDataSetFilesUnauthorized() throws IOException
     {
-        setupExpectations(false);
+        setupExpectations(false, 1);
         dssComponent.login("foo", "bar");
         try
         {
@@ -224,7 +225,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
     @Test
     public void testLinkToContents() throws IOException
     {
-        setupExpectations(true, false);
+        setupExpectations(true, false, 3);
 
         dssComponent.login("foo", "bar");
         IDataSetDss dataSetProxy = dssComponent.getDataSet(DUMMY_DATA_SET_CODE);
@@ -254,7 +255,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
     @Test
     public void testLinkToContentsEarlierVersion() throws IOException
     {
-        setupExpectations(null, true);
+        setupExpectations(null, true, 1);
 
         dssComponent.login("foo", "bar");
         IDataSetDss dataSetProxy = dssComponent.getDataSet(DUMMY_DATA_SET_CODE);
@@ -273,7 +274,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
     @Test
     public void testUnsupportedInterface() throws IOException
     {
-        setupExpectations("Some Server Interface", true, null, false);
+        setupExpectations("Some Server Interface", true, null, false, 1);
 
         dssComponent.login("foo", "bar");
         try
@@ -291,7 +292,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
     @Test
     public void testGetFileContents() throws IOException
     {
-        setupExpectations();
+        setupExpectations(2);
 
         dssComponent.login("foo", "bar");
         IDataSetDss dataSetProxy = dssComponent.getDataSet(DUMMY_DATA_SET_CODE);
@@ -319,32 +320,35 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         }
 
         assertEquals(fileFileInfo.getFileSize(), byteCount);
+        context.assertIsSatisfied();
     }
 
-    private void setupExpectations() throws IOException
+    private void setupExpectations(int lockingCount) throws IOException
     {
-        setupExpectations(true);
+        setupExpectations(true, lockingCount);
     }
 
-    private void setupExpectations(Boolean isDataSetAccessible) throws IOException
-    {
-        setupExpectations(IDssServiceRpcGeneric.DSS_SERVICE_NAME, true, isDataSetAccessible, false);
-    }
-
-    private void setupExpectations(Boolean isDataSetAccessible, boolean returnEarlierVersion)
+    private void setupExpectations(Boolean isDataSetAccessible, int lockingCount)
             throws IOException
     {
+        setupExpectations(IDssServiceRpcGeneric.DSS_SERVICE_NAME, true, isDataSetAccessible, false,
+                lockingCount);
+    }
+
+    private void setupExpectations(Boolean isDataSetAccessible, boolean returnEarlierVersion,
+            int lockingCount) throws IOException
+    {
         setupExpectations(IDssServiceRpcGeneric.DSS_SERVICE_NAME, true, isDataSetAccessible,
-                returnEarlierVersion);
+                returnEarlierVersion, lockingCount);
     }
 
     private void setupExpectationsNoLogin() throws IOException
     {
-        setupExpectations(IDssServiceRpcGeneric.DSS_SERVICE_NAME, false, true, false);
+        setupExpectations(IDssServiceRpcGeneric.DSS_SERVICE_NAME, false, true, false, 1);
     }
 
     private void setupExpectations(String serviceName, final boolean needsLogin,
-            final Boolean isDataSetAccessible, boolean returnEarlierVersion) throws IOException
+            final Boolean isDataSetAccessible, boolean returnEarlierVersion, final int lockingCount) throws IOException
     {
         final SessionContextDTO session = getDummySession();
 
@@ -380,12 +384,14 @@ public class DssComponentTest extends AbstractFileSystemTestCase
             context.checking(new Expectations()
                 {
                     {
-                        atLeast(1).of(etlService).checkDataSetAccess(DUMMY_SESSION_TOKEN,
-                                DUMMY_DATA_SET_CODE);
+                        one(etlService).checkDataSetCollectionAccess(DUMMY_SESSION_TOKEN,
+                                Arrays.asList(DUMMY_DATA_SET_CODE));
                         if (isDataSetAccessible == false)
                         {
                             will(throwException(new UserFailureException("Not allowed.")));
                         }
+                        exactly(lockingCount).of(shareIdManager).lock(DUMMY_DATA_SET_CODE);
+                        exactly(lockingCount).of(shareIdManager).releaseLocks();
                     }
                 });
         }

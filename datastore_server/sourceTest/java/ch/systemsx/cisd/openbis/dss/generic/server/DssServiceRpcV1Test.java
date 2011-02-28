@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -230,6 +231,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
                 {
                     // Expectations for getting
                     allowing(openBisService).checkDataSetAccess(SESSION_TOKEN, DATA_SET_CODE);
+                    allowing(openBisService).checkDataSetCollectionAccess(SESSION_TOKEN, Arrays.asList(DATA_SET_CODE));
                     allowing(openBisService).getHomeDatabaseInstance();
                     will(returnValue(homeDatabaseInstance));
                 }
@@ -497,6 +499,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
     @Test
     public void testDataSetUpload() throws IOException
     {
+        prepareLockDataSet();
         setupPutExpectations();
         QueueingPathRemoverService.start();
         File fileToUpload = createDummyFile(workingDirectory, "to-upload.txt", 80);
@@ -508,7 +511,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
                 new ConcatenatedContentInputStream(true, getContentForFileInfos(
                         fileToUpload.getPath(), fileInfos));
 
-        TestMethodInterceptor testMethodInterceptor = new TestMethodInterceptor();
+        TestMethodInterceptor testMethodInterceptor = new TestMethodInterceptor(shareIdManager);
         IDssServiceRpcGenericInternal service = getAdvisedService(testMethodInterceptor);
 
         String result = service.putDataSet(SESSION_TOKEN, newDataSet, fileInputStream);
@@ -522,6 +525,11 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
     private static class TestMethodInterceptor extends DssServiceRpcAuthorizationMethodInterceptor
             implements MethodInterceptor
     {
+        public TestMethodInterceptor(IShareIdManager shareIdManager)
+        {
+            super(shareIdManager);
+        }
+
         private boolean methodInvoked = false;
 
         @Override
@@ -547,7 +555,8 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
     public void testAuthorizationForStringCode()
     {
         prepareGetShareId();
-        TestMethodInterceptor testMethodInterceptor = new TestMethodInterceptor();
+        prepareLockDataSet(DATA_SET_CODE);
+        TestMethodInterceptor testMethodInterceptor = new TestMethodInterceptor(shareIdManager);
         IDssServiceRpcGenericInternal service = getAdvisedService(testMethodInterceptor);
         service.listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "/", false);
         assertTrue("Advice should have been invoked.", testMethodInterceptor.methodInvoked);
@@ -557,7 +566,8 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
     public void testAuthorizationDataSetFile()
     {
         prepareGetShareId();
-        TestMethodInterceptor testMethodInterceptor = new TestMethodInterceptor();
+        prepareLockDataSet(DATA_SET_CODE);
+        TestMethodInterceptor testMethodInterceptor = new TestMethodInterceptor(shareIdManager);
         IDssServiceRpcGenericInternal service = getAdvisedService(testMethodInterceptor);
         DataSetFileDTO dataSetFile = new DataSetFileDTO(DATA_SET_CODE, "/", false);
         service.listFilesForDataSet(SESSION_TOKEN, dataSetFile);
@@ -637,6 +647,20 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
                 {
                     one(shareIdManager).getShareId(DATA_SET_CODE);
                     will(returnValue(SHARE_ID));
+                }
+            });
+    }
+    
+    private void prepareLockDataSet(final String... dataSetCodes)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    for (String dataSetCode : dataSetCodes)
+                    {
+                        one(shareIdManager).lock(dataSetCode);
+                    }
+                    one(shareIdManager).releaseLocks();
                 }
             });
     }

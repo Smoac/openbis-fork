@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 ETH Zuerich, CISD
+ * Copyright 2011 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,26 +16,24 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization;
 
-import java.util.Arrays;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataSetFileDTO;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
+import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * Predicate for checking that the current user has access to a data set specified by a
- * DataSetFileDTO
- * <p>
- * <i>This is an internal class. Do not use it as a user of the API.</i>
- * 
- * @author Chandrasekhar Ramakrishnan
+ * Abstract super class of all implementations checking data set access. 
+ *
+ * @author Franz-Josef Elmer
  */
-public class DataSetFileDTOPredicate extends
-AbstractDataSetAccessPredicate<IDssServiceRpcGeneric, DataSetFileDTO>
+public abstract class AbstractDataSetAccessPredicate<T, D> implements IAuthorizationGuardPredicate<T, D>
 {
-    public List<String> getDataSetCodes(DataSetFileDTO argument)
+
+    public Status evaluate(T receiver, String sessionToken, D argument) throws UserFailureException
     {
-        return Arrays.asList(argument.getDataSetCode());
+        List<String> dataSetCodes = getDataSetCodes(argument);
+        return DssSessionAuthorizationHolder.getAuthorizer().checkDatasetAccess(sessionToken,
+                dataSetCodes);
     }
 
 }

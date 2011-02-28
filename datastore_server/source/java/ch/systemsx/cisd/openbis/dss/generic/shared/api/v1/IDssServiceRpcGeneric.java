@@ -121,7 +121,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
      * @throws IllegalArgumentException Thrown if the dataSetCode or startPath are not valid
      * @since 1.1
      */
-    @DataSetAccessGuard
+    @DataSetAccessGuard(releaseDataSetLocks = false)
     public String getPathToDataSet(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class) String dataSetCode,
             String overrideStoreRootPathOrNull) throws IOExceptionUnchecked,

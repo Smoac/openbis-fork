@@ -77,9 +77,17 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
      */
     public DssServiceRpcAuthorizationAdvisor()
     {
-        this(new DssServiceRpcAuthorizationMethodInterceptor());
+        this(new DssServiceRpcAuthorizationMethodInterceptor(null));
     }
 
+    /**
+     * Constructor for testing purposes.
+     */
+    public DssServiceRpcAuthorizationAdvisor(IShareIdManager shareIdManager)
+    {
+        this(new DssServiceRpcAuthorizationMethodInterceptor(shareIdManager));
+    }
+    
     /**
      * Constructor for testing purposes.
      * 
@@ -99,6 +107,11 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
     {
         private IShareIdManager shareIdManager;
         
+        public DssServiceRpcAuthorizationMethodInterceptor(IShareIdManager shareIdManager)
+        {
+            this.shareIdManager = shareIdManager;
+        }
+
         /**
          * Get the session token and any guarded parameters and invoke the guards on those
          * parameters.
@@ -110,43 +123,56 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
             List<Parameter<AuthorizationGuard>> annotatedParameters =
                     AnnotationUtils.getAnnotatedParameters(methodInvocation.getMethod(),
                             AuthorizationGuard.class);
-            for (Parameter<AuthorizationGuard> param : annotatedParameters)
-            {
-            }
-            final boolean requiresInstanceAdmin =
-                    checkRequiresInstanceAdmin(methodInvocation.getMethod(), sessionToken);
-            // At least one of the parameters must be annotated
-            assert requiresInstanceAdmin || annotatedParameters.size() > 0 : "No guard defined";
-            
-            if (requiresInstanceAdmin)
-            {
-                // An instance admin is allowed to work on all data sets.
-                return methodInvocation.proceed();
-            }
-
-            final Object recv = methodInvocation.getThis();
-
+            IShareIdManager manager = getShareIdManager();
             for (Parameter<AuthorizationGuard> param : annotatedParameters)
             {
                 Object guarded = args[param.getIndex()];
-                Status status = evaluateGuard(sessionToken, recv, param, guarded);
-                if (status != Status.OK)
+                List<String> dataSetCodes = getDataSetCodes(param, guarded);
+                for (String dataSetCode : dataSetCodes)
                 {
-                    authorizationLog.info(String.format(
-                            "[SESSION:'%s' DATA_SET:%s]: Authorization failure while "
-                                    + "invoking method '%s'", sessionToken, guarded,
-                            MethodUtils.describeMethod(methodInvocation.getMethod())));
-                    String errorMessage = "Data set does not exist.";
-                    if (null != status.tryGetErrorMessage())
-                    {
-                        errorMessage = status.tryGetErrorMessage();
-                    }
-
-                    throw new AuthorizationFailureException(errorMessage);
+                    manager.lock(dataSetCode);
                 }
             }
-
-            return methodInvocation.proceed();
+            try
+            {
+                final boolean requiresInstanceAdmin =
+                    checkRequiresInstanceAdmin(methodInvocation.getMethod(), sessionToken);
+                // At least one of the parameters must be annotated
+                assert requiresInstanceAdmin || annotatedParameters.size() > 0 : "No guard defined";
+                
+                if (requiresInstanceAdmin)
+                {
+                    // An instance admin is allowed to work on all data sets.
+                    return methodInvocation.proceed();
+                }
+                
+                final Object recv = methodInvocation.getThis();
+                
+                for (Parameter<AuthorizationGuard> param : annotatedParameters)
+                {
+                    Object guarded = args[param.getIndex()];
+                    Status status = evaluateGuard(sessionToken, recv, param, guarded);
+                    if (status != Status.OK)
+                    {
+                        authorizationLog.info(String.format(
+                                "[SESSION:'%s' DATA_SET:%s]: Authorization failure while "
+                                + "invoking method '%s'", sessionToken, guarded,
+                                MethodUtils.describeMethod(methodInvocation.getMethod())));
+                        String errorMessage = "Data set does not exist.";
+                        if (null != status.tryGetErrorMessage())
+                        {
+                            errorMessage = status.tryGetErrorMessage();
+                        }
+                        
+                        throw new AuthorizationFailureException(errorMessage);
+                    }
+                }
+                
+                return methodInvocation.proceed();
+            } finally
+            {
+                manager.releaseLocks();
+            }
         }
 
         private boolean checkRequiresInstanceAdmin(final Method method, final String sessionToken)
@@ -188,8 +214,20 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
          */
         @SuppressWarnings(
             { "rawtypes", "unchecked" })
-        private Status evaluateGuard(String sessionToken, Object recv,
-                Parameter<AuthorizationGuard> param, Object guarded)
+        private List<String> getDataSetCodes(Parameter<AuthorizationGuard> param, Object guarded)
+        {
+            IAuthorizationGuardPredicate predicate = createPredicate(param);
+            return predicate.getDataSetCodes(guarded);
+        }
+        
+        /**
+         * Because the predicate is being invoked in a context in which its types are not known,
+         * there is no way to do this in a statically type-safe way.
+         */
+        @SuppressWarnings(
+                { "rawtypes", "unchecked" })
+                private Status evaluateGuard(String sessionToken, Object recv,
+                        Parameter<AuthorizationGuard> param, Object guarded)
         {
             IAuthorizationGuardPredicate predicate = createPredicate(param);
             return predicate.evaluate(recv, sessionToken, guarded);
@@ -218,7 +256,7 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
         
         private IShareIdManager getShareIdManager()
         {
-            if (shareIdManager != null)
+            if (shareIdManager == null)
             {
                 shareIdManager = ServiceProvider.getShareIdManager();
             }

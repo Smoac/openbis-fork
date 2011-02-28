@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization;
 
+import java.util.Arrays;
+import java.util.List;
+
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
@@ -38,6 +41,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 public class NewDataSetPredicate implements
         IAuthorizationGuardPredicate<IDssServiceRpcGeneric, NewDataSetDTO>
 {
+    
+    public List<String> getDataSetCodes(NewDataSetDTO argument)
+    {
+        return Arrays.asList();
+    }
+
     public Status evaluate(IDssServiceRpcGeneric receiver, String sessionToken,
             NewDataSetDTO newDataSet) throws UserFailureException
     {

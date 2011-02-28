@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.IDataSetPredicate;
 
 /**
  * Interface for objects that can function as guardClasses in an AuthorizationGuard.
@@ -29,7 +30,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public interface IAuthorizationGuardPredicate<T /* Receiver */, D /* Argument */>
+public interface IAuthorizationGuardPredicate<T /* Receiver */, D /* Argument */> extends IDataSetPredicate<D>
 {
 
     /**

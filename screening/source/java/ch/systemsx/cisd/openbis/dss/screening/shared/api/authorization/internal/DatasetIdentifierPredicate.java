@@ -19,10 +19,7 @@ package ch.systemsx.cisd.openbis.dss.screening.shared.api.authorization.internal
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.DssSessionAuthorizationHolder;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.IAuthorizationGuardPredicate;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.AbstractDataSetAccessPredicate;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 
@@ -33,18 +30,11 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdent
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class DatasetIdentifierPredicate implements
-        IAuthorizationGuardPredicate<IDssServiceRpcScreening, List<? extends IDatasetIdentifier>>
+public class DatasetIdentifierPredicate extends
+        AbstractDataSetAccessPredicate<IDssServiceRpcScreening, List<? extends IDatasetIdentifier>>
 {
 
-    public Status evaluate(IDssServiceRpcScreening receiver, String sessionToken,
-            List<? extends IDatasetIdentifier> datasetIdentifiers) throws UserFailureException
-    {
-        return DssSessionAuthorizationHolder.getAuthorizer().checkDatasetAccess(
-                sessionToken, getDatasetCodes(datasetIdentifiers));
-    }
-
-    private List<String> getDatasetCodes(List<? extends IDatasetIdentifier> datasetIdentifiers)
+    public List<String> getDataSetCodes(List<? extends IDatasetIdentifier> datasetIdentifiers)
     {
         final List<String> result = new ArrayList<String>();
         for (IDatasetIdentifier id : datasetIdentifiers)

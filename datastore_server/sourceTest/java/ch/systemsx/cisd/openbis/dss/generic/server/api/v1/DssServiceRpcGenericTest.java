@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.api.v1;
 
 import java.io.File;
+import java.util.Arrays;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -72,7 +73,7 @@ public class DssServiceRpcGenericTest extends AbstractFileSystemTestCase
         proxyFactoryBean.setInterfaces(new Class[] {IDssServiceRpcGeneric.class});
         DssServiceRpcGeneric nakedDssService = new DssServiceRpcGeneric(service, shareIdManager);
         proxyFactoryBean.setTarget(nakedDssService);
-        proxyFactoryBean.addAdvisor(new DssServiceRpcAuthorizationAdvisor());
+        proxyFactoryBean.addAdvisor(new DssServiceRpcAuthorizationAdvisor(shareIdManager));
         dssService = (IDssServiceRpcGeneric) proxyFactoryBean.getObject();
         context.checking(new Expectations()
             {
@@ -100,7 +101,7 @@ public class DssServiceRpcGenericTest extends AbstractFileSystemTestCase
     {
         final String dataSetCode = "ds-1";
         prepareCheckDataSetAccess(dataSetCode);
-        prepareCheckDataSetAccess(dataSetCode);
+        prepareLockDataSet(dataSetCode);
         prepareGetShareId(dataSetCode);
         File location =
                 DatasetLocationUtil.getDatasetLocationPath(store, dataSetCode,
@@ -126,13 +127,25 @@ public class DssServiceRpcGenericTest extends AbstractFileSystemTestCase
             });
     }
 
-    private void prepareCheckDataSetAccess(final String dataSetCode)
+    private void prepareLockDataSet(final String dataSetCode)
     {
         context.checking(new Expectations()
             {
                 {
-                    one(service).checkDataSetAccess(SESSION_TOKEN, dataSetCode);
+                    one(shareIdManager).lock(dataSetCode);
+                    one(shareIdManager).releaseLocks();
                 }
             });
+    }
+    
+    private void prepareCheckDataSetAccess(final String dataSetCode)
+    {
+        context.checking(new Expectations()
+        {
+            {
+                one(service).checkDataSetAccess(SESSION_TOKEN, dataSetCode);
+                one(service).checkDataSetCollectionAccess(SESSION_TOKEN, Arrays.asList(dataSetCode));
+            }
+        });
     }
 }
