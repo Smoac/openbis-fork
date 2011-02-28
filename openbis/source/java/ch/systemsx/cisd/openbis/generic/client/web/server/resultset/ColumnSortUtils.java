@@ -98,7 +98,6 @@ class ColumnSortUtils
             };
     }
 
-    @SuppressWarnings("unchecked")
     private static <T> Comparator<GridRowModel<T>> createAlphanumComparator(
             final IColumnDefinition<T> sortField)
     {
