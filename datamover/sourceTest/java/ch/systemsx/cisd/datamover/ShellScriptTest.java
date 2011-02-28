@@ -60,23 +60,23 @@ public class ShellScriptTest
 
     private static final File PID_FILE = new File(WORKING_DIRECTORY, PID_FILE_NAME);
 
-    private static final File MARKER_FILE_INCOMING_PROCESSING =
-            new File(WORKING_DIRECTORY, DataMover.INCOMING_PROCESS_MARKER_FILENAME);
+    private static final File MARKER_FILE_INCOMING_PROCESSING = new File(WORKING_DIRECTORY,
+            DataMover.INCOMING_PROCESS_MARKER_FILENAME);
 
-    private static final File MARKER_FILE_OUTGOING_PROCESSING =
-            new File(WORKING_DIRECTORY, DataMover.OUTGOING_PROCESS_MARKER_FILENAME);
+    private static final File MARKER_FILE_OUTGOING_PROCESSING = new File(WORKING_DIRECTORY,
+            DataMover.OUTGOING_PROCESS_MARKER_FILENAME);
 
-    private static final File MARKER_FILE_SHUTDOWN =
-            new File(WORKING_DIRECTORY, DataMover.SHUTDOWN_MARKER_FILENAME);
+    private static final File MARKER_FILE_SHUTDOWN = new File(WORKING_DIRECTORY,
+            DataMover.SHUTDOWN_MARKER_FILENAME);
 
-    private static final File TARGET_LOCATION_FILE =
-            new File(WORKING_DIRECTORY, DataMover.OUTGOING_TARGET_LOCATION_FILE);
+    private static final File TARGET_LOCATION_FILE = new File(WORKING_DIRECTORY,
+            DataMover.OUTGOING_TARGET_LOCATION_FILE);
 
-    private static final File MARKER_FILE_INCOMING_ERROR =
-            new File(WORKING_DIRECTORY, DataMover.INCOMING_ERROR_MARKER_FILENAME);
+    private static final File MARKER_FILE_INCOMING_ERROR = new File(WORKING_DIRECTORY,
+            DataMover.INCOMING_ERROR_MARKER_FILENAME);
 
-    private static final File MARKER_FILE_OUTGOING_ERROR =
-            new File(WORKING_DIRECTORY, DataMover.OUTGOING_ERROR_MARKER_FILENAME);
+    private static final File MARKER_FILE_OUTGOING_ERROR = new File(WORKING_DIRECTORY,
+            DataMover.OUTGOING_ERROR_MARKER_FILENAME);
 
     private Logger operationLog;
 
@@ -126,7 +126,7 @@ public class ShellScriptTest
     public void testStatusIdle() throws IOException
     {
         // Convention for unit tests to get PID accepted as "running".
-        FileUtils.writeStringToFile(PID_FILE, "fake"); 
+        FileUtils.writeStringToFile(PID_FILE, "fake");
         checkStatus(0, "IDLE", false);
         checkStatus(0, "Datamover (pid fake) is running and in idle state", true);
     }
@@ -135,7 +135,7 @@ public class ShellScriptTest
     public void testStatusProcessing() throws IOException
     {
         // Convention for unit tests to get PID accepted as "running".
-        FileUtils.writeStringToFile(PID_FILE, "fake"); 
+        FileUtils.writeStringToFile(PID_FILE, "fake");
         FileUtils.touch(MARKER_FILE_INCOMING_PROCESSING);
         checkStatus(0, "PROCESSING", false);
         checkStatus(0, "Datamover (pid fake) is running and in processing state", true);
@@ -147,7 +147,7 @@ public class ShellScriptTest
     public void testStatusError() throws IOException
     {
         // Convention for unit tests to get PID accepted as "running".
-        FileUtils.writeStringToFile(PID_FILE, "fake"); 
+        FileUtils.writeStringToFile(PID_FILE, "fake");
         FileUtils.touch(MARKER_FILE_INCOMING_ERROR);
         checkStatus(1, "ERROR", false);
         checkStatus(1, "Datamover (pid fake) is running and in error state:", true, 2);
@@ -159,7 +159,7 @@ public class ShellScriptTest
     public void testStatusShutdown() throws IOException
     {
         // Convention for unit tests to get PID accepted as "running".
-        FileUtils.writeStringToFile(PID_FILE, "fake"); 
+        FileUtils.writeStringToFile(PID_FILE, "fake");
         FileUtils.touch(MARKER_FILE_SHUTDOWN);
         checkStatus(2, "SHUTDOWN", false);
         checkStatus(2, "Datamover (pid fake) is in shutdown mode", true);
@@ -208,6 +208,7 @@ public class ShellScriptTest
         command.add("sh");
         command.add(SCRIPT_FILE.getAbsolutePath());
         command.addAll(Arrays.asList(arguments));
+        @SuppressWarnings("deprecation")
         ProcessResult result =
                 ProcessExecutionHelper.run(command, operationLog, machineLog,
                         ConcurrencyUtilities.NO_TIMEOUT,
