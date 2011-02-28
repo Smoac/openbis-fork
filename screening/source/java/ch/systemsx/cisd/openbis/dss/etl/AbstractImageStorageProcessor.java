@@ -302,8 +302,8 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
             shouldDeleteOriginalDataOnCommit =
                     imageStorageConfiguraton.getOriginalDataStorageFormat().isHdf5();
 
-            IImagingQueryDAO transaction = createQuery();
-            storeInDatabase(transaction, dataSetInformation, extractionResult);
+            dbTransaction = createQuery();
+            storeInDatabase(dbTransaction, dataSetInformation, extractionResult);
 
             return rootDirectory;
         }
