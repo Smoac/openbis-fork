@@ -84,7 +84,7 @@ public final class BufferedAppender extends WriterAppender
                     public int decide(LoggingEvent event)
                     {
                         return event.getLoggerName().endsWith(className) ? Filter.ACCEPT
-                                : Filter.NEUTRAL;
+                                : Filter.DENY;
                     }
                 });
         }
