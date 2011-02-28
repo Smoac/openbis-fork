@@ -33,11 +33,13 @@ import ch.systemsx.cisd.common.utilities.AnnotationUtils;
 import ch.systemsx.cisd.common.utilities.AnnotationUtils.Parameter;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.MethodUtils;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal.AuthorizationGuard;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal.DataSetAccessGuard;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal.DssSessionAuthorizationHolder;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal.IAuthorizationGuardPredicate;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal.IDssSessionAuthorizer;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.AuthorizationGuard;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.DataSetAccessGuard;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.DssSessionAuthorizationHolder;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.IAuthorizationGuardPredicate;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.IDssSessionAuthorizer;
 
 /**
  * The advisor for authorization in the DSS RPC interfaces.
@@ -95,6 +97,8 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
      */
     public static class DssServiceRpcAuthorizationMethodInterceptor implements MethodInterceptor
     {
+        private IShareIdManager shareIdManager;
+        
         /**
          * Get the session token and any guarded parameters and invoke the guards on those
          * parameters.
@@ -106,6 +110,9 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
             List<Parameter<AuthorizationGuard>> annotatedParameters =
                     AnnotationUtils.getAnnotatedParameters(methodInvocation.getMethod(),
                             AuthorizationGuard.class);
+            for (Parameter<AuthorizationGuard> param : annotatedParameters)
+            {
+            }
             final boolean requiresInstanceAdmin =
                     checkRequiresInstanceAdmin(methodInvocation.getMethod(), sessionToken);
             // At least one of the parameters must be annotated
@@ -207,6 +214,15 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
             assert firstObject instanceof String : "The session token should be the first argument.";
 
             return (String) firstObject;
+        }
+        
+        private IShareIdManager getShareIdManager()
+        {
+            if (shareIdManager != null)
+            {
+                shareIdManager = ServiceProvider.getShareIdManager();
+            }
+            return shareIdManager;
         }
     }
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal;
+package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization;
 
 import java.io.File;
 

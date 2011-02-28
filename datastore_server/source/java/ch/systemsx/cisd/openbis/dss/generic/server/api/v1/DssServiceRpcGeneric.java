@@ -28,7 +28,7 @@ import ch.systemsx.cisd.etlserver.api.v1.PutDataSetService;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDssServiceRpc;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal.IDssServiceRpcGenericInternal;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.IDssServiceRpcGenericInternal;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataSetFileDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;

@@ -60,7 +60,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal.DssSessionAuthorizationHolder;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.DssSessionAuthorizationHolder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;

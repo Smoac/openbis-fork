@@ -14,29 +14,26 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal;
+package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataSetFileDTO;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 
 /**
- * Predicate for checking that the current user has access to a data set specified by a
- * DataSetFileDTO
+ * Predicate for checking that the current user has access to a data set specified by code.
  * <p>
  * <i>This is an internal class. Do not use it as a user of the API.</i>
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class DataSetFileDTOPredicate implements
-        IAuthorizationGuardPredicate<IDssServiceRpcGeneric, DataSetFileDTO>
+public class DataSetCodeStringPredicate implements
+        IAuthorizationGuardPredicate<IDssServiceRpcGenericInternal, String>
 {
-    public Status evaluate(IDssServiceRpcGeneric receiver, String sessionToken,
-            DataSetFileDTO dataSetFile) throws UserFailureException
+    public Status evaluate(IDssServiceRpcGenericInternal receiver, String sessionToken,
+            String datasetCode) throws UserFailureException
     {
         return DssSessionAuthorizationHolder.getAuthorizer().checkDatasetAccess(sessionToken,
-                dataSetFile.getDataSetCode());
+                datasetCode);
     }
 
 }

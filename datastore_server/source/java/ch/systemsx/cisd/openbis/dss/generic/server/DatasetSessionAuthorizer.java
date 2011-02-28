@@ -26,7 +26,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.internal.IDssSessionAuthorizer;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.IDssSessionAuthorizer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
