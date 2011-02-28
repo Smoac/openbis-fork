@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.internal;
+package ch.systemsx.cisd.openbis.plugin.screening.shared.api.internal.authorization;
 
 import java.util.List;
 

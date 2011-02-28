@@ -67,7 +67,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.SpaceCodeHelper;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningQuery;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.PlateGeometryContainer;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.internal.ScreeningExperimentValidator;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.internal.authorization.ScreeningExperimentValidator;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;

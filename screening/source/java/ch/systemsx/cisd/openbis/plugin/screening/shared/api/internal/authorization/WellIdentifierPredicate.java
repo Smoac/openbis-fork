@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.internal;
+package ch.systemsx.cisd.openbis.plugin.screening.shared.api.internal.authorization;
 
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DelegatedPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SamplePermIdPredicate;
