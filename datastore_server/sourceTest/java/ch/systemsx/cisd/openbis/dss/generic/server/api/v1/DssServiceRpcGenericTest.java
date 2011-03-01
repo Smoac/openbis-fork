@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.api.v1;
 
 import java.io.File;
-import java.util.Arrays;
+import java.util.Collections;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -100,8 +100,8 @@ public class DssServiceRpcGenericTest extends AbstractFileSystemTestCase
     public void testFilesForData() 
     {
         final String dataSetCode = "ds-1";
-        prepareCheckDataSetAccess(dataSetCode);
         prepareLockDataSet(dataSetCode);
+        prepareAuthorizationCheck(dataSetCode);
         prepareGetShareId(dataSetCode);
         File location =
                 DatasetLocationUtil.getDatasetLocationPath(store, dataSetCode,
@@ -116,17 +116,6 @@ public class DssServiceRpcGenericTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
-    private void prepareGetShareId(final String dataSetCode)
-    {
-        context.checking(new Expectations()
-            {
-                {
-                    one(shareIdManager).getShareId(dataSetCode);
-                    will(returnValue(Constants.DEFAULT_SHARE_ID));
-                }
-            });
-    }
-
     private void prepareLockDataSet(final String dataSetCode)
     {
         context.checking(new Expectations()
@@ -137,15 +126,27 @@ public class DssServiceRpcGenericTest extends AbstractFileSystemTestCase
                 }
             });
     }
-    
-    private void prepareCheckDataSetAccess(final String dataSetCode)
+
+    private void prepareAuthorizationCheck(final String dataSetCode)
     {
         context.checking(new Expectations()
-        {
             {
-                one(service).checkDataSetAccess(SESSION_TOKEN, dataSetCode);
-                one(service).checkDataSetCollectionAccess(SESSION_TOKEN, Arrays.asList(dataSetCode));
-            }
-        });
+                {
+                    one(service).checkDataSetCollectionAccess(SESSION_TOKEN,
+                            Collections.singletonList(dataSetCode));
+                }
+            });
+
+    }
+
+    private void prepareGetShareId(final String dataSetCode)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(shareIdManager).getShareId(dataSetCode);
+                    will(returnValue(Constants.DEFAULT_SHARE_ID));
+                }
+            });
     }
 }

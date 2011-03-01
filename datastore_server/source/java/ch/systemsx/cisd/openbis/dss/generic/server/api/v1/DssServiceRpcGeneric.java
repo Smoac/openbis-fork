@@ -83,7 +83,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
     public FileInfoDssDTO[] listFilesForDataSet(String sessionToken, String dataSetCode,
             String startPath, boolean isRecursive) throws IllegalArgumentException
     {
-        File dataSetRootDirectory = checkAccessAndGetRootDirectory(sessionToken, dataSetCode);
+        File dataSetRootDirectory = getRootDirectory(dataSetCode);
 
         try
         {
@@ -115,7 +115,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
     {
         try
         {
-            File requestedFile = checkAccessAndGetFile(sessionToken, dataSetCode, path);
+            File requestedFile = getDatasetFile(dataSetCode, path);
             return new FileInputStream(requestedFile);
         } catch (IOException ex)
         {
@@ -175,7 +175,6 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
     public void setDirectories(File store, File incoming)
     {
         // TODO Auto-generated method stub
-        
     }
 
     @Override
@@ -195,7 +194,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
             String overrideStoreRootPathOrNull) throws IOExceptionUnchecked,
             IllegalArgumentException
     {
-        File rootDir = checkAccessAndGetRootDirectory(sessionToken, dataSetCode);
+        File rootDir = getRootDirectory(dataSetCode);
         return convertPath(getStoreDirectory(), rootDir, overrideStoreRootPathOrNull);
     }
 

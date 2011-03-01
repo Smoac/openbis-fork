@@ -38,7 +38,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
 import ch.systemsx.cisd.common.io.ConcatenatedContentInputStream;
 import ch.systemsx.cisd.common.io.FileBasedContent;
@@ -414,30 +413,6 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         FileInfoDssDTO fileInfo = fileInfos[0];
         assertEquals("/stuff/bar.txt", fileInfo.getPathInDataSet());
         assertEquals("bar.txt", fileInfo.getPathInListing());
-
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public void testInaccessibleDataSetListing()
-    {
-        final String badDataSetCode = "BAD";
-        context.checking(new Expectations()
-            {
-                {
-                    one(openBisService).checkDataSetAccess(SESSION_TOKEN, badDataSetCode);
-                    will(throwException(new UserFailureException("Data set not accessible")));
-                }
-            });
-
-        try
-        {
-            rpcService.listFilesForDataSet(SESSION_TOKEN, badDataSetCode, "/", true);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex)
-        {
-            // correct
-        }
 
         context.assertIsSatisfied();
     }

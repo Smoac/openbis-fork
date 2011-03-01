@@ -24,7 +24,6 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.spring.AbstractServiceWithLogger;
@@ -120,31 +119,6 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
         return homeDatabaseInstance;
     }
 
-    /**
-     * Check with openBIS if the user with the given sessionToken is allowed to access the data set
-     * specified by the dataSetCode.
-     */
-    protected boolean isDatasetAccessible(String sessionToken, String dataSetCode)
-    {
-        boolean access;
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info(String.format("Check access to the data set '%s' on openBIS server.",
-                    dataSetCode));
-        }
-
-        try
-        {
-            openBISService.checkDataSetAccess(sessionToken, dataSetCode);
-            access = true;
-        } catch (UserFailureException ex)
-        {
-            access = false;
-        }
-
-        return access;
-    }
-
     protected File getRootDirectory(String datasetCode)
     {
         return getRootDirectoryForDataSet(datasetCode, getShareIdManager().getShareId(datasetCode));
@@ -159,16 +133,6 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
                 DatasetLocationUtil.getDatasetLocationPath(getStoreDirectory(), code, shareId,
                         getHomeDatabaseInstance().getUuid());
         return dataSetRootDirectory;
-    }
-
-    protected File checkAccessAndGetRootDirectory(String sessionToken, String dataSetCode)
-            throws IllegalArgumentException
-    {
-        if (isDatasetAccessible(sessionToken, dataSetCode) == false)
-        {
-            throw new IllegalArgumentException("Path does not exist.");
-        }
-        return getRootDirectory(dataSetCode);
     }
 
     /**
@@ -192,15 +156,9 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
         return rootDirectories;
     }
 
-    protected File checkAccessAndGetFile(String sessionToken, String dataSetCode, String path)
-            throws IOException, IllegalArgumentException
+    protected File getDatasetFile(String dataSetCode, String path) throws IOException
     {
-        File dataSetRootDirectory = checkAccessAndGetRootDirectory(sessionToken, dataSetCode);
-        return getDatasetFile(path, dataSetRootDirectory);
-    }
-
-    private static File getDatasetFile(String path, File dataSetRootDirectory) throws IOException
-    {
+        File dataSetRootDirectory = getRootDirectory(dataSetCode);
         String dataSetRootPath = dataSetRootDirectory.getCanonicalPath();
         File requestedFile = new File(dataSetRootDirectory, path);
         // Make sure the requested file is under the root of the data set

@@ -30,6 +30,7 @@ import org.apache.commons.io.IOUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DssComponentFactory;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
@@ -44,8 +45,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetO
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Test(groups = "slow")
@@ -59,7 +58,11 @@ public class DssComponentTest extends SystemTestCase
                         return f1.getPathInDataSet().compareTo(f2.getPathInDataSet());
                     }
                 };
+
+    private static final String OPENBIS_URL = "http://localhost:8888";
+
     private IDssComponent dss;
+
     private File store;
 
     @BeforeMethod
@@ -67,38 +70,25 @@ public class DssComponentTest extends SystemTestCase
     {
         store = new File(rootDir, "store");
         store.mkdirs();
-        dss = DssComponentFactory.tryCreate("test", "a", "http://localhost:8888");
+        dss = createDssComponent("test");
     }
 
     @Test
     public void testPutDataSet() throws Exception
     {
-        DataSetOwner dataSetOwner = new DataSetOwner(DataSetOwnerType.SAMPLE, "CISD:/CISD/3VCP1");
         File exampleDataSet = new File(workingDirectory, "my-data");
-        exampleDataSet.mkdirs();
-        FileUtilities.writeToFile(new File(exampleDataSet, "data.log"), "hello world");
-        FileUtilities.writeToFile(new File(exampleDataSet, "data-set.properties"),
-                "property\tvalue\nCOMMENT\thello");
-        File subFolder = new File(exampleDataSet, "data");
-        subFolder.mkdirs();
-        FileUtilities.writeToFile(new File(subFolder, "1.data"), "1 2 3");
-        FileUtilities.writeToFile(new File(subFolder, "2.data"), "4 5 6 7");
-        String rootPath = exampleDataSet.getCanonicalPath();
-        FileInfoDssBuilder builder = new FileInfoDssBuilder(rootPath, rootPath);
-        ArrayList<FileInfoDssDTO> list = new ArrayList<FileInfoDssDTO>();
-        builder.appendFileInfosForFile(exampleDataSet, list, true);
-        IDataSetDss dataSet = dss.putDataSet(new NewDataSetDTO(dataSetOwner, 
-                exampleDataSet.getName(), list), exampleDataSet);
+        NewDataSetDTO newDataset = createNewDataSetDTO(exampleDataSet);
+        IDataSetDss dataSet = dss.putDataSet(newDataset, exampleDataSet);
         checkDataSet(dataSet);
     }
-    
+
     @Test(dependsOnMethods = "testPutDataSet")
     public void testGetDataSetGetFile() throws Exception
     {
         String code = getCodeOfLatestDataSet().getDataSetCode();
-        
+
         IDataSetDss ds = dss.getDataSet(code);
-        
+
         assertEquals(code, ds.getCode());
         checkDataSet(ds);
         FileInfoDssDTO[] files = ds.listFiles("/original/my-data/data", false);
@@ -123,11 +113,12 @@ public class DssComponentTest extends SystemTestCase
         SimpleDataSetInformationDTO dataSetInfo = getCodeOfLatestDataSet();
         String code = dataSetInfo.getDataSetCode();
         File fileIntoStore =
-                new File(new File(store, ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID),
+                new File(new File(store,
+                        ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID),
                         dataSetInfo.getDataSetLocation());
-        
+
         IDataSetDss ds = dss.getDataSet(code);
-        
+
         File link = ds.tryLinkToContents(null);
         assertEquals(fileIntoStore.getAbsolutePath(), link.getAbsolutePath());
         File file = ds.getLinkOrCopyOfContents(null, workingDirectory);
@@ -139,9 +130,9 @@ public class DssComponentTest extends SystemTestCase
     {
         SimpleDataSetInformationDTO dataSetInfo = getCodeOfLatestDataSet();
         String code = dataSetInfo.getDataSetCode();
-        
+
         IDataSetDss ds = dss.getDataSet(code);
-        
+
         assertEquals(null, ds.tryLinkToContents("blabla"));
         File file = ds.getLinkOrCopyOfContents("blabla", workingDirectory);
         assertContent("hello world", file, "data.log");
@@ -149,12 +140,55 @@ public class DssComponentTest extends SystemTestCase
         assertContent("4 5 6 7", file, "data/2.data");
     }
 
+    @Test(expectedExceptions = AuthorizationFailureException.class)
+    public void testObserverHasNoWritePermissions() throws Exception
+    {
+        dss = createDssComponent("observer");
+        File exampleDataSet = new File(workingDirectory, "observer-data");
+        NewDataSetDTO newDataset = createNewDataSetDTO(exampleDataSet);
+        dss.putDataSet(newDataset, exampleDataSet);
+    }
+
+    @Test(dependsOnMethods = "testPutDataSet", expectedExceptions = AuthorizationFailureException.class)
+    public void testObserverHasNoReadPermissions() throws Exception
+    {
+        dss = createDssComponent("observer");
+        SimpleDataSetInformationDTO dataSetInfo = getCodeOfLatestDataSet();
+        String code = dataSetInfo.getDataSetCode();
+        IDataSetDss dataSet = dss.getDataSet(code);
+        dataSet.listFiles("/", true);
+    }
+
+    private IDssComponent createDssComponent(String userName)
+    {
+        return DssComponentFactory.tryCreate(userName, "a", OPENBIS_URL);
+    }
+
+    private NewDataSetDTO createNewDataSetDTO(File exampleDataSet) throws IOException
+    {
+        DataSetOwner dataSetOwner = new DataSetOwner(DataSetOwnerType.SAMPLE, "CISD:/CISD/3VCP1");
+        exampleDataSet.mkdirs();
+        FileUtilities.writeToFile(new File(exampleDataSet, "data.log"), "hello world");
+        FileUtilities.writeToFile(new File(exampleDataSet, "data-set.properties"),
+                "property\tvalue\nCOMMENT\thello");
+        File subFolder = new File(exampleDataSet, "data");
+        subFolder.mkdirs();
+        FileUtilities.writeToFile(new File(subFolder, "1.data"), "1 2 3");
+        FileUtilities.writeToFile(new File(subFolder, "2.data"), "4 5 6 7");
+        String rootPath = exampleDataSet.getCanonicalPath();
+        FileInfoDssBuilder builder = new FileInfoDssBuilder(rootPath, rootPath);
+        ArrayList<FileInfoDssDTO> list = new ArrayList<FileInfoDssDTO>();
+        builder.appendFileInfosForFile(exampleDataSet, list, true);
+        NewDataSetDTO newDataset = new NewDataSetDTO(dataSetOwner, exampleDataSet.getName(), list);
+        return newDataset;
+    }
+
     private void assertContent(String expectedContent, File root, String path)
     {
         assertEquals(expectedContent,
                 FileUtilities.loadToString(new File(root, "original/my-data/" + path)).trim());
     }
-    
+
     private SimpleDataSetInformationDTO getCodeOfLatestDataSet()
     {
         IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
@@ -168,7 +202,7 @@ public class DssComponentTest extends SystemTestCase
             });
         return dataSets.get(0);
     }
-    
+
     private void checkDataSet(IDataSetDss dataSet) throws IOException
     {
         assertEquals("hello world", getContent(dataSet, "data.log"));

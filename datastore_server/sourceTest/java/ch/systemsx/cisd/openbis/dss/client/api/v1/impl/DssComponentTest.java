@@ -402,13 +402,11 @@ public class DssComponentTest extends AbstractFileSystemTestCase
 
         dssServiceV1_0 =
                 getAdvisedDssService(new MockDssServiceRpcV1_0(null, shareIdManager, fileInfos,
-                        new FileInputStream(randomDataFile), isDataSetAccessible == null ? true
-                                : isDataSetAccessible));
+                        new FileInputStream(randomDataFile)));
 
         dssServiceV1_1 =
                 getAdvisedDssService(new MockDssServiceRpcV1_1(null, shareIdManager, fileInfos,
-                        new FileInputStream(randomDataFile), isDataSetAccessible == null ? true
-                                : isDataSetAccessible));
+                        new FileInputStream(randomDataFile)));
 
         context.checking(new Expectations()
             {
@@ -489,19 +487,16 @@ public class DssComponentTest extends AbstractFileSystemTestCase
 
         private final FileInputStream fileInputStream;
 
-        private final boolean isDataSetAccessible;
-
         /**
          * @param openBISService
          */
         public MockDssServiceRpcV1_0(IEncapsulatedOpenBISService openBISService,
                 IShareIdManager shareIdManager, FileInfoDssDTO[] fileInfos,
-                FileInputStream fileInputStream, boolean isDataSetAccessible)
+                FileInputStream fileInputStream)
         {
             super(openBISService, shareIdManager);
             this.fileInfos = fileInfos;
             this.fileInputStream = fileInputStream;
-            this.isDataSetAccessible = isDataSetAccessible;
         }
 
         public InputStream getFileForDataSet(String sessionToken, DataSetFileDTO fileOrFolder)
@@ -545,12 +540,6 @@ public class DssComponentTest extends AbstractFileSystemTestCase
             return 0;
         }
 
-        @Override
-        protected boolean isDatasetAccessible(String sessionToken, String dataSetCode)
-        {
-            return isDataSetAccessible;
-        }
-
         public String getPathToDataSet(String sessionToken, String dataSetCode,
                 String overrideStoreRootPathOrNull) throws IOExceptionUnchecked,
                 IllegalArgumentException
@@ -571,13 +560,12 @@ public class DssComponentTest extends AbstractFileSystemTestCase
          * @param openBISService
          * @param fileInfos
          * @param fileInputStream
-         * @param isDataSetAccessible
          */
         public MockDssServiceRpcV1_1(IEncapsulatedOpenBISService openBISService,
                 IShareIdManager shareIdManager, FileInfoDssDTO[] fileInfos,
-                FileInputStream fileInputStream, boolean isDataSetAccessible)
+                FileInputStream fileInputStream)
         {
-            super(openBISService, shareIdManager, fileInfos, fileInputStream, isDataSetAccessible);
+            super(openBISService, shareIdManager, fileInfos, fileInputStream);
         }
 
         @Override
