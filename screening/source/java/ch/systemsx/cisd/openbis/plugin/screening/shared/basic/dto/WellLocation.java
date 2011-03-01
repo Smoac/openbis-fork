@@ -202,8 +202,14 @@ public class WellLocation implements ISerializable
 
     public WellLocation(int row, int column)
     {
-        assert row > 0 : createNonPositiveErrorMsg("row", row);
-        assert column > 0 : createNonPositiveErrorMsg("column", column);
+        if (row <= 0)
+        {
+            throw new IllegalArgumentException(createNonPositiveErrorMsg("row", row));
+        }
+        if (column <= 0)
+        {
+            throw new IllegalArgumentException(createNonPositiveErrorMsg("column", column));
+        }
         this.row = row;
         this.column = column;
     }
