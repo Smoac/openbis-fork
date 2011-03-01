@@ -75,6 +75,26 @@ DEFAULT_EXPERIMENT_CODE = "E1"
 PLATE_GEOMETRY_PROPERTY_CODE = "$PLATE_GEOMETRY"
 PLATE_GEOMETRY = "384_WELLS_16X24"
 
+def createTransactionAndSampleWithExperiment(plateCode, experimentCode):
+    tr = service.transaction(incoming, factory)
+    
+    sampleIdentifier = "/"+DEFAULT_SPACE+"/"+plateCode
+    plate = tr.getSample(sampleIdentifier)
+    if plate == None:
+        expIdentifier = "/"+DEFAULT_SPACE+"/"+DEFAULT_PROJECT_CODE+"/"+experimentCode
+        experiment = tr.getExperiment(expIdentifier)
+        if experiment == None:
+            experiment = tr.createNewExperiment(expIdentifier, SIRNA_EXP_TYPE)
+            experiment.setPropertyValue("MICROSCOPE", "BD_PATHWAY_855")
+            experiment.setPropertyValue("DESCRIPTION", "koko")
+
+        plate = tr.createNewSample(sampleIdentifier, PLATE_TYPE_CODE)
+        plate.setPropertyValue(PLATE_GEOMETRY_PROPERTY_CODE, PLATE_GEOMETRY)
+        plate.setExperiment(experiment)
+        tr.commit()
+        tr = service.transaction(incoming, factory)
+    return tr, plate
+
 if incoming.isDirectory(): 
     tokens = incoming.getName().split(".")
     if len(tokens) < 2:
@@ -89,26 +109,7 @@ if incoming.isDirectory():
     #factory.registerImageDataset(config, incoming, service)
     imageRegistrationDetails = factory.createImageRegistrationDetails(config, incoming)
 
-    tr = service.transaction(incoming, factory)
-    
-    sampleIdentifier = "/"+DEFAULT_SPACE+"/"+plateCode
-    plate = tr.getSample(sampleIdentifier)
-    if plate == None:
-        expIdentifier = "/"+DEFAULT_SPACE+"/"+DEFAULT_PROJECT_CODE+"/"+experimentCode
-        #expIdentifier = "/"+DEFAULT_SPACE+"/"+DEFAULT_PROJECT_CODE+"/"+DEFAULT_EXPERIMENT_CODE
-        experiment = tr.getExperiment(expIdentifier)
-        if experiment == None:
-            experiment = tr.createNewExperiment(expIdentifier)
-            experiment.setType(SIRNA_EXP_TYPE)
-            experiment.setPropertyValue("MICROSCOPE", "BD_PATHWAY_855")
-            experiment.setPropertyValue("DESCRIPTION", "koko")
-
-        plate = tr.createNewSample(sampleIdentifier)
-        plate.setType(PLATE_TYPE_CODE)
-        plate.setPropertyValue(PLATE_GEOMETRY_PROPERTY_CODE, PLATE_GEOMETRY)
-        plate.setExperiment(experiment)
-        tr.commit()
-        tr = service.transaction(incoming, factory)
+    tr, plate = createTransactionAndSampleWithExperiment(plateCode, experimentCode)
     
     imageDataset = tr.createNewDataSet(imageRegistrationDetails)
     imageDataset.setSample(plate)
