@@ -66,6 +66,83 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.ID
  */
 public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
 {
+    /**
+     * Proxy of an {@link InputStream} which releases locks when {@link #close()} is invoked.
+     */
+    private static final class InputStreamProxy extends InputStream
+    {
+        private final InputStream inputStream;
+        
+        private final IShareIdManager manager;
+        
+        private InputStreamProxy(InputStream inputStream, IShareIdManager manager)
+        {
+            this.inputStream = inputStream;
+            this.manager = manager;
+        }
+        
+        @Override
+        public void close() throws IOException
+        {
+            try
+            {
+                inputStream.close();
+            } finally
+            {
+                manager.releaseLocks();
+            }
+        }
+        
+        @Override
+        public int read(byte[] b, int off, int len) throws IOException
+        {
+            return inputStream.read(b, off, len);
+        }
+
+        @Override
+        public int read() throws IOException
+        {
+            return inputStream.read();
+        }
+        
+        @Override
+        public int read(byte[] b) throws IOException
+        {
+            return inputStream.read(b);
+        }
+
+        @Override
+        public long skip(long n) throws IOException
+        {
+            return inputStream.skip(n);
+        }
+
+        @Override
+        public int available() throws IOException
+        {
+            return inputStream.available();
+        }
+
+        @Override
+        public void mark(int readlimit)
+        {
+            inputStream.mark(readlimit);
+        }
+
+        @Override
+        public void reset() throws IOException
+        {
+            inputStream.reset();
+        }
+
+        @Override
+        public boolean markSupported()
+        {
+            return inputStream.markSupported();
+        }
+
+    }
+    
     private static final long serialVersionUID = 1L;
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
@@ -107,6 +184,7 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
      */
     public static class DssServiceRpcAuthorizationMethodInterceptor implements MethodInterceptor
     {
+
         private IShareIdManager shareIdManager;
         
         public DssServiceRpcAuthorizationMethodInterceptor(IShareIdManager shareIdManager)
@@ -171,23 +249,7 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
                 if (result instanceof InputStream)
                 {
                     shouldLocksAutomaticallyBeReleased = false;
-                    final InputStream inputStream = (InputStream) result;
-                    result = new InputStream()
-                        {
-                            @Override
-                            public int read() throws IOException
-                            {
-                                return inputStream.read();
-                            }
-
-                            @Override
-                            public void close() throws IOException
-                            {
-                                super.close();
-                                manager.releaseLocks();
-                            }
-                            
-                        };
+                    result = new InputStreamProxy((InputStream) result, manager);
                 }
                 return result;
             } finally

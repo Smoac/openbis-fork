@@ -19,6 +19,8 @@ package ch.systemsx.cisd.etlserver.plugins;
 import java.io.File;
 import java.util.Properties;
 
+import ch.systemsx.cisd.common.logging.ISimpleLogger;
+
 
 /**
  * Strategy of moving a data set to another share. Implementations of this interface should
@@ -33,5 +35,5 @@ public interface IDataSetMover
      * its name is the data set code. The destination folder is <code>share</code>. Its name is
      * the share id. Share id and size will be updated on openBIS.
      */
-    public void moveDataSetToAnotherShare(File dataSetDirInStore, File share);
+    public void moveDataSetToAnotherShare(File dataSetDirInStore, File share, ISimpleLogger logger);
 }

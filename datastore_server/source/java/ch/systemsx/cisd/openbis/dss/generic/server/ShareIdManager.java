@@ -67,7 +67,6 @@ public class ShareIdManager implements IShareIdManager
         
         void setShareId(String shareId)
         {
-            await();
             this.shareId = shareId;
         }
         
@@ -84,7 +83,7 @@ public class ShareIdManager implements IShareIdManager
             }
         }
         
-        private void await()
+        void await()
         {
             if (countDownLatch != null)
             {
@@ -168,6 +167,16 @@ public class ShareIdManager implements IShareIdManager
             }
             set.add(Thread.currentThread());
             log(dataSetCode, set);
+        }
+    }
+
+    public void await(String dataSetCode)
+    {
+        Map<String, GuardedShareID> map = getDataSetCodeToShareIdMap();
+        GuardedShareID guardedShareId = map.get(dataSetCode);
+        if (guardedShareId != null)
+        {
+            guardedShareId.await();
         }
     }
 

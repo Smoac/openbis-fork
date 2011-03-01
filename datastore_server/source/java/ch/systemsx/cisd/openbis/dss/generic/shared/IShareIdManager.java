@@ -49,6 +49,11 @@ public interface IShareIdManager
     public void lock(String dataSetCode);
     
     /**
+     * Awaits until specified data set is no longer locked.
+     */
+    public void await(String dataSetCode);
+    
+    /**
      * Unlocks specified data set. Does nothing if lock already released or data set hasn't been
      * locked.
      */

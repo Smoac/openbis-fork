@@ -179,11 +179,11 @@ public class SimpleShuffling implements ISegmentedStoreShuffling
                 fromShare.getDataSetsOrderedBySize().get(dataSetIndex);
         File dataSetDirInStore = new File(fromShare.getShare(), dataSet.getDataSetLocation());
         String commonMessage =
-                "Moving data set " + dataSet.getDataSetCode() + " from share "
+                "Copying data set " + dataSet.getDataSetCode() + " from share "
                         + fromShare.getShareId() + " to share " + toShare.getShareId();
         logger.log(INFO, commonMessage + " ...");
         long t0 = timeProvider.getTimeInMilliseconds();
-        mover.moveDataSetToAnotherShare(dataSetDirInStore, toShare.getShare());
+        mover.moveDataSetToAnotherShare(dataSetDirInStore, toShare.getShare(), logger);
         from.removeDataSet(dataSetIndex);
         to.addDataSet(dataSet);
         logger.log(INFO, commonMessage + " took "

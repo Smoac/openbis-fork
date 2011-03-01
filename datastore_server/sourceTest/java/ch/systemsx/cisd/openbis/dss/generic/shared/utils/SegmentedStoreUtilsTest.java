@@ -29,6 +29,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.common.concurrent.MessageChannel;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.HostAwareFile;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
@@ -51,10 +52,22 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
     private static final class MockLogger implements ISimpleLogger
     {
         private final StringBuilder builder = new StringBuilder();
+        private final MessageChannel messageChannel = new MessageChannel();
         
         public void log(LogLevel level, String message)
         {
             builder.append(level).append(": ").append(message).append('\n');
+            messageChannel.send(message);
+        }
+        
+        public void assertNextLogMessage(String expectedMessage)
+        {
+            messageChannel.assertNextMessage(expectedMessage);
+        }
+        
+        public void assertNoMoreLogMessages()
+        {
+            messageChannel.assertEmpty();
         }
 
         @Override
@@ -69,7 +82,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
     private Mockery context;
     private IEncapsulatedOpenBISService service;
     private IShareIdManager shareIdManager;
-    private ISimpleLogger log;
+    private MockLogger log;
     private IFreeSpaceProvider freeSpaceProvider;
     private ITimeProvider timeProvider;
 
@@ -203,17 +216,22 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
                     
                     one(service).updateShareIdAndSize("ds-1", "2", 11L);
                     one(shareIdManager).setShareId("ds-1", "2");
+                    one(shareIdManager).await("ds-1");
                 }
             });
         assertEquals(true, dataSetDirInStore.exists());
         assertFileNames(share2uuid01, "22");
         
-        SegmentedStoreUtils.moveDataSetToAnotherShare(dataSetDirInStore, share2, service, shareIdManager);
+        SegmentedStoreUtils.moveDataSetToAnotherShare(dataSetDirInStore, share2, service, shareIdManager, log);
 
+        log.assertNextLogMessage("Await for data set ds-1 to be unlocked.");
+        log.assertNextLogMessage("Data set ds-1 at " + share1
+                + "/uuid/01/02/03/ds-1 has been deleted.");
         assertEquals(false, dataSetDirInStore.exists());
         assertFileNames(share2uuid01, "02", "22");
         assertEquals("hello world\n",
                 FileUtilities.loadToString(new File(share2uuid01, "02/03/ds-1/original/hello.txt")));
+        log.assertNoMoreLogMessages();
         context.assertIsSatisfied();
     }
     

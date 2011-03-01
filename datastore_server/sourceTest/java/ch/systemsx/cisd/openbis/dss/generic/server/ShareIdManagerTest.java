@@ -151,7 +151,7 @@ public class ShareIdManagerTest extends AssertJUnit
                     manager.lock(DS1);
                     try
                     {
-                        manager.setShareId(DS1, "1");
+                        manager.await(DS1);
                     } catch (EnvironmentFailureException ex)
                     {
                         System.out.println(ex);
@@ -193,17 +193,15 @@ public class ShareIdManagerTest extends AssertJUnit
             }, "T1").start();
         ch1.assertNextMessage("locked"); // wait until data set is really locked.
 
-        manager.setShareId(DS1, "1");
+        manager.await(DS1);
 
-        assertEquals("1", manager.getShareId(DS1));
         ch1.assertNextMessage("unlocked"); // wait until thread is finished
         assertEquals("INFO  OPERATION.ShareIdManager"
                 + " - Share id manager initialized with 2 data sets.\n"
                 + "DEBUG OPERATION.ShareIdManager - Data set ds1 has been locked.\n"
                 + "DEBUG OPERATION.ShareIdManager"
                 + " - Data set ds1 is locked by the following threads: T1\n"
-                + "DEBUG OPERATION.ShareIdManager - Unlock data set ds1\n"
-                + "INFO  OPERATION.ShareIdManager - New share of data set ds1 is 1",
+                + "DEBUG OPERATION.ShareIdManager - Unlock data set ds1",
                 logRecorder.getLogContent());
     }
 
@@ -240,7 +238,7 @@ public class ShareIdManagerTest extends AssertJUnit
 
         try
         {
-            manager.setShareId(DS1, "1");
+            manager.await(DS1);
             fail("EnvironmentFailureException expected.");
         } catch (EnvironmentFailureException ex)
         {

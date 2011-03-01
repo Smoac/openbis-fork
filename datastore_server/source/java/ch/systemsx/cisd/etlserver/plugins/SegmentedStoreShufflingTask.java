@@ -139,10 +139,11 @@ public class SegmentedStoreShufflingTask implements IMaintenanceTask
 
                         private IShareIdManager manager = ServiceProvider.getShareIdManager();
 
-                        public void moveDataSetToAnotherShare(File dataSetDirInStore, File share)
+                        public void moveDataSetToAnotherShare(File dataSetDirInStore, File share,
+                                ISimpleLogger logger)
                         {
                             SegmentedStoreUtils.moveDataSetToAnotherShare(dataSetDirInStore, share,
-                                    service, manager);
+                                    service, manager, logger);
                         }
                     }, new Log4jSimpleLogger(operationLog));
     }

@@ -216,13 +216,23 @@ public class SegmentedStoreUtils
      * Moves the specified data set to the specified share. The data set is folder in the store its
      * name is the data set code. The destination folder is <code>share</code>. Its name is the
      * share id.
+     * <p>
+     * This method works as follows:
+     * <ol>
+     * <li>Copying data set to new share.
+     * <li>Sanity check of successfully copied data set.
+     * <li>Changing share id in openBIS AS.
+     * <li>Spawn an asynchronous task which deletes the data set at the old location if all locks on
+     * the data set have been released.
+     * </ol>
      * 
      * @param service to access openBIS AS.
      */
-    public static void moveDataSetToAnotherShare(File dataSetDirInStore, File share,
-            IEncapsulatedOpenBISService service, IShareIdManager shareIdManager)
+    public static void moveDataSetToAnotherShare(final File dataSetDirInStore, File share,
+            IEncapsulatedOpenBISService service, final IShareIdManager shareIdManager,
+            final ISimpleLogger logger)
     {
-        String dataSetCode = dataSetDirInStore.getName();
+        final String dataSetCode = dataSetDirInStore.getName();
         ExternalData dataSet = service.tryGetDataSet(dataSetCode);
         if (dataSet == null)
         {
@@ -239,7 +249,18 @@ public class SegmentedStoreUtils
         String shareId = share.getName();
         shareIdManager.setShareId(dataSetCode, shareId);
         service.updateShareIdAndSize(dataSetCode, shareId, size);
-        FileUtilities.deleteRecursively(dataSetDirInStore);
+        new Thread(new Runnable()
+            {
+                public void run()
+                {
+                    logger.log(LogLevel.INFO, "Await for data set " + dataSetCode
+                            + " to be unlocked.");
+                    shareIdManager.await(dataSetCode);
+                    FileUtilities.deleteRecursively(dataSetDirInStore);
+                    logger.log(LogLevel.INFO, "Data set " + dataSetCode + " at "
+                            + dataSetDirInStore + " has been deleted.");
+                }
+            }).start();
     }
 
     private static void copyToShare(File file, File share)
