@@ -151,8 +151,7 @@ public class PlateLayouter
                         { 0, 0 });
                     config.setAnchor(anchor);
                     // WORKAROUND width isn't properly updated - we set fixed value 
-                    config.setMinWidth(150); 
-                    // config.setCloseable(true);
+                    config.setMinWidth(300); 
                     config.setDismissDelay(10000); // 10s to hide
                     GWTUtils.setToolTip(wellComponent, config);
                 }
