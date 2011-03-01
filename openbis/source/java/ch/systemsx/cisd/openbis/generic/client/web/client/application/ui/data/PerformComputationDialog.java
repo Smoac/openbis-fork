@@ -62,16 +62,16 @@ class PerformComputationDialog extends AbstractDataConfirmationDialog<Computatio
 
     private final SelectedOrAllDataSetsRadioProvider radioProvider;
 
-    private final DatastoreServiceDescription selectedPlugin;
+    private final DatastoreServiceDescription pluginTask;
 
     private Html selectedDataSetTypesText;
 
     protected PerformComputationDialog(IViewContext<ICommonClientServiceAsync> viewContext,
-            ComputationData data, String title, DatastoreServiceDescription selectedPlugin)
+            ComputationData data, String title)
     {
         super(viewContext, data, title);
         this.viewContext = viewContext;
-        this.selectedPlugin = selectedPlugin;
+        this.pluginTask = data.getService();
         this.radioProvider = new SelectedOrAllDataSetsRadioProvider(data);
 
         this.dataStoreOrNull = tryGetSingleDatastore(data);
@@ -107,7 +107,7 @@ class PerformComputationDialog extends AbstractDataConfirmationDialog<Computatio
     protected String createMessage()
     {
         int size = data.getSelectedDataSets().size();
-        String computationName = selectedPlugin.getLabel();
+        String computationName = pluginTask.getLabel();
         if (size == 0)
         {
             final String msgIntroduction = viewContext.getMessage(Dict.NO_DATASETS_SELECTED);
@@ -134,12 +134,11 @@ class PerformComputationDialog extends AbstractDataConfirmationDialog<Computatio
     @Override
     protected boolean validate()
     {
-        final DatastoreServiceDescription selectedPluginTask = getSelectedPluginTask();
         final boolean computeOnSelected = getComputeOnSelected();
         if (computeOnSelected)
         {
             // show error message if plugin does not support all types of selected data sets
-            Set<String> supportedDataSetTypes = getSupportedDataSetTypes(selectedPluginTask);
+            Set<String> supportedDataSetTypes = getSupportedDataSetTypes(pluginTask);
             List<String> unsupportedDataSetTypes = new ArrayList<String>();
             for (String selectedDataSetType : selectedDataSetTypeCodes)
             {
@@ -162,19 +161,13 @@ class PerformComputationDialog extends AbstractDataConfirmationDialog<Computatio
     protected void executeConfirmedAction()
     {
         final IComputationAction computationAction = data.getComputationAction();
-        final DatastoreServiceDescription selectedPluginTask = getSelectedPluginTask();
         final boolean computeOnSelected = getComputeOnSelected();
-        computationAction.execute(selectedPluginTask, computeOnSelected);
+        computationAction.execute(pluginTask, computeOnSelected);
     }
 
     private Set<String> getSupportedDataSetTypes(DatastoreServiceDescription plugin)
     {
         return new HashSet<String>(Arrays.asList(plugin.getDatasetTypeCodes()));
-    }
-
-    private DatastoreServiceDescription getSelectedPluginTask()
-    {
-        return selectedPlugin;
     }
 
     @Override

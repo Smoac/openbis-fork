@@ -16,24 +16,29 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset;
 
+import java.util.List;
+
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
+import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableTabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid.SelectedAndDisplayedItems;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetComputeUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetProcessingMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetReportGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DatastoreServiceDescriptionModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.ProcessingPluginSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.ReportingPluginSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.ReportGeneratedCallback.IOnReportComponentGeneratedAction;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 
 /**
@@ -41,9 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescrip
  */
 public abstract class AbstractDataSetsSection extends DisposableTabContent
 {
-    protected final DropDownList<DatastoreServiceDescriptionModel, DatastoreServiceDescription> reportSelectionWidget;
-
-    protected final DropDownList<DatastoreServiceDescriptionModel, DatastoreServiceDescription> processingSelectionWidget;
+    protected final ReportingPluginSelectionWidget reportSelectionWidget;
 
     protected final IOnReportComponentGeneratedAction reportGeneratedAction;
 
@@ -54,8 +57,6 @@ public abstract class AbstractDataSetsSection extends DisposableTabContent
     {
         super(header, viewContext, ownerIdOrNull);
         this.reportSelectionWidget = new ReportingPluginSelectionWidget(viewContext, ownerIdOrNull);
-        this.processingSelectionWidget =
-                new ProcessingPluginSelectionWidget(viewContext, ownerIdOrNull);
         this.reportGeneratedAction = new IOnReportComponentGeneratedAction()
             {
                 public void execute(IDisposableComponent gridComponent)
@@ -68,23 +69,27 @@ public abstract class AbstractDataSetsSection extends DisposableTabContent
 
     protected abstract IDisposableComponent createDatasetBrowserComponent();
 
-    protected void initWidgets()
+    protected void initWidgets(AbstractExternalDataGrid browser)
     {
         getHeader().addTool(reportSelectionWidget);
-        getHeader().addTool(processingSelectionWidget);
+        if (viewContext.isSimpleMode() == false)
+        {
+            // processing plugins should be hidden in simple view mode
+            viewContext.getCommonService().listDataStoreServices(DataStoreServiceKind.PROCESSING,
+                    new LoadProcessingPluginsCallback(viewContext, browser));
+        }
     }
 
     @Override
     protected final IDisposableComponent createDisposableContent()
     {
-        initWidgets();
         metadataComponent = createDatasetBrowserComponent();
+        initWidgets(extractBrowser(metadataComponent));
 
-        SelectionChangedListener<DatastoreServiceDescriptionModel> serviceChangedListener =
-                createServiceSelectionChangedListener(viewContext, metadataComponent,
+        SelectionChangedListener<DatastoreServiceDescriptionModel> reportChangedListener =
+                createReportSelectionChangedListener(viewContext, metadataComponent,
                         reportGeneratedAction);
-        reportSelectionWidget.addSelectionChangedListener(serviceChangedListener);
-        processingSelectionWidget.addSelectionChangedListener(serviceChangedListener);
+        reportSelectionWidget.addSelectionChangedListener(reportChangedListener);
         return metadataComponent;
     }
 
@@ -112,12 +117,16 @@ public abstract class AbstractDataSetsSection extends DisposableTabContent
         metadataComponent.dispose(); // NOTE: second dispose on a grid does nothing
     }
 
-    private static SelectionChangedListener<DatastoreServiceDescriptionModel> createServiceSelectionChangedListener(
+    private static AbstractExternalDataGrid extractBrowser(IDisposableComponent metadataComponent)
+    {
+        return (AbstractExternalDataGrid) metadataComponent.getComponent();
+    }
+
+    private static SelectionChangedListener<DatastoreServiceDescriptionModel> createReportSelectionChangedListener(
             final IViewContext<?> viewContext, final IDisposableComponent metadataComponent,
             final IOnReportComponentGeneratedAction reportGeneratedAction)
     {
-        final AbstractExternalDataGrid browser =
-                (AbstractExternalDataGrid) metadataComponent.getComponent();
+        final AbstractExternalDataGrid browser = extractBrowser(metadataComponent);
         return new SelectionChangedListener<DatastoreServiceDescriptionModel>()
             {
 
@@ -135,27 +144,10 @@ public abstract class AbstractDataSetsSection extends DisposableTabContent
                             showMetadataView();
                         } else
                         {
-                            switch (service.getServiceKind())
-                            {
-                                case PROCESSING:
-                                    process(service);
-                                    break;
-                                case QUERIES:
-                                    showGeneratedReportComponentView(service);
-                                    break;
-                            }
+                            showGeneratedReport(service);
                         }
                     }
 
-                }
-
-                private void process(DatastoreServiceDescription service)
-                {
-                    SelectedAndDisplayedItems items =
-                            browser.getSelectedAndDisplayedItemsAction().execute();
-                    DataSetComputeUtils.createComputeAction(viewContext.getCommonViewContext(),
-                            items, service, service.getServiceKind(), reportGeneratedAction)
-                            .execute();
                 }
 
                 private void showMetadataView()
@@ -163,26 +155,58 @@ public abstract class AbstractDataSetsSection extends DisposableTabContent
                     reportGeneratedAction.execute(metadataComponent);
                 }
 
-                private void showGeneratedReportComponentView(DatastoreServiceDescription service)
+                private void showGeneratedReport(DatastoreServiceDescription service)
                 {
-                    SelectedAndDisplayedItems items =
-                            browser.getSelectedAndDisplayedItemsAction().execute();
+                    assert service.getServiceKind() == DataStoreServiceKind.QUERIES;
+
+                    IDelegatedActionWithResult<SelectedAndDisplayedItems> selectedAndDisplayedItemsAction =
+                            browser.getSelectedAndDisplayedItemsAction();
 
                     if (browser.getSelectedItems().isEmpty())
                     {
-                        // when no data sets were selected perform query without asking
-                        DisplayedOrSelectedDatasetCriteria criteria = items.createCriteria(false);
+                        // when no data sets were selected perform query on all without asking
+                        DisplayedOrSelectedDatasetCriteria criteria =
+                                selectedAndDisplayedItemsAction.execute().createCriteria(false);
                         DataSetReportGenerator.generateAndInvoke(
                                 viewContext.getCommonViewContext(), service, criteria,
                                 reportGeneratedAction);
                     } else
                     {
                         DataSetComputeUtils.createComputeAction(viewContext.getCommonViewContext(),
-                                items, service, service.getServiceKind(), reportGeneratedAction)
+                                selectedAndDisplayedItemsAction, service, reportGeneratedAction)
                                 .execute();
                     }
                 }
+
             };
 
     }
+
+    public final class LoadProcessingPluginsCallback extends
+            AbstractAsyncCallback<List<DatastoreServiceDescription>>
+    {
+        private final AbstractExternalDataGrid browser;
+
+        public LoadProcessingPluginsCallback(final IViewContext<?> viewContext,
+                AbstractExternalDataGrid browser)
+        {
+            super(viewContext);
+            this.browser = browser;
+        }
+
+        @Override
+        protected void process(List<DatastoreServiceDescription> result)
+        {
+            if (result.isEmpty() == false)
+            {
+
+                DataSetProcessingMenu menu =
+                        new DataSetProcessingMenu(viewContext.getCommonViewContext(),
+                                browser.getSelectedAndDisplayedItemsAction(), result);
+                getHeader().addTool(new SeparatorToolItem());
+                getHeader().addTool(menu);
+            }
+        }
+    }
+
 }

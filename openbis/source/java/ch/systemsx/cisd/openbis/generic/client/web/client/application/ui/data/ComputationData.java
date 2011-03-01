@@ -20,30 +20,30 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid.SelectedAndDisplayedItems;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.SelectedOrAllDataSetsRadioProvider.ISelectedDataSetsProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 
 class ComputationData implements ISelectedDataSetsProvider
 {
-    private final DataStoreServiceKind dssTaskKind;
+    private final DatastoreServiceDescription service;
 
     private final IComputationAction computationAction;
 
     private final SelectedAndDisplayedItems selectedAndDisplayedItems;
 
-    public ComputationData(DataStoreServiceKind dssTaskKind,
+    public ComputationData(DatastoreServiceDescription service,
             IComputationAction computationAction,
             SelectedAndDisplayedItems selectedAndDisplayedItems)
     {
         super();
-        this.dssTaskKind = dssTaskKind;
+        this.service = service;
         this.computationAction = computationAction;
         this.selectedAndDisplayedItems = selectedAndDisplayedItems;
     }
 
-    public DataStoreServiceKind getDssTaskKind()
+    public DatastoreServiceDescription getService()
     {
-        return dssTaskKind;
+        return service;
     }
 
     public IComputationAction getComputationAction()

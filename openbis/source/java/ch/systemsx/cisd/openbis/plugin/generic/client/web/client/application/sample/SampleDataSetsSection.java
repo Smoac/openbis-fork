@@ -22,6 +22,7 @@ import com.extjs.gxt.ui.client.widget.form.CheckBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DatastoreServiceDescriptionModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.ReportingPluginSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
@@ -52,7 +53,7 @@ public class SampleDataSetsSection extends AbstractDataSetsSection
     }
 
     @Override
-    protected void initWidgets()
+    protected void initWidgets(AbstractExternalDataGrid browser)
     {
         // first add check box
         getHeader().addTool(showOnlyDirectlyConnectedCheckBox);
@@ -80,7 +81,7 @@ public class SampleDataSetsSection extends AbstractDataSetsSection
                             }
                         }
                     });
-        super.initWidgets();
+        super.initWidgets(browser);
     }
 
     @Override

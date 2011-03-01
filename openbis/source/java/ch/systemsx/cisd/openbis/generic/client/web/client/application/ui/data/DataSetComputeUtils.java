@@ -24,8 +24,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid.SelectedAndDisplayedItems;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.ReportGeneratedCallback.IOnReportComponentGeneratedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 
 /**
@@ -36,27 +36,29 @@ public class DataSetComputeUtils
 
     public static IDelegatedAction createComputeAction(
             final IViewContext<ICommonClientServiceAsync> viewContext,
-            final SelectedAndDisplayedItems selectedAndDisplayedItems,
-            final DatastoreServiceDescription service, final DataStoreServiceKind dssTaskKind,
+            final IDelegatedActionWithResult<SelectedAndDisplayedItems> selectedDataSetsGetter,
+            final DatastoreServiceDescription service,
             final IOnReportComponentGeneratedAction reportGeneratedAction)
     {
         return new IDelegatedAction()
             {
                 public void execute()
                 {
+                    final SelectedAndDisplayedItems selectedAndDisplayedItems =
+                            selectedDataSetsGetter.execute();
                     final IComputationAction computationAction =
                             createComputationAction(viewContext, selectedAndDisplayedItems,
-                                    dssTaskKind, reportGeneratedAction);
+                                    reportGeneratedAction);
                     final ComputationData data =
-                            new ComputationData(dssTaskKind, computationAction,
+                            new ComputationData(service, computationAction,
                                     selectedAndDisplayedItems);
                     createPerformComputationDialog(data).show();
                 }
 
                 private Window createPerformComputationDialog(ComputationData data)
                 {
-                    final String title = "Perform " + dssTaskKind.getDescription();
-                    return new PerformComputationDialog(viewContext, data, title, service);
+                    final String title = "Perform " + service.getLabel();
+                    return new PerformComputationDialog(viewContext, data, title);
                 }
             };
     }
@@ -64,7 +66,6 @@ public class DataSetComputeUtils
     private static IComputationAction createComputationAction(
             final IViewContext<ICommonClientServiceAsync> viewContext,
             final SelectedAndDisplayedItems selectedAndDisplayedItems,
-            final DataStoreServiceKind dssTaskKind,
             final IOnReportComponentGeneratedAction reportGeneratedAction)
     {
         return new IComputationAction()
@@ -73,7 +74,7 @@ public class DataSetComputeUtils
                 {
                     DisplayedOrSelectedDatasetCriteria criteria =
                             selectedAndDisplayedItems.createCriteria(computeOnSelected);
-                    switch (dssTaskKind)
+                    switch (service.getServiceKind())
                     {
                         case QUERIES:
                             DataSetReportGenerator.generateAndInvoke(viewContext, service,
