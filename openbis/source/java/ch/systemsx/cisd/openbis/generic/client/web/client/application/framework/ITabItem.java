@@ -37,7 +37,7 @@ public interface ITabItem extends IClosableItem
      * Usually refreshes the tab if it was detected that relevant database objects have changed.
      * </p>
      */
-    public void onActivate();
+    public void onActivate(String linkOrNull);
 
     /**
      * Returns true if the confirmation dialog should be displayed before closing the tab.

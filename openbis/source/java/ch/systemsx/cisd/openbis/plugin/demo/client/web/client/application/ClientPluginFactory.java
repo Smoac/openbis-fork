@@ -126,7 +126,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
                     {
                         final DemoSampleViewer sampleViewer =
                                 new DemoSampleViewer(getViewContext(), sampleId);
-                        return DefaultTabItem.createUnaware(getTabTitle(), sampleViewer, false);
+                        return DefaultTabItem.createUnaware(getTabTitle(), sampleViewer, false,
+                                getViewContext());
                     }
 
                     @Override
@@ -181,7 +182,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
                     @Override
                     public ITabItem create()
                     {
-                        return createDummyTab(getTabTitle());
+                        return createDummyTab(getTabTitle(), getViewContext());
                     }
 
                     @Override
@@ -212,7 +213,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
 
     }
 
-    private final static class ExperimentClientPlugin extends
+    private final class ExperimentClientPlugin extends
             ClientPluginAdapter<ExperimentType, IIdAndCodeHolder>
     {
 
@@ -229,7 +230,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
                     @Override
                     public ITabItem create()
                     {
-                        return createDummyTab(getTabTitle());
+                        return createDummyTab(getTabTitle(), getViewContext());
                     }
 
                     @Override
@@ -260,10 +261,10 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
         }
     }
 
-    private static ITabItem createDummyTab(final String identifier)
+    private static ITabItem createDummyTab(final String identifier, IViewContext<?> viewContext)
     {
         Component component = new DummyComponent();
-        return DefaultTabItem.createUnaware(identifier, component, false);
+        return DefaultTabItem.createUnaware(identifier, component, false, viewContext);
     }
 
     @Override

@@ -58,6 +58,8 @@ public class DisplaySettings implements ISerializable
     // For new users with clean display settings the debugging mode is disabled
     private boolean debugging = false;
 
+    private String lastHistoryTokenOrNull;
+
     private RealNumberFormatingParameters realNumberFormatingParameters =
             new RealNumberFormatingParameters();
 
@@ -222,4 +224,15 @@ public class DisplaySettings implements ISerializable
     {
         debugging = isDebugging;
     }
+
+    public String getLastHistoryTokenOrNull()
+    {
+        return lastHistoryTokenOrNull;
+    }
+
+    public void setLastHistoryTokenOrNull(String lastHistoryOrNull)
+    {
+        this.lastHistoryTokenOrNull = lastHistoryOrNull;
+    }
+
 }

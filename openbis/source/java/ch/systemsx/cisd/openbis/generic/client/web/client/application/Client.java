@@ -29,6 +29,7 @@ import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
 
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -56,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ViewMode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 
 /**
  * The {@link EntryPoint} implementation.
@@ -314,10 +316,22 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
                 // also for the second user.
                 viewContext.initDisplaySettingsManager();
                 dispatcher.dispatch(AppEvents.INIT);
-                afterInitAction.execute();
+
                 if (viewContext.isSimpleMode() == false)
                 {
                     GWTUtils.setConfirmExitMessage();
+                }
+
+                DisplaySettings displaySettings =
+                        viewContext.getModel().getSessionContext().getDisplaySettings();
+                String lastHistoryOrNull = displaySettings.getLastHistoryTokenOrNull();
+                if (viewContext.isSimpleMode() == false && StringUtils.isBlank(History.getToken())
+                        && StringUtils.isBlank(lastHistoryOrNull) == false)
+                {
+                    History.newItem(lastHistoryOrNull);
+                } else
+                {
+                    afterInitAction.execute();
                 }
             }
         }

@@ -85,9 +85,8 @@ public class MainTabPanel extends TabPanel implements IMainPanel
     {
         final Component mainComponent = WelcomePanelHelper.createWelcomePanel(viewContext, PREFIX);
         final MainTabItem intro =
-                new MainTabItem(
-                        DefaultTabItem.createUnaware(BLANK_TAB_TITLE, mainComponent, false),
-                        mainComponent.getId(), null, null);
+                new MainTabItem(DefaultTabItem.createUnaware(BLANK_TAB_TITLE, mainComponent, false,
+                        viewContext), mainComponent.getId(), null, null);
         intro.setClosable(false);
         return intro;
     }
@@ -319,7 +318,7 @@ public class MainTabPanel extends TabPanel implements IMainPanel
                     {
                         if (be.getType().equals(Events.Select))
                         {
-                            tabItem.onActivate();
+                            tabItem.onActivate(linkOrNull);
                         }
                     }
                 };

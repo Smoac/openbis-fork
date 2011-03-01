@@ -41,7 +41,8 @@ public class HomeLocatorResolver extends AbstractViewLocatorResolver
                 public ITabItem create()
                 {
                     return DefaultTabItem.createUnaware(getTabTitle(), WelcomePanelHelper
-                            .createWelcomePanel(viewContext, MainPagePanel.PREFIX), false);
+                            .createWelcomePanel(viewContext, MainPagePanel.PREFIX), false,
+                            viewContext);
                 }
 
                 @Override

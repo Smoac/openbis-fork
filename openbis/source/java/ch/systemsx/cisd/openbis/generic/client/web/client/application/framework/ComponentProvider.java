@@ -104,7 +104,8 @@ public final class ComponentProvider
     private ITabItem createSimpleTab(String title, Component component,
             boolean isCloseConfirmationNeeded)
     {
-        return DefaultTabItem.createUnaware(title, component, isCloseConfirmationNeeded);
+        return DefaultTabItem.createUnaware(title, component, isCloseConfirmationNeeded,
+                viewContext);
     }
 
     public AbstractTabItemFactory getSampleBrowser(final String initialGroupOrNull,

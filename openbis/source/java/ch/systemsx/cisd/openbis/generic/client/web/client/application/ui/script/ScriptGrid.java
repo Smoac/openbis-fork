@@ -118,10 +118,12 @@ public class ScriptGrid extends TypedTableGrid<Script>
         addButton(addScriptButton);
 
         Button editButton =
-                createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
+                createSelectedItemButton(
+                        viewContext.getMessage(Dict.BUTTON_EDIT),
                         new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<Script>>>()
                             {
-                                public void invoke(BaseEntityModel<TableModelRowWithObject<Script>> selectedItem,
+                                public void invoke(
+                                        BaseEntityModel<TableModelRowWithObject<Script>> selectedItem,
                                         boolean keyPressed)
                                 {
                                     openEditor(selectedItem, keyPressed);
@@ -135,7 +137,8 @@ public class ScriptGrid extends TypedTableGrid<Script>
                         new AbstractCreateDialogListener()
                             {
                                 @Override
-                                protected Dialog createDialog(List<TableModelRowWithObject<Script>> scripts,
+                                protected Dialog createDialog(
+                                        List<TableModelRowWithObject<Script>> scripts,
                                         IBrowserGridActionInvoker invoker)
                                 {
                                     return new ScriptListDeletionConfirmationDialog(viewContext,
@@ -153,11 +156,12 @@ public class ScriptGrid extends TypedTableGrid<Script>
     {
         return columnID.toLowerCase();
     }
-    
+
     @Override
     protected ColumnDefsAndConfigs<TableModelRowWithObject<Script>> createColumnsDefinition()
     {
-        ColumnDefsAndConfigs<TableModelRowWithObject<Script>> schema = super.createColumnsDefinition();
+        ColumnDefsAndConfigs<TableModelRowWithObject<Script>> schema =
+                super.createColumnsDefinition();
         schema.setGridCellRendererFor(ScriptColDefKind.DESCRIPTION.id(),
                 createMultilineStringCellRenderer());
         schema.setGridCellRendererFor(ScriptColDefKind.SCRIPT.id(),
@@ -178,7 +182,8 @@ public class ScriptGrid extends TypedTableGrid<Script>
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<TableModelRowWithObject<Script>> exportCriteria,
+    protected void prepareExportEntities(
+            TableExportCriteria<TableModelRowWithObject<Script>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportScripts(exportCriteria, callback);
@@ -198,7 +203,8 @@ public class ScriptGrid extends TypedTableGrid<Script>
                     DatabaseModificationKind.edit(ObjectKind.SCRIPT) };
     }
 
-    private void openEditor(BaseEntityModel<TableModelRowWithObject<Script>> selectedItem, boolean keyPressed)
+    private void openEditor(BaseEntityModel<TableModelRowWithObject<Script>> selectedItem,
+            boolean keyPressed)
     {
         final Script script = selectedItem.getBaseObject().getObjectOrNull();
         final TechId scriptId = TechId.create(script);
@@ -208,7 +214,8 @@ public class ScriptGrid extends TypedTableGrid<Script>
                 public ITabItem create()
                 {
                     Component component = ScriptEditForm.create(viewContext, scriptId);
-                    return DefaultTabItem.createUnaware(getTabTitle(), component, true);
+                    return DefaultTabItem
+                            .createUnaware(getTabTitle(), component, true, viewContext);
                 }
 
                 @Override
@@ -249,8 +256,8 @@ public class ScriptGrid extends TypedTableGrid<Script>
         private final AbstractAsyncCallback<Void> callback;
 
         public ScriptListDeletionConfirmationDialog(
-                IViewContext<ICommonClientServiceAsync> viewContext, List<TableModelRowWithObject<Script>> data,
-                AbstractAsyncCallback<Void> callback)
+                IViewContext<ICommonClientServiceAsync> viewContext,
+                List<TableModelRowWithObject<Script>> data, AbstractAsyncCallback<Void> callback)
         {
             super(viewContext, data);
             this.viewContext = viewContext;

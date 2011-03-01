@@ -389,7 +389,8 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
                 public ITabItem create()
                 {
                     final Component component = helper.createVersionsPanel(versions);
-                    return DefaultTabItem.createUnaware(getTabTitle(), component, false);
+                    return DefaultTabItem.createUnaware(getTabTitle(), component, false,
+                            viewContext);
                 }
 
                 @Override
