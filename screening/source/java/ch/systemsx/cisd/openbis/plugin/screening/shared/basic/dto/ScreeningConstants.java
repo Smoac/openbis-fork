@@ -103,7 +103,7 @@ public class ScreeningConstants
     public static final String DEFAULT_SEGMENTATION_IMAGE_DATASET_TYPE = "HCS_IMAGE_SEGMENTATION";
 
     /** type of the new analysis dataset */
-    public static final String DEFAULT_ANALYSIS_DATASET_TYPE = "HCS_ANALYSIS_WELL_FEATURES ";
+    public static final String DEFAULT_ANALYSIS_WELL_DATASET_TYPE = "HCS_ANALYSIS_WELL_FEATURES";
 
     /** unknown file format code */
     public static final String UNKNOWN_FILE_FORMAT = "UNKNOWN";
