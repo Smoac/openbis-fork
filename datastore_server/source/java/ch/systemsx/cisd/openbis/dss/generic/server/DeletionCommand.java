@@ -29,6 +29,7 @@ import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
@@ -55,7 +56,7 @@ class DeletionCommand extends AbstractDataSetDescriptionBasedCommand
     {
         final IShareIdManager shareIdManager = dataSetDirectoryProvider.getShareIdManager();
         final ISimpleLogger logger = createLogger();
-        ThreadPoolExecutor executor =
+        final ThreadPoolExecutor executor =
                 new ThreadPoolExecutor(1, 10, 360, TimeUnit.SECONDS,
                         new LinkedBlockingQueue<Runnable>());
         for (final DatasetDescription dataSet : dataSets)
@@ -64,10 +65,17 @@ class DeletionCommand extends AbstractDataSetDescriptionBasedCommand
                 {
                     public void run()
                     {
-                        File dataSetDirectory =
-                                dataSetDirectoryProvider.getDataSetDirectory(dataSet);
-                        SegmentedStoreUtils.deleteDataSet(dataSet.getDatasetCode(),
-                                dataSetDirectory, shareIdManager, logger);
+                        try
+                        {
+                            File dataSetDirectory =
+                                    dataSetDirectoryProvider.getDataSetDirectory(dataSet);
+                            SegmentedStoreUtils.deleteDataSet(dataSet.getDatasetCode(),
+                                    dataSetDirectory, shareIdManager, logger);
+                        } catch (Throwable ex)
+                        {
+                            logger.log(LogLevel.ERROR, "Couldn't delete " + dataSet + ", reason: "
+                                    + ex);
+                        }
                     }
                 });
         }
