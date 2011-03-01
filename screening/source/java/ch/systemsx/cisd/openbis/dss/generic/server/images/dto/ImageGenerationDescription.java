@@ -18,6 +18,9 @@ package ch.systemsx.cisd.openbis.dss.generic.server.images.dto;
 
 import java.util.List;
 
+import ch.systemsx.cisd.bds.hcs.Location;
+import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference.HCSChannelStackByLocationReference;
+import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference.MicroscopyChannelStackByLocationReference;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 
 /**
@@ -75,5 +78,79 @@ public class ImageGenerationDescription
                         : ", overlay channels=" + overlayChannels) + ", "
                 + (thumbnailSizeOrNull == null ? "original size" : "size=" + thumbnailSizeOrNull)
                 + "]";
+    }
+
+    /**
+     * Creates description of the parameters which can be used e.g. to give a name to the generated
+     * image file.
+     */
+    public String getShortDescription()
+    {
+        StringBuffer sb = new StringBuffer();
+        sb.append("image");
+        if (imageChannelsOrNull != null)
+        {
+            appendShortDescription(sb, imageChannelsOrNull);
+        }
+        for (DatasetAcquiredImagesReference overlay : overlayChannels)
+        {
+            sb.append("_");
+            appendChannels(sb, overlay);
+        }
+        if (thumbnailSizeOrNull != null)
+        {
+            sb.append("_");
+            sb.append(thumbnailSizeOrNull.getWidth());
+            sb.append("x");
+            sb.append(thumbnailSizeOrNull.getHeight());
+        }
+        return sb.toString();
+    }
+
+    private static void appendShortDescription(StringBuffer sb,
+            DatasetAcquiredImagesReference imagesRef)
+    {
+        appendChannels(sb, imagesRef);
+        appendStackRef(sb, imagesRef.getChannelStackReference());
+    }
+
+    private static void appendChannels(StringBuffer sb, DatasetAcquiredImagesReference imagesRef)
+    {
+        for (String channel : imagesRef.getChannelCodes())
+        {
+            sb.append("_");
+            sb.append(channel);
+        }
+    }
+
+    private static void appendStackRef(StringBuffer sb, ImageChannelStackReference stackRef)
+    {
+        HCSChannelStackByLocationReference hcsChannelStack = stackRef.tryGetHCSChannelStack();
+        if (hcsChannelStack != null)
+        {
+            sb.append("_well");
+            sb.append(hcsChannelStack.getWellLocation().createMatrixCoordinateFromLocation());
+            appendTileLocation(sb, hcsChannelStack.getTileLocation());
+        }
+        MicroscopyChannelStackByLocationReference microscopyChannelStack =
+                stackRef.tryGetMicroscopyChannelStack();
+        if (microscopyChannelStack != null)
+        {
+            appendTileLocation(sb, microscopyChannelStack.getTileLocation());
+        }
+        Long channelStackId = stackRef.tryGetChannelStackId();
+        if (channelStackId != null)
+        {
+            sb.append("_");
+            sb.append(channelStackId);
+        }
+    }
+
+    private static void appendTileLocation(StringBuffer sb, Location tileLocation)
+    {
+        sb.append("_tile");
+        sb.append(tileLocation.getY());
+        sb.append("x");
+        sb.append(tileLocation.getX());
     }
 }
