@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
  */
 public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<ExternalData>
 {
-    CODE(new AbstractColumnDefinitionKind<ExternalData>(Dict.CODE)
+    CODE(new AbstractColumnDefinitionKind<ExternalData>(Dict.CODE, 150)
         {
             @Override
             public String tryGetValue(ExternalData entity)
@@ -44,6 +44,15 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
             public String tryGetLink(ExternalData entity)
             {
                 return LinkExtractor.tryExtract(entity);
+            }
+        }),
+
+    DATA_SET_TYPE(new AbstractColumnDefinitionKind<ExternalData>(Dict.DATA_SET_TYPE, 200)
+        {
+            @Override
+            public String tryGetValue(ExternalData entity)
+            {
+                return entity.getDataSetType().getCode();
             }
         }),
 
@@ -224,15 +233,6 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
             {
                 FileFormatType fileFormatType = entity.getFileFormatType();
                 return fileFormatType == null ? null : fileFormatType.getCode();
-            }
-        }),
-
-    DATA_SET_TYPE(new AbstractColumnDefinitionKind<ExternalData>(Dict.DATA_SET_TYPE, true)
-        {
-            @Override
-            public String tryGetValue(ExternalData entity)
-            {
-                return entity.getDataSetType().getCode();
             }
         }),
 
