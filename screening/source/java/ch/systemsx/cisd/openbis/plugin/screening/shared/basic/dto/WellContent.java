@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -41,7 +42,7 @@ public class WellContent implements ISerializable
 
     private EntityReference well;
 
-    private List<IEntityProperty> wellProperties = Collections.emptyList();
+    private List<IEntityProperty> wellProperties = new ArrayList<IEntityProperty>(0);
 
     private EntityReference plate;
 
