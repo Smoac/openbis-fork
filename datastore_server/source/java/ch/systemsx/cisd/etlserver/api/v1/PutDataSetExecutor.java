@@ -101,7 +101,7 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
 
     private final IImmutableCopier copier;
 
-    private DataSetInformation override;
+    private DataSetInformation overrideOrNull;
 
     PutDataSetExecutor(PutDataSetService service, IETLServerPlugin plugin, String sessionToken,
             NewDataSetDTO newDataSet, InputStream inputStream)
@@ -141,7 +141,7 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
         getOpenBisService().checkSpaceAccess(sessionToken, spaceId);
 
         writeDataSetToTempDirectory();
-        createDefaultOverride();
+        overrideOrNull = null;
 
         // Register the data set
         try
@@ -164,10 +164,10 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
     {
         // Remember the old override, replace it with the override for the execution, then restore
         // it
-        DataSetInformation oldOverride = override;
+        DataSetInformation oldOverride = overrideOrNull;
         if (newOverride != null)
         {
-            override = newOverride;
+            overrideOrNull = newOverride;
         }
 
         RegistrationHelper helper = new RegistrationHelper(service, plugin, dataSet);
@@ -184,7 +184,7 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
                         }
                     }).runAlgorithm();
 
-        override = oldOverride;
+        overrideOrNull = oldOverride;
 
         return Collections.singletonList(helper.getDataSetInformation());
     }
@@ -248,30 +248,25 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
 
     public DataSetInformation getCallerDataSetInformation()
     {
-        return override;
-    }
-
-    private void createDefaultOverride()
-    {
-        override = new DataSetInformation();
+        DataSetInformation dataSetInfo = new DataSetInformation();
         DataSetOwner owner = getDataSetOwner();
         switch (owner.getType())
         {
             case EXPERIMENT:
-                override.setExperimentIdentifier(tryExperimentIdentifier());
+                dataSetInfo.setExperimentIdentifier(tryExperimentIdentifier());
                 break;
             case SAMPLE:
                 SampleIdentifier sampleId = trySampleIdentifier();
 
-                override.setSampleCode(sampleId.getSampleCode());
-                override.setSpaceCode(sampleId.getSpaceLevel().getSpaceCode());
-                override.setInstanceCode(sampleId.getSpaceLevel().getDatabaseInstanceCode());
+                dataSetInfo.setSampleCode(sampleId.getSampleCode());
+                dataSetInfo.setSpaceCode(sampleId.getSpaceLevel().getSpaceCode());
+                dataSetInfo.setInstanceCode(sampleId.getSpaceLevel().getDatabaseInstanceCode());
                 break;
         }
         String typeCode = newDataSet.tryDataSetType();
         if (null != typeCode)
         {
-            override.setDataSetType(new DataSetType(typeCode));
+            dataSetInfo.setDataSetType(new DataSetType(typeCode));
         }
 
         Map<String, String> primitiveProps = newDataSet.getProperties();
@@ -282,8 +277,10 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
             {
                 properties.add(new NewProperty(key, primitiveProps.get(key)));
             }
-            override.setDataSetProperties(properties);
+            dataSetInfo.setDataSetProperties(properties);
         }
+
+        return dataSetInfo;
     }
 
     private void writeDataSetToTempDirectory() throws IOException
@@ -465,10 +462,13 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
 
         public DataSetType getDataSetType(File incomingDataSetPath)
         {
-            DataSetType dataSetType = override.getDataSetType();
-            if (null != dataSetType)
+            if (null != overrideOrNull)
             {
-                return dataSetType;
+                DataSetType dataSetType = overrideOrNull.getDataSetType();
+                if (null != dataSetType)
+                {
+                    return dataSetType;
+                }
             }
             return pluginTypeExtractor.getDataSetType(incomingDataSetPath);
         }
@@ -635,14 +635,45 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
                 IEncapsulatedOpenBISService openbisService) throws UserFailureException,
                 EnvironmentFailureException
         {
-            if (null != override)
+            if (null != overrideOrNull)
             {
-                return override;
-            } else
-            {
-                return plugin.getDataSetInfoExtractor().getDataSetInformation(incomingDataSetPath,
-                        openbisService);
+                return overrideOrNull;
             }
+
+            DataSetInformation dataSetInfo =
+                    plugin.getDataSetInfoExtractor().getDataSetInformation(incomingDataSetPath,
+                            openbisService);
+            DataSetOwner owner = getDataSetOwner();
+            switch (owner.getType())
+            {
+                case EXPERIMENT:
+                    dataSetInfo.setExperimentIdentifier(tryExperimentIdentifier());
+                    break;
+                case SAMPLE:
+                    SampleIdentifier sampleId = trySampleIdentifier();
+
+                    dataSetInfo.setSampleCode(sampleId.getSampleCode());
+                    dataSetInfo.setSpaceCode(sampleId.getSpaceLevel().getSpaceCode());
+                    dataSetInfo.setInstanceCode(sampleId.getSpaceLevel().getDatabaseInstanceCode());
+                    break;
+            }
+            String typeCode = newDataSet.tryDataSetType();
+            if (null != typeCode)
+            {
+                dataSetInfo.setDataSetType(new DataSetType(typeCode));
+            }
+
+            Map<String, String> primitiveProps = newDataSet.getProperties();
+            if (false == primitiveProps.isEmpty())
+            {
+                ArrayList<NewProperty> properties = new ArrayList<NewProperty>();
+                for (String key : primitiveProps.keySet())
+                {
+                    properties.add(new NewProperty(key, primitiveProps.get(key)));
+                }
+                dataSetInfo.setDataSetProperties(properties);
+            }
+            return dataSetInfo;
         }
     }
 }
