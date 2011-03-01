@@ -29,7 +29,7 @@ import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
- * TODO
+ * A naming strategy based on a configurable string template.
  * 
  * @author Kaloyan Enimanev
  */
@@ -37,12 +37,13 @@ public class TemplateBasedLinkNamingStrategy implements IHierarchicalStorageLink
 {
 
     public static final String DEFAULT_LINK_TEMPLATE =
-            "${space}/${project}/${experiment}/${datasettype}+${sample}+${dataset}";
+            "${space}/${project}/${experiment}/${dataSetType}+${sample}+${dataSet}";
 
-    private static final String LINKS_TEMPLATE_PROP_NAME =
-            HierarchicalStorageUpdater.HIERARCHY_LINK_NAMING_STRATEGY + ".template";
+    private static final String LINKS_TEMPLATE_PROP_NAME = "link-naming-strategy.template";
 
     private static final String NOT_DIRECTLY_CONNECTED = "NOT_DIRECTLY_CONNECTED";
+
+    private static final String MATCH_ALL_FILE_NAMES = "([^" + File.separator + "]*)";
 
     private final String linkTemplate;
 
@@ -74,8 +75,8 @@ public class TemplateBasedLinkNamingStrategy implements IHierarchicalStorageLink
         ExtendedProperties props = new ExtendedProperties();
         for (PathVariable pathElement : PathVariable.values())
         {
+            String pathElementName = pathElement.name();
             String pathElementValue = pathElement.extractValueFromData(data);
-            String pathElementName = pathElement.name().toLowerCase();
             if (pathElementValue == null)
             {
                 pathElementValue = StringUtils.EMPTY;
@@ -83,9 +84,7 @@ public class TemplateBasedLinkNamingStrategy implements IHierarchicalStorageLink
             props.put(pathElementName, pathElementValue);
         }
 
-        props.put("template", linkTemplate);
-        // this will evaluate and replace all variables in the value of the property
-        return props.getProperty("template");
+        return evaluateTemplate(props);
 
     }
 
@@ -102,17 +101,21 @@ public class TemplateBasedLinkNamingStrategy implements IHierarchicalStorageLink
 
     private Pattern createMatchingFilesFilter(File root)
     {
-        // TODO KE: refactor with constants
-        final String allMatcher = "([^" + File.separator + "]*)";
         ExtendedProperties props = new ExtendedProperties();
         for (PathVariable var : PathVariable.values())
         {
-            props.put(var.name().toLowerCase(), allMatcher);
+            props.put(var.name(), MATCH_ALL_FILE_NAMES);
         }
 
-        props.put("template", linkTemplate);
-        String subPathRegex = props.getProperty("template");
+        String subPathRegex = evaluateTemplate(props);
         return Pattern.compile(root.getAbsolutePath() + File.separator + subPathRegex);
+    }
+
+    private String evaluateTemplate(ExtendedProperties props)
+    {
+        props.put("template", linkTemplate);
+        // this will evaluate and replace all variables in the value of the property
+        return props.getProperty("template");
     }
 
     private int getNestedDirectoryLevels()
@@ -146,7 +149,7 @@ public class TemplateBasedLinkNamingStrategy implements IHierarchicalStorageLink
 
     enum PathVariable
     {
-        Dataset
+        dataSet
         {
             @Override
             String extractValueFromData(SimpleDataSetInformationDTO data)
@@ -156,7 +159,7 @@ public class TemplateBasedLinkNamingStrategy implements IHierarchicalStorageLink
 
         },
 
-        DataSetType
+        dataSetType
         {
 
             @Override
@@ -167,7 +170,7 @@ public class TemplateBasedLinkNamingStrategy implements IHierarchicalStorageLink
 
         },
 
-        Sample
+        sample
         {
 
             @Override
@@ -183,7 +186,7 @@ public class TemplateBasedLinkNamingStrategy implements IHierarchicalStorageLink
 
         },
 
-        Experiment
+        experiment
         {
 
             @Override
@@ -194,7 +197,7 @@ public class TemplateBasedLinkNamingStrategy implements IHierarchicalStorageLink
 
         },
 
-        Project
+        project
         {
             @Override
             String extractValueFromData(SimpleDataSetInformationDTO data)
@@ -203,7 +206,7 @@ public class TemplateBasedLinkNamingStrategy implements IHierarchicalStorageLink
             }
         },
 
-        Space
+        space
         {
 
             @Override
@@ -213,7 +216,7 @@ public class TemplateBasedLinkNamingStrategy implements IHierarchicalStorageLink
             }
         },
 
-        Instance
+        instance
         {
 
             @Override

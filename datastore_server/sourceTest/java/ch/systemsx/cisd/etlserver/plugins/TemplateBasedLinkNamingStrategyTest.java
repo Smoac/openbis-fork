@@ -29,14 +29,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 /**
  * Test cases for {@link TemplateBasedLinkNamingStrategy}.
  * 
- * @author Izabela Adamczyk
  * @author Kaloyan Enimanev
  */
 public class TemplateBasedLinkNamingStrategyTest extends AbstractFileSystemTestCase
 {
 
     public static final String LONG_LINK_TEMPLATE =
-            "Instance_${instance}/Space_${space}/Project_${project}/Experiment_${experiment}/DataSetType_${datasettype}/Sample_${sample}/Dataset_${dataset}";
+            "Instance_${instance}/Space_${space}/Project_${project}/Experiment_${experiment}/DataSetType_${dataSetType}/Sample_${sample}/Dataset_${dataSet}";
 
     private static final String DATASET_PATH_LONG =
             "Instance_DB-I/Space_GROUP-G/Project_PROJECT-P/Experiment_EXP-E/DataSetType_TYPE-T/Sample_SAMPLE-S/Dataset_DATASET-D";

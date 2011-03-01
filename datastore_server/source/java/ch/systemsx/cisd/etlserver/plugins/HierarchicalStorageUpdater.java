@@ -53,7 +53,7 @@ public class HierarchicalStorageUpdater implements IResourceContendingMaintenanc
 
     public static final String HIERARCHY_ROOT_DIR_KEY = "hierarchy-root-dir";
 
-    public static final String HIERARCHY_LINK_NAMING_STRATEGY = "link-naming-strategy";
+    public static final String HIERARCHY_LINK_NAMING_STRATEGY = "link-naming-strategy.class";
 
     private static final String REBUILDING_HIERARCHICAL_STORAGE = "Rebuilding hierarchical storage";
 
