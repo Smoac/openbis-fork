@@ -43,6 +43,8 @@ public class ThumbnailsStorageFormat extends AbstractHashable
 
     private boolean highQuality = false;
 
+    private boolean generateWithImageMagic = false;
+
     /**
      * Creates empty object which instructs that the thumbnails should be generated with default
      * settings. Use setters to change default behaviour (you will probably not have to).
@@ -74,6 +76,11 @@ public class ThumbnailsStorageFormat extends AbstractHashable
     public boolean isHighQuality()
     {
         return highQuality;
+    }
+
+    public boolean isGenerateWithImageMagic()
+    {
+        return generateWithImageMagic;
     }
 
     // --- setters ---
@@ -113,4 +120,14 @@ public class ThumbnailsStorageFormat extends AbstractHashable
     {
         this.highQuality = highQuality;
     }
+
+    /**
+     * if true ImageMagic 'convert' utility should be installed and will be used to generate
+     * thumbnails.
+     */
+    public void setGenerateWithImageMagic(boolean generateWithImageMagic)
+    {
+        this.generateWithImageMagic = generateWithImageMagic;
+    }
+
 }

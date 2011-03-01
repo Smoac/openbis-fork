@@ -99,6 +99,8 @@ abstract public class SimpleImageDataConfig
 
     private int maxThumbnailWidthAndHeight = 256;
 
+    private boolean generateThumbnailsWithImageMagic = false;
+
     private double allowedMachineLoadDuringThumbnailsGeneration = 1.0;
 
     private boolean storeChannelsOnExperimentLevel = false;
@@ -122,6 +124,7 @@ abstract public class SimpleImageDataConfig
                     .setAllowedMachineLoadDuringGeneration(getAllowedMachineLoadDuringThumbnailsGeneration());
             thumbnailsStorageFormat.setMaxWidth(getMaxThumbnailWidthAndHeight());
             thumbnailsStorageFormat.setMaxHeight(getMaxThumbnailWidthAndHeight());
+            thumbnailsStorageFormat.setGenerateWithImageMagic(generateThumbnailsWithImageMagic);
             imageStorageConfiguraton.setThumbnailsStorageFormat(thumbnailsStorageFormat);
         }
         return imageStorageConfiguraton;
@@ -211,6 +214,15 @@ abstract public class SimpleImageDataConfig
     {
         this.allowedMachineLoadDuringThumbnailsGeneration =
                 allowedMachineLoadDuringThumbnailsGeneration;
+    }
+
+    /**
+     * if true ImageMagic 'convert' utility will be used to generate thumbnails. It should be
+     * installed and accessible.
+     */
+    public void setUseImageMagicToGenerateThumbnails(boolean generateWithImageMagic)
+    {
+        this.generateThumbnailsWithImageMagic = generateWithImageMagic;
     }
 
     /** Should all dataset in one experiment use the same channels? By default set to false. */

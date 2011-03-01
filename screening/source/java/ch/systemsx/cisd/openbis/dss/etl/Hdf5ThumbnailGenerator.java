@@ -20,15 +20,23 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.imageio.ImageIO;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.base.utilities.OSUtilities;
+import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.concurrent.ITaskExecutor;
 import ch.systemsx.cisd.common.concurrent.ParallelizedExecutor;
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
+import ch.systemsx.cisd.common.process.ProcessIOStrategy;
+import ch.systemsx.cisd.common.process.ProcessResult;
 import ch.systemsx.cisd.etlserver.hdf5.Hdf5Container.IHdf5WriterClient;
 import ch.systemsx.cisd.hdf5.IHDF5SimpleWriter;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ThumbnailsStorageFormat;
@@ -41,6 +49,11 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
  */
 class Hdf5ThumbnailGenerator implements IHdf5WriterClient
 {
+    private static final File convertUtilityOrNull = OSUtilities.findExecutable("convert");
+
+    private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE,
+            Hdf5ThumbnailGenerator.class);
+
     private static final int MAX_RETRY_OF_FAILED_GENERATION = 3;
 
     private final List<AcquiredSingleImage> plateImages;
@@ -72,25 +85,20 @@ class Hdf5ThumbnailGenerator implements IHdf5WriterClient
     private Status generateThumbnail(IHDF5SimpleWriter writer, AcquiredSingleImage plateImage,
             ByteArrayOutputStream bufferOutputStream)
     {
-        long start = System.currentTimeMillis();
         RelativeImageReference imageReference = plateImage.getImageReference();
         String imagePath = imageReference.getRelativeImagePath();
-        File img = new File(imagesInStoreFolder, imagePath);
-        BufferedImage image = ImageUtil.loadImage(img);
-        BufferedImage thumbnail =
-                ImageUtil.rescale(image, thumbnailsStorageFormat.getMaxWidth(),
-                        thumbnailsStorageFormat.getMaxHeight(), false,
-                        thumbnailsStorageFormat.isHighQuality());
         String thumbnailPath = replaceExtensionToPng(imagePath);
+        File img = new File(imagesInStoreFolder, imagePath);
+
         try
         {
-            ImageIO.write(thumbnail, "png", bufferOutputStream);
-
+            long start = System.currentTimeMillis();
+            byte[] byteArray = generateThumbnail(bufferOutputStream, img);
             String path =
                     relativeThumbnailFilePath + ContentRepository.ARCHIVE_DELIMITER + thumbnailPath;
             plateImage.setThumbnailFilePathOrNull(new RelativeImageReference(path, imageReference
                     .tryGetPage(), imageReference.tryGetColorComponent()));
-            byte[] byteArray = bufferOutputStream.toByteArray();
+
             if (operationLog.isDebugEnabled())
             {
                 long now = System.currentTimeMillis();
@@ -98,19 +106,70 @@ class Hdf5ThumbnailGenerator implements IHdf5WriterClient
                         + " (" + byteArray.length + " bytes) generated in " + (now - start)
                         + " msec");
             }
-
             synchronized (writer)
             {
                 writer.writeByteArray(thumbnailPath, byteArray);
             }
         } catch (IOException ex)
         {
-            operationLog
-                    .warn("Retriable error when creating thumbnail '" + thumbnailPath + "'", ex);
-            return Status.createRetriableError(String.format(
-                    "Could not generate a thumbnail '%s': %s", thumbnailPath, ex.getMessage()));
+            return createStatus(thumbnailPath, ex);
         }
         return Status.OK;
+    }
+
+    private byte[] generateThumbnail(ByteArrayOutputStream bufferOutputStream, File img)
+            throws IOException
+    {
+        byte[] byteArray;
+        if (thumbnailsStorageFormat.isGenerateWithImageMagic())
+        {
+            byteArray = generateThumbnailWithImageMagic(img);
+        } else
+        {
+            byteArray = generateThumbnailWithImageIO(img, bufferOutputStream);
+        }
+        return byteArray;
+    }
+
+    private byte[] generateThumbnailWithImageMagic(File imageFile) throws IOException
+    {
+        String size =
+                thumbnailsStorageFormat.getMaxWidth() + "x"
+                        + thumbnailsStorageFormat.getMaxHeight();
+        String imageFilePath = imageFile.getPath();
+        final ProcessResult result =
+                ProcessExecutionHelper.run(Arrays.asList(convertUtilityOrNull.getPath(),
+                        imageFilePath, "-scale", size, "png:-"), operationLog, machineLog,
+                        ConcurrencyUtilities.NO_TIMEOUT,
+                        ProcessIOStrategy.BINARY_DISCARD_STDERR_IO_STRATEGY, false);
+        if (result.isOK() == false)
+        {
+            throw new IOException(String.format(
+                    "Error calling 'convert' for image '%s'. Exit value: %d, I/O status: %s",
+                    imageFilePath, result.getExitValue(), result.getProcessIOResult().getStatus()));
+        } else
+        {
+            return result.getBinaryOutput();
+        }
+    }
+
+    private byte[] generateThumbnailWithImageIO(File imageFile,
+            ByteArrayOutputStream bufferOutputStream) throws IOException
+    {
+        BufferedImage image = ImageUtil.loadImage(imageFile);
+        BufferedImage thumbnail =
+                ImageUtil.rescale(image, thumbnailsStorageFormat.getMaxWidth(),
+                        thumbnailsStorageFormat.getMaxHeight(), false,
+                        thumbnailsStorageFormat.isHighQuality());
+        ImageIO.write(thumbnail, "png", bufferOutputStream);
+        return bufferOutputStream.toByteArray();
+    }
+
+    private Status createStatus(String thumbnailPath, IOException ex)
+    {
+        operationLog.warn("Retriable error when creating thumbnail '" + thumbnailPath + "'", ex);
+        return Status.createRetriableError(String.format("Could not generate a thumbnail '%s': %s",
+                thumbnailPath, ex.getMessage()));
     }
 
     private static String replaceExtensionToPng(String imagePath)
