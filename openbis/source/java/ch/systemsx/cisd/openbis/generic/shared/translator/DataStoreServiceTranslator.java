@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportingPluginType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
@@ -33,9 +34,18 @@ public class DataStoreServiceTranslator
         String[] datasetTypeCodes = Code.extractCodesToArray(service.getDatasetTypes());
         String dssCode = service.getDataStore().getCode();
         ReportingPluginType reportingPluginTypeOrNull = service.getReportingPluginTypeOrNull();
-        DatastoreServiceDescription dssDescription =
-                new DatastoreServiceDescription(service.getKey(), service.getLabel(),
-                        datasetTypeCodes, dssCode, reportingPluginTypeOrNull);
+        DatastoreServiceDescription dssDescription = null;
+        if (service.getKind() == DataStoreServiceKind.PROCESSING)
+        {
+            dssDescription =
+                    DatastoreServiceDescription.processing(service.getKey(), service.getLabel(),
+                            datasetTypeCodes, dssCode);
+        } else
+        {
+            dssDescription =
+                    DatastoreServiceDescription.reporting(service.getKey(), service.getLabel(),
+                            datasetTypeCodes, dssCode, reportingPluginTypeOrNull);
+        }
         dssDescription.setDownloadURL(service.getDataStore().getDownloadUrl());
         return dssDescription;
     }

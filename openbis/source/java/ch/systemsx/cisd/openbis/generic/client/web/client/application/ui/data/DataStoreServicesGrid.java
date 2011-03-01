@@ -177,7 +177,7 @@ class DataStoreServicesGrid extends ContentPanel
         return result;
     }
 
-    // do the srevices come form more than one datastore?
+    // do the sevices come from more than one datastore?
     private static boolean multipleDataStoresPresent(List<DatastoreServiceDescription> services)
     {
         if (services.size() == 0)

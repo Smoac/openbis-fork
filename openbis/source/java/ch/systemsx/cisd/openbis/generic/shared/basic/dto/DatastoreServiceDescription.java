@@ -41,6 +41,8 @@ public class DatastoreServiceDescription implements IReportInformationProvider, 
 
     private String downloadURL;
 
+    private DataStoreServiceKind serviceKind;
+
     private ReportingPluginType reportingPluginTypeOrNull;
 
     @SuppressWarnings("unused")
@@ -49,19 +51,39 @@ public class DatastoreServiceDescription implements IReportInformationProvider, 
     {
     }
 
-    public DatastoreServiceDescription(String key, String label, String[] datasetTypeCodes,
-            String datastoreCode)
+    public static DatastoreServiceDescription processing(String key, String label,
+            String[] datasetTypeCodes, String datastoreCode)
     {
-        this(key, label, datasetTypeCodes, datastoreCode, null);
+        return new DatastoreServiceDescription(key, label, datasetTypeCodes, datastoreCode,
+                DataStoreServiceKind.PROCESSING);
     }
 
+    public static DatastoreServiceDescription reporting(String key, String label,
+            String[] datasetTypeCodes, String datastoreCode, ReportingPluginType type)
+    {
+        return new DatastoreServiceDescription(key, label, datasetTypeCodes, datastoreCode,
+                DataStoreServiceKind.QUERIES, type);
+    }
+
+    /**
+     * @deprecated exposed for tests
+     */
+    @Deprecated
     public DatastoreServiceDescription(String key, String label, String[] datasetTypeCodes,
-            String datastoreCode, ReportingPluginType reportingPluginTypeOrNull)
+            String datastoreCode, DataStoreServiceKind serviceKind)
+    {
+        this(key, label, datasetTypeCodes, datastoreCode, serviceKind, null);
+    }
+
+    private DatastoreServiceDescription(String key, String label, String[] datasetTypeCodes,
+            String datastoreCode, DataStoreServiceKind serviceKind,
+            ReportingPluginType reportingPluginTypeOrNull)
     {
         this.key = key;
         this.label = label;
         this.datasetTypeCodes = datasetTypeCodes;
         this.datastoreCode = datastoreCode;
+        this.serviceKind = serviceKind;
         this.reportingPluginTypeOrNull = reportingPluginTypeOrNull;
     }
 
@@ -75,6 +97,11 @@ public class DatastoreServiceDescription implements IReportInformationProvider, 
     public String getLabel()
     {
         return label;
+    }
+
+    public DataStoreServiceKind getServiceKind()
+    {
+        return serviceKind;
     }
 
     /** codes of dataset types which are handled by this plugin */
@@ -113,6 +140,8 @@ public class DatastoreServiceDescription implements IReportInformationProvider, 
     {
         StringBuilder sb = new StringBuilder();
         sb.append("[");
+        sb.append(getServiceKind());
+        sb.append("; ");
         sb.append(getKey());
         sb.append("; ");
         sb.append(getDatastoreCode());

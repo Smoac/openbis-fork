@@ -73,7 +73,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     private final MailClientParameters mailClientParameters;
 
     private final PluginTaskProviders pluginTaskParameters;
-    
+
     private IShareIdManager shareIdManager;
 
     private String cifexAdminUserOrNull;
@@ -108,7 +108,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         this.pluginTaskParameters = pluginTaskParameters;
         storeRoot = pluginTaskParameters.getStoreRoot();
     }
-    
+
     void setShareIdManager(IShareIdManager shareIdManager)
     {
         this.shareIdManager = shareIdManager;
@@ -293,7 +293,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
             return task.createReport(datasets, new DataSetProcessingContext(
                     new DataSetDirectoryProvider(storeRoot, manager),
                     new HashMap<String, String>(), null, null));
-            
+
         } finally
         {
             manager.releaseLocks();
@@ -337,7 +337,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         final IArchiverTask archiverTask = factory.createInstance(storeRoot);
         IProcessingPluginTask processingTask = new ArchiverProcessingTask(archiverTask, archive);
         DatastoreServiceDescription pluginDescription =
-                new DatastoreServiceDescription(description, description, null, null);
+                DatastoreServiceDescription.processing(description, description, null, null);
         Map<String, String> parameterBindings = Collections.<String, String> emptyMap();
         commandExecutor.scheduleProcessDatasets(processingTask, datasets, parameterBindings,
                 userEmailOrNull, pluginDescription, mailClientParameters);
@@ -383,7 +383,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         IReportingPluginTask task = reportingPlugins.getPluginInstance(serviceKey);
         return task.createLink(dataSet);
     }
-    
+
     private IShareIdManager getShareIdManager()
     {
         if (shareIdManager == null)

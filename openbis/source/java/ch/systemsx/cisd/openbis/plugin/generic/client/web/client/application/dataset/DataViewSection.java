@@ -16,11 +16,11 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset;
 
-import java.util.ArrayList;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DatastoreServiceDescriptionModel.createFakeReportingServiceModel;
+
 import java.util.Arrays;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
@@ -35,9 +35,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SimplifiedBaseModelData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetReportGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetReportLinkRetriever;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DatastoreServiceDescriptionModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.ReportGeneratedCallback.IOnReportComponentGeneratedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
@@ -313,11 +313,11 @@ public class DataViewSection extends TabContent
                     DatastoreServiceDescriptionModel.convert(result, dataset);
             if (hideFileView == false)
             {
-                models.add(0, createFilesServiceDescription(FILES_HOME_VIEW));
+                models.add(0, createFakeReportingServiceModel(FILES_HOME_VIEW));
             }
             if (hideSmartView == false)
             {
-                models.add(0, defaultModel = createFilesServiceDescription(FILES_SMART_VIEW));
+                models.add(0, defaultModel = createFakeReportingServiceModel(FILES_SMART_VIEW));
             }
             return models;
         }
@@ -348,51 +348,6 @@ public class DataViewSection extends TabContent
                                 getSelection());
                 fireEvent(Events.SelectionChange, se);
             }
-        }
-
-    }
-
-    private static DatastoreServiceDescriptionModel createFilesServiceDescription(String label)
-    {
-        final DatastoreServiceDescription service =
-                new DatastoreServiceDescription("files", label, null, null);
-        return new DatastoreServiceDescriptionModel(service);
-    }
-
-    /**
-     * {@link ModelData} for {@link DatastoreServiceDescription}.
-     * 
-     * @author Piotr Buczek
-     */
-    private static class DatastoreServiceDescriptionModel extends SimplifiedBaseModelData
-    {
-
-        private static final long serialVersionUID = 1L;
-
-        public DatastoreServiceDescriptionModel(final DatastoreServiceDescription description)
-        {
-            set(ModelDataPropertyNames.OBJECT, description);
-            set(ModelDataPropertyNames.LABEL, description.getLabel());
-        }
-
-        public final static List<DatastoreServiceDescriptionModel> convert(
-                final List<DatastoreServiceDescription> services, final ExternalData dataset)
-        {
-            final List<DatastoreServiceDescriptionModel> result =
-                    new ArrayList<DatastoreServiceDescriptionModel>();
-            for (final DatastoreServiceDescription service : services)
-            {
-                if (DatastoreServiceDescription.isMatching(service, dataset))
-                {
-                    result.add(new DatastoreServiceDescriptionModel(service));
-                }
-            }
-            return result;
-        }
-
-        public final DatastoreServiceDescription getBaseObject()
-        {
-            return get(ModelDataPropertyNames.OBJECT);
         }
 
     }

@@ -24,7 +24,6 @@ import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
-import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -41,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.TextToolItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ArchivingResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchivingServiceKind;
@@ -49,11 +49,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescrip
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 
 /**
- * 'Archiving' submenu of 'Perform' menu for Data Sets.
+ * 'Archiving' menu for Data Sets.
  * 
  * @author Piotr Buczek
  */
-public class DataSetArchivingMenu extends MenuItem
+public class DataSetArchivingMenu extends TextToolItem
 {
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
@@ -70,12 +70,12 @@ public class DataSetArchivingMenu extends MenuItem
         this.postArchivingAction = postArchivingAction;
         this.selectedDataSetsGetter = selectedDataSetsGetter;
 
-        Menu menu = new Menu();
-        addMenuItem(menu, ArchivingActionMenuKind.ARCHIVING_MENU_ARCHIVE);
-        addMenuItem(menu, ArchivingActionMenuKind.ARCHIVING_MENU_UNARCHIVE);
-        addMenuItem(menu, ArchivingActionMenuKind.ARCHIVING_MENU_LOCK);
-        addMenuItem(menu, ArchivingActionMenuKind.ARCHIVING_MENU_UNLOCK);
-        setSubMenu(menu);
+        Menu submenu = new Menu();
+        addMenuItem(submenu, ArchivingActionMenuKind.ARCHIVING_MENU_ARCHIVE);
+        addMenuItem(submenu, ArchivingActionMenuKind.ARCHIVING_MENU_UNARCHIVE);
+        addMenuItem(submenu, ArchivingActionMenuKind.ARCHIVING_MENU_LOCK);
+        addMenuItem(submenu, ArchivingActionMenuKind.ARCHIVING_MENU_UNLOCK);
+        setMenu(submenu);
     }
 
     /** {@link ActionMenu} kind enum with names matching dictionary keys */

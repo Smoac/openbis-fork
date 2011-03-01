@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -1079,20 +1080,22 @@ public class ETLServiceTest extends AbstractServerTestCase
         info.setDataStoreCode(DSS_CODE);
         info.setDownloadUrl(DOWNLOAD_URL);
         List<DatastoreServiceDescription> reporting =
-                Arrays.asList(createDataStoreService("reporting"));
+                Arrays.asList(createDataStoreService(DataStoreServiceKind.QUERIES, "reporting"));
         List<DatastoreServiceDescription> processing =
-                Arrays.asList(createDataStoreService("processing"));
+                Arrays.asList(createDataStoreService(DataStoreServiceKind.PROCESSING, "processing"));
         DatastoreServiceDescriptions services =
                 new DatastoreServiceDescriptions(reporting, processing);
         info.setServicesDescriptions(services);
         return info;
     }
 
-    private static DatastoreServiceDescription createDataStoreService(String key)
+    @SuppressWarnings("deprecation")
+    private static DatastoreServiceDescription createDataStoreService(
+            DataStoreServiceKind serviceKind, String key)
     {
         // unknown data set type codes should be silently discarded
         return new DatastoreServiceDescription(key, key, new String[]
-            { DATA_SET_TYPE_CODE, UNKNOWN_DATA_SET_TYPE_CODE }, key);
+            { DATA_SET_TYPE_CODE, UNKNOWN_DATA_SET_TYPE_CODE }, key, serviceKind);
     }
 
     private void assignRoles(PersonPE person)

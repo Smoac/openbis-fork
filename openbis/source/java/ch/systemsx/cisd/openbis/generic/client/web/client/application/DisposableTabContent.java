@@ -32,7 +32,7 @@ abstract public class DisposableTabContent extends TabContent
 
     // null if the section has not been shown yet
     // or content is created asynchronously (then subclass should call updateContent())
-    private IDisposableComponent disposableComponentOrNull = null;
+    protected IDisposableComponent disposableComponentOrNull = null;
 
     /**
      * Creates section with specified header.
@@ -66,7 +66,7 @@ abstract public class DisposableTabContent extends TabContent
         }
     }
 
-    private void updateContent(IDisposableComponent content, boolean syncNeeded)
+    protected void updateContent(IDisposableComponent content, boolean syncNeeded)
     {
         if (content != null)
         {
@@ -88,4 +88,5 @@ abstract public class DisposableTabContent extends TabContent
             updateContent(content, true);
         }
     }
+
 }

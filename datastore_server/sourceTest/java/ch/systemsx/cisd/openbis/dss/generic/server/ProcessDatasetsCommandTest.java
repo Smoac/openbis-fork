@@ -44,27 +44,36 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescrip
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ProcessDatasetsCommandTest extends AssertJUnit
 {
     private static final String EXAMPLE_TASK_LABEL = "My task";
+
     private static final String E_MAIL = "my@e.mail";
+
     private static final String MESSAGE = "hello";
-    
+
     private Mockery context;
+
     private IProcessingPluginTask task;
+
     private IMailClient mailClient;
+
     private DatasetDescription ds1;
+
     private DatasetDescription ds2;
+
     private ProcessDatasetsCommand command;
+
     private List<DatasetDescription> dataSets;
+
     private Map<String, String> parameterBindings;
+
     private RecordingMatcher<String> subjectRecorder;
+
     private RecordingMatcher<String> contentRecorder;
-    
+
     @BeforeMethod
     public void beforeMethod() throws IOException
     {
@@ -77,9 +86,10 @@ public class ProcessDatasetsCommandTest extends AssertJUnit
         ds2.setDatasetCode("ds2");
         parameterBindings = new HashMap<String, String>();
         dataSets = Arrays.<DatasetDescription> asList(ds1, ds2);
-        command = new ProcessDatasetsCommand(task, dataSets,
-                parameterBindings, E_MAIL, new DatastoreServiceDescription("MY_TASK", EXAMPLE_TASK_LABEL,
-                        new String[0], "DSS1"), mailClient);
+        command =
+                new ProcessDatasetsCommand(task, dataSets, parameterBindings, E_MAIL,
+                        DatastoreServiceDescription.processing("MY_TASK", EXAMPLE_TASK_LABEL,
+                                new String[0], "DSS1"), mailClient);
         subjectRecorder = new RecordingMatcher<String>();
         contentRecorder = new RecordingMatcher<String>();
         context.checking(new Expectations()
@@ -91,7 +101,7 @@ public class ProcessDatasetsCommandTest extends AssertJUnit
                 }
             });
     }
-    
+
     @AfterMethod
     public void afterMethod()
     {
@@ -106,8 +116,7 @@ public class ProcessDatasetsCommandTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(task).process(with(dataSets),
-                            with(createDataSetProcessingContext(null)));
+                    one(task).process(with(dataSets), with(createDataSetProcessingContext(null)));
                     ProcessingStatus status = new ProcessingStatus();
                     status.addDatasetStatus(ds1, Status.OK);
                     status.addDatasetStatus(ds2, Status.createError(true, "Oops!"));
@@ -115,7 +124,7 @@ public class ProcessDatasetsCommandTest extends AssertJUnit
                 }
             });
         command.execute(null);
-        
+
         assertEquals("['" + EXAMPLE_TASK_LABEL + "' processing finished]", subjectRecorder
                 .getRecordedObjects().toString());
         assertEquals("[This is an automatically generated report from the completed processing "
@@ -125,7 +134,7 @@ public class ProcessDatasetsCommandTest extends AssertJUnit
                 contentRecorder.getRecordedObjects().toString());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testTaskWhichThrowsException()
     {
@@ -144,7 +153,7 @@ public class ProcessDatasetsCommandTest extends AssertJUnit
         {
             assertEquals("illegal state!", e.getMessage());
         }
-        
+
         assertEquals("['" + EXAMPLE_TASK_LABEL + "' processing failed]", subjectRecorder
                 .getRecordedObjects().toString());
         assertEquals("['My task' processing failed on 2 data set(s): \nds1,ds2\n\n"
@@ -152,7 +161,7 @@ public class ProcessDatasetsCommandTest extends AssertJUnit
                 .toString());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testProcessingTaskSendsEMail()
     {
@@ -164,12 +173,12 @@ public class ProcessDatasetsCommandTest extends AssertJUnit
                 }
             });
         command.execute(null);
-        
+
         assertEquals("[null]", subjectRecorder.getRecordedObjects().toString());
         assertEquals("[hello]", contentRecorder.getRecordedObjects().toString());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testProcessingTaskSendsEMailAndFails()
     {
@@ -189,7 +198,7 @@ public class ProcessDatasetsCommandTest extends AssertJUnit
         {
             assertEquals(null, e.getMessage());
         }
-        
+
         assertEquals("[null, 'My task' processing failed]", subjectRecorder.getRecordedObjects()
                 .toString());
         assertEquals("[hello, 'My task' processing failed on 2 data set(s): \nds1,ds2\n\n"

@@ -36,8 +36,8 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportingPluginType;
@@ -102,12 +102,13 @@ public abstract class AbstractPluginTaskFactory<T>
             ReportingPluginType type =
                     ((IReportingPluginTask) pluginInstance).getReportingPluginType();
             this.description =
-                    new DatastoreServiceDescription(pluginKey, label, datasetCodes, datastoreCode,
-                            type);
+                    DatastoreServiceDescription.reporting(pluginKey, label, datasetCodes,
+                            datastoreCode, type);
         } else
         {
             this.description =
-                    new DatastoreServiceDescription(pluginKey, label, datasetCodes, datastoreCode);
+                    DatastoreServiceDescription.processing(pluginKey, label, datasetCodes,
+                            datastoreCode);
         }
     }
 

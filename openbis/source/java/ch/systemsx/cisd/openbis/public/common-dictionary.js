@@ -211,8 +211,8 @@ var common = {
   children_datasets: "Children",
   no_datasets_selected: "No Data Sets were selected.",
   datasets_from_different_stores_selected: "Data Sets from different Data Stores were selected, so no operation can be performed on all of them.",
-  perform_computation_on_all_datasets_msg_template: "{0} Select a data store service to perform {1} computation on all Data Sets from the table that have type and data store appropriate to the selected service and click on a Run button.",
-  perform_computation_on_selected_or_all_datasets_msg_template: "Select between performing {0} computation only on selected Data Sets ({1}) or on all Data Sets of appropriate types from the table, then select a data store service and click on a Run button.",
+  perform_computation_on_all_datasets_msg_template: "{0} {1} will be performed on all Data Sets from the table that have type and data store appropriate to the service.",
+  perform_computation_on_selected_or_all_datasets_msg_template: "Select between performing {0} only on selected Data Sets ({1}) or on all Data Sets of appropriate types from the table, then click on a Run button.",
   perform_archiving_on_all_datasets_msg_template: "{0} {1} will be performed on all Data Sets from the table that are '{2}' (see their status) after you click on a Run button.",
   perform_archiving_on_selected_or_all_datasets_msg_template: "Select between performing {0} only on selected Data Sets ({1}) or on all Data Sets from the table and click on a Run button. Note that only Data Sets that are '{2}' (see their status) will be processed.",
   
@@ -369,6 +369,8 @@ var common = {
   COMPUTE_MENU_QUERIES: "Query",
   COMPUTE_MENU_PROCESSING: "Processing",
   
+  menu_processing: "Actions",
+
   menu_archiving: "Archiving",
   ARCHIVING_MENU_ARCHIVE: "Archive",
   ARCHIVING_MENU_UNARCHIVE: "Unarchive",

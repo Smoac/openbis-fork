@@ -173,7 +173,10 @@ public abstract class AbstractExternalDataGrid
             uploadButton.disable();
         }
         addButton(uploadButton);
-        addButton(createComputeMenu());
+        if (viewContext.getModel().getApplicationInfo().isArchivingConfigured())
+        {
+            addButton(createArchivingMenu());
+        }
         addEntityOperationsSeparator();
 
         allowMultipleSelection();
@@ -242,9 +245,9 @@ public abstract class AbstractExternalDataGrid
 
     }
 
-    private final TextToolItem createComputeMenu()
+    private final TextToolItem createArchivingMenu()
     {
-        return new DataSetComputeMenu(viewContext, getSelectedAndDisplayedItemsAction(),
+        return new DataSetArchivingMenu(viewContext, getSelectedAndDisplayedItemsAction(),
                 createRefreshGridAction());
     }
 
@@ -296,7 +299,7 @@ public abstract class AbstractExternalDataGrid
         }
     }
 
-    private final IDelegatedActionWithResult<SelectedAndDisplayedItems> getSelectedAndDisplayedItemsAction()
+    protected final IDelegatedActionWithResult<SelectedAndDisplayedItems> getSelectedAndDisplayedItemsAction()
     {
         return new IDelegatedActionWithResult<SelectedAndDisplayedItems>()
             {
