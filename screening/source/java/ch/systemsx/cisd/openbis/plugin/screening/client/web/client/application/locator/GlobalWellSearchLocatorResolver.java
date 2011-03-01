@@ -54,7 +54,7 @@ public class GlobalWellSearchLocatorResolver extends AbstractViewLocatorResolver
                     TabContent wellSearchTab =
                             new ExperimentPlateLocationsSection(viewContext, materialsList,
                                     exactMatchOnly);
-                    return DefaultTabItem.createUnaware(wellSearchTab, false);
+                    return DefaultTabItem.createUnaware(wellSearchTab, false, viewContext);
                 }
 
                 @Override
