@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -95,8 +94,9 @@ public class ConversionUtils
         return sampleUpdate;
     }
 
-    public static NewExternalData convertToNewExternalData(DataSetRegistrationDetails<?> registrationDetails,
-            String dataStoreCode, StorageFormat storageFormat, String dataFileRelativePath)
+    public static NewExternalData convertToNewExternalData(
+            DataSetRegistrationDetails<?> registrationDetails, String dataStoreCode,
+            StorageFormat storageFormat, String dataFileRelativePath)
     {
         DataSetInformation dataSetInformation = registrationDetails.getDataSetInformation();
         final NewExternalData data = new NewExternalData();
@@ -118,16 +118,8 @@ public class ConversionUtils
         data.setLocation(dataFileRelativePath.substring(data.getShareId().length() + 1));
         data.setStorageFormat(storageFormat);
 
-        List<NewProperty> newProperties = new ArrayList<NewProperty>();
-        IEntityProperty[] properties = dataSetInformation.getProperties();
-        for (int i = 0; i < properties.length; i++)
-        {
-
-            IEntityProperty prop = properties[i];
-            NewProperty newProp =
-                    new NewProperty(prop.getPropertyType().getCode(), prop.getValue());
-            newProperties.add(newProp);
-        }
+        List<NewProperty> newProperties =
+                dataSetInformation.getExtractableData().getDataSetProperties();
         data.getExtractableData().setDataSetProperties(newProperties);
 
         return data;

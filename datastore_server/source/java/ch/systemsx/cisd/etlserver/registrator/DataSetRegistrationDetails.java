@@ -17,12 +17,16 @@
 package ch.systemsx.cisd.etlserver.registrator;
 
 import java.io.File;
+import java.util.List;
 
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExtractableData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
+import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -132,5 +136,27 @@ public class DataSetRegistrationDetails<T extends DataSetInformation> implements
     public void setDataSetInformation(T dataSetInformation)
     {
         this.dataSetInformation = dataSetInformation;
+    }
+
+    public void setPropertyValue(String propertyCode, String propertyValue)
+    {
+        ExtractableData datasetExtractableData = dataSetInformation.getExtractableData();
+        List<NewProperty> properties = datasetExtractableData.getDataSetProperties();
+        NewProperty property = EntityHelper.tryFindProperty(properties, propertyCode);
+        if (property != null)
+        {
+            property.setValue(propertyValue);
+        } else
+        {
+            properties.add(new NewProperty(propertyCode, propertyValue));
+        }
+    }
+
+    public String getPropertyValue(String propertyCode)
+    {
+        NewProperty property =
+                EntityHelper.tryFindProperty(dataSetInformation.getExtractableData()
+                        .getDataSetProperties(), propertyCode);
+        return (property != null) ? property.getValue() : null;
     }
 }

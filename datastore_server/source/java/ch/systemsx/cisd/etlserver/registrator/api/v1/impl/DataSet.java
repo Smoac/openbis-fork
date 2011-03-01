@@ -25,11 +25,9 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperimentImmutable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
 /**
  * A generic class that represents a data set for the registration API. Can be subclassed.
@@ -164,28 +162,11 @@ public class DataSet<T extends DataSetInformation> implements IDataSet
 
     public String getPropertyValue(String propertyCode)
     {
-        T dataSetInfo = registrationDetails.getDataSetInformation();
-        IEntityProperty property =
-                EntityHelper.tryFindProperty(dataSetInfo.getProperties(), propertyCode);
-        return (property != null) ? property.getValue() : null;
+        return registrationDetails.getPropertyValue(propertyCode);
     }
 
     public void setPropertyValue(String propertyCode, String propertyValue)
     {
-        T dataSetInfo = registrationDetails.getDataSetInformation();
-        IEntityProperty[] properties = dataSetInfo.getProperties();
-        IEntityProperty property = EntityHelper.tryFindProperty(properties, propertyCode);
-        if (property != null)
-        {
-            property.setValue(propertyValue);
-        } else
-        {
-            IEntityProperty[] newProperties = new IEntityProperty[properties.length + 1];
-            System.arraycopy(properties, 0, newProperties, 0, properties.length);
-            newProperties[properties.length] =
-                    EntityHelper.createNewProperty(propertyCode, propertyValue);
-            dataSetInfo.setProperties(newProperties);
-        }
-
+        registrationDetails.setPropertyValue(propertyCode, propertyValue);
     }
 }

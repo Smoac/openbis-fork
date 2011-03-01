@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.util;
 
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
@@ -26,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 
 /**
  * @author Izabela Adamczyk
@@ -93,6 +96,18 @@ public class EntityHelper
         return null;
     }
 
+    public static NewProperty tryFindProperty(List<NewProperty> properties, String propertyCode)
+    {
+        for (final NewProperty property : properties)
+        {
+            if (property.getPropertyCode().equalsIgnoreCase(propertyCode))
+            {
+                return property;
+            }
+        }
+        return null;
+    }
+
     public static String tryFindPropertyValue(IEntityPropertiesHolder holder, String propertyCode)
     {
         IEntityProperty property = null;
@@ -114,13 +129,13 @@ public class EntityHelper
     {
         IEntityProperty property = tryFindProperty(holder.getProperties(), propertyCode);
 
-        if (property == null) {
+        if (property == null)
+        {
             property = createNewProperty(propertyCode);
             holder.getProperties().add(property);
         }
         property.setValue(propertyValue);
     }
-
 
     public static IEntityProperty createNewProperty(String propertyCode, String propertyValue)
     {
@@ -137,5 +152,4 @@ public class EntityHelper
         property.setPropertyType(propertyType);
         return property;
     }
-
 }
