@@ -16,28 +16,17 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
-import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
-import com.extjs.gxt.ui.client.event.SelectionChangedListener;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetComputeUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetReportGenerator;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DatastoreServiceDescriptionModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.ReportingPluginSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.ReportGeneratedCallback.IOnReportComponentGeneratedAction;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer.DataSetConnectionTypeProvider;
@@ -53,14 +42,8 @@ class SampleDataSetBrowser extends AbstractExternalDataGrid
 
     private final DataSetConnectionTypeProvider connectionTypeProvider;
 
-    public static IDisposableComponent create(
-            IViewContext<?> viewContext,
-            TechId sampleId,
-            final SampleType sampleType,
-            final DataSetConnectionTypeProvider connectionTypeProvider,
-            DropDownList<DatastoreServiceDescriptionModel, DatastoreServiceDescription> reportSelectionWidget,
-            DropDownList<DatastoreServiceDescriptionModel, DatastoreServiceDescription> processingSelectionWidget,
-            IOnReportComponentGeneratedAction reportGeneratedAction)
+    public static IDisposableComponent create(IViewContext<?> viewContext, TechId sampleId,
+            final SampleType sampleType, final DataSetConnectionTypeProvider connectionTypeProvider)
     {
         IViewContext<ICommonClientServiceAsync> commonViewContext =
                 viewContext.getCommonViewContext();
@@ -75,10 +58,6 @@ class SampleDataSetBrowser extends AbstractExternalDataGrid
                         }
 
                     };
-        SelectionChangedListener<DatastoreServiceDescriptionModel> serviceChangedListener =
-                createServiceSelectionChangedListener(viewContext, browser, reportGeneratedAction);
-        reportSelectionWidget.addSelectionChangedListener(serviceChangedListener);
-        processingSelectionWidget.addSelectionChangedListener(serviceChangedListener);
         return browser.asDisposableWithoutToolbar();
     }
 
@@ -99,78 +78,6 @@ class SampleDataSetBrowser extends AbstractExternalDataGrid
                     refresh();
                 }
             });
-    }
-
-    private static SelectionChangedListener<DatastoreServiceDescriptionModel> createServiceSelectionChangedListener(
-            final IViewContext<?> viewContext, final SampleDataSetBrowser browser,
-            final IOnReportComponentGeneratedAction reportGeneratedAction)
-    {
-        return new SelectionChangedListener<DatastoreServiceDescriptionModel>()
-            {
-
-                @Override
-                public void selectionChanged(
-                        SelectionChangedEvent<DatastoreServiceDescriptionModel> se)
-                {
-                    final DatastoreServiceDescriptionModel selectedItem = se.getSelectedItem();
-                    if (selectedItem != null)
-                    {
-                        DatastoreServiceDescription service = selectedItem.getBaseObject();
-
-                        if (service.getLabel().equals(ReportingPluginSelectionWidget.METADATA))
-                        {
-                            showMetadataView();
-                        } else
-                        {
-                            switch (service.getServiceKind())
-                            {
-                                case PROCESSING:
-                                    process(service);
-                                    break;
-                                case QUERIES:
-                                    showGeneratedReportComponentView(service);
-                                    break;
-                            }
-                        }
-                    }
-
-                }
-
-                private void process(DatastoreServiceDescription service)
-                {
-                    SelectedAndDisplayedItems items =
-                            browser.getSelectedAndDisplayedItemsAction().execute();
-                    DataSetComputeUtils.createComputeAction(viewContext.getCommonViewContext(),
-                            items, service, service.getServiceKind(), reportGeneratedAction)
-                            .execute();
-                }
-
-                private void showMetadataView()
-                {
-                    reportGeneratedAction.execute(browser.asDisposableWithoutToolbar());
-                }
-
-                private void showGeneratedReportComponentView(DatastoreServiceDescription service)
-                {
-                    SelectedAndDisplayedItems items =
-                            browser.getSelectedAndDisplayedItemsAction().execute();
-
-                    if (browser.getSelectedItems().isEmpty())
-                    {
-                        // when no data sets were selected perform query without asking
-                        DisplayedOrSelectedDatasetCriteria criteria = items.createCriteria(false);
-                        DataSetReportGenerator.generateAndInvoke(
-                                viewContext.getCommonViewContext(), service, criteria,
-                                reportGeneratedAction);
-                    } else
-                    {
-                        DataSetComputeUtils.createComputeAction(viewContext.getCommonViewContext(),
-                                items, service, service.getServiceKind(), reportGeneratedAction)
-                                .execute();
-                    }
-                }
-            };
-
     }
 
     public static final String createGridId(TechId sampleId)

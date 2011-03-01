@@ -44,10 +44,12 @@ public class ProcessingPluginSelectionWidget extends
     private final IViewContext<?> viewContext;
 
     public ProcessingPluginSelectionWidget(final IViewContext<?> viewContext,
-            final IIdHolder ownerId)
+            final IIdHolder ownerIdOrNull)
     {
-        super(viewContext, (ownerId.getId() + "_data-set_processing-plugins"), Dict.BUTTON_PROCESS,
-                ModelDataPropertyNames.LABEL, "action", "actions");
+        super(
+                viewContext,
+                (((ownerIdOrNull != null) ? ownerIdOrNull.getId().toString() : "") + "_data-set_processing-plugins"),
+                Dict.BUTTON_PROCESS, ModelDataPropertyNames.LABEL, "action", "actions");
         this.viewContext = viewContext;
         addPostRefreshCallback(createHideOnNoServicesAction());
     }

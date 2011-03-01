@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.AbstractDataSetsSection;
 
 /**
  * The <i>generic</i> experiment viewer.
@@ -237,10 +238,10 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
 
     private DisposableTabContent createExperimentDataSetSection()
     {
-        return new DisposableTabContent("Data Sets", viewContext, experimentId)
+        return new AbstractDataSetsSection("Data Sets", viewContext, experimentId)
             {
                 @Override
-                protected IDisposableComponent createDisposableContent()
+                protected IDisposableComponent createDatasetBrowserComponent()
                 {
                     return ExperimentDataSetBrowser.create(viewContext, new TechId(experimentId),
                             experimentType);

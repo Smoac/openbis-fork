@@ -1047,7 +1047,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     /**
      * Returns all models of selected items or an empty list if nothing selected.
      */
-    protected final List<M> getSelectedItems()
+    public final List<M> getSelectedItems()
     {
         return grid.getSelectionModel().getSelectedItems();
     }

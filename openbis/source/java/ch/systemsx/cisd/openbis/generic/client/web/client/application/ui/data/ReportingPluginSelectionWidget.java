@@ -45,10 +45,13 @@ public class ReportingPluginSelectionWidget extends
 
     private final IViewContext<?> viewContext;
 
-    public ReportingPluginSelectionWidget(final IViewContext<?> viewContext, final IIdHolder ownerId)
+    public ReportingPluginSelectionWidget(final IViewContext<?> viewContext,
+            final IIdHolder ownerIdOrNull)
     {
-        super(viewContext, (ownerId.getId() + "_data-set_reporting-plugins"), Dict.BUTTON_PROCESS,
-                ModelDataPropertyNames.LABEL, "report", "reports");
+        super(
+                viewContext,
+                (((ownerIdOrNull != null) ? ownerIdOrNull.getId().toString() : "") + "_data-set_reporting-plugins"),
+                Dict.BUTTON_PROCESS, ModelDataPropertyNames.LABEL, "report", "reports");
         setAutoSelectFirst(true);
         this.viewContext = viewContext;
         addPostRefreshCallback(createHideOnNoServicesAction());

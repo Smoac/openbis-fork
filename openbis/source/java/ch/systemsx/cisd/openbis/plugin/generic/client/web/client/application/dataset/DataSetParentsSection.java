@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableTabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
@@ -27,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 /**
  * @author Piotr Buczek
  */
-class DataSetParentsSection extends DisposableTabContent
+class DataSetParentsSection extends AbstractDataSetsSection
 {
     private final ExternalData dataset;
 
@@ -39,7 +38,7 @@ class DataSetParentsSection extends DisposableTabContent
     }
 
     @Override
-    protected IDisposableComponent createDisposableContent()
+    protected IDisposableComponent createDatasetBrowserComponent()
     {
         return DataSetRelationshipBrowser.create(viewContext, TechId.create(dataset),
                 DataSetRelationshipRole.CHILD, dataset.getDataSetType());

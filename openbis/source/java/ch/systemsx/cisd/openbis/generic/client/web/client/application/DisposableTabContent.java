@@ -37,9 +37,9 @@ abstract public class DisposableTabContent extends TabContent
     /**
      * Creates section with specified header.
      */
-    public DisposableTabContent(String header, IViewContext<?> viewContext, IIdHolder ownerId)
+    public DisposableTabContent(String header, IViewContext<?> viewContext, IIdHolder ownerIdOrNull)
     {
-        super(header, viewContext, ownerId);
+        super(header, viewContext, ownerIdOrNull);
     }
 
     public IDatabaseModificationObserver tryGetDatabaseModificationObserver()
