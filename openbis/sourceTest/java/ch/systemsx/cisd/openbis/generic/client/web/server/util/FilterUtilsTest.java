@@ -86,7 +86,9 @@ public class FilterUtilsTest extends AssertJUnit
     @Test
     public void test()
     {
+        @SuppressWarnings(value = "rawtypes")
         CustomFilterInfo<?> filterInfo = new CustomFilterInfo();
+
         filterInfo.setExpression("row.col('VALUE') < ${threshold}");
         ParameterWithValue parameter = new ParameterWithValue();
         parameter.setParameter("threshold");

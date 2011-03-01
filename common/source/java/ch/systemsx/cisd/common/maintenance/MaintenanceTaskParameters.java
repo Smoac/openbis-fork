@@ -34,19 +34,19 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
  */
 public class MaintenanceTaskParameters
 {
-    private static final String TIME_FORMAT = "HH:mm";
+    static final String TIME_FORMAT = "HH:mm";
 
-    private static final int ONE_DAY_IN_SEC = 60 * 60 * 24;
+    static final int ONE_DAY_IN_SEC = 60 * 60 * 24;
 
-    private static final String CLASS_KEY = "class";
+    static final String CLASS_KEY = "class";
 
-    private static final String INTERVAL_KEY = "interval";
+    static final String INTERVAL_KEY = "interval";
 
-    private static final String START_KEY = "start";
+    static final String START_KEY = "start";
 
     // If true the task will be executed exactly one, interval will be ignored. By default set to
     // false.
-    private static final String ONE_TIME_EXECUTION_KEY = "execute-only-once";
+    static final String ONE_TIME_EXECUTION_KEY = "execute-only-once";
 
     private final String pluginName;
 

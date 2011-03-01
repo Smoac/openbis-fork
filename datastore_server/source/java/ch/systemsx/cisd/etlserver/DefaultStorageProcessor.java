@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  */
 public class DefaultStorageProcessor extends AbstractStorageProcessor
 {
-    static final String ORIGINAL_DIR = "original";
+    public static final String ORIGINAL_DIR = "original";
 
     static final String NO_RENAME = "Couldn't rename '%s' to '%s'.";
 

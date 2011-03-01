@@ -106,8 +106,8 @@ class ColumnSortUtils
 
                 public int compare(GridRowModel<T> o1, GridRowModel<T> o2)
                 {
-                    Comparable v1 = sortField.tryGetComparableValue(o1);
-                    Comparable v2 = sortField.tryGetComparableValue(o2);
+                    Comparable<?> v1 = sortField.tryGetComparableValue(o1);
+                    Comparable<?> v2 = sortField.tryGetComparableValue(o2);
                     // treat null as minimal value
                     if (v1 == null)
                     {

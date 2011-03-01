@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.etlserver;
 
+import ch.systemsx.cisd.common.maintenance.IResourceContendingMaintenanceTask;
+
 /**
  * 
  *
@@ -26,5 +28,11 @@ public class Constants
 
     public static final String ERROR_MARKER_FILE = "_delete_me_after_correcting_errors";
     public static final String USER_LOG_FILE = "error-log.txt";
+
+    /**
+     * a constant used by {@link IResourceContendingMaintenanceTask}-s needing an exclusive access
+     * to the data store folder.
+     */
+    public static final String DATA_STORE_RESOURCE_NAME = "DataStore";
 
 }

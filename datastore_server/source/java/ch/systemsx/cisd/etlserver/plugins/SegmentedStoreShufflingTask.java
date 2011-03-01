@@ -38,10 +38,11 @@ import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
-import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
+import ch.systemsx.cisd.common.maintenance.IResourceContendingMaintenanceTask;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.etlserver.Constants;
 import ch.systemsx.cisd.etlserver.ETLDaemon;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
@@ -57,7 +58,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
  * 
  * @author Franz-Josef Elmer
  */
-public class SegmentedStoreShufflingTask implements IMaintenanceTask
+public class SegmentedStoreShufflingTask implements IResourceContendingMaintenanceTask
 {
     private static final ISegmentedStoreShuffling DUMMY_SHUFFLING = new ISegmentedStoreShuffling()
         {
@@ -219,6 +220,14 @@ public class SegmentedStoreShufflingTask implements IMaintenanceTask
         }
         shuffling.shuffleDataSets(sourceShares, shares, service, dataSetMover, operationLogger);
         operationLog.info("Segmented store shuffling finished.");
+    }
+
+    /**
+     * requires an exclusive lock of the data store folder.
+     */
+    public String getRequiredResourceLock()
+    {
+        return Constants.DATA_STORE_RESOURCE_NAME;
     }
 
 }
