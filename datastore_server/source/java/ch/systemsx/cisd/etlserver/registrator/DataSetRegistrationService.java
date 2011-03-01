@@ -159,7 +159,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     /**
      * Create a new transaction that atomically performs file operations and registers entities.
      */
-    public IDataSetRegistrationTransaction transaction(File dataSetFile,
+    public DataSetRegistrationTransaction<T> transaction(File dataSetFile,
             IDataSetRegistrationDetailsFactory<T> detailsFactory)
     {
         File workingDirectory = dataSetFile.getParentFile();

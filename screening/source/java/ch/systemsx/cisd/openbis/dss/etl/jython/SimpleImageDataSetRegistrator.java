@@ -25,13 +25,13 @@ import java.util.Set;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
+import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.SimpleImageDataConfig;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageFileInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageMetadata;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Location;
-import ch.systemsx.cisd.openbis.dss.etl.jython.JythonPlateDataSetHandler.JythonPlateDatasetFactory;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.SimpleImageDataConfig;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
@@ -65,7 +65,8 @@ public class SimpleImageDataSetRegistrator
     }
 
     public static DataSetRegistrationDetails<ImageDataSetInformation> createImageDatasetDetails(
-            SimpleImageDataConfig imageDataSet, File incoming, JythonPlateDatasetFactory factory)
+            SimpleImageDataConfig imageDataSet, File incoming,
+            IDataSetRegistrationDetailsFactory<ImageDataSetInformation> factory)
     {
         return new SimpleImageDataSetRegistrator(imageDataSet).createImageDatasetDetails(incoming,
                 factory);
@@ -79,10 +80,11 @@ public class SimpleImageDataSetRegistrator
     }
 
     private DataSetRegistrationDetails<ImageDataSetInformation> createImageDatasetDetails(
-            File incoming, JythonPlateDatasetFactory factory)
+            File incoming,
+            IDataSetRegistrationDetailsFactory<ImageDataSetInformation> imageDatasetFactory)
     {
         DataSetRegistrationDetails<ImageDataSetInformation> registrationDetails =
-                factory.createImageRegistrationDetails();
+                imageDatasetFactory.createDataSetRegistrationDetails();
         ImageDataSetInformation imageDataset = registrationDetails.getDataSetInformation();
         setImageDataset(incoming, imageDataset);
         setRegistrationDetails(registrationDetails, imageDataset);

@@ -28,7 +28,8 @@ import ch.systemsx.cisd.openbis.dss.etl.registrator.api.v1.IImageDataSet;
  * 
  * @author Franz-Josef Elmer
  */
-// TODO 2011-02-02, Tomasz Pylak: We do not use it, is it really needed? For sure it's not complete.
+// TODO 2011-02-02, Tomasz Pylak: make it complete and accessible through transactional framework.
+// This is a stub now.
 public class ImageDataSet extends DataSet<ImageDataSetInformation> implements IImageDataSet
 {
 

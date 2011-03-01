@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.etl.featurevector;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -33,6 +34,8 @@ import ch.systemsx.cisd.etlserver.DispatcherStorageProcessor.IDispatchableStorag
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.openbis.dss.etl.HCSContainerDatasetInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeatureDefinitionValues;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeatureVectorDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.CsvToCanonicalFeatureVector.CsvToCanonicalFeatureVectorConfiguration;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
@@ -41,6 +44,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.utils.CsvFileReaderHelper;
 
@@ -101,15 +105,54 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
             throws IOException
     {
         HCSContainerDatasetInfo datasetInfo = createScreeningDatasetInfo(dataSetInformation);
-        DatasetFileLines fileLines = getDatasetFileLines(dataSet);
-        CsvToCanonicalFeatureVector convertor =
-                new CsvToCanonicalFeatureVector(fileLines, convertorConfig,
-                        datasetInfo.getContainerRows(), datasetInfo.getContainerColumns());
-        List<CanonicalFeatureVector> fvecs = convertor.convert();
+
+        List<CanonicalFeatureVector> fvecs =
+                extractCanonicalFeatureVectors(dataSet, dataSetInformation,
+                        datasetInfo.getContainerGeometry());
 
         dataAccessObject = createDAO();
         FeatureVectorUploader uploader = new FeatureVectorUploader(dataAccessObject, datasetInfo);
         uploader.uploadFeatureVectors(fvecs);
+    }
+
+    private List<CanonicalFeatureVector> extractCanonicalFeatureVectors(File dataSet,
+            DataSetInformation dataSetInformation, Geometry plateGeometry) throws IOException
+    {
+        if (dataSetInformation instanceof FeatureVectorDataSetInformation)
+        {
+            return extractCanonicalFeatureVectors(
+                    (FeatureVectorDataSetInformation) dataSetInformation, plateGeometry);
+        } else
+        {
+            return extractCanonicalFeatureVectorsFromFile(dataSet, plateGeometry);
+        }
+    }
+
+    private static List<CanonicalFeatureVector> extractCanonicalFeatureVectors(
+            FeatureVectorDataSetInformation dataSetInformation, Geometry plateGeometry)
+    {
+        List<FeatureDefinitionValues> featuresDefinitionValuesList =
+                dataSetInformation.getFeatures();
+
+        List<CanonicalFeatureVector> canonicalFeatureVectors =
+                new ArrayList<CanonicalFeatureVector>();
+        for (FeatureDefinitionValues featureDefinitionValues : featuresDefinitionValuesList)
+        {
+            CanonicalFeatureVector canonicalFeatureVector =
+                    featureDefinitionValues.getCanonicalFeatureVector(plateGeometry);
+            canonicalFeatureVectors.add(canonicalFeatureVector);
+        }
+        return canonicalFeatureVectors;
+    }
+
+    private List<CanonicalFeatureVector> extractCanonicalFeatureVectorsFromFile(File dataSet,
+            Geometry plateGeometry) throws IOException
+    {
+        DatasetFileLines fileLines = getDatasetFileLines(dataSet);
+        CsvToCanonicalFeatureVector convertor =
+                new CsvToCanonicalFeatureVector(fileLines, convertorConfig, plateGeometry);
+        List<CanonicalFeatureVector> fvecs = convertor.convert();
+        return fvecs;
     }
 
     private HCSContainerDatasetInfo createScreeningDatasetInfo(DataSetInformation dataSetInformation)
@@ -194,7 +237,10 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
         return CsvFileReaderHelper.getDatasetFileLines(file, configuration);
     }
 
-    /** Accepts all non-image datasets (and assumes they are single CSV files). */
+    /**
+     * Accepts all non-image datasets (and assumes they are single CSV files or
+     * FeatureVectorDataSetInformation).
+     */
     public boolean accepts(DataSetInformation dataSetInformation, File incomingDataSet)
     {
         return dataSetInformation instanceof ImageDataSetInformation == false;

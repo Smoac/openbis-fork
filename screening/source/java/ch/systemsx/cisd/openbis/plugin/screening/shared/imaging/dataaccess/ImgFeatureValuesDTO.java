@@ -51,7 +51,7 @@ public class ImgFeatureValuesDTO extends AbstractHashable
         // All Data-Object classes must have a default constructor.
     }
 
-    public ImgFeatureValuesDTO(Double zInM, Double tInSec, PlateFeatureValues values,
+    public ImgFeatureValuesDTO(Double tInSec, Double zInM, PlateFeatureValues values,
             long featureDefId)
     {
         this.z = zInM;

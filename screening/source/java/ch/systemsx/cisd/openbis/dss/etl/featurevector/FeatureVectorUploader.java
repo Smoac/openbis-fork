@@ -118,14 +118,14 @@ public class FeatureVectorUploader
         void createFeatureVocabularyTerms()
         {
             List<ImgFeatureVocabularyTermDTO> terms = fvec.getVocabularyTerms();
-            long featureDefId = fvec.getFeatureDef().getId();
-            // The FK of the feature def are not yet valid. Patch them up.
-            for (ImgFeatureVocabularyTermDTO term : terms)
+            if (terms != null && terms.size() > 0)
             {
-                term.setFeatureDefId(featureDefId);
-            }
-            if (terms.size() > 0)
-            {
+                long featureDefId = fvec.getFeatureDef().getId();
+                // The FK of the feature def are not yet valid. Patch them up.
+                for (ImgFeatureVocabularyTermDTO term : terms)
+                {
+                    term.setFeatureDefId(featureDefId);
+                }
                 dao.addFeatureVocabularyTerms(terms);
             }
         }
