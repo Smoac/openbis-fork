@@ -222,9 +222,12 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         assertEquals(true, dataSetDirInStore.exists());
         assertFileNames(share2uuid01, "22");
         
-        SegmentedStoreUtils.moveDataSetToAnotherShare(dataSetDirInStore, share2, service, shareIdManager, log);
+        SegmentedStoreUtils.moveDataSetToAnotherShare(dataSetDirInStore, share2, service,
+                shareIdManager, log);
 
         log.assertNextLogMessage("Await for data set ds-1 to be unlocked.");
+        log.assertNextLogMessage("Start deleting data set ds-1 at " + share1
+                + "/uuid/01/02/03/ds-1");
         log.assertNextLogMessage("Data set ds-1 at " + share1
                 + "/uuid/01/02/03/ds-1 has been deleted.");
         assertEquals(false, dataSetDirInStore.exists());

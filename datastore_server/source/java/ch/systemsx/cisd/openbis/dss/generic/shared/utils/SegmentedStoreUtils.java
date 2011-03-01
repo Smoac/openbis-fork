@@ -256,6 +256,8 @@ public class SegmentedStoreUtils
                     logger.log(LogLevel.INFO, "Await for data set " + dataSetCode
                             + " to be unlocked.");
                     shareIdManager.await(dataSetCode);
+                    logger.log(LogLevel.INFO, "Start deleting data set " + dataSetCode + " at "
+                            + dataSetDirInStore);
                     FileUtilities.deleteRecursively(dataSetDirInStore);
                     logger.log(LogLevel.INFO, "Data set " + dataSetCode + " at "
                             + dataSetDirInStore + " has been deleted.");
