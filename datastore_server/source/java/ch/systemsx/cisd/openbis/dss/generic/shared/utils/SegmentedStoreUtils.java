@@ -253,16 +253,33 @@ public class SegmentedStoreUtils
             {
                 public void run()
                 {
-                    logger.log(LogLevel.INFO, "Await for data set " + dataSetCode
-                            + " to be unlocked.");
-                    shareIdManager.await(dataSetCode);
-                    logger.log(LogLevel.INFO, "Start deleting data set " + dataSetCode + " at "
-                            + dataSetDirInStore);
-                    FileUtilities.deleteRecursively(dataSetDirInStore);
-                    logger.log(LogLevel.INFO, "Data set " + dataSetCode + " at "
-                            + dataSetDirInStore + " has been deleted.");
+                    deleteDataSet(dataSetCode, dataSetDirInStore, shareIdManager, logger);
                 }
             }).start();
+    }
+
+    /**
+     * Deletes specified data set at specified location. This methods waits until any locks 
+     * on the specified data set have been released. 
+     */
+    public static void deleteDataSet(final String dataSetCode, final File dataSetDirInStore,
+            final IShareIdManager shareIdManager, final ISimpleLogger logger)
+    {
+        logger.log(LogLevel.INFO, "Await for data set " + dataSetCode
+                + " to be unlocked.");
+        shareIdManager.await(dataSetCode);
+        logger.log(LogLevel.INFO, "Start deleting data set " + dataSetCode + " at "
+                + dataSetDirInStore);
+        boolean successful = FileUtilities.deleteRecursively(dataSetDirInStore);
+        if (successful)
+        {
+            logger.log(LogLevel.INFO, "Data set " + dataSetCode + " at " + dataSetDirInStore
+                    + " has been successfully deleted.");
+        } else
+        {
+            logger.log(LogLevel.WARN, "Deletion of data set " + dataSetCode + " at "
+                    + dataSetDirInStore + " failed.");
+        }
     }
 
     private static void copyToShare(File file, File share)

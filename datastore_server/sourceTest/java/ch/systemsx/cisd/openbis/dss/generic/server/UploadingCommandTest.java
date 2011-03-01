@@ -50,6 +50,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
@@ -87,6 +88,11 @@ public class UploadingCommandTest extends AssertJUnit
         public File getDataSetDirectory(DatasetDescription dataSet)
         {
             return new File(new File(getStoreRoot(), SHARE_ID), dataSet.getDataSetLocation());
+        }
+
+        public IShareIdManager getShareIdManager()
+        {
+            return null;
         }
     }
     

@@ -36,4 +36,10 @@ public interface IDataSetDirectoryProvider
      * Returns the root directory of specified data set.
      */
     public File getDataSetDirectory(DatasetDescription dataSet);
+
+    /**
+     * Returns the share id manager which is used for
+     * {@link #getDataSetDirectory(DatasetDescription)}.
+     */
+    public IShareIdManager getShareIdManager();
 }

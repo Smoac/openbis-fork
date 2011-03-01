@@ -51,4 +51,9 @@ public class DataSetDirectoryProvider implements IDataSetDirectoryProvider
         return new File(share, location);
     }
 
+    public IShareIdManager getShareIdManager()
+    {
+        return shareIdManager;
+    }
+
 }

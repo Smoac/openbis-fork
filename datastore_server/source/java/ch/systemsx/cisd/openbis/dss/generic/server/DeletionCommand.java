@@ -18,17 +18,20 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.TimingParameters;
-import ch.systemsx.cisd.common.filesystem.FileOperations;
-import ch.systemsx.cisd.common.filesystem.IFileRemover;
-import ch.systemsx.cisd.common.filesystem.LoggingPathRemoverDecorator;
+import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -43,24 +46,38 @@ class DeletionCommand extends AbstractDataSetDescriptionBasedCommand
     private final static Logger operationLog =
         LogFactory.getLogger(LogCategory.OPERATION, DeletionCommand.class);
     
-    private static final IFileRemover remover = new LoggingPathRemoverDecorator(
-            FileOperations.createMonitoredInstance(TimingParameters.getDefaultParameters()),
-            new Log4jSimpleLogger(operationLog), false);
-
     DeletionCommand(List<DatasetDescription> dataSets)
     {
         super(dataSets);
     }
 
-    public void execute(IDataSetDirectoryProvider dataSetDirectoryProvider)
+    public void execute(final IDataSetDirectoryProvider dataSetDirectoryProvider)
     {
-        for (DatasetDescription dataSet : dataSets)
+        final IShareIdManager shareIdManager = dataSetDirectoryProvider.getShareIdManager();
+        final ISimpleLogger logger = createLogger();
+        ThreadPoolExecutor executor =
+                new ThreadPoolExecutor(1, 10, 360, TimeUnit.SECONDS,
+                        new LinkedBlockingQueue<Runnable>());
+        for (final DatasetDescription dataSet : dataSets)
         {
-            File dataSetDirectory = dataSetDirectoryProvider.getDataSetDirectory(dataSet);
-            remover.removeRecursively(dataSetDirectory);
+            executor.submit(new Runnable()
+                {
+                    public void run()
+                    {
+                        File dataSetDirectory =
+                                dataSetDirectoryProvider.getDataSetDirectory(dataSet);
+                        SegmentedStoreUtils.deleteDataSet(dataSet.getDatasetCode(),
+                                dataSetDirectory, shareIdManager, logger);
+                    }
+                });
         }
     }
 
+    @Private ISimpleLogger createLogger()
+    {
+        return new Log4jSimpleLogger(operationLog);
+    }
+    
     public String getDescription()
     {
         final StringBuilder b = new StringBuilder();

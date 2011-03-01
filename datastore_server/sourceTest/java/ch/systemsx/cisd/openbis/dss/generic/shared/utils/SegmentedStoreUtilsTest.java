@@ -29,12 +29,10 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
-import ch.systemsx.cisd.common.concurrent.MessageChannel;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.HostAwareFile;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
-import ch.systemsx.cisd.common.logging.ISimpleLogger;
-import ch.systemsx.cisd.common.logging.LogLevel;
+import ch.systemsx.cisd.common.logging.MockLogger;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -49,34 +47,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
  */
 public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
 {
-    private static final class MockLogger implements ISimpleLogger
-    {
-        private final StringBuilder builder = new StringBuilder();
-        private final MessageChannel messageChannel = new MessageChannel();
-        
-        public void log(LogLevel level, String message)
-        {
-            builder.append(level).append(": ").append(message).append('\n');
-            messageChannel.send(message);
-        }
-        
-        public void assertNextLogMessage(String expectedMessage)
-        {
-            messageChannel.assertNextMessage(expectedMessage);
-        }
-        
-        public void assertNoMoreLogMessages()
-        {
-            messageChannel.assertEmpty();
-        }
-
-        @Override
-        public String toString()
-        {
-            return builder.toString();
-        }
-    }
-    
     private static final String DATA_STORE_CODE = "ds-code";
     
     private Mockery context;
@@ -229,7 +199,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         log.assertNextLogMessage("Start deleting data set ds-1 at " + share1
                 + "/uuid/01/02/03/ds-1");
         log.assertNextLogMessage("Data set ds-1 at " + share1
-                + "/uuid/01/02/03/ds-1 has been deleted.");
+                + "/uuid/01/02/03/ds-1 has been successfully deleted.");
         assertEquals(false, dataSetDirInStore.exists());
         assertFileNames(share2uuid01, "02", "22");
         assertEquals("hello world\n",
