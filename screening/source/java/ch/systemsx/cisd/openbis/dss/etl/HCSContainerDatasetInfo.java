@@ -21,6 +21,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateDimension;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateDimensionParser;
 
@@ -89,6 +90,11 @@ public class HCSContainerDatasetInfo
         this.containerColumns = containerColumns;
     }
 
+    public Geometry getContainerGeometry()
+    {
+        return Geometry.createFromRowColDimensions(containerRows, containerColumns);
+    }
+
     public static HCSContainerDatasetInfo createScreeningDatasetInfo(
             DataSetInformation dataSetInformation)
     {
@@ -144,7 +150,13 @@ public class HCSContainerDatasetInfo
 
     static PlateDimension getPlateGeometry(final DataSetInformation dataSetInformation)
     {
-        final IEntityProperty[] sampleProperties = dataSetInformation.getProperties();
+        IEntityProperty[] sampleProperties = dataSetInformation.getProperties();
+        if (sampleProperties == null && dataSetInformation.tryToGetSample() != null)
+        {
+            sampleProperties =
+                    dataSetInformation.tryToGetSample().getProperties()
+                            .toArray(new IEntityProperty[0]);
+        }
         final PlateDimension plateDimension =
                 PlateDimensionParser.tryToGetPlateDimension(sampleProperties);
         if (plateDimension == null)
