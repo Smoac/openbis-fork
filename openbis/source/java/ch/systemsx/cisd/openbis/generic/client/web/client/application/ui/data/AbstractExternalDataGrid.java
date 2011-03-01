@@ -173,7 +173,8 @@ public abstract class AbstractExternalDataGrid
             uploadButton.disable();
         }
         addButton(uploadButton);
-        if (viewContext.getModel().getApplicationInfo().isArchivingConfigured())
+        if (viewContext.getModel().getApplicationInfo().isArchivingConfigured()
+                && viewContext.isSimpleMode() == false)
         {
             addButton(createArchivingMenu());
         }
@@ -299,7 +300,7 @@ public abstract class AbstractExternalDataGrid
         }
     }
 
-    protected final IDelegatedActionWithResult<SelectedAndDisplayedItems> getSelectedAndDisplayedItemsAction()
+    public final IDelegatedActionWithResult<SelectedAndDisplayedItems> getSelectedAndDisplayedItemsAction()
     {
         return new IDelegatedActionWithResult<SelectedAndDisplayedItems>()
             {
