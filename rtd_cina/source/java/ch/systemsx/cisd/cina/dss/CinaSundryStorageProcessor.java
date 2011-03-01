@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 ETH Zuerich, CISD
+ * Copyright 2011 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,31 @@
 
 package ch.systemsx.cisd.cina.dss;
 
+import java.io.File;
 import java.util.Properties;
 
-import ch.systemsx.cisd.etlserver.DispatcherStorageProcessor;
+import ch.systemsx.cisd.etlserver.DefaultStorageProcessor;
+import ch.systemsx.cisd.etlserver.DispatcherStorageProcessor.IDispatchableStorageProcessor;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
- * Store the data and send an email to the person who registered the data.
- * <p>
- * For experiments, the email should contain the properties file
- * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class StorageProcessor extends DispatcherStorageProcessor
+public class CinaSundryStorageProcessor extends DefaultStorageProcessor implements
+        IDispatchableStorageProcessor
 {
-    public StorageProcessor(Properties properties)
+
+    /**
+     * @param properties
+     */
+    public CinaSundryStorageProcessor(Properties properties)
     {
         super(properties);
+    }
+
+    public boolean accepts(DataSetInformation dataSetInformation, File incomingDataSet)
+    {
+        return true;
     }
 
 }

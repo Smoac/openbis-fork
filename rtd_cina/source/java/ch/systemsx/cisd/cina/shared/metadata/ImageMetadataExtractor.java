@@ -116,6 +116,16 @@ public class ImageMetadataExtractor implements IMetadataExtractor
         return folder;
     }
 
+    public File getRepresentationsFolder()
+    {
+        return new File(folder, "Representations");
+    }
+
+    public File getLargeImageRepresentation()
+    {
+        return new File(getRepresentationsFolder(), "StandardPreview_large.png");
+    }
+
     private void checkPrepared()
     {
         assert lvdata != null;

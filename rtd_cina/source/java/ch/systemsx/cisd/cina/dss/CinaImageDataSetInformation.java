@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 ETH Zuerich, CISD
+ * Copyright 2011 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,17 @@
 
 package ch.systemsx.cisd.cina.dss;
 
-import java.util.Properties;
-
-import ch.systemsx.cisd.etlserver.DispatcherStorageProcessor;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
- * Store the data and send an email to the person who registered the data.
- * <p>
- * For experiments, the email should contain the properties file
+ * This class is simply used as a marker for deciding which storage processor to use. It serves no
+ * other purpose.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class StorageProcessor extends DispatcherStorageProcessor
+public class CinaImageDataSetInformation extends DataSetInformation
 {
-    public StorageProcessor(Properties properties)
-    {
-        super(properties);
-    }
+
+    private static final long serialVersionUID = 1L;
 
 }

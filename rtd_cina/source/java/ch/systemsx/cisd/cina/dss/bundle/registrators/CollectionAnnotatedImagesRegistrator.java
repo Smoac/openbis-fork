@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import ch.systemsx.cisd.cina.dss.CinaImageDataSetInformation;
 import ch.systemsx.cisd.cina.shared.metadata.ImageMetadataExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -54,7 +55,7 @@ public class CollectionAnnotatedImagesRegistrator extends BundleDataSetHelper
             ImageMetadataExtractor imageMetadataExtractor, Sample replicaSample,
             SampleIdentifier replicaSampleId, DataSetInformation bundleMetadataDataSetInformation)
     {
-        super(globalState, imageMetadataExtractor.getFolder());
+        super(globalState, imageMetadataExtractor.getRepresentationsFolder());
         this.imageMetadataExtractor = imageMetadataExtractor;
         this.replicaSampleId = replicaSampleId;
         this.bundleMetadataDataSetInformation = bundleMetadataDataSetInformation;
@@ -74,9 +75,11 @@ public class CollectionAnnotatedImagesRegistrator extends BundleDataSetHelper
         return getDataSetInformation();
     }
 
-    private DataSetInformation createDataSetInformation()
+    private CinaImageDataSetInformation createDataSetInformation()
     {
-        DataSetInformation metadataDataSetInfo = new DataSetInformation();
+        // Return the CinaImageDataSetInformation so the storage processor can dispatch to the
+        // correct wrapped storage processor.
+        CinaImageDataSetInformation metadataDataSetInfo = new CinaImageDataSetInformation();
         metadataDataSetInfo.setSampleCode(replicaSampleId.getSampleCode());
         metadataDataSetInfo.setSpaceCode(replicaSampleId.getSpaceLevel().getSpaceCode());
         metadataDataSetInfo.setInstanceCode(replicaSampleId.getSpaceLevel()

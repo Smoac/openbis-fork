@@ -342,8 +342,8 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
 
         final File dataSetFile = new File(path);
         final File dm3CollectionFile = new File(dataSetFile, "DM3");
-        final File imageDataSetFile1 = new File(dm3CollectionFile, "Test.dm3");
-        final File imageDataSetFile2 = new File(dm3CollectionFile, "Test2.dm3");
+        final File imageDataSetFile1 = new File(dm3CollectionFile, "Test.dm3/Representations");
+        final File imageDataSetFile2 = new File(dm3CollectionFile, "Test2.dm3/Representations");
 
         // set up the expectations
         context.checking(new Expectations()
