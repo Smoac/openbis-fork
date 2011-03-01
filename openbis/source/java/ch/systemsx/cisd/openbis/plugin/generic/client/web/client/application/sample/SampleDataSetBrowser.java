@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetComputeUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetReportGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DatastoreServiceDescriptionModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.ReportingPluginSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
@@ -33,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
@@ -141,11 +143,6 @@ class SampleDataSetBrowser extends AbstractExternalDataGrid
                     DataSetComputeUtils.createComputeAction(viewContext.getCommonViewContext(),
                             items, service, service.getServiceKind(), reportGeneratedAction)
                             .execute();
-                    // viewContext.getCommonService().processDatasets(
-                    // service,
-                    // items.createCriteria(false),
-                    // AsyncCallbackWithProgressBar.decorate(new ProcessingDisplayCallback(
-                    // viewContext), "Scheduling processing..."));
                 }
 
                 private void showMetadataView()
@@ -157,12 +154,20 @@ class SampleDataSetBrowser extends AbstractExternalDataGrid
                 {
                     SelectedAndDisplayedItems items =
                             browser.getSelectedAndDisplayedItemsAction().execute();
-                    DataSetComputeUtils.createComputeAction(viewContext.getCommonViewContext(),
-                            items, service, service.getServiceKind(), reportGeneratedAction)
-                            .execute();
-                    // DisplayedOrSelectedDatasetCriteria criteria = items.createCriteria(false);
-                    // DataSetReportGenerator.generateAndInvoke(viewContext.getCommonViewContext(),
-                    // service, items.createCriteria(false), reportGeneratedAction);
+
+                    if (browser.getSelectedItems().isEmpty())
+                    {
+                        // when no data sets were selected perform query without asking
+                        DisplayedOrSelectedDatasetCriteria criteria = items.createCriteria(false);
+                        DataSetReportGenerator.generateAndInvoke(
+                                viewContext.getCommonViewContext(), service, criteria,
+                                reportGeneratedAction);
+                    } else
+                    {
+                        DataSetComputeUtils.createComputeAction(viewContext.getCommonViewContext(),
+                                items, service, service.getServiceKind(), reportGeneratedAction)
+                                .execute();
+                    }
                 }
             };
 
