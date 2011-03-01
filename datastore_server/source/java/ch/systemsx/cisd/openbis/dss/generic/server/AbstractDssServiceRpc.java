@@ -84,7 +84,7 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
         this.openBISService = openBISService;
         this.shareIdManager = shareIdManager;
     }
-    
+
     protected IShareIdManager getShareIdManager()
     {
         if (shareIdManager == null)
@@ -118,18 +118,6 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
             homeDatabaseInstance = openBISService.getHomeDatabaseInstance();
         }
         return homeDatabaseInstance;
-    }
-
-    /**
-     * Asserts that specified data set is accessible by the user of the specified session.
-     */
-    protected void assertDatasetIsAccessible(String sessionToken, String dataSetCode)
-    {
-        if (isDatasetAccessible(sessionToken, dataSetCode) == false)
-        {
-            throw new IllegalArgumentException("User is not allowed to access data set "
-                    + dataSetCode);
-        }
     }
 
     /**

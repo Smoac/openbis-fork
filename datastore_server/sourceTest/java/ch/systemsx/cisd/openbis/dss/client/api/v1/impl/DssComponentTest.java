@@ -194,8 +194,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
     @Test
     public void testListDataSetFilesNoLogin() throws IOException
     {
-        dssComponent =
-                new DssComponent(openBisService, dssServiceFactory, DUMMY_SESSION_TOKEN);
+        dssComponent = new DssComponent(openBisService, dssServiceFactory, DUMMY_SESSION_TOKEN);
         setupExpectationsNoLogin();
         IDataSetDss dataSetProxy = dssComponent.getDataSet(DUMMY_DATA_SET_CODE);
         FileInfoDssDTO[] fileInfos = dataSetProxy.listFiles("/", true);
@@ -349,7 +348,8 @@ public class DssComponentTest extends AbstractFileSystemTestCase
     }
 
     private void setupExpectations(String serviceName, final boolean needsLogin,
-            final Boolean isDataSetAccessible, boolean returnEarlierVersion, final int lockingCount, final boolean releaseLock) throws IOException
+            final Boolean isDataSetAccessible, boolean returnEarlierVersion,
+            final int lockingCount, final boolean releaseLock) throws IOException
     {
         final SessionContextDTO session = getDummySession();
 
@@ -402,11 +402,13 @@ public class DssComponentTest extends AbstractFileSystemTestCase
 
         dssServiceV1_0 =
                 getAdvisedDssService(new MockDssServiceRpcV1_0(null, shareIdManager, fileInfos,
-                        new FileInputStream(randomDataFile), isDataSetAccessible == null ? true : isDataSetAccessible));
+                        new FileInputStream(randomDataFile), isDataSetAccessible == null ? true
+                                : isDataSetAccessible));
 
         dssServiceV1_1 =
                 getAdvisedDssService(new MockDssServiceRpcV1_1(null, shareIdManager, fileInfos,
-                        new FileInputStream(randomDataFile), isDataSetAccessible == null ? true : isDataSetAccessible));
+                        new FileInputStream(randomDataFile), isDataSetAccessible == null ? true
+                                : isDataSetAccessible));
 
         context.checking(new Expectations()
             {
@@ -418,8 +420,8 @@ public class DssComponentTest extends AbstractFileSystemTestCase
                         one(openBisService).tryToAuthenticateForAllServices("foo", "bar");
                         will(returnValue(session.getSessionToken()));
                     }
-                    allowing(openBisService).tryGetDataStoreBaseURL(
-                            session.getSessionToken(), dataSetCode);
+                    allowing(openBisService).tryGetDataStoreBaseURL(session.getSessionToken(),
+                            dataSetCode);
                     will(returnValue(DUMMY_DSS_DOWNLOAD_URL));
                     allowing(dssServiceFactory).getSupportedInterfaces(DUMMY_DSS_URL, false);
                     will(returnValue(ifaces));

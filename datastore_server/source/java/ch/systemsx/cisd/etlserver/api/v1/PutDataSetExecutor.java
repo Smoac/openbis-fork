@@ -211,7 +211,15 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
             return handleDataSet(linkedFile, newOverride);
         } finally
         {
-            deleteDir(linkedFile);
+            if (linkedFile.isDirectory())
+            {
+                deleteDir(linkedFile);
+            } else if (linkedFile.exists())
+            {
+                // this should have been moved already -- cleanup
+                deleteFile(linkedFile);
+            }
+
         }
     }
 
@@ -328,9 +336,14 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
             FileUtils.deleteDirectory(dirToDelete);
         } catch (IOException ex)
         {
-            getOperationLog().error("Could not delete data set directory " + dataSetDir, ex);
+            getOperationLog().error("Could not delete data set directory " + dirToDelete, ex);
             ex.printStackTrace();
         }
+    }
+
+    private void deleteFile(File fileToDelete)
+    {
+        FileUtils.deleteQuietly(fileToDelete);
     }
 
     private SpaceIdentifier getSpaceIdentifierForNewDataSet()
@@ -487,7 +500,8 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
      * 
      * @author Chandrasekhar Ramakrishnan
      */
-    private class RegistrationHelper extends DataSetRegistrationHelper
+    private class RegistrationHelper extends DataSetRegistrationHelper implements
+            IDataSetInfoExtractor
     {
         /**
          * @param service The provider of global state for the data set registration algorithm
@@ -504,7 +518,7 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
         @Override
         protected IDataSetInfoExtractor getDataSetInfoExtractor()
         {
-            return plugin.getDataSetInfoExtractor();
+            return this;
         }
 
         @Override
@@ -608,30 +622,27 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
             DataSetInformation dataSetInfo = super.extractDataSetInformation(incomingDataSetPath);
             if (null == dataSetInfo)
             {
-                return dataSetInfo;
-            }
-
-            // Override / extend information extracted with our override
-            dataSetInfo.setExperimentIdentifier(override.getExperimentIdentifier());
-            SampleIdentifier sampleIdOrNull = override.getSampleIdentifier();
-            if (sampleIdOrNull != null)
-            {
-                dataSetInfo.setSampleCode(sampleIdOrNull.getSampleCode());
-                dataSetInfo.setSpaceCode(sampleIdOrNull.getSpaceLevel().getSpaceCode());
-                dataSetInfo.setInstanceCode(sampleIdOrNull.getSpaceLevel()
-                        .getDatabaseInstanceCode());
-            }
-
-            // Override the properties if some have been specified
-            if (false == override.getDataSetProperties().isEmpty())
-            {
-                dataSetInfo.setDataSetProperties(override.getDataSetProperties());
+                return null;
             }
 
             final SessionContextDTO session =
                     service.getOpenBisService().tryGetSession(sessionToken);
             dataSetInfo.setUploadingUserId(session.getUserName());
             return dataSetInfo;
+        }
+
+        public DataSetInformation getDataSetInformation(File incomingDataSetPath,
+                IEncapsulatedOpenBISService openbisService) throws UserFailureException,
+                EnvironmentFailureException
+        {
+            if (null != override)
+            {
+                return override;
+            } else
+            {
+                return plugin.getDataSetInfoExtractor().getDataSetInformation(incomingDataSetPath,
+                        openbisService);
+            }
         }
     }
 }

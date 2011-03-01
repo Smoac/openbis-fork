@@ -95,7 +95,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
 
     private static final String NEW_DATA_SET_EXP = "E1";
 
-    private static final String NEW_DATA_SET_OWNER_ID = "/TEST-SPACE/S1";
+    private static final String NEW_DATA_SET_OWNER_ID = "TEST:/TEST-SPACE/S1";
 
     private static final String NEW_DATA_SET_PROJECT = "TEST-PROJECT";
 
@@ -231,7 +231,8 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
                 {
                     // Expectations for getting
                     allowing(openBisService).checkDataSetAccess(SESSION_TOKEN, DATA_SET_CODE);
-                    allowing(openBisService).checkDataSetCollectionAccess(SESSION_TOKEN, Arrays.asList(DATA_SET_CODE));
+                    allowing(openBisService).checkDataSetCollectionAccess(SESSION_TOKEN,
+                            Arrays.asList(DATA_SET_CODE));
                     allowing(openBisService).getHomeDatabaseInstance();
                     will(returnValue(homeDatabaseInstance));
                 }
@@ -242,7 +243,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
     {
         // Expectations for put
         final SpaceIdentifier spaceIdentifier =
-                new SpaceIdentifier(DatabaseInstanceIdentifier.HOME, NEW_DATA_SET_SPACE);
+                new SpaceIdentifier(new DatabaseInstanceIdentifier("TEST"), NEW_DATA_SET_SPACE);
         final SampleIdentifier sampleIdentifier =
                 new SampleIdentifierFactory(NEW_DATA_SET_OWNER_ID).createIdentifier();
         final SessionContextDTO session = new SessionContextDTO();
@@ -639,7 +640,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         builder.appendFileInfosForFile(file, fileInfos, true);
         return fileInfos;
     }
-    
+
     private void prepareGetShareId()
     {
         context.checking(new Expectations()
@@ -650,7 +651,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
                 }
             });
     }
-    
+
     private void prepareLockDataSet(final String... dataSetCodes)
     {
         context.checking(new Expectations()
