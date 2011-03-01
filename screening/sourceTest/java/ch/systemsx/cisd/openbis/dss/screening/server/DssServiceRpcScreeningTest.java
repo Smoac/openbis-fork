@@ -347,6 +347,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         BufferedImage image2 = extractNextImage(imagesWriter);
         assertEquals(1, image2.getWidth());
         assertEquals(1, image2.getHeight());
+        images.close();
 
         assertTrue(testMethodInterceptor.methodInvoked);
         context.assertIsSatisfied();
