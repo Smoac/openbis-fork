@@ -316,7 +316,7 @@ class ProcessExecutor
                 exitValue = process.waitFor();
                 // Give the I/O handler time to finish up.
                 final ExecutionResult<?> processIOResult =
-                        getAndLogProcessIOResult(processRecord, SHORT_TIMEOUT / 4);
+                        getAndLogProcessIOResult(processRecord, SHORT_TIMEOUT);
                 processWrapper.set(null);
 
                 if (processIOStrategy.isBinaryOutput())
