@@ -94,6 +94,7 @@ class HeatmapPresenter
         this.tooltipGenerator = new WellTooltipGenerator(model, realNumberRenderer);
         this.cachedMetadataHeatmapRenderer =
                 WellMetadataHeatmapRenderer.create(model.getWellList());
+        setWellMetadataMode();
     }
 
     /** Changes the presented heatmap to the one which shows well types. */
