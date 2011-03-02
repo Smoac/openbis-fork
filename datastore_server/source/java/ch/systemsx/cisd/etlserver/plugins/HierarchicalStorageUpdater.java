@@ -33,6 +33,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.maintenance.IResourceContendingMaintenanceTask;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
+import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.Constants;
 import ch.systemsx.cisd.etlserver.DefaultStorageProcessor;
@@ -53,7 +54,7 @@ public class HierarchicalStorageUpdater implements IResourceContendingMaintenanc
 
     public static final String HIERARCHY_ROOT_DIR_KEY = "hierarchy-root-dir";
 
-    public static final String HIERARCHY_LINK_NAMING_STRATEGY = "link-naming-strategy.class";
+    public static final String HIERARCHY_LINK_NAMING_STRATEGY = "link-naming-strategy";
 
     private static final String REBUILDING_HIERARCHICAL_STORAGE = "Rebuilding hierarchical storage";
 
@@ -81,7 +82,7 @@ public class HierarchicalStorageUpdater implements IResourceContendingMaintenanc
                         + HIERARCHY_ROOT_DIR_KEY);
 
         openBISService = ServiceProvider.getOpenBISService();
-        linkNamingStrategy = createLinkNamingStrategy(properties);
+        linkNamingStrategy = createLinkNamingStrategy(pluginProperties);
         storeRoot = new File(storeRootFileName);
         hierarchyRoot = new File(hierarchyRootFileName);
 
@@ -107,10 +108,13 @@ public class HierarchicalStorageUpdater implements IResourceContendingMaintenanc
         String linkNamingStrategyClassName =
                 PropertyUtils.getProperty(properties, HIERARCHY_LINK_NAMING_STRATEGY,
                         TemplateBasedLinkNamingStrategy.class.getName());
+        ExtendedProperties strategyProperties =
+                ExtendedProperties
+                        .getSubset(properties, HIERARCHY_LINK_NAMING_STRATEGY + ".", true);
         try
         {
             return ClassUtils.create(IHierarchicalStorageLinkNamingStrategy.class,
-                            Class.forName(linkNamingStrategyClassName), properties);
+                    Class.forName(linkNamingStrategyClassName), strategyProperties);
         } catch (ClassNotFoundException ex)
         {
             throw ConfigurationFailureException.fromTemplate("Wrong '%s' property: %s",

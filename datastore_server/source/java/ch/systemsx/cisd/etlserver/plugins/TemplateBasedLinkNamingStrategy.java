@@ -39,7 +39,7 @@ public class TemplateBasedLinkNamingStrategy implements IHierarchicalStorageLink
     public static final String DEFAULT_LINK_TEMPLATE =
             "${space}/${project}/${experiment}/${dataSetType}+${sample}+${dataSet}";
 
-    private static final String LINKS_TEMPLATE_PROP_NAME = "link-naming-strategy.template";
+    private static final String LINKS_TEMPLATE_PROP_NAME = "template";
 
     private static final String NOT_DIRECTLY_CONNECTED = "NOT_DIRECTLY_CONNECTED";
 
