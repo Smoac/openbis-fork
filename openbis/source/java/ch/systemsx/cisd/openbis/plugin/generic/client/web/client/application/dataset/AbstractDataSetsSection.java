@@ -114,7 +114,10 @@ public abstract class AbstractDataSetsSection extends DisposableTabContent
     {
         // when tab is closed dispose also the metadata component
         super.disposeComponents();
-        metadataComponent.dispose(); // NOTE: second dispose on a grid does nothing
+        if (metadataComponent != null)
+        {
+            metadataComponent.dispose(); // NOTE: second dispose on a grid does nothing
+        }
     }
 
     private static AbstractExternalDataGrid extractBrowser(IDisposableComponent metadataComponent)
