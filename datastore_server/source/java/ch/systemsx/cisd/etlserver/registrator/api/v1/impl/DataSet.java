@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
 import java.io.File;
+import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
@@ -168,5 +169,16 @@ public class DataSet<T extends DataSetInformation> implements IDataSet
     public void setPropertyValue(String propertyCode, String propertyValue)
     {
         registrationDetails.setPropertyValue(propertyCode, propertyValue);
+    }
+
+    public void setParentDatasets(List<String> parentDatasetCodes)
+    {
+        DataSetInformation dataSetInformation = registrationDetails.getDataSetInformation();
+        dataSetInformation.setParentDataSetCodes(parentDatasetCodes);
+    }
+
+    public List<String> getParentDatasets()
+    {
+        return registrationDetails.getDataSetInformation().getParentDataSetCodes();
     }
 }

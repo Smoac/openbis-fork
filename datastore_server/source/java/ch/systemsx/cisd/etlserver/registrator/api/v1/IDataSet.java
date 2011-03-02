@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v1;
 
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 
 /**
@@ -109,4 +111,11 @@ public interface IDataSet
      * Set the value for a property.
      */
     void setPropertyValue(String propertyCode, String propertyValue);
+
+    /** Sets the parents of the dataset. */
+    void setParentDatasets(List<String> parentDatasetCodes);
+
+    /** Sets the parents of the dataset. */
+    List<String> getParentDatasets();
+
 }
