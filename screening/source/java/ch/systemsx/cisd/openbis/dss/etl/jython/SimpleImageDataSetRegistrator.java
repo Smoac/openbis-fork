@@ -55,6 +55,8 @@ public class SimpleImageDataSetRegistrator
             setWell(imageTokens.getWell());
             setChannelCode(imageTokens.getChannelCode());
             setTileNumber(imageTokens.getTileNumber());
+            setDepth(imageTokens.tryGetDepth());
+            setTimepoint(imageTokens.tryGetTimepoint());
             this.imageRelativePath = imageRelativePath;
         }
 
