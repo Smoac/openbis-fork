@@ -276,7 +276,7 @@ public class HierarchicalStorageUpdater implements IResourceContendingMaintenanc
             File targetDir = new File(targetPath);
             String sourcePath = linkMappings.get(targetPath);
             File sourceFile = new File(sourcePath);
-            targetDir.mkdirs();
+            targetDir.getParentFile().mkdirs();
             SoftLinkMaker.createSymbolicLink(sourceFile, targetDir);
         }
     }
