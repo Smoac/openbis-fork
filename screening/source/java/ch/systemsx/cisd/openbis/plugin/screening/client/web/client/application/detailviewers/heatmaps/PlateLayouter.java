@@ -115,7 +115,7 @@ public class PlateLayouter
         IRealNumberRenderer realNumberRenderer = createRealNumberRenderer(viewContext);
         this.presenter =
                 new HeatmapPresenter(viewContext, model, realNumberRenderer, createViewManipulator(
-                        renderedWells, legendContainer));
+                        viewContext, renderedWells, legendContainer));
         this.heatmapKindChooser = createHeatmapKindComboBox(presenter, viewContext);
         this.view = renderView(renderedWells, heatmapKindChooser, legendContainer);
     }
@@ -127,7 +127,8 @@ public class PlateLayouter
     }
 
     private HeatmapPresenter.IHeatmapViewManipulator createViewManipulator(
-            final Component[][] renderedWells, final LayoutContainer legendContainer)
+            final ScreeningViewContext viewContext, final Component[][] renderedWells,
+            final LayoutContainer legendContainer)
     {
         return new HeatmapPresenter.IHeatmapViewManipulator()
             {
@@ -135,10 +136,11 @@ public class PlateLayouter
                 private Map<Component, ToolTipAction> toolTipActions =
                         new HashMap<Component, ToolTipAction>();
 
-                public void updateWellStyle(int rowIx, int colIx, Color bakgroundColor)
+                public void updateWellStyle(int rowIx, int colIx, Color backgroundColor)
                 {
                     Component wellComponent = getWellComponent(rowIx, colIx);
-                    PlateStyleSetter.setBackgroudColor(wellComponent, bakgroundColor.getHexColor());
+                    PlateStyleSetter
+                            .setBackgroudColor(wellComponent, backgroundColor.getHexColor());
                 }
 
                 public void addEmptyTooltip(int rowIx, int colIx)
@@ -150,8 +152,8 @@ public class PlateLayouter
                     config.setMouseOffset(new int[]
                         { 0, 0 });
                     config.setAnchor(anchor);
-                    // WORKAROUND width isn't properly updated - we set fixed value 
-                    config.setMinWidth(300); 
+                    // WORKAROUND width isn't properly updated - we set fixed value
+                    config.setMinWidth(300);
                     config.setDismissDelay(10000); // 10s to hide
                     GWTUtils.setToolTip(wellComponent, config);
                 }
