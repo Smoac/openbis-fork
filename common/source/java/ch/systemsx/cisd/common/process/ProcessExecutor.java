@@ -129,6 +129,11 @@ class ProcessExecutor
     /** Corresponds to a short timeout of 1/10 s. */
     private static final long SHORT_TIMEOUT = 100;
 
+    /**
+     * The fraction of the timeout that should be applied when reading the process output.
+     */
+    private static final double OUTPUT_READING_TIMEOUT_FRACTION = 0.1;
+
     /** Corresponds to a short timeout of 1/100 s. */
     private static final long PAUSE_MILLIS = 10;
 
@@ -147,6 +152,8 @@ class ProcessExecutor
     private final List<String> commandLine;
 
     private final long millisToWaitForCompletion;
+
+    private final long millisToWaitForIOCompletion;
 
     private final ProcessIOStrategy processIOStrategy;
 
@@ -316,7 +323,7 @@ class ProcessExecutor
                 exitValue = process.waitFor();
                 // Give the I/O handler time to finish up.
                 final ExecutionResult<?> processIOResult =
-                        getAndLogProcessIOResult(processRecord, SHORT_TIMEOUT);
+                        getAndLogProcessIOResult(processRecord, millisToWaitForIOCompletion);
                 processWrapper.set(null);
 
                 if (processIOStrategy.isBinaryOutput())
@@ -462,7 +469,7 @@ class ProcessExecutor
             if (processRecord != null)
             {
                 final ExecutionResult<?> processIOResultOrNull =
-                        getAndLogProcessIOResult(processRecord, SHORT_TIMEOUT / 4);
+                        getAndLogProcessIOResult(processRecord, millisToWaitForIOCompletion);
                 final Process process = processRecord.getProcess();
                 process.destroy(); // Note: this also closes the I/O streams.
                 if (machineLog.isInfoEnabled())
@@ -563,6 +570,9 @@ class ProcessExecutor
         {
             this.millisToWaitForCompletion = millisToWaitForCompletion;
         }
+        this.millisToWaitForIOCompletion =
+            Math.round((millisToWaitForCompletion == ConcurrencyUtilities.NO_TIMEOUT) ? ConcurrencyUtilities.NO_TIMEOUT
+                    : this.millisToWaitForCompletion * OUTPUT_READING_TIMEOUT_FRACTION);
         this.processIOStrategy = ioStrategy;
         this.commandLine = Collections.unmodifiableList(commandLine);
         this.processOutput = new ProcessOutput();
@@ -710,7 +720,7 @@ class ProcessExecutor
         final Future<ProcessResult> killerFuture =
                 executor.submit(new ProcessKiller(executionStatus));
         checkStop(executionStatus, stopOnInterrupt);
-        return ConcurrencyUtilities.getResult(killerFuture, millisToWaitForCompletion / 10);
+        return ConcurrencyUtilities.getResult(killerFuture, SHORT_TIMEOUT);
     }
 
     private static ExecutionResult<ProcessResult> getExecutionResult(
