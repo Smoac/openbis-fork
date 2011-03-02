@@ -34,7 +34,7 @@ import ch.systemsx.cisd.etlserver.DispatcherStorageProcessor.IDispatchableStorag
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.openbis.dss.etl.HCSContainerDatasetInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeatureDefinitionValues;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeatureDefinition;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeatureVectorDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.CsvToCanonicalFeatureVector.CsvToCanonicalFeatureVectorConfiguration;
@@ -131,12 +131,12 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
     private static List<CanonicalFeatureVector> extractCanonicalFeatureVectors(
             FeatureVectorDataSetInformation dataSetInformation, Geometry plateGeometry)
     {
-        List<FeatureDefinitionValues> featuresDefinitionValuesList =
+        List<FeatureDefinition> featuresDefinitionValuesList =
                 dataSetInformation.getFeatures();
 
         List<CanonicalFeatureVector> canonicalFeatureVectors =
                 new ArrayList<CanonicalFeatureVector>();
-        for (FeatureDefinitionValues featureDefinitionValues : featuresDefinitionValuesList)
+        for (FeatureDefinition featureDefinitionValues : featuresDefinitionValuesList)
         {
             CanonicalFeatureVector canonicalFeatureVector =
                     featureDefinitionValues.getCanonicalFeatureVector(plateGeometry);

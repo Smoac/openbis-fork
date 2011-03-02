@@ -16,10 +16,14 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.IFeatureDefinition;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
 
 /**
  * Extends {@link DataSetInformation} with information about images analysis on the well level
@@ -31,18 +35,19 @@ public class FeatureVectorDataSetInformation extends DataSetInformation
 {
     private static final long serialVersionUID = IServer.VERSION;
 
-    private List<FeatureDefinitionValues> features;
+    private List<FeatureDefinition> features;
 
     public FeatureVectorDataSetInformation()
     {
+        this.features = new ArrayList<FeatureDefinition>();
     }
 
-    public List<FeatureDefinitionValues> getFeatures()
+    public List<FeatureDefinition> getFeatures()
     {
         return features;
     }
 
-    public void setFeatures(List<FeatureDefinitionValues> features)
+    public void setFeatures(List<FeatureDefinition> features)
     {
         this.features = features;
     }
@@ -51,6 +56,24 @@ public class FeatureVectorDataSetInformation extends DataSetInformation
     public boolean isValid()
     {
         return features != null && features.size() > 0;
+    }
+
+    /** Defines a container to which values of the feature for each well can be added. */
+    public IFeatureDefinition defineFeature(String featureCode)
+    {
+        assert StringUtils.isBlank(featureCode) == false : "Feature code is blank " + featureCode;
+        FeatureDefinition featureDefinitionValues =
+                new FeatureDefinition(createFeatureDefinition(featureCode));
+        features.add(featureDefinitionValues);
+        return featureDefinitionValues;
+    }
+
+    private static ImgFeatureDefDTO createFeatureDefinition(String featureCode)
+    {
+        ImgFeatureDefDTO dto = new ImgFeatureDefDTO();
+        dto.setCode(featureCode);
+        dto.setLabel(featureCode);
+        return dto;
     }
 
 }

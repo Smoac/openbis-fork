@@ -21,7 +21,7 @@ package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
  * 
  * @author Tomasz Pylak
  */
-public interface IFeatureValues
+public interface IFeatureDefinition
 {
     /**
      * Relevant only in cases where feature values for different timepoints and/or depth-scans are
@@ -31,7 +31,7 @@ public interface IFeatureValues
      * {@link #addValue} until this method will be called again.
      * </p>
      */
-    void setSeries(Double timeOrNull, Double depthOrNull);
+    void changeSeries(Double timeOrNull, Double depthOrNull);
 
     /**
      * @param well code of the well, e.g. A1
@@ -45,4 +45,10 @@ public interface IFeatureValues
      * @param value value of the feature in the specified well
      */
     void addValue(int wellRow, int wellColumn, String value);
+
+    /** Optional. Sets the label of a feature. */
+    void setFeatureLabel(String label);
+
+    /** Optional. Sets description of a feature. */
+    void setFeatureDescription(String description);
 }

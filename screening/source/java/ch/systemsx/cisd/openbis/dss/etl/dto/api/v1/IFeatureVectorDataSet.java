@@ -16,14 +16,13 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
 
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
+
 /**
- * Allows to define feature vectors of one image analysis dataset.
- * 
  * @author Tomasz Pylak
  */
-public interface IFeaturesBuilder
+public interface IFeatureVectorDataSet extends IDataSet
 {
     /** Defines a container to which values of the feature for each well can be added. */
-    public IFeatureDefinition defineFeature(String featureCode);
-
+    IFeatureDefinition defineFeature(String featureCode);
 }

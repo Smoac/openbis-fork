@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFe
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureVocabularyTermDTO;
 
 /**
- * Test of {@link FeatureDefinitionValues}
+ * Test of {@link FeatureDefinition}
  * 
  * @author Tomasz Pylak
  */
@@ -38,7 +38,7 @@ public class FeatureDefinitionValuesTest extends AssertJUnit
     @Test
     public void test()
     {
-        FeatureDefinitionValues def = new FeatureDefinitionValues(new ImgFeatureDefDTO());
+        FeatureDefinition def = new FeatureDefinition(new ImgFeatureDefDTO());
         def.addValue("A1", "1.2");
         def.addValue("B2", "2.1");
         CanonicalFeatureVector vector =
@@ -58,10 +58,10 @@ public class FeatureDefinitionValuesTest extends AssertJUnit
     @Test
     public void testTimepointsAndDepthScans()
     {
-        FeatureDefinitionValues def = new FeatureDefinitionValues(new ImgFeatureDefDTO());
-        def.setSeries(1.1, null);
+        FeatureDefinition def = new FeatureDefinition(new ImgFeatureDefDTO());
+        def.changeSeries(1.1, null);
         def.addValue("A1", "1");
-        def.setSeries(null, 2.2);
+        def.changeSeries(null, 2.2);
         def.addValue("A1", "10");
 
         CanonicalFeatureVector vector =
@@ -87,7 +87,7 @@ public class FeatureDefinitionValuesTest extends AssertJUnit
     @Test
     public void testVocabularyFeatures()
     {
-        FeatureDefinitionValues def = new FeatureDefinitionValues(new ImgFeatureDefDTO());
+        FeatureDefinition def = new FeatureDefinition(new ImgFeatureDefDTO());
         def.addValue("A1", "a");
         def.addValue("A2", "b");
         def.addValue("A3", "a");

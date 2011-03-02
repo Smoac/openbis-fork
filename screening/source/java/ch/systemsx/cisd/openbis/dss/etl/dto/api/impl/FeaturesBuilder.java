@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.dss.etl.dto.api.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.FeatureDefinition;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.IFeatureValues;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.IFeatureDefinition;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.IFeaturesBuilder;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
 
@@ -31,33 +31,32 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFe
  */
 public class FeaturesBuilder implements IFeaturesBuilder
 {
-    private final List<FeatureDefinitionValues> featureDefinitionValuesList;
+    private final List<FeatureDefinition> featureDefinitionValuesList;
 
     public FeaturesBuilder()
     {
-        this.featureDefinitionValuesList = new ArrayList<FeatureDefinitionValues>();
+        this.featureDefinitionValuesList = new ArrayList<FeatureDefinition>();
     }
 
     /** Defines a container to which values of the feature for each well can be added. */
-    public IFeatureValues defineFeature(FeatureDefinition featureDefinition)
+    public IFeatureDefinition defineFeature(String featureCode)
     {
-        featureDefinition.ensureValid();
-        FeatureDefinitionValues featureDefinitionValues =
-                new FeatureDefinitionValues(convert(featureDefinition));
+        assert StringUtils.isBlank(featureCode) == false : "Feature code is blank " + featureCode;
+        FeatureDefinition featureDefinitionValues =
+                new FeatureDefinition(createFeatureDefinition(featureCode));
         featureDefinitionValuesList.add(featureDefinitionValues);
         return featureDefinitionValues;
     }
 
-    private static ImgFeatureDefDTO convert(FeatureDefinition featureDefinition)
+    private static ImgFeatureDefDTO createFeatureDefinition(String featureCode)
     {
         ImgFeatureDefDTO dto = new ImgFeatureDefDTO();
-        dto.setCode(featureDefinition.getCode());
-        dto.setLabel(featureDefinition.getLabel());
-        dto.setDescription(featureDefinition.getDescription());
+        dto.setCode(featureCode);
+        dto.setLabel(featureCode);
         return dto;
     }
 
-    public List<FeatureDefinitionValues> getFeatureDefinitionValuesList()
+    public List<FeatureDefinition> getFeatureDefinitionValuesList()
     {
         return featureDefinitionValuesList;
     }

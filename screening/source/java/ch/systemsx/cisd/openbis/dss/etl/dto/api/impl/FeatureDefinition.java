@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.IFeatureValues;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.IFeatureDefinition;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.CanonicalFeatureVector;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.FeatureValuesMap;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFe
  * 
  * @author Tomasz Pylak
  */
-public class FeatureDefinitionValues implements IFeatureValues
+public class FeatureDefinition implements IFeatureDefinition
 {
     private final ImgFeatureDefDTO imgFeatureDefDTO;
 
@@ -47,12 +47,12 @@ public class FeatureDefinitionValues implements IFeatureValues
 
     private FeatureValuesMap currentFeatureVector;
 
-    public FeatureDefinitionValues(ImgFeatureDefDTO imgFeatureDefDTO)
+    public FeatureDefinition(ImgFeatureDefDTO imgFeatureDefDTO)
     {
         this(imgFeatureDefDTO, new FeatureValuesMap(null, null));
     }
 
-    public FeatureDefinitionValues(ImgFeatureDefDTO imgFeatureDefDTO,
+    public FeatureDefinition(ImgFeatureDefDTO imgFeatureDefDTO,
             FeatureValuesMap currentFeatureVector)
     {
         assert imgFeatureDefDTO != null : "featureDefinition is null";
@@ -61,7 +61,7 @@ public class FeatureDefinitionValues implements IFeatureValues
         this.currentFeatureVector = currentFeatureVector;
     }
 
-    public void setSeries(Double timeOrNull, Double depthOrNull)
+    public void changeSeries(Double timeOrNull, Double depthOrNull)
     {
         flushCurrent();
         currentFeatureVector = new FeatureValuesMap(timeOrNull, depthOrNull);
@@ -74,6 +74,18 @@ public class FeatureDefinitionValues implements IFeatureValues
             values.add(currentFeatureVector);
             currentFeatureVector = null;
         }
+    }
+
+    /** Optional. Sets the label of a feature. */
+    public void setFeatureLabel(String label)
+    {
+        this.imgFeatureDefDTO.setLabel(label);
+    }
+
+    /** Optional. Sets description of a feature. */
+    public void setFeatureDescription(String description)
+    {
+        this.imgFeatureDefDTO.setDescription(description);
     }
 
     /**

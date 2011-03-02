@@ -23,7 +23,7 @@ import java.util.Set;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.common.utilities.Counters;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeatureDefinitionValues;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeatureDefinition;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
@@ -282,8 +282,8 @@ public class CsvToCanonicalFeatureVector
         public CanonicalFeatureVector createCanonicalFeatureVector(ImgFeatureDefDTO featureDef,
                 Geometry geometry)
         {
-            FeatureDefinitionValues featureDefinitionValues =
-                    new FeatureDefinitionValues(featureDef, values);
+            FeatureDefinition featureDefinitionValues =
+                    new FeatureDefinition(featureDef, values);
 
             return featureDefinitionValues.getCanonicalFeatureVector(geometry);
         }
