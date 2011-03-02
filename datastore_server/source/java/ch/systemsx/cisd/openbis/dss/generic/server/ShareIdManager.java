@@ -246,12 +246,11 @@ public class ShareIdManager implements IShareIdManager
     
     private Map<String, GuardedShareID> getDataSetCodeToShareIdMap()
     {
-        if (dataSetCodeToShareIdMap == null)
+        synchronized (dataSetCodeToShareIdMapMonitor)
         {
-            synchronized (dataSetCodeToShareIdMapMonitor)
+            if (dataSetCodeToShareIdMap == null)
             {
-                dataSetCodeToShareIdMap  =
-                    new HashMap<String, GuardedShareID>();
+                dataSetCodeToShareIdMap = new HashMap<String, GuardedShareID>();
                 List<SimpleDataSetInformationDTO> dataSets = service.listDataSets();
                 for (SimpleDataSetInformationDTO dataSet : dataSets)
                 {
@@ -259,10 +258,11 @@ public class ShareIdManager implements IShareIdManager
                     String shareId = dataSet.getDataSetShareId();
                     addShareId(dataSetCodeToShareIdMap, dataSetCode, shareId);
                 }
-                operationLog.info("Share id manager initialized with " + dataSets.size() + " data sets.");
+                operationLog.info("Share id manager initialized with " + dataSets.size()
+                        + " data sets.");
             }
+            return dataSetCodeToShareIdMap;
         }
-        return dataSetCodeToShareIdMap;
     }
     
 }
