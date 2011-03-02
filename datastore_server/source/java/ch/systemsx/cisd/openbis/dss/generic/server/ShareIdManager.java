@@ -56,7 +56,7 @@ public class ShareIdManager implements IShareIdManager
         GuardedShareID(String dataSetCode, String shareId, int lockingTimeOut)
         {
             this.dataSetCode = dataSetCode;
-            this.shareId = shareId;
+            this.shareId = shareId == null ? Constants.DEFAULT_SHARE_ID : shareId;
             this.lockingTimeOut = lockingTimeOut;
         }
 
@@ -110,7 +110,7 @@ public class ShareIdManager implements IShareIdManager
     private final IEncapsulatedOpenBISService service;
     private final int lockingTimeOut;
     private final Map<String, Set<Thread>> lockedDataSets = new HashMap<String, Set<Thread>>();
-    
+    private final Object dataSetCodeToShareIdMapMonitor = new Object();
     private Map<String, GuardedShareID> dataSetCodeToShareIdMap;
 
     public ShareIdManager(IEncapsulatedOpenBISService service, int lockingTimeOutInSeconds)
@@ -158,8 +158,9 @@ public class ShareIdManager implements IShareIdManager
             if (set == null)
             {
                 set = new LinkedHashSet<Thread>();
+                GuardedShareID guardedShareId = getGuardedShareId(dataSetCode);
                 lockedDataSets.put(dataSetCode, set);
-                getGuardedShareId(dataSetCode).lock();
+                guardedShareId.lock();
                 if (operationLog.isDebugEnabled())
                 {
                     operationLog.debug("Data set " + dataSetCode + " has been locked.");
@@ -196,8 +197,8 @@ public class ShareIdManager implements IShareIdManager
                 {
                     operationLog.debug("Unlock data set " + dataSetCode);
                 }
-                getGuardedShareId(dataSetCode).unlock();
                 lockedDataSets.remove(dataSetCode);
+                getGuardedShareId(dataSetCode).unlock();
             }
             log(dataSetCode, set);
         }
@@ -247,17 +248,19 @@ public class ShareIdManager implements IShareIdManager
     {
         if (dataSetCodeToShareIdMap == null)
         {
-            dataSetCodeToShareIdMap  =
-                new HashMap<String, GuardedShareID>();
-            List<SimpleDataSetInformationDTO> dataSets = service.listDataSets();
-            for (SimpleDataSetInformationDTO dataSet : dataSets)
+            synchronized (dataSetCodeToShareIdMapMonitor)
             {
-                String dataSetCode = dataSet.getDataSetCode();
-                String shareId = dataSet.getDataSetShareId();
-                addShareId(dataSetCodeToShareIdMap, dataSetCode,
-                        shareId == null ? Constants.DEFAULT_SHARE_ID : shareId);
+                dataSetCodeToShareIdMap  =
+                    new HashMap<String, GuardedShareID>();
+                List<SimpleDataSetInformationDTO> dataSets = service.listDataSets();
+                for (SimpleDataSetInformationDTO dataSet : dataSets)
+                {
+                    String dataSetCode = dataSet.getDataSetCode();
+                    String shareId = dataSet.getDataSetShareId();
+                    addShareId(dataSetCodeToShareIdMap, dataSetCode, shareId);
+                }
+                operationLog.info("Share id manager initialized with " + dataSets.size() + " data sets.");
             }
-            operationLog.info("Share id manager initialized with " + dataSets.size() + " data sets.");
         }
         return dataSetCodeToShareIdMap;
     }
