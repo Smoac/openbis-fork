@@ -710,7 +710,7 @@ class ProcessExecutor
         final Future<ProcessResult> killerFuture =
                 executor.submit(new ProcessKiller(executionStatus));
         checkStop(executionStatus, stopOnInterrupt);
-        return ConcurrencyUtilities.getResult(killerFuture, SHORT_TIMEOUT);
+        return ConcurrencyUtilities.getResult(killerFuture, millisToWaitForCompletion / 10);
     }
 
     private static ExecutionResult<ProcessResult> getExecutionResult(
