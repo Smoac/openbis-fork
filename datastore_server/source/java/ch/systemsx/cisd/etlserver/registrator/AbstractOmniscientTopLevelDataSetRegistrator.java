@@ -243,6 +243,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             service.commit();
         } catch (Throwable ex)
         {
+            operationLog.error("Could not process file " + incomingDataSetFile, ex);
             rollback(service, ex);
         }
     }
