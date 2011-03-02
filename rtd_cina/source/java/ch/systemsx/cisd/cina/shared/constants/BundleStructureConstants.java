@@ -53,7 +53,7 @@ public class BundleStructureConstants
 
     public final static String IMAGE_METADATA_FILE_NAME = "metadata.xml";
 
-    public static final String GRID_PREP_SAMPLE_CODE_KEY = "database link information";
+    public static final String GRID_PREP_SAMPLE_CODE_KEY = "database id";
 
     public static final String COLLECTION_METADATA_FILE_NAME = "ReplicaMetadata.xml";
 
