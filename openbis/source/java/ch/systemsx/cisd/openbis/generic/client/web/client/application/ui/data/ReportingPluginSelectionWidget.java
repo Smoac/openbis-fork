@@ -41,7 +41,7 @@ public class ReportingPluginSelectionWidget extends
         DropDownList<DatastoreServiceDescriptionModel, DatastoreServiceDescription>
 {
 
-    public static final String METADATA = "Metadata";
+    public static final String METADATA = "Overview";
 
     private final IViewContext<?> viewContext;
 
