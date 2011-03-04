@@ -38,7 +38,7 @@ class WellTooltipGenerator implements HeatmapPresenter.IWellTooltipGenerator
 {
     private static final String NEWLINE = "\n";
 
-    private static final int MAX_DESCRIBED_FEATURES = 30;
+    private static final int MAX_DESCRIBED_FEATURES = 20;
 
     private final PlateLayouterModel model;
 
