@@ -134,11 +134,11 @@ public class WellTooltipGeneratorTest extends AssertJUnit
 
         String desc = tryGenerateShortDescription(model, 0, 1, null);
         AssertionUtil.assertStarts("Feature0: 0.0", desc);
-        AssertionUtil.assertEnds("Feature29: 29.0\n" + "...", desc);
+        AssertionUtil.assertEnds("Feature19: 19.0\n" + "...", desc);
 
         desc = tryGenerateShortDescription(model, 0, 1, "Feature4");
         AssertionUtil.assertStarts("Feature4: <b>4.0</b>", desc);
-        AssertionUtil.assertEnds("Feature29: 29.0\n" + "...", desc);
+        AssertionUtil.assertEnds("Feature19: 19.0\n" + "...", desc);
     }
 
     @Test
