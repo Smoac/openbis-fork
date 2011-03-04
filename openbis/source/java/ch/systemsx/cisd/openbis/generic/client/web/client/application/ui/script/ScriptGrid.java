@@ -253,21 +253,18 @@ public class ScriptGrid extends TypedTableGrid<Script>
 
         private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-        private final AbstractAsyncCallback<Void> callback;
-
         public ScriptListDeletionConfirmationDialog(
                 IViewContext<ICommonClientServiceAsync> viewContext,
                 List<TableModelRowWithObject<Script>> data, AbstractAsyncCallback<Void> callback)
         {
-            super(viewContext, data);
+            super(viewContext, data, callback);
             this.viewContext = viewContext;
-            this.callback = callback;
         }
 
         @Override
-        protected void executeConfirmedAction()
+        protected void executeDeletion(AsyncCallback<Void> deletionCallback)
         {
-            viewContext.getCommonService().deleteScripts(TechId.createList(data), callback);
+            viewContext.getCommonService().deleteScripts(TechId.createList(data), deletionCallback);
         }
 
         @Override

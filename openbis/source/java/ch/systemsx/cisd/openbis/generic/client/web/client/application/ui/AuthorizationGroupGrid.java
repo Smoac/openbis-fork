@@ -256,22 +256,19 @@ public class AuthorizationGroupGrid extends AbstractSimpleBrowserGrid<Authorizat
 
         private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-        private final AbstractAsyncCallback<Void> callback;
-
         public GroupListDeletionConfirmationDialog(
                 IViewContext<ICommonClientServiceAsync> viewContext, List<AuthorizationGroup> data,
                 AbstractAsyncCallback<Void> callback)
         {
-            super(viewContext, data);
+            super(viewContext, data, callback);
             this.viewContext = viewContext;
-            this.callback = callback;
         }
 
         @Override
-        protected void executeConfirmedAction()
+        protected void executeDeletion(AsyncCallback<Void> deletionCallback)
         {
             viewContext.getCommonService().deleteAuthorizationGroups(TechId.createList(data),
-                    reason.getValue(), callback);
+                    reason.getValue(), deletionCallback);
         }
 
         @Override

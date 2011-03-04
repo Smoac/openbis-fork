@@ -88,7 +88,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
 
 /**
  * Grid showing {@link Sample} instances.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class SampleBrowserGrid extends TypedTableGrid<Sample>
@@ -123,8 +123,8 @@ public class SampleBrowserGrid extends TypedTableGrid<Sample>
                         DisplayTypeIDGenerator.ENTITY_BROWSER_GRID)
                     {
                         @Override
-                        protected void showEntityViewer(TableModelRowWithObject<Sample> row, boolean editMode,
-                                boolean active)
+                        protected void showEntityViewer(TableModelRowWithObject<Sample> row,
+                                boolean editMode, boolean active)
                         {
                             // do nothing - avoid showing the details after double click
                         }
@@ -336,10 +336,12 @@ public class SampleBrowserGrid extends TypedTableGrid<Sample>
     public String getGridDisplayTypeID()
     {
         ListSampleDisplayCriteria criteria = getCriteriaProvider().tryGetCriteria();
-        String suffix = createDisplayIdSuffix(EntityKind.SAMPLE, criteria == null ? null : criteria.tryGetSampleType());
+        String suffix =
+                createDisplayIdSuffix(EntityKind.SAMPLE,
+                        criteria == null ? null : criteria.tryGetSampleType());
         return createGridDisplayTypeID(suffix);
     }
-    
+
     private static String createDisplayIdSuffix(EntityKind entityKindOrNull,
             EntityType entityTypeOrNull)
     {
@@ -354,7 +356,7 @@ public class SampleBrowserGrid extends TypedTableGrid<Sample>
         }
         return suffix;
     }
-    
+
     private void linkSample()
     {
         ICellListenerAndLinkGenerator<Sample> listenerLinkGenerator =
@@ -363,7 +365,8 @@ public class SampleBrowserGrid extends TypedTableGrid<Sample>
                         public void handle(TableModelRowWithObject<Sample> rowItem,
                                 boolean specialKeyPressed)
                         {
-                            showEntityInformationHolderViewer(rowItem.getObjectOrNull(), false, specialKeyPressed);
+                            showEntityInformationHolderViewer(rowItem.getObjectOrNull(), false,
+                                    specialKeyPressed);
                         }
 
                         public String tryGetLink(Sample entity,
@@ -401,7 +404,7 @@ public class SampleBrowserGrid extends TypedTableGrid<Sample>
         registerListenerAndLinkGenerator(SampleGridColumnIDs.EXPERIMENT_IDENTIFIER,
                 listenerLinkGenerator);
     }
-    
+
     private void linkProject()
     {
         registerListenerAndLinkGenerator(SampleGridColumnIDs.PROJECT,
@@ -467,8 +470,8 @@ public class SampleBrowserGrid extends TypedTableGrid<Sample>
                         public void handle(TableModelRowWithObject<Sample> rowItem,
                                 boolean specialKeyPressed)
                         {
-                            showEntityInformationHolderViewer(rowItem.getObjectOrNull().getContainer(), false,
-                                    specialKeyPressed);
+                            showEntityInformationHolderViewer(rowItem.getObjectOrNull()
+                                    .getContainer(), false, specialKeyPressed);
                         }
 
                         public String tryGetLink(Sample entity,
@@ -479,8 +482,6 @@ public class SampleBrowserGrid extends TypedTableGrid<Sample>
                         }
                     });
     }
-
-    
 
     @Override
     protected GridCellRenderer<BaseEntityModel<?>> createInternalLinkCellRenderer()
@@ -516,7 +517,8 @@ public class SampleBrowserGrid extends TypedTableGrid<Sample>
     @Override
     protected List<String> getColumnIdsOfFilters()
     {
-        return Arrays.asList(SampleGridColumnIDs.CODE, SampleGridColumnIDs.EXPERIMENT, SampleGridColumnIDs.PROJECT);
+        return Arrays.asList(SampleGridColumnIDs.CODE, SampleGridColumnIDs.EXPERIMENT,
+                SampleGridColumnIDs.PROJECT);
     }
 
     @Override
@@ -661,7 +663,7 @@ public class SampleBrowserGrid extends TypedTableGrid<Sample>
                 protected Dialog createDialog(List<TableModelRowWithObject<Sample>> samples,
                         IBrowserGridActionInvoker invoker)
                 {
-                    AsyncCallback<Void> callback = createRefreshCallback(invoker);
+                    AbstractAsyncCallback<Void> callback = createRefreshCallback(invoker);
                     DisplayedAndSelectedEntities<TableModelRowWithObject<Sample>> s =
                             getDisplayedAndSelectedItemsAction().execute();
                     return new SampleListDeletionConfirmationDialog<TableModelRowWithObject<Sample>>(
@@ -681,12 +683,14 @@ public class SampleBrowserGrid extends TypedTableGrid<Sample>
                 {
                     TableExportCriteria<TableModelRowWithObject<Sample>> tableExportCriteria =
                             createTableExportCriteria();
-                    List<TableModelRowWithObject<Sample>> selectedBaseObjects = getSelectedBaseObjects();
-                    return new DisplayedAndSelectedEntities<TableModelRowWithObject<Sample>>(selectedBaseObjects,
-                            tableExportCriteria, getTotalCount());
+                    List<TableModelRowWithObject<Sample>> selectedBaseObjects =
+                            getSelectedBaseObjects();
+                    return new DisplayedAndSelectedEntities<TableModelRowWithObject<Sample>>(
+                            selectedBaseObjects, tableExportCriteria, getTotalCount());
                 }
             };
     }
+
     public static final String createChildComponentId(final String browserId,
             final String childSuffix)
     {
@@ -741,11 +745,12 @@ public class SampleBrowserGrid extends TypedTableGrid<Sample>
     }
 
     @Override
-    protected void showEntityViewer(TableModelRowWithObject<Sample> row, boolean editMode, boolean inBackground)
+    protected void showEntityViewer(TableModelRowWithObject<Sample> row, boolean editMode,
+            boolean inBackground)
     {
         showEntityInformationHolderViewer(row.getObjectOrNull(), editMode, inBackground);
     }
-    
+
     protected final IDelegatedAction createGridRefreshDelegatedAction()
     {
         return new IDelegatedAction()

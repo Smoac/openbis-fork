@@ -42,6 +42,7 @@ var common = {
   url: "URL",
   reason: "Reason",
   delete_confirmation_message_with_reason: "You are deleting {0}(s).<br><br>Please enter a reason or cancel deletion.",
+  delete_progress_message: "Deleting {0}(s)...",
   add_attachment: "Add attachment...",
   data_view: "Data View",
   main_data_set_path: "Main Data Set Path",

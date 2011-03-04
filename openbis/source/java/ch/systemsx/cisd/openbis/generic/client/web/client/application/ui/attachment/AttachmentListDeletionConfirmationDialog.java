@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.attach
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -34,8 +36,6 @@ public final class AttachmentListDeletionConfirmationDialog extends
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    private final AbstractAsyncCallback<Void> callback;
-
     private final IAttachmentHolder attachmentHolder;
 
     public AttachmentListDeletionConfirmationDialog(
@@ -43,18 +43,17 @@ public final class AttachmentListDeletionConfirmationDialog extends
             List<AttachmentVersions> attachments, AbstractAsyncCallback<Void> callback,
             IAttachmentHolder attachmentHolder)
     {
-        super(viewContext, attachments);
+        super(viewContext, attachments, callback);
         this.viewContext = viewContext;
-        this.callback = callback;
         this.attachmentHolder = attachmentHolder;
     }
 
     @Override
-    protected void executeConfirmedAction()
+    protected void executeDeletion(AsyncCallback<Void> deletionCallback)
     {
         viewContext.getCommonService().deleteAttachments(TechId.create(attachmentHolder),
                 attachmentHolder.getAttachmentHolderKind(), getAttachmentFileNames(data),
-                reason.getValue(), callback);
+                reason.getValue(), deletionCallback);
     }
 
     @Override

@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabu
 
 import java.util.List;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -33,23 +35,20 @@ public final class VocabularyListDeletionConfirmationDialog extends
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    private final AbstractAsyncCallback<Void> callback;
-
     public VocabularyListDeletionConfirmationDialog(
             IViewContext<ICommonClientServiceAsync> viewContext,
             List<TableModelRowWithObject<Vocabulary>> vocabularies,
             AbstractAsyncCallback<Void> callback)
     {
-        super(viewContext, vocabularies);
+        super(viewContext, vocabularies, callback);
         this.viewContext = viewContext;
-        this.callback = callback;
     }
 
     @Override
-    protected void executeConfirmedAction()
+    protected void executeDeletion(AsyncCallback<Void> deletionCallback)
     {
         viewContext.getCommonService().deleteVocabularies(TechId.createList(data),
-                reason.getValue(), callback);
+                reason.getValue(), deletionCallback);
     }
 
     @Override

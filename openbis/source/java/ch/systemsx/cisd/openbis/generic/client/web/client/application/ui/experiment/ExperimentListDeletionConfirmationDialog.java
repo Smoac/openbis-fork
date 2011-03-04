@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experi
 import java.util.Collections;
 
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -38,8 +39,6 @@ public final class ExperimentListDeletionConfirmationDialog extends
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    private final AbstractAsyncCallback<Void> callback;
-
     private final DisplayedAndSelectedExperiments selectedAndDisplayedItemsOrNull;
 
     private final Experiment singleDataOrNull;
@@ -49,9 +48,8 @@ public final class ExperimentListDeletionConfirmationDialog extends
             AbstractAsyncCallback<Void> callback,
             DisplayedAndSelectedExperiments selectedAndDisplayedItems)
     {
-        super(viewContext, selectedAndDisplayedItems.getSelectedItems(), true);
+        super(viewContext, selectedAndDisplayedItems.getSelectedItems(), callback, true);
         this.viewContext = viewContext;
-        this.callback = callback;
         this.singleDataOrNull = null;
         this.selectedAndDisplayedItemsOrNull = selectedAndDisplayedItems;
     }
@@ -60,26 +58,25 @@ public final class ExperimentListDeletionConfirmationDialog extends
             IViewContext<ICommonClientServiceAsync> viewContext,
             AbstractAsyncCallback<Void> callback, Experiment experiment)
     {
-        super(viewContext, Collections.singletonList(experiment), false);
+        super(viewContext, Collections.singletonList(experiment), callback, false);
         this.viewContext = viewContext;
-        this.callback = callback;
         this.singleDataOrNull = experiment;
         this.selectedAndDisplayedItemsOrNull = null;
     }
 
     @Override
-    protected void executeConfirmedAction()
+    protected void executeDeletion(AsyncCallback<Void> deletionCallback)
     {
         if (selectedAndDisplayedItemsOrNull != null)
         {
             final DisplayedOrSelectedIdHolderCriteria<Experiment> uploadCriteria =
                     selectedAndDisplayedItemsOrNull.createCriteria(isOnlySelected());
             viewContext.getCommonService().deleteExperiments(uploadCriteria, reason.getValue(),
-                    callback);
+                    deletionCallback);
         } else
         {
             viewContext.getCommonService().deleteExperiment(TechId.create(singleDataOrNull),
-                    reason.getValue(), callback);
+                    reason.getValue(), deletionCallback);
         }
     }
 
@@ -92,11 +89,12 @@ public final class ExperimentListDeletionConfirmationDialog extends
     @Override
     protected final RadioGroup createRadio()
     {
-        return WidgetUtils.createAllOrSelectedRadioGroup(onlySelectedRadioOrNull =
-                WidgetUtils.createRadio(viewContext.getMessage(Dict.ONLY_SELECTED_RADIO, data
-                        .size())), WidgetUtils.createRadio(viewContext.getMessage(Dict.ALL_RADIO,
-                selectedAndDisplayedItemsOrNull.getDisplayedItemsCount())), viewContext
-                .getMessage(Dict.EXPERIMENTS_RADIO_GROUP_LABEL), data.size());
+        return WidgetUtils.createAllOrSelectedRadioGroup(
+                onlySelectedRadioOrNull =
+                        WidgetUtils.createRadio(viewContext.getMessage(Dict.ONLY_SELECTED_RADIO,
+                                data.size())), WidgetUtils.createRadio(viewContext.getMessage(
+                        Dict.ALL_RADIO, selectedAndDisplayedItemsOrNull.getDisplayedItemsCount())),
+                viewContext.getMessage(Dict.EXPERIMENTS_RADIO_GROUP_LABEL), data.size());
     }
 
 }

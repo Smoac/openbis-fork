@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.projec
 import java.util.Collections;
 import java.util.List;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -33,15 +35,12 @@ public final class ProjectListDeletionConfirmationDialog extends
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    private final AbstractAsyncCallback<Void> callback;
-
     public ProjectListDeletionConfirmationDialog(
             IViewContext<ICommonClientServiceAsync> viewContext, List<Project> data,
             AbstractAsyncCallback<Void> callback)
     {
-        super(viewContext, data);
+        super(viewContext, data, callback);
         this.viewContext = viewContext;
-        this.callback = callback;
     }
 
     public ProjectListDeletionConfirmationDialog(
@@ -52,10 +51,10 @@ public final class ProjectListDeletionConfirmationDialog extends
     }
 
     @Override
-    protected void executeConfirmedAction()
+    protected void executeDeletion(AsyncCallback<Void> deletionCallback)
     {
         viewContext.getCommonService().deleteProjects(TechId.createList(data), reason.getValue(),
-                callback);
+                deletionCallback);
     }
 
     @Override

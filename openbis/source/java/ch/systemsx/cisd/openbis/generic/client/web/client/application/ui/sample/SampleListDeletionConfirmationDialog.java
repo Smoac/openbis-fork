@@ -24,7 +24,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AsyncCallbackWithProgressBar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.DisplayedAndSelectedEntities;
@@ -41,19 +40,17 @@ public final class SampleListDeletionConfirmationDialog<T extends IIdHolder> ext
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    private final AsyncCallback<Void> callback;
-
     private final DisplayedAndSelectedEntities<T> selectedAndDisplayedItemsOrNull;
 
     private final T singleDataOrNull;
 
     public SampleListDeletionConfirmationDialog(
             IViewContext<ICommonClientServiceAsync> viewContext, List<T> data,
-            AsyncCallback<Void> callback, DisplayedAndSelectedEntities<T> selectedAndDisplayedItems)
+            AbstractAsyncCallback<Void> callback,
+            DisplayedAndSelectedEntities<T> selectedAndDisplayedItems)
     {
-        super(viewContext, data, true);
+        super(viewContext, data, callback, true);
         this.viewContext = viewContext;
-        this.callback = callback;
         this.singleDataOrNull = null;
         this.selectedAndDisplayedItemsOrNull = selectedAndDisplayedItems;
     }
@@ -62,28 +59,25 @@ public final class SampleListDeletionConfirmationDialog<T extends IIdHolder> ext
             IViewContext<ICommonClientServiceAsync> viewContext, List<T> data,
             AbstractAsyncCallback<Void> callback, T sample)
     {
-        super(viewContext, data, false);
+        super(viewContext, data, callback, false);
         this.viewContext = viewContext;
-        this.callback = callback;
         this.singleDataOrNull = sample;
         this.selectedAndDisplayedItemsOrNull = null;
     }
 
     @Override
-    protected void executeConfirmedAction()
+    protected void executeDeletion(AsyncCallback<Void> deletionCallback)
     {
-        AsyncCallback<Void> callbackWithProgressBar =
-                AsyncCallbackWithProgressBar.decorate(callback, "Deleting samples...");
         if (selectedAndDisplayedItemsOrNull != null)
         {
             final DisplayedOrSelectedIdHolderCriteria<T> uploadCriteria =
                     selectedAndDisplayedItemsOrNull.createCriteria(isOnlySelected());
             viewContext.getCommonService().deleteSamples(uploadCriteria, reason.getValue(),
-                    callbackWithProgressBar);
+                    deletionCallback);
         } else
         {
             viewContext.getCommonService().deleteSample(TechId.create(singleDataOrNull),
-                    reason.getValue(), callbackWithProgressBar);
+                    reason.getValue(), deletionCallback);
         }
     }
 

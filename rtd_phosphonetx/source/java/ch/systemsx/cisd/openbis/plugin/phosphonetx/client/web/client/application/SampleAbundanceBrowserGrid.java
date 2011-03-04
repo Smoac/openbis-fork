@@ -22,6 +22,7 @@ import java.util.Set;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -227,22 +228,19 @@ public class SampleAbundanceBrowserGrid
 
         private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-        private final AbstractAsyncCallback<Void> callback;
-
         public SampleListDeletionConfirmationDialog(
                 IViewContext<ICommonClientServiceAsync> viewContext,
                 List<SampleWithPropertiesAndAbundance> data, AbstractAsyncCallback<Void> callback)
         {
-            super(viewContext, data);
+            super(viewContext, data, callback);
             this.viewContext = viewContext;
-            this.callback = callback;
         }
 
         @Override
-        protected void executeConfirmedAction()
+        protected void executeDeletion(AsyncCallback<Void> deletionCallback)
         {
             viewContext.getCommonService().deleteSamples(TechId.createList(data),
-                    reason.getValue(), callback);
+                    reason.getValue(), deletionCallback);
         }
 
         @Override

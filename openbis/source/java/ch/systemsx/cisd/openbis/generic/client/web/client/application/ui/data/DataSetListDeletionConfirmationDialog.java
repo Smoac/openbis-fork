@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 import java.util.Collections;
 
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -37,8 +38,6 @@ public final class DataSetListDeletionConfirmationDialog extends
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    private final AbstractAsyncCallback<Void> callback;
-
     private final SelectedAndDisplayedItems selectedAndDisplayedItemsOrNull;
 
     private final ExternalData singleData;
@@ -48,9 +47,8 @@ public final class DataSetListDeletionConfirmationDialog extends
             AbstractAsyncCallback<Void> callback,
             SelectedAndDisplayedItems selectedAndDisplayedItems)
     {
-        super(viewContext, selectedAndDisplayedItems.getSelectedItems(), true);
+        super(viewContext, selectedAndDisplayedItems.getSelectedItems(), callback, true);
         this.viewContext = viewContext;
-        this.callback = callback;
         this.singleData = null;
         this.selectedAndDisplayedItemsOrNull = selectedAndDisplayedItems;
     }
@@ -59,26 +57,25 @@ public final class DataSetListDeletionConfirmationDialog extends
             IViewContext<ICommonClientServiceAsync> viewContext, ExternalData data,
             AbstractAsyncCallback<Void> callback)
     {
-        super(viewContext, Collections.singletonList(data), false);
+        super(viewContext, Collections.singletonList(data), callback, false);
         this.viewContext = viewContext;
-        this.callback = callback;
         this.singleData = data;
         this.selectedAndDisplayedItemsOrNull = null;
     }
 
     @Override
-    protected void executeConfirmedAction()
+    protected void executeDeletion(AsyncCallback<Void> deletionCallback)
     {
         if (selectedAndDisplayedItemsOrNull != null)
         {
             final DisplayedOrSelectedDatasetCriteria uploadCriteria =
                     selectedAndDisplayedItemsOrNull.createCriteria(isOnlySelected());
             viewContext.getCommonService().deleteDataSets(uploadCriteria, reason.getValue(),
-                    callback);
+                    deletionCallback);
         } else
         {
             viewContext.getCommonService().deleteDataSet(singleData.getCode(), reason.getValue(),
-                    callback);
+                    deletionCallback);
         }
     }
 
@@ -91,10 +88,11 @@ public final class DataSetListDeletionConfirmationDialog extends
     @Override
     protected final RadioGroup createRadio()
     {
-        return WidgetUtils.createAllOrSelectedRadioGroup(onlySelectedRadioOrNull =
-                WidgetUtils.createRadio(viewContext.getMessage(Dict.ONLY_SELECTED_RADIO, data
-                        .size())), WidgetUtils.createRadio(viewContext.getMessage(Dict.ALL_RADIO,
-                selectedAndDisplayedItemsOrNull.getDisplayedItemsCount())), viewContext
-                .getMessage(Dict.DATA_SETS_RADIO_GROUP_LABEL), data.size());
+        return WidgetUtils.createAllOrSelectedRadioGroup(
+                onlySelectedRadioOrNull =
+                        WidgetUtils.createRadio(viewContext.getMessage(Dict.ONLY_SELECTED_RADIO,
+                                data.size())), WidgetUtils.createRadio(viewContext.getMessage(
+                        Dict.ALL_RADIO, selectedAndDisplayedItemsOrNull.getDisplayedItemsCount())),
+                viewContext.getMessage(Dict.DATA_SETS_RADIO_GROUP_LABEL), data.size());
     }
 }

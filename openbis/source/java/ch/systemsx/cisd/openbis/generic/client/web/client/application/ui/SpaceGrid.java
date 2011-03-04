@@ -216,28 +216,24 @@ public class SpaceGrid extends TypedTableGrid<Space>
 
         private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-        private final AbstractAsyncCallback<Void> callback;
-
         public GroupListDeletionConfirmationDialog(
                 IViewContext<ICommonClientServiceAsync> viewContext,
                 List<TableModelRowWithObject<Space>> data, AbstractAsyncCallback<Void> callback)
         {
-            super(viewContext, data);
+            super(viewContext, data, callback);
             this.viewContext = viewContext;
-            this.callback = callback;
         }
 
         @Override
-        protected void executeConfirmedAction()
+        protected void executeDeletion(AsyncCallback<Void> deletionCallback)
         {
-
             List<TableModelRowWithObject<Space>> d = data;
             List<TechId> list = new ArrayList<TechId>();
             for (TableModelRowWithObject<Space> tableModelRowWithObject : d)
             {
                 list.add(new TechId(tableModelRowWithObject.getObjectOrNull().getId()));
             }
-            viewContext.getCommonService().deleteGroups(list, reason.getValue(), callback);
+            viewContext.getCommonService().deleteGroups(list, reason.getValue(), deletionCallback);
         }
 
         @Override

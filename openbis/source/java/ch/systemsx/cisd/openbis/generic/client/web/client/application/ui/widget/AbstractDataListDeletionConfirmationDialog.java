@@ -20,7 +20,10 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AsyncCallbackWithProgressBar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ReasonField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
@@ -43,6 +46,8 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
 
     private static final String SELECTED = " selected ";
 
+    private final AbstractAsyncCallback<Void> callback;
+
     private final boolean withRadio;
 
     protected Radio onlySelectedRadioOrNull;
@@ -50,16 +55,18 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
     protected ReasonField reason;
 
     public AbstractDataListDeletionConfirmationDialog(IMessageProvider messageProvider,
-            List<T> data, boolean withRadio)
+            List<T> data, AbstractAsyncCallback<Void> callback, boolean withRadio)
     {
         super(messageProvider, data, messageProvider.getMessage(Dict.DELETE_CONFIRMATION_TITLE));
+        this.callback = callback;
         this.withRadio = withRadio;
     }
 
     // without radio
-    public AbstractDataListDeletionConfirmationDialog(IMessageProvider messageProvider, List<T> data)
+    public AbstractDataListDeletionConfirmationDialog(IMessageProvider messageProvider,
+            List<T> data, AbstractAsyncCallback<Void> callback)
     {
-        this(messageProvider, data, false);
+        this(messageProvider, data, callback, false);
     }
 
     @Override
@@ -96,6 +103,14 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
 
     protected abstract String getEntityName();
 
+    protected abstract void executeDeletion(AsyncCallback<Void> deletionCallback);
+
+    @Override
+    protected final void executeConfirmedAction()
+    {
+        executeDeletion(getCallbackWithProgressBar());
+    }
+
     /**
      * This method should be overriden in subclasses if dialog is supposed to use a radio and set
      * {@link #onlySelectedRadioOrNull}.
@@ -108,5 +123,15 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
     protected final boolean isOnlySelected()
     {
         return WidgetUtils.isSelected(onlySelectedRadioOrNull);
+    }
+
+    /**
+     * Returns deletion callback and shows a progress bar that will be hidden when the callback is
+     * finished.
+     */
+    private AsyncCallback<Void> getCallbackWithProgressBar()
+    {
+        return AsyncCallbackWithProgressBar.decorate(callback,
+                messageProvider.getMessage(Dict.DELETE_PROGRESS_MESSAGE, getEntityName()));
     }
 }

@@ -19,10 +19,10 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.materi
 import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AsyncCallbackWithProgressBar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialBrowserGrid.DisplayedAndSelectedMaterials;
@@ -38,8 +38,6 @@ public final class MaterialListDeletionConfirmationDialog extends
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    private final AbstractAsyncCallback<Void> callback;
-
     private final DisplayedAndSelectedMaterials selectedAndDisplayedItems;
 
     public MaterialListDeletionConfirmationDialog(
@@ -47,20 +45,18 @@ public final class MaterialListDeletionConfirmationDialog extends
             AbstractAsyncCallback<Void> callback,
             DisplayedAndSelectedMaterials selectedAndDisplayedItems)
     {
-        super(viewContext, data, true);
+        super(viewContext, data, callback, true);
         this.viewContext = viewContext;
-        this.callback = callback;
         this.selectedAndDisplayedItems = selectedAndDisplayedItems;
     }
 
     @Override
-    protected void executeConfirmedAction()
+    protected void executeDeletion(AsyncCallback<Void> deletionCallback)
     {
         final DisplayedOrSelectedIdHolderCriteria<Material> uploadCriteria =
                 selectedAndDisplayedItems.createCriteria(isOnlySelected());
         viewContext.getCommonService().deleteMaterials(uploadCriteria, reason.getValue(),
-                AsyncCallbackWithProgressBar.decorate(callback, "Deleting materials..."));
-
+                deletionCallback);
     }
 
     @Override
