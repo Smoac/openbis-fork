@@ -25,6 +25,7 @@ import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.IContentRepository;
 import ch.systemsx.cisd.openbis.dss.etl.IImagingDatasetLoader;
+import ch.systemsx.cisd.openbis.dss.etl.dto.ImageTransfomationFactories;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference.HCSChannelStackByLocationReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference.MicroscopyChannelStackByLocationReference;
@@ -91,20 +92,21 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
         String path = imageDTO.getFilePath();
         IContent content = contentRepository.getContent(path);
         ColorComponent colorComponent = imageDTO.getColorComponent();
-        AbsoluteImageReference imgRef =
-                new AbsoluteImageReference(content, path, imageDTO.getPage(), colorComponent,
-                        imageSize, getChannelIndex(channel));
-        imgRef.setTransformerFactoryForMergedChannels(tryGetImageTransformerFactoryForMergedChannels());
-        imgRef.setTransformerFactory(channel.getImageTransformerFactory());
-        return imgRef;
+        ImageTransfomationFactories imageTransfomationFactories = new ImageTransfomationFactories();
+        imageTransfomationFactories
+                .setForMergedChannels(tryGetImageTransformerFactoryForMergedChannels());
+        imageTransfomationFactories.setForChannel(channel.tryGetImageTransformerFactory());
+        imageTransfomationFactories.setForImage(imageDTO.tryGetImageTransformerFactory());
+        return new AbsoluteImageReference(content, path, imageDTO.getPage(), colorComponent,
+                imageSize, getChannelIndex(channel), imageTransfomationFactories);
     }
 
     private IImageTransformerFactory tryGetImageTransformerFactoryForMergedChannels()
     {
-        IImageTransformerFactory imageTransformerFactory = dataset.getImageTransformerFactory();
+        IImageTransformerFactory imageTransformerFactory = dataset.tryGetImageTransformerFactory();
         if (imageTransformerFactory == null && experimentOrNull != null)
         {
-            imageTransformerFactory = experimentOrNull.getImageTransformerFactory();
+            imageTransformerFactory = experimentOrNull.tryGetImageTransformerFactory();
         }
         return imageTransformerFactory;
     }

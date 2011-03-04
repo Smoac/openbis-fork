@@ -50,6 +50,7 @@ import ch.systemsx.cisd.common.io.FileBasedContent;
 import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.IImagingDatasetLoader;
+import ch.systemsx.cisd.openbis.dss.etl.dto.ImageTransfomationFactories;
 import ch.systemsx.cisd.openbis.dss.generic.server.DatasetSessionAuthorizer;
 import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor;
 import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor.DssServiceRpcAuthorizationMethodInterceptor;
@@ -324,13 +325,13 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                             ImageChannelStackReference.createHCSFromLocations(new Location(3, 1),
                                     new Location(1, 1)), thumbnailSize);
                     will(returnValue(new AbsoluteImageReference(image("img1.jpg"), "img1", null,
-                            null, thumbnailSize, 0)));
+                            null, thumbnailSize, 0, new ImageTransfomationFactories())));
                     one(imageLoader).tryGetImage(
                             channel,
                             ImageChannelStackReference.createHCSFromLocations(new Location(3, 1),
                                     new Location(2, 1)), thumbnailSize);
                     will(returnValue(new AbsoluteImageReference(image("img1.gif"), "img1", null,
-                            null, thumbnailSize, 0)));
+                            null, thumbnailSize, 0, new ImageTransfomationFactories())));
                 }
             });
 
@@ -703,7 +704,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                 }
             });
     }
-    
+
     private FeatureVectorDatasetReference createFeatureVectorDatasetReference(String dataSetCode)
     {
         return new FeatureVectorDatasetReference(dataSetCode, "", null, null, null, null, null,

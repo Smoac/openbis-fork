@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.etl;
 
-import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.io.IContent;
+import ch.systemsx.cisd.openbis.dss.etl.dto.ImageTransfomationFactories;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 
@@ -35,9 +35,7 @@ public class AbsoluteImageReference extends AbstractImageReference
 
     private final RequestedImageSize imageSize;
 
-    private IImageTransformerFactory transformerFactory;
-
-    private IImageTransformerFactory transformerFactoryForMergedChannels;
+    private final ImageTransfomationFactories imageTransfomationFactories;
 
     // This is an artificial value which helps to keep coloring channels constant. Starts with 0.
     // Unique for a given experiment or dataset (if channels are per dataset).
@@ -47,14 +45,18 @@ public class AbsoluteImageReference extends AbstractImageReference
      * @param content the content before choosing the color component and the page
      */
     public AbsoluteImageReference(IContent content, String uniqueId, Integer pageOrNull,
-            ColorComponent colorComponentOrNull, RequestedImageSize imageSize, int channelIndex)
+            ColorComponent colorComponentOrNull, RequestedImageSize imageSize, int channelIndex,
+            ImageTransfomationFactories imageTransfomationFactories)
     {
         super(pageOrNull, colorComponentOrNull);
         assert imageSize != null : "image size is null";
+        assert imageTransfomationFactories != null : "imageTransfomationFactories is null";
+
         this.content = content;
         this.uniqueId = uniqueId;
         this.imageSize = imageSize;
         this.channelIndex = channelIndex;
+        this.imageTransfomationFactories = imageTransfomationFactories;
     }
 
     /**
@@ -76,14 +78,9 @@ public class AbsoluteImageReference extends AbstractImageReference
         return imageSize;
     }
 
-    public final IImageTransformerFactory getTransformerFactory()
+    public ImageTransfomationFactories getImageTransfomationFactories()
     {
-        return transformerFactory;
-    }
-
-    public final IImageTransformerFactory getTransformerFactoryForMergedChannels()
-    {
-        return transformerFactoryForMergedChannels;
+        return imageTransfomationFactories;
     }
 
     public int getChannelIndex()
@@ -91,26 +88,11 @@ public class AbsoluteImageReference extends AbstractImageReference
         return channelIndex;
     }
 
-    public final void setTransformerFactoryForMergedChannels(
-            IImageTransformerFactory transformerFactoryForMergedChannels)
-    {
-        this.transformerFactoryForMergedChannels = transformerFactoryForMergedChannels;
-    }
-
-    public final void setTransformerFactory(IImageTransformerFactory transformerFactory)
-    {
-        this.transformerFactory = transformerFactory;
-    }
-
     public AbsoluteImageReference createWithoutColorComponent()
     {
         ColorComponent colorComponent = null;
-        AbsoluteImageReference ref =
-                new AbsoluteImageReference(content, uniqueId, tryGetPage(), colorComponent,
-                        imageSize, channelIndex);
-        ref.setTransformerFactory(transformerFactory);
-        ref.setTransformerFactoryForMergedChannels(transformerFactoryForMergedChannels);
-        return ref;
+        return new AbsoluteImageReference(content, uniqueId, tryGetPage(), colorComponent,
+                imageSize, channelIndex, imageTransfomationFactories);
 
     }
 }

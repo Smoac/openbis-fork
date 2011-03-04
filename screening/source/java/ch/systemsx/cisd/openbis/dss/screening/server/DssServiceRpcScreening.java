@@ -127,8 +127,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
 
     DssServiceRpcScreening(String storeRootDir, IImagingReadonlyQueryDAO dao,
             IImagingTransformerDAO transformerDAO, IEncapsulatedOpenBISService service,
-            IShareIdManager shareIdManager,
-            boolean registerAtNameService)
+            IShareIdManager shareIdManager, boolean registerAtNameService)
     {
         super(service, shareIdManager);
         this.dao = dao;
@@ -747,14 +746,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                     + dataSetIdentifiers);
         }
         String experimentPermID = experimentPermIDs.iterator().next();
-        if (isMergedChannel(channel))
-        {
-            return getDAO().tryGetExperimentByPermId(experimentPermID).getImageTransformerFactory();
-        } else
-        {
-            return getDAO().tryGetChannelForExperimentPermId(experimentPermID, channel)
-                    .getImageTransformerFactory();
-        }
+        return tryGetImageTransformerFactoryForExperiment(experimentPermID, channel);
     }
 
     private Set<String> getExperimentPermIDs(String sessionToken,
@@ -781,11 +773,24 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         ImgDatasetDTO dataset = getImagingDataset(datasetIdentifier);
         if (isMergedChannel(channel))
         {
-            return dataset.getImageTransformerFactory();
+            return dataset.tryGetImageTransformerFactory();
         } else
         {
             return getDAO().tryGetChannelForDataset(dataset.getId(), channel)
-                    .getImageTransformerFactory();
+                    .tryGetImageTransformerFactory();
+        }
+    }
+
+    private IImageTransformerFactory tryGetImageTransformerFactoryForExperiment(
+            String experimentPermID, String channel)
+    {
+        if (isMergedChannel(channel))
+        {
+            return getDAO().tryGetExperimentByPermId(experimentPermID).tryGetImageTransformerFactory();
+        } else
+        {
+            return getDAO().tryGetChannelForExperimentPermId(experimentPermID, channel)
+                    .tryGetImageTransformerFactory();
         }
     }
 

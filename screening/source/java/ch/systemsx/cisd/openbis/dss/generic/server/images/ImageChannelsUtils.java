@@ -43,6 +43,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageDatasetLoaderFactory;
 import ch.systemsx.cisd.openbis.dss.etl.IImagingDatasetLoader;
+import ch.systemsx.cisd.openbis.dss.etl.dto.ImageTransfomationFactories;
 import ch.systemsx.cisd.openbis.dss.generic.server.ResponseContentStream;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.DatasetAcquiredImagesReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference;
@@ -206,6 +207,8 @@ public class ImageChannelsUtils
         return mergeChannels(imageContents, transform, mergeAllChannels);
     }
 
+    // Check if all exiting channels of the image should be merged (and not a single one or a
+    // subset).
     // We want to treat the case where merged channels were requested in the same way as the case
     // where all channel names have been enumerated.
     private boolean isMergeAllChannels(DatasetAcquiredImagesReference imageChannels)
@@ -420,14 +423,8 @@ public class ImageChannelsUtils
     private static BufferedImage calculateAndTransformSingleImage(
             AbsoluteImageReference imageReference, boolean transform, boolean allChannelsMerged)
     {
-        IImageTransformerFactory transformerFactory = null;
-        if (transform)
-        {
-            transformerFactory =
-                    allChannelsMerged ? imageReference.getTransformerFactoryForMergedChannels()
-                            : imageReference.getTransformerFactory();
-        }
-        return transform(calculateSingleImage(imageReference), transformerFactory);
+        BufferedImage image = calculateSingleImage(imageReference);
+        return transform(image, imageReference, transform, allChannelsMerged);
     }
 
     private static BufferedImage calculateSingleImage(AbsoluteImageReference imageReference)
@@ -489,31 +486,48 @@ public class ImageChannelsUtils
     private static BufferedImage mergeChannels(List<AbsoluteImageReference> imageReferences,
             boolean transform, boolean allChannelsMerged)
     {
+        AbsoluteImageReference singleImageReference = imageReferences.get(0);
         if (imageReferences.size() == 1)
         {
-            AbsoluteImageReference imageReference = imageReferences.get(0);
-            return calculateAndTransformSingleImage(imageReference, transform, allChannelsMerged);
+            return calculateAndTransformSingleImage(singleImageReference, transform,
+                    allChannelsMerged);
         } else
         {
             List<ImageWithReference> images = calculateSingleImages(imageReferences);
             BufferedImage mergedImage = mergeImages(images);
             // NOTE: even if we are not merging all the channels but just few of them we use the
             // merged-channel transformation
-            IImageTransformerFactory transformerFactory =
-                    transform ? imageReferences.get(0).getTransformerFactoryForMergedChannels()
-                            : null;
-            return transform(mergedImage, transformerFactory);
+            return transform(mergedImage, singleImageReference, transform, true);
         }
     }
 
-    private static BufferedImage transform(BufferedImage input,
-            IImageTransformerFactory factoryOrNull)
+    private static BufferedImage transform(BufferedImage image,
+            AbsoluteImageReference imageReference, boolean transform, boolean allChannelsMerged)
     {
-        if (factoryOrNull == null)
+        BufferedImage resultImage = image;
+        ImageTransfomationFactories transfomations =
+                imageReference.getImageTransfomationFactories();
+        // image level transformation is applied always, as it cannot be applied or changed in
+        // external image viewer
+        resultImage = applyImageTransformation(resultImage, transfomations.tryGetForImage());
+
+        if (transform == false)
         {
-            return input;
+            return resultImage;
         }
-        return factoryOrNull.createTransformer().transform(input);
+        IImageTransformerFactory channelLevelTransformation =
+                transfomations.tryGetForChannel(allChannelsMerged);
+        return applyImageTransformation(resultImage, channelLevelTransformation);
+    }
+
+    private static BufferedImage applyImageTransformation(BufferedImage image,
+            IImageTransformerFactory transformerFactoryOrNull)
+    {
+        if (transformerFactoryOrNull == null)
+        {
+            return image;
+        }
+        return transformerFactoryOrNull.createTransformer().transform(image);
     }
 
     private static class ImageWithReference

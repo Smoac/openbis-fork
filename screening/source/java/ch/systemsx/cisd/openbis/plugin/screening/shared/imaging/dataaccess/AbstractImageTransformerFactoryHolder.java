@@ -43,7 +43,7 @@ abstract class AbstractImageTransformerFactoryHolder extends AbstractHashable
         this.serializedImageTransformerFactory = serializedImageTransformerFactory;
     }
     
-    public IImageTransformerFactory getImageTransformerFactory()
+    public IImageTransformerFactory tryGetImageTransformerFactory()
     {
         if (serializedImageTransformerFactory == null)
         {

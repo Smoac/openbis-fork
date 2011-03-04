@@ -39,6 +39,7 @@ import ch.systemsx.cisd.common.io.FileBasedContent;
 import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.IImagingDatasetLoader;
+import ch.systemsx.cisd.openbis.dss.etl.dto.ImageTransfomationFactories;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.DatasetAcquiredImagesReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
@@ -123,8 +124,7 @@ public class ImageChannelsUtilsTest extends AssertJUnit
     public void testGetTiffImage()
     {
         AbsoluteImageReference absoluteImageReference =
-                new AbsoluteImageReference(image("img1.tiff"), "id42", null, null,
-                        RequestedImageSize.createOriginal(), 0);
+                createAbsoluteImageReference("img1.tiff", RequestedImageSize.createOriginal());
         performTest(absoluteImageReference, getImageContentDescription(image("img1.png")), null);
         context.assertIsSatisfied();
     }
@@ -134,8 +134,7 @@ public class ImageChannelsUtilsTest extends AssertJUnit
     {
         Size size = new Size(4, 2);
         AbsoluteImageReference absoluteImageReference =
-                new AbsoluteImageReference(image("img1.jpg"), "id42", null, null,
-                        new RequestedImageSize(size, false), 0);
+                createAbsoluteImageReference("img1.jpg", new RequestedImageSize(size, false));
         performTest(absoluteImageReference, "cde cde\ncde cde\n", size);
         context.assertIsSatisfied();
     }
@@ -191,9 +190,8 @@ public class ImageChannelsUtilsTest extends AssertJUnit
     {
         final DatasetAcquiredImagesReference imageRef = createDatasetAcquiredImagesReference();
         AbsoluteImageReference imgRef =
-                new AbsoluteImageReference(image("img1.gif"), "id42", null, null,
-                        RequestedImageSize.createOriginal(), 0);
-        imgRef.setTransformerFactory(transformerFactory);
+                createAbsoluteImageReference("img1.gif", RequestedImageSize.createOriginal());
+        imgRef.getImageTransfomationFactories().setForChannel(transformerFactory);
 
         prepareExpectations(imgRef, imageRef);
         context.checking(new Expectations()
@@ -209,6 +207,13 @@ public class ImageChannelsUtilsTest extends AssertJUnit
                 + "e00 f00 f00 e00\n", getImageContentDescription(image));
 
         context.assertIsSatisfied();
+    }
+
+    private static AbsoluteImageReference createAbsoluteImageReference(String fileName,
+            RequestedImageSize imageSize)
+    {
+        return new AbsoluteImageReference(image(fileName), "id42", null, null, imageSize, 0,
+                new ImageTransfomationFactories());
     }
 
     private ImageChannelsUtils createImageChannelsUtils(Size thumbnailSizeOrNull)
@@ -235,7 +240,7 @@ public class ImageChannelsUtilsTest extends AssertJUnit
         }
     }
 
-    private IContent image(String fileName)
+    private static IContent image(String fileName)
     {
         return new FileBasedContent(new File(TEST_IMAGE_FOLDER, fileName));
     }

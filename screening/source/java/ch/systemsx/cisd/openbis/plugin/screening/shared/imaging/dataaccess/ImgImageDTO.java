@@ -18,12 +18,10 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess;
 
 import net.lemnik.eodsql.ResultColumn;
 
-import ch.systemsx.cisd.common.utilities.AbstractHashable;
-
 /**
  * @author Tomasz Pylak
  */
-public class ImgImageDTO extends AbstractHashable
+public class ImgImageDTO extends AbstractImageTransformerFactoryHolder
 {
     @ResultColumn("id")
     private long id;
@@ -36,7 +34,7 @@ public class ImgImageDTO extends AbstractHashable
 
     @ResultColumn("COLOR")
     private String colorComponentOrNull;
-
+    
     @SuppressWarnings("unused")
     private ImgImageDTO()
     {
