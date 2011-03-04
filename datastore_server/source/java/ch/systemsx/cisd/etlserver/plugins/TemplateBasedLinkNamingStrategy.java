@@ -43,7 +43,7 @@ public class TemplateBasedLinkNamingStrategy implements IHierarchicalStorageLink
 
     private static final String NOT_DIRECTLY_CONNECTED = "NOT_DIRECTLY_CONNECTED";
 
-    private static final String MATCH_ALL_FILE_NAMES = "([^" + File.separator + "]*)";
+    private static final String MATCH_ALL_FILE_NAMES = "([^/]*)";
 
     private final String linkTemplate;
 
