@@ -22,6 +22,7 @@ import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AsyncCallbackWithProgressBar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialBrowserGrid.DisplayedAndSelectedMaterials;
@@ -57,7 +58,8 @@ public final class MaterialListDeletionConfirmationDialog extends
     {
         final DisplayedOrSelectedIdHolderCriteria<Material> uploadCriteria =
                 selectedAndDisplayedItems.createCriteria(isOnlySelected());
-        viewContext.getCommonService().deleteMaterials(uploadCriteria, reason.getValue(), callback);
+        viewContext.getCommonService().deleteMaterials(uploadCriteria, reason.getValue(),
+                AsyncCallbackWithProgressBar.decorate(callback, "Deleting materials..."));
 
     }
 
@@ -70,11 +72,12 @@ public final class MaterialListDeletionConfirmationDialog extends
     @Override
     protected final RadioGroup createRadio()
     {
-        return WidgetUtils.createAllOrSelectedRadioGroup(onlySelectedRadioOrNull =
-                WidgetUtils.createRadio(viewContext.getMessage(Dict.ONLY_SELECTED_RADIO, data
-                        .size())), WidgetUtils.createRadio(viewContext.getMessage(Dict.ALL_RADIO,
-                selectedAndDisplayedItems.getDisplayedItemsCount())), viewContext
-                .getMessage(Dict.MATERIALS_RADIO_GROUP_LABEL), data.size(),
+        return WidgetUtils.createAllOrSelectedRadioGroup(
+                onlySelectedRadioOrNull =
+                        WidgetUtils.createRadio(viewContext.getMessage(Dict.ONLY_SELECTED_RADIO,
+                                data.size())), WidgetUtils.createRadio(viewContext.getMessage(
+                        Dict.ALL_RADIO, selectedAndDisplayedItems.getDisplayedItemsCount())),
+                viewContext.getMessage(Dict.MATERIALS_RADIO_GROUP_LABEL), data.size(),
                 createRefreshMessageAction());
     }
 
