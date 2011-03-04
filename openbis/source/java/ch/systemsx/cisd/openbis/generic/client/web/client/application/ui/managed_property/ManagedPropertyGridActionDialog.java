@@ -96,16 +96,6 @@ public final class ManagedPropertyGridActionDialog extends
     @Override
     protected void executeConfirmedAction()
     {
-        if (viewContext.isLoggingEnabled())
-        {
-            StringBuilder sb = new StringBuilder();
-            for (TextField<?> inputField : inputFieldsByLabel.values())
-            {
-                sb.append(inputField.getFieldLabel() + ": " + inputField.getValue() + "\n");
-            }
-            Info.display("confirmed", sb.toString());
-        }
-
         if (managedAction instanceof ManagedUiTableActionDescription)
         {
             ManagedUiTableActionDescription ma = (ManagedUiTableActionDescription) managedAction;
