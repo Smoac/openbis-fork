@@ -50,7 +50,7 @@ import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm;
-import ch.systemsx.cisd.etlserver.IStorageProcessor;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.etlserver.ThreadParameters;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
@@ -720,7 +720,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         threadProperties.put(ThreadParameters.INCOMING_DATA_COMPLETENESS_CONDITION,
                 ThreadParameters.INCOMING_DATA_COMPLETENESS_CONDITION_MARKER_FILE);
         threadProperties.put(ThreadParameters.DELETE_UNIDENTIFIED_KEY, "false");
-        threadProperties.put(IStorageProcessor.STORAGE_PROCESSOR_KEY,
+        threadProperties.put(IStorageProcessorTransactional.STORAGE_PROCESSOR_KEY,
                 MockStorageProcessor.class.getName());
         threadProperties.put(JythonTopLevelDataSetHandler.SCRIPT_PATH_KEY, scriptPath);
         return threadProperties;
@@ -737,7 +737,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         threadProperties.put(ThreadParameters.INCOMING_DATA_COMPLETENESS_CONDITION,
                 ThreadParameters.INCOMING_DATA_COMPLETENESS_CONDITION_MARKER_FILE);
         threadProperties.put(ThreadParameters.DELETE_UNIDENTIFIED_KEY, "false");
-        threadProperties.put(IStorageProcessor.STORAGE_PROCESSOR_KEY,
+        threadProperties.put(IStorageProcessorTransactional.STORAGE_PROCESSOR_KEY,
                 MockStorageProcessor.class.getName());
 
         try
@@ -861,7 +861,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
             });
     }
 
-    public static final class MockStorageProcessor implements IStorageProcessor
+    public static final class MockStorageProcessor implements IStorageProcessorTransactional
     {
         static MockStorageProcessor instance;
 
@@ -893,41 +893,55 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
             this.storeRootDirectory = storeRootDirectory;
         }
 
-        public File storeData(DataSetInformation dataSetInformation, ITypeExtractor typeExtractor,
-                IMailClient mailClient, File incomingDataSetDirectory, File rootDir)
-        {
-            incomingDirs.add(incomingDataSetDirectory);
-            rootDirs.add(rootDir);
-            dataSetInfoString = dataSetInformation.toString();
-            try
-            {
-                FileUtils.copyDirectory(incomingDataSetDirectory, rootDir);
-            } catch (IOException ex)
-            {
-                throw new IOExceptionUnchecked(ex);
-            }
-            return rootDir;
-        }
-
-        public void commit(File incomingDataSetDirectory, File storedDataDirectory)
-        {
-            calledCommitCount++;
-        }
-
-        public UnstoreDataAction rollback(File incomingDataSetDirectory, File storedDataDirectory,
-                Throwable exception)
-        {
-            return null;
-        }
-
         public StorageFormat getStorageFormat()
         {
             return StorageFormat.PROPRIETARY;
         }
 
-        public File tryGetProprietaryData(File storedDataDirectory)
+        public IStorageProcessorTransaction createTransaction()
         {
-            return null;
+            return new IStorageProcessorTransaction()
+                {
+
+                    private File storedFolder;
+
+                    public void storeData(DataSetInformation dataSetInformation,
+                            ITypeExtractor typeExtractor, IMailClient mailClient,
+                            File incomingDataSetDirectory, File rootDir)
+                    {
+                        incomingDirs.add(incomingDataSetDirectory);
+                        rootDirs.add(rootDir);
+                        dataSetInfoString = dataSetInformation.toString();
+                        try
+                        {
+                            FileUtils.copyDirectory(incomingDataSetDirectory, rootDir);
+                        } catch (IOException ex)
+                        {
+                            throw new IOExceptionUnchecked(ex);
+                        }
+                        storedFolder = rootDir;
+                    }
+
+                    public UnstoreDataAction rollback(Throwable exception)
+                    {
+                        return null;
+                    }
+
+                    public File getStoredDataDirectory()
+                    {
+                        return storedFolder;
+                    }
+
+                    public void commit()
+                    {
+                        calledCommitCount++;
+                    }
+
+                    public File tryGetProprietaryData()
+                    {
+                        return null;
+                    }
+                };
         }
     }
 

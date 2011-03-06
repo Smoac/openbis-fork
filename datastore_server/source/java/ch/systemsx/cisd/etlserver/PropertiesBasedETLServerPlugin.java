@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.etlserver;
 
 import static ch.systemsx.cisd.etlserver.IDataSetInfoExtractor.EXTRACTOR_KEY;
-import static ch.systemsx.cisd.etlserver.IStorageProcessor.STORAGE_PROCESSOR_KEY;
+import static ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.STORAGE_PROCESSOR_KEY;
 import static ch.systemsx.cisd.etlserver.ITypeExtractor.TYPE_EXTRACTOR_KEY;
 
 import java.util.ArrayList;
@@ -130,9 +130,10 @@ public class PropertiesBasedETLServerPlugin extends ETLServerPlugin
                 prefix + '.', true);
     }
 
-    private final static IStorageProcessor createStorageProcessor(final Properties properties)
+    private final static IStorageProcessorTransactional createStorageProcessor(
+            final Properties properties)
     {
-        return create(IStorageProcessor.class, properties, STORAGE_PROCESSOR_KEY, true);
+        return create(IStorageProcessorTransactional.class, properties, STORAGE_PROCESSOR_KEY, true);
     }
 
     private final static ITypeExtractor createProcedureAndDataTypeExtractor(

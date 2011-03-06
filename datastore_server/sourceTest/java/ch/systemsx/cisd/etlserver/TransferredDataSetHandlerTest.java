@@ -50,7 +50,8 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.test.LogMonitoringAppender;
-import ch.systemsx.cisd.etlserver.IStorageProcessor.UnstoreDataAction;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataAction;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.server.openbisauth.OpenBISSessionHolder;
@@ -186,7 +187,9 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
     private ITypeExtractor typeExtractor;
 
-    private IStorageProcessor storageProcessor;
+    private IStorageProcessorTransactional storageProcessor;
+
+    private IStorageProcessorTransaction transaction;
 
     private IETLLIMSService limsService;
 
@@ -257,7 +260,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         context = new Mockery();
         dataSetInfoExtractor = context.mock(IDataSetInfoExtractor.class);
         typeExtractor = context.mock(ITypeExtractor.class);
-        storageProcessor = context.mock(IStorageProcessor.class);
+        storageProcessor = context.mock(IStorageProcessorTransactional.class);
+        transaction = context.mock(IStorageProcessorTransaction.class);
         limsService = context.mock(IETLLIMSService.class);
         mailClient = context.mock(IMailClient.class);
         shareIdManager = context.mock(IShareIdManager.class);
@@ -538,11 +542,15 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
                     allowing(storageProcessor).getStorageFormat();
                     will(returnValue(StorageFormat.BDS_DIRECTORY));
-                    one(storageProcessor).storeData(dataSetInformation, typeExtractor, mailClient,
+                    one(storageProcessor).createTransaction();
+                    will(returnValue(transaction));
+
+                    one(transaction).storeData(dataSetInformation, typeExtractor, mailClient,
                             data1, baseDir);
+                    one(transaction).getStoredDataDirectory();
                     final File finalDataSetPath = new File(baseDir, DATA1_NAME);
                     will(returnValue(finalDataSetPath));
-                    one(storageProcessor).commit(data1, baseDir);
+                    one(transaction).commit();
                     
                     one(shareIdManager).setShareId(DATA_SET_CODE, "1");
                 }
@@ -582,11 +590,15 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
                     allowing(storageProcessor).getStorageFormat();
                     will(returnValue(StorageFormat.BDS_DIRECTORY));
-                    one(storageProcessor).storeData(dataSetInformation, typeExtractor, mailClient,
+
+                    one(storageProcessor).createTransaction();
+                    will(returnValue(transaction));
+                    one(transaction).storeData(dataSetInformation, typeExtractor, mailClient,
                             data1, baseDir);
+                    one(transaction).getStoredDataDirectory();
                     final File finalDataSetPath = new File(baseDir, DATA1_NAME);
                     will(returnValue(finalDataSetPath));
-                    one(storageProcessor).commit(data1, baseDir);
+                    one(transaction).commit();
                     
                     one(shareIdManager).setShareId(DATA_SET_CODE, "1");
                 }
@@ -680,13 +692,15 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
                     one(dataSetValidator).assertValidDataSet(DATA_SET_TYPE, folder);
 
-                    one(storageProcessor).storeData(dataSetInformation, typeExtractor, mailClient,
+                    one(storageProcessor).createTransaction();
+                    will(returnValue(transaction));
+                    one(transaction).storeData(dataSetInformation, typeExtractor, mailClient,
                             folder, baseDir);
                     UserFailureException exception =
                             new UserFailureException("Could store data by storage processor");
                     will(throwException(exception));
 
-                    one(storageProcessor).rollback(folder, baseDir, exception);
+                    one(transaction).rollback(exception);
                     will(returnValue(UnstoreDataAction.MOVE_TO_ERROR));
 
                     allowing(typeExtractor).getLocatorType(folder);
@@ -739,8 +753,11 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         context.checking(new Expectations()
             {
                 {
-                    one(storageProcessor).storeData(dataSetInformation, typeExtractor, mailClient,
+                    one(storageProcessor).createTransaction();
+                    will(returnValue(transaction));
+                    one(transaction).storeData(dataSetInformation, typeExtractor, mailClient,
                             folder, baseDir);
+                    one(transaction).getStoredDataDirectory();
                     will(returnValue(new File(baseDir, DATA1_NAME)));
 
                     one(limsService).registerDataSet(with(equal(SESSION_TOKEN)),
@@ -750,7 +767,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                             new EnvironmentFailureException("Could not register data set folder");
                     will(throwException(exception));
 
-                    one(storageProcessor).rollback(folder, baseDir, exception);
+                    one(transaction).rollback(exception);
                     one(storageProcessor).getStorageFormat();
                 }
             });
@@ -813,11 +830,15 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
                     allowing(storageProcessor).getStorageFormat();
                     will(returnValue(StorageFormat.BDS_DIRECTORY));
-                    one(storageProcessor).storeData(dataSetInformation, typeExtractor, mailClient,
+
+                    one(storageProcessor).createTransaction();
+                    will(returnValue(transaction));
+                    one(transaction).storeData(dataSetInformation, typeExtractor, mailClient,
                             data1, baseDir);
+                    one(transaction).getStoredDataDirectory();
                     final File finalDataSetPath = new File(baseDir, DATA1_NAME);
                     will(returnValue(finalDataSetPath));
-                    one(storageProcessor).commit(data1, baseDir);
+                    one(transaction).commit();
                     
                     one(shareIdManager).setShareId(DATA_SET_CODE, "1");
                 }

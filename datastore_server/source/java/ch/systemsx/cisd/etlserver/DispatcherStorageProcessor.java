@@ -44,14 +44,13 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  * 
  * @author Tomasz Pylak
  */
-public class DispatcherStorageProcessor extends AbstractStorageProcessor implements
-        IStorageProcessorTransactional
+public class DispatcherStorageProcessor extends AbstractStorageProcessor
 {
     /**
      * A storage processor can be used by the {@link DispatcherStorageProcessor} only if extends
      * this interface.
      */
-    public static interface IDispatchableStorageProcessor extends IStorageProcessor
+    public static interface IDispatchableStorageProcessor extends IStorageProcessorTransactional
     {
         /** @return true if the dataset should be processed by this storage processor. */
         boolean accepts(DataSetInformation dataSetInformation, File incomingDataSet);
@@ -81,7 +80,8 @@ public class DispatcherStorageProcessor extends AbstractStorageProcessor impleme
         this.delegates = delegates;
     }
 
-    private IStorageProcessor chooseStorageProcessor(DataSetInformation dataSetInformation,
+    private IStorageProcessorTransactional chooseStorageProcessor(
+            DataSetInformation dataSetInformation,
             File incomingDataSet)
     {
         for (IDispatchableStorageProcessor storageProcessor : delegates)
@@ -119,35 +119,6 @@ public class DispatcherStorageProcessor extends AbstractStorageProcessor impleme
 
     // --- dispatcher implementation
 
-    public File storeData(DataSetInformation dataSetInformation, ITypeExtractor typeExtractor,
-            IMailClient mailClient, File incomingDataSetDirectory, File rootDir)
-    {
-        throw new IllegalStateException(
-                "This method is deprecated. Please use 'createTransaction' to create a "
-                        + "transaction object and call 'storeData' on it.");
-    }
-
-    @Override
-    public void commit(File incomingDataSetDirectory, File storedDataDirectory)
-    {
-        throw new IllegalStateException(
-                "This method is deprecated. Please use 'createTransaction' to create a "
-                        + "transaction object and call 'storeData' on it.");
-    }
-
-    public UnstoreDataAction rollback(File incomingDataSetDirectory, File storedDataDirectory,
-            Throwable exception)
-    {
-        throw new IllegalStateException(
-                "This method is deprecated. Please use 'createTransaction' to create a "
-                        + "transaction object and call 'storeData' on it.");
-    }
-
-    public File tryGetProprietaryData(File storedDataDirectory)
-    {
-        throw new IllegalStateException("Method not supported for now...");
-    }
-
     public IStorageProcessorTransaction createTransaction()
     {
         return new IStorageProcessorTransaction()
@@ -158,19 +129,17 @@ public class DispatcherStorageProcessor extends AbstractStorageProcessor impleme
                 public void storeData(DataSetInformation dataSetInformation, ITypeExtractor typeExtractor,
                         IMailClient mailClient, File incomingDataSetDirectory, File rootDir)
                 {
-                    IStorageProcessor storageProcessor =
+                    IStorageProcessorTransactional storageProcessor =
                         chooseStorageProcessor(dataSetInformation, incomingDataSetDirectory);
-
-                    IStorageProcessorTransactional storageProcessorTransactional =
-                        StorageProcessorTransactionalWrapper.wrapIfNecessary(storageProcessor);
                     
-                    transaction = storageProcessorTransactional.createTransaction();
+                    transaction = storageProcessor.createTransaction();
                     transaction.storeData(dataSetInformation, typeExtractor, mailClient,
                             incomingDataSetDirectory, rootDir);
                 }
                 
                 public UnstoreDataAction rollback(Throwable exception)
                 {
+                    checkTransactionPresent("rollback");
                     return transaction.rollback(exception);
                 }
                 
@@ -178,10 +147,25 @@ public class DispatcherStorageProcessor extends AbstractStorageProcessor impleme
                 {
                     return (transaction != null) ? transaction.getStoredDataDirectory() : null;
                 }
-                
+
                 public void commit()
                 {
+                    checkTransactionPresent("commit");
                     transaction.commit();
+                }
+
+                private void checkTransactionPresent(String operation)
+                {
+                    if (transaction == null)
+                    {
+                        throw new IllegalStateException(
+                                "You must invoke storeData(...) before calling '" + operation + "'");
+                    }
+                }
+
+                public File tryGetProprietaryData()
+                {
+                    return transaction.tryGetProprietaryData();
                 }
             };
     }

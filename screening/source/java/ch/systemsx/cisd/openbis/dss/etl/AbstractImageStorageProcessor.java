@@ -51,7 +51,6 @@ import ch.systemsx.cisd.etlserver.AbstractStorageProcessor;
 import ch.systemsx.cisd.etlserver.AbstractStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.DispatcherStorageProcessor.IDispatchableStorageProcessor;
 import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
-import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.etlserver.hdf5.Hdf5Container;
 import ch.systemsx.cisd.etlserver.hdf5.HierarchicalStructureDuplicatorFileToHdf5;
@@ -107,8 +106,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.Color
  * 
  * @author Tomasz Pylak
  */
-abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
-        implements IDispatchableStorageProcessor, IStorageProcessorTransactional
+abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor implements
+        IDispatchableStorageProcessor
 {
     /**
      * Stores the references to the extracted images in the imaging database.
@@ -256,32 +255,21 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
         // used when HDF5 is used to store original data
         private boolean shouldDeleteOriginalDataOnCommit;
 
-
         @Override
-        public void storeData(final DataSetInformation dataSetInformation,
-                final ITypeExtractor typeExtractor, final IMailClient mailClient,
-                final File incomingDataDirectory, final File rootDir)
-        {
-            assert rootDir != null : "Root directory can not be null.";
-            assert incomingDataDirectory != null : "Incoming data set directory can not be null.";
-            assert typeExtractor != null : "Unspecified IProcedureAndDataTypeExtractor implementation.";
-
-            File unzipedFolder = tryUnzipToFolder(incomingDataDirectory);
-            if (unzipedFolder != null)
-            {
-                storeData(dataSetInformation, typeExtractor, mailClient, unzipedFolder, rootDir);
-            } else
-            {
-                super.storeData(dataSetInformation, typeExtractor, mailClient,
-                        incomingDataDirectory, rootDir);
-            }
-
-        }
-
-        @Override
-        public final File doStoreData(final DataSetInformation dataSetInformation,
+        public final File storeData(final DataSetInformation dataSetInformation,
                 final ITypeExtractor typeExtractor, final IMailClient mailClient)
         {
+            assert rootDirectory != null : "Root directory can not be null.";
+            assert incomingDataSetDirectory != null : "Incoming data set directory can not be null.";
+            assert typeExtractor != null : "Unspecified IProcedureAndDataTypeExtractor implementation.";
+
+            File unzipedFolder = tryUnzipToFolder(incomingDataSetDirectory);
+            if (unzipedFolder != null)
+            {
+                storeData(dataSetInformation, typeExtractor, mailClient, unzipedFolder,
+                        rootDirectory);
+                return getStoredDataDirectory();
+            }
 
             ImageFileExtractionWithConfig extractionResultWithConfig =
                     extractImages(dataSetInformation, incomingDataSetDirectory);
@@ -309,7 +297,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
         }
 
         @Override
-        protected void doCommit()
+        protected void executeCommit()
         {
             if (shouldDeleteOriginalDataOnCommit)
             {
@@ -321,9 +309,9 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
         }
 
         @Override
-        protected UnstoreDataAction doRollback(Throwable exception)
+        protected UnstoreDataAction executeRollback(Throwable exception)
         {
-            unstoreFiles(incomingDataSetDirectory, storedDataDirectory);
+            unstoreFiles();
             if (dbTransaction != null)
             {
                 rollbackDatabaseChanges();
@@ -341,6 +329,82 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
                 dbTransaction.close();
             }
         }
+
+        public final File tryGetProprietaryData()
+        {
+            assert storedDataDirectory != null : "Unspecified stored data directory. Please call storeData(...)";
+
+            File originalFolder = getOriginalFolder(storedDataDirectory);
+            File[] content = originalFolder.listFiles();
+            if (content == null || content.length == 0)
+            {
+                return null;
+            }
+            if (content.length > 1)
+            {
+                operationLog
+                        .error("There should be exactly one original folder inside '"
+                                + originalFolder + "', but " + originalFolder.length()
+                                + " has been found.");
+                return null;
+            }
+            File originalDataFile = content[0];
+            if (originalDataFile.exists() == false)
+            {
+                operationLog.error("Original data set file '" + originalDataFile.getAbsolutePath()
+                        + "' does not exist.");
+                return null;
+            }
+            return originalDataFile;
+        }
+
+        private final void unstoreFiles()
+        {
+            checkParameters(incomingDataSetDirectory, storedDataDirectory);
+
+            final File originalDataFile = tryGetProprietaryData();
+            if (originalDataFile == null)
+            {
+                // nothing has been stored in the file system yet,
+                // e.g. because images could not be validated
+                return;
+            }
+            // Move the data from the 'original' directory back to the 'incoming' directory.
+            final File incomingDirectory = incomingDataSetDirectory.getParentFile();
+            try
+            {
+                moveFileToDirectory(originalDataFile, incomingDirectory);
+                if (operationLog.isInfoEnabled())
+                {
+                    operationLog
+                            .info(String
+                                    .format("Storage operation rollback: directory '%s' has moved to incoming directory '%s'.",
+                                            originalDataFile, incomingDirectory.getAbsolutePath()));
+                }
+            } catch (final EnvironmentFailureException ex)
+            {
+                notificationLog.error(String.format(
+                        "Could not move '%s' to incoming directory '%s'.", originalDataFile,
+                        incomingDirectory.getAbsolutePath()), ex);
+                return;
+            }
+            // Remove the dataset directory from the store
+            final IFileOperations fileOps = FileOperations.getMonitoredInstanceForCurrentThread();
+            if (fileOps.exists(incomingDataSetDirectory))
+            {
+                if (fileOps.removeRecursivelyQueueing(storedDataDirectory) == false)
+                {
+                    operationLog.error("Cannot delete '" + storedDataDirectory.getAbsolutePath()
+                            + "'.");
+                }
+            } else
+            {
+                notificationLog.error(String.format("Incoming data set directory '%s' does not "
+                        + "exist, keeping store directory '%s'.", incomingDataSetDirectory,
+                        storedDataDirectory));
+            }
+        }
+
     }
 
     public final IStorageProcessorTransaction createTransaction()
@@ -618,75 +682,6 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
         return imageFileExtractorOrNull;
     }
 
-    public final File storeData(DataSetInformation dataSetInformation,
-            ITypeExtractor typeExtractor, IMailClient mailClient, File incomingDataSetDirectory,
-            File rootDir)
-    {
-        throw new IllegalStateException(
-                "This method is deprecated. Please use transactions (see 'createTransaction').");
-    }
-
-    @Override
-    public final void commit(File incomingDataSetDirectory, File storedDataDirectory)
-    {
-        throw new IllegalStateException("You can only call 'commit' on a transaction object "
-                + "obtained via the method 'storeDataTransactionally'.");
-    }
-
-    public final UnstoreDataAction rollback(File incomingDataSetDirectory,
-            File storedDataDirectory, Throwable exception)
-    {
-        throw new IllegalStateException("You can only call 'rollback' on a transaction object "
-                + "obtained via the method 'storeDataTransactionally'.");
-    }
-
-    private final void unstoreFiles(final File incomingDataSetDirectory,
-            final File storedDataDirectory)
-    {
-        checkParameters(incomingDataSetDirectory, storedDataDirectory);
-
-        final File originalDataFile = tryGetProprietaryData(storedDataDirectory);
-        if (originalDataFile == null)
-        {
-            // nothing has been stored in the file system yet,
-            // e.g. because images could not be validated
-            return;
-        }
-        // Move the data from the 'original' directory back to the 'incoming' directory.
-        final File incomingDirectory = incomingDataSetDirectory.getParentFile();
-        try
-        {
-            moveFileToDirectory(originalDataFile, incomingDirectory);
-            if (operationLog.isInfoEnabled())
-            {
-                operationLog
-                        .info(String
-                                .format("Storage operation rollback: directory '%s' has moved to incoming directory '%s'.",
-                                        originalDataFile, incomingDirectory.getAbsolutePath()));
-            }
-        } catch (final EnvironmentFailureException ex)
-        {
-            notificationLog.error(String.format("Could not move '%s' to incoming directory '%s'.",
-                    originalDataFile, incomingDirectory.getAbsolutePath()), ex);
-            return;
-        }
-        // Remove the dataset directory from the store
-        final IFileOperations fileOps = FileOperations.getMonitoredInstanceForCurrentThread();
-        if (fileOps.exists(incomingDataSetDirectory))
-        {
-            if (fileOps.removeRecursivelyQueueing(storedDataDirectory) == false)
-            {
-                operationLog
-                        .error("Cannot delete '" + storedDataDirectory.getAbsolutePath() + "'.");
-            }
-        } else
-        {
-            notificationLog.error(String.format("Incoming data set directory '%s' does not "
-                    + "exist, keeping store directory '%s'.", incomingDataSetDirectory,
-                    storedDataDirectory));
-        }
-    }
-
     private static void commitHdf5StorageFormatChanges(File storedDataDirectory)
     {
         File originalFolder = getOriginalFolder(storedDataDirectory);
@@ -775,32 +770,6 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
             throw EnvironmentFailureException.fromTemplate("Can not delete symbolic link '%s'.",
                     source.getPath());
         }
-    }
-
-    public final File tryGetProprietaryData(final File storedDataDirectory)
-    {
-        assert storedDataDirectory != null : "Unspecified stored data directory.";
-
-        File originalFolder = getOriginalFolder(storedDataDirectory);
-        File[] content = originalFolder.listFiles();
-        if (content == null || content.length == 0)
-        {
-            return null;
-        }
-        if (content.length > 1)
-        {
-            operationLog.error("There should be exactly one original folder inside '"
-                    + originalFolder + "', but " + originalFolder.length() + " has been found.");
-            return null;
-        }
-        File originalDataFile = content[0];
-        if (originalDataFile.exists() == false)
-        {
-            operationLog.error("Original data set file '" + originalDataFile.getAbsolutePath()
-                    + "' does not exist.");
-            return null;
-        }
-        return originalDataFile;
     }
 
     private static File getOriginalFolder(File storedDataDirectory)

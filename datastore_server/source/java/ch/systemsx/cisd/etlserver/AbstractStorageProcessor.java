@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
  * 
  * @author Christian Ribeaud
  */
-public abstract class AbstractStorageProcessor implements IStorageProcessor
+public abstract class AbstractStorageProcessor implements IStorageProcessorTransactional
 {
     private static final String[] ZIP_FILE_EXTENSIONS =
         { "zip" };
@@ -56,7 +56,7 @@ public abstract class AbstractStorageProcessor implements IStorageProcessor
     }
 
     //
-    // IStorageProcessor
+    // IStorageProcessorTransactional
     //
 
     public final File getStoreRootDirectory()
@@ -70,16 +70,11 @@ public abstract class AbstractStorageProcessor implements IStorageProcessor
     }
 
     /**
-     * @see IStorageProcessor#getStorageFormat()
+     * @see IStorageProcessorTransactional#getStorageFormat()
      */
     public StorageFormat getStorageFormat()
     {
         return StorageFormat.PROPRIETARY;
-    }
-
-    public void commit(File incomingDataSetDirectory, File storedDataDirectory)
-    {
-        // do nothing
     }
 
     protected static boolean isZipFile(File file)

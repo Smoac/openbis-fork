@@ -38,8 +38,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
-import ch.systemsx.cisd.etlserver.IStorageProcessor.UnstoreDataAction;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataAction;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -127,7 +127,7 @@ public class DataSetRegistrationAlgorithm
                 IPreRegistrationAction preRegistrationAction,
                 IPostRegistrationAction postRegistrationAction,
                 DataSetInformation dataSetInformation, IDataStoreStrategy dataStoreStrategy,
-                ITypeExtractor typeExtractor, IStorageProcessor storageProcessor,
+                ITypeExtractor typeExtractor, IStorageProcessorTransactional storageProcessor,
                 IFileOperations fileOperations, IDataSetValidator dataSetValidator,
                 IMailClient mailClient, boolean shouldDeleteUnidentified, Lock registrationLock,
                 String dataStoreCode, boolean shouldNotifySuccessfulRegistration)
@@ -140,8 +140,7 @@ public class DataSetRegistrationAlgorithm
             this.dataSetInformation = dataSetInformation;
             this.dataStoreStrategy = dataStoreStrategy;
             this.typeExtractor = typeExtractor;
-            this.storageProcessor =
-                    StorageProcessorTransactionalWrapper.wrapIfNecessary(storageProcessor);
+            this.storageProcessor = storageProcessor;
             this.fileOperations = fileOperations;
             this.dataSetValidator = dataSetValidator;
             this.mailClient = mailClient;

@@ -25,11 +25,9 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 
 /**
@@ -42,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
  * 
  * @author Tomasz Pylak
  */
-abstract public class AbstractDelegatingStorageProcessor implements IStorageProcessor
+abstract public class AbstractDelegatingStorageProcessor implements IStorageProcessorTransactional
 {
     /**
      * Property name which is used to specify the class of the default storage processor, to which
@@ -53,27 +51,28 @@ abstract public class AbstractDelegatingStorageProcessor implements IStorageProc
     final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             AbstractDelegatingStorageProcessor.class);
 
-    private final IStorageProcessor delegate;
+    protected final IStorageProcessorTransactional delegate;
 
     protected AbstractDelegatingStorageProcessor(Properties properties)
     {
         this(createDelegateStorageProcessor(properties));
     }
 
-    protected AbstractDelegatingStorageProcessor(IStorageProcessor delegateStorageProcessor)
+    protected AbstractDelegatingStorageProcessor(
+            IStorageProcessorTransactional delegateStorageProcessor)
     {
         this.delegate = delegateStorageProcessor;
     }
 
     @Private
-    static IStorageProcessor createDelegateStorageProcessor(Properties properties)
+    static IStorageProcessorTransactional createDelegateStorageProcessor(Properties properties)
     {
         String delegateClass =
                 PropertyUtils.getMandatoryProperty(properties, DELEGATE_PROCESSOR_CLASS_PROPERTY);
         Properties p =
                 ExtendedProperties.getSubset(properties, DELEGATE_PROCESSOR_CLASS_PROPERTY + ".",
                         true);
-        return createClass(IStorageProcessor.class, delegateClass, p);
+        return createClass(IStorageProcessorTransactional.class, delegateClass, p);
     }
 
     private final static <T> T createClass(final Class<T> superClazz, String className,
@@ -88,37 +87,19 @@ abstract public class AbstractDelegatingStorageProcessor implements IStorageProc
         }
     }
 
+
     //
     // delegation
     //
 
-    public File storeData(final DataSetInformation dataSetInformation,
-            final ITypeExtractor typeExtractor, final IMailClient mailClient,
-            final File incomingDataSetDirectory, final File rootDir)
+    public IStorageProcessorTransaction createTransaction()
     {
-        return delegate.storeData(dataSetInformation, typeExtractor, mailClient,
-                incomingDataSetDirectory, rootDir);
-    }
-
-    public void commit(File incomingDataSetDirectory, File storedDataDirectory)
-    {
-        delegate.commit(incomingDataSetDirectory, storedDataDirectory);
-    }
-
-    public UnstoreDataAction rollback(final File incomingDataSetDirectory,
-            final File storedDataDirectory, Throwable exception)
-    {
-        return delegate.rollback(incomingDataSetDirectory, storedDataDirectory, exception);
+        return delegate.createTransaction();
     }
 
     public StorageFormat getStorageFormat()
     {
         return delegate.getStorageFormat();
-    }
-
-    public File tryGetProprietaryData(final File storedDataDirectory)
-    {
-        return delegate.tryGetProprietaryData(storedDataDirectory);
     }
 
     public File getStoreRootDirectory()

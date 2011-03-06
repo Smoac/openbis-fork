@@ -32,7 +32,8 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.etlserver.IStorageProcessor;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -133,7 +134,8 @@ public class FeatureStorageProcessorTest extends AbstractFileSystemTestCase
         File rootDir = new File(workingDirectory, "rootDir");
         rootDir.mkdirs();
         Properties storageProcessorProps = createStorageProcessorProperties();
-        IStorageProcessor storageProcessor = new FeatureStorageProcessor(storageProcessorProps)
+        IStorageProcessorTransactional storageProcessor =
+                new FeatureStorageProcessor(storageProcessorProps)
             {
                 // For Testing
 
@@ -160,7 +162,8 @@ public class FeatureStorageProcessorTest extends AbstractFileSystemTestCase
             };
 
         DataSetInformation dataSetInfo = createDataSetInformation();
-        storageProcessor.storeData(dataSetInfo, null, null, dataSetFile, rootDir);
+        IStorageProcessorTransaction transaction = storageProcessor.createTransaction();
+        transaction.storeData(dataSetInfo, null, null, dataSetFile, rootDir);
 
         assertEquals(0, incomingDir.listFiles().length);
         assertEquals(1, rootDir.listFiles().length);
@@ -168,7 +171,7 @@ public class FeatureStorageProcessorTest extends AbstractFileSystemTestCase
         assertEquals(true, original.isDirectory());
         assertEquals(2, original.listFiles().length);
 
-        storageProcessor.commit(dataSetFile, rootDir);
+        transaction.commit();
 
         assertEquals(2, original.listFiles().length);
         File[] transformedFiles = original.listFiles(new FilenameFilter()

@@ -32,6 +32,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessor;
+import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.DefaultStorageProcessor;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.etlserver.utils.Column;
@@ -58,9 +59,6 @@ public class FeatureStorageProcessor extends AbstractDelegatingStorageProcessor
     private final DataSource dataSource;
 
     private final IEncapsulatedOpenBISService openBisService;
-
-    // Execution state of this object -- set to null after an execution is finished.
-    private IImagingQueryDAO dataAccessObject = null;
 
     private final class ColumnsBuilder
     {
@@ -168,21 +166,69 @@ public class FeatureStorageProcessor extends AbstractDelegatingStorageProcessor
         return ServiceProvider.getOpenBISService();
     }
 
-    @Override
-    public File storeData(DataSetInformation dataSetInformation, ITypeExtractor typeExtractor,
-            IMailClient mailClient, File incomingDataSetDirectory, File rootDir)
-    {
-        File storedDataSet =
-                super.storeData(dataSetInformation, typeExtractor, mailClient,
-                        incomingDataSetDirectory, rootDir);
-        File originalDir = DefaultStorageProcessor.getOriginalDirectory(storedDataSet);
-        final File targetFile = new File(originalDir, incomingDataSetDirectory.getName());
-        transform(targetFile, storedDataSet, dataSetInformation);
 
-        return storedDataSet;
+    @Override
+    public IStorageProcessorTransaction createTransaction()
+    {
+        return new AbstractDelegatingStorageProcessorTransaction(super.createTransaction())
+            {
+                private IImagingQueryDAO dataAccessObject = null;
+
+                @Override
+                protected File storeData(DataSetInformation dataSetInformation,
+                        ITypeExtractor typeExtractor, IMailClient mailClient)
+                {
+                    nestedTransaction.storeData(dataSetInformation, typeExtractor, mailClient,
+                            incomingDataSetDirectory, rootDirectory);
+
+                    dataAccessObject = createDAO();
+                    File storedDataSet = nestedTransaction.getStoredDataDirectory();
+                    File originalDir = DefaultStorageProcessor.getOriginalDirectory(storedDataSet);
+                    File targetFile =
+                            new File(originalDir, incomingDataSetDirectory.getName());
+                    transform(dataAccessObject, targetFile, storedDataSet, dataSetInformation);
+                    return nestedTransaction.getStoredDataDirectory();
+                }
+
+                @Override
+                protected void executeCommit()
+                {
+                    nestedTransaction.commit();
+
+                    if (null == dataAccessObject)
+                    {
+                        return;
+                    }
+                    dataAccessObject.commit();
+                    closeDataAccessObject();
+                }
+
+                @Override
+                protected UnstoreDataAction executeRollback(Throwable ex)
+                {
+                    // Delete the data from the database
+                    if (null != dataAccessObject)
+                    {
+                        dataAccessObject.rollback();
+                        closeDataAccessObject();
+                    }
+
+                    return nestedTransaction.rollback(ex);
+                }
+
+                /**
+                 * Close the DAO and set it to null to make clear that it is not initialized.
+                 */
+                private void closeDataAccessObject()
+                {
+                    dataAccessObject.close();
+                    dataAccessObject = null;
+                }
+            };
     }
 
-    protected void transform(File originalDataSet, File targetFolderForTransformedDataSet,
+    protected void transform(IImagingQueryDAO dataAccessObject, File originalDataSet,
+            File targetFolderForTransformedDataSet,
             DataSetInformation dataSetInformation)
     {
         List<String> lines = FileUtilities.loadToStringList(originalDataSet);
@@ -200,21 +246,21 @@ public class FeatureStorageProcessor extends AbstractDelegatingStorageProcessor
 
         try
         {
-            loadDataSetIntoDatabase(lines, dataSetInformation);
+            loadDataSetIntoDatabase(dataAccessObject, lines, dataSetInformation);
         } catch (IOException ex)
         {
             throw new IOExceptionUnchecked(ex);
         }
     }
 
-    private void loadDataSetIntoDatabase(List<String> lines, DataSetInformation dataSetInformation)
+    private void loadDataSetIntoDatabase(IImagingQueryDAO dataAccessObject, List<String> lines,
+            DataSetInformation dataSetInformation)
             throws IOException
     {
         GenedataFormatToCanonicalFeatureVector convertor =
                 new GenedataFormatToCanonicalFeatureVector(lines, LAYER_PREFIX);
         ArrayList<CanonicalFeatureVector> fvecs = convertor.convert();
 
-        dataAccessObject = createDAO();
         FeatureVectorUploader uploader =
                 new FeatureVectorUploader(dataAccessObject,
                         createScreeningDatasetInfo(dataSetInformation));
@@ -311,43 +357,6 @@ public class FeatureStorageProcessor extends AbstractDelegatingStorageProcessor
         }
         columnsBuilder.finish();
         return columnsBuilder;
-    }
-
-    @Override
-    public void commit(File incomingDataSetDirectory, File storedDataDirectory)
-    {
-        super.commit(incomingDataSetDirectory, storedDataDirectory);
-
-        if (null == dataAccessObject)
-        {
-            return;
-        }
-
-        dataAccessObject.commit();
-        closeDataAccessObject();
-    }
-
-    /**
-     * Close the DAO and set it to null to make clear that it is not initialized.
-     */
-    private void closeDataAccessObject()
-    {
-        dataAccessObject.close();
-        dataAccessObject = null;
-    }
-
-    @Override
-    public UnstoreDataAction rollback(final File incomingDataSetDirectory,
-            final File storedDataDirectory, Throwable exception)
-    {
-        // Delete the data from the database
-        if (null != dataAccessObject)
-        {
-            dataAccessObject.rollback();
-            closeDataAccessObject();
-        }
-
-        return super.rollback(incomingDataSetDirectory, storedDataDirectory, exception);
     }
 
     private String extractBarCode(String firstLine)

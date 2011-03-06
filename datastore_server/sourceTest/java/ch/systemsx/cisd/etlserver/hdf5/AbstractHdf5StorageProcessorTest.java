@@ -21,6 +21,7 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.hdf5.Hdf5Container.IHdf5ReaderClient;
 import ch.systemsx.cisd.hdf5.IHDF5SimpleReader;
 
@@ -33,12 +34,15 @@ abstract class AbstractHdf5StorageProcessorTest extends AbstractFileSystemTestCa
 {
     protected final Hdf5StorageProcessor storageProcessor;
 
+    protected final IStorageProcessorTransaction transaction;
+
     protected AbstractHdf5StorageProcessorTest(Properties properties)
     {
         super();
 
         storageProcessor = new Hdf5StorageProcessor(properties);
         storageProcessor.setStoreRootDirectory(workingDirectory);
+        transaction = storageProcessor.createTransaction();
     }
 
     private File createDirectory(final String directoryName)
@@ -53,10 +57,9 @@ abstract class AbstractHdf5StorageProcessorTest extends AbstractFileSystemTestCa
         final File incomingDataSetDirectory = createDirectory("incoming");
         FileUtilities.writeToFile(new File(incomingDataSetDirectory, "read.me"), "hello world");
         File rootDir = createDirectory("root");
-        File storeData =
-                storageProcessor.storeData(null, null, null, incomingDataSetDirectory, rootDir);
+        transaction.storeData(null, null, null, incomingDataSetDirectory, rootDir);
         assertTrue(incomingDataSetDirectory.exists());
-        assertTrue(storeData.isDirectory());
+        assertTrue(transaction.getStoredDataDirectory().isDirectory());
 
         File hdf5ContainerFile = Hdf5StorageProcessor.getHdf5ContainerFile(rootDir);
         assertTrue(hdf5ContainerFile.exists());
@@ -76,7 +79,7 @@ abstract class AbstractHdf5StorageProcessorTest extends AbstractFileSystemTestCa
                 }
             });
 
-        storageProcessor.commit(incomingDataSetDirectory, rootDir);
+        transaction.commit();
 
         assertFalse(incomingDataSetDirectory.exists());
     }
@@ -87,16 +90,15 @@ abstract class AbstractHdf5StorageProcessorTest extends AbstractFileSystemTestCa
         File incomingDataSetDirectory = createDirectory("incoming");
         File readMeFile = new File(incomingDataSetDirectory, "read.me");
         FileUtilities.writeToFile(readMeFile, "hi");
-        File storeData =
-                storageProcessor.storeData(null, null, null, incomingDataSetDirectory, rootDir);
+        transaction.storeData(null, null, null, incomingDataSetDirectory, rootDir);
         assertTrue(incomingDataSetDirectory.exists());
-        assertTrue(storeData.isDirectory());
+        assertTrue(transaction.getStoredDataDirectory().isDirectory());
 
         File hdf5ContainerFile = Hdf5StorageProcessor.getHdf5ContainerFile(rootDir);
         assertTrue(hdf5ContainerFile.exists());
         assertTrue(hdf5ContainerFile.isFile());
 
-        storageProcessor.rollback(incomingDataSetDirectory, rootDir, null);
+        transaction.rollback(null);
         assertEquals(true, incomingDataSetDirectory.exists());
         assertEquals("hi", FileUtilities.loadToString(readMeFile).trim());
     }
@@ -109,12 +111,6 @@ abstract class AbstractHdf5StorageProcessorTest extends AbstractFileSystemTestCa
 
     protected void testStoreDataNullValues()
     {
-        storageProcessor.storeData(null, null, null, null, null);
+        storageProcessor.createTransaction().storeData(null, null, null, null, null);
     }
-
-    protected void testRollbackNullValues()
-    {
-        storageProcessor.rollback(null, null, null);
-    }
-
 }

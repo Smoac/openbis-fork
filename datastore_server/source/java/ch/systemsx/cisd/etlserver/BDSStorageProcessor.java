@@ -34,6 +34,7 @@ import ch.systemsx.cisd.bds.ExperimentRegistrationTimestamp;
 import ch.systemsx.cisd.bds.ExperimentRegistrator;
 import ch.systemsx.cisd.bds.Format;
 import ch.systemsx.cisd.bds.FormatParameter;
+import ch.systemsx.cisd.bds.IDataStructure.Mode;
 import ch.systemsx.cisd.bds.IFormatParameterFactory;
 import ch.systemsx.cisd.bds.IFormattedData;
 import ch.systemsx.cisd.bds.Reference;
@@ -41,13 +42,12 @@ import ch.systemsx.cisd.bds.ReferenceType;
 import ch.systemsx.cisd.bds.Sample;
 import ch.systemsx.cisd.bds.UnknownFormatV1_0;
 import ch.systemsx.cisd.bds.Version;
-import ch.systemsx.cisd.bds.IDataStructure.Mode;
 import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.bds.hcs.HCSImageAnnotations;
 import ch.systemsx.cisd.bds.hcs.IHCSImageFormattedData;
+import ch.systemsx.cisd.bds.hcs.IHCSImageFormattedData.NodePath;
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.bds.hcs.PlateGeometry;
-import ch.systemsx.cisd.bds.hcs.IHCSImageFormattedData.NodePath;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.ILink;
@@ -87,9 +87,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
  */
 // TODO 2010-07-28, Tomasz Pylak: remove this class
 @Deprecated
-public final class BDSStorageProcessor extends AbstractStorageProcessor implements
-        IHCSImageFileAccepter
+public final class BDSStorageProcessor extends AbstractStorageProcessor
 {
+
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             BDSStorageProcessor.class);
 
@@ -120,21 +120,17 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
 
     private final String sampleTypeDescription;
 
-    private IDataStructureV1_1 dataStructure;
-
-    private File imageFileRootDirectory;
-
-    private File dataStructureDir;
-
-    private IHCSImageFileExtractor imageFileExtractor;
-
-    private List<FormatParameter> formatParameters;
-
-    private IHCSImageFormattedData imageFormattedData;
-
-    private HCSImageCheckList imageCheckList;
+    private final IHCSImageFileExtractor imageFileExtractor;
 
     private final Version version;
+
+    private final List<FormatParameter> formatParameters;
+
+    // candidates
+    private IDataStructureV1_1 dataStructure;
+    private IHCSImageFormattedData imageFormattedData;
+
+
 
     public BDSStorageProcessor(final Properties properties)
     {
@@ -145,13 +141,16 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
             throw new ConfigurationFailureException("Invalid version: " + version);
         }
         format = parseFormat(getMandatoryProperty(FORMAT_KEY));
-        createFormatParameters();
+        formatParameters = createFormatParameters();
         sampleTypeDescription = getMandatoryProperty(SAMPLE_TYPE_DESCRIPTION_KEY);
         if (needsImageFileExtractor())
         {
             final String property = getMandatoryProperty(FILE_EXTRACTOR_KEY);
             imageFileExtractor =
                     ClassUtils.create(IHCSImageFileExtractor.class, property, properties);
+        } else
+        {
+            imageFileExtractor = null;
         }
         try
         {
@@ -162,10 +161,10 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
         }
     }
 
-    private void createFormatParameters()
+    private List<FormatParameter> createFormatParameters()
     {
         final IFormatParameterFactory formatParameterFactory = format.getFormatParameterFactory();
-        formatParameters = new ArrayList<FormatParameter>();
+        List<FormatParameter> result = new ArrayList<FormatParameter>();
         for (final String parameterName : format.getMandatoryParameterNames())
         {
             final String value = properties.getProperty(parameterName);
@@ -174,20 +173,26 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
                 throw ConfigurationFailureException.fromTemplate(
                         "No value has been defined for parameter '%s'", parameterName);
             }
-            addFormatParameter(formatParameterFactory, parameterName, value);
+            FormatParameter parameter =
+                    createFormatParameter(formatParameterFactory, parameterName, value);
+            result.add(parameter);
         }
         for (final String parameterName : format.getOptionalParameterNames())
         {
             final String value = properties.getProperty(parameterName);
             if (value != null)
             {
-                addFormatParameter(formatParameterFactory, parameterName, value);
+                FormatParameter parameter =
+                        createFormatParameter(formatParameterFactory, parameterName, value);
+                result.add(parameter);
             }
         }
+        return result;
     }
 
-    private void addFormatParameter(final IFormatParameterFactory formatParameterFactory,
-            final String parameterName, final String value)
+    private FormatParameter createFormatParameter(
+            final IFormatParameterFactory formatParameterFactory, final String parameterName,
+            final String value)
     {
         final FormatParameter formatParameter =
                 formatParameterFactory.createFormatParameter(parameterName, value);
@@ -197,7 +202,7 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
                     "Given value '%s' is not understandable for parameter '%s'", value,
                     parameterName);
         }
-        formatParameters.add(formatParameter);
+        return formatParameter;
     }
 
     final static Version parseVersion(final String versionString)
@@ -343,250 +348,12 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
         return format.getCode().equals(UnknownFormatV1_0.UNKNOWN_1_0.getCode()) == false;
     }
 
-    // Although this check should be performed in the BDS library when closing is performed, we set
-    // the complete flag here as we want to inform the registrator about the incompleteness.
-    private void checkCompleteness(final DataSetInformation dataSetInformation,
-            final String dataSetFileName, final IMailClient mailClientOrNull)
-    {
-        final List<FullLocation> fullLocations = imageCheckList.getCheckedOnFullLocations();
-        final boolean complete = fullLocations.size() == 0;
-        final IDataStructureV1_1 thisStructure = getDataStructure(dataStructureDir);
-        final DataSet dataSet = thisStructure.getDataSet();
-        dataSet.setComplete(complete);
-        thisStructure.setDataSet(dataSet);
-        dataSetInformation.setComplete(complete);
-        if (complete == false)
-        {
-            final String message =
-                    String.format("Incomplete data set '%s': %d image file(s) "
-                            + "are missing (locations: %s)", dataSetFileName, fullLocations.size(),
-                            CollectionUtils.abbreviate(fullLocations, 10));
-            operationLog.warn(message);
-            if (mailClientOrNull != null)
-            {
-                final ExperimentRegistrator registrator = thisStructure.getExperimentRegistrator();
-                final String email = registrator.getEmail();
-                if (StringUtils.isBlank(email) == false)
-                {
-                    try
-                    {
-                        mailClientOrNull.sendMessage("Incomplete data set '" + dataSetFileName
-                                + "'", message, null, null, email);
-                    } catch (final EnvironmentFailureException e)
-                    {
-                        notificationLog.error("Couldn't send the following e-mail to '" + email
-                                + "': " + message, e);
-                    }
-                } else
-                {
-                    notificationLog.error("Unspecified e-mail address of experiment registrator "
-                            + registrator);
-                }
-            }
-        }
-    }
-
-    /**
-     * For given <var>storedDataDirectory</var> returns the {@link IDataStructureV1_1}.
-     * <p>
-     * In ideal case returns internally saved <code>dataStructureDir</code> but when given
-     * <var>storedDataDirectory</var> changed (meaning no longer equal to storage root), then we
-     * have to reload the data structure.
-     * </p>
-     */
-    private final IDataStructureV1_1 getDataStructure(final File storedDataDirectory)
-    {
-        final IDataStructureV1_1 thisStructure;
-        if (storedDataDirectory.equals(dataStructureDir) == false)
-        {
-            final DataStructureLoader dataStructureLoader =
-                    new DataStructureLoader(storedDataDirectory.getParentFile());
-            thisStructure =
-                    (IDataStructureV1_1) dataStructureLoader.load(storedDataDirectory.getName(),
-                            true);
-        } else
-        {
-            thisStructure = dataStructure;
-            if (thisStructure.isOpenOrCreated() == false)
-            {
-                thisStructure.open(Mode.READ_ONLY);
-            }
-        }
-        return thisStructure;
-    }
-
     //
     // AbstractStorageProcessor
     //
-
-    public final File storeData(final DataSetInformation dataSetInformation,
-            final ITypeExtractor typeExtractor, final IMailClient mailClient,
-            final File incomingDataSetDirectory, final File rootDirectory)
+    public IStorageProcessorTransaction createTransaction()
     {
-        checkDataSetInformation(dataSetInformation);
-        assert rootDirectory != null : "Root directory can not be null.";
-        assert incomingDataSetDirectory != null : "Incoming data set directory can not be null.";
-        assert typeExtractor != null : "Unspecified IProcedureAndDataTypeExtractor implementation.";
-
-        dataStructureDir = rootDirectory;
-        dataStructureDir.mkdirs();
-        Experiment experiment = dataSetInformation.tryToGetExperiment();
-        if (experiment == null)
-        {
-            throw new UserFailureException("Experiment unknown for data set " + dataSetInformation);
-        }
-        dataStructure =
-                createDataStructure(experiment, dataSetInformation, typeExtractor,
-                        incomingDataSetDirectory, dataStructureDir);
-        final IFormattedData formattedData = dataStructure.getFormattedData();
-        if (formattedData instanceof IHCSImageFormattedData)
-        {
-            imageFormattedData = (IHCSImageFormattedData) formattedData;
-            final int channels = imageFormattedData.getChannelCount();
-            final Geometry plateGeometry = imageFormattedData.getPlateGeometry();
-            final Geometry wellGeometry = imageFormattedData.getWellGeometry();
-            imageCheckList = new HCSImageCheckList(channels, plateGeometry, wellGeometry);
-        }
-        if (needsImageFileExtractor())
-        {
-            imageFileRootDirectory = incomingDataSetDirectory;
-            final HCSImageFileExtractionResult result =
-                    imageFileExtractor.process(
-                            NodeFactory.createDirectoryNode(incomingDataSetDirectory),
-                            dataSetInformation, this);
-            if (operationLog.isInfoEnabled())
-            {
-                operationLog.info(String.format("Extraction of %d files took %s.",
-                        result.getTotalFiles(),
-                        DurationFormatUtils.formatDurationHMS(result.getDuration())));
-            }
-            if (result.getInvalidFiles().size() > 0)
-            {
-                throw UserFailureException.fromTemplate(
-                        "Following invalid files %s have been found.",
-                        CollectionUtils.abbreviate(result.getInvalidFiles(), 10));
-            }
-            if (result.getTotalFiles() == 0)
-            {
-                throw UserFailureException.fromTemplate(
-                        "No extractable files were found inside a dataset '%s'."
-                                + " Have you changed your naming convention?",
-                        incomingDataSetDirectory.getAbsolutePath());
-            }
-            dataStructure.setAnnotations(new HCSImageAnnotations(result.getChannels()));
-            checkCompleteness(dataSetInformation, incomingDataSetDirectory.getName(), mailClient);
-        } else
-        {
-            if (imageFormattedData != null && imageFormattedData.isIncomingSymbolicLink())
-            {
-                ILink symbolicLink = NodeFactory.createSymbolicLinkNode(incomingDataSetDirectory);
-                dataStructure.getOriginalData().tryAddLink(symbolicLink.getName(),
-                        symbolicLink.getReference());
-
-            } else
-            {
-                dataStructure.getOriginalData().addFile(incomingDataSetDirectory, null, true);
-            }
-            if (operationLog.isInfoEnabled())
-            {
-                operationLog.info(String.format("File '%s' added to original data.",
-                        incomingDataSetDirectory));
-            }
-        }
-        dataStructure.close();
-        return dataStructureDir;
-    }
-
-    public UnstoreDataAction rollback(File incomingDataSetDirectory, File storedDataDirectory,
-            Throwable exception)
-    {
-        unstoreData(incomingDataSetDirectory, storedDataDirectory);
-        return UnstoreDataAction.MOVE_TO_ERROR;
-    }
-
-    private final void unstoreData(final File incomingDataSetDirectory,
-            final File storedDataDirectory)
-    {
-        checkParameters(incomingDataSetDirectory, storedDataDirectory);
-
-        if (dataStructure == null)
-        {
-            // Nothing to do here.
-            return;
-        }
-        final IDirectory originalData = getDataStructure(dataStructureDir).getOriginalData();
-        final INode node = originalData.tryGetNode(incomingDataSetDirectory.getName());
-        // If the 'incoming' data have been moved to 'original' directory. This only happens if
-        // 'containsOriginalData' returns 'true'.
-        if (node != null)
-        {
-            final File incomingDirectory = incomingDataSetDirectory.getParentFile();
-            try
-            {
-                node.moveTo(incomingDirectory);
-                if (operationLog.isInfoEnabled())
-                {
-                    operationLog.info(String.format(
-                            "Node '%s' has moved to incoming directory '%s'.", node,
-                            incomingDirectory.getAbsolutePath()));
-                }
-            } catch (final EnvironmentFailureException ex)
-            {
-                notificationLog.error(String.format(
-                        "Could not move '%s' to incoming directory '%s'.", node,
-                        incomingDirectory.getAbsolutePath()), ex);
-                return;
-            }
-        }
-        final IFileOperations fileOps = FileOperations.getMonitoredInstanceForCurrentThread();
-        if (fileOps.exists(incomingDataSetDirectory))
-        {
-            if (fileOps.removeRecursivelyQueueing(storedDataDirectory) == false)
-            {
-                operationLog
-                        .error("Cannot delete '" + storedDataDirectory.getAbsolutePath() + "'.");
-            }
-        } else
-        {
-            notificationLog.error(String.format("Incoming data set directory '%s' does not "
-                    + "exist, keeping store directory '%s'.", incomingDataSetDirectory,
-                    storedDataDirectory));
-        }
-    }
-
-    public final File tryGetProprietaryData(final File storedDataDirectory)
-    {
-        assert storedDataDirectory != null : "Unspecified stored data directory.";
-        if (dataStructure == null)
-        {
-            operationLog.error("No data structure defined.");
-            return null;
-        }
-        if (imageFormattedData != null)
-        {
-            if (imageFormattedData.containsOriginalData() == false)
-            {
-                operationLog.warn("Original data are not available.");
-                return null;
-            }
-        }
-        final IDataStructureV1_1 thisStructure = getDataStructure(storedDataDirectory);
-        final IDirectory originalData = thisStructure.getOriginalData();
-        final Iterator<INode> iterator = originalData.iterator();
-        if (iterator.hasNext() == false)
-        {
-            return null;
-        }
-        final INode node = iterator.next();
-        final String path = getPathOf(node);
-        final File originalDataFile = new File(path);
-        if (originalDataFile.exists() == false)
-        {
-            operationLog.error("Original data set file '" + originalDataFile.getAbsolutePath()
-                    + "' does not exist.");
-            return null;
-        }
-        return originalDataFile;
+        return new BDSStorageProcessorTransaction();
     }
 
     @Override
@@ -595,30 +362,293 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
         return StorageFormat.BDS_DIRECTORY;
     }
 
-    //
-    // IHCSImageFileAccepter
-    //
-
-    public final void accept(final int channel, final Location wellLocation,
-            final Location tileLocation, final IFile imageFile)
+    private final class BDSStorageProcessorTransaction extends AbstractStorageProcessorTransaction
+            implements IHCSImageFileAccepter
     {
-        assert imageFileRootDirectory != null : "Incoming data set directory has not been set.";
-        final String imageRelativePath =
-                FileUtilities
-                        .getRelativeFile(imageFileRootDirectory, new File(imageFile.getPath()));
-        assert imageRelativePath != null : "Image relative path should not be null.";
-        final NodePath nodePath =
-                imageFormattedData.addStandardNode(imageFileRootDirectory, imageRelativePath,
-                        channel, wellLocation, tileLocation);
-        imageCheckList.checkOff(channel, wellLocation, tileLocation);
-        if (nodePath.getNode() instanceof ILink)
+        private File imageFileRootDirectory;
+
+        private File dataStructureDir;
+
+        private HCSImageCheckList imageCheckList;
+
+        @Override
+        protected File storeData(DataSetInformation dataSetInformation,
+                ITypeExtractor typeExtractor, IMailClient mailClient)
         {
-            // We made a link in the 'standard' directory to the 'original' directory image file
-            // name. The image file did not change during the operation.
-            final Reference reference =
-                    new Reference(nodePath.getPath(), imageFileRootDirectory.getName()
-                            + Constants.PATH_SEPARATOR + imageRelativePath, ReferenceType.IDENTICAL);
-            getDataStructure(dataStructureDir).addReference(reference);
+            checkDataSetInformation(dataSetInformation);
+            assert rootDirectory != null : "Root directory can not be null.";
+            assert incomingDataSetDirectory != null : "Incoming data set directory can not be null.";
+            assert typeExtractor != null : "Unspecified IProcedureAndDataTypeExtractor implementation.";
+
+            dataStructureDir = rootDirectory;
+            dataStructureDir.mkdirs();
+            Experiment experiment = dataSetInformation.tryToGetExperiment();
+            if (experiment == null)
+            {
+                throw new UserFailureException("Experiment unknown for data set "
+                        + dataSetInformation);
+            }
+            dataStructure =
+                    createDataStructure(experiment, dataSetInformation, typeExtractor,
+                            incomingDataSetDirectory, dataStructureDir);
+            final IFormattedData formattedData = dataStructure.getFormattedData();
+            if (formattedData instanceof IHCSImageFormattedData)
+            {
+                imageFormattedData = (IHCSImageFormattedData) formattedData;
+                final int channels = imageFormattedData.getChannelCount();
+                final Geometry plateGeometry = imageFormattedData.getPlateGeometry();
+                final Geometry wellGeometry = imageFormattedData.getWellGeometry();
+                imageCheckList = new HCSImageCheckList(channels, plateGeometry, wellGeometry);
+            }
+            if (needsImageFileExtractor())
+            {
+                imageFileRootDirectory = incomingDataSetDirectory;
+                final HCSImageFileExtractionResult result =
+                        imageFileExtractor.process(
+                                NodeFactory.createDirectoryNode(incomingDataSetDirectory),
+                                dataSetInformation, this);
+                if (operationLog.isInfoEnabled())
+                {
+                    operationLog.info(String.format("Extraction of %d files took %s.",
+                            result.getTotalFiles(),
+                            DurationFormatUtils.formatDurationHMS(result.getDuration())));
+                }
+                if (result.getInvalidFiles().size() > 0)
+                {
+                    throw UserFailureException.fromTemplate(
+                            "Following invalid files %s have been found.",
+                            CollectionUtils.abbreviate(result.getInvalidFiles(), 10));
+                }
+                if (result.getTotalFiles() == 0)
+                {
+                    throw UserFailureException.fromTemplate(
+                            "No extractable files were found inside a dataset '%s'."
+                                    + " Have you changed your naming convention?",
+                            incomingDataSetDirectory.getAbsolutePath());
+                }
+                dataStructure.setAnnotations(new HCSImageAnnotations(result.getChannels()));
+                checkCompleteness(dataSetInformation, incomingDataSetDirectory.getName(),
+                        mailClient);
+            } else
+            {
+                if (imageFormattedData != null && imageFormattedData.isIncomingSymbolicLink())
+                {
+                    ILink symbolicLink =
+                            NodeFactory.createSymbolicLinkNode(incomingDataSetDirectory);
+                    dataStructure.getOriginalData().tryAddLink(symbolicLink.getName(),
+                            symbolicLink.getReference());
+
+                } else
+                {
+                    dataStructure.getOriginalData().addFile(incomingDataSetDirectory, null, true);
+                }
+                if (operationLog.isInfoEnabled())
+                {
+                    operationLog.info(String.format("File '%s' added to original data.",
+                            incomingDataSetDirectory));
+                }
+            }
+            dataStructure.close();
+            return dataStructureDir;
         }
+
+        @Override
+        protected UnstoreDataAction executeRollback(Throwable ex)
+        {
+            unstoreData();
+            return UnstoreDataAction.MOVE_TO_ERROR;
+        }
+
+        @Override
+        protected void executeCommit()
+        {
+            // no commit logic
+        }
+
+        // Although this check should be performed in the BDS library when closing is
+        // performed, we set
+        // the complete flag here as we want to inform the registrator about the
+        // incompleteness.
+        private void checkCompleteness(final DataSetInformation dataSetInformation,
+                final String dataSetFileName, final IMailClient mailClientOrNull)
+        {
+            final List<FullLocation> fullLocations = imageCheckList.getCheckedOnFullLocations();
+            final boolean complete = fullLocations.size() == 0;
+            final IDataStructureV1_1 thisStructure = getDataStructure(dataStructureDir);
+            final DataSet dataSet = thisStructure.getDataSet();
+            dataSet.setComplete(complete);
+            thisStructure.setDataSet(dataSet);
+            dataSetInformation.setComplete(complete);
+            if (complete == false)
+            {
+                final String message =
+                        String.format("Incomplete data set '%s': %d image file(s) "
+                                + "are missing (locations: %s)", dataSetFileName,
+                                fullLocations.size(), CollectionUtils.abbreviate(fullLocations, 10));
+                operationLog.warn(message);
+                if (mailClientOrNull != null)
+                {
+                    final ExperimentRegistrator registrator =
+                            thisStructure.getExperimentRegistrator();
+                    final String email = registrator.getEmail();
+                    if (StringUtils.isBlank(email) == false)
+                    {
+                        try
+                        {
+                            mailClientOrNull.sendMessage("Incomplete data set '" + dataSetFileName
+                                    + "'", message, null, null, email);
+                        } catch (final EnvironmentFailureException e)
+                        {
+                            notificationLog.error("Couldn't send the following e-mail to '" + email
+                                    + "': " + message, e);
+                        }
+                    } else
+                    {
+                        notificationLog
+                                .error("Unspecified e-mail address of experiment registrator "
+                                        + registrator);
+                    }
+                }
+            }
+        }
+
+        private final void unstoreData()
+        {
+            checkParameters(incomingDataSetDirectory, storedDataDirectory);
+
+            if (dataStructure == null)
+            {
+                // Nothing to do here.
+                return;
+            }
+            final IDirectory originalData = getDataStructure(dataStructureDir).getOriginalData();
+            final INode node = originalData.tryGetNode(incomingDataSetDirectory.getName());
+            // If the 'incoming' data have been moved to 'original' directory. This only
+            // happens if
+            // 'containsOriginalData' returns 'true'.
+            if (node != null)
+            {
+                final File incomingDirectory = incomingDataSetDirectory.getParentFile();
+                try
+                {
+                    node.moveTo(incomingDirectory);
+                    if (operationLog.isInfoEnabled())
+                    {
+                        operationLog.info(String.format(
+                                "Node '%s' has moved to incoming directory '%s'.", node,
+                                incomingDirectory.getAbsolutePath()));
+                    }
+                } catch (final EnvironmentFailureException ex)
+                {
+                    notificationLog.error(String.format(
+                            "Could not move '%s' to incoming directory '%s'.", node,
+                            incomingDirectory.getAbsolutePath()), ex);
+                    return;
+                }
+            }
+            final IFileOperations fileOps = FileOperations.getMonitoredInstanceForCurrentThread();
+            if (fileOps.exists(incomingDataSetDirectory))
+            {
+                if (fileOps.removeRecursivelyQueueing(storedDataDirectory) == false)
+                {
+                    operationLog.error("Cannot delete '" + storedDataDirectory.getAbsolutePath()
+                            + "'.");
+                }
+            } else
+            {
+                notificationLog.error(String.format("Incoming data set directory '%s' does not "
+                        + "exist, keeping store directory '%s'.", incomingDataSetDirectory,
+                        storedDataDirectory));
+            }
+        }
+
+        public final void accept(final int channel, final Location wellLocation,
+                final Location tileLocation, final IFile imageFile)
+        {
+            assert imageFileRootDirectory != null : "Incoming data set directory has not been set.";
+            final String imageRelativePath =
+                    FileUtilities.getRelativeFile(imageFileRootDirectory,
+                            new File(imageFile.getPath()));
+            assert imageRelativePath != null : "Image relative path should not be null.";
+            final NodePath nodePath =
+                    imageFormattedData.addStandardNode(imageFileRootDirectory, imageRelativePath,
+                            channel, wellLocation, tileLocation);
+            imageCheckList.checkOff(channel, wellLocation, tileLocation);
+            if (nodePath.getNode() instanceof ILink)
+            {
+                // We made a link in the 'standard' directory to the 'original' directory
+                // image file
+                // name. The image file did not change during the operation.
+                final Reference reference =
+                        new Reference(nodePath.getPath(), imageFileRootDirectory.getName()
+                                + Constants.PATH_SEPARATOR + imageRelativePath,
+                                ReferenceType.IDENTICAL);
+                getDataStructure(dataStructureDir).addReference(reference);
+            }
+        }
+
+        /**
+         * For given <var>directory</var> returns the {@link IDataStructureV1_1}.
+         * <p>
+         * In ideal case returns internally saved <code>dataStructureDir</code> but when given
+         * <var>storedDataDirectory</var> changed (meaning no longer equal to storage root), then we
+         * have to reload the data structure.
+         * </p>
+         */
+        private final IDataStructureV1_1 getDataStructure(File directory)
+        {
+            final IDataStructureV1_1 thisStructure;
+            if (directory.equals(dataStructureDir) == false)
+            {
+                final DataStructureLoader dataStructureLoader =
+                        new DataStructureLoader(directory.getParentFile());
+                thisStructure =
+                        (IDataStructureV1_1) dataStructureLoader.load(directory.getName(), true);
+            } else
+            {
+                thisStructure = dataStructure;
+                if (thisStructure.isOpenOrCreated() == false)
+                {
+                    thisStructure.open(Mode.READ_ONLY);
+                }
+            }
+            return thisStructure;
+        }
+
+        public final File tryGetProprietaryData()
+        {
+            assert storedDataDirectory != null : "Unspecified stored data directory.";
+            if (dataStructure == null)
+            {
+                operationLog.error("No data structure defined.");
+                return null;
+            }
+            if (imageFormattedData != null)
+            {
+                if (imageFormattedData.containsOriginalData() == false)
+                {
+                    operationLog.warn("Original data are not available.");
+                    return null;
+                }
+            }
+            final IDataStructureV1_1 thisStructure = getDataStructure(storedDataDirectory);
+            final IDirectory originalData = thisStructure.getOriginalData();
+            final Iterator<INode> iterator = originalData.iterator();
+            if (iterator.hasNext() == false)
+            {
+                return null;
+            }
+            final INode node = iterator.next();
+            final String path = getPathOf(node);
+            final File originalDataFile = new File(path);
+            if (originalDataFile.exists() == false)
+            {
+                operationLog.error("Original data set file '" + originalDataFile.getAbsolutePath()
+                        + "' does not exist.");
+                return null;
+            }
+            return originalDataFile;
+        }
+
     }
 }

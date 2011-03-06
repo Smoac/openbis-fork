@@ -19,8 +19,8 @@ package ch.systemsx.cisd.etlserver;
 import java.io.File;
 
 import ch.systemsx.cisd.common.mail.IMailClient;
-import ch.systemsx.cisd.etlserver.IStorageProcessor.UnstoreDataAction;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataAction;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
@@ -50,49 +50,48 @@ public abstract class AbstractStorageProcessorTransaction implements
     // abstract methods to be implemented by extenders
     // --------------
 
-    protected abstract File doStoreData(DataSetInformation dataSetInformation,
+    protected abstract File storeData(DataSetInformation dataSetInformation,
             ITypeExtractor typeExtractor, IMailClient mailClient);
 
-    protected abstract void doCommit();
+    protected abstract void executeCommit();
 
-    protected abstract UnstoreDataAction doRollback(Throwable ex);
+    protected abstract UnstoreDataAction executeRollback(Throwable ex);
 
     //
     // Default implementation
     //
 
-    public void storeData(final DataSetInformation dataSetInformation,
+    public final void storeData(final DataSetInformation dataSetInformation,
             final ITypeExtractor typeExtractor, final IMailClient mailClient,
             final File incomingDataDirectory, final File rootDir)
     {
-
         ensureState("storeData", TransactionState.INITIAL);
         this.incomingDataSetDirectory = incomingDataDirectory;
         this.rootDirectory = rootDir;
-        this.storedDataDirectory = doStoreData(dataSetInformation, typeExtractor, mailClient);
+        this.storedDataDirectory = storeData(dataSetInformation, typeExtractor, mailClient);
 
         state = TransactionState.STORED;
     }
 
-    public void commit()
+    public final void commit()
     {
         ensureState("commit", TransactionState.STORED);
-        doCommit();
+        executeCommit();
         state = TransactionState.COMMITTED;
     }
 
-    public UnstoreDataAction rollback(Throwable ex)
+    public final UnstoreDataAction rollback(Throwable ex)
     {
         ensureState("rollback", TransactionState.INITIAL, TransactionState.STORED);
 
-        UnstoreDataAction result = doRollback(ex);
+        UnstoreDataAction result = executeRollback(ex);
         state = TransactionState.ROLLED_BACK;
 
         return result;
 
     }
 
-    public File getStoredDataDirectory()
+    public final File getStoredDataDirectory()
     {
         return storedDataDirectory;
     }
@@ -107,7 +106,9 @@ public abstract class AbstractStorageProcessorTransaction implements
             }
         }
 
-        String error = String.format("Illegal transaction state: '%s' is not allowed", operation);
+        String error =
+                String.format("Illegal transaction state: '%s' is not allowed while "
+                        + "in state '%s'", operation, state);
         throw new IllegalStateException(error);
     }
 }

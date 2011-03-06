@@ -66,12 +66,4 @@ public class Hdf5StorageProcessorWithCompressionTest extends AbstractHdf5Storage
     {
         super.testStoreDataNullValues();
     }
-
-    @Override
-    @Test(expectedExceptions =
-        { AssertionError.class })
-    public void testRollbackNullValues()
-    {
-        super.testRollbackNullValues();
-    }
 }

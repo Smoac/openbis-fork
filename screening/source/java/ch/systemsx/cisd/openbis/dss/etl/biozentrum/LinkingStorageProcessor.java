@@ -27,6 +27,7 @@ import ch.systemsx.cisd.common.filesystem.SoftLinkMaker;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessor;
+import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
@@ -66,25 +67,47 @@ public class LinkingStorageProcessor extends AbstractDelegatingStorageProcessor
     }
 
     @Override
-    public File storeData(DataSetInformation dataSetInformation, ITypeExtractor typeExtractor,
-            IMailClient mailClient, File incomingDataSetDirectory, File rootDir)
+    public IStorageProcessorTransaction createTransaction()
     {
-        File resultFile =
-                super.storeData(dataSetInformation, typeExtractor, mailClient,
-                        incomingDataSetDirectory, rootDir);
-        File source = tryGetProprietaryData(resultFile);
-        boolean success = SoftLinkMaker.createSymbolicLink(source, targetDir);
-        if (success)
-        {
-            File markerFile = new File(targetDir, Constants.IS_FINISHED_PREFIX + source.getName());
-            FileUtilities.writeToFile(markerFile, dataSetInformation.getDataSetCode());
-        } else
-        {
-            throw EnvironmentFailureException.fromTemplate(
-                    "Can not create symbolic link to '%s' in '%s'.", source.getPath(),
-                    targetDir.getPath());
-        }
-        return resultFile;
+        return new AbstractDelegatingStorageProcessorTransaction(super.createTransaction())
+            {
+                
+                @Override
+                protected File storeData(DataSetInformation dataSetInformation,
+                        ITypeExtractor typeExtractor, IMailClient mailClient)
+                {
+                    
+                    nestedTransaction.storeData(dataSetInformation, typeExtractor, mailClient,
+                            incomingDataSetDirectory, rootDirectory);
+                    File source = nestedTransaction.tryGetProprietaryData();
+                    boolean success = SoftLinkMaker.createSymbolicLink(source, targetDir);
+                    if (success)
+                    {
+                        File markerFile =
+                                new File(targetDir, Constants.IS_FINISHED_PREFIX + source.getName());
+                        FileUtilities.writeToFile(markerFile, dataSetInformation.getDataSetCode());
+                    } else
+                    {
+                        throw EnvironmentFailureException.fromTemplate(
+                                "Can not create symbolic link to '%s' in '%s'.", source.getPath(),
+                                targetDir.getPath());
+                    }
+                    return nestedTransaction.getStoredDataDirectory();
+                }
+                
+                @Override
+                protected UnstoreDataAction executeRollback(Throwable ex)
+                {
+                    // TODO KE: ask Tomek/Sekhar if we need to implement rollback here
+                    return nestedTransaction.rollback(ex);
+                }
+                
+                @Override
+                protected void executeCommit()
+                {
+                    nestedTransaction.commit();
+                }
+            };
     }
 
 }

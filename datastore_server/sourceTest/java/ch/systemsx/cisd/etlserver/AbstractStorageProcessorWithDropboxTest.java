@@ -28,6 +28,7 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.AbstractDatasetDropboxHandler;
 
@@ -41,7 +42,10 @@ public class AbstractStorageProcessorWithDropboxTest extends AbstractFileSystemT
     public final void testStore()
     {
         Mockery context = new Mockery();
-        final IStorageProcessor delegateStorageProcessor = context.mock(IStorageProcessor.class);
+        final IStorageProcessorTransactional delegateStorageProcessor =
+                context.mock(IStorageProcessorTransactional.class);
+        final IStorageProcessorTransaction delegateTransaction =
+                context.mock(IStorageProcessorTransaction.class);
         final IFileOperations fileOperations = context.mock(IFileOperations.class);
 
         final DataSetInformation dataSetInfo = new DataSetInformation();
@@ -53,15 +57,19 @@ public class AbstractStorageProcessorWithDropboxTest extends AbstractFileSystemT
         context.checking(new Expectations()
             {
                 {
-                    one(delegateStorageProcessor).storeData(dataSetInfo, null, null,
+                    one(delegateStorageProcessor).createTransaction();
+                    will(returnValue(delegateTransaction));
+
+                    one(delegateTransaction).storeData(dataSetInfo, null, null,
                             incomingDirectory, null);
+                    one(delegateTransaction).getStoredDataDirectory();
                     will(returnValue(incomingDirectory));
 
                     File dropboxIncomingDir = new File(dropboxIncomingDirName);
                     one(fileOperations).isDirectory(dropboxIncomingDir);
                     will(returnValue(true));
 
-                    one(delegateStorageProcessor).tryGetProprietaryData(incomingDirectory);
+                    one(delegateTransaction).tryGetProprietaryData();
                     final File dataset = new File("incomingData.xml");
                     will(returnValue(dataset));
 
@@ -77,7 +85,8 @@ public class AbstractStorageProcessorWithDropboxTest extends AbstractFileSystemT
 
         DelegatingStorageProcessorWithDropbox storageProcessor =
                 new StorageProcessorWithDropboxTest(props, delegateStorageProcessor, fileOperations);
-        storageProcessor.storeData(dataSetInfo, null, null, incomingDirectory, null);
+        storageProcessor.createTransaction().storeData(dataSetInfo, null, null, incomingDirectory,
+                null);
 
         context.assertIsSatisfied();
     }
@@ -95,7 +104,8 @@ public class AbstractStorageProcessorWithDropboxTest extends AbstractFileSystemT
         }
 
         public StorageProcessorWithDropboxTest(Properties properties,
-                IStorageProcessor delegateStorageProcessor, IFileOperations fileOperations)
+                IStorageProcessorTransactional delegateStorageProcessor,
+                IFileOperations fileOperations)
         {
             super(properties, new DatasetDropboxHandler(properties, fileOperations),
                     delegateStorageProcessor, fileOperations);
@@ -194,7 +204,7 @@ public class AbstractStorageProcessorWithDropboxTest extends AbstractFileSystemT
         File store = new File(workingDirectory, "store");
         store.mkdirs();
 
-        processor.storeData(dataSetInfo, null, null, dataSetFile, store);
+        processor.createTransaction().storeData(dataSetInfo, null, null, dataSetFile, store);
 
         File storeData = new File(store, "original/data.txt");
         assertEquals(true, storeData.exists());

@@ -24,6 +24,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.etlserver.DefaultStorageProcessorTest.TestProcedureAndDataTypeExtractor;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
 
 /**
  * Test cases for {@link CifexStorageProcessor}.
@@ -68,9 +69,7 @@ public class CifexStorageProcessorTest extends AbstractFileSystemTestCase
         final File incomingDataSetDirectory = createDirectory("incoming");
         FileUtilities.writeToFile(new File(incomingDataSetDirectory, "read.me"), "hello world");
         final File rootDir = createDirectory("root");
-        final File storeData =
-                storageProcessor.storeData(null, TYPE_EXTRACTOR, null, incomingDataSetDirectory,
-                        rootDir);
+        final File storeData = storeData(storageProcessor, incomingDataSetDirectory, rootDir);
         assertEquals(false, incomingDataSetDirectory.exists());
         assertEquals(true, storeData.isDirectory());
         assertEquals(rootDir.getAbsolutePath(), storeData.getAbsolutePath());
@@ -89,13 +88,20 @@ public class CifexStorageProcessorTest extends AbstractFileSystemTestCase
         File incoming = new File(workingDirectory, "read.me");
         FileUtilities.writeToFile(incoming, "hello world");
         final File rootDir = createDirectory("root");
-        final File storeData =
-                storageProcessor.storeData(null, TYPE_EXTRACTOR, null, incoming, rootDir);
+        final File storeData = storeData(storageProcessor, incoming, rootDir);
         assertEquals(false, incoming.exists());
         assertEquals(true, storeData.isDirectory());
         File fileName = new File(rootDir, DefaultStorageProcessor.ORIGINAL_DIR + "/read.me");
         assertEquals(rootDir.getAbsolutePath(), storeData.getAbsolutePath());
         assertEquals("hello world", FileUtilities.loadToString(fileName).trim());
+    }
+
+    private File storeData(final CifexStorageProcessor storageProcessor, File incoming,
+            final File rootDir)
+    {
+        IStorageProcessorTransaction transaction = storageProcessor.createTransaction();
+        transaction.storeData(null, TYPE_EXTRACTOR, null, incoming, rootDir);
+        return transaction.getStoredDataDirectory();
     }
 
 }

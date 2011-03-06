@@ -36,9 +36,9 @@ public interface IETLServerPlugin
     public ITypeExtractor getTypeExtractor();
 
     /**
-     * Returns the {@link IStorageProcessor} implementation.
+     * Returns the {@link IStorageProcessorTransactional} implementation.
      */
-    public IStorageProcessor getStorageProcessor();
+    public IStorageProcessorTransactional getStorageProcessor();
 
     /**
      * Returns an appropriated data set handler which wraps the specified primary data set handler.

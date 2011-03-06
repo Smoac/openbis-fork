@@ -200,7 +200,7 @@ public abstract class DataSetRegistrationHelper implements
 
     protected abstract ITypeExtractor getTypeExtractor();
 
-    protected abstract IStorageProcessor getStorageProcessor();
+    protected abstract IStorageProcessorTransactional getStorageProcessor();
 
     protected abstract IDataSetInfoExtractor getDataSetInfoExtractor();
 

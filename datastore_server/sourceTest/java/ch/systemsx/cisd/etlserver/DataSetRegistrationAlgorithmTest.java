@@ -40,6 +40,7 @@ import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm.DataSetRegistrationAlgorithmState;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm.IDataSetInApplicationServerRegistrator;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm.IRollbackDelegate;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -95,7 +96,9 @@ public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
 
     private ITypeExtractor typeExtractor;
 
-    private IStorageProcessor storageProcessor;
+    private IStorageProcessorTransactional storageProcessor;
+
+    private IStorageProcessorTransaction transaction;
 
     private IFileOperations fileOperations;
 
@@ -129,7 +132,8 @@ public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
 
         dataStoreStrategy = context.mock(IDataStoreStrategy.class);
         typeExtractor = context.mock(ITypeExtractor.class);
-        storageProcessor = context.mock(IStorageProcessor.class);
+        storageProcessor = context.mock(IStorageProcessorTransactional.class);
+        transaction = context.mock(IStorageProcessorTransaction.class);
         fileOperations = FileOperations.getInstance();
         dataSetValidator = context.mock(IDataSetValidator.class);
         mailClient = context.mock(IMailClient.class);
@@ -325,8 +329,13 @@ public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
                     one(storageProcessor).getStoreRootDirectory();
                     will(returnValue(workingDirectory));
 
-                    one(storageProcessor).storeData(dataSetInformation, typeExtractor, mailClient,
+                    one(storageProcessor).createTransaction();
+                    will(returnValue(transaction));
+
+                    one(transaction).storeData(dataSetInformation, typeExtractor, mailClient,
                             incomingDataSetFile, workingDirectory);
+
+                    one(transaction).getStoredDataDirectory();
                     will(storeDataAction);
 
                     one(storageProcessor).getStorageFormat();
@@ -334,7 +343,7 @@ public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
 
                     if (shouldSucceed)
                     {
-                        one(storageProcessor).commit(incomingDataSetFile, workingDirectory);
+                        one(transaction).commit();
                     }
                 }
             });

@@ -32,8 +32,6 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.openbis.dss.generic.server.SessionTokenManager;
-import ch.systemsx.cisd.openbis.dss.generic.server.openbisauth.OpenBISAuthenticationInterceptor;
-import ch.systemsx.cisd.openbis.dss.generic.server.openbisauth.OpenBISSessionHolder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PluginUtilTest;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;

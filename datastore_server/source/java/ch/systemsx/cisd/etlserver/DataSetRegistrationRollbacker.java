@@ -26,7 +26,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
-import ch.systemsx.cisd.etlserver.IStorageProcessor.UnstoreDataAction;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataAction;
 
 /**
  * Utility class that rollsback a data set registration.

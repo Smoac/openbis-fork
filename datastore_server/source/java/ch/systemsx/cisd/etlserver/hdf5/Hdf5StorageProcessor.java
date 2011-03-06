@@ -23,7 +23,6 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.AbstractStorageProcessor;
-import ch.systemsx.cisd.etlserver.IStorageProcessor;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
@@ -42,9 +41,6 @@ public class Hdf5StorageProcessor extends AbstractStorageProcessor
 
     private final boolean isDataCompressed;
 
-    // The file that we are currently processing -- need to store this to implement commit
-    private File fileBeingProcessed;
-
     /**
      * Constructor.
      * 
@@ -54,67 +50,72 @@ public class Hdf5StorageProcessor extends AbstractStorageProcessor
     {
         super(properties);
         isDataCompressed = PropertyUtils.getBoolean(properties, COMPRESS_DATA_PROPERTY, false);
-        fileBeingProcessed = null;
     }
 
-    /**
-     * Write the content of the incomingDataSetDirectory into an HDF5 container with the same
-     * hierarchical structure as the incomingDataSetDirectory. Don't delete the
-     * incomingDataSetDirectory yet (this happens in @link{#commit}).
-     * 
-     * @see IStorageProcessor#storeData(DataSetInformation, ITypeExtractor, IMailClient, File, File)
-     */
-    public File storeData(DataSetInformation dataSetInformation, ITypeExtractor typeExtractor,
-            IMailClient mailClient, File incomingDataSetDirectory, File rootDir)
+    public IStorageProcessorTransaction createTransaction()
     {
-        checkParameters(incomingDataSetDirectory, rootDir);
+        return new IStorageProcessorTransaction()
+            {
+                private File storedDirectory;
 
-        Hdf5Container container = getHdf5Container(rootDir);
-        container.runWriterClient(isDataCompressed,
-                new HierarchicalStructureDuplicatorFileToHdf5.DuplicatorWriterClient(
-                        incomingDataSetDirectory));
+                // The file that we are currently processing -- need to store this to implement
+                // commit
+                private File fileBeingProcessed;
 
-        fileBeingProcessed = incomingDataSetDirectory;
+                /**
+                 * Write the content of the incomingDataSetDirectory into an HDF5 container with the
+                 * same hierarchical structure as the incomingDataSetDirectory. Don't delete the
+                 * incomingDataSetDirectory yet (this happens in @link{#commit}).
+                 */
+                public void storeData(DataSetInformation dataSetInformation,
+                        ITypeExtractor typeExtractor, IMailClient mailClient,
+                        File incomingDataSetDirectory, File rootDir)
+                {
+                    checkParameters(incomingDataSetDirectory, rootDir);
 
-        return rootDir;
-    }
+                    Hdf5Container container = getHdf5Container(rootDir);
+                    container.runWriterClient(isDataCompressed,
+                            new HierarchicalStructureDuplicatorFileToHdf5.DuplicatorWriterClient(
+                                    incomingDataSetDirectory));
 
-    @Override
-    public void commit(File incomingDataSetDirectory, File storedDataDirectory)
-    {
-        super.commit(incomingDataSetDirectory, storedDataDirectory);
+                    fileBeingProcessed = incomingDataSetDirectory;
+                    storedDirectory = rootDir;
+                }
 
-        // fileBeingProcessed cannot be null at this point
-        FileUtilities.deleteRecursively(fileBeingProcessed);
-        fileBeingProcessed = null;
-    }
+                public UnstoreDataAction rollback(Throwable exception)
+                {
+                    // Just delete the file in the store -- no need to touch the incomingDataSet
+                    // because we haven't done anything to it.
+                    File storedFile = getHdf5ContainerFile(storedDirectory);
+                    storedFile.delete();
 
-    /**
-     * @see IStorageProcessor#rollback(File, File, Throwable)
-     */
-    public UnstoreDataAction rollback(File incomingDataSetDirectory, File storedDataDirectory,
-            Throwable exception)
-    {
-        checkParameters(incomingDataSetDirectory, storedDataDirectory);
+                    fileBeingProcessed = null;
 
-        // Just delete the file in the store -- no need to touch the incomingDataSet because we
-        // haven't done anything to it.
-        File storedFile = getHdf5ContainerFile(storedDataDirectory);
-        storedFile.delete();
+                    return UnstoreDataAction.MOVE_TO_ERROR;
+                }
 
-        fileBeingProcessed = null;
+                public void commit()
+                {
+                    // fileBeingProcessed cannot be null at this point
+                    FileUtilities.deleteRecursively(fileBeingProcessed);
+                    fileBeingProcessed = null;
+                }
 
-        return UnstoreDataAction.MOVE_TO_ERROR;
+                public File getStoredDataDirectory()
+                {
+                    return storedDirectory;
+                }
+
+                public File tryGetProprietaryData()
+                {
+                    // We don't keep data around in the original format -- only in an HDF5
+                    // container.
+                    return null;
+                }
+
+            };
     }
     
-    /**
-     * @see IStorageProcessor#tryGetProprietaryData(File)
-     */
-    public File tryGetProprietaryData(File storedDataDirectory)
-    {
-        // We don't keep data around in the original format -- only in an HDF5 container.
-        return null;
-    }
 
     /**
      * Given a directory in the store, return the HDF5 container file.

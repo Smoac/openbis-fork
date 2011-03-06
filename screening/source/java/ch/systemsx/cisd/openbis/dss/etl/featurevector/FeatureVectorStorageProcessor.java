@@ -30,6 +30,7 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessor;
+import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.DispatcherStorageProcessor.IDispatchableStorageProcessor;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.openbis.dss.etl.HCSContainerDatasetInfo;
@@ -56,6 +57,7 @@ import ch.systemsx.cisd.utils.CsvFileReaderHelper;
 public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProcessor implements
         IDispatchableStorageProcessor
 {
+
     private static final String ORIGINAL_DIR = ScreeningConstants.ORIGINAL_DATA_DIR;
 
     private final FeatureVectorStorageProcessorConfiguration configuration;
@@ -66,9 +68,6 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
 
     private final IEncapsulatedOpenBISService openBisService;
 
-    // Execution state of this object -- set to null after an execution is finished.
-    private IImagingQueryDAO dataAccessObject = null;
-
     public FeatureVectorStorageProcessor(Properties properties)
     {
         super(properties);
@@ -78,30 +77,91 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
         this.openBisService = ServiceProvider.getOpenBISService();
     }
 
-    @Override
-    public File storeData(final DataSetInformation dataSetInformation,
-            final ITypeExtractor typeExtractor, final IMailClient mailClient,
-            final File incomingDataSetDirectory, final File rootDir)
+    /**
+     * Accepts all non-image datasets (and assumes they are single CSV files or
+     * FeatureVectorDataSetInformation).
+     */
+    public boolean accepts(DataSetInformation dataSetInformation, File incomingDataSet)
     {
-        File answer =
-                super.storeData(dataSetInformation, typeExtractor, mailClient,
-                        incomingDataSetDirectory, rootDir);
-        // Import into the data base
-        File parent = new File(answer, ORIGINAL_DIR);
-        File dataSet = new File(parent, incomingDataSetDirectory.getName());
-
-        try
-        {
-            loadDataSetIntoDatabase(dataSet, dataSetInformation);
-        } catch (IOException ex)
-        {
-            throw new IOExceptionUnchecked(ex);
-        }
-
-        return answer;
+        return dataSetInformation instanceof ImageDataSetInformation == false;
     }
 
-    private void loadDataSetIntoDatabase(File dataSet, DataSetInformation dataSetInformation)
+    @Override
+    public IStorageProcessorTransaction createTransaction()
+    {
+        return new FeatureVectorStorageProcessorTransaction(super.createTransaction());
+    }
+
+    private final class FeatureVectorStorageProcessorTransaction extends
+            AbstractDelegatingStorageProcessorTransaction
+    {
+        private IImagingQueryDAO dataAccessObject = null;
+
+        private FeatureVectorStorageProcessorTransaction(IStorageProcessorTransaction transaction)
+        {
+            super(transaction);
+        }
+
+        @Override
+        protected File storeData(DataSetInformation dataSetInformation,
+                ITypeExtractor typeExtractor, IMailClient mailClient)
+        {
+            nestedTransaction.storeData(dataSetInformation, typeExtractor, mailClient,
+                    incomingDataSetDirectory, rootDirectory);
+
+            dataAccessObject = createDAO();
+            File parent = new File(nestedTransaction.getStoredDataDirectory(), ORIGINAL_DIR);
+            File dataSet = new File(parent, incomingDataSetDirectory.getName());
+
+            try
+            {
+                loadDataSetIntoDatabase(dataAccessObject, dataSet, dataSetInformation);
+            } catch (IOException ex)
+            {
+                throw new IOExceptionUnchecked(ex);
+            }
+            return nestedTransaction.getStoredDataDirectory();
+        }
+
+        @Override
+        protected void executeCommit()
+        {
+            nestedTransaction.commit();
+
+            if (null == dataAccessObject)
+            {
+                return;
+            }
+
+            dataAccessObject.commit();
+            closeDataAccessObject();
+        }
+
+        @Override
+        protected UnstoreDataAction executeRollback(Throwable ex)
+        {
+            // Delete the data from the database
+            if (null != dataAccessObject)
+            {
+                dataAccessObject.rollback();
+                closeDataAccessObject();
+            }
+
+            return nestedTransaction.rollback(ex);
+        }
+
+        /**
+         * Close the DAO and set it to null to make clear that it is not initialized.
+         */
+        private void closeDataAccessObject()
+        {
+            dataAccessObject.close();
+            dataAccessObject = null;
+        }
+    }
+
+    private void loadDataSetIntoDatabase(IImagingQueryDAO dataAccessObject, File dataSet,
+            DataSetInformation dataSetInformation)
             throws IOException
     {
         HCSContainerDatasetInfo datasetInfo = createScreeningDatasetInfo(dataSetInformation);
@@ -110,7 +170,6 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
                 extractCanonicalFeatureVectors(dataSet, dataSetInformation,
                         datasetInfo.getContainerGeometry());
 
-        dataAccessObject = createDAO();
         FeatureVectorUploader uploader = new FeatureVectorUploader(dataAccessObject, datasetInfo);
         uploader.uploadFeatureVectors(fvecs);
     }
@@ -192,58 +251,12 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
         return QueryTool.getQuery(dataSource, IImagingQueryDAO.class);
     }
 
-    @Override
-    public void commit(File incomingDataSetDirectory, File storedDataDirectory)
-    {
-        super.commit(incomingDataSetDirectory, storedDataDirectory);
-
-        if (null == dataAccessObject)
-        {
-            return;
-        }
-
-        dataAccessObject.commit();
-        closeDataAccessObject();
-    }
-
-    /**
-     * Close the DAO and set it to null to make clear that it is not initialized.
-     */
-    private void closeDataAccessObject()
-    {
-        dataAccessObject.close();
-        dataAccessObject = null;
-    }
-
-    @Override
-    public UnstoreDataAction rollback(final File incomingDataSetDirectory,
-            final File storedDataDirectory, Throwable exception)
-    {
-        // Delete the data from the database
-        if (null != dataAccessObject)
-        {
-            dataAccessObject.rollback();
-            closeDataAccessObject();
-        }
-
-        return super.rollback(incomingDataSetDirectory, storedDataDirectory, exception);
-    }
-
     /**
      * Return the tabular data as a DatasetFileLines.
      */
     private DatasetFileLines getDatasetFileLines(File file) throws IOException
     {
         return CsvFileReaderHelper.getDatasetFileLines(file, configuration);
-    }
-
-    /**
-     * Accepts all non-image datasets (and assumes they are single CSV files or
-     * FeatureVectorDataSetInformation).
-     */
-    public boolean accepts(DataSetInformation dataSetInformation, File incomingDataSet)
-    {
-        return dataSetInformation instanceof ImageDataSetInformation == false;
     }
 
 }

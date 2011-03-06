@@ -38,11 +38,9 @@ import ch.systemsx.cisd.etlserver.BaseDirectoryHolder;
 import ch.systemsx.cisd.etlserver.DataStoreStrategyKey;
 import ch.systemsx.cisd.etlserver.FileRenamer;
 import ch.systemsx.cisd.etlserver.IDataStoreStrategy;
-import ch.systemsx.cisd.etlserver.IStorageProcessor;
-import ch.systemsx.cisd.etlserver.IStorageProcessor.UnstoreDataAction;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
-import ch.systemsx.cisd.etlserver.StorageProcessorTransactionalWrapper;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataAction;
 import ch.systemsx.cisd.etlserver.TransferredDataSetHandler;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.ConversionUtils;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
@@ -121,7 +119,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
 
     public DataSetStorageAlgorithm(File incomingDataSetFile,
             DataSetRegistrationDetails<T> registrationDetails,
-            IDataStoreStrategy dataStoreStrategy, IStorageProcessor storageProcessor,
+            IDataStoreStrategy dataStoreStrategy, IStorageProcessorTransactional storageProcessor,
             IDataSetValidator dataSetValidator, String dataStoreCode,
             IFileOperations fileOperations, IMailClient mailClient)
     {
@@ -129,8 +127,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         this.registrationDetails = registrationDetails;
         this.dataSetInformation = registrationDetails.getDataSetInformation();
         this.dataStoreStrategy = dataStoreStrategy;
-        this.storageProcessor =
-                StorageProcessorTransactionalWrapper.wrapIfNecessary(storageProcessor);
+        this.storageProcessor = storageProcessor;
         this.dataStoreCode = dataStoreCode;
         this.fileOperations = fileOperations;
         this.mailClient = mailClient;

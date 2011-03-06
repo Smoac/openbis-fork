@@ -20,10 +20,11 @@ import java.io.File;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.AbstractStrorageProcessorWithUploader;
 import ch.systemsx.cisd.etlserver.DelegatingStorageProcessorWithDropbox;
 import ch.systemsx.cisd.etlserver.IDataSetUploader;
-import ch.systemsx.cisd.etlserver.IStorageProcessor;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -37,7 +38,8 @@ public class StorageProcessor extends DelegatingStorageProcessorWithDropbox
     private static final class StorageProcessorWithUploader extends
             AbstractStrorageProcessorWithUploader
     {
-        public StorageProcessorWithUploader(IStorageProcessor processor, IDataSetUploader uploader)
+        public StorageProcessorWithUploader(IStorageProcessorTransactional processor,
+                IDataSetUploader uploader)
         {
             super(processor, uploader);
         }
@@ -59,62 +61,94 @@ public class StorageProcessor extends DelegatingStorageProcessorWithDropbox
     StorageProcessor(Properties properties, DataSetHandler handler)
     {
         super(properties, handler);
-        storageProcessorWithUploader = new StorageProcessorWithUploader(new IStorageProcessor()
+        storageProcessorWithUploader =
+                new StorageProcessorWithUploader(new IStorageProcessorTransactional()
             {
 
-                public void setStoreRootDirectory(File storeRootDirectory)
-                {
+                        public File getStoreRootDirectory()
+                        {
+                            return null;
+                        }
 
-                }
+                        public void setStoreRootDirectory(File storeRootDirectory)
+                        {
+                        }
 
-                public File getStoreRootDirectory()
-                {
-                    return null;
-                }
+                        public IStorageProcessorTransaction createTransaction()
+                                {
+                            return new IStorageProcessorTransaction()
+                                {
 
-                public File tryGetProprietaryData(File storedDataDirectory)
-                {
-                    return null;
-                }
+                                    public void storeData(DataSetInformation dataSetInformation,
+                                            ITypeExtractor typeExtractor, IMailClient mailClient,
+                                            File incomingDataSetDirectory, File rootDir)
+                                    {
+                                    }
 
-                public File storeData(DataSetInformation dataSetInformation,
-                        ITypeExtractor typeExtractor, IMailClient mailClient,
-                        File incomingDataSetDirectory, File rootDir)
-                {
-                    return null;
-                }
+                                    public void commit()
+                                    {
+                                    }
 
-                public UnstoreDataAction rollback(File incomingDataSetDirectory,
-                        File storedDataDirectory, Throwable exception)
-                {
-                    return null;
-                }
+                                    public UnstoreDataAction rollback(Throwable exception)
+                                    {
+                                        return null;
+                                    }
 
-                public StorageFormat getStorageFormat()
-                {
-                    return null;
-                }
+                                    public File getStoredDataDirectory()
+                                    {
+                                        return null;
+                                    }
 
-                public void commit(File incomingDataSetDirectory, File storedDataDirectory)
-                {
+                                    public File tryGetProprietaryData()
+                                    {
+                                        return null;
+                                    }
+                                };
+                        }
 
-                }
+                        public StorageFormat getStorageFormat()
+                                {
+                            return null;
+                        }
             }, handler);
     }
 
     @Override
-    public UnstoreDataAction rollback(final File incomingDataSetDirectory,
-            final File storedDataDirectory, Throwable exception)
+    public IStorageProcessorTransaction createTransaction()
     {
-        super.rollback(incomingDataSetDirectory, storedDataDirectory, exception);
-        return storageProcessorWithUploader.rollback(incomingDataSetDirectory, storedDataDirectory,
-                exception);
+        return new AbstractDelegatingStorageProcessorTransaction(super.createTransaction())
+            {
+
+                private final IStorageProcessorTransaction uploaderTransaction =
+                        storageProcessorWithUploader.createTransaction();
+
+                @Override
+                protected File storeData(DataSetInformation dataSetInformation,
+                        ITypeExtractor typeExtractor, IMailClient mailClient)
+                {
+                    nestedTransaction.storeData(dataSetInformation, typeExtractor, mailClient,
+                            incomingDataSetDirectory, rootDirectory);
+
+                    uploaderTransaction.storeData(dataSetInformation, typeExtractor, mailClient,
+                            incomingDataSetDirectory, rootDirectory);
+
+                    return nestedTransaction.getStoredDataDirectory();
+                }
+
+                @Override
+                protected UnstoreDataAction executeRollback(Throwable ex)
+                {
+                    nestedTransaction.rollback(ex);
+                    return uploaderTransaction.rollback(ex);
+                }
+
+                @Override
+                protected void executeCommit()
+                {
+                    uploaderTransaction.commit();
+                    nestedTransaction.commit();
+                }
+            };
     }
 
-    @Override
-    public void commit(File incomingDataSetDirectory, File storedDataDirectory)
-    {
-        super.commit(incomingDataSetDirectory, storedDataDirectory);
-        storageProcessorWithUploader.commit(incomingDataSetDirectory, storedDataDirectory);
-    }
 }

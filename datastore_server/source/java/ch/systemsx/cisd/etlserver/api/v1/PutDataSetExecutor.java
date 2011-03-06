@@ -42,6 +42,7 @@ import ch.systemsx.cisd.common.io.ConcatenatedFileOutputStreamWriter;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithmRunner;
+import ch.systemsx.cisd.etlserver.DataSetRegistrationHelper;
 import ch.systemsx.cisd.etlserver.DefaultStorageProcessor;
 import ch.systemsx.cisd.etlserver.IDataSetHandler;
 import ch.systemsx.cisd.etlserver.IDataSetHandlerRpc;
@@ -50,9 +51,8 @@ import ch.systemsx.cisd.etlserver.IDataStrategyStore;
 import ch.systemsx.cisd.etlserver.IETLServerPlugin;
 import ch.systemsx.cisd.etlserver.IPostRegistrationAction;
 import ch.systemsx.cisd.etlserver.IPreRegistrationAction;
-import ch.systemsx.cisd.etlserver.IStorageProcessor;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
-import ch.systemsx.cisd.etlserver.DataSetRegistrationHelper;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
@@ -582,7 +582,7 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
         }
 
         @Override
-        protected IStorageProcessor getStorageProcessor()
+        protected IStorageProcessorTransactional getStorageProcessor()
         {
             return plugin.getStorageProcessor();
         }

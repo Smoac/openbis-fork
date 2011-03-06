@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.etlserver;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.Properties;
 
@@ -44,12 +43,16 @@ public class DispatcherStorageProcessorTest extends AssertJUnit
 
     private IDispatchableStorageProcessor dummyA, dummyB;
 
+    private IStorageProcessorTransaction transactionA, transactionB;
+
     @BeforeMethod
     public void beforeMethod()
     {
         context = new Mockery();
         dummyA = context.mock(IDispatchableStorageProcessor.class, "mock A");
+        transactionA = context.mock(IStorageProcessorTransaction.class, "transaction A");
         dummyB = context.mock(IDispatchableStorageProcessor.class, "mock B");
+        transactionB = context.mock(IStorageProcessorTransaction.class, "transaction B");
     }
 
     @AfterMethod
@@ -74,15 +77,21 @@ public class DispatcherStorageProcessorTest extends AssertJUnit
 
                     one(dummyB).accepts(dataset1, null);
                     will(returnValue(true));
-                    store(one(dummyB), dataset1);
-                    one(dummyB).commit(null, null);
+
+                    one(dummyB).createTransaction();
+                    will(returnValue(transactionB));
+
+                    store(one(transactionB), dataset1);
+                    one(transactionB).commit();
 
                     one(dummyA).accepts(dataset2, null);
                     will(returnValue(true));
-                    store(one(dummyA), dataset2);
                     
-                    one(dummyA).rollback(with(aNull(File.class)), with(aNull(File.class)),
-                            with(any(Throwable.class)));
+                    one(dummyA).createTransaction();
+                    will(returnValue(transactionA));
+                    store(one(transactionA), dataset2);
+
+                    one(transactionA).rollback(with(any(Throwable.class)));
                 }
             });
 
@@ -90,66 +99,11 @@ public class DispatcherStorageProcessorTest extends AssertJUnit
         storeTransactionally(dispatcher, dataset2).rollback(new Throwable());
     }
 
-    @Test
-    public void testStateErrorsAfterCommit()
-    {
-        DispatcherStorageProcessor dispatcher =
-                new DispatcherStorageProcessor(Arrays.asList(dummyA, dummyB), new Properties());
 
-        final DataSetInformation dataset1 = createDatasetInfo("a");
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(dummyA).accepts(dataset1, null);
-                    will(returnValue(true));
-
-                    store(allowing(dummyA), dataset1);
-                    commit(one(dummyA));
-                    one(dummyA).rollback(with(aNull(File.class)), with(aNull(File.class)),
-                            with(any(Throwable.class)));
-                }
-            });
-
-        IStorageProcessorTransaction transaction1 = storeTransactionally(dispatcher, dataset1);
-        transaction1.commit();
-        assertTransactionNotUsable(transaction1);
-
-        IStorageProcessorTransaction transaction2 = storeTransactionally(dispatcher, dataset1);
-        transaction2.rollback(new Throwable());
-        assertTransactionNotUsable(transaction2);
-    }
-
-    private void assertTransactionNotUsable(IStorageProcessorTransaction transaction)
-    {
-        String failMessage = "Transaction should not be usable after commit or rollback.";
-        try
-        {
-            transaction.rollback(new Throwable());
-            fail(failMessage);
-        } catch (IllegalStateException ex)
-        {
-            // test passed
-        }
-
-        try
-        {
-            transaction.commit();
-            fail(failMessage);
-        } catch (IllegalStateException ex)
-        {
-            // test passed
-        }
-    }
-
-    private void commit(IStorageProcessor storageProcessor)
-    {
-        storageProcessor.commit(null, null);
-    }
-
-    private void store(IStorageProcessor storageProcessor,
+    private void store(IStorageProcessorTransaction transaction,
             final DataSetInformation dataset)
     {
-        storageProcessor.storeData(dataset, null, null, null, null);
+        transaction.storeData(dataset, null, null, null, null);
     }
 
     private IStorageProcessorTransaction storeTransactionally(

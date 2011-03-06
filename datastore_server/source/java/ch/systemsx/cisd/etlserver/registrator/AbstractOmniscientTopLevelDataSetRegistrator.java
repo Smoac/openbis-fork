@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.etlserver.registrator;
 
-import static ch.systemsx.cisd.etlserver.IStorageProcessor.STORAGE_PROCESSOR_KEY;
+import static ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.STORAGE_PROCESSOR_KEY;
 
 import java.io.File;
 import java.util.concurrent.locks.Lock;
@@ -39,7 +39,7 @@ import ch.systemsx.cisd.etlserver.DataStrategyStore;
 import ch.systemsx.cisd.etlserver.IDataStrategyStore;
 import ch.systemsx.cisd.etlserver.IPostRegistrationAction;
 import ch.systemsx.cisd.etlserver.IPreRegistrationAction;
-import ch.systemsx.cisd.etlserver.IStorageProcessor;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.PropertiesBasedETLServerPlugin;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
@@ -73,7 +73,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
     {
         private final TopLevelDataSetRegistratorGlobalState globalState;
 
-        private final IStorageProcessor storageProcessor;
+        private final IStorageProcessorTransactional storageProcessor;
 
         private final ReentrantLock registrationLock;
 
@@ -91,7 +91,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
 
         private OmniscientTopLevelDataSetRegistratorState(
                 TopLevelDataSetRegistratorGlobalState globalState,
-                IStorageProcessor storageProcessor, ReentrantLock registrationLock,
+                IStorageProcessorTransactional storageProcessor, ReentrantLock registrationLock,
                 IFileOperations fileOperations)
         {
             this.globalState = globalState;
@@ -116,7 +116,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             return globalState;
         }
 
-        public IStorageProcessor getStorageProcessor()
+        public IStorageProcessorTransactional getStorageProcessor()
         {
             return storageProcessor;
         }
@@ -171,9 +171,10 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
     {
         super(globalState);
 
-        IStorageProcessor storageProcessor =
-                PropertiesBasedETLServerPlugin.create(IStorageProcessor.class, globalState
-                        .getThreadParameters().getThreadProperties(), STORAGE_PROCESSOR_KEY, true);
+        IStorageProcessorTransactional storageProcessor =
+                PropertiesBasedETLServerPlugin.create(IStorageProcessorTransactional.class,
+                        globalState.getThreadParameters().getThreadProperties(),
+                        STORAGE_PROCESSOR_KEY, true);
         storageProcessor.setStoreRootDirectory(globalState.getStoreRootDir());
 
         state =

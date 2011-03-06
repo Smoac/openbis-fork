@@ -49,7 +49,7 @@ import ch.systemsx.cisd.etlserver.DefaultDataSetInfoExtractor;
 import ch.systemsx.cisd.etlserver.DefaultStorageProcessor;
 import ch.systemsx.cisd.etlserver.ETLServerPlugin;
 import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
-import ch.systemsx.cisd.etlserver.IStorageProcessor;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.etlserver.SimpleTypeExtractor;
 import ch.systemsx.cisd.etlserver.api.v1.PutDataSetService;
@@ -122,7 +122,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
 
     private ITypeExtractor typeExtractor;
 
-    private IStorageProcessor storageProcessor;
+    private IStorageProcessorTransactional storageProcessor;
 
     private IDataSetValidator validator;
 

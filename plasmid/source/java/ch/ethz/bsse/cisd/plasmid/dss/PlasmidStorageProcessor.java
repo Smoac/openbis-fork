@@ -31,6 +31,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessor;
+import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
@@ -89,41 +90,64 @@ public class PlasmidStorageProcessor extends AbstractDelegatingStorageProcessor
     }
 
     @Override
-    public File storeData(final DataSetInformation dataSetInformation,
-            final ITypeExtractor typeExtractor, final IMailClient mailClient,
-            final File incomingDataSetDirectory, final File rootDir)
+    public IStorageProcessorTransaction createTransaction()
     {
-        File answer =
-                super.storeData(dataSetInformation, typeExtractor, mailClient,
-                        incomingDataSetDirectory, rootDir);
-        if (typeExtractor.getDataSetType(incomingDataSetDirectory).getCode().equals(
-                DataSetTypeOracle.DataSetTypeInfo.SEQ_FILE.name()))
-        {
-            File originalDir = new File(answer, ORIGINAL_DIR);
-            File[] files = originalDir.listFiles();
-            assert files.length == 1;
-            File seqFile = files[0];
-
-            String baseFileName = FilenameUtils.getBaseName(seqFile.getName());
-            String pngFileName = baseFileName + PNG_FILE_EXTENSION;
-            String gbFileName = baseFileName + GB_FILE_EXTENSION;
-
-            File generatedDir = new File(answer, GENERATED_DIR);
-            if (generatedDir.mkdir())
+        return new AbstractDelegatingStorageProcessorTransaction(super.createTransaction())
             {
-                final File pngFileDest = new File(generatedDir, pngFileName);
-                final File gbFileDest = new File(generatedDir, gbFileName);
 
-                operationLog.info("Uploading '" + seqFile.getName() + "' to PlasMapper.");
-                uploadAndCopyGeneratedFile(seqFile, PlasMapperService.GRAPHIC_MAP, pngFileDest);
-                uploadAndCopyGeneratedFile(seqFile, PlasMapperService.GENEBANK_OUTPUT, gbFileDest);
-            } else
-            {
-                throw new EnvironmentFailureException("Couldn't create directory '" + generatedDir
-                        + "'.");
-            }
-        }
-        return answer;
+                @Override
+                protected File storeData(DataSetInformation dataSetInformation,
+                        ITypeExtractor typeExtractor, IMailClient mailClient)
+                {
+                    nestedTransaction.storeData(dataSetInformation, typeExtractor, mailClient,
+                            incomingDataSetDirectory, rootDirectory);
+                    File answer = nestedTransaction.getStoredDataDirectory();
+
+                    if (typeExtractor.getDataSetType(incomingDataSetDirectory).getCode()
+                            .equals(DataSetTypeOracle.DataSetTypeInfo.SEQ_FILE.name()))
+                    {
+                        File originalDir = new File(answer, ORIGINAL_DIR);
+                        File[] files = originalDir.listFiles();
+                        assert files.length == 1;
+                        File seqFile = files[0];
+
+                        String baseFileName = FilenameUtils.getBaseName(seqFile.getName());
+                        String pngFileName = baseFileName + PNG_FILE_EXTENSION;
+                        String gbFileName = baseFileName + GB_FILE_EXTENSION;
+
+                        File generatedDir = new File(answer, GENERATED_DIR);
+                        if (generatedDir.mkdir())
+                        {
+                            final File pngFileDest = new File(generatedDir, pngFileName);
+                            final File gbFileDest = new File(generatedDir, gbFileName);
+
+                            operationLog.info("Uploading '" + seqFile.getName()
+                                    + "' to PlasMapper.");
+                            uploadAndCopyGeneratedFile(seqFile, PlasMapperService.GRAPHIC_MAP,
+                                    pngFileDest);
+                            uploadAndCopyGeneratedFile(seqFile, PlasMapperService.GENEBANK_OUTPUT,
+                                    gbFileDest);
+                        } else
+                        {
+                            throw new EnvironmentFailureException("Couldn't create directory '"
+                                    + generatedDir + "'.");
+                        }
+                    }
+                    return answer;
+                }
+
+                @Override
+                protected UnstoreDataAction executeRollback(Throwable ex)
+                {
+                    return nestedTransaction.rollback(ex);
+                }
+
+                @Override
+                protected void executeCommit()
+                {
+                    nestedTransaction.commit();
+                }
+            };
     }
 
     // WORKAROUND cannot move the file because it is on a different filesystem

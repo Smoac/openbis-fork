@@ -43,8 +43,8 @@ import ch.systemsx.cisd.bds.IDataStructure;
 import ch.systemsx.cisd.bds.Sample;
 import ch.systemsx.cisd.bds.UnknownFormatV1_0;
 import ch.systemsx.cisd.bds.Utilities;
-import ch.systemsx.cisd.bds.Version;
 import ch.systemsx.cisd.bds.Utilities.Boolean;
+import ch.systemsx.cisd.bds.Version;
 import ch.systemsx.cisd.bds.hcs.Channel;
 import ch.systemsx.cisd.bds.hcs.HCSImageFormatV1_0;
 import ch.systemsx.cisd.bds.hcs.Location;
@@ -59,6 +59,7 @@ import ch.systemsx.cisd.common.filesystem.SoftLinkMaker;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
@@ -362,7 +363,7 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
     {
         final Properties properties = createProperties(UnknownFormatV1_0.UNKNOWN_1_0);
         properties.setProperty(HCSImageFormatV1_0.IS_INCOMING_SYMBOLIC_LINK, "true");
-        final BDSStorageProcessor storageProcessor = new BDSStorageProcessor(properties);
+        final IStorageProcessorTransaction storageProcessor = createTransaction(properties);
 
         final File orgData = new File(workingDirectory, "org-data.txt");
         FileUtilities.writeToFile(orgData, "hello!");
@@ -397,7 +398,7 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
     public final void testStoreData(final Format format) throws Exception
     {
         final Properties properties = createProperties(format);
-        final BDSStorageProcessor storageProcessor = new BDSStorageProcessor(properties);
+        final IStorageProcessorTransaction storageProcessor = createTransaction(properties);
         assertEquals(0, workingDirectory.list().length);
         final File incomingDataSetDirectory = createOriginalDataInDir();
         assertEquals(true, incomingDataSetDirectory.exists());
@@ -447,11 +448,12 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
-    private File storeData(final BDSStorageProcessor storageProcessor,
+    private File storeData(final IStorageProcessorTransaction transaction,
             final File incomingDataSetDirectory, final DataSetInformation dataSetInformation)
     {
-        return storageProcessor.storeData(dataSetInformation, TYPE_EXTRACTOR, mailClient,
+        transaction.storeData(dataSetInformation, TYPE_EXTRACTOR, mailClient,
                 incomingDataSetDirectory, getStoreDir());
+        return transaction.getStoredDataDirectory();
     }
 
     private File getStoreDir()
@@ -463,7 +465,8 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
     public final void testUnstoreData(final Format format) throws Exception
     {
         final Properties properties = createProperties(format);
-        final BDSStorageProcessor storageAdapter = new BDSStorageProcessor(properties);
+        final IStorageProcessorTransaction transaction = createTransaction(properties);
+
         assertEquals(0, workingDirectory.list().length);
         final File incomingDirectoryData = createOriginalDataInDir();
         // incoming/NEMO.EXP1==CP001A-3AB in 'workingDirectory'
@@ -474,32 +477,36 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
         // NEMO.EXP1==CP001A-3AB in 'workingDirectory'
         prepareMailClient(format);
         final File storeRootDir = getStoreDir();
-        final File dataStore =
-                storageAdapter.storeData(dataSetInformation, TYPE_EXTRACTOR, mailClient,
+        transaction.storeData(dataSetInformation, TYPE_EXTRACTOR, mailClient,
                         incomingDirectoryData, storeRootDir);
+        File dataStore = transaction.getStoredDataDirectory();
         assertEquals(true, dataStore.isDirectory());
         assertEquals(false, incomingDirectoryData.exists());
-        storageAdapter.rollback(incomingDirectoryData, storeRootDir, null);
+        transaction.rollback(null);
         assertEquals(false, dataStore.exists());
         assertEquals(true, incomingDirectoryData.isDirectory());
 
         context.assertIsSatisfied();
     }
 
+    private IStorageProcessorTransaction createTransaction(final Properties properties)
+    {
+        return new BDSStorageProcessor(properties).createTransaction();
+    }
+
     @Test(dataProvider = "formatProvider")
     public void testTryToGetOriginalData(final Format format) throws Exception
     {
         final Properties properties = createProperties(format);
-        final BDSStorageProcessor storageProcessor = new BDSStorageProcessor(properties);
+        final IStorageProcessorTransaction transaction = createTransaction(properties);
         final File incomingDirectoryData = createOriginalDataInDir();
         final ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample baseSample = createSample();
         final DataSetInformation dataSetInformation = createDataSetInformation();
         dataSetInformation.setSample(baseSample);
         prepareMailClient(format);
-        final File storeData =
-                storageProcessor.storeData(dataSetInformation, TYPE_EXTRACTOR, mailClient,
+        transaction.storeData(dataSetInformation, TYPE_EXTRACTOR, mailClient,
                         incomingDirectoryData, workingDirectory);
-        final File originalDataSet = storageProcessor.tryGetProprietaryData(storeData);
+        final File originalDataSet = transaction.tryGetProprietaryData();
         assertNotNull(originalDataSet);
         assertEquals(INCOMING_DATA_SET_DIR, originalDataSet.getName());
         assertEquals(true, originalDataSet.isDirectory());
@@ -520,17 +527,16 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
     {
         final Properties properties = createProperties(HCSImageFormatV1_0.HCS_IMAGE_1_0);
         properties.setProperty(CONTAINS_ORIGINAL_DATA_KEY, Utilities.Boolean.FALSE.toString());
-        final BDSStorageProcessor storageProcessor = new BDSStorageProcessor(properties);
+        final IStorageProcessorTransaction transaction = createTransaction(properties);
         final File incomingDirectoryData = createOriginalDataInDir();
         final ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample baseSample = createSample();
         final DataSetInformation dataSetInformation = createDataSetInformation();
         dataSetInformation.setSample(baseSample);
         prepareMailClient(HCSImageFormatV1_0.HCS_IMAGE_1_0);
-        final File storeData =
-                storageProcessor.storeData(dataSetInformation, TYPE_EXTRACTOR, mailClient,
-                        incomingDirectoryData, workingDirectory);
+        transaction.storeData(dataSetInformation, TYPE_EXTRACTOR, mailClient,
+                incomingDirectoryData, workingDirectory);
         logRecorder.resetLogContent();
-        final File originalDataSet = storageProcessor.tryGetProprietaryData(storeData);
+        final File originalDataSet = transaction.tryGetProprietaryData();
         assertEquals(null, originalDataSet);
         assertEquals("WARN  OPERATION.BDSStorageProcessor - " + "Original data are not available.",
                 logRecorder.getLogContent());

@@ -79,7 +79,7 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
 
     private final ITypeExtractor typeExtractor;
 
-    private final IStorageProcessor storageProcessor;
+    private final IStorageProcessorTransactional storageProcessor;
 
     private final IMailClient mailClient;
 
@@ -390,7 +390,7 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
         }
 
         @Override
-        protected IStorageProcessor getStorageProcessor()
+        protected IStorageProcessorTransactional getStorageProcessor()
         {
             return storageProcessor;
         }

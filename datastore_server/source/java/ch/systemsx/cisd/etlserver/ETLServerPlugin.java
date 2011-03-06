@@ -29,13 +29,14 @@ public class ETLServerPlugin implements IETLServerPlugin
 
     private final ITypeExtractor typeExtractor;
 
-    private final IStorageProcessor storageProcessor;
+    private final IStorageProcessorTransactional storageProcessor;
 
     /**
      * Creates an instance with the specified extractors.
      */
     public ETLServerPlugin(final IDataSetInfoExtractor codeExtractor,
-            final ITypeExtractor typeExtractor, final IStorageProcessor storageProcessor)
+            final ITypeExtractor typeExtractor,
+            final IStorageProcessorTransactional storageProcessor)
     {
         assert codeExtractor != null : "Missing code extractor";
         assert typeExtractor != null : "Missing type extractor";
@@ -60,7 +61,7 @@ public class ETLServerPlugin implements IETLServerPlugin
         return typeExtractor;
     }
 
-    public final IStorageProcessor getStorageProcessor()
+    public final IStorageProcessorTransactional getStorageProcessor()
     {
         return storageProcessor;
     }

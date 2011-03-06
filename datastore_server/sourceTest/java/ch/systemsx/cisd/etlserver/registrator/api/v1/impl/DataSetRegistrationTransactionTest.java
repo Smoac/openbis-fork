@@ -37,7 +37,7 @@ import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
-import ch.systemsx.cisd.etlserver.IStorageProcessor;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.etlserver.ThreadParameters;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
@@ -292,7 +292,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         threadProperties.put(ThreadParameters.INCOMING_DATA_COMPLETENESS_CONDITION,
                 ThreadParameters.INCOMING_DATA_COMPLETENESS_CONDITION_MARKER_FILE);
         threadProperties.put(ThreadParameters.DELETE_UNIDENTIFIED_KEY, "false");
-        threadProperties.put(IStorageProcessor.STORAGE_PROCESSOR_KEY,
+        threadProperties.put(IStorageProcessorTransactional.STORAGE_PROCESSOR_KEY,
                 MockStorageProcessor.class.getName());
         return threadProperties;
     }
@@ -386,7 +386,8 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
             });
     }
 
-    public static final class MockStorageProcessor implements IStorageProcessor
+    // TODO KE: unify this mock with the one in JythonTopLevelDataSetRegistratorTest
+    public static final class MockStorageProcessor implements IStorageProcessorTransactional
     {
         static MockStorageProcessor instance;
 
@@ -416,47 +417,61 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
             this.storeRootDirectory = storeRootDirectory;
         }
 
-        public File storeData(DataSetInformation dataSetInformation, ITypeExtractor typeExtractor,
-                IMailClient mailClient, File incomingDataSet, File rootDir)
-        {
-            calledStoreDataCount++;
-            dataSetInfoString = dataSetInformation.toString();
-            try
-            {
-                if (incomingDataSet.isDirectory())
-                {
-                    FileUtils.copyDirectory(incomingDataSet, rootDir);
-                } else
-                {
-                    FileUtils.copyFileToDirectory(incomingDataSet, rootDir);
-                }
-            } catch (IOException ex)
-            {
-                ex.printStackTrace();
-                throw new IOExceptionUnchecked(ex);
-            }
-            return new File(rootDir, incomingDataSet.getName());
-        }
-
-        public void commit(File incomingDataSetDirectory, File storedDataDirectory)
-        {
-            calledCommitCount++;
-        }
-
-        public UnstoreDataAction rollback(File incomingDataSetDirectory, File storedDataDirectory,
-                Throwable exception)
-        {
-            return null;
-        }
-
         public StorageFormat getStorageFormat()
         {
             return StorageFormat.PROPRIETARY;
         }
 
-        public File tryGetProprietaryData(File storedDataDirectory)
+        public IStorageProcessorTransaction createTransaction()
         {
-            return null;
+            return new IStorageProcessorTransaction()
+                {
+                    private File storedFile;
+
+
+                    public void storeData(DataSetInformation dataSetInformation,
+                            ITypeExtractor typeExtractor, IMailClient mailClient,
+                            File incomingDataSetDirectory, File rootDir)
+                    {
+                        calledStoreDataCount++;
+                        dataSetInfoString = dataSetInformation.toString();
+                        try
+                        {
+                            if (incomingDataSetDirectory.isDirectory())
+                            {
+                                FileUtils.copyDirectory(incomingDataSetDirectory, rootDir);
+                            } else
+                            {
+                                FileUtils.copyFileToDirectory(incomingDataSetDirectory, rootDir);
+                            }
+                        } catch (IOException ex)
+                        {
+                            ex.printStackTrace();
+                            throw new IOExceptionUnchecked(ex);
+                        }
+                        storedFile = new File(rootDir, incomingDataSetDirectory.getName());
+                    }
+
+                    public UnstoreDataAction rollback(Throwable exception)
+                    {
+                        return null;
+                    }
+
+                    public File getStoredDataDirectory()
+                    {
+                        return storedFile;
+                    }
+
+                    public void commit()
+                    {
+                        calledCommitCount++;
+                    }
+
+                    public File tryGetProprietaryData()
+                    {
+                        return null;
+                    }
+                };
         }
     }
 

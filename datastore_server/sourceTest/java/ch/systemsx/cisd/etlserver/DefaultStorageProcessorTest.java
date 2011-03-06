@@ -21,10 +21,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
@@ -40,29 +42,23 @@ public final class DefaultStorageProcessorTest extends AbstractFileSystemTestCas
 
     private final static ITypeExtractor TYPE_EXTRACTOR = new TestProcedureAndDataTypeExtractor();
 
-    private final DefaultStorageProcessor createStorageProcessor()
-    {
-        final Properties properties = new Properties();
-        final DefaultStorageProcessor storageProcessor = new DefaultStorageProcessor(properties);
-        storageProcessor.setStoreRootDirectory(workingDirectory);
-        return storageProcessor;
-    }
+    private DefaultStorageProcessor storageProcessor = createStorageProcessor();
 
-    private File createDirectory(final String directoryName)
+    private IStorageProcessorTransaction transaction;
+
+    @BeforeMethod
+    public void init()
     {
-        final File file = new File(workingDirectory, directoryName);
-        file.mkdir();
-        assertEquals(true, file.isDirectory());
-        return file;
+        transaction = storageProcessor.createTransaction();
+        storageProcessor = createStorageProcessor();
     }
 
     @Test
     public final void testStoreData()
     {
-        final DefaultStorageProcessor storageProcessor = createStorageProcessor();
         try
         {
-            storageProcessor.storeData(null, null, null, null, null);
+            transaction.storeData(null, null, null, null, null);
             fail("Null values not accepted");
         } catch (final AssertionError e)
         {
@@ -71,9 +67,8 @@ public final class DefaultStorageProcessorTest extends AbstractFileSystemTestCas
         final File incomingDataSetDirectory = createDirectory("incoming");
         FileUtilities.writeToFile(new File(incomingDataSetDirectory, "read.me"), "hello world");
         final File rootDir = createDirectory("root");
-        final File storeData =
-                storageProcessor.storeData(null, TYPE_EXTRACTOR, null, incomingDataSetDirectory,
-                        rootDir);
+        transaction.storeData(null, TYPE_EXTRACTOR, null, incomingDataSetDirectory, rootDir);
+        final File storeData = transaction.getStoredDataDirectory();
         assertEquals(false, incomingDataSetDirectory.exists());
         assertEquals(true, storeData.isDirectory());
         assertEquals(rootDir.getAbsolutePath(), storeData.getAbsolutePath());
@@ -85,7 +80,6 @@ public final class DefaultStorageProcessorTest extends AbstractFileSystemTestCas
     @Test
     public final void testGetStoreRootDirectory()
     {
-        DefaultStorageProcessor storageProcessor = createStorageProcessor();
         File storeRootDirectory = storageProcessor.getStoreRootDirectory();
         assertEquals(workingDirectory.getAbsolutePath(), storeRootDirectory.getAbsolutePath());
     }
@@ -93,10 +87,9 @@ public final class DefaultStorageProcessorTest extends AbstractFileSystemTestCas
     @Test
     public final void testUnstoreData()
     {
-        final DefaultStorageProcessor storageProcessor = createStorageProcessor();
         try
         {
-            storageProcessor.rollback(null, null, null);
+            transaction.rollback(null);
             fail("Null values not accepted");
         } catch (final AssertionError e)
         {
@@ -106,14 +99,30 @@ public final class DefaultStorageProcessorTest extends AbstractFileSystemTestCas
         final File incomingDataSetDirectory = createDirectory("incoming");
         File readMeFile = new File(incomingDataSetDirectory, "read.me");
         FileUtilities.writeToFile(readMeFile, "hi");
-        final File storeData =
-                storageProcessor.storeData(null, TYPE_EXTRACTOR, null, incomingDataSetDirectory,
+        transaction.storeData(null, TYPE_EXTRACTOR, null, incomingDataSetDirectory,
                         root);
+        final File storeData = transaction.getStoredDataDirectory();
         assertEquals(true, storeData.exists());
         assertEquals(false, incomingDataSetDirectory.exists());
-        storageProcessor.rollback(incomingDataSetDirectory, root, null);
+        transaction.rollback(null);
         assertEquals(true, incomingDataSetDirectory.exists());
         assertEquals("hi", FileUtilities.loadToString(readMeFile).trim());
+    }
+
+    private final DefaultStorageProcessor createStorageProcessor()
+    {
+        final Properties properties = new Properties();
+        final DefaultStorageProcessor result = new DefaultStorageProcessor(properties);
+        result.setStoreRootDirectory(workingDirectory);
+        return result;
+    }
+
+    private File createDirectory(final String directoryName)
+    {
+        final File file = new File(workingDirectory, directoryName);
+        file.mkdir();
+        assertEquals(true, file.isDirectory());
+        return file;
     }
 
     //

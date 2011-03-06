@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
  * Storage processor which uses an {@link IDataSetUploader} after data set has been stored by a
- * wrapped {@link IStorageProcessor}.
+ * wrapped {@link IStorageProcessorTransactional}.
  * 
  * @author Franz-Josef Elmer
  */
@@ -34,7 +34,7 @@ public abstract class AbstractStrorageProcessorWithUploader extends
 {
     private final IDataSetUploader uploader;
 
-    public AbstractStrorageProcessorWithUploader(IStorageProcessor processor,
+    public AbstractStrorageProcessorWithUploader(IStorageProcessorTransactional processor,
             IDataSetUploader uploader)
     {
         super(processor);
@@ -52,44 +52,55 @@ public abstract class AbstractStrorageProcessorWithUploader extends
     }
 
     @Override
-    public File storeData(final DataSetInformation dataSetInformation,
-            final ITypeExtractor typeExtractor, final IMailClient mailClient,
-            final File incomingDataSetDirectory, final File rootDir)
+    public IStorageProcessorTransaction createTransaction()
     {
-        File storeData =
-                super.storeData(dataSetInformation, typeExtractor, mailClient,
-                        incomingDataSetDirectory, rootDir);
-        File originalData = super.tryGetProprietaryData(storeData);
-        if (originalData == null)
-        {
-            throw new ConfigurationFailureException(
-                    "The original data is no longer available by the wrapped storage processor. "
-                            + "Another storage processor should be used.");
-        }
-        uploader.upload(originalData, dataSetInformation);
-        return storeData;
-    }
+        IStorageProcessorTransaction nestedTransaction = super.createTransaction();
 
-    @Override
-    public UnstoreDataAction rollback(final File incomingDataSetDirectory,
-            final File storedDataDirectory, Throwable exception)
-    {
-        try
-        {
-            super.rollback(incomingDataSetDirectory, storedDataDirectory, exception);
-        } finally
-        {
-            uploader.rollback();
-        }
-        logDataSetFileError(incomingDataSetDirectory, exception);
-        return UnstoreDataAction.LEAVE_UNTOUCHED;
-    }
+        return new AbstractDelegatingStorageProcessorTransaction(nestedTransaction)
+            {
 
-    @Override
-    public void commit(File incomingDataSetDirectory, File storedDataDirectory)
-    {
-        super.commit(incomingDataSetDirectory, storedDataDirectory);
-        uploader.commit();
+                @Override
+                protected File storeData(DataSetInformation dataSetInformation,
+                        ITypeExtractor typeExtractor, IMailClient mailClient)
+                {
+
+                    nestedTransaction.storeData(dataSetInformation, typeExtractor, mailClient,
+                            incomingDataSetDirectory, rootDirectory);
+                    File storeData = nestedTransaction.getStoredDataDirectory();
+                    File originalData = nestedTransaction.tryGetProprietaryData();
+                    if (originalData == null)
+                    {
+                        throw new ConfigurationFailureException(
+                                "The original data is no longer available by the wrapped storage processor. "
+                                        + "Another storage processor should be used.");
+                    }
+                    uploader.upload(originalData, dataSetInformation);
+                    return storeData;
+                }
+
+                @Override
+                public UnstoreDataAction executeRollback(Throwable exception)
+                {
+                    try
+                    {
+                        nestedTransaction.rollback(exception);
+                    } finally
+                    {
+                        uploader.rollback();
+                    }
+                    logDataSetFileError(incomingDataSetDirectory, exception);
+                    return UnstoreDataAction.LEAVE_UNTOUCHED;
+                }
+
+                @Override
+                public void executeCommit()
+                {
+                    nestedTransaction.commit();
+                    uploader.commit();
+                }
+
+            };
+
     }
 
     /**

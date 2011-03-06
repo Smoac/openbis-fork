@@ -27,8 +27,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IPostRegistrationDatasetHandl
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
- * Storage processor which delegates to a wrapped {@link IStorageProcessor}. In addition a
- * {@link IPostRegistrationDatasetHandler} handles the data set.
+ * Storage processor which delegates to a wrapped {@link IStorageProcessorTransactional}. In
+ * addition a {@link IPostRegistrationDatasetHandler} handles the data set.
  * <p>
  * The processor uses following properties: {@link #DELEGATE_PROCESSOR_CLASS_PROPERTY}. All the
  * properties are also passed for the default processor.
@@ -54,7 +54,7 @@ public class DelegatingStorageProcessorWithDropbox extends AbstractDelegatingSto
     @Private
     DelegatingStorageProcessorWithDropbox(Properties properties,
             IPostRegistrationDatasetHandler dropboxHandler,
-            IStorageProcessor delegateStorageProcessor, IFileOperations fileOperations)
+            IStorageProcessorTransactional delegateStorageProcessor, IFileOperations fileOperations)
     {
         super(delegateStorageProcessor);
         this.dropboxHandler = dropboxHandler;
@@ -65,23 +65,37 @@ public class DelegatingStorageProcessorWithDropbox extends AbstractDelegatingSto
     //
 
     @Override
-    public final File storeData(final DataSetInformation dataSetInformation,
-            final ITypeExtractor typeExtractor, final IMailClient mailClient,
-            final File incomingDataSetDirectory, final File rootDir)
+    public IStorageProcessorTransaction createTransaction()
     {
-        File storeData =
-                super.storeData(dataSetInformation, typeExtractor, mailClient,
-                        incomingDataSetDirectory, rootDir);
-        File originalData = super.tryGetProprietaryData(storeData);
-        dropboxHandler.handle(originalData, dataSetInformation, null);
-        return storeData;
+        return new AbstractDelegatingStorageProcessorTransaction(super.createTransaction())
+            {
+
+                @Override
+                protected File storeData(DataSetInformation dataSetInformation,
+                        ITypeExtractor typeExtractor, IMailClient mailClient)
+                {
+                    nestedTransaction.storeData(dataSetInformation, typeExtractor, mailClient,
+                            incomingDataSetDirectory, rootDirectory);
+                    File originalData = nestedTransaction.tryGetProprietaryData();
+                    dropboxHandler.handle(originalData, dataSetInformation, null);
+                    return nestedTransaction.getStoredDataDirectory();
+                }
+
+                @Override
+                protected void executeCommit()
+                {
+                    nestedTransaction.commit();
+                }
+
+                @Override
+                protected UnstoreDataAction executeRollback(Throwable ex)
+                {
+                    // TODO KE : is this correct ?
+                    dropboxHandler.undoLastOperation();
+                    return nestedTransaction.rollback(ex);
+                }
+
+            };
     }
 
-    @Override
-    public UnstoreDataAction rollback(final File incomingDataSetDirectory,
-            final File storedDataDirectory, Throwable exception)
-    {
-        dropboxHandler.undoLastOperation();
-        return super.rollback(incomingDataSetDirectory, storedDataDirectory, exception);
-    }
 }

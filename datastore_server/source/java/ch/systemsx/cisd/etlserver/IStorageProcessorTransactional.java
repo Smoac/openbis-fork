@@ -20,14 +20,38 @@ import java.io.File;
 
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 
 /**
  * A storage processor that returns an object with the state necessary to commit or rollback.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public interface IStorageProcessorTransactional extends IStorageProcessor
+public interface IStorageProcessorTransactional extends IStoreRootDirectoryHolder
 {
+    /** Properties key prefix to find the {@link IStorageProcessorTransactional} implementation. */
+    public static final String STORAGE_PROCESSOR_KEY = "storage-processor";
+
+    /**
+     * Instructs the dataset handler what to do with the data in incoming directory if there was an
+     * error during registration in openbis.
+     */
+    public enum UnstoreDataAction
+    {
+        /**
+         * moved the data to the error directory
+         */
+        MOVE_TO_ERROR,
+        /**
+         * leave the data in the incoming directory
+         */
+        LEAVE_UNTOUCHED,
+        /**
+         * delete the data from the incoming directory
+         */
+        DELETE
+    }
+
     public static interface IStorageProcessorTransaction
     {
         /**
@@ -81,12 +105,25 @@ public interface IStorageProcessorTransactional extends IStorageProcessor
          * Returns the directory where the data set is stored.
          */
         public File getStoredDataDirectory();
+
+        /**
+         * Returns the data set in the original proprietary format (before being processed) if
+         * available, or <code>null</code>, if the original data set is no longer available.
+         * <p>
+         * <strong>Consider the data in the returned file / directory read only!</strong>
+         */
+        public File tryGetProprietaryData();
     }
 
     /**
      * Create a new {@link IStorageProcessorTransaction} object.
      */
     public IStorageProcessorTransaction createTransaction();
+
+    /**
+     * Returns the format that this storage processor is storing data sets in.
+     */
+    public StorageFormat getStorageFormat();
 
 
 }

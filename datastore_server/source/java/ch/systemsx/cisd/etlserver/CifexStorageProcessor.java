@@ -50,6 +50,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  */
 public class CifexStorageProcessor extends AbstractDelegatingStorageProcessor
 {
+
     private final static Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
             CifexStorageProcessor.class);
 
@@ -61,14 +62,6 @@ public class CifexStorageProcessor extends AbstractDelegatingStorageProcessor
 
     private final boolean moveToErrorFolder;
 
-    private File dirToRestore;
-
-    private File fileToMove;
-
-    private boolean dirDeleted = false;
-
-    private File newIncomingDataSetDirectory;
-
     public CifexStorageProcessor(Properties properties)
     {
         super(properties);
@@ -77,104 +70,133 @@ public class CifexStorageProcessor extends AbstractDelegatingStorageProcessor
     }
 
     @Override
-    public File storeData(DataSetInformation dataSetInformation, ITypeExtractor typeExtractor,
-            IMailClient mailClient, File incomingDataSetDirectory, File rootDir)
+    public IStorageProcessorTransaction createTransaction()
     {
-        newIncomingDataSetDirectory = incomingDataSetDirectory;
-        if (StringUtils.isBlank(keepFileRegex) == false)
-        {
-            newIncomingDataSetDirectory = clean(incomingDataSetDirectory, keepFileRegex);
-        }
-        return super.storeData(dataSetInformation, typeExtractor, mailClient,
-                newIncomingDataSetDirectory, rootDir);
+
+        return new CifexStorageProcessorTransaction(super.createTransaction());
+
     }
 
-    @Override
-    public UnstoreDataAction rollback(File incomingDataSetDirectory, File storedDataDirectory,
-            Throwable exception)
+    private final class CifexStorageProcessorTransaction extends
+            AbstractDelegatingStorageProcessorTransaction
     {
-        super.rollback(newIncomingDataSetDirectory, storedDataDirectory, exception);
-        if (dirDeleted)
-        {
-            FileOperations.getMonitoredInstanceForCurrentThread().mkdir(dirToRestore);
-            FileOperations.getMonitoredInstanceForCurrentThread().moveToDirectory(fileToMove,
-                    dirToRestore);
-        }
-        return moveToErrorFolder ? UnstoreDataAction.MOVE_TO_ERROR : UnstoreDataAction.DELETE;
-    }
+        private File dirToRestore;
 
-    @Private
-    public File clean(File dir, String pattern)
-    {
-        assert dir != null;
-        if (StringUtils.isBlank(pattern) || dir.isDirectory() == false)
+        private File fileToMove;
+
+        private boolean dirDeleted = false;
+
+        private CifexStorageProcessorTransaction(IStorageProcessorTransaction transaction)
         {
-            return dir;
+            super(transaction);
         }
-        FileFilter filter = new RegexFileFilter(pattern);
-        List<File> matchingFiles = Arrays.asList(dir.listFiles(filter));
-        File newDataDir = dir;
-        try
+
+        @Override
+        protected File storeData(DataSetInformation dataSetInformation,
+                ITypeExtractor typeExtractor, IMailClient mailClient)
         {
-            removeUnmatchedFiles(dir, matchingFiles);
-            if (matchingFiles.size() == 1)
+            File newIncomingDataSetDirectory = incomingDataSetDirectory;
+            if (StringUtils.isBlank(keepFileRegex) == false)
             {
-                File matchingFile = matchingFiles.get(0);
-                String root = dir.getParent();
-                File destinationFile = new File(root, matchingFile.getName());
-                File tmpFile = FileUtilities.createNextNumberedFile(destinationFile, null);
-                boolean movedToTmp =
-                        FileOperations.getMonitoredInstanceForCurrentThread().rename(matchingFile,
-                                tmpFile);
-                if (movedToTmp)
+                newIncomingDataSetDirectory = clean(incomingDataSetDirectory, keepFileRegex);
+            }
+            nestedTransaction.storeData(dataSetInformation, typeExtractor, mailClient,
+                    newIncomingDataSetDirectory, rootDirectory);
+            return nestedTransaction.getStoredDataDirectory();
+        }
+
+        @Override
+        protected void executeCommit()
+        {
+            nestedTransaction.commit();
+        }
+
+        @Override
+        protected UnstoreDataAction executeRollback(Throwable ex)
+        {
+            nestedTransaction.rollback(ex);
+            if (dirDeleted)
+            {
+                FileOperations.getMonitoredInstanceForCurrentThread().mkdir(dirToRestore);
+                FileOperations.getMonitoredInstanceForCurrentThread().moveToDirectory(fileToMove,
+                        dirToRestore);
+            }
+            return moveToErrorFolder ? UnstoreDataAction.MOVE_TO_ERROR : UnstoreDataAction.DELETE;
+        }
+
+        @Private
+        public File clean(File dir, String pattern)
+        {
+            assert dir != null;
+            if (StringUtils.isBlank(pattern) || dir.isDirectory() == false)
+            {
+                return dir;
+            }
+            FileFilter filter = new RegexFileFilter(pattern);
+            List<File> matchingFiles = Arrays.asList(dir.listFiles(filter));
+            File newDataDir = dir;
+            try
+            {
+                removeUnmatchedFiles(dir, matchingFiles);
+                if (matchingFiles.size() == 1)
                 {
-                    newDataDir = tmpFile;
-                    fileToMove = tmpFile;
+                    File matchingFile = matchingFiles.get(0);
+                    String root = dir.getParent();
+                    File destinationFile = new File(root, matchingFile.getName());
+                    File tmpFile = FileUtilities.createNextNumberedFile(destinationFile, null);
+                    boolean movedToTmp =
+                            FileOperations.getMonitoredInstanceForCurrentThread().rename(
+                                    matchingFile, tmpFile);
+                    if (movedToTmp)
+                    {
+                        newDataDir = tmpFile;
+                        fileToMove = tmpFile;
+                    }
+                    dirDeleted =
+                            movedToTmp
+                                    && FileOperations.getMonitoredInstanceForCurrentThread()
+                                            .delete(dir);
+                    if (dirDeleted)
+                    {
+                        dirToRestore = dir;
+                    }
+                    boolean movedToDestPlace =
+                            movedToTmp
+                                    && FileOperations.getMonitoredInstanceForCurrentThread()
+                                            .rename(tmpFile, destinationFile);
+                    if (movedToDestPlace)
+                    {
+                        newDataDir = destinationFile;
+                        fileToMove = destinationFile;
+                    }
+                    if ((movedToDestPlace && dirDeleted) == false)
+                    {
+                        createCleaningErrorMessage(dir, pattern);
+                    }
                 }
-                dirDeleted =
-                        movedToTmp
-                                && FileOperations.getMonitoredInstanceForCurrentThread()
-                                        .delete(dir);
-                if (dirDeleted)
+            } catch (IOExceptionUnchecked ex)
+            {
+                createCleaningErrorMessage(dir, pattern);
+            }
+            return newDataDir;
+        }
+
+        private void createCleaningErrorMessage(File dir, String pattern)
+        {
+            notificationLog.error(String.format("Cleaning '%s' by file name pattern '%s' failed.",
+                    dir.getPath(), pattern));
+        }
+
+        private void removeUnmatchedFiles(File dir, List<File> matchingFiles)
+        {
+            for (File f : dir.listFiles())
+            {
+                if (matchingFiles.contains(f) == false)
                 {
-                    dirToRestore = dir;
-                }
-                boolean movedToDestPlace =
-                        movedToTmp
-                                && FileOperations.getMonitoredInstanceForCurrentThread().rename(
-                                        tmpFile, destinationFile);
-                if (movedToDestPlace)
-                {
-                    newDataDir = destinationFile;
-                    fileToMove = destinationFile;
-                }
-                if ((movedToDestPlace && dirDeleted) == false)
-                {
-                    createCleaningErrorMessage(dir, pattern);
+                    FileOperations.getMonitoredInstanceForCurrentThread().deleteRecursively(f);
                 }
             }
-        } catch (IOExceptionUnchecked ex)
-        {
-            createCleaningErrorMessage(dir, pattern);
         }
-        return newDataDir;
-    }
 
-    private void createCleaningErrorMessage(File dir, String pattern)
-    {
-        notificationLog.error(String.format("Cleaning '%s' by file name pattern '%s' failed.",
-                dir.getPath(), pattern));
     }
-
-    private void removeUnmatchedFiles(File dir, List<File> matchingFiles)
-    {
-        for (File f : dir.listFiles())
-        {
-            if (matchingFiles.contains(f) == false)
-            {
-                FileOperations.getMonitoredInstanceForCurrentThread().deleteRecursively(f);
-            }
-        }
-    }
-
 }

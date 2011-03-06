@@ -26,6 +26,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessor;
+import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.etlserver.utils.PreprocessingExecutor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -54,20 +55,47 @@ public class QuantMLStorageProcessor extends AbstractDelegatingStorageProcessor
     }
 
     @Override
-    public File storeData(final DataSetInformation dataSetInformation,
-            final ITypeExtractor typeExtractor, final IMailClient mailClient,
-            final File incomingDataSetDirectory, final File rootDir)
+    public IStorageProcessorTransaction createTransaction()
     {
-        ensureUploadableFileExists(incomingDataSetDirectory);
-        acquireWriteAccess(incomingDataSetDirectory);
-        File storeData =
-                super.storeData(dataSetInformation, typeExtractor, mailClient,
-                        incomingDataSetDirectory, rootDir);
-        File originalData = super.tryGetProprietaryData(storeData);
-        File quantML = findFile(originalData, mlFileExtension);
-        databaseUploader.upload(quantML, dataSetInformation);
-        return storeData;
+        return new AbstractDelegatingStorageProcessorTransaction(super.createTransaction())
+            {
+
+                @Override
+                protected File storeData(DataSetInformation dataSetInformation,
+                        ITypeExtractor typeExtractor, IMailClient mailClient)
+                {
+                    ensureUploadableFileExists(incomingDataSetDirectory);
+                    acquireWriteAccess(incomingDataSetDirectory);
+                    nestedTransaction.storeData(dataSetInformation, typeExtractor, mailClient,
+                            incomingDataSetDirectory, rootDirectory);
+                    File originalData = nestedTransaction.tryGetProprietaryData();
+                    File quantML = findFile(originalData, mlFileExtension);
+                    databaseUploader.upload(quantML, dataSetInformation);
+                    return nestedTransaction.getStoredDataDirectory();
+                }
+
+                @Override
+                protected void executeCommit()
+                {
+                    nestedTransaction.commit();
+                    databaseUploader.commit();
+                }
+
+                @Override
+                protected UnstoreDataAction executeRollback(Throwable ex)
+                {
+                    try
+                    {
+                        nestedTransaction.rollback(ex);
+                    } finally
+                    {
+                        databaseUploader.rollback();
+                    }
+                    return UnstoreDataAction.LEAVE_UNTOUCHED;
+                }
+            };
     }
+
 
     private void acquireWriteAccess(final File incomingDataSetDirectory)
     {
@@ -83,27 +111,6 @@ public class QuantMLStorageProcessor extends AbstractDelegatingStorageProcessor
     private void ensureUploadableFileExists(File incomingDataSetDirectory)
     {
         findFile(incomingDataSetDirectory, mlFileExtension);
-    }
-
-    @Override
-    public void commit(File incomingDataSetDirectory, File storedDataDirectory)
-    {
-        super.commit(incomingDataSetDirectory, storedDataDirectory);
-        databaseUploader.commit();
-    }
-
-    @Override
-    public UnstoreDataAction rollback(final File incomingDataSetDirectory,
-            final File storedDataDirectory, Throwable exception)
-    {
-        try
-        {
-            super.rollback(incomingDataSetDirectory, storedDataDirectory, exception);
-        } finally
-        {
-            databaseUploader.rollback();
-        }
-        return UnstoreDataAction.LEAVE_UNTOUCHED;
     }
 
     // returns the only file with the specified extension or throws an exceptions if none or more

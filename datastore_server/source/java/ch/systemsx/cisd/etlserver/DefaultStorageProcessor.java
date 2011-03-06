@@ -29,8 +29,8 @@ import ch.systemsx.cisd.etlserver.utils.Unzipper;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
- * A default {@link IStorageProcessor} implementation. The data set is stored in subfolder
- * {@link #ORIGINAL_DIR}.
+ * A default {@link IStorageProcessorTransactional} implementation. The data set is stored in
+ * subfolder {@link #ORIGINAL_DIR}.
  * 
  * @author Christian Ribeaud
  */
@@ -60,59 +60,78 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor
     // AbstractStorageProcessor
     //
 
-    public final File storeData(final DataSetInformation dataSetInformation,
-            final ITypeExtractor typeExtractor, final IMailClient mailClient,
-            final File incomingDataSetDirectory, final File rootDir)
+    public IStorageProcessorTransaction createTransaction()
     {
-        checkParameters(incomingDataSetDirectory, rootDir);
-        File originalDir = getOriginalDirectory(rootDir);
-        if (originalDir.mkdir() == false)
-        {
-            throw new EnvironmentFailureException("Couldn't create "
-                    + originalDir.getAbsolutePath());
-        }
-        final File targetFile = new File(originalDir, incomingDataSetDirectory.getName());
-        if (FileRenamer.renameAndLog(incomingDataSetDirectory, targetFile) == false)
-        {
-            throw new EnvironmentFailureException(String.format(NO_RENAME,
-                    incomingDataSetDirectory, targetFile));
-        }
-        unzipIfMatching(targetFile, originalDir);
-        return rootDir;
+        return new DefaultStorageProcessorTransaction();
     }
 
-    public UnstoreDataAction rollback(final File incomingDataSetDirectory,
-            final File storedDataDirectory, Throwable exception)
+    private class DefaultStorageProcessorTransaction extends AbstractStorageProcessorTransaction
     {
-        checkParameters(incomingDataSetDirectory, storedDataDirectory);
-        File targetFile =
-                new File(getOriginalDirectory(storedDataDirectory),
-                        incomingDataSetDirectory.getName());
-        // Note that this will move back <code>targetFilePath</code> to its original place but the
-        // directory structure will persist. Right now, we consider this is fine as these empty
-        // directories will not disturb the running application.
-        FileRenamer.renameAndLog(targetFile, incomingDataSetDirectory);
-        return UnstoreDataAction.MOVE_TO_ERROR;
+
+        @Override
+        protected File storeData(DataSetInformation dataSetInformation,
+                ITypeExtractor typeExtractor, IMailClient mailClient)
+        {
+            checkParameters(incomingDataSetDirectory, rootDirectory);
+            File originalDir = getOriginalDirectory(rootDirectory);
+            if (originalDir.mkdir() == false)
+            {
+                throw new EnvironmentFailureException("Couldn't create "
+                        + originalDir.getAbsolutePath());
+            }
+            final File targetFile = new File(originalDir, incomingDataSetDirectory.getName());
+            if (FileRenamer.renameAndLog(incomingDataSetDirectory, targetFile) == false)
+            {
+                throw new EnvironmentFailureException(String.format(NO_RENAME,
+                        incomingDataSetDirectory, targetFile));
+            }
+            unzipIfMatching(targetFile, originalDir);
+            return rootDirectory;
+        }
+
+        @Override
+        protected void executeCommit()
+        {
+            // nothing to do
+        }
+
+        @Override
+        protected UnstoreDataAction executeRollback(Throwable ex)
+        {
+            checkParameters(incomingDataSetDirectory, storedDataDirectory);
+            File targetFile =
+                    new File(getOriginalDirectory(storedDataDirectory),
+                            incomingDataSetDirectory.getName());
+            // Note that this will move back <code>targetFilePath</code> to its original place but
+            // the
+            // directory structure will persist. Right now, we consider this is fine as these empty
+            // directories will not disturb the running application.
+            FileRenamer.renameAndLog(targetFile, incomingDataSetDirectory);
+            return UnstoreDataAction.MOVE_TO_ERROR;
+        }
+
+        /**
+         * returns the only file or directory which is expected to be found inside original
+         * directory
+         */
+        public final File tryGetProprietaryData()
+        {
+            File originalDir = getOriginalDirectory(storedDataDirectory);
+            List<File> files = FileUtilities.listFilesAndDirectories(originalDir, false, null);
+            if (files.size() != 1)
+            {
+                throw EnvironmentFailureException.fromTemplate(
+                        "Exactly one file expected in '%s' directory, but %d found.",
+                        originalDir.getPath(), files.size());
+            }
+            return files.get(0);
+        }
     }
+
 
     public static File getOriginalDirectory(final File storedDataDirectory)
     {
         return new File(storedDataDirectory, ORIGINAL_DIR);
-    }
-
-    /** returns the only file or directory which is expected to be found inside original directory */
-    public final File tryGetProprietaryData(final File storedDataDirectory)
-    {
-        assert storedDataDirectory != null : "Unspecified stored data directory.";
-        File originalDir = getOriginalDirectory(storedDataDirectory);
-        List<File> files = FileUtilities.listFilesAndDirectories(originalDir, false, null);
-        if (files.size() != 1)
-        {
-            throw EnvironmentFailureException.fromTemplate(
-                    "Exactly one file expected in '%s' directory, but %d found.",
-                    originalDir.getPath(), files.size());
-        }
-        return files.get(0);
     }
 
     /**

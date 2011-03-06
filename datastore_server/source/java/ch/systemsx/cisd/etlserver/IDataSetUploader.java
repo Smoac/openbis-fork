@@ -22,6 +22,8 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
+ * TODO KE: this needs to be transformed to transactional !
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IDataSetUploader
