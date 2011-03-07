@@ -24,7 +24,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
  * Interface of parameterized processing plugin task. Implementations will be singletons serving all
- * the requests.
+ * the requests. They should have a constructor taking 2 parameters: Properties properties and File
+ * storeRoot.
  * 
  * @author Tomasz Pylak
  */
