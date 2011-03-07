@@ -210,7 +210,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
             final String spaceCode = childIdentifier.getSpaceLevel().getSpaceCode();
             for (SampleIdentifier si : parentIdentifiers)
             {
-                IdentifierHelper.fillGroupIfNotSpecified(si, spaceCode);
+                IdentifierHelper.fillSpaceIfNotSpecified(si, spaceCode);
             }
         }
         final Set<SamplePE> parentPEs = new HashSet<SamplePE>();

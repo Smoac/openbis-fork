@@ -75,7 +75,7 @@ public class SampleOwnerFinder
 
     private SampleOwner tryFigureSampleGroupOwner(final SampleOwnerIdentifier owner)
     {
-        if (owner.isInsideHomeGroup())
+        if (owner.isInsideHomeSpace())
         {
             return createHomeGroupOwner(owner);
         } else

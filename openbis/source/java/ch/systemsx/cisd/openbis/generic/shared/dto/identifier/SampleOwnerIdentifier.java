@@ -70,14 +70,14 @@ public class SampleOwnerIdentifier extends AbstractHashable implements Serializa
         return identifier;
     }
 
-    /** @return if sample is connected to its home group */
-    public boolean isInsideHomeGroup()
+    /** @return if sample is connected to its home space */
+    public boolean isInsideHomeSpace()
     {
         return isSpaceLevel() && spaceIdentOrNull.isHomeSpace();
     }
 
     /**
-     * true if sample belongs to the group. {@link #isDatabaseInstanceLevel()} will return false in
+     * true if sample belongs to a space. {@link #isDatabaseInstanceLevel()} will return false in
      * such a case.
      */
     public boolean isSpaceLevel()
@@ -99,7 +99,7 @@ public class SampleOwnerIdentifier extends AbstractHashable implements Serializa
     {
         if (isSpaceLevel())
         {
-            if (isInsideHomeGroup())
+            if (isInsideHomeSpace())
             {
                 return "";
             } else

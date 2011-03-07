@@ -240,7 +240,7 @@ public final class IdentifierHelper
         if (sample.isDatabaseInstanceLevel())
         {
             return;
-        } else if (sample.isInsideHomeGroup())
+        } else if (sample.isInsideHomeSpace())
         {
             sample.getSpaceLevel().setSpaceCode(expectedGroupCode);
         } else if (sample.getSpaceLevel().getSpaceCode().equalsIgnoreCase(expectedGroupCode))
@@ -253,11 +253,11 @@ public final class IdentifierHelper
         }
     }
 
-    static public void fillGroupIfNotSpecified(SampleIdentifier sample, String defaultGroupCode)
+    static public void fillSpaceIfNotSpecified(SampleIdentifier sample, String defaultSpaceCode)
     {
-        if (sample.isInsideHomeGroup())
+        if (sample.isInsideHomeSpace())
         {
-            sample.getSpaceLevel().setSpaceCode(defaultGroupCode);
+            sample.getSpaceLevel().setSpaceCode(defaultSpaceCode);
         }
     }
 
