@@ -26,6 +26,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.SoftLinkMaker;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -35,7 +36,6 @@ import ch.systemsx.cisd.common.maintenance.IDataStoreLockingMaintenanceTask;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.etlserver.DefaultStorageProcessor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
@@ -55,10 +55,37 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
 
     public static final String HIERARCHY_LINK_NAMING_STRATEGY = "link-naming-strategy";
 
+    public static final String LINK_SOURCE_SUBFOLDER = "link-source-subfolder";
+
+    public static final String LINK_FROM_FIRST_CHILD = "link-from-first-child";
+
     private static final String REBUILDING_HIERARCHICAL_STORAGE = "Rebuilding hierarchical storage";
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, HierarchicalStorageUpdater.class);
+
+    private static class LinkSourceDescriptor
+    {
+        private final String subFolder;
+
+        private final boolean linkFromFirstChild;
+
+        public LinkSourceDescriptor(String subFolder, boolean linkFromFirstChild)
+        {
+            this.subFolder = subFolder;
+            this.linkFromFirstChild = linkFromFirstChild;
+        }
+
+        public String getSubFolder()
+        {
+            return subFolder;
+        }
+
+        public boolean isLinkFromFirstChild()
+        {
+            return linkFromFirstChild;
+        }
+    }
 
     private IEncapsulatedOpenBISService openBISService;
 
@@ -67,6 +94,8 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
     private File storeRoot;
 
     private File hierarchyRoot;
+
+    private Map<String /* data set type */, LinkSourceDescriptor> linkSourceDescriptors;
 
     public void setUp(String pluginName, Properties pluginProperties)
     {
@@ -84,6 +113,7 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
         linkNamingStrategy = createLinkNamingStrategy(pluginProperties);
         storeRoot = new File(storeRootFileName);
         hierarchyRoot = new File(hierarchyRootFileName);
+        linkSourceDescriptors = initializeLinkSourceDescriptors(pluginProperties);
 
         operationLog.info("Plugin initialized with: store root = " + storeRootFileName
                 + ", hierarchy root = " + hierarchyRootFileName);
@@ -121,6 +151,33 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
         }
     }
 
+    private Map<String, LinkSourceDescriptor> initializeLinkSourceDescriptors(
+            Properties pluginProperties)
+    {
+        HashMap<String, LinkSourceDescriptor> result = new HashMap<String, LinkSourceDescriptor>();
+
+        ExtendedProperties subFolderProps =
+                ExtendedProperties.getSubset(pluginProperties, LINK_SOURCE_SUBFOLDER + ".", true);
+        ExtendedProperties linkFromFirstChildProps =
+                ExtendedProperties.getSubset(pluginProperties, LINK_FROM_FIRST_CHILD + ".", true);
+
+        HashSet<Object> dataSetTypes = new HashSet<Object>();
+        dataSetTypes.addAll(subFolderProps.keySet());
+        dataSetTypes.addAll(linkFromFirstChildProps.keySet());
+        for (Object o : dataSetTypes)
+        {
+            String dataSetType = (String) o;
+            String subFolder = subFolderProps.getProperty(dataSetType);
+            boolean linkFromFirstChild =
+                    Boolean.parseBoolean(linkFromFirstChildProps.getProperty(dataSetType));
+            LinkSourceDescriptor descriptor =
+                    new LinkSourceDescriptor(subFolder, linkFromFirstChild);
+            result.put(dataSetType, descriptor);
+        }
+
+        return result;
+    }
+
     /**
      * Refreshes the hierarchy of the data inside hierarchical storage accordingly to the database
      * content.
@@ -152,41 +209,65 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
                     new File(hierarchyRoot, linkNamingStrategy.createHierarchicalPath(dataSet));
             File share = new File(storeRoot, dataSet.getDataSetShareId());
             File dataSetLocationRoot = new File(share, dataSet.getDataSetLocation());
-            File linkSource = determineLinkSource(dataSetLocationRoot);
-            linkMappings.put(targetFile.getAbsolutePath(), linkSource.getAbsolutePath());
+            File linkSource = determineLinkSource(dataSetLocationRoot, dataSet.getDataSetType());
+            if (linkSource != null)
+            {
+                linkMappings.put(targetFile.getAbsolutePath(), linkSource.getAbsolutePath());
+            } else
+            {
+
+                String logMessage =
+                        String.format("Can not determine the link source file for data set '%s', "
+                                + "dataSetType='%s'. Link creation will be skipped.",
+                                dataSetLocationRoot, dataSet.getDataSetType());
+                operationLog.warn(logMessage);
+            }
         }
         return linkMappings;
     }
 
-    /**
-     * Some storage processors keep the originally uploaded data sets in an "original" sub-folder.
-     * We would like to link directly to the originally uploaded content and therefore we build
-     * determine the file/folder which we want to link in the following way
-     * <p>
-     * <li>1. If the dataset location contains a single subdirectory named "original" with a single
-     * sub-item F then we link to F (F can be file or directory).
-     * <li>2. else If the dataset location contains a single sub-item F then we link F.
-     * <li>3. else (the dataset location has multiple children) we link to the data set location
-     */
-    private File determineLinkSource(File sourceRoot)
+    private File determineLinkSource(File dataSetLocationRoot, String dataSetType)
     {
-        File[] rootChildren = sourceRoot.listFiles();
-        File result = sourceRoot;
-        if (rootChildren != null && rootChildren.length == 1)
-        {
-            result = rootChildren[0];
+        LinkSourceDescriptor linkSourceDescriptor = getLinkSourceDescriptor(dataSetType);
+        File source = dataSetLocationRoot;
 
-            if (rootChildren[0].isDirectory()
-                    && DefaultStorageProcessor.ORIGINAL_DIR.equals(rootChildren[0].getName()))
+        if (linkSourceDescriptor != null) {
+            String subPath = linkSourceDescriptor.getSubFolder();
+            if (StringUtils.isBlank(subPath) == false)
             {
-                File[] originalChildren = rootChildren[0].listFiles();
-                if (originalChildren != null && originalChildren.length == 1)
+                source = new File(source.getAbsolutePath() + File.separator + subPath);
+                if (source.exists() == false)
                 {
-                    result = originalChildren[0];
+                    String logMessage =
+                            String.format("Invalid '%s' configuration for "
+                                    + "data set '%s'. Subfolder '%s' does not exist",
+                                    LINK_SOURCE_SUBFOLDER, dataSetLocationRoot, source);
+                    operationLog.warn(logMessage);
+                    return null;
                 }
             }
+            if (linkSourceDescriptor.isLinkFromFirstChild() && source.isDirectory())
+            {
+                File[] rootChildren = source.listFiles();
+                if (rootChildren == null || rootChildren.length == 0)
+                {
+                    String logMessage =
+                            String.format("Invalid '%s' configuration for "
+                                    + "data set '%s'. Subfolder '%s' has no children",
+                                    LINK_FROM_FIRST_CHILD, dataSetLocationRoot, source);
+                    operationLog.warn(logMessage);
+                    return null;
+                }
+                source = rootChildren[0];
+            }
         }
-        return result;
+
+        return source;
+    }
+
+    private LinkSourceDescriptor getLinkSourceDescriptor(String dataSetType)
+    {
+        return linkSourceDescriptors.get(dataSetType);
     }
 
     /**

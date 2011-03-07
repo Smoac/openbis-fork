@@ -93,7 +93,7 @@ public abstract class DelegatingStorageProcessorWithDropbox extends
             nestedTransaction.storeData(dataSetInformation, typeExtractor, mailClient,
                     incomingDataSetDirectory, rootDirectory);
             File originalData = nestedTransaction.tryGetProprietaryData();
-            getPostReigstrationHandler().handle(originalData, dataSetInformation, null);
+            dropboxHandler.handle(originalData, dataSetInformation, null);
             return nestedTransaction.getStoredDataDirectory();
         }
 
@@ -106,7 +106,7 @@ public abstract class DelegatingStorageProcessorWithDropbox extends
         @Override
         protected UnstoreDataAction executeRollback(Throwable ex)
         {
-            getPostReigstrationHandler().undoLastOperation();
+            dropboxHandler.undoLastOperation();
             return nestedTransaction.rollback(ex);
         }
 
