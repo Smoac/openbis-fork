@@ -36,10 +36,7 @@ public class MaintenanceTaskUtilsTest extends AssertJUnit
 
     private static final CountDownLatch latch = new CountDownLatch(NUM_CONTENDING_TASKS);
 
-    private static final String SHARED_RESOURCE_LOCK = "SHARED_LOCK";
-
-
-    public static class ResourceContendingTask implements IResourceContendingMaintenanceTask
+    public static class ResourceContendingTask implements IDataStoreLockingMaintenanceTask
     {
         private static final AtomicInteger numberActive = new AtomicInteger(0);
 
@@ -68,9 +65,12 @@ public class MaintenanceTaskUtilsTest extends AssertJUnit
 
         }
 
-        public String getRequiredResourceLock()
+        /**
+         * @see IDataStoreLockingMaintenanceTask#requiresDataStoreLock()
+         */
+        public boolean requiresDataStoreLock()
         {
-            return SHARED_RESOURCE_LOCK;
+            return true;
         }
     }
 

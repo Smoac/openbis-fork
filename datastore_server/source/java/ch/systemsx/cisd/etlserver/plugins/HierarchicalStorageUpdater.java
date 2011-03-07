@@ -31,11 +31,10 @@ import ch.systemsx.cisd.common.filesystem.SoftLinkMaker;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
-import ch.systemsx.cisd.common.maintenance.IResourceContendingMaintenanceTask;
+import ch.systemsx.cisd.common.maintenance.IDataStoreLockingMaintenanceTask;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.etlserver.Constants;
 import ch.systemsx.cisd.etlserver.DefaultStorageProcessor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
@@ -48,7 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
  * @author Izabela Adamczyk
  * @author Kaloyan Enimanev
  */
-public class HierarchicalStorageUpdater implements IResourceContendingMaintenanceTask
+public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceTask
 {
     public static final String STOREROOT_DIR_KEY = "storeroot-dir";
 
@@ -96,11 +95,11 @@ public class HierarchicalStorageUpdater implements IResourceContendingMaintenanc
     }
 
     /**
-     * requires an exclusive lock of the data store folder.
+     * @see IDataStoreLockingMaintenanceTask#requiresDataStoreLock()
      */
-    public String getRequiredResourceLock()
+    public boolean requiresDataStoreLock()
     {
-        return Constants.DATA_STORE_RESOURCE_NAME;
+        return true;
     }
 
     private IHierarchicalStorageLinkNamingStrategy createLinkNamingStrategy(Properties properties)
@@ -288,4 +287,5 @@ public class HierarchicalStorageUpdater implements IResourceContendingMaintenanc
             operationLog.info(info);
         }
     }
+
 }

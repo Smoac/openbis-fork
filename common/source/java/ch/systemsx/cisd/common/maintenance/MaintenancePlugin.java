@@ -1,11 +1,8 @@
 package ch.systemsx.cisd.common.maintenance;
 
 import java.util.Date;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
@@ -14,14 +11,13 @@ import ch.systemsx.cisd.common.utilities.ClassUtils;
 
 public class MaintenancePlugin
 {
-    private static final Map<String /* resource name */, Lock> resourceLocks =
-            new ConcurrentHashMap<String /* resource name */, Lock>();
+    private static ReentrantLock dataStoreLock = new ReentrantLock();
 
     private final IMaintenanceTask task;
 
     private final MaintenanceTaskParameters parameters;
 
-    private final String requiredResourceLockName;
+    private final boolean requiresDataStoreLock;
 
     public MaintenancePlugin(MaintenanceTaskParameters parameters)
     {
@@ -35,15 +31,16 @@ public class MaintenancePlugin
                     + parameters.getClassName() + "'", CheckedExceptionTunnel.unwrapIfNecessary(ex));
         }
         task.setUp(parameters.getPluginName(), parameters.getProperties());
+        this.requiresDataStoreLock = requiresDataStoreLock();
+    }
 
-        if (task instanceof IResourceContendingMaintenanceTask)
+    private boolean requiresDataStoreLock()
+    {
+        if (task instanceof IDataStoreLockingMaintenanceTask)
         {
-            requiredResourceLockName =
-                    ((IResourceContendingMaintenanceTask) task).getRequiredResourceLock();
-        } else
-        {
-            requiredResourceLockName = null;
+            return ((IDataStoreLockingMaintenanceTask) task).requiresDataStoreLock();
         }
+        return false;
     }
 
     public void start()
@@ -80,31 +77,17 @@ public class MaintenancePlugin
 
         private void acquireLockIfNecessary()
         {
-            if (requiredResourceLockName != null)
+            if (requiresDataStoreLock)
             {
-                getLock(requiredResourceLockName).lock();
+                dataStoreLock.lock();
             }
         }
 
         private void releaseLockIfNecessay()
         {
-            if (requiredResourceLockName != null)
+            if (requiresDataStoreLock)
             {
-                getLock(requiredResourceLockName).unlock();
-            }
-        }
-
-        private Lock getLock(String resourceName)
-        {
-            synchronized (resourceLocks)
-            {
-                Lock lock = resourceLocks.get(resourceName);
-                if (lock == null)
-                {
-                    lock = new ReentrantLock();
-                    resourceLocks.put(resourceName, lock);
-                }
-                return lock;
+                dataStoreLock.unlock();
             }
         }
     }
