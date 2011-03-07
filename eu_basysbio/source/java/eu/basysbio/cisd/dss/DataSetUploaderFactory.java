@@ -27,8 +27,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class DataSetUploaderFactory implements IDataSetUploaderFactory

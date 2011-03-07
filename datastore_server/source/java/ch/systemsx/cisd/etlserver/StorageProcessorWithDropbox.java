@@ -19,6 +19,7 @@ package ch.systemsx.cisd.etlserver;
 import java.io.File;
 import java.util.Properties;
 
+import ch.systemsx.cisd.openbis.dss.generic.shared.IPostRegistrationDatasetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.AbstractDatasetDropboxHandler;
 
@@ -45,8 +46,15 @@ public class StorageProcessorWithDropbox extends DelegatingStorageProcessorWithD
 
     public StorageProcessorWithDropbox(Properties properties)
     {
-        super(properties, new DatasetDropboxHandler(properties));
+        super(properties);
     }
+
+    @Override
+    public IPostRegistrationDatasetHandler createPostRegistrationDataSetHandler()
+    {
+        return new DatasetDropboxHandler(properties);
+    }
+
 
     private static class DatasetDropboxHandler extends AbstractDatasetDropboxHandler
     {
@@ -113,4 +121,5 @@ public class StorageProcessorWithDropbox extends DelegatingStorageProcessorWithD
             }
         }
     }
+
 }

@@ -57,7 +57,7 @@ class DataSetHandler extends AbstractPostRegistrationDataSetHandlerForFileBasedU
 
     DataSetHandler(Properties properties, IEncapsulatedOpenBISService service)
     {
-        this(properties, DBUtils.createAndInitDBContext(properties).getDataSource(), service);
+        this(properties, DBUtils.getOrCreateDBContext(properties).getDataSource(), service);
     }
     
     DataSetHandler(Properties properties, DataSource dataSource,

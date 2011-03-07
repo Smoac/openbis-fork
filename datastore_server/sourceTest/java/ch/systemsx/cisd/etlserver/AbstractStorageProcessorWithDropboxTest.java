@@ -29,6 +29,7 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IPostRegistrationDatasetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.AbstractDatasetDropboxHandler;
 
@@ -100,15 +101,20 @@ public class AbstractStorageProcessorWithDropboxTest extends AbstractFileSystemT
 
         public StorageProcessorWithDropboxTest(Properties properties)
         {
-            super(properties, new DatasetDropboxHandler(properties));
+            super(properties);
         }
 
         public StorageProcessorWithDropboxTest(Properties properties,
                 IStorageProcessorTransactional delegateStorageProcessor,
                 IFileOperations fileOperations)
         {
-            super(properties, new DatasetDropboxHandler(properties, fileOperations),
-                    delegateStorageProcessor, fileOperations);
+            super(properties, delegateStorageProcessor, fileOperations);
+        }
+
+        @Override
+        public IPostRegistrationDatasetHandler createPostRegistrationDataSetHandler()
+        {
+            return new DatasetDropboxHandler(properties, fileOperations);
         }
 
         private static class DatasetDropboxHandler extends AbstractDatasetDropboxHandler

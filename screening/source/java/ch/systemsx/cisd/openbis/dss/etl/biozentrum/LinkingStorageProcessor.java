@@ -72,6 +72,10 @@ public class LinkingStorageProcessor extends AbstractDelegatingStorageProcessor
         return new AbstractDelegatingStorageProcessorTransaction(super.createTransaction())
             {
                 
+                private File symbolicLink;
+
+                private File markerFile;
+
                 @Override
                 protected File storeData(DataSetInformation dataSetInformation,
                         ITypeExtractor typeExtractor, IMailClient mailClient)
@@ -83,7 +87,8 @@ public class LinkingStorageProcessor extends AbstractDelegatingStorageProcessor
                     boolean success = SoftLinkMaker.createSymbolicLink(source, targetDir);
                     if (success)
                     {
-                        File markerFile =
+                        symbolicLink = new File(targetDir, source.getName());
+                        markerFile =
                                 new File(targetDir, Constants.IS_FINISHED_PREFIX + source.getName());
                         FileUtilities.writeToFile(markerFile, dataSetInformation.getDataSetCode());
                     } else
@@ -98,7 +103,14 @@ public class LinkingStorageProcessor extends AbstractDelegatingStorageProcessor
                 @Override
                 protected UnstoreDataAction executeRollback(Throwable ex)
                 {
-                    // TODO KE: ask Tomek/Sekhar if we need to implement rollback here
+                    if (symbolicLink != null)
+                    {
+                        FileUtilities.deleteRecursively(symbolicLink);
+                    }
+                    if (markerFile != null)
+                    {
+                        FileUtilities.delete(markerFile);
+                    }
                     return nestedTransaction.rollback(ex);
                 }
                 

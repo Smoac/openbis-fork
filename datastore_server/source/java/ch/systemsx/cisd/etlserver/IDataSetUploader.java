@@ -22,7 +22,10 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
- * TODO KE: this needs to be transformed to transactional !
+ * Uploads data to an additional project-specific database.
+ * <p>
+ * {@link IDataSetUploader} instances exist only within the scope of a storage processor
+ * transaction.
  * 
  * @author Franz-Josef Elmer
  */

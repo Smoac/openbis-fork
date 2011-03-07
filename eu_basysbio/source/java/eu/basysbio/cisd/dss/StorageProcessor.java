@@ -26,6 +26,7 @@ import ch.systemsx.cisd.etlserver.DelegatingStorageProcessorWithDropbox;
 import ch.systemsx.cisd.etlserver.IDataSetUploader;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IPostRegistrationDatasetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
@@ -35,88 +36,29 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
  */
 public class StorageProcessor extends DelegatingStorageProcessorWithDropbox
 {
-    private static final class StorageProcessorWithUploader extends
-            AbstractStrorageProcessorWithUploader
-    {
-        public StorageProcessorWithUploader(IStorageProcessorTransactional processor,
-                IDataSetUploader uploader)
-        {
-            super(processor, uploader);
-        }
-
-        @Override
-        protected void logDataSetFileError(File incomingDataSetDirectory, Throwable exception)
-        {
-        }
-
-    }
-
-    private final StorageProcessorWithUploader storageProcessorWithUploader;
 
     public StorageProcessor(Properties properties)
     {
-        this(properties, new DataSetHandler(properties, ServiceProvider.getOpenBISService()));
+        super(properties);
     }
 
-    StorageProcessor(Properties properties, DataSetHandler handler)
+    @Override
+    public IPostRegistrationDatasetHandler createPostRegistrationDataSetHandler()
     {
-        super(properties, handler);
-        storageProcessorWithUploader =
-                new StorageProcessorWithUploader(new IStorageProcessorTransactional()
-            {
-
-                        public File getStoreRootDirectory()
-                        {
-                            return null;
-                        }
-
-                        public void setStoreRootDirectory(File storeRootDirectory)
-                        {
-                        }
-
-                        public IStorageProcessorTransaction createTransaction()
-                                {
-                            return new IStorageProcessorTransaction()
-                                {
-
-                                    public void storeData(DataSetInformation dataSetInformation,
-                                            ITypeExtractor typeExtractor, IMailClient mailClient,
-                                            File incomingDataSetDirectory, File rootDir)
-                                    {
-                                    }
-
-                                    public void commit()
-                                    {
-                                    }
-
-                                    public UnstoreDataAction rollback(Throwable exception)
-                                    {
-                                        return null;
-                                    }
-
-                                    public File getStoredDataDirectory()
-                                    {
-                                        return null;
-                                    }
-
-                                    public File tryGetProprietaryData()
-                                    {
-                                        return null;
-                                    }
-                                };
-                        }
-
-                        public StorageFormat getStorageFormat()
-                                {
-                            return null;
-                        }
-            }, handler);
+        return new DataSetHandler(properties, ServiceProvider.getOpenBISService());
     }
 
     @Override
     public IStorageProcessorTransaction createTransaction()
     {
-        return new AbstractDelegatingStorageProcessorTransaction(super.createTransaction())
+        final StorageProcessorWithDropboxTransaction superTransaction =
+                (StorageProcessorWithDropboxTransaction) super.createTransaction();
+
+        final StorageProcessorWithUploader storageProcessorWithUploader =
+                new StorageProcessorWithUploader(new DummyStorageProcessor(),
+                        (IDataSetUploader) superTransaction.getPostReigstrationHandler());
+
+        return new AbstractDelegatingStorageProcessorTransaction(superTransaction)
             {
 
                 private final IStorageProcessorTransaction uploaderTransaction =
@@ -149,6 +91,71 @@ public class StorageProcessor extends DelegatingStorageProcessorWithDropbox
                     nestedTransaction.commit();
                 }
             };
+    }
+
+    private static final class StorageProcessorWithUploader extends
+            AbstractStrorageProcessorWithUploader
+    {
+        public StorageProcessorWithUploader(IStorageProcessorTransactional processor,
+                IDataSetUploader uploader)
+        {
+            super(processor, uploader);
+        }
+
+        @Override
+        protected void logDataSetFileError(File incomingDataSetDirectory, Throwable exception)
+        {
+        }
+
+    }
+
+    private final class DummyStorageProcessor implements IStorageProcessorTransactional
+    {
+        public File getStoreRootDirectory()
+        {
+            return null;
+        }
+
+        public void setStoreRootDirectory(File storeRootDirectory)
+        {
+        }
+
+        public IStorageProcessorTransaction createTransaction()
+        {
+            return new IStorageProcessorTransaction()
+                {
+
+                    public void storeData(DataSetInformation dataSetInformation,
+                            ITypeExtractor typeExtractor, IMailClient mailClient,
+                            File incomingDataSetDirectory, File rootDir)
+                    {
+                    }
+
+                    public void commit()
+                    {
+                    }
+
+                    public UnstoreDataAction rollback(Throwable exception)
+                    {
+                        return null;
+                    }
+
+                    public File getStoredDataDirectory()
+                    {
+                        return null;
+                    }
+
+                    public File tryGetProprietaryData()
+                    {
+                        return null;
+                    }
+                };
+        }
+
+        public StorageFormat getStorageFormat()
+        {
+            return null;
+        }
     }
 
 }

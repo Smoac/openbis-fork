@@ -17,6 +17,7 @@
 package eu.basysbio.cisd.dss;
 
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 import net.lemnik.eodsql.QueryTool;
 
@@ -43,6 +44,27 @@ public class DBUtils
 
     private static final String DATABASE_PROPERTIES_PREFIX = "database.";
     
+    private static ConcurrentHashMap<Properties, DatabaseConfigurationContext> dbContexts =
+            new ConcurrentHashMap<Properties, DatabaseConfigurationContext>();
+
+    /**
+     * Return the {@link DatabaseConfigurationContext} corresponding to the specified
+     * {@link Properties} input. The method maintains a cache with
+     * {@link DatabaseConfigurationContext} objects and it does not create a new DB connection for
+     * earch invokation.
+     */
+    public static synchronized DatabaseConfigurationContext getOrCreateDBContext(
+            Properties properties)
+    {
+        DatabaseConfigurationContext dbContext = dbContexts.get(properties);
+        if (dbContext == null)
+        {
+            dbContext = createAndInitDBContext(properties);
+            dbContexts.put(properties, dbContext);
+        }
+        return dbContext;
+    }
+
     public static DatabaseConfigurationContext createAndInitDBContext(Properties properties)
     {
         final DatabaseConfigurationContext dbContext = createDBContext(properties);

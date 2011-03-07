@@ -19,6 +19,7 @@ package ch.ethz.bsse.cisd.dsu.dss;
 import java.util.Properties;
 
 import ch.systemsx.cisd.etlserver.DelegatingStorageProcessorWithDropbox;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IPostRegistrationDatasetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 
 /**
@@ -32,7 +33,13 @@ public class StorageProcessor extends DelegatingStorageProcessorWithDropbox
 {
     public StorageProcessor(Properties properties)
     {
-        super(properties, new FlowLaneFeeder(properties, ServiceProvider.getOpenBISService()));
+        super(properties);
+    }
+
+    @Override
+    public IPostRegistrationDatasetHandler createPostRegistrationDataSetHandler()
+    {
+        return new FlowLaneFeeder(properties, ServiceProvider.getOpenBISService());
     }
 
 }

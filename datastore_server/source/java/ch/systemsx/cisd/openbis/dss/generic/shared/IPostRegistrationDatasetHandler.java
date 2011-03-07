@@ -24,6 +24,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
  * Handler of data sets after successful registration in openBIS.
+ * <p>
+ * {@link IPostRegistrationDatasetHandler} instances exist only within the scope of a storage
+ * processor transaction.
  * 
  * @author Franz-Josef Elmer
  */

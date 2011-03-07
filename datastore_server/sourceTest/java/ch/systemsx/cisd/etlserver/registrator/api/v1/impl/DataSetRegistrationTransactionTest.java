@@ -386,7 +386,6 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
             });
     }
 
-    // TODO KE: unify this mock with the one in JythonTopLevelDataSetRegistratorTest
     public static final class MockStorageProcessor implements IStorageProcessorTransactional
     {
         static MockStorageProcessor instance;

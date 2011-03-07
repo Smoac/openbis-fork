@@ -21,7 +21,6 @@ import java.io.File;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
 
 /**
- * TODO KE: find a better name.
  * <p>
  * An abstract transaction that wraps another transaction.
  * 
