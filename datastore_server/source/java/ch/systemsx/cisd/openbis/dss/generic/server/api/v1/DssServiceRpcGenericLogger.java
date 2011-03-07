@@ -24,6 +24,7 @@ import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.IDssServiceRpcGenericInternal;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataSetFileDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.LockedDataStorePath;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 
@@ -86,6 +87,21 @@ public class DssServiceRpcGenericLogger extends AbstractServerLogger implements
         return null;
     }
 
+    public LockedDataStorePath getLockedPathToDataSet(String sessionToken, String dataSetCode,
+            String overrideStoreRootPathOrNull) throws IOExceptionUnchecked,
+            IllegalArgumentException
+    {
+        logTracking(sessionToken, "get_locked_path_to_data_set",
+                "DATA_SET(%s) STORE_ROOT_PATH(%s)", dataSetCode, overrideStoreRootPathOrNull);
+        return null;
+    }
+
+    public void releaseLockedDataSetPath(String sessionToken, String dataSetCode, String lockToken)
+    {
+        logTracking(sessionToken, "release_locked_data_set_path", "DATA_SET(%s) LOCK_TOKEN(%s)",
+                dataSetCode, lockToken);
+    }
+    
     public String getPathToDataSet(String sessionToken, String dataSetCode,
             String overrideStoreRootPathOrNull) throws IOExceptionUnchecked,
             IllegalArgumentException

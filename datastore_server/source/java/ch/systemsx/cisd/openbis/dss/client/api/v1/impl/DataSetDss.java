@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.FileAndLockToken;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
@@ -73,13 +74,34 @@ public class DataSetDss implements IDataSetDss
     public File tryLinkToContents(String overrideStoreRootPathOrNull)
             throws IllegalArgumentException, InvalidSessionException
     {
-        return parent.tryLinkToContents(this, overrideStoreRootPathOrNull);
+        FileAndLockToken result = parent.tryLinkToContents(this, overrideStoreRootPathOrNull);
+        return result == null ? null : result.getFile();
     }
 
     public File getLinkOrCopyOfContents(String overrideStoreRootPathOrNull, File downloadDir)
             throws IllegalArgumentException, InvalidSessionException
     {
+        return parent.getLinkOrCopyOfContents(this, overrideStoreRootPathOrNull, downloadDir).getFile();
+    }
+
+    public FileAndLockToken tryLinkToLockedContents(String overrideStoreRootPathOrNull)
+            throws IllegalArgumentException, InvalidSessionException
+    {
+        return parent.tryLinkToContents(this, overrideStoreRootPathOrNull);
+    }
+
+    public FileAndLockToken getLockedLinkOrCopyOfContents(String overrideStoreRootPathOrNull,
+            File downloadDir) throws IllegalArgumentException, InvalidSessionException
+    {
         return parent.getLinkOrCopyOfContents(this, overrideStoreRootPathOrNull, downloadDir);
+    }
+
+    public void releaseLock(String lockTokenOrNull)
+    {
+        if (lockTokenOrNull != null)
+        {
+            parent.releaseLock(this, lockTokenOrNull);
+        }
     }
 
     public AuthenticatedState getParent()
