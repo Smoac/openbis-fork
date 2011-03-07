@@ -44,6 +44,9 @@ function restore_config_files {
   if  [ -f ~openbis/config/openbis-as-jetty.xml ]; then
   	cp ~openbis/config/openbis-as-jetty.xml ~openbis/sprint/openBIS-server/jetty/etc/jetty.xml
   fi
+  if  [ -f ~openbis/config/openbis_log.xml ]; then
+  	cp ~openbis/config/openbis_log.xml ~openbis/sprint/openBIS-server/jetty/etc/log.xml
+  fi
   if  [ -f ~openbis/config/datastore_log.xml ]; then
   	cp ~openbis/config/datastore_log.xml ~openbis/sprint/datastore_server/etc/log.xml
   fi  
@@ -141,7 +144,7 @@ case "$SERVER" in
 	echo PLASMIDS:$PLASMIDS;
 	restore_config_files
 	create_individual_greeting_message
-    	$BIN/sprint_post_install_plasmids.sh
+  $BIN/sprint_post_install_plasmids.sh
 	;;
 	$LIMB)
 	echo LIMB:$LIMB;
