@@ -23,6 +23,7 @@ import net.lemnik.eodsql.QueryTool;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingTransformerDAO;
 
 /**
  * Utility methods for DSS.
@@ -32,7 +33,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImag
 public class DssScreeningUtils
 {
     private static final IImagingReadonlyQueryDAO query = createQuery();
-    
+
+    /**
+     * Returned query is reused and should NOT be closed.
+     */
     public static IImagingReadonlyQueryDAO getQuery()
     {
         return query;
@@ -52,4 +56,17 @@ public class DssScreeningUtils
                         ScreeningConstants.IMAGING_DATA_SOURCE);
         return QueryTool.getQuery(dataSource, IImagingReadonlyQueryDAO.class);
     }
+
+    /**
+     * Creates a new query each time when it is called. Returned query should be closed after all
+     * operations are done.
+     */
+    public static IImagingTransformerDAO createImagingTransformerDAO()
+    {
+        DataSource dataSource =
+                ServiceProvider.getDataSourceProvider().getDataSource(
+                        ScreeningConstants.IMAGING_DATA_SOURCE);
+        return QueryTool.getQuery(dataSource, IImagingTransformerDAO.class);
+    }
+
 }

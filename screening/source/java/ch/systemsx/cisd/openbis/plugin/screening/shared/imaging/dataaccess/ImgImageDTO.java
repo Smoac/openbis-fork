@@ -34,9 +34,8 @@ public class ImgImageDTO extends AbstractImageTransformerFactoryHolder
 
     @ResultColumn("COLOR")
     private String colorComponentOrNull;
-    
-    @SuppressWarnings("unused")
-    private ImgImageDTO()
+
+    protected ImgImageDTO()
     {
         // All Data-Object classes must have a default constructor.
     }

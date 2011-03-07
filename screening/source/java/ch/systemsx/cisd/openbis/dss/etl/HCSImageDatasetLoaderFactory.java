@@ -31,6 +31,13 @@ public class HCSImageDatasetLoaderFactory
     private static final Map<String, IContentRepositoryFactory> repositoryFactories =
             createFactories();
 
+    /** the loader has to be closed when it is not used any more to free database resources! */
+    public static final IImagingDatasetLoader create(File datasetRootDir, String datasetCode)
+    {
+        IContentRepository repository = createContentRepository(datasetRootDir);
+        return new ImagingDatasetLoader(DssScreeningUtils.getQuery(), datasetCode, repository);
+    }
+
     private static Map<String, IContentRepositoryFactory> createFactories()
     {
         Map<String, IContentRepositoryFactory> factories =
@@ -39,16 +46,9 @@ public class HCSImageDatasetLoaderFactory
         return factories;
     }
 
-    /** the loader has to be closed when it is not used any more to free database resources! */
-    public static final IImagingDatasetLoader create(File datasetRootDir, String datasetCode)
+    public static IContentRepository createContentRepository(File datasetRootDir)
     {
-        return createImageDBLoader(datasetRootDir, datasetCode);
-    }
-
-    private static ImagingDatasetLoader createImageDBLoader(File datasetRootDir, String datasetCode)
-    {
-        IContentRepository repository = new ContentRepository(datasetRootDir, repositoryFactories);
-        return new ImagingDatasetLoader(DssScreeningUtils.getQuery(), datasetCode, repository);
+        return new ContentRepository(datasetRootDir, repositoryFactories);
     }
 
 }

@@ -120,9 +120,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
 
     public DssServiceRpcScreening(String storeRootDir)
     {
-        this(storeRootDir, null, QueryTool.getQuery(ServiceProvider.getDataSourceProvider()
-                .getDataSource(ScreeningConstants.IMAGING_DATA_SOURCE),
-                IImagingTransformerDAO.class), ServiceProvider.getOpenBISService(), null, true);
+        this(storeRootDir, null, DssScreeningUtils.createImagingTransformerDAO(), ServiceProvider
+                .getOpenBISService(), null, true);
     }
 
     DssServiceRpcScreening(String storeRootDir, IImagingReadonlyQueryDAO dao,
@@ -218,8 +217,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     {
         final IImagingDatasetLoader imageAccessor =
                 createImageLoader(dataset.getDatasetCode(), datasetRoot);
-        final Size imageSize = getImageSize(dataset, imageAccessor);
-        final Size thumbnailSize = getThumbnailImageSize(dataset, imageAccessor);
+        final Size imageSize = getImageSize(dataset, imageAccessor, false);
+        final Size thumbnailSize = getImageSize(dataset, imageAccessor, true);
         final ImageDatasetParameters params = imageAccessor.getImageParameters();
         return new ImageDatasetMetadata(dataset, params.getChannelsCodes(),
                 params.getChannelsLabels(), params.getTileRowsNum(), params.getTileColsNum(),
@@ -228,96 +227,73 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     }
 
     private static Size getImageSize(IImageDatasetIdentifier dataset,
-            IImagingDatasetLoader imageAccessor)
+            IImagingDatasetLoader imageAccessor, boolean thumbnailsRequired)
     {
-        IContent imageFile = getAnyImagePath(imageAccessor, dataset);
+        IContent imageFile = getAnyImagePath(imageAccessor, dataset, thumbnailsRequired);
         BufferedImage image = ImageUtil.loadImage(imageFile);
         Size imageSize = new Size(image.getWidth(), image.getHeight());
         return imageSize;
     }
 
-    /**
-     * Returns the size of the thumbnails, or {@link NULL_SIZE}.
-     */
-    private static Size getThumbnailImageSize(IImageDatasetIdentifier dataset,
-            IImagingDatasetLoader imageAccessor)
+    private static IContent getAnyImagePath(IImagingDatasetLoader imageAccessor,
+            IImageDatasetIdentifier dataset, boolean thumbnailsRequired)
     {
-        IContent imageFile = tryGetAnyThumbnailImagePath(imageAccessor, dataset);
-        if (imageFile == null)
+        if (imageAccessor.getImageParameters().tryGetRowsNum() == null)
         {
-            return NULL_SIZE;
+            return getAnyMicroscopyImagePath(imageAccessor, dataset, thumbnailsRequired);
+        } else
+        {
+            return getAnyHCSImagePath(imageAccessor, dataset, thumbnailsRequired);
         }
-        final BufferedImage image = ImageUtil.loadImage(imageFile);
-        final Size imageSize = new Size(image.getWidth(), image.getHeight());
-        return imageSize;
     }
 
-    // TODO 2010-12-09, Tomasz Pylak: replace this code by choosing the dataset representative
-    // Now it works only in HCS case.
-    private static IContent getAnyImagePath(IImagingDatasetLoader imageAccessor,
-            IImageDatasetIdentifier dataset)
+    private static IContent getAnyMicroscopyImagePath(IImagingDatasetLoader imageAccessor,
+            IImageDatasetIdentifier dataset, boolean thumbnailsRequired)
     {
         ImageDatasetParameters params = imageAccessor.getImageParameters();
-        for (int row = 1; row <= params.tryGetRowsNum(); row++)
+        RequestedImageSize originalOrThumbnail = createOriginalOrThumbnail(thumbnailsRequired);
+        for (String channelCode : params.getChannelsCodes())
         {
-            for (int col = 1; col <= params.tryGetColsNum(); col++)
+            AbsoluteImageReference image =
+                    imageAccessor.tryGetRepresentativeImage(channelCode, null, originalOrThumbnail);
+            if (image != null)
             {
-                for (int tileRow = 1; tileRow <= params.getTileRowsNum(); tileRow++)
-                {
-                    for (int tileCol = 1; tileCol <= params.getTileColsNum(); tileCol++)
-                    {
-                        for (String channelCode : params.getChannelsCodes())
-                        {
-                            ImageChannelStackReference channelStackReference =
-                                    ImageChannelStackReference.createHCSFromLocations(new Location(
-                                            col, row), Location.createLocationFromRowAndColumn(
-                                            tileRow, tileCol));
-                            AbsoluteImageReference image =
-                                    imageAccessor.tryGetImage(channelCode, channelStackReference,
-                                            RequestedImageSize.createOriginal());
-                            if (image != null)
-                            {
-                                return image.getContent();
-                            }
-                        }
-                    }
-                }
+                return image.getContent();
             }
         }
         throw new IllegalStateException("Cannot find any image in a dataset: " + dataset);
     }
 
-    // TODO 2010-12-09, Tomasz Pylak: replace this code by choosing the dataset representative
-    // Now it works only in HCS case.
-    private static IContent tryGetAnyThumbnailImagePath(IImagingDatasetLoader imageAccessor,
-            IImageDatasetIdentifier dataset)
+    private static RequestedImageSize createOriginalOrThumbnail(boolean thumbnailsRequired)
+    {
+        // exact thumbnail size does not matter, we just want to mark that we do not want the
+        // original image
+        return thumbnailsRequired ? new RequestedImageSize(NULL_SIZE, false) : RequestedImageSize
+                .createOriginal();
+    }
+
+    private static IContent getAnyHCSImagePath(IImagingDatasetLoader imageAccessor,
+            IImageDatasetIdentifier dataset, boolean thumbnailsRequired)
     {
         ImageDatasetParameters params = imageAccessor.getImageParameters();
+        RequestedImageSize originalOrThumbnail = createOriginalOrThumbnail(thumbnailsRequired);
         for (int row = 1; row <= params.tryGetRowsNum(); row++)
         {
             for (int col = 1; col <= params.tryGetColsNum(); col++)
             {
-                for (int tileRow = 1; tileRow <= params.getTileRowsNum(); tileRow++)
+                for (String channelCode : params.getChannelsCodes())
                 {
-                    for (int tileCol = 1; tileCol <= params.getTileColsNum(); tileCol++)
+                    AbsoluteImageReference image =
+                            imageAccessor.tryGetRepresentativeImage(channelCode, new Location(col,
+                                    row), originalOrThumbnail);
+                    if (image != null)
                     {
-                        for (String channelCode : params.getChannelsCodes())
-                        {
-                            ImageChannelStackReference channelStackReference =
-                                    ImageChannelStackReference.createHCSFromLocations(new Location(
-                                            col, row), Location.createLocationFromRowAndColumn(
-                                            tileRow, tileCol));
-                            final IContent image =
-                                    imageAccessor.tryGetThumbnail(channelCode,
-                                            channelStackReference);
-                            // Either all images have a thumbnail or none has one.
-                            return image;
-                        }
+                        return image.getContent();
                     }
                 }
             }
         }
-        return null;
+        throw new IllegalStateException("Cannot find any image in a dataset: " + dataset);
     }
 
     public List<FeatureVectorDataset> loadFeatures(String sessionToken,
@@ -786,7 +762,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     {
         if (isMergedChannel(channel))
         {
-            return getDAO().tryGetExperimentByPermId(experimentPermID).tryGetImageTransformerFactory();
+            return getDAO().tryGetExperimentByPermId(experimentPermID)
+                    .tryGetImageTransformerFactory();
         } else
         {
             return getDAO().tryGetChannelForExperimentPermId(experimentPermID, channel)

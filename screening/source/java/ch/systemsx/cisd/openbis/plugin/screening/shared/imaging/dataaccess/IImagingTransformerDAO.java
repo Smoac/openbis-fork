@@ -36,9 +36,10 @@ public interface IImagingTransformerDAO extends TransactionQuery
         { TransformerFactoryMapper.class, TypeMapper.class /* default */})
     public void saveTransformerFactoryForDataset(long datasetId, IImageTransformerFactory factory);
 
-    @Update(sql = "update images set image_transformer_factory = ?{2} where id = ?{1}", parameterBindings =
+    @Update(sql = "update acquired_images set image_transformer_factory = ?{2} where id = ?{1}", parameterBindings =
         { TransformerFactoryMapper.class, TypeMapper.class /* default */})
-    public void saveTransformerFactoryForImage(long imageId, IImageTransformerFactory factory);
+    public void saveTransformerFactoryForImage(long acquiredImageId,
+            IImageTransformerFactory factory);
 
     @Update(sql = "update channels set image_transformer_factory = ?{3} "
             + "where code = ?{2} and exp_id = ?{1}", parameterBindings =

@@ -22,18 +22,18 @@ import ch.systemsx.cisd.base.image.IImageTransformer;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ExampleImageTransformerFactory implements IImageTransformerFactory
 {
     private static final long serialVersionUID = 1L;
-    
+
     private static final class Color
     {
         private int red;
+
         private int green;
+
         private int blue;
 
         Color(int rgb)
@@ -42,26 +42,43 @@ public class ExampleImageTransformerFactory implements IImageTransformerFactory
             green = (rgb >> 8) & 0xff;
             blue = rgb & 0xff;
         }
-        
+
         int getColor(char colorSymbol)
         {
             switch (colorSymbol)
             {
-                case 'r': return red;
-                case 'g': return green;
-                case 'b': return blue;
-                default: return 0;
+                case 'r':
+                    return red;
+                case 'g':
+                    return green;
+                case 'b':
+                    return blue;
+                default:
+                    return 0;
             }
         }
     }
-    
+
     private final String colorPattern;
-    
+
+    private final int brightnessDelta;
+
     public ExampleImageTransformerFactory(String colorPattern)
     {
-        this.colorPattern = colorPattern;
+        this(colorPattern, 0);
     }
-    
+
+    public ExampleImageTransformerFactory(int brightnessDelta)
+    {
+        this("rgb", brightnessDelta);
+    }
+
+    public ExampleImageTransformerFactory(String colorPattern, int brightnessDelta)
+    {
+        this.colorPattern = colorPattern;
+        this.brightnessDelta = brightnessDelta;
+    }
+
     public IImageTransformer createTransformer()
     {
         return new IImageTransformer()
@@ -70,26 +87,29 @@ public class ExampleImageTransformerFactory implements IImageTransformerFactory
                 {
                     int width = input.getWidth();
                     int height = input.getHeight();
-                    BufferedImage output = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+                    BufferedImage output =
+                            new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
                     for (int x = 0; x < width; x++)
                     {
                         for (int y = 0; y < height; y++)
                         {
                             int rgb = input.getRGB(x, y);
                             Color color = new Color(rgb);
-                            output.setRGB(
-                                    x,
-                                    y,
-                                    (color.getColor(colorPattern.charAt(0)) << 16)
-                                            + (color.getColor(colorPattern.charAt(1)) << 8)
-                                            + color.getColor(colorPattern.charAt(2)));
+                            output.setRGB(x, y,
+                                    (calcNewColor(color, 0) << 16) + (calcNewColor(color, 1) << 8)
+                                            + calcNewColor(color, 2));
                         }
                     }
                     return output;
                 }
+
+                private int calcNewColor(Color color, int colorIndex)
+                {
+                    return color.getColor(colorPattern.charAt(colorIndex)) + brightnessDelta;
+                }
             };
     }
-    
+
     @Override
     public String toString()
     {

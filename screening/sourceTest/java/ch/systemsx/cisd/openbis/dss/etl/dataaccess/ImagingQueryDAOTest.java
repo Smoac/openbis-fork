@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgCh
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageEnrichedDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgSpotDTO;
 
 /**
@@ -224,7 +225,7 @@ public class ImagingQueryDAOTest extends AbstractDBTest
         addAcquiredImage(imageId1, channelStackId, datasetChannelId1);
         addAcquiredImage(imageId2, channelStackId, experimentChannelId2);
 
-        testGetHCSImage(datasetId, channelStackId, datasetChannelId1, experimentChannelId2);
+        testGetHCSImage(datasetId, channelStackId, datasetChannelId1, experimentChannelId2, spotId);
         testListChannelStacksAndSpots(datasetId, channelStackId, spotId);
     }
 
@@ -251,7 +252,7 @@ public class ImagingQueryDAOTest extends AbstractDBTest
     }
 
     private void testGetHCSImage(final long datasetId, final long channelStackId,
-            final long channelId1, final long channelId2)
+            final long channelId1, final long channelId2, long spotId)
     {
         Location tileLocation = new Location(X_TILE_COLUMN, Y_TILE_ROW);
         Location wellLocation = new Location(X_WELL_COLUMN, Y_WELL_ROW);
@@ -283,6 +284,10 @@ public class ImagingQueryDAOTest extends AbstractDBTest
 
         ImgImageDTO image2bis = dao.tryGetImage(channelId2, channelStackId, datasetId);
         assertEquals(image2, image2bis);
+
+        List<ImgImageEnrichedDTO> allImages = dao.listHCSImages(DS_PERM_ID, DS_CHANNEL);
+        assertEquals(1, allImages.size());
+        assertEquals(spotId, allImages.get(0).getSpotId());
     }
 
     private void testChannelMethods(final long experimentId, final long datasetId,

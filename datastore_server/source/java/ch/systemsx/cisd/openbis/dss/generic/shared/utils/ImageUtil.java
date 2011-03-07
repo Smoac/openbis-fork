@@ -191,13 +191,15 @@ public class ImageUtil
     /**
      * Loads the specified <var>page</var> from the image from the tiven </var>inputStream</var>.
      * Supported images formats are GIF, JPG, PNG, and TIFF. The input stream will be closed after
-     * loading. Note that only for TIFF files a <var>page</var> other than 0 may be specified.
+     * loading. Note that only for TIFF files a <var>page</var> other than 0 (or null which is
+     * equivalent) may be specified.
      * 
      * @throws IllegalArgumentException if the input stream doesn't start with a magic number
      *             identifying supported image format.
      */
-    public static BufferedImage loadImage(IContent content, int page)
+    public static BufferedImage loadImage(IContent content, Integer pageOrNull)
     {
+        int page = pageOrNull == null ? 0 : pageOrNull.intValue();
         InputStream markSupportingInputStream = content.getInputStream();
         if (markSupportingInputStream.markSupported() == false)
         {

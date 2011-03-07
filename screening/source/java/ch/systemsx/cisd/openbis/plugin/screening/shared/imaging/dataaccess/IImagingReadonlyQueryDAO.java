@@ -36,7 +36,8 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
     public static final int FETCH_SIZE = 1000;
 
     public static final String SQL_HCS_IMAGE =
-            "select i.* from CHANNEL_STACKS, SPOTS, ACQUIRED_IMAGES, IMAGES as i "
+            "select i.*, ACQUIRED_IMAGES.image_transformer_factory as image_transformer_factory "
+                    + "from CHANNEL_STACKS, SPOTS, ACQUIRED_IMAGES, IMAGES as i "
                     + "where                                                                "
                     + "ACQUIRED_IMAGES.CHANNEL_ID = ?{1} and CHANNEL_STACKS.DS_ID = ?{2} and "
                     + "CHANNEL_STACKS.x = ?{3.x} and CHANNEL_STACKS.y = ?{3.y} and "
@@ -46,7 +47,8 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
                     + "CHANNEL_STACKS.SPOT_ID = SPOTS.ID ";
 
     public static final String SQL_MICROSCOPY_IMAGE =
-            "select i.* from CHANNEL_STACKS, ACQUIRED_IMAGES, IMAGES as i "
+            "select i.*, ACQUIRED_IMAGES.image_transformer_factory as image_transformer_factory "
+                    + "from CHANNEL_STACKS, ACQUIRED_IMAGES, IMAGES as i "
                     + "where                                                                "
                     + "ACQUIRED_IMAGES.CHANNEL_ID = ?{1} and CHANNEL_STACKS.DS_ID = ?{2} and "
                     + "CHANNEL_STACKS.x = ?{3.x} and CHANNEL_STACKS.y = ?{3.y} and "
@@ -55,7 +57,8 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
                     + "ACQUIRED_IMAGES.CHANNEL_STACK_ID = CHANNEL_STACKS.ID ";
 
     public static final String SQL_HCS_IMAGE_REPRESENTATIVE =
-            "select i.* from CHANNEL_STACKS, SPOTS, ACQUIRED_IMAGES, IMAGES as i "
+            "select i.*, ACQUIRED_IMAGES.image_transformer_factory as image_transformer_factory "
+                    + "from CHANNEL_STACKS, SPOTS, ACQUIRED_IMAGES, IMAGES as i "
                     + "where                                        "
                     + "CHANNEL_STACKS.is_representative = 'T' and   "
                     + "CHANNEL_STACKS.DS_ID = ?{1} and              "
@@ -66,7 +69,8 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
                     + "CHANNEL_STACKS.SPOT_ID = SPOTS.ID ";
 
     public static final String SQL_MICROSCOPY_IMAGE_REPRESENTATIVE =
-            "select i.* from CHANNEL_STACKS, ACQUIRED_IMAGES, IMAGES as i "
+            "select i.*, ACQUIRED_IMAGES.image_transformer_factory as image_transformer_factory "
+                    + "from CHANNEL_STACKS, ACQUIRED_IMAGES, IMAGES as i "
                     + "where                                         "
                     + "CHANNEL_STACKS.is_representative = 'T' and    "
                     + "CHANNEL_STACKS.DS_ID = ?{1} and               "
@@ -116,6 +120,21 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
     @Select(SQL_HCS_IMAGE_REPRESENTATIVE + " and ACQUIRED_IMAGES.THUMBNAIL_ID = i.ID ")
     public ImgImageDTO tryGetHCSRepresentativeThumbnail(long datasetId, Location wellLocation,
             long channelId);
+
+    /**
+     * @return all images of a given dataset and channel, every image is enriched with the
+     *         information about the spot to which it belongs.
+     */
+    @Select("select i.*, ai.image_transformer_factory as image_transformer_factory, "
+            +"s.id as spot_id, ai.id as acquired_image_id              "
+            + " from data_sets d                                       "
+            + " join channel_stacks cs on cs.ds_id = d.id              "
+            + " join spots s on cs.spot_id = s.id                      "
+            + " join acquired_images ai on ai.channel_stack_id = cs.id "
+            + " join channels ch on ai.channel_id = ch.id              "
+            + " join images i on i.id = ai.img_id                      "
+            + " where d.perm_id = ?{1} and ch.code = upper(?{2}) and s.id is NOT NULL")
+    public List<ImgImageEnrichedDTO> listHCSImages(String datasetPermId, String channelCode);
 
     // ---------------- Microscopy ---------------------------------
 
@@ -168,7 +187,8 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
     // ---------------- Generic ---------------------------------
 
     /** @return an image for the specified channel and channel stack or null */
-    @Select("select i.* from IMAGES as i "
+    @Select("select i.*, ACQUIRED_IMAGES.image_transformer_factory as image_transformer_factory "
+            + "from IMAGES as i                                      "
             + "join ACQUIRED_IMAGES on ACQUIRED_IMAGES.IMG_ID = i.ID "
             + "join CHANNEL_STACKS on ACQUIRED_IMAGES.CHANNEL_STACK_ID = CHANNEL_STACKS.ID "
             + "where                                                                "
@@ -179,7 +199,8 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
     public ImgImageDTO tryGetImage(long channelId, Long channelStackId, long datasetId);
 
     /** @return a thumbnail for the specified chanel and channel stack or null */
-    @Select("select i.* from IMAGES as i "
+    @Select("select i.*, ACQUIRED_IMAGES.image_transformer_factory as image_transformer_factory "
+            + "from IMAGES as i                                      "
             + "join ACQUIRED_IMAGES on ACQUIRED_IMAGES.THUMBNAIL_ID = i.ID "
             + "join CHANNEL_STACKS on ACQUIRED_IMAGES.CHANNEL_STACK_ID = CHANNEL_STACKS.ID "
             + "where                                                                "

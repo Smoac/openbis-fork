@@ -470,13 +470,7 @@ public class ImageChannelsUtils
 
     private static BufferedImage loadImage(AbsoluteImageReference imageReference)
     {
-        IContent content = imageReference.getContent();
-
-        // extracts the correct page if necessary
-        int page = (imageReference.tryGetPage() != null) ? imageReference.tryGetPage() : 0;
-
-        BufferedImage image = ImageUtil.loadImage(content, page);
-        return image;
+        return ImageUtil.loadImage(imageReference.getContent(), imageReference.tryGetPage());
     }
 
     /**
