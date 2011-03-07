@@ -55,7 +55,7 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
 
     public static final String HIERARCHY_LINK_NAMING_STRATEGY = "link-naming-strategy";
 
-    public static final String LINK_SOURCE_SUBFOLDER = "link-source-subfolder";
+    public static final String LINK_SOURCE_SUBFOLDER = "link-source-subpath";
 
     public static final String LINK_FROM_FIRST_CHILD = "link-from-first-child";
 
