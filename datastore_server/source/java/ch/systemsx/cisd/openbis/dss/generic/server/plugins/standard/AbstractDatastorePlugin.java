@@ -17,14 +17,15 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
@@ -33,6 +34,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
  */
 public abstract class AbstractDatastorePlugin implements Serializable
 {
+    static protected final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            AbstractDatastorePlugin.class);
+
     private static final String SUB_DIRECTORY_NAME = "sub-directory-name";
 
     private static final long serialVersionUID = 1L;
@@ -70,34 +74,6 @@ public abstract class AbstractDatastorePlugin implements Serializable
     protected File getDatasetDir(IDataSetDirectoryProvider provider, DatasetDescription dataset)
     {
         return provider.getDataSetDirectory(dataset);
-    }
-
-    /** returns a path relative to the store directory */
-    protected String getStoreRelativePath(String absolutePath)
-    {
-        return getStoreRelativePath(absolutePath, storeRoot);
-    }
-
-    private static String getStoreRelativePath(String absolutePath, File storeRoot)
-    {
-        String storePath;
-        String filePath;
-        try
-        {
-            storePath = storeRoot.getCanonicalPath();
-            filePath = new File(absolutePath).getCanonicalPath();
-        } catch (IOException ex)
-        {
-            throw EnvironmentFailureException
-                    .fromTemplate("Error when checking the canonical path: " + ex.getMessage());
-        }
-        int index = absolutePath.indexOf(storePath);
-        if (index == -1)
-        {
-            throw EnvironmentFailureException.fromTemplate(
-                    "File path '%s' does not contain the store path '%s'.", filePath, storePath);
-        }
-        return filePath.substring(index + storePath.length());
     }
 
 }
