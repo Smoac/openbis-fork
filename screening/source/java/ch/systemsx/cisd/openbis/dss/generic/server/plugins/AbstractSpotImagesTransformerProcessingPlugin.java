@@ -89,6 +89,7 @@ abstract public class AbstractSpotImagesTransformerProcessingPlugin extends Abst
                     calculateAndSetImageTransformation(spotImages, contentRepository,
                             transformerDAO);
                 }
+                transformerDAO.commit();
                 processingStatus.addDatasetStatus(dataset, Status.OK);
             }
             return processingStatus;
