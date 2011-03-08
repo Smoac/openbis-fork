@@ -126,7 +126,7 @@
     <copy file="${lib}/jfreechart/jfreechart-1.0.13.jar" todir="${dist.datastore_server.lib}" />
     <copy file="${lib}/jython/jython.jar" todir="${dist.datastore_server.lib}" />
     <copy todir="${dist.datastore_server.lib}/jython-lib" >
-    	<fileset 	dir="${lib}/jython/jython-lib" />
+    	<fileset 	dir="${lib}/jython/Lib" />
     </copy>
     <copy file="${lib}/truezip/truezip.jar" todir="${dist.datastore_server.lib}" />
   </target>
