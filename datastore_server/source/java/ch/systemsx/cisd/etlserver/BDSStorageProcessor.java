@@ -514,7 +514,7 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor
 
         private final void unstoreData()
         {
-            checkParameters(incomingDataSetDirectory, storedDataDirectory);
+            checkParameters(incomingDataSetDirectory, dataStructureDir);
 
             if (dataStructure == null)
             {
@@ -549,9 +549,10 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor
             final IFileOperations fileOps = FileOperations.getMonitoredInstanceForCurrentThread();
             if (fileOps.exists(incomingDataSetDirectory))
             {
-                if (fileOps.removeRecursivelyQueueing(storedDataDirectory) == false)
+                if (dataStructureDir != null
+                        && fileOps.removeRecursivelyQueueing(dataStructureDir) == false)
                 {
-                    operationLog.error("Cannot delete '" + storedDataDirectory.getAbsolutePath()
+                    operationLog.error("Cannot delete '" + dataStructureDir.getAbsolutePath()
                             + "'.");
                 }
             } else
