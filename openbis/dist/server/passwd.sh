@@ -11,6 +11,8 @@
 #    
 # -----------------------------------------------------------
 
+source `dirname "$0"`/setup-env
+
 APPLICATION_NAME=openbis
 
 #
@@ -23,15 +25,13 @@ fi
 WD="`dirname $bin`"
 cd "$WD/.."
 
-JAVA_BIN="$JAVA_HOME/bin/java"
-
-if [ ! -x "$JAVA_BIN" ]; then
+if [ ! -x "$JVM" ]; then
   echo "No java runtime environment executable found. You need to set the environment variable JAVA_HOME appropriately."
   exit 1
 fi
 
 
 LIB=webapps/$APPLICATION_NAME/WEB-INF/lib
-$JAVA_HOME/bin/java \
+$JVM \
    -cp $LIB/cisd-args4j.jar:$LIB/commons-lang.jar:$LIB/commons-io.jar:$LIB/commons-codec.jar:$LIB/jline.jar:$LIB/log4j.jar:$LIB/$APPLICATION_NAME.jar:$LIB/screening.jar \
    ch.systemsx.cisd.authentication.file.PasswordEditorCommand "$@"
