@@ -28,12 +28,12 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgIm
  * 
  * @author Tomasz Pylak
  */
-public class RevertImageLevelTransformationProcessingPlugin extends
+public class ResetImageLevelTransformationProcessingPlugin extends
         AbstractSpotImagesTransformerProcessingPlugin
 {
     private static final long serialVersionUID = 1L;
 
-    public RevertImageLevelTransformationProcessingPlugin(Properties properties, File storeRoot)
+    public ResetImageLevelTransformationProcessingPlugin(Properties properties, File storeRoot)
     {
         super(properties, storeRoot);
     }
