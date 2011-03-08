@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
  * Immplementation of {@link IShareIdManager} based on {@link CountDownLatch}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class ShareIdManager implements IShareIdManager
@@ -46,11 +46,11 @@ public class ShareIdManager implements IShareIdManager
     private static final class GuardedShareID
     {
         private final int lockingTimeOut;
-        
+
         private final String dataSetCode;
-        
+
         private CountDownLatch countDownLatch;
-        
+
         private String shareId;
 
         GuardedShareID(String dataSetCode, String shareId, int lockingTimeOut)
@@ -64,17 +64,17 @@ public class ShareIdManager implements IShareIdManager
         {
             return shareId;
         }
-        
+
         void setShareId(String shareId)
         {
             this.shareId = shareId;
         }
-        
+
         void lock()
         {
             countDownLatch = new CountDownLatch(1);
         }
-        
+
         void unlock()
         {
             if (countDownLatch != null)
@@ -82,14 +82,14 @@ public class ShareIdManager implements IShareIdManager
                 countDownLatch.countDown();
             }
         }
-        
+
         void await()
         {
             if (countDownLatch != null)
             {
                 try
                 {
-                    boolean successful  = countDownLatch.await(lockingTimeOut, TimeUnit.SECONDS);
+                    boolean successful = countDownLatch.await(lockingTimeOut, TimeUnit.SECONDS);
                     if (successful == false)
                     {
                         throw new EnvironmentFailureException("Lock for data set " + dataSetCode
@@ -103,14 +103,18 @@ public class ShareIdManager implements IShareIdManager
             }
         }
     }
-    
+
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             ShareIdManager.class);
 
     private final IEncapsulatedOpenBISService service;
+
     private final int lockingTimeOut;
+
     private final Map<String, Set<Thread>> lockedDataSets = new HashMap<String, Set<Thread>>();
+
     private final Object dataSetCodeToShareIdMapMonitor = new Object();
+
     private Map<String, GuardedShareID> dataSetCodeToShareIdMap;
 
     public ShareIdManager(IEncapsulatedOpenBISService service, int lockingTimeOutInSeconds)
@@ -229,11 +233,11 @@ public class ShareIdManager implements IShareIdManager
                 }
                 builder.append(thread.getName());
             }
-            operationLog.debug("Data set " + dataSetCode
-                    + " is locked by the following threads: " + builder);
+            operationLog.debug("Data set " + dataSetCode + " is locked by the following threads: "
+                    + builder);
         }
     }
-    
+
     private GuardedShareID getGuardedShareId(String dataSetCode)
     {
         GuardedShareID shareId = getDataSetCodeToShareIdMap().get(dataSetCode);
@@ -243,15 +247,15 @@ public class ShareIdManager implements IShareIdManager
         }
         return shareId;
     }
-    
+
     private Map<String, GuardedShareID> getDataSetCodeToShareIdMap()
     {
         synchronized (dataSetCodeToShareIdMapMonitor)
         {
             if (dataSetCodeToShareIdMap == null)
             {
-                dataSetCodeToShareIdMap = new HashMap<String, GuardedShareID>();
                 List<SimpleDataSetInformationDTO> dataSets = service.listDataSets();
+                dataSetCodeToShareIdMap = new HashMap<String, GuardedShareID>();
                 for (SimpleDataSetInformationDTO dataSet : dataSets)
                 {
                     String dataSetCode = dataSet.getDataSetCode();
@@ -264,5 +268,5 @@ public class ShareIdManager implements IShareIdManager
             return dataSetCodeToShareIdMap;
         }
     }
-    
+
 }
