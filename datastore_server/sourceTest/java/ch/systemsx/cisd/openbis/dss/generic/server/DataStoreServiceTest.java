@@ -316,8 +316,6 @@ public class DataStoreServiceTest extends AssertJUnit
                 {
                     one(commandExecutorFactory).create(TEST_STORE, TEST_STORE);
                     will(returnValue(commandExecutor));
-
-                    one(commandExecutor).start();
                 }
             });
         MockDataStoreService service =
