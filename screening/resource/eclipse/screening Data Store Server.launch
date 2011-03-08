@@ -9,5 +9,5 @@
 <booleanAttribute key="org.eclipse.debug.core.appendEnvironmentVariables" value="true"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="ch.systemsx.cisd.openbis.dss.generic.DataStoreServer"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="screening"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xmx512M&#13;-ea"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xmx512M&#13;-ea&#10;-Dpython.path=../libraries/jython/jython-lib"/>
 </launchConfiguration>
