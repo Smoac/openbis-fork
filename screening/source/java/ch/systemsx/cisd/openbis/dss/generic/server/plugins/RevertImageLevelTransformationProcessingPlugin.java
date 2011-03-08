@@ -20,11 +20,12 @@ import java.io.File;
 import java.util.List;
 import java.util.Properties;
 
-import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.openbis.dss.etl.IContentRepository;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageEnrichedDTO;
 
 /**
+ * Removes all image-level transformations.
+ * 
  * @author Tomasz Pylak
  */
 public class RevertImageLevelTransformationProcessingPlugin extends
@@ -41,12 +42,6 @@ public class RevertImageLevelTransformationProcessingPlugin extends
     protected IImageTransformerFactoryProvider getTransformationProvider(
             List<ImgImageEnrichedDTO> spotImages, IContentRepository contentRepository)
     {
-        return new IImageTransformerFactoryProvider()
-            {
-                public IImageTransformerFactory getTransformationFactory(ImgImageEnrichedDTO image)
-                {
-                    return null;
-                }
-            };
+        return NO_TRANSFORMATION_PROVIDER;
     }
 }

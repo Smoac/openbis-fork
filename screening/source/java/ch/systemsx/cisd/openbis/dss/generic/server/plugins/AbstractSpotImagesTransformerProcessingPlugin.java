@@ -38,6 +38,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImag
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageEnrichedDTO;
 
 /**
+ * Abstract superclass for calculating image transformations for images of each spot.
+ * 
  * @author Tomasz Pylak
  */
 abstract public class AbstractSpotImagesTransformerProcessingPlugin extends AbstractDatastorePlugin
@@ -45,6 +47,16 @@ abstract public class AbstractSpotImagesTransformerProcessingPlugin extends Abst
 {
     protected abstract IImageTransformerFactoryProvider getTransformationProvider(
             List<ImgImageEnrichedDTO> spotImages, IContentRepository contentRepository);
+
+    protected static final IImageTransformerFactoryProvider NO_TRANSFORMATION_PROVIDER =
+            new IImageTransformerFactoryProvider()
+                {
+                    public IImageTransformerFactory tryGetTransformationFactory(
+                            ImgImageEnrichedDTO image)
+                    {
+                        return null;
+                    }
+                };
 
     private static final long serialVersionUID = 1L;
 
@@ -88,21 +100,24 @@ abstract public class AbstractSpotImagesTransformerProcessingPlugin extends Abst
 
     interface IImageTransformerFactoryProvider
     {
-        IImageTransformerFactory getTransformationFactory(ImgImageEnrichedDTO image);
+        IImageTransformerFactory tryGetTransformationFactory(ImgImageEnrichedDTO image);
     }
 
     private void calculateAndSetImageTransformation(List<ImgImageEnrichedDTO> spotImages,
             IContentRepository contentRepository, IImagingTransformerDAO transformerDAO)
     {
+        long start = System.currentTimeMillis();
         IImageTransformerFactoryProvider transformerFactoryProvider =
                 getTransformationProvider(spotImages, contentRepository);
         for (ImgImageEnrichedDTO image : spotImages)
         {
             IImageTransformerFactory transformationFactory =
-                    transformerFactoryProvider.getTransformationFactory(image);
+                    transformerFactoryProvider.tryGetTransformationFactory(image);
             transformerDAO.saveTransformerFactoryForImage(image.getAcquiredImageId(),
                     transformationFactory);
         }
+        operationLog.info(String.format("Processed %d images of the spot in %d msec.",
+                spotImages.size(), (System.currentTimeMillis() - start)));
     }
 
     private IContentRepository createContentRepository(DataSetProcessingContext context,
