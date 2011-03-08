@@ -268,6 +268,8 @@ public class ProteinViewer extends AbstractViewerWithVerticalSplit<IEntityInform
                     };
         add(proteinsSection, createBorderLayoutData(LayoutRegion.SOUTH));
         layout();
+        sequencesSection.setContentVisible(true);
+        proteinsSection.setContentVisible(true);
     }
 
     private ContentPanel createPropertyPanel(ProteinByExperiment protein)

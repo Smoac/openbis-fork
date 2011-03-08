@@ -16,35 +16,36 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application;
 
+import java.util.Arrays;
 import java.util.List;
+
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application.columns.ProteinSequenceColDefKind;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinSequenceCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSequence;
 
 /**
  * @author Franz-Josef Elmer
  */
-public class ProteinSequenceGrid extends AbstractSimpleBrowserGrid<ProteinSequence>
+public class ProteinSequenceGrid extends TypedTableGrid<ProteinSequence>
 {
     private static final String PREFIX = GenericConstants.ID_PREFIX + "protein-sequence-browser";
 
     public static final String BROWSER_ID = PREFIX + "_main";
 
-    public static final String GRID_ID = PREFIX + "_grid";
+    public static final String GRID_ID = PREFIX + TypedTableGrid.GRID_POSTFIX;
 
     static IDisposableComponent create(IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
             TechId proteinReferenceID)
@@ -60,8 +61,7 @@ public class ProteinSequenceGrid extends AbstractSimpleBrowserGrid<ProteinSequen
     private ProteinSequenceGrid(IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
             TechId proteinReferenceID)
     {
-        super(viewContext.getCommonViewContext(), BROWSER_ID + proteinReferenceID, GRID_ID
-                + proteinReferenceID, true,
+        super(viewContext.getCommonViewContext(), BROWSER_ID + proteinReferenceID, true,
                 PhosphoNetXDisplayTypeIDGenerator.PROTEIN_SEQUENCE_BROWSER_GRID);
         specificViewContext = viewContext;
         criteria = new ListProteinSequenceCriteria();
@@ -69,32 +69,35 @@ public class ProteinSequenceGrid extends AbstractSimpleBrowserGrid<ProteinSequen
     }
 
     @Override
-    protected IColumnDefinitionKind<ProteinSequence>[] getStaticColumnsDefinition()
+    protected String translateColumnIdToDictionaryKey(String columnID)
     {
-        return ProteinSequenceColDefKind.values();
+        return columnID.toLowerCase();
     }
-
+    
     @Override
-    protected List<IColumnDefinition<ProteinSequence>> getInitialFilters()
+    protected List<String> getColumnIdsOfFilters()
     {
-        return asColumnFilters(new ProteinSequenceColDefKind[] {});
+        return Arrays.asList();
     }
-
+    
     @Override
-    protected void listEntities(DefaultResultSetConfig<String, ProteinSequence> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<ProteinSequence>> callback)
+    protected void listTableRows(
+            DefaultResultSetConfig<String, TableModelRowWithObject<ProteinSequence>> resultSetConfig,
+            AsyncCallback<TypedTableResultSet<ProteinSequence>> callback)
     {
         criteria.copyPagingConfig(resultSetConfig);
         specificViewContext.getService().listSequencesByProteinReference(criteria, callback);
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<ProteinSequence> exportCriteria,
+    protected void prepareExportEntities(
+            TableExportCriteria<TableModelRowWithObject<ProteinSequence>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         specificViewContext.getService().prepareExportProteinSequences(exportCriteria, callback);
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[0];

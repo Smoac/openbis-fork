@@ -81,19 +81,20 @@ public interface IPhosphoNetXClientServiceAsync extends IClientServiceAsync
 
     /** @see IPhosphoNetXClientService#listSequencesByProteinReference(ListProteinSequenceCriteria) */
     public void listSequencesByProteinReference(ListProteinSequenceCriteria criteria,
-            AsyncCallback<ResultSet<ProteinSequence>> callback);
+            AsyncCallback<TypedTableResultSet<ProteinSequence>> callback);
 
     /** @see IPhosphoNetXClientService#prepareExportProteinSequences(TableExportCriteria) */
-    public void prepareExportProteinSequences(TableExportCriteria<ProteinSequence> exportCriteria,
+    public void prepareExportProteinSequences(
+            TableExportCriteria<TableModelRowWithObject<ProteinSequence>> exportCriteria,
             AsyncCallback<String> callback);
 
     /** @see IPhosphoNetXClientService#listProteinsByExperimentAndReference(ListProteinByExperimentAndReferenceCriteria) */
     public void listProteinsByExperimentAndReference(
             ListProteinByExperimentAndReferenceCriteria criteria,
-            AsyncCallback<ResultSet<DataSetProtein>> callback);
+            AsyncCallback<TypedTableResultSet<DataSetProtein>> callback);
 
     /** @see IPhosphoNetXClientService#prepareExportDataSetProteins(TableExportCriteria) */
-    public void prepareExportDataSetProteins(TableExportCriteria<DataSetProtein> exportCriteria,
+    public void prepareExportDataSetProteins(TableExportCriteria<TableModelRowWithObject<DataSetProtein>> exportCriteria,
             AsyncCallback<String> callback);
 
     /** @see IPhosphoNetXClientService#listSamplesWithAbundanceByProtein(ListSampleAbundanceByProteinCriteria) */

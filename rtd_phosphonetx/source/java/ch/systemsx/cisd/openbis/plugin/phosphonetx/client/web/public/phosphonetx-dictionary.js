@@ -18,7 +18,7 @@ var phosphonetx = {
   proteins_section: "Proteins",
   protein_in_experiment_tab_label: "{0} in {1}",
   experiment_label: "Experiment",
-  sequence_short_name: "",
+  sequence_short_name: "Sequence Reference",
   protein_browser: "Proteins",
   protein_summary: "Protein/Peptide Counts",
   database_name_and_version: "Database",
@@ -31,7 +31,7 @@ var phosphonetx = {
   protein_count: "Proteins",
   peptide_count: "Peptides",
   peptides: "Peptides ({0})",
-  sequence_name: "Sequence",
+  sequence_name: "Sequence Reference",
   false_discovery_rate_column: "FDR (Protein Prophet)",
   protein_probability: "Probability (Protein Prophet)",
   

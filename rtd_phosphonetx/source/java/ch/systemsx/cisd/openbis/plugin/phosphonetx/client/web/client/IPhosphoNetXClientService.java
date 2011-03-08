@@ -73,16 +73,18 @@ public interface IPhosphoNetXClientService extends IClientService
     public ProteinByExperiment getProteinByExperiment(TechId experimentID, TechId proteinReferenceID)
             throws UserFailureException;
 
-    public ResultSet<ProteinSequence> listSequencesByProteinReference(
+    public TypedTableResultSet<ProteinSequence> listSequencesByProteinReference(
             ListProteinSequenceCriteria criteria) throws UserFailureException;
 
-    public String prepareExportProteinSequences(TableExportCriteria<ProteinSequence> exportCriteria)
+    public String prepareExportProteinSequences(
+            TableExportCriteria<TableModelRowWithObject<ProteinSequence>> exportCriteria)
             throws UserFailureException;
 
-    public ResultSet<DataSetProtein> listProteinsByExperimentAndReference(
+    public TypedTableResultSet<DataSetProtein> listProteinsByExperimentAndReference(
             ListProteinByExperimentAndReferenceCriteria criteria) throws UserFailureException;
 
-    public String prepareExportDataSetProteins(TableExportCriteria<DataSetProtein> exportCriteria)
+    public String prepareExportDataSetProteins(
+            TableExportCriteria<TableModelRowWithObject<DataSetProtein>> exportCriteria)
             throws UserFailureException;
 
     public ResultSet<SampleWithPropertiesAndAbundance> listSamplesWithAbundanceByProtein(

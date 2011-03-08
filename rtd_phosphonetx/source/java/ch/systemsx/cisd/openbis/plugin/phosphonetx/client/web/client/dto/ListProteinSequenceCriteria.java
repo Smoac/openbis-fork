@@ -20,15 +20,17 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSequence;
 
 /**
- * 
+ * Criteria for listing {@link ProteinSequence} instances.
  *
  * @author Franz-Josef Elmer
  */
 public class ListProteinSequenceCriteria extends
-        DefaultResultSetConfig<String, ProteinSequence> implements IsSerializable
+        DefaultResultSetConfig<String, TableModelRowWithObject<ProteinSequence>> implements
+        IsSerializable
 {
     private TechId proteinReferenceID;
 

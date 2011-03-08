@@ -62,6 +62,8 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListPro
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinSequenceCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinSummaryByExperimentCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListSampleAbundanceByProteinCriteria;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.server.resultset.DataSetProteinProvider;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.server.resultset.ProteinSequenceProvider;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.server.resultset.ProteinSummaryProvider;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.CacheData;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IPhosphoNetXServer;
@@ -235,28 +237,32 @@ public class PhosphoNetXClientService extends AbstractClientService implements
         }
     }
 
-    public ResultSet<ProteinSequence> listSequencesByProteinReference(
+    public TypedTableResultSet<ProteinSequence> listSequencesByProteinReference(
             ListProteinSequenceCriteria criteria)
     {
         final String sessionToken = getSessionToken();
-        return listEntities(criteria, new ListProteinSequenceDataProvider(server, sessionToken,
-                criteria.getProteinReferenceID()));
+        return listEntities(
+                new ProteinSequenceProvider(server, sessionToken, criteria.getProteinReferenceID()),
+                criteria);
     }
 
-    public String prepareExportProteinSequences(TableExportCriteria<ProteinSequence> exportCriteria)
+    public String prepareExportProteinSequences(
+            TableExportCriteria<TableModelRowWithObject<ProteinSequence>> exportCriteria)
     {
         return prepareExportEntities(exportCriteria);
     }
 
-    public ResultSet<DataSetProtein> listProteinsByExperimentAndReference(
+    public TypedTableResultSet<DataSetProtein> listProteinsByExperimentAndReference(
             ListProteinByExperimentAndReferenceCriteria criteria)
     {
         final String sessionToken = getSessionToken();
-        return listEntities(criteria, new ListDataSetProteinDataProvider(server, sessionToken,
-                criteria.getExperimentID(), criteria.getProteinReferenceID()));
+        return listEntities(
+                new DataSetProteinProvider(server, sessionToken, criteria.getExperimentID(),
+                        criteria.getProteinReferenceID()), criteria);
     }
 
-    public String prepareExportDataSetProteins(TableExportCriteria<DataSetProtein> exportCriteria)
+    public String prepareExportDataSetProteins(
+            TableExportCriteria<TableModelRowWithObject<DataSetProtein>> exportCriteria)
     {
         return prepareExportEntities(exportCriteria);
     }

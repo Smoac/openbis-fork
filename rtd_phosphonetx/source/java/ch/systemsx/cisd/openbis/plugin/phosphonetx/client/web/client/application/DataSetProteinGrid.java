@@ -16,36 +16,38 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application;
 
+import java.util.Arrays;
 import java.util.List;
+
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application.columns.DataSetProteinColDefKind;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.DataSetProteinGridColumnIDs;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentAndReferenceCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.DataSetProtein;
 
 /**
  * @author Franz-Josef Elmer
  */
-class DataSetProteinGrid extends AbstractSimpleBrowserGrid<DataSetProtein>
+class DataSetProteinGrid extends TypedTableGrid<DataSetProtein>
 {
     private static final String PREFIX = GenericConstants.ID_PREFIX + "data-set-protein-browser";
 
     public static final String BROWSER_ID = PREFIX + "_main";
 
-    public static final String GRID_ID = PREFIX + "_grid";
+    public static final String GRID_ID = PREFIX + TypedTableGrid.GRID_POSTFIX;
 
     static IDisposableComponent create(IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
             IIdAndCodeHolder experimentIdOrNull, TechId proteinReferenceID)
@@ -68,7 +70,6 @@ class DataSetProteinGrid extends AbstractSimpleBrowserGrid<DataSetProtein>
             IIdAndCodeHolder experimentIdOrNull, TechId proteinReferenceID)
     {
         super(viewContext.getCommonViewContext(), BROWSER_ID
-                + createWidgetID(experimentIdOrNull, proteinReferenceID), GRID_ID
                 + createWidgetID(experimentIdOrNull, proteinReferenceID), true,
                 PhosphoNetXDisplayTypeIDGenerator.DATA_SET_PROTEIN_BROWSER_GRID);
         specificViewContext = viewContext;
@@ -81,32 +82,36 @@ class DataSetProteinGrid extends AbstractSimpleBrowserGrid<DataSetProtein>
     }
 
     @Override
-    protected IColumnDefinitionKind<DataSetProtein>[] getStaticColumnsDefinition()
+    protected String translateColumnIdToDictionaryKey(String columnID)
     {
-        return DataSetProteinColDefKind.values();
+        return DataSetProteinGridColumnIDs.FDR.equals(columnID) ? "false_discovery_rate_column"
+                : columnID.toLowerCase();
     }
-
+    
     @Override
-    protected List<IColumnDefinition<DataSetProtein>> getInitialFilters()
+    protected List<String> getColumnIdsOfFilters()
     {
-        return asColumnFilters(new DataSetProteinColDefKind[] {});
+        return Arrays.asList();
     }
-
+    
     @Override
-    protected void listEntities(DefaultResultSetConfig<String, DataSetProtein> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<DataSetProtein>> callback)
+    protected void listTableRows(
+            DefaultResultSetConfig<String, TableModelRowWithObject<DataSetProtein>> resultSetConfig,
+            AsyncCallback<TypedTableResultSet<DataSetProtein>> callback)
     {
         criteria.copyPagingConfig(resultSetConfig);
         specificViewContext.getService().listProteinsByExperimentAndReference(criteria, callback);
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<DataSetProtein> exportCriteria,
+    protected void prepareExportEntities(
+            TableExportCriteria<TableModelRowWithObject<DataSetProtein>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         specificViewContext.getService().prepareExportDataSetProteins(exportCriteria, callback);
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[0];
