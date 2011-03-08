@@ -56,25 +56,25 @@
         <constructor-arg value="86400"/>
     </bean>
     
+    <bean id="data-store-service" class="ch.systemsx.cisd.openbis.dss.generic.server.DataStoreService">
+        <constructor-arg ref="session-token-manager" />
+        <constructor-arg>
+            <bean class="ch.systemsx.cisd.common.mail.MailClientParameters">
+                <property name="from" value="${mail.from}"/>
+                <property name="smtpHost" value="${mail.smtp.host}"/>
+                <property name="smtpUser" value="${mail.smtp.user}"/>
+                <property name="smtpPassword" value="${mail.smtp.password}"/>
+            </bean>
+        </constructor-arg>
+        <constructor-arg ref="plugin-tasks" />
+        <property name="cifexAdminUserOrNull" value="${cifex-admin-username}" />
+        <property name="cifexAdminPasswordOrNull" value="${cifex-admin-password}" />
+        <property name="commandQueueDir" value="${commandqueue-dir}"/>
+    </bean>
+    
     <bean id="data-store-server"
         class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter">
-        <property name="service">
-            <bean class="ch.systemsx.cisd.openbis.dss.generic.server.DataStoreService">
-                <constructor-arg ref="session-token-manager" />
-                <constructor-arg>
-                    <bean class="ch.systemsx.cisd.common.mail.MailClientParameters">
-                        <property name="from" value="${mail.from}"/>
-                        <property name="smtpHost" value="${mail.smtp.host}"/>
-                        <property name="smtpUser" value="${mail.smtp.user}"/>
-                        <property name="smtpPassword" value="${mail.smtp.password}"/>
-                    </bean>
-                </constructor-arg>
-                <constructor-arg ref="plugin-tasks" />
-                <property name="cifexAdminUserOrNull" value="${cifex-admin-username}" />
-                <property name="cifexAdminPasswordOrNull" value="${cifex-admin-password}" />
-                <property name="commandQueueDir" value="${commandqueue-dir}"/>
-            </bean>
-        </property>
+        <property name="service" ref="data-store-service"/>
         <property name="serviceInterface" value="ch.systemsx.cisd.openbis.generic.shared.IDataStoreService" />
     </bean>
     

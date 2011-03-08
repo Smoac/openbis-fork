@@ -36,6 +36,7 @@ import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.common.spring.AbstractServiceWithLogger;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
+import ch.systemsx.cisd.common.utilities.IInitializable;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ArchiverTaskFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IArchiverTask;
@@ -64,7 +65,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.UuidUtil;
  * @author Franz-Josef Elmer
  */
 public class DataStoreService extends AbstractServiceWithLogger<IDataStoreService> implements
-        IDataStoreService, InitializingBean
+        IDataStoreService, InitializingBean, IInitializable
 {
     private final SessionTokenManager sessionTokenManager;
 
@@ -134,7 +135,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     {
         this.cifexAdminPasswordOrNull = cifexAdminPasswordOrNull;
     }
-
+    
     public void afterPropertiesSet()
     {
         String prefix = "Property 'storeRoot' ";
@@ -165,8 +166,16 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
             commandQueueDirOrNull = storeRoot;
         }
         commandExecutor = commandExecutorFactory.create(storeRoot, commandQueueDirOrNull);
-        commandExecutor.start();
         migrateStore();
+    }
+    
+    public void initialize()
+    {
+        commandExecutor.start();
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("Comand executor started.");
+        }
     }
 
     private void migrateStore()

@@ -20,6 +20,7 @@ import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DAT
 import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
@@ -40,6 +41,7 @@ import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.eclipse.jetty.server.ssl.SslSocketConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 import org.springframework.util.StringUtils;
@@ -58,6 +60,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
+import ch.systemsx.cisd.common.utilities.IInitializable;
 import ch.systemsx.cisd.openbis.dss.generic.server.ConfigParameters.PluginServlet;
 import ch.systemsx.cisd.openbis.dss.generic.server.api.v1.DssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -146,6 +149,8 @@ public class DataStoreServer
                 operationLog.info("Data set download server ready on port "
                         + applicationContext.getConfigParameters().getPort());
             }
+            ((IInitializable) ServiceProvider.getApplicationContext().getBean("data-store-service"))
+                    .initialize();
         } catch (final Exception ex)
         {
             operationLog.error("Failed to start server.", ex);
