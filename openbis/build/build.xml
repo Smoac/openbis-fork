@@ -319,8 +319,6 @@
       <arg value="-war" />
       <arg value="${webapp.dist}" />
       <arg value="${gwt.module.name}" />
-      <arg value="-localWorkers" />
-      <arg value="4" />
       <arg value="-XdisableCastChecking" />
       <arg value="-XdisableClassMetadata" />
     </java>
@@ -714,13 +712,16 @@
       <lib dir="${lib}/jython">
         <include name="jython.jar" />
       </lib>
-
+      <!-- modules for jython scripting -->
+      <webinf dir="${lib}/jython/">
+        <include name="jython-lib/**/*.*" />
+      </webinf>  	  
     </war>
     <!-- Does some cleaning. -->
     <delete file="${jar.file}" failonerror="true" />
     <delete dir="${webapp.dist}" failonerror="true" />
   </target>
-
+	
   <!--
 	// Duplicate developer database and creates dump file and index files
 	-->

@@ -14,3 +14,5 @@ JVM=java
 if [ -n "$JAVA_HOME" ]; then
     JVM="$JAVA_HOME"/bin/java
 fi 
+
+JETTY_LIB_PATH="$JETTY_BIN_DIR"/../webapps/openbis/WEB-INF/jython-lib
