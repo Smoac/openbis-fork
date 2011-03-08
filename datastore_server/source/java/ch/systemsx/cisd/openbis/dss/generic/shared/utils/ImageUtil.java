@@ -79,20 +79,7 @@ public class ImageUtil
             inputStream.mark(MAX_READ_AHEAD);
             try
             {
-                final ImageDecoder dec = ImageCodec.createImageDecoder("tiff", inputStream, null);
-                Raster raster;
-                try
-                {
-                    raster = dec.decodeAsRaster(page);
-                } catch (IOException ex)
-                {
-                    throw EnvironmentFailureException.fromTemplate("Cannot decode image.", ex);
-                }
-                final BufferedImage image =
-                        new BufferedImage(raster.getWidth(), raster.getHeight(),
-                                BufferedImage.TYPE_INT_RGB);
-                image.setData(raster);
-                return image;
+                return loadJavaAdvancedImagingTiff(inputStream, page, false);
             } catch (RuntimeException ex)
             {
                 if (page == 0)
@@ -106,13 +93,54 @@ public class ImageUtil
                     }
                     // There are some TIFF files which cannot be opened by JIA, try ImageJ
                     // instead...
-                    return new Opener().openTiff(inputStream, "").getBufferedImage();
+                    return loadWithImageJ(inputStream);
                 } else
                 {
                     throw ex;
                 }
             }
         }
+
+        private BufferedImage loadWithImageJ(InputStream inputStream)
+        {
+            return new Opener().openTiff(inputStream, "").getBufferedImage();
+        }
+    }
+
+    /**
+     * For experts only! Loads some kinds of TIFF images handled by JAI library.
+     * 
+     * @param allow16BitGrayscaleModel if true and the image is 16 bit grayscale, then the
+     *            appropriate buffered imaged type will be used, otherwise the image will be
+     *            converted to 24 bits RGB. Useful if access to original pixel values is needed.
+     */
+    public static BufferedImage loadJavaAdvancedImagingTiff(InputStream inputStream,
+            Integer pageOrNull, boolean allow16BitGrayscaleModel)
+            throws EnvironmentFailureException
+    {
+        int page = getPageNumber(pageOrNull);
+        final ImageDecoder dec = ImageCodec.createImageDecoder("tiff", inputStream, null);
+        Raster raster;
+        try
+        {
+            raster = dec.decodeAsRaster(page);
+        } catch (IOException ex)
+        {
+            throw EnvironmentFailureException.fromTemplate("Cannot decode image.", ex);
+        }
+        int bufferType = findBestImageBufferType(raster, allow16BitGrayscaleModel);
+        final BufferedImage image =
+                new BufferedImage(raster.getWidth(), raster.getHeight(), bufferType);
+        image.setData(raster);
+        return image;
+    }
+
+    private static int findBestImageBufferType(Raster raster, boolean allow16BitGrayscaleModel)
+    {
+        boolean is16BitGrayscale =
+                raster.getNumBands() == 1 && raster.getSampleModel().getSampleSize()[0] == 16;
+        return is16BitGrayscale && allow16BitGrayscaleModel ? BufferedImage.TYPE_USHORT_GRAY
+                : BufferedImage.TYPE_INT_RGB;
     }
 
     private static final class JavaImageLoader implements ImageLoader
@@ -199,7 +227,7 @@ public class ImageUtil
      */
     public static BufferedImage loadImage(IContent content, Integer pageOrNull)
     {
-        int page = pageOrNull == null ? 0 : pageOrNull.intValue();
+        int page = getPageNumber(pageOrNull);
         InputStream markSupportingInputStream = content.getInputStream();
         if (markSupportingInputStream.markSupported() == false)
         {
@@ -207,6 +235,11 @@ public class ImageUtil
         }
         String fileType = DataTypeUtil.tryToFigureOutFileTypeOf(markSupportingInputStream);
         return loadImage(markSupportingInputStream, fileType, page);
+    }
+
+    private static int getPageNumber(Integer pageOrNull)
+    {
+        return pageOrNull == null ? 0 : pageOrNull.intValue();
     }
 
     /**
