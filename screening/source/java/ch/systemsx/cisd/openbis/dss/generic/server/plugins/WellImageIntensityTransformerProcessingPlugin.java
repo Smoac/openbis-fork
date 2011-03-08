@@ -16,10 +16,13 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
@@ -33,6 +36,16 @@ import ch.systemsx.sybit.imageviewer.data.MinMaxInChannel;
 import ch.systemsx.sybit.imageviewer.transformers.IJImageTransformerFactory;
 
 /**
+ * Rescales colors so that all images of one well have comparable brightness. Used by DynamiX
+ * project.
+ * <p>
+ * Currently openBIS converts 16 bit grayscale images to 8 bit. This class has to revert this
+ * conversion and apply the correct one (taking all images of a well into account). Some information
+ * is lost because of this double conversion, but we cannot avoid it before openBIS supports 16bit
+ * images better.
+ * <p>
+ * Can process only tiff images which can be read by JAI library.
+ * 
  * @author Tomasz Pylak
  */
 public class WellImageIntensityTransformerProcessingPlugin extends
@@ -48,10 +61,11 @@ public class WellImageIntensityTransformerProcessingPlugin extends
     public WellImageIntensityTransformerProcessingPlugin(Properties properties, File storeRoot)
     {
         super(properties, storeRoot);
-        this.minRescaledColor = PropertyUtils.getInt(properties, "min-color", 2);
-        this.maxRescaledColor = PropertyUtils.getInt(properties, "max-color", 16000);
+        this.minRescaledColor = PropertyUtils.getInt(properties, "min-color", 1);
+        this.maxRescaledColor = PropertyUtils.getInt(properties, "max-color", 16384 - 1);
     }
 
+    /** Describes the minimal and maximal brightness of the pixel on the image. */
     private static class ImagePixelsRange
     {
         private final int min, max;
@@ -86,38 +100,77 @@ public class WellImageIntensityTransformerProcessingPlugin extends
         @Override
         public String toString()
         {
-            return "range [" + min + ", " + max + "]";
+            return "[" + min + ", " + max + "]";
         }
     }
 
     @Override
-    protected IImageTransformerFactory tryCalculateTransformation(
+    protected IImageTransformerFactoryProvider getTransformationProvider(
             List<ImgImageEnrichedDTO> spotImages, IContentRepository contentRepository)
     {
         if (spotImages.size() < 2)
         {
             return null;
         }
-        ImagePixelsRange range = null;
-        int i = 1;
+        final Map<ImgImageEnrichedDTO, ImagePixelsRange> rangeMap =
+                new HashMap<ImgImageEnrichedDTO, ImagePixelsRange>();
         for (ImgImageEnrichedDTO image : spotImages)
         {
-            IContent content = contentRepository.getContent(image.getFilePath());
-            BufferedImage bufferedImage = ImageUtil.loadImage(content, image.getPage());
+            BufferedImage bufferedImage = loadImage(contentRepository, image);
             ImagePixelsRange imageRange = calculatePixelsRange(bufferedImage);
-
-            // debug
-            System.out.println(imageRange + " - " + i++ + " - " + image.getFilePath());
-
-            range = imageRange.createOverlap(range);
+            rangeMap.put(image, imageRange);
         }
-        assert range != null;
-        // debug
-        System.out.println("Final range: " + range);
-        return tryCreateRescaleTransformationFactory(range);
+        return createImageTransformerFactoryProvider(rangeMap);
     }
 
-    private IImageTransformerFactory tryCreateRescaleTransformationFactory(ImagePixelsRange range)
+    private static BufferedImage loadImage(IContentRepository contentRepository,
+            ImgImageEnrichedDTO image)
+    {
+        IContent content = contentRepository.getContent(image.getFilePath());
+        return ImageUtil.loadJavaAdvancedImagingTiff(content.getInputStream(), image.getPage(),
+                true);
+    }
+
+    private static IImageTransformerFactoryProvider createImageTransformerFactoryProvider(
+            final Map<ImgImageEnrichedDTO, ImagePixelsRange> rangeMap)
+    {
+        final ImagePixelsRange globalRange = calculateOverlapRange(rangeMap.values());
+        return new IImageTransformerFactoryProvider()
+            {
+                public IImageTransformerFactory getTransformationFactory(ImgImageEnrichedDTO image)
+                {
+                    ImagePixelsRange imageRange = rangeMap.get(image);
+                    ImagePixelsRange rescaledRange = rescaleRange(imageRange, globalRange);
+                    // debug
+                    System.out.println(image.getFilePath().substring(40) + " global range: "
+                            + globalRange + ", local range: " + imageRange + ", rescaled range: "
+                            + rescaledRange);
+                    return tryCreateRescaleTransformationFactory(rescaledRange);
+                }
+            };
+    }
+
+    private static ImagePixelsRange calculateOverlapRange(Collection<ImagePixelsRange> ranges)
+    {
+        ImagePixelsRange globalRange = null;
+        for (ImagePixelsRange imageRange : ranges)
+        {
+            globalRange = imageRange.createOverlap(globalRange);
+        }
+        return globalRange;
+    }
+
+    private static ImagePixelsRange rescaleRange(ImagePixelsRange imageRange,
+            ImagePixelsRange globalRange)
+    {
+        double globalRangeLength = globalRange.getMax() - globalRange.getMin();
+        int min = (int) (255 * (imageRange.getMin() - globalRange.getMin()) / globalRangeLength);
+        int max = (int) (255 * (imageRange.getMax() - globalRange.getMin()) / globalRangeLength);
+        return new ImagePixelsRange(min, max);
+    }
+
+    private static IImageTransformerFactory tryCreateRescaleTransformationFactory(
+            ImagePixelsRange range)
     {
         ImageViewerParameters params = new ImageViewerParameters();
         params.setMin(range.getMin());
@@ -130,24 +183,16 @@ public class WellImageIntensityTransformerProcessingPlugin extends
 
     private ImagePixelsRange calculatePixelsRange(BufferedImage bufferedImage)
     {
-        int bucketSize = 2000;
-        int buckets[] = new int[17000 / bucketSize + 1];
-        long sum = 0;
-        System.out.println("component bits: " + bufferedImage.getColorModel().getComponentSize(0));
-        System.out.println("number of components: "
-                + bufferedImage.getColorModel().getNumColorComponents());
-
         int minColor = maxRescaledColor;
         int maxColor = minRescaledColor;
+        boolean isGrayscale = bufferedImage.getSampleModel().getNumBands() == 1;
         // first pass - calsulate min and max color
         for (int x = 0; x < bufferedImage.getWidth(); x++)
         {
             for (int y = 0; y < bufferedImage.getHeight(); y++)
             {
-                int dominantColorComponent = getDominantColorComponent(bufferedImage, x, y);
-                buckets[dominantColorComponent / bucketSize]++;
-                sum += dominantColorComponent;
-
+                int dominantColorComponent =
+                        getDominantColorComponent(bufferedImage, isGrayscale, x, y);
                 if (dominantColorComponent >= minRescaledColor
                         && dominantColorComponent <= maxRescaledColor)
                 {
@@ -161,28 +206,30 @@ public class WellImageIntensityTransformerProcessingPlugin extends
                 }
             }
         }
-        int max = 0;
-        for (int i = 0; i < buckets.length; i++)
-        {
-            if (buckets[i] > buckets[max])
-            {
-                max = i;
-            }
-            System.out.println("bucket " + i + ": " + buckets[i]);
-        }
-        System.out.println("Max bucket " + max + ": " + buckets[max] + ".\t Sum: " + sum);
         return new ImagePixelsRange(minColor, maxColor);
     }
 
-    // private static int getDominantColorComponent(BufferedImage bufferedImage, int x, int y)
-    // {
-    // int rgb = bufferedImage.getRGB(x, y);
-    // Color color = new Color(rgb);
-    // int max = Math.max(color.getRed(), color.getBlue());
-    // return Math.max(max, color.getGreen());
-    // }
+    private static int getDominantColorComponent(BufferedImage bufferedImage, boolean isGrayscale,
+            int x, int y)
+    {
+        if (isGrayscale)
+        {
+            return getDominantColorComponentGrayscale(bufferedImage, x, y);
+        } else
+        {
+            return getDominantColorComponentRGB(bufferedImage, x, y);
+        }
+    }
 
-    private static int getDominantColorComponent(BufferedImage bufferedImage, int x, int y)
+    private static int getDominantColorComponentRGB(BufferedImage bufferedImage, int x, int y)
+    {
+        int rgb = bufferedImage.getRGB(x, y);
+        Color color = new Color(rgb);
+        int max = Math.max(color.getRed(), color.getBlue());
+        return Math.max(max, color.getGreen());
+    }
+
+    private static int getDominantColorComponentGrayscale(BufferedImage bufferedImage, int x, int y)
     {
         return bufferedImage.getRaster().getSample(x, y, 0);
     }

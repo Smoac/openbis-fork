@@ -38,9 +38,15 @@ public class RevertImageLevelTransformationProcessingPlugin extends
     }
 
     @Override
-    protected IImageTransformerFactory tryCalculateTransformation(
+    protected IImageTransformerFactoryProvider getTransformationProvider(
             List<ImgImageEnrichedDTO> spotImages, IContentRepository contentRepository)
     {
-        return null;
+        return new IImageTransformerFactoryProvider()
+            {
+                public IImageTransformerFactory getTransformationFactory(ImgImageEnrichedDTO image)
+                {
+                    return null;
+                }
+            };
     }
 }

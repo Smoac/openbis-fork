@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgIm
 abstract public class AbstractSpotImagesTransformerProcessingPlugin extends AbstractDatastorePlugin
         implements IProcessingPluginTask
 {
-    protected abstract IImageTransformerFactory tryCalculateTransformation(
+    protected abstract IImageTransformerFactoryProvider getTransformationProvider(
             List<ImgImageEnrichedDTO> spotImages, IContentRepository contentRepository);
 
     private static final long serialVersionUID = 1L;
@@ -86,15 +86,22 @@ abstract public class AbstractSpotImagesTransformerProcessingPlugin extends Abst
         }
     }
 
+    interface IImageTransformerFactoryProvider
+    {
+        IImageTransformerFactory getTransformationFactory(ImgImageEnrichedDTO image);
+    }
+
     private void calculateAndSetImageTransformation(List<ImgImageEnrichedDTO> spotImages,
             IContentRepository contentRepository, IImagingTransformerDAO transformerDAO)
     {
-        IImageTransformerFactory imageTransformation =
-                tryCalculateTransformation(spotImages, contentRepository);
+        IImageTransformerFactoryProvider transformerFactoryProvider =
+                getTransformationProvider(spotImages, contentRepository);
         for (ImgImageEnrichedDTO image : spotImages)
         {
+            IImageTransformerFactory transformationFactory =
+                    transformerFactoryProvider.getTransformationFactory(image);
             transformerDAO.saveTransformerFactoryForImage(image.getAcquiredImageId(),
-                    imageTransformation);
+                    transformationFactory);
         }
     }
 
