@@ -46,7 +46,7 @@ public class IntensityRangeReductionFactory implements IImageTransformerFactory
                     max));
         }
         double rescalingFactor = (max - min) / 255.0;
-        this.precomputedColors = new int[255];
+        this.precomputedColors = new int[256];
         for (int i = 0; i < precomputedColors.length; i++)
         {
             precomputedColors[i] = (int) (rescalingFactor * i + min);
@@ -66,10 +66,6 @@ public class IntensityRangeReductionFactory implements IImageTransformerFactory
 
     private BufferedImage reduceIntensityRange(BufferedImage image)
     {
-        if (image.getColorModel().getNumComponents() > 1)
-        {
-            return image; // not a grayscale
-        }
         if (image.getColorModel().getComponentSize(0) > 8)
         {
             return image; // more than 8 bits
