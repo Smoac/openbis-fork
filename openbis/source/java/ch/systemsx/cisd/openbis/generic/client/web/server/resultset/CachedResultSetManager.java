@@ -716,6 +716,11 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             future = createFutureWhichIsPresent(dataKey, tableData);
         }
         addToCache(dataKey, future);
+        // TODO, 2011-03-08, FJE: In connection with bug LMS-1960 I found that resultConfig
+        // (which contains e.g. available columns) is often out-dated and therefore inconsistent
+        // with tableData (provided by dataProvider). The bug is fixed (by checking index in
+        // TypedTableGridColumnDefinition.tryGetComparableValue()), but now a new bug pops up: The
+        // combo box of a column filter element can have the wrong values.
         return calculateSortAndFilterResult(sessionToken, tableData, resultConfig, dataKey, partial);
     }
 

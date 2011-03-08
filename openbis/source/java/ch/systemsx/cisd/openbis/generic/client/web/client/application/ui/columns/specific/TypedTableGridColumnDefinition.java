@@ -1,5 +1,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific;
 
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleImageHtmlRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
@@ -8,6 +10,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleDateRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DssLinkTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GeneratedImageTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ImageTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
@@ -85,6 +88,9 @@ public class TypedTableGridColumnDefinition<T extends ISerializable> implements
 
     public Comparable<?> tryGetComparableValue(GridRowModel<TableModelRowWithObject<T>> rowModel)
     {
-        return rowModel.getOriginalObject().getValues().get(header.getIndex());
+        List<ISerializableComparable> values = rowModel.getOriginalObject().getValues();
+        int index = header.getIndex();
+        // The check of index is needed because the column is applied to the wrong model
+        return index < values.size() ? values.get(index) : null;
     }
 }
