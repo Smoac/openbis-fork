@@ -1,9 +1,20 @@
+""" 
+Managed Property Script for handling plasmid parents of yeast samples.
+
+@author: Piotr Buczek
+"""
+
 import re
 
-""""space that all parents come from (fixed)"""
+"""space that all parents come from (fixed)"""
 SPACE = "YEAST_LAB"
 
-"""examples of input: FRP1 (DEL:URA3), FRP2 (INT), FRP3 (MOD:URA3), FRP4"""
+"""input pattern matching one plasmid, e.g.: 
+- 'FRP1 (DEL:URA3)', 
+- 'FRP2 (INT)', 
+- 'FRP3(MOD:URA3)', 
+- 'FRP4'
+"""
 INPUT_PATTERN = """
                  # no '^': allow whitespace at the beginning
     ([^ (]*)     # 1st group: match code of a sample, everything before a space or '(' (e.g. 'FRP')
@@ -16,21 +27,28 @@ INPUT_PATTERN = """
                  # no '$': allow whitespace at the end
 """
 
+"""tuple of supported relationship types as shortcuts"""
 REL_TYPES = ('DEL', 'INT', 'MOD')
+"""dictionary from relationship type shortcut to its 'character' representation"""
 REL_TYPE_CHARS = {
-    'DEL': 'd', 
+    'DEL': '^', 
     'INT': '::', 
     'MOD': '_' 
 }
+"""dictionary from relationship type shortcut to its full name/label"""
 REL_TYPE_LABELS = {
     'DEL': 'deletion', 
     'INT': 'integration', 
     'MOD': 'modification' 
 }
 
+"""names of additional sample XML element attributes"""
+
 ATR_CODE = "code"
 ATR_RELATIONSHIP = "rel"
 ATR_ANNOTATION = "annotation"
+
+"""labels of table columns"""
 
 CONNECTION_LABEL = "connection"
 LINK_LABEL = "link"
@@ -38,24 +56,53 @@ CODE_LABEL = "code"
 RELATIONSHIP_LABEL = "relationship"
 ANNOTATION_LABEL = "annotation"
 
+
 """helper functions"""
 
 def _group(pattern, input):
+    """@return: groups returned by performing pattern search with given @pattern on given @input"""
     return pattern.search(input).groups()
 
+
 def _translateToChar(relationship):
-    if relationship in REL_TYPE_CHARS:
-        return REL_TYPE_CHARS[relationship]
+    """
+       @param relationship: relationship type as a shortcut (@see REL_TYPES), may be null
+       @return: character representation of given @relationship, 
+                empty string for null
+                '[<relationship>]' for unknown relationship
+    """
+    if relationship:
+        if relationship in REL_TYPE_CHARS:
+            return REL_TYPE_CHARS[relationship]
+        else:
+            return "[" + relationship + "]"
     else:
-        return "[" + relationship + "]"
+        return ""
+    
     
 def _translateToLabel(relationship):
-    if relationship in REL_TYPE_LABELS:
-        return REL_TYPE_LABELS[relationship]
+    """
+       @param relationship: relationship type as a shortcut (@see REL_TYPES), may be null
+       @return: full name of given @relationship, 
+                empty string for null, 
+                '[<relationship>]' for unknown relationship
+    """
+    if relationship:
+        if relationship in REL_TYPE_LABELS:
+            return REL_TYPE_LABELS[relationship]
+        else:
+            return "[" + relationship + "]"
     else:
-        return "[" + relationship + "]"    
+        return ""    
+
 
 def _createConnectionString(code, relationship, annotation):
+    """
+       @param code: code of a sample
+       @param relationship: relationship type as a shortcut (@see REL_TYPES), may be null
+       @param annotation: annotation of the relationship, may be null
+       @return: string representation of a connection with @relationship translated to a 'character'
+    """
     result = code
     if relationship:
         result += _translateToChar(relationship)
@@ -63,7 +110,25 @@ def _createConnectionString(code, relationship, annotation):
         result += annotation
     return result
 
+
 def _createSampleLink(code, relationship, annotation):
+    """
+       Creates sample link XML element for sample with specified @code. The element will contain
+       given @code as 'code' attribute apart from standard 'permId' attribute. If specified 
+       @relationship or @annotation are not null they will also be contained as attributes.
+       
+       If the sample doesn't exist in DB a fake link will be created with @code as permId.
+       
+       @param code: code of a sample
+       @param relationship: relationship type as a shortcut (@see REL_TYPES), may be null
+       @param annotation: annotation of the relationship, may be null
+       @return: sample link XML element as string, e.g.:
+       - '<Sample code="FRP1" permId="20110309154532868-4219"/>'
+       - '<Sample code="FRP2" permId="20110309154532868-4219" relationship="DEL" annotation="URA3"/>'
+       - '<Sample code="FAKE_SAMPLE_CODE" permId="FAKE_SAMPLE_CODE"/>
+       - '<Sample code="FRP4" permId="20110309154532868-4219" relationship="INT"/>'
+       @raise ValidationException: if the specified relationship type is unknown
+    """
     permId = entityInformationProvider().getSamplePermId(SPACE, code)
     if not permId:
         permId = code
@@ -80,8 +145,9 @@ def _createSampleLink(code, relationship, annotation):
         sampleLink.addAttribute(ATR_ANNOTATION, annotation)
     return sampleLink    
 
-"""
-Example input:
+""" MAIN FUNCTIONS """
+
+"""Example input:
 
 FRP1 (DEL:URA3), FRP2 (INT), FRP3 (MOD:URA3), FRP4
 
@@ -91,6 +157,7 @@ Relationship types:
 - MOD: modification
 """
 def updateFromBatchInput(bindings):
+    
     inputPattern = re.compile(INPUT_PATTERN, re.VERBOSE)
     input = bindings.get('')
     plasmids = input.split(',')
@@ -101,8 +168,10 @@ def updateFromBatchInput(bindings):
         elements.append(sampleLink)
     property.value = propertyConverter().convertToString(elements)
 
+
 def configureUI():
-    """create table builder and add columns"""
+    
+    """Create table builder and add columns."""
     tableBuilder = createTableBuilder()
     tableBuilder.addHeader(LINK_LABEL)
     tableBuilder.addHeader(CONNECTION_LABEL)
@@ -119,12 +188,12 @@ def configureUI():
    
         row = tableBuilder.addRow()
         row.setCell(CONNECTION_LABEL, _createConnectionString(code, relationship, annotation))
-        row.setCell(LINK_LABEL, plasmid)
+        row.setCell(LINK_LABEL, plasmid, code)
         row.setCell(CODE_LABEL, code)
-        row.setCell(RELATIONSHIP_LABEL, relationship)
+        row.setCell(RELATIONSHIP_LABEL, _translateToLabel(relationship))
         row.setCell(ANNOTATION_LABEL, annotation)
         
-    """specify that the property should be shown in a tab and set the table output"""
+    """Specify that the property should be shown in a tab and set the table output."""
     property.setOwnTab(True)
     uiDesc = property.getUiDescription()
     uiDesc.useTableOutput(tableBuilder.getTableModel())
