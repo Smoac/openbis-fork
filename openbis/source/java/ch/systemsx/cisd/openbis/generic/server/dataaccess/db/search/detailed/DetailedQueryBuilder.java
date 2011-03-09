@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchFieldKind
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 
 /**
  * Builder for detailed lucene queries for different entity kinds.
@@ -116,6 +117,9 @@ public class DetailedQueryBuilder
                 fields.addAll(getPropertyIndexFields(searchField));
                 fields.addAll(getAllAttributeIndexFieldNames());
                 return fields;
+            case REGISTRATOR:
+                return Arrays.asList(SearchFieldConstants.PREFIX_REGISTRATOR
+                        + SearchFieldConstants.PERSON_USER_ID);
             default:
                 return Arrays.asList(getSimpleFieldIndexName(searchField));
         }

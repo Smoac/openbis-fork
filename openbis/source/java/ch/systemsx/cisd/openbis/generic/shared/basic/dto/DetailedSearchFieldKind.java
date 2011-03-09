@@ -31,7 +31,9 @@ public enum DetailedSearchFieldKind implements ISerializable
 
     PROPERTY("Property"),
 
-    ATTRIBUTE("");
+    ATTRIBUTE(""),
+    
+    REGISTRATOR("Registrator");
 
     private final String description;
 

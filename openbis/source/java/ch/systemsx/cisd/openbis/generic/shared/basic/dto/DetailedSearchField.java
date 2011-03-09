@@ -64,6 +64,12 @@ public class DetailedSearchField implements ISerializable
         return createAttributeField(attributeFieldKind.getCode());
     }
 
+    public static DetailedSearchField createRegistratorField(
+            String userID)
+    {
+        return new DetailedSearchField(DetailedSearchFieldKind.REGISTRATOR, userID);
+    }
+    
     private static DetailedSearchField createAttributeField(String code)
     {
         assert code != null : "code not set";
