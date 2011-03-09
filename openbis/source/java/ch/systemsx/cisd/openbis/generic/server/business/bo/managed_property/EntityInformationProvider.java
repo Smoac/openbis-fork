@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.managed_property;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
@@ -110,7 +110,7 @@ public class EntityInformationProvider implements IEntityInformationProvider
                         homeInstance);
         if (space == null)
         {
-            throw new UserFailureException("space " + spaceCode + " doesn't exist");
+            throw UserFailureException.fromTemplate("space '%s' doesn't exist ", spaceCode);
         }
         SamplePE sample = daoFactory.getSampleDAO().tryFindByCodeAndSpace(sampleCode, space);
         return (sample != null) ? sample.getPermId() : null;
