@@ -104,8 +104,8 @@ def updateFromBatchInput(bindings):
 def configureUI():
     """create table builder and add columns"""
     tableBuilder = createTableBuilder()
-    tableBuilder.addHeader(CONNECTION_LABEL)
     tableBuilder.addHeader(LINK_LABEL)
+    tableBuilder.addHeader(CONNECTION_LABEL)
     tableBuilder.addHeader(CODE_LABEL)
     tableBuilder.addHeader(RELATIONSHIP_LABEL)
     tableBuilder.addHeader(ANNOTATION_LABEL)

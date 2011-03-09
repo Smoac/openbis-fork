@@ -19,7 +19,6 @@ def _createSampleLink(code):
     sampleLink.addAttribute(ATR_CODE, code)
     return sampleLink    
 
-
 """
 Example input:
 
@@ -29,8 +28,8 @@ def updateFromBatchInput(bindings):
     input = bindings.get('')
     samples = input.split(',')
     elements = []
-    for p in samples:
-        sampleLink = createSampleLink(code)
+    for code in samples:
+        sampleLink = _createSampleLink(code.strip())
         elements.append(sampleLink)
     property.value = propertyConverter().convertToString(elements)
 
