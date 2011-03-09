@@ -39,6 +39,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUt
  * 
  * @author Christian Ribeaud
  */
+// WORKAROUND to layouting problems when using DockLayoutPanel
+// NOTE: In the end we should rewrite LoginPage to use panels that work properly in Standards Mode
+// (see http://code.google.com/intl/de-DE/webtoolkit/doc/latest/DevGuideUiPanels.html#Standards).
+// If possible, we should use UiBinder.
 final class LoginPage extends com.google.gwt.user.client.ui.VerticalPanel
 {
     private static final int CELL_SPACING = 20;
@@ -49,20 +53,8 @@ final class LoginPage extends com.google.gwt.user.client.ui.VerticalPanel
         setWidth("100%");
         this.setHeight("100%");
         setHorizontalAlignment(VerticalPanel.ALIGN_CENTER);
-        // Encapsulate loginWidget in a dummy panel. Otherwise it will get the alignment of this
-        // panel.
-        DockPanel loginPanel = new DockPanel();
-        // WORKAROUND The mechanism behind the autofill support does not work in testing
-        if (!GWTUtils.isTesting())
-        {
-            final LoginPanelAutofill loginWidget = LoginPanelAutofill.get(viewContext);
-            loginPanel.add(loginWidget, DockPanel.CENTER);
-        } else
-        {
-            final LoginWidget loginWidget = new LoginWidget(viewContext);
-            loginPanel.add(loginWidget, DockPanel.CENTER);
-        }
-        Anchor logo = createLogo(viewContext);
+        final Widget loginPanel = createLoginPanel(viewContext);
+        final Anchor logo = createLogo(viewContext);
         final Widget footerPanel = createFooter(viewContext);
         final HTML welcomePanel =
                 new HTML(viewContext.getMessage(Dict.OPENBIS_INSTANCE, new Date()));
@@ -76,6 +68,24 @@ final class LoginPage extends com.google.gwt.user.client.ui.VerticalPanel
         add(footerPanel);
         this.setCellVerticalAlignment(footerPanel, VerticalPanel.ALIGN_BOTTOM);
 
+    }
+
+    private Widget createLoginPanel(final IViewContext<ICommonClientServiceAsync> viewContext)
+    {
+        // Encapsulate loginWidget in a dummy panel.
+        // Otherwise it will get the alignment of this panel.
+        DockPanel loginPanel = new DockPanel();
+        // WORKAROUND The mechanism behind the autofill support does not work in testing
+        if (!GWTUtils.isTesting())
+        {
+            final LoginPanelAutofill loginWidget = LoginPanelAutofill.get(viewContext);
+            loginPanel.add(loginWidget, DockPanel.CENTER);
+        } else
+        {
+            final LoginWidget loginWidget = new LoginWidget(viewContext);
+            loginPanel.add(loginWidget, DockPanel.CENTER);
+        }
+        return loginPanel;
     }
 
     private Anchor createLogo(final IViewContext<ICommonClientServiceAsync> viewContext)
