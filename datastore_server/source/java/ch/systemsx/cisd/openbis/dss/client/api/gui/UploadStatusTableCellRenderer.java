@@ -33,11 +33,11 @@ import javax.swing.table.TableCellRenderer;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class DownloadStatusTableCellRenderer implements TableCellRenderer
+public class UploadStatusTableCellRenderer implements TableCellRenderer
 {
-    private final JButton downloadButton = new JButton("Download");
+    private final JButton uploadButton = new JButton("Upload");
 
-    private final JPanel downloadPanel = new JPanel();
+    private final JPanel uploadPanel = new JPanel();
 
     private final JProgressBar progressBar = new JProgressBar();
 
@@ -45,13 +45,9 @@ public class DownloadStatusTableCellRenderer implements TableCellRenderer
 
     private final JPanel progressPanel = new JPanel();
 
-    private final JLabel decryptingLabel = new JLabel("Decrypting\u2026");
+    private final JButton retryButton = new JButton("Retry Upload");
 
-    private final JPanel decryptingPanel = new JPanel();
-
-    private final JButton retryButton = new JButton("Retry Download");
-
-    private final JLabel retryLabel = new JLabel("<html><i>Download Failed</i></html>");
+    private final JLabel retryLabel = new JLabel("<html><i>Upload Failed</i></html>");
 
     private final JPanel retryPanel = new JPanel();
 
@@ -59,21 +55,13 @@ public class DownloadStatusTableCellRenderer implements TableCellRenderer
 
     private final JPanel completedPanel = new JPanel();
 
-    private final JButton decryptButton = new JButton("Decrypt");
-
-    private final JLabel completedDownloadLabel = new JLabel("Finished Download");
-
-    private final JPanel completedDownloadPanel = new JPanel();
-
-    public DownloadStatusTableCellRenderer(DataSetUploadTableModel tableModel)
+    public UploadStatusTableCellRenderer(DataSetUploadTableModel tableModel)
     {
         super();
         createDownloadPanel();
         createProgressPanel();
         createRetryPanel();
-        createDecryptingPanel();
         createCompletedPanel();
-        createCompletedNotDecryptedPanel();
     }
 
     private void createCompletedPanel()
@@ -82,23 +70,6 @@ public class DownloadStatusTableCellRenderer implements TableCellRenderer
         completedLabel.setFont(completedLabel.getFont().deriveFont(Font.PLAIN));
         completedPanel.add(completedLabel);
         completedPanel.setOpaque(true);
-    }
-
-    private void createCompletedNotDecryptedPanel()
-    {
-        completedDownloadPanel.setLayout(new GridLayout(2, 0));
-        completedDownloadLabel.setFont(completedDownloadLabel.getFont().deriveFont(Font.PLAIN));
-        completedDownloadPanel.add(completedDownloadLabel);
-        completedDownloadPanel.add(decryptButton);
-        completedDownloadPanel.setOpaque(true);
-    }
-
-    private void createDecryptingPanel()
-    {
-        decryptingPanel.setLayout(new GridLayout(1, 0));
-        decryptingPanel.setFont(decryptingLabel.getFont().deriveFont(Font.PLAIN));
-        decryptingPanel.add(decryptingLabel);
-        decryptingPanel.setOpaque(true);
     }
 
     private void createRetryPanel()
@@ -121,9 +92,9 @@ public class DownloadStatusTableCellRenderer implements TableCellRenderer
 
     private void createDownloadPanel()
     {
-        downloadPanel.setLayout(new GridLayout(1, 0));
-        downloadPanel.add(downloadButton);
-        downloadPanel.setOpaque(true);
+        uploadPanel.setLayout(new GridLayout(1, 0));
+        uploadPanel.add(uploadButton);
+        uploadPanel.setOpaque(true);
     }
 
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
@@ -136,7 +107,7 @@ public class DownloadStatusTableCellRenderer implements TableCellRenderer
         switch (0)
         {
             case 0:
-                panel = downloadPanel;
+                panel = uploadPanel;
                 break;
             case 1:
                 panel = completedPanel;

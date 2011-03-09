@@ -16,14 +16,15 @@
 
 package ch.systemsx.cisd.openbis.dss.client.api.gui;
 
-import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import ch.systemsx.cisd.common.io.TransmissionSpeedCalculator;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTOBuilder;
 
 /**
@@ -71,8 +72,6 @@ public class DataSetUploadClientModel
 
         private final TransmissionSpeedCalculator transmissionSpeedCalculator;
 
-        private File file;
-
         private Status status;
 
         // Computed when the status is set to QUEUED_FOR_UPLOAD
@@ -92,11 +91,6 @@ public class DataSetUploadClientModel
             setStatus(Status.TO_UPLOAD);
         }
 
-        public NewDataSetDTO getNewDataSet()
-        {
-            return newDataSetBuilder.asNewDataSetDTO();
-        }
-
         public NewDataSetDTOBuilder getNewDataSetBuilder()
         {
             return newDataSetBuilder;
@@ -105,16 +99,6 @@ public class DataSetUploadClientModel
         public long getTotalFileSize()
         {
             return totalFileSize;
-        }
-
-        public File getFile()
-        {
-            return file;
-        }
-
-        public void setFile(File aFile)
-        {
-            this.file = aFile;
         }
 
         public int getPercentageDownloaded()
@@ -179,9 +163,9 @@ public class DataSetUploadClientModel
     /**
      * A list of data set info object managed by this model.
      */
-    public ArrayList<NewDataSetInfo> getNewDataSetInfos()
+    public List<NewDataSetInfo> getNewDataSetInfos()
     {
-        return newDataSetInfos;
+        return Collections.unmodifiableList(newDataSetInfos);
     }
 
     /**
@@ -195,9 +179,41 @@ public class DataSetUploadClientModel
         return newDataSetInfo;
     }
 
+    /**
+     * Remove a data set info.
+     */
+    public void removeNewDataSetInfo(NewDataSetInfo dataSetInfoToRemove)
+    {
+        newDataSetInfos.remove(dataSetInfoToRemove);
+    }
+
     public IDssComponent getDssComponent()
     {
         return dssComponent;
+    }
+
+    /**
+     * Get the data set types that are shown here.
+     */
+    public List<String> getDataSetTypes()
+    {
+        String[] dataSetTypes =
+            { "Data Set Type 1", "Data Set Type 2", "Data Set Type 3" };
+        return Arrays.asList(dataSetTypes);
+    }
+
+    public int getIndexOfDataSetType(String dataSetType)
+    {
+        if (null == dataSetType)
+        {
+            return 0;
+        }
+        int index = getDataSetTypes().indexOf(dataSetType);
+        if (index < 0)
+        {
+            return 0;
+        }
+        return index;
     }
 
 }

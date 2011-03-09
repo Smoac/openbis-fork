@@ -36,11 +36,11 @@ import javax.swing.table.TableColumnModel;
 import ch.systemsx.cisd.base.namedthread.NamingThreadPoolExecutor;
 import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClientModel.NewDataSetInfo;
 import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClientModel.NewDataSetInfo.Status;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwner;
 
 /**
  * The DataSetUploadClientModel manages the list of data sets to register, initiates uploads (which
- * run in a separate thread) and notifies the GUI of updates.
+ * run in a separate thread) and notifies the GUI of updates. It also coordinates the Metadata panel
+ * to ensure the two are in sync.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -63,16 +63,21 @@ public class DataSetUploadTableModel extends AbstractTableModel
 
     private final JFrame mainWindow;
 
+    private final DataSetUploadClientModel clientModel;
+
+    private final DataSetMetadataPanel metadataPanel;
+
     private final ArrayList<DataSetUploadClientModel.NewDataSetInfo> newDataSetInfos =
             new ArrayList<DataSetUploadClientModel.NewDataSetInfo>();
 
-    private final DataSetUploadClientModel clientModel;
-
     private JTable table;
 
-    protected int sortColumnIndex = 0;
+    private int sortColumnIndex = 0;
 
-    protected boolean sortAscending = true;
+    private boolean sortAscending = true;
+
+    // Initialize to no row selected
+    private int selectedRow = -1;
 
     /**
      * Internal class for triggering the sorting of columns.
@@ -109,12 +114,10 @@ public class DataSetUploadTableModel extends AbstractTableModel
                 TableColumn column = colModel.getColumn(i);
                 column.setHeaderValue(getColumnName(column.getModelIndex()));
             }
+
             table.getTableHeader().repaint();
 
-            Collections.sort(newDataSetInfos, new NewDataSetInfoComparator());
-
-            table.tableChanged(new TableModelEvent(DataSetUploadTableModel.this));
-            table.repaint();
+            syncNewDataSetInfoListView();
         }
     }
 
@@ -131,15 +134,13 @@ public class DataSetUploadTableModel extends AbstractTableModel
             switch (sortColumnIndex)
             {
                 case DATA_SET_OWNER_COLUMN:
-                    DataSetOwner owner1 = info1.getNewDataSetBuilder().getDataSetOwner();
-                    DataSetOwner owner2 = info2.getNewDataSetBuilder().getDataSetOwner();
-                    String identifier1 = (null != owner1) ? owner1.getIdentifier() : "";
-                    String identifier2 = (null != owner2) ? owner2.getIdentifier() : "";
+                    String identifier1 = info1.getNewDataSetBuilder().getDataSetOwnerIdentifier();
+                    String identifier2 = info2.getNewDataSetBuilder().getDataSetOwnerIdentifier();
                     result = identifier1.compareTo(identifier2);
                     break;
                 case DATA_SET_PATH_COLUMN:
-                    File file1 = info1.getFile();
-                    File file2 = info2.getFile();
+                    File file1 = info1.getNewDataSetBuilder().getFile();
+                    File file2 = info2.getNewDataSetBuilder().getFile();
                     String path1 = (null != file1) ? file1.getAbsolutePath() : "";
                     String path2 = (null != file2) ? file2.getAbsolutePath() : "";
                     result = path1.compareTo(path2);
@@ -153,81 +154,18 @@ public class DataSetUploadTableModel extends AbstractTableModel
     }
 
     DataSetUploadTableModel(DataSetUploadClient downloadClient,
-            DataSetUploadClientModel clientModel, JFrame mainWindow)
+            DataSetUploadClientModel clientModel, DataSetMetadataPanel metadataPanel,
+            JFrame mainWindow)
     {
         this.mainWindow = mainWindow;
         this.clientModel = clientModel;
-
-        addProgessListener();
+        this.metadataPanel = metadataPanel;
     }
 
     public void setTable(JTable table)
     {
         this.table = table;
         table.getTableHeader().addMouseListener(new ColumnSortingListener());
-    }
-
-    private void addProgessListener()
-    {
-        // TODO
-        // downloader.addProgressListener(new IProgressListener()
-        // {
-        // public void start(File file, String operationname, long fileSize, Long fileIdOrNull)
-        // {
-        // currentlyDownloadingFile = tryToFindDownloadInfoForFile(fileIdOrNull);
-        // if (currentlyDownloadingFile != null)
-        // {
-        // currentlyDownloadingFile.updateProgress(0, 0);
-        // fireChanged(null);
-        // }
-        // }
-        //
-        // public void reportProgress(int percentage, long numberOfBytes)
-        // {
-        // if (currentlyDownloadingFile != null)
-        // {
-        // currentlyDownloadingFile.updateProgress(percentage, numberOfBytes);
-        // fireChanged(null);
-        // }
-        // }
-        //
-        // public void finished(boolean successful)
-        // {
-        // if (currentlyDownloadingFile != null)
-        // {
-        // if (successful)
-        // {
-        // currentlyDownloadingFile.updateProgress(100,
-        // currentlyDownloadingFile.fileInfoDTO.getSize());
-        // if (passphrase.length() > 0)
-        // {
-        // currentlyDownloadingFile
-        // .setStatus(FileDownloadInfo.Status.DECRYPTING);
-        // fireChanged(FileDownloadInfo.Status.DECRYPTING);
-        // } else
-        // {
-        // currentlyDownloadingFile
-        // .setStatus(FileDownloadInfo.Status.COMPLETED_DOWNLOAD);
-        // fireChanged(FileDownloadInfo.Status.COMPLETED_DOWNLOAD);
-        // }
-        // } else
-        // {
-        // currentlyDownloadingFile.setStatus(FileDownloadInfo.Status.FAILED);
-        // fireChanged(FileDownloadInfo.Status.FAILED);
-        // }
-        // }
-        // }
-        //
-        // public void exceptionOccured(Throwable throwable)
-        // {
-        // }
-        //
-        // public void warningOccured(String warningMessage)
-        // {
-        // currentlyDownloadingFile.setStatus(FileDownloadInfo.Status.STALLED);
-        // }
-        //
-        // });
     }
 
     /**
@@ -244,7 +182,14 @@ public class DataSetUploadTableModel extends AbstractTableModel
 
     void setSelectedIndices(ArrayList<Integer> selectedIndices)
     {
-
+        if (selectedIndices.size() < 1)
+        {
+            selectNewDataSetInfo(null);
+            return;
+        }
+        selectedRow = selectedIndices.get(0);
+        NewDataSetInfo selectedDataSet = newDataSetInfos.get(selectedRow);
+        selectNewDataSetInfo(selectedDataSet);
     }
 
     public int getColumnCount()
@@ -293,7 +238,7 @@ public class DataSetUploadTableModel extends AbstractTableModel
             case DATA_SET_METADATA_COLUMN:
                 return newDataSetInfo.getNewDataSetBuilder().getDataSetMetadata();
             case DATA_SET_PATH_COLUMN:
-                return newDataSetInfo.getFile();
+                return newDataSetInfo.getNewDataSetBuilder().getFile();
             case UPLOAD_STATUS_COLUMN:
                 return newDataSetInfo;
         }
@@ -327,8 +272,9 @@ public class DataSetUploadTableModel extends AbstractTableModel
 
         // Only start uploading if the file hasn't been upload yet
         NewDataSetInfo.Status status = newDataSetInfo.getStatus();
-        if ((status == NewDataSetInfo.Status.TO_UPLOAD)
-                || (status != NewDataSetInfo.Status.COMPLETED_UPLOAD))
+        if ((status != NewDataSetInfo.Status.TO_UPLOAD)
+                && (status != NewDataSetInfo.Status.COMPLETED_UPLOAD)
+                && (status != NewDataSetInfo.Status.FAILED))
         {
             return;
         }
@@ -360,6 +306,55 @@ public class DataSetUploadTableModel extends AbstractTableModel
                 || (status == NewDataSetInfo.Status.COMPLETED_UPLOAD);
     }
 
+    public JFrame getMainWindow()
+    {
+        return mainWindow;
+    }
+
+    public void selectedRowChanged()
+    {
+        if (selectedRow < 0)
+        {
+            return;
+        }
+        fireTableRowsUpdated(selectedRow, selectedRow);
+    }
+
+    public void addNewDataSet()
+    {
+        NewDataSetInfo newlyCreated = clientModel.addNewDataSetInfo();
+        syncNewDataSetInfos();
+        selectNewDataSetInfo(newlyCreated);
+    }
+
+    public void removeSelectedDataSet()
+    {
+        assert false : "Not yet implemented";
+    }
+
+    /**
+     * Synchronize the internal list of data set infos with the model's list.
+     */
+    private void syncNewDataSetInfos()
+    {
+        newDataSetInfos.clear();
+        newDataSetInfos.addAll(clientModel.getNewDataSetInfos());
+        syncNewDataSetInfoListView();
+    }
+
+    private void syncNewDataSetInfoListView()
+    {
+        Collections.sort(newDataSetInfos, new NewDataSetInfoComparator());
+
+        table.tableChanged(new TableModelEvent(DataSetUploadTableModel.this));
+        table.repaint();
+    }
+
+    private void selectNewDataSetInfo(NewDataSetInfo newDataSetInfo)
+    {
+        metadataPanel.setNewDataSetInfo(newDataSetInfo);
+    }
+
     /**
      * Start a data set upload in a separate thread. Callers need to ensure that queuing makes
      * sense.
@@ -371,8 +366,8 @@ public class DataSetUploadTableModel extends AbstractTableModel
         executor.submit(op);
     }
 
-    public JFrame getMainWindow()
+    public NewDataSetInfo getSelectedNewDataSet()
     {
-        return mainWindow;
+        return newDataSetInfos.get(selectedRow);
     }
 }

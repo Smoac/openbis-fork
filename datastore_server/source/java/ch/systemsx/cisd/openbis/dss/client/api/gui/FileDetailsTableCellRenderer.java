@@ -20,6 +20,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.io.File;
 import java.util.Formatter;
 
 import javax.swing.JLabel;
@@ -27,7 +28,7 @@ import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
-import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
+import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClientModel.NewDataSetInfo;
 
 /**
  * Shows file name and file size in a table cell
@@ -60,12 +61,19 @@ public class FileDetailsTableCellRenderer implements TableCellRenderer
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
             boolean hasFocus, int row, int column)
     {
-        FileInfoDTO fileInfo = (FileInfoDTO) value;
+        NewDataSetInfo newDataSetInfo = (NewDataSetInfo) value;
         Color backgroundColor =
                 (isSelected) ? table.getSelectionBackground() : table.getBackground();
         panel.setBackground(backgroundColor);
-        fileName.setText(fileInfo.getName());
-        fileSize.setText(numberOfBytesToDisplayString(fileInfo.getSize()));
+
+        if (null == newDataSetInfo)
+        {
+            return panel;
+        }
+        File file = newDataSetInfo.getNewDataSetBuilder().getFile();
+        String fileString = (null != file) ? file.getName() : "";
+        fileName.setText(fileString);
+        fileSize.setText(numberOfBytesToDisplayString(newDataSetInfo.getTotalFileSize()));
         return panel;
     }
 

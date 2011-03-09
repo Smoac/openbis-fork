@@ -24,6 +24,7 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -31,14 +32,23 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.util.Arrays;
+import java.io.File;
+import java.util.Enumeration;
 import java.util.List;
 
+import javax.swing.AbstractButton;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JTextField;
+
+import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClientModel.NewDataSetInfo;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTOBuilder;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -47,13 +57,13 @@ public class DataSetMetadataPanel extends JPanel
 {
     private static final long serialVersionUID = 1L;
 
-    private final JTextField sampleIdText;
+    private final JFrame mainWindow;
 
-    private final JButton sampleClearButton;
+    private final DataSetUploadClientModel clientModel;
 
-    private final JTextField experimentIdText;
+    private final JTextField ownerIdText;
 
-    private final JButton experimentClearButton;
+    private final ButtonGroup ownerButtonGroup;
 
     private final JComboBox dataSetTypeComboBox;
 
@@ -61,16 +71,33 @@ public class DataSetMetadataPanel extends JPanel
 
     private final JButton dataSetFileButton;
 
-    public DataSetMetadataPanel()
+    private final JRadioButton experimentButton;
+
+    private final JRadioButton sampleButton;
+
+    // Is set during initialization, but cannot be set in the constructor due to circular
+    // references.
+    private DataSetUploadTableModel tableModel;
+
+    private NewDataSetInfo newDataSetInfo;
+
+    public DataSetMetadataPanel(DataSetUploadClientModel clientModel, JFrame mainWindow)
     {
         super();
         setLayout(new GridBagLayout());
 
+        // Initialize internal state
+        this.clientModel = clientModel;
+        this.mainWindow = mainWindow;
+
         // Initialize the fields in the gui
-        sampleIdText = new JTextField();
-        sampleClearButton = new JButton("Clear");
-        experimentIdText = new JTextField();
-        experimentClearButton = new JButton("Clear");
+        ownerIdText = new JTextField();
+        ownerButtonGroup = new ButtonGroup();
+        experimentButton = new JRadioButton("Experiment");
+        sampleButton = new JRadioButton("Sample");
+        ownerButtonGroup.add(experimentButton);
+        ownerButtonGroup.add(sampleButton);
+
         dataSetTypeComboBox = new JComboBox();
         dataSetTypePanel = new JPanel();
         dataSetFileButton = new JButton("");
@@ -78,37 +105,79 @@ public class DataSetMetadataPanel extends JPanel
         createGui();
     }
 
+    public void setNewDataSetInfo(NewDataSetInfo newDataSetInfo)
+    {
+        this.newDataSetInfo = newDataSetInfo;
+        syncGui();
+    }
+
+    public void setTableModel(DataSetUploadTableModel tableModel)
+    {
+        this.tableModel = tableModel;
+    }
+
+    private void syncGui()
+    {
+        if (null == newDataSetInfo)
+        {
+            ownerIdText.setText("");
+            updateFileLabel();
+            return;
+        }
+
+        NewDataSetDTOBuilder builder = newDataSetInfo.getNewDataSetBuilder();
+        ownerIdText.setText(builder.getDataSetOwnerIdentifier());
+        switch (builder.getDataSetOwnerType())
+        {
+            case EXPERIMENT:
+                ownerButtonGroup.setSelected(experimentButton.getModel(), true);
+                break;
+            case SAMPLE:
+                ownerButtonGroup.setSelected(sampleButton.getModel(), true);
+                break;
+        }
+
+        dataSetTypeComboBox.setSelectedIndex(clientModel.getIndexOfDataSetType(builder
+                .getDataSetMetadata().tryDataSetType()));
+
+        updateFileLabel();
+    }
+
     private void createGui()
     {
-        // The sample row
-        JLabel label = new JLabel("Sample:", JLabel.TRAILING);
+        // The owner row
+        JLabel label = new JLabel("Owner:", JLabel.TRAILING);
         label.setPreferredSize(new Dimension(LABEL_WIDTH, BUTTON_HEIGHT));
 
-        sampleIdText.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
-        sampleClearButton.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
-        sampleClearButton.setToolTipText("Attach the data set to a sample.");
-        sampleClearButton.addActionListener(new ActionListener()
+        ownerIdText.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        ownerIdText.addActionListener(new ActionListener()
+            {
+
+                public void actionPerformed(ActionEvent e)
+                {
+                    setOwnerId(ownerIdText.getText());
+                }
+
+            });
+
+        experimentButton.addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent e)
                 {
+                    setOwnerType(DataSetOwnerType.EXPERIMENT);
+
                 }
             });
-        addRow(0, label, sampleIdText, sampleClearButton);
-
-        // The experiment row
-        label = new JLabel("Experiment:", JLabel.TRAILING);
-        label.setPreferredSize(new Dimension(LABEL_WIDTH, BUTTON_HEIGHT));
-
-        experimentIdText.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
-        experimentClearButton.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
-        experimentClearButton.setToolTipText("Attach the data set to an experiment.");
-        experimentClearButton.addActionListener(new ActionListener()
+        experimentButton.setSelected(true);
+        sampleButton.addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent e)
                 {
+                    setOwnerType(DataSetOwnerType.SAMPLE);
                 }
             });
-        addRow(1, label, experimentIdText, experimentClearButton);
+
+        addRow(0, label, ownerIdText, ownerButtonGroup);
 
         // The data set type row
         label = new JLabel("Data Set Type:", JLabel.TRAILING);
@@ -143,9 +212,36 @@ public class DataSetMetadataPanel extends JPanel
             {
                 public void actionPerformed(ActionEvent e)
                 {
+                    if (null == newDataSetInfo)
+                    {
+                        return;
+                    }
+                    final File newDirOrNull =
+                            ch.systemsx.cisd.common.gui.FileChooserUtils.tryChooseFileOrDirectory(
+                                    getMainWindow(), newDataSetInfo.getNewDataSetBuilder()
+                                            .getFile());
+                    if (newDirOrNull != null)
+                    {
+                        newDataSetInfo.getNewDataSetBuilder().setFile(newDirOrNull);
+                        updateFileLabel();
+                        notifyTableModelOfChanges();
+                    }
                 }
+
             });
         addRow(4, label, dataSetFileButton);
+    }
+
+    protected void updateFileLabel()
+    {
+        if (null == newDataSetInfo)
+        {
+            dataSetFileButton.setText("");
+            return;
+        }
+        File file = newDataSetInfo.getNewDataSetBuilder().getFile();
+        String filePath = (null != file) ? file.getAbsolutePath() : "";
+        dataSetFileButton.setText(filePath);
     }
 
     private void createDataSetTypePanel()
@@ -159,7 +255,7 @@ public class DataSetMetadataPanel extends JPanel
         }
     }
 
-    private void addRow(int rowy, Component label, Component field, Component button)
+    private void addRow(int rowy, Component label, Component field, ButtonGroup buttonGroup)
     {
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -173,10 +269,17 @@ public class DataSetMetadataPanel extends JPanel
         c.weightx = 0.5;
         c.insets = new Insets((rowy > 0) ? 5 : 0, 0, 0, 5);
         add(field, c);
-        c.gridx = 2;
-        c.weightx = 0;
-        c.insets = new Insets((rowy > 0) ? 5 : 0, 0, 0, 0);
-        add(button, c);
+
+        AbstractButton button;
+        Enumeration<AbstractButton> buttons = buttonGroup.getElements();
+        while (buttons.hasMoreElements())
+        {
+            button = buttons.nextElement();
+            ++c.gridx;
+            c.weightx = 0;
+            c.insets = new Insets((rowy > 0) ? 5 : 0, 0, 0, buttons.hasMoreElements() ? 5 : 0);
+            add(button, c);
+        }
     }
 
     private void addRow(int rowy, Component label, Component field)
@@ -208,8 +311,41 @@ public class DataSetMetadataPanel extends JPanel
 
     private List<String> getDataSetTypes()
     {
-        String[] dataSetTypes =
-            { "Data Set Type 1", "Data Set Type 2", "Data Set Type 3" };
-        return Arrays.asList(dataSetTypes);
+        return clientModel.getDataSetTypes();
+    }
+
+    private Frame getMainWindow()
+    {
+        return mainWindow;
+    }
+
+    private void notifyTableModelOfChanges()
+    {
+        tableModel.selectedRowChanged();
+    }
+
+    private void setOwnerType(DataSetOwnerType type)
+    {
+        if (null == newDataSetInfo)
+        {
+            return;
+        }
+
+        NewDataSetDTOBuilder builder = newDataSetInfo.getNewDataSetBuilder();
+        builder.setDataSetOwnerType(type);
+
+        notifyTableModelOfChanges();
+    }
+
+    protected void setOwnerId(String text)
+    {
+        if (null == newDataSetInfo)
+        {
+            return;
+        }
+
+        NewDataSetDTOBuilder builder = newDataSetInfo.getNewDataSetBuilder();
+        builder.setDataSetOwnerIdentifier(text);
+        notifyTableModelOfChanges();
     }
 }

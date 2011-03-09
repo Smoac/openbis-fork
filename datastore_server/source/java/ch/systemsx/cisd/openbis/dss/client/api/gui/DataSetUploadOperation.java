@@ -52,12 +52,15 @@ final class DataSetUploadOperation implements Runnable
             {
                 newDataSetInfo.setStatus(Status.UPLOADING);
                 tableModel.fireChanged(newDataSetInfo, Status.UPLOADING);
-                clientModel.getDssComponent().putDataSet(newDataSetInfo.getNewDataSet(),
-                        newDataSetInfo.getFile());
+                clientModel.getDssComponent().putDataSet(
+                        newDataSetInfo.getNewDataSetBuilder().asNewDataSetDTO(),
+                        newDataSetInfo.getNewDataSetBuilder().getFile());
             }
+            newDataSetInfo.setStatus(Status.COMPLETED_UPLOAD);
             tableModel.fireChanged(newDataSetInfo, Status.COMPLETED_UPLOAD);
         } catch (Throwable th)
         {
+            newDataSetInfo.setStatus(Status.FAILED);
             tableModel.fireChanged(newDataSetInfo, Status.FAILED);
             final Throwable actualTh =
                     (th instanceof Error) ? th : CheckedExceptionTunnel
@@ -65,7 +68,8 @@ final class DataSetUploadOperation implements Runnable
             if (actualTh instanceof FileExistsException == false)
             {
                 DataSetUploadClient.notifyUserOfThrowable(tableModel.getMainWindow(),
-                        newDataSetInfo.getFile().getAbsolutePath(), "Uploading", th, null);
+                        newDataSetInfo.getNewDataSetBuilder().getFile().getAbsolutePath(),
+                        "Uploading", th, null);
             }
         }
     }

@@ -16,10 +16,14 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared.api.v1;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwner;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
 
 /**
  * A mutable object for building NewDataSetDTO objects.
@@ -30,11 +34,11 @@ public class NewDataSetDTOBuilder
 {
     private final NewDataSetMetadataDTO dataSetMetadata;
 
-    private DataSetOwner dataSetOwner;
+    private String dataSetOwnerIdentifier;
 
-    private String dataSetFolderNameOrNull;
+    private DataSetOwnerType dataSetOwnerType = DataSetOwnerType.EXPERIMENT;
 
-    private final ArrayList<FileInfoDssDTO> fileInfos = new ArrayList<FileInfoDssDTO>();
+    private File file;
 
     public NewDataSetDTOBuilder()
     {
@@ -42,34 +46,38 @@ public class NewDataSetDTOBuilder
     }
 
     /**
+     * The owner identifier may be and empty during construction but is non-null in a well-formed
+     * object.
+     */
+    public String getDataSetOwnerIdentifier()
+    {
+        return (null == dataSetOwnerIdentifier) ? "" : dataSetOwnerIdentifier;
+    }
+
+    public void setDataSetOwnerIdentifier(String dataSetOwnerIdentifier)
+    {
+        this.dataSetOwnerIdentifier = dataSetOwnerIdentifier;
+    }
+
+    /**
+     * The owner type should never be null.
+     */
+    public DataSetOwnerType getDataSetOwnerType()
+    {
+        return dataSetOwnerType;
+    }
+
+    public void setDataSetOwnerType(DataSetOwnerType dataSetOwnerType)
+    {
+        this.dataSetOwnerType = dataSetOwnerType;
+    }
+
+    /**
      * The owner may be null during construction but is non-null in a well-formed object.
      */
     public DataSetOwner getDataSetOwner()
     {
-        return dataSetOwner;
-    }
-
-    public void setDataSetOwner(DataSetOwner dataSetOwner)
-    {
-        this.dataSetOwner = dataSetOwner;
-    }
-
-    /**
-     * The optional folder name that the contents of the data set should be put in on the server. If
-     * null, a folder name may be generated.
-     */
-    public String getDataSetFolderNameOrNull()
-    {
-        return dataSetFolderNameOrNull;
-    }
-
-    /**
-     * The optional folder name that the contents of the data set should be put in on the server. If
-     * null, a folder name may be generated.
-     */
-    public void setDataSetFolderNameOrNull(String dataSetFolderNameOrNull)
-    {
-        this.dataSetFolderNameOrNull = dataSetFolderNameOrNull;
+        return new DataSetOwner(getDataSetOwnerType(), getDataSetOwnerIdentifier());
     }
 
     /**
@@ -81,11 +89,45 @@ public class NewDataSetDTOBuilder
     }
 
     /**
-     * A summary of the contents of the data set.
+     * The file that contains the data set. May be null during initialization but should be non-null
+     * in a well-formed data set.
      */
+    public File getFile()
+    {
+        return file;
+    }
+
+    /**
+     * Set the file that contains the data set.
+     */
+    public void setFile(File file)
+    {
+        this.file = file;
+    }
+
     public List<FileInfoDssDTO> getFileInfos()
     {
-        return fileInfos;
+        try
+        {
+            ArrayList<FileInfoDssDTO> fileInfos = new ArrayList<FileInfoDssDTO>();
+            if (false == file.exists())
+            {
+                return fileInfos;
+            }
+
+            String path = file.getCanonicalPath();
+            if (false == file.isDirectory())
+            {
+                path = file.getParentFile().getCanonicalPath();
+            }
+
+            FileInfoDssBuilder builder = new FileInfoDssBuilder(path, path);
+            builder.appendFileInfosForFile(file, fileInfos, true);
+            return fileInfos;
+        } catch (IOException e)
+        {
+            throw new IOExceptionUnchecked(e);
+        }
     }
 
     /**
@@ -93,7 +135,9 @@ public class NewDataSetDTOBuilder
      */
     public NewDataSetDTO asNewDataSetDTO()
     {
-        return new NewDataSetDTO(dataSetMetadata, dataSetOwner, dataSetFolderNameOrNull, fileInfos);
+        String dataSetFolderNameOrNull = (file.isDirectory()) ? file.getName() : null;
+        return new NewDataSetDTO(dataSetMetadata, getDataSetOwner(), dataSetFolderNameOrNull,
+                getFileInfos());
     }
 
 }

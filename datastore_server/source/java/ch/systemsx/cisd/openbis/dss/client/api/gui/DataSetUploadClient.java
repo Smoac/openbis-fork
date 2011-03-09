@@ -103,13 +103,18 @@ public class DataSetUploadClient extends AbstractSwingGUI
 
     private final DataSetUploadTableModel tableModel;
 
+    private final DataSetMetadataPanel metadataPanel;
+
     DataSetUploadClient(final DssCommunicationState commState, final ITimeProvider timeProvider)
     {
         // save and create local state
         super(commState);
 
         clientModel = new DataSetUploadClientModel(getDssComponent(), timeProvider);
-        tableModel = new DataSetUploadTableModel(this, clientModel, getWindowFrame());
+        metadataPanel = new DataSetMetadataPanel(clientModel, getWindowFrame());
+        tableModel =
+                new DataSetUploadTableModel(this, clientModel, metadataPanel, getWindowFrame());
+        metadataPanel.setTableModel(tableModel);
 
         createGui();
         addProgressListener();
@@ -144,7 +149,7 @@ public class DataSetUploadClient extends AbstractSwingGUI
         c.gridy = 2;
         c.weightx = 0.5;
         c.weighty = 0.5;
-        panel.add(createMetadataPanel(), c);
+        panel.add(metadataPanel, c);
 
         window.add(panel, BorderLayout.CENTER);
 
@@ -170,6 +175,28 @@ public class DataSetUploadClient extends AbstractSwingGUI
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
 
+        JButton addButton = new JButton("+");
+        addButton.setPreferredSize(new Dimension(50, BUTTON_HEIGHT));
+        addButton.setToolTipText("Add a new data set");
+        addButton.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    tableModel.addNewDataSet();
+                }
+            });
+
+        JButton removeButton = new JButton("-");
+        removeButton.setPreferredSize(new Dimension(50, BUTTON_HEIGHT));
+        removeButton.setToolTipText("Remove the selected data set");
+        removeButton.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    tableModel.removeSelectedDataSet();
+                }
+            });
+
         JButton uploadAllButton = new JButton("Upload All");
         uploadAllButton.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
         uploadAllButton.setToolTipText("Attach the data set to a sample.");
@@ -180,6 +207,8 @@ public class DataSetUploadClient extends AbstractSwingGUI
                 }
             });
 
+        panel.add(addButton);
+        panel.add(removeButton);
         panel.add(Box.createHorizontalGlue());
         panel.add(uploadAllButton);
 
@@ -238,7 +267,6 @@ public class DataSetUploadClient extends AbstractSwingGUI
         column =
                 fileTable.getColumnModel().getColumn(DataSetUploadTableModel.DATA_SET_OWNER_COLUMN);
         column.setPreferredWidth(320);
-        column.setCellRenderer(new FileDetailsTableCellRenderer());
 
         column =
                 fileTable.getColumnModel().getColumn(
@@ -250,15 +278,10 @@ public class DataSetUploadClient extends AbstractSwingGUI
 
         column = fileTable.getColumnModel().getColumn(DataSetUploadTableModel.UPLOAD_STATUS_COLUMN);
         column.setPreferredWidth(150);
-        column.setCellRenderer(new DownloadStatusTableCellRenderer(tableModel));
-        column.setCellEditor(new DownloadStatusTableCellEditor(tableModel));
+        column.setCellRenderer(new UploadStatusTableCellRenderer(tableModel));
+        column.setCellEditor(new UploadStatusTableCellEditor(tableModel));
         JScrollPane scrollPane = new JScrollPane(fileTable);
         return scrollPane;
-    }
-
-    private JComponent createMetadataPanel()
-    {
-        return new DataSetMetadataPanel();
     }
 
     private void addProgressListener()

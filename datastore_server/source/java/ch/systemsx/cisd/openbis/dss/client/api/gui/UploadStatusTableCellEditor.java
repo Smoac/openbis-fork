@@ -30,16 +30,16 @@ import javax.swing.table.TableCellEditor;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class DownloadStatusTableCellEditor extends AbstractCellEditor implements TableCellEditor
+public class UploadStatusTableCellEditor extends AbstractCellEditor implements TableCellEditor
 {
 
     private static final long serialVersionUID = 1L;
 
-    final JButton button = new JButton("Download");
+    final JButton button = new JButton("Upload");
 
     final DataSetUploadTableModel tableModel;
 
-    DownloadStatusTableCellEditor(DataSetUploadTableModel tableModel)
+    UploadStatusTableCellEditor(DataSetUploadTableModel tableModel)
     {
         super();
         this.tableModel = tableModel;
@@ -71,6 +71,6 @@ public class DownloadStatusTableCellEditor extends AbstractCellEditor implements
 
     public Object getCellEditorValue()
     {
-        return null;
+        return tableModel.getSelectedNewDataSet();
     }
 }
