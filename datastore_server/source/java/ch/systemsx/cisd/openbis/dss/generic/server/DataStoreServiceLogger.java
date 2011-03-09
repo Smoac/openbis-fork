@@ -23,6 +23,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
+import ch.systemsx.cisd.common.utilities.IInitializable;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
@@ -33,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 /**
  * @author Franz-Josef Elmer
  */
-class DataStoreServiceLogger implements IDataStoreService
+class DataStoreServiceLogger implements IDataStoreService, IInitializable
 {
     private static final String RESULT_SUCCESS = "";
 
@@ -70,6 +71,11 @@ class DataStoreServiceLogger implements IDataStoreService
         // parameters.
         operationLog.info(String.format("%s  %s%s (%s ms)", commandName, message,
                 invocationStatusMessage, loggerContext.getElapsedTime()));
+    }
+
+    public void initialize()
+    {
+        log("initialize", "");
     }
 
     public int getVersion(String sessionToken)
