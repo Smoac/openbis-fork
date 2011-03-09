@@ -18,10 +18,13 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.util.Format;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
@@ -30,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.managed
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.managed_property.ManagedPropertyGridGeneratedCallback.IOnGridComponentGeneratedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
@@ -80,6 +84,8 @@ public class ManagedPropertySection extends DisposableTabContent
 
     private final IDelegatedAction refreshAction;
 
+    private final Button refreshButton; // displayed only when there was an error
+
     private final IManagedProperty managedProperty;
 
     private final IEntityInformationHolder entity;
@@ -93,6 +99,7 @@ public class ManagedPropertySection extends DisposableTabContent
         this.managedProperty = managedProperty;
         this.gridIdSuffix = Format.hyphenize(header);
         this.refreshAction = refreshAction;
+        this.refreshButton = createRefreshButton(viewContext, refreshAction);
         setIds(new IDisplayTypeIDGenerator()
             {
 
@@ -106,6 +113,25 @@ public class ManagedPropertySection extends DisposableTabContent
                     return ID_PREFIX + gridIdSuffix;
                 }
             });
+    }
+
+    private static Button createRefreshButton(IMessageProvider messageProvider,
+            final IDelegatedAction refreshAction)
+    {
+        final Button button =
+                new Button(messageProvider.getMessage(Dict.BUTTON_REFRESH),
+                        new SelectionListener<ButtonEvent>()
+                            {
+                                @Override
+                                public void componentSelected(ButtonEvent ce)
+                                {
+                                    if (ce.getButton().isEnabled())
+                                    {
+                                        refreshAction.execute();
+                                    }
+                                }
+                            });
+        return button;
     }
 
     @Override
@@ -169,6 +195,7 @@ public class ManagedPropertySection extends DisposableTabContent
             if (value.startsWith(BasicConstant.ERROR_PROPERTY_PREFIX)
                     && (value.equals(BasicConstant.MANAGED_PROPERTY_PLACEHOLDER_VALUE) == false))
             {
+                getHeader().addTool(refreshButton);
                 final String errorMsg =
                         value.substring(BasicConstant.ERROR_PROPERTY_PREFIX.length());
                 throwFailToCreateContentException(errorMsg);
