@@ -32,6 +32,7 @@ import ch.systemsx.cisd.common.mail.From;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
@@ -47,8 +48,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
  */
 public class ProcessDatasetsCommand extends AbstractDataSetDescriptionBasedCommand
 {
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, ProcessDatasetsCommand.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            ProcessDatasetsCommand.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -61,7 +62,7 @@ public class ProcessDatasetsCommand extends AbstractDataSetDescriptionBasedComma
     private final DatastoreServiceDescription serviceDescription;
 
     private MailClientParameters mailClientParameters;
-    
+
     private transient IMailClient mailClient;
 
     public ProcessDatasetsCommand(IProcessingPluginTask task, List<DatasetDescription> datasets,
@@ -73,11 +74,10 @@ public class ProcessDatasetsCommand extends AbstractDataSetDescriptionBasedComma
                 new MailClient(mailClientParameters));
         this.mailClientParameters = mailClientParameters;
     }
-    
+
     ProcessDatasetsCommand(IProcessingPluginTask task, List<DatasetDescription> datasets,
             Map<String, String> parameterBindings, String userEmailOrNull,
-            DatastoreServiceDescription serviceDescription,
-            IMailClient mailClient)
+            DatastoreServiceDescription serviceDescription, IMailClient mailClient)
     {
         super(datasets);
         this.task = task;
@@ -86,22 +86,23 @@ public class ProcessDatasetsCommand extends AbstractDataSetDescriptionBasedComma
         this.serviceDescription = serviceDescription;
         this.mailClient = mailClient;
     }
-    
+
     private static final class ProxyMailClient implements IMailClient
     {
         private final IMailClient mailClient;
-        
+
         private boolean mailSent;
 
-        ProxyMailClient(IMailClient mailClient){
+        ProxyMailClient(IMailClient mailClient)
+        {
             this.mailClient = mailClient;
         }
-        
+
         boolean hasMailSent()
         {
             return mailSent;
         }
-        
+
         public void sendMessage(String subject, String content, String replyToOrNull,
                 From fromOrNull, String... recipients) throws EnvironmentFailureException
         {
@@ -161,17 +162,16 @@ public class ProcessDatasetsCommand extends AbstractDataSetDescriptionBasedComma
             throw e;
         } finally
         {
-            if (userEmailOrNull == null)
+            if (StringUtils.isBlank(userEmailOrNull))
             {
                 if (errorMessageOrNull != null)
                 {
                     String warning =
-                            String
-                                    .format(
-                                            "Dataset processing '%s' has failed with a message '%s' but"
-                                                    + " the person who triggered processing has no email address specified."
-                                                    + " No notification has been sent.",
-                                            serviceDescription.getKey(), errorMessageOrNull);
+                            String.format(
+                                    "Dataset processing '%s' has failed with a message '%s' but"
+                                            + " the person who triggered processing has no email address specified."
+                                            + " No notification has been sent.",
+                                    serviceDescription.getKey(), errorMessageOrNull);
                     operationLog.warn(warning);
                 }
                 return;
@@ -252,8 +252,7 @@ public class ProcessDatasetsCommand extends AbstractDataSetDescriptionBasedComma
     private static String generateDescription(ProcessingStatus processingStatus)
     {
         StringBuilder sb = new StringBuilder();
-        sb
-                .append("This is an automatically generated report from the completed processing of data sets in openBIS.\n");
+        sb.append("This is an automatically generated report from the completed processing of data sets in openBIS.\n");
         List<String> successfullyProcessed = processingStatus.getDatasetsByStatus(Status.OK);
         if (successfullyProcessed != null && successfullyProcessed.isEmpty() == false)
         {
@@ -277,7 +276,7 @@ public class ProcessDatasetsCommand extends AbstractDataSetDescriptionBasedComma
         }
         return sb.toString();
     }
-    
+
     private IMailClient getMailClient()
     {
         if (mailClient == null)
