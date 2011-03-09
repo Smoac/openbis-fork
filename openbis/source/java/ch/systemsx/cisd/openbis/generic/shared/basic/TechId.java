@@ -16,12 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
@@ -30,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  * 
  * @author Piotr Buczek
  */
-public class TechId implements IIdHolder, IsSerializable, Serializable
+public class TechId implements IIdHolder, ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
