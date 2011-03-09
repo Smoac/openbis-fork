@@ -182,14 +182,14 @@ public final class ManagedPropertyGridActionDialog extends
         if (managedAction.getSelectionType() == ManagedTableActionRowSelectionType.REQUIRED_SINGLE
                 && data.size() == 1)
         {
-            String bindedColumnTitleOrNull =
+            String boundedColumnTitleOrNull =
                     managedAction.getBindings().get(inputDescription.getLabel());
-            if (bindedColumnTitleOrNull != null)
+            if (boundedColumnTitleOrNull != null)
             {
                 if (viewContext.isLoggingEnabled())
                 {
                     Info.display("found binding", inputDescription.getLabel() + "->"
-                            + bindedColumnTitleOrNull);
+                            + boundedColumnTitleOrNull);
                 }
                 TableModelRowWithObject<ReportRowModel> selectedRow = data.get(0);
                 TableModel tableModel =
@@ -198,7 +198,7 @@ public final class ManagedPropertyGridActionDialog extends
 
                 for (TableModelColumnHeader header : tableModel.getHeader())
                 {
-                    if (header.getTitle().equals(bindedColumnTitleOrNull))
+                    if (header.getTitle().equals(boundedColumnTitleOrNull))
                     {
                         ISerializableComparable value =
                                 selectedRow.getValues().get(header.getIndex());

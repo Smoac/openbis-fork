@@ -35,8 +35,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 class PropertiesBatchEvaluationErrors
 {
     /**
-     * limitation on the number of ErrorDetails objects kept in memory. This guards us from
-     * scripts generating unique error messages for excessively large batches.
+     * limitation on the number of ErrorDetails objects kept in memory. This guards us from scripts
+     * generating unique error messages for excessively large batches.
      */
     static final int MAX_ERROR_DETAILS_KEPT = 10;
 
@@ -111,8 +111,7 @@ class PropertiesBatchEvaluationErrors
     }
 
     /**
-     * @return <code>true</code> when the memory is full and no more errors should be
-     *         accumulated.
+     * @return <code>true</code> when the memory is full and no more errors should be accumulated.
      */
     boolean shouldSkipDetailsAccumulation(String errorMessage)
     {
@@ -120,10 +119,10 @@ class PropertiesBatchEvaluationErrors
                 && errorDetails.size() >= MAX_ERROR_DETAILS_KEPT;
     }
 
-    boolean hasErrors() {
+    boolean hasErrors()
+    {
         return totalFailedRowsNumber > 0;
     }
-
 
     /**
      * creates a messages to be displayed to the user.
@@ -137,7 +136,7 @@ class PropertiesBatchEvaluationErrors
         message.append(" out of ");
         message.append(totalRowsNumber);
         message.append(" rows.");
-        
+
         // construct a mapping between message line and failed rows
         List<String> errorMessageLines = new ArrayList<String>();
         Map<String, List<Integer>> failedRows = new HashMap<String, List<Integer>>();
@@ -187,10 +186,10 @@ class PropertiesBatchEvaluationErrors
 
         for (ErrorDetail errDetail : sortErrorDetailsByRow())
         {
-            message.append("\n\n");
+            message.append("\n\n- ");
             message.append(formatRows(errDetail.rows));
             appendErrorDetails(message, errDetail, true);
-            message.append(": ");
+            message.append(":\n");
             StringWriter sw = new StringWriter();
             errDetail.evaluationError.printStackTrace(new PrintWriter(sw));
             message.append(sw.toString());
@@ -199,8 +198,9 @@ class PropertiesBatchEvaluationErrors
         return message.toString();
 
     }
-    
-    private List<ErrorDetail> sortErrorDetailsByRow() {
+
+    private List<ErrorDetail> sortErrorDetailsByRow()
+    {
         List<ErrorDetail> result = new ArrayList<ErrorDetail>(errorDetails.values());
         Collections.sort(result, new Comparator<ErrorDetail>()
             {
