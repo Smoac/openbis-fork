@@ -33,6 +33,8 @@ public class EntityTableCell implements ISerializableComparable
 
     private String identifierOrNull; // 'null' when entity is missing
 
+    private String linkTextOrNull; // 'null' when link text wasn't redefined (use identifier)
+
     public EntityTableCell(EntityKind entityKind, String permId)
     {
         this(entityKind, permId, permId);
@@ -94,10 +96,26 @@ public class EntityTableCell implements ISerializableComparable
         return entityKind.equals(otherCell.entityKind) && permId.equals(otherCell.permId);
     }
 
+    private String createLinkText()
+    {
+        if (isMissing())
+        {
+            return (linkTextOrNull != null ? linkTextOrNull : permId) + MISSING_ENTITY_SUFFIX;
+        } else
+        {
+            return linkTextOrNull != null ? linkTextOrNull : identifierOrNull;
+        }
+    }
+
+    public void setLinkText(String linkText)
+    {
+        this.linkTextOrNull = linkText;
+    }
+
     @Override
     public String toString()
     {
-        return isMissing() ? String.valueOf(permId) + MISSING_ENTITY_SUFFIX : identifierOrNull;
+        return createLinkText();
     }
 
     // ---------------------------
