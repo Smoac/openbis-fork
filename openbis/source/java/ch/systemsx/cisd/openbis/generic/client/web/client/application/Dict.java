@@ -861,6 +861,10 @@ public abstract class Dict
 
     public static final String DEBUGGING_MODE_INFO = "debugging_mode_info";
 
+    public static final String REOPEN_LAST_TAB_ON_LOGIN_LABEL = "reopen_last_tab_on_login_label";
+
+    public static final String REOPEN_LAST_TAB_ON_LOGIN_INFO = "reopen_last_tab_on_login_info";
+
     //
     // Help Info
     //

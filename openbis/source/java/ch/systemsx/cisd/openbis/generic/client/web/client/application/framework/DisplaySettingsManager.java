@@ -493,6 +493,18 @@ public class DisplaySettingsManager
     }
 
     @SuppressWarnings("deprecation")
+    public final boolean isReopenLastTabOnLogin()
+    {
+        return displaySettings.isIgnoreLastHistoryToken() == false;
+    }
+
+    @SuppressWarnings("deprecation")
+    public final void setReopenLastTabOnLogin(boolean isReopen)
+    {
+        displaySettings.setIgnoreLastHistoryToken(isReopen == false);
+    }
+
+    @SuppressWarnings("deprecation")
     public final RealNumberFormatingParameters getRealNumberFormatingParameters()
     {
         return displaySettings.getRealNumberFormatingParameters();

@@ -66,6 +66,8 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
 
     private final SpaceSelectionWidget homeSpaceField;
 
+    private final CheckBoxField reopenLastTabField;
+
     private final CheckBoxField useWildcardSearchModeCheckbox;
 
     private final FieldSet formatingFields;
@@ -90,6 +92,7 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         // setHeight(250);
 
         addField(homeSpaceField = createHomeGroupField());
+        addField(reopenLastTabField = createReopenLastTabOnLoginField());
         addField(useWildcardSearchModeCheckbox = createUseWildcardSearchModeField());
         formatingFields = createRealFormatingFieldSet();
         precisionField = createPrecisionField();
@@ -118,6 +121,19 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         return field;
     }
 
+    private CheckBoxField createReopenLastTabOnLoginField()
+    {
+        CheckBoxField field =
+                new CheckBoxField(viewContext.getMessage(Dict.REOPEN_LAST_TAB_ON_LOGIN_LABEL),
+                        false);
+        AbstractImagePrototype infoIcon =
+                AbstractImagePrototype.create(viewContext.getImageBundle().getInfoIcon());
+        FieldUtil.addInfoIcon(field, viewContext.getMessage(Dict.REOPEN_LAST_TAB_ON_LOGIN_INFO),
+                infoIcon.createImage());
+        field.setValue(viewContext.getDisplaySettingsManager().isReopenLastTabOnLogin());
+        return field;
+    }
+
     private final CheckBoxField createUseWildcardSearchModeField()
     {
         CheckBoxField field =
@@ -140,12 +156,16 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         formatingParameters.setFormatingEnabled(formatingFields.isExpanded());
         formatingParameters.setPrecision(precisionField.getValue().intValue());
         formatingParameters.setScientific(scientificFormatingField.getValue());
+
         DisplaySettingsManager displaySettingsManager = viewContext.getDisplaySettingsManager();
         boolean useWildcardSearchMode = extractUseWildcardSearchMode();
         displaySettingsManager.updateUseWildcardSearchMode(useWildcardSearchMode);
 
         boolean debuggingModeEnabled = debuggingModeField.getValue();
         displaySettingsManager.setDebuggingModeEnabled(debuggingModeEnabled);
+
+        boolean restoreLastTab = reopenLastTabField.getValue();
+        displaySettingsManager.setReopenLastTabOnLogin(restoreLastTab);
 
         displaySettingsManager.storeSettings();
     }

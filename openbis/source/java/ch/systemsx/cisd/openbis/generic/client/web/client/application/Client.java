@@ -322,11 +322,8 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
                     GWTUtils.setConfirmExitMessage();
                 }
 
-                DisplaySettings displaySettings =
-                        viewContext.getModel().getSessionContext().getDisplaySettings();
-                String lastHistoryOrNull = displaySettings.getLastHistoryTokenOrNull();
-                if (viewContext.isSimpleMode() == false && StringUtils.isBlank(History.getToken())
-                        && StringUtils.isBlank(lastHistoryOrNull) == false)
+                String lastHistoryOrNull = tryGetLastHistoryToken();
+                if (lastHistoryOrNull != null)
                 {
                     History.newItem(lastHistoryOrNull);
                 } else
@@ -334,6 +331,24 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
                     afterInitAction.execute();
                 }
             }
+        }
+
+        @SuppressWarnings("deprecation")
+        private String tryGetLastHistoryToken()
+        {
+            if (viewContext.isSimpleMode() == false && StringUtils.isBlank(History.getToken()))
+            {
+                DisplaySettings displaySettings =
+                        viewContext.getModel().getSessionContext().getDisplaySettings();
+                if (displaySettings.isIgnoreLastHistoryToken())
+                {
+                    return null;
+                } else
+                {
+                    return displaySettings.getLastHistoryTokenOrNull();
+                }
+            }
+            return null;
         }
     }
 

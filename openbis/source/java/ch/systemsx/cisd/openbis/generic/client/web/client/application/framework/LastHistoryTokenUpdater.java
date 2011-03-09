@@ -31,6 +31,7 @@ class LastHistoryTokenUpdater
         this.viewContext = viewContext;
     }
 
+    @SuppressWarnings("deprecation")
     public void update(String historyToken)
     {
         DisplaySettings displaySettings =

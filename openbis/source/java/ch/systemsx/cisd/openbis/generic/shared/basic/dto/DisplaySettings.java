@@ -24,7 +24,7 @@ import java.util.Map;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
- * Class storing personalised display settings. This class implements {@link Serializable} not only
+ * Class storing personalized display settings. This class implements {@link Serializable} not only
  * for transferring it's content remotely but also to store it in the database. Thus, CHANGES IN
  * THIS CLASS MIGHT LEAD TO A LOST OF PERSONAL SETTINGS. In all cases deserialization leads to an
  * exception the default settings is used.
@@ -59,6 +59,8 @@ public class DisplaySettings implements ISerializable
     private boolean debugging = false;
 
     private String lastHistoryTokenOrNull;
+
+    private boolean ignoreLastHistoryToken = false;
 
     private RealNumberFormatingParameters realNumberFormatingParameters =
             new RealNumberFormatingParameters();
@@ -225,14 +227,32 @@ public class DisplaySettings implements ISerializable
         debugging = isDebugging;
     }
 
+    /** @deprecated Should be used only by DisplaySettingsManager. */
+    @Deprecated
     public String getLastHistoryTokenOrNull()
     {
         return lastHistoryTokenOrNull;
     }
 
+    /** @deprecated Should be used only by DisplaySettingsManager. */
+    @Deprecated
     public void setLastHistoryTokenOrNull(String lastHistoryOrNull)
     {
         this.lastHistoryTokenOrNull = lastHistoryOrNull;
+    }
+
+    /** @deprecated Should be used only by DisplaySettingsManager. */
+    @Deprecated
+    public boolean isIgnoreLastHistoryToken()
+    {
+        return ignoreLastHistoryToken;
+    }
+
+    /** @deprecated Should be used only by DisplaySettingsManager. */
+    @Deprecated
+    public void setIgnoreLastHistoryToken(boolean ignoreLastHistoryToken)
+    {
+        this.ignoreLastHistoryToken = ignoreLastHistoryToken;
     }
 
 }

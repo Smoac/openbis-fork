@@ -487,6 +487,8 @@ var common = {
   real_number_formating_precision: "Precision",
   debugging_mode: "Enable Debugging Mode",
   debugging_mode_info: "This mode is for advanced users. When enabled information like detailed error messages useful e.g. when debugging scripts invoked by openbis will be shown.",
+  reopen_last_tab_on_login_label: "Reopen Last Tab",
+  reopen_last_tab_on_login_info: "Check to reopen last opened tab after login. Note, that it works only if you enter openBIS with URL to the welcome page.",
     
   //
   // Role View
