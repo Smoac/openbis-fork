@@ -19,12 +19,18 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.managed_property;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.EntityLinkElementTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IEntityInformationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IEntityLinkElement;
@@ -35,7 +41,6 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IEntityLinkE
 @Component(value = ResourceNames.ENTITY_INFORMATION_PROVIDER)
 public class EntityInformationProvider implements IEntityInformationProvider
 {
-    // @Autowired
     private final IDAOFactory daoFactory;
 
     @Autowired
@@ -43,6 +48,14 @@ public class EntityInformationProvider implements IEntityInformationProvider
     {
         assert daoFactory != null;
         this.daoFactory = daoFactory;
+    }
+
+    public String getIdentifier(IEntityLinkElement entityLink)
+    {
+        final EntityKind entityKind =
+                EntityLinkElementTranslator.translate(entityLink.getEntityLinkKind());
+        final String permId = entityLink.getPermId();
+        return getIdentifier(entityKind, permId);
     }
 
     private String getIdentifier(EntityKind entityKind, String permId)
@@ -89,12 +102,36 @@ public class EntityInformationProvider implements IEntityInformationProvider
         return identifierHolderOrNull == null ? null : identifierHolderOrNull.getIdentifier();
     }
 
-    public String getIdentifier(IEntityLinkElement entityLink)
+    public String getSamplePermId(String spaceCode, String sampleCode)
     {
-        final EntityKind entityKind =
-                EntityLinkElementTranslator.translate(entityLink.getEntityLinkKind());
-        final String permId = entityLink.getPermId();
-        return getIdentifier(entityKind, permId);
+        DatabaseInstancePE homeInstance = daoFactory.getDatabaseInstanceDAO().getHomeInstance();
+        SpacePE space =
+                daoFactory.getSpaceDAO().tryFindSpaceByCodeAndDatabaseInstance(spaceCode,
+                        homeInstance);
+        if (space == null)
+        {
+            throw new UserFailureException("space " + spaceCode + " doesn't exist");
+        }
+        SamplePE sample = daoFactory.getSampleDAO().tryFindByCodeAndSpace(sampleCode, space);
+        return (sample != null) ? sample.getPermId() : null;
+    }
+
+    public String getSamplePermId(String sampleIdentifier)
+    {
+        SampleIdentifier identifier = SampleIdentifierFactory.parse(sampleIdentifier);
+        String sampleCode = identifier.getSampleCode();
+        if (identifier.isSpaceLevel())
+        {
+            String spaceCode = identifier.getSpaceLevel().getSpaceCode();
+            return getSamplePermId(spaceCode, sampleCode);
+        } else
+        {
+            DatabaseInstancePE homeInstance = daoFactory.getDatabaseInstanceDAO().getHomeInstance();
+            SamplePE sample =
+                    daoFactory.getSampleDAO().tryFindByCodeAndDatabaseInstance(sampleCode,
+                            homeInstance);
+            return (sample != null) ? sample.getPermId() : null;
+        }
     }
 
 }

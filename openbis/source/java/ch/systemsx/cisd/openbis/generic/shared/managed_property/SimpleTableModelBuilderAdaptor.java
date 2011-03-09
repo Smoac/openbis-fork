@@ -111,18 +111,27 @@ public class SimpleTableModelBuilderAdaptor implements ISimpleTableModelBuilderA
 
                 public void setCell(String headerTitle, IEntityLinkElement value)
                 {
-                    row.setCell(headerTitle, asTableCell(value));
+                    row.setCell(headerTitle, asTableCell(value, null));
                 }
 
-                private EntityTableCell asTableCell(IEntityLinkElement value)
+                public void setCell(String headerTitle, IEntityLinkElement value, String linkText)
+                {
+                    row.setCell(headerTitle, asTableCell(value, linkText));
+                }
+
+                private EntityTableCell asTableCell(IEntityLinkElement value,
+                        String linkTextOrNull)
                 {
                     final EntityKind entityKind =
                             EntityLinkElementTranslator.translate(value.getEntityLinkKind());
                     final String permId = value.getPermId();
                     final String identifierOrNull = tryExtractIdentifier(value);
-                    return new EntityTableCell(entityKind, permId, identifierOrNull);
-                }
 
+                    final EntityTableCell result =
+                            new EntityTableCell(entityKind, permId, identifierOrNull);
+                    result.setLinkText(linkTextOrNull);
+                    return result;
+                }
             };
     }
 

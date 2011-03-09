@@ -31,4 +31,16 @@ public interface IEntityInformationProvider
      */
     String getIdentifier(IEntityLinkElement entityLink);
 
+    /**
+     * @return permId of entity specified by given space and sample, <code>null</code> if such an
+     *         entity doesn't exist
+     */
+    String getSamplePermId(String spaceCode, String sampleCode);
+
+    /**
+     * @return permId of entity specified by given identifier, <code>null</code> if such an entity
+     *         doesn't exist
+     */
+    String getSamplePermId(String sampleIdentifier);
+
 }

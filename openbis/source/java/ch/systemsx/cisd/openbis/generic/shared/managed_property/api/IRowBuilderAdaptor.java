@@ -30,28 +30,35 @@ public interface IRowBuilderAdaptor
 {
 
     /**
-     * Sets the value of the column specified by the header title by the specified string.
+     * Sets the value of the column specified by the header title to the specified string.
      */
     public void setCell(String headerTitle, String value);
 
     /**
-     * Sets the value of the column specified by the header title by the specified long value.
+     * Sets the value of the column specified by the header title to the specified long value.
      */
     public void setCell(String headerTitle, long value);
 
     /**
-     * Sets the value of the column specified by the header title by the specified double value.
+     * Sets the value of the column specified by the header title to the specified double value.
      */
     public void setCell(String headerTitle, double value);
 
     /**
-     * Sets the value of the column specified by the header title by the specified date.
+     * Sets the value of the column specified by the header title to the specified date.
      */
     public void setCell(String headerTitle, Date value);
 
     /**
-     * Sets the value of the column specified by the header title by the specified entity link.
+     * Sets the value of the column specified by the header title to the specified entity link
+     * rendered using identifier.
      */
     public void setCell(String headerTitle, IEntityLinkElement value);
+
+    /**
+     * Sets the value of the column specified by the header title to the specified entity link
+     * rendered using given text.
+     */
+    public void setCell(String headerTitle, IEntityLinkElement value, String linkText);
 
 }
