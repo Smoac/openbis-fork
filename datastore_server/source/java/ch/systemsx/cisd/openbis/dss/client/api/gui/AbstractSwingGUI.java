@@ -32,12 +32,14 @@ import org.apache.commons.lang.WordUtils;
 import org.springframework.remoting.RemoteAccessException;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.api.client.ServiceFinder;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DssComponentFactory;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -351,6 +353,18 @@ class DssCommunicationState
 {
     private final IDssComponent dssComponent;
 
+    private final IGeneralInformationService generalInformationService;
+
+    private static IGeneralInformationService createGeneralInformationService(String openBISURL)
+    {
+        ServiceFinder generalInformationServiceFinder =
+                new ServiceFinder("openbis", IGeneralInformationService.SERVICE_URL);
+        IGeneralInformationService service =
+                generalInformationServiceFinder.createService(IGeneralInformationService.class,
+                        openBISURL);
+        return service;
+    }
+
     /**
      * Create a new instance of the DssCommunicationState based info in the arguments. Throws an
      * exception if it could not be created.
@@ -363,7 +377,7 @@ class DssCommunicationState
             throw new ConfigurationFailureException(
                     "The openBIS File Upload Client was improperly configured -- the arguments it requires were not supplied. Please talk to the openBIS administrator.");
 
-        final String openBisUrl = args[0];
+        String openBisUrl = args[0];
 
         switch (args.length)
         {
@@ -386,10 +400,17 @@ class DssCommunicationState
                             "The user name / password combination is incorrect.");
                 }
         }
+
+        generalInformationService = createGeneralInformationService(openBisUrl);
     }
 
     IDssComponent getDssComponent()
     {
         return dssComponent;
+    }
+
+    public IGeneralInformationService getGeneralInformationService()
+    {
+        return generalInformationService;
     }
 }

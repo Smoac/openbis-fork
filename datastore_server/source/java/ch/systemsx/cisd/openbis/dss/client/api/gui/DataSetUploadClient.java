@@ -110,7 +110,7 @@ public class DataSetUploadClient extends AbstractSwingGUI
         // save and create local state
         super(commState);
 
-        clientModel = new DataSetUploadClientModel(getDssComponent(), timeProvider);
+        clientModel = new DataSetUploadClientModel(commState, timeProvider);
         metadataPanel = new DataSetMetadataPanel(clientModel, getWindowFrame());
         tableModel =
                 new DataSetUploadTableModel(this, clientModel, metadataPanel, getWindowFrame());

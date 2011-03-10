@@ -49,6 +49,7 @@ import javax.swing.JTextField;
 import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClientModel.NewDataSetInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTOBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -185,9 +186,9 @@ public class DataSetMetadataPanel extends JPanel
 
         dataSetTypeComboBox.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
         dataSetTypeComboBox.setToolTipText("Select the data set type for the experiment");
-        for (String dataSetType : getDataSetTypes())
+        for (DataSetType dataSetType : getDataSetTypes())
         {
-            dataSetTypeComboBox.addItem(dataSetType);
+            dataSetTypeComboBox.addItem(dataSetType.getCode());
         }
         dataSetTypeComboBox.addItemListener(new ItemListener()
             {
@@ -198,9 +199,6 @@ public class DataSetMetadataPanel extends JPanel
                 }
             });
         addRow(2, label, dataSetTypeComboBox);
-
-        createDataSetTypePanel();
-        addRow(3, dataSetTypePanel);
 
         // The file row
         label = new JLabel("File:", JLabel.TRAILING);
@@ -229,7 +227,10 @@ public class DataSetMetadataPanel extends JPanel
                 }
 
             });
-        addRow(4, label, dataSetFileButton);
+        addRow(3, label, dataSetFileButton);
+
+        createDataSetTypePanel();
+        addRow(4, dataSetTypePanel);
     }
 
     protected void updateFileLabel()
@@ -247,11 +248,11 @@ public class DataSetMetadataPanel extends JPanel
     private void createDataSetTypePanel()
     {
         dataSetTypePanel.setLayout(new CardLayout());
-        for (String dataSetType : getDataSetTypes())
+        for (DataSetType dataSetType : getDataSetTypes())
         {
             JPanel typeView = new JPanel();
-            typeView.add(new JLabel(dataSetType), BorderLayout.CENTER);
-            dataSetTypePanel.add(typeView, dataSetType);
+            typeView.add(new JLabel(dataSetType.getCode()), BorderLayout.CENTER);
+            dataSetTypePanel.add(typeView, dataSetType.getCode());
         }
     }
 
@@ -309,7 +310,7 @@ public class DataSetMetadataPanel extends JPanel
         add(comp, c);
     }
 
-    private List<String> getDataSetTypes()
+    private List<DataSetType> getDataSetTypes()
     {
         return clientModel.getDataSetTypes();
     }

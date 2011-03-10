@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.dss.client.api.gui;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -26,22 +25,31 @@ import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTOBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 
 /**
  * @author Chandrasekhar Ramakrishnan
  */
 public class DataSetUploadClientModel
 {
+
     private final IDssComponent dssComponent;
+
+    private final IGeneralInformationService generalInformationService;
 
     private final ITimeProvider timeProvider;
 
+    private final List<DataSetType> dataSetTypes;
+
     private final ArrayList<NewDataSetInfo> newDataSetInfos = new ArrayList<NewDataSetInfo>();
 
-    public DataSetUploadClientModel(IDssComponent dssComponent, ITimeProvider timeProvider)
+    public DataSetUploadClientModel(DssCommunicationState commState, ITimeProvider timeProvider)
     {
-        this.dssComponent = dssComponent;
+        this.dssComponent = commState.getDssComponent();
+        this.generalInformationService = commState.getGeneralInformationService();
         this.timeProvider = timeProvider;
+        dataSetTypes = generalInformationService.listDataSetTypes(dssComponent.getSessionToken());
     }
 
     /**
@@ -195,11 +203,9 @@ public class DataSetUploadClientModel
     /**
      * Get the data set types that are shown here.
      */
-    public List<String> getDataSetTypes()
+    public List<DataSetType> getDataSetTypes()
     {
-        String[] dataSetTypes =
-            { "Data Set Type 1", "Data Set Type 2", "Data Set Type 3" };
-        return Arrays.asList(dataSetTypes);
+        return dataSetTypes;
     }
 
     public int getIndexOfDataSetType(String dataSetType)
@@ -208,12 +214,15 @@ public class DataSetUploadClientModel
         {
             return 0;
         }
-        int index = getDataSetTypes().indexOf(dataSetType);
-        if (index < 0)
+
+        for (int i = 0; i < dataSetTypes.size(); ++i)
         {
-            return 0;
+            if (dataSetTypes.get(i).getCode().equals(dataSetType))
+            {
+                return i;
+            }
         }
-        return index;
+        return 0;
     }
 
 }
