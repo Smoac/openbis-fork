@@ -34,7 +34,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
 
 /**
  * Immplementation of {@link IShareIdManager} based on {@link CountDownLatch}.
@@ -254,12 +254,12 @@ public class ShareIdManager implements IShareIdManager
         {
             if (dataSetCodeToShareIdMap == null)
             {
-                List<SimpleDataSetInformationDTO> dataSets = service.listDataSets();
+                List<DataSetShareId> dataSets = service.listDataSetShareIds();
                 dataSetCodeToShareIdMap = new HashMap<String, GuardedShareID>();
-                for (SimpleDataSetInformationDTO dataSet : dataSets)
+                for (DataSetShareId dataSet : dataSets)
                 {
                     String dataSetCode = dataSet.getDataSetCode();
-                    String shareId = dataSet.getDataSetShareId();
+                    String shareId = dataSet.getShareId();
                     addShareId(dataSetCodeToShareIdMap, dataSetCode, shareId);
                 }
                 operationLog.info("Share id manager initialized with " + dataSets.size()

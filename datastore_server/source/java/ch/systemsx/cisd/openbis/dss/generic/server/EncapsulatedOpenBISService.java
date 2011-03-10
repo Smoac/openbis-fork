@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
@@ -384,6 +385,19 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     public void checkSpaceAccess(String sToken, SpaceIdentifier spaceId)
     {
         service.checkSpaceAccess(sToken, spaceId);
+    }
+
+    public List<DataSetShareId> listDataSetShareIds() throws UserFailureException
+    {
+        List<DataSetShareId> shareIds = service.listShareIds(session.getToken(), session.getDataStoreCode());
+        for (DataSetShareId dataSetShareId : shareIds)
+        {
+            if (dataSetShareId.getShareId() == null)
+            {
+                dataSetShareId.setShareId(ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID);
+            }
+        }
+        return shareIds;
     }
 
     public List<SimpleDataSetInformationDTO> listDataSets() throws UserFailureException

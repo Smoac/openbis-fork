@@ -62,6 +62,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityCollectionForCreationOrUpdate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
@@ -407,13 +408,21 @@ public interface IETLLIMSService extends IServer, ISessionProvider
             throws UserFailureException;
 
     /**
+     * Lists share ids of all data sets belonging to chosen data store.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    public List<DataSetShareId> listShareIds(final String sessionToken,
+            String dataStore) throws UserFailureException;
+
+    /**
      * Lists data sets belonging to chosen data store.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public List<SimpleDataSetInformationDTO> listDataSets(final String sessionToken,
             String dataStore) throws UserFailureException;
-
+    
     /**
      * List data sets deleted after specified date.
      */

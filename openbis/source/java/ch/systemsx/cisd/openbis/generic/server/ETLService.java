@@ -78,6 +78,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
@@ -727,6 +728,21 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
         sampleTable.loadSamplesByCriteria(criteria);
         return SampleTranslator.translate(sampleTable.getSamples(), "");
+    }
+
+    public List<DataSetShareId> listShareIds(String sessionToken, String dataStore)
+            throws UserFailureException
+    {
+        List<ExternalDataPE> dataSets = loadDataSets(sessionToken, dataStore);
+        ArrayList<DataSetShareId> shareIds = new ArrayList<DataSetShareId>();
+        for (ExternalDataPE dataSet : dataSets)
+        {
+            DataSetShareId dataSetShareId = new DataSetShareId();
+            dataSetShareId.setDataSetCode(dataSet.getCode());
+            dataSetShareId.setShareId(dataSet.getShareId());
+            shareIds.add(dataSetShareId);
+        }
+        return shareIds;
     }
 
     public List<SimpleDataSetInformationDTO> listDataSets(String sessionToken, String dataStoreCode)

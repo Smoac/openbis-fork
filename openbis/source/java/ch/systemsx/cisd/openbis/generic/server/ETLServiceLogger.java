@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityCollectionForCreationOrUpdate;
@@ -269,6 +270,13 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
             ListSamplesByPropertyCriteria criteria) throws UserFailureException
     {
         logAccess(sessionToken, "listSamplesByCriteria", "criteria(%s)", criteria);
+        return null;
+    }
+
+    public List<DataSetShareId> listShareIds(String sessionToken, String dataStore)
+            throws UserFailureException
+    {
+        logAccess(sessionToken, "listShareIds", "DATA_STORE(%s)", dataStore);
         return null;
     }
 

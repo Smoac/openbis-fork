@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
@@ -243,10 +244,14 @@ public interface IEncapsulatedOpenBISService
     public List<Sample> listSamplesByCriteria(final ListSamplesByPropertyCriteria criteria)
             throws UserFailureException;
 
+    /** See {@link IETLLIMSService#listShareIds(String, String)} */
+    @ManagedAuthentication
+    public List<DataSetShareId> listDataSetShareIds() throws UserFailureException;
+
     /** See {@link IETLLIMSService#listDataSets(String, String)} */
     @ManagedAuthentication
     public List<SimpleDataSetInformationDTO> listDataSets() throws UserFailureException;
-
+    
     /**
      * Creates and returns a unique code for a new data set.
      */
