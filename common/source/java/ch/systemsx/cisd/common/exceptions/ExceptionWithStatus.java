@@ -27,6 +27,7 @@ public final class ExceptionWithStatus extends RuntimeException
 
     public ExceptionWithStatus(Status status)
     {
+        super(status.tryGetErrorMessage());
         this.status = status;
     }
 
