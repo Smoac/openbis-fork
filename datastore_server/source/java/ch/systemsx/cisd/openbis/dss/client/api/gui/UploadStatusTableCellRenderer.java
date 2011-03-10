@@ -53,7 +53,7 @@ public class UploadStatusTableCellRenderer implements TableCellRenderer
 
     private final JPanel retryPanel = new JPanel();
 
-    private final JLabel completedLabel = new JLabel("Finished");
+    private final JLabel completedLabel = new JLabel("Registered");
 
     private final JPanel completedPanel = new JPanel();
 

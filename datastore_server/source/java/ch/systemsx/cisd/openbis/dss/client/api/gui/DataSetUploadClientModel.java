@@ -18,15 +18,20 @@ package ch.systemsx.cisd.openbis.dss.client.api.gui;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.TransmissionSpeedCalculator;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTOBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyTypeGroup;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -212,16 +217,16 @@ public class DataSetUploadClientModel
         return dataSetTypes;
     }
 
-    public int getIndexOfDataSetType(String dataSetType)
+    public int getIndexOfDataSetType(String dataSetTypeCode)
     {
-        if (null == dataSetType)
+        if (null == dataSetTypeCode)
         {
             return 0;
         }
 
         for (int i = 0; i < dataSetTypes.size(); ++i)
         {
-            if (dataSetTypes.get(i).getCode().equals(dataSetType))
+            if (dataSetTypes.get(i).getCode().equals(dataSetTypeCode))
             {
                 return i;
             }
@@ -239,10 +244,63 @@ public class DataSetUploadClientModel
         this.tableModel = tableModel;
     }
 
-    // Broadcasting Notifications
+    /**
+     * Broadcast changes to observers.
+     */
     public void notifyObserversOfChanges(NewDataSetInfo changedInfo)
     {
         tableModel.selectedRowDataChanged();
+    }
+
+    /**
+     * Clean the <var>newDataSetDTO</var> object. This means removing any properties that are not
+     * valid for the data set type.
+     */
+    public NewDataSetDTO cleanNewDataSetDTO(NewDataSetDTO newDataSetDTO)
+    {
+        DataSetType dataSetType = tryDataSetType(newDataSetDTO.tryDataSetType());
+        if (null == dataSetType)
+        {
+            throw new UserFailureException("The new data set has no type");
+        }
+
+        HashSet<String> allPropertyCodes = new HashSet<String>();
+        for (PropertyTypeGroup group : dataSetType.getPropertyTypeGroups())
+        {
+            for (PropertyType propertyType : group.getPropertyTypes())
+            {
+                allPropertyCodes.add(propertyType.getCode());
+            }
+        }
+
+        HashSet<String> keys = new HashSet<String>(newDataSetDTO.getProperties().keySet());
+        for (String propertyTypeCode : keys)
+        {
+            if (false == allPropertyCodes.contains(propertyTypeCode))
+            {
+                newDataSetDTO.getProperties().remove(propertyTypeCode);
+            }
+        }
+
+        return newDataSetDTO;
+    }
+
+    private DataSetType tryDataSetType(String dataSetTypeCode)
+    {
+        if (null == dataSetTypeCode)
+        {
+            return null;
+        }
+
+        for (int i = 0; i < dataSetTypes.size(); ++i)
+        {
+            DataSetType type = dataSetTypes.get(i);
+            if (type.getCode().equals(dataSetTypeCode))
+            {
+                return type;
+            }
+        }
+        return null;
     }
 
 }

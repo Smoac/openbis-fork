@@ -247,6 +247,7 @@ public class DataSetMetadataPanel extends JPanel
 
         newDataSetInfo.getNewDataSetBuilder().getDataSetMetadata()
                 .setDataSetTypeOrNull(dataSetType);
+        clientModel.notifyObserversOfChanges(newDataSetInfo);
     }
 
     protected void updateFileLabel()

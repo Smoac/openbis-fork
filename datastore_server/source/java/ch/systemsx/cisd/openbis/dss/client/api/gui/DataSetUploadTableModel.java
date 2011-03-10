@@ -36,6 +36,8 @@ import javax.swing.table.TableColumnModel;
 import ch.systemsx.cisd.base.namedthread.NamingThreadPoolExecutor;
 import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClientModel.NewDataSetInfo;
 import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClientModel.NewDataSetInfo.Status;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwner;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTOBuilder;
 
 /**
  * The DataSetUploadClientModel manages the list of data sets to register, initiates uploads (which
@@ -52,11 +54,13 @@ public class DataSetUploadTableModel extends AbstractTableModel
     // Constants for column order
     static final int DATA_SET_OWNER_COLUMN = 0;
 
-    static final int DATA_SET_METADATA_COLUMN = 1;
+    static final int DATA_SET_TYPE_COLUMN = 1;
 
-    static final int DATA_SET_PATH_COLUMN = 2;
+    static final int DATA_SET_METADATA_COLUMN = 2;
 
-    static final int UPLOAD_STATUS_COLUMN = 3;
+    static final int DATA_SET_PATH_COLUMN = 3;
+
+    static final int UPLOAD_STATUS_COLUMN = 4;
 
     private static ExecutorService executor = new NamingThreadPoolExecutor("Data Set Upload", 1, 1,
             0, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>()).daemonize();
@@ -138,6 +142,15 @@ public class DataSetUploadTableModel extends AbstractTableModel
                     String identifier2 = info2.getNewDataSetBuilder().getDataSetOwnerIdentifier();
                     result = identifier1.compareTo(identifier2);
                     break;
+                case DATA_SET_TYPE_COLUMN:
+                    String type1 =
+                            info1.getNewDataSetBuilder().getDataSetMetadata().tryDataSetType();
+                    String type2 =
+                            info2.getNewDataSetBuilder().getDataSetMetadata().tryDataSetType();
+                    type1 = null == type1 ? "" : type1;
+                    type2 = null == type2 ? "" : type2;
+                    result = type1.compareTo(type2);
+                    break;
                 case DATA_SET_PATH_COLUMN:
                     File file1 = info1.getNewDataSetBuilder().getFile();
                     File file2 = info2.getNewDataSetBuilder().getFile();
@@ -194,7 +207,7 @@ public class DataSetUploadTableModel extends AbstractTableModel
 
     public int getColumnCount()
     {
-        return 4;
+        return 5;
     }
 
     public int getRowCount()
@@ -215,6 +228,9 @@ public class DataSetUploadTableModel extends AbstractTableModel
             case DATA_SET_OWNER_COLUMN:
                 name += " Owner";
                 break;
+            case DATA_SET_TYPE_COLUMN:
+                name += " Type";
+                break;
             case DATA_SET_METADATA_COLUMN:
                 name += " Metadata";
                 break;
@@ -231,18 +247,31 @@ public class DataSetUploadTableModel extends AbstractTableModel
     public Object getValueAt(int rowIndex, int columnIndex)
     {
         NewDataSetInfo newDataSetInfo = newDataSetInfos.get(rowIndex);
+        NewDataSetDTOBuilder builder = newDataSetInfo.getNewDataSetBuilder();
         switch (columnIndex)
         {
             case DATA_SET_OWNER_COLUMN:
-                return newDataSetInfo.getNewDataSetBuilder().getDataSetOwner();
+                DataSetOwner owner = builder.getDataSetOwner();
+                return owner.getType() + ":" + untouchedStringOrEmpty(owner.getIdentifier());
+            case DATA_SET_TYPE_COLUMN:
+                return untouchedStringOrEmpty(builder.getDataSetMetadata().tryDataSetType());
             case DATA_SET_METADATA_COLUMN:
-                return newDataSetInfo.getNewDataSetBuilder().getDataSetMetadata();
+                return builder.getDataSetMetadata().getProperties();
             case DATA_SET_PATH_COLUMN:
-                return newDataSetInfo.getNewDataSetBuilder().getFile();
+                File file = builder.getFile();
+                return (file == null) ? "" : file.getName();
             case UPLOAD_STATUS_COLUMN:
                 return newDataSetInfo;
         }
         return null;
+    }
+
+    /**
+     * If aString is null, make it a string
+     */
+    private String untouchedStringOrEmpty(String aString)
+    {
+        return (aString == null) ? "" : aString;
     }
 
     @Override

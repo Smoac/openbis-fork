@@ -21,6 +21,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.FileExistsException;
 import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClientModel.NewDataSetInfo;
 import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClientModel.NewDataSetInfo.Status;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 
 /**
  * DataSetUploadOperation represents a request to upload a data set to openBIS/dss. The upload
@@ -53,8 +54,10 @@ final class DataSetUploadOperation implements Runnable
             {
                 newDataSetInfo.setStatus(Status.UPLOADING);
                 tableModel.fireChanged(newDataSetInfo, Status.UPLOADING);
-                clientModel.getDssComponent().putDataSet(
-                        newDataSetInfo.getNewDataSetBuilder().asNewDataSetDTO(),
+                NewDataSetDTO cleanDto =
+                        clientModel.cleanNewDataSetDTO(newDataSetInfo.getNewDataSetBuilder()
+                                .asNewDataSetDTO());
+                clientModel.getDssComponent().putDataSet(cleanDto,
                         newDataSetInfo.getNewDataSetBuilder().getFile());
             }
             newDataSetInfo.setStatus(Status.COMPLETED_UPLOAD);

@@ -143,7 +143,13 @@ public class DataSetPropertiesPanel extends JPanel
         NewDataSetMetadataDTO metadata = builder.getDataSetMetadata();
         Map<String, String> props = metadata.getProperties();
         HashMap<String, String> newProps = new HashMap<String, String>(props);
-        newProps.put(propertyType.getCode(), text);
+        if (null == text || text.trim().length() < 1)
+        {
+            newProps.remove(propertyType.getCode());
+        } else
+        {
+            newProps.put(propertyType.getCode(), text);
+        }
         metadata.setProperties(newProps);
 
         clientModel.notifyObserversOfChanges(newDataSetInfo);

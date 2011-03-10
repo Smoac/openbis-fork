@@ -46,6 +46,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 
 /**
@@ -204,6 +205,7 @@ public class DataSetUploadClient extends AbstractSwingGUI
             {
                 public void actionPerformed(ActionEvent e)
                 {
+                    throw new NotImplementedException();
                 }
             });
 
@@ -267,6 +269,9 @@ public class DataSetUploadClient extends AbstractSwingGUI
         column =
                 fileTable.getColumnModel().getColumn(DataSetUploadTableModel.DATA_SET_OWNER_COLUMN);
         column.setPreferredWidth(320);
+
+        column = fileTable.getColumnModel().getColumn(DataSetUploadTableModel.DATA_SET_TYPE_COLUMN);
+        column.setPreferredWidth(150);
 
         column =
                 fileTable.getColumnModel().getColumn(
