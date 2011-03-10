@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.common.api.IRpcService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
@@ -160,5 +161,15 @@ public interface IGeneralInformationService extends IRpcService
     @RolesAllowed(value =
         { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public String tryGetDataStoreBaseURL(String sessionToken, String dataSetCode);
+
+    /**
+     * Returns the URL for the default data store server for this openBIS AS. Available since minor
+     * version 5.
+     * 
+     * @since 1.5
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public List<DataSetType> listDataSetTypes(String sessionToken);
 
 }

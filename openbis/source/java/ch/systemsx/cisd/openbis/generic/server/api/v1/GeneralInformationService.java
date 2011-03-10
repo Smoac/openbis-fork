@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
@@ -159,7 +160,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     public int getMinorVersion()
     {
-        return 3;
+        return 5;
     }
 
     private Map<String, List<RoleAssignmentPE>> getRoleAssignmentsPerSpace()
@@ -247,7 +248,8 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return samples;
     }
 
-    public List<Sample> listSamplesForExperiment(String sessionToken, String experimentIdentifierString)
+    public List<Sample> listSamplesForExperiment(String sessionToken,
+            String experimentIdentifierString)
     {
         checkSession(sessionToken);
         ExperimentIdentifier experimentId =
@@ -366,5 +368,11 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         }
 
         return data.getDataStore().getDownloadUrl();
+    }
+
+    public List<DataSetType> listDataSetTypes(String sessionToken)
+    {
+        // TODO Auto-generated method stub
+        return new ArrayList<DataSetType>();
     }
 }

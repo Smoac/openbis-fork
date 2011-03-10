@@ -25,6 +25,7 @@ import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
@@ -114,6 +115,12 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     public String tryGetDataStoreBaseURL(String sessionToken, String dataSetCode)
     {
         logAccess(sessionToken, "get-data-store-base-url", "DATA_SET(%s)", dataSetCode);
+        return null;
+    }
+
+    public List<DataSetType> listDataSetTypes(String sessionToken)
+    {
+        logAccess(sessionToken, "list-data-set-types");
         return null;
     }
 
