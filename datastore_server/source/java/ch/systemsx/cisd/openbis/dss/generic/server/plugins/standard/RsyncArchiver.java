@@ -27,8 +27,8 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ArchiverTaskCon
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
- * Archiver plugin which copies data sets to a destination folder using rsync (if it is remote). 
- * The destination can be
+ * Archiver plugin which copies data sets to a destination folder using rsync (if it is remote). The
+ * destination can be
  * <ul>
  * <li>on the local file system,
  * <li>a mounted remote folder,
@@ -62,15 +62,79 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
         this.sshCommandExecutorFactory = sshCommandExecutorFactory;
     }
 
-    private boolean isInitialized()
+    @Override
+    protected DatasetProcessingStatuses doArchive(List<DatasetDescription> datasets,
+            ArchiverTaskContext context) throws UserFailureException
     {
-        return copier != null;
+        initIfNecessary();
+
+        DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
+        for (DatasetDescription dataset : datasets)
+        {
+            File originalData = getDatasetDirectory(context, dataset);
+            Status status = doArchive(dataset, originalData);
+            statuses.addResult(dataset.getDatasetCode(), status, true);
+        }
+
+        return statuses;
     }
 
-    private void init()
+    @Override
+    protected DatasetProcessingStatuses doUnarchive(List<DatasetDescription> datasets,
+            ArchiverTaskContext context) throws UserFailureException
     {
-        this.copier =
-                new RsyncDataSetCopier(properties, pathCopierFactory, sshCommandExecutorFactory);
+        initIfNecessary();
+
+        // no need to lock - this is processing task
+        DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
+        for (DatasetDescription dataset : datasets)
+        {
+            File originalData = getDatasetDirectory(context, dataset);
+            Status status = doUnarchive(dataset, originalData);
+            statuses.addResult(dataset.getDatasetCode(), status, false);
+        }
+
+        return statuses;
+    }
+
+    // TODO do we really need the status?
+    protected DatasetProcessingStatuses doDeleteFromArchive(List<DatasetDescription> datasets,
+            ArchiverTaskContext context)
+    {
+        initIfNecessary();
+
+        // no need to lock - this is processing task
+        DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
+        for (DatasetDescription dataset : datasets)
+        {
+            File originalData = getDatasetDirectory(context, dataset);
+            Status status = doDeleteFromArchive(dataset, originalData);
+            statuses.addResult(dataset.getDatasetCode(), status, false); // false -> deletion
+        }
+
+        return statuses;
+    }
+
+    /**
+     * @return <code>true</code> if the dataset is present in the archive, <code>false</code>
+     *         otherwise.
+     */
+    protected boolean isDataSetPresentInArchive(DatasetDescription dataset,
+            ArchiverTaskContext context)
+    {
+        initIfNecessary();
+
+        File originalData = getDatasetDirectory(context, dataset);
+        return copier.isPresentInDestination(originalData, dataset);
+    }
+
+    private void initIfNecessary()
+    {
+        if (copier == null)
+        {
+            this.copier =
+                    new RsyncDataSetCopier(properties, pathCopierFactory, sshCommandExecutorFactory);
+        }
     }
 
     private Status doArchive(DatasetDescription dataset, File originalData)
@@ -83,59 +147,13 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
         return copier.retrieveFromDestination(originalData, dataset);
     }
 
-    @Override
-    protected DatasetProcessingStatuses doArchive(List<DatasetDescription> datasets,
-            ArchiverTaskContext context) throws UserFailureException
+    private Status doDeleteFromArchive(DatasetDescription dataset, File originalData)
     {
-        if (isInitialized() == false)
-        {
-            init();
-        }
-        DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
-        for (DatasetDescription dataset : datasets)
-        {
-            File originalData = context.getDirectoryProvider().getDataSetDirectory(dataset);
-            Status status = doArchive(dataset, originalData);
-            statuses.addResult(dataset.getDatasetCode(), status, true);
-        }
-
-        return statuses;
+        return copier.deleteFromDestination(originalData, dataset);
     }
 
-    @Override
-    protected DatasetProcessingStatuses doUnarchive(List<DatasetDescription> datasets,
-            ArchiverTaskContext context) throws UserFailureException
+    private File getDatasetDirectory(ArchiverTaskContext context, DatasetDescription dataset)
     {
-        if (isInitialized() == false)
-        {
-            init();
-        }
-
-        // no need to lock - this is processing task
-        DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
-        for (DatasetDescription dataset : datasets)
-        {
-            File originalData = context.getDirectoryProvider().getDataSetDirectory(dataset);
-            Status status = doUnarchive(dataset, originalData);
-            statuses.addResult(dataset.getDatasetCode(), status, false);
-        }
-
-        return createStatusesFrom(Status.OK, datasets, false);
+        return context.getDirectoryProvider().getDataSetDirectory(dataset);
     }
-
-    protected boolean isProperlyArchived() throws UserFailureException
-    {
-        return true;
-    }
-
-    protected void doDeleteFromArchive() throws UserFailureException
-    {
-
-    }
-
-    protected void doDeleteFromDss() throws UserFailureException
-    {
-
-    }
-
 }

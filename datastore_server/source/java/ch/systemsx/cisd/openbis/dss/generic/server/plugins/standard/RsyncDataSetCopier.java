@@ -44,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
  * 
  * @author Piotr Buczek
  */
-public class RsyncDataSetCopier
+public class RsyncDataSetCopier // TODO rename to DataSetFileOperationsManager
 {
 
     private static final String DESTINATION_KEY = "destination";
@@ -101,8 +101,8 @@ public class RsyncDataSetCopier
     }
 
     /**
-     * Copies specified data file/folder to destination specified in constructor. The path of the
-     * file/folder at the destination is defined by the original location of the data set.
+     * Copies specified dataset's data to destination specified in constructor. The path at the
+     * destination is defined by the original location of the data set.
      */
     public Status copyToDestination(File originalData, DatasetDescription dataset)
     {
@@ -121,8 +121,8 @@ public class RsyncDataSetCopier
     }
 
     /**
-     * Retrieves specified data file/folder from the destination specified in constructor. The path
-     * at the destination is defined by original location of the data set.
+     * Retrieves specified datases's data from the destination specified in constructor. The path at
+     * the destination is defined by original location of the data set.
      */
     public Status retrieveFromDestination(File originalData, DatasetDescription dataset)
     {
@@ -137,6 +137,51 @@ public class RsyncDataSetCopier
         } catch (ExceptionWithStatus ex)
         {
             return ex.getStatus();
+        }
+    }
+
+    /**
+     * Deletes specified datases's data from the destination specified in constructor. The path at
+     * the destination is defined by original location of the data set.
+     */
+    public Status deleteFromDestination(File originalData, DatasetDescription dataset)
+    {
+        try
+        {
+            File destinationFolder = new File(destination, dataset.getDataSetLocation());
+            BooleanStatus destinationExists = destinationExists(destinationFolder);
+            if (destinationExists.isSuccess())
+            {
+                executor.deleteFolder(destinationFolder);
+            } else
+            {
+                operationLog.info("Data of data set '" + dataset.getDatasetCode()
+                        + "' don't exist in the destination '" + destinationFolder.getPath()
+                        + "'. There is nothing to delete.");
+            }
+            return Status.OK;
+        } catch (ExceptionWithStatus ex)
+        {
+            return ex.getStatus();
+        }
+    }
+
+    /**
+     * Checks if specified dataset's data are present in the destination specified in constructor.
+     * The path at the destination is defined by original location of the data set.
+     */
+    public boolean isPresentInDestination(File originalData, DatasetDescription dataset)
+    {
+        try
+        {
+            File destinationFolder = new File(destination, dataset.getDataSetLocation());
+            BooleanStatus destinationExists = destinationExists(destinationFolder);
+            // TODO check file sizes
+            return destinationExists.isSuccess();
+        } catch (ExceptionWithStatus ex)
+        {
+            // TODO?
+            return false; // ex.getStatus();
         }
     }
 
