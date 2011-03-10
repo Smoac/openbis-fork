@@ -32,6 +32,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
@@ -64,12 +65,12 @@ public class ShareIdManagerTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    allowing(service).listDataSets();
-                    SimpleDataSetInformationDTO ds1 = new SimpleDataSetInformationDTO();
+                    allowing(service).listDataSetShareIds();
+                    DataSetShareId ds1 = new DataSetShareId();
                     ds1.setDataSetCode(DS1);
-                    SimpleDataSetInformationDTO ds2 = new SimpleDataSetInformationDTO();
+                    DataSetShareId ds2 = new DataSetShareId();
                     ds2.setDataSetCode(DS2);
-                    ds2.setDataSetShareId("2");
+                    ds2.setShareId("2");
                     will(returnValue(Arrays.asList(ds1, ds2)));
                 }
             });
