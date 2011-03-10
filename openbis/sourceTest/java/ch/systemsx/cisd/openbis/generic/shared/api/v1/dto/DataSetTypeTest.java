@@ -22,6 +22,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType.DataSetTypeInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType.PropertyTypeInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyTypeGroup.PropertyTypeGroupInitializer;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -37,17 +38,20 @@ public class DataSetTypeTest extends AssertJUnit
     {
         DataSetTypeInitializer initializer = new DataSetTypeInitializer();
         initializer.setCode(DATA_SET_TYPE_CODE);
+        PropertyTypeGroupInitializer groupInitializer = new PropertyTypeGroupInitializer();
 
         PropertyTypeInitializer propTypeInitializer = new PropertyTypeInitializer();
         propTypeInitializer.setCode("PROP1");
         propTypeInitializer.setLabel("Property 1");
-        initializer.addPropertyType(new PropertyType(propTypeInitializer));
+        groupInitializer.addPropertyType(new PropertyType(propTypeInitializer));
 
         propTypeInitializer.setCode("PROP2");
         propTypeInitializer.setLabel("Property 2");
         propTypeInitializer.setDescription("Property 2 Description");
 
-        initializer.addPropertyType(new PropertyType(propTypeInitializer));
+        groupInitializer.addPropertyType(new PropertyType(propTypeInitializer));
+
+        initializer.addPropertyTypeGroup(new PropertyTypeGroup(groupInitializer));
         dataSetType = new DataSetType(initializer);
     }
 
@@ -64,10 +68,12 @@ public class DataSetTypeTest extends AssertJUnit
     {
         DataSetTypeInitializer initializer = new DataSetTypeInitializer();
         initializer.setCode(DATA_SET_TYPE_CODE);
+        PropertyTypeGroupInitializer groupInitializer = new PropertyTypeGroupInitializer();
         PropertyTypeInitializer propTypeInitializer = new PropertyTypeInitializer();
         propTypeInitializer.setCode("PROP200");
         propTypeInitializer.setLabel("Property 200");
-        initializer.addPropertyType(new PropertyType(propTypeInitializer));
+        groupInitializer.addPropertyType(new PropertyType(propTypeInitializer));
+        initializer.addPropertyTypeGroup(new PropertyTypeGroup(groupInitializer));
 
         DataSetType myDataSetType = new DataSetType(initializer);
         assertTrue("Data sets with the same code should be equal.",
@@ -83,10 +89,12 @@ public class DataSetTypeTest extends AssertJUnit
 
         initializer = new DataSetTypeInitializer();
         initializer.setCode("code-2");
+        groupInitializer = new PropertyTypeGroupInitializer();
         propTypeInitializer = new PropertyTypeInitializer();
         propTypeInitializer.setCode("PROP1");
         propTypeInitializer.setLabel("Property 1");
-        initializer.addPropertyType(new PropertyType(propTypeInitializer));
+        groupInitializer.addPropertyType(new PropertyType(propTypeInitializer));
+        initializer.addPropertyTypeGroup(new PropertyTypeGroup(groupInitializer));
 
         propTypeInitializer.setCode("PROP2");
         propTypeInitializer.setLabel("Property 2");

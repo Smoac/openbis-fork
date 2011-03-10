@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyTypeGroup;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
@@ -225,12 +226,28 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertEquals(3, dataSetTypes.size());
 
         DataSetType dataSetType;
-        PropertyType propertyType;
         dataSetType = dataSetTypes.get(0);
         assertEquals("HCS_IMAGE", dataSetType.getCode());
-        List<PropertyType> propertyTypes = dataSetType.getPropertyTypes();
+
+        List<PropertyTypeGroup> propertyTypeGroups = dataSetType.getPropertyTypeGroups();
+        assertEquals(1, propertyTypeGroups.size());
+
+        PropertyTypeGroup propertyTypeGroup = propertyTypeGroups.get(0);
+        assertEquals(null, propertyTypeGroup.getName());
+
+        List<PropertyType> propertyTypes = propertyTypeGroup.getPropertyTypes();
+        assertEquals(4, propertyTypes.size());
+
+        PropertyType propertyType;
         propertyType = propertyTypes.get(0);
         assertEquals("COMMENT", propertyType.getCode());
         assertEquals("Comment", propertyType.getLabel());
+        assertEquals("Any other comments", propertyType.getDescription());
+
+        propertyType = propertyTypes.get(1);
+        assertEquals("ANY_MATERIAL", propertyType.getCode());
+        assertEquals("any_material", propertyType.getLabel());
+        assertEquals("any_material", propertyType.getDescription());
+
     }
 }

@@ -44,7 +44,8 @@ public final class DataSetType implements Serializable
     {
         private String code;
 
-        private ArrayList<PropertyType> propertyTypes = new ArrayList<PropertyType>();
+        private ArrayList<PropertyTypeGroup> propertyTypeGroups =
+                new ArrayList<PropertyTypeGroup>();
 
         public String getCode()
         {
@@ -56,20 +57,20 @@ public final class DataSetType implements Serializable
             this.code = code;
         }
 
-        public ArrayList<PropertyType> getPropertyTypes()
+        public ArrayList<PropertyTypeGroup> getPropertyTypeGroups()
         {
-            return propertyTypes;
+            return propertyTypeGroups;
         }
 
-        public void addPropertyType(PropertyType propertyType)
+        public void addPropertyTypeGroup(PropertyTypeGroup propertyType)
         {
-            propertyTypes.add(propertyType);
+            propertyTypeGroups.add(propertyType);
         }
     }
 
     private final String code;
 
-    private final ArrayList<PropertyType> propertyTypes;
+    private final ArrayList<PropertyTypeGroup> propertyTypeGroups;
 
     /**
      * Creates a new instance with the provided initializer
@@ -81,7 +82,7 @@ public final class DataSetType implements Serializable
         checkValidString(initializer.getCode(), "Unspecified code.");
         this.code = initializer.getCode();
 
-        this.propertyTypes = initializer.getPropertyTypes();
+        this.propertyTypeGroups = initializer.getPropertyTypeGroups();
     }
 
     private void checkValidString(String string, String message) throws IllegalArgumentException
@@ -93,16 +94,20 @@ public final class DataSetType implements Serializable
     }
 
     /**
-     * Returns the sample code;
+     * Returns the data set code.
      */
     public String getCode()
     {
         return code;
     }
 
-    public List<PropertyType> getPropertyTypes()
+    /**
+     * Return the grouped property types for this data set type. (Groups are referred to as sections
+     * elsewhere).
+     */
+    public List<PropertyTypeGroup> getPropertyTypeGroups()
     {
-        return propertyTypes;
+        return propertyTypeGroups;
     }
 
     @Override
@@ -136,7 +141,7 @@ public final class DataSetType implements Serializable
     {
         ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
         builder.append(getCode());
-        builder.append(getPropertyTypes());
+        builder.append(getPropertyTypeGroups());
         return builder.toString();
     }
 }

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.api.v1;
 
+import java.util.Collections;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
@@ -26,6 +27,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment.ExperimentInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType.PropertyTypeInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyTypeGroup;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyTypeGroup.PropertyTypeGroupInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializer;
@@ -101,16 +104,30 @@ public class Translator
 
         List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType> dstpts =
                 privateDataSetType.getAssignedPropertyTypes();
+        Collections.sort(dstpts);
+
+        String sectionName = null;
+        PropertyTypeGroupInitializer groupInitializer = new PropertyTypeGroupInitializer();
         for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType dstpt : dstpts)
         {
+            String thisSectionName = dstpt.getSection();
+            if (thisSectionName != null && false == thisSectionName.equals(sectionName))
+            {
+                // Start a new section
+                initializer.addPropertyTypeGroup(new PropertyTypeGroup(groupInitializer));
+                groupInitializer = new PropertyTypeGroupInitializer();
+                sectionName = thisSectionName;
+            }
             PropertyTypeInitializer ptInitializer = new PropertyTypeInitializer();
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType propertyType =
                     dstpt.getPropertyType();
             ptInitializer.setCode(propertyType.getCode());
             ptInitializer.setLabel(propertyType.getLabel());
             ptInitializer.setDescription(propertyType.getDescription());
-            initializer.addPropertyType(new PropertyType(ptInitializer));
+            groupInitializer.addPropertyType(new PropertyType(ptInitializer));
         }
+        // Finally set the group
+        initializer.addPropertyTypeGroup(new PropertyTypeGroup(groupInitializer));
 
         return new DataSetType(initializer);
     }
