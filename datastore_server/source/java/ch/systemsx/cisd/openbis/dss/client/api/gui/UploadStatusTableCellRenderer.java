@@ -28,6 +28,8 @@ import javax.swing.JProgressBar;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
+import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClientModel.NewDataSetInfo;
+
 /**
  * Displays a button or download status, depending on whether the file has been downloaded or not.
  * 
@@ -104,21 +106,23 @@ public class UploadStatusTableCellRenderer implements TableCellRenderer
                 (isSelected) ? table.getSelectionBackground() : table.getBackground();
 
         final JPanel panel;
-        switch (0)
+        final NewDataSetInfo dataSetInfo = (NewDataSetInfo) value;
+        switch (dataSetInfo.getStatus())
         {
-            case 0:
+            case TO_UPLOAD:
                 panel = uploadPanel;
                 break;
-            case 1:
-                panel = completedPanel;
-                break;
-            case 2:
-            case 3:
+            case QUEUED_FOR_UPLOAD:
+            case UPLOADING:
+            case STALLED:
                 panel = progressPanel;
                 progressBar.setValue(0);
                 progressLabel.setText("progress...");
                 break;
-            case 4:
+            case COMPLETED_UPLOAD:
+                panel = completedPanel;
+                break;
+            case FAILED:
                 panel = retryPanel;
                 break;
             default:
@@ -128,5 +132,4 @@ public class UploadStatusTableCellRenderer implements TableCellRenderer
         panel.setBackground(backgroundColor);
         return panel;
     }
-
 }

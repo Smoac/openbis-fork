@@ -44,6 +44,10 @@ public class DataSetUploadClientModel
 
     private final ArrayList<NewDataSetInfo> newDataSetInfos = new ArrayList<NewDataSetInfo>();
 
+    // References to UI elements that are looking at the client model -- a way of implementing
+    // obeserver.
+    private DataSetUploadTableModel tableModel;
+
     public DataSetUploadClientModel(DssCommunicationState commState, ITimeProvider timeProvider)
     {
         this.dssComponent = commState.getDssComponent();
@@ -223,6 +227,22 @@ public class DataSetUploadClientModel
             }
         }
         return 0;
+    }
+
+    public DataSetUploadTableModel getTableModel()
+    {
+        return tableModel;
+    }
+
+    public void setTableModel(DataSetUploadTableModel tableModel)
+    {
+        this.tableModel = tableModel;
+    }
+
+    // Broadcasting Notifications
+    public void notifyObserversOfChanges(NewDataSetInfo changedInfo)
+    {
+        tableModel.selectedRowDataChanged();
     }
 
 }

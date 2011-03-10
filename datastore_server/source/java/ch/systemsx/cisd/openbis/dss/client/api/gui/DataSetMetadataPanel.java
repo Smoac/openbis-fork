@@ -20,7 +20,6 @@ import static ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClient.BU
 import static ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClient.BUTTON_WIDTH;
 import static ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClient.LABEL_WIDTH;
 
-import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -34,6 +33,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.AbstractButton;
@@ -76,9 +76,8 @@ public class DataSetMetadataPanel extends JPanel
 
     private final JRadioButton sampleButton;
 
-    // Is set during initialization, but cannot be set in the constructor due to circular
-    // references.
-    private DataSetUploadTableModel tableModel;
+    private final HashMap<String, DataSetPropertiesPanel> propertiesPanels =
+            new HashMap<String, DataSetPropertiesPanel>();
 
     private NewDataSetInfo newDataSetInfo;
 
@@ -112,11 +111,6 @@ public class DataSetMetadataPanel extends JPanel
         syncGui();
     }
 
-    public void setTableModel(DataSetUploadTableModel tableModel)
-    {
-        this.tableModel = tableModel;
-    }
-
     private void syncGui()
     {
         if (null == newDataSetInfo)
@@ -138,16 +132,55 @@ public class DataSetMetadataPanel extends JPanel
                 break;
         }
 
-        dataSetTypeComboBox.setSelectedIndex(clientModel.getIndexOfDataSetType(builder
-                .getDataSetMetadata().tryDataSetType()));
+        String dataSetTypeOrNull = builder.getDataSetMetadata().tryDataSetType();
+        dataSetTypeComboBox.setSelectedIndex(clientModel.getIndexOfDataSetType(dataSetTypeOrNull));
+        if (null != dataSetTypeOrNull)
+        {
+            CardLayout cardLayout = (CardLayout) dataSetTypePanel.getLayout();
+            cardLayout.show(dataSetTypePanel, dataSetTypeOrNull);
+        }
+
+        for (DataSetPropertiesPanel propertiesPanel : propertiesPanels.values())
+        {
+            propertiesPanel.setNewDataSetInfo(newDataSetInfo);
+        }
 
         updateFileLabel();
     }
 
     private void createGui()
     {
+        // The file row
+        JLabel label = new JLabel("File:", JLabel.TRAILING);
+        label.setPreferredSize(new Dimension(LABEL_WIDTH, BUTTON_HEIGHT));
+
+        dataSetFileButton.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        dataSetFileButton.setToolTipText("The file to upload.");
+        dataSetFileButton.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    if (null == newDataSetInfo)
+                    {
+                        return;
+                    }
+                    final File newDirOrNull =
+                            ch.systemsx.cisd.common.gui.FileChooserUtils.tryChooseFileOrDirectory(
+                                    getMainWindow(), newDataSetInfo.getNewDataSetBuilder()
+                                            .getFile());
+                    if (newDirOrNull != null)
+                    {
+                        newDataSetInfo.getNewDataSetBuilder().setFile(newDirOrNull);
+                        updateFileLabel();
+                        notifyObserversOfChanges();
+                    }
+                }
+
+            });
+        addRow(1, label, dataSetFileButton);
+
         // The owner row
-        JLabel label = new JLabel("Owner:", JLabel.TRAILING);
+        label = new JLabel("Owner:", JLabel.TRAILING);
         label.setPreferredSize(new Dimension(LABEL_WIDTH, BUTTON_HEIGHT));
 
         ownerIdText.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
@@ -178,7 +211,7 @@ public class DataSetMetadataPanel extends JPanel
                 }
             });
 
-        addRow(0, label, ownerIdText, ownerButtonGroup);
+        addRow(2, label, ownerIdText, ownerButtonGroup);
 
         // The data set type row
         label = new JLabel("Data Set Type:", JLabel.TRAILING);
@@ -194,43 +227,26 @@ public class DataSetMetadataPanel extends JPanel
             {
                 public void itemStateChanged(ItemEvent e)
                 {
+                    setDataSetType((String) e.getItem());
                     CardLayout cardLayout = (CardLayout) dataSetTypePanel.getLayout();
                     cardLayout.show(dataSetTypePanel, (String) e.getItem());
                 }
             });
-        addRow(2, label, dataSetTypeComboBox);
-
-        // The file row
-        label = new JLabel("File:", JLabel.TRAILING);
-        label.setPreferredSize(new Dimension(LABEL_WIDTH, BUTTON_HEIGHT));
-
-        dataSetFileButton.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
-        dataSetFileButton.setToolTipText("The file to upload.");
-        dataSetFileButton.addActionListener(new ActionListener()
-            {
-                public void actionPerformed(ActionEvent e)
-                {
-                    if (null == newDataSetInfo)
-                    {
-                        return;
-                    }
-                    final File newDirOrNull =
-                            ch.systemsx.cisd.common.gui.FileChooserUtils.tryChooseFileOrDirectory(
-                                    getMainWindow(), newDataSetInfo.getNewDataSetBuilder()
-                                            .getFile());
-                    if (newDirOrNull != null)
-                    {
-                        newDataSetInfo.getNewDataSetBuilder().setFile(newDirOrNull);
-                        updateFileLabel();
-                        notifyTableModelOfChanges();
-                    }
-                }
-
-            });
-        addRow(3, label, dataSetFileButton);
+        addRow(3, label, dataSetTypeComboBox);
 
         createDataSetTypePanel();
         addRow(4, dataSetTypePanel);
+    }
+
+    private void setDataSetType(String dataSetType)
+    {
+        if (null == newDataSetInfo)
+        {
+            return;
+        }
+
+        newDataSetInfo.getNewDataSetBuilder().getDataSetMetadata()
+                .setDataSetTypeOrNull(dataSetType);
     }
 
     protected void updateFileLabel()
@@ -250,9 +266,9 @@ public class DataSetMetadataPanel extends JPanel
         dataSetTypePanel.setLayout(new CardLayout());
         for (DataSetType dataSetType : getDataSetTypes())
         {
-            JPanel typeView = new JPanel();
-            typeView.add(new JLabel(dataSetType.getCode()), BorderLayout.CENTER);
+            DataSetPropertiesPanel typeView = new DataSetPropertiesPanel(dataSetType, clientModel);
             dataSetTypePanel.add(typeView, dataSetType.getCode());
+            propertiesPanels.put(dataSetType.getCode(), typeView);
         }
     }
 
@@ -307,6 +323,8 @@ public class DataSetMetadataPanel extends JPanel
         c.gridy = rowy;
         c.gridwidth = GridBagConstraints.REMAINDER;
         c.weightx = 0;
+        c.weighty = 0;
+        c.insets = new Insets((rowy > 0) ? 5 : 0, 0, 0, 5);
         add(comp, c);
     }
 
@@ -320,9 +338,9 @@ public class DataSetMetadataPanel extends JPanel
         return mainWindow;
     }
 
-    private void notifyTableModelOfChanges()
+    private void notifyObserversOfChanges()
     {
-        tableModel.selectedRowChanged();
+        clientModel.notifyObserversOfChanges(newDataSetInfo);
     }
 
     private void setOwnerType(DataSetOwnerType type)
@@ -335,7 +353,7 @@ public class DataSetMetadataPanel extends JPanel
         NewDataSetDTOBuilder builder = newDataSetInfo.getNewDataSetBuilder();
         builder.setDataSetOwnerType(type);
 
-        notifyTableModelOfChanges();
+        notifyObserversOfChanges();
     }
 
     protected void setOwnerId(String text)
@@ -347,6 +365,6 @@ public class DataSetMetadataPanel extends JPanel
 
         NewDataSetDTOBuilder builder = newDataSetInfo.getNewDataSetBuilder();
         builder.setDataSetOwnerIdentifier(text);
-        notifyTableModelOfChanges();
+        notifyObserversOfChanges();
     }
 }

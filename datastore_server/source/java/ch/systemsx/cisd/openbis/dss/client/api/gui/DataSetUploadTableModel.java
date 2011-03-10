@@ -311,7 +311,7 @@ public class DataSetUploadTableModel extends AbstractTableModel
         return mainWindow;
     }
 
-    public void selectedRowChanged()
+    public void selectedRowDataChanged()
     {
         if (selectedRow < 0)
         {

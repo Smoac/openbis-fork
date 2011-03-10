@@ -114,7 +114,7 @@ public class DataSetUploadClient extends AbstractSwingGUI
         metadataPanel = new DataSetMetadataPanel(clientModel, getWindowFrame());
         tableModel =
                 new DataSetUploadTableModel(this, clientModel, metadataPanel, getWindowFrame());
-        metadataPanel.setTableModel(tableModel);
+        clientModel.setTableModel(tableModel);
 
         createGui();
         addProgressListener();
