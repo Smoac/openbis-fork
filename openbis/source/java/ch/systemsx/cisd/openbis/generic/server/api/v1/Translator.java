@@ -20,8 +20,12 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType.DataSetTypeInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment.ExperimentInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType.PropertyTypeInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializer;
@@ -87,6 +91,28 @@ public class Translator
         }
 
         return new Experiment(initializer);
+    }
+
+    static DataSetType translate(
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType privateDataSetType)
+    {
+        DataSetTypeInitializer initializer = new DataSetTypeInitializer();
+        initializer.setCode(privateDataSetType.getCode());
+
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType> dstpts =
+                privateDataSetType.getAssignedPropertyTypes();
+        for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType dstpt : dstpts)
+        {
+            PropertyTypeInitializer ptInitializer = new PropertyTypeInitializer();
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType propertyType =
+                    dstpt.getPropertyType();
+            ptInitializer.setCode(propertyType.getCode());
+            ptInitializer.setLabel(propertyType.getLabel());
+            ptInitializer.setDescription(propertyType.getDescription());
+            initializer.addPropertyType(new PropertyType(ptInitializer));
+        }
+
+        return new DataSetType(initializer);
     }
 
     private Translator()

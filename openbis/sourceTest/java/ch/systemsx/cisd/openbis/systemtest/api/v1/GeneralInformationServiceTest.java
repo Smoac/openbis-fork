@@ -33,8 +33,10 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
@@ -215,5 +217,20 @@ public class GeneralInformationServiceTest extends SystemTestCase
         identifierIsOk |= "/CISD/NEMO/EXP-TEST-2".equals(resultExperiment.getIdentifier());
         assertEquals("Experiment should be: " + resultExperiment.getIdentifier(), true,
                 identifierIsOk);
+    }
+
+    public void testListDataSetTypes()
+    {
+        List<DataSetType> dataSetTypes = generalInformationService.listDataSetTypes(sessionToken);
+        assertEquals(3, dataSetTypes.size());
+
+        DataSetType dataSetType;
+        PropertyType propertyType;
+        dataSetType = dataSetTypes.get(0);
+        assertEquals("HCS_IMAGE", dataSetType.getCode());
+        List<PropertyType> propertyTypes = dataSetType.getPropertyTypes();
+        propertyType = propertyTypes.get(0);
+        assertEquals("COMMENT", propertyType.getCode());
+        assertEquals("Comment", propertyType.getLabel());
     }
 }

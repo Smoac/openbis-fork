@@ -372,7 +372,14 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     public List<DataSetType> listDataSetTypes(String sessionToken)
     {
-        // TODO Auto-generated method stub
-        return new ArrayList<DataSetType>();
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType> privateDataSetTypes =
+                commonServer.listDataSetTypes(sessionToken);
+
+        ArrayList<DataSetType> dataSetTypes = new ArrayList<DataSetType>();
+        for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType privateDataSetType : privateDataSetTypes)
+        {
+            dataSetTypes.add(Translator.translate(privateDataSetType));
+        }
+        return dataSetTypes;
     }
 }
