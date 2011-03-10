@@ -137,7 +137,7 @@ public class ImageDataSetInformation extends BasicDataSetInformation
         appendNameAndObject(buffer, "config", imageStorageConfiguratonOrNull);
         appendNameAndObject(buffer, "tile", tileRowsNumber + "x" + tileColumnsNumber);
         appendNameAndObject(buffer, "channels", CollectionUtils.abbreviate(channels, -1));
-        appendNameAndObject(buffer, "images", CollectionUtils.abbreviate(images, 20));
+        appendNameAndObject(buffer, "number of images", images.size());
         return buffer.toString();
     }
 
