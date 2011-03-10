@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.CommonConstants;
 
 /**
  * @author Franz-Josef Elmer
@@ -55,7 +56,7 @@ public class AbundanceHandlerTest extends AssertJUnit
     private static final String EXPERIMENT_CODE = "E1";
 
     private static final GroupIdentifier GROUP_IDENTIFIER = new GroupIdentifier((String) null,
-            Constants.MS_DATA_SPACE);
+            CommonConstants.MS_DATA_SPACE);
 
     private static final String PARAMETER_VALUE = "1234.5";
 

@@ -286,6 +286,16 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             });
     }
 
+    public void removeConfigAndExportButtons()
+    {
+        pagingToolbar.removeConfigAndExportButtons();
+    }
+    
+    public void removeFiltersButtons()
+    {
+        pagingToolbar.removeFiltersButtons();
+    }
+    
     private ICellListener<T> createShowEntityViewerLinkClickListener()
     {
         return new ICellListener<T>()
@@ -879,8 +889,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     if (show)
                     {
                         int logId = log("adding filters");
-                        bottomToolbars.insert(filterToolbar, 0);
-                        bottomToolbars.layout();
+                        showFiltersBar();
                         viewContext.logStop(logId);
                     } else
                     {
@@ -891,6 +900,12 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     }
                 }
             };
+    }
+
+    protected void showFiltersBar()
+    {
+        bottomToolbars.insert(filterToolbar, 0);
+        bottomToolbars.layout();
     }
 
     protected static interface ISelectedEntityInvoker<M>
@@ -1039,7 +1054,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             });
     }
 
-    private void addGridSelectionChangeListener(Listener<SelectionChangedEvent<ModelData>> listener)
+    public void addGridSelectionChangeListener(Listener<SelectionChangedEvent<ModelData>> listener)
     {
         grid.getSelectionModel().addListener(Events.SelectionChange, listener);
     }

@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -56,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.ExperimentLoader;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.ISampleLoader;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.CommonConstants;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IProteomicsDataServiceInternal;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.authorization.validator.ParentSampleValidator;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.authorization.validator.RawDataSampleValidator;
@@ -67,12 +67,6 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDataServiceInternal> implements
         IProteomicsDataServiceInternal
 {
-    @Private
-    static final String SPACE_CODE = "MS_DATA";
-
-    @Private
-    static final String RAW_DATA_SAMPLE_TYPE = "MS_INJECTION";
-    
     private static final IValidator<Sample> PARENT_SAMPLE_VALIDATOR = new ParentSampleValidator();
 
     private static final IValidator<MsInjectionSample> RAW_DATA_SAMPLE_VALIDATOR =
@@ -230,7 +224,8 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
     {
         ISampleLoader sampleLoader = boFactory.createSampleLoader(session);
         List<Sample> samples =
-                sampleLoader.listSamplesWithParentsByTypeAndSpace(RAW_DATA_SAMPLE_TYPE, SPACE_CODE);
+                sampleLoader.listSamplesWithParentsByTypeAndSpace(
+                        CommonConstants.MS_INJECTION_SAMPLE_TYPE_CODE, CommonConstants.MS_DATA_SPACE);
         PersonPE person = session.tryGetPerson();
         List<Sample> validSamples = new ArrayList<Sample>();
         for (Sample sample : samples)

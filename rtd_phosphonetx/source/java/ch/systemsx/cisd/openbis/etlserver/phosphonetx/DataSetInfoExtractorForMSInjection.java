@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.CommonConstants;
 
 /**
  * Data set info extractor for MS injection data sets. Information is extracted from a properties
@@ -77,8 +78,6 @@ public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtra
 
     static final String EXPERIMENT_TYPE_CODE = "MS_INJECT";
 
-    static final String SAMPLE_TYPE_CODE = "MS_INJECTION";
-
     public DataSetInfoExtractorForMSInjection(Properties properties)
     {
         this(ServiceProvider.getOpenBISService());
@@ -96,7 +95,7 @@ public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtra
         Properties sampleProperties =
                 Util.loadPropertiesFile(incomingDataSetPath, MS_INJECTION_PROPERTIES_FILE);
         DataSetInformation info = new DataSetInformation();
-        info.setSpaceCode(Constants.MS_DATA_SPACE);
+        info.setSpaceCode(CommonConstants.MS_DATA_SPACE);
         info.setSampleCode(PropertyUtils.getMandatoryProperty(sampleProperties, SAMPLE_CODE_KEY));
         SampleIdentifier sampleIdentifier = info.getSampleIdentifier();
         ExperimentIdentifier experimentIdentifier = getExperimentIdentifier(sampleProperties);
@@ -140,7 +139,7 @@ public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtra
     private long registerOrUpdateSample(SampleIdentifier sampleIdentifier,
             ExperimentIdentifier experimentIdentifier, Properties properties)
     {
-        SampleType sampleType = service.getSampleType(SAMPLE_TYPE_CODE);
+        SampleType sampleType = service.getSampleType(CommonConstants.MS_INJECTION_SAMPLE_TYPE_CODE);
         Sample sample = service.tryGetSampleWithExperiment(sampleIdentifier);
         String biologicalSampleIdentifier = properties.getProperty(BIOLOGICAL_SAMPLE_IDENTIFIER_KEY);
         if (sample == null)
@@ -206,6 +205,6 @@ public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtra
                 PropertyUtils.getMandatoryProperty(msInjectionProperties, PROJECT_CODE_KEY);
         String experimentCode =
                 PropertyUtils.getMandatoryProperty(msInjectionProperties, EXPERIMENT_CODE_KEY);
-        return new ExperimentIdentifier(null, Constants.MS_DATA_SPACE, projectCode, experimentCode);
+        return new ExperimentIdentifier(null, CommonConstants.MS_DATA_SPACE, projectCode, experimentCode);
     }
 }

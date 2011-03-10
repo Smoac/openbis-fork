@@ -18,8 +18,6 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.server;
 
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind.PROCESSING;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind.QUERIES;
-import static ch.systemsx.cisd.openbis.plugin.phosphonetx.server.ProteomicsDataServiceInternal.RAW_DATA_SAMPLE_TYPE;
-import static ch.systemsx.cisd.openbis.plugin.phosphonetx.server.ProteomicsDataServiceInternal.SPACE_CODE;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,14 +53,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.ISampleLoader;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.CommonConstants;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IProteomicsDataServiceInternal;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 
@@ -348,7 +347,8 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
                     one(boFactory).createSampleLoader(SESSION);
                     will(returnValue(sampleLoader));
                     
-                    one(sampleLoader).listSamplesWithParentsByTypeAndSpace(RAW_DATA_SAMPLE_TYPE, SPACE_CODE);
+                    one(sampleLoader).listSamplesWithParentsByTypeAndSpace(
+                            CommonConstants.MS_INJECTION_SAMPLE_TYPE_CODE, CommonConstants.MS_DATA_SPACE);
                     will(returnValue(samples));
                     
                     one(experimentDAO).listExperimentsWithProperties(experimentIds);

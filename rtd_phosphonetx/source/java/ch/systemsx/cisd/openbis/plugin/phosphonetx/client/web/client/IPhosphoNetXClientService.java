@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -53,6 +54,16 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.SampleWithPr
  */
 public interface IPhosphoNetXClientService extends IClientService
 {
+    public TypedTableResultSet<Sample> listParentlessMsInjectionSamples(
+            DefaultResultSetConfig<String, TableModelRowWithObject<Sample>> criteria)
+            throws UserFailureException;
+    
+    public TypedTableResultSet<Sample> listBiologicalSamples(
+            DefaultResultSetConfig<String, TableModelRowWithObject<Sample>> criteria)
+            throws UserFailureException;
+    
+    public void linkSamples(Sample parentSample, List<Sample> childSamples) throws UserFailureException;
+    
     public Vocabulary getTreatmentTypeVocabulary() throws UserFailureException;
 
     public List<AbundanceColumnDefinition> getAbundanceColumnDefinitionsForProteinByExperiment(

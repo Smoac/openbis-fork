@@ -64,6 +64,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.CommonConstants;
 
 /**
  * @author Franz-Josef Elmer
@@ -242,7 +243,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
                 {
                     one(service).tryGetSampleWithExperiment(
                             new SampleIdentifier(new SpaceIdentifier(DB_INSTANCE,
-                                    Constants.MS_DATA_SPACE), CELL_LYSATE1));
+                                    CommonConstants.MS_DATA_SPACE), CELL_LYSATE1));
                     ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample =
                             new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample();
                     sample.setPermId(CELL_LYSATE_PERM_ID1);
@@ -293,7 +294,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         p1.setName(PROTEIN_NAME1);
         p1.getParameters().add(createAbundance(CELL_LYSATE1, 2.5));
         p1.getParameters().add(new Parameter());
-        final GroupIdentifier groupIdentifier = new GroupIdentifier(DB_INSTANCE, Constants.MS_DATA_SPACE);
+        final GroupIdentifier groupIdentifier = new GroupIdentifier(DB_INSTANCE, CommonConstants.MS_DATA_SPACE);
         final SampleIdentifier sampleIdentifier =
                 new SampleIdentifier(groupIdentifier, CELL_LYSATE1);
         final ListSamplesByPropertyCriteria criteria =

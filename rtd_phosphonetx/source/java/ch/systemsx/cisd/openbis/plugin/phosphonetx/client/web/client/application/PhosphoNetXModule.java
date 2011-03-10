@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
@@ -28,11 +28,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Disposable
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ITabActionMenuItemDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TabActionMenuItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application.wizard.MsInjectionSampleAnnotationWizard;
 
 /**
  * @author Franz-Josef Elmer
@@ -50,31 +54,59 @@ public class PhosphoNetXModule implements IModule
 
     public List<? extends MenuItem> getMenuItems()
     {
-        return Collections.singletonList(TabActionMenuItemFactory.createActionMenu(viewContext, ID,
+        ActionMenu msInjectionSampleAnnotatingMenuItem = TabActionMenuItemFactory.createActionMenu(viewContext, ID,
                 new ITabActionMenuItemDefinition<IPhosphoNetXClientServiceAsync>()
                     {
 
                         public String getName()
                         {
-                            return "ALL_RAW_DATA_SAMPLES";
+                            return "ANNOTATE_MS_INJECTION_SAMPLES";
                         }
 
                         public String getHelpPageTitle()
                         {
-                            return "MS INJECTION Data Overview";
+                            return "Wizard for annotation MS INJECTION samples";
                         }
 
                         public DatabaseModificationAwareComponent createComponent(
                                 IViewContext<IPhosphoNetXClientServiceAsync> context)
                         {
-                            return RawDataSampleGrid.create(context);
+                            return DatabaseModificationAwareComponent.wrapUnaware(new MsInjectionSampleAnnotationWizard(context));
                         }
 
                         public String tryGetLink()
                         {
-                            return null;
+                            URLMethodWithParameters url = new URLMethodWithParameters("");
+                            url.addParameter(ViewLocator.ACTION_PARAMETER, getName());
+                            return url.toString().substring(1);
                         }
-                    }));
+                    });
+        ActionMenu msInjectionSampleBrowserMenuItem = TabActionMenuItemFactory.createActionMenu(viewContext, ID,
+                new ITabActionMenuItemDefinition<IPhosphoNetXClientServiceAsync>()
+                {
+            
+            public String getName()
+            {
+                return "ALL_RAW_DATA_SAMPLES";
+            }
+            
+            public String getHelpPageTitle()
+            {
+                return "MS INJECTION Data Overview";
+            }
+            
+            public DatabaseModificationAwareComponent createComponent(
+                    IViewContext<IPhosphoNetXClientServiceAsync> context)
+            {
+                return RawDataSampleGrid.create(context);
+            }
+            
+            public String tryGetLink()
+            {
+                return null;
+            }
+                });
+        return Arrays.asList(msInjectionSampleAnnotatingMenuItem, msInjectionSampleBrowserMenuItem);
     }
 
     public String getName()

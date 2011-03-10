@@ -25,7 +25,6 @@ import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtracto
 import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForMSInjection.PARENT_TYPE_KEY;
 import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForMSInjection.PROJECT_CODE_KEY;
 import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForMSInjection.SAMPLE_CODE_KEY;
-import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForMSInjection.SAMPLE_TYPE_CODE;
 import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForMSInjection.USER_KEY;
 
 import java.io.File;
@@ -73,6 +72,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.CommonConstants;
 
 /**
  * @author Franz-Josef Elmer
@@ -86,11 +86,11 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
     private static final String SAMPLE_CODE = "U09-1242";
 
     private static final String SAMPLE_IDENTIFIER =
-            DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + Constants.MS_DATA_SPACE
+            DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + CommonConstants.MS_DATA_SPACE
                     + DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + SAMPLE_CODE;
 
     private static final String EXPERIMENT_IDENTIFIER =
-            DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + Constants.MS_DATA_SPACE
+            DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + CommonConstants.MS_DATA_SPACE
                     + DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + PROJECT_CODE
                     + DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + EXPERIMENT_CODE;
 
@@ -297,7 +297,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
 
         DataSetInformation info = extractor.getDataSetInformation(dataSet, service);
 
-        assertEquals(Constants.MS_DATA_SPACE, info.getSpaceCode());
+        assertEquals(CommonConstants.MS_DATA_SPACE, info.getSpaceCode());
         assertEquals(SAMPLE_CODE, info.getSampleCode());
         assertEquals(EXPERIMENT_IDENTIFIER, info.getExperimentIdentifier().toString());
         List<NewProperty> dProps = info.getDataSetProperties();
@@ -332,7 +332,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         
         DataSetInformation info = extractor.getDataSetInformation(dataSet, service);
         
-        assertEquals(Constants.MS_DATA_SPACE, info.getSpaceCode());
+        assertEquals(CommonConstants.MS_DATA_SPACE, info.getSpaceCode());
         assertEquals(SAMPLE_CODE, info.getSampleCode());
         assertEquals(EXPERIMENT_IDENTIFIER, info.getExperimentIdentifier().toString());
         List<NewProperty> dProps = info.getDataSetProperties();
@@ -364,7 +364,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
 
         DataSetInformation info = extractor.getDataSetInformation(dataSet, service);
 
-        assertEquals(Constants.MS_DATA_SPACE, info.getSpaceCode());
+        assertEquals(CommonConstants.MS_DATA_SPACE, info.getSpaceCode());
         assertEquals(SAMPLE_CODE, info.getSampleCode());
         assertEquals(EXPERIMENT_IDENTIFIER, info.getExperimentIdentifier().toString());
         List<NewProperty> dProps = info.getDataSetProperties();
@@ -397,7 +397,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         
         DataSetInformation info = extractor.getDataSetInformation(dataSet, service);
         
-        assertEquals(Constants.MS_DATA_SPACE, info.getSpaceCode());
+        assertEquals(CommonConstants.MS_DATA_SPACE, info.getSpaceCode());
         assertEquals(SAMPLE_CODE, info.getSampleCode());
         assertEquals(EXPERIMENT_IDENTIFIER, info.getExperimentIdentifier().toString());
         List<NewProperty> dProps = info.getDataSetProperties();
@@ -436,7 +436,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
 
         DataSetInformation info = extractor.getDataSetInformation(dataSet, service);
 
-        assertEquals(Constants.MS_DATA_SPACE, info.getSpaceCode());
+        assertEquals(CommonConstants.MS_DATA_SPACE, info.getSpaceCode());
         assertEquals(null, info.getSampleCode());
         assertEquals(null, info.getSampleIdentifier());
         assertEquals(EXPERIMENT_IDENTIFIER, info.getExperimentIdentifier().toString());
@@ -489,7 +489,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
             {
                 {
                     ExperimentIdentifier identifier =
-                            new ExperimentIdentifier(null, Constants.MS_DATA_SPACE, PROJECT_CODE,
+                            new ExperimentIdentifier(null, CommonConstants.MS_DATA_SPACE, PROJECT_CODE,
                                     EXPERIMENT_CODE);
                     one(service).tryToGetExperiment(identifier);
                     Experiment experiment = new Experiment();
@@ -511,9 +511,9 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         context.checking(new Expectations()
             {
                 {
-                    one(service).getSampleType(DataSetInfoExtractorForMSInjection.SAMPLE_TYPE_CODE);
+                    one(service).getSampleType(CommonConstants.MS_INJECTION_SAMPLE_TYPE_CODE);
                     SampleType sampleType = new SampleType();
-                    sampleType.setCode(DataSetInfoExtractorForMSInjection.SAMPLE_TYPE_CODE);
+                    sampleType.setCode(CommonConstants.MS_INJECTION_SAMPLE_TYPE_CODE);
                     sampleType.setSampleTypePropertyTypes(Arrays.asList(sampleTypePropertyTypes));
                     will(returnValue(sampleType));
                 }
@@ -552,7 +552,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
                                 if (item instanceof NewSample)
                                 {
                                     NewSample sample = (NewSample) item;
-                                    assertEquals(SAMPLE_TYPE_CODE, sample.getSampleType().getCode());
+                                    assertEquals(CommonConstants.MS_INJECTION_SAMPLE_TYPE_CODE, sample.getSampleType().getCode());
                                     assertEquals(SAMPLE_IDENTIFIER, sample.getIdentifier());
                                     assertEquals(EXPERIMENT_IDENTIFIER, sample
                                             .getExperimentIdentifier());

@@ -138,7 +138,18 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
         viewContext.logStop(logID);
         setPagingComponentsHidden(true);
     }
+    
+    public void removeConfigAndExportButtons()
+    {
+        configButton.removeFromParent();
+        exportButton.removeFromParent();
+    }
 
+    public void removeFiltersButtons()
+    {
+        showFiltersButton.removeFromParent();
+    }
+    
     @Override
     protected void onLoad(LoadEvent event)
     {

@@ -32,6 +32,10 @@ public enum PhosphoNetXDisplayTypeIDGenerator implements IDisplayTypeIDGenerator
     DATA_SET_PROTEIN_BROWSER_GRID("data-set-protein-browser-grid"), 
     
     RAW_DATA_SAMPLE_BROWSER_GRID("raw-data-sample-browser-grid"), 
+    
+    PARENT_LESS_MS_INJECTION_SAMPLE_BROWSER_GRID("parent-less-ms-injection-sample-browser-grid"), 
+    
+    BIOLOGICAL_SAMPLE_BROWSER_GRID("biological-sample-browser-grid"), 
     ;
 
     private final String genericNameOrPrefix;

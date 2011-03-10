@@ -21,6 +21,7 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -47,6 +48,19 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.SampleWithPr
  */
 public interface IPhosphoNetXClientServiceAsync extends IClientServiceAsync
 {
+    /** @see IPhosphoNetXClientService#listParentlessMsInjectionSamples(DefaultResultSetConfig) */
+    public void listParentlessMsInjectionSamples(
+            DefaultResultSetConfig<String, TableModelRowWithObject<Sample>> criteria,
+            AsyncCallback<TypedTableResultSet<Sample>> callback);
+    
+    /** @see IPhosphoNetXClientService#listBiologicalSamples(DefaultResultSetConfig) */
+    public void listBiologicalSamples(
+            DefaultResultSetConfig<String, TableModelRowWithObject<Sample>> criteria,
+            AsyncCallback<TypedTableResultSet<Sample>> callback);
+    
+    /** @see IPhosphoNetXClientService#linkSamples(Sample, List) */
+    public void linkSamples(Sample parentSample, List<Sample> childSamples, AsyncCallback<Void> callback);
+    
     /** @see IPhosphoNetXClientService#getTreatmentTypeVocabulary() */
     public void getTreatmentTypeVocabulary(AsyncCallback<Vocabulary> callback);
     

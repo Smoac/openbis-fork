@@ -38,8 +38,18 @@ var phosphonetx = {
   // SampleAbudndance Browser
   abundance: "Abundance",
   
+  // MS_INJECTION annotation wizard
+  
+  openbis_parentless_ms_injection_sample_main_IDENTIFIER: "MS_INJECTION Sample",
+  openbis_parentless_ms_injection_sample_main_REGISTRATION_DATE: "Registration Date",
+  openbis_biological_sample_main_IDENTIFIER: "Biological Sample",
+  openbis_biological_sample_main_REGISTRATION_DATE: "Registration Date",
+  
+  
   // RawDataSample Browser
   
+  ANNOTATE_MS_INJECTION_SAMPLES_menu_item: "Annotate MS INJECTION Samples",
+  ANNOTATE_MS_INJECTION_SAMPLES_tab_label: "MS INJECTION Samples Annotation Wizard",
   ALL_RAW_DATA_SAMPLES_menu_item: "All MS INJECTION Samples",  
   ALL_RAW_DATA_SAMPLES_tab_label: "MS INJECTION Samples and Related Biological Samples",  
   openbis_raw_data_sample_browser_CODE: "MS INJECTION Sample",

@@ -300,6 +300,14 @@ var common = {
   default_update_value_tooltip: "The value of the assigned property for all currently existing entities that didn't have any value for this property.",
   
   //
+  // Wizard
+  //
+  wizard_page_previous_button_label: "< Previous",
+  wizard_page_next_button_label: "Next >",
+  wizard_page_finish_button_label: "Finish",
+  
+  
+  //
   // Menu Titles
   //
   

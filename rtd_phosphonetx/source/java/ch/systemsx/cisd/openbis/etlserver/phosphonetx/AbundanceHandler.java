@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.CommonConstants;
 
 /**
  * Handler of {@link Parameter} objects of type 'abundance'.
@@ -71,7 +72,7 @@ class AbundanceHandler extends AbstractHandler
         this.experiment = experiment;
         msData =
                 new SpaceIdentifier(experimentIdentifier.getDatabaseInstanceCode(),
-                        Constants.MS_DATA_SPACE);
+                        CommonConstants.MS_DATA_SPACE);
         sampleType = new SampleType();
         sampleType.setCode(Constants.SEARCH_SAMPLE_TYPE);
     }

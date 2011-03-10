@@ -20,6 +20,7 @@ import static ch.systemsx.cisd.common.utilities.SystemTimeProvider.SYSTEM_TIME_P
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -38,6 +39,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -45,15 +47,23 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSe
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DataProviderAdapter;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.util.CacheManager;
 import ch.systemsx.cisd.openbis.generic.shared.util.ICacheManager;
 import ch.systemsx.cisd.openbis.generic.shared.util.Key;
+import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.Constants;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientService;
@@ -62,7 +72,9 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListPro
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinSequenceCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinSummaryByExperimentCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListSampleAbundanceByProteinCriteria;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.server.resultset.BiologicalSampleProvider;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.server.resultset.DataSetProteinProvider;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.server.resultset.ParentlessMsInjectionSampleProvider;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.server.resultset.ProteinSequenceProvider;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.server.resultset.ProteinSummaryProvider;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.CacheData;
@@ -85,7 +97,13 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.SampleWithPr
 public class PhosphoNetXClientService extends AbstractClientService implements
         IPhosphoNetXClientService, InitializingBean
 {
-    private static final String CACHE_VERSION = "1"; // Sprint S97
+    private static final String CACHE_VERSION = Integer.toString(ServiceVersionHolder.VERSION);
+    
+    @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
+    private ICommonServer commonServer;
+    
+    @Resource(name = ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames.GENERIC_PLUGIN_SERVER)
+    private IGenericServer genericServer;
 
     @Resource(name = ResourceNames.PHOSPHONETX_PLUGIN_SERVER)
     @Private
@@ -152,6 +170,42 @@ public class PhosphoNetXClientService extends AbstractClientService implements
     protected String getVersion()
     {
         return BuildAndEnvironmentInfo.INSTANCE.getFullVersion();
+    }
+
+    public TypedTableResultSet<Sample> listParentlessMsInjectionSamples(
+            DefaultResultSetConfig<String, TableModelRowWithObject<Sample>> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        String sessionToken = getSessionToken();
+        return listEntities(new ParentlessMsInjectionSampleProvider(commonServer, sessionToken),
+                criteria);
+    }
+
+    public TypedTableResultSet<Sample> listBiologicalSamples(
+            DefaultResultSetConfig<String, TableModelRowWithObject<Sample>> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        String sessionToken = getSessionToken();
+        return listEntities(new BiologicalSampleProvider(commonServer, sessionToken), criteria);
+    }
+    
+    public void linkSamples(Sample parentSample, List<Sample> childSamples)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        String sessionToken = getSessionToken();
+        String[] parents = new String[]
+            { parentSample.getIdentifier() };
+        for (Sample childSample : childSamples)
+        {
+            SampleIdentifier childSampleIdentifier =
+                    SampleIdentifierFactory.parse(childSample.getIdentifier());
+            genericServer.updateSample(
+                    sessionToken,
+                    new SampleUpdatesDTO(new TechId(childSample), Collections
+                            .<IEntityProperty> emptyList(), null, Collections
+                            .<NewAttachment> emptyList(), childSample.getModificationDate(),
+                            childSampleIdentifier, null, parents));
+        }
     }
 
     public Vocabulary getTreatmentTypeVocabulary()
