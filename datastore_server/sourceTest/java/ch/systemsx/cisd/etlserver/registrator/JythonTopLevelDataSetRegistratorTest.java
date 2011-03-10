@@ -898,6 +898,11 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
             return StorageFormat.PROPRIETARY;
         }
 
+        public UnstoreDataAction getDefaultUnstoreDataAction(Throwable exception)
+        {
+            return UnstoreDataAction.LEAVE_UNTOUCHED;
+        }
+
         public IStorageProcessorTransaction createTransaction()
         {
             return new IStorageProcessorTransaction()

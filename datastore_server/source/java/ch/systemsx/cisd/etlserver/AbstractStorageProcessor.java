@@ -93,4 +93,9 @@ public abstract class AbstractStorageProcessor implements IStorageProcessorTrans
         }
         return false;
     }
+
+    public UnstoreDataAction getDefaultUnstoreDataAction(Throwable exception)
+    {
+        return UnstoreDataAction.LEAVE_UNTOUCHED;
+    }
 }

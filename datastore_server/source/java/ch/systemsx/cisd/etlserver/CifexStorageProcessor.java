@@ -199,4 +199,10 @@ public class CifexStorageProcessor extends AbstractDelegatingStorageProcessor
         }
 
     }
+
+    @Override
+    public UnstoreDataAction getDefaultUnstoreDataAction(Throwable exception)
+    {
+        return moveToErrorFolder ? UnstoreDataAction.MOVE_TO_ERROR : UnstoreDataAction.DELETE;
+    }
 }

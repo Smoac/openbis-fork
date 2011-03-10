@@ -128,7 +128,6 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor
         }
     }
 
-
     public static File getOriginalDirectory(final File storedDataDirectory)
     {
         return new File(storedDataDirectory, ORIGINAL_DIR);
@@ -144,5 +143,11 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor
             return Unzipper.unzip(archiveFile, outputDirectory, deleteUnzipped);
         }
         return Status.OK;
+    }
+
+    @Override
+    public UnstoreDataAction getDefaultUnstoreDataAction(Throwable exception)
+    {
+        return UnstoreDataAction.MOVE_TO_ERROR;
     }
 }

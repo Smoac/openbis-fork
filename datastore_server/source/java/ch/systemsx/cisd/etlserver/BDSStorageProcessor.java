@@ -128,9 +128,8 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor
 
     // candidates
     private IDataStructureV1_1 dataStructure;
+
     private IHCSImageFormattedData imageFormattedData;
-
-
 
     public BDSStorageProcessor(final Properties properties)
     {
@@ -651,5 +650,11 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor
             return originalDataFile;
         }
 
+    }
+
+    @Override
+    public UnstoreDataAction getDefaultUnstoreDataAction(Throwable exception)
+    {
+        return UnstoreDataAction.MOVE_TO_ERROR;
     }
 }

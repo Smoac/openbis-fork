@@ -223,8 +223,7 @@ public class DataSetRegistrationAlgorithm
      */
     public final void prepare()
     {
-        final File baseDirectory =
-                createBaseDirectory(getDataStoreStrategy(), state.storeRoot);
+        final File baseDirectory = createBaseDirectory(getDataStoreStrategy(), state.storeRoot);
         baseDirectoryHolder =
                 new BaseDirectoryHolder(getDataStoreStrategy(), baseDirectory,
                         state.incomingDataSetFile);
@@ -343,7 +342,13 @@ public class DataSetRegistrationAlgorithm
      */
     public UnstoreDataAction rollbackStorageProcessor(final Throwable throwable)
     {
-        return state.transaction.rollback(throwable);
+        if (null == state.transaction)
+        {
+            return state.storageProcessor.getDefaultUnstoreDataAction(throwable);
+        } else
+        {
+            return state.transaction.rollback(throwable);
+        }
     }
 
     protected boolean clean()
@@ -407,10 +412,8 @@ public class DataSetRegistrationAlgorithm
                     incomingDataSetFile.getAbsolutePath());
 
             state.transaction = getStorageProcessor().createTransaction();
-            state.transaction.storeData(dataSetInformation,
-                            getTypeExtractor(),
-                            state.mailClient, incomingDataSetFile,
-                            baseDirectoryHolder.getBaseDirectory());
+            state.transaction.storeData(dataSetInformation, getTypeExtractor(), state.mailClient,
+                    incomingDataSetFile, baseDirectoryHolder.getBaseDirectory());
             if (getOperationLog().isInfoEnabled())
             {
                 getOperationLog().info(

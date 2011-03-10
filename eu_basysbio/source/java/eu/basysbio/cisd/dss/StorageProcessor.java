@@ -156,6 +156,11 @@ public class StorageProcessor extends DelegatingStorageProcessorWithDropbox
         {
             return null;
         }
+
+        public UnstoreDataAction getDefaultUnstoreDataAction(Throwable exception)
+        {
+            return null;
+        }
     }
 
 }

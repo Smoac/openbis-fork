@@ -421,12 +421,16 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
             return StorageFormat.PROPRIETARY;
         }
 
+        public UnstoreDataAction getDefaultUnstoreDataAction(Throwable exception)
+        {
+            return UnstoreDataAction.LEAVE_UNTOUCHED;
+        }
+
         public IStorageProcessorTransaction createTransaction()
         {
             return new IStorageProcessorTransaction()
                 {
                     private File storedFile;
-
 
                     public void storeData(DataSetInformation dataSetInformation,
                             ITypeExtractor typeExtractor, IMailClient mailClient,

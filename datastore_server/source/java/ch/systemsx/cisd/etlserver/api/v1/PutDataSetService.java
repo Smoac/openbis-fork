@@ -32,10 +32,8 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.etlserver.DataStrategyStore;
-import ch.systemsx.cisd.etlserver.ETLServerPluginFactory;
 import ch.systemsx.cisd.etlserver.IETLServerPlugin;
 import ch.systemsx.cisd.etlserver.Parameters;
-import ch.systemsx.cisd.etlserver.ThreadParameters;
 import ch.systemsx.cisd.etlserver.validation.DataSetValidator;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
@@ -128,7 +126,7 @@ public class PutDataSetService
         homeDatabaseInstance = openBisService.getHomeDatabaseInstance();
 
         dataSetValidator = validator;
-        
+
         shareId = Constants.DEFAULT_SHARE_ID;
 
         isInitialized = true;
@@ -187,12 +185,6 @@ public class PutDataSetService
 
         incomingDir.mkdirs();
 
-        pluginMap = initializer.getPluginMap();
-        pluginMap.initializeStoreRootDirectory(storeDirectory);
-
-        // plugin = initializer.getPlugin();
-        // plugin.getStorageProcessor().setStoreRootDirectory(storeDirectory);
-
         mailClient = new MailClient(initializer.getMailProperties());
         dataStrategyStore = new DataStrategyStore(openBisService, mailClient);
 
@@ -213,7 +205,10 @@ public class PutDataSetService
         }
         shareId = SegmentedStoreUtils.findIncomingShare(incomingDir, storeDirectory);
         operationLog.info("Data sets registered via RPC are stored in share " + shareId + ".");
-        
+
+        pluginMap = initializer.getPluginMap();
+        pluginMap.initializeStoreRootDirectory(storeDirectory);
+
         isInitialized = true;
     }
 
@@ -226,7 +221,7 @@ public class PutDataSetService
     {
         return mailClient;
     }
-    
+
     String getShareId()
     {
         return shareId;
@@ -306,12 +301,6 @@ class PutDataSetServiceInitializer
     Properties getMailProperties()
     {
         return Parameters.createMailProperties(params.getProperties());
-    }
-
-    IETLServerPlugin getPlugin()
-    {
-        ThreadParameters[] threadParams = params.getThreads();
-        return ETLServerPluginFactory.getPluginForThread(threadParams[0]);
     }
 
     String getDataStoreCode()

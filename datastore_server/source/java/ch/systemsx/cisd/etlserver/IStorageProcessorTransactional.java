@@ -125,5 +125,13 @@ public interface IStorageProcessorTransactional extends IStoreRootDirectoryHolde
      */
     public StorageFormat getStorageFormat();
 
+    /**
+     * Return the action to take when an exception occurs. This might be called outside the context
+     * of a transaction.
+     * 
+     * @param exception an exception which has caused that the unstore operation has to be performed
+     * @return an instruction what to do with the data in incoming directory
+     */
+    public UnstoreDataAction getDefaultUnstoreDataAction(Throwable exception);
 
 }

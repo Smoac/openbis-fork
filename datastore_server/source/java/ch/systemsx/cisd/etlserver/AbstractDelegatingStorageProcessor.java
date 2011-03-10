@@ -87,7 +87,6 @@ abstract public class AbstractDelegatingStorageProcessor implements IStorageProc
         }
     }
 
-
     //
     // delegation
     //
@@ -110,5 +109,10 @@ abstract public class AbstractDelegatingStorageProcessor implements IStorageProc
     public void setStoreRootDirectory(File storeRootDirectory)
     {
         delegate.setStoreRootDirectory(storeRootDirectory);
+    }
+
+    public UnstoreDataAction getDefaultUnstoreDataAction(Throwable exception)
+    {
+        return delegate.getDefaultUnstoreDataAction(exception);
     }
 }

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.client.api.gui;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.FileExistsException;
 import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClientModel.NewDataSetInfo;
 import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClientModel.NewDataSetInfo.Status;
@@ -62,14 +63,23 @@ final class DataSetUploadOperation implements Runnable
         {
             newDataSetInfo.setStatus(Status.FAILED);
             tableModel.fireChanged(newDataSetInfo, Status.FAILED);
-            final Throwable actualTh =
-                    (th instanceof Error) ? th : CheckedExceptionTunnel
-                            .unwrapIfNecessary((Exception) th);
+            Throwable actualTh;
+            if (th instanceof Error)
+            {
+                actualTh = th;
+            } else
+            {
+                actualTh = CheckedExceptionTunnel.unwrapIfNecessary((Exception) th);
+                if (actualTh instanceof EnvironmentFailureException)
+                {
+                    actualTh = ((EnvironmentFailureException) actualTh).getCause();
+                }
+            }
             if (actualTh instanceof FileExistsException == false)
             {
                 DataSetUploadClient.notifyUserOfThrowable(tableModel.getMainWindow(),
                         newDataSetInfo.getNewDataSetBuilder().getFile().getAbsolutePath(),
-                        "Uploading", th, null);
+                        "Uploading", actualTh, null);
             }
         }
     }
