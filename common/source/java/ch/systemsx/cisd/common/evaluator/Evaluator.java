@@ -105,7 +105,7 @@ public final class Evaluator
         }
         this.interpreter = new PythonInterpreter();
         // Security: do not allow file access.
-        
+
         try
         {
             interpreter.exec("def open():\n   pass");
@@ -133,11 +133,11 @@ public final class Evaluator
         PyObject pyObject = interpreter.get(functionName);
         return pyObject instanceof PyFunction;
     }
-    
+
     /**
-     * Evaluates specified function with specified arguments. The arguments are turned into
-     * Python Strings if they are Java {@link String} objects. The return value of the function
-     * is returned as a Java object or <code>null</code>.
+     * Evaluates specified function with specified arguments. The arguments are turned into Python
+     * Strings if they are Java {@link String} objects. The return value of the function is returned
+     * as a Java object or <code>null</code>.
      * 
      * @throws EvaluatorException if evaluation fails.
      */
@@ -166,7 +166,7 @@ public final class Evaluator
         } catch (PyException ex)
         {
             StringBuilder builder = new StringBuilder();
-            for (Object  argument : args)
+            for (Object argument : args)
             {
                 if (builder.length() > 0)
                 {
@@ -200,34 +200,6 @@ public final class Evaluator
         } catch (PyException ex)
         {
             throw toEvaluatorException(ex, expression);
-        }
-    }
-
-    /**
-     * @throws EvaluatorException if compilation of given expression fails
-     */
-    public static void checkExpressionCompilation(String expression) throws EvaluatorException
-    {
-        new PythonInterpreter();
-        doCompile(expression);
-    }
-
-    /**
-     * @throws EvaluatorException if compilation of given script fails
-     */
-    public static void checkScriptCompilation(String script) throws EvaluatorException
-    {
-        try
-        {
-            PythonInterpreter pi = new PythonInterpreter();
-            // Security: do not allow file access.
-            pi.exec("def open():\n   pass");
-            pi.exec(script);
-        } catch (PyException ex)
-        {
-            final String msg =
-                    "Script compilation failed with message:\n\n" + extractExceptionMessage(ex);
-            throw new EvaluatorException(msg);
         }
     }
 

@@ -338,19 +338,4 @@ public class EvaluatorTest extends AssertJUnit
         }
     }
 
-    @Test
-    public void testCheckScriptCompilation()
-    {
-        Evaluator.checkScriptCompilation("1+1");
-        try
-        {
-            Evaluator.checkScriptCompilation("1+");
-            fail("EvaluatorException expected");
-        } catch (EvaluatorException ex)
-        {
-            assertEquals("Script compilation failed with message:\n\n"
-                    + "SyntaxError: ('invalid syntax', ('<string>', 1, 3, '1+'))", ex.getMessage());
-        }
-    }
-
 }
