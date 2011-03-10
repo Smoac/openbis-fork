@@ -22,13 +22,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
-
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
@@ -56,10 +52,8 @@ abstract public class AbstractDropboxProcessingPlugin extends AbstractDatastoreP
 
     private static final long serialVersionUID = 1L;
 
-    final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            AbstractDropboxProcessingPlugin.class);
-
-    @Private static final String SEND_DETAILED_EMAIL_KEY = "send-detailed-email";
+    @Private
+    static final String SEND_DETAILED_EMAIL_KEY = "send-detailed-email";
 
     private final static String MISSING_DIRECTORY_MSG = "with missing directory";
 
@@ -70,7 +64,7 @@ abstract public class AbstractDropboxProcessingPlugin extends AbstractDatastoreP
     private final IPostRegistrationDatasetHandler dropboxHandler;
 
     private final ITimeProvider timeProvider;
-    
+
     private final boolean sendingDetailedEMail;
 
     /**
@@ -91,7 +85,7 @@ abstract public class AbstractDropboxProcessingPlugin extends AbstractDatastoreP
         this.timeProvider = timeProvider;
         sendingDetailedEMail = PropertyUtils.getBoolean(properties, SEND_DETAILED_EMAIL_KEY, false);
     }
-    
+
     public ProcessingStatus process(List<DatasetDescription> datasets,
             DataSetProcessingContext context)
     {
@@ -160,12 +154,12 @@ abstract public class AbstractDropboxProcessingPlugin extends AbstractDatastoreP
                         + (withSample ? "Sample: ${sample}\n" : "")
                         + "Started: ${start-time}.\n" + "Finished: ${end-time}.");
     }
-    
+
     /**
      * Returns a description to be used in e-mails.
      */
     protected abstract String getProcessingDescription();
-    
+
     private String render(String entity, String entityType)
     {
         return entity == null ? null : entity + " [" + entityType + "]";
@@ -185,12 +179,13 @@ abstract public class AbstractDropboxProcessingPlugin extends AbstractDatastoreP
         if (datasetFiles.length == 1)
         {
             DataSetInformation datasetInfo = createDatasetInfo(dataset);
-            return dropboxHandler.handle(datasetFiles[0], datasetInfo, context.getParameterBindings());
+            return dropboxHandler.handle(datasetFiles[0], datasetInfo,
+                    context.getParameterBindings());
         } else
         {
             operationLog.error(String.format("Exactly one item was expected in the '%s' directory,"
-                    + " but %d have been found. Nothing will be processed.", originalDir
-                    .getParent(), datasetFiles));
+                    + " but %d have been found. Nothing will be processed.",
+                    originalDir.getParent(), datasetFiles));
             final String errorMsg =
                     datasetFiles.length > 1 ? MORE_THAN_ONE_ITEM_MSG : EMPTY_DIRECTORY_MSG;
             return Status.createError(errorMsg);

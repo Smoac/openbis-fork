@@ -21,13 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
-
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IArchiverTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ProcessingStatus;
@@ -44,9 +40,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastorePlugin implements
         IArchiverTask
 {
-
-    protected static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, AbstractArchiverProcessingPlugin.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -213,7 +206,6 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
     {
         asyncUpdateStatuses(statuses.getSuccessfulDatasetCodes(), success);
         asyncUpdateStatuses(statuses.getFailedDatasetCodes(), failure);
-
     }
 
     private static void asyncUpdateStatuses(List<String> dataSetCodes,
