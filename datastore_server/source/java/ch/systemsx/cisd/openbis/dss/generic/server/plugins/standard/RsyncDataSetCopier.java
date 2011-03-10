@@ -101,18 +101,18 @@ public class RsyncDataSetCopier
     }
 
     /**
-     * Copies specified data file/folder to destination specified in constructor. The name of the
-     * file/folder at the destination is defined by the given data set code.
+     * Copies specified data file/folder to destination specified in constructor. The path of the
+     * file/folder at the destination is defined by the original location of the data set.
      */
     public Status copyToDestination(File originalData, DatasetDescription dataset)
     {
         try
         {
-            File destinationFolder = new File(destination, dataset.getDatasetCode());
+            File destinationFolder = new File(destination, dataset.getDataSetLocation());
             deleteDestinationFolder(destinationFolder); // cleanup needed for local executor
             operationLog.info("Copy dataset '" + dataset.getDatasetCode() + "' from '"
-                    + originalData.getPath() + "' to '" + destination.getPath());
-            executor.copyDataSetToDestination(originalData, destination);
+                    + originalData.getPath() + "' to '" + destinationFolder.getParentFile());
+            executor.copyDataSetToDestination(originalData, destinationFolder.getParentFile());
             return Status.OK;
         } catch (ExceptionWithStatus ex)
         {
@@ -121,18 +121,17 @@ public class RsyncDataSetCopier
     }
 
     /**
-     * Retrieves specified data file/folder from the destination specified in constructor. The name
-     * of the file/folder at the destination is defined by the given data set code.
+     * Retrieves specified data file/folder from the destination specified in constructor. The path
+     * at the destination is defined by original location of the data set.
      */
     public Status retrieveFromDestination(File originalData, DatasetDescription dataset)
     {
         try
         {
-            File destinationFolder = new File(destination, dataset.getDatasetCode());
+            File destinationFolder = new File(destination, dataset.getDataSetLocation());
             checkDestinationExists(destinationFolder);
             operationLog.info("Retrieve data set '" + dataset.getDatasetCode() + "' from '"
-                    + destinationFolder.getPath() + "' to '"
-                    + originalData.getParentFile().getPath());
+                    + destinationFolder.getPath() + "' to '" + originalData.getParentFile());
             executor.retrieveDataSetFromDestination(originalData.getParentFile(), destinationFolder);
             return Status.OK;
         } catch (ExceptionWithStatus ex)
