@@ -2258,7 +2258,7 @@ public final class CommonClientService extends AbstractClientService implements
         {
             final String sessionToken = getSessionToken();
             List<String> datasetCodes = extractDatasetCodes(displayedOrSelectedDatasetCriteria);
-            int result = commonServer.archiveDatasets(sessionToken, datasetCodes);
+            int result = commonServer.archiveDatasets(sessionToken, datasetCodes, true);
             return new ArchivingResult(datasetCodes.size(), result);
         } catch (final UserFailureException e)
         {

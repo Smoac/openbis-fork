@@ -24,7 +24,9 @@ import javax.sql.DataSource;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.openbis.dss.generic.server.IDataSetCommandExecutor;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractArchiverProcessingPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.HighWaterMarkChecker;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.IStatusChecker;
@@ -57,9 +59,11 @@ public class MLArchiverTask extends AbstractArchiverProcessingPlugin
 
     private final String dataSourceName;
 
-    public MLArchiverTask(Properties properties, File storeRoot)
+    public MLArchiverTask(Properties properties, File storeRoot,
+            IDataSetCommandExecutor commandExecutor)
     {
-        super(properties, storeRoot, null, tryCreateUnarchivingStatusChecker(properties, storeRoot));
+        super(properties, storeRoot, commandExecutor, null, tryCreateUnarchivingStatusChecker(
+                properties, storeRoot));
         dataSourceName = DataSourceProvider.extractDataSourceName(properties);
         // Check if given data source exists
         getDataSource(dataSourceName);
@@ -83,8 +87,7 @@ public class MLArchiverTask extends AbstractArchiverProcessingPlugin
     /**
      * Deletes data related to given data set from metabol database.
      */
-    private Status doArchive(DatasetDescription dataset, IDMGenericDAO dao)
-            throws UserFailureException
+    private Status removeFromYeastXDatabase(DatasetDescription dataset, IDMGenericDAO dao)
     {
         try
         {
@@ -106,9 +109,8 @@ public class MLArchiverTask extends AbstractArchiverProcessingPlugin
     /**
      * Adds data related to given data set to metabol database.
      */
-    private Status doUnarchive(DatasetDescription dataset,
+    private Status uploadToYeastXDatabase(DatasetDescription dataset,
             IDataSetDirectoryProvider directoryProvider, ML2DatabaseUploader databaseUploader)
-            throws UserFailureException
     {
         try
         {
@@ -183,26 +185,62 @@ public class MLArchiverTask extends AbstractArchiverProcessingPlugin
 
     @Override
     protected DatasetProcessingStatuses doArchive(List<DatasetDescription> datasets,
-            ArchiverTaskContext context) throws UserFailureException
+            ArchiverTaskContext context)
+    {
+        // does nothing
+        return createStatuses(Status.OK, datasets, Operation.ARCHIVE);
+    }
+
+    @Override
+    protected DatasetProcessingStatuses doUnarchive(List<DatasetDescription> datasets,
+            ArchiverTaskContext context)
+    {
+        ML2DatabaseUploader databaseUploader = new ML2DatabaseUploader(properties);
+
+        final String operationName = "Uploading to YeastX database";
+        int counter = 0;
+        DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
+        for (DatasetDescription dataset : datasets)
+        {
+            Status status = uploadToYeastXDatabase(dataset, context.getDirectoryProvider(), databaseUploader);
+            statuses.addResult(dataset.getDatasetCode(), status, operationName);
+            counter++;
+            if (counter % 100 == 0)
+            {
+                operationLog.info(operationName + " status: " + counter + "/" + datasets.size());
+            }
+        }
+        return statuses;
+    }
+
+    @Override
+    public BooleanStatus isDataSetPresentInArchive(DatasetDescription dataset)
+    {
+        // data is always present, since there is no archive
+        return BooleanStatus.createTrue();
+    }
+
+    @Override
+    protected void removeFromDataStore(List<DatasetDescription> datasets,
+            ArchiverTaskContext context)
     {
         DataSource dataSource = getDataSource(dataSourceName);
         final IDMGenericDAO dao = DBUtils.getQuery(dataSource, IDMGenericDAO.class);
 
         try
         {
+            final String operationName = "Removing data from YeastX database";
             int counter = 0;
-            DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
             for (DatasetDescription dataset : datasets)
             {
-                Status status = doArchive(dataset, dao);
-                statuses.addResult(dataset.getDatasetCode(), status, true);
+                removeFromYeastXDatabase(dataset, dao);
                 counter++;
                 if (counter % 100 == 0)
                 {
-                    operationLog.info("Archiving status: " + counter + "/" + datasets.size());
+                    operationLog.info(operationName + " status : " + counter + "/"
+                            + datasets.size());
                 }
             }
-            return statuses;
         } finally
         {
             dao.close();
@@ -210,23 +248,9 @@ public class MLArchiverTask extends AbstractArchiverProcessingPlugin
     }
 
     @Override
-    protected DatasetProcessingStatuses doUnarchive(List<DatasetDescription> datasets,
-            ArchiverTaskContext context) throws UserFailureException
+    protected DatasetProcessingStatuses doDeleteFromArchive(List<DatasetDescription> datasets,
+            ArchiverTaskContext context)
     {
-        ML2DatabaseUploader databaseUploader = new ML2DatabaseUploader(properties);
-
-        DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
-        int counter = 0;
-        for (DatasetDescription dataset : datasets)
-        {
-            Status status = doUnarchive(dataset, context.getDirectoryProvider(), databaseUploader);
-            statuses.addResult(dataset.getDatasetCode(), status, false);
-            counter++;
-            if (counter % 100 == 0)
-            {
-                operationLog.info("Unarchiving status: " + counter + "/" + datasets.size());
-            }
-        }
-        return statuses;
+        return createStatuses(Status.OK, datasets, Operation.DELETE_FROM_ARCHIVE);
     }
 }

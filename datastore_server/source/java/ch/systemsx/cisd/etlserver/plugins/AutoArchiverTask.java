@@ -29,8 +29,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.IAutoArchiverPolicy;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
@@ -56,11 +56,15 @@ public class AutoArchiverTask implements IMaintenanceTask
 
     private static final String OLDER_THAN_PROPERTY_NAME = "older-than";
 
+    private static final String REMOVE_DATASETS_FROM_STORE = "remove-datasets-from-store";
+
     private IEncapsulatedOpenBISService openBISService;
 
     private IAutoArchiverPolicy policy;
 
     private ArchiverDataSetCriteria criteria;
+
+    private boolean removeFromDataStore;
 
     public void execute()
     {
@@ -73,7 +77,7 @@ public class AutoArchiverTask implements IMaintenanceTask
         {
             operationLog.info("archiving: "
                     + CollectionUtils.abbreviate(Code.extractCodes(dataSets), 10));
-            openBISService.archiveDataSets(Code.extractCodes(dataSets));
+            openBISService.archiveDataSets(Code.extractCodes(dataSets), removeFromDataStore);
         }
         operationLog.info("end");
     }
@@ -86,6 +90,10 @@ public class AutoArchiverTask implements IMaintenanceTask
                 PropertyParametersUtil.extractSingleSectionProperties(properties,
                         POLICY_SECTION_NAME, false);
         policy = createPolicyInstance(policySectionProperties);
+
+        removeFromDataStore =
+                PropertyUtils.getBoolean(properties, REMOVE_DATASETS_FROM_STORE, false);
+
         operationLog.info("Plugin " + pluginName + " initialized");
     }
 
@@ -93,7 +101,7 @@ public class AutoArchiverTask implements IMaintenanceTask
     {
         String dataSetTypeCodeOrNull = properties.getProperty(DATA_SET_TYPE_PROPERTY_NAME);
         int olderThan = PropertyUtils.getInt(properties, OLDER_THAN_PROPERTY_NAME, 0);
-        return new ArchiverDataSetCriteria(olderThan, dataSetTypeCodeOrNull);
+        return new ArchiverDataSetCriteria(olderThan, dataSetTypeCodeOrNull, false);
     }
 
     private IAutoArchiverPolicy createPolicyInstance(SectionProperties policySectionProperties)
