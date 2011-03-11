@@ -57,16 +57,21 @@ public abstract class AbstractSpacePredicate<T> extends AbstractDatabaseInstance
     {
         if (tryFindSpace(databaseInstanceUUID, spaceCodeOrNull) == null)
         {
-            return Status.createError(String.format("User '%s' does not have enough privileges.",
-                    person.getUserId()));
+            return createError(person, spaceCodeOrNull);
         }
         final boolean matching = isMatching(allowedRoles, databaseInstanceUUID, spaceCodeOrNull);
         if (matching)
         {
             return Status.OK;
         }
-        return Status.createError(String.format("User '%s' does not have enough privileges.",
-                person.getUserId()));
+        return createError(person, spaceCodeOrNull);
+    }
+
+    private Status createError(final PersonPE person, final String spaceCodeOrNull)
+    {
+        return Status.createError(String.format(
+                "User '%s' does not have enough privileges or space %s does not exist.",
+                person.getUserId(), spaceCodeOrNull));
     }
 
     private SpacePE tryFindSpace(final String databaseInstanceUUID, final String spaceCode)
