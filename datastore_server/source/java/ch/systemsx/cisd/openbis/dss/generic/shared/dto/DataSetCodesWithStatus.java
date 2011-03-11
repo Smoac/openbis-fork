@@ -28,14 +28,18 @@ public class DataSetCodesWithStatus implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    private List<String> dataSetCodes;
+    private final List<String> dataSetCodes;
 
-    private DataSetArchivingStatus status;
+    private final DataSetArchivingStatus status;
 
-    public DataSetCodesWithStatus(List<String> dataSetCodes, DataSetArchivingStatus status)
+    private final boolean presentInArchive;
+
+    public DataSetCodesWithStatus(List<String> dataSetCodes, DataSetArchivingStatus status,
+            boolean presentInArchive)
     {
         this.dataSetCodes = dataSetCodes;
         this.status = status;
+        this.presentInArchive = presentInArchive;
     }
 
     public List<String> getDataSetCodes()
@@ -46,6 +50,11 @@ public class DataSetCodesWithStatus implements Serializable
     public DataSetArchivingStatus getStatus()
     {
         return status;
+    }
+
+    public boolean isPresentInArchive()
+    {
+        return presentInArchive;
     }
 
     @Override

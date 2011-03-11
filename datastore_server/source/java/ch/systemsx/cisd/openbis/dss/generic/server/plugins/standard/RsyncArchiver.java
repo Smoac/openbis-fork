@@ -24,6 +24,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
+import ch.systemsx.cisd.openbis.dss.generic.server.IDataSetCommandExecutor;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
@@ -49,16 +50,19 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
 
     private final ISshCommandExecutorFactory sshCommandExecutorFactory;
 
-    public RsyncArchiver(Properties properties, File storeRoot)
+    public RsyncArchiver(Properties properties, File storeRoot,
+            IDataSetCommandExecutor commandExecutor)
     {
-        this(properties, storeRoot, new RsyncCopierFactory(), new SshCommandExecutorFactory());
+        this(properties, storeRoot, commandExecutor, new RsyncCopierFactory(),
+                new SshCommandExecutorFactory());
     }
 
     @Private
-    RsyncArchiver(Properties properties, File storeRoot, IPathCopierFactory pathCopierFactory,
+    RsyncArchiver(Properties properties, File storeRoot, IDataSetCommandExecutor commandExecutor,
+            IPathCopierFactory pathCopierFactory,
             ISshCommandExecutorFactory sshCommandExecutorFactory)
     {
-        super(properties, storeRoot, null, null);
+        super(properties, storeRoot, commandExecutor, null, null);
         this.pathCopierFactory = pathCopierFactory;
         this.sshCommandExecutorFactory = sshCommandExecutorFactory;
     }
@@ -74,7 +78,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
         {
             File originalData = getDatasetDirectory(context, dataset);
             Status status = doArchive(dataset, originalData);
-            statuses.addResult(dataset.getDatasetCode(), status, true);
+            statuses.addResult(dataset.getDatasetCode(), status, Operation.ARCHIVE);
         }
 
         return statuses;
@@ -92,12 +96,13 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
         {
             File originalData = getDatasetDirectory(context, dataset);
             Status status = doUnarchive(dataset, originalData);
-            statuses.addResult(dataset.getDatasetCode(), status, false);
+            statuses.addResult(dataset.getDatasetCode(), status, Operation.UNARCHIVE);
         }
 
         return statuses;
     }
 
+    @Override
     protected DatasetProcessingStatuses doDeleteFromArchive(List<DatasetDescription> datasets,
             ArchiverTaskContext context)
     {
@@ -108,12 +113,13 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
         for (DatasetDescription dataset : datasets)
         {
             Status status = doDeleteFromArchive(dataset);
-            statuses.addResult(dataset.getDatasetCode(), status, false); // false -> deletion
+            statuses.addResult(dataset.getDatasetCode(), status, Operation.DELETE_FROM_ARCHIVE);
         }
 
         return statuses;
     }
 
+    @Override
     protected BooleanStatus isDataSetPresentInArchive(DatasetDescription dataset,
             ArchiverTaskContext context)
     {

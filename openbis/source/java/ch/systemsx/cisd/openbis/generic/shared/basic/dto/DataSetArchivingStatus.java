@@ -21,12 +21,34 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 /**
  * Status of data set archiving process.
  * 
+ * <pre>
+ *                                                                                                                  |                                                         
+ *       archive                                           
+ *    ---------------> ARCHIVE_PENDING -------> ARCHIVED 
+ *    |                                          |             
+ *    |                                          |  unarchive
+ *    |                                          |           
+ * AVAILABLE  <--------------------|             |  
+ *    ^                            |             |  
+ *    |                            |             V             
+ *    |------>LOCKED               |----- UNARCHIVE_PENDING
+ * 
+ * </pre>
+ * 
  * @author Piotr Buczek
  */
 public enum DataSetArchivingStatus implements IsSerializable
 {
-    AVAILABLE("AVAILABLE", true), LOCKED("AVAILABLE (LOCKED)", true), ARCHIVED("ARCHIVED", false),
-    UNARCHIVE_PENDING("UNARCHIVE PENDING", false), ARCHIVE_PENDING("ARCHIVE PENDING", false);
+    AVAILABLE("AVAILABLE", true), // the data set is present in the data store only
+
+    // TODO KE: we might want to archive data sets in this state too
+    LOCKED("AVAILABLE (LOCKED)", true),
+
+    ARCHIVED("ARCHIVED", false), // the data set is present in the archive only
+
+    UNARCHIVE_PENDING("UNARCHIVE PENDING", false),
+
+    ARCHIVE_PENDING("ARCHIVE PENDING", false);
 
     private final String description;
 
@@ -46,6 +68,14 @@ public enum DataSetArchivingStatus implements IsSerializable
     public boolean isAvailable()
     {
         return available;
+    }
+
+    /**
+     * when deleting datasets from the archive
+     */
+    public boolean isDeletable()
+    {
+        return isAvailable() || this == ARCHIVED;
     }
 
 }

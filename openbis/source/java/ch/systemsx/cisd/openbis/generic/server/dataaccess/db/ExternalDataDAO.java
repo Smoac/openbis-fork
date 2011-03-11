@@ -323,6 +323,54 @@ final class ExternalDataDAO extends AbstractGenericEntityWithPropertiesDAO<Exter
         }
     }
 
+    public void updateDataSetStatuses(final List<String> dataSetCodes,
+            final DataSetArchivingStatus status, final boolean presentInArchive)
+    {
+        assert dataSetCodes != null : "Unspecified data set codes";
+        assert status != null : "Unspecified code";
+
+        if (dataSetCodes.size() == 0)
+        {
+            return;
+        }
+
+        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
+        int updatedRows = (Integer) hibernateTemplate.execute(new HibernateCallback()
+            {
+
+                //
+                // HibernateCallback
+                //
+
+                public final Object doInHibernate(final Session session) throws HibernateException,
+                        SQLException
+                {
+                    // NOTE: 'VERSIONED' makes modification time modified too
+                    return session
+                            .createQuery(
+                                    "UPDATE VERSIONED " + TABLE_NAME
+                                            + " SET status = :status, isPresentInArchive = :presentInArchive"
+                                            + " WHERE code IN (:codes) ")
+                            .setParameter("status", status)
+                            .setParameter("presentInArchive", presentInArchive)
+                            .setParameterList("codes", dataSetCodes)
+                            .executeUpdate();
+                }
+            });
+        hibernateTemplate.flush();
+        if (updatedRows != dataSetCodes.size())
+        {
+            throw UserFailureException.fromTemplate(
+                    "Update of %s data set statuses to '%s' and presentInArchive to '%s' failed.",
+                    dataSetCodes.size(), status, presentInArchive);
+        } else if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format(
+                    "UPDATED: %s data set statuses to '%s' and presentInArchive flag to '%s'.",
+                    dataSetCodes.size(), status, presentInArchive));
+        }
+    }
+
     public void createDataSet(DataPE dataset)
     {
         assert dataset != null : "Unspecified data set.";

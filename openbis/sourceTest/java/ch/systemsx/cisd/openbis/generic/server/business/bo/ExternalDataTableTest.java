@@ -295,10 +295,10 @@ public final class ExternalDataTableTest extends AbstractBOTest
             fail("UserFailureException expected");
         } catch (UserFailureException e)
         {
-            assertEquals("Operation failed because following data sets are not available "
-                    + "(they are archived or their status is pending): [d3n, d4n, d5n]. "
-                    + "Unarchive these data sets or filter them out using data set status "
-                    + "before performing the operation once again.", e.getMessage());
+
+            assertEquals("Deletion failed because the following data sets are "
+                    + "required by a background process (their status is pending): "
+                    + "[d4n, d5n]. ", e.getMessage());
         }
 
         context.assertIsSatisfied();
@@ -568,7 +568,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
         ExternalDataTable externalDataTable = createExternalDataTable();
         externalDataTable.loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)), false,
                 true);
-        int archived = externalDataTable.archiveDatasets();
+        int archived = externalDataTable.archiveDatasets(true);
         assertEquals(3, archived);
 
         context.assertIsSatisfied();
@@ -629,7 +629,8 @@ public final class ExternalDataTableTest extends AbstractBOTest
                 {
                     one(service).archiveDatasets(with(equal(store.getSessionToken())),
                             with(createDatasetDescriptionsMatcher(dataSets)),
-                            with(equal(ManagerTestTool.EXAMPLE_PERSON.getEmail())));
+                            with(equal(ManagerTestTool.EXAMPLE_PERSON.getEmail())),
+                            with(equal(true)));
                 }
             });
     }

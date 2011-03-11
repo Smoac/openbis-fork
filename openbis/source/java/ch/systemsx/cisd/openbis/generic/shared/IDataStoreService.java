@@ -37,7 +37,7 @@ public interface IDataStoreService
     /**
      * Every time this interface and related DTO's are changed, we should increment this number.
      */
-    public static final int VERSION = 5; // for release S77
+    public static final int VERSION = 6; // for release 102
 
     /**
      * Returns the version of this service.
@@ -101,9 +101,11 @@ public interface IDataStoreService
      * @param userEmailOrNull Email of user who initiated archiving and will get a message after the
      *            task is finished. It may be null if the user doesn't have email and no message
      *            will be send in such case.
+     * @param removeFromDataStore when set to <code>true</code> the data sets will be removed from
+     *            the data store after a successful archiving operation.
      */
     public void archiveDatasets(String sessionToken, List<DatasetDescription> datasets,
-            String userEmailOrNull);
+            String userEmailOrNull, boolean removeFromDataStore);
 
     /**
      * Schedules unarchiving of provided datasets.

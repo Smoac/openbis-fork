@@ -38,8 +38,8 @@ import ch.systemsx.cisd.common.spring.AbstractServiceWithLogger;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.common.utilities.IInitializable;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ArchiverTaskContext;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ArchiverTaskFactory;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IArchiverTask;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ArchiverPluginFactory;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IArchiverPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProvider;
@@ -333,24 +333,33 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     public void unarchiveDatasets(String sessionToken, List<DatasetDescription> datasets,
             String userEmailOrNull)
     {
-        scheduleArchiverTask(sessionToken, datasets, userEmailOrNull, false);
+        String description = "Unarchiving";
+        IProcessingPluginTask task = new UnarchiveProcessingPluginTask(createArchiver());
+
+        scheduleTask(sessionToken, description, task, datasets, userEmailOrNull);
     }
 
     public void archiveDatasets(String sessionToken, List<DatasetDescription> datasets,
-            String userEmailOrNull)
+            String userEmailOrNull, boolean removeFromDataStore)
     {
-        scheduleArchiverTask(sessionToken, datasets, userEmailOrNull, true);
+        String description = removeFromDataStore ? "Archiving" : "Copying data sets to archive";
+        IProcessingPluginTask task =
+                new ArchiveProcessingPluginTask(createArchiver(), removeFromDataStore);
+        
+        scheduleTask(sessionToken, description, task, datasets, userEmailOrNull);
     }
 
-    private void scheduleArchiverTask(String sessionToken, List<DatasetDescription> datasets,
-            String userEmailOrNull, boolean archive)
+    private IArchiverPlugin createArchiver()
+    {
+        ArchiverPluginFactory factory = pluginTaskParameters.getArchiverTaskFactory();
+        return factory.createInstance(storeRoot, commandExecutor);
+    }
+
+    private void scheduleTask(String sessionToken, String description,
+            IProcessingPluginTask processingTask, List<DatasetDescription> datasets,
+            String userEmailOrNull)
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);
-
-        String description = archive ? "Archiving" : "Unarchiving";
-        ArchiverTaskFactory factory = pluginTaskParameters.getArchiverTaskFactory();
-        final IArchiverTask archiverTask = factory.createInstance(storeRoot);
-        IProcessingPluginTask processingTask = new ArchiverProcessingTask(archiverTask, archive);
         DatastoreServiceDescription pluginDescription =
                 DatastoreServiceDescription.processing(description, description, null, null);
         Map<String, String> parameterBindings = Collections.<String, String> emptyMap();
@@ -358,19 +367,20 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
                 userEmailOrNull, pluginDescription, mailClientParameters);
     }
 
-    private static class ArchiverProcessingTask implements IProcessingPluginTask
+    private static class ArchiveProcessingPluginTask implements IProcessingPluginTask
     {
 
         private static final long serialVersionUID = 1L;
 
-        private boolean archive;
+        private IArchiverPlugin archiverTask;
 
-        private IArchiverTask archiverTask;
+        private boolean removeFromDataStore;
 
-        public ArchiverProcessingTask(final IArchiverTask archiverTask, final boolean archive)
+        public ArchiveProcessingPluginTask(final IArchiverPlugin archiverTask,
+                final boolean removeFromDataStore)
         {
             this.archiverTask = archiverTask;
-            this.archive = archive;
+            this.removeFromDataStore = removeFromDataStore;
         }
 
         public ProcessingStatus process(List<DatasetDescription> datasets,
@@ -378,13 +388,28 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         {
             ArchiverTaskContext archiverContext =
                     new ArchiverTaskContext(context.getDirectoryProvider());
-            if (archive)
-            {
-                return archiverTask.archive(datasets, archiverContext);
-            } else
-            {
-                return archiverTask.unarchive(datasets, archiverContext);
-            }
+            return archiverTask.archive(datasets, archiverContext, removeFromDataStore);
+        }
+    }
+
+    private static class UnarchiveProcessingPluginTask implements IProcessingPluginTask
+    {
+
+        private static final long serialVersionUID = 1L;
+
+        private IArchiverPlugin archiverTask;
+
+        public UnarchiveProcessingPluginTask(final IArchiverPlugin archiverTask)
+        {
+            this.archiverTask = archiverTask;
+        }
+
+        public ProcessingStatus process(List<DatasetDescription> datasets,
+                DataSetProcessingContext context)
+        {
+            ArchiverTaskContext archiverContext =
+                    new ArchiverTaskContext(context.getDirectoryProvider());
+            return archiverTask.unarchive(datasets, archiverContext);
         }
     }
 

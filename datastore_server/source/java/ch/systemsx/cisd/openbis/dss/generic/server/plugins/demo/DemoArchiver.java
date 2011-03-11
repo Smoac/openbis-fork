@@ -17,11 +17,15 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.demo;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.filesystem.BooleanStatus;
+import ch.systemsx.cisd.openbis.dss.generic.server.IDataSetCommandExecutor;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractArchiverProcessingPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -33,9 +37,12 @@ public class DemoArchiver extends AbstractArchiverProcessingPlugin
 {
     private static final long serialVersionUID = 1L;
 
-    public DemoArchiver(Properties properties, File storeRoot)
+    private final static Set<String/* data set code */> archiveContents = new HashSet<String>();
+
+    public DemoArchiver(Properties properties, File storeRoot,
+            IDataSetCommandExecutor commandExecutor)
     {
-        super(properties, storeRoot, null, null);
+        super(properties, storeRoot, commandExecutor, null, null);
     }
 
     @Override
@@ -43,7 +50,8 @@ public class DemoArchiver extends AbstractArchiverProcessingPlugin
             ArchiverTaskContext context) throws UserFailureException
     {
         System.out.println("DemoArchiver - Archived: " + datasets);
-        return createStatusesFrom(Status.OK, datasets, true);
+        archiveContents.addAll(extractCodes(datasets));
+        return createStatuses(Status.OK, datasets, Operation.ARCHIVE);
     }
 
     @Override
@@ -51,7 +59,24 @@ public class DemoArchiver extends AbstractArchiverProcessingPlugin
             ArchiverTaskContext context) throws UserFailureException
     {
         System.out.println("DemoArchiver - Unarchived: " + datasets);
-        return createStatusesFrom(Status.OK, datasets, false);
+        return createStatuses(Status.OK, datasets, Operation.UNARCHIVE);
+    }
+
+    @Override
+    public BooleanStatus isDataSetPresentInArchive(DatasetDescription dataset,
+            ArchiverTaskContext context)
+    {
+        boolean present = archiveContents.contains(dataset.getDatasetCode());
+        return BooleanStatus.createFromBoolean(present);
+    }
+
+    @Override
+    protected DatasetProcessingStatuses doDeleteFromArchive(List<DatasetDescription> datasets,
+            ArchiverTaskContext context) throws UserFailureException
+    {
+        archiveContents.addAll(extractCodes(datasets));
+        System.out.println("DemoArchiver - deleteFromArchive: " + datasets);
+        return createStatuses(Status.OK, datasets, Operation.DELETE_FROM_ARCHIVE);
     }
 
 }

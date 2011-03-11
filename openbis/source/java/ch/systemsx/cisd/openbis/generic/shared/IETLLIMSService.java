@@ -471,11 +471,14 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     public void updateDataSetStatuses(
             String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> dataSetCodes,
-            final DataSetArchivingStatus newStatus) throws UserFailureException;
+            final DataSetArchivingStatus newStatus, boolean presentInArchive)
+            throws UserFailureException;
 
     /**
      * Schedules archiving of specified data sets.
      * 
+     * @param removeFromDataStore when set to <code>true</code> the data sets will be removed from
+     *            the data store after a successful archiving operation.
      * @return number of data sets scheduled for archiving.
      */
     @Transactional
@@ -483,7 +486,8 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
     public int archiveDatasets(
             String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes);
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes,
+            boolean removeFromDataStore);
 
     /**
      * Schedules unarchiving of specified data sets.

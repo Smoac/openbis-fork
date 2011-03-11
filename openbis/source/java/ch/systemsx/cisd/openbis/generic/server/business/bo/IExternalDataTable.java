@@ -79,9 +79,11 @@ public interface IExternalDataTable
      * Schedules archiving of loaded data sets. Only available data sets that are not locked will be
      * archived.
      * 
+     * @param removeFromDataStore when set to <code>true</code> the data sets will be removed from
+     *            the data store after a successful archiving operation.
      * @return number of data sets scheduled for archiving.
      */
-    int archiveDatasets();
+    int archiveDatasets(boolean removeFromDataStore);
 
     /**
      * Schedules unarchiving of loaded data sets. Only archived datasets will be unarchived.

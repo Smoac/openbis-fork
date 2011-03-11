@@ -105,8 +105,8 @@ public class QueueingDataSetStatusUpdaterService
                             final DataSetCodesWithStatus dataSets = queue.peekWait();
                             try
                             {
-                                updater.updateDataSetStatuses(dataSets.getDataSetCodes(), dataSets
-                                        .getStatus());
+                                updater.updateDataSetStatuses(dataSets.getDataSetCodes(),
+                                        dataSets.getStatus(), dataSets.isPresentInArchive());
                                 // Note: this is the only consumer of this queue.
                                 queue.take();
                                 // If update succeeded than it is possible that other updates
@@ -158,10 +158,10 @@ public class QueueingDataSetStatusUpdaterService
         return new IDataSetStatusUpdater()
             {
                 public void updateDataSetStatuses(List<String> dataSetCodes,
-                        DataSetArchivingStatus newStatus)
+                        DataSetArchivingStatus newStatus, boolean presentInArchive)
                 {
                     ServiceProvider.getOpenBISService().updateDataSetStatuses(dataSetCodes,
-                            newStatus);
+                            newStatus, presentInArchive);
                     operationLog.info("Data Sets " + CollectionUtils.abbreviate(dataSetCodes, 10)
                             + " changed status to " + newStatus);
                 }
@@ -310,9 +310,10 @@ public class QueueingDataSetStatusUpdaterService
          * 
          * @param dataSetCodes codes of data sets to be updated
          * @param newStatus status to be set
+         * @param presentInArchive the present in archive flag to set
          */
         public void updateDataSetStatuses(List<String> dataSetCodes,
-                DataSetArchivingStatus newStatus);
+                DataSetArchivingStatus newStatus, boolean presentInArchive);
     }
 
 }

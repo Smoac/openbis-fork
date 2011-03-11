@@ -61,6 +61,16 @@ public interface IExternalDataDAO extends IGenericDAO<ExternalDataPE>
      */
     public List<ExternalDataPE> listExternalData(final SamplePE sample) throws DataAccessException;
 
+    // /**
+    // * List the all {@link ExternalDataPE} for given {@link DataSetArchivingStatus}.
+    // *
+    // * @param maxResultSize the maximum size of the returned list. Specifying a negative number
+    // * (e.g. -1) is equal to no limitation.
+    // * @returns list of {@link ExternalDataPE}s with the specified status.
+    // */
+    // public List<ExternalDataPE> listByArchivingStatus(DataSetArchivingStatus status,
+    // int maxResultSize);
+
     /**
      * List the {@link ExternalDataPE} for given <var>experiment</var>.
      * 
@@ -90,6 +100,12 @@ public interface IExternalDataDAO extends IGenericDAO<ExternalDataPE>
      * Sets status of datasets with given codes.
      */
     public void updateDataSetStatuses(List<String> dataSetCodes, DataSetArchivingStatus status);
+
+    /**
+     * Updates the status and the present in archive flag for given datasets.
+     */
+    public void updateDataSetStatuses(List<String> dataSetCodes, DataSetArchivingStatus status,
+            boolean newPresentInArchive);
 
     /**
      * Persists the specified data set.

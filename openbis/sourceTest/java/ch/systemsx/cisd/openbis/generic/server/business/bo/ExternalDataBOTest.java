@@ -396,12 +396,12 @@ public class ExternalDataBOTest extends AbstractBOTest
             {
                 {
                     one(externalDataDAO).updateDataSetStatuses(codes,
-                            DataSetArchivingStatus.ARCHIVED);
+                            DataSetArchivingStatus.ARCHIVED, true);
                 }
             });
 
         IExternalDataBO dataBO = createExternalDataBO();
-        dataBO.updateStatuses(codes, DataSetArchivingStatus.ARCHIVED);
+        dataBO.updateStatuses(codes, DataSetArchivingStatus.ARCHIVED, true);
         // TODO 2010-04-26, Piotr Buczek: write a DAO test
         context.assertIsSatisfied();
     }

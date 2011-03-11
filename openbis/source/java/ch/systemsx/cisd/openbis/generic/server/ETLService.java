@@ -666,12 +666,12 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
     }
 
     public void updateDataSetStatuses(String sessionToken, List<String> dataSetCodes,
-            DataSetArchivingStatus newStatus) throws UserFailureException
+            DataSetArchivingStatus newStatus, boolean presentInArchive) throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
         final Session session = getSession(sessionToken);
         final IExternalDataBO externalDataBO = businessObjectFactory.createExternalDataBO(session);
-        externalDataBO.updateStatuses(dataSetCodes, newStatus);
+        externalDataBO.updateStatuses(dataSetCodes, newStatus, presentInArchive);
     }
 
     public ExternalData tryGetDataSet(String sessionToken, String dataSetCode)
@@ -1075,4 +1075,5 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
 
         return externalDataBO;
     }
+
 }

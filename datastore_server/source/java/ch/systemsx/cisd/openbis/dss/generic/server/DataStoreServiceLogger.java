@@ -133,10 +133,10 @@ class DataStoreServiceLogger implements IDataStoreService, IInitializable
     }
 
     public void archiveDatasets(String sessionToken, List<DatasetDescription> datasets,
-            String userEmailOrNull)
+            String userEmailOrNull, boolean removeFromDataStore)
     {
-        log("archiveDatasets", "NO_OF_DATASETS(%s) USER_EMAIL(%s)", datasets.size(),
-                userEmailOrNull);
+        log("archiveDatasets", "NO_OF_DATASETS(%s) USER_EMAIL(%s) REMOVE_FROM_DATA_STORE(%s)",
+                datasets.size(), userEmailOrNull, removeFromDataStore);
     }
 
     public LinkModel retrieveLinkFromDataSet(String sessionToken, String serviceKey,

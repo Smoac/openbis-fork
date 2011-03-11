@@ -150,6 +150,25 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         }
     }
 
+    private static void assertDatasetsAreDeletable(List<ExternalDataPE> datasets)
+    {
+        List<String> notDeletableDatasets = new ArrayList<String>();
+        for (ExternalDataPE dataSet : datasets)
+        {
+            if (dataSet.getStatus().isDeletable() == false)
+            {
+                notDeletableDatasets.add(dataSet.getCode());
+            }
+        }
+        if (notDeletableDatasets.isEmpty() == false)
+        {
+            throw UserFailureException.fromTemplate(
+                    "Deletion failed because the following data sets are required "
+                            + "by a background process (their status is pending): %s. ",
+                    CollectionUtils.abbreviate(notDeletableDatasets, 10));
+        }
+    }
+
     private final IDataStoreServiceFactory dssFactory;
 
     private List<ExternalDataPE> externalData;
@@ -205,7 +224,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
 
     public void deleteLoadedDataSets(String reason)
     {
-        assertDatasetsAreAvailable(externalData);
+        assertDatasetsAreDeletable(externalData);
         Map<DataStorePE, List<ExternalDataPE>> map = groupDataSetsByDataStores();
         assertDataSetsAreKnown(map);
         for (Map.Entry<DataStorePE, List<ExternalDataPE>> entry : map.entrySet())
@@ -533,13 +552,13 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
     // Archiving
     //
 
-    public int archiveDatasets()
+    public int archiveDatasets(boolean removeFromDataStore)
     {
         Map<DataStorePE, List<ExternalDataPE>> datasetsByStore = groupDataSetsByDataStores();
         int result =
                 filterByStatusAndUpdate(datasetsByStore, DataSetArchivingStatus.AVAILABLE,
                         DataSetArchivingStatus.ARCHIVE_PENDING);
-        performArchiving(datasetsByStore);
+        performArchiving(datasetsByStore, removeFromDataStore);
         return result;
     }
 
@@ -615,14 +634,16 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
 
     }
 
-    private void performArchiving(Map<DataStorePE, List<ExternalDataPE>> datasetsByStore)
+    private void performArchiving(Map<DataStorePE, List<ExternalDataPE>> datasetsByStore,
+            final boolean removeFromDataStore)
     {
         performArchivingAction(datasetsByStore, new IArchivingAction()
             {
                 public void execute(String sessionToken, IDataStoreService service,
                         List<DatasetDescription> descriptions, String userEmailOrNull)
                 {
-                    service.archiveDatasets(sessionToken, descriptions, userEmailOrNull);
+                    service.archiveDatasets(sessionToken, descriptions, userEmailOrNull,
+                            removeFromDataStore);
                 }
             });
     }

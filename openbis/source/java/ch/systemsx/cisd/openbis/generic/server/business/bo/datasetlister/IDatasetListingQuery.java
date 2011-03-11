@@ -86,19 +86,21 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
      */
     @Select(sql = "SELECT * FROM data JOIN external_data ON data.id = external_data.data_id"
             + "    WHERE data.dast_id = ?{1} AND external_data.status = 'AVAILABLE' "
-            + "    AND data.registration_timestamp < ?{2}", fetchSize = FETCH_SIZE)
+            + "    AND data.registration_timestamp < ?{2} AND external_data.present_in_archive=?{3}", fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getAvailableDataSetsRegisteredBefore(long dataStoreId,
-            Date lastModificationDate);
+            Date lastModificationDate, boolean presentInArchive);
 
     /**
-     * Like {@link #getAvailableDataSetsRegisteredBefore(long, Date)} with additional condition for
-     * data set type id.
+     * Like {@link #getAvailableDataSetsRegisteredBefore(long, Date, boolean)} with additional
+     * condition for data set type id.
      */
     @Select(sql = "SELECT * FROM data JOIN external_data ON data.id = external_data.data_id"
             + "    WHERE data.dast_id = ?{1} AND external_data.status = 'AVAILABLE' "
-            + "    AND data.registration_timestamp < ?{2} AND data.dsty_id = ?{3}", fetchSize = FETCH_SIZE)
+            + "    AND data.registration_timestamp < ?{2} AND external_data.present_in_archive=?{3} "
+            + "    AND data.dsty_id = ?{4}", fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getAvailableDataSetsRegisteredBeforeWithDataSetType(
-            long dataStoreId, Date lastModificationDate, long dataSetTypeId);
+            long dataStoreId, Date lastModificationDate, boolean presentInArchive,
+            long dataSetTypeId);
 
     /**
      * Returns the directly connected dataset ids for the given sample id.

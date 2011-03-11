@@ -1408,6 +1408,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     public void testArchiveDataSets()
     {
         prepareGetSession();
+        final boolean removeFromDataStore = true;
         final List<String> dataSetCodes = Arrays.asList("a", "b");
         context.checking(new Expectations()
             {
@@ -1416,11 +1417,11 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(externalDataTable));
 
                     one(externalDataTable).loadByDataSetCodes(dataSetCodes, false, true);
-                    one(externalDataTable).archiveDatasets();
+                    one(externalDataTable).archiveDatasets(removeFromDataStore);
                 }
             });
 
-        createServer().archiveDatasets(SESSION_TOKEN, dataSetCodes);
+        createServer().archiveDatasets(SESSION_TOKEN, dataSetCodes, removeFromDataStore);
 
         context.assertIsSatisfied();
     }

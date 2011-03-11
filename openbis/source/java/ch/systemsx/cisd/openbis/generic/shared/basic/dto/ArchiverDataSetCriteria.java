@@ -32,10 +32,14 @@ public class ArchiverDataSetCriteria implements Serializable
 
     private final String dataSetTypeCodeOrNull;
 
-    public ArchiverDataSetCriteria(int olderThan, String dataSetTypeCodeOrNull)
+    private final boolean presentInArchive;
+
+    public ArchiverDataSetCriteria(int olderThan, String dataSetTypeCodeOrNull,
+            boolean presentInArchive)
     {
         this.olderThan = olderThan;
         this.dataSetTypeCodeOrNull = dataSetTypeCodeOrNull;
+        this.presentInArchive = presentInArchive;
     }
 
     public int getOlderThan()
@@ -46,6 +50,11 @@ public class ArchiverDataSetCriteria implements Serializable
     public String tryGetDataSetTypeCode()
     {
         return dataSetTypeCodeOrNull;
+    }
+
+    public boolean isPresentInArchive()
+    {
+        return presentInArchive;
     }
 
     @Override

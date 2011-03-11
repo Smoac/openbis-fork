@@ -28,16 +28,17 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
+import ch.systemsx.cisd.openbis.dss.generic.server.IDataSetCommandExecutor;
 
 /**
  * Factory of Archiver Tasks.
  * 
  * @author Piotr Buczek
  */
-public class ArchiverTaskFactory
+public class ArchiverPluginFactory
 {
     private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, ArchiverTaskFactory.class);
+            LogFactory.getLogger(LogCategory.OPERATION, ArchiverPluginFactory.class);
 
     private final String className;
 
@@ -47,7 +48,7 @@ public class ArchiverTaskFactory
     @Private
     public final static String CLASS_PROPERTY_NAME = "class";
 
-    public ArchiverTaskFactory(SectionProperties sectionProperties)
+    public ArchiverPluginFactory(SectionProperties sectionProperties)
     {
         this.className = sectionProperties.getProperties().getProperty(CLASS_PROPERTY_NAME);
         this.archiverProperties = sectionProperties.getProperties();
@@ -58,7 +59,7 @@ public class ArchiverTaskFactory
         return className != null;
     }
 
-    public IArchiverTask createInstance(File storeRoot)
+    public IArchiverPlugin createInstance(File storeRoot, IDataSetCommandExecutor commandExecutor)
     {
         if (isArchiverConfigured() == false)
         {
@@ -66,7 +67,8 @@ public class ArchiverTaskFactory
         }
         try
         {
-            return ClassUtils.create(IArchiverTask.class, className, archiverProperties, storeRoot);
+            return ClassUtils.create(IArchiverPlugin.class, className, archiverProperties,
+                    storeRoot, commandExecutor);
         } catch (ConfigurationFailureException ex)
         {
             throw ex; // rethrow the exception without changing the message

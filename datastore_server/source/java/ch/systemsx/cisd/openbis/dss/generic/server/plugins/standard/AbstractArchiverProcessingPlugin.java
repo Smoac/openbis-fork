@@ -16,16 +16,23 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus.ARCHIVED;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus.AVAILABLE;
+
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.filesystem.BooleanStatus;
+import ch.systemsx.cisd.openbis.dss.generic.server.IDataSetCommandExecutor;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ArchiverTaskContext;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IArchiverTask;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IArchiverPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.QueueingDataSetStatusUpdaterService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetCodesWithStatus;
@@ -36,9 +43,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
  * The base class for archiving.
  * 
  * @author Piotr Buczek
+ * @author Kaloyan Enimanev
  */
 public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastorePlugin implements
-        IArchiverTask
+        IArchiverPlugin
 {
 
     private static final long serialVersionUID = 1L;
@@ -47,62 +55,134 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
 
     private final IStatusChecker unarchivePrerequisiteOrNull;
 
+    private final IDataSetCommandExecutor commandExecutor;
+
     public AbstractArchiverProcessingPlugin(Properties properties, File storeRoot,
+            IDataSetCommandExecutor commandExecutor,
             IStatusChecker archivePrerequisiteOrNull, IStatusChecker unarchivePrerequisiteOrNull)
     {
         super(properties, storeRoot);
+        this.commandExecutor = commandExecutor;
         this.archivePrerequisiteOrNull = archivePrerequisiteOrNull;
         this.unarchivePrerequisiteOrNull = unarchivePrerequisiteOrNull;
     }
 
+    /**
+     * NOTE: this method is not allowed to throw exception as this will leave data sets in the
+     * openBIS database with an inconsistent status.
+     */
     abstract protected DatasetProcessingStatuses doArchive(List<DatasetDescription> datasets,
-            ArchiverTaskContext context) throws UserFailureException;
+            ArchiverTaskContext context);
 
+    /**
+     * NOTE: this method is not allowed to throw exception as this will leave data sets in the
+     * openBIS database with an inconsistent status.
+     */
     abstract protected DatasetProcessingStatuses doUnarchive(List<DatasetDescription> datasets,
-            ArchiverTaskContext context) throws UserFailureException;
+            ArchiverTaskContext context);
+    
+    /**
+     * NOTE: this method is not allowed to throw exception as this will leave data sets in the
+     * openBIS database with an inconsistent status.
+     */
+    abstract protected DatasetProcessingStatuses doDeleteFromArchive(
+            List<DatasetDescription> datasets, ArchiverTaskContext context);
+    
+    /**
+     * @return <code>true</code> if the dataset is present in the archive, <code>false</code>
+     *         otherwise.
+     */
+    abstract protected BooleanStatus isDataSetPresentInArchive(DatasetDescription dataset,
+            ArchiverTaskContext context);
 
     public ProcessingStatus archive(List<DatasetDescription> datasets,
-            final ArchiverTaskContext context)
+            final ArchiverTaskContext context, boolean removeFromDataStore)
     {
         operationLog.info("Archiving of the following datasets has been requested: "
                 + CollectionUtils.abbreviate(datasets, 10));
-        return handleDatasets(datasets, DataSetArchivingStatus.ARCHIVED,
-                DataSetArchivingStatus.AVAILABLE, new IDatasetDescriptionHandler()
-                    {
-                        public DatasetProcessingStatuses handle(List<DatasetDescription> allDatasets)
-                        {
-                            Status prerequisiteStatus = checkArchivePrerequisite(allDatasets);
-                            if (prerequisiteStatus.isError())
-                            {
-                                return createStatusesFrom(prerequisiteStatus, allDatasets, true);
-                            } else
-                            {
-                                return doArchive(allDatasets, context);
-                            }
-                        }
-                    });
+
+        Status prerequisiteStatus = checkUnarchivePrerequisite(datasets);
+        DatasetProcessingStatuses statuses = null;
+        if (prerequisiteStatus.isError())
+        {
+            statuses = createStatuses(prerequisiteStatus, datasets, Operation.ARCHIVE);
+        } else
+        {
+            statuses = archiveInternal(datasets, context, removeFromDataStore);
+        }
+
+        DataSetArchivingStatus successStatus = (removeFromDataStore) ? ARCHIVED : AVAILABLE;
+
+        asyncUpdateStatuses(statuses.getSuccessfulDatasetCodes(), successStatus, true);
+        asyncUpdateStatuses(statuses.getFailedDatasetCodes(), AVAILABLE, false);
+
+        return statuses.getProcessingStatus();
+    }
+
+    private DatasetProcessingStatuses archiveInternal(List<DatasetDescription> datasets,
+            final ArchiverTaskContext context, boolean removeFromDataStore)
+    {
+
+        GroupedDatasets groupedDatasets = groupByPresenceInArchive(datasets, context);
+        List<DatasetDescription> notPresentInArchive = groupedDatasets.getNotPresentAsList();
+        if (notPresentInArchive.isEmpty() == false)
+        {
+            // copy data sets in the archive
+            // TODO KE: try to keep the error messages from the returned statuses
+            doArchive(notPresentInArchive, context);
+
+            // paranoid check to make sure everything really got archived
+            groupedDatasets = groupByPresenceInArchive(datasets, context);
+        }
+
+        if (removeFromDataStore)
+        {
+            // only remove the when we are sure we have got a backup in the archive
+            removeFromDataStore(groupedDatasets.getPresentInArchive(), context);
+        }
+        
+        DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
+        statuses.addResult(groupedDatasets.getPresentInArchive(), Status.OK, Operation.ARCHIVE);
+        statuses.addResult(groupedDatasets.getNotPresentInArchive().keySet(), Status.createError(),
+                Operation.ARCHIVE);
+
+        return statuses;
+    }
+
+    protected void removeFromDataStore(List<DatasetDescription> datasets,
+            ArchiverTaskContext context)
+    {
+        // the deletion will happen at a later point in time
+        commandExecutor.scheduleDeletionOfDataSets(datasets);
     }
 
     public ProcessingStatus unarchive(List<DatasetDescription> datasets,
-            final ArchiverTaskContext contex)
+            final ArchiverTaskContext context)
     {
         operationLog.info("Unarchiving of the following datasets has been requested: "
                 + CollectionUtils.abbreviate(datasets, 10));
-        return handleDatasets(datasets, DataSetArchivingStatus.AVAILABLE,
-                DataSetArchivingStatus.ARCHIVED, new IDatasetDescriptionHandler()
-                    {
-                        public DatasetProcessingStatuses handle(List<DatasetDescription> allDatasets)
-                        {
-                            Status prerequisiteStatus = checkUnarchivePrerequisite(allDatasets);
-                            if (prerequisiteStatus.isError())
-                            {
-                                return createStatusesFrom(prerequisiteStatus, allDatasets, false);
-                            } else
-                            {
-                                return doUnarchive(allDatasets, contex);
-                            }
-                        }
-                    });
+
+        Status prerequisiteStatus = checkUnarchivePrerequisite(datasets);
+        DatasetProcessingStatuses statuses = null;
+        if (prerequisiteStatus.isError())
+        {
+            statuses = createStatuses(prerequisiteStatus, datasets, Operation.UNARCHIVE);
+        } else
+        {
+            statuses = doUnarchive(datasets, context);
+        }
+
+        asyncUpdateStatuses(statuses.getSuccessfulDatasetCodes(), AVAILABLE, true);
+        asyncUpdateStatuses(statuses.getFailedDatasetCodes(), ARCHIVED, true);
+
+        return statuses.getProcessingStatus();
+    }
+
+    public ProcessingStatus deleteFromArchive(List<DatasetDescription> datasets,
+            ArchiverTaskContext context)
+    {
+        DatasetProcessingStatuses status = doDeleteFromArchive(datasets, context);
+        return status != null ? status.getProcessingStatus() : null;
     }
 
     protected final Status checkUnarchivePrerequisite(List<DatasetDescription> datasets)
@@ -127,6 +207,24 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         }
     }
 
+    protected static enum Operation
+    {
+        ARCHIVE("Archiving"), UNARCHIVE("Unarchiving"),
+        DELETE_FROM_ARCHIVE("Deleting from archive");
+
+        private final String description;
+
+        Operation(String description)
+        {
+            this.description = description;
+        }
+
+        public String getDescription()
+        {
+            return description;
+        }
+    }
+
     protected static class DatasetProcessingStatuses
     {
         private final List<String> successfulDatasetCodes;
@@ -142,9 +240,23 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
             this.processingStatus = new ProcessingStatus();
         }
 
-        public void addResult(String datasetCode, Status status, boolean isArchiving)
+        public void addResult(Collection<DatasetDescription> datasets, Status status,
+                Operation operation)
         {
-            String logMessage = createLogMessage(datasetCode, status, isArchiving);
+            for (DatasetDescription dataset : datasets)
+            {
+                addResult(dataset.getDatasetCode(), status, operation.getDescription());
+            }
+        }
+
+        public void addResult(String datasetCode, Status status, Operation operation)
+        {
+            addResult(datasetCode, status, operation.getDescription());
+        }
+
+        public void addResult(String datasetCode, Status status, String operationDescription)
+        {
+            String logMessage = createLogMessage(datasetCode, status, operationDescription);
             if (status.isError())
             {
                 operationLog.error(logMessage);
@@ -157,11 +269,10 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
             processingStatus.addDatasetStatus(datasetCode, status);
         }
 
-        private String createLogMessage(String datasetCode, Status status, boolean isArchiving)
+        private String createLogMessage(String datasetCode, Status status, String operation)
         {
-            String operationDescription = isArchiving ? "Archiving" : "Unarchiving";
-            return String.format("%s for dataset %s finished with the status: %s.",
-                    operationDescription, datasetCode, status);
+            return String.format("%s for dataset %s finished with the status: %s.", operation,
+                    datasetCode, status);
         }
 
         public List<String> getSuccessfulDatasetCodes()
@@ -180,44 +291,89 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         }
     }
 
-    private ProcessingStatus handleDatasets(List<DatasetDescription> datasets,
-            DataSetArchivingStatus success, DataSetArchivingStatus failure,
-            IDatasetDescriptionHandler handler)
+    protected final static DatasetProcessingStatuses createStatuses(Status status,
+            List<DatasetDescription> datasets, Operation operation)
     {
-        DatasetProcessingStatuses statuses = handler.handle(datasets);
-        asyncUpdateStatuses(statuses, success, failure);
-        return statuses.getProcessingStatus();
+        return createStatuses(status, datasets, operation.getDescription());
     }
 
     // creates the same status for all datasets
-    protected final static DatasetProcessingStatuses createStatusesFrom(Status status,
-            List<DatasetDescription> datasets, boolean isArchiving)
+    protected final static DatasetProcessingStatuses createStatuses(Status status,
+            List<DatasetDescription> datasets, String operationDescription)
     {
         DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
         for (DatasetDescription dataset : datasets)
         {
-            statuses.addResult(dataset.getDatasetCode(), status, isArchiving);
+            statuses.addResult(dataset.getDatasetCode(), status, operationDescription);
         }
         return statuses;
     }
 
-    private void asyncUpdateStatuses(DatasetProcessingStatuses statuses,
-            DataSetArchivingStatus success, DataSetArchivingStatus failure)
+    protected List<String> extractCodes(List<DatasetDescription> dataSets)
     {
-        asyncUpdateStatuses(statuses.getSuccessfulDatasetCodes(), success);
-        asyncUpdateStatuses(statuses.getFailedDatasetCodes(), failure);
+        List<String> result = new ArrayList<String>();
+        for (DatasetDescription description : dataSets)
+        {
+            result.add(description.getDatasetCode());
+        }
+        return result;
     }
 
     private static void asyncUpdateStatuses(List<String> dataSetCodes,
-            DataSetArchivingStatus newStatus)
+            DataSetArchivingStatus newStatus, boolean presentInArchive)
     {
         QueueingDataSetStatusUpdaterService.update(new DataSetCodesWithStatus(dataSetCodes,
-                newStatus));
+                newStatus, presentInArchive));
     }
 
-    private interface IDatasetDescriptionHandler
+    protected static class GroupedDatasets
     {
-        public DatasetProcessingStatuses handle(List<DatasetDescription> datasets);
+        private List<DatasetDescription> presentInArchive;
+
+        private Map<DatasetDescription, BooleanStatus> notPresentInArchive;
+
+        GroupedDatasets(List<DatasetDescription> presentInArchive,
+                Map<DatasetDescription, BooleanStatus> notPresentInArchive)
+        {
+            this.presentInArchive = presentInArchive;
+            this.notPresentInArchive = notPresentInArchive;
+        }
+
+        public List<DatasetDescription> getPresentInArchive()
+        {
+            return presentInArchive;
+        }
+
+        public Map<DatasetDescription, BooleanStatus> getNotPresentInArchive()
+        {
+            return notPresentInArchive;
+        }
+
+        public List<DatasetDescription> getNotPresentAsList()
+        {
+
+            return new ArrayList<DatasetDescription>(notPresentInArchive.keySet());
+        }
     }
+
+    protected GroupedDatasets groupByPresenceInArchive(List<DatasetDescription> datasets,
+            ArchiverTaskContext context)
+    {
+        List<DatasetDescription> present = new ArrayList<DatasetDescription>();
+        Map<DatasetDescription, BooleanStatus> notPresent = new HashMap<DatasetDescription, BooleanStatus>();
+        
+        for (DatasetDescription dataset : datasets) {
+            BooleanStatus presentStatus = isDataSetPresentInArchive(dataset, context);
+            if (presentStatus.isSuccess())
+            {
+                present.add(dataset);
+            } else {
+                notPresent.put(dataset, presentStatus);
+            }
+        }
+        
+        return new GroupedDatasets(present, notPresent);
+    }
+
 
 }

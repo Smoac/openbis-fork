@@ -348,15 +348,16 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         final Long dataStoreId = extractDataStoreId(dataStoreCode);
         final Date lastRegistrationDate = extractLastRegistrationDate(criteria);
         final String dataSetTypeCodeOrNull = criteria.tryGetDataSetTypeCode();
+        final boolean presentInArchive = criteria.isPresentInArchive();
         if (dataSetTypeCodeOrNull == null)
         {
             return enrichDatasets(query.getAvailableDataSetsRegisteredBefore(dataStoreId,
-                    lastRegistrationDate));
+                    lastRegistrationDate, presentInArchive));
         } else
         {
             Long dataSetTypeId = extractDataSetTypeId(dataSetTypeCodeOrNull);
             return enrichDatasets(query.getAvailableDataSetsRegisteredBeforeWithDataSetType(
-                    dataStoreId, lastRegistrationDate, dataSetTypeId));
+                    dataStoreId, lastRegistrationDate, presentInArchive, dataSetTypeId));
         }
     }
 

@@ -318,18 +318,22 @@ public interface IEncapsulatedOpenBISService
     public List<ExternalData> listAvailableDataSets(ArchiverDataSetCriteria criteria)
             throws UserFailureException;
 
-    /** See {@link IETLLIMSService#archiveDatasets(String, List)} */
+    /** See {@link IETLLIMSService#archiveDatasets(String, List, boolean)} */
     @ManagedAuthentication
-    public void archiveDataSets(List<String> dataSetCodes) throws UserFailureException;
+    public void archiveDataSets(List<String> dataSetCodes, boolean removeFromDataStore)
+            throws UserFailureException;
 
     /** See {@link IETLLIMSService#unarchiveDatasets(String, List)} */
     @ManagedAuthentication
     public void unarchiveDataSets(List<String> dataSetCodes) throws UserFailureException;
 
-    /** See {@link IETLLIMSService#updateDataSetStatuses(String, List, DataSetArchivingStatus)} */
+    /**
+     * See
+     * {@link IETLLIMSService#updateDataSetStatuses(String, List, DataSetArchivingStatus, boolean)}
+     */
     @ManagedAuthentication
-    public void updateDataSetStatuses(List<String> codes, DataSetArchivingStatus newStatus)
-            throws UserFailureException;
+    public void updateDataSetStatuses(List<String> codes, DataSetArchivingStatus newStatus,
+            boolean presentInArchive) throws UserFailureException;
 
     /** See {@link IETLLIMSService#checkSpaceAccess(String, SpaceIdentifier)} */
     @ManagedAuthentication

@@ -328,10 +328,11 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
     }
 
     public void updateDataSetStatuses(String sessionToken, List<String> dataSetCodes,
-            DataSetArchivingStatus newStatus) throws UserFailureException
+            DataSetArchivingStatus newStatus, boolean presentInArchive) throws UserFailureException
     {
-        logTracking(sessionToken, "updateDataSetStatus", "NO_OF_DATASETS(%s) STATUS(%s)",
-                dataSetCodes.size(), newStatus);
+        logTracking(sessionToken, "updateDataSetStatus",
+                "NO_OF_DATASETS(%s) STATUS(%s) PRESENT_IN_ARCHIVE(%s)", dataSetCodes.size(),
+                newStatus, presentInArchive);
     }
 
     public String getDefaultPutDataStoreBaseURL(String sessionToken)

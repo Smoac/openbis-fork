@@ -292,14 +292,14 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         }
     }
 
-    public final void updateDataSetStatuses(List<String> codes,
-            DataSetArchivingStatus newStatus) throws UserFailureException
+    public final void updateDataSetStatuses(List<String> codes, DataSetArchivingStatus newStatus,
+            boolean presentInArchive) throws UserFailureException
 
     {
         assert codes != null : "missing data set codes";
         assert newStatus != null : "missing status";
 
-        service.updateDataSetStatuses(session.getToken(), codes, newStatus);
+        service.updateDataSetStatuses(session.getToken(), codes, newStatus, presentInArchive);
         if (operationLog.isInfoEnabled())
         {
             operationLog.info("Updated in openBIS: data sets " + codes + ", status=" + newStatus);
@@ -426,9 +426,10 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         return service.listDeletedDataSets(session.getToken(), lastSeenDeletionEventIdOrNull);
     }
 
-    public void archiveDataSets(List<String> dataSetCodes) throws UserFailureException
+    public void archiveDataSets(List<String> dataSetCodes, boolean removeFromDataStore)
+            throws UserFailureException
     {
-        service.archiveDatasets(session.getToken(), dataSetCodes);
+        service.archiveDatasets(session.getToken(), dataSetCodes, removeFromDataStore);
     }
 
     public void unarchiveDataSets(List<String> dataSetCodes) throws UserFailureException

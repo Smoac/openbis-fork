@@ -73,8 +73,8 @@ public interface IExternalDataBO extends IEntityBusinessObject
      * 
      * @throws UserFailureException if a data set does not exist or status couldn't be set.
      */
-    public void updateStatuses(List<String> dataSetCodes, DataSetArchivingStatus newStatus)
-            throws UserFailureException;
+    public void updateStatuses(List<String> dataSetCodes, DataSetArchivingStatus newStatus,
+            boolean newPresentInArchive) throws UserFailureException;
 
     /**
      * Adds chosen properties to given data set. If given property has been already defined, the

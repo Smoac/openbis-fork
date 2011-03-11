@@ -48,7 +48,7 @@ public class PluginTaskProviders
 
     private final PluginTaskProvider<IProcessingPluginTask> processingPlugins;
 
-    private final ArchiverTaskFactory archiverTaskFactory;
+    private final ArchiverPluginFactory archiverTaskFactory;
 
     private final File storeRoot;
 
@@ -92,7 +92,7 @@ public class PluginTaskProviders
         return processingPlugins;
     }
 
-    public ArchiverTaskFactory getArchiverTaskFactory()
+    public ArchiverPluginFactory getArchiverTaskFactory()
     {
         return archiverTaskFactory;
     }
@@ -142,12 +142,12 @@ public class PluginTaskProviders
         return new PluginTaskProvider<IProcessingPluginTask>(factories);
     }
 
-    private ArchiverTaskFactory createArchiverTaskFactory(Properties serviceProperties,
+    private ArchiverPluginFactory createArchiverTaskFactory(Properties serviceProperties,
             String datastoreCode)
     {
         SectionProperties sectionsProperties =
                 extractSingleSectionProperties(serviceProperties, ARCHIVER_SECTION_NAME);
-        return new ArchiverTaskFactory(sectionsProperties);
+        return new ArchiverPluginFactory(sectionsProperties);
     }
 
     private static SectionProperties[] extractSectionProperties(Properties serviceProperties,

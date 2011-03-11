@@ -77,6 +77,8 @@ public final class ExternalDataPE extends DataPE
 
     private DataSetArchivingStatus status = DataSetArchivingStatus.AVAILABLE;
 
+    private boolean isPresentInArchive;
+
     /**
      * Returns the id of the locator type of the location of this external data, or
      * <code>null</code> if not yet set.
@@ -205,6 +207,17 @@ public final class ExternalDataPE extends DataPE
     public void setStatus(DataSetArchivingStatus status)
     {
         this.status = status;
+    }
+
+    @Column(name = ColumnNames.PRESENT_IN_ARCHIVE)
+    public boolean isPresentInArchive()
+    {
+        return isPresentInArchive;
+    }
+
+    public void setPresentInArchive(boolean isPresentInArchive)
+    {
+        this.isPresentInArchive = isPresentInArchive;
     }
 
 }

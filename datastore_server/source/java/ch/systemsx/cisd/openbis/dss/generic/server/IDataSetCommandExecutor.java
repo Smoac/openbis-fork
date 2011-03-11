@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
  * 
  * @author Franz-Josef Elmer
  */
-interface IDataSetCommandExecutor
+public interface IDataSetCommandExecutor
 {
     /**
      * Starts up executor.

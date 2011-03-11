@@ -268,6 +268,8 @@ public final class ColumnNames
 
     public static final String SCRIPT_TYPE = "script_type";
 
+    public static final String PRESENT_IN_ARCHIVE = "present_in_archive";
+
     private ColumnNames()
     {
         // Can not be instantiated.
