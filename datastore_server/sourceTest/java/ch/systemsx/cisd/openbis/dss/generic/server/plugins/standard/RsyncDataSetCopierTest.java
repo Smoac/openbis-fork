@@ -45,9 +45,6 @@ public class RsyncDataSetCopierTest extends AbstractFileSystemTestCase
 
     private static final String LOCATION_1 = "l1";
 
-    @SuppressWarnings("unused")
-    private static final String LOCATION_2 = "l2";
-
     private static final String DS1_CODE = "ds1";
 
     private static final String DS2_CODE = "ds2";
@@ -58,7 +55,11 @@ public class RsyncDataSetCopierTest extends AbstractFileSystemTestCase
 
     private static final String DS1_DATA_FILE = "data.txt";
 
-    private static final String DATA = "hello test";
+    private static final String DS2_DATA_FILE = "data2.txt";
+
+    private static final String DATA1 = "hello test 1";
+
+    private static final String DATA2 = "hello test 2";
 
     private static final String ORIGINAL = "original";
 
@@ -120,14 +121,14 @@ public class RsyncDataSetCopierTest extends AbstractFileSystemTestCase
         File ds1Folder = new File(ds1Location, ORIGINAL);
         ds1Folder.mkdirs();
         ds1Data = new File(ds1Folder, DS1_DATA_FILE);
-        FileUtilities.writeToFile(ds1Data, DATA);
+        FileUtilities.writeToFile(ds1Data, DATA1);
 
         ds2 = createDataSetDescription(DS2_CODE, DS2_LOCATION, true);
         ds2Location = new File(share, DS2_LOCATION);
         File ds2Folder = new File(ds2Location, ORIGINAL);
         ds2Folder.mkdirs();
-        ds2Data = new File(ds2Folder, "images");
-        ds2Data.mkdirs();
+        ds2Data = new File(ds2Folder, DS2_DATA_FILE);
+        FileUtilities.writeToFile(ds2Data, DATA2);
 
         destination = new File(workingDirectory, "destination");
         destination.mkdirs();
@@ -221,13 +222,13 @@ public class RsyncDataSetCopierTest extends AbstractFileSystemTestCase
 
         Status status2 = dataSetCopier.copyToDestination(ds2Location, ds2);
         assertEquals(Status.OK, status2);
+        assertDs2InArchive(copiedDataSet2, copiedData2);
         // check that 1st data set is still in archive
         assertDs1InArchive(copiedDataSet1, copiedData1);
-        // check 2nd data set
-        assertDs2InArchive(copiedDataSet2, copiedData2);
 
+        // both data sets should be in the store
         assertDs1InStore();
-        assertEquals(true, ds2Data.exists());
+        assertDs2InStore();
 
         context.assertIsSatisfied();
     }
@@ -268,8 +269,10 @@ public class RsyncDataSetCopierTest extends AbstractFileSystemTestCase
         Status statusRetrieve = dataSetCopier.retrieveFromDestination(ds1Location, ds1);
         assertEquals(Status.OK, statusRetrieve);
         assertDs1InStore();
-
         assertDs1InArchive(copiedDataSet, copiedData);
+
+        // ds2 shouldn't be affected at all
+        assertDs2InStore();
 
         context.assertIsSatisfied();
     }
@@ -330,20 +333,27 @@ public class RsyncDataSetCopierTest extends AbstractFileSystemTestCase
     private void assertDs1InStore()
     {
         assertEquals(true, ds1Data.exists());
-        assertEquals(DATA, FileUtilities.loadToString(ds1Data).trim());
+        assertEquals(DATA1, FileUtilities.loadToString(ds1Data).trim());
+    }
+
+    private void assertDs2InStore()
+    {
+        assertEquals(true, ds2Data.exists());
+        assertEquals(DATA2, FileUtilities.loadToString(ds2Data).trim());
     }
 
     private void assertDs1InArchive(File copiedDataSet, File copiedData)
     {
         assertEquals(true, copiedDataSet.isDirectory());
         assertEquals(ds1Data.lastModified(), copiedDataSet.lastModified());
-        assertEquals(DATA, FileUtilities.loadToString(copiedData).trim());
+        assertEquals(DATA1, FileUtilities.loadToString(copiedData).trim());
     }
 
     private void assertDs2InArchive(File copiedDataSet2, File copiedData2)
     {
         assertEquals(true, copiedDataSet2.isDirectory());
         assertEquals(ds2Data.lastModified(), copiedData2.lastModified());
+        assertEquals(DATA2, FileUtilities.loadToString(copiedData2).trim());
     }
 
     private Properties createLocalDestinationProperties()
