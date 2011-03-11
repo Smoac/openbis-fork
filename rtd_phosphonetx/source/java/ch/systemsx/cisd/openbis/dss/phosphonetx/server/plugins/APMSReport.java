@@ -35,7 +35,6 @@ import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
 
 import com.csvreader.CsvReader;
 import com.csvreader.CsvWriter;
@@ -45,8 +44,6 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.utilities.Template;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractTableModelReportingPlugin;
@@ -197,9 +194,6 @@ public class APMSReport extends AbstractTableModelReportingPlugin implements IPr
             + "Enclosed you will find the Protein APMS report file for experiment ${experiment-identifier}.\n"
             + "Data Set: ${data-set}");
     
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            APMSReport.class);
-
     private final String proteinPropertyCode;
     
     private IEncapsulatedOpenBISService service;
