@@ -185,8 +185,20 @@ public class RsyncDataSetCopierTest extends AbstractFileSystemTestCase
         // check that data set is not yet in archive
         assertEquals(false, copiedDataSet.exists());
 
+        /*
+         * archive 1st time
+         */
         Status status = dataSetCopier.copyToDestination(ds1Location, ds1);
+        assertEquals(Status.OK, status);
+        // check that data set is now in archive
+        assertDs1InArchive(copiedDataSet, copiedData);
+        // check that data set is still in store
+        assertDs1InStore();
 
+        /*
+         * archive 2nd time (could happen on crash of DSS, but shouldn't hurt)
+         */
+        status = dataSetCopier.copyToDestination(ds1Location, ds1);
         assertEquals(Status.OK, status);
         // check that data set is now in archive
         assertDs1InArchive(copiedDataSet, copiedData);
@@ -197,6 +209,35 @@ public class RsyncDataSetCopierTest extends AbstractFileSystemTestCase
     }
 
     @Test
+    public void testLocalCopyToNonExistantDestination()
+    {
+        Properties properties = createLocalDestinationProperties();
+        RsyncDataSetCopier dataSetCopier =
+                new RsyncDataSetCopier(properties, copierFactory, sshExecutorFactory);
+        prepareForCheckingLastModifiedDate();
+
+        destination.delete(); // if destination folder doesn't exist it will be created
+
+        File copiedDataSet = ds1ArchivedLocationFile();
+        File copiedData = ds1ArchivedDataFile();
+
+        // check that data set is not yet in archive
+        assertEquals(false, copiedDataSet.exists());
+
+        /*
+         * archive
+         */
+        Status status = dataSetCopier.copyToDestination(ds1Location, ds1);
+        assertEquals(Status.OK, status);
+        // check that data set is now in archive
+        assertDs1InArchive(copiedDataSet, copiedData);
+        // check that data set is still in store
+        assertDs1InStore();
+
+        context.assertIsSatisfied();
+    }
+
+    @Test(dependsOnMethods = "testLocalCopyToDestination")
     public void testLocalCopyTwoDataSetsToDestination()
     {
         Properties properties = createLocalDestinationProperties();
@@ -213,6 +254,9 @@ public class RsyncDataSetCopierTest extends AbstractFileSystemTestCase
         assertEquals(false, copiedDataSet1.exists());
         assertEquals(false, copiedDataSet2.exists());
 
+        /*
+         * copy 1st data set
+         */
         Status status1 = dataSetCopier.copyToDestination(ds1Location, ds1);
 
         assertEquals(Status.OK, status1);
@@ -220,6 +264,9 @@ public class RsyncDataSetCopierTest extends AbstractFileSystemTestCase
         // check that 2nd data set is not yet in archive
         assertEquals(false, copiedDataSet2.exists());
 
+        /*
+         * copy 2nd data set
+         */
         Status status2 = dataSetCopier.copyToDestination(ds2Location, ds2);
         assertEquals(Status.OK, status2);
         assertDs2InArchive(copiedDataSet2, copiedData2);
@@ -233,11 +280,12 @@ public class RsyncDataSetCopierTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
-    @Test
-    public void testLocalCopyAndRetrieveFromDestination()
+    @Test(dependsOnMethods = "testLocalCopyToDestination")
+    public void testLocalRetrieveFromDestination()
     {
-        // copy to archive
-
+        /*
+         * copy to archive
+         */
         Properties properties = createLocalDestinationProperties();
         RsyncDataSetCopier dataSetCopier =
                 new RsyncDataSetCopier(properties, copierFactory, sshExecutorFactory);
@@ -254,7 +302,9 @@ public class RsyncDataSetCopierTest extends AbstractFileSystemTestCase
         assertEquals(Status.OK, status);
         assertDs1InArchive(copiedDataSet, copiedData);
 
-        // delete from store
+        /*
+         * delete from store
+         */
         try
         {
             FileUtils.deleteDirectory(ds1Location);
@@ -264,24 +314,33 @@ public class RsyncDataSetCopierTest extends AbstractFileSystemTestCase
         }
         assertEquals(false, ds1Data.exists());
 
-        // retrieve from archive
-
+        /*
+         * retrieve from archive - 1st time
+         */
         Status statusRetrieve = dataSetCopier.retrieveFromDestination(ds1Location, ds1);
         assertEquals(Status.OK, statusRetrieve);
         assertDs1InStore();
         assertDs1InArchive(copiedDataSet, copiedData);
+        assertDs2InStore(); // ds2 shouldn't be affected at all
 
-        // ds2 shouldn't be affected at all
-        assertDs2InStore();
+        /*
+         * retrieve from archive - 2nd time (possible e.g. after crash)
+         */
+        statusRetrieve = dataSetCopier.retrieveFromDestination(ds1Location, ds1);
+        assertEquals(Status.OK, statusRetrieve);
+        assertDs1InStore();
+        assertDs1InArchive(copiedDataSet, copiedData);
+        assertDs2InStore(); // ds2 shouldn't be affected at all
 
         context.assertIsSatisfied();
     }
 
-    @Test
-    public void testLocalCopyAndDeleteFromDestination()
+    @Test(dependsOnMethods = "testLocalCopyToDestination")
+    public void testLocalDeleteFromDestination()
     {
-        // copy to archive
-
+        /*
+         * copy to archive
+         */
         Properties properties = createLocalDestinationProperties();
         RsyncDataSetCopier dataSetCopier =
                 new RsyncDataSetCopier(properties, copierFactory, sshExecutorFactory);
@@ -298,14 +357,13 @@ public class RsyncDataSetCopierTest extends AbstractFileSystemTestCase
         assertEquals(Status.OK, status);
         assertDs1InArchive(copiedDataSet, copiedData);
 
-        // delete from archive
-
+        /*
+         * delete from archive
+         */
         Status statusDelete = dataSetCopier.deleteFromDestination(ds1);
         assertEquals(Status.OK, statusDelete);
         assertEquals(false, copiedDataSet.exists());
-
-        // we didn't delete it from store
-        assertDs1InStore();
+        assertDs1InStore(); // we didn't delete it from store
 
         context.assertIsSatisfied();
     }
