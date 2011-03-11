@@ -30,11 +30,11 @@ import java.util.Properties;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
-import ch.systemsx.cisd.openbis.dss.generic.server.IDataSetCommandExecutor;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IArchiverPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.QueueingDataSetStatusUpdaterService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetCodesWithStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -55,14 +55,10 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
 
     private final IStatusChecker unarchivePrerequisiteOrNull;
 
-    private final IDataSetCommandExecutor commandExecutor;
-
     public AbstractArchiverProcessingPlugin(Properties properties, File storeRoot,
-            IDataSetCommandExecutor commandExecutor,
             IStatusChecker archivePrerequisiteOrNull, IStatusChecker unarchivePrerequisiteOrNull)
     {
         super(properties, storeRoot);
-        this.commandExecutor = commandExecutor;
         this.archivePrerequisiteOrNull = archivePrerequisiteOrNull;
         this.unarchivePrerequisiteOrNull = unarchivePrerequisiteOrNull;
     }
@@ -153,7 +149,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
             ArchiverTaskContext context)
     {
         // the deletion will happen at a later point in time
-        commandExecutor.scheduleDeletionOfDataSets(datasets);
+        ServiceProvider.getDataSetDeleter().scheduleDeletionOfDataSets(datasets);
     }
 
     public ProcessingStatus unarchive(List<DatasetDescription> datasets,

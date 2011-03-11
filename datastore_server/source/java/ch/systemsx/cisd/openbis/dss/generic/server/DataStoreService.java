@@ -37,8 +37,8 @@ import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.common.spring.AbstractServiceWithLogger;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.common.utilities.IInitializable;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ArchiverPluginFactory;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IArchiverPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
@@ -352,7 +352,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     private IArchiverPlugin createArchiver()
     {
         ArchiverPluginFactory factory = pluginTaskParameters.getArchiverTaskFactory();
-        return factory.createInstance(storeRoot, commandExecutor);
+        return factory.createInstance(storeRoot);
     }
 
     private void scheduleTask(String sessionToken, String description,
@@ -422,6 +422,11 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
                 pluginTaskParameters.getReportingPluginsProvider();
         IReportingPluginTask task = reportingPlugins.getPluginInstance(serviceKey);
         return task.createLink(dataSet);
+    }
+
+    public IDataSetCommandExecutor getDataSetCommandExecutor()
+    {
+        return commandExecutor;
     }
 
     private IShareIdManager getShareIdManager()

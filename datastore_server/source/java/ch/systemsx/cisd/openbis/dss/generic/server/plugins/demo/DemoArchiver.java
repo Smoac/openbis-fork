@@ -25,7 +25,6 @@ import java.util.Set;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
-import ch.systemsx.cisd.openbis.dss.generic.server.IDataSetCommandExecutor;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractArchiverProcessingPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -39,10 +38,9 @@ public class DemoArchiver extends AbstractArchiverProcessingPlugin
 
     private final static Set<String/* data set code */> archiveContents = new HashSet<String>();
 
-    public DemoArchiver(Properties properties, File storeRoot,
-            IDataSetCommandExecutor commandExecutor)
+    public DemoArchiver(Properties properties, File storeRoot)
     {
-        super(properties, storeRoot, commandExecutor, null, null);
+        super(properties, storeRoot, null, null);
     }
 
     @Override

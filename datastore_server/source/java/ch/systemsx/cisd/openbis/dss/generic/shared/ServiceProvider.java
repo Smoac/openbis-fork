@@ -16,11 +16,17 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared;
 
+import org.apache.log4j.Logger;
+import org.springframework.aop.framework.Advised;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 
 import com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter;
+
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreService;
 
 /**
  * Provider of remote service onto openBIS.
@@ -29,6 +35,9 @@ import com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter;
  */
 public class ServiceProvider
 {
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            ServiceProvider.class);
+
     // applicationContex it lazily initialized
     private static BeanFactory applicationContext = null;
 
@@ -80,6 +89,20 @@ public class ServiceProvider
     public static DataSourceProvider getDataSourceProvider()
     {
         return ((DataSourceProvider) getApplicationContext().getBean("data-source-provider"));
+    }
+
+    public static IDataSetDeleter getDataSetDeleter()
+    {
+        Advised advised = (Advised) getApplicationContext().getBean("data-store-service");
+        try
+        {
+            DataStoreService dssService = (DataStoreService) advised.getTargetSource().getTarget();
+            return dssService.getDataSetCommandExecutor();
+        } catch (Exception ex)
+        {
+            operationLog.error("Cannot get IDataSetDeleter instance :" + ex.getMessage(), ex);
+            return null;
+        }
     }
 
     private ServiceProvider()

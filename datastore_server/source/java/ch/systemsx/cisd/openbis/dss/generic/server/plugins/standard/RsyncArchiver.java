@@ -24,7 +24,6 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
-import ch.systemsx.cisd.openbis.dss.generic.server.IDataSetCommandExecutor;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
@@ -50,19 +49,17 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
 
     private final ISshCommandExecutorFactory sshCommandExecutorFactory;
 
-    public RsyncArchiver(Properties properties, File storeRoot,
-            IDataSetCommandExecutor commandExecutor)
+    public RsyncArchiver(Properties properties, File storeRoot)
     {
-        this(properties, storeRoot, commandExecutor, new RsyncCopierFactory(),
-                new SshCommandExecutorFactory());
+        this(properties, storeRoot, new RsyncCopierFactory(), new SshCommandExecutorFactory());
     }
 
     @Private
-    RsyncArchiver(Properties properties, File storeRoot, IDataSetCommandExecutor commandExecutor,
+    RsyncArchiver(Properties properties, File storeRoot,
             IPathCopierFactory pathCopierFactory,
             ISshCommandExecutorFactory sshCommandExecutorFactory)
     {
-        super(properties, storeRoot, commandExecutor, null, null);
+        super(properties, storeRoot, null, null);
         this.pathCopierFactory = pathCopierFactory;
         this.sshCommandExecutorFactory = sshCommandExecutorFactory;
     }

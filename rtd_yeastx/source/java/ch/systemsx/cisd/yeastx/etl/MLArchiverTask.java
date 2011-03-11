@@ -26,7 +26,6 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.openbis.dss.generic.server.IDataSetCommandExecutor;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractArchiverProcessingPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.HighWaterMarkChecker;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.IStatusChecker;
@@ -59,10 +58,9 @@ public class MLArchiverTask extends AbstractArchiverProcessingPlugin
 
     private final String dataSourceName;
 
-    public MLArchiverTask(Properties properties, File storeRoot,
-            IDataSetCommandExecutor commandExecutor)
+    public MLArchiverTask(Properties properties, File storeRoot)
     {
-        super(properties, storeRoot, commandExecutor, null, tryCreateUnarchivingStatusChecker(
+        super(properties, storeRoot, null, tryCreateUnarchivingStatusChecker(
                 properties, storeRoot));
         dataSourceName = DataSourceProvider.extractDataSourceName(properties);
         // Check if given data source exists

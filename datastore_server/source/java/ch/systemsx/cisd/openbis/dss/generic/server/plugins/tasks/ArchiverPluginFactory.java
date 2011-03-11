@@ -28,7 +28,6 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
-import ch.systemsx.cisd.openbis.dss.generic.server.IDataSetCommandExecutor;
 
 /**
  * Factory of Archiver Tasks.
@@ -59,7 +58,7 @@ public class ArchiverPluginFactory
         return className != null;
     }
 
-    public IArchiverPlugin createInstance(File storeRoot, IDataSetCommandExecutor commandExecutor)
+    public IArchiverPlugin createInstance(File storeRoot)
     {
         if (isArchiverConfigured() == false)
         {
@@ -68,7 +67,7 @@ public class ArchiverPluginFactory
         try
         {
             return ClassUtils.create(IArchiverPlugin.class, className, archiverProperties,
-                    storeRoot, commandExecutor);
+                    storeRoot);
         } catch (ConfigurationFailureException ex)
         {
             throw ex; // rethrow the exception without changing the message
