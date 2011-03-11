@@ -149,7 +149,7 @@ public class RsyncDataSetCopier // TODO rename to DataSetFileOperationsManager
      * Deletes specified datases's data from the destination specified in constructor. The path at
      * the destination is defined by original location of the data set.
      */
-    public Status deleteFromDestination(File originalData, DatasetDescription dataset)
+    public Status deleteFromDestination(DatasetDescription dataset)
     {
         try
         {

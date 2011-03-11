@@ -107,8 +107,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
         DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
         for (DatasetDescription dataset : datasets)
         {
-            File originalData = getDatasetDirectory(context, dataset);
-            Status status = doDeleteFromArchive(dataset, originalData);
+            Status status = doDeleteFromArchive(dataset);
             statuses.addResult(dataset.getDatasetCode(), status, false); // false -> deletion
         }
 
@@ -143,9 +142,9 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
         return copier.retrieveFromDestination(originalData, dataset);
     }
 
-    private Status doDeleteFromArchive(DatasetDescription dataset, File originalData)
+    private Status doDeleteFromArchive(DatasetDescription dataset)
     {
-        return copier.deleteFromDestination(originalData, dataset);
+        return copier.deleteFromDestination(dataset);
     }
 
     private File getDatasetDirectory(ArchiverTaskContext context, DatasetDescription dataset)
