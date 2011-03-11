@@ -127,6 +127,10 @@ public class PropertyParametersUtil
      */
     public static String[] parseItemisedProperty(String itemsList, String itemsListPropertyName)
     {
+        if (itemsList.trim().length() == 0)
+        {
+            return new String[0];
+        }
         String[] names = itemsList.split(ITEMS_DELIMITER);
         names = trim(names);
         validateUniqueNonemptyNames(names, itemsListPropertyName);
