@@ -26,7 +26,6 @@ import com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreService;
 
 /**
  * Provider of remote service onto openBIS.
@@ -96,8 +95,9 @@ public class ServiceProvider
         Advised advised = (Advised) getApplicationContext().getBean("data-store-service");
         try
         {
-            DataStoreService dssService = (DataStoreService) advised.getTargetSource().getTarget();
-            return dssService.getDataSetCommandExecutor();
+            IDataSetDeleterProvider dssService =
+                    (IDataSetDeleterProvider) advised.getTargetSource().getTarget();
+            return dssService.getDataSetDeleter();
         } catch (Exception ex)
         {
             operationLog.error("Cannot get IDataSetDeleter instance :" + ex.getMessage(), ex);

@@ -47,6 +47,8 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProvi
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDeleter;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDeleterProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
@@ -65,7 +67,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.UuidUtil;
  * @author Franz-Josef Elmer
  */
 public class DataStoreService extends AbstractServiceWithLogger<IDataStoreService> implements
-        IDataStoreService, InitializingBean, IInitializable
+        IDataStoreService, IDataSetDeleterProvider, InitializingBean, IInitializable
 {
     private final SessionTokenManager sessionTokenManager;
 
@@ -424,7 +426,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         return task.createLink(dataSet);
     }
 
-    public IDataSetCommandExecutor getDataSetCommandExecutor()
+    public IDataSetDeleter getDataSetDeleter()
     {
         return commandExecutor;
     }
