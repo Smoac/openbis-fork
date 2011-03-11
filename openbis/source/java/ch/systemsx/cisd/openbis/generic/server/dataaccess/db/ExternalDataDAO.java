@@ -349,7 +349,7 @@ final class ExternalDataDAO extends AbstractGenericEntityWithPropertiesDAO<Exter
                     return session
                             .createQuery(
                                     "UPDATE VERSIONED " + TABLE_NAME
-                                            + " SET status = :status, isPresentInArchive = :presentInArchive"
+                                            + " SET status = :status, presentInArchive = :presentInArchive"
                                             + " WHERE code IN (:codes) ")
                             .setParameter("status", status)
                             .setParameter("presentInArchive", presentInArchive)
