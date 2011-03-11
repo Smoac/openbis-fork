@@ -23,6 +23,7 @@ import java.util.Properties;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
@@ -97,7 +98,6 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
         return statuses;
     }
 
-    // TODO do we really need the status?
     protected DatasetProcessingStatuses doDeleteFromArchive(List<DatasetDescription> datasets,
             ArchiverTaskContext context)
     {
@@ -115,11 +115,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
         return statuses;
     }
 
-    /**
-     * @return <code>true</code> if the dataset is present in the archive, <code>false</code>
-     *         otherwise.
-     */
-    protected boolean isDataSetPresentInArchive(DatasetDescription dataset,
+    protected BooleanStatus isDataSetPresentInArchive(DatasetDescription dataset,
             ArchiverTaskContext context)
     {
         initIfNecessary();

@@ -21,6 +21,7 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.ExceptionWithStatus;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
@@ -47,9 +48,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 public class RsyncDataSetCopier // TODO rename to DataSetFileOperationsManager
 {
 
-    private static final String DESTINATION_KEY = "destination";
+    @Private
+    static final String DESTINATION_KEY = "destination";
 
-    private static final String RSYNC_PASSWORD_FILE_KEY = "rsync-password-file";
+    @Private
+    static final String RSYNC_PASSWORD_FILE_KEY = "rsync-password-file";
 
     private static final String CHECK_EXISTENCE_FAILED = "couldn't check existence";
 
@@ -58,9 +61,11 @@ public class RsyncDataSetCopier // TODO rename to DataSetFileOperationsManager
     private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             RsyncDataSetCopier.class);
 
-    private static final String RSYNC_EXEC = "rsync";
+    @Private
+    static final String RSYNC_EXEC = "rsync";
 
-    private static final String SSH_EXEC = "ssh";
+    @Private
+    static final String SSH_EXEC = "ssh";
 
     private static final long SSH_TIMEOUT_MILLIS = 15 * 1000; // 15s
 
@@ -170,19 +175,11 @@ public class RsyncDataSetCopier // TODO rename to DataSetFileOperationsManager
      * Checks if specified dataset's data are present in the destination specified in constructor.
      * The path at the destination is defined by original location of the data set.
      */
-    public boolean isPresentInDestination(File originalData, DatasetDescription dataset)
+    public BooleanStatus isPresentInDestination(File originalData, DatasetDescription dataset)
     {
-        try
-        {
-            File destinationFolder = new File(destination, dataset.getDataSetLocation());
-            BooleanStatus destinationExists = destinationExists(destinationFolder);
-            // TODO check file sizes
-            return destinationExists.isSuccess();
-        } catch (ExceptionWithStatus ex)
-        {
-            // TODO?
-            return false; // ex.getStatus();
-        }
+        // TODO 2011-03-11, Piotr Buczek: check file sizes
+        File destinationFolder = new File(destination, dataset.getDataSetLocation());
+        return executor.exists(destinationFolder);
     }
 
     private void checkDestinationExists(File destinationFolder)
@@ -192,6 +189,15 @@ public class RsyncDataSetCopier // TODO rename to DataSetFileOperationsManager
         {
             operationLog.error("Destination folder '" + destinationFolder + "' doesn't exist");
             throw new ExceptionWithStatus(Status.createError(DESTINATION_DOES_NOT_EXIST));
+        }
+    }
+
+    private void deleteDestinationFolder(File destinationFolder)
+    {
+        BooleanStatus destinationExists = destinationExists(destinationFolder);
+        if (destinationExists.isSuccess())
+        {
+            executor.deleteFolder(destinationFolder);
         }
     }
 
@@ -205,15 +211,6 @@ public class RsyncDataSetCopier // TODO rename to DataSetFileOperationsManager
             throw new ExceptionWithStatus(Status.createError(CHECK_EXISTENCE_FAILED));
         }
         return destinationExists;
-    }
-
-    private void deleteDestinationFolder(File destinationFolder)
-    {
-        BooleanStatus destinationExists = destinationExists(destinationFolder);
-        if (destinationExists.isSuccess())
-        {
-            executor.deleteFolder(destinationFolder);
-        }
     }
 
 }
