@@ -10,9 +10,10 @@ source "$JETTY_BIN_DIR"/jetty.properties
 source "$JETTY_BIN_DIR"/openbis.conf
 cd "$JETTY_BIN_DIR"/..
 
-JVM=java
 if [ -n "$JAVA_HOME" ]; then
     JVM="$JAVA_HOME"/bin/java
+else
+    JVM="`which java`"
 fi 
 
 JETTY_LIB_PATH="$JETTY_BIN_DIR"/../webapps/openbis/WEB-INF/jython-lib
