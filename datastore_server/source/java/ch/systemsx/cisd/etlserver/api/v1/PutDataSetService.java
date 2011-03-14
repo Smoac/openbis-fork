@@ -277,6 +277,19 @@ public class PutDataSetService
         this.storeDirectory = storeDirectory;
     }
 
+    /**
+     * Return a new subdirectory of the incoming directory for saving files and preventing conflicts
+     * between threads.
+     * <p>
+     * Clients are responsible for deleting the temporary incoming directories.
+     */
+    public File createTemporaryIncomingDir()
+    {
+        String uniqueFolderName = openBisService.createDataSetCode();
+        File temporaryIncomingDir = new File(getIncomingDir(), uniqueFolderName);
+        temporaryIncomingDir.mkdir();
+        return temporaryIncomingDir;
+    }
 }
 
 /**

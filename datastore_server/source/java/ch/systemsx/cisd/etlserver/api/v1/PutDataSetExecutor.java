@@ -93,6 +93,8 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
 
     private final InputStream inputStream;
 
+    private final File temporaryIncomingDir;
+
     private final File dataSetDir;
 
     private final OverridingTypeExtractor overridingTypeExtractor;
@@ -112,7 +114,8 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
         this.newDataSet = newDataSet;
         this.inputStream = inputStream;
         this.copier = FastRecursiveHardLinkMaker.tryCreate();
-        this.dataSetDir = new File(service.getIncomingDir(), newDataSet.getDataSetFolderName());
+        this.temporaryIncomingDir = service.createTemporaryIncomingDir();
+        this.dataSetDir = new File(temporaryIncomingDir, newDataSet.getDataSetFolderName());
         if (dataSetDir.exists())
         {
             deleteDataSetDir();
@@ -323,7 +326,7 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
 
     private void deleteDataSetDir()
     {
-        deleteDir(dataSetDir);
+        deleteDir(temporaryIncomingDir);
     }
 
     private void deleteDir(File dirToDelete)
