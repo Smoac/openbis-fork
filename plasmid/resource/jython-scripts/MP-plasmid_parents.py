@@ -31,7 +31,7 @@ INPUT_PATTERN = """
 REL_TYPES = ('DEL', 'INT', 'MOD')
 """dictionary from relationship type shortcut to its 'character' representation"""
 REL_TYPE_CHARS = {
-    'DEL': '^', 
+    'DEL': '^', # TODO 2011-14-03, Piotr Buczek: use u'\u0394' for '∆', don't encode HTML
     'INT': '::', 
     'MOD': '_' 
 }
