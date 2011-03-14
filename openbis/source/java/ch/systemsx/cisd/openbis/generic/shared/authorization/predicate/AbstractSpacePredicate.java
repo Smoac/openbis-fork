@@ -69,8 +69,7 @@ public abstract class AbstractSpacePredicate<T> extends AbstractDatabaseInstance
 
     private Status createError(final PersonPE person, final String spaceCodeOrNull)
     {
-        return Status.createError(String.format(
-                "User '%s' does not have enough privileges or space %s does not exist.",
+        return Status.createError(String.format("User '%s' does not have enough privileges.",
                 person.getUserId(), spaceCodeOrNull));
     }
 
