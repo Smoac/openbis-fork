@@ -109,7 +109,7 @@ public class DataSetTypeTest extends AssertJUnit
     {
         String stringRepresentation = dataSetType.toString();
         assertEquals(
-                "DataSetType[dataSet-type,[PropertyType[PROP1,Property 1,<null>], PropertyType[PROP2,Property 2,Property 2 Description]]]",
+                "DataSetType[dataSet-type,[PropertyTypeGroup[<null>,[PropertyType[PROP1,Property 1,<null>], PropertyType[PROP2,Property 2,Property 2 Description]]]]]",
                 stringRepresentation);
     }
 }
