@@ -117,7 +117,7 @@ public class UploadStatusTableCellRenderer implements TableCellRenderer
             case STALLED:
                 panel = progressPanel;
                 progressBar.setValue(0);
-                progressLabel.setText("progress...");
+                progressLabel.setText("uploading...");
                 break;
             case COMPLETED_UPLOAD:
                 panel = completedPanel;

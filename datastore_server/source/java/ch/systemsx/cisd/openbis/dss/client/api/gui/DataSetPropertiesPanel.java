@@ -26,6 +26,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -110,6 +112,18 @@ public class DataSetPropertiesPanel extends JPanel
                     setPropertyValue(propertyType, textField.getText());
                 }
 
+            });
+        textField.addFocusListener(new FocusListener()
+            {
+                public void focusLost(FocusEvent e)
+                {
+                    setPropertyValue(propertyType, textField.getText());
+                }
+
+                public void focusGained(FocusEvent e)
+                {
+                    // Do nothing
+                }
             });
         addFormField(col, row, label, textField);
         formFields.put(propertyType.getCode(), textField);

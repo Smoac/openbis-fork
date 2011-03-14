@@ -20,10 +20,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
+import ch.systemsx.cisd.base.namedthread.NamingThreadPoolExecutor;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.TransmissionSpeedCalculator;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
+import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClientModel.NewDataSetInfo.Status;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
@@ -38,6 +43,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyTypeGroup;
  */
 public class DataSetUploadClientModel
 {
+    private static ExecutorService executor = new NamingThreadPoolExecutor("Data Set Upload", 1, 1,
+            0, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>()).daemonize();
 
     private final IDssComponent dssComponent;
 
@@ -175,6 +182,12 @@ public class DataSetUploadClientModel
         {
             return status;
         }
+
+        public boolean canBeQueued()
+        {
+            return status != Status.UPLOADING && status != Status.STALLED
+                    && status != Status.COMPLETED_UPLOAD;
+        }
     }
 
     /**
@@ -191,9 +204,22 @@ public class DataSetUploadClientModel
     public NewDataSetInfo addNewDataSetInfo()
     {
         NewDataSetDTOBuilder newDataSetBuilder = new NewDataSetDTOBuilder();
+        String defaultDataSetTypeCode = getDefaultDataSetTypeCode();
+        newDataSetBuilder.getDataSetMetadata().setDataSetTypeOrNull(defaultDataSetTypeCode);
         NewDataSetInfo newDataSetInfo = new NewDataSetInfo(newDataSetBuilder, timeProvider);
         newDataSetInfos.add(newDataSetInfo);
         return newDataSetInfo;
+    }
+
+    private String getDefaultDataSetTypeCode()
+    {
+        if (dataSetTypes.size() > 0)
+        {
+            return getDataSetTypes().get(0).getCode();
+        } else
+        {
+            return null;
+        }
     }
 
     /**
@@ -283,6 +309,30 @@ public class DataSetUploadClientModel
         }
 
         return newDataSetDTO;
+    }
+
+    /**
+     * Start a data set upload in a separate thread. Callers need to ensure that queuing makes
+     * sense.
+     */
+    public void queueUploadOfDataSet(NewDataSetInfo newDataSetInfo)
+    {
+        if (false == newDataSetInfo.canBeQueued())
+        {
+            return;
+        }
+        newDataSetInfo.setStatus(Status.QUEUED_FOR_UPLOAD);
+        DataSetUploadOperation op = new DataSetUploadOperation(tableModel, this, newDataSetInfo);
+        executor.submit(op);
+    }
+
+    public void queueUploadOfDataSet(List<NewDataSetInfo> newDataSetInfosToQueue)
+    {
+        for (NewDataSetInfo newDataSetInfo : newDataSetInfosToQueue)
+        {
+            queueUploadOfDataSet(newDataSetInfo);
+        }
+
     }
 
     private DataSetType tryDataSetType(String dataSetTypeCode)

@@ -110,6 +110,10 @@ public class NewDataSetDTOBuilder
         try
         {
             ArrayList<FileInfoDssDTO> fileInfos = new ArrayList<FileInfoDssDTO>();
+            if (null == file)
+            {
+                return fileInfos;
+            }
             if (false == file.exists())
             {
                 return fileInfos;

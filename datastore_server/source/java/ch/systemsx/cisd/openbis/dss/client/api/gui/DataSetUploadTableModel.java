@@ -22,9 +22,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 import javax.swing.JFrame;
 import javax.swing.JTable;
@@ -33,9 +30,7 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
-import ch.systemsx.cisd.base.namedthread.NamingThreadPoolExecutor;
 import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClientModel.NewDataSetInfo;
-import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClientModel.NewDataSetInfo.Status;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwner;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTOBuilder;
 
@@ -61,9 +56,6 @@ public class DataSetUploadTableModel extends AbstractTableModel
     static final int DATA_SET_PATH_COLUMN = 3;
 
     static final int UPLOAD_STATUS_COLUMN = 4;
-
-    private static ExecutorService executor = new NamingThreadPoolExecutor("Data Set Upload", 1, 1,
-            0, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>()).daemonize();
 
     private final JFrame mainWindow;
 
@@ -301,9 +293,7 @@ public class DataSetUploadTableModel extends AbstractTableModel
 
         // Only start uploading if the file hasn't been upload yet
         NewDataSetInfo.Status status = newDataSetInfo.getStatus();
-        if ((status != NewDataSetInfo.Status.TO_UPLOAD)
-                && (status != NewDataSetInfo.Status.COMPLETED_UPLOAD)
-                && (status != NewDataSetInfo.Status.FAILED))
+        if ((status != NewDataSetInfo.Status.TO_UPLOAD) && (status != NewDataSetInfo.Status.FAILED))
         {
             return;
         }
@@ -353,12 +343,30 @@ public class DataSetUploadTableModel extends AbstractTableModel
     {
         NewDataSetInfo newlyCreated = clientModel.addNewDataSetInfo();
         syncNewDataSetInfos();
+        ArrayList<Integer> selectedIndices = new ArrayList<Integer>();
+        selectedIndices.add(clientModel.getNewDataSetInfos().size() - 1);
+        setSelectedIndices(selectedIndices);
         selectNewDataSetInfo(newlyCreated);
     }
 
     public void removeSelectedDataSet()
     {
-        assert false : "Not yet implemented";
+        if (selectedRow < 0)
+        {
+            return;
+        }
+        if (selectedRow >= newDataSetInfos.size())
+        {
+            return;
+        }
+        NewDataSetInfo dataSetInfoToRemove = newDataSetInfos.get(selectedRow);
+
+        int newSelectedRow = Math.max(0, selectedRow - 1);
+        ArrayList<Integer> selectedIndices = new ArrayList<Integer>();
+        selectedIndices.add(newSelectedRow);
+        setSelectedIndices(selectedIndices);
+        clientModel.removeNewDataSetInfo(dataSetInfoToRemove);
+        syncNewDataSetInfos();
     }
 
     /**
@@ -390,9 +398,7 @@ public class DataSetUploadTableModel extends AbstractTableModel
      */
     private void queueUploadOfDataSet(NewDataSetInfo newDataSetInfo)
     {
-        newDataSetInfo.setStatus(Status.QUEUED_FOR_UPLOAD);
-        DataSetUploadOperation op = new DataSetUploadOperation(this, clientModel, newDataSetInfo);
-        executor.submit(op);
+        clientModel.queueUploadOfDataSet(newDataSetInfo);
     }
 
     public NewDataSetInfo getSelectedNewDataSet()

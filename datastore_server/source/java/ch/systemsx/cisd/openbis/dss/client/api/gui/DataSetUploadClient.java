@@ -46,7 +46,6 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 
 /**
@@ -82,7 +81,7 @@ public class DataSetUploadClient extends AbstractSwingGUI
             throws ch.systemsx.cisd.cifex.shared.basic.UserFailureException,
             EnvironmentFailureException
     {
-        setLookAndFeelToMetal();
+        setLookAndFeelToNative();
 
         try
         {
@@ -205,7 +204,7 @@ public class DataSetUploadClient extends AbstractSwingGUI
             {
                 public void actionPerformed(ActionEvent e)
                 {
-                    throw new NotImplementedException();
+                    clientModel.queueUploadOfDataSet(clientModel.getNewDataSetInfos());
                 }
             });
 
