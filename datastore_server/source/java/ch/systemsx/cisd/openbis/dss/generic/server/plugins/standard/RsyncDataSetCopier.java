@@ -48,18 +48,20 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 public class RsyncDataSetCopier // TODO rename to DataSetFileOperationsManager
 {
 
+    private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            RsyncDataSetCopier.class);
+
     @Private
     static final String DESTINATION_KEY = "destination";
 
     @Private
     static final String RSYNC_PASSWORD_FILE_KEY = "rsync-password-file";
 
-    private static final String CHECK_EXISTENCE_FAILED = "couldn't check existence";
+    @Private
+    static final String CHECK_EXISTENCE_FAILED = "couldn't check existence";
 
-    private static final String DESTINATION_DOES_NOT_EXIST = "destination doesn't exist";
-
-    private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            RsyncDataSetCopier.class);
+    @Private
+    static final String DESTINATION_DOES_NOT_EXIST = "destination doesn't exist";
 
     @Private
     static final String RSYNC_EXEC = "rsync";
@@ -67,7 +69,8 @@ public class RsyncDataSetCopier // TODO rename to DataSetFileOperationsManager
     @Private
     static final String SSH_EXEC = "ssh";
 
-    private static final long SSH_TIMEOUT_MILLIS = 15 * 1000; // 15s
+    @Private
+    static final long SSH_TIMEOUT_MILLIS = 15 * 1000; // 15s
 
     private final IDataSetFileOperationsExecutor executor;
 
