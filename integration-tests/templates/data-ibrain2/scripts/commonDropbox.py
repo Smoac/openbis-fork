@@ -10,6 +10,12 @@ class AbstractPropertiesParser:
 		path = os.path.join(incoming, fileName)
 		self._propertiesDict = self._parseMetadata(path)
 	
+	def _findFile(self, incoming, prefix):
+		for file in os.listdir(incoming):
+			if file.startswith(prefix):
+				return file
+		raise Exception("No file with prefix '"+prefix+"' has been found!")
+
 	# Parses the metadata file from the given incoming directory.
 	# Each line should have a form:
 	#   key = value
@@ -85,11 +91,30 @@ class AcquiredDatasetMetadataParser(AbstractMetadataParser):
 		return self.get(self.PLATE_CODE_PRPOPERTY)
 
 class DerivedDatasetMetadataParser(AbstractMetadataParser):
+	WORKFLOW_FILE_PREFIX = "workflow_"
 	PARENT_DATSASET_PERMID_PRPOPERTY = "storage_provider.parent.dataset.id"
 	DATASET_TYPE_PROPERTY = "dataset.type"
+	WORKFLOW_NAME_PROPERTY = "ibrain2.workflow.name"
+	WORKFLOW_AUTHOR_PROPERTY = "ibrain2.workflow.author"
 		
+	_workflowName = None
+	_workflowAuthor = None
+	
+	def __init__(self, incoming):
+		AbstractMetadataParser.__init__(self, incoming)
+		workflowFile = self._findFile(incoming, self.WORKFLOW_FILE_PREFIX)
+		basename = os.path.splitext(workflowFile)[0]
+		tokens = basename.split("_")
+		if len(tokens) < 3:
+			raise Exception("Cannot parse workflow name and author from: "+workflowFile)
+		self._workflowName = tokens[1]
+		self._workflowAuthor = tokens[2]
+
 	def getDatasetPropertiesIter(self):
-		return AbstractMetadataParser.getDatasetPropertiesIter(self)
+		properties = AbstractMetadataParser.getDatasetPropertiesIter(self)
+		properties.append((self.WORKFLOW_NAME_PROPERTY, self._workflowName))
+		properties.append((self.WORKFLOW_AUTHOR_PROPERTY, self._workflowAuthor))
+		return properties
 		
 	def getParentDatasetPermId(self):
 		return self.get(self.PARENT_DATSASET_PERMID_PRPOPERTY)
@@ -108,22 +133,16 @@ class AssayParser(AbstractPropertiesParser):
 	WORKFLOW_NAME_PROPERTY = "workflow.name"
 	WORKFLOW_AUTHOR_PROPERTY = "workflow.author"
 
-	def _findAssayFile(self, incoming):
-		for file in os.listdir(incoming):
-			if file.startswith(self.ASSAY_FILE_PREFIX):
-				return file
-		raise Exception("Assay file not found!")
-		
 	def __init__(self, incoming):
-		AbstractPropertiesParser.__init__(self, incoming, self._findAssayFile(incoming))
+		AbstractPropertiesParser.__init__(self, incoming, self._findFile(incoming, self.ASSAY_FILE_PREFIX))
 
 class RegistrationConfirmationUtils:
 	""" path to the registration confirmation directory relative to the incoming dataset """
 	CONFIRMATION_DIRECTORY = "registration-status"
 	
 	STATUS_PROPERTY = "storage_provider.storage.status"
-	OK = "STORAGE_SUCCESS"
-	ERROR = "STORAGE_FAILED"
+	STATUS_OK = "STORAGE_SUCCESS"
+	STATUS_ERROR = "STORAGE_FAILED"
 	ERROR_MSG_PROPERTY = "storage_provider.message"
 
 	OPENBIS_DATASET_ID_PROPERTY = "storage_provider.dataset.id"
@@ -140,7 +159,7 @@ class RegistrationConfirmationUtils:
 		return self._getDestinationDir(incoming) + "/" + self._getConfirmationFileName(ibrain2DatasetId)
 
 	def _prop(self, name, value):
-		return name + " = " + value + "\n"
+		return "" + name + " = " + value + "\n"
 	
 	def _writeConfirmationFile(self, ibrain2DatasetId, fileContent, incoming):
 		confirmationFile = self._getStatusFilePath(ibrain2DatasetId, incoming)
@@ -152,25 +171,39 @@ class RegistrationConfirmationUtils:
 		file.close()
 
 	def createSuccessStatus(self, ibrain2DatasetId, openbisDatasetId, incoming):
-		fileContent  = self._prop(self.STATUS_PROPERTY, self.OK)
+		fileContent  = self._prop(self.STATUS_PROPERTY, self.STATUS_OK)
 		fileContent += self._prop(AbstractMetadataParser.IBRAIN2_DATASET_ID_PROPERTY, ibrain2DatasetId)
 		fileContent += self._prop(self.OPENBIS_DATASET_ID_PROPERTY, openbisDatasetId)
 		self._writeConfirmationFile(ibrain2DatasetId, fileContent, incoming)
 			
 	def createFailureStatus(self, ibrain2DatasetId, errorMessage, incoming):
-		fileContent  = self._prop(self.STATUS_PROPERTY, self.ERROR)
+		fileContent  = self._prop(self.STATUS_PROPERTY, self.STATUS_ERROR)
 		fileContent += self._prop(AbstractMetadataParser.IBRAIN2_DATASET_ID_PROPERTY, ibrain2DatasetId)
 		fileContent += self._prop(self.ERROR_MSG_PROPERTY, errorMessage)
 		self._writeConfirmationFile(ibrain2DatasetId, fileContent, incoming)
 
 # --------------
 
+def setPropertiesAndRegister(imageDataset, iBrain2DatasetId, metadataParser, incoming, service, factory):
+    imageRegistrationDetails = factory.createImageRegistrationDetails(imageDataset, incoming)
+    for propertyCode, value in metadataParser.getDatasetPropertiesIter():
+        imageRegistrationDetails.setPropertyValue(propertyCode, value)
+
+    tr = service.transaction(incoming, factory)
+    dataset = tr.createNewDataSet(imageRegistrationDetails)
+    dataset.setParentDatasets([metadataParser.getParentDatasetPermId()])
+    imageDataSetFolder = tr.moveFile(incoming.getPath(), dataset)
+    ok = tr.commit()
+    if ok:
+		print "success", iBrain2DatasetId
+		createSuccessStatus(iBrain2DatasetId, dataset, incoming.getPath())
+    
 """
 Returns:
    (plateSpace, plateCode) tuple for the plate connected with the specified dataset
-   or (error-message, None) if the dataset does not exist or is not connected to the plate.
+   or (None, None) if the dataset does not exist or is not connected to the plate.
 """
-def tryGetConnectedPlate(state, openbisDatasetId):
+def tryGetConnectedPlate(state, openbisDatasetId, iBrain2DatasetId, incomingPath):
 	openbis = state.getOpenBisService()		
 	dataset = openbis.tryGetDataSet(openbisDatasetId)
 	if dataset != None:
@@ -178,10 +211,11 @@ def tryGetConnectedPlate(state, openbisDatasetId):
 		if plate != None:
 			return (plate.getSpace().getCode(), plate.getCode())
 		else:
-			return ("No plate is connected to the dataset: "+openbisDatasetId+".", None)
+			errorMsg = "No plate is connected to the dataset: "+openbisDatasetId+"."
 	else:
-		return ("Dataset does not exist or is not accessible: "+openbisDatasetId+". "+
-			    "Maybe the dataset has not been registered yet. Try again later.", None)
+		errorMsg = "Dataset does not exist or is not accessible: "+openbisDatasetId+". Maybe the dataset has not been registered yet. Try again later."
+	RegistrationConfirmationUtils().createFailureStatus(iBrain2DatasetId, errorMsg, incomingPath)
+	return (None, None)
 
 def createSuccessStatus(iBrain2DatasetId, dataset, incomingPath):
 	datasetCode = dataset.getDataSetCode()
