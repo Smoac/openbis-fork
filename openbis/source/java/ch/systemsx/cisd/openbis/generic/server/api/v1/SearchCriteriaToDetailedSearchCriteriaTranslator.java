@@ -32,11 +32,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 
 /**
  * Converts {@link SearchCriteria} objects to {@link DetailedSearchCriteria} objects.
@@ -72,14 +72,14 @@ class SearchCriteriaToDetailedSearchCriteriaTranslator
                 attribute, entityKind));
     }
 
-    private static SearchableEntity translateEntityKind(SearchableEntityKind entityKind)
+    private static EntityKind translateEntityKind(SearchableEntityKind entityKind)
     {
         switch (entityKind)
         {
             case SAMPLE:
-                return SearchableEntity.SAMPLE;
+                return EntityKind.SAMPLE;
             case EXPERIMENT:
-                return SearchableEntity.EXPERIMENT;
+                return EntityKind.EXPERIMENT;
         }
         return null; // can't happen
     }

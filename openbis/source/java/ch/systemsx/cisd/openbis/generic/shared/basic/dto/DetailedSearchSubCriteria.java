@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 
 /**
  * Describes detailed search sub criteria for specified associated entity kind.
@@ -30,10 +29,9 @@ public class DetailedSearchSubCriteria implements ISerializable
 
     private DetailedSearchCriteria criteria;
 
-    private SearchableEntity targetEntityKind;
+    private EntityKind targetEntityKind;
 
-    public DetailedSearchSubCriteria(SearchableEntity targetEntityKind,
-            DetailedSearchCriteria criteria)
+    public DetailedSearchSubCriteria(EntityKind targetEntityKind, DetailedSearchCriteria criteria)
     {
         this.targetEntityKind = targetEntityKind;
         this.criteria = criteria;
@@ -44,7 +42,7 @@ public class DetailedSearchSubCriteria implements ISerializable
         return criteria;
     }
 
-    public SearchableEntity getTargetEntityKind()
+    public EntityKind getTargetEntityKind()
     {
         return targetEntityKind;
     }

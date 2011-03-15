@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import java.util.Collection;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 
 /**
  * Describes detailed search assiciation criteria for with specified entity kind.
@@ -30,11 +29,11 @@ public class DetailedSearchAssociationCriteria implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private SearchableEntity entityKind;
+    private EntityKind entityKind;
 
     private Collection<Long> ids;
 
-    public DetailedSearchAssociationCriteria(SearchableEntity entityKind, Collection<Long> ids)
+    public DetailedSearchAssociationCriteria(EntityKind entityKind, Collection<Long> ids)
     {
         this.entityKind = entityKind;
         this.ids = ids;
@@ -45,7 +44,7 @@ public class DetailedSearchAssociationCriteria implements ISerializable
         return ids;
     }
 
-    public SearchableEntity getEntityKind()
+    public EntityKind getEntityKind()
     {
         return entityKind;
     }

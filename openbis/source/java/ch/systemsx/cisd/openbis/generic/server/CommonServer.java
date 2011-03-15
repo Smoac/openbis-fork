@@ -528,20 +528,13 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final IHibernateSearchDAO searchDAO = getDAOFactory().getHibernateSearchDAO();
         // for now we don't support sub criteria of sub criteria
         List<DetailedSearchAssociationCriteria> associations = Collections.emptyList();
-
         final Collection<Long> associatedIds =
                 searchDAO.searchForEntityIds(subCriteria.getCriteria(),
-                        convertToEntityKind(subCriteria.getTargetEntityKind()), associations);
+                        DtoConverters.convertEntityKind(subCriteria.getTargetEntityKind()),
+                        associations);
 
         return new DetailedSearchAssociationCriteria(subCriteria.getTargetEntityKind(),
                 associatedIds);
-    }
-
-    private static final ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind convertToEntityKind(
-            final SearchableEntity searchableEntity)
-    {
-        return ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind
-                .valueOf(searchableEntity.name());
     }
 
     public final List<ExternalData> listSampleExternalData(final String sessionToken,
