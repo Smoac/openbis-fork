@@ -34,6 +34,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridC
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.SPACE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.SUBCODE;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -43,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayC
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -50,17 +52,18 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
 {
     private static final String PROPERTIES_GROUP = "property-";
+
     private static final int MAX_PARENTS = 4;
+
     private final ListSampleDisplayCriteria2 criteria;
 
-    public SampleProvider(ICommonServer commonServer, String sessionToken, ListSampleDisplayCriteria2 criteria)
+    public SampleProvider(ICommonServer commonServer, String sessionToken,
+            ListSampleDisplayCriteria2 criteria)
     {
         super(commonServer, sessionToken);
         this.criteria = criteria;
@@ -95,11 +98,14 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
             builder.column(CODE).addString(sample.getCode());
             builder.column(SUBCODE).addString(sample.getSubCode());
             builder.column(DATABASE_INSTANCE).addString(getDatabaseInstance(sample).getCode());
-            builder.column(SPACE).addString(sample.getSpace() == null ? "" : sample.getSpace().getCode());
+            builder.column(SPACE).addString(
+                    sample.getSpace() == null ? "" : sample.getSpace().getCode());
             builder.column(SAMPLE_IDENTIFIER).addString(sample.getIdentifier());
             builder.column(SAMPLE_TYPE).addString(sample.getSampleType().getCode());
-            builder.column(IS_INSTANCE_SAMPLE).addString(SimpleYesNoRenderer.render(sample.getDatabaseInstance() != null));
-            builder.column(IS_INVALID).addString(SimpleYesNoRenderer.render(sample.getInvalidation() != null));
+            builder.column(IS_INSTANCE_SAMPLE).addString(
+                    SimpleYesNoRenderer.render(sample.getDatabaseInstance() != null));
+            builder.column(IS_INVALID).addString(
+                    SimpleYesNoRenderer.render(sample.getInvalidation() != null));
             builder.column(REGISTRATOR).addPerson(sample.getRegistrator());
             builder.column(REGISTRATION_DATE).addDate(sample.getRegistrationDate());
             builder.column(EXPERIMENT).addString(getExperimentCode(sample));
@@ -122,13 +128,15 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
     protected TableMap<String, SampleType> getSampleTypes()
     {
         List<SampleType> sampleTypes = commonServer.listSampleTypes(sessionToken);
-        TableMap<String, SampleType> sampleTypMap = new TableMap<String, SampleType>(sampleTypes, new IKeyExtractor<String, SampleType>()
-            {
-                public String getKey(SampleType e)
-                {
-                    return e.getCode();
-                }
-            });
+        TableMap<String, SampleType> sampleTypMap =
+                new TableMap<String, SampleType>(sampleTypes,
+                        new IKeyExtractor<String, SampleType>()
+                            {
+                                public String getKey(SampleType e)
+                                {
+                                    return e.getCode();
+                                }
+                            });
         return sampleTypMap;
     }
 
@@ -160,7 +168,7 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
         Sample container = sample.getContainer();
         return container == null ? "" : container.getIdentifier();
     }
-    
+
     private String getProjectCode(Sample sample)
     {
         Experiment experiment = sample.getExperiment();
@@ -172,13 +180,13 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
         Experiment experiment = sample.getExperiment();
         return experiment == null ? "" : experiment.getCode();
     }
-    
+
     private String getExperimentIdentifier(Sample sample)
     {
         Experiment experiment = sample.getExperiment();
         return experiment == null ? "" : experiment.getIdentifier();
     }
-    
+
     private DatabaseInstance getDatabaseInstance(Sample sample)
     {
         DatabaseInstance databaseInstance = sample.getDatabaseInstance();
@@ -196,7 +204,8 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
             case BROWSE:
                 return commonServer.listSamples(sessionToken, criteria.getBrowseCriteria());
             case SEARCH:
-                return commonServer.searchForSamples(sessionToken, criteria.getSearchCriteria());
+                return commonServer.searchForSamples(sessionToken, criteria.getSearchCriteria(),
+                        Collections.<DetailedSearchSubCriteria> emptyList());
         }
         return null; // not possible
     }

@@ -20,8 +20,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
-
 /**
  * Describes one dataset which should be processed by the plugin task.
  * 
@@ -29,20 +27,20 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  */
 public class DatasetDescription implements Serializable
 {
-    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+    private static final long serialVersionUID = 20L;
 
     private String datasetTypeCode;
-    
+
     private String datasetCode;
 
     private String dataSetLocation;
-    
+
     private Long dataSetSize;
 
     private String sampleCode;
-    
+
     private String sampleIdentifier;
-    
+
     private String sampleTypeCode;
 
     private String spaceCode;
@@ -52,9 +50,9 @@ public class DatasetDescription implements Serializable
     private String instanceCode;
 
     private String experimentCode;
-    
+
     private String experimentIdentifier;
-    
+
     private String experimentTypeCode;
 
     private String mainDataSetPattern;
@@ -103,7 +101,7 @@ public class DatasetDescription implements Serializable
     {
         this.dataSetLocation = dataSetLocation;
     }
-    
+
     public String getInstanceCode()
     {
         return instanceCode;
@@ -118,7 +116,7 @@ public class DatasetDescription implements Serializable
     {
         this.datasetCode = datasetCode;
     }
-    
+
     /**
      * NOTE: may be NULL
      */
@@ -131,7 +129,7 @@ public class DatasetDescription implements Serializable
     {
         this.mainDataSetPattern = mainDataSetPattern;
     }
-    
+
     /**
      * NOTE: may be NULL
      */
@@ -144,7 +142,7 @@ public class DatasetDescription implements Serializable
     {
         this.mainDataSetPath = mainDataSetPath;
     }
-    
+
     /**
      * NOTE: may be NULL
      */
@@ -157,7 +155,7 @@ public class DatasetDescription implements Serializable
     {
         this.sampleCode = sampleCode;
     }
-    
+
     public void setSampleIdentifier(String sampleIdentifier)
     {
         this.sampleIdentifier = sampleIdentifier;
@@ -187,7 +185,7 @@ public class DatasetDescription implements Serializable
     {
         this.spaceCode = groupCode;
     }
-    
+
     public String getProjectCode()
     {
         return projectCode;
@@ -197,7 +195,7 @@ public class DatasetDescription implements Serializable
     {
         this.projectCode = projectCode;
     }
-    
+
     public String getDatabaseInstanceCode()
     {
         return instanceCode;
@@ -207,7 +205,7 @@ public class DatasetDescription implements Serializable
     {
         this.instanceCode = instanceCode;
     }
-    
+
     public String getExperimentCode()
     {
         return experimentCode;
@@ -217,7 +215,7 @@ public class DatasetDescription implements Serializable
     {
         this.experimentCode = experimentCode;
     }
-    
+
     public void setExperimentIdentifier(String experimentIdentifier)
     {
         this.experimentIdentifier = experimentIdentifier;
@@ -243,7 +241,5 @@ public class DatasetDescription implements Serializable
     {
         return String.format("Dataset '%s'", datasetCode);
     }
-    
+
 }
-
-

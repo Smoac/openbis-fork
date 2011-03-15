@@ -17,12 +17,13 @@
 package ch.systemsx.cisd.openbis.generic.server.api.v1;
 
 import org.testng.AssertJUnit;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.SearchOperator;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchableEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 
 /**
@@ -30,38 +31,109 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
  */
 public class SearchCriteriaToDetailedSearchCriteriaTranslatorTest extends AssertJUnit
 {
-    private SearchCriteria searchCriteria;
-
-    private SearchCriteriaToDetailedSearchCriteriaTranslator translator;
-
-    @BeforeMethod
-    public void setUp()
-    {
-        searchCriteria = createSearchCriteria();
-        translator =
-                new SearchCriteriaToDetailedSearchCriteriaTranslator(
-                        searchCriteria,
-                        new SearchCriteriaToDetailedSearchCriteriaTranslator.SampleAttributeTranslator());
-    }
-
     @Test
-    public void testTranslator()
+    public void testBasicMatchAllCriteriaTranslator()
     {
+        SearchCriteria criteria = createBasicSearchCriteria();
+        SearchCriteriaToDetailedSearchCriteriaTranslator translator =
+                new SearchCriteriaToDetailedSearchCriteriaTranslator(criteria,
+                        SearchableEntityKind.SAMPLE);
+
         DetailedSearchCriteria detailedSearchCriteria =
                 translator.convertToDetailedSearchCriteria();
         assertNotNull(detailedSearchCriteria);
 
         // It is easier to test equality by string comparison
-        assertEquals(
-                "ATTRIBUTE CODE: a code MATCH_ALL PROPERTY MY_PROPERTY2: a property value (with wildcards)",
-                detailedSearchCriteria.toString());
+        assertEquals("ATTRIBUTE CODE: a code AND " + "PROPERTY MY_PROPERTY: a property value "
+                + "(with wildcards)", detailedSearchCriteria.toString());
     }
 
-    private SearchCriteria createSearchCriteria()
+    @Test
+    public void testBasicMatchAnyCriteriaTranslator()
+    {
+        SearchCriteria criteria = createBasicSearchCriteria();
+        criteria.setOperator(SearchOperator.MATCH_ANY_CLAUSES);
+        SearchCriteriaToDetailedSearchCriteriaTranslator translator =
+                new SearchCriteriaToDetailedSearchCriteriaTranslator(criteria,
+                        SearchableEntityKind.SAMPLE);
+
+        DetailedSearchCriteria detailedSearchCriteria =
+                translator.convertToDetailedSearchCriteria();
+        assertNotNull(detailedSearchCriteria);
+
+        assertEquals("ATTRIBUTE CODE: a code OR " + "PROPERTY MY_PROPERTY: a property value "
+                + "(with wildcards)", detailedSearchCriteria.toString());
+    }
+
+    @Test
+    public void testFullSampleMatchAllCriteriaTranslator()
+    {
+        SearchCriteria criteria = createBasicSearchCriteria();
+        criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE,
+                "a type"));
+        criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.SPACE,
+                "a space"));
+        SearchCriteriaToDetailedSearchCriteriaTranslator translator =
+                new SearchCriteriaToDetailedSearchCriteriaTranslator(criteria,
+                        SearchableEntityKind.SAMPLE);
+
+        DetailedSearchCriteria detailedSearchCriteria =
+                translator.convertToDetailedSearchCriteria();
+        assertNotNull(detailedSearchCriteria);
+
+        assertEquals("ATTRIBUTE CODE: a code AND " + "PROPERTY MY_PROPERTY: a property value AND "
+                + "ATTRIBUTE SAMPLE_TYPE: a type AND " + "ATTRIBUTE SPACE: a space "
+                + "(with wildcards)", detailedSearchCriteria.toString());
+    }
+
+    @Test
+    public void testFullExperimentMatchAllCriteriaTranslator()
+    {
+        SearchCriteria criteria = createBasicSearchCriteria();
+        criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE,
+                "a type"));
+        criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.SPACE,
+                "a space"));
+        criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.PROJECT,
+                "a project"));
+        SearchCriteriaToDetailedSearchCriteriaTranslator translator =
+                new SearchCriteriaToDetailedSearchCriteriaTranslator(criteria,
+                        SearchableEntityKind.EXPERIMENT);
+
+        DetailedSearchCriteria detailedSearchCriteria =
+                translator.convertToDetailedSearchCriteria();
+        assertNotNull(detailedSearchCriteria);
+
+        assertEquals("ATTRIBUTE CODE: a code AND " + "PROPERTY MY_PROPERTY: a property value AND "
+                + "ATTRIBUTE EXPERIMENT_TYPE: a type AND "
+                + "ATTRIBUTE PROJECT_SPACE: a space AND " + "ATTRIBUTE PROJECT: a project "
+                + "(with wildcards)", detailedSearchCriteria.toString());
+    }
+
+    @Test
+    public void testSampleCriteriaTranslatorFailsWithUnsupportedAttribute()
+    {
+        SearchCriteria criteria = createBasicSearchCriteria();
+        criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.PROJECT,
+                "a project"));
+        SearchCriteriaToDetailedSearchCriteriaTranslator translator =
+                new SearchCriteriaToDetailedSearchCriteriaTranslator(criteria,
+                        SearchableEntityKind.SAMPLE);
+        try
+        {
+            translator.convertToDetailedSearchCriteria();
+            fail("Expected UnsupportedOperationException");
+        } catch (UnsupportedOperationException ex)
+        {
+            assertEquals("PROJECT is not a valid search attribute for SAMPLE", ex.getMessage());
+        }
+    }
+
+    private SearchCriteria createBasicSearchCriteria()
     {
         SearchCriteria sc = new SearchCriteria();
         sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "a code"));
-        sc.addMatchClause(MatchClause.createPropertyMatch("MY_PROPERTY2", "a property value"));
+        sc.addMatchClause(MatchClause.createPropertyMatch("MY_PROPERTY", "a property value"));
         return sc;
     }
 

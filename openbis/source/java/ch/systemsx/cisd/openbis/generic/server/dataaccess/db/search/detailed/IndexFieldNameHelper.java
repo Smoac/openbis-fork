@@ -18,11 +18,13 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.detailed;
 
 import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants.CODE;
 
+import ch.systemsx.cisd.common.exceptions.InternalErr;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeSearchFieldKind;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 
 /**
@@ -32,6 +34,39 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstant
  */
 class IndexFieldNameHelper
 {
+    // associations
+
+    static String getAssociationIndexField(EntityKind entityKind, SearchableEntity associationKind)
+    {
+        switch (associationKind)
+        {
+            case EXPERIMENT:
+                if (entityKind == EntityKind.SAMPLE || entityKind == EntityKind.DATA_SET)
+                {
+                    return SearchFieldConstants.EXPERIMENT_ID;
+                }
+                throw createAssociationNotHandledException(entityKind, associationKind);
+            case SAMPLE:
+                if (entityKind == EntityKind.DATA_SET)
+                {
+                    return SearchFieldConstants.SAMPLE_ID;
+                }
+                throw createAssociationNotHandledException(entityKind, associationKind);
+            case MATERIAL:
+                throw createAssociationNotHandledException(entityKind, associationKind);
+            case DATA_SET:
+                throw createAssociationNotHandledException(entityKind, associationKind);
+        }
+        return null; // shouldn't happen
+    }
+
+    private static RuntimeException createAssociationNotHandledException(EntityKind entityKind,
+            SearchableEntity associationKind)
+    {
+        return InternalErr.error("Associations between " + entityKind + " and " + associationKind
+                + " are not supported");
+    }
+
     // properties
 
     static String getPropertyIndexField(String propertyCode)
@@ -88,7 +123,7 @@ class IndexFieldNameHelper
                 return SearchFieldConstants.PREFIX_ENTITY_TYPE + CODE;
             case PROJECT:
                 return SearchFieldConstants.PREFIX_PROJECT + CODE;
-            case PROJECT_GROUP:
+            case PROJECT_SPACE:
                 return SearchFieldConstants.PREFIX_PROJECT + SearchFieldConstants.PREFIX_SPACE
                         + CODE;
         }
@@ -116,7 +151,7 @@ class IndexFieldNameHelper
                 return CODE;
             case SAMPLE_TYPE:
                 return SearchFieldConstants.PREFIX_ENTITY_TYPE + CODE;
-            case GROUP:
+            case SPACE:
                 return SearchFieldConstants.PREFIX_SPACE + CODE;
         }
         return null; // cannot happen

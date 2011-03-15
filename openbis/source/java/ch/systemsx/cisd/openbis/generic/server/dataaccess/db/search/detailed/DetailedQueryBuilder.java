@@ -23,9 +23,9 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.BooleanClause.Occur;
 
 import ch.systemsx.cisd.common.exceptions.InternalErr;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -33,6 +33,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.LuceneQueryBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.AttributeSearchFieldKindProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchAssociationCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
@@ -49,15 +50,18 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstant
  */
 public class DetailedQueryBuilder
 {
-    private final static Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, DetailedQueryBuilder.class);
+    private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            DetailedQueryBuilder.class);
 
-    /** @throws UserFailureException when some search patterns are incorrect */
-    public static Query createQuery(DetailedSearchCriteria searchCriteria, EntityKind entityKind)
-            throws UserFailureException
+    /**
+     * @param associations // TODO move to DetailedSearchCriteria
+     * @throws UserFailureException when some search patterns are incorrect
+     */
+    public static Query createQuery(DetailedSearchCriteria searchCriteria, EntityKind entityKind,
+            List<DetailedSearchAssociationCriteria> associations) throws UserFailureException
     {
         final DetailedQueryBuilder builder = new DetailedQueryBuilder(entityKind);
-        final Query resultQuery = builder.createQuery(searchCriteria);
+        final Query resultQuery = builder.createQuery(searchCriteria, associations);
         operationLog.debug("Lucene detailed query: " + resultQuery.toString());
         return resultQuery;
     }
@@ -73,7 +77,8 @@ public class DetailedQueryBuilder
         this.entityKind = entityKind;
     }
 
-    private Query createQuery(DetailedSearchCriteria searchCriteria)
+    private Query createQuery(DetailedSearchCriteria searchCriteria,
+            List<DetailedSearchAssociationCriteria> associations)
     {
         boolean useWildcardSearchMode = searchCriteria.isUseWildcardSearchMode();
         List<DetailedSearchCriterion> criteria = searchCriteria.getCriteria();
@@ -89,7 +94,24 @@ public class DetailedQueryBuilder
             Query luceneQuery = LuceneQueryBuilder.parseQuery(fieldNames, searchPattern, analyzer);
             resultQuery.add(luceneQuery, occureCondition);
         }
+        for (DetailedSearchAssociationCriteria association : associations)
+        {
+            String fieldName = getIndexFieldName(association);
+            List<String> searchPatterns = extractAssociationPatterns(association);
+            Query luceneQuery = LuceneQueryBuilder.parseQuery(fieldName, searchPatterns, analyzer);
+            resultQuery.add(luceneQuery, occureCondition);
+        }
         return resultQuery;
+    }
+
+    private List<String> extractAssociationPatterns(DetailedSearchAssociationCriteria association)
+    {
+        List<String> result = new ArrayList<String>();
+        for (Long id : association.getIds())
+        {
+            result.add(id.toString());
+        }
+        return result;
     }
 
     private Occur createOccureCondition(SearchCriteriaConnection connection)
@@ -125,8 +147,14 @@ public class DetailedQueryBuilder
         }
     }
 
-    private final static EnumSet<DetailedSearchFieldKind> simpleFieldKinds =
-            EnumSet.of(DetailedSearchFieldKind.ATTRIBUTE, DetailedSearchFieldKind.PROPERTY);
+    private String getIndexFieldName(DetailedSearchAssociationCriteria association)
+    {
+        return IndexFieldNameHelper.getAssociationIndexField(entityKind,
+                association.getEntityKind());
+    }
+
+    private final static EnumSet<DetailedSearchFieldKind> simpleFieldKinds = EnumSet.of(
+            DetailedSearchFieldKind.ATTRIBUTE, DetailedSearchFieldKind.PROPERTY);
 
     private String getSimpleFieldIndexName(DetailedSearchField searchField)
     {
@@ -182,8 +210,8 @@ public class DetailedQueryBuilder
         switch (fieldKind)
         {
             case ATTRIBUTE:
-                return IndexFieldNameHelper.getAttributeIndexField(entityKind, searchField
-                        .getAttributeCode());
+                return IndexFieldNameHelper.getAttributeIndexField(entityKind,
+                        searchField.getAttributeCode());
             case PROPERTY:
                 return IndexFieldNameHelper.getPropertyIndexField(searchField.getPropertyCode());
             case ANY_PROPERTY:

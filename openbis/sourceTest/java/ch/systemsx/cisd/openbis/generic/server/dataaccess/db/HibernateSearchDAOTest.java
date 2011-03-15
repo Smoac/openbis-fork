@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -47,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.FullTextInde
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetAttributeSearchFieldKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchAssociationCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
@@ -118,7 +120,8 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         boolean fail = true;
         try
         {
-            hibernateSearchDAO.searchEntitiesByTerm(null, null, createDataProvider(), true, 0, Integer.MAX_VALUE);
+            hibernateSearchDAO.searchEntitiesByTerm(null, null, createDataProvider(), true, 0,
+                    Integer.MAX_VALUE);
         } catch (final AssertionError ex)
         {
             fail = false;
@@ -262,7 +265,8 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         final IHibernateSearchDAO hibernateSearchDAO = daoFactory.getHibernateSearchDAO();
         List<Long> datasetIds =
                 hibernateSearchDAO.searchForEntityIds(criteria,
-                        DtoConverters.convertEntityKind(EntityKind.DATA_SET));
+                        DtoConverters.convertEntityKind(EntityKind.DATA_SET),
+                        Collections.<DetailedSearchAssociationCriteria> emptyList());
         final List<ExternalDataPE> result = new ArrayList<ExternalDataPE>();
         for (Long datasetId : datasetIds)
         {

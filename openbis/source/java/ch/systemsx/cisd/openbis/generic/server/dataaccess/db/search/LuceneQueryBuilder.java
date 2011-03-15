@@ -30,6 +30,7 @@ import org.apache.lucene.search.Query;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.detailed.DetailedQueryBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchAssociationCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
@@ -49,12 +50,14 @@ public class LuceneQueryBuilder
 
     private static final char SPACE = ' ';
 
-    /** @throws UserFailureException when some search patterns are incorrect */
+    /**
+     * @throws UserFailureException when some search patterns are incorrect
+     */
     public static Query createDetailedSearchQuery(DetailedSearchCriteria searchCriteria,
-            EntityKind entityKind)
+            List<DetailedSearchAssociationCriteria> associations, EntityKind entityKind)
     {
         return DetailedQueryBuilder.createQuery(searchCriteria,
-                DtoConverters.convertEntityKind(entityKind));
+                DtoConverters.convertEntityKind(entityKind), associations);
     }
 
     private static final char FIELD_SEPARATOR = ':';
@@ -172,6 +175,19 @@ public class LuceneQueryBuilder
     {
         BooleanQuery resultQuery = new BooleanQuery();
         for (String fieldName : fieldNames)
+        {
+            Query query = parseQuery(fieldName, searchPattern, analyzer);
+            resultQuery.add(query, Occur.SHOULD);
+        }
+        return resultQuery;
+    }
+
+    // creates a query where given field matches any of the given patterns
+    public static Query parseQuery(final String fieldName, final List<String> searchPatterns,
+            Analyzer analyzer) throws UserFailureException
+    {
+        BooleanQuery resultQuery = new BooleanQuery();
+        for (String searchPattern : searchPatterns)
         {
             Query query = parseQuery(fieldName, searchPattern, analyzer);
             resultQuery.add(query, Occur.SHOULD);

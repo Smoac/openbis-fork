@@ -17,19 +17,26 @@
 package ch.systemsx.cisd.openbis.generic.server.api.v1;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.AttributeMatchClause;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.PropertyMatchClause;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchableEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 
 /**
  * Converts {@link SearchCriteria} objects to {@link DetailedSearchCriteria} objects.
@@ -41,6 +48,42 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnectio
  */
 class SearchCriteriaToDetailedSearchCriteriaTranslator
 {
+    private final static String INVALID_SEARCH_ATTRIBUTE_TEMPLATE =
+            "%s is not a valid search attribute for %s";
+
+    private static Map<SearchableEntityKind, IMatchClauseAttributeTranslator> translators =
+            new HashMap<SearchableEntityKind, IMatchClauseAttributeTranslator>();
+
+    static
+    {
+        translators.put(SearchableEntityKind.SAMPLE, new SampleAttributeTranslator());
+        translators.put(SearchableEntityKind.EXPERIMENT, new ExperimentAttributeTranslator());
+    }
+
+    private static IMatchClauseAttributeTranslator translatorFor(SearchableEntityKind entityKind)
+    {
+        return translators.get(entityKind);
+    }
+
+    private static void throwInvalidSearchAttributeException(MatchClauseAttribute attribute,
+            SearchableEntityKind entityKind) throws UnsupportedOperationException
+    {
+        throw new UnsupportedOperationException(String.format(INVALID_SEARCH_ATTRIBUTE_TEMPLATE,
+                attribute, entityKind));
+    }
+
+    private static SearchableEntity translateEntityKind(SearchableEntityKind entityKind)
+    {
+        switch (entityKind)
+        {
+            case SAMPLE:
+                return SearchableEntity.SAMPLE;
+            case EXPERIMENT:
+                return SearchableEntity.EXPERIMENT;
+        }
+        return null; // can't happen
+    }
+
     private final SearchCriteria searchCriteria;
 
     private final IMatchClauseAttributeTranslator attributeTranslator;
@@ -64,7 +107,7 @@ class SearchCriteriaToDetailedSearchCriteriaTranslator
         public IAttributeSearchFieldKind convertMatchClauseAttributeToAttributeSearchFieldKind(
                 MatchClauseAttribute attribute)
         {
-            IAttributeSearchFieldKind ans;
+            final IAttributeSearchFieldKind ans;
             switch (attribute)
             {
                 case CODE:
@@ -73,14 +116,69 @@ class SearchCriteriaToDetailedSearchCriteriaTranslator
                 case TYPE:
                     ans = SampleAttributeSearchFieldKind.SAMPLE_TYPE;
                     break;
-                default:
-                    // Should never get here
-                    ans = null;
+                case SPACE:
+                    ans = SampleAttributeSearchFieldKind.SPACE;
                     break;
+                default:
+                    throwInvalidSearchAttributeException(attribute, SearchableEntityKind.SAMPLE);
+                    ans = null; // for Eclipse
             }
             return ans;
         }
 
+    }
+
+    public static class ExperimentAttributeTranslator implements IMatchClauseAttributeTranslator
+    {
+        public IAttributeSearchFieldKind convertMatchClauseAttributeToAttributeSearchFieldKind(
+                MatchClauseAttribute attribute)
+        {
+            final IAttributeSearchFieldKind ans;
+            switch (attribute)
+            {
+                case CODE:
+                    ans = ExperimentAttributeSearchFieldKind.CODE;
+                    break;
+                case TYPE:
+                    ans = ExperimentAttributeSearchFieldKind.EXPERIMENT_TYPE;
+                    break;
+                case SPACE:
+                    ans = ExperimentAttributeSearchFieldKind.PROJECT_SPACE;
+                    break;
+                case PROJECT:
+                    ans = ExperimentAttributeSearchFieldKind.PROJECT;
+                    break;
+                default:
+                    throwInvalidSearchAttributeException(attribute, SearchableEntityKind.SAMPLE);
+                    ans = null; // for Eclipse
+            }
+            return ans;
+        }
+
+    }
+
+    public static DetailedSearchCriteria convertToDetailedSearchCriteria(
+            SearchableEntityKind entityKind, SearchCriteria criteria)
+    {
+        return new SearchCriteriaToDetailedSearchCriteriaTranslator(criteria, entityKind)
+                .convertToDetailedSearchCriteria();
+    }
+
+    public static DetailedSearchSubCriteria convertToDetailedSearchSubCriteria(
+            SearchSubCriteria subCriteria)
+    {
+        final SearchCriteria criteria = subCriteria.getCriteria();
+        final SearchableEntityKind targetEntityKind = subCriteria.getTargetEntityKind();
+        final DetailedSearchCriteria detailedSearchCriteria =
+                convertToDetailedSearchCriteria(targetEntityKind, criteria);
+        return new DetailedSearchSubCriteria(translateEntityKind(targetEntityKind),
+                detailedSearchCriteria);
+    }
+
+    public SearchCriteriaToDetailedSearchCriteriaTranslator(SearchCriteria searchCriteria,
+            SearchableEntityKind entityKind)
+    {
+        this(searchCriteria, translatorFor(entityKind));
     }
 
     public SearchCriteriaToDetailedSearchCriteriaTranslator(SearchCriteria searchCriteria,
@@ -119,8 +217,8 @@ class SearchCriteriaToDetailedSearchCriteriaTranslator
             MatchClause matchClause)
     {
         DetailedSearchCriterion detailedSearchCriterion =
-                new DetailedSearchCriterion(extractDetailedSearchField(matchClause), matchClause
-                        .getDesiredValue());
+                new DetailedSearchCriterion(extractDetailedSearchField(matchClause),
+                        matchClause.getDesiredValue());
         return detailedSearchCriterion;
     }
 

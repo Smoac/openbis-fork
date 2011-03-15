@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMater
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchAssociationCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
@@ -674,7 +675,8 @@ public class WellContentLoader
         return ArrayUtils.toPrimitive(daoFactory
                 .getHibernateSearchDAO()
                 .searchForEntityIds(criteria,
-                        ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.MATERIAL)
+                        ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.MATERIAL,
+                        Collections.<DetailedSearchAssociationCriteria> emptyList())
                 .toArray(new Long[0]));
     }
 

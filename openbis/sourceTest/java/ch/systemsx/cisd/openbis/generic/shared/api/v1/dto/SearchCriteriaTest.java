@@ -62,8 +62,9 @@ public class SearchCriteriaTest extends AssertJUnit
     @Test
     public void testToString()
     {
-        assertEquals(
-                "SearchCriteria[MATCH_ALL_CLAUSES,[SearchCriteria.AttributeMatchClause[ATTRIBUTE,CODE,a code], SearchCriteria.PropertyMatchClause[PROPERTY,MY_PROPERTY2,a property value]]]",
-                searchCriteria.toString());
+        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,["
+                + "SearchCriteria.AttributeMatchClause[ATTRIBUTE,CODE,a code], "
+                + "SearchCriteria.PropertyMatchClause[PROPERTY,MY_PROPERTY2,a property value]"
+                + "],AND,[]]", searchCriteria.toString());
     }
 }

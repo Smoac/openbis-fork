@@ -21,6 +21,7 @@ import java.util.List;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.HibernateSearchDataProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchAssociationCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
@@ -38,12 +39,14 @@ public interface IHibernateSearchDAO
      * using all the indexed fields.
      * 
      * @param searchTerm could be something like "<code>C11 AND System User</code>".
-     * @param maxSize Maximum number of entries. 
+     * @param maxSize Maximum number of entries.
      */
     public List<MatchingEntity> searchEntitiesByTerm(final SearchableEntity searchableEntity,
             final String searchTerm, final HibernateSearchDataProvider dataProvider,
-            boolean useWildcardSearchMode, int alreadyFoundEntities, int maxSize) throws DataAccessException;
+            boolean useWildcardSearchMode, int alreadyFoundEntities, int maxSize)
+            throws DataAccessException;
 
     /** search for entity ids using the specified criteria */
-    public List<Long> searchForEntityIds(DetailedSearchCriteria criteria, EntityKind entityKind);
+    public List<Long> searchForEntityIds(DetailedSearchCriteria criteria, EntityKind entityKind,
+            List<DetailedSearchAssociationCriteria> associationCriterias);
 }

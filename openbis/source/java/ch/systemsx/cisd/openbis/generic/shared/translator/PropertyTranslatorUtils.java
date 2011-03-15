@@ -80,6 +80,7 @@ final class PropertyTranslatorUtils
         final ManagedEntityProperty result = new ManagedEntityProperty(basicProperty);
         try
         {
+            // TODO move this outside of translator
             ManagedPropertyEvaluator evaluator =
                     ManagedPropertyEvaluatorFactory.createManagedPropertyEvaluator(script
                             .getScript());

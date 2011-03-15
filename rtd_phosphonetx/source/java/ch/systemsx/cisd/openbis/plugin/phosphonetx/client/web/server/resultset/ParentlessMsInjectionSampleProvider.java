@@ -20,6 +20,7 @@ import static ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.
 import static ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ParentlessMsInjectionSampleGridColumnIDs.REGISTRATION_DATE;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AbstractCommonTableModelProvider;
@@ -27,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
@@ -36,7 +38,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.CommonConstants;
 
 /**
  * Provider of MS_INJECTION samples registered for the user.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class ParentlessMsInjectionSampleProvider extends AbstractCommonTableModelProvider<Sample>
@@ -57,7 +59,7 @@ public class ParentlessMsInjectionSampleProvider extends AbstractCommonTableMode
         typeCriterion.setValue(CommonConstants.MS_INJECTION_SAMPLE_TYPE_CODE);
         DetailedSearchCriterion spaceCriterion = new DetailedSearchCriterion();
         spaceCriterion.setField(DetailedSearchField
-                .createAttributeField(SampleAttributeSearchFieldKind.GROUP));
+                .createAttributeField(SampleAttributeSearchFieldKind.SPACE));
         spaceCriterion.setValue(CommonConstants.MS_DATA_SPACE);
         DetailedSearchCriterion registratorCriterion = new DetailedSearchCriterion();
         String userName = commonServer.tryGetSession(sessionToken).getUserName();
@@ -65,7 +67,9 @@ public class ParentlessMsInjectionSampleProvider extends AbstractCommonTableMode
         registratorCriterion.setValue(userName);
         System.out.println("userName:"+userName);
         criteria.setCriteria(Arrays.asList(typeCriterion, spaceCriterion, registratorCriterion));
-        List<Sample> samples = commonServer.searchForSamples(sessionToken, criteria);
+        List<Sample> samples =
+                commonServer.searchForSamples(sessionToken, criteria,
+                        Collections.<DetailedSearchSubCriteria> emptyList());
         TypedTableModelBuilder<Sample> builder = new TypedTableModelBuilder<Sample>();
         builder.addColumn(IDENTIFIER).withDefaultWidth(300);
         builder.addColumn(REGISTRATION_DATE).withDefaultWidth(300);

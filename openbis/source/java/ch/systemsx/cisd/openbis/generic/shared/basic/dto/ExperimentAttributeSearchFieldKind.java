@@ -29,9 +29,9 @@ public enum ExperimentAttributeSearchFieldKind implements ISerializable, IAttrib
 
     EXPERIMENT_TYPE("Experiment Type"),
 
-    PROJECT("Space"),
+    PROJECT("Project"),
 
-    PROJECT_GROUP("Project Space");
+    PROJECT_SPACE("Space");
 
     private final String description;
 

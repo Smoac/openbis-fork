@@ -61,6 +61,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.HibernateSearchContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.LuceneQueryBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchAssociationCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -119,7 +120,8 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                                 throws HibernateException, SQLException
                         {
                             return doSearchEntitiesByTerm(session, searchableEntity, searchTerm,
-                                    dataProvider, useWildcardSearchMode, alreadyFoundEntities, maxSize);
+                                    dataProvider, useWildcardSearchMode, alreadyFoundEntities,
+                                    maxSize);
                         }
                     }));
         if (operationLog.isDebugEnabled())
@@ -212,7 +214,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
     // detailed search
 
     public List<Long> searchForEntityIds(final DetailedSearchCriteria criteria,
-            final EntityKind entityKind)
+            final EntityKind entityKind, final List<DetailedSearchAssociationCriteria> associations)
     {
         final List<Long> list =
                 AbstractDAO.cast((List<?>) getHibernateTemplate().execute(new HibernateCallback()
@@ -220,7 +222,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                         public final Object doInHibernate(final Session session)
                                 throws HibernateException, SQLException
                         {
-                            return searchForEntityIds(session, criteria, entityKind);
+                            return searchForEntityIds(session, criteria, entityKind, associations);
                         }
                     }));
         if (operationLog.isDebugEnabled())
@@ -238,9 +240,11 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
      * Takes data only from Lucene index without hitting DB.
      */
     private List<Long> searchForEntityIds(Session session, DetailedSearchCriteria searchCriteria,
-            EntityKind entityKind)
+            EntityKind entityKind, List<DetailedSearchAssociationCriteria> associations)
     {
-        Query query = LuceneQueryBuilder.createDetailedSearchQuery(searchCriteria, entityKind);
+        Query query =
+                LuceneQueryBuilder.createDetailedSearchQuery(searchCriteria, associations,
+                        entityKind);
         final FullTextSession fullTextSession = Search.getFullTextSession(session);
         final FullTextQuery hibernateQuery =
                 fullTextSession.createFullTextQuery(query, entityKind.getEntityClass());

@@ -96,7 +96,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchAssociationCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DynamicPropertyEvaluationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -478,16 +480,68 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final Session session = getSession(sessionToken);
         try
         {
-            IHibernateSearchDAO searchDAO = getDAOFactory().getHibernateSearchDAO();
             final Collection<Long> sampleIds =
-                    searchDAO.searchForEntityIds(criteria,
-                            DtoConverters.convertEntityKind(EntityKind.SAMPLE));
+                    findSampleIds(criteria, Collections.<DetailedSearchSubCriteria> emptyList());
             final ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
             return sampleLister.list(new ListOrSearchSampleCriteria(sampleIds));
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);
         }
+    }
+
+    public List<Sample> searchForSamples(String sessionToken, DetailedSearchCriteria criteria,
+            List<DetailedSearchSubCriteria> subCriterias)
+    {
+        final Session session = getSession(sessionToken);
+        try
+        {
+            final Collection<Long> sampleIds = findSampleIds(criteria, subCriterias);
+            final ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
+            return sampleLister.list(new ListOrSearchSampleCriteria(sampleIds));
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
+
+    private Collection<Long> findSampleIds(DetailedSearchCriteria criteria,
+            List<DetailedSearchSubCriteria> subCriterias)
+    {
+        final IHibernateSearchDAO searchDAO = getDAOFactory().getHibernateSearchDAO();
+        // for now we connect all sub criteria with logical AND
+        List<DetailedSearchAssociationCriteria> associations =
+                new ArrayList<DetailedSearchAssociationCriteria>();
+        for (DetailedSearchSubCriteria subCriteria : subCriterias)
+        {
+            associations.add(findAssociatedEntities(subCriteria));
+        }
+        final Collection<Long> sampleIds =
+                searchDAO.searchForEntityIds(criteria,
+                        DtoConverters.convertEntityKind(EntityKind.SAMPLE), associations);
+        return sampleIds;
+    }
+
+    private DetailedSearchAssociationCriteria findAssociatedEntities(
+            DetailedSearchSubCriteria subCriteria)
+    {
+        final IHibernateSearchDAO searchDAO = getDAOFactory().getHibernateSearchDAO();
+        // for now we don't support sub criteria of sub criteria
+        List<DetailedSearchAssociationCriteria> associations = Collections.emptyList();
+
+        final Collection<Long> associatedIds =
+                searchDAO.searchForEntityIds(subCriteria.getCriteria(),
+                        convertToEntityKind(subCriteria.getTargetEntityKind()), associations);
+
+        return new DetailedSearchAssociationCriteria(subCriteria.getTargetEntityKind(),
+                associatedIds);
+    }
+
+    private static final ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind convertToEntityKind(
+            final SearchableEntity searchableEntity)
+    {
+        return ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind
+                .valueOf(searchableEntity.name());
     }
 
     public final List<ExternalData> listSampleExternalData(final String sessionToken,
@@ -852,7 +906,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
             final Collection<Long> datasetIds =
                     searchDAO.searchForEntityIds(criteria,
-                            DtoConverters.convertEntityKind(EntityKind.DATA_SET));
+                            DtoConverters.convertEntityKind(EntityKind.DATA_SET),
+                            Collections.<DetailedSearchAssociationCriteria> emptyList());
             final IDatasetLister datasetLister = createDatasetLister(session);
             return datasetLister.listByDatasetIds(datasetIds);
         } catch (final DataAccessException ex)

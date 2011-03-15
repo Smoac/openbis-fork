@@ -589,8 +589,8 @@ var common = {
  //
  data_set_search: "Data Set Search",
  sample_search: "Sample Search",
- match_all: "Match all criteria",
- match_any: "Match any criteria",
+ match_all: "Match all criteria (logical AND)",
+ match_any: "Match any criteria (logical OR)",
  button_change_query : "Change Search Criteria",
   
  //

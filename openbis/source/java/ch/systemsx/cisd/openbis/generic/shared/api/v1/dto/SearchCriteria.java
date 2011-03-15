@@ -70,7 +70,12 @@ public class SearchCriteria implements Serializable
      */
     public static enum MatchClauseAttribute
     {
-        CODE, TYPE
+        // common
+        CODE, TYPE,
+        // for sample or experiment
+        SPACE,
+        // for experiment
+        PROJECT
     }
 
     /**
@@ -264,9 +269,23 @@ public class SearchCriteria implements Serializable
         MATCH_ALL_CLAUSES, MATCH_ANY_CLAUSES
     }
 
+    /**
+     * Operators for combining {@link SearchCriteria} objects.
+     * 
+     * @author Piotr Buczek
+     */
+    public static enum SubSearchCriteriaOperator
+    {
+        AND, OR
+    }
+
     private SearchOperator operator = SearchOperator.MATCH_ALL_CLAUSES;
 
     private ArrayList<MatchClause> matchClauses = new ArrayList<MatchClause>();
+
+    private SubSearchCriteriaOperator subSearchOperator = SubSearchCriteriaOperator.AND;
+
+    private ArrayList<SearchSubCriteria> subCriterias = new ArrayList<SearchSubCriteria>();
 
     /**
      * Set the operator for combining MatchClause objects.
@@ -301,6 +320,31 @@ public class SearchCriteria implements Serializable
         matchClauses.add(criterion);
     }
 
+    /**
+     * Gets the operator for combining {@link SearchSubCriteria} objects. Default value is
+     * {@link SubSearchCriteriaOperator#AND}.
+     */
+    public SubSearchCriteriaOperator getSubSearchCriteriaOperator()
+    {
+        return subSearchOperator;
+    }
+
+    /**
+     * Get a list of {@link SearchSubCriteria} objects for this SearchCriteria.
+     */
+    public List<SearchSubCriteria> getSubCriterias()
+    {
+        return Collections.unmodifiableList(subCriterias);
+    }
+
+    /**
+     * Add a new sub search criteria.
+     */
+    public void addSubCriteria(SearchSubCriteria criteria)
+    {
+        subCriterias.add(criteria);
+    }
+
     @Override
     public boolean equals(Object obj)
     {
@@ -317,6 +361,8 @@ public class SearchCriteria implements Serializable
         EqualsBuilder builder = new EqualsBuilder();
         builder.append(getOperator(), other.getOperator());
         builder.append(getMatchClauses(), other.getMatchClauses());
+        builder.append(getSubSearchCriteriaOperator(), other.getSubSearchCriteriaOperator());
+        builder.append(getSubCriterias(), other.getSubCriterias());
         return builder.isEquals();
     }
 
@@ -326,6 +372,8 @@ public class SearchCriteria implements Serializable
         HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(getOperator());
         builder.append(getMatchClauses());
+        builder.append(getSubSearchCriteriaOperator());
+        builder.append(getSubCriterias());
         return builder.toHashCode();
     }
 
@@ -335,6 +383,8 @@ public class SearchCriteria implements Serializable
         ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
         builder.append(getOperator());
         builder.append(getMatchClauses());
+        builder.append(getSubSearchCriteriaOperator());
+        builder.append(getSubCriterias());
         return builder.toString();
     }
 }

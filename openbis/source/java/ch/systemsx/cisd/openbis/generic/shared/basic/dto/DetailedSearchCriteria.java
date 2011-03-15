@@ -85,7 +85,7 @@ public class DetailedSearchCriteria implements ISerializable
             {
                 if (sb.length() > 0)
                 {
-                    sb.append(" " + getConnection().name() + " ");
+                    sb.append(" " + getConnection().getLabel() + " ");
                 }
                 sb.append(element);
             }

@@ -258,6 +258,15 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         this.sample = sample;
     }
 
+    // used only by Hibernate Search
+    @SuppressWarnings("unused")
+    @Transient
+    @Field(index = Index.UN_TOKENIZED, store = Store.YES, name = SearchFieldConstants.SAMPLE_ID)
+    private Long getSampleId()
+    {
+        return getSampleInternal() != null ? getSampleInternal().getId() : null;
+    }
+
     /**
      * Returns the date when the measurement / calculation that produced this external data set has
      * been performed.
@@ -431,6 +440,15 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         return experiment;
     }
 
+    // used only by Hibernate Search
+    @SuppressWarnings("unused")
+    @Transient
+    @Field(index = Index.UN_TOKENIZED, store = Store.YES, name = SearchFieldConstants.EXPERIMENT_ID)
+    private Long getExperimentId()
+    {
+        return getExperimentInternal() != null ? getExperimentInternal().getId() : null;
+    }
+
     private Set<DataSetPropertyPE> properties = new HashSet<DataSetPropertyPE>();
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entity")
@@ -517,4 +535,5 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     {
         return code;
     }
+
 }

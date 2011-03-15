@@ -461,6 +461,15 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         return experiment;
     }
 
+    // used only by Hibernate Search
+    @SuppressWarnings("unused")
+    @Transient
+    @Field(index = Index.UN_TOKENIZED, store = Store.YES, name = SearchFieldConstants.EXPERIMENT_ID)
+    private Long getExperimentId()
+    {
+        return getExperimentInternal() != null ? getExperimentInternal().getId() : null;
+    }
+
     //
     // IIdAndCodeHolder
     //

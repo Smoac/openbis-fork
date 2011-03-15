@@ -23,5 +23,18 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  */
 public enum SearchCriteriaConnection implements ISerializable
 {
-    MATCH_ALL, MATCH_ANY
+    MATCH_ALL("AND"), MATCH_ANY("OR");
+
+    private String label;
+
+    SearchCriteriaConnection(String label)
+    {
+        this.label = label;
+    }
+
+    public String getLabel()
+    {
+        return label;
+    }
+
 }

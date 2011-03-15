@@ -72,4 +72,8 @@ public final class SearchFieldConstants
 
     public static final String FILE_DESCRIPTION = "description";
 
+    public static final String EXPERIMENT_ID = "experiment_id";
+
+    public static final String SAMPLE_ID = "sample_id";
+
 }
