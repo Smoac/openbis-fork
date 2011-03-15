@@ -29,23 +29,29 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncC
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.wizard.IWizardDataModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.wizard.IWizardState;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.wizard.WizardWorkflowModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class MsInjectionSampleAnnotationModel implements IWizardDataModel
 {
     private final IViewContext<IPhosphoNetXClientServiceAsync> context;
+
     private final WizardWorkflowModel workflowModel;
+
     private List<Sample> msInjectionSamples = new ArrayList<Sample>();
-    
+
     private boolean chooseBiologicalSampleFlag;
+
     private Sample biologicalSample;
-    
+
+    private NewSample newBiologicalSample;
+
     public MsInjectionSampleAnnotationModel(IViewContext<IPhosphoNetXClientServiceAsync> context)
     {
         this.context = context;
@@ -54,7 +60,7 @@ public class MsInjectionSampleAnnotationModel implements IWizardDataModel
         workflowModel.addTransition(CHOOSE_OR_CREATE_QUESTION, BIOLOGICAL_SAMPLE_CHOOSING);
         workflowModel.addTransition(CHOOSE_OR_CREATE_QUESTION, BIOLOGICAL_SAMPLE_CREATING);
     }
-    
+
     public WizardWorkflowModel getWorkflow()
     {
         return workflowModel;
@@ -64,17 +70,17 @@ public class MsInjectionSampleAnnotationModel implements IWizardDataModel
     {
         return chooseBiologicalSampleFlag ? BIOLOGICAL_SAMPLE_CHOOSING : BIOLOGICAL_SAMPLE_CREATING;
     }
-    
+
     public void setSelectedMsInjectionSample(List<Sample> samples)
     {
         msInjectionSamples = samples;
     }
-    
+
     public List<Sample> getMsInjectionSamples()
     {
         return msInjectionSamples;
     }
-    
+
     public void setChooseBiologicalSampleFlag(boolean flag)
     {
         chooseBiologicalSampleFlag = flag;
@@ -85,10 +91,24 @@ public class MsInjectionSampleAnnotationModel implements IWizardDataModel
         this.biologicalSample = biologicalSample;
     }
 
+    public void defineBiologicalSample(SampleType sampleType, String identifier,
+            String experimentIdentifierOrNull, List<IEntityProperty> properties)
+    {
+        newBiologicalSample = NewSample.createWithParents(identifier, sampleType, null, null);
+        newBiologicalSample.setProperties(properties.toArray(IEntityProperty.EMPTY_ARRAY));
+        newBiologicalSample.setExperimentIdentifier(experimentIdentifierOrNull);
+    }
+
     public String finish()
     {
         VoidAsyncCallback<Void> callback = new VoidAsyncCallback<Void>(context);
-        context.getService().linkSamples(biologicalSample, msInjectionSamples, callback);
+        if (chooseBiologicalSampleFlag)
+        {
+            context.getService().linkSamples(biologicalSample, msInjectionSamples, callback);
+        } else
+        {
+            context.getService().createAndLinkSamples(newBiologicalSample, msInjectionSamples, callback);
+        }
         return msInjectionSamples.size() + " MS_INJECTION samples have been annotated.";
     }
 

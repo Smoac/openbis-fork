@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application.wizard;
 
 import com.extjs.gxt.ui.client.util.Margins;
-import com.extjs.gxt.ui.client.widget.Html;
+import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
@@ -41,10 +41,10 @@ public class QuestionPage extends WizardPage<MsInjectionSampleAnnotationModel>
             MsInjectionSampleAnnotationModel model)
     {
         super(viewContext, MsInjectionAnnotationWizardState.CHOOSE_OR_CREATE_QUESTION, model);
-        setLeftContentBy(new Html(
-                "Annotating the <tt>MS_INJECTION</tt> samples you have chosen means to link them to a <b>biological sample</b>. "
-                        + "You can choose an existing biological sample or you can create a new one."));
-        radioGroup = new RadioGroup("What do you want to annotate your samples?");
+        setLeftContentByDictionary();
+        addToRightContent(new Label("What do you want to annotate your samples?"), new RowData(1,
+                -1, new Margins(10)));
+        radioGroup = new RadioGroup();
         radioGroup.setFieldLabel("choose");
         chooseSampleRadioButton = new Radio();
         chooseSampleRadioButton.setBoxLabel("I want to choose an existing biological sample.");

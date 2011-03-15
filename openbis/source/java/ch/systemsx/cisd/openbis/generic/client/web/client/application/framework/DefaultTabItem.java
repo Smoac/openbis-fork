@@ -81,7 +81,13 @@ public class DefaultTabItem implements ITabItem
             final DatabaseModificationAwareComponent component, IViewContext<?> viewContext,
             boolean isCloseConfirmationNeeded)
     {
-        return create(viewContext, title, component.get(), component, null,
+        IDelegatedAction disposer = null;
+        IDatabaseModificationObserver modificationObserver = component.getModificationObserver();
+        if (modificationObserver instanceof IDisposableComponent)
+        {
+            disposer = createDisposer((IDisposableComponent) modificationObserver);
+        }
+        return create(viewContext, title, component.get(), component, disposer,
                 isCloseConfirmationNeeded);
     }
 

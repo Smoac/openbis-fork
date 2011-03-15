@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -60,6 +61,10 @@ public interface IPhosphoNetXClientServiceAsync extends IClientServiceAsync
     
     /** @see IPhosphoNetXClientService#linkSamples(Sample, List) */
     public void linkSamples(Sample parentSample, List<Sample> childSamples, AsyncCallback<Void> callback);
+    
+    /** @see IPhosphoNetXClientService#createAndLinkSamples(NewSample, List) */
+    public void createAndLinkSamples(NewSample newBiologicalSample,
+            List<Sample> msInjectionSamples, AsyncCallback<Void> callback);
     
     /** @see IPhosphoNetXClientService#getTreatmentTypeVocabulary() */
     public void getTreatmentTypeVocabulary(AsyncCallback<Vocabulary> callback);

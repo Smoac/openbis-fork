@@ -21,7 +21,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.wizard.
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
 
 /**
- * 
+ * Wizard for annotation MS_INJECTION samples.
  *
  * @author Franz-Josef Elmer
  */

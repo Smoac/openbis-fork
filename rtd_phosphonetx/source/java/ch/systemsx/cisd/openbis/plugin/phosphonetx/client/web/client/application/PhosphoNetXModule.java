@@ -71,7 +71,7 @@ public class PhosphoNetXModule implements IModule
                         public DatabaseModificationAwareComponent createComponent(
                                 IViewContext<IPhosphoNetXClientServiceAsync> context)
                         {
-                            return DatabaseModificationAwareComponent.wrapUnaware(new MsInjectionSampleAnnotationWizard(context));
+                            return DatabaseModificationAwareComponent.create(new MsInjectionSampleAnnotationWizard(context));
                         }
 
                         public String tryGetLink()

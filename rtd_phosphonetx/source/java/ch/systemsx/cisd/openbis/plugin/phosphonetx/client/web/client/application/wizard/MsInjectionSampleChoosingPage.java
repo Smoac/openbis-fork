@@ -23,7 +23,6 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.util.Margins;
-import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 
@@ -50,16 +49,7 @@ public class MsInjectionSampleChoosingPage extends WizardPage<MsInjectionSampleA
     {
         super(viewContext, MsInjectionAnnotationWizardState.MS_INJECTION_SAMPLE_CHOOSING, model);
         this.viewContext = viewContext;
-        setLeftContentBy(new Html(
-                "MS data are added to openBIS in an automated process. "
-                        + "The corresponding data sets are associated with samples of type <tt>MS_INJECTION</tt>."
-                        + "<p>Before MS data of such samples can be processed in a protein identification pipeline "
-                        + "they have to be <b>annotated</b>. In the terminology of openBIS this means: "
-                        + "An <tt>MS_INJECTION</tt> sample is linked to biological sample where "
-                        + "the biological sample is the parent and the <tt>MS_INJECTION</tt> sample is the child. "
-                        + "The biological sample has all annotations. "
-                        + "They define the scientific context of proteins found. "
-                        + "<p>This wizard helps you add these important annotations to openBIS."));
+        setLeftContentByDictionary();
     }
 
     @Override
@@ -80,7 +70,7 @@ public class MsInjectionSampleChoosingPage extends WizardPage<MsInjectionSampleA
                 }
 
             });
-        addToRightContent(sampleGrid, new RowData(1, 500, new Margins(20, 10, 10, 10)));
+        addToRightContent(sampleGrid, new RowData(1, 400, new Margins(20, 10, 10, 10)));
     }
 
     @Override

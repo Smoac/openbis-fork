@@ -52,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
@@ -193,8 +194,22 @@ public class PhosphoNetXClientService extends AbstractClientService implements
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         String sessionToken = getSessionToken();
+        linkSamples(sessionToken, parentSample.getIdentifier(), childSamples);
+    }
+
+    public void createAndLinkSamples(NewSample newBiologicalSample, List<Sample> msInjectionSamples)
+    throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        String sessionToken = getSessionToken();
+        List<NewAttachment> noAttachments = Collections.<NewAttachment>emptyList();
+        genericServer.registerSample(sessionToken, newBiologicalSample, noAttachments);
+        linkSamples(sessionToken, newBiologicalSample.getIdentifier(), msInjectionSamples);
+    }
+    
+    private void linkSamples(String sessionToken, String identifier, List<Sample> childSamples)
+    {
         String[] parents = new String[]
-            { parentSample.getIdentifier() };
+            { identifier };
         for (Sample childSample : childSamples)
         {
             SampleIdentifier childSampleIdentifier =

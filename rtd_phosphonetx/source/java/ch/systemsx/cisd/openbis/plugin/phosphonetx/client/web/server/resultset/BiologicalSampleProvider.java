@@ -58,7 +58,7 @@ public class BiologicalSampleProvider extends AbstractCommonTableModelProvider<S
         typeCriterion.setValue(CommonConstants.BIOLOGICAL_SAMPLE_PREFIX + "*");
         DetailedSearchCriterion registratorCriterion = new DetailedSearchCriterion();
         String userName = commonServer.tryGetSession(sessionToken).getUserName();
-        registratorCriterion.setField(DetailedSearchField.createRegistratorField(""));
+        registratorCriterion.setField(DetailedSearchField.createRegistratorField());
         registratorCriterion.setValue(userName);
         criteria.setCriteria(Arrays.asList(typeCriterion, registratorCriterion));
         List<Sample> samples = commonServer.searchForSamples(sessionToken, criteria);

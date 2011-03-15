@@ -16,10 +16,33 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application.wizard;
 
-import com.extjs.gxt.ui.client.widget.Html;
+import java.util.Iterator;
+import java.util.List;
 
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
+import com.extjs.gxt.ui.client.util.Margins;
+import com.extjs.gxt.ui.client.widget.layout.RowData;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.SampleTypeDisplayID;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleTypeModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeFieldWithGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField.ExperimentChooserFieldAdaptor;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ClickableFormPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.wizard.WizardPage;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.AbstractGenericSampleRegisterEditForm;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.SamplePropertyEditor;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
 
 /**
@@ -30,12 +53,113 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNet
 public class BiologicalSampleCreatingPage extends WizardPage<MsInjectionSampleAnnotationModel>
 {
 
+    private final IViewContext<IPhosphoNetXClientServiceAsync> viewContext;
+    private ClickableFormPanel formPanel;
+    private SampleTypeSelectionWidget sampleTypeSelectionWidget;
+    private SampleType sampleType;
+    private CodeFieldWithGenerator codeField;
+    private SpaceSelectionWidget spaceSelectionWidget;
+    private SamplePropertyEditor samplePropertyEditor;
+    private ExperimentChooserFieldAdaptor experimentField;
+
     public BiologicalSampleCreatingPage(IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
             MsInjectionSampleAnnotationModel model)
     {
         super(viewContext, MsInjectionAnnotationWizardState.BIOLOGICAL_SAMPLE_CREATING, model);
-        setLeftContentBy(new Html(
-                "Annotating <tt>MS_INJECTION</tt> sample by creating a new biological sample means ..."));
+        this.viewContext = viewContext;
+        setLeftContentByDictionary();
+    }
+
+    @Override
+    public void init()
+    {
+        formPanel = new ClickableFormPanel();
+        formPanel.setHeaderVisible(false);
+        sampleTypeSelectionWidget = new SampleTypeSelectionWidget(viewContext, "bio-samp", true,
+                SampleTypeDisplayID.SAMPLE_REGISTRATION, null)
+            {
+
+                @Override
+                protected void filterTypes(List<SampleType> types)
+                {
+                    for (Iterator<SampleType> iterator = types.iterator(); iterator.hasNext();)
+                    {
+                        SampleType type = iterator.next();
+                        if (type.getCode().startsWith("BIO") == false)
+                        {
+                            iterator.remove();
+                        }
+                    }
+                }
+            };
+            sampleTypeSelectionWidget.addSelectionChangedListener(new SelectionChangedListener<SampleTypeModel>()
+                {
+                    
+                    @Override
+                    public void selectionChanged(SelectionChangedEvent<SampleTypeModel> se)
+                    {
+                        SampleType sampleTypeOrNull = sampleTypeSelectionWidget.tryGetSelectedSampleType();
+                        if (sampleTypeOrNull != null)
+                        {
+                            onSampleTypeChanged(sampleTypeOrNull);
+                        }
+                    }
+                });
+        formPanel.add(sampleTypeSelectionWidget);
+        addToRightContent(formPanel, new RowData(1, 500, new Margins(10)));
+    }
+
+    protected void onSampleTypeChanged(SampleType type)
+    {
+        this.sampleType = type;
+        formPanel.removeAll();
+        formPanel.add(sampleTypeSelectionWidget);
+        codeField =
+                new CodeFieldWithGenerator(viewContext, viewContext.getMessage(Dict.CODE),
+                        type.getGeneratedCodePrefix(), type.isAutoGeneratedCode());
+        boolean codeReadonly = type.isAutoGeneratedCode();
+        codeField.setReadOnly(codeReadonly);
+        codeField.setHideTrigger(codeReadonly);
+        formPanel.add(codeField);
+        List<SampleTypePropertyType> types = type.getAssignedPropertyTypes();
+        spaceSelectionWidget =
+                new SpaceSelectionWidget(viewContext, getId(), true, false, viewContext.getModel()
+                        .getSessionContext().getUser().getHomeGroupCode());
+        FieldUtil.markAsMandatory(spaceSelectionWidget);
+        formPanel.add(spaceSelectionWidget);
+        String label = viewContext.getMessage(Dict.EXPERIMENT);
+        experimentField = ExperimentChooserField.create(label, false, null,
+                viewContext.getCommonViewContext());
+        formPanel.add(experimentField.getChooserField());
+
+        samplePropertyEditor = new SamplePropertyEditor("bio-s", viewContext.getCommonViewContext());
+        samplePropertyEditor.initWithoutProperties(types);
+        samplePropertyEditor.addPropertyFieldsWithFieldsetToPanel(formPanel);
+        formPanel.layout();
+        formPanel.addClickListener(new ClickHandler()
+            {
+                public void onClick(ClickEvent event)
+                {
+                    enableNextButton(formPanel.isValid());
+                }
+            });
+    }
+
+    @Override
+    public void deactivate()
+    {
+        String identifier =
+                AbstractGenericSampleRegisterEditForm.createSampleIdentifier(spaceSelectionWidget,
+                        codeField);
+        String experimentIdentifierOrNull = experimentField.getChooserField().getValue();
+        List<IEntityProperty> properties = samplePropertyEditor.extractProperties();
+        model.defineBiologicalSample(sampleType, identifier, experimentIdentifierOrNull, properties);
+    }
+
+    @Override
+    public void destroy()
+    {
+        spaceSelectionWidget.dispose();
     }
 
 }

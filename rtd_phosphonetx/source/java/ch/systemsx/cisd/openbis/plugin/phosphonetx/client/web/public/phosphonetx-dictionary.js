@@ -40,10 +40,26 @@ var phosphonetx = {
   
   // MS_INJECTION annotation wizard
   
+  MS_INJECTION_SAMPLE_CHOOSING_left_content: "MS data are added to openBIS in an automated process. "
+        + "The corresponding data sets are associated with samples of type <tt>MS_INJECTION</tt>."
+        + "<p>Before MS data of such samples can be processed in a protein identification pipeline "
+        + "they have to be <b>annotated</b>. In the terminology of openBIS this means: "
+        + "An <tt>MS_INJECTION</tt> sample is linked to a biological sample where "
+        + "the biological sample is the parent and the <tt>MS_INJECTION</tt> sample is the child. "
+        + "The biological sample has all annotations (called properties in openBIS). "
+        + "They define the scientific context of proteins found. "
+        + "<p>This wizard helps you adding these important annotations to openBIS.",
   openbis_parentless_ms_injection_sample_main_IDENTIFIER: "MS_INJECTION Sample",
   openbis_parentless_ms_injection_sample_main_REGISTRATION_DATE: "Registration Date",
+  CHOOSE_OR_CREATE_QUESTION_left_content: "Annotating the <tt>MS_INJECTION</tt> samples you have chosen "
+        + "means to link them to a <b>biological sample</b>. "
+        + "You can choose an existing biological sample or you can create a new one.",
+  BIOLOGICAL_SAMPLE_CHOOSING_left_content: "Annotating <tt>MS_INJECTION</tt> sample by choosing one biological sample means " 
+        + "that all properties of the biological sample is also for the <tt>MS_INJECTION</tt> to be annotated.",
   openbis_biological_sample_main_IDENTIFIER: "Biological Sample",
   openbis_biological_sample_main_REGISTRATION_DATE: "Registration Date",
+  BIOLOGICAL_SAMPLE_CREATING_left_content: "Annotating <tt>MS_INJECTION</tt> sample by creating a new biological sample means " 
+        + "mainly specifying properties of a freshly created biological sample in openBIS.",
   
   
   // RawDataSample Browser

@@ -254,6 +254,9 @@ public class DetailedSearchCriterionWidget extends HorizontalPanel
             case ANY_PROPERTY:
                 description = "Any Property";
                 break;
+            case REGISTRATOR:
+                description = "";
+                break;
         }
 
         DetailedSearchFieldComboModel model = new DetailedSearchFieldComboModel(description, field);

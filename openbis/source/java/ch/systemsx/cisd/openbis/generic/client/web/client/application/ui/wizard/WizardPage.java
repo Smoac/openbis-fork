@@ -22,6 +22,7 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
@@ -40,10 +41,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
  */
 public class WizardPage<M extends IWizardDataModel> extends LayoutContainer
 {
+    private static final String _LEFT_CONTENT = "_left_content";
     public static final String PREVIOUS_BUTTON_LABEL_KEY = "wizard_page_previous_button_label";
     public static final String NEXT_BUTTON_LABEL_KEY = "wizard_page_next_button_label";
     public static final String FINISH_BUTTON_LABEL_KEY = "wizard_page_finish_button_label";
     
+    private final IMessageProvider messageProvider;
     protected final M model;
     private final IWizardState state;
     private final LayoutContainer leftContent;
@@ -60,6 +63,7 @@ public class WizardPage<M extends IWizardDataModel> extends LayoutContainer
     public WizardPage(IMessageProvider messageProvider, IWizardState state, final M model)
     {
         super(new BorderLayout());
+        this.messageProvider = messageProvider;
         this.state = state;
         this.model = model;
         LayoutContainer leftCenterPanel = new LayoutContainer(new CenterLayout());
@@ -108,6 +112,16 @@ public class WizardPage<M extends IWizardDataModel> extends LayoutContainer
     IWizardState getWizardState()
     {
         return state;
+    }
+
+    /**
+     * Sets the content of the left panel by an HTML snippet defined in the dictionary by the
+     * specified key. Note that the complete key in the dictionary reads <code>&lt;wizard
+     * state&gt;_left_content</code>.
+     */
+    public void setLeftContentByDictionary()
+    {
+        setLeftContentBy(new Html(messageProvider.getMessage(state + _LEFT_CONTENT)));
     }
 
     /**

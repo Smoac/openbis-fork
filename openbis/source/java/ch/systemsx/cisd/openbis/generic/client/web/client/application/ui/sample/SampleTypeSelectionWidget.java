@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
  * 
  * @author Izabela Adamczyk
  */
-public final class SampleTypeSelectionWidget extends DropDownList<SampleTypeModel, SampleType>
+public class SampleTypeSelectionWidget extends DropDownList<SampleTypeModel, SampleType>
 {
     public static final String SUFFIX = "sample-type";
 
@@ -138,6 +138,14 @@ public final class SampleTypeSelectionWidget extends DropDownList<SampleTypeMode
                     edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
     }
 
+    /**
+     * Filters sample types returned from server. This is a hook method which does nothing. Can be
+     * overridden by subclasses.
+     */
+    protected void filterTypes(List<SampleType> types)
+    {
+    }
+
     //
     // initial value support
     //
@@ -163,6 +171,7 @@ public final class SampleTypeSelectionWidget extends DropDownList<SampleTypeMode
         @Override
         public void process(List<SampleType> result)
         {
+            filterTypes(result);
             super.process(result);
             selectInitialValue();
         }

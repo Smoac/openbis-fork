@@ -61,8 +61,9 @@ public class ParentlessMsInjectionSampleProvider extends AbstractCommonTableMode
         spaceCriterion.setValue(CommonConstants.MS_DATA_SPACE);
         DetailedSearchCriterion registratorCriterion = new DetailedSearchCriterion();
         String userName = commonServer.tryGetSession(sessionToken).getUserName();
-        registratorCriterion.setField(DetailedSearchField.createRegistratorField(""));
+        registratorCriterion.setField(DetailedSearchField.createRegistratorField());
         registratorCriterion.setValue(userName);
+        System.out.println("userName:"+userName);
         criteria.setCriteria(Arrays.asList(typeCriterion, spaceCriterion, registratorCriterion));
         List<Sample> samples = commonServer.searchForSamples(sessionToken, criteria);
         TypedTableModelBuilder<Sample> builder = new TypedTableModelBuilder<Sample>();

@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -63,6 +64,9 @@ public interface IPhosphoNetXClientService extends IClientService
             throws UserFailureException;
     
     public void linkSamples(Sample parentSample, List<Sample> childSamples) throws UserFailureException;
+    
+    public void createAndLinkSamples(NewSample newBiologicalSample,
+            List<Sample> msInjectionSamples) throws UserFailureException;
     
     public Vocabulary getTreatmentTypeVocabulary() throws UserFailureException;
 

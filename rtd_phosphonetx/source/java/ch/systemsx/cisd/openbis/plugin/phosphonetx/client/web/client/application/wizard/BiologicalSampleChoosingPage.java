@@ -22,7 +22,6 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.util.Margins;
-import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 
@@ -49,9 +48,7 @@ public class BiologicalSampleChoosingPage extends WizardPage<MsInjectionSampleAn
     {
         super(viewContext, MsInjectionAnnotationWizardState.BIOLOGICAL_SAMPLE_CHOOSING, model);
         this.viewContext = viewContext;
-        setLeftContentBy(new Html(
-                "Annotating <tt>MS_INJECTION</tt> sample by choosing one biological sample means " +
-                "that all properties of the biological sample is also for the <tt>MS_INJECTION</tt> to be annotated."));
+        setLeftContentByDictionary();
     }
 
     @Override

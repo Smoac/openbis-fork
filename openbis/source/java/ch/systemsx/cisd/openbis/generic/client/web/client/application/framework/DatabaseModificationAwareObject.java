@@ -66,6 +66,11 @@ public class DatabaseModificationAwareObject<T> implements IDatabaseModification
         this.modificationObserver = modificationObserver;
     }
 
+    public IDatabaseModificationObserver getModificationObserver()
+    {
+        return modificationObserver;
+    }
+
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return modificationObserver.getRelevantModifications();

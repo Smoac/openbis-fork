@@ -25,6 +25,7 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
@@ -340,7 +341,13 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
 
     protected final String createSampleIdentifier()
     {
-        final Space space = groupSelectionWidget.tryGetSelectedSpace();
+        return createSampleIdentifier(groupSelectionWidget, codeField);
+    }
+
+    public static final String createSampleIdentifier(SpaceSelectionWidget spaceSelectionWidget,
+            Field<String> codeField)
+    {
+        final Space space = spaceSelectionWidget.tryGetSelectedSpace();
         final boolean shared = SpaceSelectionWidget.isSharedSpace(space);
         final String code = codeField.getValue();
         final StringBuilder builder = new StringBuilder("/");
@@ -351,7 +358,7 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
         builder.append(code);
         return builder.toString().toUpperCase();
     }
-
+    
     /** sets visibility of container and parent fields dependent on sample type */
     private final void setContainerAndParentVisibility(final SampleType sampleType)
     {

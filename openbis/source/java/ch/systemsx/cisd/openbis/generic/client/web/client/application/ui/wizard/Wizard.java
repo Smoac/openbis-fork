@@ -21,18 +21,22 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.layout.CardLayout;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+
 /**
  * Container of {@link WizardPage} instance. Manages changing between pages.
  *
  * @author Franz-Josef Elmer
  */
-public class Wizard<M extends IWizardDataModel> extends LayoutContainer
+public class Wizard<M extends IWizardDataModel> extends LayoutContainer implements IDisposableComponent
 {
     private final CardLayout layout;
     
@@ -86,6 +90,28 @@ public class Wizard<M extends IWizardDataModel> extends LayoutContainer
         workflowModel.nextState();
     }
 
+    public void update(Set<DatabaseModificationKind> observedModifications)
+    {
+    }
+
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        return new DatabaseModificationKind[0];
+    }
+
+    public Component getComponent()
+    {
+        return this;
+    }
+
+    public void dispose()
+    {
+        for (WizardPage<M> page : visitedPages)
+        {
+            page.destroy();
+        }
+    }
+
     private void changePage(IWizardState previousStateOrNull, IWizardState currentStateOrNull)
     {
         if (currentStateOrNull != null)
@@ -106,10 +132,6 @@ public class Wizard<M extends IWizardDataModel> extends LayoutContainer
         {
             String message = model.finish();
             MessageBox.info("Info", message, null);
-            for (WizardPage<M> page : visitedPages)
-            {
-                page.destroy();
-            }
             Widget parent = getParent();
             if (parent instanceof TabItem)
             {
