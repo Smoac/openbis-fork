@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -61,6 +62,18 @@ public class ProcessingStatus
     public void addDatasetStatus(DatasetDescription dataset, Status status)
     {
         addDatasetStatus(dataset.getDatasetCode(), status);
+    }
+
+    public Status tryGetStatusByDataset(String datasetCode)
+    {
+        for (Entry<Status, List<String>> entry : datasetByStatus.entrySet())
+        {
+            if (entry.getValue().contains(datasetCode))
+            {
+                return entry.getKey();
+            }
+        }
+        return null;
     }
 
 }
