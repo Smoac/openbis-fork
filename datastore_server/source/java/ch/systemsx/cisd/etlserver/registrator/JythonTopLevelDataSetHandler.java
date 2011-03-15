@@ -193,14 +193,20 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
             DataSetRegistrationTransaction<T> transaction,
             DataSetStorageAlgorithmRunner<T> algorithmRunner, Throwable ex)
     {
+        invokeRollbackTransactionFunction(service, transaction, algorithmRunner, ex);
+        super.rollbackTransaction(service, transaction, algorithmRunner, ex);
+    }
+
+    private void invokeRollbackTransactionFunction(DataSetRegistrationService<T> service,
+            DataSetRegistrationTransaction<T> transaction,
+            DataSetStorageAlgorithmRunner<T> algorithmRunner, Throwable ex)
+    {
         PythonInterpreter interpreter = getInterpreterFromService(service);
         PyFunction function = tryJythonFunction(interpreter, ROLLBACK_TRANSACTION_FUNCTION_NAME);
         if (null != function)
         {
             invokeRollbackTransactionFunction(function, service, transaction, algorithmRunner, ex);
         }
-
-        super.rollbackTransaction(service, transaction, algorithmRunner, ex);
     }
 
     private PyFunction tryJythonFunction(PythonInterpreter interpreter, String functionName)
