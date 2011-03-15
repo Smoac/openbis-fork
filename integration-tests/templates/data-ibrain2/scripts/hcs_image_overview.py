@@ -29,7 +29,7 @@ def register(incomingPath):
     imageDataset.setGenerateThumbnails(True)
     imageDataset.setMaxThumbnailWidthAndHeight(imageDataset.THUMBANAIL_SIZE)
 
-    commonDropbox.setImageDatasetPropertiesAndRegister(imageDataset, iBrain2DatasetId, metadataParser, incoming, service, factory)
+    commonDropbox.setImageDatasetPropertiesAndRegister(imageDataset, metadataParser, incoming, service, factory)
 
 def rollback_transaction(service, transaction, algorithmRunner, throwable):
     commonDropbox.createFailureStatus(iBrain2DatasetId, throwable, incoming)

@@ -19,16 +19,7 @@ def register(incomingPath):
     if plate == None:
         return
     
-    imageDataset = commonImageDropbox.IBrain2ImageDataSetConfig()
-    imageDataset.setOverviewImageDatasetType()
-    imageDataset.setPlate(space, plate)
-    imageDataset.setFileFormatType("JPG")
-    imageDataset.setRecognizedImageExtensions(["jpg", "jpeg", "png", "gif"])    
-    imageDataset.setStoreChannelsOnExperimentLevel(False)
-    imageDataset.setGenerateThumbnails(True)
-    imageDataset.setMaxThumbnailWidthAndHeight(imageDataset.THUMBANAIL_SIZE)
-
-    commonDropbox.setPropertiesAndRegister(imageDataset, iBrain2DatasetId, metadataParser, incoming, service, factory)
+    #TODO: finish me !!!!
 
 def rollback_transaction(service, transaction, algorithmRunner, throwable):
     commonDropbox.createFailureStatus(iBrain2DatasetId, throwable, incoming)

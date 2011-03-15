@@ -10,6 +10,7 @@ class AbstractPropertiesParser:
 		path = os.path.join(incoming, fileName)
 		self._propertiesDict = self._parseMetadata(path)
 	
+	# Returns: name of the file
 	def _findFile(self, incoming, prefix):
 		for file in os.listdir(incoming):
 			if file.startswith(prefix):
@@ -184,30 +185,34 @@ class RegistrationConfirmationUtils:
 
 # --------------
 
-def setImageDatasetPropertiesAndRegister(imageDataset, iBrain2DatasetId, metadataParser, incoming, service, factory):
-    imageRegistrationDetails = factory.createImageRegistrationDetails(imageDataset, incoming)
-    for propertyCode, value in metadataParser.getDatasetPropertiesIter():
-        imageRegistrationDetails.setPropertyValue(propertyCode, value)
+def setImageDatasetPropertiesAndRegister(imageDataset, metadataParser, incoming, service, factory):
+	iBrain2DatasetId = metadataParser.getIBrain2DatasetId()
+   	imageRegistrationDetails = factory.createImageRegistrationDetails(imageDataset, incoming)
+   	for propertyCode, value in metadataParser.getDatasetPropertiesIter():
+   		imageRegistrationDetails.setPropertyValue(propertyCode, value)
 
-    tr = service.transaction(incoming, factory)
-    dataset = tr.createNewDataSet(imageRegistrationDetails)
-    dataset.setParentDatasets([metadataParser.getParentDatasetPermId()])
-    imageDataSetFolder = tr.moveFile(incoming.getPath(), dataset)
-    if tr.commit():
+	tr = service.transaction(incoming, factory)
+	dataset = tr.createNewDataSet(imageRegistrationDetails)
+	dataset.setParentDatasets([metadataParser.getParentDatasetPermId()])
+	imageDataSetFolder = tr.moveFile(incoming.getPath(), dataset)
+	if tr.commit():
 		createSuccessStatus(iBrain2DatasetId, dataset, incoming.getPath())
 
 def registerDerivedBlackBoxDataset(state, service, factory, incoming, metadataParser, datasetType, fileFormatType):
+    transaction = service.transaction(incoming, factory)
+    dataset = transaction.createNewDataSet()
+    dataset.setDataSetType(datasetType)
+    dataset.setFileFormatType(fileFormatType)
+    registerDerivedDataset(state, transaction, dataset, incoming, metadataParser)
+    
+def registerDerivedDataset(state, transaction, dataset, incoming, metadataParser):
     iBrain2DatasetId = metadataParser.getIBrain2DatasetId()
     openbisDatasetParent = metadataParser.getParentDatasetPermId()
 
     (space, plate) = tryGetConnectedPlate(state, openbisDatasetParent, iBrain2DatasetId, incoming.getPath())
     if plate == None:
         return
-    transaction = service.transaction(incoming, factory)
     
-    dataset = transaction.createNewDataSet()
-    dataset.setDataSetType(datasetType)
-    dataset.setFileFormatType(fileFormatType)
     dataset.setSample(transaction.getSample('/'+space+'/'+plate))
     dataset.setMeasuredData(False)
     for propertyCode, value in metadataParser.getDatasetPropertiesIter():
@@ -217,6 +222,12 @@ def registerDerivedBlackBoxDataset(state, service, factory, incoming, metadataPa
     transaction.moveFile(incoming.getPath(), dataset)
     if transaction.commit():
         createSuccessStatus(iBrain2DatasetId, dataset, incoming.getPath())
+
+def findCSVFile(dir):
+	for file in os.listdir(dir):
+		if file.endswith(".csv"):
+			return dir + "/" + file
+	raise Exception("No CSV file has been found in "+dir)
 
 """
 Returns:
