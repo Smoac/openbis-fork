@@ -12,6 +12,7 @@ iBrain2DatasetId = None
 
 def register(incomingPath):
     metadataParser = commonDropbox.DerivedDatasetMetadataParser(incomingPath)
+    global iBrain2DatasetId
     iBrain2DatasetId = metadataParser.getIBrain2DatasetId()
     openbisDatasetParent = metadataParser.getParentDatasetPermId()
 
@@ -28,7 +29,7 @@ def register(incomingPath):
     imageDataset.setGenerateThumbnails(True)
     imageDataset.setMaxThumbnailWidthAndHeight(imageDataset.THUMBANAIL_SIZE)
 
-    commonDropbox.setPropertiesAndRegister(imageDataset, iBrain2DatasetId, metadataParser, incoming, service, factory)
+    commonDropbox.setImageDatasetPropertiesAndRegister(imageDataset, iBrain2DatasetId, metadataParser, incoming, service, factory)
 
 def rollback_transaction(service, transaction, algorithmRunner, throwable):
     commonDropbox.createFailureStatus(iBrain2DatasetId, throwable, incoming)

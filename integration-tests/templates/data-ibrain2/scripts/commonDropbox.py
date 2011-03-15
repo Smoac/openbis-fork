@@ -184,7 +184,7 @@ class RegistrationConfirmationUtils:
 
 # --------------
 
-def setPropertiesAndRegister(imageDataset, iBrain2DatasetId, metadataParser, incoming, service, factory):
+def setImageDatasetPropertiesAndRegister(imageDataset, iBrain2DatasetId, metadataParser, incoming, service, factory):
     imageRegistrationDetails = factory.createImageRegistrationDetails(imageDataset, incoming)
     for propertyCode, value in metadataParser.getDatasetPropertiesIter():
         imageRegistrationDetails.setPropertyValue(propertyCode, value)
@@ -193,11 +193,31 @@ def setPropertiesAndRegister(imageDataset, iBrain2DatasetId, metadataParser, inc
     dataset = tr.createNewDataSet(imageRegistrationDetails)
     dataset.setParentDatasets([metadataParser.getParentDatasetPermId()])
     imageDataSetFolder = tr.moveFile(incoming.getPath(), dataset)
-    ok = tr.commit()
-    if ok:
-		print "success", iBrain2DatasetId
+    if tr.commit():
 		createSuccessStatus(iBrain2DatasetId, dataset, incoming.getPath())
+
+def registerDerivedBlackBoxDataset(state, service, factory, incoming, metadataParser, datasetType, fileFormatType):
+    iBrain2DatasetId = metadataParser.getIBrain2DatasetId()
+    openbisDatasetParent = metadataParser.getParentDatasetPermId()
+
+    (space, plate) = tryGetConnectedPlate(state, openbisDatasetParent, iBrain2DatasetId, incoming.getPath())
+    if plate == None:
+        return
+    transaction = service.transaction(incoming, factory)
     
+    dataset = transaction.createNewDataSet()
+    dataset.setDataSetType(datasetType)
+    dataset.setFileFormatType(fileFormatType)
+    dataset.setSample(transaction.getSample('/'+space+'/'+plate))
+    dataset.setMeasuredData(False)
+    for propertyCode, value in metadataParser.getDatasetPropertiesIter():
+        dataset.setPropertyValue(propertyCode, value)
+    dataset.setParentDatasets([metadataParser.getParentDatasetPermId()])
+
+    transaction.moveFile(incoming.getPath(), dataset)
+    if transaction.commit():
+        createSuccessStatus(iBrain2DatasetId, dataset, incoming.getPath())
+
 """
 Returns:
    (plateSpace, plateCode) tuple for the plate connected with the specified dataset
@@ -214,6 +234,7 @@ def tryGetConnectedPlate(state, openbisDatasetId, iBrain2DatasetId, incomingPath
 			errorMsg = "No plate is connected to the dataset: "+openbisDatasetId+"."
 	else:
 		errorMsg = "Dataset does not exist or is not accessible: "+openbisDatasetId+". Maybe the dataset has not been registered yet. Try again later."
+	print errorMsg
 	RegistrationConfirmationUtils().createFailureStatus(iBrain2DatasetId, errorMsg, incomingPath)
 	return (None, None)
 

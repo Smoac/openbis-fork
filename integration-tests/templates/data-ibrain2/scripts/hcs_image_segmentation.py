@@ -33,10 +33,9 @@ def register(incomingPath):
     imageDataset.setStoreChannelsOnExperimentLevel(False)
     imageDataset.setOriginalDataStorageFormat(OriginalDataStorageFormat.HDF5)
   
-    commonDropbox.setPropertiesAndRegister(imageDataset, iBrain2DatasetId, metadataParser, incoming, service, factory)
+    commonDropbox.setImageDatasetPropertiesAndRegister(imageDataset, iBrain2DatasetId, metadataParser, incoming, service, factory)
 
 def rollback_transaction(service, transaction, algorithmRunner, throwable):
-    print 'failure', iBrain2DatasetId
     commonDropbox.createFailureStatus(iBrain2DatasetId, throwable, incoming)
             
 if incoming.isDirectory():
