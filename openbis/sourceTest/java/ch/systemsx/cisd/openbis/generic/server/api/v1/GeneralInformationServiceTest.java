@@ -234,7 +234,7 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
                 + "PROPERTY MY_PROPERTY2: a property value (with wildcards)",
                 detailedSearchCriteriaMatcher.recordedObject().toString());
         // check experiment subcriteria
-        assertEquals("[Experiment: ATTRIBUTE CODE: a code AND ATTRIBUTE PROJECT: a project AND "
+        assertEquals("[EXPERIMENT: ATTRIBUTE CODE: a code AND ATTRIBUTE PROJECT: a project AND "
                 + "PROPERTY EXP_PROPERTY: exp property value (with wildcards)]",
                 detailedSearchSubCriteriaMatcher.recordedObject().toString());
         context.assertIsSatisfied();
