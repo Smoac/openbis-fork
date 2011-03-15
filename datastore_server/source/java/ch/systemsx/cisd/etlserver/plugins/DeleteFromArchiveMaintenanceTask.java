@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.etlserver.plugins;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -101,13 +102,36 @@ public class DeleteFromArchiveMaintenanceTask extends
         ArchiverPluginFactory archiverFactory = provider.getArchiverPluginFactory();
         IArchiverPlugin archiver = archiverFactory.createInstance(provider.getStoreRoot());
 
-        archiver.deleteFromArchive(datasets);
+        List<DeletedDataSet> datasetsToBeArchived = datasets;
+        if (lastSeenEventIdFile.exists() == false)
+        {
+            datasetsToBeArchived = filterOldStyleHistoryEvents(datasets);
+        }
+
+        archiver.deleteFromArchive(datasetsToBeArchived);
 
         String logMessage =
-                String.format("Deleted %s dataset from archive: '%s'", datasets.size(),
-                        CollectionUtils.abbreviate(datasets, 10));
+                String.format("Deleted %s dataset from archive: '%s'", datasetsToBeArchived.size(),
+                        CollectionUtils.abbreviate(datasetsToBeArchived, 10));
         operationLog.info(logMessage);
 
+    }
+
+    // NOTE: Before the introduction of eager-archiving the column which now corresponds to
+    // "deletedDataset.location" used to contain the dataset identifier. To avoid triggering
+    // deletion from archive for such invalid events we filter them out. This only happens when in
+    // the first run of the maintenance task.
+    private List<DeletedDataSet> filterOldStyleHistoryEvents(List<DeletedDataSet> datasets)
+    {
+        List<DeletedDataSet> result = new ArrayList<DeletedDataSet>();
+        for (DeletedDataSet dataset : datasets) {
+            if (dataset.getIdentifier() != null
+                    && false == dataset.getIdentifier().equals(dataset.getLocation()))
+            {
+                result.add(dataset);
+            }
+        }
+        return result;
     }
 
 }

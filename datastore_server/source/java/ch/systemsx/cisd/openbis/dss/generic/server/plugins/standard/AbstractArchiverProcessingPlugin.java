@@ -121,11 +121,11 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
 
         GroupedDatasets groupedDatasets = groupByPresenceInArchive(datasets, context);
         List<DatasetDescription> notPresentInArchive = groupedDatasets.getNotPresentAsList();
+        DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
         if (notPresentInArchive.isEmpty() == false)
         {
             // copy data sets in the archive
-            // TODO KE: try to keep the error messages from the returned statuses
-            doArchive(notPresentInArchive, context);
+            statuses = doArchive(notPresentInArchive, context);
 
             // paranoid check to make sure everything really got archived
             groupedDatasets = groupByPresenceInArchive(datasets, context);
@@ -137,12 +137,44 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
             removeFromDataStore(groupedDatasets.getPresentInArchive(), context);
         }
         
-        DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
-        statuses.addResult(groupedDatasets.getPresentInArchive(), Status.OK, Operation.ARCHIVE);
-        statuses.addResult(groupedDatasets.getNotPresentInArchive().keySet(), Status.createError(),
-                Operation.ARCHIVE);
+        // merge the archiver statuses with the paranoid check results
+        return mergeArchiveStatuses(statuses, groupedDatasets);
+    }
 
-        return statuses;
+    private DatasetProcessingStatuses mergeArchiveStatuses(DatasetProcessingStatuses statuses,
+            GroupedDatasets groupedDatasets)
+    {
+        DatasetProcessingStatuses result = new DatasetProcessingStatuses();
+        for (DatasetDescription dataset : groupedDatasets.getPresentInArchive())
+        {
+            String dataSetCode = dataset.getDatasetCode();
+            Status status = getStatusForDataset(statuses, dataSetCode, Status.OK);
+            result.addResult(dataSetCode, status, Operation.ARCHIVE);
+        }
+        for (DatasetDescription dataset : groupedDatasets.getNotPresentAsList())
+        {
+            String dataSetCode = dataset.getDatasetCode();
+            Status status = getStatusForDataset(statuses, dataSetCode, Status.createError());
+            result.addResult(dataSetCode, status, Operation.ARCHIVE);
+        }
+
+        return result;
+    }
+
+    private Status getStatusForDataset(DatasetProcessingStatuses statuses, String dataSetCode,
+            Status defaultStatus)
+    {
+        Status status = statuses.getProcessingStatus().tryGetStatusByDataset(dataSetCode);
+        if (status == null)
+        {
+            status = defaultStatus;
+        } else if (status.isError() != defaultStatus.isError())
+        {
+            // the status returned from the archiver is actually incorrect !
+            // our paranoic check showed that the dataset was in fact *not* present in archive
+            status = defaultStatus;
+        }
+        return status;
     }
 
     protected void removeFromDataStore(List<DatasetDescription> datasets,

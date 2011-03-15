@@ -157,9 +157,6 @@ public class RsyncDataSetCopier // TODO rename to DataSetFileOperationsManager
     {
         try
         {
-            // TODO KE: Piotr, here we might have "invalid" values for location
-            // coming from the old-style description contents. We could only execute the following
-            // logic if dataset.getLocation() != dataset.getIdentifier() ?
             File destinationFolder = new File(destination, dataset.getLocation());
             BooleanStatus destinationExists = destinationExists(destinationFolder);
             if (destinationExists.isSuccess())
