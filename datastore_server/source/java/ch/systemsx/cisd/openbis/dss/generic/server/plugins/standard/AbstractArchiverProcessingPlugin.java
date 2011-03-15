@@ -30,9 +30,10 @@ import java.util.Properties;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ArchiverTaskContext;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IArchiverPlugin;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ProcessingStatus;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IArchiverPlugin;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDeleter;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.QueueingDataSetStatusUpdaterService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetCodesWithStatus;
@@ -181,7 +182,8 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
             ArchiverTaskContext context)
     {
         // the deletion will happen at a later point in time
-        ServiceProvider.getDataSetDeleter().scheduleDeletionOfDataSets(datasets);
+        IDataSetDeleter dataSetDeleter = ServiceProvider.getDataStoreService().getDataSetDeleter();
+        dataSetDeleter.scheduleDeletionOfDataSets(datasets);
     }
 
     public ProcessingStatus unarchive(List<DatasetDescription> datasets,

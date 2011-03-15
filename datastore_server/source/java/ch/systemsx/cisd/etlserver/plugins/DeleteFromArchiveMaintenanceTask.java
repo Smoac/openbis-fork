@@ -25,9 +25,8 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ArchiverPluginFactory;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IArchiverPlugin;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProviders;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IArchiverPlugin;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 
 /**
@@ -98,17 +97,14 @@ public class DeleteFromArchiveMaintenanceTask extends
     @Override
     protected void execute(List<DeletedDataSet> datasets)
     {
-        PluginTaskProviders provider = PluginTaskProviders.create();
-        ArchiverPluginFactory archiverFactory = provider.getArchiverPluginFactory();
-        IArchiverPlugin archiver = archiverFactory.createInstance(provider.getStoreRoot());
-
         List<DeletedDataSet> datasetsToBeArchived = datasets;
         if (lastSeenEventIdFile.exists() == false)
         {
             datasetsToBeArchived = filterOldStyleHistoryEvents(datasets);
         }
 
-        archiver.deleteFromArchive(datasetsToBeArchived);
+        IArchiverPlugin archiverPlugin = ServiceProvider.getDataStoreService().getArchiverPlugin();
+        archiverPlugin.deleteFromArchive(datasetsToBeArchived);
 
         String logMessage =
                 String.format("Deleted %s dataset from archive: '%s'", datasetsToBeArchived.size(),

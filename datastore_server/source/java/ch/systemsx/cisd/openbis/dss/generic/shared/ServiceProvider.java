@@ -90,14 +90,12 @@ public class ServiceProvider
         return ((DataSourceProvider) getApplicationContext().getBean("data-source-provider"));
     }
 
-    public static IDataSetDeleter getDataSetDeleter()
+    public static IDataStoreServiceInternal getDataStoreService()
     {
         Advised advised = (Advised) getApplicationContext().getBean("data-store-service");
         try
         {
-            IDataSetDeleterProvider dssService =
-                    (IDataSetDeleterProvider) advised.getTargetSource().getTarget();
-            return dssService.getDataSetDeleter();
+            return (IDataStoreServiceInternal) advised.getTargetSource().getTarget();
         } catch (Exception ex)
         {
             operationLog.error("Cannot get IDataSetDeleter instance :" + ex.getMessage(), ex);

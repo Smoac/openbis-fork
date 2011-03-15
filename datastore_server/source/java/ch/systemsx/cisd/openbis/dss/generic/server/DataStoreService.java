@@ -36,20 +36,19 @@ import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.common.spring.AbstractServiceWithLogger;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
-import ch.systemsx.cisd.common.utilities.IInitializable;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ArchiverPluginFactory;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ArchiverTaskContext;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IArchiverPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProviders;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ProcessingStatus;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IArchiverPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDeleter;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDeleterProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IDataStoreServiceInternal;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
@@ -67,7 +66,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.UuidUtil;
  * @author Franz-Josef Elmer
  */
 public class DataStoreService extends AbstractServiceWithLogger<IDataStoreService> implements
-        IDataStoreService, IDataSetDeleterProvider, InitializingBean, IInitializable
+        IDataStoreServiceInternal, InitializingBean
 {
     private final SessionTokenManager sessionTokenManager;
 
@@ -336,7 +335,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
             String userEmailOrNull)
     {
         String description = "Unarchiving";
-        IProcessingPluginTask task = new UnarchiveProcessingPluginTask(createArchiver());
+        IProcessingPluginTask task = new UnarchiveProcessingPluginTask(getArchiverPlugin());
 
         scheduleTask(sessionToken, description, task, datasets, userEmailOrNull);
     }
@@ -346,12 +345,12 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     {
         String description = removeFromDataStore ? "Archiving" : "Copying data sets to archive";
         IProcessingPluginTask task =
-                new ArchiveProcessingPluginTask(createArchiver(), removeFromDataStore);
+                new ArchiveProcessingPluginTask(getArchiverPlugin(), removeFromDataStore);
         
         scheduleTask(sessionToken, description, task, datasets, userEmailOrNull);
     }
 
-    private IArchiverPlugin createArchiver()
+    public IArchiverPlugin getArchiverPlugin()
     {
         ArchiverPluginFactory factory = pluginTaskParameters.getArchiverPluginFactory();
         return factory.createInstance(storeRoot);
