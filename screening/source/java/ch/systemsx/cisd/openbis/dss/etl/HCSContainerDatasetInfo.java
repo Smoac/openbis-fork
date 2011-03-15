@@ -151,7 +151,8 @@ public class HCSContainerDatasetInfo
     static PlateDimension getPlateGeometry(final DataSetInformation dataSetInformation)
     {
         IEntityProperty[] sampleProperties = dataSetInformation.getProperties();
-        if (sampleProperties == null && dataSetInformation.tryToGetSample() != null)
+        if ((sampleProperties == null || sampleProperties.length == 0)
+                && dataSetInformation.tryToGetSample() != null)
         {
             sampleProperties =
                     dataSetInformation.tryToGetSample().getProperties()
