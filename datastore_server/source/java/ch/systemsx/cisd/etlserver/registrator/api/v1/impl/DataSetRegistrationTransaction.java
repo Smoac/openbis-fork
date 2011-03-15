@@ -256,18 +256,21 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
 
     /**
      * Commit the transaction
+     * 
+     * @return true if any datasets has been commited
      */
-    public void commit()
+    public boolean commit()
     {
         // No need to commit again
         if (state instanceof CommitedTransactionState)
         {
-            return;
+            return false;
         }
         LiveTransactionState<T> liveState = getStateAsLiveState();
-        liveState.commit();
+        boolean datasetsCommited = liveState.commit();
 
         state = new CommitedTransactionState<T>(liveState);
+        return datasetsCommited;
     }
 
     /**

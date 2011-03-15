@@ -268,9 +268,11 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
         }
 
         /**
-         * Commit the transaction
+         * Commit the transaction.
+         * 
+         * @return true if any datasets has been commited
          */
-        public void commit()
+        public boolean commit()
         {
             ArrayList<DataSetStorageAlgorithm<T>> algorithms =
                     new ArrayList<DataSetStorageAlgorithm<T>>(registeredDataSets.size());
@@ -293,7 +295,8 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
 
             DataSetStorageAlgorithmRunner<T> runner =
                     new DataSetStorageAlgorithmRunner<T>(algorithms, parent, parent);
-            runner.prepareAndRunStorageAlgorithms();
+            List<DataSetInformation> datasets = runner.prepareAndRunStorageAlgorithms();
+            return datasets.isEmpty() == false;
         }
 
         /**
