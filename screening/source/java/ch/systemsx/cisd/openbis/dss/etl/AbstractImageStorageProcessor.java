@@ -252,6 +252,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
             AbstractStorageProcessorTransaction
     {
         private IImagingQueryDAO dbTransaction;
+
         // used when HDF5 is used to store original data
         private boolean shouldDeleteOriginalDataOnCommit;
 
@@ -618,7 +619,8 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
         if (imageDataSetInfo.isValid() == false)
         {
             throw ConfigurationFailureException
-                    .fromTemplate("Invalid image dataset info object, check if your jython script fills all the fields: "
+                    .fromTemplate("Invalid image dataset info object, check if your jython script fills all the required fields. "
+                            + "Or maybe the recognized files extensions is set incorrectly? Dataset: "
                             + imageDataSetInfo);
         }
         Geometry tileGeometry =

@@ -22,6 +22,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import ch.systemsx.cisd.common.collections.CollectionUtils;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
@@ -116,6 +118,13 @@ public class SimpleImageDataSetRegistrator
             ImageMetadata imageTokens = imageDataSet.extractImageMetadata(imageRelativePath);
             imageTokens.ensureValid();
             imageTokensList.add(new ImageTokensWithPath(imageTokens, imageRelativePath));
+        }
+        if (imageTokensList.size() == 0)
+        {
+            throw UserFailureException.fromTemplate(
+                    "Incoming directory '%s' contains no images with extensions %s!",
+                    incomingDirectory.getPath(),
+                    CollectionUtils.abbreviate(imageDataSet.getRecognizedImageExtensions(), -1));
         }
         return imageTokensList;
     }

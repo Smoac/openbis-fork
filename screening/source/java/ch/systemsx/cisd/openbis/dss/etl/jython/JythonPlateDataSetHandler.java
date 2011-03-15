@@ -86,7 +86,7 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
         }
 
         /** a simple method to register the described image dataset in a separate transaction */
-        public void registerImageDataset(SimpleImageDataConfig imageDataSet,
+        public boolean registerImageDataset(SimpleImageDataConfig imageDataSet,
                 File incomingDatasetFolder,
                 DataSetRegistrationService<ImageDataSetInformation> service)
         {
@@ -96,7 +96,7 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
                     service.transaction(incomingDatasetFolder, imageDatasetFactory);
             IDataSet newDataset = transaction.createNewDataSet(imageDatasetDetails);
             transaction.moveFile(incomingDatasetFolder.getPath(), newDataset);
-            transaction.commit();
+            return transaction.commit();
         }
 
         // ----

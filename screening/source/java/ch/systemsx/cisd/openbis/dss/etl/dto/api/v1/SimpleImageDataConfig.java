@@ -101,6 +101,8 @@ abstract public class SimpleImageDataConfig
 
     private boolean generateThumbnailsWithImageMagic = false;
 
+    private boolean generateThumbnailsInHighQuality = false;
+
     private double allowedMachineLoadDuringThumbnailsGeneration = 1.0;
 
     private boolean storeChannelsOnExperimentLevel = false;
@@ -125,6 +127,7 @@ abstract public class SimpleImageDataConfig
             thumbnailsStorageFormat.setMaxWidth(getMaxThumbnailWidthAndHeight());
             thumbnailsStorageFormat.setMaxHeight(getMaxThumbnailWidthAndHeight());
             thumbnailsStorageFormat.setGenerateWithImageMagic(generateThumbnailsWithImageMagic);
+            thumbnailsStorageFormat.setHighQuality(generateThumbnailsInHighQuality);
             imageStorageConfiguraton.setThumbnailsStorageFormat(thumbnailsStorageFormat);
         }
         return imageStorageConfiguraton;
@@ -223,6 +226,15 @@ abstract public class SimpleImageDataConfig
     public void setUseImageMagicToGenerateThumbnails(boolean generateWithImageMagic)
     {
         this.generateThumbnailsWithImageMagic = generateWithImageMagic;
+    }
+
+    /**
+     * if true and thumbnails generation is switched on, thumbnails will be generated with high
+     * quality.
+     */
+    public void setGenerateHighQualityThumbnails(boolean highQualityThumbnails)
+    {
+        this.generateThumbnailsInHighQuality = highQualityThumbnails;
     }
 
     /** Should all dataset in one experiment use the same channels? By default set to false. */
