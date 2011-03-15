@@ -122,12 +122,12 @@ public class TopLevelDataSetRegistratorGlobalState
         return deleteUnidentified;
     }
 
-    public String getPreRegistrationScriptOrNull()
+    public String getPreRegistrationScript()
     {
         return preRegistrationScriptOrNull;
     }
 
-    public String getPostRegistrationScriptOrNull()
+    public String getPostRegistrationScript()
     {
         return postRegistrationScriptOrNull;
     }

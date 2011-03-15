@@ -102,9 +102,9 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                     new DataStrategyStore(globalState.getOpenBisService(),
                             globalState.getMailClient());
             this.preRegistrationAction =
-                    PreRegistrationExecutor.create(globalState.getPreRegistrationScriptOrNull());
+                    PreRegistrationExecutor.create(globalState.getPreRegistrationScript());
             this.postRegistrationAction =
-                    PostRegistrationExecutor.create(globalState.getPostRegistrationScriptOrNull());
+                    PostRegistrationExecutor.create(globalState.getPostRegistrationScript());
             this.markerFileUtility =
                     new MarkerFileUtility(operationLog, notificationLog, fileOperations,
                             storageProcessor);

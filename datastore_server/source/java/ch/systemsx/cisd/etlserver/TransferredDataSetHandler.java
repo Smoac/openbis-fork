@@ -159,9 +159,9 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
         this.useIsFinishedMarkerFile = globalState.isUseIsFinishedMarkerFile();
         this.deleteUnidentified = globalState.isDeleteUnidentified();
         this.preRegistrationAction =
-                PreRegistrationExecutor.create(globalState.getPreRegistrationScriptOrNull());
+                PreRegistrationExecutor.create(globalState.getPreRegistrationScript());
         this.postRegistrationAction =
-                PostRegistrationExecutor.create(globalState.getPostRegistrationScriptOrNull());
+                PostRegistrationExecutor.create(globalState.getPostRegistrationScript());
 
         this.markerFileUtility =
                 new MarkerFileUtility(operationLog, notificationLog, fileOperations,
