@@ -23,9 +23,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -59,9 +59,16 @@ public class EventDAOTest extends AbstractDAOTest
         }
     }
 
+    private List<DeletedDataSet> listDataDeletionEvents(Long lastSeenDeletionEventIdOrNull,
+            Date maxDeletionDateOrNull)
+    {
+        return daoFactory.getEventDAO().listDeletedDataSets(lastSeenDeletionEventIdOrNull,
+                maxDeletionDateOrNull);
+    }
+
     private List<DeletedDataSet> listDataDeletionEvents(Long lastSeenDeletionEventIdOrNull)
     {
-        return daoFactory.getEventDAO().listDeletedDataSets(lastSeenDeletionEventIdOrNull);
+        return listDataDeletionEvents(lastSeenDeletionEventIdOrNull, null);
     }
 
     @Test
@@ -148,8 +155,22 @@ public class EventDAOTest extends AbstractDAOTest
         assertCorrectResult(0, result);
     }
 
+    @Test
+    public void testListDeletedDataSetsWithSinceDate() throws Exception
+    {
+        Date beforeDate = new Date(0);
+        Date afterDate = new Date();
+        Date queryDate = new Date(afterDate.getTime() / 2);
+
+        saveEvent(EventType.DELETION, EntityType.DATASET, DELETE_ME + 1, AFTER + 1, beforeDate);
+        saveEvent(EventType.DELETION, EntityType.DATASET, DELETE_ME + 2, AFTER + 2, beforeDate);
+        saveEvent(EventType.DELETION, EntityType.DATASET, DELETE_ME + 3, AFTER + 3, afterDate);
+        List<DeletedDataSet> result = listDataDeletionEvents(SINCE, queryDate);
+        assertCorrectResult(2, result);
+    }
+
     private void saveEvent(EventType eventType, EntityType entityType, String identifier,
-            long eventId)
+            long eventId, Date date)
     {
         String description = eventType.name() + " " + entityType.name();
         PersonPE person = getSystemPerson();
@@ -158,8 +179,14 @@ public class EventDAOTest extends AbstractDAOTest
                 .update(
                         "insert into events "
                                 + "(id, event_type, description, reason, pers_id_registerer, registration_timestamp, identifier, entity_type) "
-                                + "values(?, ?, ?, ?, ?, ?, ?, ?)", eventId, eventType.name(),
-                        description, description, personId, new Date(), identifier, entityType
+                        + "values(?, ?, ?, ?, ?, ?, ?, ?)", eventId, eventType.name(), description,
+                        description, personId, date, identifier, entityType
                                 .name());
+    }
+
+    private void saveEvent(EventType eventType, EntityType entityType, String identifier,
+            long eventId)
+    {
+        saveEvent(eventType, entityType, identifier, eventId, new Date());
     }
 }

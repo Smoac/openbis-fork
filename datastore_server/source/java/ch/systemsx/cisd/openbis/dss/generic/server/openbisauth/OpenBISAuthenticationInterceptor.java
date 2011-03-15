@@ -95,7 +95,7 @@ public class OpenBISAuthenticationInterceptor implements MethodInterceptor
         this.service = service;
         this.pluginTaskDescriptions = pluginTaskParameters.getPluginTaskDescriptions();
         this.archiverConfigured =
-                pluginTaskParameters.getArchiverTaskFactory().isArchiverConfigured();
+                pluginTaskParameters.getArchiverPluginFactory().isArchiverConfigured();
         this.sessionHolder = sessionHolder;
 
     }

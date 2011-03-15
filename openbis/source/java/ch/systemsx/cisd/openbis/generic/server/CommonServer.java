@@ -2002,10 +2002,11 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     public List<DeletedDataSet> listDeletedDataSets(String sessionToken,
-            Long lastSeenDeletionEventIdOrNull)
+            Long lastSeenDeletionEventIdOrNull, Date maxDeletionDataOrNull)
     {
         checkSession(sessionToken);
-        return getDAOFactory().getEventDAO().listDeletedDataSets(lastSeenDeletionEventIdOrNull);
+        return getDAOFactory().getEventDAO().listDeletedDataSets(lastSeenDeletionEventIdOrNull,
+                maxDeletionDataOrNull);
     }
 
     // --- grid custom filters and columns

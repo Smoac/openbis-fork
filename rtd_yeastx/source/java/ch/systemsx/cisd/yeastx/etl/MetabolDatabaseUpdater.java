@@ -15,13 +15,13 @@
  */
 package ch.systemsx.cisd.yeastx.etl;
 
-import ch.systemsx.cisd.etlserver.plugins.DataSetDeletionMaintenanceTask;
+import ch.systemsx.cisd.etlserver.plugins.DeleteFromExternalDBMaintenanceTask;
 
 /**
  * Maintenance task deleting from metabol database data sets which have been deleted from openbis.
  * 
  * @author Izabela Adamczyk
  */
-public class MetabolDatabaseUpdater extends DataSetDeletionMaintenanceTask
+public class MetabolDatabaseUpdater extends DeleteFromExternalDBMaintenanceTask
 {
 }

@@ -276,7 +276,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
 
     private static String getDeletionDescription(ExternalDataPE dataSet)
     {
-        return dataSet.getIdentifier();
+        return dataSet.getLocation();
     }
 
     public String uploadLoadedDataSetsToCIFEX(DataSetUploadContext uploadContext)
@@ -672,6 +672,8 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
                 archivingAction.execute(sessionToken, service, descriptions, userEmailOrNull);
             } catch (Exception e)
             {
+                // TODO KE: 2011-03-11 clear the archiving status (ARCHIVING_PENDING --> AVAILABLE,
+                // UNARCHIVING_PEDNING --> ARCHIVED
                 throw UserFailureException
                         .fromTemplate(
                                 "Operation couldn't be performed for following datasets: %s. "

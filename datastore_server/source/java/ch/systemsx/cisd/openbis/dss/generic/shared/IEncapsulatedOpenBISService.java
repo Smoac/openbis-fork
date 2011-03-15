@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -291,9 +292,13 @@ public interface IEncapsulatedOpenBISService
     /**
      * List data sets deleted after the last seen deletion event. If event id is null all deleted
      * datasets will be returned.
+     * 
+     * @param maxDeletionDateOrNull when specified only lists data sets that have been deleted
+     *            before it.
      */
     @ManagedAuthentication
-    public List<DeletedDataSet> listDeletedDataSets(Long lastSeenDeletionEventIdOrNull);
+    public List<DeletedDataSet> listDeletedDataSets(Long lastSeenDeletionEventIdOrNull,
+            Date maxDeletionDateOrNull);
 
     /**
      * Updates specified properties of given data set.

@@ -27,6 +27,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractArchiverProcessingPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ArchiverTaskContext;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -48,7 +49,7 @@ public class DemoArchiver extends AbstractArchiverProcessingPlugin
             ArchiverTaskContext context) throws UserFailureException
     {
         System.out.println("DemoArchiver - Archived: " + datasets);
-        archiveContents.addAll(extractCodes(datasets));
+        archiveContents.addAll(DatasetDescription.extractCodes(datasets));
         return createStatuses(Status.OK, datasets, Operation.ARCHIVE);
     }
 
@@ -69,12 +70,17 @@ public class DemoArchiver extends AbstractArchiverProcessingPlugin
     }
 
     @Override
-    protected DatasetProcessingStatuses doDeleteFromArchive(List<DatasetDescription> datasets,
-            ArchiverTaskContext context) throws UserFailureException
+    public DatasetProcessingStatuses doDeleteFromArchive(List<DeletedDataSet> dataSets)
     {
-        archiveContents.addAll(extractCodes(datasets));
-        System.out.println("DemoArchiver - deleteFromArchive: " + datasets);
-        return createStatuses(Status.OK, datasets, Operation.DELETE_FROM_ARCHIVE);
+        List<String> datasetCodes = DeletedDataSet.extractDataSetCodes(dataSets);
+        archiveContents.addAll(datasetCodes);
+        System.out.println("DemoArchiver - deleteFromArchive: " + datasetCodes);
+        DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
+        for (String dataset : datasetCodes)
+        {
+            statuses.addResult(dataset, Status.OK, Operation.DELETE_FROM_ARCHIVE);
+        }
+        return statuses;
     }
 
 }

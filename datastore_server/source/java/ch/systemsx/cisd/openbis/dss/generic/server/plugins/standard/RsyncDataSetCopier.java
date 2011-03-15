@@ -37,6 +37,7 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.IDataSetFileOperationsExecutor;
 import ch.systemsx.cisd.openbis.dss.generic.server.LocalDataSetFileOperationsExcecutor;
 import ch.systemsx.cisd.openbis.dss.generic.server.RemoteDataSetFileOperationsExecutor;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -152,18 +153,21 @@ public class RsyncDataSetCopier // TODO rename to DataSetFileOperationsManager
      * Deletes specified datases's data from the destination specified in constructor. The path at
      * the destination is defined by original location of the data set.
      */
-    public Status deleteFromDestination(DatasetDescription dataset)
+    public Status deleteFromDestination(DeletedDataSet dataset)
     {
         try
         {
-            File destinationFolder = new File(destination, dataset.getDataSetLocation());
+            // TODO KE: Piotr, here we might have "invalid" values for location
+            // coming from the old-style description contents. We could only execute the following
+            // logic if dataset.getLocation() != dataset.getIdentifier() ?
+            File destinationFolder = new File(destination, dataset.getLocation());
             BooleanStatus destinationExists = destinationExists(destinationFolder);
             if (destinationExists.isSuccess())
             {
                 executor.deleteFolder(destinationFolder);
             } else
             {
-                operationLog.info("Data of data set '" + dataset.getDatasetCode()
+                operationLog.info("Data of data set '" + dataset.getIdentifier()
                         + "' don't exist in the destination '" + destinationFolder.getPath()
                         + "'. There is nothing to delete.");
             }

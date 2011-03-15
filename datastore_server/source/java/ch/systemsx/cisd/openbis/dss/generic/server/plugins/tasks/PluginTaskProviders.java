@@ -92,7 +92,7 @@ public class PluginTaskProviders
         return processingPlugins;
     }
 
-    public ArchiverPluginFactory getArchiverTaskFactory()
+    public ArchiverPluginFactory getArchiverPluginFactory()
     {
         return archiverTaskFactory;
     }

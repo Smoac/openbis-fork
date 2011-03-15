@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.QueueingDataSetStatusUpdaterS
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetCodesWithStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -76,13 +77,12 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
      */
     abstract protected DatasetProcessingStatuses doUnarchive(List<DatasetDescription> datasets,
             ArchiverTaskContext context);
-    
+
     /**
-     * NOTE: this method is not allowed to throw exception as this will leave data sets in the
-     * openBIS database with an inconsistent status.
+     * deletes data sets from archive. At the time when this method is invoken the data sets do not
+     * exist in the openBIS database.
      */
-    abstract protected DatasetProcessingStatuses doDeleteFromArchive(
-            List<DatasetDescription> datasets, ArchiverTaskContext context);
+    abstract protected DatasetProcessingStatuses doDeleteFromArchive(List<DeletedDataSet> datasets);
     
     /**
      * @return <code>true</code> if the dataset is present in the archive, <code>false</code>
@@ -174,10 +174,9 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         return statuses.getProcessingStatus();
     }
 
-    public ProcessingStatus deleteFromArchive(List<DatasetDescription> datasets,
-            ArchiverTaskContext context)
+    public ProcessingStatus deleteFromArchive(List<DeletedDataSet> datasets)
     {
-        DatasetProcessingStatuses status = doDeleteFromArchive(datasets, context);
+        DatasetProcessingStatuses status = doDeleteFromArchive(datasets);
         return status != null ? status.getProcessingStatus() : null;
     }
 
@@ -303,16 +302,6 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
             statuses.addResult(dataset.getDatasetCode(), status, operationDescription);
         }
         return statuses;
-    }
-
-    protected List<String> extractCodes(List<DatasetDescription> dataSets)
-    {
-        List<String> result = new ArrayList<String>();
-        for (DatasetDescription description : dataSets)
-        {
-            result.add(description.getDatasetCode());
-        }
-        return result;
     }
 
     private static void asyncUpdateStatuses(List<String> dataSetCodes,

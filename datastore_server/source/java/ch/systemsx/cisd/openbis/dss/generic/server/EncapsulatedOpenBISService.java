@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -421,9 +422,11 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
                 criteria);
     }
 
-    public List<DeletedDataSet> listDeletedDataSets(Long lastSeenDeletionEventIdOrNull)
+    public List<DeletedDataSet> listDeletedDataSets(Long lastSeenDeletionEventIdOrNull,
+            Date maxDeletionDataOrNull)
     {
-        return service.listDeletedDataSets(session.getToken(), lastSeenDeletionEventIdOrNull);
+        return service.listDeletedDataSets(session.getToken(), lastSeenDeletionEventIdOrNull,
+                maxDeletionDataOrNull);
     }
 
     public void archiveDataSets(List<String> dataSetCodes, boolean removeFromDataStore)

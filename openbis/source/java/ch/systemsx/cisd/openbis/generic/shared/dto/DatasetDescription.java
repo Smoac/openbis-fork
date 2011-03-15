@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
@@ -58,6 +60,19 @@ public class DatasetDescription implements Serializable
     private String mainDataSetPattern;
 
     private String mainDataSetPath;
+
+    public static List<String> extractCodes(List<DatasetDescription> dataSets)
+    {
+        List<String> result = new ArrayList<String>();
+        if (dataSets != null)
+        {
+            for (DatasetDescription description : dataSets)
+            {
+                result.add(description.getDatasetCode());
+            }
+        }
+        return result;
+    }
 
     public void setDatasetTypeCode(String datasetTypeCode)
     {

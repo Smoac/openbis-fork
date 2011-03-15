@@ -25,6 +25,7 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ArchiverTaskContext;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -100,17 +101,16 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
     }
 
     @Override
-    protected DatasetProcessingStatuses doDeleteFromArchive(List<DatasetDescription> datasets,
-            ArchiverTaskContext context)
+    protected DatasetProcessingStatuses doDeleteFromArchive(List<DeletedDataSet> datasets)
     {
         initIfNecessary();
 
         // no need to lock - this is processing task
         DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
-        for (DatasetDescription dataset : datasets)
+        for (DeletedDataSet dataset : datasets)
         {
             Status status = doDeleteFromArchive(dataset);
-            statuses.addResult(dataset.getDatasetCode(), status, Operation.DELETE_FROM_ARCHIVE);
+            statuses.addResult(dataset.getIdentifier(), status, Operation.DELETE_FROM_ARCHIVE);
         }
 
         return statuses;
@@ -145,7 +145,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
         return copier.retrieveFromDestination(originalData, dataset);
     }
 
-    private Status doDeleteFromArchive(DatasetDescription dataset)
+    private Status doDeleteFromArchive(DeletedDataSet dataset)
     {
         return copier.deleteFromDestination(dataset);
     }

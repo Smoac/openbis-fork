@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks;
 import java.io.Serializable;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -54,6 +55,5 @@ public interface IArchiverPlugin extends Serializable
      * @returns {@link ProcessingStatus} containing the deletion statuses for all data sets or null
      *          if processing succeeded for all datasets and no additional information is provided.
      */
-    ProcessingStatus deleteFromArchive(List<DatasetDescription> datasets,
-            ArchiverTaskContext context);
+    ProcessingStatus deleteFromArchive(List<DeletedDataSet> datasets);
 }

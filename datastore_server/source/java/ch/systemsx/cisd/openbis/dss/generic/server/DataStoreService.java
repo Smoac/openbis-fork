@@ -61,7 +61,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.util.UuidUtil;
 
 /**
- * Implementation of {@link IDataStoreService} which will be accessed remotely by the opneBIS
+ * Implementation of {@link IDataStoreService} which will be accessed remotely by the openBIS
  * server.
  * 
  * @author Franz-Josef Elmer
@@ -353,7 +353,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
 
     private IArchiverPlugin createArchiver()
     {
-        ArchiverPluginFactory factory = pluginTaskParameters.getArchiverTaskFactory();
+        ArchiverPluginFactory factory = pluginTaskParameters.getArchiverPluginFactory();
         return factory.createInstance(storeRoot);
     }
 

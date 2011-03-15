@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
@@ -305,11 +306,12 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
     }
 
     public List<DeletedDataSet> listDeletedDataSets(String sessionToken,
-            Long lastSeenDeletionEventIdOrNull)
+            Long lastSeenDeletionEventIdOrNull, Date maxDeletionDateOrNull)
     {
         logAccess(sessionToken, "listDeletedDataSets", "LAST_SEEN_EVENT(%s)",
                 (lastSeenDeletionEventIdOrNull == null ? "all" : "id > "
-                        + lastSeenDeletionEventIdOrNull));
+                        + lastSeenDeletionEventIdOrNull), (maxDeletionDateOrNull == null ? "all"
+                        : "maxDeletionDate > " + maxDeletionDateOrNull));
         return null;
     }
 

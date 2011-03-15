@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Describes a deleted data set.
@@ -25,18 +27,38 @@ import java.io.Serializable;
  */
 public class DeletedDataSet implements Serializable
 {
-    private String identifier;
 
-    private long eventId;
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    public DeletedDataSet(String identifier, long eventId)
+    private final String identifier;
+
+    private final long eventId;
+
+    private final String location; // the location where the data set existed before deletion
+
+    public static List<String> extractDataSetCodes(List<DeletedDataSet> dataSets)
+    {
+        List<String> result = new ArrayList<String>();
+        if (dataSets != null)
+        {
+            for (DeletedDataSet description : dataSets)
+            {
+                result.add(description.getIdentifier());
+            }
+        }
+        return result;
+    }
+
+    public DeletedDataSet(String identifier, String location, long eventId)
     {
         this.eventId = eventId;
         this.identifier = identifier;
+        this.location = location;
     }
 
-    public DeletedDataSet()
+    public String getLocation()
     {
+        return location;
     }
 
     public String getIdentifier()
@@ -44,21 +66,14 @@ public class DeletedDataSet implements Serializable
         return identifier;
     }
 
-    public void setIdentifier(String identifier)
-    {
-        this.identifier = identifier;
-    }
-
     public long getEventId()
     {
         return eventId;
     }
 
-    public void setEventId(long eventId)
+    @Override
+    public String toString()
     {
-        this.eventId = eventId;
+        return "DeletedDataSet [identifier=" + identifier + "]";
     }
-
-    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
-
 }

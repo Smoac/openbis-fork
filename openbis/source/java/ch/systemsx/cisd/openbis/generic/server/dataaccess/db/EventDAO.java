@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -33,8 +34,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEventDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 
 /**
  * Data access object for {@link EventPE}.
@@ -76,12 +77,17 @@ public class EventDAO extends AbstractGenericEntityDAO<EventPE> implements IEven
         return result;
     }
 
-    public List<DeletedDataSet> listDeletedDataSets(Long lastSeenDeletionEventIdOrNull)
+    public List<DeletedDataSet> listDeletedDataSets(Long lastSeenDeletionEventIdOrNull,
+            Date maxDeletionDataOrNull)
     {
         final DetachedCriteria criteria = DetachedCriteria.forClass(EventPE.class);
         if (lastSeenDeletionEventIdOrNull != null)
         {
             criteria.add(Restrictions.gt("id", lastSeenDeletionEventIdOrNull));
+        }
+        if (maxDeletionDataOrNull != null)
+        {
+            criteria.add(Restrictions.lt("registrationDate", maxDeletionDataOrNull));
         }
         criteria.add(Restrictions.eq("eventType", EventType.DELETION));
         criteria.add(Restrictions.eq("entityType", EntityType.DATASET));
@@ -98,7 +104,8 @@ public class EventDAO extends AbstractGenericEntityDAO<EventPE> implements IEven
         ArrayList<DeletedDataSet> result = new ArrayList<DeletedDataSet>();
         for (EventPE event : list)
         {
-            result.add(new DeletedDataSet(event.getIdentifier(), event.getId()));
+            result.add(new DeletedDataSet(event.getIdentifier(), event.getDescription(), event
+                    .getId()));
         }
         return result;
     }
