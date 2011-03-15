@@ -619,6 +619,8 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
     {
         public void execute(String sessionToken, IDataStoreService service,
                 List<DatasetDescription> descriptions, String userEmailOrNull);
+
+        public DataSetArchivingStatus getStatusToRestoreOnFailure();
     }
 
     private void performUnarchiving(Map<DataStorePE, List<ExternalDataPE>> datasetsByStore)
@@ -630,6 +632,12 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
                 {
                     service.unarchiveDatasets(sessionToken, descriptions, userEmailOrNull);
                 }
+
+                public DataSetArchivingStatus getStatusToRestoreOnFailure()
+                {
+                    return DataSetArchivingStatus.ARCHIVED;
+                }
+
             });
 
     }
@@ -645,6 +653,11 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
                     service.archiveDatasets(sessionToken, descriptions, userEmailOrNull,
                             removeFromDataStore);
                 }
+
+                public DataSetArchivingStatus getStatusToRestoreOnFailure()
+                {
+                    return DataSetArchivingStatus.AVAILABLE;
+                }
             });
     }
 
@@ -657,6 +670,8 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
             IDataStoreService service = tryGetDataStoreService(dataStore);
             if (service == null)
             {
+                // TODO KE: if this fail the unprocessed data sets will be left with "PENDING"
+                // status in the database
                 throw createUnknownDataStoreServerException();
             }
             List<ExternalDataPE> datasets = entry.getValue();
@@ -672,8 +687,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
                 archivingAction.execute(sessionToken, service, descriptions, userEmailOrNull);
             } catch (Exception e)
             {
-                // TODO KE: 2011-03-11 clear the archiving status (ARCHIVING_PENDING --> AVAILABLE,
-                // UNARCHIVING_PEDNING --> ARCHIVED
+                restoreDataSetStatuses(datasets, archivingAction.getStatusToRestoreOnFailure());
                 throw UserFailureException
                         .fromTemplate(
                                 "Operation couldn't be performed for following datasets: %s. "
@@ -681,6 +695,13 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
                                 CollectionUtils.abbreviate(Code.extractCodes(datasets), 10));
             }
         }
+    }
+
+    private void restoreDataSetStatuses(List<ExternalDataPE> datasets,
+            DataSetArchivingStatus statusToRestoreOnFailure)
+    {
+        List<String> datasetCodes = Code.extractCodes(datasets);
+        getExternalDataDAO().updateDataSetStatuses(datasetCodes, statusToRestoreOnFailure);
     }
 
     public void save()
