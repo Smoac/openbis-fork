@@ -32,6 +32,7 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.common.concurrent.ExecutionResult;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -50,8 +51,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 @Friend(toClasses = LocalAndRemoteCopier.class)
 public class LocalAndRemoteCopierTest extends AbstractFileSystemTestCase
 {
-    private static final ProcessResult OK_RESULT = new ProcessResult(Arrays.asList(""), 0, null, null,
-            null, 0, (List<String>) null, null, null, null);
+    private static final ProcessResult OK_RESULT = new ProcessResult(Arrays.asList(""), 0, null,
+            ExecutionResult.create(null), null, 0, (List<String>) null, null, null, null);
 
     private static final String SAMPLE_CODE = "my-sample";
 
@@ -223,7 +224,7 @@ public class LocalAndRemoteCopierTest extends AbstractFileSystemTestCase
                             "mv " + new File(destination, dataSet.getName()) + " " + copiedDataSet,
                             SSH_TIMEOUT_MILLIS);
                     will(returnValue(OK_RESULT));
-                    
+
                     one(sshExecutor).executeCommandRemotely(
                             "touch " + new File(destination, "MARKER-" + FOLDER_NAME),
                             SSH_TIMEOUT_MILLIS);
