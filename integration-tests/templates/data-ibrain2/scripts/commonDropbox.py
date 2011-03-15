@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 import os
+from java.io import File
 
 class AbstractPropertiesParser:
 	_propertiesDict = None
@@ -40,21 +41,18 @@ class AbstractPropertiesParser:
 	# Returns:
 	#	an iterator which yields (propertyName, propertyValue) pairs 
 	def getPropertiesIter(self):
-		for key, value in self._propertiesDict.iteritems():
-			yield (key, value)	
-				
+		return [ (key, value) for key, value in self._propertiesDict.iteritems() ]
+
 	# All dataset properties.
 	# Returns:
 	#	an iterator which yields (propertyCode, propertyValue) pairs 
 	def getDatasetPropertiesIter(self):
-		for key, value in self._propertiesDict.iteritems():
-			if key.startswith(self.DATASET_PROPERTY_PREFIX):
-				yield (key, value)		
+		return [ (key, value) for key, value in self._propertiesDict.iteritems() if key.startswith(self.DATASET_PROPERTY_PREFIX) ]
 
 class AbstractMetadataParser(AbstractPropertiesParser):
 	METADATA_FILE="metadata.properties"
 
-	IBRAIN2_DATASET_ID_PROPERTY = "brain2.dataset.id" 
+	IBRAIN2_DATASET_ID_PROPERTY = "ibrain2.dataset.id" 
 	DATASET_PROPERTY_PREFIX = "ibrain2."
 	DATASET_TYPE_PROPERTY = "dataset.type"
 
@@ -78,9 +76,10 @@ class AcquiredDatasetMetadataParser(AbstractMetadataParser):
 	# Returns:
 	#	an iterator which yields (propertyCode, propertyValue) pairs 
 	def getDatasetPropertiesIter(self):
-		for propertyCode, value in AbstractPropertiesParser.getDatasetPropertiesIter(self):
-			yield (propertyCode, value)
-		yield (self.INSTRUMENT_PROPERTY, self.get(self.INSTRUMENT_PROPERTY))
+		properties = AbstractPropertiesParser.getDatasetPropertiesIter(self)
+		properties = [ (key, value) for (key, value) in properties if key != "ibrain2.assay.id" ]
+		properties.append((self.INSTRUMENT_PROPERTY, self.get(self.INSTRUMENT_PROPERTY)))
+		return properties
 	
 	def getPlateCode(self):
 		return self.get(self.PLATE_CODE_PRPOPERTY)
@@ -111,7 +110,6 @@ class AssayParser(AbstractPropertiesParser):
 
 	def _findAssayFile(self, incoming):
 		for file in os.listdir(incoming):
-			print file
 			if file.startswith(self.ASSAY_FILE_PREFIX):
 				return file
 		raise Exception("Assay file not found!")
@@ -119,9 +117,9 @@ class AssayParser(AbstractPropertiesParser):
 	def __init__(self, incoming):
 		AbstractPropertiesParser.__init__(self, incoming, self._findAssayFile(incoming))
 
-class IBRAIN2Utils:
+class RegistrationConfirmationUtils:
 	""" path to the registration confirmation directory relative to the incoming dataset """
-	CONFIRMATION_DIRECTORY = "../../registration-status"
+	CONFIRMATION_DIRECTORY = "registration-status"
 	
 	STATUS_PROPERTY = "storage_provider.storage.status"
 	OK = "STORAGE_SUCCESS"
@@ -132,31 +130,66 @@ class IBRAIN2Utils:
 	IBRAIN2_STATUS_FILE_PREFIX = "ibrain2_dataset_id_"
 	IBRAIN2_STATUS_FILE_SUFFIX = ".properties"
 
-	def _getStatusFileName(self, ibrain2DatasetId, incoming):
-		return incoming + "/" + self.CONFIRMATION_DIRECTORY + "/" + self.IBRAIN2_STATUS_FILE_PREFIX + ibrain2DatasetId + self.IBRAIN2_STATUS_FILE_SUFFIX
+	def _getDestinationDir(self, incoming):
+		return File(incoming).getParentFile().getParentFile().getParent() + "/" + self.CONFIRMATION_DIRECTORY
+	
+	def _getConfirmationFileName(self, ibrain2DatasetId):
+		return self.IBRAIN2_STATUS_FILE_PREFIX + ibrain2DatasetId + self.IBRAIN2_STATUS_FILE_SUFFIX
+
+	def _getStatusFilePath(self, ibrain2DatasetId, incoming):
+		return self._getDestinationDir(incoming) + "/" + self._getConfirmationFileName(ibrain2DatasetId)
 
 	def _prop(self, name, value):
 		return name + " = " + value + "\n"
 	
 	def _writeConfirmationFile(self, ibrain2DatasetId, fileContent, incoming):
-		confirmationFile = self._getStatusFileName(ibrain2DatasetId, incoming)
-		file = open(confirmationFile, "w")
+		confirmationFile = self._getStatusFilePath(ibrain2DatasetId, incoming)
+		self._writeFile(confirmationFile, fileContent)
+		
+	def _writeFile(self, file, fileContent):
+		file = open(file, "w")
 		file.write(fileContent)
 		file.close()
-		
+
 	def createSuccessStatus(self, ibrain2DatasetId, openbisDatasetId, incoming):
 		fileContent  = self._prop(self.STATUS_PROPERTY, self.OK)
 		fileContent += self._prop(AbstractMetadataParser.IBRAIN2_DATASET_ID_PROPERTY, ibrain2DatasetId)
 		fileContent += self._prop(self.OPENBIS_DATASET_ID_PROPERTY, openbisDatasetId)
 		self._writeConfirmationFile(ibrain2DatasetId, fileContent, incoming)
-
+			
 	def createFailureStatus(self, ibrain2DatasetId, errorMessage, incoming):
 		fileContent  = self._prop(self.STATUS_PROPERTY, self.ERROR)
 		fileContent += self._prop(AbstractMetadataParser.IBRAIN2_DATASET_ID_PROPERTY, ibrain2DatasetId)
 		fileContent += self._prop(self.ERROR_MSG_PROPERTY, errorMessage)
 		self._writeConfirmationFile(ibrain2DatasetId, fileContent, incoming)
-		
-		
+
+# --------------
+
+"""
+Returns:
+   (plateSpace, plateCode) tuple for the plate connected with the specified dataset
+   or (error-message, None) if the dataset does not exist or is not connected to the plate.
+"""
+def tryGetConnectedPlate(state, openbisDatasetId):
+	openbis = state.getOpenBisService()		
+	dataset = openbis.tryGetDataSet(openbisDatasetId)
+	if dataset != None:
+		plate = dataset.getSample()
+		if plate != None:
+			return (plate.getSpace().getCode(), plate.getCode())
+		else:
+			return ("No plate is connected to the dataset: "+openbisDatasetId+".", None)
+	else:
+		return ("Dataset does not exist or is not accessible: "+openbisDatasetId+". "+
+			    "Maybe the dataset has not been registered yet. Try again later.", None)
+
+def createSuccessStatus(iBrain2DatasetId, dataset, incomingPath):
+	datasetCode = dataset.getDataSetCode()
+	RegistrationConfirmationUtils().createSuccessStatus(iBrain2DatasetId, datasetCode, incomingPath)
+
+def createFailureStatus(iBrain2DatasetId, throwable, incoming):
+    RegistrationConfirmationUtils().createFailureStatus(iBrain2DatasetId, throwable.getMessage(), incoming.getPath())
+	
 # -------------- TODO: remove tests
 
 TEST_DIR = "/Users/tpylak/main/src/screening-demo/biozentrum/dropboxes/ibrain2-dropboxes-test"

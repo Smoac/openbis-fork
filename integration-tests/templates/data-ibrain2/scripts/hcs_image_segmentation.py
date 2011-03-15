@@ -1,13 +1,9 @@
 #! /usr/bin/env python
 # This is a dropbox for importing HCS segmentation image datasets
  
-import IBrain2ImageDataSetConfig from common-image-dropbox
- 
-"""
-TODO:
-- check if parent exists and exit otherwise (ask Eva)
-- 
-"""
+from commonImageDropbox import IBrain2ImageDataSetConfig
+from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import *
+
 if incoming.isDirectory():
     imageDataset = IBrain2ImageDataSetConfig()
     imageDataset.setSegmentationImageDatasetType()

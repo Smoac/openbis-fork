@@ -5,26 +5,31 @@ from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import *
 from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import Geometry
      
 class IBrain2ImageDataSetConfig(SimpleImageDataConfig):
-	THUMBANAIL_SIZE = 200
-	
+    THUMBANAIL_SIZE = 200
+    
     def extractImageMetadata(self, imagePath):
-        image_tokens = ImageMetadata()
-     
-        basename = os.path.splitext(imagePath)[0]
-        #
+        basename = self.getFileBasename(imagePath)
         token_dict = {}
         for token in basename.split("_"):
             token_dict[token[:1]] = token[1:]
-         
+
+        image_tokens = ImageMetadata()
         image_tokens.well = token_dict["w"]
-        fieldText = token_dict["s"]
+        image_tokens.tileNumber = self.fieldAsInt(token_dict["s"], basename)
+        image_tokens.channelCode = self.extractChannelCode(token_dict, basename)
+        return image_tokens
+
+    def extractChannelCode(self, token_dict, basename):
+        return token_dict["c"]
+    
+    def getFileBasename(self, filePath):
+        return os.path.splitext(filePath)[0]
+    
+    def fieldAsInt(self, fieldText, basename):
         try:
-            image_tokens.tileNumber = int(fieldText)
+            return int(fieldText)
         except ValueError:
             raise Exception("Cannot parse field number from '" + fieldText + "' in '" + basename + "' file name.")
-     
-        image_tokens.channelCode = basename.split("_")[-1] + " ("+ token_dict["c"] + ")"
-        return image_tokens
 
     def geom(self, row, col):
 		return Geometry.createFromRowColDimensions(row, col)
@@ -48,4 +53,8 @@ class IBrain2ImageDataSetConfig(SimpleImageDataConfig):
         else:
             return self.geom(maxTileNumber, 1)
            
+class IBrain2SegmentationImageDataSetConfig(IBrain2ImageDataSetConfig):
+    def extractChannelCode(self, token_dict, basename):
+        return basename.split("_")[-1] + " ("+ token_dict["c"] + ")"
+    
             

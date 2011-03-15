@@ -1,7 +1,10 @@
 #! /usr/bin/env python
 
-from commonImageDropbox import IBrain2ImageDataSetConfig 
-from commonDropbox import AcquiredDatasetMetadataParser
+import commonImageDropbox
+import commonDropbox
+
+reload(commonImageDropbox)
+reload(commonDropbox)
 
 """ Plate geometry which will be used. Other possible value: 96_WELLS_8X12 """
 PLATE_GEOMETRY = "384_WELLS_16X24"
@@ -14,8 +17,8 @@ PLATE_GEOMETRY_PROPERTY_CODE = "$PLATE_GEOMETRY"
 def createPlateWithExperimentIfNeeded(transaction, assayParser, plate, space):
     project = assayParser.get(assayParser.EXPERIMENTER_PROPERTY)
     experiment = assayParser.get(assayParser.ASSAY_ID_PROPERTY)
-    experimentDesc = assayParser.get(assayParser.ASSAY_DESC_PROPERTY)
-	experimentType = assayParser.get(assayParser.ASSAY_TYPE_PROPERTY)
+    experimentDesc = assayParser.get(assayParser.ASSAY_DESC_PROPERTY)   
+    experimentType = assayParser.get(assayParser.ASSAY_TYPE_PROPERTY)
     
     sampleIdentifier = "/"+space+"/"+plate
     plate = transaction.getSample(sampleIdentifier)
@@ -24,48 +27,46 @@ def createPlateWithExperimentIfNeeded(transaction, assayParser, plate, space):
         experiment = transaction.getExperiment(expIdentifier)
         if experiment == None:
             experiment = transaction.createNewExperiment(expIdentifier, SIRNA_EXP_TYPE)
-            openbisExpDesc = experimentDesc + "\ntype: "+experimentType
+            openbisExpDesc = experimentDesc + " (type: "+experimentType + ")"
             experiment.setPropertyValue("DESCRIPTION", openbisExpDesc)
 
         plate = transaction.createNewSample(sampleIdentifier, PLATE_TYPE_CODE)
         plate.setPropertyValue(PLATE_GEOMETRY_PROPERTY_CODE, PLATE_GEOMETRY)
         plate.setExperiment(experiment)
+    return plate
 
-"""
-TODO:
-- 
-"""
+
+iBrain2DatasetId = None
+
 if incoming.isDirectory():
-    imageDataset = IBrain2ImageDataSetConfig()
+    incomingPath = incoming.getPath()
+    metadataParser = commonDropbox.AcquiredDatasetMetadataParser(incomingPath)
+    iBrain2DatasetId = metadataParser.getIBrain2DatasetId()
+    assayParser = commonDropbox.AssayParser(incomingPath)
+
+    imageDataset = commonImageDropbox.IBrain2ImageDataSetConfig()
     imageDataset.setRawImageDatasetType()
-	metadataParser = AcquiredDatasetMetadataParser(incoming)
-	assayParser = AssayParser(incoming)
-
-    plate = metadataParser.getPlateCode()
-    space = assayParser.get(assayParser.LAB_LEADER_PROPERTY)
-
-    imageDataset.setPlate(space, plate)
     imageDataset.setFileFormatType("TIFF")
+    imageDataset.setRecognizedImageExtensions(["tif", "tiff"])    
+    imageDataset.setStoreChannelsOnExperimentLevel(False)
     imageDataset.setGenerateThumbnails(True)
     imageDataset.setMaxThumbnailWidthAndHeight(imageDataset.THUMBANAIL_SIZE)
-    imageDataset.setRecognizedImageExtensions(["tif, tiff"])    
-    imageDataset.setStoreChannelsOnExperimentLevel(False)
 
     imageRegistrationDetails = factory.createImageRegistrationDetails(imageDataset, incoming)
-	for propertyCode, value in metadataParser.getPropertiesIter():
+    for propertyCode, value in metadataParser.getDatasetPropertiesIter():
 		imageRegistrationDetails.setPropertyValue(propertyCode, value)
 
     tr = service.transaction(incoming, factory)
 
-    createPlateWithExperimentIfNeeded(tr, assayParser, plate, space)	    
-    dataset = tr.createNewDataSet(imageRegistrationDetails)
-    imageDataSetFolder = tr.moveFile(incoming.getPath(), dataset)
-    imageDatasetCode = dataset.getDataSetCode()
-    IBRAIN2Utils().createSuccessStatus(metadataParser.getIBrain2DatasetId(), imageDatasetCode, incoming)
-    print "Registered dataset:", imageDatasetCode
+    plate = metadataParser.getPlateCode()
+    space = assayParser.get(assayParser.LAB_LEADER_PROPERTY)
+    plate = createPlateWithExperimentIfNeeded(tr, assayParser, plate, space)	    
 
-# TODO: test this !!!
+    dataset = tr.createNewDataSet(imageRegistrationDetails)
+    dataset.setSample(plate)
+    imageDataSetFolder = tr.moveFile(incomingPath, dataset)
+    tr.commit()
+    commonDropbox.createSuccessStatus(iBrain2DatasetId, dataset, incomingPath)
+
 def rollback_transaction(service, transaction, algorithmRunner, throwable):
-	incoming = service.incomingDataSetFile
-	iBrain2DatasetId = AcquiredDatasetMetadataParser(incoming).getIBrain2DatasetId()
-	IBRAIN2Utils().createFailureStatus(iBrain2DatasetId, throwable.getMessage(), incoming)
+    commonDropbox.createFailureStatus(iBrain2DatasetId, throwable, incoming)
