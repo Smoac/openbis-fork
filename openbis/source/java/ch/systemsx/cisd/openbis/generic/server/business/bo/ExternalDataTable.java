@@ -225,20 +225,45 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
     public void deleteLoadedDataSets(String reason)
     {
         assertDatasetsAreDeletable(externalData);
-        Map<DataStorePE, List<ExternalDataPE>> map = groupDataSetsByDataStores();
-        assertDataSetsAreKnown(map);
-        for (Map.Entry<DataStorePE, List<ExternalDataPE>> entry : map.entrySet())
+
+        Map<DataStorePE, List<ExternalDataPE>> allToBeDeleted = groupDataSetsByDataStores();
+        Map<DataStorePE, List<ExternalDataPE>> availableDatasets =
+                filterAvailableDatasets(allToBeDeleted);
+
+        assertDataSetsAreKnown(availableDatasets);
+        for (Map.Entry<DataStorePE, List<ExternalDataPE>> entry : allToBeDeleted.entrySet())
         {
             DataStorePE dataStore = entry.getKey();
-            List<ExternalDataPE> dataSets = entry.getValue();
+            List<ExternalDataPE> allDataSets = entry.getValue();
             // delete locally from DB
-            for (ExternalDataPE dataSet : dataSets)
+            for (ExternalDataPE dataSet : allDataSets)
             {
                 deleteDataSetLocally(dataSet, reason);
             }
-            // delete remotely from Data Store
-            deleteDataSets(dataStore, createDatasetDescriptions(dataSets));
+            // delete remotely from Data Store (only executed for available datasets)
+            List<ExternalDataPE> available = availableDatasets.get(dataStore);
+            deleteDataSets(dataStore, createDatasetDescriptions(available));
         }
+    }
+
+    private Map<DataStorePE, List<ExternalDataPE>> filterAvailableDatasets(
+            Map<DataStorePE, List<ExternalDataPE>> map)
+    {
+        Map<DataStorePE, List<ExternalDataPE>> result =
+                new HashMap<DataStorePE, List<ExternalDataPE>>();
+        for (Map.Entry<DataStorePE, List<ExternalDataPE>> entry : map.entrySet())
+        {
+            ArrayList<ExternalDataPE> available = new ArrayList<ExternalDataPE>();
+            for (ExternalDataPE data : entry.getValue())
+            {
+                if (data.getStatus().isAvailable())
+                {
+                    available.add(data);
+                }
+            }
+            result.put(entry.getKey(), available);
+        }
+        return result;
     }
 
     private void deleteDataSetLocally(ExternalDataPE dataSet, String reason)
@@ -343,7 +368,11 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         List<String> unknownDataSets = new ArrayList<String>();
         for (ExternalDataPE dataSet : externalData)
         {
-            if (knownLocations.contains(dataSet.getLocation()) == false)
+            if (dataSet.getStatus() == DataSetArchivingStatus.ARCHIVED)
+            {
+                // archived datasets are currently not available in the data store
+                // but can be deleted
+            } else if (knownLocations.contains(dataSet.getLocation()) == false)
             {
                 unknownDataSets.add(dataSet.getCode());
             }

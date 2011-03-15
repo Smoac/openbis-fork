@@ -61,6 +61,7 @@ public class DeleteFromArchiveMaintenanceTask extends
             try
             {
                 String statusFileContent = FileUtilities.loadToString(lastSeenEventIdFile);
+                statusFileContent = statusFileContent.trim();
                 result = Long.parseLong(statusFileContent);
             } catch (Exception ex)
             {

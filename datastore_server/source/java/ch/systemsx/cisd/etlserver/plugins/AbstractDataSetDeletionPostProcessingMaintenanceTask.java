@@ -44,7 +44,7 @@ public abstract class AbstractDataSetDeletionPostProcessingMaintenanceTask imple
     protected static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, AbstractDataSetDeletionPostProcessingMaintenanceTask.class);
 
-    protected static final String DELAY_AFTER_DELETION = "delay-after-deletion";
+    protected static final String DELAY_AFTER_DELETION = "delay-after-user-deletion";
 
     protected final IEncapsulatedOpenBISService openBISService;
 
