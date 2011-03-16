@@ -53,7 +53,7 @@ public class WellContentLoaderTest extends AbstractScreeningDAOTest
     @Autowired
     IGenericServer server;
 
-    @Test(enabled = false)
+    @Test
     public void testLoadWellContentsWithProperties()
     {
 
