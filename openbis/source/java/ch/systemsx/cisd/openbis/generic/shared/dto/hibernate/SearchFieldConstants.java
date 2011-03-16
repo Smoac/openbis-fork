@@ -48,6 +48,19 @@ public final class SearchFieldConstants
 
     public static final String PREFIX_ATTACHMENT = "attachment" + SEPARATOR;
 
+    public static final String PREFIX_VOCABULARY_TERM = "vocabulary term" + SEPARATOR;
+
+    public static final String[] PREFIXES =
+        { PREFIX_PROPERTIES, PREFIX_EXPERIMENT, PREFIX_SAMPLE, PREFIX_ENTITY_TYPE,
+                PREFIX_FILE_FORMAT_TYPE, PREFIX_FILE_FORMAT_TYPE, PREFIX_PROJECT, PREFIX_SPACE,
+                PREFIX_REGISTRATOR, PREFIX_ATTACHMENT, PREFIX_PROPERTIES + PREFIX_VOCABULARY_TERM };
+
+    public static final String ID = "id";
+
+    public static final String EXPERIMENT_ID = PREFIX_EXPERIMENT + ID;
+
+    public static final String SAMPLE_ID = PREFIX_SAMPLE + ID;
+
     public static final String DELETED = "deleted";
 
     public static final String PERSON_LAST_NAME = "Last Name";
@@ -57,8 +70,6 @@ public final class SearchFieldConstants
     public static final String PERSON_EMAIL = "Email";
 
     public static final String PERSON_USER_ID = "User Id";
-
-    public static final String ID = "id";
 
     public static final String CODE = "code";
 
@@ -71,9 +82,5 @@ public final class SearchFieldConstants
     public static final String FILE_TITLE = "title";
 
     public static final String FILE_DESCRIPTION = "description";
-
-    public static final String EXPERIMENT_ID = "experiment_id";
-
-    public static final String SAMPLE_ID = "sample_id";
 
 }

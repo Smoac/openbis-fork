@@ -19,9 +19,10 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -495,11 +496,19 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
 
         public String[] getIndexedFields()
         {
-            Collection<?> fieldNames = indexReader.getFieldNames(FieldOption.INDEXED);
-            // TODO 2008-11-27, Tomasz Pylak: get rid of hard-coded name. Specify the same name
-            // attribute for all DocumentId fields.
-            fieldNames.remove("id");
+            // WORKAROUND indexReader.getFieldNames doesn't really return unique field names
+            Set<String> fieldNames = new HashSet<String>();
+            for (Object fieldName : indexReader.getFieldNames(FieldOption.INDEXED))
+            {
+                fieldNames.add(fieldName.toString());
+            }
+
             fieldNames.remove(DocumentBuilder.CLASS_FIELDNAME);
+            fieldNames.remove(SearchFieldConstants.ID);
+            for (String prefix : SearchFieldConstants.PREFIXES)
+            {
+                fieldNames.remove(prefix + SearchFieldConstants.ID);
+            }
             return fieldNames.toArray(new String[fieldNames.size()]);
         }
 

@@ -163,7 +163,7 @@ public class ExperimentPE extends AttachmentHolderPE implements
     @Id
     @SequenceGenerator(name = SequenceNames.EXPERIMENT_SEQUENCE, sequenceName = SequenceNames.EXPERIMENT_SEQUENCE, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.EXPERIMENT_SEQUENCE)
-    @DocumentId
+    @DocumentId(name = SearchFieldConstants.ID)
     public Long getId()
     {
         return id;

@@ -264,7 +264,13 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     @Field(index = Index.UN_TOKENIZED, store = Store.YES, name = SearchFieldConstants.SAMPLE_ID)
     private Long getSampleId()
     {
-        return getSampleInternal() != null ? getSampleInternal().getId() : null;
+        Long result = null;
+        if (getSampleInternal() != null)
+        {
+            result = HibernateUtils.getId(getSampleInternal());
+            assert result != null;
+        }
+        return result;
     }
 
     /**
@@ -397,7 +403,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     @Id
     @SequenceGenerator(name = SequenceNames.DATA_SEQUENCE, sequenceName = SequenceNames.DATA_SEQUENCE, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.DATA_SEQUENCE)
-    @DocumentId
+    @DocumentId(name = SearchFieldConstants.ID)
     public Long getId()
     {
         return id;
@@ -446,7 +452,13 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     @Field(index = Index.UN_TOKENIZED, store = Store.YES, name = SearchFieldConstants.EXPERIMENT_ID)
     private Long getExperimentId()
     {
-        return getExperimentInternal() != null ? getExperimentInternal().getId() : null;
+        Long result = null;
+        if (getExperimentInternal() != null)
+        {
+            result = HibernateUtils.getId(getExperimentInternal());
+            assert result != null;
+        }
+        return result;
     }
 
     private Set<DataSetPropertyPE> properties = new HashSet<DataSetPropertyPE>();

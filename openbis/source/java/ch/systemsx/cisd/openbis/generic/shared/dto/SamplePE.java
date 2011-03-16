@@ -467,7 +467,13 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     @Field(index = Index.UN_TOKENIZED, store = Store.YES, name = SearchFieldConstants.EXPERIMENT_ID)
     private Long getExperimentId()
     {
-        return getExperimentInternal() != null ? getExperimentInternal().getId() : null;
+        Long result = null;
+        if (getExperimentInternal() != null)
+        {
+            result = HibernateUtils.getId(getExperimentInternal());
+            assert result != null;
+        }
+        return result;
     }
 
     //
@@ -477,7 +483,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     @SequenceGenerator(name = SequenceNames.SAMPLE_SEQUENCE, sequenceName = SequenceNames.SAMPLE_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.SAMPLE_SEQUENCE)
-    @DocumentId
+    @DocumentId(name = SearchFieldConstants.ID)
     public final Long getId()
     {
         return id;

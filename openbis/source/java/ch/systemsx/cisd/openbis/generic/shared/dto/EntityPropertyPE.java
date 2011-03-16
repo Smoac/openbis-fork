@@ -41,6 +41,7 @@ import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 
@@ -102,8 +103,8 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
             String fieldPrefix = name;
             String fieldFullName = fieldPrefix + getPropertyFieldName(entityProperty);
             Field field =
-                    new Field(fieldFullName, fieldValue, luceneOptions.getStore(), luceneOptions
-                            .getIndex());
+                    new Field(fieldFullName, fieldValue, luceneOptions.getStore(),
+                            luceneOptions.getIndex());
             if (luceneOptions.getBoost() != null)
             {
                 field.setBoost(luceneOptions.getBoost());
@@ -148,7 +149,7 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.VOCABULARY_TERM_COLUMN)
-    @IndexedEmbedded
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_VOCABULARY_TERM)
     public VocabularyTermPE getVocabularyTerm()
     {
         return vocabularyTerm;

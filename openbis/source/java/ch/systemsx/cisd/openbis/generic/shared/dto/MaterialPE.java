@@ -152,7 +152,8 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
     @Id
     @SequenceGenerator(name = SequenceNames.MATERIAL_SEQUENCE, sequenceName = SequenceNames.MATERIAL_SEQUENCE, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.MATERIAL_SEQUENCE)
-    @DocumentId
+    @DocumentId(name = SearchFieldConstants.ID)
+
     public Long getId()
     {
         return id;
