@@ -64,6 +64,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * Test cases for corresponding {@link HibernateSearchDAO} class.
@@ -178,7 +179,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         final List<MatchingEntity> hits =
                 hibernateSearchDAO.searchEntitiesByTerm(SearchableEntity.EXPERIMENT, query,
                         createDataProvider(), useWildcardMode, 0, Integer.MAX_VALUE);
-        assertEquals(5, hits.size());
+        assertEquals(6, hits.size());
         for (MatchingEntity matchingEntity : hits)
         {
             AssertionUtil.assertContainsInsensitive(querySubstring, matchingEntity.getCode());
@@ -260,13 +261,13 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
      * <br>
      * Only eager connections are loaded.
      */
-    private List<ExternalDataPE> searchForDatasets(DetailedSearchCriteria criteria)
+    private List<ExternalDataPE> searchForDatasets(DetailedSearchCriteria criteria,
+            List<DetailedSearchAssociationCriteria> assiciations)
     {
         final IHibernateSearchDAO hibernateSearchDAO = daoFactory.getHibernateSearchDAO();
         List<Long> datasetIds =
                 hibernateSearchDAO.searchForEntityIds(criteria,
-                        DtoConverters.convertEntityKind(EntityKind.DATA_SET),
-                        Collections.<DetailedSearchAssociationCriteria> emptyList());
+                        DtoConverters.convertEntityKind(EntityKind.DATA_SET), assiciations);
         final List<ExternalDataPE> result = new ArrayList<ExternalDataPE>();
         for (Long datasetId : datasetIds)
         {
@@ -291,7 +292,29 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
     private void assertCorrectDatasetsFound(DetailedSearchCriteria criteria,
             DSLoc... expectedLocations)
     {
-        List<ExternalDataPE> dataSets = searchForDatasets(criteria);
+        List<ExternalDataPE> dataSets =
+                searchForDatasets(criteria,
+                        Collections.<DetailedSearchAssociationCriteria> emptyList());
+        AssertJUnit.assertEquals(expectedLocations.length, dataSets.size());
+        for (ExternalDataPE dataSet : dataSets)
+        {
+            assertContains(expectedLocations, dataSet.getLocation());
+        }
+    }
+
+    // NOTE: such a check depends strongly on the test database content. Use it only when the better
+    // way to check the results is much harder.
+    private void assertCorrectDatasetsFound(DetailedSearchCriteria criteria,
+            DetailedSearchAssociationCriteria association, DSLoc... expectedLocations)
+    {
+        List<ExternalDataPE> dataSets =
+                searchForDatasets(criteria, Collections.singletonList(association));
+        // Collections.<DetailedSearchAssociationCriteria> emptyList());
+        for (ExternalDataPE dataSet : dataSets)
+        {
+            System.err.println(dataSet.getLocation() + ": "
+                    + HibernateUtils.getId(dataSet.getExperiment()));
+        }
         AssertJUnit.assertEquals(expectedLocations.length, dataSets.size());
         for (ExternalDataPE dataSet : dataSets)
         {
@@ -363,6 +386,19 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         DetailedSearchCriterion criterion = createSimpleFieldCriterion();
         DetailedSearchCriteria criteria = createAndDatasetQuery(criterion);
         assertCorrectDatasetsFound(criteria, DSLoc.LOC3, DSLoc.LOC4);
+    }
+
+    @Test(dependsOnMethods = "testSearchForDataSetsSimpleField")
+    public final void testSearchForDataSetsSimpleFieldWithExperiment()
+    {
+        DetailedSearchCriterion criterion = createSimpleFieldCriterion();
+        DetailedSearchCriteria criteria = createAndDatasetQuery(criterion);
+        DetailedSearchAssociationCriteria association =
+                new DetailedSearchAssociationCriteria(EntityKind.EXPERIMENT,
+                        Collections.singleton(new Long(2L)));
+        // compared to testSearchForDataSetsSimpleField() DSLoc.LOC3 should be filtered
+        // because of different experiment
+        assertCorrectDatasetsFound(criteria, association, DSLoc.LOC4);
     }
 
     @Test
