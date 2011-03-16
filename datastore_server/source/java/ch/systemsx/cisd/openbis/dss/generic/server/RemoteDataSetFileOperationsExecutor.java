@@ -84,8 +84,35 @@ public final class RemoteDataSetFileOperationsExecutor implements IDataSetFileOp
         }
     }
 
+    private void createFolder(File folder)
+    {
+        ProcessResult result =
+                executor.executeCommandRemotely("mkdir -p " + folder.getPath(),
+                        DataSetCopier.SSH_TIMEOUT_MILLIS);
+        if (result.isOK() == false)
+        {
+            operationLog.error("Remote creation of '" + folder + "' failed with exit value: "
+                    + result.getExitValue());
+            throw new ExceptionWithStatus(
+                    Status.createError("couldn't create destination directory"));
+        }
+        List<String> output = result.getOutput();
+        if (output.isEmpty() == false)
+        {
+            operationLog.error("Remote creation of '" + folder
+                    + "' seemed to be successful but produced following output:\n"
+                    + StringUtilities.concatenateWithNewLine(output));
+            throw new ExceptionWithStatus(
+                    Status.createError("creation of destination directory leads to a problem"));
+        }
+    }
+
     public void copyDataSetToDestination(File dataSet, File destination)
     {
+        if (exists(destination).isSuccess() == false)
+        {
+            createFolder(destination);
+        }
         Status result =
                 copier.copyToRemote(dataSet, destination, host, rsyncModuleNameOrNull,
                         rsyncPasswordFileOrNull);

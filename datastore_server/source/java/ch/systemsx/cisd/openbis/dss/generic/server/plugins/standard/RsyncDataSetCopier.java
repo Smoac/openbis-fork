@@ -118,7 +118,6 @@ public class RsyncDataSetCopier // TODO rename to DataSetFileOperationsManager
         try
         {
             File destinationFolder = new File(destination, dataset.getDataSetLocation());
-            deleteDestinationFolder(destinationFolder); // cleanup needed for local executor
             operationLog.info("Copy dataset '" + dataset.getDatasetCode() + "' from '"
                     + originalData.getPath() + "' to '" + destinationFolder.getParentFile());
             executor.copyDataSetToDestination(originalData, destinationFolder.getParentFile());
@@ -196,14 +195,14 @@ public class RsyncDataSetCopier // TODO rename to DataSetFileOperationsManager
         }
     }
 
-    private void deleteDestinationFolder(File destinationFolder)
-    {
-        BooleanStatus destinationExists = destinationExists(destinationFolder);
-        if (destinationExists.isSuccess())
-        {
-            executor.deleteFolder(destinationFolder);
-        }
-    }
+    // private void createDestinationFolder(File destinationFolder)
+    // {
+    // BooleanStatus destinationExists = destinationExists(destinationFolder);
+    // if (destinationExists.isSuccess() == false)
+    // {
+    // executor.createFolder(destinationFolder);
+    // }
+    // }
 
     private BooleanStatus destinationExists(File destinationFolder)
     {
