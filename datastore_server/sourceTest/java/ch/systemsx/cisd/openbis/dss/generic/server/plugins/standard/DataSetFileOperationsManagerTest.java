@@ -46,8 +46,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 /**
  * @author Piotr Buczek
  */
-@Friend(toClasses = RsyncDataSetCopier.class)
-public class RsyncDataSetCopierTest extends AbstractFileSystemTestCase
+@Friend(toClasses = DataSetFileOperationsManager.class)
+public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
 {
     private static final String DUMMY_ERROR_MESSAGE = "dummy error message";
 
@@ -58,7 +58,7 @@ public class RsyncDataSetCopierTest extends AbstractFileSystemTestCase
             ExecutionResult.createExceptional(new Exception(DUMMY_ERROR_MESSAGE)), null, 0,
             (List<String>) null, null, null, null);
 
-    private static final long SSH_TIMEOUT_MILLIS = RsyncDataSetCopier.SSH_TIMEOUT_MILLIS;
+    private static final long SSH_TIMEOUT_MILLIS = DataSetFileOperationsManager.SSH_TIMEOUT_MILLIS;
 
     private static final String LOCATION_1 = "l1";
 
@@ -207,8 +207,8 @@ public class RsyncDataSetCopierTest extends AbstractFileSystemTestCase
     public void testLocalCopyToDestination()
     {
         Properties properties = createLocalDestinationProperties();
-        RsyncDataSetCopier dataSetCopier =
-                new RsyncDataSetCopier(properties, copierFactory, sshFactory);
+        DataSetFileOperationsManager dataSetCopier =
+                new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
         prepareForCheckingLastModifiedDate();
 
         // check that data set is not yet in archive
@@ -241,8 +241,8 @@ public class RsyncDataSetCopierTest extends AbstractFileSystemTestCase
     public void testLocalCopyToNonExistentDestination()
     {
         Properties properties = createLocalDestinationProperties();
-        RsyncDataSetCopier dataSetCopier =
-                new RsyncDataSetCopier(properties, copierFactory, sshFactory);
+        DataSetFileOperationsManager dataSetCopier =
+                new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
         prepareForCheckingLastModifiedDate();
 
         destination.delete(); // if destination folder doesn't exist it will be created
@@ -267,8 +267,8 @@ public class RsyncDataSetCopierTest extends AbstractFileSystemTestCase
     public void testLocalCopyTwoDataSetsToDestination()
     {
         Properties properties = createLocalDestinationProperties();
-        RsyncDataSetCopier dataSetCopier =
-                new RsyncDataSetCopier(properties, copierFactory, sshFactory);
+        DataSetFileOperationsManager dataSetCopier =
+                new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
         prepareForCheckingLastModifiedDate();
 
         // check that both data sets are not yet in archive
@@ -307,8 +307,8 @@ public class RsyncDataSetCopierTest extends AbstractFileSystemTestCase
          * copy to archive
          */
         Properties properties = createLocalDestinationProperties();
-        RsyncDataSetCopier dataSetCopier =
-                new RsyncDataSetCopier(properties, copierFactory, sshFactory);
+        DataSetFileOperationsManager dataSetCopier =
+                new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
         prepareForCheckingLastModifiedDate();
 
         // check that data set is not yet in archive
@@ -356,8 +356,8 @@ public class RsyncDataSetCopierTest extends AbstractFileSystemTestCase
     public void testLocalPresentInDestination()
     {
         Properties properties = createLocalDestinationProperties();
-        RsyncDataSetCopier dataSetCopier =
-                new RsyncDataSetCopier(properties, copierFactory, sshFactory);
+        DataSetFileOperationsManager dataSetCopier =
+                new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
         prepareForCheckingLastModifiedDate();
 
         // check that data set is not yet in archive
@@ -392,8 +392,8 @@ public class RsyncDataSetCopierTest extends AbstractFileSystemTestCase
          * copy to archive
          */
         Properties properties = createLocalDestinationProperties();
-        RsyncDataSetCopier dataSetCopier =
-                new RsyncDataSetCopier(properties, copierFactory, sshFactory);
+        DataSetFileOperationsManager dataSetCopier =
+                new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
         prepareForCheckingLastModifiedDate();
 
         // check that data set is not yet in archive
@@ -419,7 +419,7 @@ public class RsyncDataSetCopierTest extends AbstractFileSystemTestCase
     private Properties createLocalDestinationProperties()
     {
         final Properties properties = new Properties();
-        properties.setProperty(RsyncDataSetCopier.DESTINATION_KEY, destination.getPath());
+        properties.setProperty(DataSetFileOperationsManager.DESTINATION_KEY, destination.getPath());
         return properties;
     }
 
@@ -432,8 +432,8 @@ public class RsyncDataSetCopierTest extends AbstractFileSystemTestCase
     {
         Properties properties = createRemoteViaSshDestinationProperties();
         prepareRemoteCreateAndCheckCopier(HOST, null, true);
-        RsyncDataSetCopier dataSetCopier =
-                new RsyncDataSetCopier(properties, copierFactory, sshFactory);
+        DataSetFileOperationsManager dataSetCopier =
+                new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
         context.checking(new Expectations()
             {
                 {
@@ -478,8 +478,8 @@ public class RsyncDataSetCopierTest extends AbstractFileSystemTestCase
     {
         Properties properties = createRemoteViaSshDestinationProperties();
         prepareRemoteCreateAndCheckCopier(HOST, null, true);
-        RsyncDataSetCopier dataSetCopier =
-                new RsyncDataSetCopier(properties, copierFactory, sshFactory);
+        DataSetFileOperationsManager dataSetCopier =
+                new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
         context.checking(new Expectations()
             {
                 {
@@ -502,8 +502,8 @@ public class RsyncDataSetCopierTest extends AbstractFileSystemTestCase
     {
         Properties properties = createRemoteViaSshDestinationProperties();
         prepareRemoteCreateAndCheckCopier(HOST, null, true);
-        RsyncDataSetCopier dataSetCopier =
-                new RsyncDataSetCopier(properties, copierFactory, sshFactory);
+        DataSetFileOperationsManager dataSetCopier =
+                new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
         context.checking(new Expectations()
             {
                 {
@@ -524,8 +524,8 @@ public class RsyncDataSetCopierTest extends AbstractFileSystemTestCase
     {
         Properties properties = createRemoteViaSshDestinationProperties();
         prepareRemoteCreateAndCheckCopier(HOST, null, true);
-        RsyncDataSetCopier dataSetCopier =
-                new RsyncDataSetCopier(properties, copierFactory, sshFactory);
+        DataSetFileOperationsManager dataSetCopier =
+                new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
         context.checking(new Expectations()
             {
                 {
@@ -547,7 +547,7 @@ public class RsyncDataSetCopierTest extends AbstractFileSystemTestCase
             });
 
         Status status1 = dataSetCopier.retrieveFromDestination(ds1Location, ds1);
-        assertError(status1, RsyncDataSetCopier.DESTINATION_DOES_NOT_EXIST);
+        assertError(status1, DataSetFileOperationsManager.DESTINATION_DOES_NOT_EXIST);
 
         Status status2 = dataSetCopier.retrieveFromDestination(ds2Location, ds2);
         assertError(status2, DUMMY_ERROR_MESSAGE);
@@ -560,8 +560,8 @@ public class RsyncDataSetCopierTest extends AbstractFileSystemTestCase
     {
         Properties properties = createRemoteViaSshDestinationProperties();
         prepareRemoteCreateAndCheckCopier(HOST, null, true);
-        RsyncDataSetCopier dataSetCopier =
-                new RsyncDataSetCopier(properties, copierFactory, sshFactory);
+        DataSetFileOperationsManager dataSetCopier =
+                new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
         context.checking(new Expectations()
             {
                 {
@@ -591,8 +591,8 @@ public class RsyncDataSetCopierTest extends AbstractFileSystemTestCase
     {
         Properties properties = createRemoteViaSshDestinationProperties();
         prepareRemoteCreateAndCheckCopier(HOST, null, true);
-        RsyncDataSetCopier dataSetCopier =
-                new RsyncDataSetCopier(properties, copierFactory, sshFactory);
+        DataSetFileOperationsManager dataSetCopier =
+                new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
         context.checking(new Expectations()
             {
                 {
@@ -611,8 +611,8 @@ public class RsyncDataSetCopierTest extends AbstractFileSystemTestCase
     {
         Properties properties = createRemoteViaSshDestinationProperties();
         prepareRemoteCreateAndCheckCopier(HOST, null, true);
-        RsyncDataSetCopier dataSetCopier =
-                new RsyncDataSetCopier(properties, copierFactory, sshFactory);
+        DataSetFileOperationsManager dataSetCopier =
+                new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
         context.checking(new Expectations()
             {
                 {
@@ -645,8 +645,8 @@ public class RsyncDataSetCopierTest extends AbstractFileSystemTestCase
     {
         Properties properties = createRemoteViaSshDestinationProperties();
         prepareRemoteCreateAndCheckCopier(HOST, null, true);
-        RsyncDataSetCopier dataSetCopier =
-                new RsyncDataSetCopier(properties, copierFactory, sshFactory);
+        DataSetFileOperationsManager dataSetCopier =
+                new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
         context.checking(new Expectations()
             {
                 {
@@ -751,10 +751,12 @@ public class RsyncDataSetCopierTest extends AbstractFileSystemTestCase
     private Properties createRemoteViaSshDestinationProperties()
     {
         final Properties properties = new Properties();
-        properties.setProperty(RsyncDataSetCopier.DESTINATION_KEY,
-                HOST + ":" + destination.getPath());
-        properties.setProperty(RsyncDataSetCopier.RSYNC_EXEC + "-executable", rsyncExec.getPath());
-        properties.setProperty(RsyncDataSetCopier.SSH_EXEC + "-executable", sshExec.getPath());
+        properties.setProperty(DataSetFileOperationsManager.DESTINATION_KEY, HOST + ":"
+                + destination.getPath());
+        properties.setProperty(DataSetFileOperationsManager.RSYNC_EXEC + "-executable",
+                rsyncExec.getPath());
+        properties.setProperty(DataSetFileOperationsManager.SSH_EXEC + "-executable",
+                sshExec.getPath());
         return properties;
     }
 
@@ -762,11 +764,14 @@ public class RsyncDataSetCopierTest extends AbstractFileSystemTestCase
     private Properties createRemoteViaRsyncDestinationProperties()
     {
         final Properties properties = new Properties();
-        properties.setProperty(RsyncDataSetCopier.DESTINATION_KEY, HOST + ":" + RSYNC_MODULE + ":"
-                + destination.getPath());
-        properties.setProperty(RsyncDataSetCopier.RSYNC_PASSWORD_FILE_KEY, "abc-password");
-        properties.setProperty(RsyncDataSetCopier.RSYNC_EXEC + "-executable", rsyncExec.getPath());
-        properties.setProperty(RsyncDataSetCopier.SSH_EXEC + "-executable", sshExec.getPath());
+        properties.setProperty(DataSetFileOperationsManager.DESTINATION_KEY, HOST + ":"
+                + RSYNC_MODULE + ":" + destination.getPath());
+        properties
+                .setProperty(DataSetFileOperationsManager.RSYNC_PASSWORD_FILE_KEY, "abc-password");
+        properties.setProperty(DataSetFileOperationsManager.RSYNC_EXEC + "-executable",
+                rsyncExec.getPath());
+        properties.setProperty(DataSetFileOperationsManager.SSH_EXEC + "-executable",
+                sshExec.getPath());
         return properties;
     }
 

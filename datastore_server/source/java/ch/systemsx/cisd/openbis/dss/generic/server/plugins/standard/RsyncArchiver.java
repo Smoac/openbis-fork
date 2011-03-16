@@ -44,7 +44,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
 {
     private static final long serialVersionUID = 1L;
 
-    private transient RsyncDataSetCopier copier;
+    private transient DataSetFileOperationsManager fileOperationsManager;
 
     private final IPathCopierFactory pathCopierFactory;
 
@@ -123,31 +123,31 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
         initIfNecessary();
 
         File originalData = getDatasetDirectory(context, dataset);
-        return copier.isPresentInDestination(originalData, dataset);
+        return fileOperationsManager.isPresentInDestination(originalData, dataset);
     }
 
     private void initIfNecessary()
     {
-        if (copier == null)
+        if (fileOperationsManager == null)
         {
-            this.copier =
-                    new RsyncDataSetCopier(properties, pathCopierFactory, sshCommandExecutorFactory);
+            this.fileOperationsManager =
+                    new DataSetFileOperationsManager(properties, pathCopierFactory, sshCommandExecutorFactory);
         }
     }
 
     private Status doArchive(DatasetDescription dataset, File originalData)
     {
-        return copier.copyToDestination(originalData, dataset);
+        return fileOperationsManager.copyToDestination(originalData, dataset);
     }
 
     private Status doUnarchive(DatasetDescription dataset, File originalData)
     {
-        return copier.retrieveFromDestination(originalData, dataset);
+        return fileOperationsManager.retrieveFromDestination(originalData, dataset);
     }
 
     private Status doDeleteFromArchive(DeletedDataSet dataset)
     {
-        return copier.deleteFromDestination(dataset);
+        return fileOperationsManager.deleteFromDestination(dataset);
     }
 
     private File getDatasetDirectory(ArchiverTaskContext context, DatasetDescription dataset)

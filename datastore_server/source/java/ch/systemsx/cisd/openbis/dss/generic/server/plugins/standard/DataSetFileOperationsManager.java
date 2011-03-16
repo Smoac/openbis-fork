@@ -46,11 +46,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
  * 
  * @author Piotr Buczek
  */
-public class RsyncDataSetCopier // TODO rename to DataSetFileOperationsManager
+public class DataSetFileOperationsManager
 {
 
     private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            RsyncDataSetCopier.class);
+            DataSetFileOperationsManager.class);
 
     @Private
     static final String DESTINATION_KEY = "destination";
@@ -77,7 +77,7 @@ public class RsyncDataSetCopier // TODO rename to DataSetFileOperationsManager
 
     private final File destination;
 
-    public RsyncDataSetCopier(Properties properties, IPathCopierFactory pathCopierFactory,
+    public DataSetFileOperationsManager(Properties properties, IPathCopierFactory pathCopierFactory,
             ISshCommandExecutorFactory sshCommandExecutorFactory)
     {
         String hostFile = PropertyUtils.getMandatoryProperty(properties, DESTINATION_KEY);
