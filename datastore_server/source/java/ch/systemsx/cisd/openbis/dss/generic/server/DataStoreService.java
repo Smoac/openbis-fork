@@ -175,7 +175,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         commandExecutor.start();
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info("Comand executor started.");
+            operationLog.info("Command executor started.");
         }
         getShareIdManager().isKnown(""); // initializes ShareIdManager: reading all share ids from the data base
         if (operationLog.isInfoEnabled())
