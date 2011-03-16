@@ -438,13 +438,15 @@ public class RsyncDataSetCopierTest extends AbstractFileSystemTestCase
             {
                 {
                     /*
-                     * ds1: directory exists in archive -> first delete from directory
+                     * ds1: directory doesn't exist in archive -> create and copy
                      */
-                    one(sshExecutor).exists(ds1ArchivedLocationFile.getPath(), SSH_TIMEOUT_MILLIS);
-                    will(returnValue(BooleanStatus.createTrue()));
+                    one(sshExecutor).exists(ds1ArchivedLocationFile.getParentFile().getPath(),
+                            SSH_TIMEOUT_MILLIS);
+                    will(returnValue(BooleanStatus.createFalse()));
 
                     one(sshExecutor).executeCommandRemotely(
-                            "rm -rf " + ds1ArchivedLocationFile.getPath(), SSH_TIMEOUT_MILLIS);
+                            "mkdir -p " + ds1ArchivedLocationFile.getParentFile().getPath(),
+                            SSH_TIMEOUT_MILLIS);
                     will(returnValue(OK_RESULT));
 
                     one(copier).copyToRemote(ds1Location, ds1ArchivedLocationFile.getParentFile(),
@@ -452,10 +454,11 @@ public class RsyncDataSetCopierTest extends AbstractFileSystemTestCase
                     will(returnValue(Status.OK));
 
                     /*
-                     * ds2: directory doesn't exist in archive -> only copy
+                     * ds2: directory exists in archive -> only copy
                      */
-                    one(sshExecutor).exists(ds2ArchivedLocationFile.getPath(), SSH_TIMEOUT_MILLIS);
-                    will(returnValue(BooleanStatus.createFalse()));
+                    one(sshExecutor).exists(ds1ArchivedLocationFile.getParentFile().getPath(),
+                            SSH_TIMEOUT_MILLIS);
+                    will(returnValue(BooleanStatus.createTrue()));
 
                     one(copier).copyToRemote(ds2Location, ds2ArchivedLocationFile.getParentFile(),
                             HOST, null, null);
@@ -480,8 +483,9 @@ public class RsyncDataSetCopierTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(sshExecutor).exists(ds1ArchivedLocationFile.getPath(), SSH_TIMEOUT_MILLIS);
-                    will(returnValue(BooleanStatus.createFalse()));
+                    one(sshExecutor).exists(ds1ArchivedLocationFile.getParentFile().getPath(),
+                            SSH_TIMEOUT_MILLIS);
+                    will(returnValue(BooleanStatus.createTrue()));
                     one(copier).copyToRemote(ds1Location, ds1ArchivedLocationFile.getParentFile(),
                             HOST, null, null);
                     will(returnValue(Status.createError(DUMMY_ERROR_MESSAGE)));

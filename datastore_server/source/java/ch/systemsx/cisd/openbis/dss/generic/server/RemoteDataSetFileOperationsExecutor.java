@@ -84,7 +84,7 @@ public final class RemoteDataSetFileOperationsExecutor implements IDataSetFileOp
         }
     }
 
-    private void createFolder(File folder)
+    public void createFolder(File folder)
     {
         ProcessResult result =
                 executor.executeCommandRemotely("mkdir -p " + folder.getPath(),
@@ -109,10 +109,6 @@ public final class RemoteDataSetFileOperationsExecutor implements IDataSetFileOp
 
     public void copyDataSetToDestination(File dataSet, File destination)
     {
-        if (exists(destination).isSuccess() == false)
-        {
-            createFolder(destination);
-        }
         Status result =
                 copier.copyToRemote(dataSet, destination, host, rsyncModuleNameOrNull,
                         rsyncPasswordFileOrNull);

@@ -45,6 +45,18 @@ public final class LocalDataSetFileOperationsExcecutor implements IDataSetFileOp
         return BooleanStatus.createFromBoolean(fileOperations.exists(file));
     }
 
+    public void createFolder(File folder)
+    {
+        try
+        {
+            fileOperations.mkdirs(folder);
+        } catch (Exception ex)
+        {
+            operationLog.error("Creation of '" + folder + "' failed.", ex);
+            throw new ExceptionWithStatus(Status.createError("couldn't create directory"));
+        }
+    }
+
     public void deleteFolder(File folder)
     {
         try

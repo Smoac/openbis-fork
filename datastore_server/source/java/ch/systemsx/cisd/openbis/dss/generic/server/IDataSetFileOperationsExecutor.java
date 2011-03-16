@@ -27,6 +27,8 @@ public interface IDataSetFileOperationsExecutor
 {
     BooleanStatus exists(File file);
 
+    void createFolder(File folder);
+
     void deleteFolder(File folder);
 
     void copyDataSetToDestination(File dataSet, File destination);
