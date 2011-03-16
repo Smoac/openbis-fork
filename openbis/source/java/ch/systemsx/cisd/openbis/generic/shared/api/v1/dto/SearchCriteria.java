@@ -269,21 +269,9 @@ public class SearchCriteria implements Serializable
         MATCH_ALL_CLAUSES, MATCH_ANY_CLAUSES
     }
 
-    /**
-     * Operators for combining {@link SearchCriteria} objects.
-     * 
-     * @author Piotr Buczek
-     */
-    public static enum SubSearchCriteriaOperator
-    {
-        AND, OR
-    }
-
     private SearchOperator operator = SearchOperator.MATCH_ALL_CLAUSES;
 
     private ArrayList<MatchClause> matchClauses = new ArrayList<MatchClause>();
-
-    private SubSearchCriteriaOperator subSearchOperator = SubSearchCriteriaOperator.AND;
 
     private ArrayList<SearchSubCriteria> subCriterias = new ArrayList<SearchSubCriteria>();
 
@@ -321,15 +309,6 @@ public class SearchCriteria implements Serializable
     }
 
     /**
-     * Gets the operator for combining {@link SearchSubCriteria} objects. Default value is
-     * {@link SubSearchCriteriaOperator#AND}.
-     */
-    public SubSearchCriteriaOperator getSubSearchCriteriaOperator()
-    {
-        return subSearchOperator;
-    }
-
-    /**
      * Get a list of {@link SearchSubCriteria} objects for this SearchCriteria.
      */
     public List<SearchSubCriteria> getSubCriterias()
@@ -361,7 +340,6 @@ public class SearchCriteria implements Serializable
         EqualsBuilder builder = new EqualsBuilder();
         builder.append(getOperator(), other.getOperator());
         builder.append(getMatchClauses(), other.getMatchClauses());
-        builder.append(getSubSearchCriteriaOperator(), other.getSubSearchCriteriaOperator());
         builder.append(getSubCriterias(), other.getSubCriterias());
         return builder.isEquals();
     }
@@ -372,7 +350,6 @@ public class SearchCriteria implements Serializable
         HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(getOperator());
         builder.append(getMatchClauses());
-        builder.append(getSubSearchCriteriaOperator());
         builder.append(getSubCriterias());
         return builder.toHashCode();
     }
@@ -383,7 +360,6 @@ public class SearchCriteria implements Serializable
         ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
         builder.append(getOperator());
         builder.append(getMatchClauses());
-        builder.append(getSubSearchCriteriaOperator());
         builder.append(getSubCriterias());
         return builder.toString();
     }
