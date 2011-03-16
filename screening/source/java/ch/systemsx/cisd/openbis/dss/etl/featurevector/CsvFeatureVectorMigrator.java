@@ -18,15 +18,15 @@ package ch.systemsx.cisd.openbis.dss.etl.featurevector;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.etlserver.DefaultStorageProcessor;
 import ch.systemsx.cisd.openbis.dss.etl.HCSContainerDatasetInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
-import ch.systemsx.cisd.openbis.dss.etl.featurevector.CsvToCanonicalFeatureVector.CsvToCanonicalFeatureVectorConfiguration;
+import ch.systemsx.cisd.openbis.dss.etl.featurevector.CsvFeatureVectorParser.CsvFeatureVectorParserConfiguration;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.utils.CsvFileReaderHelper;
@@ -38,7 +38,7 @@ public class CsvFeatureVectorMigrator extends AbstractFeatureVectorMigrator
 {
     protected final FeatureVectorStorageProcessorConfiguration configuration;
 
-    protected final CsvToCanonicalFeatureVectorConfiguration convertorConfig;
+    protected final CsvFeatureVectorParserConfiguration convertorConfig;
 
     /**
      * @param properties
@@ -48,8 +48,7 @@ public class CsvFeatureVectorMigrator extends AbstractFeatureVectorMigrator
         super(properties);
 
         this.configuration = new FeatureVectorStorageProcessorConfiguration(properties);
-        convertorConfig =
-                new CsvToCanonicalFeatureVectorConfiguration(configuration);
+        convertorConfig = new CsvFeatureVectorParserConfiguration(configuration);
     }
 
     @Override
@@ -117,12 +116,11 @@ public class CsvFeatureVectorMigrator extends AbstractFeatureVectorMigrator
     {
         private final FeatureVectorStorageProcessorConfiguration configuration;
 
-        private final CsvToCanonicalFeatureVectorConfiguration convertorConfig;
+        private final CsvFeatureVectorParserConfiguration convertorConfig;
 
-        protected ImporterCsv(IImagingQueryDAO dao,
-                HCSContainerDatasetInfo screeningDataSetInfo, File fileToMigrate,
-                FeatureVectorStorageProcessorConfiguration configuration,
-                CsvToCanonicalFeatureVectorConfiguration convertorConfig)
+        protected ImporterCsv(IImagingQueryDAO dao, HCSContainerDatasetInfo screeningDataSetInfo,
+                File fileToMigrate, FeatureVectorStorageProcessorConfiguration configuration,
+                CsvFeatureVectorParserConfiguration convertorConfig)
         {
             super(dao, screeningDataSetInfo, fileToMigrate);
             this.configuration = configuration;
@@ -138,9 +136,9 @@ public class CsvFeatureVectorMigrator extends AbstractFeatureVectorMigrator
                 fileLines = getDatasetFileLines(fileToMigrate);
                 CsvToCanonicalFeatureVector convertor =
                         new CsvToCanonicalFeatureVector(fileLines, convertorConfig,
-                                screeningDataSetInfo.getContainerRows(), screeningDataSetInfo
-                                        .getContainerColumns());
-                ArrayList<CanonicalFeatureVector> fvecs = convertor.convert();
+                                screeningDataSetInfo.getContainerRows(),
+                                screeningDataSetInfo.getContainerColumns());
+                List<CanonicalFeatureVector> fvecs = convertor.convert();
 
                 FeatureVectorUploader uploader =
                         new FeatureVectorUploader(dao, screeningDataSetInfo);

@@ -1,6 +1,9 @@
 package ch.systemsx.cisd.openbis.dss.etl.jython;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.Properties;
 
 import org.python.util.PythonInterpreter;
 
@@ -11,12 +14,14 @@ import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory
 import ch.systemsx.cisd.etlserver.registrator.JythonTopLevelDataSetHandler;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeatureDefinition;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeatureVectorDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeaturesBuilder;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.BasicDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.IFeaturesBuilder;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.SimpleImageDataConfig;
+import ch.systemsx.cisd.openbis.dss.etl.featurevector.CsvFeatureVectorParser;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
@@ -110,11 +115,44 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
                 IFeaturesBuilder featureBuilder, File incomingDatasetFolder)
         {
             FeaturesBuilder myFeatureBuilder = (FeaturesBuilder) featureBuilder;
+            List<FeatureDefinition> featureDefinitions =
+                    myFeatureBuilder.getFeatureDefinitionValuesList();
+            return createFeatureVectorRegistrationDetails(featureDefinitions);
+        }
+
+        /**
+         * Parses the feature vactors from the specified CSV file. CSV format can be configured with
+         * following properties:
+         * 
+         * <pre>
+         *   # Separator character between headers and row cells.
+         *   separator = ,
+         *   ignore-comments = true
+         *   # Header of the column denoting the row of a well.
+         *   well-name-row = row
+         *   # Header of the column denoting the column of a well.
+         *   well-name-col = col
+         *   well-name-col-is-alphanum = true
+         * </pre>
+         * 
+         * @throws IOException if file cannot be parsed
+         */
+        public DataSetRegistrationDetails<FeatureVectorDataSetInformation> createFeatureVectorRegistrationDetails(
+                String dataSetPath, Properties properties) throws IOException
+        {
+            List<FeatureDefinition> featureDefinitions =
+                    CsvFeatureVectorParser.parse(new File(dataSetPath), properties);
+            return createFeatureVectorRegistrationDetails(featureDefinitions);
+        }
+
+        private DataSetRegistrationDetails<FeatureVectorDataSetInformation> createFeatureVectorRegistrationDetails(
+                List<FeatureDefinition> featureDefinitions)
+        {
             DataSetRegistrationDetails<FeatureVectorDataSetInformation> registrationDetails =
                     featureVectorDatasetFactory.createDataSetRegistrationDetails();
             FeatureVectorDataSetInformation featureVectorDataSet =
                     registrationDetails.getDataSetInformation();
-            featureVectorDataSet.setFeatures(myFeatureBuilder.getFeatureDefinitionValuesList());
+            featureVectorDataSet.setFeatures(featureDefinitions);
             registrationDetails
                     .setDataSetType(ScreeningConstants.DEFAULT_ANALYSIS_WELL_DATASET_TYPE);
             registrationDetails.setMeasuredData(false);

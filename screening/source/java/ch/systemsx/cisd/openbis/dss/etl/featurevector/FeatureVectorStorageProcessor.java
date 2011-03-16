@@ -38,8 +38,6 @@ import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeatureDefinition;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeatureVectorDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageDataSetInformation;
-import ch.systemsx.cisd.openbis.dss.etl.featurevector.CsvToCanonicalFeatureVector.CsvToCanonicalFeatureVectorConfiguration;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -47,7 +45,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
-import ch.systemsx.cisd.utils.CsvFileReaderHelper;
 
 /**
  * Extract features from the file and store them in the database.
@@ -62,8 +59,6 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
 
     private final FeatureVectorStorageProcessorConfiguration configuration;
 
-    private final CsvToCanonicalFeatureVectorConfiguration convertorConfig;
-
     private final DataSource dataSource;
 
     private final IEncapsulatedOpenBISService openBisService;
@@ -72,7 +67,6 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
     {
         super(properties);
         this.configuration = new FeatureVectorStorageProcessorConfiguration(properties);
-        convertorConfig = new CsvToCanonicalFeatureVectorConfiguration(configuration);
         this.dataSource = ServiceProvider.getDataSourceProvider().getDataSource(properties);
         this.openBisService = ServiceProvider.getOpenBISService();
     }
@@ -161,8 +155,7 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
     }
 
     private void loadDataSetIntoDatabase(IImagingQueryDAO dataAccessObject, File dataSet,
-            DataSetInformation dataSetInformation)
-            throws IOException
+            DataSetInformation dataSetInformation) throws IOException
     {
         HCSContainerDatasetInfo datasetInfo = createScreeningDatasetInfo(dataSetInformation);
 
@@ -177,41 +170,30 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
     private List<CanonicalFeatureVector> extractCanonicalFeatureVectors(File dataSet,
             DataSetInformation dataSetInformation, Geometry plateGeometry) throws IOException
     {
+        List<FeatureDefinition> featureDefinitions;
         if (dataSetInformation instanceof FeatureVectorDataSetInformation)
         {
-            return extractCanonicalFeatureVectors(
-                    (FeatureVectorDataSetInformation) dataSetInformation, plateGeometry);
+            featureDefinitions =
+                    ((FeatureVectorDataSetInformation) dataSetInformation).getFeatures();
         } else
         {
-            return extractCanonicalFeatureVectorsFromFile(dataSet, plateGeometry);
+            featureDefinitions = CsvFeatureVectorParser.parse(dataSet, configuration);
         }
+        return extractCanonicalFeatureVectors(featureDefinitions, plateGeometry);
     }
 
     private static List<CanonicalFeatureVector> extractCanonicalFeatureVectors(
-            FeatureVectorDataSetInformation dataSetInformation, Geometry plateGeometry)
+            List<FeatureDefinition> featuresDefinitions, Geometry plateGeometry)
     {
-        List<FeatureDefinition> featuresDefinitionValuesList =
-                dataSetInformation.getFeatures();
-
         List<CanonicalFeatureVector> canonicalFeatureVectors =
                 new ArrayList<CanonicalFeatureVector>();
-        for (FeatureDefinition featureDefinitionValues : featuresDefinitionValuesList)
+        for (FeatureDefinition featureDefinitionValues : featuresDefinitions)
         {
             CanonicalFeatureVector canonicalFeatureVector =
                     featureDefinitionValues.getCanonicalFeatureVector(plateGeometry);
             canonicalFeatureVectors.add(canonicalFeatureVector);
         }
         return canonicalFeatureVectors;
-    }
-
-    private List<CanonicalFeatureVector> extractCanonicalFeatureVectorsFromFile(File dataSet,
-            Geometry plateGeometry) throws IOException
-    {
-        DatasetFileLines fileLines = getDatasetFileLines(dataSet);
-        CsvToCanonicalFeatureVector convertor =
-                new CsvToCanonicalFeatureVector(fileLines, convertorConfig, plateGeometry);
-        List<CanonicalFeatureVector> fvecs = convertor.convert();
-        return fvecs;
     }
 
     private HCSContainerDatasetInfo createScreeningDatasetInfo(DataSetInformation dataSetInformation)
@@ -249,14 +231,6 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
     private IImagingQueryDAO createDAO()
     {
         return QueryTool.getQuery(dataSource, IImagingQueryDAO.class);
-    }
-
-    /**
-     * Return the tabular data as a DatasetFileLines.
-     */
-    private DatasetFileLines getDatasetFileLines(File file) throws IOException
-    {
-        return CsvFileReaderHelper.getDatasetFileLines(file, configuration);
     }
 
 }

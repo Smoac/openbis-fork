@@ -33,7 +33,7 @@ import com.csvreader.CsvReader;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.dss.etl.featurevector.CsvToCanonicalFeatureVector.CsvToCanonicalFeatureVectorConfiguration;
+import ch.systemsx.cisd.openbis.dss.etl.featurevector.CsvFeatureVectorParser.CsvFeatureVectorParserConfiguration;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateFeatureValues;
@@ -43,17 +43,17 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFe
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-@Friend(toClasses=FeatureVectorStorageProcessorConfiguration.class)
+@Friend(toClasses = FeatureVectorStorageProcessorConfiguration.class)
 public class CsvToCanonicalFeatureVectorTest extends AssertJUnit
 {
     @Test
     public void testConversion() throws IOException
     {
-        CsvToCanonicalFeatureVectorConfiguration config =
-                new CsvToCanonicalFeatureVectorConfiguration("WellName", "WellName");
+        CsvFeatureVectorParserConfiguration config =
+                new CsvFeatureVectorParserConfiguration("WellName", "WellName");
         CsvToCanonicalFeatureVector converter =
                 new CsvToCanonicalFeatureVector(getDatasetFileLines(), config, 16, 24);
-        ArrayList<CanonicalFeatureVector> fvs = converter.convert();
+        List<CanonicalFeatureVector> fvs = converter.convert();
         // Not all the columns are not empty
         assertEquals(18, fvs.size());
         // Check total cells feature
@@ -86,12 +86,14 @@ public class CsvToCanonicalFeatureVectorTest extends AssertJUnit
     public void testIgnoringColumns() throws IOException
     {
         Properties properties = new Properties();
-        properties.setProperty(COLUMNS_TO_BE_IGNORED_KEY, "RelativeInfectionIndex, Log2RelativeInfectionIndex,ZScore");
-        CsvToCanonicalFeatureVectorConfiguration config =
-            new CsvToCanonicalFeatureVectorConfiguration(new FeatureVectorStorageProcessorConfiguration(properties));
+        properties.setProperty(COLUMNS_TO_BE_IGNORED_KEY,
+                "RelativeInfectionIndex, Log2RelativeInfectionIndex,ZScore");
+        CsvFeatureVectorParserConfiguration config =
+                new CsvFeatureVectorParserConfiguration(
+                        new FeatureVectorStorageProcessorConfiguration(properties));
         CsvToCanonicalFeatureVector converter =
-            new CsvToCanonicalFeatureVector(getDatasetFileLines(), config, 16, 24);
-        ArrayList<CanonicalFeatureVector> fvs = converter.convert();
+                new CsvToCanonicalFeatureVector(getDatasetFileLines(), config, 16, 24);
+        List<CanonicalFeatureVector> fvs = converter.convert();
         // Not all the columns are not empty
         assertEquals(15, fvs.size());
         // Check total cells feature
@@ -119,20 +121,21 @@ public class CsvToCanonicalFeatureVectorTest extends AssertJUnit
         assertEquals(0.037157f, darr.getForWellLocation(1, 2));
         assertEquals(0.001052f, darr.getForWellLocation(2, 1));
     }
-    
+
     @Test
     public void testNoIgnoringColumns() throws IOException
     {
         Properties properties = new Properties();
         properties.setProperty(COLUMNS_TO_BE_IGNORED_KEY, "");
-        CsvToCanonicalFeatureVectorConfiguration config =
-            new CsvToCanonicalFeatureVectorConfiguration(new FeatureVectorStorageProcessorConfiguration(properties));
+        CsvFeatureVectorParserConfiguration config =
+                new CsvFeatureVectorParserConfiguration(
+                        new FeatureVectorStorageProcessorConfiguration(properties));
         CsvToCanonicalFeatureVector converter =
-            new CsvToCanonicalFeatureVector(getDatasetFileLines(), config, 16, 24);
-        ArrayList<CanonicalFeatureVector> fvs = converter.convert();
+                new CsvToCanonicalFeatureVector(getDatasetFileLines(), config, 16, 24);
+        List<CanonicalFeatureVector> fvs = converter.convert();
         assertEquals(18, fvs.size());
     }
-    
+
     /**
      * Return the tabular data as a DatasetFileLines.
      */
