@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
 
@@ -126,7 +127,49 @@ public class GeneralInformationServiceTest extends SystemTestCase
         SearchCriteria sc = new SearchCriteria();
         sc.addMatchClause(MatchClause.createPropertyMatch("ORGANISM", "HUMAN"));
         List<Sample> result = generalInformationService.searchForSamples(sessionToken, sc);
-        assertEquals(true, result.size() > 0);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    public void testSearchForSamplesByExperimentCode()
+    {
+        // Search for Samples with only experiment's code limiting the results
+        SearchCriteria sc = new SearchCriteria();
+        SearchCriteria ec = new SearchCriteria();
+        ec.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "EXP-TEST-1"));
+        sc.addSubCriteria(SearchSubCriteria.createExperimentCriteria(ec));
+        List<Sample> result = generalInformationService.searchForSamples(sessionToken, sc);
+        assertEquals(1, result.size());
+        assertEquals("/CISD/NEMO/EXP-TEST-1", result.get(0).getExperimentIdentifierOrNull());
+    }
+
+    @Test
+    public void testSearchForSamplesByExperimentProperty()
+    {
+        // Search for Samples with only experiment's property limiting the results
+        SearchCriteria sc = new SearchCriteria();
+        SearchCriteria ec = new SearchCriteria();
+        ec.addMatchClause(MatchClause.createPropertyMatch("DESCRIPTION", "A simple experiment"));
+        sc.addSubCriteria(SearchSubCriteria.createExperimentCriteria(ec));
+        List<Sample> result = generalInformationService.searchForSamples(sessionToken, sc);
+        assertEquals(5, result.size());
+    }
+
+    @Test
+    public void testSearchForSamplesByPropertyAndExperimentCode()
+    {
+        // Search for Samples first
+        SearchCriteria sc = new SearchCriteria();
+        sc.addMatchClause(MatchClause.createPropertyMatch("ORGANISM", "*"));
+        List<Sample> result = generalInformationService.searchForSamples(sessionToken, sc);
+        assertEquals(4, result.size());
+        // Add experiment criteria limiting results to only 1
+        SearchCriteria ec = new SearchCriteria();
+        ec.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "EXP-TEST-1"));
+        sc.addSubCriteria(SearchSubCriteria.createExperimentCriteria(ec));
+        List<Sample> result2 = generalInformationService.searchForSamples(sessionToken, sc);
+        assertEquals(1, result2.size());
+        assertEquals("/CISD/NEMO/EXP-TEST-1", result2.get(0).getExperimentIdentifierOrNull());
     }
 
     @Test
