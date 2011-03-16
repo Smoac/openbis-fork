@@ -87,6 +87,7 @@ public class WellContent implements ISerializable
         this.imagesDatasetOrNull = imagesDatasetOrNull;
         this.featureVectorDatasetOrNull = featureVectorDatasetOrNull;
         this.featureVectorOrNull = featureVectorOrNull;
+        this.wellProperties = wellProperties;
     }
 
     public WellLocation tryGetLocation()
