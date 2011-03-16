@@ -105,9 +105,9 @@ public class DeleteFromExternalDBMaintenanceTask extends
             connection = createConnection();
             super.execute();
 
-        } catch (SQLException sqlEx)
+        } catch (Exception e)
         {
-            operationLog.error(sqlEx);
+            operationLog.error(e);
         } finally
         {
             closeConnection(connection);
@@ -160,9 +160,6 @@ public class DeleteFromExternalDBMaintenanceTask extends
         } catch (SQLException sqlEx)
         {
             operationLog.error(sqlEx);
-        } finally
-        {
-            closeConnection(connection);
         }
 
     }
