@@ -126,6 +126,7 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         CheckBoxField field =
                 new CheckBoxField(viewContext.getMessage(Dict.REOPEN_LAST_TAB_ON_LOGIN_LABEL),
                         false);
+        GWTUtils.setToolTip(field, viewContext.getMessage(Dict.REOPEN_LAST_TAB_ON_LOGIN_INFO));
         AbstractImagePrototype infoIcon =
                 AbstractImagePrototype.create(viewContext.getImageBundle().getInfoIcon());
         FieldUtil.addInfoIcon(field, viewContext.getMessage(Dict.REOPEN_LAST_TAB_ON_LOGIN_INFO),
@@ -214,6 +215,7 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
     private CheckBoxField createDebuggingModeCheckBox()
     {
         CheckBoxField field = new CheckBoxField(viewContext.getMessage(Dict.DEBUGGING_MODE), false);
+        GWTUtils.setToolTip(field, viewContext.getMessage(Dict.DEBUGGING_MODE_INFO));
         AbstractImagePrototype infoIcon =
                 AbstractImagePrototype.create(viewContext.getImageBundle().getInfoIcon());
         FieldUtil.addInfoIcon(field, viewContext.getMessage(Dict.DEBUGGING_MODE_INFO),
