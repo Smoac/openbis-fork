@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.Widge
 public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
         AbstractDataConfirmationDialog<List<T>>
 {
-    private static final int LABEL_WIDTH = 60;
+    private static final int LABEL_WIDTH = 70;
 
     private static final int FIELD_WIDTH = 180;
 
