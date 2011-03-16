@@ -71,12 +71,12 @@ public class WellContent implements ISerializable
     public WellContent(WellLocation locationOrNull, EntityReference well, EntityReference plate,
             ExperimentReference experiment, Material materialContent)
     {
-        this(locationOrNull, well, plate, experiment, materialContent, null, null, null);
+        this(locationOrNull, well, plate, experiment, materialContent, null, null, null, null);
     }
 
     private WellContent(WellLocation locationOrNull, EntityReference well, EntityReference plate,
             ExperimentReference experiment, Material materialContent,
-            DatasetImagesReference imagesDatasetOrNull,
+            List<IEntityProperty> wellProperties, DatasetImagesReference imagesDatasetOrNull,
             DatasetReference featureVectorDatasetOrNull, NamedFeatureVector featureVectorOrNull)
     {
         this.locationOrNull = locationOrNull;
@@ -133,15 +133,15 @@ public class WellContent implements ISerializable
             DatasetReference newFeatureVectorDatasetOrNull)
     {
         return new WellContent(this.locationOrNull, this.well, this.plate, this.experiment,
-                this.materialContent, newImagesDatasetOrNull, newFeatureVectorDatasetOrNull,
-                this.featureVectorOrNull);
+                this.materialContent, this.wellProperties, newImagesDatasetOrNull,
+                newFeatureVectorDatasetOrNull, this.featureVectorOrNull);
     }
 
     public WellContent cloneWithFeatureVector(NamedFeatureVector newFeatureVectorOrNull)
     {
         return new WellContent(this.locationOrNull, this.well, this.plate, this.experiment,
-                this.materialContent, this.imagesDatasetOrNull, this.featureVectorDatasetOrNull,
-                newFeatureVectorOrNull);
+                this.materialContent, this.wellProperties, this.imagesDatasetOrNull,
+                this.featureVectorDatasetOrNull, newFeatureVectorOrNull);
     }
 
     @Override
