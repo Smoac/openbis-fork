@@ -16,6 +16,8 @@ fi
 FULL_VER=S$VER.$SUBVER
 SPRINT_SERVER=sprint-openbis.ethz.ch
 SPRINT_INSTALL_SCRIPT=sprint_install.sh
+# this folder is publicly accessible at http://svncisd.ethz.ch/doc/javadoc/
+JAVADOC_FOLDER=~/fileserver/doc/javadoc
 
 # Unset this to do a dry-run (like rsync -n) and set it to actually execute the commands
 # unset EXECUTE_COMMANDS
@@ -83,6 +85,24 @@ function copy_to_sprint_server {
 	state_end
 }
 
+
+function publish_javadocs {
+
+	state_start "Publishing javadocs ..."
+	
+	if [ $EXECUTE_COMMANDS ]; then
+	    pushd .
+	    
+	    cp -R tmp/openbis_all/targets/dist/javadoc $JAVADOC_FOLDER/$FULL_VER
+	    cd $JAVADOC_FOLDER
+	    rm -f current
+	    ln -s $FULL_VER current
+	    
+	    popd
+	fi
+	state_end
+}
+
 function install_sprint {
 	# If sprint install script is present and executable, run it!
 	if [ $EXECUTE_COMMANDS ]; then
@@ -105,6 +125,7 @@ setup
 build
 copy_to_cisd_server
 copy_to_sprint_server
+publish_javadocs
 install_sprint
 
 state_start Done!
