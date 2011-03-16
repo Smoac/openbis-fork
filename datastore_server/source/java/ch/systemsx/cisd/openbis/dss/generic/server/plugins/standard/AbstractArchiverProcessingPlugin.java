@@ -98,15 +98,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         operationLog.info("Archiving of the following datasets has been requested: "
                 + CollectionUtils.abbreviate(datasets, 10));
 
-        Status prerequisiteStatus = checkUnarchivePrerequisite(datasets);
-        DatasetProcessingStatuses statuses = null;
-        if (prerequisiteStatus.isError())
-        {
-            statuses = createStatuses(prerequisiteStatus, datasets, Operation.ARCHIVE);
-        } else
-        {
-            statuses = archiveInternal(datasets, context, removeFromDataStore);
-        }
+        DatasetProcessingStatuses statuses = safeArchive(datasets, context, removeFromDataStore);
 
         DataSetArchivingStatus successStatus = (removeFromDataStore) ? ARCHIVED : AVAILABLE;
 
@@ -116,7 +108,38 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         return statuses.getProcessingStatus();
     }
 
-    private DatasetProcessingStatuses archiveInternal(List<DatasetDescription> datasets,
+    /**
+     * a 'safe' method that does not throw any exceptions.
+     */
+    private DatasetProcessingStatuses safeArchive(List<DatasetDescription> datasets,
+            final ArchiverTaskContext context, boolean removeFromDataStore)
+    {
+        Status prerequisiteStatus = checkUnarchivePrerequisite(datasets);
+        DatasetProcessingStatuses statuses = null;
+        if (prerequisiteStatus.isError())
+        {
+            statuses = createStatuses(prerequisiteStatus, datasets, Operation.ARCHIVE);
+        } else
+        {
+            try
+            {
+                statuses = unsafeArchive(datasets, context, removeFromDataStore);
+            } catch (Throwable t)
+            {
+                String errorMessage = "Archiving failed :" + t.getMessage();
+                operationLog.error(errorMessage, t);
+                Status errorStatus = Status.createError(errorMessage);
+                statuses = createStatuses(errorStatus, datasets, Operation.ARCHIVE);
+            }
+        }
+        return statuses;
+    }
+
+    /**
+     * this method does not handle any exceptions coming from the archiver implementation, hence it
+     * is 'unsafe'.
+     */
+    private DatasetProcessingStatuses unsafeArchive(List<DatasetDescription> datasets,
             final ArchiverTaskContext context, boolean removeFromDataStore)
     {
 
@@ -192,6 +215,20 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         operationLog.info("Unarchiving of the following datasets has been requested: "
                 + CollectionUtils.abbreviate(datasets, 10));
 
+        DatasetProcessingStatuses statuses = safeUnarchive(datasets, context);
+
+        asyncUpdateStatuses(statuses.getSuccessfulDatasetCodes(), AVAILABLE, true);
+        asyncUpdateStatuses(statuses.getFailedDatasetCodes(), ARCHIVED, true);
+
+        return statuses.getProcessingStatus();
+    }
+
+    /**
+     * a 'safe' method that never throws any exceptions.
+     */
+    private DatasetProcessingStatuses safeUnarchive(List<DatasetDescription> datasets,
+            final ArchiverTaskContext context)
+    {
         Status prerequisiteStatus = checkUnarchivePrerequisite(datasets);
         DatasetProcessingStatuses statuses = null;
         if (prerequisiteStatus.isError())
@@ -199,13 +236,18 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
             statuses = createStatuses(prerequisiteStatus, datasets, Operation.UNARCHIVE);
         } else
         {
-            statuses = doUnarchive(datasets, context);
+            try
+            {
+                statuses = doUnarchive(datasets, context);
+            } catch (Throwable t)
+            {
+                String errorMessage = "Unarchiving failed :" + t.getMessage();
+                operationLog.error(errorMessage, t);
+                Status errorStatus = Status.createError(errorMessage);
+                statuses = createStatuses(errorStatus, datasets, Operation.UNARCHIVE);
+            }
         }
-
-        asyncUpdateStatuses(statuses.getSuccessfulDatasetCodes(), AVAILABLE, true);
-        asyncUpdateStatuses(statuses.getFailedDatasetCodes(), ARCHIVED, true);
-
-        return statuses.getProcessingStatus();
+        return statuses;
     }
 
     public ProcessingStatus deleteFromArchive(List<DeletedDataSet> datasets)
