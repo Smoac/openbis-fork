@@ -42,7 +42,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.ScriptColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
@@ -162,9 +161,9 @@ public class ScriptGrid extends TypedTableGrid<Script>
     {
         ColumnDefsAndConfigs<TableModelRowWithObject<Script>> schema =
                 super.createColumnsDefinition();
-        schema.setGridCellRendererFor(ScriptColDefKind.DESCRIPTION.id(),
+        schema.setGridCellRendererFor(ScriptGridColumnIDs.DESCRIPTION,
                 createMultilineStringCellRenderer());
-        schema.setGridCellRendererFor(ScriptColDefKind.SCRIPT.id(),
+        schema.setGridCellRendererFor(ScriptGridColumnIDs.SCRIPT,
                 createMultilineStringCellRenderer());
         return schema;
     }

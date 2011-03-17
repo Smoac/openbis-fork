@@ -65,6 +65,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReferenc
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.InvalidSessionException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.ITableDataProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AuthorizationGroupProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.FileFormatTypesProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
@@ -2287,24 +2288,15 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public ResultSet<AuthorizationGroup> listAuthorizationGroups(
-            DefaultResultSetConfig<String, AuthorizationGroup> resultSetConfig)
+    public TypedTableResultSet<AuthorizationGroup> listAuthorizationGroups(
+            DefaultResultSetConfig<String, TableModelRowWithObject<AuthorizationGroup>> resultSetConfig)
     {
-
-        return listEntities(resultSetConfig,
-                new AbstractOriginalDataProviderWithoutHeaders<AuthorizationGroup>()
-                    {
-                        @Override
-                        public List<AuthorizationGroup> getFullOriginalData()
-                                throws UserFailureException
-                        {
-                            return listAuthorizationGroups();
-                        }
-                    });
+        return listEntities(new AuthorizationGroupProvider(commonServer, getSessionToken()),
+                resultSetConfig);
     }
 
     public String prepareExportAuthorizationGroups(
-            TableExportCriteria<AuthorizationGroup> exportCriteria)
+            TableExportCriteria<TableModelRowWithObject<AuthorizationGroup>> exportCriteria)
     {
         return prepareExportEntities(exportCriteria);
     }

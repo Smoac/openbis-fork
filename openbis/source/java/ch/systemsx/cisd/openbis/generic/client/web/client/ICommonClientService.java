@@ -840,13 +840,14 @@ public interface ICommonClientService extends IClientService
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for AuthorizationGroups.
      */
     public String prepareExportAuthorizationGroups(
-            TableExportCriteria<AuthorizationGroup> exportCriteria) throws UserFailureException;
+            TableExportCriteria<TableModelRowWithObject<AuthorizationGroup>> exportCriteria)
+            throws UserFailureException;
 
     /**
      * Returns {@link AuthorizationGroup}s for given criteria.
      */
-    public ResultSet<AuthorizationGroup> listAuthorizationGroups(
-            DefaultResultSetConfig<String, AuthorizationGroup> resultSetConfig)
+    public TypedTableResultSet<AuthorizationGroup> listAuthorizationGroups(
+            DefaultResultSetConfig<String, TableModelRowWithObject<AuthorizationGroup>> resultSetConfig)
             throws UserFailureException;
 
     /**

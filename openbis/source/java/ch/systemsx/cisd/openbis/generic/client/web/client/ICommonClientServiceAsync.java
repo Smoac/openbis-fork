@@ -740,14 +740,15 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      * @see ICommonClientService#prepareExportAuthorizationGroups(TableExportCriteria)
      */
     public void prepareExportAuthorizationGroups(
-            TableExportCriteria<AuthorizationGroup> exportCriteria, AsyncCallback<String> callback);
+            TableExportCriteria<TableModelRowWithObject<AuthorizationGroup>> exportCriteria,
+            AsyncCallback<String> callback);
 
     /**
      * @see ICommonClientService#listAuthorizationGroups(DefaultResultSetConfig)
      */
     public void listAuthorizationGroups(
-            DefaultResultSetConfig<String, AuthorizationGroup> resultSetConfig,
-            AsyncCallback<ResultSet<AuthorizationGroup>> callback);
+            DefaultResultSetConfig<String, TableModelRowWithObject<AuthorizationGroup>> resultSetConfig,
+            AsyncCallback<TypedTableResultSet<AuthorizationGroup>> callback);
 
     /**
      * @see ICommonClientService#registerAuthorizationGroup(NewAuthorizationGroup)

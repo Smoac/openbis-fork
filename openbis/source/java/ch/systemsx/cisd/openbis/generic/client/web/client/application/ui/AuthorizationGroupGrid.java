@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -39,11 +41,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.AuthorizationGroupColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GroupColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
@@ -51,27 +50,28 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AuthorizationGroupGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * Grid displaying authorization groups.
  * 
  * @author Izabela Adamczyk
  */
-public class AuthorizationGroupGrid extends AbstractSimpleBrowserGrid<AuthorizationGroup>
+public class AuthorizationGroupGrid extends TypedTableGrid<AuthorizationGroup>
 {
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX
             + "authorization-group-browser";
 
-    public static final String GRID_ID = BROWSER_ID + "_grid";
+    public static final String GRID_ID = BROWSER_ID + TypedTableGrid.GRID_POSTFIX;
 
     public static final String ADD_BUTTON_ID = BROWSER_ID + "_add-button";
 
@@ -91,7 +91,7 @@ public class AuthorizationGroupGrid extends AbstractSimpleBrowserGrid<Authorizat
 
     private AuthorizationGroupGrid(IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(viewContext, BROWSER_ID, GRID_ID,
+        super(viewContext, BROWSER_ID, true,
                 DisplayTypeIDGenerator.AUTHORIZATION_GROUP_BROWSER_GRID);
         postRegistrationCallback = createRefreshGridAction();
     }
@@ -101,11 +101,12 @@ public class AuthorizationGroupGrid extends AbstractSimpleBrowserGrid<Authorizat
         addEntityOperationsLabel();
 
         Button showDetailsButton =
-                createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_SHOW_USERS),
-                        new ISelectedEntityInvoker<BaseEntityModel<AuthorizationGroup>>()
+                createSelectedItemButton(
+                        viewContext.getMessage(Dict.BUTTON_SHOW_USERS),
+                        new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<AuthorizationGroup>>>()
                             {
                                 public void invoke(
-                                        BaseEntityModel<AuthorizationGroup> selectedItem,
+                                        BaseEntityModel<TableModelRowWithObject<AuthorizationGroup>> selectedItem,
                                         boolean keyPressed)
                                 {
                                     showEntityViewer(selectedItem.getBaseObject(), false,
@@ -131,14 +132,17 @@ public class AuthorizationGroupGrid extends AbstractSimpleBrowserGrid<Authorizat
         addAuthorizationGroupButton.setId(ADD_BUTTON_ID);
         addButton(addAuthorizationGroupButton);
 
-        addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
-                new ISelectedEntityInvoker<BaseEntityModel<AuthorizationGroup>>()
+        addButton(createSelectedItemButton(
+                viewContext.getMessage(Dict.BUTTON_EDIT),
+                new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<AuthorizationGroup>>>()
                     {
 
-                        public void invoke(BaseEntityModel<AuthorizationGroup> selectedItem,
+                        public void invoke(
+                                BaseEntityModel<TableModelRowWithObject<AuthorizationGroup>> selectedItem,
                                 boolean keyPressed)
                         {
-                            final AuthorizationGroup authGroup = selectedItem.getBaseObject();
+                            final AuthorizationGroup authGroup =
+                                    selectedItem.getBaseObject().getObjectOrNull();
                             createEditDialog(authGroup).show();
                         }
                     }));
@@ -148,11 +152,18 @@ public class AuthorizationGroupGrid extends AbstractSimpleBrowserGrid<Authorizat
                         new AbstractCreateDialogListener()
                             {
                                 @Override
-                                protected Dialog createDialog(List<AuthorizationGroup> selected,
+                                protected Dialog createDialog(
+                                        List<TableModelRowWithObject<AuthorizationGroup>> selected,
                                         IBrowserGridActionInvoker invoker)
                                 {
+                                    ArrayList<AuthorizationGroup> groups =
+                                            new ArrayList<AuthorizationGroup>();
+                                    for (TableModelRowWithObject<AuthorizationGroup> row : selected)
+                                    {
+                                        groups.add(row.getObjectOrNull());
+                                    }
                                     return new GroupListDeletionConfirmationDialog(viewContext,
-                                            selected, createRefreshCallback(invoker));
+                                            groups, createRefreshCallback(invoker));
                                 }
                             });
         deleteButton.setId(DELETE_BUTTON_ID);
@@ -164,45 +175,50 @@ public class AuthorizationGroupGrid extends AbstractSimpleBrowserGrid<Authorizat
     }
 
     @Override
-    protected IColumnDefinitionKind<AuthorizationGroup>[] getStaticColumnsDefinition()
+    protected ColumnDefsAndConfigs<TableModelRowWithObject<AuthorizationGroup>> createColumnsDefinition()
     {
-        return AuthorizationGroupColDefKind.values();
-    }
-
-    @Override
-    protected ColumnDefsAndConfigs<AuthorizationGroup> createColumnsDefinition()
-    {
-        ColumnDefsAndConfigs<AuthorizationGroup> schema = super.createColumnsDefinition();
-        schema.setGridCellRendererFor(GroupColDefKind.DESCRIPTION.id(),
+        ColumnDefsAndConfigs<TableModelRowWithObject<AuthorizationGroup>> schema =
+                super.createColumnsDefinition();
+        schema.setGridCellRendererFor(AuthorizationGroupGridColumnIDs.DESCRIPTION,
                 createMultilineStringCellRenderer());
-        schema.setGridCellRendererFor(GroupColDefKind.CODE.id(), createInternalLinkCellRenderer());
+        schema.setGridCellRendererFor(AuthorizationGroupGridColumnIDs.CODE,
+                createInternalLinkCellRenderer());
+        schema.setGridCellRendererFor(AuthorizationGroupGridColumnIDs.REGISTRATOR,
+                PersonRenderer.REGISTRATOR_RENDERER);
         return schema;
     }
 
     @Override
-    protected void listEntities(DefaultResultSetConfig<String, AuthorizationGroup> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<AuthorizationGroup>> callback)
+    protected void listTableRows(
+            DefaultResultSetConfig<String, TableModelRowWithObject<AuthorizationGroup>> resultSetConfig,
+            AsyncCallback<TypedTableResultSet<AuthorizationGroup>> callback)
     {
         viewContext.getService().listAuthorizationGroups(resultSetConfig, callback);
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<AuthorizationGroup> exportCriteria,
+    protected void prepareExportEntities(
+            TableExportCriteria<TableModelRowWithObject<AuthorizationGroup>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportAuthorizationGroups(exportCriteria, callback);
     }
 
     @Override
-    protected List<IColumnDefinition<AuthorizationGroup>> getInitialFilters()
+    protected String translateColumnIdToDictionaryKey(String columnID)
     {
-        return asColumnFilters(new AuthorizationGroupColDefKind[]
-            { AuthorizationGroupColDefKind.CODE });
+        return columnID.toLowerCase();
     }
 
     @Override
-    protected void showEntityViewer(final AuthorizationGroup group, boolean editMode,
-            boolean inBackground)
+    protected List<String> getColumnIdsOfFilters()
+    {
+        return Arrays.asList(AuthorizationGroupGridColumnIDs.CODE);
+    }
+
+    @Override
+    protected void showEntityViewer(final TableModelRowWithObject<AuthorizationGroup> group,
+            boolean editMode, boolean inBackground)
     {
         final AbstractTabItemFactory tabFactory = new AbstractTabItemFactory()
             {
@@ -210,14 +226,15 @@ public class AuthorizationGroupGrid extends AbstractSimpleBrowserGrid<Authorizat
                 public ITabItem create()
                 {
                     IDisposableComponent component =
-                            PersonGrid.createForAuthorizationGroup(viewContext, group);
+                            PersonGrid.createForAuthorizationGroup(viewContext,
+                                    group.getObjectOrNull());
                     return DefaultTabItem.create(getTabTitle(), component, viewContext);
                 }
 
                 @Override
                 public String getId()
                 {
-                    return PersonGrid.createBrowserId(group);
+                    return PersonGrid.createBrowserId(group.getObjectOrNull());
                 }
 
                 @Override
@@ -230,7 +247,8 @@ public class AuthorizationGroupGrid extends AbstractSimpleBrowserGrid<Authorizat
                 @Override
                 public String getTabTitle()
                 {
-                    return viewContext.getMessage(Dict.AUTHORIZATION_GROUP_USERS, group.getCode());
+                    return viewContext.getMessage(Dict.AUTHORIZATION_GROUP_USERS, group
+                            .getObjectOrNull().getCode());
                 }
 
                 @Override
@@ -243,6 +261,7 @@ public class AuthorizationGroupGrid extends AbstractSimpleBrowserGrid<Authorizat
         DispatcherHelper.dispatchNaviEvent(tabFactory);
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
