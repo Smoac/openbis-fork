@@ -171,7 +171,7 @@ public interface ICommonClientService extends IClientService
     /**
      * Returns a list of all persons which belong to the current database instance.
      */
-    public ResultSet<Person> listPersons(ListPersonsCriteria criteria) throws UserFailureException;
+    public TypedTableResultSet<Person> listPersons(ListPersonsCriteria criteria) throws UserFailureException;
 
     /**
      * Returns a list of persons registered in given database instance.
@@ -181,7 +181,7 @@ public interface ICommonClientService extends IClientService
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for persons.
      */
-    public String prepareExportPersons(final TableExportCriteria<Person> criteria)
+    public String prepareExportPersons(final TableExportCriteria<TableModelRowWithObject<Person>> criteria)
             throws UserFailureException;
 
     /**

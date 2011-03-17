@@ -151,10 +151,11 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
 
     /** @see ICommonClientService#listPersons(ListPersonsCriteria) */
     public void listPersons(ListPersonsCriteria criteria,
-            AsyncCallback<ResultSet<Person>> asyncCallback);
+            AsyncCallback<TypedTableResultSet<Person>> asyncCallback);
 
     /** @see ICommonClientService#prepareExportPersons(TableExportCriteria) */
-    public void prepareExportPersons(TableExportCriteria<Person> exportCriteria,
+    public void prepareExportPersons(
+            TableExportCriteria<TableModelRowWithObject<Person>> exportCriteria,
             AsyncCallback<String> callback);
 
     /** @see ICommonClientService#registerPerson(String) */

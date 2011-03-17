@@ -17,12 +17,14 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -30,37 +32,37 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddPersonDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddPersonToAuthorizationGroupDialog;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PersonColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListPersonsCriteria;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PersonGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * Grid displaying persons.
  * 
  * @author Piotr Buczek
  */
-public class PersonGrid extends AbstractSimpleBrowserGrid<Person>
+public class PersonGrid extends TypedTableGrid<Person>
 {
 
     // browser consists of the grid and the paging toolbar
     private static final String BROWSER_ID = GenericConstants.ID_PREFIX + "person-browser";
 
-    private static final String GRID_SUFFIX = "_grid";
+    private static final String GRID_SUFFIX = TypedTableGrid.GRID_POSTFIX;
 
     private static final String ADD_BUTTON_SUFFIX = "_add-button";
 
@@ -88,7 +90,7 @@ public class PersonGrid extends AbstractSimpleBrowserGrid<Person>
     private PersonGrid(IViewContext<ICommonClientServiceAsync> viewContext,
             AuthorizationGroup groupOrNull)
     {
-        super(viewContext, createBrowserId(groupOrNull), createGridId(groupOrNull),
+        super(viewContext, createBrowserId(groupOrNull), true,
                 DisplayTypeIDGenerator.PERSON_BROWSER_GRID);
         this.authorizationGroupOrNull = groupOrNull;
     }
@@ -151,11 +153,18 @@ public class PersonGrid extends AbstractSimpleBrowserGrid<Person>
                             new AbstractCreateDialogListener()
                                 {
                                     @Override
-                                    protected Dialog createDialog(List<Person> selected,
+                                    protected Dialog createDialog(
+                                            List<TableModelRowWithObject<Person>> selected,
                                             IBrowserGridActionInvoker invoker)
                                     {
+                                        ArrayList<Person> selectedPersons = new ArrayList<Person>();
+                                        for (TableModelRowWithObject<Person> row : selected)
+                                        {
+                                            selectedPersons.add(row.getObjectOrNull());
+                                        }
                                         return new PersonListDeletionConfirmationDialog(
-                                                viewContext, selected, authorizationGroupOrNull,
+                                                viewContext, selectedPersons,
+                                                authorizationGroupOrNull,
                                                 createRefreshCallback(invoker));
                                     }
                                 });
@@ -178,14 +187,9 @@ public class PersonGrid extends AbstractSimpleBrowserGrid<Person>
     }
 
     @Override
-    protected IColumnDefinitionKind<Person>[] getStaticColumnsDefinition()
-    {
-        return PersonColDefKind.values();
-    }
-
-    @Override
-    protected void listEntities(DefaultResultSetConfig<String, Person> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<Person>> callback)
+    protected void listTableRows(
+            DefaultResultSetConfig<String, TableModelRowWithObject<Person>> resultSetConfig,
+            AsyncCallback<TypedTableResultSet<Person>> callback)
     {
         ListPersonsCriteria criteria = new ListPersonsCriteria(authorizationGroupOrNull);
         criteria.copyPagingConfig(resultSetConfig);
@@ -193,25 +197,41 @@ public class PersonGrid extends AbstractSimpleBrowserGrid<Person>
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<Person> exportCriteria,
+    protected void prepareExportEntities(TableExportCriteria<TableModelRowWithObject<Person>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportPersons(exportCriteria, callback);
     }
 
     @Override
-    protected List<IColumnDefinition<Person>> getInitialFilters()
+    protected List<String> getColumnIdsOfFilters()
     {
-        return asColumnFilters(new PersonColDefKind[]
-            { PersonColDefKind.USER_ID });
+        return Arrays.asList(PersonGridColumnIDs.USER_ID);
+    }
+    
+    @Override
+    protected ColumnDefsAndConfigs<TableModelRowWithObject<Person>> createColumnsDefinition()
+    {
+        ColumnDefsAndConfigs<TableModelRowWithObject<Person>> schema =
+                super.createColumnsDefinition();
+        schema.setGridCellRendererFor(PersonGridColumnIDs.REGISTRATOR,
+                PersonRenderer.REGISTRATOR_RENDERER);
+        return schema;
     }
 
     @Override
-    protected void showEntityViewer(final Person person, boolean editMode, boolean inBackground)
+    protected String translateColumnIdToDictionaryKey(String columnID)
+    {
+        return columnID.toLowerCase();
+    }
+
+    @Override
+    protected void showEntityViewer(final TableModelRowWithObject<Person> person, boolean editMode, boolean inBackground)
     {
         assert false : "not implemented";
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         List<DatabaseModificationKind> databaseModificationKinds =

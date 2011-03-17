@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders;
 
+import java.util.Date;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 
 /**
@@ -37,6 +39,24 @@ public class PersonBuilder
     {
         person.setFirstName(firstName);
         person.setLastName(lastName);
+        return this;
+    }
+    
+    public PersonBuilder email(String email)
+    {
+        person.setEmail(email);
+        return this;
+    }
+    
+    public PersonBuilder registrator(Person registrator)
+    {
+        person.setRegistrator(registrator);
+        return this;
+    }
+    
+    public PersonBuilder registrationDate(Date registrationDate)
+    {
+        person.setRegistrationDate(registrationDate);
         return this;
     }
     

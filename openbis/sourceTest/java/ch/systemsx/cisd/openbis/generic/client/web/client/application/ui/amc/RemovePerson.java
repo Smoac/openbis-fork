@@ -21,8 +21,8 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PersonColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.GridTestUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PersonGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
@@ -52,7 +52,7 @@ public class RemovePerson extends AbstractDefaultTestCommand
         final Widget widget = GWTTestUtil.getWidgetWithID(PersonGrid.createGridId(authGroup));
         assertTrue(widget instanceof Grid);
         final Grid<BaseEntityModel<Person>> table = (Grid<BaseEntityModel<Person>>) widget;
-        GridTestUtils.fireSelectRow(table, PersonColDefKind.USER_ID.id(), person);
+        GridTestUtils.fireSelectRow(table, PersonGridColumnIDs.USER_ID, person);
         GWTTestUtil.clickButtonWithID(PersonGrid.createRemoveButtonId(authGroup));
     }
 }

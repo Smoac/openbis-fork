@@ -20,13 +20,14 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * Criteria for listing persons.
  * 
  * @author Izabela Adamczyk
  */
-public final class ListPersonsCriteria extends DefaultResultSetConfig<String, Person> implements
+public final class ListPersonsCriteria extends DefaultResultSetConfig<String, TableModelRowWithObject<Person>> implements
         IsSerializable
 {
     // If not null, persons form the authorization group will be listed.

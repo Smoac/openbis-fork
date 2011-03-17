@@ -70,6 +70,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.FileFormatTy
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.MatchingEntitiesProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.PersonsProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ProjectsProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.RoleAssignmentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.SampleProvider;
@@ -506,7 +507,7 @@ public final class CommonClientService extends AbstractClientService implements
         return prepareExportEntities(criteria);
     }
 
-    public String prepareExportPersons(TableExportCriteria<Person> criteria)
+    public String prepareExportPersons(TableExportCriteria<TableModelRowWithObject<Person>> criteria)
     {
         return prepareExportEntities(criteria);
     }
@@ -682,20 +683,13 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public ResultSet<Person> listPersons(final ListPersonsCriteria criteria)
+    public TypedTableResultSet<Person> listPersons(final ListPersonsCriteria criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(criteria, new AbstractOriginalDataProviderWithoutHeaders<Person>()
-            {
-                @Override
-                public List<Person> getFullOriginalData() throws UserFailureException
-                {
-                    if (criteria.getAuthorizationGroupId() == null)
-                        return listPersons();
-                    else
-                        return listPersonsInAuthorizationGroup(criteria.getAuthorizationGroupId());
-                }
-            });
+        String sessionToken = getSessionToken();
+        TechId authorizationGroupId = criteria.getAuthorizationGroupId();
+        return listEntities(new PersonsProvider(commonServer, sessionToken, authorizationGroupId),
+                criteria);
     }
 
     public final List<Person> listPersons()

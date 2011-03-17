@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.Fil
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.OpenAddPersonDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.ShowAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GroupColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PersonColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PersonGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.basic.Row;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
@@ -68,7 +68,7 @@ public class AuthorizationGroupsTest extends AbstractGWTTestCase
         remoteConsole.prepare(new OpenAddPersonDialog(authGroup));
         remoteConsole.prepare(FillAddPersonForm.singleUser(userId, authGroup));
         final CheckPersonTable table = new CheckPersonTable(authGroup);
-        table.expectedRow(new Row().withCell(PersonColDefKind.USER_ID.id(), userId));
+        table.expectedRow(new Row().withCell(PersonGridColumnIDs.USER_ID, userId));
         remoteConsole.prepare(table);
 
         launchTest();
@@ -86,7 +86,7 @@ public class AuthorizationGroupsTest extends AbstractGWTTestCase
         final CheckPersonTable table = new CheckPersonTable(authGroup);
         for (String userId : codes)
         {
-            table.expectedRow(new Row().withCell(PersonColDefKind.USER_ID.id(), userId));
+            table.expectedRow(new Row().withCell(PersonGridColumnIDs.USER_ID, userId));
         }
         remoteConsole.prepare(FillAddPersonForm.multipleUsers(codes, authGroup));
         remoteConsole.prepare(table);
