@@ -32,7 +32,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.ID
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataSetFileDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.LockedDataStorePath;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 
 /**
@@ -137,7 +136,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
 
     public int getMinorVersion()
     {
-        return 2;
+        return 1;
     }
 
     /**
@@ -191,20 +190,6 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         putService.setIncomingDir(aFile);
     }
 
-    public LockedDataStorePath getLockedPathToDataSet(String sessionToken, String dataSetCode,
-            String overrideStoreRootPathOrNull) throws IOExceptionUnchecked,
-            IllegalArgumentException
-    {
-        // TODO, 2011-03-07 FJE, missing locking see LMS LMS-2097
-        return new LockedDataStorePath(dataSetCode, getPathToDataSet(sessionToken, dataSetCode,
-                overrideStoreRootPathOrNull), "dummy");
-    }
-
-    public void releaseLockedDataSetPath(String sessionToken, String dataSetCode, String lockToken)
-    {
-        // TODO, 2011-03-07 FJE, missing locking see LMS LMS-2097
-    }
-    
     public String getPathToDataSet(String sessionToken, String dataSetCode,
             String overrideStoreRootPathOrNull) throws IOExceptionUnchecked,
             IllegalArgumentException

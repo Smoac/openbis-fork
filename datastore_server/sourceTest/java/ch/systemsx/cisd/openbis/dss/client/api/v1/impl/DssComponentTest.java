@@ -63,7 +63,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataStoreApiUrlUtiliti
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.LockedDataStorePath;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
@@ -74,7 +73,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-@SuppressWarnings("deprecation")
 public class DssComponentTest extends AbstractFileSystemTestCase
 {
     private static final String DUMMY_DATA_SET_CODE = "DummyDataSetCode";
@@ -540,19 +538,6 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         public int getMinorVersion()
         {
             return 0;
-        }
-
-        public LockedDataStorePath getLockedPathToDataSet(String sessionToken, String dataSetCode,
-                String overrideStoreRootPathOrNull) throws IOExceptionUnchecked,
-                IllegalArgumentException
-        {
-            return new LockedDataStorePath(dataSetCode, getPathToDataSet(sessionToken, dataSetCode,
-                    overrideStoreRootPathOrNull), "dummy");
-        }
-
-        public void releaseLockedDataSetPath(String sessionToken, String dataSetCode,
-                String lockToken)
-        {
         }
 
         public String getPathToDataSet(String sessionToken, String dataSetCode,

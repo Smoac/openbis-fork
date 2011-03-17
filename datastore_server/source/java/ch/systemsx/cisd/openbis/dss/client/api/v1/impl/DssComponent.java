@@ -36,14 +36,12 @@ import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.io.ConcatenatedContentInputStream;
 import ch.systemsx.cisd.common.io.FileBasedContent;
 import ch.systemsx.cisd.common.io.IContent;
-import ch.systemsx.cisd.openbis.dss.client.api.v1.FileAndLockToken;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.FileInfoDssDownloader;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataStoreApiUrlUtilities;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.LockedDataStorePath;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 
@@ -416,26 +414,25 @@ class AuthenticatedState extends AbstractDssComponentState
     /**
      * Package visible method to communicate with the server and get a link to the file in the DSS.
      */
-    FileAndLockToken tryLinkToContents(DataSetDss dataSetDss, String overrideStoreRootPathOrNull)
+    File tryLinkToContents(DataSetDss dataSetDss, String overrideStoreRootPathOrNull)
             throws InvalidSessionException, EnvironmentFailureException
     {
-        IDssServiceRpcGeneric dssService = dataSetDss.getService();
-        int minorVersion = dssService.getMinorVersion();
+        int minorVersion = dataSetDss.getService().getMinorVersion();
         if (minorVersion < 1)
         {
             throw new EnvironmentFailureException("Server does not support this feature.");
         }
 
         // Get the path
-        LockedDataStorePath lockedPath =
-                dssService.getLockedPathToDataSet(getSessionToken(), dataSetDss.getCode(),
+        String path =
+                dataSetDss.getService().getPathToDataSet(getSessionToken(), dataSetDss.getCode(),
                         overrideStoreRootPathOrNull);
 
         // Check if the file referenced by the path exists, if so return it
-        File contents = new File(lockedPath.getPath());
+        File contents = new File(path);
         if (contents.exists())
         {
-            return new FileAndLockToken(contents, lockedPath.getLockToken());
+            return contents;
         }
 
         // Otherwise return null
@@ -446,10 +443,10 @@ class AuthenticatedState extends AbstractDssComponentState
      * Package visible method to get a link to the contents of the data set in DSS', if possible,
      * otherwise copy the contents locally.
      */
-    FileAndLockToken getLinkOrCopyOfContents(DataSetDss dataSetDss, String overrideStoreRootPathOrNull,
+    File getLinkOrCopyOfContents(DataSetDss dataSetDss, String overrideStoreRootPathOrNull,
             File downloadDir) throws InvalidSessionException
     {
-        FileAndLockToken link = tryLinkToContents(dataSetDss, overrideStoreRootPathOrNull);
+        File link = tryLinkToContents(dataSetDss, overrideStoreRootPathOrNull);
         if (null != link)
         {
             return link;
@@ -466,13 +463,7 @@ class AuthenticatedState extends AbstractDssComponentState
                 new FileInfoDssDownloader(dataSetDss, fileInfos, outputDir);
         downloader.downloadFiles();
 
-        return new FileAndLockToken(outputDir, null);
-    }
-    
-    void releaseLock(DataSetDss dataSetDss, String lockToken)
-    {
-        String code = dataSetDss.getCode();
-        dataSetDss.getService().releaseLockedDataSetPath(getSessionToken(), code, lockToken);
+        return outputDir;
     }
 
     /**

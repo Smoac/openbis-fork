@@ -121,45 +121,9 @@ public interface IDssServiceRpcGeneric extends IRpcService
      * @throws IllegalArgumentException Thrown if the dataSetCode or startPath are not valid
      * @since 1.1
      */
-    @Deprecated
     @DataSetAccessGuard(releaseDataSetLocks = false)
     public String getPathToDataSet(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class) String dataSetCode,
             String overrideStoreRootPathOrNull) throws IOExceptionUnchecked,
             IllegalArgumentException;
-    
-    /**
-     * Gets a locked path to the specified data set. This can be used by clients that run on the
-     * same machine as the DSS for more efficient access to a data set.
-     * <p>
-     * IMPORTANT: Locks on data sets should be released by the method
-     * {@link #releaseLockedDataSetPath(String, String, String)}.
-     * 
-     * @param sessionToken The session token
-     * @param dataSetCode The data set to retrieve file from
-     * @param overrideStoreRootPathOrNull The path to replace the store path (see return comment).
-     * @return An object which contains the absolute path to the data set and a lock token. If
-     *         overrideStorePathOrNull is specified, it replaces the DSS's notion of the store path.
-     *         Otherwise the return value will begin with the DSS's storeRootPath.
-     * @throws IOExceptionUnchecked Thrown if an IOException occurs when listing the files
-     * @throws IllegalArgumentException Thrown if the dataSetCode or startPath are not valid
-     * @since 1.2
-     */
-    @DataSetAccessGuard(releaseDataSetLocks = false)
-    public LockedDataStorePath getLockedPathToDataSet(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class) String dataSetCode,
-            String overrideStoreRootPathOrNull) throws IOExceptionUnchecked,
-            IllegalArgumentException;
-
-    /**
-     * Releases a lock on a path onto a data set returned by
-     * {@link #getLockedPathToDataSet(String, String, String)}.
-     * 
-     * @since 1.2
-     */
-    @DataSetAccessGuard
-    public void releaseLockedDataSetPath(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class) String dataSetCode,
-            String lockToken);
-    
 }
