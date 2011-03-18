@@ -50,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.Vi
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorResolverRegistry;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.DefaultClientPluginFactoryProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactoryProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ModuleInitializationController;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
@@ -156,6 +157,7 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
             dispatcher.removeController(controller);
         }
         controllers.clear();
+        ModuleInitializationController.cleanup();
     }
 
     private void addController(Controller controller)

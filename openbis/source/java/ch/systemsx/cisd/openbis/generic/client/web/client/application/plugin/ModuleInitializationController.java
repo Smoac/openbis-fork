@@ -32,6 +32,16 @@ public class ModuleInitializationController
 {
     private static ModuleInitializationController INSTANCE;
 
+    /**
+     * Cleans up the controller instance which is kept as a singleton on the client. Should be
+     * called after logout, otherwise module initialization might not be performed on the server
+     * after server restart and modules will stop working (see LMS-2154) .
+     */
+    public static void cleanup()
+    {
+        INSTANCE = null;
+    }
+
     public static ModuleInitializationController createAndInitialize(List<IModule> modules)
     {
         if (INSTANCE == null)
