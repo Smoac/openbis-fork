@@ -584,20 +584,28 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
     public int archiveDatasets(boolean removeFromDataStore)
     {
         Map<DataStorePE, List<ExternalDataPE>> datasetsByStore = groupDataSetsByDataStores();
+        Map<DataStoreWithService, List<ExternalDataPE>> datasetsWithService =
+                enrichWithService(datasetsByStore);
+
+        DataSetArchivingStatus pendingStatus =
+                (removeFromDataStore) ? DataSetArchivingStatus.ARCHIVE_PENDING
+                        : DataSetArchivingStatus.BACKUP_PENDING;
         int result =
                 filterByStatusAndUpdate(datasetsByStore, DataSetArchivingStatus.AVAILABLE,
-                        DataSetArchivingStatus.ARCHIVE_PENDING);
-        performArchiving(datasetsByStore, removeFromDataStore);
+                        pendingStatus);
+        performArchiving(datasetsWithService, removeFromDataStore);
         return result;
     }
 
     public int unarchiveDatasets()
     {
         Map<DataStorePE, List<ExternalDataPE>> datasetsByStore = groupDataSetsByDataStores();
+        Map<DataStoreWithService, List<ExternalDataPE>> datasetsWithService =
+                enrichWithService(datasetsByStore);
         int result =
                 filterByStatusAndUpdate(datasetsByStore, DataSetArchivingStatus.ARCHIVED,
                         DataSetArchivingStatus.UNARCHIVE_PENDING);
-        performUnarchiving(datasetsByStore);
+        performUnarchiving(datasetsWithService);
         return result;
     }
 
@@ -652,7 +660,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         public DataSetArchivingStatus getStatusToRestoreOnFailure();
     }
 
-    private void performUnarchiving(Map<DataStorePE, List<ExternalDataPE>> datasetsByStore)
+    private void performUnarchiving(Map<DataStoreWithService, List<ExternalDataPE>> datasetsByStore)
     {
         performArchivingAction(datasetsByStore, new IArchivingAction()
             {
@@ -671,7 +679,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
 
     }
 
-    private void performArchiving(Map<DataStorePE, List<ExternalDataPE>> datasetsByStore,
+    private void performArchiving(Map<DataStoreWithService, List<ExternalDataPE>> datasetsByStore,
             final boolean removeFromDataStore)
     {
         performArchivingAction(datasetsByStore, new IArchivingAction()
@@ -690,19 +698,49 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
             });
     }
 
-    private void performArchivingAction(Map<DataStorePE, List<ExternalDataPE>> datasetsByStore,
-            IArchivingAction archivingAction)
+    private static class DataStoreWithService
     {
+        DataStorePE dataStore;
+
+        IDataStoreService service;
+    }
+
+    private Map<DataStoreWithService, List<ExternalDataPE>> enrichWithService(
+            Map<DataStorePE, List<ExternalDataPE>> datasetsByStore)
+    {
+
+        Map<DataStoreWithService, List<ExternalDataPE>> result =
+                new HashMap<DataStoreWithService, List<ExternalDataPE>>();
         for (Entry<DataStorePE, List<ExternalDataPE>> entry : datasetsByStore.entrySet())
         {
             DataStorePE dataStore = entry.getKey();
             IDataStoreService service = tryGetDataStoreService(dataStore);
             if (service == null)
             {
-                // TODO KE: if this fail the unprocessed data sets will be left with "PENDING"
-                // status in the database
                 throw createUnknownDataStoreServerException();
             }
+            List<ExternalDataPE> datasets = entry.getValue();
+            DataStoreWithService dataStoreWithService = new DataStoreWithService();
+            dataStoreWithService.dataStore = dataStore;
+            dataStoreWithService.service = service;
+
+            result.put(dataStoreWithService, datasets);
+        }
+        return result;
+    }
+
+    private void performArchivingAction(
+            Map<DataStoreWithService, List<ExternalDataPE>> datasetsByStore,
+            IArchivingAction archivingAction)
+    {
+        Iterator<Entry<DataStoreWithService, List<ExternalDataPE>>> iterator =
+                datasetsByStore.entrySet().iterator();
+
+        while (iterator.hasNext())
+        {
+            Entry<DataStoreWithService, List<ExternalDataPE>> entry = iterator.next();
+            DataStorePE dataStore = entry.getKey().dataStore;
+            IDataStoreService service = entry.getKey().service;
             List<ExternalDataPE> datasets = entry.getValue();
             if (datasets.isEmpty())
             {
@@ -716,7 +754,8 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
                 archivingAction.execute(sessionToken, service, descriptions, userEmailOrNull);
             } catch (Exception e)
             {
-                restoreDataSetStatuses(datasets, archivingAction.getStatusToRestoreOnFailure());
+                clearPendingStatuses(datasets, iterator,
+                        archivingAction.getStatusToRestoreOnFailure());
                 throw UserFailureException
                         .fromTemplate(
                                 "Operation couldn't be performed for following datasets: %s. "
@@ -726,11 +765,21 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         }
     }
 
-    private void restoreDataSetStatuses(List<ExternalDataPE> datasets,
+    /**
+     * clear the pending status of data sets when the remote invocation to DSS has failed.
+     */
+    private void clearPendingStatuses(List<ExternalDataPE> datasets,
+            Iterator<Entry<DataStoreWithService, List<ExternalDataPE>>> iterator,
             DataSetArchivingStatus statusToRestoreOnFailure)
     {
-        List<String> datasetCodes = Code.extractCodes(datasets);
-        getExternalDataDAO().updateDataSetStatuses(datasetCodes, statusToRestoreOnFailure);
+        ArrayList<ExternalDataPE> datasetsWithPendingStatus =
+                new ArrayList<ExternalDataPE>(datasets);
+        while (iterator.hasNext())
+        {
+            datasetsWithPendingStatus.addAll(iterator.next().getValue());
+        }
+        List<String> codes = Code.extractCodes(datasetsWithPendingStatus);
+        getExternalDataDAO().updateDataSetStatuses(codes, statusToRestoreOnFailure);
     }
 
     public void save()

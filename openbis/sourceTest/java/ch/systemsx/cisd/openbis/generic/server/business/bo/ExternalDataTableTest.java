@@ -25,6 +25,7 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchiving
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -137,7 +138,6 @@ public final class ExternalDataTableTest extends AbstractBOTest
             fail = false;
         }
         assertFalse(fail);
-        context.assertIsSatisfied();
     }
 
     @Test
@@ -162,7 +162,6 @@ public final class ExternalDataTableTest extends AbstractBOTest
                 }
             });
         externalDataTable.loadBySampleTechId(sampleId);
-        context.assertIsSatisfied();
     }
 
     @Test
@@ -189,8 +188,6 @@ public final class ExternalDataTableTest extends AbstractBOTest
 
         ExternalDataTable externalDataTable = createExternalDataTable();
         externalDataTable.loadByExperimentTechId(experimentId);
-
-        context.assertIsSatisfied();
     }
 
     @Test
@@ -209,8 +206,6 @@ public final class ExternalDataTableTest extends AbstractBOTest
 
         assertEquals(1, externalDataTable.getExternalData().size());
         assertSame(d1, externalDataTable.getExternalData().get(0));
-
-        context.assertIsSatisfied();
     }
 
     private void prepareFindFullDatasets(final ExternalDataPE[] search,
@@ -265,8 +260,6 @@ public final class ExternalDataTableTest extends AbstractBOTest
                             + "May be the responsible Data Store Server is not running.\n[d2]",
                     e.getMessage());
         }
-
-        context.assertIsSatisfied();
     }
 
     @Test
@@ -300,8 +293,6 @@ public final class ExternalDataTableTest extends AbstractBOTest
                     + "required by a background process (their status is pending): "
                     + "[d4n, d5n]. ", e.getMessage());
         }
-
-        context.assertIsSatisfied();
     }
 
     @Test
@@ -334,8 +325,6 @@ public final class ExternalDataTableTest extends AbstractBOTest
         externalDataTable.loadByDataSetCodes(Arrays.asList(d1.getCode(), d2.getCode()), false,
                 false);
         externalDataTable.deleteLoadedDataSets(reason);
-
-        context.assertIsSatisfied();
     }
 
     private EventPE createDeletionEvent(ExternalDataPE dataset, PersonPE person, String reason)
@@ -396,7 +385,6 @@ public final class ExternalDataTableTest extends AbstractBOTest
         assertEquals(
                 "The following data sets couldn't been uploaded because of unkown data store: d1",
                 message);
-        context.assertIsSatisfied();
     }
 
     @Test
@@ -437,8 +425,6 @@ public final class ExternalDataTableTest extends AbstractBOTest
                     + "Unarchive these data sets or filter them out using data set status "
                     + "before performing the operation once again.", e.getMessage());
         }
-
-        context.assertIsSatisfied();
     }
 
     @Test
@@ -570,8 +556,6 @@ public final class ExternalDataTableTest extends AbstractBOTest
                 true);
         int archived = externalDataTable.archiveDatasets(true);
         assertEquals(3, archived);
-
-        context.assertIsSatisfied();
     }
 
     @Test
@@ -605,18 +589,103 @@ public final class ExternalDataTableTest extends AbstractBOTest
                 true);
         int unarchived = externalDataTable.unarchiveDatasets();
         assertEquals(3, unarchived);
+    }
 
-        context.assertIsSatisfied();
+    @Test
+    public void testArchiveStatusNotChangedOnLocalFailure()
+    {
+        final DataStorePE dssX = createDataStore("dssX", true);
+        final ExternalDataPE d1 = createDataSet("d1", dssX, AVAILABLE);
+        final ExternalDataPE[] allDataSets =
+            { d1 };
+        final String errorMessage = "unexpected local error";
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(dssFactory).create(dssX.getRemoteUrl());
+                    will(throwException(new RuntimeException(errorMessage)));
+
+                    prepareFindFullDatasets(allDataSets, false, false);
+                }
+            });
+
+        ExternalDataTable externalDataTable = createExternalDataTable();
+        externalDataTable.loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)), false,
+                false);
+        try
+        {
+            externalDataTable.archiveDatasets(true);
+            fail("RuntimeException expected");
+        } catch (RuntimeException re)
+        {
+            assertEquals(errorMessage, re.getMessage());
+        }
+    }
+
+    @Test
+    public void testArchiveStatusRevertedOnRemoteFailure()
+    {
+        final ExternalDataPE d2 = createDataSet("d2", dss2, AVAILABLE);
+        final ExternalDataPE d3 = createDataSet("d3", dss3, AVAILABLE);
+        final ExternalDataPE[] d2Array =
+            { d2 };
+        final ExternalDataPE[] d3Array =
+            { d3 };
+        final ExternalDataPE[] allDataSets =
+            { d2, d3 };
+        context.checking(new Expectations()
+            {
+                {
+                    prepareFindFullDatasets(allDataSets, false, false);
+
+                    prepareUpdateDatasetStatuses(allDataSets, ARCHIVE_PENDING);
+
+                    allowing(dataStoreService2).archiveDatasets(
+                            with(equal(dss2.getSessionToken())),
+                            with(createDatasetDescriptionsMatcher(d2Array)),
+                            with(equal(ManagerTestTool.EXAMPLE_PERSON.getEmail())),
+                            with(equal(true)));
+                    will(throwException(new RuntimeException()));
+                    
+                    allowing(dataStoreService3).archiveDatasets(
+                            with(equal(dss3.getSessionToken())),
+                            with(createDatasetDescriptionsMatcher(d3Array)),
+                            with(equal(ManagerTestTool.EXAMPLE_PERSON.getEmail())),
+                            with(equal(true)));
+                    will(throwException(new RuntimeException()));
+
+                    // expect statuses to be reverted after an error
+                    prepareUpdateDatasetStatuses(allDataSets, AVAILABLE);
+                }
+            });
+
+        ExternalDataTable externalDataTable = createExternalDataTable();
+        externalDataTable.loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)), false,
+                false);
+        try
+        {
+            externalDataTable.archiveDatasets(true);
+            fail("UserFailureException expected");
+        } catch (UserFailureException ufe)
+        {
+            assertTrue(ufe.getMessage().indexOf("Archiver may not be configured properly.") >= 0);
+        }
     }
 
     private void prepareUpdateDatasetStatuses(final ExternalDataPE[] dataSets,
+            final DataSetArchivingStatus newStatus)
+    {
+        prepareUpdateDatasetStatuses(Code.extractCodes(Arrays.asList(dataSets)), newStatus);
+    }
+
+    private void prepareUpdateDatasetStatuses(final List<String> dataSetCodes,
             final DataSetArchivingStatus newStatus)
     {
         context.checking(new Expectations()
             {
                 {
                     one(externalDataDAO).updateDataSetStatuses(
-                            Code.extractCodes(Arrays.asList(dataSets)), newStatus);
+                            with(createUnorderedMarcher(dataSetCodes)), with(equal(newStatus)));
                 }
             });
     }
@@ -676,4 +745,29 @@ public final class ExternalDataTableTest extends AbstractBOTest
                 }
             };
     }
+    
+    @SuppressWarnings("unchecked")
+    private BaseMatcher<List<String>> createUnorderedMarcher(final List<String> list)
+    {
+        return new BaseMatcher<List<String>>()
+            {
+
+                public boolean matches(Object item)
+                {
+                    List<String> match = (List<String>) item;
+
+                    Collections.sort(list);
+                    Collections.sort(match);
+                    assertEquals(list, match);
+
+                    return true;
+                }
+
+                public void describeTo(Description description)
+                {
+                    description.appendText(list.toString());
+                }
+            };
+    }
+
 }

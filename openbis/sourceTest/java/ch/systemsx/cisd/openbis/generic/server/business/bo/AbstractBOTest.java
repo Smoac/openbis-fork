@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.lang.reflect.Method;
+
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.AssertJUnit;
@@ -193,11 +195,16 @@ public abstract class AbstractBOTest extends AssertJUnit
     }
 
     @AfterMethod
-    public void afterMethod()
+    public void afterMethod(Method m)
     {
-        // To following line of code should also be called at the end of each test method.
-        // Otherwise one do not known which test failed.
-        context.assertIsSatisfied();
+        try
+        {
+            context.assertIsSatisfied();
+        } catch (Throwable t)
+        {
+            // assert expectations were met, including the name of the failed method
+            throw new Error(m.getName() + "() : ", t);
+        }
     }
 
     protected DatabaseInstancePE createDatabaseInstance()

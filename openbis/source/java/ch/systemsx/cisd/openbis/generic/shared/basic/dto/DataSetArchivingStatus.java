@@ -23,15 +23,22 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * <pre>
  *                                                                                                                  |                                                         
- *       archive                                           
- *    ---------------> ARCHIVE_PENDING -------> ARCHIVED 
- *    |                                          |             
- *    |                                          |  unarchive
- *    |                                          |           
- * AVAILABLE  <--------------------|             |  
- *    ^                            |             |  
- *    |                            |             V             
- *    |------>LOCKED               |----- UNARCHIVE_PENDING
+ *                                                  
+ *    -------> ARCHIVE_PENDING --------------> ARCHIVED 
+ *    |                                            |             
+ *    |                                            |  unarchive
+ *    | archive(removeFromDS=true)                 |
+ *    |                                            |  
+ *    |                                            V             
+ *    ----------------  AVAILABLE  <------- UNARCHIVE_PENDING
+ *                      ^      ^  
+ *                      |      |
+ *                      |      |
+ *                      |      | archive(removeFromDS=false)
+ *                      |      |
+ *                      |      |
+ *  LOCKED <------------|      |-------------> BACKUP_PENDING
+ * 
  * 
  * </pre>
  * 
@@ -39,25 +46,29 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public enum DataSetArchivingStatus implements IsSerializable
 {
-    AVAILABLE("AVAILABLE", true), // the data set is present in the data store only
+    AVAILABLE("AVAILABLE", true, true), // the data set is present in the data store only
 
-    // TODO KE: we might want to archive data sets in this state too
-    LOCKED("AVAILABLE (LOCKED)", true),
+    LOCKED("AVAILABLE (LOCKED)", true, true),
 
-    ARCHIVED("ARCHIVED", false), // the data set is present in the archive only
+    ARCHIVED("ARCHIVED", false, true), // the data set is present in the archive only
 
-    UNARCHIVE_PENDING("UNARCHIVE PENDING", false),
+    UNARCHIVE_PENDING("UNARCHIVE PENDING", false, false),
 
-    ARCHIVE_PENDING("ARCHIVE PENDING", false);
+    ARCHIVE_PENDING("ARCHIVE PENDING", false, false),
+
+    BACKUP_PENDING("BACKUP_PENDING", true, false);
 
     private final String description;
 
     private final boolean available;
 
-    DataSetArchivingStatus(String description, boolean available)
+    private final boolean deletable;
+
+    DataSetArchivingStatus(String description, boolean available, boolean deletable)
     {
         this.description = description;
         this.available = available;
+        this.deletable = deletable;
     }
 
     public String getDescription()
@@ -71,11 +82,11 @@ public enum DataSetArchivingStatus implements IsSerializable
     }
 
     /**
-     * when deleting datasets from the archive
+     * return <code>true</code> if users are allowed to delete datasets with this status.
      */
     public boolean isDeletable()
     {
-        return isAvailable() || this == ARCHIVED;
+        return deletable;
     }
 
 }
