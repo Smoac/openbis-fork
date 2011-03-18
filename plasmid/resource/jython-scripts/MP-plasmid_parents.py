@@ -227,7 +227,7 @@ def configureUI():
     
     """
        Define and add actions with input fields used to:
-       1. specify attributes of new log entry,
+       1. specify attributes of new plasmid relationship,
     """
     addAction = uiDescription.addTableAction(ADD_ACTION_LABEL)\
                              .setDescription('Add new plasmid relationship:')
@@ -246,7 +246,7 @@ def configureUI():
     addAction.addInputWidgets(widgets)
       
     """
-       2. modify attributes of a selected log entry,
+       2. modify attributes of a selected plasmid relationship,
     """
     editAction = uiDescription.addTableAction(EDIT_ACTION_LABEL)\
                               .setDescription('Edit selected plasmid relationship:')
@@ -269,7 +269,7 @@ def configureUI():
     editAction.addBinding(ANNOTATION_LABEL, ANNOTATION_LABEL)
   
     """
-       3. delete selected log entries.
+       3. delete selected plasmid relationships.
     """
     deleteAction = uiDescription.addTableAction(DELETE_ACTION_LABEL)\
                                 .setDescription('Are you sure you want to delete selected plasmid relationships?')
@@ -285,31 +285,32 @@ def updateFromUI(action):
     """Implement behaviour of user actions."""
     if action.name == ADD_ACTION_LABEL:
         """
-           For 'add' action create new plasmid entry element with values from input fields
+           For 'add' action create new plasmid relationship element with values from input fields
            and add it to existing elements.
         """
-        code = action.getInputValue(CODE_LABEL)
-        relationshipLabel = action.getInputValue(RELATIONSHIP_LABEL)
+        code = action.getInputValue(CODE_LABEL).strip()
+        relationshipLabel = action.getInputValue(RELATIONSHIP_LABEL).strip()
         relationship = _translateFromLabel(relationshipLabel)
-        annotation = action.getInputValue(ANNOTATION_LABEL)
+        annotation = action.getInputValue(ANNOTATION_LABEL).strip()
         sampleLink = _createSampleLink(code, relationship, annotation)
+        
         elements.append(sampleLink)
     elif action.name == EDIT_ACTION_LABEL:
         """
-           For 'edit' action find the plasmid entry element corresponding to selected row
+           For 'edit' action find the plasmid relationship element corresponding to selected row
            and replace it with an element with values from input fields.
         """
-        code = action.getInputValue(CODE_LABEL)
-        relationshipLabel = action.getInputValue(RELATIONSHIP_LABEL)
+        code = action.getInputValue(CODE_LABEL).strip()
+        relationshipLabel = action.getInputValue(RELATIONSHIP_LABEL).strip()
         relationship = _translateFromLabel(relationshipLabel)
-        annotation = action.getInputValue(ANNOTATION_LABEL)
+        annotation = action.getInputValue(ANNOTATION_LABEL).strip()
         sampleLink = _createSampleLink(code, relationship, annotation)
         
         selectedRowId = action.getSelectedRows()[0]
         elements[selectedRowId] = sampleLink
     elif action.name == DELETE_ACTION_LABEL:
         """
-           For 'delete' action delete the entries that correspond to selected rows.
+           For 'delete' action delete the relationships that correspond to selected rows.
            NOTE: As many rows can be deleted at once it is easier to delete them in reversed order.
         """
         rowIds = list(action.getSelectedRows())
