@@ -27,7 +27,7 @@
     <param name="BufferSize" value="512" />
     <param name="SMTPHost" value="localhost" />
     <param name="From" value="datastore_server@localhost" />
-    <param name="To" value="root@localhost" />
+    <param name="To" value="openbis@localhost" />
     <param name="Subject" value="ATTENTION: etl server" />
     <param name="EvaluatorClass" value="ch.systemsx.cisd.common.logging.AlwaysTrueTriggeringEventEvaluator" />
 
