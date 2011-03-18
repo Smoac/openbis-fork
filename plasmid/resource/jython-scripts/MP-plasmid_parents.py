@@ -1,5 +1,5 @@
 """ 
-Managed Property Script for handling plasmid parents of yeast samples.
+Managed Property Script for handling PLASMID parents of YEAST samples.
 
 @author: Piotr Buczek
 """
@@ -27,20 +27,29 @@ INPUT_PATTERN = """
                  # no '$': allow whitespace at the end
 """
 
+"""relationship types shortcuts"""
+
+DEL_REL_TYPE = 'DEL'
+INT_REL_TYPE = 'INT'
+MOD_REL_TYPE = 'MOD'
+
 """tuple of supported relationship types as shortcuts"""
-REL_TYPES = ('DEL', 'INT', 'MOD')
+REL_TYPES = (DEL_REL_TYPE, INT_REL_TYPE, MOD_REL_TYPE)
 """dictionary from relationship type shortcut to its 'character' representation"""
 REL_TYPE_CHARS = {
-    'DEL': '^', # TODO 2011-14-03, Piotr Buczek: use u'\u0394' for '∆', don't encode HTML
-    'INT': '::', 
-    'MOD': '_' 
+    DEL_REL_TYPE: '^', # TODO 2011-14-03, Piotr Buczek: use u'\u0394' for '∆', don't encode HTML
+    INT_REL_TYPE: '::', 
+    MOD_REL_TYPE: '_' 
 }
 """dictionary from relationship type shortcut to its full name/label"""
 REL_TYPE_LABELS = {
-    'DEL': 'deletion', 
-    'INT': 'integration', 
-    'MOD': 'modification' 
+    DEL_REL_TYPE: 'deletion', 
+    INT_REL_TYPE: 'integration', 
+    MOD_REL_TYPE: 'modification' 
 }
+
+REL_TYPE_LABEL_OTHER = '(other)'
+REL_TYPE_LABELS_WITH_NONE = tuple([REL_TYPE_LABEL_OTHER] + REL_TYPE_LABELS.values())
 
 """names of additional sample XML element attributes"""
 
@@ -56,6 +65,11 @@ CODE_LABEL = "code"
 RELATIONSHIP_LABEL = "relationship"
 ANNOTATION_LABEL = "annotation"
 
+"""action labels"""
+
+ADD_ACTION_LABEL = "Add"
+EDIT_ACTION_LABEL = "Edit"
+DELETE_ACTION_LABEL = "Delete"
 
 """helper functions"""
 
@@ -93,8 +107,21 @@ def _translateToLabel(relationship):
         else:
             return "[" + relationship + "]"
     else:
-        return ""    
+        return REL_TYPE_LABEL_OTHER    
 
+def _translateFromLabel(relationshipLabel):
+    """
+       @param relationshipLabel: relationship type as label (@see REL_TYPE_LABELS_WITH_NONE)
+       @return: type of given @relationshipLabel, None for REL_TYPE_LABEL_OTHER, 
+    """
+    if relationshipLabel == REL_TYPE_LABEL_OTHER:
+        return None
+    elif relationshipLabel == 'deletion':
+        return DEL_REL_TYPE
+    elif relationshipLabel == 'integration':
+        return INT_REL_TYPE
+    elif relationshipLabel == 'modification':
+        return MOD_REL_TYPE    
 
 def _createConnectionString(code, relationship, annotation):
     """
@@ -195,5 +222,102 @@ def configureUI():
         
     """Specify that the property should be shown in a tab and set the table output."""
     property.setOwnTab(True)
-    uiDesc = property.getUiDescription()
-    uiDesc.useTableOutput(tableBuilder.getTableModel())
+    uiDescription = property.getUiDescription()
+    uiDescription.useTableOutput(tableBuilder.getTableModel())
+    
+    """
+       Define and add actions with input fields used to:
+       1. specify attributes of new log entry,
+    """
+    addAction = uiDescription.addTableAction(ADD_ACTION_LABEL)\
+                             .setDescription('Add new plasmid relationship:')
+    widgets = [
+        inputWidgetFactory().createTextInputField(CODE_LABEL)\
+                            .setMandatory(True)\
+                            .setValue('FRP')\
+                            .setDescription('Code of plasmid sample, e.g. "FRP1"'),
+        inputWidgetFactory().createComboBoxInputField(RELATIONSHIP_LABEL, REL_TYPE_LABELS_WITH_NONE)\
+                            .setMandatory(False)\
+                            .setValue(REL_TYPE_LABEL_OTHER),
+        inputWidgetFactory().createTextInputField(ANNOTATION_LABEL)\
+                            .setMandatory(False)\
+                            .setDescription('Relationship annotation, e.g. "URA3"'),
+    ]
+    addAction.addInputWidgets(widgets)
+      
+    """
+       2. modify attributes of a selected log entry,
+    """
+    editAction = uiDescription.addTableAction(EDIT_ACTION_LABEL)\
+                              .setDescription('Edit selected plasmid relationship:')
+    # Exactly 1 row needs to be selected to enable action.
+    editAction.setRowSelectionRequiredSingle()            
+    widgets = [
+        inputWidgetFactory().createTextInputField(CODE_LABEL)\
+                            .setMandatory(True)\
+                            .setDescription('Code of plasmid sample, e.g. "FRP1"'),
+        inputWidgetFactory().createComboBoxInputField(RELATIONSHIP_LABEL, REL_TYPE_LABELS_WITH_NONE)\
+                            .setMandatory(False),
+        inputWidgetFactory().createTextInputField(ANNOTATION_LABEL)\
+                            .setMandatory(False)\
+                            .setDescription('Relationship annotation, e.g. "URA3"'),
+    ]
+    editAction.addInputWidgets(widgets)
+    # Bind field name with column name.
+    editAction.addBinding(CODE_LABEL, CODE_LABEL)
+    editAction.addBinding(RELATIONSHIP_LABEL, RELATIONSHIP_LABEL)
+    editAction.addBinding(ANNOTATION_LABEL, ANNOTATION_LABEL)
+  
+    """
+       3. delete selected log entries.
+    """
+    deleteAction = uiDescription.addTableAction(DELETE_ACTION_LABEL)\
+                                .setDescription('Are you sure you want to delete selected plasmid relationships?')
+    # Delete is enabled when at least 1 row is selected.
+    deleteAction.setRowSelectionRequired()
+    
+    
+def updateFromUI(action):
+    """Extract list of elements from old value of the property."""
+    converter = propertyConverter()
+    elements = list(converter.convertToElements(property))
+  
+    """Implement behaviour of user actions."""
+    if action.name == ADD_ACTION_LABEL:
+        """
+           For 'add' action create new plasmid entry element with values from input fields
+           and add it to existing elements.
+        """
+        code = action.getInputValue(CODE_LABEL)
+        relationshipLabel = action.getInputValue(RELATIONSHIP_LABEL)
+        relationship = _translateFromLabel(relationshipLabel)
+        annotation = action.getInputValue(ANNOTATION_LABEL)
+        sampleLink = _createSampleLink(code, relationship, annotation)
+        elements.append(sampleLink)
+    elif action.name == EDIT_ACTION_LABEL:
+        """
+           For 'edit' action find the plasmid entry element corresponding to selected row
+           and replace it with an element with values from input fields.
+        """
+        code = action.getInputValue(CODE_LABEL)
+        relationshipLabel = action.getInputValue(RELATIONSHIP_LABEL)
+        relationship = _translateFromLabel(relationshipLabel)
+        annotation = action.getInputValue(ANNOTATION_LABEL)
+        sampleLink = _createSampleLink(code, relationship, annotation)
+        
+        selectedRowId = action.getSelectedRows()[0]
+        elements[selectedRowId] = sampleLink
+    elif action.name == DELETE_ACTION_LABEL:
+        """
+           For 'delete' action delete the entries that correspond to selected rows.
+           NOTE: As many rows can be deleted at once it is easier to delete them in reversed order.
+        """
+        rowIds = list(action.getSelectedRows())
+        rowIds.reverse()       
+        for rowId in rowIds:
+            elements.pop(rowId)      
+    else:
+        raise ValidationException('action not supported')
+      
+    """Update value of the managed property to XML string created from modified list of elements."""
+    property.value = converter.convertToString(elements)

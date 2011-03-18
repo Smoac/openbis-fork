@@ -1,5 +1,5 @@
 """ 
-Managed Property Script for handling yeast parents of yeast samples.
+Managed Property Script for handling YEAST parents of YEAST samples.
 
 @author: Piotr Buczek
 """
@@ -52,11 +52,10 @@ def updateFromBatchInput(bindings):
 
 
 def configureUI():
-    
     """Create table builder and add columns."""
     tableBuilder = createTableBuilder()
     tableBuilder.addHeader(LINK_LABEL)
-    tableBuilder.addHeader(CODE_LABEL, true)
+    tableBuilder.addHeader(CODE_LABEL)
 
     """The property value should contain XML with list of samples. Add a new row for every sample."""
     elements = list(propertyConverter().convertToElements(property))
