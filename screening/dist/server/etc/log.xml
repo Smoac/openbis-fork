@@ -58,7 +58,7 @@
         <param name="BufferSize" value="512" />
         <param name="SMTPHost" value="localhost" />
         <param name="From" value="screening-openbis@localhost" />
-        <param name="To" value="lars@imsb.biol.ethz.ch" />
+        <param name="To" value="openbis#localhost" />
         <param name="Subject" value="ATTENTION: Screening openBIS Server" />
         <param name="EvaluatorClass"
             value="ch.systemsx.cisd.common.logging.AlwaysTrueTriggeringEventEvaluator" />
