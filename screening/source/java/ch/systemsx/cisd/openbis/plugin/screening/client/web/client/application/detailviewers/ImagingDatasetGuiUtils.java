@@ -95,9 +95,19 @@ class ImagingDatasetGuiUtils
         {
             String label = createUnknownDatasetLabel(dataset);
             Widget detailsLink = createDatasetDetailsLink(dataset, label, viewContext);
-            c.add(detailsLink);
+            // WORKAROUND without wrapping in table all links are rendered in the same line )in
+            // spite of the row layout)
+            c.add(warpInTable(detailsLink));
         }
         return c;
+    }
+
+    private static LayoutContainer warpInTable(Widget detailsLink)
+    {
+        LayoutContainer container = new LayoutContainer();
+        container.setLayout(new TableLayout(1));
+        container.add(detailsLink);
+        return container;
     }
 
     private static String createUnknownDatasetLabel(DatasetReference datasetReference)
