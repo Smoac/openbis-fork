@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AbstractTabl
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 import ch.systemsx.cisd.openbis.generic.shared.util.IColumn;
 import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
@@ -109,7 +110,7 @@ public class WellContentProvider extends AbstractTableModelProvider<WellContent>
         {
             for (IEntityProperty property : well.getWellProperties())
             {
-                String columnName = getColumnName(property);
+                String columnName = property.getPropertyType().getCode();
                 columnNames.add(columnName);
             }
         }
@@ -126,10 +127,9 @@ public class WellContentProvider extends AbstractTableModelProvider<WellContent>
         Material material = well.getMaterialContent();
         String value = material.getCode();
         builder.column(WELL_CONTENT_MATERIAL).addString(value);
-        builder.column(WELL_CONTENT_MATERIAL_TYPE)
-                .addString(material.getEntityType().getCode());
-        builder.columnGroup(WELL_CONTENT_PROPERTY_ID_PREFIX).addProperties(
-                material.getProperties());
+        builder.column(WELL_CONTENT_MATERIAL_TYPE).addString(material.getEntityType().getCode());
+        builder.columnGroup(WELL_CONTENT_PROPERTY_ID_PREFIX)
+                .addProperties(material.getProperties());
         NamedFeatureVector featureVector = well.tryGetFeatureVectorValues();
         if (featureVector != null)
         {
@@ -139,8 +139,7 @@ public class WellContentProvider extends AbstractTableModelProvider<WellContent>
         builder.column(PLATE).addString(well.getPlate().getCode());
         builder.column(WELL).addString(well.getWell().getCode());
         WellLocation location = well.tryGetLocation();
-        builder.column(WELL_ROW).addInteger(
-                location == null ? null : new Long(location.getRow()));
+        builder.column(WELL_ROW).addInteger(location == null ? null : new Long(location.getRow()));
         builder.column(WELL_COLUMN).addInteger(
                 location == null ? null : new Long(location.getColumn()));
         DatasetImagesReference imageDataset = well.tryGetImageDataset();
@@ -150,10 +149,8 @@ public class WellContentProvider extends AbstractTableModelProvider<WellContent>
         builder.column(IMAGE_ANALYSIS_DATA_SET).addString(
                 dataset == null ? null : dataset.getCode());
         builder.column(FILE_FORMAT_TYPE).addString(
-                imageDataset == null ? null : imageDataset.getDatasetReference()
-                        .getFileTypeCode());
-        builder.column(WELL_IMAGES).addString(
-                well.tryGetImageDataset() == null ? "" : "[images]");
+                imageDataset == null ? null : imageDataset.getDatasetReference().getFileTypeCode());
+        builder.column(WELL_IMAGES).addString(well.tryGetImageDataset() == null ? "" : "[images]");
 
         addWellProperties(builder, well);
     }
@@ -184,14 +181,37 @@ public class WellContentProvider extends AbstractTableModelProvider<WellContent>
     {
         for (IEntityProperty property : well.getWellProperties())
         {
-            String columnName = getColumnName(property);
-            builder.column(columnName).addString(property.tryGetAsString());
-        }
-    }
+            PropertyType propertyType = property.getPropertyType();
+            String columnCode = propertyType.getCode();
+            String columnLabel = propertyType.getLabel();
 
-    private String getColumnName(IEntityProperty property)
-    {
-        return property.getPropertyType().getCode();
+            IColumn column = builder.column(columnCode).withTitle(columnLabel);
+            DataTypeCode dataTypeCode = propertyType.getDataType().getCode();
+            String value = property.tryGetAsString();
+            if (dataTypeCode == DataTypeCode.INTEGER)
+            {
+                try
+                {
+                    column.addInteger(Long.parseLong(value));
+                } catch (NumberFormatException ex)
+                {
+                    column.addString(value);
+                }
+            } else if (dataTypeCode == DataTypeCode.REAL)
+            {
+                try
+                {
+                    column.addDouble(Double.parseDouble(value));
+                } catch (NumberFormatException ex)
+                {
+                    column.addString(value);
+                }
+            } else
+            {
+                column.addString(value);
+            }
+
+        }
     }
 
 }
