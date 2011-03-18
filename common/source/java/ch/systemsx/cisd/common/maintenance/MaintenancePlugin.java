@@ -5,12 +5,19 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.apache.log4j.Logger;
+
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 
 public class MaintenancePlugin
 {
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            MaintenancePlugin.class);
+
     private static ReentrantLock dataStoreLock = new ReentrantLock();
 
     private final IMaintenanceTask task;
@@ -68,6 +75,10 @@ public class MaintenancePlugin
             try
             {
                 task.execute();
+            } catch (Throwable th)
+            {
+                operationLog.error("Exception when running maintenance task '"
+                        + task.getClass().getCanonicalName() + "'.", th);
             } finally
             {
                 releaseLockIfNecessay();
