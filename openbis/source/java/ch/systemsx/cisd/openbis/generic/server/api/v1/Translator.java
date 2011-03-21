@@ -16,9 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.server.api.v1;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType.ControlledVocabularyPropertyTypeInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
@@ -32,8 +38,10 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyTypeGroup.Prop
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
 
@@ -97,7 +105,8 @@ public class Translator
     }
 
     static DataSetType translate(
-            ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType privateDataSetType)
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType privateDataSetType,
+            HashMap<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary, List<ControlledVocabularyPropertyType.VocabularyTerm>> vocabTerms)
     {
         DataSetTypeInitializer initializer = new DataSetTypeInitializer();
         initializer.setCode(privateDataSetType.getCode());
@@ -124,15 +133,38 @@ public class Translator
                 groupInitializer = new PropertyTypeGroupInitializer();
                 sectionName = thisSectionName;
             }
-            PropertyTypeInitializer ptInitializer = new PropertyTypeInitializer();
+            PropertyTypeInitializer ptInitializer;
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType propertyType =
                     dstpt.getPropertyType();
+
+            boolean isControlledVocabulary =
+                    propertyType.getDataType().getCode() == DataTypeCode.CONTROLLEDVOCABULARY;
+            if (isControlledVocabulary)
+            {
+                ControlledVocabularyPropertyTypeInitializer cvptInitializer =
+                        new ControlledVocabularyPropertyTypeInitializer();
+
+                cvptInitializer.setTerms(vocabTerms.get(propertyType.getVocabulary()));
+                ptInitializer = cvptInitializer;
+            } else
+            {
+                ptInitializer = new PropertyTypeInitializer();
+            }
+
             ptInitializer.setDataType(propertyType.getDataType().getCode());
             ptInitializer.setCode(propertyType.getCode());
             ptInitializer.setLabel(propertyType.getLabel());
             ptInitializer.setDescription(propertyType.getDescription());
             ptInitializer.setMandatory(dstpt.isMandatory());
-            groupInitializer.addPropertyType(new PropertyType(ptInitializer));
+
+            if (isControlledVocabulary)
+            {
+                groupInitializer.addPropertyType(new ControlledVocabularyPropertyType(
+                        (ControlledVocabularyPropertyTypeInitializer) ptInitializer));
+            } else
+            {
+                groupInitializer.addPropertyType(new PropertyType(ptInitializer));
+            }
         }
         // Finally set the group
         initializer.addPropertyTypeGroup(new PropertyTypeGroup(groupInitializer));
@@ -140,8 +172,31 @@ public class Translator
         return new DataSetType(initializer);
     }
 
-    private Translator()
+    public static List<ControlledVocabularyPropertyType.VocabularyTerm> translate(
+            Set<ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm> privateTerms)
     {
+        ArrayList<ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm> sortedTerms =
+                new ArrayList<ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm>(
+                        privateTerms);
+        Collections.sort(sortedTerms,
+                new Comparator<ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm>()
+                    {
+
+                        public int compare(VocabularyTerm o1, VocabularyTerm o2)
+                        {
+                            return o1.getOrdinal().compareTo(o2.getOrdinal());
+                        }
+
+                    });
+        ArrayList<ControlledVocabularyPropertyType.VocabularyTerm> terms =
+                new ArrayList<ControlledVocabularyPropertyType.VocabularyTerm>();
+        for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm privateTerm : sortedTerms)
+        {
+            terms.add(new ControlledVocabularyPropertyType.VocabularyTerm(privateTerm.getCode(),
+                    privateTerm.getCodeOrLabel()));
+        }
+
+        return terms;
     }
 
     public static DataSet translate(ExternalData externalDatum)
@@ -159,5 +214,9 @@ public class Translator
         }
 
         return new DataSet(initializer);
+    }
+
+    private Translator()
+    {
     }
 }

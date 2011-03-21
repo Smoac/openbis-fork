@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public final class PropertyType implements Serializable
+public class PropertyType implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -40,7 +40,7 @@ public final class PropertyType implements Serializable
      * 
      * @author Chandrasekhar Ramakrishnan
      */
-    public static final class PropertyTypeInitializer
+    public static class PropertyTypeInitializer
     {
         private DataTypeCode dataType;
 
@@ -101,7 +101,6 @@ public final class PropertyType implements Serializable
         {
             this.mandatory = mandatory;
         }
-
     }
 
     private final DataTypeCode dataType;
@@ -214,6 +213,15 @@ public final class PropertyType implements Serializable
         builder.append(getLabel());
         builder.append(getDescription());
         builder.append(isMandatory() ? "mandatory" : "optional");
+        this.appendFieldsToStringBuilder(builder);
         return builder.toString();
+    }
+
+    /**
+     * For subclasses to override
+     */
+    protected void appendFieldsToStringBuilder(ToStringBuilder builder)
+    {
+
     }
 }

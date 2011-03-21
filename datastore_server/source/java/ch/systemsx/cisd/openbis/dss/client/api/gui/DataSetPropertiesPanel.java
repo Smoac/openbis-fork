@@ -30,11 +30,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -43,6 +46,8 @@ import javax.swing.JTextField;
 import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClientModel.NewDataSetInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTOBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyTypeGroup;
@@ -54,11 +59,32 @@ public class DataSetPropertiesPanel extends JPanel
 {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * An adaptor to convert VocabularyTerms into something that can be put into combo boxes.
+     * 
+     * @author Chandrasekhar Ramakrishnan
+     */
+    private static final class VocabularyTermAdaptor
+    {
+        private final VocabularyTerm term;
+
+        private VocabularyTermAdaptor(VocabularyTerm term)
+        {
+            this.term = term;
+        }
+
+        @Override
+        public String toString()
+        {
+            return term.getLabel();
+        }
+    }
+
     private final DataSetType dataSetType;
 
     private final DataSetUploadClientModel clientModel;
 
-    private final HashMap<String, JTextField> formFields = new HashMap<String, JTextField>();
+    private final HashMap<String, JComponent> formFields = new HashMap<String, JComponent>();
 
     private NewDataSetInfo newDataSetInfo;
 
@@ -123,7 +149,23 @@ public class DataSetPropertiesPanel extends JPanel
             label.setFont(label.getFont().deriveFont(Font.BOLD | Font.ITALIC));
         }
 
+        final JComponent formField;
+        if (propertyType instanceof ControlledVocabularyPropertyType)
+        {
+            formField = createComboBox((ControlledVocabularyPropertyType) propertyType);
+        } else
+        {
+            formField = createTextField(propertyType);
+        }
+        formField.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        addFormField(col, row, label, formField);
+        formFields.put(propertyType.getCode(), formField);
+    }
+
+    private JTextField createTextField(final PropertyType propertyType)
+    {
         final JTextField textField = new JTextField();
+        textField.setToolTipText(propertyType.getDescription());
         textField.addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent e)
@@ -144,9 +186,27 @@ public class DataSetPropertiesPanel extends JPanel
                     // Do nothing
                 }
             });
-        textField.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
-        addFormField(col, row, label, textField);
-        formFields.put(propertyType.getCode(), textField);
+        return textField;
+    }
+
+    private JComboBox createComboBox(final ControlledVocabularyPropertyType propertyType)
+    {
+        final JComboBox comboBox = new JComboBox();
+        comboBox.setToolTipText(propertyType.getDescription());
+        for (VocabularyTerm term : propertyType.getTerms())
+        {
+            comboBox.addItem(new VocabularyTermAdaptor(term));
+        }
+        comboBox.addItemListener(new ItemListener()
+            {
+                public void itemStateChanged(ItemEvent e)
+                {
+                    setPropertyValue(propertyType,
+                            ((VocabularyTermAdaptor) e.getItem()).term.getCode());
+                }
+
+            });
+        return comboBox;
     }
 
     private String getLabelStringForPropertyType(PropertyType propertyType)
@@ -207,8 +267,24 @@ public class DataSetPropertiesPanel extends JPanel
         Map<String, String> props = metadata.getProperties();
         for (String propertyTypeCode : formFields.keySet())
         {
-            JTextField textField = formFields.get(propertyTypeCode);
-            textField.setText(props.get(propertyTypeCode));
+            String propertyValue = props.get(propertyTypeCode);
+            JComponent formField = formFields.get(propertyTypeCode);
+            if (formField instanceof JTextField)
+            {
+                JTextField textField = (JTextField) formField;
+                textField.setText(propertyValue);
+            } else if (formField instanceof JComboBox)
+            {
+                JComboBox comboBox = (JComboBox) formField;
+                for (int i = 0; i < comboBox.getItemCount(); ++i)
+                {
+                    VocabularyTermAdaptor adaptor = (VocabularyTermAdaptor) comboBox.getItemAt(i);
+                    if (adaptor.term.getCode().equals(propertyValue))
+                    {
+                        comboBox.setSelectedIndex(i);
+                    }
+                }
+            }
         }
     }
 

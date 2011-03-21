@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
@@ -387,11 +388,31 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType> privateDataSetTypes =
                 commonServer.listDataSetTypes(sessionToken);
 
+        HashMap<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary, List<ControlledVocabularyPropertyType.VocabularyTerm>> vocabTerms =
+                getVocabularyTermsMap(sessionToken);
+
         ArrayList<DataSetType> dataSetTypes = new ArrayList<DataSetType>();
         for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType privateDataSetType : privateDataSetTypes)
         {
-            dataSetTypes.add(Translator.translate(privateDataSetType));
+            dataSetTypes.add(Translator.translate(privateDataSetType, vocabTerms));
         }
         return dataSetTypes;
+    }
+
+    private HashMap<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary, List<ControlledVocabularyPropertyType.VocabularyTerm>> getVocabularyTermsMap(
+            String sessionToken)
+    {
+        HashMap<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary, List<ControlledVocabularyPropertyType.VocabularyTerm>> vocabTerms =
+                new HashMap<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary, List<ControlledVocabularyPropertyType.VocabularyTerm>>();
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary> privateVocabularies =
+                commonServer.listVocabularies(sessionToken, false, false);
+        for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary privateVocabulary : privateVocabularies)
+        {
+            Set<ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm> privateTerms =
+                    commonServer.listVocabularyTerms(sessionToken, privateVocabulary);
+
+            vocabTerms.put(privateVocabulary, Translator.translate(privateTerms));
+        }
+        return vocabTerms;
     }
 }
