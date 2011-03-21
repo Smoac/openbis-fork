@@ -23,6 +23,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType.DataSetTypeInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType.PropertyTypeInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyTypeGroup.PropertyTypeGroupInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -41,6 +42,7 @@ public class DataSetTypeTest extends AssertJUnit
         PropertyTypeGroupInitializer groupInitializer = new PropertyTypeGroupInitializer();
 
         PropertyTypeInitializer propTypeInitializer = new PropertyTypeInitializer();
+        propTypeInitializer.setDataType(DataTypeCode.VARCHAR);
         propTypeInitializer.setCode("PROP1");
         propTypeInitializer.setLabel("Property 1");
         groupInitializer.addPropertyType(new PropertyType(propTypeInitializer));
@@ -70,6 +72,7 @@ public class DataSetTypeTest extends AssertJUnit
         initializer.setCode(DATA_SET_TYPE_CODE);
         PropertyTypeGroupInitializer groupInitializer = new PropertyTypeGroupInitializer();
         PropertyTypeInitializer propTypeInitializer = new PropertyTypeInitializer();
+        propTypeInitializer.setDataType(DataTypeCode.VARCHAR);
         propTypeInitializer.setCode("PROP200");
         propTypeInitializer.setLabel("Property 200");
         groupInitializer.addPropertyType(new PropertyType(propTypeInitializer));
@@ -91,6 +94,7 @@ public class DataSetTypeTest extends AssertJUnit
         initializer.setCode("code-2");
         groupInitializer = new PropertyTypeGroupInitializer();
         propTypeInitializer = new PropertyTypeInitializer();
+        propTypeInitializer.setDataType(DataTypeCode.VARCHAR);
         propTypeInitializer.setCode("PROP1");
         propTypeInitializer.setLabel("Property 1");
         groupInitializer.addPropertyType(new PropertyType(propTypeInitializer));
@@ -109,7 +113,7 @@ public class DataSetTypeTest extends AssertJUnit
     {
         String stringRepresentation = dataSetType.toString();
         assertEquals(
-                "DataSetType[dataSet-type,[PropertyTypeGroup[<null>,[PropertyType[PROP1,Property 1,<null>], PropertyType[PROP2,Property 2,Property 2 Description]]]]]",
+                "DataSetType[dataSet-type,[PropertyTypeGroup[<null>,[PropertyType[VARCHAR,PROP1,Property 1,<null>,optional], PropertyType[VARCHAR,PROP2,Property 2,Property 2 Description,optional]]]]]",
                 stringRepresentation);
     }
 }
