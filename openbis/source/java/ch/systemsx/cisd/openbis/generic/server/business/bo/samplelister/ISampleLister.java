@@ -16,7 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import ch.systemsx.cisd.common.collections.IValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
@@ -36,10 +39,10 @@ public interface ISampleLister
      * Returns a sorted list of {@link Sample}s that match given criteria.
      */
     public List<Sample> list(ListOrSearchSampleCriteria criteria);
-    
+
     /**
-     * Returns the id of the relationship type of specified code. If code starts with an '$'
-     * it is interpreted as an internally defined relationship type.
+     * Returns the id of the relationship type of specified code. If code starts with an '$' it is
+     * interpreted as an internally defined relationship type.
      * 
      * @throws IllegalArgumentException if code not known.
      */
@@ -50,11 +53,21 @@ public interface ISampleLister
      * specified criteria.
      */
     public List<SampleSkeleton> listSampleBy(IValidator<SampleSkeleton> criteria);
-    
+
     /**
-     * Returns all sample relation ships as skeletons (thats is, only primary and foreign keys) fulfilling
-     * specified criteria.
+     * Returns all sample relation ships as skeletons (thats is, only primary and foreign keys)
+     * fulfilling specified criteria.
+     * 
+     * @deprecated This way of loading relationships is slow. There is no filtering on DB level. If
+     *             the <code>criteria</code> use only a collection of parent/children ids than use
+     *             listChildrenIds/listParentIds.
      */
-    public List<SampleRelationShipSkeleton> listSampleRelationShipsBy(IValidator<SampleRelationShipSkeleton> criteria);
+    @Deprecated
+    public List<SampleRelationShipSkeleton> listSampleRelationShipsBy(
+            IValidator<SampleRelationShipSkeleton> criteria);
+
+    public Map<Long, Set<Long>> listParentIds(Collection<Long> childrenIds);
+
+    public Map<Long, Set<Long>> listChildrenIds(Collection<Long> parentIds);
 
 }

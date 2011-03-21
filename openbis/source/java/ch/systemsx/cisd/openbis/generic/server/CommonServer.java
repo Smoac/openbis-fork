@@ -38,6 +38,7 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
+import ch.systemsx.cisd.openbis.generic.server.business.DetailedSearchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IAttachmentBO;
@@ -475,66 +476,20 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return sampleLister.list(new ListOrSearchSampleCriteria(criteria));
     }
 
-    public List<Sample> searchForSamples(String sessionToken, DetailedSearchCriteria criteria)
-    {
-        final Session session = getSession(sessionToken);
-        try
-        {
-            final Collection<Long> sampleIds =
-                    findSampleIds(criteria, Collections.<DetailedSearchSubCriteria> emptyList());
-            final ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
-            return sampleLister.list(new ListOrSearchSampleCriteria(sampleIds));
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
-        }
-    }
-
     public List<Sample> searchForSamples(String sessionToken, DetailedSearchCriteria criteria,
             List<DetailedSearchSubCriteria> subCriterias)
     {
         final Session session = getSession(sessionToken);
         try
         {
-            final Collection<Long> sampleIds = findSampleIds(criteria, subCriterias);
             final ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
-            return sampleLister.list(new ListOrSearchSampleCriteria(sampleIds));
+            final IHibernateSearchDAO searchDAO = getDAOFactory().getHibernateSearchDAO();
+            return new DetailedSearchManager(searchDAO, sampleLister).searchForSamples(criteria,
+                    subCriterias);
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);
         }
-    }
-
-    private Collection<Long> findSampleIds(DetailedSearchCriteria criteria,
-            List<DetailedSearchSubCriteria> subCriterias)
-    {
-        final IHibernateSearchDAO searchDAO = getDAOFactory().getHibernateSearchDAO();
-        // for now we connect all sub criteria with logical AND
-        List<DetailedSearchAssociationCriteria> associations =
-                new ArrayList<DetailedSearchAssociationCriteria>();
-        for (DetailedSearchSubCriteria subCriteria : subCriterias)
-        {
-            associations.add(findAssociatedEntities(subCriteria));
-        }
-        final Collection<Long> sampleIds =
-                searchDAO.searchForEntityIds(criteria,
-                        DtoConverters.convertEntityKind(EntityKind.SAMPLE), associations);
-        return sampleIds;
-    }
-
-    private DetailedSearchAssociationCriteria findAssociatedEntities(
-            DetailedSearchSubCriteria subCriteria)
-    {
-        final IHibernateSearchDAO searchDAO = getDAOFactory().getHibernateSearchDAO();
-        // for now we don't support sub criteria of sub criteria
-        List<DetailedSearchAssociationCriteria> associations = Collections.emptyList();
-        final Collection<Long> associatedIds =
-                searchDAO.searchForEntityIds(subCriteria.getCriteria(),
-                        DtoConverters.convertEntityKind(subCriteria.getTargetEntityKind()),
-                        associations);
-
-        return new DetailedSearchAssociationCriteria(subCriteria.getTargetEntityKind(),
-                associatedIds);
     }
 
     public final List<ExternalData> listSampleExternalData(final String sessionToken,

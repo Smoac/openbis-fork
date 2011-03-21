@@ -135,6 +135,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
     {
         // Search for Samples with only experiment's code limiting the results
         SearchCriteria sc = new SearchCriteria();
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "*"));
         SearchCriteria ec = new SearchCriteria();
         ec.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "EXP-TEST-1"));
         sc.addSubCriteria(SearchSubCriteria.createExperimentCriteria(ec));
@@ -148,6 +149,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
     {
         // Search for Samples with only experiment's property limiting the results
         SearchCriteria sc = new SearchCriteria();
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "*"));
         SearchCriteria ec = new SearchCriteria();
         ec.addMatchClause(MatchClause.createPropertyMatch("DESCRIPTION", "A simple experiment"));
         sc.addSubCriteria(SearchSubCriteria.createExperimentCriteria(ec));
@@ -156,20 +158,38 @@ public class GeneralInformationServiceTest extends SystemTestCase
     }
 
     @Test
-    public void testSearchForSamplesByPropertyAndExperimentCode()
+    public void testSearchForSamplesByParentCode()
+    {
+        // Search for Samples with only parent's code limiting the results
+        SearchCriteria sc = new SearchCriteria();
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "*"));
+        SearchCriteria pc = new SearchCriteria();
+        pc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "MP002-1"));
+        sc.addSubCriteria(SearchSubCriteria.createSampleCriteria(pc));
+        List<Sample> result = generalInformationService.searchForSamples(sessionToken, sc);
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    public void testSearchForSamplesByExperimentAndParentCode()
     {
         // Search for Samples first
         SearchCriteria sc = new SearchCriteria();
-        sc.addMatchClause(MatchClause.createPropertyMatch("ORGANISM", "*"));
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "*"));
         List<Sample> result = generalInformationService.searchForSamples(sessionToken, sc);
-        assertEquals(4, result.size());
-        // Add experiment criteria limiting results to only 1
+        assertEquals(true, result.size() > 1000);
+        // Add experiment criteria limiting results to 7
         SearchCriteria ec = new SearchCriteria();
-        ec.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "EXP-TEST-1"));
+        ec.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "EXP-REUSE"));
         sc.addSubCriteria(SearchSubCriteria.createExperimentCriteria(ec));
         List<Sample> result2 = generalInformationService.searchForSamples(sessionToken, sc);
-        assertEquals(1, result2.size());
-        assertEquals("/CISD/NEMO/EXP-TEST-1", result2.get(0).getExperimentIdentifierOrNull());
+        assertEquals(7, result2.size());
+        // Add parent criteria limiting results to only 2
+        SearchCriteria pc = new SearchCriteria();
+        pc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "DP1-A"));
+        sc.addSubCriteria(SearchSubCriteria.createSampleCriteria(pc));
+        List<Sample> result3 = generalInformationService.searchForSamples(sessionToken, sc);
+        assertEquals(2, result3.size());
     }
 
     @Test

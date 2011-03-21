@@ -16,8 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import net.lemnik.eodsql.DataIterator;
 
@@ -25,6 +32,7 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.collections.IValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationShipSkeleton;
@@ -95,7 +103,8 @@ public class SampleLister implements ISampleLister
     public List<SampleRelationShipSkeleton> listSampleRelationShipsBy(
             IValidator<SampleRelationShipSkeleton> criteria)
     {
-        DataIterator<SampleRelationRecord> records = dao.getQuery().getSampleRelationshipSkeletons();
+        DataIterator<SampleRelationRecord> records =
+                dao.getQuery().getSampleRelationshipSkeletons();
         List<SampleRelationShipSkeleton> result = new ArrayList<SampleRelationShipSkeleton>();
         for (SampleRelationRecord record : records)
         {
@@ -109,6 +118,69 @@ public class SampleLister implements ISampleLister
             }
         }
         return result;
+    }
+
+    public Map<Long, Set<Long>> listParentIds(Collection<Long> childrenIds)
+    {
+        LongOpenHashSet ids = new LongOpenHashSet();
+        for (Long id : childrenIds)
+        {
+            ids.add(id);
+        }
+        final long relationshipTypeID =
+                getRelationshipTypeID(BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
+        DataIterator<SampleRelationRecord> relationships =
+                dao.getQuery().getParentRelations(relationshipTypeID, ids);
+        Map<Long, Set<Long>> map = new LinkedHashMap<Long, Set<Long>>();
+        for (SampleRelationRecord relationship : relationships)
+        {
+            Set<Long> parents = map.get(relationship.sample_id_child);
+            if (parents == null)
+            {
+                parents = new LinkedHashSet<Long>();
+                map.put(relationship.sample_id_child, parents);
+            }
+            parents.add(relationship.sample_id_parent);
+        }
+        return map;
+    }
+
+    public Map<Long, Set<Long>> listChildrenIds(Collection<Long> parentIds)
+    {
+        LongOpenHashSet ids = new LongOpenHashSet();
+        for (Long id : parentIds)
+        {
+            ids.add(id);
+        }
+        final long relationshipTypeID =
+                getRelationshipTypeID(BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
+        DataIterator<SampleRelationRecord> relationships =
+                dao.getQuery().getChildrenRelations(relationshipTypeID, ids);
+        Map<Long, Set<Long>> map = new LinkedHashMap<Long, Set<Long>>();
+        for (SampleRelationRecord relationship : relationships)
+        {
+            Set<Long> children = map.get(relationship.sample_id_parent);
+            if (children == null)
+            {
+                children = new LinkedHashSet<Long>();
+                map.put(relationship.sample_id_parent, children);
+            }
+            children.add(relationship.sample_id_child);
+        }
+        return map;
+    }
+
+    public Set<Long> listChildrenIdsSet(Collection<Long> parentIds)
+    {
+        LongOpenHashSet ids = new LongOpenHashSet();
+        for (Long id : parentIds)
+        {
+            ids.add(id);
+        }
+        final long relationshipTypeID =
+                getRelationshipTypeID(BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
+        DataIterator<Long> resultIterator = dao.getQuery().getChildrenIds(relationshipTypeID, ids);
+        return new LongOpenHashSet(resultIterator);
     }
 
 }

@@ -101,6 +101,15 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
     public DataIterator<SampleRelationRecord> getParentRelations(long relationshipId,
             LongSet childrenSampleIds);
 
+    /**
+     * Returns the child sample ids of the specified parent sample ids in specified relationship.
+     */
+    @Select(sql = "SELECT * FROM sample_relationships "
+            + "    WHERE relationship_id=?{1} AND sample_id_parent = any(?{2})", parameterBindings =
+        { TypeMapper.class/* default */, LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<SampleRelationRecord> getChildrenRelations(long relationshipId,
+            LongSet parentSampleIds);
+
     @Select(sql = "select id, saty_id, space_id, dbin_id, expe_id from samples", fetchSize = FETCH_SIZE)
     public DataIterator<SampleRecord> getSampleSkeletons();
 
