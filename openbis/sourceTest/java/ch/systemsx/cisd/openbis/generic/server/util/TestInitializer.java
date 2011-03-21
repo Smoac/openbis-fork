@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.FullTextInde
  */
 public class TestInitializer
 {
-    public static final String LUCENE_INDEX_TEMPLATE_PATH = "./sourceTest/lucene/indices";
+    public static final String LUCENE_INDEX_TEMPLATE_PATH = "../openbis/sourceTest/lucene/indices";
     public static final String LUCENE_INDEX_PATH = "../openbis/targets/lucene/indices";
     
     public static void init()
