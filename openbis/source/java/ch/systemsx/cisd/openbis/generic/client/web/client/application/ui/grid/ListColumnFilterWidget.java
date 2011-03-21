@@ -58,7 +58,7 @@ public class ListColumnFilterWidget<T> extends ComboBox<ModelData> implements
 
     private static final String EMPTY_VALUE = "(empty)";
 
-    private final IColumnDefinition<T> filteredField;
+    private IColumnDefinition<T> filteredField;
 
     private final IDelegatedAction onFilterAction;
 
@@ -216,6 +216,11 @@ public class ListColumnFilterWidget<T> extends ComboBox<ModelData> implements
     public String getFilteredColumnId()
     {
         return filteredField.getIdentifier();
+    }
+
+    public void setFilteredField(IColumnDefinition<T> filteredField)
+    {
+        this.filteredField = filteredField;
     }
 
     public Widget getWidget()

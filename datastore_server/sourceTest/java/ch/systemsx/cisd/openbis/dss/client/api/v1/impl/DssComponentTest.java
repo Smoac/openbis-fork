@@ -64,8 +64,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**

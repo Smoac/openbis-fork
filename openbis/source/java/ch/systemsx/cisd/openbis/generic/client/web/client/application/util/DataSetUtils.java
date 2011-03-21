@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.util;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 
@@ -32,8 +33,6 @@ public class DataSetUtils
 
     private static final String AUTO_RESOLVE = "autoResolve";
 
-    private static final String SESSION_ID = "sessionID";
-
     private static final String MODE = "mode";
 
     public static String createDataViewUrl(ExternalData dataSet, GenericViewModel model,
@@ -42,7 +41,8 @@ public class DataSetUtils
         URLMethodWithParameters methodWithParameters =
                 new URLMethodWithParameters(dataSet.getDataStore().getDownloadUrl() + "/"
                         + dataSet.getCode());
-        methodWithParameters.addParameter(SESSION_ID, model.getSessionContext().getSessionID());
+        String sessionID = model.getSessionContext().getSessionID();
+        methodWithParameters.addParameter(GenericSharedConstants.SESSION_ID_PARAMETER, sessionID);
         if (modeOrNull != null)
         {
             methodWithParameters.addParameter(MODE, modeOrNull);

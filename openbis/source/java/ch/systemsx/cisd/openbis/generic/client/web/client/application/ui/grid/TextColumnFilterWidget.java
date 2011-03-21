@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 public class TextColumnFilterWidget<T/* entity */> extends StoreFilterField<ModelData> implements
         IColumnFilterWidget<T>
 {
-    private final IColumnDefinition<T> filteredField;
+    private IColumnDefinition<T> filteredField;
 
     private final IDelegatedAction onFilterAction;
 
@@ -91,6 +91,11 @@ public class TextColumnFilterWidget<T/* entity */> extends StoreFilterField<Mode
     public Widget getWidget()
     {
         return this;
+    }
+
+    public void setFilteredField(IColumnDefinition<T> filteredField)
+    {
+        this.filteredField = filteredField;
     }
 
     public IColumnFilterWidget<T> createOrRefresh(List<String> distinctValuesOrNull)

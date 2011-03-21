@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ParameterWithValue;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableGridColumnDefinition;
 
 /**
  * Toolbar with filters.
@@ -479,11 +480,20 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
         }
         for (int i = 0; i < filters1.size(); i++)
         {
-            String colId1 = filters1.get(i).getIdentifier();
-            String colId2 = filters2.get(i).getFilteredColumnId();
-            if (colId1.equals(colId2) == false)
+            IColumnDefinition<T> filter1 = filters1.get(i);
+            IColumnDefinition<T> filter2 = filters2.get(i).getFilter().getFilteredField();
+            if (filter1.getIdentifier().equals(filter2.getIdentifier()) == false)
             {
                 return true;
+            }
+            if (filter1 instanceof TypedTableGridColumnDefinition && filter2 instanceof TypedTableGridColumnDefinition)
+            {
+                TypedTableGridColumnDefinition<?> coldef1 = (TypedTableGridColumnDefinition<?>) filter1;
+                TypedTableGridColumnDefinition<?> coldef2 = (TypedTableGridColumnDefinition<?>) filter2;
+                if (coldef1.getIndex() != coldef2.getIndex())
+                {
+                    return true;
+                }
             }
         }
         return false;
@@ -503,6 +513,9 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
                 // we do not have distinct values in the columns at this moment, so plain filter
                 // widget is always created
                 filterWidget = new TextColumnFilterWidget<T>(columnDefinition, onFilterAction);
+            } else
+            {
+                filterWidget.setFilteredField(columnDefinition);
             }
             filterWidgets.add(filterWidget);
         }

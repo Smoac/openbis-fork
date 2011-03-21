@@ -40,11 +40,14 @@ import org.apache.log4j.Logger;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.namedthread.NamingThreadPoolExecutor;
+import ch.systemsx.cisd.common.collections.IKeyExtractor;
+import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.shared.basic.AlternativesStringFilter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ColumnDistinctValues;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomFilterInfo;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridColumnFilterInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridFilters;
@@ -57,12 +60,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.ITableDataP
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.XMLPropertyTransformer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PrimitiveValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo.SortDir;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableGridColumnDefinition;
 
 /**
  * A {@link IResultSetManager} implementation which caches the full data retrieved using
@@ -721,7 +726,116 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         // with tableData (provided by dataProvider). The bug is fixed (by checking index in
         // TypedTableGridColumnDefinition.tryGetComparableValue()), but now a new bug pops up: The
         // combo box of a column filter element can have the wrong values.
-        return calculateSortAndFilterResult(sessionToken, tableData, resultConfig, dataKey, partial);
+        return calculateSortAndFilterResult(sessionToken, tableData,
+                createMatchingConfig(resultConfig, headers), dataKey, partial);
+    }
+    
+    private <T> IResultSetConfig<K, T> createMatchingConfig(IResultSetConfig<K, T> resultSetConfig,
+            List<TableModelColumnHeader> headers)
+    {
+        if (headers.isEmpty())
+        {
+            // Not TypedTableGrid
+            return resultSetConfig;
+        }
+        if (hasNoStaleAvailableColumn(resultSetConfig, headers))
+        {
+            return resultSetConfig;
+        }
+        Set<IColumnDefinition<T>> newAvailableColumns = new HashSet<IColumnDefinition<T>>();
+        Set<String> idsOfPresentedColumns = resultSetConfig.getIDsOfPresentedColumns();
+        Set<String> newIdsOfPresentedColumns = new HashSet<String>();
+        SortInfo<T> sortInfo = resultSetConfig.getSortInfo();
+        TableMap<String, GridColumnFilterInfo<T>> columnFilterInfos =
+                getColumFilters(resultSetConfig);
+        List<GridColumnFilterInfo<T>> newColumnFilterInfos =
+                new ArrayList<GridColumnFilterInfo<T>>();
+        for (TableModelColumnHeader header : headers)
+        {
+            @SuppressWarnings("unchecked")
+            IColumnDefinition<T> definition =
+                    (IColumnDefinition<T>) new TypedTableGridColumnDefinition<ISerializable>(
+                            header, null, "", null);
+            newAvailableColumns.add(definition);
+            String id = header.getId();
+            if (header.isHidden() == false || idsOfPresentedColumns.contains(id))
+            {
+                newIdsOfPresentedColumns.add(id);
+            }
+            if (sortInfo != null)
+            {
+                IColumnDefinition<T> sortField = sortInfo.getSortField();
+                if (sortField != null && sortField.getIdentifier().equals(id))
+                {
+                    sortInfo.setSortField(definition);
+                }
+            }
+            GridColumnFilterInfo<T> filterInfo = columnFilterInfos.tryGet(id);
+            if (filterInfo != null)
+            {
+                String pattern = filterInfo.tryGetFilterPattern();
+                newColumnFilterInfos.add(new GridColumnFilterInfo<T>(definition, pattern));
+            }
+        }
+        
+        DefaultResultSetConfig<K, T> newConfig = new DefaultResultSetConfig<K, T>();
+        newConfig.setAvailableColumns(newAvailableColumns);
+        newConfig.setCacheConfig(resultSetConfig.getCacheConfig());
+        newConfig.setCustomColumnErrorMessageLong(resultSetConfig.isCustomColumnErrorMessageLong());
+        // custom filter will be ignored because it may be stale too
+        GridFilters<T> newFilters =
+                newColumnFilterInfos.isEmpty() ? GridFilters.<T> createEmptyFilter() : GridFilters
+                        .createColumnFilter(newColumnFilterInfos);
+        newConfig.setFilters(newFilters);
+        newConfig.setGridDisplayId(resultSetConfig.tryGetGridDisplayId());
+        newConfig.setIDsOfPresentedColumns(newIdsOfPresentedColumns);
+        newConfig.setLimit(resultSetConfig.getLimit());
+        newConfig.setOffset(resultSetConfig.getOffset());
+        newConfig.setSortInfo(sortInfo);
+        return newConfig;
+    }
+
+    private <T> TableMap<String, GridColumnFilterInfo<T>> getColumFilters(
+            IResultSetConfig<K, T> resultSetConfig)
+    {
+        GridFilters<T> filters = resultSetConfig.getFilters();
+        List<GridColumnFilterInfo<T>> filterInfosOrNull = filters.tryGetFilterInfos();
+        if (filterInfosOrNull == null)
+        {
+            filterInfosOrNull = Collections.emptyList();
+        }
+        TableMap<String, GridColumnFilterInfo<T>> columnFilterInfos =
+            new TableMap<String, GridColumnFilterInfo<T>>(filterInfosOrNull,
+                    new IKeyExtractor<String, GridColumnFilterInfo<T>>()
+                    {
+                public String getKey(GridColumnFilterInfo<T> e)
+                {
+                    return e.getFilteredField().getIdentifier();
+                }
+                    });
+        return columnFilterInfos;
+    }
+    
+    private <T> boolean hasNoStaleAvailableColumn(IResultSetConfig<K, T> resultSetConfig,
+            List<TableModelColumnHeader> headers)
+    {
+        Set<String> headerIds = new HashSet<String>();
+        for (TableModelColumnHeader header : headers)
+        {
+            headerIds.add(header.getId());
+        }
+        Set<IColumnDefinition<T>> availableColumns = resultSetConfig.getAvailableColumns();
+        if (availableColumns != null)
+        {
+            for (IColumnDefinition<T> definition : availableColumns)
+            {
+                if (headerIds.contains(definition.getIdentifier()) == false)
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     private <T> Future<TableData<T>> createFutureWhichIsPresent(final K dataKey,

@@ -27,7 +27,7 @@ import net.lemnik.eodsql.DataIterator;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.dss.yeastx.server.EICMLChromatogramGeneratorServlet;
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.basic.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GeneratedImageTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;

@@ -17,13 +17,13 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.TypedTableGridColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ILinkGenerator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableGridColumnDefinition;
 
 /**
  * @author Franz-Josef Elmer

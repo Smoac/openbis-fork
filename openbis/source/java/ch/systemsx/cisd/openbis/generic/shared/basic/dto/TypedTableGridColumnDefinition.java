@@ -1,19 +1,12 @@
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific;
+package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleImageHtmlRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleDateRenderer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DssLinkTableCell;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GeneratedImageTableCell;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ImageTableCell;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleImageHtmlRenderer;
 
 /**
  * @author Franz-Josef Elmer
@@ -52,6 +45,11 @@ public class TypedTableGridColumnDefinition<T extends ISerializable> implements
     public String getIdentifier()
     {
         return header.getId();
+    }
+    
+    public int getIndex()
+    {
+        return header.getIndex();
     }
 
     public String tryToGetProperty(String key)

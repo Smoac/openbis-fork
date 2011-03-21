@@ -21,6 +21,7 @@ import java.util.List;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridColumnFilterInfo;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 
 /**
  * Widget which controls filtering of one grid column.
@@ -33,6 +34,8 @@ public interface IColumnFilterWidget<T>
 
     /** @return filter with the pattern */
     GridColumnFilterInfo<T> getFilter();
+    
+    void setFilteredField(IColumnDefinition<T> filteredField);
 
     /** id of the filtered column */
     String getFilteredColumnId();

@@ -26,6 +26,7 @@ import java.util.Set;
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
+import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
 import com.extjs.gxt.ui.client.data.Loader;
@@ -718,6 +719,23 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         }
     }
 
+    private static com.extjs.gxt.ui.client.Style.SortDir translate(SortDir sortDir)
+    {
+        if (sortDir.equals(SortDir.ASC))
+        {
+            return com.extjs.gxt.ui.client.Style.SortDir.ASC;
+        } else if (sortDir.equals(SortDir.DESC))
+        {
+            return com.extjs.gxt.ui.client.Style.SortDir.DESC;
+        } else if (sortDir.equals(SortDir.NONE))
+        {
+            return com.extjs.gxt.ui.client.Style.SortDir.NONE;
+        } else
+        {
+            throw new IllegalStateException("unknown sort dir: " + sortDir);
+        }
+    }
+    
     /** @return number of rows in the grid */
     public final int getRowNumber()
     {
@@ -729,7 +747,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         private final AsyncCallback<PagingLoadResult<M>> delegate;
 
         // configuration with which the listing was called
-        private final DefaultResultSetConfig<String, T> resultSetConfig;
+        private DefaultResultSetConfig<String, T> resultSetConfig;
 
         private int logID;
 
@@ -777,6 +795,20 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             } else if (partial)
             {
                 reloadingPhase = true;
+                BasePagingLoadConfig loadConfig = new BasePagingLoadConfig();
+                loadConfig.setLimit(resultSetConfig.getLimit());
+                loadConfig.setOffset(resultSetConfig.getOffset());
+                SortInfo<T> sortInfo = resultSetConfig.getSortInfo();
+                if (sortInfo != null)
+                {
+                    IColumnDefinition<T> sortField = sortInfo.getSortField();
+                    if (sortField != null)
+                    {
+                        loadConfig.setSortField(sortField.getIdentifier());
+                        loadConfig.setSortDir(translate(sortInfo.getSortDir()));
+                    }
+                }
+                resultSetConfig = createPagingConfig(loadConfig, filterToolbar.getFilters(), resultSetConfig.tryGetGridDisplayId());
                 resultSetConfig.setCacheConfig(ResultSetFetchConfig
                         .createFetchFromCacheAndRecompute(key));
                 // this.reuse(); // FIXME PTR has to be done?

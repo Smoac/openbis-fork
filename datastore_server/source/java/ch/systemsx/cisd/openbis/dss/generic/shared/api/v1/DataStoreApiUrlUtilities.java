@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared.api.v1;
 
-import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
 
 /**
  * @author Chandrasekhar Ramakrishnan

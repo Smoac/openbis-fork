@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers;
+package ch.systemsx.cisd.openbis.generic.shared.basic;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 
 /**
  * @author Tomasz Pylak
@@ -28,8 +27,10 @@ public class SimpleImageHtmlRenderer
             String downloadURL, String sessionID)
     {
         URLMethodWithParameters methodWithParameters =
-                new URLMethodWithParameters(downloadURL + "/datastore_server/" + imagePath);
-        methodWithParameters.addParameter("sessionID", sessionID);
+                new URLMethodWithParameters(downloadURL + "/"
+                        + GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME + "/"
+                        + imagePath);
+        methodWithParameters.addParameter(GenericSharedConstants.SESSION_ID_PARAMETER, sessionID);
         String linkURL = methodWithParameters.toString();
 
         methodWithParameters.addParameter("mode", "thumbnail" + width + "x" + height);

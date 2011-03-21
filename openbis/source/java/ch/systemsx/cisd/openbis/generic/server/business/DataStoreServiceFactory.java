@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business;
 
-import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_SERVICE_NAME;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.GenericSharedConstants.DATA_STORE_SERVER_SERVICE_NAME;
 
 import java.util.HashMap;
 import java.util.Map;
