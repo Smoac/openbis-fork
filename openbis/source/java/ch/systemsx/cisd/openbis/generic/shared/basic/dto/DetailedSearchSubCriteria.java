@@ -29,9 +29,10 @@ public class DetailedSearchSubCriteria implements ISerializable
 
     private DetailedSearchCriteria criteria;
 
-    private EntityKind targetEntityKind;
+    private SearchableEntityKind targetEntityKind;
 
-    public DetailedSearchSubCriteria(EntityKind targetEntityKind, DetailedSearchCriteria criteria)
+    public DetailedSearchSubCriteria(SearchableEntityKind targetEntityKind,
+            DetailedSearchCriteria criteria)
     {
         this.targetEntityKind = targetEntityKind;
         this.criteria = criteria;
@@ -42,7 +43,7 @@ public class DetailedSearchSubCriteria implements ISerializable
         return criteria;
     }
 
-    public EntityKind getTargetEntityKind()
+    public SearchableEntityKind getTargetEntityKind()
     {
         return targetEntityKind;
     }

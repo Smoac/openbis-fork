@@ -165,7 +165,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "*"));
         SearchCriteria pc = new SearchCriteria();
         pc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "MP002-1"));
-        sc.addSubCriteria(SearchSubCriteria.createSampleCriteria(pc));
+        sc.addSubCriteria(SearchSubCriteria.createSampleParentCriteria(pc));
         List<Sample> result = generalInformationService.searchForSamples(sessionToken, sc);
         assertEquals(2, result.size());
     }
@@ -187,7 +187,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         // Add parent criteria limiting results to only 2
         SearchCriteria pc = new SearchCriteria();
         pc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "DP1-A"));
-        sc.addSubCriteria(SearchSubCriteria.createSampleCriteria(pc));
+        sc.addSubCriteria(SearchSubCriteria.createSampleParentCriteria(pc));
         List<Sample> result3 = generalInformationService.searchForSamples(sessionToken, sc);
         assertEquals(2, result3.size());
     }

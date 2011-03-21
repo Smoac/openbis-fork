@@ -36,6 +36,8 @@ public final class SearchFieldConstants
 
     public static final String PREFIX_SAMPLE = "sample" + SEPARATOR;
 
+    public static final String PREFIX_CONTAINER = "container" + SEPARATOR;
+
     public static final String PREFIX_ENTITY_TYPE = "type" + SEPARATOR;
 
     public static final String PREFIX_FILE_FORMAT_TYPE = "file format type" + SEPARATOR;
@@ -60,6 +62,8 @@ public final class SearchFieldConstants
     public static final String EXPERIMENT_ID = PREFIX_EXPERIMENT + ID;
 
     public static final String SAMPLE_ID = PREFIX_SAMPLE + ID;
+
+    public static final String CONTAINER_ID = PREFIX_CONTAINER + ID;
 
     public static final String DELETED = "deleted";
 

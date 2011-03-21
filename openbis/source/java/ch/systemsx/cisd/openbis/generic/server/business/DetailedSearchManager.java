@@ -115,16 +115,17 @@ public class DetailedSearchManager
         parentCriteria.setCriteria(new ArrayList<DetailedSearchCriterion>());
         for (DetailedSearchSubCriteria subCriteria : allSubCriterias)
         {
-            if (subCriteria.getTargetEntityKind() == EntityKind.SAMPLE)
+            switch (subCriteria.getTargetEntityKind())
             {
-                // merge all parent sub criteria into one
-                parentCriteria.getCriteria().addAll(subCriteria.getCriteria().getCriteria());
-                parentCriteria.setConnection(subCriteria.getCriteria().getConnection());
-                parentCriteria.setUseWildcardSearchMode(subCriteria.getCriteria()
-                        .isUseWildcardSearchMode());
-            } else
-            {
-                otherSubCriterias.add(subCriteria);
+                case SAMPLE_PARENT:
+                    // merge all parent sub criteria into one
+                    parentCriteria.getCriteria().addAll(subCriteria.getCriteria().getCriteria());
+                    parentCriteria.setConnection(subCriteria.getCriteria().getConnection());
+                    parentCriteria.setUseWildcardSearchMode(subCriteria.getCriteria()
+                            .isUseWildcardSearchMode());
+                    break;
+                default:
+                    otherSubCriterias.add(subCriteria);
             }
         }
     }
@@ -151,8 +152,8 @@ public class DetailedSearchManager
         // for now we don't support sub criteria of sub criteria
         List<DetailedSearchAssociationCriteria> associations = Collections.emptyList();
         final Collection<Long> associatedIds =
-                searchDAO.searchForEntityIds(subCriteria.getCriteria(),
-                        DtoConverters.convertEntityKind(subCriteria.getTargetEntityKind()),
+                searchDAO.searchForEntityIds(subCriteria.getCriteria(), DtoConverters
+                        .convertEntityKind(subCriteria.getTargetEntityKind().getEntityKind()),
                         associations);
 
         return new DetailedSearchAssociationCriteria(subCriteria.getTargetEntityKind(),

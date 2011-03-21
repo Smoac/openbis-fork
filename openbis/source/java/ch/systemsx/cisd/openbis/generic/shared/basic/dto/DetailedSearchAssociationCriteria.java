@@ -29,11 +29,11 @@ public class DetailedSearchAssociationCriteria implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private EntityKind entityKind;
+    private SearchableEntityKind entityKind;
 
     private Collection<Long> ids;
 
-    public DetailedSearchAssociationCriteria(EntityKind entityKind, Collection<Long> ids)
+    public DetailedSearchAssociationCriteria(SearchableEntityKind entityKind, Collection<Long> ids)
     {
         this.entityKind = entityKind;
         this.ids = ids;
@@ -44,7 +44,7 @@ public class DetailedSearchAssociationCriteria implements ISerializable
         return ids;
     }
 
-    public EntityKind getEntityKind()
+    public SearchableEntityKind getEntityKind()
     {
         return entityKind;
     }

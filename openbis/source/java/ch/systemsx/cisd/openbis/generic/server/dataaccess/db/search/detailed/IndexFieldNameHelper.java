@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeSearchFieldKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchableEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 
 /**
@@ -35,7 +36,8 @@ class IndexFieldNameHelper
 {
     // associations
 
-    static String getAssociationIndexField(EntityKind entityKind, EntityKind associationKind)
+    static String getAssociationIndexField(EntityKind entityKind,
+            SearchableEntityKind associationKind)
     {
         switch (associationKind)
         {
@@ -51,16 +53,21 @@ class IndexFieldNameHelper
                     return SearchFieldConstants.SAMPLE_ID;
                 }
                 throw createAssociationNotHandledException(entityKind, associationKind);
-            case MATERIAL:
+            case SAMPLE_CONTAINER:
+                if (entityKind == EntityKind.SAMPLE)
+                {
+                    return SearchFieldConstants.SAMPLE_ID;
+                }
                 throw createAssociationNotHandledException(entityKind, associationKind);
-            case DATA_SET:
+            case SAMPLE_PARENT:
+                // sample parent is a many-to-many connection - it is not handled by lucene index
                 throw createAssociationNotHandledException(entityKind, associationKind);
         }
         return null; // shouldn't happen
     }
 
     private static RuntimeException createAssociationNotHandledException(EntityKind entityKind,
-            EntityKind associationKind)
+            SearchableEntityKind associationKind)
     {
         return InternalErr.error("Associations between " + entityKind + " and " + associationKind
                 + " are not supported");

@@ -375,6 +375,21 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         return container;
     }
 
+    // used only by Hibernate Search
+    @SuppressWarnings("unused")
+    @Transient
+    @Field(index = Index.UN_TOKENIZED, store = Store.YES, name = SearchFieldConstants.CONTAINER_ID)
+    private Long getContainerId()
+    {
+        Long result = null;
+        if (getExperimentInternal() != null)
+        {
+            result = HibernateUtils.getId(getExperimentInternal());
+            assert result != null;
+        }
+        return result;
+    }
+
     public void setContainer(final SamplePE container)
     {
         this.container = container;

@@ -32,7 +32,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeSearchFieldKind;
@@ -51,13 +50,15 @@ class SearchCriteriaToDetailedSearchCriteriaTranslator
     private final static String INVALID_SEARCH_ATTRIBUTE_TEMPLATE =
             "%s is not a valid search attribute for %s";
 
-    private static Map<SearchableEntityKind, IMatchClauseAttributeTranslator> translators =
+    static Map<SearchableEntityKind, IMatchClauseAttributeTranslator> translators =
             new HashMap<SearchableEntityKind, IMatchClauseAttributeTranslator>();
 
     static
     {
-        translators.put(SearchableEntityKind.SAMPLE, new SampleAttributeTranslator());
         translators.put(SearchableEntityKind.EXPERIMENT, new ExperimentAttributeTranslator());
+        translators.put(SearchableEntityKind.SAMPLE, new SampleAttributeTranslator());
+        translators.put(SearchableEntityKind.SAMPLE_PARENT, new SampleAttributeTranslator());
+        translators.put(SearchableEntityKind.SAMPLE_CONTAINER, new SampleAttributeTranslator());
     }
 
     private static IMatchClauseAttributeTranslator translatorFor(SearchableEntityKind entityKind)
@@ -72,14 +73,19 @@ class SearchCriteriaToDetailedSearchCriteriaTranslator
                 attribute, entityKind));
     }
 
-    private static EntityKind translateEntityKind(SearchableEntityKind entityKind)
+    private static ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchableEntityKind translateEntityKind(
+            SearchableEntityKind entityKind)
     {
         switch (entityKind)
         {
             case SAMPLE:
-                return EntityKind.SAMPLE;
+                return ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchableEntityKind.SAMPLE;
             case EXPERIMENT:
-                return EntityKind.EXPERIMENT;
+                return ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchableEntityKind.EXPERIMENT;
+            case SAMPLE_CONTAINER:
+                return ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchableEntityKind.SAMPLE_CONTAINER;
+            case SAMPLE_PARENT:
+                return ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchableEntityKind.SAMPLE_PARENT;
         }
         return null; // can't happen
     }

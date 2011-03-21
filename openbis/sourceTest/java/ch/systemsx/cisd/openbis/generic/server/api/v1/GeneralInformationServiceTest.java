@@ -257,9 +257,34 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
         assertEquals("ATTRIBUTE CODE: a code AND "
                 + "PROPERTY MY_PROPERTY2: a property value (with wildcards)",
                 detailedSearchCriteriaMatcher.recordedObject().toString());
-        // check experiment subcriteria
-        assertEquals("[SAMPLE: ATTRIBUTE CODE: parent code AND "
+        // check parent subcriteria
+        assertEquals("[SAMPLE_PARENT: ATTRIBUTE CODE: parent code AND "
                 + "PROPERTY PARENT_PROPERTY: parent property value (with wildcards)]",
+                detailedSearchSubCriteriaMatcher.recordedObject().toString());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testSearchForSamplesWithContainer()
+    {
+        prepareGetSession();
+        final RecordingMatcher<DetailedSearchCriteria> detailedSearchCriteriaMatcher =
+                RecordingMatcher.create();
+        final RecordingMatcher<List<DetailedSearchSubCriteria>> detailedSearchSubCriteriaMatcher =
+                RecordingMatcher.create();
+        prepareSearchForSamples(detailedSearchCriteriaMatcher, detailedSearchSubCriteriaMatcher);
+        List<Sample> result =
+                service.searchForSamples(SESSION_TOKEN,
+                        createSearchCriteriaForSampleWithContainer());
+        assertEquals(1, result.size());
+        Sample resultSample = result.get(0);
+        assertEquals("/space/code", resultSample.getIdentifier());
+        assertEquals("ATTRIBUTE CODE: a code AND "
+                + "PROPERTY MY_PROPERTY2: a property value (with wildcards)",
+                detailedSearchCriteriaMatcher.recordedObject().toString());
+        // check container subcriteria
+        assertEquals("[SAMPLE_CONTAINER: ATTRIBUTE CODE: container code AND "
+                + "PROPERTY CONTAINER_PROPERTY: container property value (with wildcards)]",
                 detailedSearchSubCriteriaMatcher.recordedObject().toString());
         context.assertIsSatisfied();
     }
@@ -473,6 +498,16 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
         return sc;
     }
 
+    private SearchCriteria createSearchCriteriaForSampleContainer()
+    {
+        SearchCriteria sc = new SearchCriteria();
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE,
+                "container code"));
+        sc.addMatchClause(MatchClause.createPropertyMatch("CONTAINER_PROPERTY",
+                "container property value"));
+        return sc;
+    }
+
     private SearchCriteria createSearchCriteriaForExperiment()
     {
         SearchCriteria sc = new SearchCriteria();
@@ -495,7 +530,16 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
     {
         SearchCriteria mainCriteria = createSearchCriteriaForSample();
         SearchCriteria parentCriteria = createSearchCriteriaForSampleParent();
-        mainCriteria.addSubCriteria(SearchSubCriteria.createSampleCriteria(parentCriteria));
+        mainCriteria.addSubCriteria(SearchSubCriteria.createSampleParentCriteria(parentCriteria));
+        return mainCriteria;
+    }
+
+    private SearchCriteria createSearchCriteriaForSampleWithContainer()
+    {
+        SearchCriteria mainCriteria = createSearchCriteriaForSample();
+        SearchCriteria containerCriteria = createSearchCriteriaForSampleContainer();
+        mainCriteria.addSubCriteria(SearchSubCriteria
+                .createSampleContainerCriteria(containerCriteria));
         return mainCriteria;
     }
 

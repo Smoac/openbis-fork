@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchableEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -361,7 +362,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         DetailedSearchCriterion criterion = createSimpleFieldCriterion();
         DetailedSearchCriteria criteria = createAndDatasetQuery(criterion);
         DetailedSearchAssociationCriteria association =
-                new DetailedSearchAssociationCriteria(EntityKind.EXPERIMENT,
+                new DetailedSearchAssociationCriteria(SearchableEntityKind.EXPERIMENT,
                         Collections.singleton(new Long(2L)));
         // compared to testSearchForDataSetsSimpleField() DSLoc.LOC3 should be filtered
         // because of different experiment
