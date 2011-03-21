@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.util;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
@@ -61,7 +62,13 @@ public class TestInitializer
         File srcPath = new File(LUCENE_INDEX_TEMPLATE_PATH);
         try
         {
-            FileUtils.copyDirectory(srcPath, targetPath);
+            FileUtils.copyDirectory(srcPath, targetPath, new FileFilter()
+                {
+                    public boolean accept(File path)
+                    {
+                        return false == path.getName().equalsIgnoreCase(".svn");
+                    }
+                });
             new File(srcPath, FullTextIndexerRunnable.FULL_TEXT_INDEX_MARKER_FILENAME)
                     .createNewFile();
         } catch (IOException ex)
