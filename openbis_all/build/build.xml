@@ -63,6 +63,10 @@
 		  	
 		    <fileset dir="../">
 		      <include name="*/source/java/ch/systemsx/cisd/**/api/**/*.java"/>
+		    	
+		    	<!-- add an exception for the Jython dropbox globally available properties -->
+		      <include name="*/source/java/ch/systemsx/cisd/**/etlserver/TopLevelDataSetRegistratorGlobalState.java"/>
+		      <include name="*/source/java/ch/systemsx/cisd/**/etlserver/registrator/*.java"/>
 		    </fileset>
 		  	
 		    <classpath>
