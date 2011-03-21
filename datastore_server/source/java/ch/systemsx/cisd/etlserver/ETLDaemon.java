@@ -99,7 +99,7 @@ public final class ETLDaemon
     static IExitHandler exitHandler = SystemExit.SYSTEM_EXIT;
 
     private static final Set<String> incomingShares = new LinkedHashSet<String>();
-    
+
     public static Set<String> getIdsOfIncomingShares()
     {
         return Collections.unmodifiableSet(incomingShares);
@@ -220,7 +220,7 @@ public final class ETLDaemon
             throw new ConfigurationFailureException(errorMessage);
         }
     }
-    
+
     private static void startupServer(final Parameters parameters)
     {
         final ThreadParameters[] threads = parameters.getThreads();
@@ -241,8 +241,8 @@ public final class ETLDaemon
             incomingShares.add(shareId);
             operationLog.info("[" + threadParameters.getThreadName() + "]: Data sets drop into '"
                     + incomingDataDirectory + "' will be stored in share " + shareId + ".");
-            createProcessingThread(parameters, threadParameters, shareId,
-                    openBISService, highwaterMarkWatcher, mailClient, dataSetValidator,
+            createProcessingThread(parameters, threadParameters, shareId, openBISService,
+                    highwaterMarkWatcher, mailClient, dataSetValidator,
                     notifySuccessfulRegistration);
         }
         mailClient.sendTestEmail();
@@ -296,8 +296,8 @@ public final class ETLDaemon
     {
         final File incomingDataDirectory = threadParameters.getIncomingDataDirectory();
         final ITopLevelDataSetRegistrator pathHandler =
-                createTopLevelDataSetRegistrator(parameters.getProperties(), threadParameters, shareId, 
-                        authorizedLimsService, mailClient, dataSetValidator,
+                createTopLevelDataSetRegistrator(parameters.getProperties(), threadParameters,
+                        shareId, authorizedLimsService, mailClient, dataSetValidator,
                         notifySuccessfulRegistration);
         final HighwaterMarkDirectoryScanningHandler directoryScanningHandler =
                 createDirectoryScanningHandler(pathHandler, highwaterMarkWatcher,
@@ -326,8 +326,8 @@ public final class ETLDaemon
         migrateStoreRootDir(storeRootDir, openBISService.getHomeDatabaseInstance());
         String dssCode = DssPropertyParametersUtil.getDataStoreCode(properties);
         TopLevelDataSetRegistratorGlobalState globalState =
-                new TopLevelDataSetRegistratorGlobalState(dssCode, shareId, storeRootDir, openBISService,
-                        mailClient, dataSetValidator, notifySuccessfulRegistration,
+                new TopLevelDataSetRegistratorGlobalState(dssCode, shareId, storeRootDir,
+                        openBISService, mailClient, dataSetValidator, notifySuccessfulRegistration,
                         threadParameters);
 
         ITopLevelDataSetRegistrator registrator =
@@ -485,7 +485,17 @@ public final class ETLDaemon
 
     public final static void main(final String[] args)
     {
-        final Parameters parameters = new Parameters(args);
+        Parameters parameters = null;
+        try
+        {
+            parameters = new Parameters(args);
+        } catch (ConfigurationFailureException ex)
+        {
+            operationLog.error(
+                    "Cannot launch the server, bacause of the misconfiguraton: " + ex.getMessage(),
+                    ex);
+            System.exit(1);
+        }
         run(parameters);
     }
 
