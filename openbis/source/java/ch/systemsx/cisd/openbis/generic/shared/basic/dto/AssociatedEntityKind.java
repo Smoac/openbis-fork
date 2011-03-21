@@ -24,19 +24,21 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  * 
  * @author Piotr Buczek
  */
-public enum SearchableEntityKind implements ISerializable // AssociatedEntityKind
+public enum AssociatedEntityKind implements ISerializable
 {
-    SAMPLE("Sample", EntityKind.SAMPLE), EXPERIMENT("Experiment", EntityKind.EXPERIMENT),
-    // sample subcriteria
-    SAMPLE_CONTAINER("Container", EntityKind.SAMPLE), SAMPLE_PARENT("Parent", EntityKind.SAMPLE); // SAMPLE_CHILD
+    SAMPLE("Sample", EntityKind.SAMPLE),
 
-    // MATERIAL("Material"), EXPERIMENT("Experiment"), SAMPLE("Sample"), DATA_SET("Data Set");
+    EXPERIMENT("Experiment", EntityKind.EXPERIMENT),
+
+    SAMPLE_CONTAINER("Container", EntityKind.SAMPLE),
+
+    SAMPLE_PARENT("Parent", EntityKind.SAMPLE);
 
     private final String description;
 
     private final EntityKind entityKind;
 
-    private SearchableEntityKind(final String description, final EntityKind entityKind)
+    private AssociatedEntityKind(final String description, final EntityKind entityKind)
     {
         this.description = description;
         this.entityKind = entityKind;

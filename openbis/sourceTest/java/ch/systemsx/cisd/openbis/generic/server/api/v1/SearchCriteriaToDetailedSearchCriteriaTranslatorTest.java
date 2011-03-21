@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.SearchOperator;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchableEntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AssociatedEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriteria;
 
@@ -146,8 +147,7 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslatorTest extends Assert
     private static String EXPECTED_BASIC_QUERY_SUFFIX = "ATTRIBUTE CODE: a code AND "
             + "PROPERTY MY_PROPERTY: a property value " + "(with wildcards)";
 
-    private void testConvertToDetailedSearchSubCriteria(
-            ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchableEntityKind expectedEntityKind,
+    private void testConvertToDetailedSearchSubCriteria(AssociatedEntityKind expectedEntityKind,
             SearchSubCriteria subCriteria)
     {
         DetailedSearchSubCriteria detailedSearchSubCriteria =
@@ -163,9 +163,7 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslatorTest extends Assert
     {
         SearchCriteria criteria = createBasicSearchCriteria();
         SearchSubCriteria subCriteria = SearchSubCriteria.createSampleCriteria(criteria);
-        testConvertToDetailedSearchSubCriteria(
-                ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchableEntityKind.SAMPLE,
-                subCriteria);
+        testConvertToDetailedSearchSubCriteria(AssociatedEntityKind.SAMPLE, subCriteria);
     }
 
     @Test
@@ -173,9 +171,7 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslatorTest extends Assert
     {
         SearchCriteria criteria = createBasicSearchCriteria();
         SearchSubCriteria subCriteria = SearchSubCriteria.createSampleParentCriteria(criteria);
-        testConvertToDetailedSearchSubCriteria(
-                ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchableEntityKind.SAMPLE_PARENT,
-                subCriteria);
+        testConvertToDetailedSearchSubCriteria(AssociatedEntityKind.SAMPLE_PARENT, subCriteria);
     }
 
     @Test
@@ -183,9 +179,7 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslatorTest extends Assert
     {
         SearchCriteria criteria = createBasicSearchCriteria();
         SearchSubCriteria subCriteria = SearchSubCriteria.createSampleContainerCriteria(criteria);
-        testConvertToDetailedSearchSubCriteria(
-                ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchableEntityKind.SAMPLE_CONTAINER,
-                subCriteria);
+        testConvertToDetailedSearchSubCriteria(AssociatedEntityKind.SAMPLE_CONTAINER, subCriteria);
     }
 
     @Test
@@ -193,9 +187,7 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslatorTest extends Assert
     {
         SearchCriteria criteria = createBasicSearchCriteria();
         SearchSubCriteria subCriteria = SearchSubCriteria.createExperimentCriteria(criteria);
-        testConvertToDetailedSearchSubCriteria(
-                ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchableEntityKind.EXPERIMENT,
-                subCriteria);
+        testConvertToDetailedSearchSubCriteria(AssociatedEntityKind.EXPERIMENT, subCriteria);
     }
 
     private SearchCriteria createBasicSearchCriteria()

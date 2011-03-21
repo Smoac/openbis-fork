@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeSearchFieldKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchableEntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AssociatedEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 
 /**
@@ -37,7 +37,7 @@ class IndexFieldNameHelper
     // associations
 
     static String getAssociationIndexField(EntityKind entityKind,
-            SearchableEntityKind associationKind)
+            AssociatedEntityKind associationKind)
     {
         switch (associationKind)
         {
@@ -67,7 +67,7 @@ class IndexFieldNameHelper
     }
 
     private static RuntimeException createAssociationNotHandledException(EntityKind entityKind,
-            SearchableEntityKind associationKind)
+            AssociatedEntityKind associationKind)
     {
         return InternalErr.error("Associations between " + entityKind + " and " + associationKind
                 + " are not supported");

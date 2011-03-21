@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.PropertyMatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchableEntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AssociatedEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
@@ -73,19 +74,18 @@ class SearchCriteriaToDetailedSearchCriteriaTranslator
                 attribute, entityKind));
     }
 
-    private static ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchableEntityKind translateEntityKind(
-            SearchableEntityKind entityKind)
+    private static AssociatedEntityKind convertToAssociatedEntityKind(SearchableEntityKind entityKind)
     {
         switch (entityKind)
         {
             case SAMPLE:
-                return ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchableEntityKind.SAMPLE;
+                return AssociatedEntityKind.SAMPLE;
             case EXPERIMENT:
-                return ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchableEntityKind.EXPERIMENT;
+                return AssociatedEntityKind.EXPERIMENT;
             case SAMPLE_CONTAINER:
-                return ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchableEntityKind.SAMPLE_CONTAINER;
+                return AssociatedEntityKind.SAMPLE_CONTAINER;
             case SAMPLE_PARENT:
-                return ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchableEntityKind.SAMPLE_PARENT;
+                return AssociatedEntityKind.SAMPLE_PARENT;
         }
         return null; // can't happen
     }
@@ -177,7 +177,7 @@ class SearchCriteriaToDetailedSearchCriteriaTranslator
         final SearchableEntityKind targetEntityKind = subCriteria.getTargetEntityKind();
         final DetailedSearchCriteria detailedSearchCriteria =
                 convertToDetailedSearchCriteria(targetEntityKind, criteria);
-        return new DetailedSearchSubCriteria(translateEntityKind(targetEntityKind),
+        return new DetailedSearchSubCriteria(convertToAssociatedEntityKind(targetEntityKind),
                 detailedSearchCriteria);
     }
 
