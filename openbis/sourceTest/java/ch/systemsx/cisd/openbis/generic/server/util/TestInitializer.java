@@ -16,7 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.server.util;
 
+import java.io.File;
+import java.io.IOException;
+
+import org.apache.commons.io.FileUtils;
+
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.FullTextIndexerRunnable;
 
 /**
  * 
@@ -25,7 +33,8 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
  */
 public class TestInitializer
 {
-    public static final String LUCENE_INDEX_PATH = "../openbis/sourceTest/lucene/indices";
+    public static final String LUCENE_INDEX_TEMPLATE_PATH = "./sourceTest/lucene/indices";
+    public static final String LUCENE_INDEX_PATH = "../openbis/targets/lucene/indices";
     
     public static void init()
     {
@@ -37,6 +46,29 @@ public class TestInitializer
         System.setProperty("hibernate.search.index-base", LUCENE_INDEX_PATH);
         System.setProperty("hibernate.search.worker.execution", "sync");
         System.setProperty("mass-upload-folder", "../openbis/sourceTest/sql/postgresql");
+
+        // make sure the search index is up-to-date
+        // and in the right place when we run tests
+        restoreSearchIndex();
     }
+
+    // create a fresh copy of the Lucene index
+    public static void restoreSearchIndex()
+    {
+        File targetPath = new File(TestInitializer.LUCENE_INDEX_PATH);
+        FileUtilities.deleteRecursively(targetPath);
+        targetPath.mkdirs();
+        File srcPath = new File(LUCENE_INDEX_TEMPLATE_PATH);
+        try
+        {
+            FileUtils.copyDirectory(srcPath, targetPath);
+            new File(srcPath, FullTextIndexerRunnable.FULL_TEXT_INDEX_MARKER_FILENAME)
+                    .createNewFile();
+        } catch (IOException ex)
+        {
+            throw new IOExceptionUnchecked(ex);
+        }
+    }
+
 
 }

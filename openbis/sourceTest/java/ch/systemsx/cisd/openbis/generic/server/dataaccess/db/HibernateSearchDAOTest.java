@@ -24,9 +24,13 @@ import static org.testng.AssertJUnit.fail;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.hibernate.classic.Session;
+import org.hibernate.search.FullTextSession;
+import org.hibernate.search.Search;
 import org.testng.AssertJUnit;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -34,6 +38,7 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
+import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchAssociationCriteria;
@@ -43,7 +48,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
@@ -61,32 +69,6 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 @Friend(toClasses = HibernateSearchDAO.class)
 public final class HibernateSearchDAOTest extends AbstractDAOTest
 {
-
-    // private final static String LUCENE_INDEX_TEMPLATE_PATH = "./sourceTest/lucene/indices";
-    //
-    // @BeforeClass
-    // public void setUpIndex()
-    // {
-    // restoreSearchIndex();
-    // }
-    //
-    // // create a fresh copy of the Lucene index
-    // private static void restoreSearchIndex()
-    // {
-    // File targetPath = new File(TestInitializer.LUCENE_INDEX_PATH);
-    // FileUtilities.deleteRecursively(targetPath);
-    // targetPath.mkdirs();
-    // File srcPath = new File(LUCENE_INDEX_TEMPLATE_PATH);
-    // try
-    // {
-    // FileUtils.copyDirectory(srcPath, targetPath);
-    // new File(srcPath, FullTextIndexerRunnable.FULL_TEXT_INDEX_MARKER_FILENAME)
-    // .createNewFile();
-    // } catch (IOException ex)
-    // {
-    // throw new IOExceptionUnchecked(ex);
-    // }
-    // }
 
     @SuppressWarnings("unused")
     @DataProvider(name = "registratorTerm")
@@ -508,102 +490,102 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
     // }
 
     // TODO 2010-10-22, Piotr Buczek: write a different test (auto update is switched off)
-    // @Test(groups = "broken")
-    // /*
-    // * Checks if the dataset search index is properly updated after properties of a dataset have
-    // * changed.
-    // */
-    // public final void testSearchForDataSetsAfterPropertiesUpdate() throws InterruptedException
-    // {
-    // String propertyCode = "COMMENT";
-    // DetailedSearchCriterion criterion1 =
-    // mkCriterion(DetailedSearchField.createPropertyField(propertyCode), "no comment");
-    // DetailedSearchCriterion criterion2 = createSimpleFieldCriterion();
-    //
-    // DetailedSearchCriteria criteria = createAndDatasetQuery(criterion1, criterion2);
-    //
-    // assertCorrectDatasetsFound(criteria, DSLoc.LOC3, DSLoc.LOC4);
-    //
-    // // This data set has "no comment" value as a COMMENT property and TIFF file type.
-    // // We change it and check if it is removed from results.
-    // ExternalDataPE externalData = findExternalData("20081105092159111-1"); // LOC3
-    // String newValue = "sth";
-    // changeExternalDataProperty(externalData, propertyCode, newValue);
-    // flushSearchIndices();
-    // assertCorrectDatasetsFound(criteria, DSLoc.LOC4);
-    // restoreSearchIndex();
-    // }
-    //
-    // private void flushSearchIndices()
-    // {
-    // Session currentSession = sessionFactory.getCurrentSession();
-    // FullTextSession fullTextSession = Search.getFullTextSession(currentSession);
-    // fullTextSession.flushToIndexes();
-    // }
-//
-//    private void flushSession()
-//    {
-//        sessionFactory.getCurrentSession().flush();
-//    }
-//
-//    private void changeExternalDataProperty(ExternalDataPE externalData, String propertyCode,
-//            String newValue)
-//    {
-//        EntityPropertyPE property = findProperty(externalData, propertyCode);
-//
-//        removeProperty(externalData, property);
-//        flushSession();
-//
-//        DataSetPropertyPE newProperty = new DataSetPropertyPE();
-//        copyPropertyWithNewValue(newValue, property, newProperty);
-//        addProperty(externalData, newProperty);
-//        flushSession();
-//    }
-//
-//    private void copyPropertyWithNewValue(String newValue, EntityPropertyPE oldProperty,
-//            EntityPropertyPE newProperty)
-//    {
-//        newProperty.setEntityTypePropertyType(oldProperty.getEntityTypePropertyType());
-//        newProperty.setRegistrator(oldProperty.getRegistrator());
-//        newProperty.setValue(newValue);
-//    }
-//
-//    private static <T extends EntityPropertyPE> void addProperty(
-//            IEntityPropertiesHolder propertiesHolder, T newProperty)
-//    {
-//        Set<EntityPropertyPE> properties = getCopiedProperties(propertiesHolder);
-//        properties.add(newProperty);
-//        propertiesHolder.setProperties(properties);
-//    }
-//
-//    private static Set<EntityPropertyPE> removeProperty(IEntityPropertiesHolder propertiesHolder,
-//            EntityPropertyPE property)
-//    {
-//        Set<EntityPropertyPE> properties = getCopiedProperties(propertiesHolder);
-//        boolean removed = properties.remove(property);
-//        assert removed : "property could not be removed";
-//        propertiesHolder.setProperties(properties);
-//        return properties;
-//    }
-//
-//    private static Set<EntityPropertyPE> getCopiedProperties(
-//            IEntityPropertiesHolder propertiesHolder)
-//    {
-//        return new HashSet<EntityPropertyPE>(propertiesHolder.getProperties());
-//    }
-//
-//    private static EntityPropertyPE findProperty(IEntityPropertiesHolder propertiesHolder,
-//            String propertyCode)
-//    {
-//        for (EntityPropertyPE prop : propertiesHolder.getProperties())
-//        {
-//            if (prop.getEntityTypePropertyType().getPropertyType().getCode().equals(propertyCode))
-//            {
-//                return prop;
-//            }
-//        }
-//        fail("property not found: " + propertyCode);
-//        return null; // never happens
-//    }
+    @Test(groups = "broken")
+    /*
+     * Checks if the dataset search index is properly updated after properties of a dataset have
+     * changed.
+     */
+    public final void testSearchForDataSetsAfterPropertiesUpdate() throws InterruptedException
+    {
+        String propertyCode = "COMMENT";
+        DetailedSearchCriterion criterion1 =
+                mkCriterion(DetailedSearchField.createPropertyField(propertyCode), "no comment");
+        DetailedSearchCriterion criterion2 = createSimpleFieldCriterion();
+
+        DetailedSearchCriteria criteria = createAndDatasetQuery(criterion1, criterion2);
+
+        assertCorrectDatasetsFound(criteria, DSLoc.LOC3, DSLoc.LOC4);
+
+        // This data set has "no comment" value as a COMMENT property and TIFF file type.
+        // We change it and check if it is removed from results.
+        ExternalDataPE externalData = findExternalData("20081105092159111-1"); // LOC3
+        String newValue = "sth";
+        changeExternalDataProperty(externalData, propertyCode, newValue);
+        flushSearchIndices();
+        assertCorrectDatasetsFound(criteria, DSLoc.LOC4);
+        TestInitializer.restoreSearchIndex();
+    }
+
+    private void flushSearchIndices()
+    {
+        Session currentSession = sessionFactory.getCurrentSession();
+        FullTextSession fullTextSession = Search.getFullTextSession(currentSession);
+        fullTextSession.flushToIndexes();
+    }
+
+    private void flushSession()
+    {
+        sessionFactory.getCurrentSession().flush();
+    }
+
+    private void changeExternalDataProperty(ExternalDataPE externalData, String propertyCode,
+            String newValue)
+    {
+        EntityPropertyPE property = findProperty(externalData, propertyCode);
+
+        removeProperty(externalData, property);
+        flushSession();
+
+        DataSetPropertyPE newProperty = new DataSetPropertyPE();
+        copyPropertyWithNewValue(newValue, property, newProperty);
+        addProperty(externalData, newProperty);
+        flushSession();
+    }
+
+    private void copyPropertyWithNewValue(String newValue, EntityPropertyPE oldProperty,
+            EntityPropertyPE newProperty)
+    {
+        newProperty.setEntityTypePropertyType(oldProperty.getEntityTypePropertyType());
+        newProperty.setRegistrator(oldProperty.getRegistrator());
+        newProperty.setValue(newValue);
+    }
+
+    private static <T extends EntityPropertyPE> void addProperty(
+            IEntityPropertiesHolder propertiesHolder, T newProperty)
+    {
+        Set<EntityPropertyPE> properties = getCopiedProperties(propertiesHolder);
+        properties.add(newProperty);
+        propertiesHolder.setProperties(properties);
+    }
+
+    private static Set<EntityPropertyPE> removeProperty(IEntityPropertiesHolder propertiesHolder,
+            EntityPropertyPE property)
+    {
+        Set<EntityPropertyPE> properties = getCopiedProperties(propertiesHolder);
+        boolean removed = properties.remove(property);
+        assert removed : "property could not be removed";
+        propertiesHolder.setProperties(properties);
+        return properties;
+    }
+
+    private static Set<EntityPropertyPE> getCopiedProperties(
+            IEntityPropertiesHolder propertiesHolder)
+    {
+        return new HashSet<EntityPropertyPE>(propertiesHolder.getProperties());
+    }
+
+    private static EntityPropertyPE findProperty(IEntityPropertiesHolder propertiesHolder,
+            String propertyCode)
+    {
+        for (EntityPropertyPE prop : propertiesHolder.getProperties())
+        {
+            if (prop.getEntityTypePropertyType().getPropertyType().getCode().equals(propertyCode))
+            {
+                return prop;
+            }
+        }
+        fail("property not found: " + propertyCode);
+        return null; // never happens
+    }
 
 }
