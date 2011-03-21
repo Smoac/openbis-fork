@@ -35,6 +35,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -60,6 +61,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
  */
 public class DataSetMetadataPanel extends JPanel
 {
+    private static final String EMPTY_FILE_SELECTION = "";
+
     private static final long serialVersionUID = 1L;
 
     private final JFrame mainWindow;
@@ -73,6 +76,8 @@ public class DataSetMetadataPanel extends JPanel
     private final JComboBox dataSetTypeComboBox;
 
     private final JPanel dataSetTypePanel;
+
+    private final JComboBox dataSetFileComboBox;
 
     private final JButton dataSetFileButton;
 
@@ -104,7 +109,11 @@ public class DataSetMetadataPanel extends JPanel
 
         dataSetTypeComboBox = new JComboBox();
         dataSetTypePanel = new JPanel();
-        dataSetFileButton = new JButton("");
+
+        String[] initialOptions =
+            { EMPTY_FILE_SELECTION };
+        dataSetFileComboBox = new JComboBox(initialOptions);
+        dataSetFileButton = new JButton("Browse...");
 
         createGui();
     }
@@ -119,7 +128,7 @@ public class DataSetMetadataPanel extends JPanel
     {
         if (null == newDataSetInfo)
         {
-            ownerIdText.setText("");
+            ownerIdText.setText(EMPTY_FILE_SELECTION);
             updateFileLabel();
             disableAllWidgets();
             return;
@@ -194,7 +203,31 @@ public class DataSetMetadataPanel extends JPanel
         JLabel label = new JLabel("File:", JLabel.TRAILING);
         label.setPreferredSize(new Dimension(LABEL_WIDTH, BUTTON_HEIGHT));
 
-        dataSetFileButton.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        dataSetFileComboBox.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        dataSetFileComboBox.addItemListener(new ItemListener()
+            {
+
+                public void itemStateChanged(ItemEvent e)
+                {
+                    if (null == newDataSetInfo)
+                    {
+                        return;
+                    }
+
+                    Object selectedItem = e.getItem();
+                    if (null == selectedItem || EMPTY_FILE_SELECTION == selectedItem)
+                    {
+                        newDataSetInfo.getNewDataSetBuilder().setFile(null);
+                    } else
+                    {
+                        newDataSetInfo.getNewDataSetBuilder().setFile((File) selectedItem);
+                    }
+
+                    notifyObserversOfChanges();
+                }
+
+            });
+        dataSetFileButton.setPreferredSize(new Dimension(40, BUTTON_HEIGHT));
         dataSetFileButton.setToolTipText("The file to upload.");
         dataSetFileButton.addActionListener(new ActionListener()
             {
@@ -211,13 +244,15 @@ public class DataSetMetadataPanel extends JPanel
                     if (newDirOrNull != null)
                     {
                         newDataSetInfo.getNewDataSetBuilder().setFile(newDirOrNull);
+                        clientModel.userDidSelectFile(newDirOrNull);
+                        updateFileComboBoxList();
                         updateFileLabel();
                         notifyObserversOfChanges();
                     }
                 }
 
             });
-        addRow(1, label, dataSetFileButton);
+        addRow(1, label, dataSetFileComboBox, dataSetFileButton);
 
         // The owner row
         label = new JLabel("Owner:", JLabel.TRAILING);
@@ -303,16 +338,34 @@ public class DataSetMetadataPanel extends JPanel
         clientModel.notifyObserversOfChanges(newDataSetInfo);
     }
 
+    private void updateFileComboBoxList()
+    {
+        dataSetFileComboBox.removeAllItems();
+        ArrayList<File> files = new ArrayList<File>(clientModel.getUserSelectedFiles());
+        Collections.sort(files);
+        for (File file : files)
+        {
+            dataSetFileComboBox.addItem(file);
+        }
+        dataSetFileComboBox.addItem(EMPTY_FILE_SELECTION);
+    }
+
     protected void updateFileLabel()
     {
         if (null == newDataSetInfo)
         {
-            dataSetFileButton.setText("");
+            // Select the empty string
+            dataSetFileComboBox.setSelectedItem(EMPTY_FILE_SELECTION);
             return;
         }
         File file = newDataSetInfo.getNewDataSetBuilder().getFile();
-        String filePath = (null != file) ? file.getAbsolutePath() : "";
-        dataSetFileButton.setText(filePath);
+        if (null != file)
+        {
+            dataSetFileComboBox.setSelectedItem(file);
+        } else
+        {
+            dataSetFileComboBox.setSelectedItem(EMPTY_FILE_SELECTION);
+        }
     }
 
     private void createDataSetTypePanel()
@@ -351,6 +404,27 @@ public class DataSetMetadataPanel extends JPanel
             c.insets = new Insets((rowy > 0) ? 5 : 0, 0, 0, buttons.hasMoreElements() ? 5 : 0);
             add(button, c);
         }
+    }
+
+    private void addRow(int rowy, Component label, Component field, Component button)
+    {
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridx = 0;
+        c.gridy = rowy;
+        c.weightx = 0;
+        c.weighty = 0;
+        c.insets = new Insets((rowy > 0) ? 5 : 0, 0, 0, 5);
+        add(label, c);
+        c.gridx = 1;
+        c.weightx = 0.5;
+        c.insets = new Insets((rowy > 0) ? 5 : 0, 0, 0, 5);
+        add(field, c);
+
+        ++c.gridx;
+        c.weightx = 0;
+        c.insets = new Insets((rowy > 0) ? 5 : 0, 0, 0, 0);
+        add(button, c);
     }
 
     private void addRow(int rowy, Component label, Component field)
@@ -421,4 +495,5 @@ public class DataSetMetadataPanel extends JPanel
         builder.setDataSetOwnerIdentifier(text);
         notifyObserversOfChanges();
     }
+
 }

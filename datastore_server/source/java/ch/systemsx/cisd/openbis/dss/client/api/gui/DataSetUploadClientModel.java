@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.client.api.gui;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -55,6 +56,9 @@ public class DataSetUploadClientModel
     private final List<DataSetType> dataSetTypes;
 
     private final ArrayList<NewDataSetInfo> newDataSetInfos = new ArrayList<NewDataSetInfo>();
+
+    // Track which files a user selected to make share the list of files in the selection combo box.
+    private final ArrayList<File> userSelectedFiles = new ArrayList<File>();
 
     // References to UI elements that are looking at the client model -- a way of implementing
     // obeserver.
@@ -335,6 +339,11 @@ public class DataSetUploadClientModel
 
     }
 
+    public void userDidSelectFile(File selectedFile)
+    {
+        userSelectedFiles.add(selectedFile);
+    }
+
     private DataSetType tryDataSetType(String dataSetTypeCode)
     {
         if (null == dataSetTypeCode)
@@ -353,4 +362,8 @@ public class DataSetUploadClientModel
         return null;
     }
 
+    public ArrayList<File> getUserSelectedFiles()
+    {
+        return userSelectedFiles;
+    }
 }
