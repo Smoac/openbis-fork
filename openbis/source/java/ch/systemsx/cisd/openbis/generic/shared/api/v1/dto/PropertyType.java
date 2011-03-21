@@ -23,6 +23,8 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+
 /**
  * Immutable value object representing a property type.
  * 
@@ -40,11 +42,25 @@ public final class PropertyType implements Serializable
      */
     public static final class PropertyTypeInitializer
     {
+        private DataTypeCode dataType;
+
         private String code;
 
         private String label;
 
         private String description;
+
+        private boolean mandatory;
+
+        public DataTypeCode getDataType()
+        {
+            return dataType;
+        }
+
+        public void setDataType(DataTypeCode dataType)
+        {
+            this.dataType = dataType;
+        }
 
         public String getCode()
         {
@@ -76,13 +92,27 @@ public final class PropertyType implements Serializable
             this.description = description;
         }
 
+        public boolean isMandatory()
+        {
+            return mandatory;
+        }
+
+        public void setMandatory(boolean mandatory)
+        {
+            this.mandatory = mandatory;
+        }
+
     }
+
+    private final DataTypeCode dataType;
 
     private final String code;
 
     private final String label;
 
     private final String description;
+
+    private final boolean mandatory;
 
     /**
      * Creates a new instance with the provided initializer
@@ -91,6 +121,12 @@ public final class PropertyType implements Serializable
      */
     public PropertyType(PropertyTypeInitializer initializer)
     {
+        if (initializer.dataType == null)
+        {
+            throw new IllegalArgumentException("Unspecified data type.");
+        }
+        this.dataType = initializer.getDataType();
+
         checkValidString(initializer.getCode(), "Unspecified code.");
         this.code = initializer.getCode();
 
@@ -98,6 +134,7 @@ public final class PropertyType implements Serializable
         this.label = initializer.getLabel();
 
         this.description = initializer.getDescription();
+        this.mandatory = initializer.isMandatory();
     }
 
     private void checkValidString(String string, String message) throws IllegalArgumentException
@@ -106,6 +143,11 @@ public final class PropertyType implements Serializable
         {
             throw new IllegalArgumentException(message);
         }
+    }
+
+    public DataTypeCode getDataType()
+    {
+        return dataType;
     }
 
     /**
@@ -130,6 +172,11 @@ public final class PropertyType implements Serializable
     public String getDescription()
     {
         return description;
+    }
+
+    public boolean isMandatory()
+    {
+        return mandatory;
     }
 
     @Override
@@ -162,9 +209,11 @@ public final class PropertyType implements Serializable
     public String toString()
     {
         ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
+        builder.append(getDataType());
         builder.append(getCode());
         builder.append(getLabel());
         builder.append(getDescription());
+        builder.append(isMandatory() ? "mandatory" : "optional");
         return builder.toString();
     }
 }

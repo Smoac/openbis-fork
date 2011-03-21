@@ -110,6 +110,12 @@ public class Translator
         PropertyTypeGroupInitializer groupInitializer = new PropertyTypeGroupInitializer();
         for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType dstpt : dstpts)
         {
+            // Skip Dynamic and Managed properties
+            if (dstpt.isDynamic() || dstpt.isManaged())
+            {
+                continue;
+            }
+
             String thisSectionName = dstpt.getSection();
             if (thisSectionName != null && false == thisSectionName.equals(sectionName))
             {
@@ -121,9 +127,11 @@ public class Translator
             PropertyTypeInitializer ptInitializer = new PropertyTypeInitializer();
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType propertyType =
                     dstpt.getPropertyType();
+            ptInitializer.setDataType(propertyType.getDataType().getCode());
             ptInitializer.setCode(propertyType.getCode());
             ptInitializer.setLabel(propertyType.getLabel());
             ptInitializer.setDescription(propertyType.getDescription());
+            ptInitializer.setMandatory(dstpt.isMandatory());
             groupInitializer.addPropertyType(new PropertyType(ptInitializer));
         }
         // Finally set the group

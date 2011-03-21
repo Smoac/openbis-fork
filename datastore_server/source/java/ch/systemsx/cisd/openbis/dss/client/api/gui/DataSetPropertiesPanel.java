@@ -18,9 +18,11 @@ package ch.systemsx.cisd.openbis.dss.client.api.gui;
 
 import static ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClient.BUTTON_HEIGHT;
 import static ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClient.BUTTON_WIDTH;
+import static ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClient.LABEL_WIDTH;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -28,10 +30,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -78,6 +82,15 @@ public class DataSetPropertiesPanel extends JPanel
         syncGui();
     }
 
+    /**
+     * Return all editable widgets.
+     */
+    protected List<JComponent> getAllEditableWidgets()
+    {
+        ArrayList<JComponent> editableWidgets = new ArrayList<JComponent>(formFields.values());
+        return editableWidgets;
+    }
+
     private void createGui()
     {
         // Add the fields, two per row, to the GUI; ignore the groups for now
@@ -101,8 +114,14 @@ public class DataSetPropertiesPanel extends JPanel
 
     private void addFormFieldForPropertyType(int row, int col, final PropertyType propertyType)
     {
-        JLabel label = new JLabel(propertyType.getLabel() + ":", JLabel.TRAILING);
-        label.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        String labelString = getLabelStringForPropertyType(propertyType);
+        JLabel label = new JLabel(labelString + ":", JLabel.TRAILING);
+        label.setPreferredSize(new Dimension(LABEL_WIDTH, BUTTON_HEIGHT));
+        if (propertyType.isMandatory())
+        {
+            // Set the font to be bold/italic for required fields.
+            label.setFont(label.getFont().deriveFont(Font.BOLD | Font.ITALIC));
+        }
 
         final JTextField textField = new JTextField();
         textField.addActionListener(new ActionListener()
@@ -125,8 +144,20 @@ public class DataSetPropertiesPanel extends JPanel
                     // Do nothing
                 }
             });
+        textField.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
         addFormField(col, row, label, textField);
         formFields.put(propertyType.getCode(), textField);
+    }
+
+    private String getLabelStringForPropertyType(PropertyType propertyType)
+    {
+        StringBuilder label = new StringBuilder();
+        label.append(propertyType.getLabel());
+        if (propertyType.isMandatory())
+        {
+            label.append("*");
+        }
+        return label.toString();
     }
 
     private void addFormField(int colx, int rowy, Component label, Component field)

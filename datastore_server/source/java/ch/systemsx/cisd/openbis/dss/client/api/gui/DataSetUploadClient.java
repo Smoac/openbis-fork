@@ -81,7 +81,8 @@ public class DataSetUploadClient extends AbstractSwingGUI
             throws ch.systemsx.cisd.cifex.shared.basic.UserFailureException,
             EnvironmentFailureException
     {
-        setLookAndFeelToNative();
+        // setLookAndFeelToNative();
+        setLookAndFeelToMetal();
 
         try
         {
@@ -168,6 +169,8 @@ public class DataSetUploadClient extends AbstractSwingGUI
         window.pack();
         window.setLocationByPlatform(true);
         window.setVisible(true);
+
+        tableModel.addNewDataSet();
     }
 
     private Component createGlobalActionsPanel()

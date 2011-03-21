@@ -34,6 +34,7 @@ import java.awt.event.FocusListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -42,6 +43,7 @@ import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -119,8 +121,11 @@ public class DataSetMetadataPanel extends JPanel
         {
             ownerIdText.setText("");
             updateFileLabel();
+            disableAllWidgets();
             return;
         }
+
+        enableAllWidgets();
 
         NewDataSetDTOBuilder builder = newDataSetInfo.getNewDataSetBuilder();
         ownerIdText.setText(builder.getDataSetOwnerIdentifier());
@@ -148,6 +153,39 @@ public class DataSetMetadataPanel extends JPanel
         }
 
         updateFileLabel();
+    }
+
+    private void enableAllWidgets()
+    {
+        for (JComponent widget : getAllEditableWidgets())
+        {
+            widget.setEnabled(true);
+        }
+    }
+
+    private void disableAllWidgets()
+    {
+        for (JComponent widget : getAllEditableWidgets())
+        {
+            widget.setEnabled(false);
+        }
+    }
+
+    private ArrayList<JComponent> getAllEditableWidgets()
+    {
+        ArrayList<JComponent> editableWidgets = new ArrayList<JComponent>();
+        editableWidgets.add(ownerIdText);
+        editableWidgets.add(dataSetFileButton);
+        editableWidgets.add(experimentButton);
+        editableWidgets.add(sampleButton);
+        editableWidgets.add(dataSetTypeComboBox);
+
+        for (DataSetPropertiesPanel panel : propertiesPanels.values())
+        {
+            editableWidgets.addAll(panel.getAllEditableWidgets());
+        }
+
+        return editableWidgets;
     }
 
     private void createGui()

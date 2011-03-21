@@ -347,6 +347,8 @@ public class DataSetUploadTableModel extends AbstractTableModel
         selectedIndices.add(clientModel.getNewDataSetInfos().size() - 1);
         setSelectedIndices(selectedIndices);
         selectNewDataSetInfo(newlyCreated);
+        table.getSelectionModel().setSelectionInterval(selectedIndices.get(0),
+                selectedIndices.get(0));
     }
 
     public void removeSelectedDataSet()
