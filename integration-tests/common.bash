@@ -449,7 +449,7 @@ function shutdown_openbis_server {
 # unpack everything, override default configuration with test configuation        
 function install_dsss {
     local install_dss=$1
-    local dss_dirs="datastore_server1 datastore_server2 datastore_server_yeastx"
+    local dss_dirs="datastore_server1 datastore_server2 datastore_server_yeastx datastore_server_archiving"
     if [ $install_dss == "true" ]; then
         unpack datastore_server-
         for dss_dir in $dss_dirs; do

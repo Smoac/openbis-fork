@@ -1,28 +1,26 @@
 #!/bin/bash
 
+# all tests to be executed
+TEST_FILE_PATTERN=./test-*.sh
+EXIT_WITH_ERROR=false
+
 function print_result {
-	local result=$1
+  local testFile=$1
+	local result=$2
 	if [ $result -ne 0 ]; then
-		echo ERROR: Test has failed.
+		echo ERROR: Test "$testFile" has failed.
+		EXIT_WITH_ERROR=true
 	fi
 }
 
-echo Testing Screening Workflow
-./test-screening.sh $@
-result_hcs=$?
-print_result $result_hcs
+for testScript in $TEST_FILE_PATTERN; do
+  echo Executing test $testScript
+  ./$testScript $@
+  result=$?
+  print_result $testScript $result
+done
 
-echo Testing 3V Screening Workflow
-./test-3v.sh $@
-result_3v=$?
-print_result $result_3v
-
-echo Testing YeastX Workflow
-./test-yeastx.sh $@
-result_yeastx=$?
-print_result $result_yeastx
-
-if [ $result_3v -ne 0 -o $result_yeastx -ne 0 -o $result_hcs -ne 0 ]; then
+if [ $EXIT_WITH_ERROR ]; then
 	exit 1;
 fi
 
