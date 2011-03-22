@@ -63,6 +63,12 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
      */
     static final String CHANNELS_PER_EXPERIMENT_PROPERTY = "define-channels-per-experiment";
 
+    /**
+     * Optional boolean property. If true an email is sent if some images for the uploaded plate are
+     * missing. True by default.
+     */
+    protected static final String NOTIFY_IF_INCOMPLETE_PROPERTY = "notify-if-incomplete";
+
     // ---
 
     private final ch.systemsx.cisd.etlserver.IHCSImageFileExtractor deprecatedImageFileExtractorOrNull;
@@ -70,12 +76,16 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
     // can be overwritten for each dataset
     private final boolean globalStoreChannelsOnExperimentLevel;
 
+    private final boolean notifyIfPlateIncomplete;
+
     public PlateStorageProcessor(Properties properties)
     {
         super(properties);
         this.deprecatedImageFileExtractorOrNull = tryCreateDeprecatedFileExtractor();
         this.globalStoreChannelsOnExperimentLevel =
                 PropertyUtils.getBoolean(properties, CHANNELS_PER_EXPERIMENT_PROPERTY, true);
+        this.notifyIfPlateIncomplete =
+                PropertyUtils.getBoolean(properties, NOTIFY_IF_INCOMPLETE_PROPERTY, true);
     }
 
     private IHCSImageFileExtractor tryCreateDeprecatedFileExtractor()
@@ -245,7 +255,7 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
                             + "are missing (locations: %s)", dataSetFileName, fullLocations.size(),
                             CollectionUtils.abbreviate(fullLocations, 10));
             operationLog.warn(message);
-            if (mailClientOrNull != null)
+            if (mailClientOrNull != null && notifyIfPlateIncomplete)
             {
                 Experiment experiment = dataSetInformation.tryToGetExperiment();
                 assert experiment != null : "dataset not connected to an experiment: "
