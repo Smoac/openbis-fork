@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.common.utilities;
 
+import java.io.Serializable;
+
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
@@ -24,8 +26,10 @@ import org.testng.annotations.Test;
  */
 public class ReflectingStringEscaperTest extends AssertJUnit
 {
-    public class TestBean
+    public static class TestBean implements Serializable
     {
+        private static final long serialVersionUID = 1L;
+
         private String foo;
 
         private String bar;
@@ -33,6 +37,11 @@ public class ReflectingStringEscaperTest extends AssertJUnit
         private String baz;
 
         private TestBean wrappedBean;
+
+        public TestBean()
+        {
+
+        }
     }
 
     @Test
@@ -43,19 +52,19 @@ public class ReflectingStringEscaperTest extends AssertJUnit
         bean.bar = "<b>bar</b>";
         bean.baz = "<i>baz</i>";
         bean.wrappedBean = new TestBean();
-        bean.wrappedBean.foo = "<a>foo</a>";
-        bean.wrappedBean.bar = "<b>bar</b>";
-        bean.wrappedBean.baz = "<i>baz</i>";
+        bean.wrappedBean.foo = "<wa>foo</wa>";
+        bean.wrappedBean.bar = "<wb>bar</wb>";
+        bean.wrappedBean.baz = "<wi>baz</wi>";
 
         TestBean escaped = ReflectingStringEscaper.escapeShallow(bean);
-        assertEquals(bean, escaped);
+        assertSame(bean, escaped);
         assertEquals("&lt;a&gt;foo&lt;/a&gt;", bean.foo);
         assertEquals("&lt;b&gt;bar&lt;/b&gt;", bean.bar);
         assertEquals("&lt;i&gt;baz&lt;/i&gt;", bean.baz);
 
-        assertEquals("<a>foo</a>", bean.wrappedBean.foo);
-        assertEquals("<b>bar</b>", bean.wrappedBean.bar);
-        assertEquals("<i>baz</i>", bean.wrappedBean.baz);
+        assertEquals("<wa>foo</wa>", bean.wrappedBean.foo);
+        assertEquals("<wb>bar</wb>", bean.wrappedBean.bar);
+        assertEquals("<wi>baz</wi>", bean.wrappedBean.baz);
     }
 
     @Test
@@ -66,21 +75,51 @@ public class ReflectingStringEscaperTest extends AssertJUnit
         bean.bar = "<b>bar</b>";
         bean.baz = "<i>baz</i>";
         bean.wrappedBean = new TestBean();
-        bean.wrappedBean.foo = "<a>foo</a>";
-        bean.wrappedBean.bar = "<b>bar</b>";
-        bean.wrappedBean.baz = "<i>baz</i>";
+        bean.wrappedBean.foo = "<wa>foo</wa>";
+        bean.wrappedBean.bar = "<wb>bar</wb>";
+        bean.wrappedBean.baz = "<wi>baz</wi>";
 
         TestBean escaped = ReflectingStringEscaper.escapeDeep(bean);
-        assertEquals(bean, escaped);
+        assertSame(bean, escaped);
         assertEquals("&lt;a&gt;foo&lt;/a&gt;", bean.foo);
         assertEquals("&lt;b&gt;bar&lt;/b&gt;", bean.bar);
         assertEquals("&lt;i&gt;baz&lt;/i&gt;", bean.baz);
 
-        assertEquals("&lt;a&gt;foo&lt;/a&gt;", bean.wrappedBean.foo);
-        assertEquals("&lt;b&gt;bar&lt;/b&gt;", bean.wrappedBean.bar);
-        assertEquals("&lt;i&gt;baz&lt;/i&gt;", bean.wrappedBean.baz);
+        assertEquals("&lt;wa&gt;foo&lt;/wa&gt;", bean.wrappedBean.foo);
+        assertEquals("&lt;wb&gt;bar&lt;/wb&gt;", bean.wrappedBean.bar);
+        assertEquals("&lt;wi&gt;baz&lt;/wi&gt;", bean.wrappedBean.baz);
     }
-    
+
+    @Test
+    public void testDeepEscaperWithCopy()
+    {
+        TestBean bean = new TestBean();
+        bean.foo = "<a>foo</a>";
+        bean.bar = "<b>bar</b>";
+        bean.baz = "<i>baz</i>";
+        bean.wrappedBean = new TestBean();
+        bean.wrappedBean.foo = "<wa>foo</wa>";
+        bean.wrappedBean.bar = "<wb>bar</wb>";
+        bean.wrappedBean.baz = "<wi>baz</wi>";
+
+        TestBean escaped = ReflectingStringEscaper.escapeDeepWithCopy(bean);
+        assertNotSame(bean, escaped);
+        assertEquals("<a>foo</a>", bean.foo);
+        assertEquals("<b>bar</b>", bean.bar);
+        assertEquals("<i>baz</i>", bean.baz);
+        assertEquals("&lt;a&gt;foo&lt;/a&gt;", escaped.foo);
+        assertEquals("&lt;b&gt;bar&lt;/b&gt;", escaped.bar);
+        assertEquals("&lt;i&gt;baz&lt;/i&gt;", escaped.baz);
+
+        assertNotSame(bean.wrappedBean, escaped.wrappedBean);
+        assertEquals("<wa>foo</wa>", bean.wrappedBean.foo);
+        assertEquals("<wb>bar</wb>", bean.wrappedBean.bar);
+        assertEquals("<wi>baz</wi>", bean.wrappedBean.baz);
+        assertEquals("&lt;wa&gt;foo&lt;/wa&gt;", escaped.wrappedBean.foo);
+        assertEquals("&lt;wb&gt;bar&lt;/wb&gt;", escaped.wrappedBean.bar);
+        assertEquals("&lt;wi&gt;baz&lt;/wi&gt;", escaped.wrappedBean.baz);
+    }
+
     @Test
     public void testCircular()
     {
@@ -89,20 +128,20 @@ public class ReflectingStringEscaperTest extends AssertJUnit
         bean.bar = "<b>bar</b>";
         bean.baz = "<i>baz</i>";
         bean.wrappedBean = new TestBean();
-        bean.wrappedBean.foo = "<a>foo</a>";
-        bean.wrappedBean.bar = "<b>bar</b>";
-        bean.wrappedBean.baz = "<i>baz</i>";
+        bean.wrappedBean.foo = "<wa>foo</wa>";
+        bean.wrappedBean.bar = "<wb>bar</wb>";
+        bean.wrappedBean.baz = "<wi>baz</wi>";
         bean.wrappedBean.wrappedBean = bean;
 
         TestBean escaped = ReflectingStringEscaper.escapeDeep(bean);
-        assertEquals(bean, escaped);
+        assertSame(bean, escaped);
         assertEquals("&lt;a&gt;foo&lt;/a&gt;", bean.foo);
         assertEquals("&lt;b&gt;bar&lt;/b&gt;", bean.bar);
         assertEquals("&lt;i&gt;baz&lt;/i&gt;", bean.baz);
 
-        assertEquals("&lt;a&gt;foo&lt;/a&gt;", bean.wrappedBean.foo);
-        assertEquals("&lt;b&gt;bar&lt;/b&gt;", bean.wrappedBean.bar);
-        assertEquals("&lt;i&gt;baz&lt;/i&gt;", bean.wrappedBean.baz);
+        assertEquals("&lt;wa&gt;foo&lt;/wa&gt;", bean.wrappedBean.foo);
+        assertEquals("&lt;wb&gt;bar&lt;/wb&gt;", bean.wrappedBean.bar);
+        assertEquals("&lt;wi&gt;baz&lt;/wi&gt;", bean.wrappedBean.baz);
     }
 
     @Test
@@ -113,19 +152,19 @@ public class ReflectingStringEscaperTest extends AssertJUnit
         bean.bar = "<b>bar</b>";
         bean.baz = "<i>baz</i>";
         bean.wrappedBean = new TestBean();
-        bean.wrappedBean.foo = "<a>foo</a>";
-        bean.wrappedBean.bar = "<b>bar</b>";
-        bean.wrappedBean.baz = "<i>baz</i>";
+        bean.wrappedBean.foo = "<wa>foo</wa>";
+        bean.wrappedBean.bar = "<wb>bar</wb>";
+        bean.wrappedBean.baz = "<wi>baz</wi>";
 
         TestBean escaped = ReflectingStringEscaper.escapeShallowRestricted(bean, "foo", "baz");
-        assertEquals(bean, escaped);
+        assertSame(bean, escaped);
         assertEquals("&lt;a&gt;foo&lt;/a&gt;", bean.foo);
         assertEquals("<b>bar</b>", bean.bar);
         assertEquals("&lt;i&gt;baz&lt;/i&gt;", bean.baz);
 
-        assertEquals("<a>foo</a>", bean.wrappedBean.foo);
-        assertEquals("<b>bar</b>", bean.wrappedBean.bar);
-        assertEquals("<i>baz</i>", bean.wrappedBean.baz);
+        assertEquals("<wa>foo</wa>", bean.wrappedBean.foo);
+        assertEquals("<wb>bar</wb>", bean.wrappedBean.bar);
+        assertEquals("<wi>baz</wi>", bean.wrappedBean.baz);
     }
 
     @Test
@@ -136,18 +175,18 @@ public class ReflectingStringEscaperTest extends AssertJUnit
         bean.bar = "<b>bar</b>";
         bean.baz = "<i>baz</i>";
         bean.wrappedBean = new TestBean();
-        bean.wrappedBean.foo = "<a>foo</a>";
-        bean.wrappedBean.bar = "<b>bar</b>";
-        bean.wrappedBean.baz = "<i>baz</i>";
+        bean.wrappedBean.foo = "<wa>foo</wa>";
+        bean.wrappedBean.bar = "<wb>bar</wb>";
+        bean.wrappedBean.baz = "<wi>baz</wi>";
 
         TestBean escaped = ReflectingStringEscaper.escapeDeepRestricted(bean, "foo", "baz");
-        assertEquals(bean, escaped);
+        assertSame(bean, escaped);
         assertEquals("&lt;a&gt;foo&lt;/a&gt;", bean.foo);
         assertEquals("<b>bar</b>", bean.bar);
         assertEquals("&lt;i&gt;baz&lt;/i&gt;", bean.baz);
 
-        assertEquals("&lt;a&gt;foo&lt;/a&gt;", bean.wrappedBean.foo);
-        assertEquals("<b>bar</b>", bean.wrappedBean.bar);
-        assertEquals("&lt;i&gt;baz&lt;/i&gt;", bean.wrappedBean.baz);
+        assertEquals("&lt;wa&gt;foo&lt;/wa&gt;", bean.wrappedBean.foo);
+        assertEquals("<wb>bar</wb>", bean.wrappedBean.bar);
+        assertEquals("&lt;wi&gt;baz&lt;/wi&gt;", bean.wrappedBean.baz);
     }
 }
