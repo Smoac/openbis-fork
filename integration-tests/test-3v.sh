@@ -298,52 +298,9 @@ function integration_tests {
 }
 
 # -- MAIN ------------
-
 if [ "$1" = "--clean" ]; then
     clean_after_tests
 else
-    install_dss=false
-    install_dmv=false
-    install_openbis=false
-    use_local_source=false
-    reinstall_all=false
-    while [ ! "$1" = "" ]; do
-	case "$1" in
-	    '-e'|'--dss')
-	        install_dss=true
-		;;
-	    '-d'|'--dmv')
-		install_dmv=true
-		;;
-	    '-o'|'--openbis')
-		install_openbis=true
-		;;
-	    '-a'|'--all')
-	        install_dss=true
-		install_dmv=true
-		install_openbis=true
-		;;
-	    '--local-source')
-		use_local_source=true
-		;;
-		'--reinstall-all')
-		reinstall_all=true
-		;;			
-	    '--help')
-		print_help
-		exit 0
-		;;
-		'--assert-content')
-		assert_correct_content
-		exit 0
-		;;
-	    *)
-		echo "Illegal option $1."
-		print_help
-		exit 1
-		;;
-         esac
-	 shift
-    done
+    parse_cli_args $@
     integration_tests $install_dss $install_dmv $install_openbis $use_local_source $reinstall_all
 fi

@@ -27,28 +27,8 @@ function prepare_data {
     chmod -R 700 $MY_DATA/incoming*
 }
 
-function build_and_install_components {
-    local use_local_source=$1
-
-    local install_dss=true
-    local install_dmv=false
-    local install_openbis=true
-    local reinstall_all=false
-    build_and_install $install_dss $install_dmv $install_openbis $use_local_source $reinstall_all
-}
-
-function refresh_components_and_start_openbis {
-    local use_local_source=false
-    local install_dss=false
-    local install_dmv=false
-    local install_openbis=false
-    local reinstall_all=false
-    
-    build_and_install $install_dss $install_dmv $install_openbis $use_local_source $reinstall_all
-}
-
 function build_and_install_yeastx {
-		unzip $INSTALL/datastore_server_plugin-yeastx-*.zip -d $WORK/datastore_server_yeastx
+		unzip -u $INSTALL/datastore_server_plugin-yeastx-*.zip -d $WORK/datastore_server_yeastx
 		chmod_exec $WORK/datastore_server_yeastx/takeCifsOwnershipRecursive.sh
 		
 		prepare_data
@@ -203,7 +183,9 @@ function assert_correct_incoming_contents {
 }
 
 function integration_tests_yeastx {
-	build_and_install_yeastx
+    build_and_install $@
+	  build_and_install_yeastx
+	
     switch_dss "on" datastore_server_yeastx
 
 		sleep 90
@@ -214,21 +196,11 @@ function integration_tests_yeastx {
     exit_if_assertion_failed
 }
 
-function build_from_local_source_and_test {
-	build_and_install_components true
-	integration_tests_yeastx
-}
 
-function build_from_svn_source_and_test {
-	build_and_install_components false
-	integration_tests_yeastx
-}
-
-# can be called only if the build has been already done 
-function test_without_build {
-	refresh_components_and_start_openbis
-	integration_tests_yeastx
-}
-
-test_without_build
-#build_from_local_source_and_test
+# -- MAIN ------------
+if [ "$1" = "--clean" ]; then
+    clean_after_tests
+else
+    parse_cli_args $@
+    integration_tests_yeastx $install_dss $install_dmv $install_openbis $use_local_source $reinstall_all
+fi

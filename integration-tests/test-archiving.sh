@@ -26,7 +26,7 @@ source common.bash
 
 # ----- local constants --------------------
 
-TIME_TO_COMPLETE=60 # time (in seconds) needed by the whole pipeline to process everything
+TIME_TO_COMPLETE=90 # time (in seconds) needed by the whole pipeline to process everything
 TEST_DATA_DIR=templates/data-archiving
 ARCHIVE_DIR=/tmp/integration-tests/archiving/rsync-archive
 ARCHIVE_DATASET=ARCHIVE_DATASET
@@ -213,32 +213,6 @@ function integration_test {
     exit_if_assertion_failed
 }
 
-
-
-
-#
-# ------ CLI utility/HELP functions ----------------
-#
-function print_help {
-    echo "Usage: $0 [ (--dss | --openbis)* | --all [ --local-source ]]"
-    echo "	--dss, --openbis, build chosen components only"
-    echo "	--all 			build all components"
-    echo "	--local-source		use local source code during building process instead of downloading it from svn"
-    echo "	--reinstall-all		reinstalls all packeges new from the zip file which is in the installation direcory (also reinstall the packages which are not build)"  
-    echo "	--clean			clean and exit"
-    echo "	--help			displays this help"
-    echo "If no option is given, integration tests will be restarted without building anything."
-    echo "Examples:"
-    echo "- Rebuild everything, fetch sources from svn:"
-    echo "	$0 --all"
-    echo "- Use openbis server and client installation from previous tests, rebuild data store server using local source:"
-    echo "	$0 --dss --local-source"
-    echo "- Rebuild data store server only fetching sources from svn:"
-    echo "	$0 --dss"
-}
-
-
-
 #
 # -- MAIN (copied from)------------
 #
@@ -246,45 +220,6 @@ function print_help {
 if [ "$1" = "--clean" ]; then
     clean_after_tests
 else
-    install_dss=false
-    install_dmv=false
-    install_openbis=false
-    use_local_source=false
-    reinstall_all=false
-    while [ ! "$1" = "" ]; do
-	case "$1" in
-	    '-e'|'--dss')
-	        install_dss=true
-		;;
-	    '-d'|'--dmv')
-		      install_dmv=true
-		;;
-		
-	    '-o'|'--openbis')
-		      install_openbis=true
-		;;
-	    '-a'|'--all')
-	        install_dss=true
-	        install_dmv=true
-		      install_openbis=true
-		;;
-	    '--local-source')
-		    use_local_source=true
-		;;
-		'--reinstall-all')
-		    reinstall_all=true
-		;;			
-	    '--help')
-		   print_help
-		exit 0
-		;;
-	    *)
-		echo "Illegal option $1."
-		print_help
-		exit 1
-		;;
-         esac
-	 shift
-    done
+    parse_cli_args $@
     integration_test $install_dss $install_dmv $install_openbis $use_local_source $reinstall_all
 fi
