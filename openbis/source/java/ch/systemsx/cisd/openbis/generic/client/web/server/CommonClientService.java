@@ -40,6 +40,7 @@ import ch.systemsx.cisd.common.parser.ParserException;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.spring.IUncheckedMultipartFile;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
+import ch.systemsx.cisd.common.utilities.ReflectingStringUnescaper;
 import ch.systemsx.cisd.common.utilities.UnicodeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ArchivingResult;
@@ -513,7 +514,8 @@ public final class CommonClientService extends AbstractClientService implements
         return prepareExportEntities(criteria);
     }
 
-    public String prepareExportRoleAssignments(TableExportCriteria<TableModelRowWithObject<RoleAssignment>> criteria)
+    public String prepareExportRoleAssignments(
+            TableExportCriteria<TableModelRowWithObject<RoleAssignment>> criteria)
     {
         return prepareExportEntities(criteria);
     }
@@ -2144,6 +2146,10 @@ public final class CommonClientService extends AbstractClientService implements
     {
         try
         {
+            // WORKAROUND Need to unescape table model that was provided by the client.
+            // The table model will be sent back to client and escaped. Without unescaping here
+            // it would be escaped twice.
+            ReflectingStringUnescaper.unescapeDeep(tableModel);
             String resultSetKey = saveReportInCache(tableModel);
             return new TableModelReference(resultSetKey, tableModel.getHeader());
         } catch (final UserFailureException e)
