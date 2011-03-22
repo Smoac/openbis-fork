@@ -85,7 +85,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTranslator;
  * 
  * @author Christian Ribeaud
  */
-@Friend(toClasses=AbstractClientService.class)
+@Friend(toClasses=CommonClientService.class)
 public final class CommonClientServiceTest extends AbstractClientServiceTest
 {
     private static final String DATA_STORE_BASE_URL = "baseURL";
