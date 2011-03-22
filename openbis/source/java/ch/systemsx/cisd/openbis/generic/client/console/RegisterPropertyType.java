@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.client.console;
 
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
@@ -39,12 +41,13 @@ public class RegisterPropertyType implements ICommand
         {
             throw new IllegalArgumentException("'with data type' misspelled");
         }
-        propertyType.setCode(argument.substring(0, indexOfWithDataType));
-
-        // propertyType.setLabel(label);
-        // propertyType.setDescription(description);
-        // DataTypeCode dataType = DataTypeCode.valueOf(dataTypeCode);
-        // propertyType.setDataType(new DataType(dataType));
+        String propertyCode = argument.substring(0, indexOfWithDataType);
+        propertyType.setCode(propertyCode);
+        String dataTypeCode = argument.substring(indexOfWithDataType + WITH_DATA_TYPE.length());
+        propertyType.setLabel(propertyCode);
+        propertyType.setDescription(" ");
+        DataTypeCode dataType = DataTypeCode.valueOf(dataTypeCode);
+        propertyType.setDataType(new DataType(dataType));
         server.registerPropertyType(sessionToken, propertyType);
 
     }
