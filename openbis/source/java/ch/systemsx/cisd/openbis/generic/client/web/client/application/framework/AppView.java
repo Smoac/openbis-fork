@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Footer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SimpleModeHeader;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ViewMode;
 
 /**
  * Main application view.
@@ -45,8 +46,6 @@ final class AppView extends View
     private Viewport viewport;
 
     private IMainPanel mainPanel;
-
-    private LayoutContainer north;
 
     private ComponentProvider componentProvider;
 
@@ -79,15 +78,31 @@ final class AppView extends View
 
     private final void createNorth()
     {
-        if (viewContext.isSimpleMode())
+        LayoutContainer north;
+        ViewMode viewMode = getViewMode();
+        if (viewMode == ViewMode.SIMPLE)
         {
             north = new SimpleModeHeader(viewContext, componentProvider);
-        } else
+        } else if (viewMode == ViewMode.NORMAL)
         {
             north = new TopMenu(viewContext, componentProvider);
+        } else if (viewMode == ViewMode.SIMPLE_EMBEDDED)
+        {
+            north = null;
+        } else
+        {
+            throw new IllegalStateException("Unknown view mode " + viewMode);
         }
-        final BorderLayoutData data = new BorderLayoutData(LayoutRegion.NORTH, 30);
-        viewport.add(north, data);
+        if (north != null)
+        {
+            final BorderLayoutData data = new BorderLayoutData(LayoutRegion.NORTH, 30);
+            viewport.add(north, data);
+        }
+    }
+
+    private ViewMode getViewMode()
+    {
+        return viewContext.getModel().getViewMode();
     }
 
     private final void createCenter()
@@ -100,9 +115,12 @@ final class AppView extends View
 
     private final void createSouth()
     {
-        final Footer footer = new Footer(viewContext);
-        final BorderLayoutData data = new BorderLayoutData(LayoutRegion.SOUTH, 20);
-        viewport.add(footer, data);
+        if (getViewMode() != ViewMode.SIMPLE_EMBEDDED)
+        {
+            final Footer footer = new Footer(viewContext);
+            final BorderLayoutData data = new BorderLayoutData(LayoutRegion.SOUTH, 20);
+            viewport.add(footer, data);
+        }
     }
 
     //
@@ -124,7 +142,7 @@ final class AppView extends View
         } else if (event.getType() == AppEvents.NAVI_EVENT)
         {
             activate(getData(event));
-        } 
+        }
     }
 
     private static IMainPanel createMainPanel(IViewContext<ICommonClientServiceAsync> viewContext)

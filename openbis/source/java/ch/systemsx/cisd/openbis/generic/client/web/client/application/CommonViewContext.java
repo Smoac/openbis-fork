@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDele
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.log.IProfilingTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.log.ProfilingTable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ViewMode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;
 
@@ -46,7 +47,7 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
      */
     public final static class ClientStaticState
     {
-        private static boolean simpleViewMode;
+        private static ViewMode viewMode;
 
         private static String pageTitleSuffix;
 
@@ -61,12 +62,12 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
         @Deprecated
         public static boolean isSimpleMode()
         {
-            return simpleViewMode;
+            return viewMode != ViewMode.NORMAL;
         }
 
-        public static void setSimpleMode(boolean simpleMode)
+        public static void setViewMode(ViewMode viewModeParam)
         {
-            simpleViewMode = simpleMode;
+            viewMode = viewModeParam;
         }
 
         public static String getPageTitleSuffix()
@@ -134,7 +135,7 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
     {
         return AbstractPluginViewContext.getPropertyOrNull(this, key);
     }
-    
+
     public final GenericViewModel getModel()
     {
         return viewModel;

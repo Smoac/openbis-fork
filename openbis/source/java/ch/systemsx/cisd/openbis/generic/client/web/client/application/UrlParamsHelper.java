@@ -16,6 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import com.google.gwt.user.client.History;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.OpenViewAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorResolverRegistry;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -34,14 +39,22 @@ public final class UrlParamsHelper
         URLMethodWithParameters methodWithParameters =
                 new URLMethodWithParameters(GenericConstants.TEMPLATE_SERVLET_NAME);
         methodWithParameters.addParameter(GenericConstants.ENTITY_KIND_KEY_PARAMETER, kind.name());
-        methodWithParameters.addParameter(GenericConstants.ENTITY_TYPE_KEY_PARAMETER, type
-                .getCode());
+        methodWithParameters.addParameter(GenericConstants.ENTITY_TYPE_KEY_PARAMETER,
+                type.getCode());
         methodWithParameters.addParameter(GenericConstants.AUTO_GENERATE, withCodes);
         methodWithParameters.addParameter(GenericConstants.WITH_EXPERIMENTS, withExperiments);
-        methodWithParameters.addParameter(GenericConstants.BATCH_OPERATION_KIND, operationKind
-                .name());
+        methodWithParameters.addParameter(GenericConstants.BATCH_OPERATION_KIND,
+                operationKind.name());
         methodWithParameters.addParameter("timestamp", Long.toString(System.currentTimeMillis()));
         return methodWithParameters.toString();
     }
 
+    /** Creates an action which opens a page pointed by the current URL. */
+    public static OpenViewAction createNavigateToCurrentUrlAction(IViewContext<?> viewContext)
+    {
+        ViewLocatorResolverRegistry resolver = viewContext.getLocatorResolverRegistry();
+        ViewLocator viewLocator = new ViewLocator(History.getToken());
+        OpenViewAction openViewAction = new OpenViewAction(resolver, viewLocator);
+        return openViewAction;
+    }
 }

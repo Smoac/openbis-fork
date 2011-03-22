@@ -60,4 +60,20 @@ public class ViewLocatorResolverRegistry
         }
     }
 
+    /**
+     * @return true if the locator can be resolved by one of the handlers.
+     * @exception UserFailureException Might be thrown by the handler.
+     */
+    public boolean canResolve(ViewLocator locator) throws UserFailureException
+    {
+        for (IViewLocatorResolver handler : handlers)
+        {
+            if (handler.canHandleLocator(locator))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

@@ -38,6 +38,12 @@ public class OpenViewAction implements IDelegatedAction
         this.viewLocator = viewLocator;
     }
 
+    /** @return true if executing this action would not result in opening any view */
+    public boolean isEmpty()
+    {
+        return registry.canResolve(viewLocator) == false;
+    }
+
     public void execute()
     {
         openView();

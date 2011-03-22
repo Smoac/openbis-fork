@@ -35,7 +35,7 @@ public class OpenViewCommand extends AbstractDefaultTestCommand
     {
         super();
         this.client = client;
-        this.locator = Client.createViewLocator(urlParams);
+        this.locator = new ViewLocator(urlParams);
     }
 
     public void execute()

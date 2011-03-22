@@ -18,17 +18,20 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ViewMode;
 
 /**
  * The view model.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public class GenericViewModel
 {
     private ApplicationInfo applicationInfo;
 
     private SessionContext sessionContext;
+
+    private ViewMode viewMode;
 
     public final ApplicationInfo getApplicationInfo()
     {
@@ -50,4 +53,13 @@ public class GenericViewModel
         this.sessionContext = sessionContext;
     }
 
+    public ViewMode getViewMode()
+    {
+        return viewMode;
+    }
+
+    public void setViewMode(ViewMode viewMode)
+    {
+        this.viewMode = viewMode;
+    }
 }

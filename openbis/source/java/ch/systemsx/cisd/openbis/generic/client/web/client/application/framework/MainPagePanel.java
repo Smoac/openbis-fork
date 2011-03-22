@@ -24,6 +24,7 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.UrlParamsHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 
 /**
@@ -47,7 +48,10 @@ public class MainPagePanel extends ContentPanel implements IMainPanel
         setBodyBorder(false);
         setBorders(false);
         setHeaderVisible(false);
-        add(createWelcomePanel());
+        if (UrlParamsHelper.createNavigateToCurrentUrlAction(viewContext).isEmpty())
+        {
+            add(createWelcomePanel());
+        }
     }
 
     private final Component createWelcomePanel()

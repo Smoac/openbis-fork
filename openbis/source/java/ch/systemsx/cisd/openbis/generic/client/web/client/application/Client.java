@@ -42,11 +42,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.Br
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.GlobalSearchLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.HomeLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.MaterialLocatorResolver;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.OpenViewAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.PermlinkLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ProjectLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.SearchLocatorResolver;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorResolverRegistry;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.DefaultClientPluginFactoryProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactoryProvider;
@@ -180,7 +178,6 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
             viewContext = createViewContext(openUrlController);
             initializeControllers(openUrlController);
         }
-        final ViewLocator locator = createViewLocator(History.getToken());
         History.addValueChangeHandler(this); // both modes
 
         final IClientServiceAsync service = getServiceForRetrievingApplicationInfo(viewContext);
@@ -194,18 +191,20 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
                 @Override
                 public final void process(final ApplicationInfo info)
                 {
-                    setViewMode(info);
-                    viewContext.getModel().setApplicationInfo(info);
+                    ViewMode viewMode = findViewMode(info);
+                    ClientStaticState.setViewMode(viewMode);
+                    GenericViewModel model = viewContext.getModel();
+                    model.setApplicationInfo(info);
+                    model.setViewMode(viewMode);
                     // the callback sets the SessionContext and redirects to the login page or the
                     // initial page and may additionaly open an initial tab
                     SessionContextCallback sessionContextCallback =
                             new SessionContextCallback((CommonViewContext) viewContext,
-                                    new OpenViewAction(viewContext.getLocatorResolverRegistry(),
-                                            locator));
+                                    UrlParamsHelper.createNavigateToCurrentUrlAction(viewContext));
                     service.tryToGetCurrentSessionContext(sessionContextCallback);
                 }
 
-                private void setViewMode(ApplicationInfo info)
+                private ViewMode findViewMode(ApplicationInfo info)
                 {
                     // if view mode is specified in the URL it should override the default one
                     final ViewMode userViewModeOrNull = tryGetUrlViewMode();
@@ -213,8 +212,7 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
                             userViewModeOrNull != null ? userViewModeOrNull : info
                                     .getWebClientConfiguration().getDefaultViewMode();
                     viewContext.log("viewMode = " + viewMode);
-                    final boolean simpleMode = viewMode == ViewMode.SIMPLE;
-                    ClientStaticState.setSimpleMode(simpleMode);
+                    return viewMode;
                 }
 
                 private ViewMode tryGetUrlViewMode()
@@ -233,11 +231,6 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
                     return null;
                 }
             });
-    }
-
-    public static ViewLocator createViewLocator(String historyToken)
-    {
-        return new ViewLocator(historyToken);
     }
 
     protected IClientServiceAsync getServiceForRetrievingApplicationInfo(
@@ -379,10 +372,7 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
 
     public void onValueChange(ValueChangeEvent<String> event)
     {
-        ViewLocatorResolverRegistry resolver = viewContext.getLocatorResolverRegistry();
-        ViewLocator viewLocator = createViewLocator(History.getToken());
-        OpenViewAction openViewAction = new OpenViewAction(resolver, viewLocator);
-        openViewAction.execute();
+        UrlParamsHelper.createNavigateToCurrentUrlAction(viewContext).execute();
     }
 
 }
