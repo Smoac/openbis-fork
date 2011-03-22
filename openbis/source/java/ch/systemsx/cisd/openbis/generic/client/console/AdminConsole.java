@@ -32,14 +32,11 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class AdminConsole
 {
     private static final String SERVICE_PATH = "/rmi-common";
-
 
     public static void main(String[] args) throws Exception
     {
@@ -52,16 +49,18 @@ public class AdminConsole
         String serverURL = args[0];
         String script = args[1];
         String userID = args[2];
-        
+
         String password;
         if (args.length == 4)
         {
-            password =args[3];
+            password = args[3];
         } else
         {
             password = getConsoleReader().readLine("Password: ", Character.valueOf('*'));
         }
-        ICommonServer service = HttpInvokerUtils.createServiceStub(ICommonServer.class, serverURL + SERVICE_PATH, 5);
+        ICommonServer service =
+                HttpInvokerUtils
+                        .createServiceStub(ICommonServer.class, serverURL + SERVICE_PATH, 5);
 
         SessionContextDTO session = service.tryToAuthenticate(userID, password);
         if (session == null)
@@ -73,7 +72,9 @@ public class AdminConsole
             Map<String, ICommand> commands = createCommands();
             String sessionToken = session.getSessionToken();
             List<String> lines = FileUtilities.loadToStringList(new File(script));
-            ScriptContext context = new ScriptContext(ExtendedProperties.getSubset(System.getProperties(), "openbis.", true));
+            ScriptContext context =
+                    new ScriptContext(ExtendedProperties.getSubset(System.getProperties(),
+                            "openbis.", true));
             for (int i = 0; i < lines.size(); i++)
             {
                 String line = lines.get(i).trim();
@@ -102,11 +103,10 @@ public class AdminConsole
             service.logout(sessionToken);
         }
     }
-    
+
     private static void printError(int lineIndex, String line, Object reason)
     {
-        String message = "Error in line " + (lineIndex + 1) + " [" + line
-                + "]\nReason: " + reason;
+        String message = "Error in line " + (lineIndex + 1) + " [" + line + "]\nReason: " + reason;
         System.err.println(message);
     }
 
@@ -117,11 +117,10 @@ public class AdminConsole
             return new ConsoleReader();
         } catch (final IOException ex)
         {
-            throw new EnvironmentFailureException("ConsoleReader could not be instantiated.",
-                    ex);
+            throw new EnvironmentFailureException("ConsoleReader could not be instantiated.", ex);
         }
     }
-    
+
     private static Map<String, ICommand> createCommands()
     {
         HashMap<String, ICommand> map = new HashMap<String, ICommand>();
