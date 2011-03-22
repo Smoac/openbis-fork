@@ -1467,7 +1467,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 return createInformationHolder(entityKind, permId, getDAOFactory().getPermIdDAO()
                         .tryToFindByPermId(permId, DtoConverters.convertEntityKind(entityKind)));
             case MATERIAL:
-                break;
+                MaterialIdentifier identifier = MaterialIdentifier.tryParseIdentifier(permId);
+                return getMaterialInformationHolder(sessionToken, identifier);
         }
         throw UserFailureException.fromTemplate("Operation not available for "
                 + entityKind.getDescription() + "s");

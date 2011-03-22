@@ -1080,5 +1080,7 @@ public abstract class Dict
 
     public static final String WARNING_NO_SCRIPT_MESSAGE = "warning_no_script_message";
 
+    public static final String LAST_VISITS = "last_visits";
+
     // ----- end generic ------------------
 }

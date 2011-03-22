@@ -16,11 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
+import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.HistoryWidget;
 
 /**
  * Helper methods for creating a panel with welcome information.
@@ -35,10 +38,15 @@ public class WelcomePanelHelper
 
     public static final Component createWelcomePanel(IViewContext<?> viewContext, String idPrefix)
     {
-        final LayoutContainer layoutContainer = new LayoutContainer(new FitLayout());
+        final LayoutContainer layoutContainer = new LayoutContainer(new BorderLayout());
+        layoutContainer.setStyleAttribute("background-color", "white");
         layoutContainer.setId(idPrefix + "welcome");
+        if (viewContext.getDisplaySettingsManager().getVisits().isEmpty() == false)
+        {
+            layoutContainer.add(new HistoryWidget(viewContext), new BorderLayoutData(LayoutRegion.WEST, 0.3f));
+        }
         HtmlPage welcomePage = new HtmlPage(getWelcomePageBaseName(viewContext));
-        layoutContainer.add(welcomePage);
+        layoutContainer.add(welcomePage, new BorderLayoutData(LayoutRegion.CENTER, 1f));
         return layoutContainer;
     }
 

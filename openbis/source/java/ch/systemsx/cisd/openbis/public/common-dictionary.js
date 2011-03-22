@@ -743,6 +743,11 @@ show_details: "Show",
 evaluation_in_progress: "Evaluation in progress...",
 warning_no_script_title: "Empty script",
 warning_no_script_message: "No script provided",
+
+//
+// History Widget
+//
+last_visits: "Last Visited Entities",
  
  // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

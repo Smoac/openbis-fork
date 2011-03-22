@@ -18,7 +18,8 @@ package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -42,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IRemoteHostValidator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExpressionValidator;
+import ch.systemsx.cisd.openbis.generic.shared.basic.EntityVisitComparatorByTimeStamp;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -362,15 +364,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
             if (person != null)
             {
                 List<EntityVisit> visits = joinVisits(displaySettings, person);
-                Collections.sort(visits, new Comparator<EntityVisit>()
-                    {
-                        public int compare(EntityVisit o1, EntityVisit o2)
-                        {
-                            long t1 = o1.getTimeStamp();
-                            long t2 = o2.getTimeStamp();
-                            return t1 < t2 ? 1 : (t1 > t2 ? -1 : 0);
-                        }
-                    });
+                sortAndRemoveMultipleVisits(visits);
                 for (int i = visits.size() - 1; i >= maxEntityVisits; i--)
                 {
                     visits.remove(i);
@@ -381,6 +375,22 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         } catch (InvalidSessionException e)
         {
             // ignore the situation when session is not available
+        }
+    }
+
+    private void sortAndRemoveMultipleVisits(List<EntityVisit> visits)
+    {
+        Collections.sort(visits, new EntityVisitComparatorByTimeStamp());
+        Set<String> permIds = new HashSet<String>();
+        for (Iterator<EntityVisit> iterator = visits.iterator(); iterator.hasNext();)
+        {
+            EntityVisit entityVisit = iterator.next();
+            String permID = entityVisit.getPermID();
+            if (permIds.contains(permID))
+            {
+                iterator.remove();
+            }
+            permIds.add(permID);
         }
     }
 

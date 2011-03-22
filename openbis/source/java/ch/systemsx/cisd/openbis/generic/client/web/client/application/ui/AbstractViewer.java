@@ -47,7 +47,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDele
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithProperties;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityVisit;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 
@@ -184,6 +186,12 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
     /** Updates data displayed in the browser (needed to open editor view). */
     protected void updateOriginalData(D newData)
     {
+        if (newData instanceof IEntityInformationHolderWithIdentifier)
+        {
+            IEntityInformationHolderWithIdentifier entity = (IEntityInformationHolderWithIdentifier) newData;
+            EntityVisit entityVisit = new EntityVisit(entity);
+            viewContext.getDisplaySettingsManager().rememberVisit(entityVisit);
+        }
         this.originalData = newData;
         this.displayIdSuffix = newData.getEntityType().getCode();
         updateTitle(getOriginalDataDescription());

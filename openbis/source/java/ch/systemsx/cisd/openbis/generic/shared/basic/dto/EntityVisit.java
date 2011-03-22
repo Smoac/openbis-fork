@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
@@ -37,6 +38,19 @@ public class EntityVisit implements ISerializable
     private String permID;
     
     private long timeStamp;
+    
+    public EntityVisit()
+    {
+    }
+
+    public EntityVisit(IEntityInformationHolderWithIdentifier entity)
+    {
+        setEntityKind(entity.getEntityKind().toString());
+        setEntityTypeCode(entity.getEntityType().getCode());
+        setIdentifier(entity.getIdentifier());
+        setPermID(entity.getPermId());
+        setTimeStamp(System.currentTimeMillis());
+    }
 
     public String getEntityKind()
     {
