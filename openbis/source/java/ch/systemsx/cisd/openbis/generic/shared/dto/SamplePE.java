@@ -382,9 +382,9 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     private Long getContainerId()
     {
         Long result = null;
-        if (getExperimentInternal() != null)
+        if (getContainer() != null)
         {
-            result = HibernateUtils.getId(getExperimentInternal());
+            result = HibernateUtils.getId(getContainer());
             assert result != null;
         }
         return result;

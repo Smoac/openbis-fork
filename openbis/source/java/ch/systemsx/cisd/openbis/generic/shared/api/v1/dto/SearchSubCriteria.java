@@ -27,6 +27,11 @@ public class SearchSubCriteria implements Serializable
         return new SearchSubCriteria(SearchableEntityKind.SAMPLE_PARENT, criteria);
     }
 
+    public static SearchSubCriteria createSampleChildCriteria(SearchCriteria criteria)
+    {
+        return new SearchSubCriteria(SearchableEntityKind.SAMPLE_CHILD, criteria);
+    }
+
     public static SearchSubCriteria createSampleContainerCriteria(SearchCriteria criteria)
     {
         return new SearchSubCriteria(SearchableEntityKind.SAMPLE_CONTAINER, criteria);

@@ -66,8 +66,10 @@ public interface ISampleLister
     public List<SampleRelationShipSkeleton> listSampleRelationShipsBy(
             IValidator<SampleRelationShipSkeleton> criteria);
 
-    public Map<Long, Set<Long>> listParentIds(Collection<Long> childrenIds);
+    /** Returns a map from child id to set of parents ids for specified children. */
+    public Map<Long, Set<Long>> getChildToParentsIdsMap(Collection<Long> childrenIds);
 
-    public Map<Long, Set<Long>> listChildrenIds(Collection<Long> parentIds);
+    /** Returns a map from parent id to set of children ids for specified parents. */
+    public Map<Long, Set<Long>> getParentToChildrenIdsMap(Collection<Long> parentIds);
 
 }

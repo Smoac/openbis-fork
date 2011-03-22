@@ -19,12 +19,12 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.detailed;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants.CODE;
 
 import ch.systemsx.cisd.common.exceptions.InternalErr;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AssociatedEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeSearchFieldKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AssociatedEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 
 /**
@@ -56,11 +56,12 @@ class IndexFieldNameHelper
             case SAMPLE_CONTAINER:
                 if (entityKind == EntityKind.SAMPLE)
                 {
-                    return SearchFieldConstants.SAMPLE_ID;
+                    return SearchFieldConstants.CONTAINER_ID;
                 }
                 throw createAssociationNotHandledException(entityKind, associationKind);
             case SAMPLE_PARENT:
-                // sample parent is a many-to-many connection - it is not handled by lucene index
+            case SAMPLE_CHILD:
+                // parent-child is a many-to-many connection - it is not handled by lucene index
                 throw createAssociationNotHandledException(entityKind, associationKind);
         }
         return null; // shouldn't happen

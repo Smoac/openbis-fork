@@ -59,6 +59,7 @@ class SearchCriteriaToDetailedSearchCriteriaTranslator
         translators.put(SearchableEntityKind.EXPERIMENT, new ExperimentAttributeTranslator());
         translators.put(SearchableEntityKind.SAMPLE, new SampleAttributeTranslator());
         translators.put(SearchableEntityKind.SAMPLE_PARENT, new SampleAttributeTranslator());
+        translators.put(SearchableEntityKind.SAMPLE_CHILD, new SampleAttributeTranslator());
         translators.put(SearchableEntityKind.SAMPLE_CONTAINER, new SampleAttributeTranslator());
     }
 
@@ -74,7 +75,8 @@ class SearchCriteriaToDetailedSearchCriteriaTranslator
                 attribute, entityKind));
     }
 
-    private static AssociatedEntityKind convertToAssociatedEntityKind(SearchableEntityKind entityKind)
+    private static AssociatedEntityKind convertToAssociatedEntityKind(
+            SearchableEntityKind entityKind)
     {
         switch (entityKind)
         {
@@ -86,6 +88,8 @@ class SearchCriteriaToDetailedSearchCriteriaTranslator
                 return AssociatedEntityKind.SAMPLE_CONTAINER;
             case SAMPLE_PARENT:
                 return AssociatedEntityKind.SAMPLE_PARENT;
+            case SAMPLE_CHILD:
+                return AssociatedEntityKind.SAMPLE_CHILD;
         }
         return null; // can't happen
     }

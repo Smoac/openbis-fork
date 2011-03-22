@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.systemtest.api.v1;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import java.util.ArrayList;
@@ -168,6 +169,36 @@ public class GeneralInformationServiceTest extends SystemTestCase
         sc.addSubCriteria(SearchSubCriteria.createSampleParentCriteria(pc));
         List<Sample> result = generalInformationService.searchForSamples(sessionToken, sc);
         assertEquals(2, result.size());
+    }
+
+    @Test
+    public void testSearchForSamplesByChildCode()
+    {
+        // Search for Samples with only child's code limiting the results
+        SearchCriteria sc = new SearchCriteria();
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "*"));
+        SearchCriteria cc = new SearchCriteria();
+        cc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "3VCP*"));
+        sc.addSubCriteria(SearchSubCriteria.createSampleChildCriteria(cc));
+        List<Sample> result = generalInformationService.searchForSamples(sessionToken, sc);
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    public void testSearchForSamplesByContainerCode()
+    {
+        // Search for Samples with only container's code limiting the results
+        SearchCriteria sc = new SearchCriteria();
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "*"));
+        SearchCriteria cc = new SearchCriteria();
+        cc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "CL1"));
+        sc.addSubCriteria(SearchSubCriteria.createSampleContainerCriteria(cc));
+        List<Sample> result = generalInformationService.searchForSamples(sessionToken, sc);
+        assertEquals(2, result.size());
+        for (Sample s : result)
+        {
+            assertTrue(s.getCode() + "doesn't start with 'CL1:'", s.getCode().startsWith("CL1:"));
+        }
     }
 
     @Test

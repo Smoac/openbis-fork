@@ -265,6 +265,30 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
     }
 
     @Test
+    public void testSearchForSamplesWithChild()
+    {
+        prepareGetSession();
+        final RecordingMatcher<DetailedSearchCriteria> detailedSearchCriteriaMatcher =
+                RecordingMatcher.create();
+        final RecordingMatcher<List<DetailedSearchSubCriteria>> detailedSearchSubCriteriaMatcher =
+                RecordingMatcher.create();
+        prepareSearchForSamples(detailedSearchCriteriaMatcher, detailedSearchSubCriteriaMatcher);
+        List<Sample> result =
+                service.searchForSamples(SESSION_TOKEN, createSearchCriteriaForSampleWithChild());
+        assertEquals(1, result.size());
+        Sample resultSample = result.get(0);
+        assertEquals("/space/code", resultSample.getIdentifier());
+        assertEquals("ATTRIBUTE CODE: a code AND "
+                + "PROPERTY MY_PROPERTY2: a property value (with wildcards)",
+                detailedSearchCriteriaMatcher.recordedObject().toString());
+        // check parent subcriteria
+        assertEquals("[SAMPLE_CHILD: ATTRIBUTE CODE: child code AND "
+                + "PROPERTY CHILD_PROPERTY: child property value (with wildcards)]",
+                detailedSearchSubCriteriaMatcher.recordedObject().toString());
+        context.assertIsSatisfied();
+    }
+
+    @Test
     public void testSearchForSamplesWithContainer()
     {
         prepareGetSession();
@@ -498,6 +522,14 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
         return sc;
     }
 
+    private SearchCriteria createSearchCriteriaForSampleChild()
+    {
+        SearchCriteria sc = new SearchCriteria();
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "child code"));
+        sc.addMatchClause(MatchClause.createPropertyMatch("CHILD_PROPERTY", "child property value"));
+        return sc;
+    }
+
     private SearchCriteria createSearchCriteriaForSampleContainer()
     {
         SearchCriteria sc = new SearchCriteria();
@@ -531,6 +563,14 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
         SearchCriteria mainCriteria = createSearchCriteriaForSample();
         SearchCriteria parentCriteria = createSearchCriteriaForSampleParent();
         mainCriteria.addSubCriteria(SearchSubCriteria.createSampleParentCriteria(parentCriteria));
+        return mainCriteria;
+    }
+
+    private SearchCriteria createSearchCriteriaForSampleWithChild()
+    {
+        SearchCriteria mainCriteria = createSearchCriteriaForSample();
+        SearchCriteria childCriteria = createSearchCriteriaForSampleChild();
+        mainCriteria.addSubCriteria(SearchSubCriteria.createSampleChildCriteria(childCriteria));
         return mainCriteria;
     }
 

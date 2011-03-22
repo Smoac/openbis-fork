@@ -120,7 +120,7 @@ public class SampleLister implements ISampleLister
         return result;
     }
 
-    public Map<Long, Set<Long>> listParentIds(Collection<Long> childrenIds)
+    public Map<Long, Set<Long>> getChildToParentsIdsMap(Collection<Long> childrenIds)
     {
         LongOpenHashSet ids = new LongOpenHashSet();
         for (Long id : childrenIds)
@@ -145,7 +145,7 @@ public class SampleLister implements ISampleLister
         return map;
     }
 
-    public Map<Long, Set<Long>> listChildrenIds(Collection<Long> parentIds)
+    public Map<Long, Set<Long>> getParentToChildrenIdsMap(Collection<Long> parentIds)
     {
         LongOpenHashSet ids = new LongOpenHashSet();
         for (Long id : parentIds)

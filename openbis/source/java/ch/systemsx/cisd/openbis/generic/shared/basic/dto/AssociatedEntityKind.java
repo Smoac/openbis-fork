@@ -32,7 +32,9 @@ public enum AssociatedEntityKind implements ISerializable
 
     SAMPLE_CONTAINER("Container", EntityKind.SAMPLE),
 
-    SAMPLE_PARENT("Parent", EntityKind.SAMPLE);
+    SAMPLE_PARENT("Parent", EntityKind.SAMPLE),
+
+    SAMPLE_CHILD("Child", EntityKind.SAMPLE);
 
     private final String description;
 

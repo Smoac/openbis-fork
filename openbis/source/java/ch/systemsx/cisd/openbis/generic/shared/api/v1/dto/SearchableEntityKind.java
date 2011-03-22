@@ -9,5 +9,5 @@ public enum SearchableEntityKind
 {
     SAMPLE, EXPERIMENT,
     // sample subcriteria
-    SAMPLE_CONTAINER, SAMPLE_PARENT, // SAMPLE_CHILD
+    SAMPLE_CONTAINER, SAMPLE_PARENT, SAMPLE_CHILD
 }

@@ -59,60 +59,110 @@ public class DetailedSearchManager
             List<DetailedSearchSubCriteria> subCriterias) throws DataAccessException
     {
         final DetailedSearchCriteria parentCriteria = new DetailedSearchCriteria();
+        final DetailedSearchCriteria childCriteria = new DetailedSearchCriteria();
         final List<DetailedSearchSubCriteria> otherSubCriterias =
                 new ArrayList<DetailedSearchSubCriteria>();
-        groupSampleSubCriteria(subCriterias, parentCriteria, otherSubCriterias);
+        groupSampleSubCriteria(subCriterias, parentCriteria, childCriteria, otherSubCriterias);
 
         final List<Long> mainSampleIds = findSampleIds(criteria, otherSubCriterias);
 
-        final Set<Long> filteredSampleIds;
-        if (parentCriteria.isEmpty())
-        {
-            filteredSampleIds = new HashSet<Long>(mainSampleIds);
-        } else
+        final Set<Long> filteredSampleIds = new HashSet<Long>();
+        if (false == parentCriteria.isEmpty())
         {
             final List<Long> parentSampleIds =
                     findSampleIds(parentCriteria,
                             Collections.<DetailedSearchSubCriteria> emptyList());
-
-            filteredSampleIds = new HashSet<Long>();
-
             if (mainSampleIds.size() > parentSampleIds.size())
             {
-                // search for connections
-                Map<Long, Set<Long>> parentToChildIds =
-                        sampleLister.listChildrenIds(parentSampleIds);
-                for (Set<Long> childrenIds : parentToChildIds.values())
-                {
-                    filteredSampleIds.addAll(childrenIds);
-                }
-                // filter main parents
-                filteredSampleIds.retainAll(mainSampleIds);
+                listParentsChildrenAndFilterChildren(mainSampleIds, parentSampleIds,
+                        filteredSampleIds);
             } else
             {
-                // search for connections
-                Map<Long, Set<Long>> childToParentIds = sampleLister.listParentIds(mainSampleIds);
-
-                // filter main parents
-                for (Entry<Long, Set<Long>> entry : childToParentIds.entrySet())
-                {
-                    Long childId = entry.getKey();
-                    Set<Long> parentIds = entry.getValue();
-                    parentIds.retainAll(parentSampleIds);
-                    if (parentIds.isEmpty() == false)
-                    {
-                        filteredSampleIds.add(childId);
-                    }
-                }
+                listChildrensParentsAndFilterChildren(mainSampleIds, parentSampleIds,
+                        filteredSampleIds);
             }
+        } else if (false == childCriteria.isEmpty())
+        {
+            final List<Long> childSampleIds =
+                    findSampleIds(childCriteria,
+                            Collections.<DetailedSearchSubCriteria> emptyList());
+            if (mainSampleIds.size() > childSampleIds.size())
+            {
+                listChildrensParentsAndFilterParents(childSampleIds, mainSampleIds,
+                        filteredSampleIds);
+            } else
+            {
+                listParentsChildrenAndFilterParents(childSampleIds, mainSampleIds,
+                        filteredSampleIds);
+            }
+
+        } else
+        {
+            filteredSampleIds.addAll(mainSampleIds);
         }
         return sampleLister.list(new ListOrSearchSampleCriteria(filteredSampleIds));
     }
 
+    private void listChildrensParentsAndFilterChildren(final List<Long> allChildrenIds,
+            final List<Long> allParentIds, final Set<Long> filteredChildrenIds)
+    {
+        Map<Long, Set<Long>> childToParentIds = sampleLister.getChildToParentsIdsMap(allChildrenIds);
+        for (Entry<Long, Set<Long>> entry : childToParentIds.entrySet())
+        {
+            Long childId = entry.getKey();
+            Set<Long> parentIds = entry.getValue();
+            parentIds.retainAll(allParentIds);
+            if (parentIds.isEmpty() == false)
+            {
+                filteredChildrenIds.add(childId);
+            }
+        }
+    }
+
+    private void listParentsChildrenAndFilterParents(final List<Long> allChildrenIds,
+            final List<Long> allParentIds, final Set<Long> filteredParentIds)
+    {
+        Map<Long, Set<Long>> parentToChildIds = sampleLister.getParentToChildrenIdsMap(allParentIds);
+        for (Entry<Long, Set<Long>> entry : parentToChildIds.entrySet())
+        {
+            Long parentId = entry.getKey();
+            Set<Long> childIds = entry.getValue();
+            childIds.retainAll(allChildrenIds);
+            if (childIds.isEmpty() == false)
+            {
+                filteredParentIds.add(parentId);
+            }
+        }
+    }
+
+    private void listParentsChildrenAndFilterChildren(final List<Long> allChildrenIds,
+            final List<Long> allParentIds, final Set<Long> filteredChildrenIds)
+    {
+        Map<Long, Set<Long>> parentToChildIds = sampleLister.getParentToChildrenIdsMap(allParentIds);
+        for (Set<Long> childrenIds : parentToChildIds.values())
+        {
+            filteredChildrenIds.addAll(childrenIds);
+        }
+        filteredChildrenIds.retainAll(allChildrenIds);
+    }
+
+    private void listChildrensParentsAndFilterParents(final List<Long> allChildrenIds,
+            final List<Long> allParentIds, final Set<Long> filteredParentsIds)
+    {
+        Map<Long, Set<Long>> childToParentIds = sampleLister.getChildToParentsIdsMap(allChildrenIds);
+        for (Set<Long> parentIds : childToParentIds.values())
+        {
+            filteredParentsIds.addAll(parentIds);
+        }
+        filteredParentsIds.retainAll(allParentIds);
+    }
+
     private void groupSampleSubCriteria(List<DetailedSearchSubCriteria> allSubCriterias,
-            DetailedSearchCriteria parentCriteria, List<DetailedSearchSubCriteria> otherSubCriterias)
+            DetailedSearchCriteria parentCriteria, DetailedSearchCriteria childCriteria,
+            List<DetailedSearchSubCriteria> otherSubCriterias)
     {
         parentCriteria.setCriteria(new ArrayList<DetailedSearchCriterion>());
+        childCriteria.setCriteria(new ArrayList<DetailedSearchCriterion>());
         for (DetailedSearchSubCriteria subCriteria : allSubCriterias)
         {
             switch (subCriteria.getTargetEntityKind())
@@ -122,6 +172,13 @@ public class DetailedSearchManager
                     parentCriteria.getCriteria().addAll(subCriteria.getCriteria().getCriteria());
                     parentCriteria.setConnection(subCriteria.getCriteria().getConnection());
                     parentCriteria.setUseWildcardSearchMode(subCriteria.getCriteria()
+                            .isUseWildcardSearchMode());
+                    break;
+                case SAMPLE_CHILD:
+                    // merge all child sub criteria into one
+                    childCriteria.getCriteria().addAll(subCriteria.getCriteria().getCriteria());
+                    childCriteria.setConnection(subCriteria.getCriteria().getConnection());
+                    childCriteria.setUseWildcardSearchMode(subCriteria.getCriteria()
                             .isUseWildcardSearchMode());
                     break;
                 default:
