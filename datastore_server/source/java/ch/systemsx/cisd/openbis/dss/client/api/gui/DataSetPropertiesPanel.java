@@ -86,6 +86,8 @@ public class DataSetPropertiesPanel extends JPanel
 
     private final HashMap<String, JComponent> formFields = new HashMap<String, JComponent>();
 
+    private final HashMap<String, JLabel> labels = new HashMap<String, JLabel>();
+
     private NewDataSetInfo newDataSetInfo;
 
     public DataSetPropertiesPanel(DataSetType dataSetType, DataSetUploadClientModel clientModel)
@@ -143,6 +145,7 @@ public class DataSetPropertiesPanel extends JPanel
         String labelString = getLabelStringForPropertyType(propertyType);
         JLabel label = new JLabel(labelString + ":", JLabel.TRAILING);
         label.setPreferredSize(new Dimension(LABEL_WIDTH, BUTTON_HEIGHT));
+        label.setToolTipText(propertyType.getDescription());
         if (propertyType.isMandatory())
         {
             // Set the font to be bold/italic for required fields.
@@ -157,15 +160,16 @@ public class DataSetPropertiesPanel extends JPanel
         {
             formField = createTextField(propertyType);
         }
+        formField.setToolTipText(propertyType.getDescription());
         formField.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
         addFormField(col, row, label, formField);
+        labels.put(propertyType.getCode(), label);
         formFields.put(propertyType.getCode(), formField);
     }
 
     private JTextField createTextField(final PropertyType propertyType)
     {
         final JTextField textField = new JTextField();
-        textField.setToolTipText(propertyType.getDescription());
         textField.addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent e)
@@ -192,7 +196,6 @@ public class DataSetPropertiesPanel extends JPanel
     private JComboBox createComboBox(final ControlledVocabularyPropertyType propertyType)
     {
         final JComboBox comboBox = new JComboBox();
-        comboBox.setToolTipText(propertyType.getDescription());
         for (VocabularyTerm term : propertyType.getTerms())
         {
             comboBox.addItem(new VocabularyTermAdaptor(term));
@@ -257,6 +260,8 @@ public class DataSetPropertiesPanel extends JPanel
         }
         metadata.setProperties(newProps);
 
+        clientModel.validateNewDataSetInfoAndNotifyObservers(newDataSetInfo);
+        syncErrors();
         clientModel.notifyObserversOfChanges(newDataSetInfo);
     }
 
@@ -286,6 +291,56 @@ public class DataSetPropertiesPanel extends JPanel
                 }
             }
         }
+    }
+
+    public void syncErrors()
+    {
+        // Clear all errors first
+        for (String key : labels.keySet())
+        {
+            clearError(labels.get(key), formFields.get(key));
+        }
+
+        List<ValidationError> errors = newDataSetInfo.getValidationErrors();
+        for (ValidationError error : errors)
+        {
+            switch (error.getTarget())
+            {
+                case DATA_SET_OWNER:
+                    // These are handled by the Metadata Panel
+                    break;
+
+                case DATA_SET_TYPE:
+                    // These are handled by the Metadata Panel
+                    break;
+
+                case DATA_SET_FILE:
+                    // These are handled by the Metadata Panel
+                    break;
+
+                case DATA_SET_PROPERTY:
+                    JLabel label = labels.get(error.getPropertyCodeOrNull());
+                    JComponent formField = formFields.get(error.getPropertyCodeOrNull());
+                    displayError(label, formField, error);
+                    break;
+            }
+        }
+    }
+
+    private void displayError(JLabel label, JComponent component, ValidationError error)
+    {
+        // Not all errors are applicable to this panel
+        if (null == label || null == component)
+        {
+            return;
+        }
+        UiUtilities.displayError(label, component, error);
+    }
+
+    private void clearError(JLabel label, JComponent component)
+    {
+        UiUtilities.clearError(label, component);
+        component.setToolTipText(label.getToolTipText());
     }
 
 }

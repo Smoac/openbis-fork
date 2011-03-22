@@ -69,6 +69,8 @@ public class DataSetMetadataPanel extends JPanel
 
     private final DataSetUploadClientModel clientModel;
 
+    private final JLabel ownerIdLabel;
+
     private final JTextField ownerIdText;
 
     private final ButtonGroup ownerButtonGroup;
@@ -76,6 +78,8 @@ public class DataSetMetadataPanel extends JPanel
     private final JComboBox dataSetTypeComboBox;
 
     private final JPanel dataSetTypePanel;
+
+    private final JLabel dataSetFileLabel;
 
     private final JComboBox dataSetFileComboBox;
 
@@ -100,6 +104,7 @@ public class DataSetMetadataPanel extends JPanel
         this.mainWindow = mainWindow;
 
         // Initialize the fields in the gui
+        ownerIdLabel = new JLabel("Owner:", JLabel.TRAILING);
         ownerIdText = new JTextField();
         ownerButtonGroup = new ButtonGroup();
         experimentButton = new JRadioButton("Experiment");
@@ -114,6 +119,7 @@ public class DataSetMetadataPanel extends JPanel
             { EMPTY_FILE_SELECTION };
         dataSetFileComboBox = new JComboBox(initialOptions);
         dataSetFileButton = new JButton("Browse...");
+        dataSetFileLabel = new JLabel("File:", JLabel.TRAILING);
 
         createGui();
     }
@@ -162,6 +168,7 @@ public class DataSetMetadataPanel extends JPanel
         }
 
         updateFileLabel();
+        syncErrors();
     }
 
     private void enableAllWidgets()
@@ -200,8 +207,7 @@ public class DataSetMetadataPanel extends JPanel
     private void createGui()
     {
         // The file row
-        JLabel label = new JLabel("File:", JLabel.TRAILING);
-        label.setPreferredSize(new Dimension(LABEL_WIDTH, BUTTON_HEIGHT));
+        dataSetFileLabel.setPreferredSize(new Dimension(LABEL_WIDTH, BUTTON_HEIGHT));
 
         dataSetFileComboBox.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
         dataSetFileComboBox.addItemListener(new ItemListener()
@@ -223,7 +229,7 @@ public class DataSetMetadataPanel extends JPanel
                         newDataSetInfo.getNewDataSetBuilder().setFile((File) selectedItem);
                     }
 
-                    notifyObserversOfChanges();
+                    validateAndNotifyObserversOfChanges();
                 }
 
             });
@@ -247,16 +253,15 @@ public class DataSetMetadataPanel extends JPanel
                         clientModel.userDidSelectFile(newDirOrNull);
                         updateFileComboBoxList();
                         updateFileLabel();
-                        notifyObserversOfChanges();
+                        validateAndNotifyObserversOfChanges();
                     }
                 }
 
             });
-        addRow(1, label, dataSetFileComboBox, dataSetFileButton);
+        addRow(1, dataSetFileLabel, dataSetFileComboBox, dataSetFileButton);
 
         // The owner row
-        label = new JLabel("Owner:", JLabel.TRAILING);
-        label.setPreferredSize(new Dimension(LABEL_WIDTH, BUTTON_HEIGHT));
+        ownerIdLabel.setPreferredSize(new Dimension(LABEL_WIDTH, BUTTON_HEIGHT));
 
         ownerIdText.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
         ownerIdText.addActionListener(new ActionListener()
@@ -299,10 +304,10 @@ public class DataSetMetadataPanel extends JPanel
                 }
             });
 
-        addRow(2, label, ownerIdText, ownerButtonGroup);
+        addRow(2, ownerIdLabel, ownerIdText, ownerButtonGroup);
 
         // The data set type row
-        label = new JLabel("Data Set Type:", JLabel.TRAILING);
+        JLabel label = new JLabel("Data Set Type:", JLabel.TRAILING);
         label.setPreferredSize(new Dimension(LABEL_WIDTH, BUTTON_HEIGHT));
 
         dataSetTypeComboBox.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
@@ -466,9 +471,10 @@ public class DataSetMetadataPanel extends JPanel
         return mainWindow;
     }
 
-    private void notifyObserversOfChanges()
+    private void validateAndNotifyObserversOfChanges()
     {
-        clientModel.notifyObserversOfChanges(newDataSetInfo);
+        clientModel.validateNewDataSetInfoAndNotifyObservers(newDataSetInfo);
+        syncErrors();
     }
 
     private void setOwnerType(DataSetOwnerType type)
@@ -481,7 +487,7 @@ public class DataSetMetadataPanel extends JPanel
         NewDataSetDTOBuilder builder = newDataSetInfo.getNewDataSetBuilder();
         builder.setDataSetOwnerType(type);
 
-        notifyObserversOfChanges();
+        validateAndNotifyObserversOfChanges();
     }
 
     protected void setOwnerId(String text)
@@ -493,7 +499,58 @@ public class DataSetMetadataPanel extends JPanel
 
         NewDataSetDTOBuilder builder = newDataSetInfo.getNewDataSetBuilder();
         builder.setDataSetOwnerIdentifier(text);
-        notifyObserversOfChanges();
+        validateAndNotifyObserversOfChanges();
+    }
+
+    public void syncErrors()
+    {
+        // Clear all errors first
+        clearError(ownerIdLabel, ownerIdText);
+        clearError(dataSetFileLabel, dataSetFileComboBox);
+
+        List<ValidationError> errors = newDataSetInfo.getValidationErrors();
+        for (ValidationError error : errors)
+        {
+            switch (error.getTarget())
+            {
+                case DATA_SET_OWNER:
+                    displayError(ownerIdLabel, ownerIdText, error);
+                    break;
+
+                case DATA_SET_TYPE:
+                    // These are handled by the Metadata Panel
+                    break;
+
+                case DATA_SET_FILE:
+                    displayError(dataSetFileLabel, dataSetFileComboBox, error);
+                    break;
+
+                case DATA_SET_PROPERTY:
+                    // These are handled by the Properties Panel
+                    break;
+            }
+        }
+
+        for (DataSetPropertiesPanel panel : propertiesPanels.values())
+        {
+            panel.syncErrors();
+        }
+    }
+
+    private void displayError(JLabel label, JComponent component, ValidationError error)
+    {
+        // Not all errors are applicable to this panel
+        if (null == label || null == component)
+        {
+            return;
+        }
+        UiUtilities.displayError(label, component, error);
+    }
+
+    private void clearError(JLabel label, JComponent component)
+    {
+        UiUtilities.clearError(label, component);
+        component.setToolTipText(label.getToolTipText());
     }
 
 }

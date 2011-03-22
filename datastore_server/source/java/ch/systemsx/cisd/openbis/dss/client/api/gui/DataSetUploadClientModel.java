@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -34,6 +35,7 @@ import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTOBuilder;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType;
@@ -61,7 +63,7 @@ public class DataSetUploadClientModel
     private final ArrayList<File> userSelectedFiles = new ArrayList<File>();
 
     // References to UI elements that are looking at the client model -- a way of implementing
-    // obeserver.
+    // observer.
     private DataSetUploadTableModel tableModel;
 
     public DataSetUploadClientModel(DssCommunicationState commState, ITimeProvider timeProvider)
@@ -109,6 +111,9 @@ public class DataSetUploadClientModel
         private int percentageUploaded;
 
         private long numberOfBytesUploaded;
+
+        private final ArrayList<ValidationError> validationErrors =
+                new ArrayList<ValidationError>();
 
         private NewDataSetInfo(NewDataSetDTOBuilder newDataSetBuilder, ITimeProvider timeProvider)
         {
@@ -190,7 +195,23 @@ public class DataSetUploadClientModel
         public boolean canBeQueued()
         {
             return status != Status.UPLOADING && status != Status.STALLED
-                    && status != Status.COMPLETED_UPLOAD;
+                    && status != Status.COMPLETED_UPLOAD && hasErrors() == false;
+        }
+
+        public boolean hasErrors()
+        {
+            return validationErrors.isEmpty() == false;
+        }
+
+        public List<ValidationError> getValidationErrors()
+        {
+            return validationErrors;
+        }
+
+        private void setValidationErrors(List<ValidationError> errors)
+        {
+            validationErrors.clear();
+            validationErrors.addAll(errors);
         }
     }
 
@@ -203,7 +224,7 @@ public class DataSetUploadClientModel
     }
 
     /**
-     * Add a new data set info to the list of data set info objectss and return it.
+     * Add a new data set info to the list of data set info objects and return it.
      */
     public NewDataSetInfo addNewDataSetInfo()
     {
@@ -212,6 +233,7 @@ public class DataSetUploadClientModel
         newDataSetBuilder.getDataSetMetadata().setDataSetTypeOrNull(defaultDataSetTypeCode);
         NewDataSetInfo newDataSetInfo = new NewDataSetInfo(newDataSetBuilder, timeProvider);
         newDataSetInfos.add(newDataSetInfo);
+        validateNewDataSetInfoAndNotifyObservers(newDataSetInfo);
         return newDataSetInfo;
     }
 
@@ -365,5 +387,77 @@ public class DataSetUploadClientModel
     public ArrayList<File> getUserSelectedFiles()
     {
         return userSelectedFiles;
+    }
+
+    /**
+     * Validate a new data set info and update the validation errors.
+     */
+    public final void validateNewDataSetInfoAndNotifyObservers(NewDataSetInfo newDataSetInfo)
+    {
+        validateNewDataSetInfo(newDataSetInfo);
+        notifyObserversOfChanges(newDataSetInfo);
+    }
+
+    /**
+     * Validate a new data set info and update the validation errors.
+     */
+    public final void validateNewDataSetInfo(NewDataSetInfo newDataSetInfo)
+    {
+        ArrayList<ValidationError> errors = new ArrayList<ValidationError>();
+        validateNewDataSetInfo(newDataSetInfo, errors);
+        newDataSetInfo.setValidationErrors(errors);
+    }
+
+    /**
+     * This method actually carries out the validation. Subclasses may override.
+     */
+    protected void validateNewDataSetInfo(NewDataSetInfo newDataSetInfo,
+            ArrayList<ValidationError> errors)
+    {
+        NewDataSetDTOBuilder builder = newDataSetInfo.getNewDataSetBuilder();
+        String identifier = builder.getDataSetOwner().getIdentifier();
+        if (identifier == null || identifier.trim().length() < 1)
+        {
+            errors.add(ValidationError.createOwnerValidationError("An owner must be specified."));
+        }
+
+        if (null == builder.getFile())
+        {
+            errors.add(ValidationError.createFileValidationError("A file must be specified."));
+        }
+
+        NewDataSetMetadataDTO builderMetadata = builder.getDataSetMetadata();
+        String typeCode = builderMetadata.tryDataSetType();
+        if (null == typeCode)
+        {
+            errors.add(ValidationError
+                    .createDataSetTypeValidationError("A data set type must be specified."));
+        } else
+        {
+            DataSetType type = dataSetTypes.get(getIndexOfDataSetType(typeCode));
+            Map<String, String> properties = builderMetadata.getProperties();
+            for (PropertyTypeGroup ptGroup : type.getPropertyTypeGroups())
+            {
+                for (PropertyType propertyType : ptGroup.getPropertyTypes())
+                {
+                    validatePropertyType(propertyType, properties.get(propertyType.getCode()),
+                            errors);
+                }
+            }
+        }
+    }
+
+    private void validatePropertyType(PropertyType propertyType, String valueOrNull,
+            ArrayList<ValidationError> errors)
+    {
+        if (null == valueOrNull || valueOrNull.trim().length() < 1)
+        {
+            if (propertyType.isMandatory())
+            {
+                errors.add(ValidationError.createPropertyValidationError(propertyType.getCode(),
+                        "A value must be provided."));
+            }
+        }
+
     }
 }

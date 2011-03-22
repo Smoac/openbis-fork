@@ -41,6 +41,10 @@ public class UploadStatusTableCellRenderer implements TableCellRenderer
 
     private final JPanel uploadPanel = new JPanel();
 
+    private final JLabel fixErrorsLabel = new JLabel("Incomplete (see fields in red)");
+
+    private final JPanel fixErrorsPanel = new JPanel();
+
     private final JProgressBar progressBar = new JProgressBar();
 
     private final JLabel progressLabel = new JLabel();
@@ -60,10 +64,20 @@ public class UploadStatusTableCellRenderer implements TableCellRenderer
     public UploadStatusTableCellRenderer(DataSetUploadTableModel tableModel)
     {
         super();
+        createFixErrorsPanel();
         createDownloadPanel();
         createProgressPanel();
         createRetryPanel();
         createCompletedPanel();
+    }
+
+    private void createFixErrorsPanel()
+    {
+        fixErrorsPanel.setLayout(new GridLayout(1, 0));
+        fixErrorsLabel.setFont(fixErrorsLabel.getFont().deriveFont(Font.PLAIN));
+        fixErrorsLabel.setForeground(Color.RED);
+        fixErrorsPanel.add(fixErrorsLabel);
+        fixErrorsPanel.setOpaque(true);
     }
 
     private void createCompletedPanel()
@@ -110,7 +124,13 @@ public class UploadStatusTableCellRenderer implements TableCellRenderer
         switch (dataSetInfo.getStatus())
         {
             case TO_UPLOAD:
-                panel = uploadPanel;
+                if (dataSetInfo.hasErrors())
+                {
+                    panel = fixErrorsPanel;
+                } else
+                {
+                    panel = uploadPanel;
+                }
                 break;
             case QUEUED_FOR_UPLOAD:
             case UPLOADING:
