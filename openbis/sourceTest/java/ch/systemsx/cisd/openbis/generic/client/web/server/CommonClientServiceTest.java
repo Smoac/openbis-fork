@@ -28,6 +28,7 @@ import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
@@ -84,6 +85,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTranslator;
  * 
  * @author Christian Ribeaud
  */
+@Friend(toClasses=AbstractClientService.class)
 public final class CommonClientServiceTest extends AbstractClientServiceTest
 {
     private static final String DATA_STORE_BASE_URL = "baseURL";
