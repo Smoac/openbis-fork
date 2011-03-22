@@ -204,17 +204,19 @@
 
   <target name="admin-console-dist" depends="jar" 
   	description="Makes a distribution file for the admin console.">
-    <zip destfile="${admin.dist.file}">
-      <zipfileset prefix="${admin.console}" file="${admin.jar.file}"/>
-      <zipfileset prefix="${admin.console}" file="${lib}/cisd-base/cisd-base.jar"/>
-      <zipfileset prefix="${admin.console}" file="${lib}/commons-codec/commons-codec.jar"/>
-      <zipfileset prefix="${admin.console}" file="${lib}/commons-httpclient/commons-httpclient.jar"/>
-      <zipfileset prefix="${admin.console}" file="${lib}/commons-io/commons-io.jar"/>
-      <zipfileset prefix="${admin.console}" file="${lib}/commons-logging/commons-logging.jar"/>
-      <zipfileset prefix="${admin.console}" file="${lib}/jline/jline.jar"/>
-      <zipfileset prefix="${admin.console}" file="${lib}/log4j/log4j.jar"/>
-      <zipfileset prefix="${admin.console}" file="${lib}/spring/spring.jar"/>
-      <zipfileset prefix="${admin.console}" file="${lib}/spring/third-party/stream-supporting-httpinvoker.jar"/>
+  	<zip update="true" destfile="${admin.jar.file}">
+      <zipfileset src="${lib}/cisd-base/cisd-base.jar"/>
+      <zipfileset  src="${lib}/commons-codec/commons-codec.jar"/>
+      <zipfileset  src="${lib}/commons-httpclient/commons-httpclient.jar"/>
+      <zipfileset  src="${lib}/commons-io/commons-io.jar"/>
+      <zipfileset  src="${lib}/commons-logging/commons-logging.jar"/>
+      <zipfileset  src="${lib}/jline/jline.jar"/>
+      <zipfileset  src="${lib}/log4j/log4j.jar"/>
+      <zipfileset  src="${lib}/spring/spring.jar"/>
+      <zipfileset  src="${lib}/spring/third-party/stream-supporting-httpinvoker.jar"/>
+	  </zip>
+  	<zip destfile="${admin.dist.file}">
+      <zipfileset prefix="${admin.console}" file="${admin.jar.file}"/>	
     </zip>
   	<delete file="${admin.jar.file}"/>
   </target>
@@ -512,7 +514,7 @@
         <include name="ch/systemsx/cisd/common/**/*.class" />
         <include name="ch/systemsx/cisd/openbis/generic/client/console/**/*.class" />
         <include name="**/shared/I*.class" />
-        <include name="**/shared/basic/dto/*.class" />
+        <include name="**/shared/basic/dto/**/*.class" />
         <include name="**/shared/basic/*.class" />
         <include name="**/shared/dto/**/*.class" />
         <exclude name="**/shared/dto/*PE.class" />
