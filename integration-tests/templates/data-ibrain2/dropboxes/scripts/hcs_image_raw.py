@@ -6,15 +6,12 @@ import commonDropbox
 reload(commonImageDropbox)
 reload(commonDropbox)
 
-""" Plate geometry which will be used. Other possible value: 96_WELLS_8X12 """
-PLATE_GEOMETRY = "384_WELLS_16X24"
-
 """ sample type code of the plate, needed if a new sample is registered automatically """
 PLATE_TYPE_CODE = "PLATE"
 SIRNA_EXP_TYPE = "SIRNA_HCS"
 PLATE_GEOMETRY_PROPERTY_CODE = "$PLATE_GEOMETRY"
 
-def createPlateWithExperimentIfNeeded(transaction, assayParser, plate, space):
+def createPlateWithExperimentIfNeeded(transaction, assayParser, plate, space, plateGeometry):
     project = assayParser.get(assayParser.EXPERIMENTER_PROPERTY)
     experiment = assayParser.get(assayParser.ASSAY_ID_PROPERTY)
     experimentDesc = assayParser.get(assayParser.ASSAY_DESC_PROPERTY)   
@@ -31,7 +28,7 @@ def createPlateWithExperimentIfNeeded(transaction, assayParser, plate, space):
             experiment.setPropertyValue("DESCRIPTION", openbisExpDesc)
 
         plate = transaction.createNewSample(sampleIdentifier, PLATE_TYPE_CODE)
-        plate.setPropertyValue(PLATE_GEOMETRY_PROPERTY_CODE, PLATE_GEOMETRY)
+        plate.setPropertyValue(PLATE_GEOMETRY_PROPERTY_CODE, plateGeometry)
         plate.setExperiment(experiment)
     return plate
 
@@ -60,7 +57,8 @@ if incoming.isDirectory():
 
     plate = metadataParser.getPlateCode()
     space = assayParser.get(assayParser.LAB_LEADER_PROPERTY)
-    plate = createPlateWithExperimentIfNeeded(tr, assayParser, plate, space)	    
+    plateGeometry = factory.figureGeometry(imageRegistrationDetails)
+    plate = createPlateWithExperimentIfNeeded(tr, assayParser, plate, space, plateGeometry)	    
 
     dataset = tr.createNewDataSet(imageRegistrationDetails)
     dataset.setSample(plate)
