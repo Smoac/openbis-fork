@@ -37,7 +37,7 @@ MOD_REL_TYPE = 'MOD'
 REL_TYPES = (DEL_REL_TYPE, INT_REL_TYPE, MOD_REL_TYPE)
 """dictionary from relationship type shortcut to its 'character' representation"""
 REL_TYPE_CHARS = {
-    DEL_REL_TYPE: '^', # TODO 2011-14-03, Piotr Buczek: use u'\u0394' for '∆', don't encode HTML
+    DEL_REL_TYPE: u'\u0394', # unicode '∆'
     INT_REL_TYPE: '::', 
     MOD_REL_TYPE: '_' 
 }
