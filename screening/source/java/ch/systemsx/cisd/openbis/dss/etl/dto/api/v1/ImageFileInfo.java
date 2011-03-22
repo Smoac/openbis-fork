@@ -43,6 +43,11 @@ public final class ImageFileInfo
         return wellLocationOrNull == null ? null : wellLocationOrNull.getX();
     }
 
+    public Location tryGetWellLocation()
+    {
+        return wellLocationOrNull;
+    }
+
     public boolean hasWellLocation()
     {
         return wellLocationOrNull != null;
@@ -123,8 +128,8 @@ public final class ImageFileInfo
     {
         return "ImageFileInfo [well=" + wellLocationOrNull + ", tile=" + tileLocation
                 + ", channel=" + channelCode + ", path=" + imageRelativePath + ", timepoint="
-                + timepointOrNull + ", depth=" + depthOrNull + ", seriesNumber=" + seriesNumberOrNull
-                + "]";
+                + timepointOrNull + ", depth=" + depthOrNull + ", seriesNumber="
+                + seriesNumberOrNull + "]";
     }
 
 }

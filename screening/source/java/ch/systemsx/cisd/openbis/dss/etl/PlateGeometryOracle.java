@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.etl.biozentrum;
+package ch.systemsx.cisd.openbis.dss.etl;
 
 import java.util.ArrayList;
 import java.util.Collections;

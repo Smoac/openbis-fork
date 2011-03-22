@@ -2,11 +2,15 @@ package ch.systemsx.cisd.openbis.dss.etl.jython;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
 import org.python.util.PythonInterpreter;
 
+import ch.systemsx.cisd.bds.hcs.Location;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
@@ -14,15 +18,19 @@ import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory
 import ch.systemsx.cisd.etlserver.registrator.JythonTopLevelDataSetHandler;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
+import ch.systemsx.cisd.openbis.dss.etl.PlateGeometryOracle;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeatureDefinition;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeatureVectorDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeaturesBuilder;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.BasicDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.IFeaturesBuilder;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageDataSetInformation;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageFileInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.SimpleImageDataConfig;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.CsvFeatureVectorParser;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
@@ -102,6 +110,44 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
             IDataSet newDataset = transaction.createNewDataSet(imageDatasetDetails);
             transaction.moveFile(incomingDatasetFolder.getPath(), newDataset);
             return transaction.commit();
+        }
+
+        /**
+         * @return a constant which can be used as a vocabulary term value for $PLATE_GEOMETRY
+         *         property of a plate/
+         * @throws UserFailureException if all available geometries in openBIS are too small (there
+         *             is a well outside).
+         */
+        public String figureGeometry(
+                DataSetRegistrationDetails<ImageDataSetInformation> registrationDetails)
+        {
+            List<Location> locations =
+                    extractLocations(registrationDetails.getDataSetInformation().getImages());
+            List<String> plateGeometries =
+                    loadPlateGeometries(registratorState.getGlobalState().getOpenBisService());
+            return PlateGeometryOracle.figureGeometry(locations, plateGeometries);
+        }
+
+        private static List<String> loadPlateGeometries(IEncapsulatedOpenBISService openbisService)
+        {
+            Collection<VocabularyTerm> terms =
+                    openbisService.listVocabularyTerms(ScreeningConstants.PLATE_GEOMETRY);
+            List<String> plateGeometries = new ArrayList<String>();
+            for (VocabularyTerm v : terms)
+            {
+                plateGeometries.add(v.getCode());
+            }
+            return plateGeometries;
+        }
+
+        private static List<Location> extractLocations(List<ImageFileInfo> images)
+        {
+            List<Location> locations = new ArrayList<Location>();
+            for (ImageFileInfo image : images)
+            {
+                locations.add(image.tryGetWellLocation());
+            }
+            return locations;
         }
 
         // ----

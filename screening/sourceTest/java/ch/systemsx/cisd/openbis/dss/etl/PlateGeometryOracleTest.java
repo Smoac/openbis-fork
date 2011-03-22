@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.etl.biozentrum;
+package ch.systemsx.cisd.openbis.dss.etl;
 
 import java.util.Arrays;
 
@@ -23,6 +23,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.dss.etl.PlateGeometryOracle;
 
 /**
  * Test cases from {@link PlateGeometryOracle}.

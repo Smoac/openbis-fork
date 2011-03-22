@@ -30,6 +30,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
 import ch.systemsx.cisd.openbis.dss.etl.ImageFileExtractorUtils;
+import ch.systemsx.cisd.openbis.dss.etl.PlateGeometryOracle;
 import ch.systemsx.cisd.openbis.dss.etl.UnparsedImageFileInfoLexer;
 import ch.systemsx.cisd.openbis.dss.etl.dto.UnparsedImageFileInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
