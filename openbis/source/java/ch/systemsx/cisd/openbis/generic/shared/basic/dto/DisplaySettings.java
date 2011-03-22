@@ -70,7 +70,7 @@ public class DisplaySettings implements ISerializable
 
     private Map<String, Integer> panelSizeSettings = new HashMap<String, Integer>();
     
-    private List<EntityVisit> visits = new ArrayList<EntityVisit>();
+    private List<EntityVisit> visits;
 
     /** @deprecated Should be used only by DisplaySettingsManager. */
     @Deprecated
@@ -262,13 +262,17 @@ public class DisplaySettings implements ISerializable
     @Deprecated
     public void addEntityVisit(EntityVisit entityVisit)
     {
-        visits.add(entityVisit);
+        getVisits().add(entityVisit);
     }
     
     /** @deprecated Should be used only by DisplaySettingsManager. */
     @Deprecated
     public List<EntityVisit> getVisits()
     {
+        if (visits == null)
+        {
+            visits = new ArrayList<EntityVisit>();
+        }
         return visits;
     }
 
