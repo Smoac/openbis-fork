@@ -128,7 +128,7 @@ def updateFromUI(action):
            For 'add' action create new yeast parent element with values from input fields
            and add it to existing elements.
         """
-        code = action.getInputValue(CODE_LABEL).strip()
+        code = action.getInputValue(CODE_LABEL)
         sampleLink = _createSampleLink(code)
         
         elements.append(sampleLink)
@@ -137,7 +137,7 @@ def updateFromUI(action):
            For 'edit' action find the yeast parent element corresponding to selected row
            and replace it with an element with values from input fields.
         """
-        code = action.getInputValue(CODE_LABEL).strip()
+        code = action.getInputValue(CODE_LABEL)
         sampleLink = _createSampleLink(code)
         
         selectedRowId = action.getSelectedRows()[0]

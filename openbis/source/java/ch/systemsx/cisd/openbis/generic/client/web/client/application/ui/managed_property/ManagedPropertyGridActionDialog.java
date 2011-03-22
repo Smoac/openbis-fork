@@ -113,7 +113,7 @@ public final class ManagedPropertyGridActionDialog extends
         {
             TextField<?> field = inputFieldsByLabel.get(inputDescription.getLabel());
             Object fieldValue = field.getValue();
-            String value = fieldValue == null ? null : field.getValue().toString();
+            String value = fieldValue == null ? null : field.getValue().toString().trim();
             if (fieldValue instanceof SimpleComboValue)
             {
                 value = ((SimpleComboValue<?>) fieldValue).getValue().toString();

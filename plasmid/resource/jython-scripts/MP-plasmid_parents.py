@@ -288,10 +288,10 @@ def updateFromUI(action):
            For 'add' action create new plasmid relationship element with values from input fields
            and add it to existing elements.
         """
-        code = action.getInputValue(CODE_LABEL).strip()
-        relationshipLabel = action.getInputValue(RELATIONSHIP_LABEL).strip()
+        code = action.getInputValue(CODE_LABEL)
+        relationshipLabel = action.getInputValue(RELATIONSHIP_LABEL)
         relationship = _translateFromLabel(relationshipLabel)
-        annotation = action.getInputValue(ANNOTATION_LABEL).strip()
+        annotation = action.getInputValue(ANNOTATION_LABEL)
         sampleLink = _createSampleLink(code, relationship, annotation)
         
         elements.append(sampleLink)
@@ -300,10 +300,10 @@ def updateFromUI(action):
            For 'edit' action find the plasmid relationship element corresponding to selected row
            and replace it with an element with values from input fields.
         """
-        code = action.getInputValue(CODE_LABEL).strip()
-        relationshipLabel = action.getInputValue(RELATIONSHIP_LABEL).strip()
+        code = action.getInputValue(CODE_LABEL)
+        relationshipLabel = action.getInputValue(RELATIONSHIP_LABEL)
         relationship = _translateFromLabel(relationshipLabel)
-        annotation = action.getInputValue(ANNOTATION_LABEL).strip()
+        annotation = action.getInputValue(ANNOTATION_LABEL)
         sampleLink = _createSampleLink(code, relationship, annotation)
         
         selectedRowId = action.getSelectedRows()[0]
