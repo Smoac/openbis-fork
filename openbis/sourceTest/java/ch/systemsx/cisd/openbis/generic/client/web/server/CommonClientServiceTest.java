@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
 import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
@@ -156,6 +157,9 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         commonClientService = new CommonClientService(commonServer, requestContextProvider);
         commonClientService.setCifexURL(CIFEX_URL);
         commonClientService.setCifexRecipient(CIFEX_RECIPIENT);
+        commonClientService.webClientConfigurationProvider =
+            new WebClientConfigurationProvider(new Properties());
+
     }
 
     @Test
@@ -543,7 +547,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
                 {
                     prepareGetSessionToken(this);
 
-                    one(commonServer).saveDisplaySettings(SESSION_TOKEN, displaySettings);
+                    one(commonServer).saveDisplaySettings(SESSION_TOKEN, displaySettings, 20);
                 }
             });
         commonClientService.updateDisplaySettings(displaySettings);
@@ -593,7 +597,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
                     one(httpSession).removeAttribute(SessionConstants.OPENBIS_EXPORT_MANAGER);
                     one(httpSession).invalidate();
 
-                    one(commonServer).saveDisplaySettings(SESSION_TOKEN, displaySettings);
+                    one(commonServer).saveDisplaySettings(SESSION_TOKEN, displaySettings, 20);
                     one(commonServer).logout(SESSION_TOKEN);
                 }
             });

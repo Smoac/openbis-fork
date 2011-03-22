@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ColumnSetting;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailViewConfiguration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityVisit;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RealNumberFormatingParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;
 
@@ -521,5 +522,16 @@ public class DisplaySettingsManager
     {
         displaySettings.getDropDownSettings().put(dropDownSettingsID, newValue);
     }
+    
+    @SuppressWarnings("deprecation")
+    public void rememberVisit(EntityVisit visit)
+    {
+        displaySettings.addEntityVisit(visit);
+    }
 
+    @SuppressWarnings("deprecation")
+    public List<EntityVisit> getVisits()
+    {
+        return displaySettings.getVisits();
+    }
 }

@@ -549,7 +549,8 @@ public abstract class AbstractClientService implements IClientService,
         {
             final String sessionToken = getSessionToken();
             IServer server = getServer();
-            server.saveDisplaySettings(sessionToken, displaySettings);
+            int maxEntityVisits = getWebClientConfiguration().getMaxEntityVisits();
+            server.saveDisplaySettings(sessionToken, displaySettings, maxEntityVisits);
         } catch (InvalidSessionException e)
         {
             // ignored
@@ -611,7 +612,8 @@ public abstract class AbstractClientService implements IClientService,
                 if (simpleViewMode == false)
                 {
                     // only save settings for "normal" view
-                    server.saveDisplaySettings(sessionToken, displaySettings);
+                    int maxEntityVisits = getWebClientConfiguration().getMaxEntityVisits();
+                    server.saveDisplaySettings(sessionToken, displaySettings, maxEntityVisits);
                 }
                 server.logout(sessionToken);
             }

@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityVisit;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -1450,8 +1451,11 @@ public final class CommonServerTest extends AbstractServerTestCase
     @Test
     public void testSaveDisplaySettings()
     {
-        final DisplaySettings displaySettings = new DisplaySettings();
         final PersonPE person = new PersonPE();
+        EntityVisit v1 = visit(EntityKind.EXPERIMENT, 1);
+        EntityVisit v2 = visit(EntityKind.SAMPLE, 2);
+        DisplaySettings currentDisplaySettings = displaySettingsWithVisits(v1, v2);
+        person.setDisplaySettings(currentDisplaySettings);
         context.checking(new Expectations()
             {
                 {
@@ -1463,12 +1467,41 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(personDAO).updatePerson(person);
                 }
             });
+        EntityVisit v3 = visit(EntityKind.DATA_SET, 3);
+        DisplaySettings displaySettings = displaySettingsWithVisits(v3);
 
-        createServer().saveDisplaySettings(SESSION_TOKEN, displaySettings);
+        createServer().saveDisplaySettings(SESSION_TOKEN, displaySettings, 2);
 
         assertSame(displaySettings, person.getDisplaySettings());
+        @SuppressWarnings("deprecation")
+        List<EntityVisit> visits = displaySettings.getVisits();
+        assertEquals("DATA_SET-3", visits.get(0).getEntityTypeCode());
+        assertEquals("SAMPLE-2", visits.get(1).getEntityTypeCode());
+        assertEquals(2, visits.size());
 
         context.assertIsSatisfied();
+    }
+    
+    @SuppressWarnings("deprecation")
+    private DisplaySettings displaySettingsWithVisits(EntityVisit... entityVisits)
+    {
+        DisplaySettings settings = new DisplaySettings();
+        for (EntityVisit entityVisit : entityVisits)
+        {
+            settings.addEntityVisit(entityVisit);
+        }
+        return settings;
+    }
+    
+    private EntityVisit visit(EntityKind kind, long timeStamp)
+    {
+        EntityVisit entityVisit = new EntityVisit();
+        entityVisit.setEntityKind(kind.toString());
+        entityVisit.setEntityTypeCode(kind + "-" + timeStamp);
+        entityVisit.setIdentifier("E" + timeStamp);
+        entityVisit.setPermID("id-" + timeStamp);
+        entityVisit.setTimeStamp(timeStamp);
+        return entityVisit;
     }
 
     @Test

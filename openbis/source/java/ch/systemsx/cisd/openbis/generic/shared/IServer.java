@@ -77,7 +77,7 @@ public interface IServer extends ISessionProvider
     public DisplaySettings getDefaultDisplaySettings(String sessionToken);
 
     @Transactional
-    public void saveDisplaySettings(String sessionToken, DisplaySettings displaySettings);
+    public void saveDisplaySettings(String sessionToken, DisplaySettings displaySettings, int maxEntityVisits);
 
     /**
      * Lists grid custom columns for a given grid id.

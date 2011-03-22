@@ -48,6 +48,8 @@ public class WebClientConfiguration implements ISerializable
     private ViewMode defaultViewMode;
 
     private int maxVisibleColumns;
+    
+    private int maxEntityVisits;
 
     public String getPropertyOrNull(String technology, String key)
     {
@@ -98,6 +100,16 @@ public class WebClientConfiguration implements ISerializable
     public void setMaxVisibleColumns(int maxVisibleColumns)
     {
         this.maxVisibleColumns = maxVisibleColumns;
+    }
+
+    public int getMaxEntityVisits()
+    {
+        return maxEntityVisits;
+    }
+
+    public void setMaxEntityVisits(int maxEntityVisits)
+    {
+        this.maxEntityVisits = maxEntityVisits;
     }
 
     public WebClientConfiguration()

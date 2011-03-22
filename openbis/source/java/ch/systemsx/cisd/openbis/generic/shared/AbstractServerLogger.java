@@ -239,7 +239,7 @@ public abstract class AbstractServerLogger implements IServer
         return false;
     }
 
-    public void saveDisplaySettings(String sessionToken, DisplaySettings displaySettings)
+    public void saveDisplaySettings(String sessionToken, DisplaySettings displaySettings, int maxEntityVisits)
     {
         logTracking(sessionToken, "save_display_settings", "");
     }

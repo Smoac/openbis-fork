@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,6 +69,8 @@ public class DisplaySettings implements ISerializable
     private Map<String, Boolean> panelCollapsedSettings = new HashMap<String, Boolean>();
 
     private Map<String, Integer> panelSizeSettings = new HashMap<String, Integer>();
+    
+    private List<EntityVisit> visits = new ArrayList<EntityVisit>();
 
     /** @deprecated Should be used only by DisplaySettingsManager. */
     @Deprecated
@@ -253,6 +256,20 @@ public class DisplaySettings implements ISerializable
     public void setIgnoreLastHistoryToken(boolean ignoreLastHistoryToken)
     {
         this.ignoreLastHistoryToken = ignoreLastHistoryToken;
+    }
+    
+    /** @deprecated Should be used only by DisplaySettingsManager. */
+    @Deprecated
+    public void addEntityVisit(EntityVisit entityVisit)
+    {
+        visits.add(entityVisit);
+    }
+    
+    /** @deprecated Should be used only by DisplaySettingsManager. */
+    @Deprecated
+    public List<EntityVisit> getVisits()
+    {
+        return visits;
     }
 
 }

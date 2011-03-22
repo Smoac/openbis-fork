@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -44,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.Expressio
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityVisit;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
@@ -351,7 +353,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         return false;
     }
 
-    public void saveDisplaySettings(String sessionToken, DisplaySettings displaySettings)
+    public void saveDisplaySettings(String sessionToken, DisplaySettings displaySettings, int maxEntityVisits)
     {
         try
         {
@@ -359,6 +361,20 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
             PersonPE person = session.tryGetPerson();
             if (person != null)
             {
+                List<EntityVisit> visits = joinVisits(displaySettings, person);
+                Collections.sort(visits, new Comparator<EntityVisit>()
+                    {
+                        public int compare(EntityVisit o1, EntityVisit o2)
+                        {
+                            long t1 = o1.getTimeStamp();
+                            long t2 = o2.getTimeStamp();
+                            return t1 < t2 ? 1 : (t1 > t2 ? -1 : 0);
+                        }
+                    });
+                for (int i = visits.size() - 1; i >= maxEntityVisits; i--)
+                {
+                    visits.remove(i);
+                }
                 person.setDisplaySettings(displaySettings);
                 getDAOFactory().getPersonDAO().updatePerson(person);
             }
@@ -366,6 +382,14 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         {
             // ignore the situation when session is not available
         }
+    }
+
+    @SuppressWarnings("deprecation")
+    private List<EntityVisit> joinVisits(DisplaySettings displaySettings, PersonPE person)
+    {
+        List<EntityVisit> visits = displaySettings.getVisits();
+        visits.addAll(person.getDisplaySettings().getVisits());
+        return visits;
     }
 
     public DisplaySettings getDefaultDisplaySettings(String sessionToken)

@@ -58,9 +58,13 @@ public class WebClientConfigurationProvider
     private static final ViewMode DEFAULT_VIEW_MODE_VALUE = ViewMode.NORMAL;
 
     private static final String MAX_VISIBLE_COLUMNS = "max-visible-columns";
-
+    
     private static final int DEFAULT_MAX_VISIBLE_COLUMNS = 50;
 
+    private static final String MAX_ENTITY_VISITS = "max-entity-visits";
+    
+    private static final int DEFAULT_MAX_ENTITY_VISITS = 20;
+    
     private static final String DATA_SET_TYPES_WITH_IMAGE_OVERVIEW =
             "data-set-types-with-image-overview";
 
@@ -89,12 +93,15 @@ public class WebClientConfigurationProvider
     {
         webClientConfiguration.setDefaultViewMode(DEFAULT_VIEW_MODE_VALUE);
         webClientConfiguration.setMaxVisibleColumns(DEFAULT_MAX_VISIBLE_COLUMNS);
+        webClientConfiguration.setMaxEntityVisits(DEFAULT_MAX_ENTITY_VISITS);
     }
 
     private void init(Properties properties)
     {
         webClientConfiguration.setDefaultViewMode(extractDefaultViewMode(properties));
         webClientConfiguration.setMaxVisibleColumns(extractMaxVisibleColumns(properties));
+        webClientConfiguration.setMaxEntityVisits(PropertyUtils.getInt(properties,
+                MAX_ENTITY_VISITS, DEFAULT_MAX_ENTITY_VISITS));
         webClientConfiguration
                 .setDataSetTypesWithImageOverview(extractDataSetTypesWithImageOverview(properties));
         webClientConfiguration.setViews(extractHiddenSections(properties));
