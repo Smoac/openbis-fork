@@ -20,7 +20,7 @@ for testScript in $TEST_FILE_PATTERN; do
   print_result $testScript $result
 done
 
-if [ $EXIT_WITH_ERROR ]; then
+if [ true == "$EXIT_WITH_ERROR" ]; then
 	exit 1;
 fi
 
