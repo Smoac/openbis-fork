@@ -12,7 +12,7 @@
 #      * one data set is registered via a python dropbox 
 #      * a backup copy of the data set is expected to appear in the archive
 # - STEP 2
-#      * the data in the archive is damaged ot purpose
+#      * the data in the archive is damaged on purpose
 #      * archiving + delete from store is triggered
 #      * we expect the archiving process to "repair" the broken archive copy before deleting 
 #        the data set from the data store
@@ -256,12 +256,17 @@ else
 	    '-e'|'--dss')
 	        install_dss=true
 		;;
+	    '-d'|'--dmv')
+		      install_dmv=true
+		;;
+		
 	    '-o'|'--openbis')
-		    install_openbis=true
+		      install_openbis=true
 		;;
 	    '-a'|'--all')
 	        install_dss=true
-		    install_openbis=true
+	        install_dmv=true
+		      install_openbis=true
 		;;
 	    '--local-source')
 		    use_local_source=true
