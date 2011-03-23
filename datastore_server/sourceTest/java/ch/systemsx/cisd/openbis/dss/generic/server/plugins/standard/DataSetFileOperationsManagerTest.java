@@ -58,6 +58,12 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
             ExecutionResult.createExceptional(new Exception(DUMMY_ERROR_MESSAGE)), null, 0,
             (List<String>) null, null, null, null);
 
+    private static ProcessResult createOkResultWithOutput(List<String> output)
+    {
+        return new ProcessResult(Arrays.asList(""), 0, null, ExecutionResult.create(null), null, 0,
+                output, null, null, null);
+    }
+
     private static final long SSH_TIMEOUT_MILLIS = DataSetFileOperationsManager.SSH_TIMEOUT_MILLIS;
 
     private static final String LOCATION_1 = "l1";
@@ -666,7 +672,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
             {
                 {
                     /*
-                     * ds1: directory is present and content is OK
+                     * ds1: directory is present but content is WRONG
                      */
                     one(sshExecutor).exists(ds1ArchivedLocationFile.getPath(), SSH_TIMEOUT_MILLIS);
                     will(returnValue(BooleanStatus.createTrue()));
@@ -674,26 +680,35 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
                     one(sshExecutor).executeCommandRemotely(
                             gfindExec.getPath() + " " + ds1ArchivedLocationFile.getPath()
                                     + " -type f -printf \"%p\\t%s\\n\"", SSH_TIMEOUT_MILLIS);
-                    will(returnValue(ERROR_RESULT));
+                    will(returnValue(createOkResultWithOutput(Arrays.asList(
+                            "original/data1_2.txt\t4", "original/fake.txt\t666"))));
 
-                    // /*
-                    // * ds2: directory is present and content is OK
-                    // */
-                    // one(sshExecutor).exists(ds2ArchivedLocationFile.getPath(),
-                    // SSH_TIMEOUT_MILLIS);
-                    // will(returnValue(BooleanStatus.createTrue()));
+                    /*
+                     * ds2: directory is present and content is OK
+                     */
+                    one(sshExecutor).exists(ds2ArchivedLocationFile.getPath(), SSH_TIMEOUT_MILLIS);
+                    will(returnValue(BooleanStatus.createTrue()));
+                    one(sshExecutor).executeCommandRemotely(
+                            gfindExec.getPath() + " " + ds2ArchivedLocationFile.getPath()
+                                    + " -type f -printf \"%p\\t%s\\n\"", SSH_TIMEOUT_MILLIS);
+                    will(returnValue(createOkResultWithOutput(Arrays
+                            .asList("original/data2.txt\t12"))));
                 }
             });
         BooleanStatus status1 = dataSetCopier.isPresentInDestination(ds1Location, ds1);
-        // BooleanStatus status2 = dataSetCopier.isPresentInDestination(ds2Location, ds2);
-        assertError(status1, "listing files failed");
-        // assertTrue(status2);
+        assertFalse(status1, "Inconsistencies:\n"
+                + "'original/data1_1.txt' - exists in store but is missing in destination\n"
+                + "'original/data1_2.txt' - different file sizes; store: 14, destination: 4\n"
+                + "'original/fake.txt' - exists in destination but is missing in store\n");
+
+        BooleanStatus status2 = dataSetCopier.isPresentInDestination(ds2Location, ds2);
+        assertTrue(status2);
 
         context.assertIsSatisfied();
     }
 
     @Test
-    public void testRemoteViaSshIsPresentInDestinationWithError()
+    public void testRemoteViaSshIsPresentInDestinationWithErrors()
     {
         Properties properties = createRemoteViaSshDestinationProperties();
         prepareRemoteCreateAndCheckCopier(HOST, null, true);
@@ -702,12 +717,28 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
+                    /*
+                     * ds1: checking existance fails
+                     */
                     one(sshExecutor).exists(ds1ArchivedLocationFile.getPath(), SSH_TIMEOUT_MILLIS);
                     will(returnValue(BooleanStatus.createError(DUMMY_ERROR_MESSAGE)));
+
+                    /*
+                     * ds2: listing fails
+                     */
+                    one(sshExecutor).exists(ds2ArchivedLocationFile.getPath(), SSH_TIMEOUT_MILLIS);
+                    will(returnValue(BooleanStatus.createTrue()));
+
+                    one(sshExecutor).executeCommandRemotely(
+                            gfindExec.getPath() + " " + ds2ArchivedLocationFile.getPath()
+                                    + " -type f -printf \"%p\\t%s\\n\"", SSH_TIMEOUT_MILLIS);
+                    will(returnValue(ERROR_RESULT));
                 }
             });
-        BooleanStatus status = dataSetCopier.isPresentInDestination(ds1Location, ds1);
-        assertError(status, DUMMY_ERROR_MESSAGE);
+        BooleanStatus status1 = dataSetCopier.isPresentInDestination(ds1Location, ds1);
+        assertError(status1, DUMMY_ERROR_MESSAGE);
+        BooleanStatus status2 = dataSetCopier.isPresentInDestination(ds2Location, ds2);
+        assertError(status2, "listing files failed");
 
         context.assertIsSatisfied();
     }

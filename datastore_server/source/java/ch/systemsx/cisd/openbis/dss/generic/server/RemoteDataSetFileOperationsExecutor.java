@@ -210,7 +210,7 @@ public final class RemoteDataSetFileOperationsExecutor implements IDataSetFileOp
             for (String line : output)
             {
                 String split[] = line.split("\t");
-                assert split.length == 2;
+                assert split.length == 2; // silently ignore in production - it will fail later
                 destinationFileSizesByPaths.put(split[0], Long.parseLong(split[1]));
             }
         } else
