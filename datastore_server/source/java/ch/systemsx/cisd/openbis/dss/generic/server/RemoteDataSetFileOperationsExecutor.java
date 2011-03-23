@@ -205,7 +205,7 @@ public final class RemoteDataSetFileOperationsExecutor implements IDataSetFileOp
 
         if (result.isOK() == false)
         {
-            String errorOutput = StringUtilities.concatenateWithNewLine(result.getErrorOutput());
+            String errorOutput = StringUtilities.concatenateWithNewLine(result.getOutput());
             operationLog.error("Listing files in '" + destination + "' failed with exit value: "
                     + result.getExitValue() + "; error output: " + errorOutput);
             return BooleanStatus.createError("listing files failed");
