@@ -1452,9 +1452,10 @@ public final class CommonServerTest extends AbstractServerTestCase
     public void testSaveDisplaySettings()
     {
         final PersonPE person = new PersonPE();
+        EntityVisit v0 = visit(EntityKind.MATERIAL, 0);
         EntityVisit v1 = visit(EntityKind.EXPERIMENT, 1);
         EntityVisit v2 = visit(EntityKind.SAMPLE, 2);
-        DisplaySettings currentDisplaySettings = displaySettingsWithVisits(v1, v2);
+        DisplaySettings currentDisplaySettings = displaySettingsWithVisits(v0, v1, v2);
         person.setDisplaySettings(currentDisplaySettings);
         context.checking(new Expectations()
             {
@@ -1468,16 +1469,18 @@ public final class CommonServerTest extends AbstractServerTestCase
                 }
             });
         EntityVisit v3 = visit(EntityKind.DATA_SET, 3);
-        DisplaySettings displaySettings = displaySettingsWithVisits(v3);
+        EntityVisit v4 = visit(EntityKind.SAMPLE, 2);
+        DisplaySettings displaySettings = displaySettingsWithVisits(v3, v4);
 
-        createServer().saveDisplaySettings(SESSION_TOKEN, displaySettings, 2);
+        createServer().saveDisplaySettings(SESSION_TOKEN, displaySettings, 3);
 
         assertSame(displaySettings, person.getDisplaySettings());
         @SuppressWarnings("deprecation")
         List<EntityVisit> visits = displaySettings.getVisits();
         assertEquals("DATA_SET-3", visits.get(0).getEntityTypeCode());
         assertEquals("SAMPLE-2", visits.get(1).getEntityTypeCode());
-        assertEquals(2, visits.size());
+        assertEquals("EXPERIMENT-1", visits.get(2).getEntityTypeCode());
+        assertEquals(3, visits.size());
 
         context.assertIsSatisfied();
     }
