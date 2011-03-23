@@ -178,7 +178,11 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         for (DatasetDescription dataset : groupedDatasets.getNotPresentAsList())
         {
             String dataSetCode = dataset.getDatasetCode();
-            Status status = getStatusForDataset(statuses, dataSetCode, Status.createError());
+            BooleanStatus booleanStatus = groupedDatasets.getNotPresentInArchiveStatus(dataset);
+            String errorMessage =
+                    (booleanStatus.tryGetMessage() != null) ? booleanStatus.tryGetMessage() : "";
+            Status status =
+                    getStatusForDataset(statuses, dataSetCode, Status.createError(errorMessage));
             result.addResult(dataSetCode, status, Operation.ARCHIVE);
         }
 
@@ -414,6 +418,11 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         {
 
             return new ArrayList<DatasetDescription>(notPresentInArchive.keySet());
+        }
+
+        public BooleanStatus getNotPresentInArchiveStatus(DatasetDescription description)
+        {
+            return notPresentInArchive.get(description);
         }
     }
 
