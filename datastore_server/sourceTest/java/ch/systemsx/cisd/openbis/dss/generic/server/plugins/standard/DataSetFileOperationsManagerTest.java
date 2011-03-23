@@ -128,6 +128,8 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
 
     private File sshExec;
 
+    private File gfindExec;
+
     @BeforeClass
     public void init()
     {
@@ -179,6 +181,8 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
         rsyncExec.createNewFile();
         sshExec = new File(workingDirectory, "my-rssh");
         sshExec.createNewFile();
+        gfindExec = new File(workingDirectory, "my-gfind");
+        gfindExec.createNewFile();
     }
 
     private DatasetDescription createDataSetDescription(String dataSetCode, String location,
@@ -506,11 +510,18 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(Status.OK));
 
                     /*
-                     * ds2: directory exists in archive -> only copy
+                     * ds2: directory exists in archive -> delete and copy
                      */
-                    one(sshExecutor).exists(ds1ArchivedLocationFile.getParentFile().getPath(),
+                    one(sshExecutor).exists(ds2ArchivedLocationFile.getParentFile().getPath(),
                             SSH_TIMEOUT_MILLIS);
                     will(returnValue(BooleanStatus.createTrue()));
+
+                    one(sshExecutor).exists(ds2ArchivedLocationFile.getPath(), SSH_TIMEOUT_MILLIS);
+                    will(returnValue(BooleanStatus.createTrue()));
+
+                    one(sshExecutor).executeCommandRemotely(
+                            "rm -rf " + ds2ArchivedLocationFile.getPath(), SSH_TIMEOUT_MILLIS);
+                    will(returnValue(OK_RESULT));
 
                     one(copier).copyToRemote(ds2Location, ds2ArchivedLocationFile.getParentFile(),
                             HOST, null, null);
@@ -537,7 +548,13 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
                 {
                     one(sshExecutor).exists(ds1ArchivedLocationFile.getParentFile().getPath(),
                             SSH_TIMEOUT_MILLIS);
-                    will(returnValue(BooleanStatus.createTrue()));
+                    will(returnValue(BooleanStatus.createFalse()));
+
+                    one(sshExecutor).executeCommandRemotely(
+                            "mkdir -p " + ds1ArchivedLocationFile.getParentFile().getPath(),
+                            SSH_TIMEOUT_MILLIS);
+                    will(returnValue(OK_RESULT));
+
                     one(copier).copyToRemote(ds1Location, ds1ArchivedLocationFile.getParentFile(),
                             HOST, null, null);
                     will(returnValue(Status.createError(DUMMY_ERROR_MESSAGE)));
@@ -649,22 +666,28 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
             {
                 {
                     /*
-                     * ds1: TODO directory is present but content is different
+                     * ds1: directory is present and content is OK
                      */
                     one(sshExecutor).exists(ds1ArchivedLocationFile.getPath(), SSH_TIMEOUT_MILLIS);
                     will(returnValue(BooleanStatus.createTrue()));
 
-                    /*
-                     * ds2: directory is present and content is OK
-                     */
-                    one(sshExecutor).exists(ds2ArchivedLocationFile.getPath(), SSH_TIMEOUT_MILLIS);
-                    will(returnValue(BooleanStatus.createTrue()));
+                    one(sshExecutor).executeCommandRemotely(
+                            gfindExec.getPath() + " " + ds1ArchivedLocationFile.getPath()
+                                    + " -type f -printf \"%p\\t%s\\n\"", SSH_TIMEOUT_MILLIS);
+                    will(returnValue(ERROR_RESULT));
+
+                    // /*
+                    // * ds2: directory is present and content is OK
+                    // */
+                    // one(sshExecutor).exists(ds2ArchivedLocationFile.getPath(),
+                    // SSH_TIMEOUT_MILLIS);
+                    // will(returnValue(BooleanStatus.createTrue()));
                 }
             });
         BooleanStatus status1 = dataSetCopier.isPresentInDestination(ds1Location, ds1);
-        BooleanStatus status2 = dataSetCopier.isPresentInDestination(ds2Location, ds2);
-        assertTrue(status1);
-        assertTrue(status2);
+        // BooleanStatus status2 = dataSetCopier.isPresentInDestination(ds2Location, ds2);
+        assertError(status1, "listing files failed");
+        // assertTrue(status2);
 
         context.assertIsSatisfied();
     }
@@ -840,6 +863,8 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
                 rsyncExec.getPath());
         properties.setProperty(DataSetFileOperationsManager.SSH_EXEC + "-executable",
                 sshExec.getPath());
+        properties.setProperty(DataSetFileOperationsManager.GFIND_EXEC + "-executable",
+                gfindExec.getPath());
         return properties;
     }
 
@@ -855,6 +880,8 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
                 rsyncExec.getPath());
         properties.setProperty(DataSetFileOperationsManager.SSH_EXEC + "-executable",
                 sshExec.getPath());
+        properties.setProperty(DataSetFileOperationsManager.GFIND_EXEC + "-executable",
+                gfindExec.getPath());
         return properties;
     }
 

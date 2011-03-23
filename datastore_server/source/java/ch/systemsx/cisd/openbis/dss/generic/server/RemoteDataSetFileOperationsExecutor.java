@@ -17,19 +17,25 @@
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.File;
+import java.io.FileFilter;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.bds.StringUtils;
 import ch.systemsx.cisd.common.exceptions.ExceptionWithStatus;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IPathCopier;
 import ch.systemsx.cisd.common.filesystem.ssh.ISshCommandExecutor;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.ProcessResult;
 import ch.systemsx.cisd.common.utilities.StringUtilities;
+import ch.systemsx.cisd.openbis.dss.generic.server.LocalDataSetFileOperationsExcecutor.FolderFileSizesReportGenerator;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DataSetCopier;
 
 public final class RemoteDataSetFileOperationsExecutor implements IDataSetFileOperationsExecutor
@@ -48,14 +54,18 @@ public final class RemoteDataSetFileOperationsExecutor implements IDataSetFileOp
 
     private final String rsyncPasswordFileOrNull;
 
+    private final File gfindExecutable;
+
     public RemoteDataSetFileOperationsExecutor(ISshCommandExecutor executor, IPathCopier copier,
-            String host, String rsyncModuleNameOrNull, String rsyncPasswordFileOrNull)
+            File gfindExecutable, String host, String rsyncModuleNameOrNull,
+            String rsyncPasswordFileOrNull)
     {
         this.executor = executor;
         this.copier = copier;
         this.host = host;
         this.rsyncModuleNameOrNull = rsyncModuleNameOrNull;
         this.rsyncPasswordFileOrNull = rsyncPasswordFileOrNull;
+        this.gfindExecutable = gfindExecutable;
     }
 
     public BooleanStatus exists(File file)
@@ -179,12 +189,57 @@ public final class RemoteDataSetFileOperationsExecutor implements IDataSetFileOp
         {
             return BooleanStatus.createFalse("Data set location '" + dataSet + "' doesn't exist");
         }
-        // else if (false == fileOperations.exists(destination))
-        // {
-        // return BooleanStatus.createFalse("Destination location '" + destination
-        // + "' doesn't exist");
-        // }
-        return executor.exists(destination.getPath(), DataSetCopier.SSH_TIMEOUT_MILLIS);
+        BooleanStatus existsStatus =
+                executor.exists(destination.getPath(), DataSetCopier.SSH_TIMEOUT_MILLIS);
+        if (false == existsStatus.isSuccess())
+        {
+            return existsStatus;
+        }
+        FileFilter nullFilter = null;
+        List<File> storeFiles = FileUtilities.listFiles(dataSet, nullFilter, true);
+        Map<String, Long> dataSetFileSizesByPaths =
+                FolderFileSizesReportGenerator.extractSizesByPaths(storeFiles, dataSet);
+        String cmd = createListFilesWithFileSizeCmd(destination.getPath(), gfindExecutable);
+        ProcessResult result =
+                executor.executeCommandRemotely(cmd, DataSetCopier.SSH_TIMEOUT_MILLIS);
+
+        Map<String, Long> destinationFileSizesByPaths = new LinkedHashMap<String, Long>();
+        if (result.isOK() && result.getOutput() != null)
+        {
+            List<String> output = result.getOutput();
+            for (String line : output)
+            {
+                String split[] = line.split("\t");
+                assert split.length == 2;
+                destinationFileSizesByPaths.put(split[0], Long.parseLong(split[1]));
+            }
+        } else
+        {
+            String errorOutput = StringUtilities.concatenateWithNewLine(result.getErrorOutput());
+            operationLog.error("Listing files in '" + destination + "' failed with exit value: "
+                    + result.getExitValue() + "; error output: " + errorOutput);
+            return BooleanStatus.createError("listing files failed");
+        }
+
+        String inconsistenciesReport =
+                FolderFileSizesReportGenerator.findInconsistencies(dataSetFileSizesByPaths,
+                        destinationFileSizesByPaths);
+        if (StringUtils.isBlank(inconsistenciesReport))
+        {
+            return BooleanStatus.createTrue();
+        } else
+        {
+            return BooleanStatus.createFalse("Inconsistencies:\n" + inconsistenciesReport);
+        }
+    }
+
+    /**
+     * Returns a bash command listing relative file paths of regular files with their sizes in
+     * bytes.
+     */
+    private static String createListFilesWithFileSizeCmd(final String path, final File findExec)
+    {
+        return findExec + " " + path + " -type f -printf \"%p\\t%s\\n\"";
     }
 
 }

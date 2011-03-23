@@ -71,6 +71,9 @@ public class DataSetFileOperationsManager
     static final String SSH_EXEC = "ssh";
 
     @Private
+    static final String GFIND_EXEC = "find";
+
+    @Private
     static final long SSH_TIMEOUT_MILLIS = 15 * 1000; // 15s
 
     private final IDataSetFileOperationsExecutor executor;
@@ -96,6 +99,7 @@ public class DataSetFileOperationsManager
         {
             File sshExecutable = Copier.getExecutable(properties, SSH_EXEC);
             File rsyncExecutable = Copier.getExecutable(properties, RSYNC_EXEC);
+            File gfindExecutable = Copier.getExecutable(properties, GFIND_EXEC);
             IPathCopier copier = pathCopierFactory.create(rsyncExecutable, sshExecutable);
             copier.check();
             String rsyncModule = hostAwareFile.tryGetRsyncModule();
@@ -105,8 +109,9 @@ public class DataSetFileOperationsManager
             ISshCommandExecutor sshCommandExecutor =
                     sshCommandExecutorFactory.create(sshExecutable, hostOrNull);
             this.executor =
-                    new RemoteDataSetFileOperationsExecutor(sshCommandExecutor, copier, hostOrNull,
-                            rsyncModule, rsyncPasswordFile);
+                    new RemoteDataSetFileOperationsExecutor(sshCommandExecutor, copier,
+                            gfindExecutable, hostOrNull, rsyncModule, rsyncPasswordFile);
+
         }
     }
 
@@ -119,8 +124,10 @@ public class DataSetFileOperationsManager
         try
         {
             File destinationFolder = new File(destination, dataset.getDataSetLocation());
-            createFolderIfNotExists(destinationFolder.getParentFile());
-            // deleteFolderIfExists(destinationFolder.getParentFile());
+            if (false == createFolderIfNotExists(destinationFolder.getParentFile()))
+            {
+                deleteFolderIfExists(destinationFolder);
+            }
             operationLog.info("Copy dataset '" + dataset.getDatasetCode() + "' from '"
                     + originalData.getPath() + "' to '" + destinationFolder.getParentFile());
             executor.copyDataSetToDestination(originalData, destinationFolder.getParentFile());
@@ -203,22 +210,24 @@ public class DataSetFileOperationsManager
         }
     }
 
-    // private void deleteFolderIfExists(File destinationFolder)
-    // {
-    // BooleanStatus destinationExists = destinationExists(destinationFolder);
-    // if (destinationExists.isSuccess())
-    // {
-    // executor.deleteFolder(destinationFolder);
-    // }
-    // }
+    private void deleteFolderIfExists(File destinationFolder)
+    {
+        BooleanStatus destinationExists = destinationExists(destinationFolder);
+        if (destinationExists.isSuccess())
+        {
+            executor.deleteFolder(destinationFolder);
+        }
+    }
 
-    private void createFolderIfNotExists(File destinationFolder)
+    private boolean createFolderIfNotExists(File destinationFolder)
     {
         BooleanStatus destinationExists = destinationExists(destinationFolder);
         if (destinationExists.isSuccess() == false)
         {
             executor.createFolder(destinationFolder);
+            return true;
         }
+        return false;
     }
 
     private BooleanStatus destinationExists(File destinationFolder)

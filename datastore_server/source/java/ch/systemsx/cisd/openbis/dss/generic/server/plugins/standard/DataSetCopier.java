@@ -50,6 +50,8 @@ public class DataSetCopier extends AbstractDropboxProcessingPlugin
     @Private
     static final String COPYING_FAILED_MSG = "copying failed";
 
+    public static final String GFIND_EXEC = "find";
+
     public static final String RSYNC_EXEC = "rsync";
 
     public static final String SSH_EXEC = "ssh";
