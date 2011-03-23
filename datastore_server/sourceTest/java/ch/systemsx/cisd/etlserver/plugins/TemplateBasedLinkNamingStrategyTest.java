@@ -18,9 +18,6 @@ package ch.systemsx.cisd.etlserver.plugins;
 
 import static ch.systemsx.cisd.etlserver.plugins.TemplateBasedLinkNamingStrategy.DEFAULT_LINK_TEMPLATE;
 
-import java.io.File;
-import java.util.Set;
-
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
@@ -67,13 +64,6 @@ public class TemplateBasedLinkNamingStrategyTest extends AbstractFileSystemTestC
 
     }
 
-    @Test
-    public void testExtractPathsFromFileSystem() throws Exception
-    {
-        assertFile(DATASET_PATH_DEFAULT).isExtractedWithTemplate(DEFAULT_LINK_TEMPLATE);
-        assertFile(DATASET_PATH_LONG).isExtractedWithTemplate(LONG_LINK_TEMPLATE);
-    }
-
     private String createPathFromTemplate(String template)
     {
         SimpleDataSetInformationDTO dsInfo = createDataSetInfo();
@@ -93,34 +83,5 @@ public class TemplateBasedLinkNamingStrategyTest extends AbstractFileSystemTestC
         dsInfo.setProjectCode(PROJECT);
         dsInfo.setSampleCode(SAMPLE);
         return dsInfo;
-    }
-
-    private PathRecognizingAssertions assertFile(String fileName)
-    {
-        return new PathRecognizingAssertions(fileName);
-    }
-
-    private class PathRecognizingAssertions
-    {
-
-        private String fileName;
-
-        public PathRecognizingAssertions(String fileName)
-        {
-            this.fileName = fileName;
-        }
-
-        private void isExtractedWithTemplate(String template)
-        {
-            File dataSetPath = new File(workingDirectory, fileName);
-            dataSetPath.mkdirs();
-
-            TemplateBasedLinkNamingStrategy strategy =
-                    new TemplateBasedLinkNamingStrategy(template);
-            Set<String> paths = strategy.extractPaths(workingDirectory);
-            assertTrue(paths.contains(dataSetPath.getAbsolutePath()));
-        }
-
-
     }
 }

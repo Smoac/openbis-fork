@@ -62,8 +62,8 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
 
     private static final String REBUILDING_HIERARCHICAL_STORAGE = "Rebuilding hierarchical storage";
 
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            HierarchicalStorageUpdater.class);
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, HierarchicalStorageUpdater.class);
 
     private static class LinkSourceDescriptor
     {
@@ -232,8 +232,7 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
         LinkSourceDescriptor linkSourceDescriptor = getLinkSourceDescriptor(dataSetType);
         File source = dataSetLocationRoot;
 
-        if (linkSourceDescriptor != null)
-        {
+        if (linkSourceDescriptor != null) {
             String subPath = linkSourceDescriptor.getSubFolder();
             if (StringUtils.isBlank(subPath) == false)
             {
@@ -316,7 +315,7 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
                 {
                     toDelete = parent;
                     parent = toDelete.getParentFile();
-                    delete(toDelete);
+                    toDelete.delete();
                 } else
                 {
                     break;
@@ -325,39 +324,40 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
         }
     }
 
-    private static void deleteWithSymbolicLinks(File toDeleteParent)
+    private static void deleteWithSymbolicLinks(File toDelete)
     {
-        if (toDeleteParent.isDirectory() == false)
+        if (FileUtilities.isSymbolicLink(toDelete))
         {
-            operationLog
-                    .error("Directory structure is different than expected. File '"
-                            + toDeleteParent.getPath()
-                            + "' should be a directory. It will not be cleared.");
+            toDelete.delete();
             return;
         }
-        for (File file : toDeleteParent.listFiles())
+
+        if (toDelete.isDirectory() == false)
+        {
+                operationLog.error("Directory structure is different than expected. File '"
+                        + toDelete.getPath() + "' should be a directory. It will not be cleared.");
+            return;
+        }
+
+        for (File file : toDelete.listFiles())
         {
             // all these files should be symbolic links to a dataset directory.
             // We cannot delete recursively here, it would remove the original files.
-            boolean ok = delete(file);
+            if (false == FileUtilities.isSymbolicLink(file))
+            {
+                operationLog.error(file.getPath()
+                        + " is not a symbolic link and will not be deleted.");
+                return;
+            }
+            boolean ok = file.delete();
             if (ok == false)
             {
                 operationLog.error("Cannot delete the file: " + file.getPath());
             }
         }
-        delete(toDeleteParent);
-    }
 
-    private static boolean delete(File file)
-    {
-        if (FileUtilities.isSymbolicLink(file) || file.isDirectory())
-        {
-            return file.delete();
-        } else
-        {
-            throw new IllegalStateException("Illegal attemp to delete a regular file: "
-                    + file.getPath());
-        }
+        // delete the folder in the end
+        toDelete.delete();
     }
 
     /**

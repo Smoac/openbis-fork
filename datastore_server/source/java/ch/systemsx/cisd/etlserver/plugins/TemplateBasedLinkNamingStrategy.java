@@ -20,11 +20,11 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
@@ -42,8 +42,6 @@ public class TemplateBasedLinkNamingStrategy implements IHierarchicalStorageLink
     private static final String LINKS_TEMPLATE_PROP_NAME = "template";
 
     private static final String NOT_DIRECTLY_CONNECTED = "NOT_DIRECTLY_CONNECTED";
-
-    private static final String MATCH_ALL_FILE_NAMES = "([^/]*)";
 
     private final String linkTemplate;
 
@@ -94,21 +92,8 @@ public class TemplateBasedLinkNamingStrategy implements IHierarchicalStorageLink
     public Set<String> extractPaths(File root)
     {
         HashSet<String> set = new HashSet<String>();
-        Pattern matchingFilesFilter = createMatchingFilesFilter(root);
-        accumulatePaths(set, root, matchingFilesFilter, getNestedDirectoryLevels());
+        accumulateSymLinkPaths(set, root);
         return set;
-    }
-
-    private Pattern createMatchingFilesFilter(File root)
-    {
-        ExtendedProperties props = new ExtendedProperties();
-        for (PathVariable var : PathVariable.values())
-        {
-            props.put(var.name(), MATCH_ALL_FILE_NAMES);
-        }
-
-        String subPathRegex = evaluateTemplate(props);
-        return Pattern.compile(root.getAbsolutePath() + File.separator + subPathRegex);
     }
 
     private String evaluateTemplate(ExtendedProperties props)
@@ -118,30 +103,21 @@ public class TemplateBasedLinkNamingStrategy implements IHierarchicalStorageLink
         return props.getProperty("template");
     }
 
-    private int getNestedDirectoryLevels()
-    {
-        return StringUtils.countMatches(linkTemplate, File.separator);
-    }
-
     @Private
-    static void accumulatePaths(HashSet<String> paths, File dir, Pattern matchingFilesFilter,
-            int maxNestedLevel)
+    static void accumulateSymLinkPaths(HashSet<String> paths, File dir)
     {
         File[] children = dir.listFiles();
         if (children != null)
         {
             for (File child : children)
             {
-                if (maxNestedLevel > 0)
-                {
-                    accumulatePaths(paths, child, matchingFilesFilter, maxNestedLevel - 1);
-                } else
+                if (FileUtilities.isSymbolicLink(child))
                 {
                     String absolutePath = child.getAbsolutePath();
-                    if (matchingFilesFilter.matcher(absolutePath).matches())
-                    {
-                        paths.add(absolutePath);
-                    }
+                    paths.add(absolutePath);
+                } else if (child.isDirectory())
+                {
+                    accumulateSymLinkPaths(paths, child);
                 }
             }
         }
