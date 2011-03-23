@@ -55,10 +55,10 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.ExperimentLoader;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.ISampleLoader;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.CommonConstants;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IProteomicsDataServiceInternal;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.authorization.validator.ParentSampleValidator;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.authorization.validator.RawDataSampleValidator;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.CommonConstants;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 
 /**

@@ -16,19 +16,44 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.util.Margins;
+import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.layout.RowData;
+import com.extjs.gxt.ui.client.widget.layout.RowLayout;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Widget;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableTabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.ProcessingDisplayCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
+import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentViewer;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.CommonConstants;
 
 /**
  * @author Franz-Josef Elmer
@@ -71,6 +96,81 @@ public class ExperimentViewer extends GenericExperimentViewer
                     };
         section.setIds(DisplayTypeIDGenerator.PROTEIN_SECTION);
         return Collections.<DisposableTabContent> singletonList(section);
+    }
+
+    @Override
+    protected Component tryCreateLowerLeftComponent()
+    {
+        if (viewContext.isSimpleMode())
+        {
+            return null; // no processing in simple view mode
+        }
+        final ContentPanel contentPanel = new ContentPanel(new RowLayout());
+        contentPanel.setHeading(viewContext.getMessage(Dict.DATA_SET_PROCESSING_SECTION_TITLE));
+        viewContext.getCommonService().listExperimentDataSets(new TechId(experimentId),
+                DefaultResultSetConfig.<String, ExternalData> createFetchAll(),
+                new AbstractAsyncCallback<ResultSetWithEntityTypes<ExternalData>>(viewContext)
+                    {
+                        @Override
+                        protected void process(ResultSetWithEntityTypes<ExternalData> result)
+                        {
+                            AsyncCallback<List<DatastoreServiceDescription>> callBack =
+                                    createCallback(contentPanel, result);
+                            viewContext.getCommonService().listDataStoreServices(
+                                    DataStoreServiceKind.PROCESSING, callBack);
+
+                        }
+                    });
+        return contentPanel;
+    }
+
+    private AsyncCallback<List<DatastoreServiceDescription>> createCallback(
+            final ContentPanel contentPanel, ResultSetWithEntityTypes<ExternalData> result)
+    {
+        final List<String> dataSetCodes = new ArrayList<String>();
+        for (GridRowModel<ExternalData> gridRowModel : result.getResultSet().getList())
+        {
+            dataSetCodes.add(gridRowModel.getOriginalObject().getCode());
+        }
+        final DisplayedOrSelectedDatasetCriteria criteria =
+                DisplayedOrSelectedDatasetCriteria.createSelectedItems(dataSetCodes);
+        return new AbstractAsyncCallback<List<DatastoreServiceDescription>>(viewContext)
+            {
+                @Override
+                protected void process(List<DatastoreServiceDescription> descriptions)
+                {
+                    for (final DatastoreServiceDescription description : descriptions)
+                    {
+                        String[] dataSetTypes = description.getDatasetTypeCodes();
+                        for (String dataSetType : dataSetTypes)
+                        {
+                            if (dataSetType.equals(CommonConstants.PROT_RESULT_DATA_SET_TYPE))
+                            {
+                                Widget link = createLink(description, criteria);
+                                LayoutContainer wrapper = new LayoutContainer(new FitLayout());
+                                wrapper.add(link);
+                                contentPanel.add(wrapper, new RowData(1, -1, new Margins(5)));
+                            }
+                        }
+                    }
+                    contentPanel.layout();
+                }
+            };
+    }
+    
+    private Widget createLink(final DatastoreServiceDescription description,
+            final DisplayedOrSelectedDatasetCriteria criteria)
+    {
+        String href = "";
+        ClickHandler listener = new ClickHandler()
+            {
+                public void onClick(ClickEvent event)
+                {
+                    viewContext.getCommonService().processDatasets(description, criteria,
+                            new ProcessingDisplayCallback(viewContext));
+                }
+            };
+        return LinkRenderer.getLinkWidget(description.getLabel(), listener, href, false);
     }
 
 }

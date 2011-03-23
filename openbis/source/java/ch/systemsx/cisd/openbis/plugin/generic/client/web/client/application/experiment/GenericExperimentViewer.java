@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 
@@ -65,7 +66,7 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
-    private final IViewContext<IGenericClientServiceAsync> viewContext;
+    protected final IViewContext<IGenericClientServiceAsync> viewContext;
 
     protected final IIdAndCodeHolder experimentId;
 
@@ -147,7 +148,12 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
         updateOriginalData(experiment);
         removeAll();
 
-        this.propertiesPanelOrNull = new ExperimentPropertiesPanel(experiment, viewContext, this);
+        propertiesPanelOrNull = new ExperimentPropertiesPanel(experiment, viewContext, this);
+        Component lowerLeftComponentOrNull = tryCreateLowerLeftComponent();
+        if (lowerLeftComponentOrNull != null)
+        {
+            propertiesPanelOrNull.addSouthComponent(lowerLeftComponentOrNull);
+        }
         add(propertiesPanelOrNull, createLeftBorderLayoutData());
         configureLeftPanel(propertiesPanelOrNull);
 
@@ -169,6 +175,16 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
                     layout();
                 }
             });
+    }
+    
+    /**
+     * Returns the component to be shown below experiment properties.
+     * 
+     * @return <code>null</code> if nothing should be shown (default behavior).
+     */
+    protected Component tryCreateLowerLeftComponent()
+    {
+        return null;
     }
 
     public static final String createId(final IIdAndCodeHolder identifiable)

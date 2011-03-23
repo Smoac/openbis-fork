@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared;
+package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic;
 
 /**
- * 
+ * Commons constants used in DSS and AS.
  *
  * @author Franz-Josef Elmer
  */
@@ -27,5 +27,6 @@ public class CommonConstants
     public static final String MS_INJECTION_SAMPLE_TYPE_CODE = "MS_INJECTION";
     public static final String BIOLOGICAL_SAMPLE_PREFIX = "BIO";
     public static final String MS_DATA_SPACE = "MS_DATA";
+    public static final String PROT_RESULT_DATA_SET_TYPE = "PROT_RESULT";
 
 }

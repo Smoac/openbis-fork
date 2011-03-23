@@ -20,8 +20,12 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -73,13 +77,23 @@ public class ExperimentPropertiesPanel extends ContentPanel
             final IViewContext<IGenericClientServiceAsync> viewContext,
             final GenericExperimentViewer viewer)
     {
+        super(new BorderLayout());
         setHeading("Experiment Properties");
         this.experimentId = new TechId(experiment);
         this.viewContext = viewContext;
         this.viewer = viewer;
         this.grid = createPropertyGrid(experiment);
-        add(grid);
-        setScrollMode(Scroll.AUTOY);
+        ContentPanel pp = new ContentPanel();
+        pp.setHeaderVisible(false);
+        pp.setScrollMode(Scroll.AUTOY);
+        pp.add(grid);
+        add(pp, new BorderLayoutData(LayoutRegion.CENTER));
+    }
+    
+    public void addSouthComponent(Component component)
+    {
+        add(component, new BorderLayoutData(LayoutRegion.SOUTH));
+        layout();
     }
 
     private PropertyGrid createPropertyGrid(Experiment experiment)

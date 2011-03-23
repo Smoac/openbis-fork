@@ -45,7 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.CommonConstants;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.CommonConstants;
 
 /**
  * Data set info extractor for MS injection data sets. Information is extracted from a properties

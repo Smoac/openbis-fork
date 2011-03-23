@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeSearchFi
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.CommonConstants;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.CommonConstants;
 
 /**
  * Provider of MS_INJECTION samples registered for the user.

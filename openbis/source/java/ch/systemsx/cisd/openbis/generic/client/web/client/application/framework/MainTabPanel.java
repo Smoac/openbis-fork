@@ -85,7 +85,6 @@ public class MainTabPanel extends TabPanel implements IMainPanel
     private final MainTabItem createWelcomePanel()
     {
         final LayoutContainer mainComponent = new LayoutContainer(new FitLayout());
-//        mainComponent.add(WelcomePanelHelper.createWelcomePanel(viewContext, PREFIX));
         ITabItem tabItem =
                 DefaultTabItem.createWithUpdater(BLANK_TAB_TITLE, mainComponent,
                         new IDelegatedAction()

@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.CommonConstants;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.CommonConstants;
 
 /**
  * Handler of {@link Parameter} objects of type 'abundance'.

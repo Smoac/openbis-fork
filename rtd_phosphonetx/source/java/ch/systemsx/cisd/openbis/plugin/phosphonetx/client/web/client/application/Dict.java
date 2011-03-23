@@ -47,6 +47,10 @@ public class Dict
     
     public static final String PROTEIN_SUMMARY = "protein_summary";
     
+    // Experiment Viewer
+
+    public static final String DATA_SET_PROCESSING_SECTION_TITLE = "data_set_processing_section_title";
+    
 
     // Protein Viewer
     public static final String PROTEINS_SECTION = "proteins_section";

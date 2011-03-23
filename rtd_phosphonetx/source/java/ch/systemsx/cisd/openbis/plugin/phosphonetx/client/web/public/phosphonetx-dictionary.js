@@ -7,6 +7,9 @@ var phosphonetx = {
   aggregate_function_label: "Aggregate Function",
   aggregate_on_treatment_type_label: "Aggregate on",
   aggregate_original_label: "Aggregate original", 
+  
+  // Experiment View
+  data_set_processing_section_title: "Available Data Set Processing Tasks",
     
   // Protein grid
   accession_number: "Accession Number",

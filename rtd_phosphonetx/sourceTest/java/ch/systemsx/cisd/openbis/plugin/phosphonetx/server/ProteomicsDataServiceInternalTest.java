@@ -61,8 +61,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.ISampleLoader;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.CommonConstants;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IProteomicsDataServiceInternal;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.CommonConstants;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 
 /**

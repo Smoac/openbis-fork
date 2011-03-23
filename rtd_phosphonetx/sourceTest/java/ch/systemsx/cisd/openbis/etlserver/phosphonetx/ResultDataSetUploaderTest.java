@@ -64,7 +64,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.CommonConstants;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.CommonConstants;
 
 /**
  * @author Franz-Josef Elmer
