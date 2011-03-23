@@ -29,7 +29,7 @@ public class TabTitleUpdater
     /**
      * Updates the tab title if binded, stores the title value otherwise.
      */
-    void update(String newTitle)
+    private void update(String newTitle)
     {
         this.title = newTitle;
         if (tab != null)
