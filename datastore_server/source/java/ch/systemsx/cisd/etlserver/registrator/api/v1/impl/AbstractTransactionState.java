@@ -29,8 +29,10 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperiment;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperimentImmutable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IProject;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.ISampleImmutable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISpace;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityOperationDetails;
@@ -42,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
@@ -165,6 +168,25 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
 
             DataSet<T> dataSet =
                     registrationDetailsFactory.createDataSet(registrationDetails, stagingFolder);
+
+            // If the registration details already contains a sample or experiment, set it on the
+            // new data set.
+
+            SampleIdentifier sampleId =
+                    registrationDetails.getDataSetInformation().getSampleIdentifier();
+            if (null != sampleId)
+            {
+                ISampleImmutable sample = parent.getSample(sampleId.toString());
+                dataSet.setSample(sample);
+            }
+            ExperimentIdentifier experimentId =
+                    registrationDetails.getDataSetInformation().getExperimentIdentifier();
+            if (null != experimentId)
+            {
+                IExperimentImmutable exp = parent.getExperiment(experimentId.toString());
+                dataSet.setExperiment(exp);
+            }
+
             registeredDataSets.add(dataSet);
             return dataSet;
         }
@@ -365,9 +387,8 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
 
             AtomicEntityOperationDetails<T> registrationDetails =
                     new AtomicEntityOperationDetails<T>(getUserId(), spaceRegistrations,
-                            projectRegistrations, experimentUpdates,
-                            experimentRegistrations, sampleUpdates, sampleRegistrations,
-                            dataSetRegistrations);
+                            projectRegistrations, experimentUpdates, experimentRegistrations,
+                            sampleUpdates, sampleRegistrations, dataSetRegistrations);
             return registrationDetails;
         }
 

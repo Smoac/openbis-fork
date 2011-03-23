@@ -19,6 +19,7 @@ package ch.systemsx.cisd.etlserver.registrator;
 import static ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.STORAGE_PROCESSOR_KEY;
 
 import java.io.File;
+import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -40,6 +41,7 @@ import ch.systemsx.cisd.etlserver.IDataStrategyStore;
 import ch.systemsx.cisd.etlserver.IPostRegistrationAction;
 import ch.systemsx.cisd.etlserver.IPreRegistrationAction;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
+import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.PropertiesBasedETLServerPlugin;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
@@ -157,6 +159,23 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         }
     }
 
+    public static class DoNothingDelegatedAction implements IDelegatedActionWithResult<Boolean>
+    {
+        public Boolean execute()
+        {
+            return true; // do nothing
+        }
+    }
+
+    public static class NoOpDelegate implements ITopLevelDataSetRegistratorDelegate
+    {
+
+        public void didRegisterDataSets(List<DataSetInformation> dataSetInformations)
+        {
+        }
+
+    }
+
     private final OmniscientTopLevelDataSetRegistratorState state;
 
     private boolean stopped;
@@ -226,17 +245,37 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         } else
         {
             incomingDataSetFile = incomingDataSetFileOrIsFinishedFile;
-            cleanAfterwardsAction = new IDelegatedActionWithResult<Boolean>()
-                {
-                    public Boolean execute()
-                    {
-                        return true; // do nothing
-                    }
-                };
+            cleanAfterwardsAction = new DoNothingDelegatedAction();
         }
 
+        handle(incomingDataSetFile, null, new NoOpDelegate(), cleanAfterwardsAction);
+    }
+
+    /**
+     * A file has arrived via RPC, handle it!
+     * <p>
+     * The handleDataSet method (a subclass responsibility) is invoked.
+     */
+    public final void handle(File incomingDataSetFile, DataSetInformation callerDataSetInformation,
+            ITopLevelDataSetRegistratorDelegate delegate)
+    {
+        if (stopped)
+        {
+            return;
+        }
+
+        handle(incomingDataSetFile, callerDataSetInformation, delegate,
+                new DoNothingDelegatedAction());
+    }
+
+    private void handle(File incomingDataSetFile,
+            DataSetInformation callerDataSetInformationOrNull,
+            ITopLevelDataSetRegistratorDelegate delegate,
+            final IDelegatedActionWithResult<Boolean> cleanAfterwardsAction)
+    {
         DataSetRegistrationService<T> service =
-                createDataSetRegistrationService(incomingDataSetFile, cleanAfterwardsAction);
+                createDataSetRegistrationService(incomingDataSetFile,
+                        callerDataSetInformationOrNull, cleanAfterwardsAction, delegate);
 
         try
         {
@@ -315,16 +354,18 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
      * Create the data set registration service.
      * 
      * @param incomingDataSetFile
+     * @param callerDataSetInformationOrNull
      */
     protected DataSetRegistrationService<T> createDataSetRegistrationService(
-            File incomingDataSetFile,
-            final IDelegatedActionWithResult<Boolean> cleanAfterwardsAction)
+            File incomingDataSetFile, DataSetInformation callerDataSetInformationOrNull,
+            final IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
+            ITopLevelDataSetRegistratorDelegate delegate)
     {
         @SuppressWarnings("unchecked")
         DataSetRegistrationService<T> service =
                 new DataSetRegistrationService(this, incomingDataSetFile,
-                        new DefaultDataSetRegistrationDetailsFactory(getRegistratorState()),
-                        cleanAfterwardsAction);
+                        new DefaultDataSetRegistrationDetailsFactory(getRegistratorState(),
+                                callerDataSetInformationOrNull), cleanAfterwardsAction, delegate);
         return service;
     }
 

@@ -33,7 +33,7 @@ public class DataSetRegistrationAlgorithmRunner
         public void didNotIdentifyDataSet();
     }
 
-    private static final class NoOpDelegate implements IDataSetRegistrationAlgorithmRunnerDelegate
+    public static final class NoOpDelegate implements IDataSetRegistrationAlgorithmRunnerDelegate
     {
 
         public void didNotIdentifyDataSet()
@@ -46,14 +46,12 @@ public class DataSetRegistrationAlgorithmRunner
 
     private final IDataSetRegistrationAlgorithmRunnerDelegate delegate;
 
-    public DataSetRegistrationAlgorithmRunner(
-            DataSetRegistrationHelper registrationHelper)
+    public DataSetRegistrationAlgorithmRunner(DataSetRegistrationHelper registrationHelper)
     {
         this(registrationHelper, new NoOpDelegate());
     }
 
-    public DataSetRegistrationAlgorithmRunner(
-            DataSetRegistrationHelper registrationHelper,
+    public DataSetRegistrationAlgorithmRunner(DataSetRegistrationHelper registrationHelper,
             IDataSetRegistrationAlgorithmRunnerDelegate delegate)
     {
         this(registrationHelper.getRegistrationAlgorithm(), delegate);

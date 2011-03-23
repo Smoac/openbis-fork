@@ -16,10 +16,12 @@
 
 package ch.systemsx.cisd.etlserver;
 
+import java.io.File;
 import java.util.concurrent.locks.Lock;
 
 import ch.systemsx.cisd.common.filesystem.IPathHandler;
 import ch.systemsx.cisd.common.utilities.ISelfTestable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
  * A path handler that registers data sets.
@@ -33,4 +35,16 @@ public interface ITopLevelDataSetRegistrator extends IPathHandler, ISelfTestable
      * registrator.
      */
     public Lock getRegistrationLock();
+
+    /**
+     * Process a file, using the callerDataSetInformation as a guide for creating the data set and
+     * notifying the delegate of activity.
+     * 
+     * @param file The file to process.
+     * @param callerDataSetInformation A DataSetInformation provided by the caller. Implementors
+     *            will want to use this as a template when they register data sets.
+     * @param delegate The delegate to notify as activity happens.
+     */
+    public void handle(File file, DataSetInformation callerDataSetInformation,
+            ITopLevelDataSetRegistratorDelegate delegate);
 }

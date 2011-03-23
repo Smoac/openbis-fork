@@ -51,6 +51,7 @@ import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
+import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.etlserver.ThreadParameters;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
@@ -1072,11 +1073,13 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
 
         @Override
         protected JythonDataSetRegistrationService<DataSetInformation> createJythonDataSetRegistrationService(
-                File aDataSetFile, IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
-                PythonInterpreter interpreter)
+                File aDataSetFile, DataSetInformation userProvidedDataSetInformationOrNull,
+                IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
+                ITopLevelDataSetRegistratorDelegate delegate, PythonInterpreter interpreter)
         {
             JythonDataSetRegistrationService<DataSetInformation> service =
-                    new TestDataRegistrationService(this, aDataSetFile, cleanAfterwardsAction,
+                    new TestDataRegistrationService(this, aDataSetFile,
+                            userProvidedDataSetInformationOrNull, cleanAfterwardsAction,
                             interpreter, shouldRegistrationFail);
             return service;
         }
@@ -1095,10 +1098,13 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
          */
         public TestDataRegistrationService(
                 JythonTopLevelDataSetHandler<DataSetInformation> registrator, File aDataSetFile,
+                DataSetInformation userProvidedDataSetInformationOrNull,
                 IDelegatedActionWithResult<Boolean> globalCleanAfterwardsAction,
                 PythonInterpreter interpreter, boolean shouldRegistrationFail)
         {
-            super(registrator, aDataSetFile, globalCleanAfterwardsAction, interpreter);
+            super(registrator, aDataSetFile, userProvidedDataSetInformationOrNull,
+                    globalCleanAfterwardsAction,
+                    new AbstractOmniscientTopLevelDataSetRegistrator.NoOpDelegate(), interpreter);
             this.shouldRegistrationFail = shouldRegistrationFail;
         }
 
@@ -1123,7 +1129,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
                 AbstractOmniscientTopLevelDataSetRegistrator<DataSetInformation> registrator,
                 boolean shouldRegistrationFail)
         {
-            super(registrator);
+            super(registrator, new AbstractOmniscientTopLevelDataSetRegistrator.NoOpDelegate());
             this.shouldRegistrationFail = shouldRegistrationFail;
         }
 

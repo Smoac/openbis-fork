@@ -32,7 +32,7 @@ public class TopLevelDataSetRegistratorGlobalState
     private final String dssCode;
 
     private final String shareId;
-    
+
     private final File storeRootDir;
 
     private final IEncapsulatedOpenBISService openBisService;
@@ -53,10 +53,37 @@ public class TopLevelDataSetRegistratorGlobalState
 
     private final String postRegistrationScriptOrNull;
 
+    /**
+     * Constructor that takes some values from the thread parameters.
+     * 
+     * @param dssCode
+     * @param shareId
+     * @param storeRootDir
+     * @param openBisService
+     * @param mailClient
+     * @param dataSetValidator
+     * @param notifySuccessfulRegistration
+     * @param threadParameters
+     */
     public TopLevelDataSetRegistratorGlobalState(String dssCode, String shareId, File storeRootDir,
             IEncapsulatedOpenBISService openBisService, IMailClient mailClient,
             IDataSetValidator dataSetValidator, boolean notifySuccessfulRegistration,
             ThreadParameters threadParameters)
+    {
+        this(dssCode, shareId, storeRootDir, openBisService, mailClient, dataSetValidator,
+                notifySuccessfulRegistration, threadParameters, threadParameters
+                        .useIsFinishedMarkerFile(), threadParameters.deleteUnidentified(),
+                threadParameters.tryGetPreRegistrationScript(), threadParameters
+                        .tryGetPostRegistrationScript());
+
+    }
+
+    public TopLevelDataSetRegistratorGlobalState(String dssCode, String shareId, File storeRootDir,
+            IEncapsulatedOpenBISService openBisService, IMailClient mailClient,
+            IDataSetValidator dataSetValidator, boolean notifySuccessfulRegistration,
+            ThreadParameters threadParameters, boolean useIsFinishedMarkerFile,
+            boolean deleteUnidentified, String preRegistrationScriptOrNull,
+            String postRegistrationScriptOrNull)
     {
         this.dssCode = dssCode;
         this.shareId = shareId;
@@ -66,10 +93,10 @@ public class TopLevelDataSetRegistratorGlobalState
         this.dataSetValidator = dataSetValidator;
         this.notifySuccessfulRegistration = notifySuccessfulRegistration;
         this.threadParameters = threadParameters;
-        this.useIsFinishedMarkerFile = threadParameters.useIsFinishedMarkerFile();
-        this.deleteUnidentified = threadParameters.deleteUnidentified();
-        this.preRegistrationScriptOrNull = threadParameters.tryGetPreRegistrationScript();
-        this.postRegistrationScriptOrNull = threadParameters.tryGetPostRegistrationScript();
+        this.useIsFinishedMarkerFile = useIsFinishedMarkerFile;
+        this.deleteUnidentified = deleteUnidentified;
+        this.preRegistrationScriptOrNull = preRegistrationScriptOrNull;
+        this.postRegistrationScriptOrNull = postRegistrationScriptOrNull;
     }
 
     public String getDssCode()

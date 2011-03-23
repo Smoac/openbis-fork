@@ -331,8 +331,39 @@ public final class ETLDaemon
                         threadParameters);
 
         ITopLevelDataSetRegistrator registrator =
-                ClassUtils.create(ITopLevelDataSetRegistrator.class,
-                        threadParameters.getTopLevelDataSetRegistratorClass(), globalState);
+                ClassUtils.create(ITopLevelDataSetRegistrator.class, threadParameters
+                        .getTopLevelDataSetRegistratorClass(TransferredDataSetHandler.class),
+                        globalState);
+
+        return registrator;
+    }
+
+    /**
+     * Create a top-level data set registrator with explicit control of all parameters.
+     */
+    public static ITopLevelDataSetRegistrator createTopLevelDataSetRegistrator(
+            final Properties properties, final ThreadParameters threadParameters, String shareId,
+            final IEncapsulatedOpenBISService openBISService, final IMailClient mailClient,
+            final IDataSetValidator dataSetValidator, final boolean notifySuccessfulRegistration,
+            boolean useIsFinishedMarkerFile, boolean deleteUnidentified,
+            String preRegistrationScriptOrNull, String postRegistrationScriptOrNull,
+            Class<?> defaultTopLevelDataSetRegistratorClass)
+    {
+        final File storeRootDir = DssPropertyParametersUtil.getStoreRootDir(properties);
+        migrateStoreRootDir(storeRootDir, openBISService.getHomeDatabaseInstance());
+        String dssCode = DssPropertyParametersUtil.getDataStoreCode(properties);
+        TopLevelDataSetRegistratorGlobalState globalState =
+                new TopLevelDataSetRegistratorGlobalState(dssCode, shareId, storeRootDir,
+                        openBISService, mailClient, dataSetValidator, notifySuccessfulRegistration,
+                        threadParameters, useIsFinishedMarkerFile, deleteUnidentified,
+                        preRegistrationScriptOrNull, postRegistrationScriptOrNull);
+
+        ITopLevelDataSetRegistrator registrator =
+                ClassUtils
+                        .create(ITopLevelDataSetRegistrator.class,
+                                threadParameters
+                                        .getTopLevelDataSetRegistratorClass(defaultTopLevelDataSetRegistratorClass),
+                                globalState);
 
         return registrator;
     }

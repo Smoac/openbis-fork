@@ -94,7 +94,7 @@ public final class ThreadParameters
 
     private final Properties threadProperties;
 
-    private final Class<?> topLevelDataSetRegistratorClass;
+    private final Class<?> topLevelDataSetRegistratorClassOrNull;
 
     private final String threadName;
 
@@ -127,14 +127,13 @@ public final class ThreadParameters
         try
         {
             registratorClass =
-                    (null == registratorClassName) ? TransferredDataSetHandler.class : Class
-                            .forName(registratorClassName);
+                    (null == registratorClassName) ? null : Class.forName(registratorClassName);
         } catch (ClassNotFoundException ex)
         {
             throw ConfigurationFailureException.fromTemplate("Wrong '%s' property: %s",
                     TOP_LEVEL_DATA_SET_HANDLER, ex.getMessage());
         }
-        this.topLevelDataSetRegistratorClass = registratorClass;
+        this.topLevelDataSetRegistratorClassOrNull = registratorClass;
 
         this.groupCode = tryGetGroupCode(threadProperties);
         this.preRegistrationScript = tryGetPreRegistrationScript(threadProperties);
@@ -255,9 +254,10 @@ public final class ThreadParameters
         return incomingDataDirectory;
     }
 
-    public Class<?> getTopLevelDataSetRegistratorClass()
+    public Class<?> getTopLevelDataSetRegistratorClass(Class<?> defaultClass)
     {
-        return topLevelDataSetRegistratorClass;
+        return (topLevelDataSetRegistratorClassOrNull == null) ? defaultClass
+                : topLevelDataSetRegistratorClassOrNull;
     }
 
     public Properties getThreadProperties()
@@ -272,8 +272,10 @@ public final class ThreadParameters
     {
         if (operationLog.isInfoEnabled())
         {
-            logLine("Top-level registrator: '%s'", topLevelDataSetRegistratorClass.getName());
-            if (TransferredDataSetHandler.class == topLevelDataSetRegistratorClass)
+            logLine("Top-level registrator: '%s'",
+                    (null == topLevelDataSetRegistratorClassOrNull) ? TransferredDataSetHandler.class
+                            .getName() : topLevelDataSetRegistratorClassOrNull.getName());
+            if (null == topLevelDataSetRegistratorClassOrNull)
             {
                 IETLServerPlugin plugin = ETLServerPluginFactory.getPluginForThread(this);
                 logLine("Code extractor: '%s'", plugin.getDataSetInfoExtractor().getClass()

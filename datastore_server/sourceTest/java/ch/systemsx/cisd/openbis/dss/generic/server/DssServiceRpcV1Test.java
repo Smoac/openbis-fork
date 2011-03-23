@@ -26,12 +26,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.jmock.api.Invocation;
+import org.jmock.lib.action.CustomAction;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.factory.support.StaticListableBeanFactory;
 import org.testng.annotations.BeforeMethod;
@@ -45,15 +46,11 @@ import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
-import ch.systemsx.cisd.etlserver.DefaultDataSetInfoExtractor;
-import ch.systemsx.cisd.etlserver.DefaultStorageProcessor;
-import ch.systemsx.cisd.etlserver.ETLServerPlugin;
-import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
-import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
-import ch.systemsx.cisd.etlserver.ITypeExtractor;
-import ch.systemsx.cisd.etlserver.SimpleTypeExtractor;
+import ch.systemsx.cisd.common.test.RecordingMatcher;
+import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistrator;
+import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.api.v1.PutDataSetService;
-import ch.systemsx.cisd.etlserver.api.v1.TestDataSetTypeToPluginMapper;
+import ch.systemsx.cisd.etlserver.api.v1.TestDataSetTypeToTopLevelRegistratorMapper;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor.DssServiceRpcAuthorizationMethodInterceptor;
 import ch.systemsx.cisd.openbis.dss.generic.server.api.v1.DssServiceRpcGeneric;
@@ -70,19 +67,14 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetO
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
-import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
@@ -114,15 +106,9 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
 
     private IEncapsulatedOpenBISService openBisService;
 
-    private ETLServerPlugin serverPlugin;
+    private ITopLevelDataSetRegistrator dataSetRegistrator;
 
     private IMailClient mailClient;
-
-    private IDataSetInfoExtractor codeExtractor;
-
-    private ITypeExtractor typeExtractor;
-
-    private IStorageProcessorTransactional storageProcessor;
 
     private IDataSetValidator validator;
 
@@ -142,11 +128,8 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         applicationContext.addBean("openBIS-service", openBisService);
         mailClient = context.mock(IMailClient.class);
 
-        codeExtractor = new DefaultDataSetInfoExtractor(new Properties());
-        typeExtractor = getTypeExtractor();
         validator = context.mock(IDataSetValidator.class);
-        storageProcessor = new DefaultStorageProcessor(new Properties());
-        serverPlugin = new ETLServerPlugin(codeExtractor, typeExtractor, storageProcessor);
+        dataSetRegistrator = context.mock(ITopLevelDataSetRegistrator.class);
 
         File storeDir = new File(workingDirectory, "store/");
         File incomingDir = new File(workingDirectory, "incoming/");
@@ -157,22 +140,11 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         PutDataSetService putService =
                 new PutDataSetService(openBisService, LogFactory.getLogger(LogCategory.OPERATION,
                         DssServiceRpcV1Test.class), storeDir, incomingDir,
-                        new TestDataSetTypeToPluginMapper(serverPlugin), mailClient, "TEST",
-                        validator);
+                        new TestDataSetTypeToTopLevelRegistratorMapper(dataSetRegistrator),
+                        mailClient, "TEST", validator);
         rpcService = new DssServiceRpcGeneric(openBisService, shareIdManager, putService);
         rpcService.setStoreDirectory(storeDir);
         rpcService.setIncomingDirectory(incomingDir);
-    }
-
-    private SimpleTypeExtractor getTypeExtractor()
-    {
-        Properties properties = new Properties();
-        properties.put(SimpleTypeExtractor.FILE_FORMAT_TYPE_KEY, "TEST-FILE-FORMAT");
-        properties.put(SimpleTypeExtractor.LOCATOR_TYPE_KEY, "TEST-LOCATOR");
-        properties.put(SimpleTypeExtractor.DATA_SET_TYPE_KEY, "TEST-DATA-SET-TYPE");
-        properties.put(SimpleTypeExtractor.PROCESSOR_TYPE_KEY, "TEST-PROCESSOR");
-        properties.put(SimpleTypeExtractor.IS_MEASURED_KEY, "false");
-        return new SimpleTypeExtractor(properties);
     }
 
     private void initializeDirectories(File storeDir, File incomingDir) throws IOException
@@ -243,8 +215,6 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         // Expectations for put
         final SpaceIdentifier spaceIdentifier =
                 new SpaceIdentifier(new DatabaseInstanceIdentifier("TEST"), NEW_DATA_SET_SPACE);
-        final SampleIdentifier sampleIdentifier =
-                new SampleIdentifierFactory(NEW_DATA_SET_OWNER_ID).createIdentifier();
         final SessionContextDTO session = new SessionContextDTO();
         final Sample sample = new Sample();
         Experiment experiment = new Experiment();
@@ -263,24 +233,38 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         registrator.setLastName("Test Last Name");
         experiment.setRegistrator(registrator);
         sample.setExperiment(experiment);
+
+        final RecordingMatcher<File> fileMatcher = new RecordingMatcher<File>();
+        final RecordingMatcher<DataSetInformation> dataSetInfoMatcher =
+                new RecordingMatcher<DataSetInformation>();
+        final RecordingMatcher<ITopLevelDataSetRegistratorDelegate> delegateMatcher =
+                new RecordingMatcher<ITopLevelDataSetRegistratorDelegate>();
         context.checking(new Expectations()
             {
                 {
                     atLeast(1).of(openBisService).checkSpaceAccess(with(SESSION_TOKEN),
                             with(spaceIdentifier));
+                    oneOf(dataSetRegistrator).handle(with(fileMatcher), with(dataSetInfoMatcher),
+                            with(delegateMatcher));
+                    will(new CustomAction("Notify the delegate")
+                        {
+                            public Object invoke(Invocation invocation) throws Throwable
+                            {
+                                List<DataSetInformation> dataSetInfos =
+                                        dataSetInfoMatcher.getRecordedObjects();
+                                DataSetInformation dataSetInfo = dataSetInfos.get(0);
+                                dataSetInfo.setDataSetCode(NEW_DATA_SET_CODE);
+                                List<ITopLevelDataSetRegistratorDelegate> delegates =
+                                        delegateMatcher.getRecordedObjects();
+                                delegates.get(0).didRegisterDataSets(dataSetInfos);
+
+                                return null;
+                            }
+                        });
                     allowing(openBisService).tryGetSession(SESSION_TOKEN);
                     will(returnValue(session));
                     allowing(openBisService).createDataSetCode();
                     will(returnValue(NEW_DATA_SET_CODE));
-                    allowing(openBisService).tryGetSampleWithExperiment(sampleIdentifier);
-                    will(returnValue(sample));
-                    allowing(openBisService)
-                            .getPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
-                    will(returnValue(new IEntityProperty[0]));
-                    allowing(validator).assertValidDataSet(with(any(DataSetType.class)),
-                            with(any(File.class)));
-                    allowing(openBisService).registerDataSet(with(any(DataSetInformation.class)),
-                            with(any(NewExternalData.class)));
                 }
             });
     }

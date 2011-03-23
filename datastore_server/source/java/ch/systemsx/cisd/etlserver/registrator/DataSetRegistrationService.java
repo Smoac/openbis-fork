@@ -28,9 +28,11 @@ import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm.DataSetRegistrati
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithmRunner;
 import ch.systemsx.cisd.etlserver.FileRenamer;
 import ch.systemsx.cisd.etlserver.IDataStoreStrategy;
+import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.IdentifiedDataStrategy;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.TransferredDataSetHandler;
+import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.DoNothingDelegatedAction;
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
@@ -47,6 +49,26 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
 public class DataSetRegistrationService<T extends DataSetInformation> implements
         DataSetRegistrationAlgorithm.IRollbackDelegate, IDataSetRegistrationService
 {
+    /**
+     * A data set that will be created but might not yet exist.
+     * 
+     * @author Chandrasekhar Ramakrishnan
+     */
+    public static class FutureDataSet
+    {
+        private final String code;
+
+        public FutureDataSet(String code)
+        {
+            this.code = code;
+        }
+
+        public String getCode()
+        {
+            return code;
+        }
+    }
+
     static final String STAGING_DIR = "staging-dir";
 
     private final AbstractOmniscientTopLevelDataSetRegistrator<T> registrator;
@@ -64,30 +86,12 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
 
     private final File incomingDataSetFile;
 
+    private final ITopLevelDataSetRegistratorDelegate delegate;
+
     /**
      * All transactions ever created on this service.
      */
     private final ArrayList<DataSetRegistrationTransaction<T>> transactions;
-
-    /**
-     * A data set that will be created but might not yet exist.
-     * 
-     * @author Chandrasekhar Ramakrishnan
-     */
-    public class FutureDataSet
-    {
-        private final String code;
-
-        public FutureDataSet(String code)
-        {
-            this.code = code;
-        }
-
-        public String getCode()
-        {
-            return code;
-        }
-    }
 
     /**
      * Create a new DataSetRegistrationService.
@@ -98,13 +102,15 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     public DataSetRegistrationService(AbstractOmniscientTopLevelDataSetRegistrator<T> registrator,
             File incomingDataSetFile,
             IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory,
-            IDelegatedActionWithResult<Boolean> globalCleanAfterwardsAction)
+            IDelegatedActionWithResult<Boolean> globalCleanAfterwardsAction,
+            ITopLevelDataSetRegistratorDelegate delegate)
     {
         this.registrator = registrator;
         this.registratorContext = registrator.getRegistratorState();
         this.incomingDataSetFile = incomingDataSetFile;
         this.globalCleanAfterwardsAction = globalCleanAfterwardsAction;
         this.dataSetRegistrationDetailsFactory = registrationDetailsFactory;
+        this.delegate = delegate;
 
         Properties properties =
                 registratorContext.getGlobalState().getThreadParameters().getThreadProperties();
@@ -279,7 +285,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
 
     public IEntityOperationService<T> getEntityRegistrationService()
     {
-        return new DefaultEntityOperationService<T>(registrator);
+        return new DefaultEntityOperationService<T>(registrator, delegate);
     }
 
     protected IDataSetRegistrationDetailsFactory<T> getDataSetRegistrationDetailsFactory()
@@ -321,13 +327,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
                 registratorContext.getGlobalState();
         details.getDataSetInformation().setShareId(globalState.getShareId());
         final IDelegatedActionWithResult<Boolean> cleanAfterwardsAction =
-                new IDelegatedActionWithResult<Boolean>()
-                    {
-                        public Boolean execute()
-                        {
-                            return true; // do nothing
-                        }
-                    };
+                new DoNothingDelegatedAction();
 
         IDataStoreStrategy dataStoreStrategy =
                 registratorContext.getDataStrategyStore().getDataStoreStrategy(

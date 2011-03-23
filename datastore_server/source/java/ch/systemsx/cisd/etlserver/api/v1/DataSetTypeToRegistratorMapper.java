@@ -23,6 +23,7 @@ import java.util.Properties;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.etlserver.ETLDaemon;
+import ch.systemsx.cisd.etlserver.IETLServerPlugin;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistrator;
 import ch.systemsx.cisd.etlserver.Parameters;
 import ch.systemsx.cisd.etlserver.ThreadParameters;
@@ -35,7 +36,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-class DataSetTypeToTopLevelHandlerMapper
+class DataSetTypeToRegistratorMapper
 {
     // The default plugin is either the one explicitly specified in the properties file, or,
     // otherwise, the first-defined thread
@@ -54,13 +55,13 @@ class DataSetTypeToTopLevelHandlerMapper
      * 
      * @param plugin
      */
-    protected DataSetTypeToTopLevelHandlerMapper(ITopLevelDataSetRegistrator plugin)
+    protected DataSetTypeToRegistratorMapper(ITopLevelDataSetRegistrator plugin)
     {
         defaultHandler = plugin;
         handlerMap = new HashMap<String, ITopLevelDataSetRegistrator>();
     }
 
-    DataSetTypeToTopLevelHandlerMapper(Parameters params, String shareId,
+    DataSetTypeToRegistratorMapper(Parameters params, String shareId,
             IEncapsulatedOpenBISService openBISService, IMailClient mailClient,
             IDataSetValidator dataSetValidator)
     {
@@ -72,7 +73,7 @@ class DataSetTypeToTopLevelHandlerMapper
         handlerMap = initializer.getHandlerMap();
     }
 
-    public ITopLevelDataSetRegistrator getPluginForType(String dataSetTypeOrNull)
+    public ITopLevelDataSetRegistrator getRegistratorForType(String dataSetTypeOrNull)
     {
         if (null == dataSetTypeOrNull)
         {
@@ -84,7 +85,21 @@ class DataSetTypeToTopLevelHandlerMapper
 
     public void initializeStoreRootDirectory(File storeDirectory)
     {
+        initializeStoreRootDirectory(storeDirectory, defaultHandler);
+        for (ITopLevelDataSetRegistrator handler : handlerMap.values())
+        {
+            initializeStoreRootDirectory(storeDirectory, handler);
+        }
+    }
 
+    private void initializeStoreRootDirectory(File storeDirectory,
+            ITopLevelDataSetRegistrator registrator)
+    {
+        if (registrator instanceof PutDataSetServerPluginHolder)
+        {
+            IETLServerPlugin plugin = ((PutDataSetServerPluginHolder) registrator).getPlugin();
+            plugin.getStorageProcessor().setStoreRootDirectory(storeDirectory);
+        }
     }
 
     private class DataSetTypeToTopLevelHandlerMapperInitializer
@@ -135,21 +150,21 @@ class DataSetTypeToTopLevelHandlerMapper
             ThreadParameters firstThread = threadParams[0];
 
             String defaultThreadName = section.getProperty(DEFAULT_THREAD_KEY);
-            if (null == defaultThreadName)
-            {
-                return ETLDaemon.createTopLevelDataSetRegistrator(params.getProperties(),
-                        firstThread, shareId, openBISService, mailClient, dataSetValidator, false);
-            }
-
-            ThreadParameters defaultThread = threadParamMap.get(defaultThreadName);
+            ThreadParameters defaultThread =
+                    (null != defaultThreadName) ? threadParamMap.get(defaultThreadName) : null;
             if (null == defaultThread)
             {
-                ETLDaemon.createTopLevelDataSetRegistrator(params.getProperties(), firstThread,
-                        shareId, openBISService, mailClient, dataSetValidator, false);
+                return ETLDaemon.createTopLevelDataSetRegistrator(params.getProperties(),
+                        firstThread, shareId, openBISService, mailClient, dataSetValidator, false,
+                        false, false, firstThread.tryGetPreRegistrationScript(),
+                        firstThread.tryGetPostRegistrationScript(),
+                        PutDataSetServerPluginHolder.class);
             }
 
             return ETLDaemon.createTopLevelDataSetRegistrator(params.getProperties(),
-                    defaultThread, shareId, openBISService, mailClient, dataSetValidator, false);
+                    defaultThread, shareId, openBISService, mailClient, dataSetValidator, false,
+                    false, false, firstThread.tryGetPreRegistrationScript(),
+                    firstThread.tryGetPostRegistrationScript(), PutDataSetServerPluginHolder.class);
         }
 
         public HashMap<String, ITopLevelDataSetRegistrator> getHandlerMap()

@@ -18,8 +18,9 @@ package ch.systemsx.cisd.openbis.dss.client.api.v1.impl;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Comparator;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
@@ -31,15 +32,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
  */
 public class DataSetDss implements IDataSetDss
 {
-    private static final Comparator<FileInfoDssDTO> FILE_INFO_COMPARATOR =
-            new Comparator<FileInfoDssDTO>()
-                {
-                    public int compare(FileInfoDssDTO f1, FileInfoDssDTO f2)
-                    {
-                        return f1.getPathInDataSet().compareTo(f2.getPathInDataSet());
-                    }
-                };
-
     private final String code;
 
     private final IDssServiceRpcGeneric service;
@@ -95,8 +87,8 @@ public class DataSetDss implements IDataSetDss
     @Override
     public String toString()
     {
-        FileInfoDssDTO[] files = listFiles("/", true);
-        Arrays.sort(files, FILE_INFO_COMPARATOR);
-        return code + " " + Arrays.asList(files).toString();
+        ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
+        builder.append("code", code);
+        return builder.toString();
     }
 }

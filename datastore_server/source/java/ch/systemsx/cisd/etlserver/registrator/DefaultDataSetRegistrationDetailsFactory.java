@@ -30,9 +30,10 @@ public class DefaultDataSetRegistrationDetailsFactory extends
      * @param registratorState
      */
     public DefaultDataSetRegistrationDetailsFactory(
-            OmniscientTopLevelDataSetRegistratorState registratorState)
+            OmniscientTopLevelDataSetRegistratorState registratorState,
+            DataSetInformation userProvidedDataSetInformationOrNull)
     {
-        super(registratorState);
+        super(registratorState, userProvidedDataSetInformationOrNull);
     }
 
     @Override

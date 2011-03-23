@@ -19,6 +19,7 @@ package ch.systemsx.cisd.etlserver.registrator;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -36,9 +37,14 @@ public class DefaultEntityOperationService<T extends DataSetInformation> impleme
 {
     private final AbstractOmniscientTopLevelDataSetRegistrator<T> registrator;
 
-    public DefaultEntityOperationService(AbstractOmniscientTopLevelDataSetRegistrator<T> registrator)
+    private final ITopLevelDataSetRegistratorDelegate delegate;
+
+    public DefaultEntityOperationService(
+            AbstractOmniscientTopLevelDataSetRegistrator<T> registrator,
+            ITopLevelDataSetRegistratorDelegate delegate)
     {
         this.registrator = registrator;
+        this.delegate = delegate;
     }
 
     public AtomicEntityOperationResult performOperationsInApplcationServer(
@@ -47,7 +53,19 @@ public class DefaultEntityOperationService<T extends DataSetInformation> impleme
         IEncapsulatedOpenBISService openBisService =
                 registrator.getGlobalState().getOpenBisService();
 
-        return openBisService.performEntityOperations(convert(registrationDetails));
+        AtomicEntityOperationResult result =
+                openBisService.performEntityOperations(convert(registrationDetails));
+
+        ArrayList<DataSetInformation> registeredDataSets = new ArrayList<DataSetInformation>();
+        for (DataSetRegistrationInformation<T> dsRegDetails : registrationDetails
+                .getDataSetRegistrations())
+        {
+            registeredDataSets.add(dsRegDetails.getDataSetInformation());
+        }
+
+        delegate.didRegisterDataSets(registeredDataSets);
+
+        return result;
     }
 
     private ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails convert(

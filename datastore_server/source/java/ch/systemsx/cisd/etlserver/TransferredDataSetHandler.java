@@ -35,6 +35,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm.IDataSetInApplicationServerRegistrator;
+import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithmRunner.IDataSetRegistrationAlgorithmRunnerDelegate;
 import ch.systemsx.cisd.etlserver.registrator.MarkerFileUtility;
 import ch.systemsx.cisd.etlserver.registrator.TopLevelDataSetChecker;
 import ch.systemsx.cisd.etlserver.utils.PostRegistrationExecutor;
@@ -42,6 +43,7 @@ import ch.systemsx.cisd.etlserver.utils.PreRegistrationExecutor;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 
 /**
@@ -105,6 +107,18 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
 
     private final MarkerFileUtility markerFileUtility;
 
+    private static class IdentificationTrackingRunnerDelegate implements
+            IDataSetRegistrationAlgorithmRunnerDelegate
+    {
+        private boolean didNotIdentifyDataSet = false;
+
+        public void didNotIdentifyDataSet()
+        {
+            didNotIdentifyDataSet = true;
+        }
+
+    }
+
     /**
      * The designated constructor.
      * 
@@ -166,7 +180,6 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
         this.markerFileUtility =
                 new MarkerFileUtility(operationLog, notificationLog, fileOperations,
                         storeRootDirectoryHolder);
-
     }
 
     /**
@@ -188,6 +201,30 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
             return;
         }
         dataSetHandler.handleDataSet(file);
+    }
+
+    public void handle(File file, DataSetInformation callerDataSetInformation,
+            ITopLevelDataSetRegistratorDelegate delegate)
+    {
+        if (stopped)
+        {
+            return;
+        }
+        final DataSetRegistrationHelper registrationHelper = createRegistrationHelper(file);
+        IdentificationTrackingRunnerDelegate runnerDelegate =
+                new IdentificationTrackingRunnerDelegate();
+        List<DataSetInformation> registeredDataSets =
+                new DataSetRegistrationAlgorithmRunner(registrationHelper, runnerDelegate)
+                        .runAlgorithm();
+
+        if (runnerDelegate.didNotIdentifyDataSet)
+        {
+            throw new UserFailureException("No owning sample or experiment specified for data set");
+        }
+        if (false == registeredDataSets.isEmpty())
+        {
+            delegate.didRegisterDataSets(registeredDataSets);
+        }
     }
 
     public List<DataSetInformation> handleDataSet(final File dataSet)

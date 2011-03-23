@@ -30,7 +30,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-@SuppressWarnings("deprecation")
 class CommandGet extends AbstractDssCommand<CommandGet.CommandGetArguments>
 {
     static class CommandGetArguments extends DataSetArguments

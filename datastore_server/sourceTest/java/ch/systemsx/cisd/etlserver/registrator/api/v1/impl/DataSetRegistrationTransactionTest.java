@@ -36,7 +36,6 @@ import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
-import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.etlserver.ThreadParameters;
@@ -500,15 +499,8 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
 
         public DataSetRegistrationService<DataSetInformation> createNewService(File dataSetFile)
         {
-            IDelegatedActionWithResult<Boolean> cleanAfterwardsAction =
-                    new IDelegatedActionWithResult<Boolean>()
-                        {
-                            public Boolean execute()
-                            {
-                                return true; // do nothing
-                            }
-                        };
-            return createDataSetRegistrationService(dataSetFile, cleanAfterwardsAction);
+            return createDataSetRegistrationService(dataSetFile, null,
+                    new DoNothingDelegatedAction(), new NoOpDelegate());
         }
 
         /**

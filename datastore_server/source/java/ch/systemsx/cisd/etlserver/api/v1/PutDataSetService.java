@@ -32,7 +32,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.etlserver.DataStrategyStore;
-import ch.systemsx.cisd.etlserver.IETLServerPlugin;
+import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistrator;
 import ch.systemsx.cisd.etlserver.Parameters;
 import ch.systemsx.cisd.etlserver.validation.DataSetValidator;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
@@ -60,7 +60,7 @@ public class PutDataSetService
 
     // These are all initialized only once, but it is not possible to initialize them at
     // construction time, since this causes a dependency loop that causes problems in Spring.
-    private DataSetTypeToPluginMapper pluginMap;
+    private DataSetTypeToRegistratorMapper registratorMap;
 
     private DataStrategyStore dataStrategyStore;
 
@@ -106,7 +106,7 @@ public class PutDataSetService
      * @param dsCode
      */
     public PutDataSetService(IEncapsulatedOpenBISService openBisService, Logger operationLog,
-            File store, File incoming, DataSetTypeToPluginMapper map, IMailClient mail,
+            File store, File incoming, DataSetTypeToRegistratorMapper map, IMailClient mail,
             String dsCode, IDataSetValidator validator)
     {
         this(openBisService, operationLog);
@@ -114,9 +114,9 @@ public class PutDataSetService
         incomingDir = incoming;
         incomingDir.mkdir();
 
-        pluginMap = map;
+        registratorMap = map;
         storeDirectory = store;
-        pluginMap.initializeStoreRootDirectory(storeDirectory);
+        registratorMap.initializeStoreRootDirectory(storeDirectory);
 
         mailClient = mail;
         dataStrategyStore = new DataStrategyStore(openBisService, mailClient);
@@ -143,10 +143,23 @@ public class PutDataSetService
         try
         {
             String dataSetTypeOrNull = newDataSet.tryDataSetType();
-            IETLServerPlugin thePlugin = pluginMap.getPluginForType(dataSetTypeOrNull);
-            List<DataSetInformation> infos =
-                    new PutDataSetExecutor(this, thePlugin, sessionToken, newDataSet, inputStream)
-                            .execute();
+            ITopLevelDataSetRegistrator registrator =
+                    registratorMap.getRegistratorForType(dataSetTypeOrNull);
+
+            final List<DataSetInformation> infos;
+            // Branch -- use the old logic for the ETLServerPlugins
+            if (registrator instanceof PutDataSetServerPluginHolder)
+            {
+                infos =
+                        new PutDataSetExecutor(this,
+                                ((PutDataSetServerPluginHolder) registrator).getPlugin(),
+                                sessionToken, newDataSet, inputStream).execute();
+            } else
+            {
+                infos =
+                        new PutDataSetTopLevelDataSetHandler(this, registrator, sessionToken,
+                                newDataSet, inputStream).execute();
+            }
             StringBuilder sb = new StringBuilder();
             for (DataSetInformation info : infos)
             {
@@ -206,8 +219,8 @@ public class PutDataSetService
         shareId = SegmentedStoreUtils.findIncomingShare(incomingDir, storeDirectory);
         operationLog.info("Data sets registered via RPC are stored in share " + shareId + ".");
 
-        pluginMap = initializer.getPluginMap();
-        pluginMap.initializeStoreRootDirectory(storeDirectory);
+        registratorMap = initializer.getRegistratorMap(shareId, openBisService, mailClient);
+        registratorMap.initializeStoreRootDirectory(storeDirectory);
 
         isInitialized = true;
     }
@@ -309,6 +322,13 @@ class PutDataSetServiceInitializer
     public DataSetTypeToPluginMapper getPluginMap()
     {
         return new DataSetTypeToPluginMapper(params);
+    }
+
+    public DataSetTypeToRegistratorMapper getRegistratorMap(String shareId,
+            IEncapsulatedOpenBISService openBisService, IMailClient mailClient)
+    {
+        return new DataSetTypeToRegistratorMapper(params, shareId, openBisService, mailClient,
+                getDataSetValidator());
     }
 
     Properties getMailProperties()

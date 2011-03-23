@@ -27,6 +27,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm;
+import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -114,7 +115,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         interpreter.set(SERVICE_VARIABLE_NAME, service);
         interpreter.set(INCOMING_DATA_SET_VARIABLE_NAME, dataSetFile);
         interpreter.set(STATE_VARIABLE_NAME, getGlobalState());
-        interpreter.set(FACTORY_VARIABLE_NAME, createObjectFactory(interpreter));
+        interpreter.set(FACTORY_VARIABLE_NAME, service.getDataSetRegistrationDetailsFactory());
 
         try
         {
@@ -136,12 +137,15 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
      */
     @Override
     protected DataSetRegistrationService<T> createDataSetRegistrationService(
-            File incomingDataSetFile, IDelegatedActionWithResult<Boolean> cleanAfterwardsAction)
+            File incomingDataSetFile, DataSetInformation callerDataSetInformationOrNull,
+            IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
+            ITopLevelDataSetRegistratorDelegate delegate)
     {
         PythonInterpreter interpreter = new PythonInterpreter();
         interpreter.set(STATE_VARIABLE_NAME, getGlobalState());
         JythonDataSetRegistrationService<T> service =
-                createJythonDataSetRegistrationService(incomingDataSetFile, cleanAfterwardsAction,
+                createJythonDataSetRegistrationService(incomingDataSetFile,
+                        callerDataSetInformationOrNull, cleanAfterwardsAction, delegate,
                         interpreter);
         return service;
     }
@@ -150,12 +154,14 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
      * Create a Jython registration service that includes access to the interpreter.
      */
     protected JythonDataSetRegistrationService<T> createJythonDataSetRegistrationService(
-            File incomingDataSetFile, IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
-            PythonInterpreter interpreter)
+            File incomingDataSetFile, DataSetInformation userProvidedDataSetInformationOrNull,
+            IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
+            ITopLevelDataSetRegistratorDelegate delegate, PythonInterpreter interpreter)
     {
         JythonDataSetRegistrationService<T> service =
                 new JythonDataSetRegistrationService<T>(this, incomingDataSetFile,
-                        cleanAfterwardsAction, interpreter);
+                        userProvidedDataSetInformationOrNull, cleanAfterwardsAction, delegate,
+                        interpreter);
         return service;
     }
 
@@ -258,10 +264,10 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
      */
     @SuppressWarnings("unchecked")
     protected IDataSetRegistrationDetailsFactory<T> createObjectFactory(
-            PythonInterpreter interpreter)
+            PythonInterpreter interpreter, DataSetInformation userProvidedDataSetInformationOrNull)
     {
         return (IDataSetRegistrationDetailsFactory<T>) new JythonObjectFactory<DataSetInformation>(
-                getRegistratorState())
+                getRegistratorState(), userProvidedDataSetInformationOrNull)
             {
                 @Override
                 protected DataSetInformation createDataSetInformation()
@@ -274,9 +280,10 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     public abstract static class JythonObjectFactory<T extends DataSetInformation> extends
             AbstractDataSetRegistrationDetailsFactory<T>
     {
-        public JythonObjectFactory(OmniscientTopLevelDataSetRegistratorState registratorState)
+        public JythonObjectFactory(OmniscientTopLevelDataSetRegistratorState registratorState,
+                DataSetInformation userProvidedDataSetInformationOrNull)
         {
-            super(registratorState);
+            super(registratorState, userProvidedDataSetInformationOrNull);
         }
 
         /**
@@ -298,12 +305,12 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
          * @param globalCleanAfterwardsAction
          */
         public JythonDataSetRegistrationService(JythonTopLevelDataSetHandler<T> registrator,
-                File incomingDataSetFile,
+                File incomingDataSetFile, DataSetInformation userProvidedDataSetInformationOrNull,
                 IDelegatedActionWithResult<Boolean> globalCleanAfterwardsAction,
-                PythonInterpreter interpreter)
+                ITopLevelDataSetRegistratorDelegate delegate, PythonInterpreter interpreter)
         {
-            super(registrator, incomingDataSetFile, registrator.createObjectFactory(interpreter),
-                    globalCleanAfterwardsAction);
+            super(registrator, incomingDataSetFile, registrator.createObjectFactory(interpreter,
+                    userProvidedDataSetInformationOrNull), globalCleanAfterwardsAction, delegate);
             this.interpreter = interpreter;
         }
 

@@ -22,6 +22,9 @@ import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetR
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSet;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
 
 /**
@@ -32,10 +35,14 @@ public abstract class AbstractDataSetRegistrationDetailsFactory<T extends DataSe
 {
     protected final OmniscientTopLevelDataSetRegistratorState registratorState;
 
+    protected final DataSetInformation userProvidedDataSetInformationOrNull;
+
     public AbstractDataSetRegistrationDetailsFactory(
-            OmniscientTopLevelDataSetRegistratorState registratorState)
+            OmniscientTopLevelDataSetRegistratorState registratorState,
+            DataSetInformation userProvidedDataSetInformationOrNull)
     {
         this.registratorState = registratorState;
+        this.userProvidedDataSetInformationOrNull = userProvidedDataSetInformationOrNull;
     }
 
     /**
@@ -45,25 +52,72 @@ public abstract class AbstractDataSetRegistrationDetailsFactory<T extends DataSe
     {
         DataSetRegistrationDetails<T> registrationDetails = new DataSetRegistrationDetails<T>();
         T dataSetInfo = createDataSetInformation();
+        if (null != userProvidedDataSetInformationOrNull)
+        {
+            applyUserProvidedValues(dataSetInfo);
+        }
         if (null == dataSetInfo.getDataSetType())
         {
-            dataSetInfo.setDataSetType(new DataSetType(DataSetTypeCode.UNKNOWN.getCode()));
+            setDataSetTypeToDefaultValue(dataSetInfo);
         }
         setDatabaseInstance(dataSetInfo);
         registrationDetails.setDataSetInformation(dataSetInfo);
         return registrationDetails;
     }
 
-    protected final void setDatabaseInstance(DataSetInformation dataSetInfo)
-    {
-        dataSetInfo.setInstanceCode(registratorState.getHomeDatabaseInstance().getCode());
-        dataSetInfo.setInstanceUUID(registratorState.getHomeDatabaseInstance().getUuid());
-    }
-
     public DataSet<T> createDataSet(DataSetRegistrationDetails<T> registrationDetails,
             File stagingFile)
     {
         return new DataSet<T>(registrationDetails, stagingFile);
+    }
+
+    /**
+     * The field userProvidedDataSetInformationOrNull is non-null. Apply the values to the
+     * dataSetInfo. Subclasses may override.
+     */
+    protected void applyUserProvidedValues(T dataSetInfo)
+    {
+        SampleIdentifier sampleId =
+                userProvidedDataSetInformationOrNull.getSampleIdentifier();
+        if (null != sampleId)
+        {
+            dataSetInfo.setSampleCode(sampleId.getSampleCode());
+            dataSetInfo.setSpaceCode(sampleId.getSpaceLevel().getSpaceCode());
+            dataSetInfo.setInstanceCode(sampleId.getSpaceLevel().getDatabaseInstanceCode());
+        }
+
+        ExperimentIdentifier experimentId =
+                userProvidedDataSetInformationOrNull.getExperimentIdentifier();
+        if (null != experimentId)
+        {
+            dataSetInfo.setExperimentIdentifier(experimentId);
+        }
+
+        DataSetType type = userProvidedDataSetInformationOrNull.getDataSetType();
+        if (null != type)
+        {
+            dataSetInfo.setDataSetType(type);
+        }
+
+        IEntityProperty[] props = userProvidedDataSetInformationOrNull.getProperties();
+        if (0 < props.length)
+        {
+            dataSetInfo.setProperties(props);
+        }
+    }
+
+    /**
+     * Set the data set type value to the default value. Subclasses may override.
+     */
+    protected void setDataSetTypeToDefaultValue(T dataSetInfo)
+    {
+        dataSetInfo.setDataSetType(new DataSetType(DataSetTypeCode.UNKNOWN.getCode()));
+    }
+
+    protected final void setDatabaseInstance(DataSetInformation dataSetInfo)
+    {
+        dataSetInfo.setInstanceCode(registratorState.getHomeDatabaseInstance().getCode());
+        dataSetInfo.setInstanceUUID(registratorState.getHomeDatabaseInstance().getUuid());
     }
 
     /**

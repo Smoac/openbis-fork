@@ -32,7 +32,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 /**
  * @author Franz-Josef Elmer
  */
-@SuppressWarnings("deprecation")
 public class CommandGetTest extends AssertJUnit
 {
     private final class MockCommandGet extends CommandGet
