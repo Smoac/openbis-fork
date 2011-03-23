@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.BrowserGridPagingToolBar.PagingToolBarButtonKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
@@ -35,14 +36,11 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.BiologicalSampleGridColumnIDs;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class BiologicalSampleGrid extends TypedTableGrid<Sample>
 {
-    private static final String PREFIX = GenericConstants.ID_PREFIX
-            + "biological_sample";
+    private static final String PREFIX = GenericConstants.ID_PREFIX + "biological_sample";
 
     public static final String BROWSER_ID = PREFIX + "_main";
 
@@ -55,8 +53,8 @@ public class BiologicalSampleGrid extends TypedTableGrid<Sample>
         super(viewContext.getCommonViewContext(), BROWSER_ID, true,
                 PhosphoNetXDisplayTypeIDGenerator.BIOLOGICAL_SAMPLE_BROWSER_GRID);
         specificViewContext = viewContext;
-        removeConfigAndExportButtons();
-        removeFiltersButtons();
+        removeButtons(PagingToolBarButtonKind.CONFIG, PagingToolBarButtonKind.EXPORT,
+                PagingToolBarButtonKind.FILTERS);
         showFiltersBar();
         setBorders(true);
     }
@@ -82,7 +80,7 @@ public class BiologicalSampleGrid extends TypedTableGrid<Sample>
             AbstractAsyncCallback<String> callback)
     {
     }
-    
+
     public void dispose()
     {
         asDisposableWithoutToolbar().dispose();

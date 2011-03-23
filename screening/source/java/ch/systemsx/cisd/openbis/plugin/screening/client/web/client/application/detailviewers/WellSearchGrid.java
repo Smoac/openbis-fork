@@ -315,7 +315,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
                                             experiment.getPermId(),
                                             experiment.getExperimentIdentifier());
 
-                            ClientPluginFactory.openPlateLocationsMaterialViewer(contentMaterial,
+                            ClientPluginFactory.openImagingMaterialViewer(contentMaterial,
                                     experimentCriteria, viewContext);
                         }
                     });

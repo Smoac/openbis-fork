@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.BrowserGridPagingToolBar.PagingToolBarButtonKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
@@ -35,8 +36,6 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ParentlessMsInjectionSampleGridColumnIDs;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ParentlessMsInjectionSampleGrid extends TypedTableGrid<Sample>
@@ -55,19 +54,20 @@ public class ParentlessMsInjectionSampleGrid extends TypedTableGrid<Sample>
         super(viewContext.getCommonViewContext(), BROWSER_ID, true,
                 PhosphoNetXDisplayTypeIDGenerator.PARENT_LESS_MS_INJECTION_SAMPLE_BROWSER_GRID);
         specificViewContext = viewContext;
-        removeConfigAndExportButtons();
-        removeFiltersButtons();
+        removeButtons(PagingToolBarButtonKind.CONFIG, PagingToolBarButtonKind.EXPORT,
+                PagingToolBarButtonKind.FILTERS);
         allowMultipleSelection();
         showFiltersBar();
         setBorders(true);
     }
-    
+
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<Sample>> resultSetConfig,
             AsyncCallback<TypedTableResultSet<Sample>> callback)
     {
-        specificViewContext.getService().listParentlessMsInjectionSamples(resultSetConfig, callback);
+        specificViewContext.getService()
+                .listParentlessMsInjectionSamples(resultSetConfig, callback);
     }
 
     @Override
@@ -83,7 +83,7 @@ public class ParentlessMsInjectionSampleGrid extends TypedTableGrid<Sample>
             AbstractAsyncCallback<String> callback)
     {
     }
-    
+
     public void dispose()
     {
         asDisposableWithoutToolbar().dispose();

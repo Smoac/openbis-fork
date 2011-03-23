@@ -18,7 +18,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.extjs.gxt.ui.client.data.LoadEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -68,6 +70,11 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
     private final Button showFiltersButton;
 
     private int nextTableButtonIndex;
+
+    public static enum PagingToolBarButtonKind
+    {
+        REFRESH, CONFIG, EXPORT, FILTERS
+    }
 
     void setPagingComponentsHidden(boolean hide)
     {
@@ -138,18 +145,33 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
         viewContext.logStop(logID);
         setPagingComponentsHidden(true);
     }
-    
-    public void removeConfigAndExportButtons()
+
+    public void removeButtons(PagingToolBarButtonKind... buttonKinds)
     {
-        configButton.removeFromParent();
-        exportButton.removeFromParent();
+        Set<PagingToolBarButtonKind> buttonSet =
+                new HashSet<PagingToolBarButtonKind>(Arrays.asList(buttonKinds));
+        for (PagingToolBarButtonKind buttonKind : buttonSet)
+        {
+            switch (buttonKind)
+            {
+                case CONFIG:
+                    configButton.removeFromParent();
+                    break;
+                case REFRESH:
+                    refreshButton.removeFromParent();
+                    break;
+                case FILTERS:
+                    showFiltersButton.removeFromParent();
+                    break;
+                case EXPORT:
+                    exportButton.removeFromParent();
+                    break;
+                default:
+                    throw new IllegalStateException("Unhandled button " + buttonKind);
+            }
+        }
     }
 
-    public void removeFiltersButtons()
-    {
-        showFiltersButton.removeFromParent();
-    }
-    
     @Override
     protected void onLoad(LoadEvent event)
     {

@@ -86,7 +86,7 @@ final class AppView extends View
         } else if (viewMode == ViewMode.NORMAL)
         {
             north = new TopMenu(viewContext, componentProvider);
-        } else if (viewMode == ViewMode.SIMPLE_EMBEDDED)
+        } else if (viewMode == ViewMode.EMBEDDED)
         {
             north = null;
         } else
@@ -115,7 +115,7 @@ final class AppView extends View
 
     private final void createSouth()
     {
-        if (getViewMode() != ViewMode.SIMPLE_EMBEDDED)
+        if (getViewMode() != ViewMode.EMBEDDED)
         {
             final Footer footer = new Footer(viewContext);
             final BorderLayoutData data = new BorderLayoutData(LayoutRegion.SOUTH, 20);

@@ -16,16 +16,15 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.u
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 
 /**
- * {@link MaterialLocatorResolver} for screening materials.
+ * Material detail view for screening materials. Overrides {@link MaterialLocatorResolver}.
  * 
  * @author Piotr Buczek
  */
-public class PlateLocationsMaterialLocatorResolver extends MaterialLocatorResolver
+public class ImagingMaterialLocatorResolver extends MaterialLocatorResolver
 {
     private final IViewContext<IScreeningClientServiceAsync> viewContext;
 
-    public PlateLocationsMaterialLocatorResolver(
-            IViewContext<IScreeningClientServiceAsync> viewContext)
+    public ImagingMaterialLocatorResolver(IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         super(viewContext.getCommonViewContext());
         this.viewContext = viewContext;
@@ -84,7 +83,7 @@ public class PlateLocationsMaterialLocatorResolver extends MaterialLocatorResolv
         {
             if (experimentIdentifierOrNull == null)
             {
-                ClientPluginFactory.openPlateLocationsMaterialViewer(material, null, viewContext);
+                openImagingMaterialViewer(material, null);
             } else
             {
                 fetchExperimentAndShowLocations(material, experimentIdentifierOrNull);
@@ -105,12 +104,18 @@ public class PlateLocationsMaterialLocatorResolver extends MaterialLocatorResolv
                                         ExperimentSearchCriteria.createExperiment(
                                                 experiment.getId(), experiment.getPermId(),
                                                 experiment.getIdentifier());
-                                ClientPluginFactory.openPlateLocationsMaterialViewer(material,
-                                        experimentCriteria,
-                                        OpenEntityDetailsTabCallback.this.viewContext);
+                                openImagingMaterialViewer(material, experimentCriteria);
                             }
 
                         });
+        }
+
+        private final void openImagingMaterialViewer(
+                final IEntityInformationHolderWithPermId material,
+                final ExperimentSearchCriteria experimentCriteriaOrNull)
+        {
+            ClientPluginFactory.openImagingMaterialViewer(material, experimentCriteriaOrNull,
+                    viewContext);
         }
     }
 

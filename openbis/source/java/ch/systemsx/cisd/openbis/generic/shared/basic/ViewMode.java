@@ -24,11 +24,13 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public enum ViewMode implements IsSerializable
 {
     SIMPLE,
+
     /**
-     * Embedded mode is a simple view mode which has less widgets (e.g. top toolbar and footer are
-     * invisible) to allow embedding the application on other web sites.
+     * Embedded mode inherits most of the SIMPLE mode behaviors. But it has less widgets (e.g. top
+     * toolbar and footer are invisible, grids have only "Export" button) to allow embedding the
+     * application on other web sites.
      */
-    SIMPLE_EMBEDDED,
+    EMBEDDED,
 
     NORMAL;
 }

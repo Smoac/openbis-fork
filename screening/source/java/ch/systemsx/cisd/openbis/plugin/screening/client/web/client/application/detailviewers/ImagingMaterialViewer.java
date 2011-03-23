@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCrit
  * 
  * @author Tomasz Pylak
  */
-public class PlateLocationsMaterialViewer extends GenericMaterialViewer
+public class ImagingMaterialViewer extends GenericMaterialViewer
 {
 
     /**
@@ -48,8 +48,8 @@ public class PlateLocationsMaterialViewer extends GenericMaterialViewer
             IViewContext<IScreeningClientServiceAsync> viewContext, TechId materialId,
             ExperimentSearchCriteria experimentCriteriaOrNull)
     {
-        PlateLocationsMaterialViewer viewer =
-                new PlateLocationsMaterialViewer(viewContext, materialId, experimentCriteriaOrNull);
+        ImagingMaterialViewer viewer =
+                new ImagingMaterialViewer(viewContext, materialId, experimentCriteriaOrNull);
         viewer.reloadAllData();
         return new DatabaseModificationAwareComponent(viewer, viewer);
     }
@@ -58,9 +58,8 @@ public class PlateLocationsMaterialViewer extends GenericMaterialViewer
 
     private final ExperimentSearchCriteria experimentCriteriaOrNull;
 
-    private PlateLocationsMaterialViewer(
-            final IViewContext<IScreeningClientServiceAsync> viewContext,
-            final TechId materialTechId, ExperimentSearchCriteria experimentCriteriaOrNull)
+    private ImagingMaterialViewer(IViewContext<IScreeningClientServiceAsync> viewContext,
+            TechId materialTechId, ExperimentSearchCriteria experimentCriteriaOrNull)
     {
         super(viewContext, materialTechId);
         this.screeningViewContext = viewContext;

@@ -89,6 +89,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Compone
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GridCustomColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.BrowserGridPagingToolBar.PagingToolBarButtonKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.filter.FilterToolbar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
@@ -106,6 +107,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ViewMode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ColumnSetting;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -285,18 +287,18 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     }
                 }
             });
+        if (viewContext.getModel().getViewMode() == ViewMode.EMBEDDED)
+        {
+            removeButtons(PagingToolBarButtonKind.CONFIG, PagingToolBarButtonKind.FILTERS,
+                    PagingToolBarButtonKind.REFRESH);
+        }
     }
 
-    public void removeConfigAndExportButtons()
+    public void removeButtons(PagingToolBarButtonKind... buttonKinds)
     {
-        pagingToolbar.removeConfigAndExportButtons();
+        pagingToolbar.removeButtons(buttonKinds);
     }
-    
-    public void removeFiltersButtons()
-    {
-        pagingToolbar.removeFiltersButtons();
-    }
-    
+
     private ICellListener<T> createShowEntityViewerLinkClickListener()
     {
         return new ICellListener<T>()
@@ -735,7 +737,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             throw new IllegalStateException("unknown sort dir: " + sortDir);
         }
     }
-    
+
     /** @return number of rows in the grid */
     public final int getRowNumber()
     {
@@ -808,7 +810,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                         loadConfig.setSortDir(translate(sortInfo.getSortDir()));
                     }
                 }
-                resultSetConfig = createPagingConfig(loadConfig, filterToolbar.getFilters(), resultSetConfig.tryGetGridDisplayId());
+                resultSetConfig =
+                        createPagingConfig(loadConfig, filterToolbar.getFilters(),
+                                resultSetConfig.tryGetGridDisplayId());
                 resultSetConfig.setCacheConfig(ResultSetFetchConfig
                         .createFetchFromCacheAndRecompute(key));
                 // this.reuse(); // FIXME PTR has to be done?

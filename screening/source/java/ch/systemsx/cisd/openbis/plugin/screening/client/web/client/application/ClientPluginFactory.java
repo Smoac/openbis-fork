@@ -40,12 +40,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ICl
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ViewMode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -54,10 +56,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ImageSampleViewer;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.MaterialDetailsComponent;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.MicroscopyDatasetViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateDatasetViewer;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateLocationsMaterialViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateSampleViewer;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ImagingMaterialViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.sample.LibrarySampleBatchRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
@@ -167,7 +170,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         public final AbstractTabItemFactory createEntityViewer(
                 final IEntityInformationHolderWithPermId entity)
         {
-            return createPlateLocationsMaterialViewerTabFactory(entity, null, getViewContext());
+            return createImagingMaterialViewerTabFactory(entity, null, getViewContext());
         }
     }
 
@@ -175,18 +178,18 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
      * opens material viewer showing wells in which the material is contained, with a selected
      * experiment
      */
-    public static final void openPlateLocationsMaterialViewer(
+    public static final void openImagingMaterialViewer(
             final IEntityInformationHolderWithPermId material,
             final ExperimentSearchCriteria experimentCriteriaOrNull,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         AbstractTabItemFactory tab =
-                createPlateLocationsMaterialViewerTabFactory(material, experimentCriteriaOrNull,
+                createImagingMaterialViewerTabFactory(material, experimentCriteriaOrNull,
                         viewContext);
         DispatcherHelper.dispatchNaviEvent(tab);
     }
 
-    private static final AbstractTabItemFactory createPlateLocationsMaterialViewerTabFactory(
+    private static final AbstractTabItemFactory createImagingMaterialViewerTabFactory(
             final IEntityInformationHolderWithPermId material,
             final ExperimentSearchCriteria experimentCriteriaOrNull,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
@@ -196,22 +199,32 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                 @Override
                 public ITabItem create()
                 {
-                    final DatabaseModificationAwareComponent viewer =
-                            PlateLocationsMaterialViewer.create(viewContext,
-                                    TechId.create(material), experimentCriteriaOrNull);
-                    return createViewerTab(viewer, getTabTitle(), viewContext);
+                    TechId materialTechId = TechId.create(material);
+                    if (viewContext.getModel().getViewMode() == ViewMode.EMBEDDED)
+                    {
+                        IDisposableComponent viewer =
+                                MaterialDetailsComponent.create(viewContext, materialTechId,
+                                        experimentCriteriaOrNull);
+                        return DefaultTabItem.create(getTabTitle(), viewer, viewContext);
+                    } else
+                    {
+                        final DatabaseModificationAwareComponent viewer =
+                                ImagingMaterialViewer.create(viewContext, materialTechId,
+                                        experimentCriteriaOrNull);
+                        return createViewerTab(viewer, getTabTitle(), viewContext);
+                    }
                 }
 
                 @Override
                 public String getId()
                 {
-                    return PlateLocationsMaterialViewer.createId(TechId.create(material));
+                    return ImagingMaterialViewer.createId(TechId.create(material));
                 }
 
                 @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
-                    return PlateLocationsMaterialViewer.getHelpPageIdentifier();
+                    return ImagingMaterialViewer.getHelpPageIdentifier();
                 }
 
                 @Override

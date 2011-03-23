@@ -14,16 +14,16 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCrit
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialSearchCriteria;
 
 /**
- * Locator resolver for plate metadata browser.
+ * Locator resolver for Well Search which displays wells containing specified materials optionally
+ * restricted to one experiment.
  * 
  * @author Tomasz Pylak
  */
-public class PlateMaterialReviewerLocatorResolver extends AbstractViewLocatorResolver
+public class WellSearchLocatorResolver extends AbstractViewLocatorResolver
 {
     private final IViewContext<IScreeningClientServiceAsync> viewContext;
 
-    public PlateMaterialReviewerLocatorResolver(
-            IViewContext<IScreeningClientServiceAsync> viewContext)
+    public WellSearchLocatorResolver(IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         super(ScreeningLinkExtractor.WELL_SEARCH_ACTION);
         this.viewContext = viewContext;

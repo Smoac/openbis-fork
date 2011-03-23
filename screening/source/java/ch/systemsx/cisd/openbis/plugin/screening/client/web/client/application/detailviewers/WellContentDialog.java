@@ -434,7 +434,7 @@ public class WellContentDialog extends Dialog
                 {
                     WellContentDialog.this.hide();
                     ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory
-                            .openPlateLocationsMaterialViewer(material,
+                            .openImagingMaterialViewer(material,
                                     ExperimentSearchCriteria.createExperiment(experimentCriteria),
                                     viewContext);
                 }
