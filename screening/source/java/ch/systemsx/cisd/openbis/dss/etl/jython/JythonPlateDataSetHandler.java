@@ -50,9 +50,10 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
      */
     @Override
     protected IDataSetRegistrationDetailsFactory<DataSetInformation> createObjectFactory(
-            PythonInterpreter interpreter)
+            PythonInterpreter interpreter, DataSetInformation userProvidedDataSetInformationOrNull)
     {
-        return new JythonPlateDatasetFactory(getRegistratorState());
+        return new JythonPlateDatasetFactory(getRegistratorState(),
+                userProvidedDataSetInformationOrNull);
     }
 
     public static class JythonPlateDatasetFactory extends JythonObjectFactory<DataSetInformation>
@@ -61,11 +62,14 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
 
         private final IDataSetRegistrationDetailsFactory<FeatureVectorDataSetInformation> featureVectorDatasetFactory;
 
-        public JythonPlateDatasetFactory(OmniscientTopLevelDataSetRegistratorState registratorState)
+        public JythonPlateDatasetFactory(
+                OmniscientTopLevelDataSetRegistratorState registratorState,
+                DataSetInformation userProvidedDataSetInformationOrNull)
         {
-            super(registratorState);
+            super(registratorState, userProvidedDataSetInformationOrNull);
             this.imageDatasetFactory =
-                    new JythonObjectFactory<ImageDataSetInformation>(this.registratorState)
+                    new JythonObjectFactory<ImageDataSetInformation>(this.registratorState,
+                            this.userProvidedDataSetInformationOrNull)
                         {
                             @Override
                             protected ImageDataSetInformation createDataSetInformation()
@@ -74,7 +78,8 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
                             }
                         };
             this.featureVectorDatasetFactory =
-                    new JythonObjectFactory<FeatureVectorDataSetInformation>(this.registratorState)
+                    new JythonObjectFactory<FeatureVectorDataSetInformation>(this.registratorState,
+                            this.userProvidedDataSetInformationOrNull)
                         {
                             @Override
                             protected FeatureVectorDataSetInformation createDataSetInformation()
