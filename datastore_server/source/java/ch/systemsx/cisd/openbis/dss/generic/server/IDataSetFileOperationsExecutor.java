@@ -25,6 +25,8 @@ import ch.systemsx.cisd.common.filesystem.BooleanStatus;
  */
 public interface IDataSetFileOperationsExecutor
 {
+    BooleanStatus checkSame(File dataSet, File destination);
+
     BooleanStatus exists(File file);
 
     void createFolder(File folder);
@@ -38,4 +40,5 @@ public interface IDataSetFileOperationsExecutor
     void renameTo(File newFile, File oldFile);
 
     void createMarkerFile(File markerFile);
+
 }

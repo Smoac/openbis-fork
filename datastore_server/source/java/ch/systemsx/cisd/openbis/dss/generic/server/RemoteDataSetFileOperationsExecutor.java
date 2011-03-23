@@ -172,4 +172,11 @@ public final class RemoteDataSetFileOperationsExecutor implements IDataSetFileOp
                     Status.createError("creating a marker file leads to a problem"));
         }
     }
+
+    public BooleanStatus checkSame(File dataSet, File destination)
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

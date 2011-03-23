@@ -77,7 +77,8 @@ public class DataSetFileOperationsManager
 
     private final File destination;
 
-    public DataSetFileOperationsManager(Properties properties, IPathCopierFactory pathCopierFactory,
+    public DataSetFileOperationsManager(Properties properties,
+            IPathCopierFactory pathCopierFactory,
             ISshCommandExecutorFactory sshCommandExecutorFactory)
     {
         String hostFile = PropertyUtils.getMandatoryProperty(properties, DESTINATION_KEY);
@@ -119,6 +120,7 @@ public class DataSetFileOperationsManager
         {
             File destinationFolder = new File(destination, dataset.getDataSetLocation());
             createFolderIfNotExists(destinationFolder.getParentFile());
+            // deleteFolderIfExists(destinationFolder.getParentFile());
             operationLog.info("Copy dataset '" + dataset.getDatasetCode() + "' from '"
                     + originalData.getPath() + "' to '" + destinationFolder.getParentFile());
             executor.copyDataSetToDestination(originalData, destinationFolder.getParentFile());
@@ -181,9 +183,18 @@ public class DataSetFileOperationsManager
      */
     public BooleanStatus isPresentInDestination(File originalData, DatasetDescription dataset)
     {
-        // TODO 2011-03-11, Piotr Buczek: check file sizes
         File destinationFolder = new File(destination, dataset.getDataSetLocation());
-        return executor.exists(destinationFolder);
+        BooleanStatus resultStatus = executor.exists(destinationFolder);
+        if (resultStatus.isSuccess())
+        {
+            resultStatus = executor.checkSame(originalData, destinationFolder);
+        }
+        String message = resultStatus.tryGetMessage(); // if there is a message something went wrong
+        if (message != null)
+        {
+            operationLog.error(message);
+        }
+        return resultStatus;
     }
 
     private void checkDestinationExists(File destinationFolder)
@@ -195,6 +206,15 @@ public class DataSetFileOperationsManager
             throw new ExceptionWithStatus(Status.createError(DESTINATION_DOES_NOT_EXIST));
         }
     }
+
+    // private void deleteFolderIfExists(File destinationFolder)
+    // {
+    // BooleanStatus destinationExists = destinationExists(destinationFolder);
+    // if (destinationExists.isSuccess())
+    // {
+    // executor.deleteFolder(destinationFolder);
+    // }
+    // }
 
     private void createFolderIfNotExists(File destinationFolder)
     {
