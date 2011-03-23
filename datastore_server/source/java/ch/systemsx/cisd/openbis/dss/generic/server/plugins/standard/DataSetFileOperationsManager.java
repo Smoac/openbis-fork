@@ -184,11 +184,7 @@ public class DataSetFileOperationsManager
     public BooleanStatus isPresentInDestination(File originalData, DatasetDescription dataset)
     {
         File destinationFolder = new File(destination, dataset.getDataSetLocation());
-        BooleanStatus resultStatus = executor.exists(destinationFolder);
-        if (resultStatus.isSuccess())
-        {
-            resultStatus = executor.checkSame(originalData, destinationFolder);
-        }
+        BooleanStatus resultStatus = executor.checkSame(originalData, destinationFolder);
         String message = resultStatus.tryGetMessage(); // if there is a message something went wrong
         if (message != null)
         {

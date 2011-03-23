@@ -607,9 +607,8 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
-    @Test(groups = "broken")
-    // FIXME
-    public void testRemoteViaSshIsPresentInDestination()
+    @Test
+    public void testRemoteViaSshIsPresentInDestinationSimpleCheck()
     {
         Properties properties = createRemoteViaSshDestinationProperties();
         prepareRemoteCreateAndCheckCopier(HOST, null, true);
@@ -619,13 +618,13 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
             {
                 {
                     /*
-                     * ds1: present
+                     * ds1: error
                      */
                     one(sshExecutor).exists(ds1ArchivedLocationFile.getPath(), SSH_TIMEOUT_MILLIS);
-                    will(returnValue(BooleanStatus.createTrue()));
+                    will(returnValue(BooleanStatus.createError(DUMMY_ERROR_MESSAGE)));
 
                     /*
-                     * ds2: not present
+                     * ds2: not present - directory doesn't exist
                      */
                     one(sshExecutor).exists(ds2ArchivedLocationFile.getPath(), SSH_TIMEOUT_MILLIS);
                     will(returnValue(BooleanStatus.createFalse()));
@@ -633,8 +632,39 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
             });
         BooleanStatus status1 = dataSetCopier.isPresentInDestination(ds1Location, ds1);
         BooleanStatus status2 = dataSetCopier.isPresentInDestination(ds2Location, ds2);
-        assertTrue(status1);
+        assertError(status1, DUMMY_ERROR_MESSAGE);
         assertFalse(status2);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testRemoteViaSshIsPresentInDestinationAdvancedCheck()
+    {
+        Properties properties = createRemoteViaSshDestinationProperties();
+        prepareRemoteCreateAndCheckCopier(HOST, null, true);
+        DataSetFileOperationsManager dataSetCopier =
+                new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
+        context.checking(new Expectations()
+            {
+                {
+                    /*
+                     * ds1: TODO directory is present but content is different
+                     */
+                    one(sshExecutor).exists(ds1ArchivedLocationFile.getPath(), SSH_TIMEOUT_MILLIS);
+                    will(returnValue(BooleanStatus.createTrue()));
+
+                    /*
+                     * ds2: directory is present and content is OK
+                     */
+                    one(sshExecutor).exists(ds2ArchivedLocationFile.getPath(), SSH_TIMEOUT_MILLIS);
+                    will(returnValue(BooleanStatus.createTrue()));
+                }
+            });
+        BooleanStatus status1 = dataSetCopier.isPresentInDestination(ds1Location, ds1);
+        BooleanStatus status2 = dataSetCopier.isPresentInDestination(ds2Location, ds2);
+        assertTrue(status1);
+        assertTrue(status2);
 
         context.assertIsSatisfied();
     }

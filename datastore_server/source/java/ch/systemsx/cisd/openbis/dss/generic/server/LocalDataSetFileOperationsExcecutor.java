@@ -63,6 +63,7 @@ public final class LocalDataSetFileOperationsExcecutor implements IDataSetFileOp
             if (destination.isDirectory())
             {
                 FileFilter nullFilter = null;
+                // TODO ignore symlinks?
                 List<File> storeFiles = FileUtilities.listFiles(dataSet, nullFilter, true);
                 List<File> destFiles = FileUtilities.listFiles(destination, nullFilter, true);
 

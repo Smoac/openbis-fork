@@ -175,8 +175,16 @@ public final class RemoteDataSetFileOperationsExecutor implements IDataSetFileOp
 
     public BooleanStatus checkSame(File dataSet, File destination)
     {
-        // TODO Auto-generated method stub
-        return null;
+        if (false == dataSet.exists())
+        {
+            return BooleanStatus.createFalse("Data set location '" + dataSet + "' doesn't exist");
+        }
+        // else if (false == fileOperations.exists(destination))
+        // {
+        // return BooleanStatus.createFalse("Destination location '" + destination
+        // + "' doesn't exist");
+        // }
+        return executor.exists(destination.getPath(), DataSetCopier.SSH_TIMEOUT_MILLIS);
     }
 
 }
