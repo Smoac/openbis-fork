@@ -28,6 +28,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.SoftLinkMaker;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -61,8 +62,8 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
 
     private static final String REBUILDING_HIERARCHICAL_STORAGE = "Rebuilding hierarchical storage";
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, HierarchicalStorageUpdater.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            HierarchicalStorageUpdater.class);
 
     private static class LinkSourceDescriptor
     {
@@ -231,7 +232,8 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
         LinkSourceDescriptor linkSourceDescriptor = getLinkSourceDescriptor(dataSetType);
         File source = dataSetLocationRoot;
 
-        if (linkSourceDescriptor != null) {
+        if (linkSourceDescriptor != null)
+        {
             String subPath = linkSourceDescriptor.getSubFolder();
             if (StringUtils.isBlank(subPath) == false)
             {
@@ -314,7 +316,7 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
                 {
                     toDelete = parent;
                     parent = toDelete.getParentFile();
-                    toDelete.delete();
+                    delete(toDelete);
                 } else
                 {
                     break;
@@ -337,13 +339,25 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
         {
             // all these files should be symbolic links to a dataset directory.
             // We cannot delete recursively here, it would remove the original files.
-            boolean ok = file.delete();
+            boolean ok = delete(file);
             if (ok == false)
             {
                 operationLog.error("Cannot delete the file: " + file.getPath());
             }
         }
-        toDeleteParent.delete();
+        delete(toDeleteParent);
+    }
+
+    private static boolean delete(File file)
+    {
+        if (FileUtilities.isSymbolicLink(file) || file.isDirectory())
+        {
+            return file.delete();
+        } else
+        {
+            throw new IllegalStateException("Illegal attemp to delete a regular file: "
+                    + file.getPath());
+        }
     }
 
     /**
