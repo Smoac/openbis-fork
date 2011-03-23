@@ -37,8 +37,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
@@ -50,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
@@ -104,6 +107,18 @@ public interface IEncapsulatedOpenBISService
     @ManagedAuthentication
     public Experiment tryToGetExperiment(ExperimentIdentifier experimentIdentifier)
             throws UserFailureException;
+
+    /**
+     * Tries to get the space of specified identifier or <code>null</code> if not found.
+     */
+    @ManagedAuthentication
+    public Space tryGetSpace(SpaceIdentifier spaceIdentifier) throws UserFailureException;
+
+    /**
+     * Tries to get the project of specified identifier or <code>null</code> if not found.
+     */
+    @ManagedAuthentication
+    public Project tryGetProject(ProjectIdentifier projectIdentifier) throws UserFailureException;
 
     /**
      * Gets all sample in accordance to the specified criteria.

@@ -26,7 +26,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
@@ -123,6 +125,18 @@ public class ConversionUtils
         data.getExtractableData().setDataSetProperties(newProperties);
 
         return data;
+    }
+
+    public static NewSpace convertToNewSpace(Space apiSpace)
+    {
+        return new NewSpace(apiSpace.getSpaceCode(), apiSpace.getDescription(),
+                apiSpace.getSpaceAdminUserId());
+    }
+
+    public static NewProject convertToNewProject(Project apiProject)
+    {
+        return new NewProject(apiProject.getProjectIdentifier(), apiProject.getDescription(),
+                apiProject.getProjectLeaderId());
     }
 
 }

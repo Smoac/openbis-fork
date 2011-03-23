@@ -79,6 +79,35 @@ public interface IDataSetRegistrationTransaction
      */
     IExperiment createNewExperiment(String experimentIdentifierString, String experimentTypeCode);
 
+    /**
+     * Create a new project to register with the openBIS AS.
+     * 
+     * @param projectIdentifier .
+     */
+    IProject createNewProject(String projectIdentifier);
+
+    /**
+     * Get a project from the openBIS AS. Returns null if the project does not exist.
+     * 
+     * @return A project or null
+     */
+    IProjectImmutable getProject(String projectIdentifier);
+
+    /**
+     * Create a new space to register with the openBIS AS.
+     * 
+     * @param spaceCode the code of the space
+     * @param spaceAdminUserId the user id of the person, who will receive space admin priviliges.
+     */
+    ISpace createNewSpace(String spaceCode, String spaceAdminUserId);
+
+    /**
+     * Get a space from the openBIS AS. Returns null if the space does not exist.
+     * 
+     * @return A space or null
+     */
+    ISpaceImmutable getSpace(String spaceCode);
+
     // File operations -- The source and destination paths are local to the incoming data set folder
     // or incoming directory if the data set is just one file
 

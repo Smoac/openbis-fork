@@ -36,8 +36,12 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperiment;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperimentImmutable;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IProject;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IProjectImmutable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISampleImmutable;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.ISpace;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.ISpaceImmutable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionState.CommitedTransactionState;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionState.LiveTransactionState;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionState.RolledbackTransactionState;
@@ -47,8 +51,11 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * The implementation of a transaction. This class is designed to be used in one thread.
@@ -222,6 +229,33 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     {
         return getStateAsLiveState().createNewExperiment(experimentIdentifierString,
                 experimentTypeCode);
+    }
+
+    public IProject createNewProject(String projectIdentifier)
+    {
+        return getStateAsLiveState().createNewProject(projectIdentifier);
+    }
+
+    public IProjectImmutable getProject(String projectIdentifierString)
+    {
+        ProjectIdentifier projectIdentifier =
+                new ProjectIdentifierFactory(projectIdentifierString).createIdentifier();
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project projectOrNull =
+                openBisService.tryGetProject(projectIdentifier);
+        return (null == projectOrNull) ? null : new ProjectImmutable(projectOrNull);
+    }
+
+    public ISpace createNewSpace(String spaceCode, String spaceAdminUserId)
+    {
+        return getStateAsLiveState().createNewSpace(spaceCode, spaceAdminUserId);
+    }
+
+    public ISpaceImmutable getSpace(String spaceCode)
+    {
+        SpaceIdentifier spaceIdentifier = new SpaceIdentifier(spaceCode);
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space spaceOrNull =
+                openBisService.tryGetSpace(spaceIdentifier);
+        return (null == spaceOrNull) ? null : new SpaceImmutable(spaceOrNull);
     }
 
     public String moveFile(String src, IDataSet dst)

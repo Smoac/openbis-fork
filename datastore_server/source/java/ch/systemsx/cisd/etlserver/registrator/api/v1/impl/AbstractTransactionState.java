@@ -29,13 +29,17 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperiment;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IProject;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.ISpace;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -88,6 +92,10 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
         private final ArrayList<DataSet<T>> registeredDataSets = new ArrayList<DataSet<T>>();
 
         private final List<Experiment> experimentsToBeRegistered = new ArrayList<Experiment>();
+
+        private final List<Space> spacesToBeRegistered = new ArrayList<Space>();
+
+        private final List<Project> projectsToBeRegistered = new ArrayList<Project>();
 
         private final List<Sample> samplesToBeRegistered = new ArrayList<Sample>();
 
@@ -200,6 +208,20 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             experiment.setExperimentType(experimentTypeCode);
             experimentsToBeRegistered.add(experiment);
             return experiment;
+        }
+
+        public ISpace createNewSpace(String spaceCode, String spaceAdminUserId)
+        {
+            Space space = new Space(spaceCode, spaceAdminUserId);
+            spacesToBeRegistered.add(space);
+            return space;
+        }
+
+        public IProject createNewProject(String projectIdentifier)
+        {
+            Project project = new Project(projectIdentifier);
+            projectsToBeRegistered.add(project);
+            return project;
         }
 
         public String moveFile(String src, IDataSet dst)
@@ -332,6 +354,8 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
                 List<DataSetRegistrationInformation<T>> dataSetRegistrations)
         {
 
+            List<NewSpace> spaceRegistrations = convertSpacesToBeRegistered();
+            List<NewProject> projectRegistrations = convertProjectsToBeRegistered();
             List<NewExperiment> experimentRegistrations = convertExperimentsToBeRegistered();
             List<SampleUpdatesDTO> sampleUpdates = convertSamplesToBeUpdated();
             List<NewSample> sampleRegistrations = convertSamplesToBeRegistered();
@@ -340,10 +364,31 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             List<ExperimentUpdatesDTO> experimentUpdates = new ArrayList<ExperimentUpdatesDTO>();
 
             AtomicEntityOperationDetails<T> registrationDetails =
-                    new AtomicEntityOperationDetails<T>(getUserId(), experimentUpdates,
+                    new AtomicEntityOperationDetails<T>(getUserId(), spaceRegistrations,
+                            projectRegistrations, experimentUpdates,
                             experimentRegistrations, sampleUpdates, sampleRegistrations,
                             dataSetRegistrations);
             return registrationDetails;
+        }
+
+        private List<NewProject> convertProjectsToBeRegistered()
+        {
+            List<NewProject> result = new ArrayList<NewProject>();
+            for (Project apiProject : projectsToBeRegistered)
+            {
+                result.add(ConversionUtils.convertToNewProject(apiProject));
+            }
+            return result;
+        }
+
+        private List<NewSpace> convertSpacesToBeRegistered()
+        {
+            List<NewSpace> result = new ArrayList<NewSpace>();
+            for (Space apiSpace : spacesToBeRegistered)
+            {
+                result.add(ConversionUtils.convertToNewSpace(apiSpace));
+            }
+            return result;
         }
 
         private List<NewExperiment> convertExperimentsToBeRegistered()

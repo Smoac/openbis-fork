@@ -29,7 +29,7 @@ public final class NewSamplePredicate extends DelegatedPredicate<SampleOwnerIden
 {
     public NewSamplePredicate()
     {
-        super(new SampleOwnerIdentifierPredicate(false));
+        super(new SampleOwnerIdentifierPredicate(false, true));
     }
 
     //

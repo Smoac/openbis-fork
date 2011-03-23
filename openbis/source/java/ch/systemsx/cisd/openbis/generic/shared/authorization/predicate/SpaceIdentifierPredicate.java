@@ -36,6 +36,11 @@ public class SpaceIdentifierPredicate extends AbstractSpacePredicate<SpaceIdenti
     {
     }
 
+    public SpaceIdentifierPredicate(boolean okForNonExistentSpaces)
+    {
+        super(okForNonExistentSpaces);
+    }
+
     //
     // AbstractDatabaseInstancePredicate
     //

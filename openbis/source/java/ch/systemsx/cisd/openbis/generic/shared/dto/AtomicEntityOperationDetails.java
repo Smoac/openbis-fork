@@ -24,7 +24,9 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
 
 /**
  * An object that captures the state for performing the registration of one or many openBIS entities
@@ -43,6 +45,10 @@ public class AtomicEntityOperationDetails implements Serializable
     // the DSS
     private final ArrayList<ExperimentUpdatesDTO> experimentUpdates;
 
+    private final ArrayList<NewSpace> spaceRegistrations;
+
+    private final ArrayList<NewProject> projectRegistrations;
+
     private final ArrayList<NewExperiment> experimentRegistrations;
 
     private final ArrayList<SampleUpdatesDTO> sampleUpdates;
@@ -51,11 +57,14 @@ public class AtomicEntityOperationDetails implements Serializable
 
     private final ArrayList<NewExternalData> dataSetRegistrations;
 
-    public AtomicEntityOperationDetails(String userIdOrNull,
+    public AtomicEntityOperationDetails(String userIdOrNull, List<NewSpace> spaceRegistrations,
+            List<NewProject> projectRegistrations,
             List<NewExperiment> experimentRegistrations, List<SampleUpdatesDTO> sampleUpdates,
             List<NewSample> sampleRegistrations, List<NewExternalData> dataSetRegistrations)
     {
         this.userIdOrNull = userIdOrNull;
+        this.spaceRegistrations = new ArrayList<NewSpace>(spaceRegistrations);
+        this.projectRegistrations = new ArrayList<NewProject>(projectRegistrations);
         this.experimentUpdates = new ArrayList<ExperimentUpdatesDTO>();
         this.experimentRegistrations = new ArrayList<NewExperiment>(experimentRegistrations);
         this.sampleUpdates = new ArrayList<SampleUpdatesDTO>(sampleUpdates);
@@ -93,11 +102,23 @@ public class AtomicEntityOperationDetails implements Serializable
         return dataSetRegistrations;
     }
 
+    public ArrayList<NewSpace> getSpaceRegistrations()
+    {
+        return spaceRegistrations;
+    }
+
+    public ArrayList<NewProject> getProjectRegistrations()
+    {
+        return projectRegistrations;
+    }
+
     @Override
     public String toString()
     {
         ToStringBuilder sb = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
         sb.append("userIdOrNull", userIdOrNull);
+        sb.append("spaceRegistrations", spaceRegistrations);
+        sb.append("projectRegistrations", projectRegistrations);
         sb.append("experimentUpdates", experimentUpdates);
         sb.append("experimentRegistrations", experimentRegistrations);
         sb.append("sampleUpdates", sampleUpdates);

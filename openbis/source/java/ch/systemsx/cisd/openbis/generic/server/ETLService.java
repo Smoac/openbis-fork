@@ -37,6 +37,9 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObject
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SimpleDataSetHelper;
@@ -63,19 +66,24 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyTypeWithVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
@@ -95,7 +103,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -104,10 +114,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -118,7 +132,9 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator.LoadableFields;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.GroupTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.ProjectTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTermTranslator;
@@ -393,10 +409,17 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
 
     private SamplePE tryLoadSample(final Session session, SampleIdentifier sampleIdentifier)
     {
+        SamplePE result = null;
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
-        sampleBO.tryToLoadBySampleIdentifier(sampleIdentifier);
-        final SamplePE sample = sampleBO.tryToGetSample();
-        return sample;
+        try
+        {
+            sampleBO.tryToLoadBySampleIdentifier(sampleIdentifier);
+            result = sampleBO.tryToGetSample();
+        } catch (UserFailureException ufe)
+        {
+            // sample does not exist
+        }
+        return result;
     }
 
     private void enrichWithProperties(ExperimentPE experiment)
@@ -945,11 +968,51 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         return samplePE;
     }
 
+    public Space tryGetSpace(String sessionToken, SpaceIdentifier spaceIdentifier)
+    {
+
+        Session session = getSession(sessionToken);
+        IGroupBO groupBO = businessObjectFactory.createGroupBO(session);
+        GroupIdentifier identifier =
+                new GroupIdentifier(spaceIdentifier.getDatabaseInstanceCode(),
+                        spaceIdentifier.getSpaceCode());
+        try
+        {
+            groupBO.load(identifier);
+            return GroupTranslator.translate(groupBO.getGroup());
+        } catch (UserFailureException ufe)
+        {
+            // space does not exist
+            return null;
+        }
+
+    }
+
+    public Project tryGetProject(String sessionToken, ProjectIdentifier projectIdentifier)
+    {
+        final Session session = getSession(sessionToken);
+        final IProjectBO bo = businessObjectFactory.createProjectBO(session);
+        try
+        {
+            bo.loadByProjectIdentifier(projectIdentifier);
+            final ProjectPE project = bo.getProject();
+            return ProjectTranslator.translate(project);
+        } catch (UserFailureException ufe)
+        {
+            // project does not exist
+            return null;
+        }
+    }
+
     public AtomicEntityOperationResult performEntityOperations(String sessionToken,
             AtomicEntityOperationDetails operationDetails)
     {
 
-        ArrayList<Experiment> experimentsCreated =
+        List<Space> spacesCreated = createSpaces(sessionToken, operationDetails);
+
+        List<Project> projectsCreated = createProjects(sessionToken, operationDetails);
+
+        List<Experiment> experimentsCreated =
                 createExperiments(sessionToken, operationDetails);
 
         List<Sample> samplesCreated = createSamples(sessionToken, operationDetails);
@@ -958,8 +1021,89 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
 
         List<ExternalData> dataSetsCreated = createDataSets(sessionToken, operationDetails);
 
-        return new AtomicEntityOperationResult(experimentsCreated, samplesUpdated, samplesCreated,
+        return new AtomicEntityOperationResult(spacesCreated, projectsCreated, experimentsCreated,
+                samplesUpdated, samplesCreated,
                 dataSetsCreated);
+    }
+
+    private List<Space> createSpaces(String sessionToken,
+            AtomicEntityOperationDetails operationDetails)
+    {
+        ArrayList<SpacePE> spacePEsCreated = new ArrayList<SpacePE>();
+        List<NewSpace> newSpaces = operationDetails.getSpaceRegistrations();
+        for (NewSpace newSpace : newSpaces)
+        {
+            SpacePE spacePE =
+                    registerSpaceInternal(sessionToken, newSpace,
+                            operationDetails.tryUserIdOrNull());
+            spacePEsCreated.add(spacePE);
+        }
+        return GroupTranslator.translate(spacePEsCreated);
+    }
+
+    private SpacePE registerSpaceInternal(String sessionToken, NewSpace newSpace,
+            String registratorUserIdOrNull)
+    {
+        // create space
+        Session session = getSession(sessionToken);
+        IGroupBO groupBO = businessObjectFactory.createGroupBO(session);
+        groupBO.define(newSpace.getCode(), newSpace.getDescription());
+        if (registratorUserIdOrNull != null)
+        {
+            groupBO.getGroup().setRegistrator(getOrCreatePerson(sessionToken, registratorUserIdOrNull));
+        }
+        groupBO.save();
+        
+        // create ADMIN role assignemnt
+        SpacePE space = groupBO.getGroup();
+        if (newSpace.getSpaceAdminUserId() != null) {
+            IRoleAssignmentTable roleTable = businessObjectFactory.createRoleAssignmentTable(session);
+            NewRoleAssignment assignment = new NewRoleAssignment();
+            SpaceIdentifier spaceIdentifier = new SpaceIdentifier(space.getCode());
+            assignment.setSpaceIdentifier(spaceIdentifier);
+            assignment.setRole(RoleCode.ADMIN);
+            Grantee grantee = Grantee.createPerson(newSpace.getSpaceAdminUserId());
+            assignment.setGrantee(grantee);
+            roleTable.add(assignment);
+            roleTable.save();
+        }
+        return space;
+
+        
+    }
+
+    private List<Project> createProjects(String sessionToken,
+            AtomicEntityOperationDetails operationDetails)
+    {
+        ArrayList<ProjectPE> projectPEsCreated = new ArrayList<ProjectPE>();
+        List<NewProject> newProjects = operationDetails.getProjectRegistrations();
+        for (NewProject newProject : newProjects)
+        {
+            ProjectPE projectPE =
+                    registerProjectInternal(sessionToken, newProject,
+                            operationDetails.tryUserIdOrNull());
+            projectPEsCreated.add(projectPE);
+        }
+        return ProjectTranslator.translate(projectPEsCreated);
+    }
+
+    private ProjectPE registerProjectInternal(String sessionToken, NewProject newProject,
+            String registratorUserIdOrNull)
+    {
+        Session session = getSession(sessionToken);
+        IProjectBO projectBO = businessObjectFactory.createProjectBO(session);
+        ProjectIdentifier identifier =
+                new ProjectIdentifierFactory(newProject.getIdentifier()).createIdentifier();
+        projectBO.define(identifier, newProject.getDescription(),
+                newProject.getLeaderId());
+        if (registratorUserIdOrNull != null)
+        {
+            projectBO.getProject().setRegistrator(
+                    getOrCreatePerson(sessionToken, registratorUserIdOrNull));
+        }
+        projectBO.save();
+
+        return projectBO.getProject();
     }
 
     private List<Sample> createSamples(String sessionToken,

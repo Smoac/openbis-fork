@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentif
  * 
  * @author Christian Ribeaud
  */
-public final class SampleOwnerIdentifierPredicate extends AbstractPredicate<SampleOwnerIdentifier>
+public class SampleOwnerIdentifierPredicate extends AbstractPredicate<SampleOwnerIdentifier>
 {
     private final SpaceIdentifierPredicate spacePredicate;
 
@@ -37,12 +37,17 @@ public final class SampleOwnerIdentifierPredicate extends AbstractPredicate<Samp
 
     public SampleOwnerIdentifierPredicate()
     {
-        this(true);
+        this(true, false);
     }
 
     public SampleOwnerIdentifierPredicate(boolean isReadAccess)
     {
-        spacePredicate = new SpaceIdentifierPredicate();
+        this(isReadAccess, false);
+    }
+
+    public SampleOwnerIdentifierPredicate(boolean isReadAccess, boolean okForNonExistentSpaces)
+    {
+        spacePredicate = new SpaceIdentifierPredicate(okForNonExistentSpaces);
         databaseInstanceIdentifierPredicate = new DatabaseInstanceIdentifierPredicate(isReadAccess);
     }
 

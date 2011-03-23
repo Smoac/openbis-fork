@@ -49,8 +49,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
@@ -62,6 +64,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
@@ -140,6 +143,18 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     {
         assert experimentIdentifier != null : " Unspecified experiment identifier.";
         return service.tryToGetExperiment(session.getToken(), experimentIdentifier);
+    }
+
+    public Space tryGetSpace(SpaceIdentifier spaceIdentifier) throws UserFailureException
+    {
+        assert spaceIdentifier != null : "Unspecified space identifier";
+        return service.tryGetSpace(session.getToken(), spaceIdentifier);
+    }
+
+    public Project tryGetProject(ProjectIdentifier projectIdentifier) throws UserFailureException
+    {
+        assert projectIdentifier != null : "Unspecified project identifier";
+        return service.tryGetProject(session.getToken(), projectIdentifier);
     }
 
     public List<Sample> listSamples(ListSampleCriteria criteria)

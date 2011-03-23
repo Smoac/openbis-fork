@@ -35,6 +35,14 @@ public class AtomicEntityOperationDetailsTest extends AssertJUnit
     @Test
     public void testToString()
     {
+        ArrayList<NewSpace> spaceRegistrations = new ArrayList<NewSpace>();
+        spaceRegistrations.add(new NewSpace("SPACE1", "description", "adminUser1"));
+        spaceRegistrations.add(new NewSpace("SPACE2", "description", "adminUser2"));
+
+        ArrayList<NewProject> projectRegistrations = new ArrayList<NewProject>();
+        projectRegistrations.add(new NewProject("/SPACE/P1", "description", "leaderId1"));
+        projectRegistrations.add(new NewProject("/SPACE/P2", "description", "leaderId2"));
+
         ArrayList<NewExperiment> experimentRegistrations = new ArrayList<NewExperiment>();
         experimentRegistrations.add(new NewExperiment("/SPACE/PROJECT/EXP-ID1", "EXP-TYPE"));
         experimentRegistrations.add(new NewExperiment("/SPACE/PROJECT/EXP-ID2", "EXP-TYPE"));
@@ -55,11 +63,15 @@ public class AtomicEntityOperationDetailsTest extends AssertJUnit
         dataSetRegistrations.add(newExternalData);
 
         AtomicEntityOperationDetails details =
-                new AtomicEntityOperationDetails(null, experimentRegistrations, sampleUpdates,
+                new AtomicEntityOperationDetails(null, spaceRegistrations, projectRegistrations,
+                        experimentRegistrations, sampleUpdates,
                         sampleRegistrations, dataSetRegistrations);
 
         assertEquals(
-                "AtomicEntityOperationDetails[userIdOrNull=<null>,experimentUpdates=[]"
+                "AtomicEntityOperationDetails[userIdOrNull=<null>"
+                        + ",spaceRegistrations=[SPACE1, SPACE2]"
+                        + ",projectRegistrations=[/SPACE/P1, /SPACE/P2]"
+                        + ",experimentUpdates=[]"
                         + ",experimentRegistrations=[/SPACE/PROJECT/EXP-ID1, /SPACE/PROJECT/EXP-ID2]"
                         + ",sampleUpdates=[]"
                         + ",sampleRegistrations=[/SPACE/SAMPLE-ID1, /SPACE/SAMPLE-ID2]"

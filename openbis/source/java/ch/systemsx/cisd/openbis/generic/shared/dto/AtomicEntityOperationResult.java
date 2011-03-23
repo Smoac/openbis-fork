@@ -23,7 +23,9 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -36,6 +38,10 @@ public class AtomicEntityOperationResult implements Serializable
     // DSS.
     private final ArrayList<Experiment> experimentsUpdated;
 
+    private final ArrayList<Space> spacesCreated;
+
+    private final ArrayList<Project> projectsCreated;
+
     private final ArrayList<Experiment> experimentsCreated;
 
     private final ArrayList<Sample> samplesUpdated;
@@ -46,14 +52,18 @@ public class AtomicEntityOperationResult implements Serializable
 
     public AtomicEntityOperationResult()
     {
-        this(Collections.<Experiment> emptyList(), Collections.<Sample> emptyList(), Collections
+        this(Collections.<Space> emptyList(), Collections.<Project> emptyList(),
+                Collections.<Experiment> emptyList(), Collections.<Sample> emptyList(), Collections
                 .<Sample> emptyList(), Collections.<ExternalData> emptyList());
     }
 
-    public AtomicEntityOperationResult(List<Experiment> experimentsCreated,
+    public AtomicEntityOperationResult(List<Space> spacesCreated, List<Project> projectsCreated,
+            List<Experiment> experimentsCreated,
             List<Sample> samplesUpdated, List<Sample> samplesCreated,
             List<ExternalData> dataSetsCreated)
     {
+        this.spacesCreated = new ArrayList<Space>(spacesCreated);
+        this.projectsCreated = new ArrayList<Project>(projectsCreated);
         this.experimentsUpdated = new ArrayList<Experiment>();
         this.experimentsCreated = new ArrayList<Experiment>(experimentsCreated);
         this.samplesUpdated = new ArrayList<Sample>(samplesUpdated);
@@ -84,6 +94,16 @@ public class AtomicEntityOperationResult implements Serializable
     public ArrayList<ExternalData> getDataSetsCreated()
     {
         return dataSetsCreated;
+    }
+
+    public ArrayList<Space> getSpacesCreated()
+    {
+        return spacesCreated;
+    }
+
+    public ArrayList<Project> getProjectsCreated()
+    {
+        return projectsCreated;
     }
 
 }

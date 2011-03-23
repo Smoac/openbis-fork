@@ -51,7 +51,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -961,7 +963,8 @@ public class ETLServiceTest extends AbstractServerTestCase
             });
 
         AtomicEntityOperationDetails details =
-                new AtomicEntityOperationDetails(null, new ArrayList<NewExperiment>(),
+                new AtomicEntityOperationDetails(null, new ArrayList<NewSpace>(),
+                        new ArrayList<NewProject>(), new ArrayList<NewExperiment>(),
                         Collections.singletonList(sampleUpdate),
                         Collections.singletonList(newSample),
                         Collections.singletonList(externalData));

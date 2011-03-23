@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  */
 public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOperationDetails>
 {
+
     private final NewExperimentPredicate newExperimentPredicate;
 
     private final ExperimentUpdatesPredicate experimentUpdatesPredicate;
@@ -48,7 +49,7 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
 
     private final SampleOwnerIdentifierPredicate sampleOwnerIdentifierPredicate;
 
-    private final SpaceIdentifierPredicate experimentOwnerIdentifierPredicate;
+    private final ExistingSpaceIdentifierPredicate experimentOwnerIdentifierPredicate;
 
     public AtomicOperationsPredicate()
     {
@@ -56,8 +57,8 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
         experimentUpdatesPredicate = new ExperimentUpdatesPredicate();
         newSamplePredicate = new NewSamplePredicate();
         sampleUpdatesPredicate = new SampleUpdatesPredicate();
-        sampleOwnerIdentifierPredicate = new SampleOwnerIdentifierPredicate();
-        experimentOwnerIdentifierPredicate = new SpaceIdentifierPredicate();
+        sampleOwnerIdentifierPredicate = new SampleOwnerIdentifierPredicate(true, true);
+        experimentOwnerIdentifierPredicate = new ExistingSpaceIdentifierPredicate();
     }
 
     public void init(IAuthorizationDataProvider provider)

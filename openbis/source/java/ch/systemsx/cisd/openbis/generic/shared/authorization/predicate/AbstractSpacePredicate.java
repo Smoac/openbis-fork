@@ -1,5 +1,6 @@
 /*
  * Copyright 2009 ETH Zuerich, CISD
+
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +37,18 @@ public abstract class AbstractSpacePredicate<T> extends AbstractDatabaseInstance
 
     protected List<SpacePE> spaces;
 
+    protected boolean okForNonExistentSpaces;
+
+    protected AbstractSpacePredicate()
+    {
+        this(false);
+    }
+
+    protected AbstractSpacePredicate(boolean okForNonExistentSpaces)
+    {
+        this.okForNonExistentSpaces = okForNonExistentSpaces;
+    }
+
     @Override
     public void init(IAuthorizationDataProvider provider)
     {
@@ -57,8 +70,15 @@ public abstract class AbstractSpacePredicate<T> extends AbstractDatabaseInstance
     {
         if (tryFindSpace(databaseInstanceUUID, spaceCodeOrNull) == null)
         {
-            return createError(person, spaceCodeOrNull);
+            if (okForNonExistentSpaces)
+            {
+                return Status.OK;
+            } else
+            {
+                return createError(person, spaceCodeOrNull);
+            }
         }
+
         final boolean matching = isMatching(allowedRoles, databaseInstanceUUID, spaceCodeOrNull);
         if (matching)
         {

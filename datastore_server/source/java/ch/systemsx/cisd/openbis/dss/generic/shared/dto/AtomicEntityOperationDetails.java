@@ -21,7 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 
@@ -38,6 +40,10 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
     // The userid on whose behalf the operations are done.
     private final String userIdOrNull;
 
+    private final ArrayList<NewSpace> spaceRegistrations;
+
+    private final ArrayList<NewProject> projectRegistrations;
+
     private final ArrayList<ExperimentUpdatesDTO> experimentUpdates;
 
     private final ArrayList<NewExperiment> experimentRegistrations;
@@ -48,13 +54,16 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
 
     private final ArrayList<DataSetRegistrationInformation<T>> dataSetRegistrations;
 
-    public AtomicEntityOperationDetails(String userIdOrNull,
+    public AtomicEntityOperationDetails(String userIdOrNull, List<NewSpace> spaceRegistrations,
+            List<NewProject> projectRegistrations,
             List<ExperimentUpdatesDTO> experimentUpdates,
             List<NewExperiment> experimentRegistrations, List<SampleUpdatesDTO> sampleUpdates,
             List<NewSample> sampleRegistrations,
             List<DataSetRegistrationInformation<T>> dataSetRegistrations)
     {
         this.userIdOrNull = userIdOrNull;
+        this.spaceRegistrations = new ArrayList<NewSpace>(spaceRegistrations);
+        this.projectRegistrations = new ArrayList<NewProject>(projectRegistrations);
         this.experimentUpdates = new ArrayList<ExperimentUpdatesDTO>(experimentUpdates);
         this.experimentRegistrations = new ArrayList<NewExperiment>(experimentRegistrations);
         this.sampleUpdates = new ArrayList<SampleUpdatesDTO>(sampleUpdates);
@@ -92,4 +101,15 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
     {
         return dataSetRegistrations;
     }
+
+    public ArrayList<NewSpace> getSpaceRegistrations()
+    {
+        return spaceRegistrations;
+    }
+
+    public ArrayList<NewProject> getProjectRegistrations()
+    {
+        return projectRegistrations;
+    }
+
 }
