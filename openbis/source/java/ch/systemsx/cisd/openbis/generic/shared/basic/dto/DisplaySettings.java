@@ -292,7 +292,9 @@ public class DisplaySettings implements ISerializable
         if (portletConfigurations == null)
         {
             portletConfigurations = new HashMap<String, PortletConfiguration>();
+            // Default portlets
             addPortlet(portletConfigurations, new PortletConfiguration(StandardPortletNames.WELCOME));
+            addPortlet(portletConfigurations, new PortletConfiguration(StandardPortletNames.HISTORY));
         }
         return portletConfigurations;
     }
