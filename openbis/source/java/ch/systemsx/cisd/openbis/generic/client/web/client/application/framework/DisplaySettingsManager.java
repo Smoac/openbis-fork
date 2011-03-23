@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ColumnSetting;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailViewConfiguration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityVisit;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PortletConfiguration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RealNumberFormatingParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;
 
@@ -533,5 +534,17 @@ public class DisplaySettingsManager
     public List<EntityVisit> getVisits()
     {
         return displaySettings.getVisits();
+    }
+    
+    @SuppressWarnings("deprecation")
+    public void addPortlet(PortletConfiguration portletConfiguration)
+    {
+        displaySettings.addPortlet(portletConfiguration);
+    }
+    
+    @SuppressWarnings("deprecation")
+    public Map<String, PortletConfiguration> getPortletConfigurations()
+    {
+        return displaySettings.getPortletConfigurations();
     }
 }

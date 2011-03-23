@@ -27,7 +27,7 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.event.TabPanelEvent;
-import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 
@@ -83,10 +84,21 @@ public class MainTabPanel extends TabPanel implements IMainPanel
 
     private final MainTabItem createWelcomePanel()
     {
-        final Component mainComponent = WelcomePanelHelper.createWelcomePanel(viewContext, PREFIX);
-        final MainTabItem intro =
-                new MainTabItem(DefaultTabItem.createUnaware(BLANK_TAB_TITLE, mainComponent, false,
-                        viewContext), mainComponent.getId(), null, null);
+        final LayoutContainer mainComponent = new LayoutContainer(new FitLayout());
+//        mainComponent.add(WelcomePanelHelper.createWelcomePanel(viewContext, PREFIX));
+        ITabItem tabItem =
+                DefaultTabItem.createWithUpdater(BLANK_TAB_TITLE, mainComponent,
+                        new IDelegatedAction()
+                            {
+                                public void execute()
+                                {
+                                    mainComponent.removeAll();
+                                    mainComponent.add(WelcomePanelHelper.createWelcomePanel(
+                                            viewContext, PREFIX));
+                                    mainComponent.layout();
+                                }
+                            }, viewContext);
+        final MainTabItem intro = new MainTabItem(tabItem, mainComponent.getId(), null, null);
         intro.setClosable(false);
         return intro;
     }

@@ -44,6 +44,8 @@ public class DefaultTabItem implements ITabItem
 
     private final LastHistoryTokenUpdater historyTokenUpdater;
 
+    private final IDelegatedAction updaterOrNull;
+
     /**
      * Creates a tab with the specified {@link Component}. The tab is unaware of database
      * modifications and will not be automatically refreshed if changes occur.
@@ -51,10 +53,21 @@ public class DefaultTabItem implements ITabItem
     public static ITabItem createUnaware(final String title, final Component component,
             boolean isCloseConfirmationNeeded, IViewContext<?> viewContext)
     {
-        return new DefaultTabItem(viewContext, title, component, null, null,
+        return new DefaultTabItem(viewContext, title, component, null, null, null,
                 isCloseConfirmationNeeded);
     }
 
+    /**
+     * Creates a tab with the specified {@link Component} and updater action. The updater action
+     * will be invoked when this tab is selected. Note, that this tab is unaware of database
+     * modifications and will not be automatically refreshed if changes occur.
+     */
+    public static ITabItem createWithUpdater(final String title, final Component component,
+            IDelegatedAction updater, IViewContext<?> viewContext)
+    {
+        return new DefaultTabItem(viewContext, title, component, updater, null, null, false);
+    }
+    
     /**
      * Creates a tab with the specified {@link ContentPanel}. The tab is unaware of database
      * modifications and will not be automatically refreshed if changes occur.
@@ -63,7 +76,7 @@ public class DefaultTabItem implements ITabItem
             boolean isCloseConfirmationNeeded, IViewContext<?> viewContext)
     {
         String title = getTabTitle(component);
-        return new DefaultTabItem(viewContext, title, component, null, null,
+        return new DefaultTabItem(viewContext, title, component, null, null, null,
                 isCloseConfirmationNeeded);
     }
 
@@ -87,7 +100,7 @@ public class DefaultTabItem implements ITabItem
         {
             disposer = createDisposer((IDisposableComponent) modificationObserver);
         }
-        return create(viewContext, title, component.get(), component, disposer,
+        return create(viewContext, title, component.get(), null, component, disposer,
                 isCloseConfirmationNeeded);
     }
 
@@ -96,17 +109,17 @@ public class DefaultTabItem implements ITabItem
     {
         boolean isCloseConfirmationNeeded = false;
         IDelegatedAction disposer = createDisposer(component);
-        return create(viewContext, title, component.getComponent(), component, disposer,
+        return create(viewContext, title, component.getComponent(), null, component, disposer,
                 isCloseConfirmationNeeded);
     }
 
     private static DefaultTabItem create(IViewContext<?> viewContext, final String title,
-            final Component component, IDatabaseModificationObserver modificationObserver,
+            final Component component, IDelegatedAction updaterOrNull, IDatabaseModificationObserver modificationObserver,
             IDelegatedAction disposerActionOrNull, boolean isCloseConfirmationNeeded)
     {
         LastModificationStateUpdater stateUpdater =
                 new LastModificationStateUpdater(viewContext, modificationObserver);
-        return new DefaultTabItem(viewContext, title, component, stateUpdater,
+        return new DefaultTabItem(viewContext, title, component, updaterOrNull, stateUpdater,
                 disposerActionOrNull, isCloseConfirmationNeeded);
     }
 
@@ -122,12 +135,13 @@ public class DefaultTabItem implements ITabItem
     }
 
     private DefaultTabItem(IViewContext<?> viewContext, final String initialTitle,
-            final Component component,
+            final Component component, IDelegatedAction updaterOrNull,
             LastModificationStateUpdater lastModificationStateUpdaterOrNull,
             IDelegatedAction disposerActionOrNull, boolean isCloseConfirmationNeeded)
     {
         assert initialTitle != null : "Unspecified title.";
         assert component != null : "Unspecified component.";
+        this.updaterOrNull = updaterOrNull;
         this.historyTokenUpdater = new LastHistoryTokenUpdater(viewContext);
         this.titleUpdater = new TabTitleUpdater(initialTitle);
         this.component = component;
@@ -162,6 +176,10 @@ public class DefaultTabItem implements ITabItem
         if (linkOrNull != null)
         {
             historyTokenUpdater.update(linkOrNull);
+        }
+        if (updaterOrNull != null)
+        {
+            updaterOrNull.execute();
         }
         if (lastModificationStateUpdaterOrNull != null)
         {

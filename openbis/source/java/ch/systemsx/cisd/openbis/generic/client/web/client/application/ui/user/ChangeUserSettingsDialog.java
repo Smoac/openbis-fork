@@ -47,8 +47,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUt
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PortletConfiguration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RealNumberFormatingParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StandardPortletNames;
 
 /**
  * {@link Window} containing form for changing logged user settings.
@@ -67,6 +69,8 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
     private final SpaceSelectionWidget homeSpaceField;
 
     private final CheckBoxField reopenLastTabField;
+    
+    private final CheckBoxField showLastVisitsField;
 
     private final CheckBoxField useWildcardSearchModeCheckbox;
 
@@ -93,6 +97,7 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
 
         addField(homeSpaceField = createHomeGroupField());
         addField(reopenLastTabField = createReopenLastTabOnLoginField());
+        addField(showLastVisitsField = createShowLastVisitsField());
         addField(useWildcardSearchModeCheckbox = createUseWildcardSearchModeField());
         formatingFields = createRealFormatingFieldSet();
         precisionField = createPrecisionField();
@@ -135,6 +140,16 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         return field;
     }
 
+    private CheckBoxField createShowLastVisitsField()
+    {
+        CheckBoxField field =
+            new CheckBoxField(viewContext.getMessage(Dict.SHOW_LAST_VISITS_LABEL),
+                    false);
+        GWTUtils.setToolTip(field, viewContext.getMessage(Dict.SHOW_LAST_VISITS_INFO));
+        field.setValue(viewContext.getDisplaySettingsManager().getPortletConfigurations().containsKey(StandardPortletNames.HISTORY));
+        return field;
+    }
+    
     private final CheckBoxField createUseWildcardSearchModeField()
     {
         CheckBoxField field =
@@ -168,6 +183,13 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         boolean restoreLastTab = reopenLastTabField.getValue();
         displaySettingsManager.setReopenLastTabOnLogin(restoreLastTab);
 
+        if (showLastVisitsField.getValue())
+        {
+            displaySettingsManager.addPortlet(new PortletConfiguration(StandardPortletNames.HISTORY));
+        } else
+        {
+            displaySettingsManager.getPortletConfigurations().remove(StandardPortletNames.HISTORY);
+        }
         displaySettingsManager.storeSettings();
     }
 

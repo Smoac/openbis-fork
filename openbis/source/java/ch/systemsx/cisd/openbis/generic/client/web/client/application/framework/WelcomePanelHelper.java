@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.StandardPortletNames.HISTORY;
+
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -41,9 +43,12 @@ public class WelcomePanelHelper
         final LayoutContainer layoutContainer = new LayoutContainer(new BorderLayout());
         layoutContainer.setStyleAttribute("background-color", "white");
         layoutContainer.setId(idPrefix + "welcome");
-        if (viewContext.getDisplaySettingsManager().getVisits().isEmpty() == false)
+        DisplaySettingsManager displaySettingsManager = viewContext.getDisplaySettingsManager();
+        if (displaySettingsManager.getPortletConfigurations().containsKey(HISTORY)
+                && displaySettingsManager.getVisits().isEmpty() == false)
         {
-            layoutContainer.add(new HistoryWidget(viewContext), new BorderLayoutData(LayoutRegion.WEST, 0.3f));
+            layoutContainer.add(new HistoryWidget(viewContext), new BorderLayoutData(
+                    LayoutRegion.WEST, 0.3f));
         }
         HtmlPage welcomePage = new HtmlPage(getWelcomePageBaseName(viewContext));
         layoutContainer.add(welcomePage, new BorderLayoutData(LayoutRegion.CENTER, 1f));

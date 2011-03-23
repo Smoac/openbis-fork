@@ -71,6 +71,8 @@ public class DisplaySettings implements ISerializable
     private Map<String, Integer> panelSizeSettings = new HashMap<String, Integer>();
     
     private List<EntityVisit> visits;
+    
+    private Map<String, PortletConfiguration> portletConfigurations;
 
     /** @deprecated Should be used only by DisplaySettingsManager. */
     @Deprecated
@@ -275,5 +277,29 @@ public class DisplaySettings implements ISerializable
         }
         return visits;
     }
-
+    
+    /** @deprecated Should be used only by DisplaySettingsManager. */
+    @Deprecated
+    public void addPortlet(PortletConfiguration portletConfiguration)
+    {
+        addPortlet(getPortletConfigurations(), portletConfiguration);
+    }
+    
+    /** @deprecated Should be used only by DisplaySettingsManager. */
+    @Deprecated
+    public Map<String, PortletConfiguration> getPortletConfigurations()
+    {
+        if (portletConfigurations == null)
+        {
+            portletConfigurations = new HashMap<String, PortletConfiguration>();
+            addPortlet(portletConfigurations, new PortletConfiguration(StandardPortletNames.WELCOME));
+        }
+        return portletConfigurations;
+    }
+    
+    private void addPortlet(Map<String, PortletConfiguration> configurations,
+            PortletConfiguration portletConfiguration)
+    {
+        configurations.put(portletConfiguration.getName(), portletConfiguration);
+    }
 }

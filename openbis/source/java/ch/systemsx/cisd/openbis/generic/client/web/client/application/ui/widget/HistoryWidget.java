@@ -99,8 +99,6 @@ public class HistoryWidget extends ContentPanel
         for (EntityKind entityKind : values)
         {
             String entityKindAsString = entityKind.toString();
-            SimpleModel item = new SimpleModel(entityKind.getDescription() + "s");
-            store.add(item, true);
             Map<String, List<EntityVisit>> typeToVisitMap = new HashMap<String, List<EntityVisit>>();
             for (EntityVisit visit : visits)
             {
@@ -115,21 +113,26 @@ public class HistoryWidget extends ContentPanel
                     list.add(visit);
                 }
             }
-            String[] types = typeToVisitMap.keySet().toArray(new String[0]);
-            Arrays.sort(types);
-            for (String type : types)
+            if (typeToVisitMap.isEmpty() == false)
             {
-                SimpleModel typeModel = new SimpleModel(type);
-                store.add(item, typeModel, true);
-                List<EntityVisit> list = typeToVisitMap.get(type);
-                Set<String> permIds = new HashSet<String>();
-                for (EntityVisit visit : list)
+                SimpleModel item = new SimpleModel(entityKind.getDescription() + "s");
+                store.add(item, true);
+                String[] types = typeToVisitMap.keySet().toArray(new String[0]);
+                Arrays.sort(types);
+                for (String type : types)
                 {
-                    String permID = visit.getPermID();
-                    if (permIds.contains(permID) == false)
+                    SimpleModel typeModel = new SimpleModel(type);
+                    store.add(item, typeModel, true);
+                    List<EntityVisit> list = typeToVisitMap.get(type);
+                    Set<String> permIds = new HashSet<String>();
+                    for (EntityVisit visit : list)
                     {
-                        permIds.add(permID);
-                        store.add(typeModel, new EntityVisitModel(visit), false);
+                        String permID = visit.getPermID();
+                        if (permIds.contains(permID) == false)
+                        {
+                            permIds.add(permID);
+                            store.add(typeModel, new EntityVisitModel(visit), false);
+                        }
                     }
                 }
             }
