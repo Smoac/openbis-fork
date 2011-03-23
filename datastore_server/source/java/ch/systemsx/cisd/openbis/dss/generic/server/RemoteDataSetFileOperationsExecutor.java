@@ -203,23 +203,15 @@ public final class RemoteDataSetFileOperationsExecutor implements IDataSetFileOp
         ProcessResult result =
                 executor.executeCommandRemotely(cmd, DataSetCopier.SSH_TIMEOUT_MILLIS);
 
-        Map<String, Long> destinationFileSizesByPaths = new LinkedHashMap<String, Long>();
-        if (result.isOK() && result.getOutput() != null)
-        {
-            List<String> output = result.getOutput();
-            for (String line : output)
-            {
-                String split[] = line.split("\t");
-                assert split.length == 2; // silently ignore in production - it will fail later
-                destinationFileSizesByPaths.put(split[0], Long.parseLong(split[1]));
-            }
-        } else
+        if (result.isOK() == false)
         {
             String errorOutput = StringUtilities.concatenateWithNewLine(result.getErrorOutput());
             operationLog.error("Listing files in '" + destination + "' failed with exit value: "
                     + result.getExitValue() + "; error output: " + errorOutput);
             return BooleanStatus.createError("listing files failed");
         }
+        Map<String, Long> destinationFileSizesByPaths =
+                extractDestinationFileSizesByPaths(result.getOutput(), destination);
 
         String inconsistenciesReport =
                 FolderFileSizesReportGenerator.findInconsistencies(dataSetFileSizesByPaths,
@@ -231,6 +223,35 @@ public final class RemoteDataSetFileOperationsExecutor implements IDataSetFileOp
         {
             return BooleanStatus.createFalse("Inconsistencies:\n" + inconsistenciesReport);
         }
+    }
+
+    private Map<String, Long> extractDestinationFileSizesByPaths(List<String> output,
+            File destination)
+    {
+        Map<String, Long> destinationFileSizesByPaths = new LinkedHashMap<String, Long>();
+        for (String line : output)
+        {
+            String split[] = line.split("\t");
+            if (split.length != 2)
+            {
+                throw new ExceptionWithStatus(Status.createError(String.format(
+                        "Unexpected output from find in line: '%s'. "
+                                + "Got %d tokens instead of 2.", line, split.length)));
+            }
+            String filePath = FileUtilities.getRelativeFile(destination, new File(split[0]));
+            String fileSizeAsString = split[1];
+            try
+            {
+                Long fileSize = Long.parseLong(fileSizeAsString);
+                destinationFileSizesByPaths.put(filePath, fileSize);
+            } catch (NumberFormatException ex)
+            {
+                throw new ExceptionWithStatus(Status.createError(String.format(
+                        "Unexpected output from find in line: '%s'. "
+                                + "Expected file size, got '%s'.", line, fileSizeAsString)));
+            }
+        }
+        return destinationFileSizesByPaths;
     }
 
     /**

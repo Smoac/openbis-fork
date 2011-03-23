@@ -190,14 +190,21 @@ public class DataSetFileOperationsManager
      */
     public BooleanStatus isPresentInDestination(File originalData, DatasetDescription dataset)
     {
-        File destinationFolder = new File(destination, dataset.getDataSetLocation());
-        BooleanStatus resultStatus = executor.checkSame(originalData, destinationFolder);
-        String message = resultStatus.tryGetMessage(); // if there is a message something went wrong
-        if (message != null)
+        try
         {
-            operationLog.error(message);
+            File destinationFolder = new File(destination, dataset.getDataSetLocation());
+            BooleanStatus resultStatus = executor.checkSame(originalData, destinationFolder);
+            String message = resultStatus.tryGetMessage();
+            if (message != null) // if there is a message something went wrong
+            {
+                operationLog.error(message);
+            }
+            return resultStatus;
+        } catch (ExceptionWithStatus ex)
+        {
+            return BooleanStatus.createError(ex.getStatus().tryGetErrorMessage());
         }
-        return resultStatus;
+
     }
 
     private void checkDestinationExists(File destinationFolder)

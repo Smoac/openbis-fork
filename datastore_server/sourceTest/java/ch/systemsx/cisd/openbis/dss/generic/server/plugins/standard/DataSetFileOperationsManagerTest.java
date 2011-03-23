@@ -680,8 +680,14 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
                     one(sshExecutor).executeCommandRemotely(
                             gfindExec.getPath() + " " + ds1ArchivedLocationFile.getPath()
                                     + " -type f -printf \"%p\\t%s\\n\"", SSH_TIMEOUT_MILLIS);
-                    will(returnValue(createOkResultWithOutput(Arrays.asList(
-                            "original/data1_2.txt\t4", "original/fake.txt\t666"))));
+                    String filePath1 =
+                            ds1ArchivedLocationFile.getPath() + File.separator
+                                    + "original/data1_2.txt";
+                    String fakePath =
+                            ds1ArchivedLocationFile.getPath() + File.separator
+                                    + "original/fake.txt";
+                    will(returnValue(createOkResultWithOutput(Arrays.asList(filePath1 + "\t4",
+                            fakePath + "\t666"))));
 
                     /*
                      * ds2: directory is present and content is OK
@@ -691,8 +697,10 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
                     one(sshExecutor).executeCommandRemotely(
                             gfindExec.getPath() + " " + ds2ArchivedLocationFile.getPath()
                                     + " -type f -printf \"%p\\t%s\\n\"", SSH_TIMEOUT_MILLIS);
-                    will(returnValue(createOkResultWithOutput(Arrays
-                            .asList("original/data2.txt\t12"))));
+                    String filePath2 =
+                            ds2ArchivedLocationFile.getPath() + File.separator
+                                    + "original/data2.txt";
+                    will(returnValue(createOkResultWithOutput(Arrays.asList(filePath2 + "\t12"))));
                 }
             });
         BooleanStatus status1 = dataSetCopier.isPresentInDestination(ds1Location, ds1);
