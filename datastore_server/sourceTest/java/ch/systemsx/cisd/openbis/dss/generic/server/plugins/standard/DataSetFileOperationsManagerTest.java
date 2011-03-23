@@ -414,9 +414,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
         // delete second file from destination
         FileUtilities.delete(ds1ArchivedDataFile2);
         boolStatus = dataSetCopier.isPresentInDestination(ds1Location, ds1);
-        // TODO ignore dirs
         assertFalse(boolStatus, "Inconsistencies:\n"
-                + "'original' - different file sizes; store: 136, destination: 102\n"
                 + "'original/data1_1.txt' - different file sizes; store: 14, destination: 28\n"
                 + "'original/data1_2.txt' - exists in store but is missing in destination\n");
 
@@ -609,7 +607,8 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
-    @Test(groups="broken") // FIXME
+    @Test(groups = "broken")
+    // FIXME
     public void testRemoteViaSshIsPresentInDestination()
     {
         Properties properties = createRemoteViaSshDestinationProperties();

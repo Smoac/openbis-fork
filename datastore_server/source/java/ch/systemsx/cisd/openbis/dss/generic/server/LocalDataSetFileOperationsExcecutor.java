@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -61,15 +62,14 @@ public final class LocalDataSetFileOperationsExcecutor implements IDataSetFileOp
         {
             if (destination.isDirectory())
             {
-                List<File> dataSetFiles = FileUtilities.listFilesAndDirectories(dataSet, true);
-                List<File> destinationFiles =
-                        FileUtilities.listFilesAndDirectories(destination, true);
+                FileFilter nullFilter = null;
+                List<File> storeFiles = FileUtilities.listFiles(dataSet, nullFilter, true);
+                List<File> destFiles = FileUtilities.listFiles(destination, nullFilter, true);
 
                 Map<String, Long> dataSetFileSizesByPaths =
-                        FolderFileSizesReportGenerator.extractSizesByPaths(dataSetFiles, dataSet);
+                        FolderFileSizesReportGenerator.extractSizesByPaths(storeFiles, dataSet);
                 Map<String, Long> destinationFileSizesByPaths =
-                        FolderFileSizesReportGenerator.extractSizesByPaths(destinationFiles,
-                                destination);
+                        FolderFileSizesReportGenerator.extractSizesByPaths(destFiles, destination);
                 String inconsistenciesReport =
                         FolderFileSizesReportGenerator.findInconsistencies(dataSetFileSizesByPaths,
                                 destinationFileSizesByPaths);
