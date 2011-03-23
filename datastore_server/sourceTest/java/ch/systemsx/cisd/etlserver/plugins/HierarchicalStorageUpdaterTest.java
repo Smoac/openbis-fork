@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.etlserver.plugins;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +47,14 @@ public class HierarchicalStorageUpdaterTest extends AbstractFileSystemTestCase
             + HierarchicalStorageUpdaterTest.class.getSimpleName() + "/store-root");
 
     private final static String DATASET_TYPE = "dataset-type";
+
+    private final static FileFilter ignoreSVNFiles = new FileFilter()
+        {
+            public boolean accept(File pathname)
+            {
+                return pathname.getName().equals(".svn") == false;
+            }
+        };
 
     private IEncapsulatedOpenBISService openBISService;
 
@@ -80,7 +89,7 @@ public class HierarchicalStorageUpdaterTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testDataIsNotDeletedAfterReconfig()
+    public void testDataIsNotDeletedAfterReconfig() throws Exception
     {
 
         updater().execute();
@@ -94,7 +103,7 @@ public class HierarchicalStorageUpdaterTest extends AbstractFileSystemTestCase
 
     private void prepareDirectoryStructures() throws IOException
     {
-        FileUtils.copyDirectory(STORE_ROOT_TEMPLATE, getStoreRoot());
+        FileUtils.copyDirectory(STORE_ROOT_TEMPLATE, getStoreRoot(), ignoreSVNFiles);
         getHierarchyRoot().mkdirs();
     }
 
@@ -108,9 +117,12 @@ public class HierarchicalStorageUpdaterTest extends AbstractFileSystemTestCase
         return new File(workingDirectory, "hierarchy-root");
     }
 
-    private void assertDataStoreNotDamaged()
+    private void assertDataStoreNotDamaged() throws Exception
     {
-        long templateSize = FileUtils.sizeOfDirectory(STORE_ROOT_TEMPLATE);
+        File cleanStorage = new File(workingDirectory, "clean-storage-nosvn");
+        FileUtils.copyDirectory(STORE_ROOT_TEMPLATE, cleanStorage, ignoreSVNFiles);
+
+        long templateSize = FileUtils.sizeOfDirectory(cleanStorage);
         long rootSize = FileUtils.sizeOfDirectory(getStoreRoot());
 
         String errMessage =
@@ -122,12 +134,12 @@ public class HierarchicalStorageUpdaterTest extends AbstractFileSystemTestCase
 
     private HierarchicalStorageUpdater updater()
     {
-        return createUpdater(true);
+        return createUpdater(false);
     }
 
     private HierarchicalStorageUpdater reconfiguredUpdater()
     {
-        return createUpdater(false);
+        return createUpdater(true);
     }
 
 
