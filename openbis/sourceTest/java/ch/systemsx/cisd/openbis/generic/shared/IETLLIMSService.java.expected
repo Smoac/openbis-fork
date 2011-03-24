@@ -489,6 +489,20 @@ public interface IETLLIMSService extends IServer, ISessionProvider
             throws UserFailureException;
 
     /**
+     * Set the status for a given dataset to the given new status value if the current status equals
+     * an expected value.
+     * 
+     * @return true if the update is successful, false if the current status is different than
+     *         <code>oldStatus</code>.
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
+    public boolean compareAndSetDataSetStatus(String token, String dataSetCode,
+            DataSetArchivingStatus oldStatus, DataSetArchivingStatus newStatus,
+            boolean newPresentInArchive) throws UserFailureException;
+
+    /**
      * Schedules archiving of specified data sets.
      * 
      * @param removeFromDataStore when set to <code>true</code> the data sets will be removed from

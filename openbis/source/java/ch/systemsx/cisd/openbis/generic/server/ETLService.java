@@ -79,12 +79,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyTypeWithVocabulary;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
@@ -698,6 +698,18 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         final IExternalDataBO externalDataBO = businessObjectFactory.createExternalDataBO(session);
         externalDataBO.updateStatuses(dataSetCodes, newStatus, presentInArchive);
     }
+    
+    public boolean compareAndSetDataSetStatus(String sessionToken, String dataSetCode,
+            DataSetArchivingStatus oldStatus, DataSetArchivingStatus newStatus,
+            boolean newPresentInArchive) throws UserFailureException
+    {
+        assert sessionToken != null : "Unspecified session token.";
+        final Session session = getSession(sessionToken);
+        final IExternalDataBO externalDataBO = businessObjectFactory.createExternalDataBO(session);
+        externalDataBO.loadByCode(dataSetCode);
+        return externalDataBO.compareAndSetDataSetStatus(oldStatus, newStatus, newPresentInArchive);
+    }
+    
 
     public ExternalData tryGetDataSet(String sessionToken, String dataSetCode)
             throws UserFailureException

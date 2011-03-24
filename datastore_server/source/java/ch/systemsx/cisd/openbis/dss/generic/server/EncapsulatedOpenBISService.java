@@ -323,6 +323,17 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         }
     }
 
+    public boolean compareAndSetDataSetStatus(String dataSetCode, DataSetArchivingStatus oldStatus,
+            DataSetArchivingStatus newStatus, boolean newPresentInArchive)
+            throws UserFailureException
+    {
+        assert dataSetCode != null : "missing data set codes";
+        assert oldStatus != null : "missing old status";
+        assert newStatus != null : "missing new status";
+        return service.compareAndSetDataSetStatus(session.getToken(), dataSetCode, oldStatus,
+                newStatus, newPresentInArchive);
+    }
+
     public final IEntityProperty[] getPropertiesOfTopSampleRegisteredFor(
             final SampleIdentifier sampleIdentifier) throws UserFailureException
     {

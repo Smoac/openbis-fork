@@ -53,6 +53,25 @@ public class DeleteFromArchiveMaintenanceTask extends
     }
 
     @Override
+    protected void execute(List<DeletedDataSet> datasets)
+    {
+        List<DeletedDataSet> datasetsToBeArchived = datasets;
+        if (lastSeenEventIdFile.exists() == false)
+        {
+            datasetsToBeArchived = filterOldStyleHistoryEvents(datasets);
+        }
+
+        IArchiverPlugin archiverPlugin = ServiceProvider.getDataStoreService().getArchiverPlugin();
+        archiverPlugin.deleteFromArchive(datasetsToBeArchived);
+
+        String logMessage =
+                String.format("Deleted %s dataset from archive: '%s'", datasetsToBeArchived.size(),
+                        CollectionUtils.abbreviate(datasetsToBeArchived, 10));
+        operationLog.info(logMessage);
+
+    }
+
+    @Override
     protected Long getLastSeenEventId()
     {
         Long result = null;
@@ -93,25 +112,6 @@ public class DeleteFromArchiveMaintenanceTask extends
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
-    }
-
-    @Override
-    protected void execute(List<DeletedDataSet> datasets)
-    {
-        List<DeletedDataSet> datasetsToBeArchived = datasets;
-        if (lastSeenEventIdFile.exists() == false)
-        {
-            datasetsToBeArchived = filterOldStyleHistoryEvents(datasets);
-        }
-
-        IArchiverPlugin archiverPlugin = ServiceProvider.getDataStoreService().getArchiverPlugin();
-        archiverPlugin.deleteFromArchive(datasetsToBeArchived);
-
-        String logMessage =
-                String.format("Deleted %s dataset from archive: '%s'", datasetsToBeArchived.size(),
-                        CollectionUtils.abbreviate(datasetsToBeArchived, 10));
-        operationLog.info(logMessage);
-
     }
 
     // NOTE: Before the introduction of eager-archiving the column which now corresponds to

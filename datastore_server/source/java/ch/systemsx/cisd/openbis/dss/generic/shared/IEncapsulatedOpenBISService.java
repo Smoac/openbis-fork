@@ -361,6 +361,15 @@ public interface IEncapsulatedOpenBISService
     public void updateDataSetStatuses(List<String> codes, DataSetArchivingStatus newStatus,
             boolean presentInArchive) throws UserFailureException;
 
+    /**
+     * See
+     * {@link IETLLIMSService#updateDataSetStatuses(String, List, DataSetArchivingStatus, boolean)}
+     */
+    @ManagedAuthentication
+    public boolean compareAndSetDataSetStatus(String dataSetCode, DataSetArchivingStatus oldStatus,
+            DataSetArchivingStatus newStatus, boolean newPresentInArchive)
+            throws UserFailureException;
+
     /** See {@link IETLLIMSService#checkSpaceAccess(String, SpaceIdentifier)} */
     @ManagedAuthentication
     public void checkSpaceAccess(String sToken, SpaceIdentifier spaceId);

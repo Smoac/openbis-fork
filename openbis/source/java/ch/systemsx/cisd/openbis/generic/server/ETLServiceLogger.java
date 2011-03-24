@@ -349,6 +349,16 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
                 newStatus, presentInArchive);
     }
 
+    public boolean compareAndSetDataSetStatus(String token, String dataSetCode,
+            DataSetArchivingStatus oldStatus, DataSetArchivingStatus newStatus,
+            boolean newPresentInArchive) throws UserFailureException
+    {
+        logTracking(token, "compareAndSetDataSetStatus",
+                "DATASET_COE(%s) OLD_STATUS(%s) NEW_STATUS(%s) NEW_PRESENT_IN_ARCHIVE(%s)",
+                dataSetCode, oldStatus, newStatus, newPresentInArchive);
+        return false;
+    }
+
     public String getDefaultPutDataStoreBaseURL(String sessionToken)
     {
         logAccess(sessionToken, "getDefaultPutDataStoreBaseURL");
@@ -447,4 +457,5 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
         logAccess(sessionToken, "tryGetProject", "%s", projectIdentifier);
         return null;
     }
+
 }

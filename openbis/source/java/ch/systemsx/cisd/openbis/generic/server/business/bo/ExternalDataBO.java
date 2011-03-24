@@ -689,6 +689,19 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         getExternalDataDAO().updateDataSetStatuses(dataSetCodes, newStatus, newPresentInArchive);
     }
 
+    public boolean compareAndSetDataSetStatus(DataSetArchivingStatus oldStatus,
+            DataSetArchivingStatus newStatus, boolean newPresentInArchive)
+    {
+        if (externalData == null || externalData.getStatus() != oldStatus)
+        {
+            return false;
+        }
+        externalData.setStatus(newStatus);
+        externalData.setPresentInArchive(newPresentInArchive);
+        save();
+        return true;
+    }
+
     public void updateManagedProperty(IManagedProperty managedProperty)
     {
         final Set<DataSetPropertyPE> existingProperties = externalData.getProperties();

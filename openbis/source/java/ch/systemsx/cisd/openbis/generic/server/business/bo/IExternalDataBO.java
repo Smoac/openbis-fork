@@ -77,6 +77,16 @@ public interface IExternalDataBO extends IEntityBusinessObject
             boolean newPresentInArchive) throws UserFailureException;
 
     /**
+     * Set the status for the loaded dataset to the given new status value if the current status
+     * equals an expected value.
+     * 
+     * @return true if the update is successful, false if the current status is different than
+     *         <code>oldStatus</code>.
+     */
+    public boolean compareAndSetDataSetStatus(DataSetArchivingStatus oldStatus,
+            DataSetArchivingStatus newStatus, boolean newPresentInArchive);
+
+    /**
      * Adds chosen properties to given data set. If given property has been already defined, the
      * value is not updated.
      */
@@ -106,4 +116,5 @@ public interface IExternalDataBO extends IEntityBusinessObject
      * Changes the value of a managed property.
      */
     public void updateManagedProperty(IManagedProperty managedProperty);
+
 }
