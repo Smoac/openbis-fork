@@ -26,7 +26,7 @@ source common.bash
 
 # ----- local constants --------------------
 
-TIME_TO_COMPLETE=90 # time (in seconds) needed by the whole pipeline to process everything
+TIME_TO_COMPLETE=60 # time (in seconds) needed by the whole pipeline to process everything
 TEST_DATA_DIR=templates/data-archiving
 ARCHIVE_DIR=/tmp/integration-tests/archiving/rsync-archive
 ARCHIVE_DATASET=ARCHIVE_DATASET
@@ -59,7 +59,7 @@ function prepare_step2 {
 function damage_archive {
    echo "Inserting invalid content in the archived dataset copy..."
    echo "INVALID CONTENT AT THE END OF ARCHIVE" >> $ARCHIVED_DATASET_DIR/archive-me.txt
-}
+	}
 
 
 function reconfigure_datastore_server {
@@ -206,12 +206,20 @@ function integration_test {
     build_and_install $@
     
     test_step1
-    # TODO KE: remove this comment when we implement filesize check in the RSyncArchiver
-    #test_step2
+    test_step2
     
     shutdown_openbis_server $OPENBIS_SERVER
     exit_if_assertion_failed
 }
+
+function ensureGNUFind {
+  local gnuFind=`find -printf 2>&1 | grep "missing argument"`
+  if [ "$gnuFind" = "" ]; then
+     report_error "This test requires gfind (GNU Find) to be the default 'find' command line tool. Aborting..."
+     exit 1     
+  fi
+}
+ 
 
 #
 # -- MAIN (copied from)------------
@@ -220,6 +228,7 @@ function integration_test {
 if [ "$1" = "--clean" ]; then
     clean_after_tests
 else
+    ensureGNUFind
     parse_cli_args $@
     integration_test $install_dss $install_dmv $install_openbis $use_local_source $reinstall_all
 fi
