@@ -315,7 +315,7 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
                 {
                     toDelete = parent;
                     parent = toDelete.getParentFile();
-                    toDelete.delete();
+                    delete(toDelete);
                 } else
                 {
                     break;
@@ -326,39 +326,37 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
 
     private static void deleteWithSymbolicLinks(File toDelete)
     {
-        if (FileUtilities.isSymbolicLink(toDelete))
+        if (toDelete.isDirectory())
         {
-            toDelete.delete();
-            return;
-        }
-
-        if (toDelete.isDirectory() == false)
-        {
-                operationLog.error("Directory structure is different than expected. File '"
-                        + toDelete.getPath() + "' should be a directory. It will not be cleared.");
-            return;
-        }
-
-        for (File file : toDelete.listFiles())
-        {
-            // all these files should be symbolic links to a dataset directory.
-            // We cannot delete recursively here, it would remove the original files.
-            if (false == FileUtilities.isSymbolicLink(file))
+            for (File file : toDelete.listFiles())
             {
-                operationLog.error(file.getPath()
-                        + " is not a symbolic link and will not be deleted.");
-                return;
-            }
-            boolean ok = file.delete();
-            if (ok == false)
-            {
-                operationLog.error("Cannot delete the file: " + file.getPath());
+                // all these files should be symbolic links to a dataset directory.
+                // We cannot delete recursively here, it would remove the original files.
+                boolean ok = delete(file);
+                if (ok == false)
+                {
+                    operationLog.error("Cannot delete the file: " + file.getPath());
+                }
             }
         }
 
-        // delete the folder in the end
-        toDelete.delete();
+        delete(toDelete);
     }
+
+    private static boolean delete(File file)
+    {
+        if (FileUtilities.isSymbolicLink(file) || file.isDirectory())
+        {
+            operationLog.info("Deleting " + file.getAbsolutePath());
+            return file.delete();
+        } else
+        {
+            operationLog.error(file.getPath() + " is not a symbolic link and will not be deleted.");
+            return false;
+        }
+
+    }
+
 
     /**
      * Creates the soft links for files with paths defined in <code>linkMappings</code> {@link Map}.

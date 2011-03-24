@@ -143,7 +143,7 @@ public class HierarchicalStorageUpdaterTest extends AbstractFileSystemTestCase
     }
 
 
-    private HierarchicalStorageUpdater createUpdater(boolean linkFromFirstChild)
+    private HierarchicalStorageUpdater createUpdater(boolean reconfiguredExecution)
     {
         final String pluginName = "hierarchical-storage-updater";
         final String pluginPrefix = pluginName + ".";
@@ -156,10 +156,13 @@ public class HierarchicalStorageUpdaterTest extends AbstractFileSystemTestCase
                 .getAbsolutePath());
 
         Properties properties = new Properties();
-        properties.put(HierarchicalStorageUpdater.LINK_SOURCE_SUBFOLDER + "."
-                + DATASET_TYPE, "original");
-        properties.put(HierarchicalStorageUpdater.LINK_FROM_FIRST_CHILD + "." + DATASET_TYPE, ""
-                + linkFromFirstChild);
+        if (reconfiguredExecution)
+        {
+            properties.put(HierarchicalStorageUpdater.LINK_SOURCE_SUBFOLDER + "." + DATASET_TYPE,
+                    "original");
+            properties.put(HierarchicalStorageUpdater.LINK_FROM_FIRST_CHILD + "." + DATASET_TYPE,
+                    "" + true);
+        }
 
         HierarchicalStorageUpdater updater = new HierarchicalStorageUpdater();
         updater.setUp(pluginName, properties);
