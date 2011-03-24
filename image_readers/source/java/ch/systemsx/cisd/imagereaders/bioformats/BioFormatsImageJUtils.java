@@ -112,7 +112,7 @@ public final class BioFormatsImageJUtils
         Location.mapFile(filename, handle);
         try
         {
-            final IFormatReader reader = BioFormatsImageUtils.findReader(filename);
+            final IFormatReader reader = BioFormatsImageUtils.findReaderForFile(filename);
             // This does the actual parsing.
             reader.setId(filename);
             int width = reader.getSizeX();

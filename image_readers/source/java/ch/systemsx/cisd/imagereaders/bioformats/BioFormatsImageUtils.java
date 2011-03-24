@@ -68,17 +68,67 @@ public final class BioFormatsImageUtils
         }
     }
 
-    static IFormatReader findReader(String name) throws IOException,
+    public static IFormatReader tryFindReaderForFile(String fileName) throws IOException,
             IllegalArgumentException
     {
         for (IFormatReader r : readers)
         {
-            if (r.isThisType(name))
+            if (r.isThisType(fileName))
             {
                 return r;
             }
         }
-        throw new IllegalArgumentException("Cannot find reader.");
+        return null;
+    }
+
+    public static IFormatReader findReaderForFile(String fileName) throws IOException,
+            IllegalArgumentException
+    {
+        final IFormatReader readerOrNull = tryFindReaderForFile(fileName);
+        if (readerOrNull == null)
+        {
+            throw new IllegalArgumentException("Cannot find reader.");
+        } else
+        {
+            return readerOrNull;
+        }
+    }
+
+    public static IFormatReader tryFindReaderByName(String readerName)
+            throws IllegalArgumentException
+    {
+        for (IFormatReader r : readers)
+        {
+            if (r.getClass().getSimpleName().equals(readerName))
+            {
+                return r;
+            }
+        }
+        return null;
+
+    }
+
+    public static IFormatReader findReaderByName(String readerName) throws IllegalArgumentException
+    {
+        final IFormatReader readerOrNull = tryFindReaderByName(readerName);
+        if (readerOrNull == null)
+        {
+            throw new IllegalArgumentException("Cannot find reader.");
+        } else
+        {
+            return readerOrNull;
+        }
+
+    }
+
+    public static List<String> getReaderNames()
+    {
+        final List<String> readerNames = new ArrayList<String>(readers.size());
+        for (IFormatReader reader : readers)
+        {
+            readerNames.add(reader.getClass().getSimpleName());
+        }
+        return readerNames;
     }
 
     /**
@@ -179,7 +229,7 @@ public final class BioFormatsImageUtils
     {
         return readImage(filename, new BioFormatsRandomAccessAdapter(handle), page);
     }
-    
+
     /**
      * Returns the image <var>page</var> of the image file given by <var>filename</var> represented
      * by <var>handle</var> as {@link BufferedImage}.
@@ -196,7 +246,44 @@ public final class BioFormatsImageUtils
         Location.mapFile(filename, handle);
         try
         {
-            final IFormatReader reader = findReader(filename);
+            final IFormatReader reader = findReaderForFile(filename);
+            // This does the actual parsing.
+            reader.setId(filename);
+            final BufferedImageReader biReader =
+                    BufferedImageReader.makeBufferedImageReader(reader);
+            final BufferedImage image = biReader.openImage(page);
+            reader.close();
+            return image;
+        } catch (FormatException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        } catch (IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        } finally
+        {
+            // Remove from static map.
+            Location.mapFile(filename, null);
+        }
+    }
+
+    /**
+     * Returns the image <var>page</var> of the image file given by <var>filename</var> represented
+     * by <var>handle</var> as {@link BufferedImage}.
+     * <p>
+     * Note that the suffix of <var>filename</var> is used to find the right reader.
+     * 
+     * @throws IOExceptionUnchecked If access to <var>handle</var> fails.
+     * @throws IllegalArgumentException If no suitable reader can be found.
+     */
+    static BufferedImage readImage(IFormatReader formatReader, String filename,
+            IRandomAccess handle, int page) throws IOExceptionUnchecked, IllegalArgumentException
+    {
+        // Add to static map.
+        Location.mapFile(filename, handle);
+        try
+        {
+            final IFormatReader reader = findReaderForFile(filename);
             // This does the actual parsing.
             reader.setId(filename);
             final BufferedImageReader biReader =
@@ -255,7 +342,7 @@ public final class BioFormatsImageUtils
         Location.mapFile(filename, handle);
         try
         {
-            final IFormatReader reader = findReader(filename);
+            final IFormatReader reader = findReaderForFile(filename);
             // This does the actual parsing.
             reader.setId(filename);
             final BufferedImageReader biReader =
