@@ -37,6 +37,8 @@ public class MaintenancePlugin
             throw new ConfigurationFailureException("Cannot find the plugin class '"
                     + parameters.getClassName() + "'", CheckedExceptionTunnel.unwrapIfNecessary(ex));
         }
+        // The following order is important because only after set up the task knows whether it
+        // needs a lock or not.
         task.setUp(parameters.getPluginName(), parameters.getProperties());
         this.requiresDataStoreLock = requiresDataStoreLock();
     }

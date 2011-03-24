@@ -32,6 +32,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.log4j.Logger;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -54,13 +55,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria
  */
 public class PostRegistrationMaintenanceTask implements IDataStoreLockingMaintenanceTask
 {
-    private static final String POST_REGISTRATION_TASKS_PROPERTY = "post-registration-tasks";
+    @Private static final String POST_REGISTRATION_TASKS_PROPERTY = "post-registration-tasks";
     
-    private static final String CLEANUP_TASKS_FOLDER_PROPERTY = "cleanup-tasks-folder";
+    @Private static final String CLEANUP_TASKS_FOLDER_PROPERTY = "cleanup-tasks-folder";
 
     private static final String DEFAULT_CLEANUP_TASKS_FOLDER = "clean-up-tasks";
     
-    private static final String LAST_SEEN_DATA_SET_FILE_PROPERTY = "last-seen-data-set-file";
+    @Private static final String LAST_SEEN_DATA_SET_FILE_PROPERTY = "last-seen-data-set-file";
     
     private static final String DEFAULT_LAST_SEEN_DATA_SET_FILE = "last-seen-data-set.txt";
     
@@ -169,6 +170,7 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
             } catch (Throwable ex)
             {
                 logPostponingMessage(dataSets, i);
+                break;
             }
         }
     }
