@@ -16,13 +16,24 @@
 
 package ch.systemsx.cisd.etlserver.postregistration;
 
+import java.util.Properties;
+
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+
 /**
- * Interface of a task executed after registration of a data set.
- *
+ * Interface of a task executed after registration of a data set. Implementing class should have a
+ * public constructor with two parameters: First is of type {@link Properties} and second is of type
+ * {@link IEncapsulatedOpenBISService}.
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IPostRegistrationTask
 {
+    /**
+     * Returns <code>true</code> if this task needs a lock onto the data store.
+     */
+    public boolean requiresDataStoreLock();
+    
     /**
      * Creates a cleanup task for the specified data set. This method will be invoked before the
      * actual task is performed by the method {@link #execute(String)}.

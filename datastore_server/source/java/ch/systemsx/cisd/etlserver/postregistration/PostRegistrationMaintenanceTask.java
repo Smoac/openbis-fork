@@ -37,7 +37,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
+import ch.systemsx.cisd.common.maintenance.IDataStoreLockingMaintenanceTask;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
@@ -52,7 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria
  *
  * @author Franz-Josef Elmer
  */
-public class PostRegistrationMaintenanceTask implements IMaintenanceTask
+public class PostRegistrationMaintenanceTask implements IDataStoreLockingMaintenanceTask
 {
     private static final String POST_REGISTRATION_TASKS_PROPERTY = "post-registration-tasks";
     
@@ -79,6 +79,8 @@ public class PostRegistrationMaintenanceTask implements IMaintenanceTask
     
     private IEncapsulatedOpenBISService service;
     
+    private boolean needsLockOnDataStore;
+    
     private Set<Entry<String, IPostRegistrationTask>> tasks;
     
     private File cleanupTasksFolder;
@@ -86,6 +88,11 @@ public class PostRegistrationMaintenanceTask implements IMaintenanceTask
     private File lastSeenDataSetFile;
 
     private File newLastSeenDataSetFile;
+
+    public boolean requiresDataStoreLock()
+    {
+        return needsLockOnDataStore;
+    }
 
     public void setUp(String pluginName, Properties properties)
     {
@@ -100,7 +107,12 @@ public class PostRegistrationMaintenanceTask implements IMaintenanceTask
             Properties taskPorperties = sectionProperty.getProperties();
             String className = PropertyUtils.getMandatoryProperty(taskPorperties, "class");
             IPostRegistrationTask task =
-                    ClassUtils.create(IPostRegistrationTask.class, className, taskPorperties);
+                    ClassUtils.create(IPostRegistrationTask.class, className, taskPorperties,
+                            service);
+            if (task.requiresDataStoreLock())
+            {
+                needsLockOnDataStore = true;
+            }
             map.put(sectionProperty.getKey(), task);
         }
         tasks = map.entrySet();

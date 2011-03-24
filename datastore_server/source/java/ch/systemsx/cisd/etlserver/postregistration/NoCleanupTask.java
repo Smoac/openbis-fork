@@ -17,11 +17,16 @@
 package ch.systemsx.cisd.etlserver.postregistration;
 
 /**
- * Interface for classes which can handle {@link ICleanupTask} instances.
+ * An implementation of {@link ICleanupTask} which does nothing.
  *
  * @author Franz-Josef Elmer
  */
-public interface ICleanupTaskHandler
+public class NoCleanupTask implements ICleanupTask
 {
-    public void handle(ICleanupTask cleanupTask);
+    private static final long serialVersionUID = 1L;
+
+    public void cleanup()
+    {
+    }
+
 }
