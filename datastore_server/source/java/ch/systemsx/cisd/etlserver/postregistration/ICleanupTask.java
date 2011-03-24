@@ -26,7 +26,7 @@ import java.io.Serializable;
  * order to clean up what the {@link IPostRegistrationTask} didn't finished before it does the job
  * again. 
  * <p>
- * Cleanup tasks are also performed if {@link IPostRegistrationTask#execute(String)} throws
+ * Cleanup tasks are also performed if {@link IPostRegistrationTaskExecutor#execute()} throws
  * an exception.
  * 
  * @author Franz-Josef Elmer
@@ -34,9 +34,9 @@ import java.io.Serializable;
 public interface ICleanupTask extends Serializable
 {
     /**
-     * Clean up stuff an interrupted {@link IPostRegistrationTask#execute(String)} has created. This
-     * method should not throw an exception if there is nothing to clean up or the clean up state is
-     * invalid.
+     * Clean up stuff an interrupted {@link IPostRegistrationTaskExecutor#execute()} has created.
+     * This method should not throw an exception if there is nothing to clean up or the clean up
+     * state is invalid.
      */
     public void cleanup();
 }

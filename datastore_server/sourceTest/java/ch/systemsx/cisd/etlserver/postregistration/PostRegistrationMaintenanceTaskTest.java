@@ -98,17 +98,11 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
             return task.requiresDataStoreLock();
         }
 
-        @Override
-        public ICleanupTask createCleanupTask(String dataSetCode)
+        public IPostRegistrationTaskExecutor createExecutor(String dataSetCode)
         {
-            return task.createCleanupTask(dataSetCode);
+            return task.createExecutor(dataSetCode);
         }
-        
-        public void execute(String dataSetCode)
-        {
-            task.execute(dataSetCode);
-        }
-        
+
     }
     
     private static Map<String, IPostRegistrationTask> mockTasks = new HashMap<String, IPostRegistrationTask>();
@@ -121,7 +115,9 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
     
     private ICleanupTask cleanupTask;
     private IPostRegistrationTask task1;
+    private IPostRegistrationTaskExecutor executor1;
     private IPostRegistrationTask task2;
+    private IPostRegistrationTaskExecutor executor2;
     private File cleanupTasksFolder;
     private File lastSeenDataSetFile;
 
@@ -135,8 +131,10 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
         cleanupInvocations.clear();
         mockTasks.clear();
         task1 = context.mock(IPostRegistrationTask.class, TASK_1_NAME);
+        executor1 = context.mock(IPostRegistrationTaskExecutor.class, "executor 1");
         mockTasks.put(TASK_1_NAME, task1);
         task2 = context.mock(IPostRegistrationTask.class, TASK_2_NAME);
+        executor2 = context.mock(IPostRegistrationTaskExecutor.class, "executor 2");
         mockTasks.put(TASK_2_NAME, task2);
         
         final BeanFactory beanFactory = context.mock(BeanFactory.class);
@@ -280,26 +278,38 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
                     DataSetBuilder ds2 = new DataSetBuilder(2).code("ds-2");
                     will(returnValue(Arrays.asList(ds2.getDataSet(), ds1.getDataSet())));
 
-                    one(task1).createCleanupTask("ds-1");
+                    one(task1).createExecutor("ds-1");
+                    will(returnValue(executor1));
+                    inSequence(sequence);
+                    one(executor1).createCleanupTask();
                     will(returnValue(cleanupTask));
                     inSequence(sequence);
-                    one(task1).execute("ds-1");
+                    one(executor1).execute();
                     inSequence(sequence);
-                    one(task2).createCleanupTask("ds-1");
+                    one(task2).createExecutor("ds-1");
+                    will(returnValue(executor2));
+                    inSequence(sequence);
+                    one(executor2).createCleanupTask();
                     will(returnValue(cleanupTask));
                     inSequence(sequence);
-                    one(task2).execute("ds-1");
+                    one(executor2).execute();
                     inSequence(sequence);
 
-                    one(task1).createCleanupTask("ds-2");
+                    one(task1).createExecutor("ds-2");
+                    will(returnValue(executor1));
+                    inSequence(sequence);
+                    one(executor1).createCleanupTask();
                     will(returnValue(cleanupTask));
                     inSequence(sequence);
-                    one(task1).execute("ds-2");
+                    one(executor1).execute();
                     inSequence(sequence);
-                    one(task2).createCleanupTask("ds-2");
+                    one(task2).createExecutor("ds-2");
+                    will(returnValue(executor2));
+                    inSequence(sequence);
+                    one(executor2).createCleanupTask();
                     will(returnValue(cleanupTask));
                     inSequence(sequence);
-                    one(task2).execute("ds-2");
+                    one(executor2).execute();
                     inSequence(sequence);
                 }
             });
@@ -340,26 +350,38 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
                     DataSetBuilder ds3 = new DataSetBuilder(3).code("ds-3");
                     will(returnValue(Arrays.asList(ds2.getDataSet(), ds3.getDataSet(), ds1.getDataSet())));
 
-                    one(task1).createCleanupTask("ds-1");
+                    one(task1).createExecutor("ds-1");
+                    will(returnValue(executor1));
+                    inSequence(sequence);
+                    one(executor1).createCleanupTask();
                     will(returnValue(new MockCleanupTask("A")));
                     inSequence(sequence);
-                    one(task1).execute("ds-1");
+                    one(executor1).execute();
                     inSequence(sequence);
-                    one(task2).createCleanupTask("ds-1");
+                    one(task2).createExecutor("ds-1");
+                    will(returnValue(executor2));
+                    inSequence(sequence);
+                    one(executor2).createCleanupTask();
                     will(returnValue(new MockCleanupTask("B")));
                     inSequence(sequence);
-                    one(task2).execute("ds-1");
+                    one(executor2).execute();
                     inSequence(sequence);
 
-                    one(task1).createCleanupTask("ds-2");
+                    one(task1).createExecutor("ds-2");
+                    will(returnValue(executor1));
+                    inSequence(sequence);
+                    one(executor1).createCleanupTask();
                     will(returnValue(new MockCleanupTask("C")));
                     inSequence(sequence);
-                    one(task1).execute("ds-2");
+                    one(executor1).execute();
                     inSequence(sequence);
-                    one(task2).createCleanupTask("ds-2");
+                    one(task2).createExecutor("ds-2");
+                    will(returnValue(executor2));
+                    inSequence(sequence);
+                    one(executor2).createCleanupTask();
                     will(returnValue(new MockCleanupTask("D")));
                     inSequence(sequence);
-                    one(task2).execute("ds-2");
+                    one(executor2).execute();
                     inSequence(sequence);
                     will(throwException(new Throwable("error")));
                 }

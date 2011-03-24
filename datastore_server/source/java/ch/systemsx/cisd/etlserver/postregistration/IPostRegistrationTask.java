@@ -35,15 +35,9 @@ public interface IPostRegistrationTask
     public boolean requiresDataStoreLock();
     
     /**
-     * Creates a cleanup task for the specified data set. This method will be invoked before the
-     * actual task is performed by the method {@link #execute(String)}.
+     * Creates a task executor for the specified data set.
      */
-    public ICleanupTask createCleanupTask(String dataSetCode);
-    
-    /**
-     * Perform the task for the specified data set.
-     */
-    public void execute(String dataSetCode);
+    public IPostRegistrationTaskExecutor createExecutor(String dataSetCode);
     
     
 }

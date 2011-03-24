@@ -16,23 +16,21 @@
 
 package ch.systemsx.cisd.etlserver.postregistration;
 
-import java.util.Properties;
-
-import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-
 /**
- * Abstract super class of all implementations of {@link IPostRegistrationTask}.
- *
+ * Executor of a post registration task. {@link PostRegistrationMaintenanceTask} calls first
+ * {@link #createCleanupTask()} before {@link #execute()} is invoked.
+ * 
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractPostRegistrationTask implements IPostRegistrationTask
+public interface IPostRegistrationTaskExecutor
 {
-    protected final Properties properties;
-    protected final IEncapsulatedOpenBISService service;
-
-    public AbstractPostRegistrationTask(Properties properties, IEncapsulatedOpenBISService service)
-    {
-        this.properties = properties;
-        this.service = service;
-    }
+    /**
+     * Creates a cleanup task.
+     */
+    public ICleanupTask createCleanupTask();
+    
+    /**
+     * Performs post registration task.
+     */
+    public void execute();
 }

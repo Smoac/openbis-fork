@@ -67,37 +67,60 @@ public class ArchivingPostRegistrationTask extends AbstractPostRegistrationTask
         return true;
     }
 
-    /**
-     * archives the dataset for the specified dataset code.
-     */
-    public void execute(String dataSetCode)
+    public IPostRegistrationTaskExecutor createExecutor(String dataSetCode)
     {
+        return new Executor(dataSetCode);
+    }
+    
+    private final class Executor implements IPostRegistrationTaskExecutor
+    {
+        private final String dataSetCode;
 
-        IArchiverPlugin archiver = tryCreateArchiver();
-        if (archiver == null)
+        Executor(String dataSetCode)
         {
-            // no archiver is configured
-            operationLog.error("Post-registration archiving cannot be completed, because there is "
-                    + "no archiver configured. Please configure an archiver and restart. ");
-            return;
+            this.dataSetCode = dataSetCode;
+
         }
 
-        DatasetDescription dataSet = tryGetDatasetDescription(dataSetCode, service);
-        if (dataSet == null)
+        /**
+         * archives the dataset for the specified dataset code.
+         */
+        public void execute()
         {
-            operationLog.warn("Data set with code " + dataSetCode
-                    + " is no longer available in openBIS. Archiving post-registration "
-                    + "task will be skipped...");
-            return;
+
+            IArchiverPlugin archiver = tryCreateArchiver();
+            if (archiver == null)
+            {
+                // no archiver is configured
+                operationLog
+                        .error("Post-registration archiving cannot be completed, because there is "
+                                + "no archiver configured. Please configure an archiver and restart. ");
+                return;
+            }
+
+            DatasetDescription dataSet = tryGetDatasetDescription(dataSetCode, service);
+            if (dataSet == null)
+            {
+                operationLog.warn("Data set with code " + dataSetCode
+                        + " is no longer available in openBIS. Archiving post-registration "
+                        + "task will be skipped...");
+                return;
+            }
+
+            boolean statusUpdated =
+                    service.compareAndSetDataSetStatus(dataSetCode, AVAILABLE, BACKUP_PENDING,
+                            false);
+            if (statusUpdated)
+            {
+                List<DatasetDescription> dataSetAsList = Collections.singletonList(dataSet);
+                archiver.archive(dataSetAsList, createArchiverContext(), false);
+                service.compareAndSetDataSetStatus(dataSetCode, BACKUP_PENDING, AVAILABLE, true);
+            }
         }
 
-        boolean statusUpdated =
-                service.compareAndSetDataSetStatus(dataSetCode, AVAILABLE, BACKUP_PENDING, false);
-        if (statusUpdated)
+        public ICleanupTask createCleanupTask()
         {
-            List<DatasetDescription> dataSetAsList = Collections.singletonList(dataSet);
-            archiver.archive(dataSetAsList, createArchiverContext(), false);
-            service.compareAndSetDataSetStatus(dataSetCode, BACKUP_PENDING, AVAILABLE, true);
+            return new ArchivingCleanupTask(dataSetCode);
         }
     }
 
@@ -144,12 +167,6 @@ public class ArchivingPostRegistrationTask extends AbstractPostRegistrationTask
         return pluginTaskProviders;
     }
 
-
-    @Override
-    public ICleanupTask createCleanupTask(final String dataSetCode)
-    {
-        return new ArchivingCleanupTask(dataSetCode);
-    }
 
     private static class ArchivingCleanupTask implements ICleanupTask
     {

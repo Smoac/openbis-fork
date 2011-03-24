@@ -151,9 +151,10 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
                     String taskName = entry.getKey();
                     try
                     {
-                        cleanupTask = task.createCleanupTask(code);
+                        IPostRegistrationTaskExecutor executor = task.createExecutor(code);
+                        cleanupTask = executor.createCleanupTask();
                         savedCleanupTask = save(code, taskName, cleanupTask);
-                        task.execute(code);
+                        executor.execute();
                     } catch (Throwable t)
                     {
                         cleanUpAndLog(t, cleanupTask, code, taskName);
