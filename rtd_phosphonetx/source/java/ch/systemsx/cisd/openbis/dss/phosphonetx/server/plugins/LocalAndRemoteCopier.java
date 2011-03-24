@@ -106,6 +106,7 @@ class LocalAndRemoteCopier implements Serializable, IPostRegistrationDatasetHand
         {
             File sshExecutable = Copier.getExecutable(properties, DataSetCopier.SSH_EXEC);
             File rsyncExecutable = Copier.getExecutable(properties, DataSetCopier.RSYNC_EXEC);
+            File gfindExecutable = Copier.getExecutable(properties, DataSetCopier.GFIND_EXEC);
             IPathCopier copier = pathCopierFactory.create(rsyncExecutable, sshExecutable);
             copier.check();
             String rsyncModule = hostAwareFile.tryGetRsyncModule();
@@ -116,8 +117,8 @@ class LocalAndRemoteCopier implements Serializable, IPostRegistrationDatasetHand
             ISshCommandExecutor sshCommandExecutor =
                     sshCommandExecutorFactory.create(sshExecutable, hostOrNull);
             executor =
-                    new RemoteDataSetFileOperationsExecutor(sshCommandExecutor, copier, hostOrNull,
-                            rsyncModule, rsyncPasswordFile);
+                    new RemoteDataSetFileOperationsExecutor(sshCommandExecutor, copier,
+                            gfindExecutable, hostOrNull, rsyncModule, rsyncPasswordFile);
         }
     }
 
