@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
@@ -296,6 +297,14 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
     {
         logAccess(sessionToken, "listAvailableDataSets", "DATA_STORE(%s) CRITERIA(%s)",
                 dataStoreCode, criteria);
+        return null;
+    }
+
+    public List<ExternalData> listDataSets(String sessionToken, String dataStoreCode,
+            TrackingDataSetCriteria criteria)
+    {
+        logAccess(sessionToken, "listDataSets", "DATA_STORE(%s) CRITERIA(%s)", dataStoreCode,
+                criteria);
         return null;
     }
 

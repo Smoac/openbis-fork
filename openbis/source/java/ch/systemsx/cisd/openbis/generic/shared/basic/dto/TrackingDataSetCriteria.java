@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
- * Criteria for tracking <i>data sets</i> connected to samples of a particular type with technical
- * id bigger than the specified one.
+ * Criteria for tracking <i>data sets</i> with technical id bigger than the specified one. Optional,
+ * the search is restricted to data sets connected to samples of a certain type.
  * <p>
  * Connected samples should be loaded as well as their parent and container samples according to
  * {@link SampleType} hierarchy depths. All referenced samples should have all properties loaded.
@@ -33,15 +33,28 @@ public class TrackingDataSetCriteria implements ISerializable
 
     private final String connectedSampleTypeCode;
 
-    private long lastSeenDataSetId;
+    private final long lastSeenDataSetId;
+    
+    private final boolean enrichResult;
 
-    public TrackingDataSetCriteria(String connectedSampleTypeCode, long lastSeenDataSetId)
+    public TrackingDataSetCriteria(long lastSeenDataSetId)
     {
-        assert connectedSampleTypeCode != null;
-        this.lastSeenDataSetId = lastSeenDataSetId;
-        this.connectedSampleTypeCode = connectedSampleTypeCode;
+        this(null, lastSeenDataSetId, false);
+    }
+    
+    public TrackingDataSetCriteria(String connectedSampleTypeCodeOrNull, long lastSeenDataSetId)
+    {
+        this(connectedSampleTypeCodeOrNull, lastSeenDataSetId, true);
+        assert connectedSampleTypeCodeOrNull != null;
     }
 
+    private TrackingDataSetCriteria(String connectedSampleTypeCodeOrNull, long lastSeenDataSetId, boolean enrichResult)
+    {
+        this.enrichResult = enrichResult;
+        this.lastSeenDataSetId = lastSeenDataSetId;
+        this.connectedSampleTypeCode = connectedSampleTypeCodeOrNull;
+    }
+    
     public String getConnectedSampleTypeCode()
     {
         return connectedSampleTypeCode;
@@ -52,9 +65,18 @@ public class TrackingDataSetCriteria implements ISerializable
         return lastSeenDataSetId;
     }
 
-    public void setLastSeenDataSetId(long lastSeenDataSetId)
+    public boolean shouldResultBeEnriched()
     {
-        this.lastSeenDataSetId = lastSeenDataSetId;
+        return enrichResult;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "lastSeenDataSetId:"
+                + lastSeenDataSetId
+                + (connectedSampleTypeCode == null ? "" : " sample type:" + connectedSampleTypeCode)
+                + (enrichResult ? " (enrich)" : "");
     }
 
 }

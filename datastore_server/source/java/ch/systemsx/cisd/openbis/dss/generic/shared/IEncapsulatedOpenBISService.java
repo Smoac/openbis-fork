@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
@@ -267,6 +268,11 @@ public interface IEncapsulatedOpenBISService
     /** See {@link IETLLIMSService#listDataSets(String, String)} */
     @ManagedAuthentication
     public List<SimpleDataSetInformationDTO> listDataSets() throws UserFailureException;
+    
+    /** @see IETLLIMSService#listDataSets(String, String, TrackingDataSetCriteria) */
+    @ManagedAuthentication
+    public List<ExternalData> listNewerDataSets(TrackingDataSetCriteria criteria)
+            throws UserFailureException;
     
     /**
      * Creates and returns a unique code for a new data set.

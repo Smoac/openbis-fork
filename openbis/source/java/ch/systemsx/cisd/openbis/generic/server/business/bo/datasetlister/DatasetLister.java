@@ -334,11 +334,25 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
 
     public List<ExternalData> listByTrackingCriteria(TrackingDataSetCriteria criteria)
     {
-        Long sampleTypeId =
-                referencedEntityDAO.getSampleTypeIdForSampleTypeCode(criteria
-                        .getConnectedSampleTypeCode());
-        return enrichDatasets(query.getNewDataSetsForSampleType(sampleTypeId,
-                criteria.getLastSeenDataSetId()));
+        DataIterator<DatasetRecord> dataSets;
+        String sampleType = criteria.getConnectedSampleTypeCode();
+        long lastSeenDataSetId = criteria.getLastSeenDataSetId();
+        if (sampleType == null)
+        {
+            dataSets = query.getNewDataSets(lastSeenDataSetId);
+        } else
+        {
+            Long sampleTypeId = referencedEntityDAO.getSampleTypeIdForSampleTypeCode(sampleType);
+            dataSets = query.getNewDataSetsForSampleType(sampleTypeId, lastSeenDataSetId);
+        }
+        if (criteria.shouldResultBeEnriched())
+        {
+            return enrichDatasets(dataSets);
+        }
+        loadSmallConnectedTables();
+        List<DatasetRecord> datasetRecords = asList(dataSets);
+        Long2ObjectMap<ExternalData> datasetMap = createPrimaryDatasets(datasetRecords);
+        return asList(datasetMap);
     }
 
     public List<ExternalData> listByArchiverCriteria(String dataStoreCode,

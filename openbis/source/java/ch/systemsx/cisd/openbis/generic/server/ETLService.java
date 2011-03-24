@@ -79,6 +79,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyTypeWithVocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -784,6 +785,28 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         return datasetLister.listByArchiverCriteria(dataStoreCode, criteria);
     }
 
+    public List<ExternalData> listDataSets(String sessionToken, String dataStoreCode, TrackingDataSetCriteria criteria)
+    {
+        Session session = getSession(sessionToken);
+        getDAOFactory().getHomeDatabaseInstance();
+        DataStorePE dataStore = getDAOFactory().getDataStoreDAO().tryToFindDataStoreByCode(dataStoreCode);
+        if (dataStore == null)
+        {
+            throw new UserFailureException("Unknown data store: " + dataStoreCode);
+        }
+        final IDatasetLister datasetLister = createDatasetLister(session);
+        List<ExternalData> allDataSets = datasetLister.listByTrackingCriteria(criteria);
+        List<ExternalData> result = new ArrayList<ExternalData>();
+        for (ExternalData externalData : allDataSets)
+        {
+            if (dataStoreCode.equals(externalData.getDataStore().getCode()))
+            {
+                result.add(externalData);
+            }
+        }
+        return result;
+    }
+    
     private List<ExternalDataPE> loadDataSets(String sessionToken, String dataStoreCode)
     {
         Session session = getSession(sessionToken);

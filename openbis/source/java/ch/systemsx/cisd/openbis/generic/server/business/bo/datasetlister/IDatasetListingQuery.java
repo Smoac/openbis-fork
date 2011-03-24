@@ -72,14 +72,21 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
     public DataIterator<DatasetRecord> getDatasetsForSamples(LongSet sampleIds);
 
     /**
+     * Returns data sets that are newer than the data set of specified id.
+     */
+    @Select(sql = "SELECT * FROM data JOIN external_data ON data.id = external_data.data_id"
+            + "    WHERE data.id > ?{1}", fetchSize = FETCH_SIZE)
+    public DataIterator<DatasetRecord> getNewDataSets(long lastSeenDatasetId);
+
+    /**
      * Returns datasets that are newer than dataset with given id (<var>lastSeenDatasetId</var>) and
      * are directly connected with samples of sample type with given <var>sampleTypeId</var>.
      */
     @Select(sql = "SELECT * FROM data JOIN external_data ON data.id = external_data.data_id"
-            + "    WHERE data.id > ?{2} AND data.samp_id IN (SELECT id FROM samples s WHERE s.saty_id=?{1})", fetchSize = FETCH_SIZE)
-    public DataIterator<DatasetRecord> getNewDataSetsForSampleType(long sampleTypeId,
-            long lastSeenDatasetId);
-
+        + "    WHERE data.id > ?{2} AND data.samp_id IN (SELECT id FROM samples s WHERE s.saty_id=?{1})", fetchSize = FETCH_SIZE)
+        public DataIterator<DatasetRecord> getNewDataSetsForSampleType(long sampleTypeId,
+                long lastSeenDatasetId);
+    
     /**
      * Returns datasets from store with given id that have status equal 'AVAILABLE' and were
      * modified before given date.

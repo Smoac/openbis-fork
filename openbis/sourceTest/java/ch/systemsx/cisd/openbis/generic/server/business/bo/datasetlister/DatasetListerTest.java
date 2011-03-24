@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 
@@ -190,6 +191,42 @@ public class DatasetListerTest extends AbstractDAOTest
         assertEquals("analysis/result", dataSets.get(1).getLocation());
         assertEquals(null, dataSets.get(1).getSize());
         assertEquals(2, dataSets.size());
+    }
+    
+    @Test
+    public void testListByTrackingCriteriaWithNoSample()
+    {
+        List<ExternalData> dataSets = lister.listByTrackingCriteria(new TrackingDataSetCriteria(9));
+        Collections.sort(dataSets, new Comparator<ExternalData>()
+            {
+                public int compare(ExternalData o1, ExternalData o2)
+                {
+                    return (int) (o1.getId() - o2.getId());
+                }
+            });
+        assertEquals("20081105092259900-0", dataSets.get(0).getCode());
+        assertEquals("STANDARD", dataSets.get(0).getDataStore().getCode());
+        assertEquals(0, dataSets.get(0).getProperties().size());
+        assertEquals(3, dataSets.size());
+    }
+
+    @Test
+    public void testListByTrackingCriteriaWithSampleType()
+    {
+        List<ExternalData> dataSets =
+                lister.listByTrackingCriteria(new TrackingDataSetCriteria("CELL_PLATE", 6));
+        Collections.sort(dataSets, new Comparator<ExternalData>()
+            {
+                public int compare(ExternalData o1, ExternalData o2)
+                {
+                    return (int) (o1.getId() - o2.getId());
+                }
+            });
+        assertEquals("20081105092159333-3", dataSets.get(0).getCode());
+        assertEquals("STANDARD", dataSets.get(0).getDataStore().getCode());
+        assertEquals("no comment", dataSets.get(0).getProperties().get(0).tryGetOriginalValue());
+        assertEquals(1, dataSets.get(0).getProperties().size());
+        assertEquals(1, dataSets.size());
     }
 
     private void assertSameDataSetsForSameCode(Map<String, ExternalData> dataSetsByCode,

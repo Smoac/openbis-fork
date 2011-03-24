@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
@@ -428,6 +429,12 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
             }
         }
         return dataSets;
+    }
+
+    public List<ExternalData> listNewerDataSets(TrackingDataSetCriteria criteria)
+            throws UserFailureException
+    {
+        return service.listDataSets(session.getToken(), session.getDataStoreCode(), criteria);
     }
 
     public List<ExternalData> listAvailableDataSets(ArchiverDataSetCriteria criteria)
