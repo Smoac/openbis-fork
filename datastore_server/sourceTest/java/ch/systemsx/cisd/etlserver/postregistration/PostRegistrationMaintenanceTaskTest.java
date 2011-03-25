@@ -47,7 +47,7 @@ import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 
@@ -145,14 +145,15 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
                     will(returnValue(service));
                 }
             });
-        ServiceProvider.setBeanFactory(beanFactory);
+        ServiceProviderTestWrapper.setApplicationContext(beanFactory);
         cleanupTasksFolder = new File(workingDirectory, "cleanup-tasks");
         lastSeenDataSetFile = new File(workingDirectory, "last-seen-data-set.txt");
     }
     
-    @AfterMethod
+    @AfterMethod(alwaysRun = true)
     public void afterMethod()
     {
+        ServiceProviderTestWrapper.restoreApplicationContext();
         logRecorder.reset();
         // The following line of code should also be called at the end of each test method.
         // Otherwise one do not known which test failed.

@@ -55,7 +55,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdv
 import ch.systemsx.cisd.openbis.dss.generic.server.api.v1.DssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
-import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.DssSessionAuthorizationHolder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.IDssServiceRpcGenericInternal;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataSetFileDTO;
@@ -141,7 +141,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         super.setUp();
         DssSessionAuthorizationHolder.setAuthorizer(new DatasetSessionAuthorizer());
         final StaticListableBeanFactory applicationContext = new StaticListableBeanFactory();
-        ServiceProvider.setBeanFactory(applicationContext);
+        ServiceProviderTestWrapper.setApplicationContext(applicationContext);
         context = new Mockery();
         openBisService = context.mock(IGeneralInformationService.class);
         shareIdManager = context.mock(IShareIdManager.class);
@@ -152,9 +152,10 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         applicationContext.addBean("openBIS-service", etlService);
     }
 
-    @AfterMethod
+    @AfterMethod(alwaysRun = true)
     public void tearDown()
     {
+        ServiceProviderTestWrapper.restoreApplicationContext();
         // Clear the dss services
         dssServiceV1_0 = null;
         dssServiceV1_1 = null;

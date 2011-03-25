@@ -40,19 +40,38 @@ public class ServiceProvider
     // applicationContex it lazily initialized
     private static BeanFactory applicationContext = null;
 
+    /**
+     * @deprecated This method should only be used from {@link ServiceProviderTestWrapper} to avoid
+     *             leaving the application context uncleaned after test execution.
+     */
+    @Deprecated
     public static void setBeanFactory(BeanFactory applicationContext)
     {
         ServiceProvider.applicationContext = applicationContext;
     }
 
-    public static BeanFactory getApplicationContext()
+    /**
+     * Return the application context
+     * 
+     * @param create <code>true</code> if the application context should be created when it does not
+     *            exist.
+     */
+    public static BeanFactory tryGetApplicationContext(boolean create)
     {
-        if (applicationContext == null)
+        if (create && applicationContext == null)
         {
             applicationContext = new ClassPathXmlApplicationContext(new String[]
                 { "dssApplicationContext.xml" }, true);
         }
         return applicationContext;
+    }
+
+    /**
+     * Return the application context, optionally creating one if needed.
+     */
+    public static BeanFactory getApplicationContext()
+    {
+        return tryGetApplicationContext(true);
     }
 
     /**

@@ -27,13 +27,14 @@ import org.apache.commons.io.FileUtils;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.springframework.beans.factory.BeanFactory;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
@@ -74,7 +75,7 @@ public class HierarchicalStorageUpdaterTest extends AbstractFileSystemTestCase
         context = new Mockery();
         openBISService = context.mock(IEncapsulatedOpenBISService.class);
         final BeanFactory beanFactory = context.mock(BeanFactory.class);
-        ServiceProvider.setBeanFactory(beanFactory);
+        ServiceProviderTestWrapper.setApplicationContext(beanFactory);
 
         context.checking(new Expectations()
             {
@@ -86,6 +87,12 @@ public class HierarchicalStorageUpdaterTest extends AbstractFileSystemTestCase
                     will(returnValue(listDataSets()));
                 }
             });
+    }
+
+    @AfterMethod(alwaysRun=true)
+    public void tearDown()
+    {
+        ServiceProviderTestWrapper.restoreApplicationContext();
     }
 
     @Test
