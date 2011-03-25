@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
 
 /**
- * An post-registration task that archives datasets.
+ * A post-registration task that archives datasets.
  * 
  * @author Kaloyan Enimanev
  */
