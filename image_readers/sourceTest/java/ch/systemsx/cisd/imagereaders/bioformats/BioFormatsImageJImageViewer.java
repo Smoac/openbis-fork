@@ -19,15 +19,19 @@ package ch.systemsx.cisd.imagereaders.bioformats;
 import java.awt.Frame;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
+import java.io.File;
 
 import javax.media.jai.widget.ScrollingImagePanel;
 
 import org.apache.log4j.BasicConfigurator;
 
-import ch.systemsx.cisd.base.io.RandomAccessFileImpl;
+import ch.systemsx.cisd.imagereaders.Constants;
+import ch.systemsx.cisd.imagereaders.IImageReader;
+import ch.systemsx.cisd.imagereaders.ImageReaderFactory;
 
 /**
  * An image viewer that uses BioFormats for reading and ImageJ for intensity rescaling.
+ * <p>
  * 
  * @author Bernd Rinn
  */
@@ -54,9 +58,14 @@ public class BioFormatsImageJImageViewer
             System.exit(1);
         }
         BasicConfigurator.configure();
-        final BufferedImage image =
-                BioFormatsImageJUtils.readAndTransformImage(args[0], new RandomAccessFileImpl(
-                        args[0], "r"), 0, 0);
+
+        final String fileName = args[0];
+        IImageReader imageReader =
+                ImageReaderFactory.tryGetImageReaderForFile(Constants.BIOFORMATS_RESCALING_LIBRARY,
+                        fileName);
+
+        File file = new File(fileName);
+        final BufferedImage image = imageReader.readImage(file, 0);
         showImage(image);
     }
 }

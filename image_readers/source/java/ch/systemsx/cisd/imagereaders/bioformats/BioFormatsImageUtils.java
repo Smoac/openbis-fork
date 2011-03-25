@@ -16,16 +16,19 @@
 
 package ch.systemsx.cisd.imagereaders.bioformats;
 
+import ij.ImagePlus;
+import ij.ImageStack;
+import ij.process.ImageProcessor;
+
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
-import loci.common.ByteArrayHandle;
 import loci.common.IRandomAccess;
 import loci.common.Location;
-import loci.common.NIOFileHandle;
 import loci.formats.FormatException;
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
@@ -33,43 +36,30 @@ import loci.formats.gui.BufferedImageReader;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
-import ch.systemsx.cisd.base.io.IRandomAccessFile;
 
 /**
  * A utility class to use bio-formats to read images.
  * 
  * @author Bernd Rinn
  */
-public final class BioFormatsImageUtils
+final class BioFormatsImageUtils
 {
 
-    private final static List<IFormatReader> readers = new ArrayList<IFormatReader>();
+    private final static List<IFormatReader> readers;
 
     static
     {
-        final Class<? extends IFormatReader>[] classes =
-                ImageReader.getDefaultReaderClasses().getClasses();
-        for (int i = 0; i < classes.length; i++)
-        {
-            IFormatReader reader = null;
-            try
-            {
-                reader = classes[i].newInstance();
-            } catch (IllegalAccessException exc)
-            {
-            } catch (InstantiationException exc)
-            {
-            }
-            if (reader == null)
-            {
-                continue;
-            }
-            readers.add(reader);
-        }
+        IFormatReader[] formatReaders = new ImageReader().getReaders();
+        readers = Arrays.asList(formatReaders);
     }
 
-    public static IFormatReader tryFindReaderForFile(String fileName) throws IOException,
-            IllegalArgumentException
+    /**
+     * Tries to find a suitable reader for the file specified with <var>fileName</var>. May return
+     * <code>null</code> if no suitable reader is found.
+     * <p>
+     * Note that the suffix of <var>fileName</var> is used to find the right reader.
+     */
+    public static IFormatReader tryFindReaderForFile(String fileName)
     {
         for (IFormatReader r : readers)
         {
@@ -81,19 +71,10 @@ public final class BioFormatsImageUtils
         return null;
     }
 
-    public static IFormatReader findReaderForFile(String fileName) throws IOException,
-            IllegalArgumentException
-    {
-        final IFormatReader readerOrNull = tryFindReaderForFile(fileName);
-        if (readerOrNull == null)
-        {
-            throw new IllegalArgumentException("Cannot find reader.");
-        } else
-        {
-            return readerOrNull;
-        }
-    }
-
+    /**
+     * Return an {@link IFormatReader} for a specified name. May return <code>null</code> if no
+     * corresponding reader is found.
+     */
     public static IFormatReader tryFindReaderByName(String readerName)
             throws IllegalArgumentException
     {
@@ -108,184 +89,44 @@ public final class BioFormatsImageUtils
 
     }
 
-    public static IFormatReader findReaderByName(String readerName) throws IllegalArgumentException
-    {
-        final IFormatReader readerOrNull = tryFindReaderByName(readerName);
-        if (readerOrNull == null)
-        {
-            throw new IllegalArgumentException("Cannot find reader.");
-        } else
-        {
-            return readerOrNull;
-        }
-
-    }
-
+    /**
+     * Return a list with the names of all known readers.
+     */
     public static List<String> getReaderNames()
     {
         final List<String> readerNames = new ArrayList<String>(readers.size());
         for (IFormatReader reader : readers)
         {
-            readerNames.add(reader.getClass().getSimpleName());
+            String readerName = getReaderName(reader);
+            readerNames.add(readerName);
         }
         return readerNames;
     }
 
     /**
-     * Returns all images of the image <var>filename</var> represented by <var>bytes</var> as
-     * {@link BufferedImage}.
-     * <p>
-     * Note that the suffix of <var>filename</var> is used to find the right reader.
-     * 
-     * @throws IOExceptionUnchecked If access to <var>handle</var> fails.
-     * @throws IllegalArgumentException If no suitable reader can be found.
+     * Return the name of a {@link IFormatReader}.
      */
-    public static BufferedImage[] readImages(String filename, byte[] bytes)
-            throws IOExceptionUnchecked, IllegalArgumentException
+    public static String getReaderName(IFormatReader reader)
     {
-        return readImages(filename, new ByteArrayHandle(bytes));
-    }
-
-    /**
-     * Returns the image <var>filename</var> represented by <var>bytes</var> as
-     * {@link BufferedImage}.
-     * <p>
-     * Note that the suffix of <var>filename</var> is used to find the right reader.
-     * 
-     * @throws IOExceptionUnchecked If access to <var>handle</var> fails.
-     * @throws IllegalArgumentException If no suitable reader can be found.
-     */
-    public static BufferedImage readImage(String filename, byte[] bytes, int page)
-            throws IOExceptionUnchecked, IllegalArgumentException
-    {
-        return readImage(filename, new ByteArrayHandle(bytes), page);
-    }
-
-    /**
-     * Returns all images of the image file given by <var>file</var> as {@link BufferedImage}.
-     * <p>
-     * Note that the suffix of <var>file</var> is used to find the right reader.
-     * 
-     * @throws IOExceptionUnchecked If access to <var>handle</var> fails.
-     * @throws IllegalArgumentException If no suitable reader can be found.
-     */
-    public static BufferedImage[] readImages(File file) throws IOExceptionUnchecked,
-            IllegalArgumentException
-    {
-        NIOFileHandle handle = null;
-        try
-        {
-            handle = new NIOFileHandle(file, "r");
-            return readImages(file.getPath(), handle);
-        } catch (IOException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        } finally
-        {
-            if (handle != null)
-            {
-                try
-                {
-                    handle.close();
-                } catch (IOException ex)
-                {
-                    // Silence.
-                }
-            }
-        }
-    }
-
-    /**
-     * Returns the image <var>file</var> represented by <var>handle</var> as {@link BufferedImage}.
-     * <p>
-     * Note that the suffix of <var>file</var> is used to find the right reader.
-     * 
-     * @throws IOExceptionUnchecked If access to <var>handle</var> fails.
-     * @throws IllegalArgumentException If no suitable reader can be found.
-     */
-    public static BufferedImage readImage(File file, int page) throws IOExceptionUnchecked,
-            IllegalArgumentException
-    {
-        try
-        {
-            return readImage(file.getPath(), new NIOFileHandle(file, "r"), page);
-        } catch (IOException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        }
+        return reader.getClass().getSimpleName();
     }
 
     /**
      * Returns the image <var>page</var> of the image file given by <var>filename</var> represented
      * by <var>handle</var> as {@link BufferedImage}.
-     * <p>
-     * Note that the suffix of <var>filename</var> is used to find the right reader.
      * 
      * @throws IOExceptionUnchecked If access to <var>handle</var> fails.
-     * @throws IllegalArgumentException If no suitable reader can be found.
      */
-    public static BufferedImage readImage(String filename, IRandomAccessFile handle, int page)
-            throws IOExceptionUnchecked, IllegalArgumentException
-    {
-        return readImage(filename, new BioFormatsRandomAccessAdapter(handle), page);
-    }
-
-    /**
-     * Returns the image <var>page</var> of the image file given by <var>filename</var> represented
-     * by <var>handle</var> as {@link BufferedImage}.
-     * <p>
-     * Note that the suffix of <var>filename</var> is used to find the right reader.
-     * 
-     * @throws IOExceptionUnchecked If access to <var>handle</var> fails.
-     * @throws IllegalArgumentException If no suitable reader can be found.
-     */
-    private static BufferedImage readImage(String filename, IRandomAccess handle, int page)
-            throws IOExceptionUnchecked, IllegalArgumentException
-    {
-        // Add to static map.
-        Location.mapFile(filename, handle);
-        try
-        {
-            final IFormatReader reader = findReaderForFile(filename);
-            // This does the actual parsing.
-            reader.setId(filename);
-            final BufferedImageReader biReader =
-                    BufferedImageReader.makeBufferedImageReader(reader);
-            final BufferedImage image = biReader.openImage(page);
-            reader.close();
-            return image;
-        } catch (FormatException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        } catch (IOException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        } finally
-        {
-            // Remove from static map.
-            Location.mapFile(filename, null);
-        }
-    }
-
-    /**
-     * Returns the image <var>page</var> of the image file given by <var>filename</var> represented
-     * by <var>handle</var> as {@link BufferedImage}.
-     * <p>
-     * Note that the suffix of <var>filename</var> is used to find the right reader.
-     * 
-     * @throws IOExceptionUnchecked If access to <var>handle</var> fails.
-     * @throws IllegalArgumentException If no suitable reader can be found.
-     */
-    static BufferedImage readImage(IFormatReader formatReader, String filename,
+    static BufferedImage readImage(IFormatReader reader,
             IRandomAccess handle, int page) throws IOExceptionUnchecked, IllegalArgumentException
     {
+        String handleId = generateHandleId();
         // Add to static map.
-        Location.mapFile(filename, handle);
+        Location.mapFile(handleId, handle);
         try
         {
-            final IFormatReader reader = findReaderForFile(filename);
             // This does the actual parsing.
-            reader.setId(filename);
+            reader.setId(handleId);
             final BufferedImageReader biReader =
                     BufferedImageReader.makeBufferedImageReader(reader);
             final BufferedImage image = biReader.openImage(page);
@@ -300,60 +141,41 @@ public final class BioFormatsImageUtils
         } finally
         {
             // Remove from static map.
-            Location.mapFile(filename, null);
+            Location.mapFile(handleId, null);
         }
     }
 
     /**
-     * Returns all images of the image file given by <var>filename</var> represented by
-     * <var>handle</var> as {@link BufferedImage}.
+     * An utility method that uses bio-formats reader to read an image and ImageJ to do a basic
+     * intensity rescaling.
      * <p>
-     * Note that the suffix of <var>filename</var> is used to find the right reader.
+     * Returns the image <var>filename</var> represented by <var>handle</var> as
+     * {@link BufferedImage}.
      * 
-     * @param filename The name of the image, suffix used to determine the reader
-     * @param handle The handle of the content of the file, may be used to determine the reader as
-     *            well. Will <i>not</i> be closed!
      * @throws IOExceptionUnchecked If access to <var>handle</var> fails.
      * @throws IllegalArgumentException If no suitable reader can be found.
      */
-    public static BufferedImage[] readImages(String filename, IRandomAccessFile handle)
-            throws IOExceptionUnchecked, IllegalArgumentException
+    static BufferedImage readImageWithIntensityRescaling(IFormatReader reader,
+            IRandomAccess handle, int page, int channel) throws IOExceptionUnchecked,
+            IllegalArgumentException
     {
-        return readImages(filename, new BioFormatsRandomAccessAdapter(handle));
-    }
-
-    /**
-     * Returns all images of the image file given by <var>filename</var> represented by
-     * <var>handle</var> as {@link BufferedImage}.
-     * <p>
-     * Note that the suffix of <var>filename</var> is used to find the right reader.
-     * 
-     * @param filename The name of the image, suffix used to determine the reader
-     * @param handle The handle of the content of the file, may be used to determine the reader as
-     *            well. Will <i>not</i> be closed!
-     * @throws IOExceptionUnchecked If access to <var>handle</var> fails.
-     * @throws IllegalArgumentException If no suitable reader can be found.
-     */
-    private static BufferedImage[] readImages(String filename, IRandomAccess handle)
-            throws IOExceptionUnchecked, IllegalArgumentException
-    {
-        BufferedImage[] images = null;
         // Add to static map.
-        Location.mapFile(filename, handle);
+        String handleId = generateHandleId();
+        Location.mapFile(handleId, handle);
         try
         {
-            final IFormatReader reader = findReaderForFile(filename);
             // This does the actual parsing.
-            reader.setId(filename);
-            final BufferedImageReader biReader =
-                    BufferedImageReader.makeBufferedImageReader(reader);
-            images = new BufferedImage[biReader.getImageCount()];
-            for (int i = 0; i < images.length; ++i)
-            {
-                images[i] = biReader.openImage(i);
-            }
+            reader.setId(handleId);
+            int width = reader.getSizeX();
+            int height = reader.getSizeY();
+            final ImageStack stack = new ImageStack(width, height);
+            final ImageProcessor ip = BioFormatsImageProcessor.openProcessor(reader, page, channel);
+            stack.addSlice("", ip);
+            final ImagePlus imp = new ImagePlus(handleId, stack);
+
+            final BufferedImage image = imp.getBufferedImage();
             reader.close();
-            return images;
+            return image;
         } catch (FormatException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -363,8 +185,13 @@ public final class BioFormatsImageUtils
         } finally
         {
             // Remove from static map.
-            Location.mapFile(filename, null);
+            Location.mapFile(handleId, null);
         }
+    }
+
+    public static String generateHandleId()
+    {
+        return UUID.randomUUID().toString();
     }
 
     private BioFormatsImageUtils()

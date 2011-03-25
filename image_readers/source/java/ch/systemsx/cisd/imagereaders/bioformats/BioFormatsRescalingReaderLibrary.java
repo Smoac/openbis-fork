@@ -26,17 +26,20 @@ import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.imagereaders.AbstractImageReader;
 import ch.systemsx.cisd.imagereaders.Constants;
 import ch.systemsx.cisd.imagereaders.IImageReader;
+import ch.systemsx.cisd.imagereaders.IImageReaderLibrary;
 
 /**
- * @author Bernd Rinn
+ * {@link IImageReaderLibrary} for bioformat readers with intensity rescaling.
+ * 
+ * @author Kaloyan Enimanev
  */
-public class BioFormatsReaderLibrary extends AbstractBioFormatsReaderLibrary
+public class BioFormatsRescalingReaderLibrary extends AbstractBioFormatsReaderLibrary
 {
 
     @Override
     public String getName()
     {
-        return Constants.BIOFORMATS_LIBRARY;
+        return Constants.BIOFORMATS_RESCALING_LIBRARY;
     }
 
     @Override
@@ -52,7 +55,9 @@ public class BioFormatsReaderLibrary extends AbstractBioFormatsReaderLibrary
                         throws IOExceptionUnchecked
                 {
                     IRandomAccess input = new BioFormatsRandomAccessAdapter(handle);
-                    return BioFormatsImageUtils.readImage(formatReader, input, page);
+                    // TODO KE: Is 0 a sensible default for channel ?
+                    return BioFormatsImageUtils.readImageWithIntensityRescaling(formatReader,
+                            input, page, 0);
                 }
             };
     }

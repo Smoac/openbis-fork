@@ -23,18 +23,45 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
 
 /**
+ * {@link IImageReader} can read images in a particular format (e.g. TIFF, JPG, GIF etc.). To obtain
+ * the correct {@link IImageReader} instance use the API of {@link ImageReaderFactory}.
+ * 
  * @author Bernd Rinn
  */
 public interface IImageReader
 {
+    /**
+     * Return the name of the library for this reader.
+     */
     public String getLibraryName();
 
+    /**
+     * Return the name of the reader.
+     */
     public String getName();
 
+    /**
+     * Reads a {@link BufferedImage} from a {@link File}.
+     * 
+     * @param file the image file
+     * @param page specified the image page to be read (in case of multiple pages)
+     */
     public BufferedImage readImage(File file, int page) throws IOExceptionUnchecked;
 
-    public BufferedImage readImage(String filename, IRandomAccessFile handle, int page)
-            throws IOExceptionUnchecked;
+    /**
+     * Reads a {@link BufferedImage} from a byte array.
+     * 
+     * @param bytes the image file as a byte array
+     * @param page specified the image page to be read (in case of multiple pages)
+     */
+    public BufferedImage readImage(byte[] bytes, int page);
 
-    public BufferedImage readImage(String filename, byte[] bytes, int page);
+    /**
+     * Reads a {@link BufferedImage} from a handle.
+     * 
+     * @param handle the image file as {@link IRandomAccessFile}
+     * @param page specified the image page to be read (in case of multiple pages)
+     */
+    public BufferedImage readImage(IRandomAccessFile handle, int page)
+            throws IOExceptionUnchecked;
 }

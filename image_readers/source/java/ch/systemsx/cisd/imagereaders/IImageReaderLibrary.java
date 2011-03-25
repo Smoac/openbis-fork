@@ -25,12 +25,30 @@ import java.util.List;
  */
 public interface IImageReaderLibrary
 {
+    /**
+     * Return library name.
+     */
     public String getName();
     
+    /**
+     * Return a collection with the names of the image readers available in the library.
+     */
     public List<String> getReaderNames();
     
+    /**
+     * Returns an {@link IImageReader} for a specified name. Can return <code>null</code> if no
+     * reader with the specified name is available.
+     */
     public IImageReader tryGetReader(String readerName);
-    
+
+    /**
+     * Tries to find a suitable reader for a specified <var>fileName</var>. May return
+     * <code>null</code> if no suitable reader is found.
+     * <p>
+     * The behavior of this method may vary across libraries. For example, some image libraries can
+     * use the suffix of <var>fileName</var> to find the right reader, while others might attempt to
+     * open the file and apply heuristics on its content to determine the appropriate reader.
+     */
     public IImageReader tryGetReaderForFile(String fileName);
     
 }

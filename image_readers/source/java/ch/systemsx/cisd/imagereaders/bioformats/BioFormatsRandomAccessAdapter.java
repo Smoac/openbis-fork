@@ -51,17 +51,6 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         }
     }
 
-    public int read() throws IOException
-    {
-        try
-        {
-        return randomAccessFile.read();
-        } catch (IOExceptionUnchecked ex)
-        {
-            throw ex.getCause();
-        }
-    }
-
     @Override
     public int read(byte[] b) throws IOException
     {
@@ -116,17 +105,6 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         try
         {
         return randomAccessFile.length();
-        } catch (IOExceptionUnchecked ex)
-        {
-            throw ex.getCause();
-        }
-    }
-
-    public void setLength(long newLength) throws IOException
-    {
-        try
-        {
-        randomAccessFile.setLength(newLength);
         } catch (IOExceptionUnchecked ex)
         {
             throw ex.getCause();
