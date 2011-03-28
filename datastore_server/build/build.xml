@@ -17,6 +17,12 @@
   <property name="dss-client-jar.file" value="${dist.dss_client.lib}/dss_client.jar" />
   <property name="dist.client.file.prefix" value="${dist}/dss_client" />
 	
+	<property name="dss_upload_gui" value="dss_upload_gui" />
+	<property name="dist.dss_upload_gui" value="${dist}/${dss_upload_gui}" />
+	<property name="dist.dss_upload_gui.lib" value="${dist.dss_upload_gui}/lib" />
+  <property name="dss-upload-gui-jar.file" value="${dist.dss_upload_gui.lib}/dss_upload_gui.jar" />
+  <property name="dist.upload-gui.file.prefix" value="${dist}/${dss_upload_gui}" />
+	
 	<property name="nativesrc" value="${lib}/unix/native" />
 	<property name="nativeroot" value="${targets}/ant" />
 	<property name="native" value="${nativeroot}/native" />
@@ -89,7 +95,7 @@
 
    <!-- This target has been separated to allow DSS extensions to modify jar files in the distribution
     -->
-  <target name="prepare-dist-libs" depends="dss-jar, dist-client">
+  <target name="prepare-dist-libs" depends="dss-jar, dist-client, dist-upload-gui">
     <copy file="${dss-jar.file}" todir="${dist.datastore_server.lib}" />
   	<copy todir="${dist.datastore_server.lib}" flatten="true">
   		<fileset dir="${lib}/jetty7/lib">
@@ -129,6 +135,12 @@
     	<fileset 	dir="${lib}/jython/jython-lib" />
     </copy>
     <copy file="${lib}/truezip/truezip.jar" todir="${dist.datastore_server.lib}" />
+    <copy todir="${dist.datastore_server.lib}/${dss_upload_gui}" >
+    	<fileset 	dir="${dist.dss_upload_gui.lib}" />
+    </copy>
+  	
+  	<!-- The dss_upload_gui folder is no longer needed; clean it up here (not in the task that makes the zip) -->
+  	<delete dir="${dist.dss_upload_gui}" />
   </target>
 
   <!-- parameters: 
@@ -255,6 +267,116 @@
     <delete dir="${dist.dss_client}" />
     
   </target>
+	
+	
+  <!--  
+    dss-upload-gui-jar is designed to be called from make-dist. Thus, it does not depend on compile, but
+    should be called after dss-jar. -->
+  <target name="dss-upload-gui-jar" depends="">
+    <mkdir dir="${dist.dss_upload_gui.lib}" />
+    <build-info revision="revision.number" version="version.number" clean="clean.flag" />
+    <echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
+    <recursive-jar destfile="${dss-upload-gui-jar.file}">
+      <fileset dir="${classes}">
+      	<include name="ch/systemsx/cisd/common/**/*.class" />
+      	<include name="ch/systemsx/cisd/openbis/generic/shared/**/*.class" />
+        <include name="ch/systemsx/cisd/openbis/dss/client/**/*.class" />
+      	<include name="ch/systemsx/cisd/openbis/dss/generic/shared/api/**/*.class" />
+        <include name="${build.info.filename}" />
+      </fileset>
+      <manifest>
+        <attribute name="Main-Class" value="ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClient" />
+        <attribute name="Class-Path"
+                   value="cisd-base.jar cisd-args4j.jar stream-supporting-httpinvoker.jar log4j.jar commons-lang.jar commons-io.jar commons-logging.jar 
+ commons-codec.jar commons-httpclient.jar spring.jar jline.jar" />
+        <attribute name="Version" value="${version.number}" />
+        <attribute name="Build-Number"
+                   value="${version.number} (r${revision.number},${clean.flag})" />
+      </manifest>
+    </recursive-jar>
+    <jar update="true" destfile="${dss-upload-gui-jar.file}">
+      <fileset dir="../${ant.project.name}/${classes}" includes="ch/systemsx/cisd/openbis/dss/BuildAndEnvironmentInfo.class"/>
+    	<zipfileset src="${lib}/gwt2.0/gwt-user.jar"
+    				            includes="com/google/gwt/user/client/rpc/IsSerializable.class, com/google/gwt/user/client/rpc/SerializableException.class" />
+    </jar>
+  </target>
+	
+	<target name="dist-upload-gui">
+		<antcall target="make-dist-upload-gui">
+			<param name="variant" value="${variant}" />
+		</antcall>
+	</target>
+  
+  <target name="make-dist-upload-gui" depends="dss-upload-gui-jar">
+		<antcall target="copy-and-sign-jar">
+			<param name="dir" value="${dist.dss_upload_gui.lib}" />
+			<param name="jar" value="dss_upload_gui.jar" />
+		</antcall>
+		<antcall target="copy-and-sign-jar">
+			<param name="dir" value="${lib}/cisd-base" />
+			<param name="jar" value="cisd-base.jar" />
+		</antcall>
+		<antcall target="copy-and-sign-jar">
+			<param name="dir" value="${lib}/cisd-args4j" />
+			<param name="jar" value="cisd-args4j.jar" />
+		</antcall>
+		<antcall target="copy-and-sign-jar">
+			<param name="dir" value="${lib}/cisd-base" />
+			<param name="jar" value="cisd-base.jar" />
+		</antcall>
+  	<antcall target="copy-and-sign-jar">
+  		<param name="dir" value="${lib}/commons-codec" />
+  		<param name="jar" value="commons-codec.jar" />
+  	</antcall>
+  	<antcall target="copy-and-sign-jar">
+  		<param name="dir" value="${lib}/commons-httpclient" />
+  		<param name="jar" value="commons-httpclient.jar" />
+  	</antcall>
+		<antcall target="copy-and-sign-jar">
+			<param name="dir" value="${lib}/commons-io" />
+			<param name="jar" value="commons-io.jar" />
+		</antcall>
+		<antcall target="copy-and-sign-jar">
+			<param name="dir" value="${lib}/commons-lang" />
+			<param name="jar" value="commons-lang.jar" />
+		</antcall>
+		<antcall target="copy-and-sign-jar">
+			<param name="dir" value="${lib}/commons-logging" />
+			<param name="jar" value="commons-logging.jar" />
+		</antcall>
+  	<antcall target="copy-and-sign-jar">
+  		<param name="dir" value="${lib}/commons-codec" />
+  		<param name="jar" value="commons-codec.jar" />
+  	</antcall>
+  	<antcall target="copy-and-sign-jar">
+  		<param name="dir" value="${lib}/spring" />
+  		<param name="jar" value="spring.jar" />
+  	</antcall>
+		<antcall target="copy-and-sign-jar">
+			<param name="dir" value="${lib}/spring/third-party" />
+			<param name="jar" value="stream-supporting-httpinvoker.jar" />
+		</antcall>
+    <property name="dist.file"
+              value="${dist.upload-gui.file.prefix}${variant}-${version.number}-r${revision.number}.zip" />
+    
+    <zip destfile="${dist.file}">
+      <zipfileset dir="${dist.dss_upload_gui.lib}"
+                  prefix="${dss_upload_gui}/lib" />
+    </zip>
+  	
+  	<!-- Do NOT delete the directory here;  it will be cleaned up in another part of the dist process 
+    <delete dir="${dist.dss_upload_gui}" />
+    -->
+  	
+  </target>
+	
+	<target name="copy-and-sign-jar">
+		<copy file="${dir}/${jar}" todir="${dist.dss_upload_gui.lib}" />
+		<signjar jar="${dist.dss_upload_gui.lib}/${jar}"
+		         keystore="../openbis/etc/dev.keystore"
+		         alias="openbis"
+		         storepass="openbistest"/>
+	</target>
 
 	<target name="ci" depends="run-tests, check-dependencies, dist">
 	</target>
