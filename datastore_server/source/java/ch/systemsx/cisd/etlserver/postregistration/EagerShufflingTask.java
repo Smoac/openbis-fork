@@ -24,6 +24,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
@@ -181,16 +182,7 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
             {
                 return new NoCleanupTask();
             }
-            return new ICleanupTask()
-                {
-                    private static final long serialVersionUID = 1L;
-
-                    public void cleanup()
-                    {
-                        // TODO Auto-generated method stub
-                        
-                    }
-                };
+            return new CleanupTask(dataSet, storeRoot, shareWithMostFreeOrNull.getShareId());
         }
         
         public void execute()
@@ -211,17 +203,28 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
     {
         private static final long serialVersionUID = 1L;
 
-        private String newShareId;
-        private String dataSetCode;
+        private final SimpleDataSetInformationDTO dataSet;
+        private final File storeRoot;
+        private final String newShareId;
+        
+        CleanupTask(SimpleDataSetInformationDTO dataSet, File storeRoot, String newShareId)
+        {
+            this.dataSet = dataSet;
+            this.storeRoot = storeRoot;
+            this.newShareId = newShareId;
+        }
 
         public void cleanup()
         {
-            String currentShareId = ServiceProvider.getShareIdManager().getShareId(dataSetCode);
-            if (currentShareId.equals(newShareId));
-            // TODO Auto-generated method stub
-            
+            String currentShareId =
+                    ServiceProvider.getShareIdManager().getShareId(dataSet.getDataSetCode());
+            if (currentShareId.equals(newShareId) == false)
+            {
+                File dataSetFolder =
+                        new File(new File(storeRoot, newShareId), dataSet.getDataSetLocation());
+                FileUtilities.deleteRecursively(dataSetFolder);
+            }
         }
-        
     }
 
 }

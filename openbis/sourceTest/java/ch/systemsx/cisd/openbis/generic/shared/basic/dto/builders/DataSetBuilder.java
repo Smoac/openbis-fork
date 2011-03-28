@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
@@ -73,6 +74,20 @@ public class DataSetBuilder
     public DataSetBuilder store(DataStore dataStore)
     {
         dataSet.setDataStore(dataStore);
+        return this;
+    }
+    
+    public PropertyBuilder property(String key)
+    {
+        List<IEntityProperty> properties = dataSet.getProperties();
+        PropertyBuilder propertyBuilder = new PropertyBuilder(key);
+        properties.add(propertyBuilder.getProperty());
+        return propertyBuilder;
+    }
+    
+    public DataSetBuilder property(String key, String value)
+    {
+        property(key).value(value);
         return this;
     }
     
