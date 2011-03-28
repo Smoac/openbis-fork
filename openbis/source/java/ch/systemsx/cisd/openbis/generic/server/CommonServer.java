@@ -36,6 +36,7 @@ import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.IPrincipalProvider;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.business.DetailedSearchManager;
@@ -72,6 +73,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calc
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
@@ -2372,5 +2374,20 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
         return ManagedPropertyEvaluatorFactory.createManagedPropertyEvaluator(managedPropertyPE
                 .getEntityTypePropertyType().getScript().getScript());
+    }
+
+    public String getDefaultPutDataStoreBaseURL(String sessionToken)
+    {
+        checkSession(sessionToken);
+        IDataStoreDAO dataStoreDAO = getDAOFactory().getDataStoreDAO();
+        List<DataStorePE> dataStores = dataStoreDAO.listDataStores();
+        if (dataStores.size() != 1)
+        {
+            throw EnvironmentFailureException
+                    .fromTemplate(
+                            "Expected exactly one Data Store Server to be registered in openBIS but found %s.",
+                            dataStores.size());
+        }
+        return dataStores.get(0).getDownloadUrl();
     }
 }

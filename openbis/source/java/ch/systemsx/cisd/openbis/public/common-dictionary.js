@@ -325,6 +325,7 @@ var common = {
   DATA_SET_MENU_TYPES: "Types",
   DATA_SET_MENU_FILE_FORMATS: "File Types",
   DATA_SET_MENU_UPLOAD: "Upload",
+  DATA_SET_MENU_UPLOAD_CLIENT: "Batch Upload",
   DATA_SET_MENU_MASS_UPDATE: "Batch Update",
   data_set_batch_update: "Batch Update",
   

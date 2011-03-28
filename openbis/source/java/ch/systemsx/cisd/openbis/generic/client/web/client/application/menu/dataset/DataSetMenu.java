@@ -16,7 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.dataset;
 
+import com.extjs.gxt.ui.client.event.MenuEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
+import com.extjs.gxt.ui.client.widget.menu.MenuItem;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Window;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -27,6 +32,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.Actio
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenuItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 
 /**
  * Data Set top menu.
@@ -59,6 +66,24 @@ public class DataSetMenu extends TopMenuItem
             submenu.add(new ActionMenu(TopMenu.ActionMenuKind.DATA_SET_MENU_UPLOAD,
                     messageProvider, componentProvider.getDataSetUploadTab(null)));
         }
+
+        SelectionListener<? extends MenuEvent> listener = new SelectionListener<MenuEvent>()
+            {
+                @Override
+                public void componentSelected(MenuEvent ce)
+                {
+                    final URLMethodWithParameters urlParams =
+                            new URLMethodWithParameters(BasicConstant.DATA_SET_UPLOAD_CLIENT_PATH);
+                    String sessionToken = viewContext.getModel().getSessionContext().getSessionID();
+                    urlParams.addParameter("session", sessionToken);
+                    urlParams.addParameter(BasicConstant.SERVER_URL_PARAMETER,
+                            GWT.getHostPageBaseURL());
+                    Window.open(urlParams.toString(), "_blank",
+                            "resizable=yes,scrollbars=yes,dependent=yes");
+                }
+            };
+        submenu.add(new MenuItem(TopMenu.ActionMenuKind.DATA_SET_MENU_UPLOAD_CLIENT
+                .getMenuText(messageProvider), listener));
         setMenu(submenu);
     }
 }

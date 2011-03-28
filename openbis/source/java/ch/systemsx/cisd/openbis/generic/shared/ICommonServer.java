@@ -1255,4 +1255,11 @@ public interface ICommonServer extends IServer
     public void updateManagedPropertyOnMaterial(String sessionToken, TechId experimentId,
             IManagedProperty managedProperty, IManagedUiAction updateAction);
 
+    /**
+     * Get the default url for data store put.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public String getDefaultPutDataStoreBaseURL(String sessionToken);
+
 }

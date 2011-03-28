@@ -84,6 +84,12 @@ public class BasicConstant
 
     public static final String PARENT_CHILD_INTERNAL_RELATIONSHIP = "$PARENT_CHILD";
 
+    public static final String SERVER_URL_PARAMETER = "server-url";
+
+    public static final String CODEBASE_PARAMETER = "codebase-url";
+
+    public static final String DATA_SET_UPLOAD_CLIENT_PATH = "data-set-uploader-launch.jnlp";
+
     private BasicConstant()
     {
     }

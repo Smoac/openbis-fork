@@ -1002,4 +1002,10 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 "ID(%s) PROPERTY(%s) ACTION(%s)", materialId,
                 managedProperty.getPropertyTypeCode(), updateAction.getName());
     }
+
+    public String getDefaultPutDataStoreBaseURL(String sessionToken)
+    {
+        logAccess(sessionToken, "getDefaultPutDataStoreBaseURL");
+        return null;
+    }
 }

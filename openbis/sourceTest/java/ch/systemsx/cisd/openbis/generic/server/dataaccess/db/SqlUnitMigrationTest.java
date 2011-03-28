@@ -60,8 +60,8 @@ public final class SqlUnitMigrationTest
 
     private static final String BASE_DATA_FOLDER_TEMPLATE = "sourceTest/sql/%s/";
 
-    private static final File unitTestRootDirectory =
-            new File("targets" + File.separator + "unit-test-wd");
+    private static final File unitTestRootDirectory = new File("targets" + File.separator
+            + "unit-test-wd");
 
     private String getDataFolder(final DatabaseConfigurationContext context)
     {
@@ -155,6 +155,18 @@ public final class SqlUnitMigrationTest
         public String toString()
         {
             return "MyDataSource[" + driver + ", " + url + ", " + owner + "]";
+        }
+
+        public boolean isWrapperFor(Class<?> arg0) throws SQLException
+        {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+        public <T> T unwrap(Class<T> arg0) throws SQLException
+        {
+            // TODO Auto-generated method stub
+            return null;
         }
 
     }

@@ -30,13 +30,11 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
@@ -62,7 +60,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -356,17 +353,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     public String getDefaultPutDataStoreBaseURL(String sessionToken)
     {
-        checkSession(sessionToken);
-        IDataStoreDAO dataStoreDAO = getDAOFactory().getDataStoreDAO();
-        List<DataStorePE> dataStores = dataStoreDAO.listDataStores();
-        if (dataStores.size() != 1)
-        {
-            throw EnvironmentFailureException
-                    .fromTemplate(
-                            "Expected exactly one Data Store Server to be registered in openBIS but found %s.",
-                            dataStores.size());
-        }
-        return dataStores.get(0).getDownloadUrl();
+        return commonServer.getDefaultPutDataStoreBaseURL(sessionToken);
     }
 
     public String tryGetDataStoreBaseURL(String sessionToken, String dataSetCode)
