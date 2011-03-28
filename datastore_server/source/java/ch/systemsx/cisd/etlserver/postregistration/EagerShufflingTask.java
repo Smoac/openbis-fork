@@ -31,6 +31,7 @@ import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
@@ -160,6 +161,8 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
             shareWithMostFreeOrNull = finder.tryToFindShare(dataSet, shares);
             if (shareWithMostFreeOrNull == null)
             {
+                logger.log(LogLevel.WARN, "No share found for shuffling data set " + dataSetCode
+                        + ".");
                 return new NoCleanupTask();
             }
             return new NoCleanupTask();
@@ -178,6 +181,9 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
                 dataSetMover.moveDataSetToAnotherShare(
                         new File(share, dataSet.getDataSetLocation()),
                         shareWithMostFreeOrNull.getShare(), logger);
+                logger.log(LogLevel.INFO, "Data set " + dataSetCode
+                        + " succesffully moved from share " + dataSet.getDataSetShareId() + " to "
+                        + shareWithMostFreeOrNull.getShareId() + ".");
             }
         }
     }

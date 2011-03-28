@@ -39,6 +39,7 @@ import ch.systemsx.cisd.common.filesystem.HostAwareFile;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
+import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.etlserver.plugins.IDataSetMover;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -115,6 +116,7 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
         prepareFreeSpaceProvider(hostAwareFileMatcher, 200, 100, 300, 400);
         prepareListDataSets();
         prepareGetShareId();
+        RecordingMatcher<String> infoMessageMatcher = prepareLogging(LogLevel.INFO);
         context.checking(new Expectations()
             {
                 {
@@ -126,6 +128,8 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
         executor.createCleanupTask();
         executor.execute();
         
+        assertEquals("Data set ds-1 succesffully moved from share 1 to 4.",
+                infoMessageMatcher.recordedObject());
         assertHostAwareFile(hostAwareFileMatcher);
         context.assertIsSatisfied();
     }
@@ -139,6 +143,7 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
         prepareFreeSpaceProvider(hostAwareFileMatcher, 200, 100, 10, 0);
         prepareListDataSets();
         prepareGetShareId();
+        RecordingMatcher<String> infoMessageMatcher = prepareLogging(LogLevel.INFO);
         context.checking(new Expectations()
             {
                 {
@@ -150,6 +155,8 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
         executor.createCleanupTask();
         executor.execute();
 
+        assertEquals("Data set ds-1 succesffully moved from share 1 to 2.",
+                infoMessageMatcher.recordedObject());
         assertHostAwareFile(hostAwareFileMatcher);
         context.assertIsSatisfied();
     }
@@ -162,13 +169,28 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
                 new RecordingMatcher<HostAwareFile>();
         prepareFreeSpaceProvider(hostAwareFileMatcher, 200, 10, 10, 0);
         prepareListDataSets();
+        RecordingMatcher<String> logMessageMatcher = prepareLogging(LogLevel.WARN);
         
         IPostRegistrationTaskExecutor executor = task.createExecutor(DATA_SET_CODE1);
         executor.createCleanupTask();
         executor.execute();
         
+        assertEquals("No share found for shuffling data set ds-1.",
+                logMessageMatcher.recordedObject());
         assertHostAwareFile(hostAwareFileMatcher);
         context.assertIsSatisfied();
+    }
+
+    private RecordingMatcher<String> prepareLogging(final LogLevel level)
+    {
+        final RecordingMatcher<String> logMessageMatcher = new RecordingMatcher<String>();
+        context.checking(new Expectations()
+            {
+                {
+                    one(logger).log(with(level), with(logMessageMatcher));
+                }
+            });
+        return logMessageMatcher;
     }
 
     private void prepareListDataSets()
