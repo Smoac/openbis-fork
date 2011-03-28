@@ -19,8 +19,11 @@ package ch.systemsx.cisd.etlserver.postregistration;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,10 +33,12 @@ import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.SerializationUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -60,6 +65,8 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
     @Private static final String CLEANUP_TASKS_FOLDER_PROPERTY = "cleanup-tasks-folder";
 
     private static final String DEFAULT_CLEANUP_TASKS_FOLDER = "clean-up-tasks";
+    
+    @Private static final String IGNORE_DATA_SETS = "ignore-data-sets-before-date";
     
     @Private static final String LAST_SEEN_DATA_SET_FILE_PROPERTY = "last-seen-data-set-file";
     
@@ -89,6 +96,8 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
     private File lastSeenDataSetFile;
 
     private File newLastSeenDataSetFile;
+
+    private Date ignoreBeforeDate;
 
     public boolean requiresDataStoreLock()
     {
@@ -131,6 +140,21 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
                         DEFAULT_LAST_SEEN_DATA_SET_FILE);
         lastSeenDataSetFile = new File(fileName);
         newLastSeenDataSetFile = new File(fileName + ".new");
+        String property = properties.getProperty(IGNORE_DATA_SETS);
+        if (property == null)
+        {
+            ignoreBeforeDate =  new Date(0);
+        } else
+        {
+            try
+            {
+                ignoreBeforeDate = DateUtils.parseDate(property, new String[] { "yyyy-MM-dd" });
+            } catch (ParseException ex)
+            {
+                throw new ConfigurationFailureException("Invalid value of property '"
+                        + IGNORE_DATA_SETS + "': " + property);
+            }
+        }
     }
 
     public void execute()
@@ -186,14 +210,22 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
         }
         TrackingDataSetCriteria criteria = new TrackingDataSetCriteria(lastSeenDataSetId);
         List<ExternalData> dataSets = service.listNewerDataSets(criteria);
-        Collections.sort(dataSets, new Comparator<ExternalData>()
+        List<ExternalData> filteredList = new ArrayList<ExternalData>();
+        for (ExternalData dataSet : dataSets)
+        {
+            if (dataSet.getRegistrationDate().getTime() > ignoreBeforeDate.getTime())
+            {
+                filteredList.add(dataSet);
+            }
+        }
+        Collections.sort(filteredList, new Comparator<ExternalData>()
             {
                 public int compare(ExternalData o1, ExternalData o2)
                 {
                     return (int) (o1.getId() - o2.getId());
                 }
             });
-        return dataSets;
+        return filteredList;
     }
 
     private void saveLastSeenDataSetId(long lastSeenDataSetId)

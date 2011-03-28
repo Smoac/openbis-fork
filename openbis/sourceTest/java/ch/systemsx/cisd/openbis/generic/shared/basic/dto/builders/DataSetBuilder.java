@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -88,6 +89,12 @@ public class DataSetBuilder
     public DataSetBuilder property(String key, String value)
     {
         property(key).value(value);
+        return this;
+    }
+    
+    public DataSetBuilder registrationDate(Date registrationDate)
+    {
+        dataSet.setRegistrationDate(registrationDate);
         return this;
     }
     

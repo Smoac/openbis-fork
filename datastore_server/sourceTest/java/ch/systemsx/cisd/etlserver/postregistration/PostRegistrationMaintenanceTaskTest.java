@@ -22,8 +22,11 @@ import static ch.systemsx.cisd.etlserver.postregistration.PostRegistrationMainte
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +44,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
@@ -189,19 +193,19 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
     {
         Properties properties = createDefaultProperties();
         final RecordingMatcher<TrackingDataSetCriteria> criteriaMatcher =
-                new RecordingMatcher<TrackingDataSetCriteria>();
+            new RecordingMatcher<TrackingDataSetCriteria>();
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(task1).requiresDataStoreLock();
-                    will(returnValue(true));
-                    one(task2).requiresDataStoreLock();
-                    will(returnValue(false));
-
-                    one(service).listNewerDataSets(with(criteriaMatcher));
-                    will(returnValue(Arrays.asList()));
-                }
-            });
+                one(task1).requiresDataStoreLock();
+                will(returnValue(true));
+                one(task2).requiresDataStoreLock();
+                will(returnValue(false));
+                
+                one(service).listNewerDataSets(with(criteriaMatcher));
+                will(returnValue(Arrays.asList()));
+            }
+        });
         FileUtilities.writeToFile(lastSeenDataSetFile, "42");
         
         PostRegistrationMaintenanceTask maintenanceTask = new PostRegistrationMaintenanceTask();
@@ -275,8 +279,8 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
                     will(returnValue(false));
 
                     one(service).listNewerDataSets(with(criteriaMatcher));
-                    DataSetBuilder ds1 = new DataSetBuilder(1).code("ds-1");
-                    DataSetBuilder ds2 = new DataSetBuilder(2).code("ds-2");
+                    DataSetBuilder ds1 = new DataSetBuilder(1).code("ds-1").registrationDate(new Date(4711));
+                    DataSetBuilder ds2 = new DataSetBuilder(2).code("ds-2").registrationDate(new Date(4711));
                     will(returnValue(Arrays.asList(ds2.getDataSet(), ds1.getDataSet())));
 
                     one(task1).createExecutor("ds-1");
@@ -329,6 +333,67 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
         context.assertIsSatisfied();
     }
 
+    @Test
+    public void testIgnoreBeforeDate()
+    {
+        Properties properties = createDefaultProperties();
+        properties.setProperty(PostRegistrationMaintenanceTask.IGNORE_DATA_SETS, "2011-03-01");
+        final RecordingMatcher<TrackingDataSetCriteria> criteriaMatcher =
+            new RecordingMatcher<TrackingDataSetCriteria>();
+        final Sequence sequence = context.sequence("tasks");
+        context.checking(new Expectations()
+        {
+            {
+                one(task1).requiresDataStoreLock();
+                will(returnValue(false));
+                one(task2).requiresDataStoreLock();
+                will(returnValue(false));
+                
+                one(service).listNewerDataSets(with(criteriaMatcher));
+                DataSetBuilder ds1 = new DataSetBuilder(1).code("ds-1");
+                try
+                {
+                    ds1.registrationDate(new SimpleDateFormat("yyyy-MM-dd").parse("2011-03-02"));
+                } catch (ParseException ex)
+                {
+                    throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+                }
+                DataSetBuilder ds2 = new DataSetBuilder(2).code("ds-2").registrationDate(new Date(42));
+                will(returnValue(Arrays.asList(ds2.getDataSet(), ds1.getDataSet())));
+                
+                one(task1).createExecutor("ds-1");
+                will(returnValue(executor1));
+                inSequence(sequence);
+                one(executor1).createCleanupTask();
+                will(returnValue(cleanupTask));
+                inSequence(sequence);
+                one(executor1).execute();
+                inSequence(sequence);
+                one(task2).createExecutor("ds-1");
+                will(returnValue(executor2));
+                inSequence(sequence);
+                one(executor2).createCleanupTask();
+                will(returnValue(cleanupTask));
+                inSequence(sequence);
+                one(executor2).execute();
+                inSequence(sequence);
+            }
+        });
+        
+        PostRegistrationMaintenanceTask maintenanceTask = new PostRegistrationMaintenanceTask();
+        maintenanceTask.setUp("post-registration", properties);
+        assertEquals(false, maintenanceTask.requiresDataStoreLock());
+        maintenanceTask.execute();
+        
+        assertEquals("", logRecorder.getLogContent());
+        assertEquals(0, criteriaMatcher.recordedObject().getLastSeenDataSetId());
+        assertEquals("1", FileUtilities.loadExactToString(lastSeenDataSetFile).trim());
+        assertEquals(0, cleanupInvocations.size());
+        assertEmptyCleanupTaskFolder();
+        assertNoUexpectedInvocations();
+        context.assertIsSatisfied();
+    }
+    
     
     @Test
     public void testExecuteWithExceptionThrown()
@@ -346,9 +411,9 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
                     will(returnValue(false));
 
                     one(service).listNewerDataSets(with(criteriaMatcher));
-                    DataSetBuilder ds1 = new DataSetBuilder(1).code("ds-1");
-                    DataSetBuilder ds2 = new DataSetBuilder(2).code("ds-2");
-                    DataSetBuilder ds3 = new DataSetBuilder(3).code("ds-3");
+                    DataSetBuilder ds1 = new DataSetBuilder(1).code("ds-1").registrationDate(new Date(4711));
+                    DataSetBuilder ds2 = new DataSetBuilder(2).code("ds-2").registrationDate(new Date(4711));
+                    DataSetBuilder ds3 = new DataSetBuilder(3).code("ds-3").registrationDate(new Date(4711));
                     will(returnValue(Arrays.asList(ds2.getDataSet(), ds3.getDataSet(), ds1.getDataSet())));
 
                     one(task1).createExecutor("ds-1");
