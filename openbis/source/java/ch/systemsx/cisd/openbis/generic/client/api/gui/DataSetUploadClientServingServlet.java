@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.api.gui;
+package ch.systemsx.cisd.openbis.generic.client.api.gui;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;

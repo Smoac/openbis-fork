@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.api.gui;
+package ch.systemsx.cisd.openbis.generic.client.api.gui;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
