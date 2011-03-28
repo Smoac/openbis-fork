@@ -76,7 +76,7 @@ public class NotifyingTaskTest extends AbstractFileSystemTestCase
             IOUtils.closeQuietly(inStream);
         }
         final DataSetBuilder dataSet = new DataSetBuilder().code(DATA_SET_CODE);
-        dataSet.property("MY-ID", "hello");
+        dataSet.property("IBRAIN-DATA-SET-ID", "ibrain-2");
         context.checking(new Expectations()
             {
                 {
@@ -90,7 +90,8 @@ public class NotifyingTaskTest extends AbstractFileSystemTestCase
         executor.execute();
         
         assertEquals(NoCleanupTask.class, cleanupTask.getClass());
-        assertEquals("data-set = ds-1\n" + "identifier = hello",
+        assertEquals("storage_provider.storage.status = STORAGE_SUCCESSFUL\n"
+                + "storage_provider.dataset.id = ds-1\n" + "ibrain2.dataset.id = ibrain-2",
                 FileUtilities.loadExactToString(new File("targets/notifyingTask.txt")));
         context.assertIsSatisfied();
     }
