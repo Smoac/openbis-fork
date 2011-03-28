@@ -193,7 +193,7 @@ public class DataSetUploadTableModel extends AbstractTableModel
             return;
         }
         selectedRow = selectedIndices.get(0);
-        NewDataSetInfo selectedDataSet = newDataSetInfos.get(selectedRow);
+        NewDataSetInfo selectedDataSet = getSelectedNewDataSetOrNull();
         selectNewDataSetInfo(selectedDataSet);
     }
 
@@ -341,7 +341,7 @@ public class DataSetUploadTableModel extends AbstractTableModel
 
     public void addNewDataSet()
     {
-        NewDataSetInfo newlyCreated = clientModel.addNewDataSetInfo();
+        NewDataSetInfo newlyCreated = clientModel.addNewDataSetInfo(getSelectedNewDataSetOrNull());
         syncNewDataSetInfos();
         ArrayList<Integer> selectedIndices = new ArrayList<Integer>();
         selectedIndices.add(clientModel.getNewDataSetInfos().size() - 1);
@@ -361,7 +361,7 @@ public class DataSetUploadTableModel extends AbstractTableModel
         {
             return;
         }
-        NewDataSetInfo dataSetInfoToRemove = newDataSetInfos.get(selectedRow);
+        NewDataSetInfo dataSetInfoToRemove = getSelectedNewDataSetOrNull();
 
         int newSelectedRow = Math.max(0, selectedRow - 1);
         ArrayList<Integer> selectedIndices = new ArrayList<Integer>();
@@ -403,8 +403,8 @@ public class DataSetUploadTableModel extends AbstractTableModel
         clientModel.queueUploadOfDataSet(newDataSetInfo);
     }
 
-    public NewDataSetInfo getSelectedNewDataSet()
+    public NewDataSetInfo getSelectedNewDataSetOrNull()
     {
-        return newDataSetInfos.get(selectedRow);
+        return (selectedRow < 0) ? null : newDataSetInfos.get(selectedRow);
     }
 }

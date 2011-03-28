@@ -226,11 +226,17 @@ public class DataSetUploadClientModel
     /**
      * Add a new data set info to the list of data set info objects and return it.
      */
-    public NewDataSetInfo addNewDataSetInfo()
+    public NewDataSetInfo addNewDataSetInfo(NewDataSetInfo template)
     {
         NewDataSetDTOBuilder newDataSetBuilder = new NewDataSetDTOBuilder();
-        String defaultDataSetTypeCode = getDefaultDataSetTypeCode();
-        newDataSetBuilder.getDataSetMetadata().setDataSetTypeOrNull(defaultDataSetTypeCode);
+        if (null == template)
+        {
+            String defaultDataSetTypeCode = getDefaultDataSetTypeCode();
+            newDataSetBuilder.getDataSetMetadata().setDataSetTypeOrNull(defaultDataSetTypeCode);
+        } else
+        {
+            newDataSetBuilder.initializeFromTemplate(template.getNewDataSetBuilder());
+        }
         NewDataSetInfo newDataSetInfo = new NewDataSetInfo(newDataSetBuilder, timeProvider);
         newDataSetInfos.add(newDataSetInfo);
         validateNewDataSetInfoAndNotifyObservers(newDataSetInfo);

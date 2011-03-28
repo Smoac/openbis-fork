@@ -71,6 +71,6 @@ public class UploadStatusTableCellEditor extends AbstractCellEditor implements T
 
     public Object getCellEditorValue()
     {
-        return tableModel.getSelectedNewDataSet();
+        return tableModel.getSelectedNewDataSetOrNull();
     }
 }

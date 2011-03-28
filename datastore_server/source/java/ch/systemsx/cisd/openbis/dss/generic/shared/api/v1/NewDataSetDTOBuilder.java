@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.api.v1;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
@@ -144,4 +145,21 @@ public class NewDataSetDTOBuilder
                 getFileInfos());
     }
 
+    /**
+     * Take over any appropriate values from the template.
+     */
+    public void initializeFromTemplate(NewDataSetDTOBuilder template)
+    {
+        DataSetOwner owner = template.getDataSetOwner();
+        setDataSetOwnerIdentifier(owner.getIdentifier());
+        setDataSetOwnerType(owner.getType());
+        setFile(template.getFile());
+        NewDataSetMetadataDTO otherMetadata = template.getDataSetMetadata();
+        dataSetMetadata.setDataSetTypeOrNull(otherMetadata.tryDataSetType());
+
+        // Create a new map initialized from the other properties (a shallow copy).
+        HashMap<String, String> otherProps =
+                new HashMap<String, String>(otherMetadata.getProperties());
+        dataSetMetadata.setProperties(otherProps);
+    }
 }
