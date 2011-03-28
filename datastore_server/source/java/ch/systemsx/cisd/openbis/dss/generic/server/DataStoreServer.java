@@ -34,6 +34,8 @@ import org.apache.log4j.Logger;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.bio.SocketConnector;
+import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.server.ssl.SslConnector;
 import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
@@ -213,6 +215,7 @@ public class DataStoreServer
         initializeRpcServices(context, applicationContext, configParameters);
         registerPluginServlets(context, configParameters.getPluginServlets());
         registerImageOverviewServlet(context, configParameters);
+        registerDssUploadClientHandler(thisServer, configParameters);
     }
 
     /**
@@ -299,6 +302,17 @@ public class DataStoreServer
         DatasetImageOverviewServlet.initConfiguration(configParameters.getProperties());
         context.addServlet(DatasetImageOverviewServlet.class, "/"
                 + DatasetImageOverviewUtilities.SERVLET_NAME + "/*");
+    }
+
+    private static void registerDssUploadClientHandler(Server thisServer,
+            ConfigParameters configParameters)
+    {
+        ResourceHandler resourceHandler = new ResourceHandler();
+        resourceHandler.setResourceBase(configParameters.getWebstartJarPath());
+        HandlerList handlers = new HandlerList();
+        handlers.addHandler(thisServer.getHandler());
+        handlers.addHandler(resourceHandler);
+        thisServer.setHandler(handlers);
     }
 
     private static Connector createSocketConnector(ConfigParameters configParameters)

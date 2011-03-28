@@ -369,8 +369,7 @@ class DssCommunicationState
      * Create a new instance of the DssCommunicationState based info in the arguments. Throws an
      * exception if it could not be created.
      */
-    protected DssCommunicationState(String[] args)
-            throws ch.systemsx.cisd.cifex.shared.basic.UserFailureException,
+    protected DssCommunicationState(String[] args) throws UserFailureException,
             EnvironmentFailureException
     {
         if (args.length < 2)

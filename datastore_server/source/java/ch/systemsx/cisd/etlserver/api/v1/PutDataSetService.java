@@ -319,11 +319,6 @@ class PutDataSetServiceInitializer
         params = Parameters.createParametersForApiUse();
     }
 
-    public DataSetTypeToPluginMapper getPluginMap()
-    {
-        return new DataSetTypeToPluginMapper(params);
-    }
-
     public DataSetTypeToRegistratorMapper getRegistratorMap(String shareId,
             IEncapsulatedOpenBISService openBisService, IMailClient mailClient)
     {

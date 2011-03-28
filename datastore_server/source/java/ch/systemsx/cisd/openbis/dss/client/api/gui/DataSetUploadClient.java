@@ -46,6 +46,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 
 /**
@@ -77,9 +78,7 @@ public class DataSetUploadClient extends AbstractSwingGUI
     /**
      * Read the arguments from the command line or WebStart and instantiates the GUI appropriately.
      */
-    public static void main(String[] args)
-            throws ch.systemsx.cisd.cifex.shared.basic.UserFailureException,
-            EnvironmentFailureException
+    public static void main(String[] args) throws UserFailureException, EnvironmentFailureException
     {
         // setLookAndFeelToNative();
         setLookAndFeelToMetal();

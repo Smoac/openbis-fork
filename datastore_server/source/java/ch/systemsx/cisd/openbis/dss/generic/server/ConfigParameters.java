@@ -80,6 +80,16 @@ final class ConfigParameters
 
     static final String PLUGIN_SERVICE_PATH_KEY = "path";
 
+    /**
+     * The path that contains the jars for webstart applications. This is used to initialize
+     * ResourceHandler, which is used to serve the jars.
+     * <p>
+     * If no value is supplied, this defaults to lib.
+     */
+    static final String WEBSTART_JAR_PATH = "webstart-jar-path";
+
+    private static final String WEBSTART_JAR_PATH_DEFAULT = "lib";
+
     // PropertyParametersUtil
 
     private final File storePath;
@@ -111,6 +121,8 @@ final class ConfigParameters
     private final List<PluginServlet> pluginServlets;
 
     private final Properties properties;
+
+    private final String webstartJarPath;
 
     public static final class PluginServlet
     {
@@ -186,6 +198,9 @@ final class ConfigParameters
                 PropertyUtils.getInt(properties, AUTH_CACHE_CLEANUP_TIMER_PERIOD,
                         DEFAULT_AUTH_CACHE_CLEANUP_TIMER_PERIOD_MINS);
         pluginServlets = extractPluginServletsProperties(properties);
+
+        webstartJarPath =
+                PropertyUtils.getProperty(properties, WEBSTART_JAR_PATH, WEBSTART_JAR_PATH_DEFAULT);
     }
 
     private static File getRpcIncomingDirectory(final Properties properties)
@@ -305,6 +320,11 @@ final class ConfigParameters
     public Properties getProperties()
     {
         return properties;
+    }
+
+    public String getWebstartJarPath()
+    {
+        return webstartJarPath;
     }
 
     public final void log()
