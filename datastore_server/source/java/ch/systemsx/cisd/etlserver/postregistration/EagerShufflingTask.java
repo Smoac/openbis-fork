@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
@@ -30,6 +31,8 @@ import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.ClassUtils;
+import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.ETLDaemon;
 import ch.systemsx.cisd.etlserver.plugins.DataSetMover;
@@ -49,6 +52,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
  */
 public class EagerShufflingTask extends AbstractPostRegistrationTask
 {
+    @Private static final String SHARE_FINDER_KEY = "share-finder";
+
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             EagerShufflingTask.class);
 
@@ -81,6 +86,8 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
     private final String dataStoreCode;
 
     private final Set<String> incomingShares;
+
+    private IShareFinder finder;
     
     public EagerShufflingTask(Properties properties, IEncapsulatedOpenBISService service)
     {
@@ -111,6 +118,10 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
                     "Store root does not exists or is not a directory: "
                             + storeRoot.getAbsolutePath());
         }
+        Properties props =
+                PropertyParametersUtil.extractSingleSectionProperties(properties, SHARE_FINDER_KEY,
+                        false).getProperties();
+        finder = ClassUtils.create(IShareFinder.class, props.getProperty("class"), props);
     }
 
     public boolean requiresDataStoreLock()
@@ -141,42 +152,12 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
             List<Share> shares =
                 SegmentedStoreUtils.getDataSetsPerShare(storeRoot, dataStoreCode,
                         freeSpaceProvider, service, logger);
-            dataSet = findDataSet(shares, dataSetCode);
-            Share incomingShareWithMostFree = null;
-            long incomingMaxFreeSpace = 0;
-            Share extensionShareWithMostFree = null;
-            long extensionsMaxFreeSpace = 0;
             for (Share share : shares)
             {
-                long freeSpace = share.calculateFreeSpace();
-                String shareId = share.getShareId();
-                if (dataSet.getDataSetShareId().equals(shareId))
-                {
-                    continue;
-                }
-                if (incomingShares.contains(shareId))
-                {
-                    if (freeSpace > incomingMaxFreeSpace)
-                    {
-                        incomingMaxFreeSpace = freeSpace;
-                        incomingShareWithMostFree = share;
-                    }
-                } else
-                {
-                    if (freeSpace > extensionsMaxFreeSpace)
-                    {
-                        extensionsMaxFreeSpace = freeSpace;
-                        extensionShareWithMostFree = share;
-                    }
-                }
+                share.setIncoming(incomingShares.contains(share.getShareId()));
             }
-            if (extensionShareWithMostFree != null)
-            {
-                shareWithMostFreeOrNull = extensionShareWithMostFree;
-            } else if (incomingShareWithMostFree != null)
-            {
-                shareWithMostFreeOrNull = incomingShareWithMostFree;
-            }
+            dataSet = findDataSet(shares, dataSetCode);
+            shareWithMostFreeOrNull = finder.tryToFindShare(dataSet, shares);
             if (shareWithMostFreeOrNull == null)
             {
                 return new NoCleanupTask();
@@ -199,9 +180,8 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
                         shareWithMostFreeOrNull.getShare(), logger);
             }
         }
-        
-        
     }
+    
     
 //    private static final class CleanupTask implements ICleanupTask
 //    {
