@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IArchiverPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDeleter;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataStoreServiceInternal;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
@@ -354,6 +355,12 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     {
         ArchiverPluginFactory factory = pluginTaskParameters.getArchiverPluginFactory();
         return factory.createInstance(storeRoot);
+    }
+    
+
+    public IDataSetDirectoryProvider getDataSetDirectoryProvider()
+    {
+        return new DataSetDirectoryProvider(storeRoot, shareIdManager);
     }
 
     private void scheduleTask(String sessionToken, String description,

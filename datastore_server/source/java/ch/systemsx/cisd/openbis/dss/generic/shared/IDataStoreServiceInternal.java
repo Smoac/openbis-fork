@@ -35,4 +35,9 @@ public interface IDataStoreServiceInternal extends IInitializable, IDataStoreSer
      * Return an {@link IArchiverPlugin} or null if none is configured.
      */
     IArchiverPlugin getArchiverPlugin();
+    
+    /**
+     * Returns the data set directory provider.
+     */
+    IDataSetDirectoryProvider getDataSetDirectoryProvider();
 }

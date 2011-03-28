@@ -19,7 +19,6 @@ package ch.systemsx.cisd.etlserver.postregistration;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus.AVAILABLE;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus.BACKUP_PENDING;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -28,13 +27,9 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.dss.generic.server.DataSetDirectoryProvider;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ArchiverPluginFactory;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProviders;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IArchiverPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -48,8 +43,6 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator
  */
 public class ArchivingPostRegistrationTask extends AbstractPostRegistrationTask
 {
-    private static PluginTaskProviders pluginTaskProviders;
-
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             ArchivingPostRegistrationTask.class);
 
@@ -88,7 +81,7 @@ public class ArchivingPostRegistrationTask extends AbstractPostRegistrationTask
         public void execute()
         {
 
-            IArchiverPlugin archiver = tryCreateArchiver();
+            IArchiverPlugin archiver = ServiceProvider.getDataStoreService().getArchiverPlugin();
             if (archiver == null)
             {
                 // no archiver is configured
@@ -141,32 +134,8 @@ public class ArchivingPostRegistrationTask extends AbstractPostRegistrationTask
 
     private static ArchiverTaskContext createArchiverContext()
     {
-        File storeRoot = getPluginProviders().getStoreRoot();
-        IShareIdManager shareIdManager = ServiceProvider.getShareIdManager();
-        return new ArchiverTaskContext(new DataSetDirectoryProvider(storeRoot, shareIdManager));
+        return new ArchiverTaskContext(ServiceProvider.getDataStoreService().getDataSetDirectoryProvider());
     }
-
-    private static IArchiverPlugin tryCreateArchiver()
-    {
-        PluginTaskProviders pluginProviders = getPluginProviders();
-        ArchiverPluginFactory archiverFactory = pluginProviders.getArchiverPluginFactory();
-        if (archiverFactory.isArchiverConfigured() == false)
-        {
-            return null;
-        }
-
-        return archiverFactory.createInstance(pluginProviders.getStoreRoot());
-    }
-
-    private static PluginTaskProviders getPluginProviders()
-    {
-        if (pluginTaskProviders == null)
-        {
-            pluginTaskProviders = PluginTaskProviders.create();
-        }
-        return pluginTaskProviders;
-    }
-
 
     private static class ArchivingCleanupTask implements ICleanupTask
     {
@@ -192,7 +161,7 @@ public class ArchivingPostRegistrationTask extends AbstractPostRegistrationTask
                 return;
             }
             
-            IArchiverPlugin archiver = tryCreateArchiver();
+            IArchiverPlugin archiver = ServiceProvider.getDataStoreService().getArchiverPlugin();
             DatasetDescription dataSet = tryGetDatasetDescription(dataSetCode, openBISService);
             if (archiver != null && dataSet != null)
             {
