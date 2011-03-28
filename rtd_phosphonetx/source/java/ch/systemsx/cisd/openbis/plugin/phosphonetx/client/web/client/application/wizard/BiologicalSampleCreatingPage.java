@@ -106,7 +106,7 @@ public class BiologicalSampleCreatingPage extends WizardPage<MsInjectionSampleAn
                     }
                 });
         formPanel.add(sampleTypeSelectionWidget);
-        addToRightContent(formPanel, new RowData(1, 500, new Margins(10)));
+        addToRightContent(formPanel, new RowData(1, 600, new Margins(10)));
     }
 
     protected void onSampleTypeChanged(SampleType type)
