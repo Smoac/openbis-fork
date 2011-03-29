@@ -37,7 +37,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.u
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 
 /**
- * A {@link MaterialBrowserGrid} extension for showing materials used in wells of an experiment.
+ * A {@link MaterialBrowserGrid} extension for showing all materials used in wells of an experiment.
+ * Called "Library Index".
  * 
  * @author Piotr Buczek
  */
