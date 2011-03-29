@@ -92,7 +92,7 @@ public class NotifyingTaskTest extends AbstractFileSystemTestCase
         assertEquals(NoCleanupTask.class, cleanupTask.getClass());
         assertEquals("storage_provider.storage.status = STORAGE_SUCCESSFUL\n"
                 + "storage_provider.dataset.id = ds-1\n" + "ibrain2.dataset.id = ibrain-2",
-                FileUtilities.loadExactToString(new File("targets/notifyingTask.txt")));
+                FileUtilities.loadExactToString(new File("targets/ibrain-ibrain-2.txt")));
         context.assertIsSatisfied();
     }
 }
