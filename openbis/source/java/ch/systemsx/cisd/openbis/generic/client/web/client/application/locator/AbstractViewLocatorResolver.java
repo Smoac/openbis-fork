@@ -1,6 +1,5 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.locator;
 
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
@@ -44,6 +43,19 @@ public abstract class AbstractViewLocatorResolver implements IViewLocatorResolve
             return null;
         }
         return new Boolean(value);
+    }
+
+    protected static final boolean getOptionalBooleanParameter(ViewLocator locator,
+            String paramName, boolean defaultValue)
+    {
+        Boolean valueOrNull = getOptionalBooleanParameter(locator, paramName);
+        if (valueOrNull == null)
+        {
+            return defaultValue;
+        } else
+        {
+            return valueOrNull.booleanValue();
+        }
     }
 
     protected static final String getMandatoryParameter(ViewLocator locator, String paramName)
