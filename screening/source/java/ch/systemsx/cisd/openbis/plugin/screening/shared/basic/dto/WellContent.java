@@ -154,7 +154,13 @@ public class WellContent implements ISerializable
 
     public List<IEntityProperty> getWellProperties()
     {
-        return Collections.unmodifiableList(wellProperties);
+        if (wellProperties == null)
+        {
+            return null;
+        } else
+        {
+            return Collections.unmodifiableList(wellProperties);
+        }
     }
 
     public void setWellProperties(List<IEntityProperty> properties)
