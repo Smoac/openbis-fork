@@ -142,7 +142,7 @@ class RegistrationConfirmationUtils:
 	CONFIRMATION_DIRECTORY = "registration-status"
 	
 	STATUS_PROPERTY = "storage_provider.storage.status"
-	STATUS_OK = "STORAGE_SUCCESS"
+	STATUS_OK = "STORAGE_SUCCESSFUL"
 	STATUS_ERROR = "STORAGE_FAILED"
 	ERROR_MSG_PROPERTY = "storage_provider.message"
 
