@@ -37,12 +37,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClientModel.NewDataSetInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTOBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
@@ -51,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPr
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyTypeGroup;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -156,6 +159,9 @@ public class DataSetPropertiesPanel extends JPanel
         if (propertyType instanceof ControlledVocabularyPropertyType)
         {
             formField = createComboBox((ControlledVocabularyPropertyType) propertyType);
+        } else if (propertyType.getDataType() == DataTypeCode.BOOLEAN)
+        {
+            formField = createCheckBox(propertyType);
         } else
         {
             formField = createTextField(propertyType);
@@ -210,6 +216,23 @@ public class DataSetPropertiesPanel extends JPanel
 
             });
         return comboBox;
+    }
+
+    private JComponent createCheckBox(final PropertyType propertyType)
+    {
+        final JCheckBox checkBox = new JCheckBox();
+
+        checkBox.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    setPropertyValue(propertyType,
+                            checkBox.isSelected() ? PropertyUtils.Boolean.TRUE.toString()
+                                    : PropertyUtils.Boolean.FALSE.toString());
+                }
+
+            });
+        return checkBox;
     }
 
     private String getLabelStringForPropertyType(PropertyType propertyType)

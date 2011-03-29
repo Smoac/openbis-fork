@@ -361,9 +361,10 @@ public class DataSetUploadTableModel extends AbstractTableModel
         {
             return;
         }
+
         NewDataSetInfo dataSetInfoToRemove = getSelectedNewDataSetOrNull();
 
-        int newSelectedRow = Math.max(0, selectedRow - 1);
+        int newSelectedRow = -1;
         ArrayList<Integer> selectedIndices = new ArrayList<Integer>();
         selectedIndices.add(newSelectedRow);
         setSelectedIndices(selectedIndices);

@@ -166,6 +166,7 @@ public class DataSetUploadClient extends AbstractSwingGUI
         spacer.setPreferredSize(new Dimension(15, 15));
         window.add(spacer, BorderLayout.SOUTH);
         window.pack();
+        window.setBounds(20, 40, 600, 400);
         window.setLocationByPlatform(true);
         window.setVisible(true);
 
@@ -283,7 +284,7 @@ public class DataSetUploadClient extends AbstractSwingGUI
         column.setPreferredWidth(200);
 
         column = fileTable.getColumnModel().getColumn(DataSetUploadTableModel.UPLOAD_STATUS_COLUMN);
-        column.setPreferredWidth(150);
+        column.setPreferredWidth(200);
         column.setCellRenderer(new UploadStatusTableCellRenderer(tableModel));
         column.setCellEditor(new UploadStatusTableCellEditor(tableModel));
         JScrollPane scrollPane = new JScrollPane(fileTable);

@@ -41,7 +41,8 @@ public class UploadStatusTableCellRenderer implements TableCellRenderer
 
     private final JPanel uploadPanel = new JPanel();
 
-    private final JLabel fixErrorsLabel = new JLabel("Incomplete (see fields in red)");
+    private final JLabel fixErrorsLabel = new JLabel(
+            "<html>Incomplete<br>(see fields in red)</html>");
 
     private final JPanel fixErrorsPanel = new JPanel();
 
@@ -76,6 +77,8 @@ public class UploadStatusTableCellRenderer implements TableCellRenderer
         fixErrorsPanel.setLayout(new GridLayout(1, 0));
         fixErrorsLabel.setFont(fixErrorsLabel.getFont().deriveFont(Font.PLAIN));
         fixErrorsLabel.setForeground(Color.RED);
+        fixErrorsLabel
+                .setToolTipText("Fields marked in red have not been specified correctly. Place the mouse over the field for a description of the error.");
         fixErrorsPanel.add(fixErrorsLabel);
         fixErrorsPanel.setOpaque(true);
     }

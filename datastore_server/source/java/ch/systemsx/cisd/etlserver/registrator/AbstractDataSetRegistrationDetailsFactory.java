@@ -17,12 +17,13 @@
 package ch.systemsx.cisd.etlserver.registrator;
 
 import java.io.File;
+import java.util.List;
 
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSet;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
@@ -77,8 +78,7 @@ public abstract class AbstractDataSetRegistrationDetailsFactory<T extends DataSe
      */
     protected void applyUserProvidedValues(T dataSetInfo)
     {
-        SampleIdentifier sampleId =
-                userProvidedDataSetInformationOrNull.getSampleIdentifier();
+        SampleIdentifier sampleId = userProvidedDataSetInformationOrNull.getSampleIdentifier();
         if (null != sampleId)
         {
             dataSetInfo.setSampleCode(sampleId.getSampleCode());
@@ -99,10 +99,10 @@ public abstract class AbstractDataSetRegistrationDetailsFactory<T extends DataSe
             dataSetInfo.setDataSetType(type);
         }
 
-        IEntityProperty[] props = userProvidedDataSetInformationOrNull.getProperties();
-        if (0 < props.length)
+        List<NewProperty> props = userProvidedDataSetInformationOrNull.getDataSetProperties();
+        if (false == props.isEmpty())
         {
-            dataSetInfo.setProperties(props);
+            dataSetInfo.setDataSetProperties(props);
         }
     }
 

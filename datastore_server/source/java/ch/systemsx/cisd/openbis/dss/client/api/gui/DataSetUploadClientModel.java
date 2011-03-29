@@ -36,10 +36,13 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTOBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.PropertyValidator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.PropertyValidator.IDataTypeValidator;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyTypeGroup;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -453,7 +456,7 @@ public class DataSetUploadClientModel
         }
     }
 
-    private void validatePropertyType(PropertyType propertyType, String valueOrNull,
+    protected void validatePropertyType(PropertyType propertyType, String valueOrNull,
             ArrayList<ValidationError> errors)
     {
         if (null == valueOrNull || valueOrNull.trim().length() < 1)
@@ -463,7 +466,47 @@ public class DataSetUploadClientModel
                 errors.add(ValidationError.createPropertyValidationError(propertyType.getCode(),
                         "A value must be provided."));
             }
+
+            // Otherwise, we can ignore this.
+            return;
         }
 
+        if (propertyType.getDataType() == DataTypeCode.INTEGER)
+        {
+            validatePropertyTypeWithValidator(propertyType, valueOrNull, errors,
+                    new PropertyValidator.IntegerValidator());
+        }
+
+        if (propertyType.getDataType() == DataTypeCode.REAL)
+        {
+            validatePropertyTypeWithValidator(propertyType, valueOrNull, errors,
+                    new PropertyValidator.RealValidator());
+        }
+
+        if (propertyType.getDataType() == DataTypeCode.BOOLEAN)
+        {
+            validatePropertyTypeWithValidator(propertyType, valueOrNull, errors,
+                    new PropertyValidator.BooleanValidator());
+        }
+
+        if (propertyType.getDataType() == DataTypeCode.TIMESTAMP)
+        {
+            validatePropertyTypeWithValidator(propertyType, valueOrNull, errors,
+                    new PropertyValidator.TimestampValidator());
+        }
+
+    }
+
+    private void validatePropertyTypeWithValidator(PropertyType propertyType, String valueOrNull,
+            ArrayList<ValidationError> errors, IDataTypeValidator validator)
+    {
+        try
+        {
+            validator.validate(valueOrNull);
+        } catch (UserFailureException e)
+        {
+            errors.add(ValidationError.createPropertyValidationError(propertyType.getCode(),
+                    e.getMessage()));
+        }
     }
 }

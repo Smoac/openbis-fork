@@ -18,6 +18,7 @@ package ch.systemsx.cisd.etlserver.registrator;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
@@ -44,6 +45,27 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
 /**
  * A service that registers many files as individual data sets in one transaction.
  * 
+ * @author Chandrasekhar Ramakrishnan
+ */
+/**
+ * 
+ *
+ * @author Chandrasekhar Ramakrishnan
+ */
+/**
+ * 
+ *
+ * @author Chandrasekhar Ramakrishnan
+ */
+/**
+ * 
+ *
+ * @author Chandrasekhar Ramakrishnan
+ */
+/**
+ * @author Chandrasekhar Ramakrishnan
+ */
+/**
  * @author Chandrasekhar Ramakrishnan
  */
 public class DataSetRegistrationService<T extends DataSetInformation> implements
@@ -87,6 +109,11 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     private final File incomingDataSetFile;
 
     private final ITopLevelDataSetRegistratorDelegate delegate;
+
+    /**
+     * Keep track of errors we encounter while processing. Clients may want this information.
+     */
+    private final ArrayList<Throwable> encounteredErrors = new ArrayList<Throwable>();
 
     /**
      * All transactions ever created on this service.
@@ -236,6 +263,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     public void rollbackTransaction(DataSetRegistrationTransaction<T> transaction,
             DataSetStorageAlgorithmRunner<T> algorithm, Throwable ex)
     {
+        encounteredErrors.add(ex);
         registrator.rollbackTransaction(this, transaction, algorithm, ex);
     }
 
@@ -286,6 +314,23 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     public IEntityOperationService<T> getEntityRegistrationService()
     {
         return new DefaultEntityOperationService<T>(registrator, delegate);
+    }
+
+    /**
+     * Return true if errors happend while processing the service.
+     */
+    public boolean didErrorsArise()
+    {
+        return encounteredErrors.isEmpty() == false;
+    }
+
+    /**
+     * Return the list of errors that were encountered. If didErrorsArise is false, this list will
+     * be empty, otherwise there will be at least one element.
+     */
+    public List<Throwable> getEncounteredErrors()
+    {
+        return encounteredErrors;
     }
 
     protected IDataSetRegistrationDetailsFactory<T> getDataSetRegistrationDetailsFactory()
@@ -372,6 +417,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
 
     public void rollback(DataSetRegistrationAlgorithm algorithm, Throwable ex)
     {
+        encounteredErrors.add(ex);
         registrator.rollback(this, algorithm, ex);
     }
 

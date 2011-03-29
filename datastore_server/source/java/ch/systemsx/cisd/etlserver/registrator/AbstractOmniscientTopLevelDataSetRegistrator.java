@@ -264,11 +264,21 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             return;
         }
 
-        handle(incomingDataSetFile, callerDataSetInformation, delegate,
-                new DoNothingDelegatedAction());
+        DataSetRegistrationService<T> service =
+                handle(incomingDataSetFile, callerDataSetInformation, delegate,
+                        new DoNothingDelegatedAction());
+        if (service.didErrorsArise())
+        {
+            throw new EnvironmentFailureException("Could not process file "
+                    + incomingDataSetFile.getName(), service.getEncounteredErrors().get(0));
+        }
     }
 
-    private void handle(File incomingDataSetFile,
+    /**
+     * Set up the infrastructure and forward control to subclasses. Clients can query the service
+     * for information about what happened.
+     */
+    private DataSetRegistrationService<T> handle(File incomingDataSetFile,
             DataSetInformation callerDataSetInformationOrNull,
             ITopLevelDataSetRegistratorDelegate delegate,
             final IDelegatedActionWithResult<Boolean> cleanAfterwardsAction)
@@ -286,6 +296,8 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             operationLog.error("Could not process file " + incomingDataSetFile, ex);
             rollback(service, ex);
         }
+
+        return service;
     }
 
     public boolean isStopped()
