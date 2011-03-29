@@ -96,8 +96,8 @@ public class DataSetUploadClientServingServlet extends AbstractWebStartClientSer
             if (null == codebaseUrl)
             {
                 codebaseUrl =
-                        server.getDefaultPutDataStoreBaseURL(getSessionToken(request)) + "/"
-                                + UPLOAD_GUI_PATH;
+                        server.getDefaultPutDataStoreBaseURL(getSessionToken(request))
+                                + "/datastore_server/" + UPLOAD_GUI_PATH;
             }
         }
 
