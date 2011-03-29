@@ -119,7 +119,7 @@ public class LoadImagesScreeningClientApiTest
                     {
                         return out;
                     }
-                });
+                }, false);
         } finally
         {
             out.close();
