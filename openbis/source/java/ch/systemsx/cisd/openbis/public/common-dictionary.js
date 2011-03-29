@@ -126,6 +126,7 @@ var common = {
   login_passwordLabel: "Password",
   login_buttonLabel: "Login",
   login_failed: "Sorry, you entered an invalid username or password. Please try again.",
+  anonymous_login_failed: "Anonymous login is not possible.",
   
   //
   // AbstractAsyncCallback
