@@ -72,7 +72,7 @@ public abstract class AbstractDataSetsSection extends DisposableTabContent
     protected void initWidgets(AbstractExternalDataGrid browser)
     {
         getHeader().addTool(reportSelectionWidget);
-        if (viewContext.isSimpleMode() == false)
+        if (viewContext.isSimpleOrEmbeddedMode() == false)
         {
             // processing plugins should be hidden in simple view mode
             viewContext.getCommonService().listDataStoreServices(DataStoreServiceKind.PROCESSING,

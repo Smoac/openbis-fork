@@ -78,7 +78,7 @@ public final class ProjectViewer extends AbstractViewer<IEntityInformationHolder
 
     private void extendToolBar()
     {
-        if (viewContext.isSimpleMode())
+        if (viewContext.isSimpleOrEmbeddedMode())
         {
             return;
         }

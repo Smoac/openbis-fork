@@ -57,7 +57,7 @@ public class WelcomePanelHelper
 
     private static final String getWelcomePageBaseName(IViewContext<?> viewContext)
     {
-        return viewContext.isSimpleMode() ? SIMPLE_VIEW_MODE_PAGE_BASE_NAME
+        return viewContext.isSimpleOrEmbeddedMode() ? SIMPLE_VIEW_MODE_PAGE_BASE_NAME
                 : APPLICATION_VIEW_MODE_PAGE_BASE_NAME;
     }
 

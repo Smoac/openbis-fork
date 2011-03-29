@@ -243,7 +243,7 @@ class ImagingDatasetGuiUtils
         private void updateFeatureVectorDatasetSimpleViewModeLink(
                 final SimpleModelComboBox<FeatureVectorDataset> datasetChooser, final Anchor anchor)
         {
-            if (viewContext.isSimpleMode())
+            if (viewContext.isSimpleOrEmbeddedMode())
             {
                 anchor.setHref("#" + createDatasetSimpleViewModeHref(datasetChooser));
             }
@@ -372,7 +372,7 @@ class ImagingDatasetGuiUtils
                 final SimpleModelComboBox<ImageDatasetEnrichedReference> imageDatasetChooser,
                 final Anchor anchor)
         {
-            if (viewContext.isSimpleMode())
+            if (viewContext.isSimpleOrEmbeddedMode())
             {
                 anchor.setHref("#" + createImageDatasetSimpleViewModeHref(imageDatasetChooser));
             }

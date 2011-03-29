@@ -281,7 +281,7 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
                 createSelectedItemButton(showAllVersionsTitle, asShowEntityInvoker(false));
         addButton(showAllVersionsButton);
 
-        if (viewContext.isSimpleMode() == false)
+        if (viewContext.isSimpleOrEmbeddedMode() == false)
         {
             addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
                     new ISelectedEntityInvoker<BaseEntityModel<AttachmentVersions>>()

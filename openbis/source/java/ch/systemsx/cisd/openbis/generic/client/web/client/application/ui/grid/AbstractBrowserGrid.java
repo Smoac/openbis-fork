@@ -421,7 +421,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     protected final void registerLinkClickListenerFor(final String columnID,
             final ICellListener<T> listener)
     {
-        if (viewContext.isSimpleMode() == false)
+        if (viewContext.isSimpleOrEmbeddedMode() == false)
         {
             columnListener.registerLinkClickListener(columnID, listener);
         }

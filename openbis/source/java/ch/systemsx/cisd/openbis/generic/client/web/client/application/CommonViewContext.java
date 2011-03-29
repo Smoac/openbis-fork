@@ -57,7 +57,7 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
         }
 
         /**
-         * @deprecated use {@link IViewContext#isSimpleMode()} instead where possible
+         * @deprecated use {@link IViewContext#isSimpleOrEmbeddedMode()} instead where possible
          */
         @Deprecated
         public static boolean isSimpleMode()
@@ -255,7 +255,7 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
         return profilingTable.isLoggingEnabled();
     }
 
-    public boolean isSimpleMode()
+    public boolean isSimpleOrEmbeddedMode()
     {
         return ClientStaticState.isSimpleMode();
     }

@@ -138,7 +138,7 @@ public final class SearchWidget extends LayoutContainer
         textField.setValue("");
 
         SearchableEntity selectedEntity = entityChooser.getSelectedSearchableEntity();
-        if (viewContext.isSimpleMode())
+        if (viewContext.isSimpleOrEmbeddedMode())
         {
             // redirect to another URL
             String entityDescription = (selectedEntity != null) ? selectedEntity.getName() : null;

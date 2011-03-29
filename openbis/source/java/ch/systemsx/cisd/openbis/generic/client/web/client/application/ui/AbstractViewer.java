@@ -100,7 +100,7 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
             titleLabel = new LabelToolItem(title);
             toolBar.add(titleLabel);
             toolBar.add(new FillToolItem());
-            if (viewContext.isSimpleMode() == false)
+            if (viewContext.isSimpleOrEmbeddedMode() == false)
             {
                 addToolBarButton(createEditButton());
             }

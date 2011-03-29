@@ -167,7 +167,7 @@ public class ExperimentBrowserGrid extends
 
     private void extendBottomToolbar()
     {
-        if (viewContext.isSimpleMode())
+        if (viewContext.isSimpleOrEmbeddedMode())
         {
             return;
         }

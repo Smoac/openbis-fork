@@ -82,7 +82,7 @@ public class ColumnSettingsDialog extends Dialog
 
         final IDelegatedAction onCloseAction;
 
-        if (viewContext.isSimpleMode() == false)
+        if (viewContext.isSimpleOrEmbeddedMode() == false)
         {
             final IDisposableComponent columns =
                     GridCustomColumnGrid

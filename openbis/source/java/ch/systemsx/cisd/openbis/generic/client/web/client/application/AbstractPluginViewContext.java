@@ -207,8 +207,8 @@ public abstract class AbstractPluginViewContext<T extends IClientServiceAsync> i
 
     }
 
-    public boolean isSimpleMode()
+    public boolean isSimpleOrEmbeddedMode()
     {
-        return commonViewContext.isSimpleMode();
+        return commonViewContext.isSimpleOrEmbeddedMode();
     }
 }

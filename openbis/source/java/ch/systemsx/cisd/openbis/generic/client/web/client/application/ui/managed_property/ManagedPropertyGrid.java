@@ -102,7 +102,7 @@ public class ManagedPropertyGrid extends TypedTableGrid<ReportRowModel>
     // adds action buttons
     private void extendBottomToolbar()
     {
-        if (viewContext.isSimpleMode())
+        if (viewContext.isSimpleOrEmbeddedMode())
         {
             return;
         }

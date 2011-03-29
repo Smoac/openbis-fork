@@ -440,7 +440,7 @@ public class WellContentDialog extends Dialog
                 }
             };
         Anchor link = (Anchor) LinkRenderer.getLinkWidget(material.getCode(), listener, href);
-        if (viewContext.isSimpleMode())
+        if (viewContext.isSimpleOrEmbeddedMode())
         {
             link.addClickHandler(new ClickHandler()
                 {

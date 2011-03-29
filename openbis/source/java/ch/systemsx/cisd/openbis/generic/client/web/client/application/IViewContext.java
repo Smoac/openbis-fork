@@ -33,7 +33,7 @@ public interface IViewContext<T extends IClientServiceAsync> extends IMessagePro
         IProfilingTable
 {
     public void addMessageSource(String messageSource);
-    
+
     public String getTechnology();
 
     public IViewContext<ICommonClientServiceAsync> getCommonViewContext();
@@ -41,7 +41,7 @@ public interface IViewContext<T extends IClientServiceAsync> extends IMessagePro
     public T getService();
 
     public GenericViewModel getModel();
-    
+
     public String getPropertyOrNull(String key);
 
     public void initDisplaySettingsManager();
@@ -58,6 +58,9 @@ public interface IViewContext<T extends IClientServiceAsync> extends IMessagePro
 
     public ViewLocatorResolverRegistry getLocatorResolverRegistry();
 
-    public boolean isSimpleMode();
+    /**
+     * @return true if the UI is operating in a simple or embedded mode.
+     */
+    public boolean isSimpleOrEmbeddedMode();
 
 }

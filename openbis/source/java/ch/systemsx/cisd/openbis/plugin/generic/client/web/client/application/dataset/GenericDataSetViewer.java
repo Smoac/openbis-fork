@@ -115,7 +115,7 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
 
     private void extendToolBar()
     {
-        if (viewContext.isSimpleMode())
+        if (viewContext.isSimpleOrEmbeddedMode())
         {
             return;
         }

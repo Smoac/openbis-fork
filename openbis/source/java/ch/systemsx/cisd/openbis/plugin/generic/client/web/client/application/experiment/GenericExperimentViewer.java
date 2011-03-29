@@ -107,7 +107,7 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
 
     private void extendToolBar()
     {
-        if (viewContext.isSimpleMode())
+        if (viewContext.isSimpleOrEmbeddedMode())
         {
             return;
         }

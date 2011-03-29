@@ -129,7 +129,7 @@ public abstract class AbstractExternalDataGrid
     {
         addEntityOperationsLabel();
 
-        if (viewContext.isSimpleMode() == false)
+        if (viewContext.isSimpleOrEmbeddedMode() == false)
         {
             addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS),
                     getId() + SHOW_DETAILS_BUTTON_ID_SUFFIX, asShowEntityInvoker(false)));
@@ -174,7 +174,7 @@ public abstract class AbstractExternalDataGrid
         }
         addButton(uploadButton);
         if (viewContext.getModel().getApplicationInfo().isArchivingConfigured()
-                && viewContext.isSimpleMode() == false)
+                && viewContext.isSimpleOrEmbeddedMode() == false)
         {
             addButton(createArchivingMenu());
         }

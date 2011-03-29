@@ -147,7 +147,7 @@ final class AppView extends View
 
     private static IMainPanel createMainPanel(IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        if (viewContext.isSimpleMode())
+        if (viewContext.isSimpleOrEmbeddedMode())
         {
             return new MainPagePanel(viewContext);
         } else

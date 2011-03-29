@@ -166,7 +166,7 @@ public class MaterialBrowserGrid extends
 
     protected void extendBottomToolbar(boolean detailsAvailable)
     {
-        if (detailsAvailable && viewContext.isSimpleMode() == false)
+        if (detailsAvailable && viewContext.isSimpleOrEmbeddedMode() == false)
         {
             addEntityOperationsLabel();
             addEntityOperationButtons();

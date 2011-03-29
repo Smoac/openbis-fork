@@ -143,7 +143,7 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
 
     private void extendToolBar()
     {
-        if (viewContext.isSimpleMode())
+        if (viewContext.isSimpleOrEmbeddedMode())
         {
             return;
         }

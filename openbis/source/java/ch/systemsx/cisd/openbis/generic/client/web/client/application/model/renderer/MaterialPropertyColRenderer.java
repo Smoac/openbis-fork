@@ -52,7 +52,7 @@ class MaterialPropertyColRenderer<T extends IEntityPropertiesHolder> extends
         final MaterialIdentifier identifier = MaterialIdentifier.tryParseIdentifier(value);
         // TODO 2010-07-13, Piotr Buczek: cannot create link in default mode
         // listener will not work after calling Widget.toString()
-        if (identifier != null && viewContext.isSimpleMode())
+        if (identifier != null && viewContext.isSimpleOrEmbeddedMode())
         {
             String href = LinkExtractor.tryExtract(identifier);
             final Widget link = LinkRenderer.getLinkWidget(identifier.getCode(), null, href);

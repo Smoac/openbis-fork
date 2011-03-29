@@ -332,7 +332,7 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
                 viewContext.initDisplaySettingsManager();
                 dispatcher.dispatch(AppEvents.INIT);
 
-                if (viewContext.isSimpleMode() == false)
+                if (viewContext.isSimpleOrEmbeddedMode() == false)
                 {
                     GWTUtils.setConfirmExitMessage();
                 }
@@ -351,7 +351,7 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
         @SuppressWarnings("deprecation")
         private String tryGetLastHistoryToken()
         {
-            if (viewContext.isSimpleMode() == false && StringUtils.isBlank(History.getToken()))
+            if (viewContext.isSimpleOrEmbeddedMode() == false && StringUtils.isBlank(History.getToken()))
             {
                 DisplaySettings displaySettings =
                         viewContext.getModel().getSessionContext().getDisplaySettings();

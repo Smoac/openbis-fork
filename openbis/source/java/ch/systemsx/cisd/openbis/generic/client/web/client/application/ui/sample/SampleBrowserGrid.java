@@ -620,7 +620,7 @@ public class SampleBrowserGrid extends TypedTableGrid<Sample>
     // adds show, show-details and invalidate buttons
     protected void extendBottomToolbar()
     {
-        if (viewContext.isSimpleMode())
+        if (viewContext.isSimpleOrEmbeddedMode())
         {
             return;
         }
