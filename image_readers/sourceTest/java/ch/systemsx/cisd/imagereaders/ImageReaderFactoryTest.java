@@ -20,6 +20,7 @@ import static ch.systemsx.cisd.imagereaders.ImageReaderConstants.BIOFORMATS_LIBR
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileFilter;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -33,6 +34,13 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
  */
 public class ImageReaderFactoryTest extends AbstractImageReaderFactoryTest
 {
+    private static final FileFilter IGNORE_SVN = new FileFilter()
+        {
+            public boolean accept(File pathname)
+            {
+                return (false == pathname.getName().equalsIgnoreCase(".svn"));
+            }
+        };
 
     @DataProvider(name = "libraries")
     public Object[][] librariesToTest()
@@ -78,12 +86,12 @@ public class ImageReaderFactoryTest extends AbstractImageReaderFactoryTest
 
     private File[] listValidImages(String library)
     {
-        return getValidImagesDir(library).listFiles();
+        return getValidImagesDir(library).listFiles(IGNORE_SVN);
     }
 
     private File[] listInvalidImages(String library)
     {
-        return getInvalidImagesDir(library).listFiles();
+        return getInvalidImagesDir(library).listFiles(IGNORE_SVN);
     }
 
     private void assertImageReadable(String libraryName, File file)
