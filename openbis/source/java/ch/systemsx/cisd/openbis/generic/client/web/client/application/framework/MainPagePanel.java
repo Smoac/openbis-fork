@@ -18,10 +18,12 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework
 
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.UrlParamsHelper;
@@ -51,6 +53,9 @@ public class MainPagePanel extends ContentPanel implements IMainPanel
         if (UrlParamsHelper.createNavigateToCurrentUrlAction(viewContext).isEmpty())
         {
             add(createWelcomePanel());
+        } else
+        {
+            add(new Text(viewContext.getMessage(Dict.LOAD_IN_PROGRESS)));
         }
     }
 
