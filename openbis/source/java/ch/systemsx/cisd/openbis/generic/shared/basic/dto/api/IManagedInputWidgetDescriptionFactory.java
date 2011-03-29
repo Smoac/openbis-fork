@@ -20,11 +20,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Factory for creation of instances of {@link IManagedInputWidgetDescription}.
- * <p>
- * All methods of this interface are part of the Managed Properties API.
  * 
  * @author Piotr Buczek
  */
+// NOTE: All methods of this interface are part of the Managed Properties API.
 public interface IManagedInputWidgetDescriptionFactory extends ISerializable
 {
 

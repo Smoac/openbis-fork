@@ -23,11 +23,10 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.structured.Eleme
 
 /**
  * Abstracts the conversion of {@link Element} objects to/from database strings.
- * <p>
- * <b>All methods of this enum are part of the Managed Properties API.</b>
  * 
  * @author Kaloyan Enimanev
  */
+// NOTE: All methods of this interface are part of the Managed Properties API.
 public interface IStructuredPropertyConverter
 {
     /**

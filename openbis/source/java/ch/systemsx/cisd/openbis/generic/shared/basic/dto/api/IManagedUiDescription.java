@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
+// NOTE: All methods of this interface are part of the Managed Properties API.
 public interface IManagedUiDescription extends ISerializable
 {
     /**

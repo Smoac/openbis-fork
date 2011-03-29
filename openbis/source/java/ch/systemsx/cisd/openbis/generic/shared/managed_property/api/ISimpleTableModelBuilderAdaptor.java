@@ -21,11 +21,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ITableModel;
 
 /**
  * Builder of simple table models. All column titles should be unique.
- * <p>
- * <b>All methods of this enum are part of the Managed Properties API.</b>
  * 
  * @author Piotr Buczek
  */
+// NOTE: All methods of this interface are part of the Managed Properties API.
 public interface ISimpleTableModelBuilderAdaptor
 {
 

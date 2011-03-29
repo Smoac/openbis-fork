@@ -20,12 +20,11 @@ import java.util.Date;
 
 /**
  * Builder of a row of a simple table.
- * <p>
- * <b>All methods of this enum are part of the Managed Properties API.</b>
  * 
  * @see ISimpleTableModelBuilderAdaptor
  * @author Piotr Buczek
  */
+// NOTE: All methods of this interface are part of the Managed Properties API.
 public interface IRowBuilderAdaptor
 {
 

@@ -20,11 +20,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Interface implemented by table models.
- * <p>
- * NOTE: For now the interface is empty. It was introduced not to expose internal API.
  * 
  * @author Piotr Buczek
  */
+// NOTE: For now the interface is empty. It was introduced not to expose internal API
 public interface ITableModel extends ISerializable
 {
 

@@ -19,10 +19,9 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto.api;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
- * NOTE: This enumeration is part of the Managed Properties API.
- * 
  * @author Chandrasekhar Ramakrishnan
  */
+// NOTE: This enumeration is part of the Managed Properties API.
 public enum ManagedInputFieldType implements ISerializable
 {
     TEXT, MULTILINE_TEXT, COMBO_BOX

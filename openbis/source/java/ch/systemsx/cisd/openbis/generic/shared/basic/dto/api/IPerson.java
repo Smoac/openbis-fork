@@ -20,11 +20,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Representation of a user, e.g. one who modifies a property.
- * <p>
- * <b>All methods of this interface are part of the Managed Properties API.</b>
  * 
  * @author Piotr Buczek
  */
+// NOTE: All methods of this interface are part of the Managed Properties API.
 public interface IPerson extends ISerializable
 {
     /** @return id of the user */

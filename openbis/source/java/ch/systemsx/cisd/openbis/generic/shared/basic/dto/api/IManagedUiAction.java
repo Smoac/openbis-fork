@@ -22,11 +22,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Description of action that a user can perform on the client side.
- * <p>
- * All methods of this interface are part of the Managed Properties API.
  * 
  * @author Piotr Buczek
  */
+// NOTE: All methods of this interface are part of the Managed Properties API.
 public interface IManagedUiAction extends ISerializable
 {
     /** Returns string identifier of the action. */

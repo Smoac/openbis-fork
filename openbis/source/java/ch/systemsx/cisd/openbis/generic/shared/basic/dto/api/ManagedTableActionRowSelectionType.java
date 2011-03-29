@@ -20,11 +20,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Selection modes of table actions.
- * <p>
- * NOTE: This enumeration is part of the Managed Properties API.
  * 
  * @author Piotr Buczek
  */
+// NOTE: This enumeration is part of the Managed Properties API.
 public enum ManagedTableActionRowSelectionType implements ISerializable
 {
     /** e.g. create/add action */

@@ -18,11 +18,10 @@ package ch.systemsx.cisd.openbis.generic.shared.managed_property.api;
 
 /**
  * The type of an entity link.
- * <p>
- * NOTE: This enumeration is part of the Managed Properties API.
  * 
  * @author Kaloyan Enimanev
  */
+// NOTE: This enum is part of the Managed Properties API.
 public enum EntityLinkElementKind
 {
 

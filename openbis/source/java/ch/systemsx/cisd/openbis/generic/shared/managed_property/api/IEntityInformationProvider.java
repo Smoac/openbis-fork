@@ -18,11 +18,10 @@ package ch.systemsx.cisd.openbis.generic.shared.managed_property.api;
 
 /**
  * Provides required information about entities.
- * <p>
- * <b>All methods of this enum are part of the Managed Properties API.</b>
  * 
  * @author Piotr Buczek
  */
+// NOTE: All methods of this interface are part of the Managed Properties API.
 public interface IEntityInformationProvider
 {
     /**

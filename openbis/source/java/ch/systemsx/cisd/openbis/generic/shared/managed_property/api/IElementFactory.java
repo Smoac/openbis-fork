@@ -18,11 +18,10 @@ package ch.systemsx.cisd.openbis.generic.shared.managed_property.api;
 
 /**
  * Contains helper method to construct {@link IElement} instances.
- * <p>
- * <b>All methods of this enum are part of the Managed Properties API.</b>
  * 
  * @author Kaloyan Enimanev
  */
+// NOTE: All methods of this interface are part of the Managed Properties API.
 public interface IElementFactory
 {
 

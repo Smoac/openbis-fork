@@ -26,12 +26,11 @@ import java.util.Map;
  * <p>
  * {@link IElement}-s are meant to be used as a convenient, hierarchical property-value persistence
  * technique for managed properties.
- * <p>
- * <b>All methods of this interface are part of the Managed Properties API.</b>
  * 
  * @author Piotr Buczek
  * @author Kaloyan Enimanev
  */
+// NOTE: All methods of this interface are part of the Managed Properties API.
 public interface IElement
 {
 

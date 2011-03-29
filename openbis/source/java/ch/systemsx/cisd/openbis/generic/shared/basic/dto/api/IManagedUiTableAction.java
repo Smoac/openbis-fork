@@ -27,12 +27,11 @@ import java.util.Map;
  * <p>
  * For actions that require single row to be selected it is possible to bind values of selected
  * row's columns with input fields (e.g. useful in edit actions).
- * <p>
- * All methods of this interface are part of the Managed Properties API.
  * 
  * @see ManagedTableActionRowSelectionType
  * @author Piotr Buczek
  */
+// NOTE: All methods of this interface are part of the Managed Properties API.
 public interface IManagedUiTableAction extends IManagedUiAction
 {
     /** Returns selection type specifying when the action should be enabled. */
