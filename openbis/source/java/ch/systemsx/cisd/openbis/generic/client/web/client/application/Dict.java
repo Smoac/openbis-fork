@@ -826,6 +826,10 @@ public abstract class Dict
 
     public static final String GRID_COLUMN_HAS_FILTER_HEADER = "GRID_COLUMN_HAS_FILTER_HEADER";
 
+    public static final String VISIBLE_COLUMNS_LIMITED_TITLE = "VISIBLE_COLUMNS_LIMITED_TITLE";
+
+    public static final String VISIBLE_COLUMNS_LIMITED_MSG = "VISIBLE_COLUMNS_LIMITED_MSG";
+
     public static final String TOO_MANY_VISIBLE_COLUMNS_TITLE = "TOO_MANY_VISIBLE_COLUMNS_TITLE";
 
     public static final String TOO_MANY_VISIBLE_COLUMNS_MSG = "TOO_MANY_VISIBLE_COLUMNS_MSG";
@@ -870,9 +874,9 @@ public abstract class Dict
     public static final String REOPEN_LAST_TAB_ON_LOGIN_INFO = "reopen_last_tab_on_login_info";
 
     public static final String SHOW_LAST_VISITS_LABEL = "show_last_visits_label";
-    
+
     public static final String SHOW_LAST_VISITS_INFO = "show_last_visits_info";
-    
+
     //
     // Help Info
     //

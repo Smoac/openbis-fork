@@ -114,8 +114,8 @@ var common = {
   
   export_all_columns: "All Columns",
   export_visible_columns: "Visible Columns",
-	tooltip_export_all_columns: "Export the table with all (visible and hidden) columns to an Excel file",
-	tooltip_export_visible_columns: "Export the table with visible columns to an Excel file",  
+  tooltip_export_all_columns: "Export the table with all (visible and hidden) columns to an Excel file",
+	tooltip_export_visible_columns: "Export the table with visible columns to an Excel file",
   
   //
   // LoginWidget
@@ -126,7 +126,6 @@ var common = {
   login_passwordLabel: "Password",
   login_buttonLabel: "Login",
   login_failed: "Sorry, you entered an invalid username or password. Please try again.",
-  anonymous_login_failed: "Anonymous login is not possible.",
   
   //
   // AbstractAsyncCallback
@@ -680,8 +679,8 @@ incorrect_experiment_syntax: "Incorrect experiment specification. Please provide
   GRID_COLUMN_NAME_HEADER: "Column",
   GRID_IS_COLUMN_VISIBLE_HEADER: "Visible?",
   GRID_COLUMN_HAS_FILTER_HEADER: "Has Filter?",
-  TOO_MANY_VISIBLE_COLUMNS_TITLE: "Too many columns visible",
-  TOO_MANY_VISIBLE_COLUMNS_MSG: "Limit the number of visible columns to {0} (from {1}).",
+  VISIBLE_COLUMNS_LIMITED_TITLE: "Number of visible columns was limited",
+  VISIBLE_COLUMNS_LIMITED_MSG: "Only {0} out of {1} requested columns are displayed. You might want to change table settings.",
   VISIBLE_COLUMNS_LIMIT_REACHED_MSG: "Limit of {0} visible columns has been reached.",
   VISIBLE_COLUMNS_LIMIT_EXCEEDED_MSG: "Limit of {0} visible columns can't be exceeded.",
   

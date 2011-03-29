@@ -40,7 +40,6 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -48,6 +47,8 @@ import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Container;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.Info;
+import com.extjs.gxt.ui.client.widget.InfoConfig;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -222,8 +223,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     private LayoutContainer bottomToolbars;
 
     private ColumnModel fullColumnModel;
-
-    private boolean settingsDialogAlreadyOpen;
 
     protected AbstractBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             String gridId, IDisplayTypeIDGenerator displayTypeIDGenerator)
@@ -1294,64 +1293,51 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     {
         fullColumnModel = columnModel;
 
-        int maxVisibleColumns = getWebClientConfiguration().getMaxVisibleColumns();
-        int visibleColumnsCount = fullColumnModel.getColumnCount(true);
-        if (isLimitVisibleColumnsEnabled() && visibleColumnsCount > maxVisibleColumns)
-        {
-            limitVisibleColumns(maxVisibleColumns, visibleColumnsCount);
-        } else
-        {
-            int logId = log("grid reconfigure");
-            ColumnModel columnModelOfVisible = trimToVisibleColumns(columnModel);
+        int logId = log("grid reconfigure");
+        ColumnModel columnModelOfVisible = trimToVisibleColumns(columnModel);
 
-            grid.reconfigure(grid.getStore(), columnModelOfVisible);
-            viewContext.logStop(logId);
-            registerGridSettingsChangesListener();
-            // add listeners of full column model to trimmed model
-            List<Listener<? extends BaseEvent>> listeners =
-                    fullColumnModel.getListeners(Events.WidthChange);
-            for (Listener<? extends BaseEvent> listener : listeners)
-            {
-                columnModelOfVisible.addListener(Events.WidthChange, listener);
-            }
+        grid.reconfigure(grid.getStore(), columnModelOfVisible);
+        viewContext.logStop(logId);
+        registerGridSettingsChangesListener();
+        // add listeners of full column model to trimmed model
+        List<Listener<? extends BaseEvent>> listeners =
+                fullColumnModel.getListeners(Events.WidthChange);
+        for (Listener<? extends BaseEvent> listener : listeners)
+        {
+            columnModelOfVisible.addListener(Events.WidthChange, listener);
         }
-    }
-
-    protected boolean isLimitVisibleColumnsEnabled()
-    {
-        return true;
-    }
-
-    private void limitVisibleColumns(int maxVisibleColumns, int visibleColumnsCount)
-    {
-        String title = viewContext.getMessage(Dict.TOO_MANY_VISIBLE_COLUMNS_TITLE);
-        String msg =
-                viewContext.getMessage(Dict.TOO_MANY_VISIBLE_COLUMNS_MSG, maxVisibleColumns,
-                        visibleColumnsCount);
-        if (settingsDialogAlreadyOpen)
-        {
-            return;
-        }
-        settingsDialogAlreadyOpen = true;
-        MessageBox.alert(title, msg, new Listener<MessageBoxEvent>()
-            {
-                public void handleEvent(MessageBoxEvent be)
-                {
-                    configureColumnSettings();
-                }
-            });
     }
 
     private ColumnModel trimToVisibleColumns(ColumnModel columnModel)
     {
+        int maxVisibleColumns = getWebClientConfiguration().getMaxVisibleColumns();
+        int counter = 0;
         List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
         for (int i = 0, n = columnModel.getColumnCount(); i < n; i++)
         {
             ColumnConfig column = columnModel.getColumn(i);
             if (column.isHidden() == false)
             {
-                columns.add(column);
+                counter++;
+                if (counter <= maxVisibleColumns)
+                {
+                    columns.add(column);
+                } else
+                {
+                    column.setHidden(true);
+                }
             }
+        }
+        if (counter > maxVisibleColumns)
+        {
+            saveColumnDisplaySettings(); // save changes made to full model
+            InfoConfig infoConfig =
+                    new InfoConfig(viewContext.getMessage(Dict.VISIBLE_COLUMNS_LIMITED_TITLE),
+                            viewContext.getMessage(Dict.VISIBLE_COLUMNS_LIMITED_MSG,
+                                    maxVisibleColumns, counter));
+            infoConfig.height = 100; // a bit higher
+            infoConfig.display = 5000; // 5s
+            Info.display(infoConfig);
         }
         ColumnModel trimmedModel = createColumnModel(columns);
         return trimmedModel;
@@ -1533,7 +1519,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                         customColumnsMetadataProvider, resultSetKeyOrNull,
                         pendingFetchManager.tryTopPendingFetchConfig());
         columnSettingsConfigurer.showDialog();
-        settingsDialogAlreadyOpen = false;
     }
 
     // Default visibility so that friend classes can use -- should otherwise be considered private
