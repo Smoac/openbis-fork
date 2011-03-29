@@ -18,27 +18,27 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.base.io.ByteBufferRandomAccessFile;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.common.io.FileBasedContent;
 import ch.systemsx.cisd.common.io.IContent;
+import ch.systemsx.cisd.imagereaders.ImageReaderConstants;
+import ch.systemsx.cisd.imagereaders.ImageReadersTestHelper;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ImageUtilTest extends AssertJUnit
 {
     private static class MockIContent implements IContent
     {
-        final MockInputStream is = new MockInputStream();
+        final MockRandomAccessFile is = new MockRandomAccessFile();
         
         public String tryGetName()
         {
@@ -57,39 +57,41 @@ public class ImageUtilTest extends AssertJUnit
 
         public IRandomAccessFile getReadOnlyRandomAccessFile()
         {
-            throw new UnsupportedOperationException();
+            return is;
         }
 
         public InputStream getInputStream()
         {
-            return is;
+            throw new UnsupportedOperationException();
         }
         
     }
     
-    private static class MockInputStream extends InputStream
+    private static class MockRandomAccessFile extends ByteBufferRandomAccessFile
     {
+        public MockRandomAccessFile()
+        {
+            super(1);
+        }
+
         boolean closeInvoked;
         
         @Override
-        public void close() throws IOException
+        public void close()
         {
             closeInvoked = true;
-        }
-        
-        @Override
-        public int read() throws IOException
-        {
-            return 0;
         }
     }
     
     private File dir;
 
     @BeforeMethod
-    public void setUp()
+    public void setUp() throws Exception
     {
         dir = new File("../datastore_server/resource/test-data/ImageUtilTest");
+        ImageReadersTestHelper.setUpLibraries(ImageReaderConstants.IMAGEIO_LIBRARY,
+                ImageReaderConstants.JAI_LIBRARY, ImageReaderConstants.IMAGEJ_LIBRARY);
+
     }
     
     @Test
@@ -119,7 +121,7 @@ public class ImageUtilTest extends AssertJUnit
         assertImageSize(805, 1023, loadImageByFile("tiff-example.tiff"));
         assertImageSize(805, 1023, loadImageByInputStream("tiff-example.tiff"));
     }
-    
+
     @Test
     public void testCreateThumbnail()
     {

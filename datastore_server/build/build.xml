@@ -103,6 +103,11 @@
   		  <include name="server/*.jar" />
   		</fileset>
   	</copy>
+  	<copy todir="${dist.datastore_server.lib}">
+  		<fileset dir="${lib}/cisd-image_readers">
+  		  <include name="*.jar" />
+  		</fileset>
+  	</copy>
   	<copy file="${lib}/cisd-base/cisd-base.jar" todir="${dist.datastore_server.lib}" />
     <copy file="${lib}/cisd-args4j/cisd-args4j.jar" todir="${dist.datastore_server.lib}" />
     <copy file="${lib}/cifex/cifex.jar" todir="${dist.datastore_server.lib}" />

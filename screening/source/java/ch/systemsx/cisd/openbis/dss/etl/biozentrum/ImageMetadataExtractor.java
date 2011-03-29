@@ -19,22 +19,17 @@ package ch.systemsx.cisd.openbis.dss.etl.biozentrum;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
-import loci.formats.IFormatReader;
-import loci.formats.ImageReader;
-import loci.formats.gui.BufferedImageReader;
-import loci.formats.in.DefaultMetadataOptions;
-import loci.formats.in.MetadataLevel;
-import loci.formats.in.MetadataOptions;
-
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.imagereaders.IImageReader;
+import ch.systemsx.cisd.imagereaders.IMetaDataAwareImageReader;
+import ch.systemsx.cisd.imagereaders.ImageReaderConstants;
+import ch.systemsx.cisd.imagereaders.ImageReaderFactory;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Location;
 
 /**
@@ -49,26 +44,13 @@ public class ImageMetadataExtractor
 
     public static Map<String, Object> extractMetadata(File imageFile)
     {
-        HashMap<String, Object> result = new HashMap<String, Object>();
-        // initialize the reader
-        IFormatReader reader = new BufferedImageReader(new ImageReader());
-        MetadataOptions metaOptions = new DefaultMetadataOptions(MetadataLevel.ALL);
-        reader.setMetadataOptions(metaOptions);
+        IImageReader imageReader =
+                ImageReaderFactory.tryGetImageReaderForFile(
+                        ImageReaderConstants.BIOFORMATS_LIBRARY,
+                        imageFile.getAbsolutePath());
 
-        try
-        {
-            reader.setId(imageFile.getAbsolutePath());
-            nullSafeAddAll(result, reader.getGlobalMetadata());
-            nullSafeAddAll(result, reader.getSeriesMetadata());
-        } catch (Exception ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        } finally
-        {
-            close(reader);
-        }
-
-        return result;
+        IMetaDataAwareImageReader metaDataReader = (IMetaDataAwareImageReader) imageReader;
+        return metaDataReader.readMetaData(imageFile, null);
     }
 
     /**
@@ -96,27 +78,6 @@ public class ImageMetadataExtractor
             result.put(tileNumber, location);
         }
         return result;
-    }
-
-    private static void nullSafeAddAll(HashMap<String, Object> accumulator,
-            Hashtable<String, Object> toAdd)
-    {
-        if (toAdd != null)
-        {
-            accumulator.putAll(toAdd);
-        }
-
-    }
-
-    private static void close(IFormatReader reader)
-    {
-        try
-        {
-            reader.close();
-        } catch (Exception ex)
-        {
-            // do not throw exception
-        }
     }
 
     private static Location extractLocation(Map<String, Object> metadata, List<Number> xCoords,

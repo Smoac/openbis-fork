@@ -60,7 +60,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize
 import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
-import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.DssSessionAuthorizationHolder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
@@ -152,7 +152,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     {
         DssSessionAuthorizationHolder.setAuthorizer(new DatasetSessionAuthorizer());
         final StaticListableBeanFactory applicationContext = new StaticListableBeanFactory();
-        ServiceProvider.setBeanFactory(applicationContext);
+        ServiceProviderTestWrapper.setApplicationContext(applicationContext);
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
         applicationContext.addBean("openBIS-service", service);
@@ -209,9 +209,10 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         return identifier;
     }
 
-    @AfterMethod
+    @AfterMethod(alwaysRun = true)
     public final void tearDown()
     {
+        ServiceProviderTestWrapper.restoreApplicationContext();
         // The following line of code should also be called at the end of each test method.
         // Otherwise one do not known which test failed.
         context.assertIsSatisfied();

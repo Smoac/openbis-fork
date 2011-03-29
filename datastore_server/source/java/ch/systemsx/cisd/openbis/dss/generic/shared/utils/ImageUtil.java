@@ -16,16 +16,15 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 
-import ij.io.Opener;
+import static ch.systemsx.cisd.common.utilities.DataTypeUtil.GIF_FILE;
+import static ch.systemsx.cisd.common.utilities.DataTypeUtil.JPEG_FILE;
+import static ch.systemsx.cisd.common.utilities.DataTypeUtil.PNG_FILE;
+import static ch.systemsx.cisd.common.utilities.DataTypeUtil.TIFF_FILE;
 
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
-import java.awt.image.Raster;
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,18 +32,17 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.imageio.ImageIO;
+import org.apache.commons.io.FilenameUtils;
 
-import org.apache.commons.io.IOUtils;
-
-import com.sun.media.jai.codec.ImageCodec;
-import com.sun.media.jai.codec.ImageDecoder;
-
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.io.FileBasedContent;
 import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.common.utilities.DataTypeUtil;
+import ch.systemsx.cisd.imagereaders.IImageReader;
+import ch.systemsx.cisd.imagereaders.ImageReaderConstants;
+import ch.systemsx.cisd.imagereaders.ImageReaderFactory;
+import ch.systemsx.cisd.imagereaders.TiffReadParams;
 
 /**
  * Utility function on images.
@@ -58,42 +56,35 @@ public class ImageUtil
 
     private static interface ImageLoader
     {
-        public BufferedImage load(InputStream inputStream);
+        public BufferedImage load(IRandomAccessFile raf);
 
-        public BufferedImage load(InputStream inputStream, int page);
+        public BufferedImage load(IRandomAccessFile raf, int page);
     }
 
     private static final class TiffImageLoader implements ImageLoader
     {
-        static final ImageLoader INSTANCE = new TiffImageLoader();
-
-        public BufferedImage load(InputStream inputStream)
+        public BufferedImage load(IRandomAccessFile handle)
         {
-            return load(inputStream, 0);
+            return load(handle, 0);
         }
 
-        private final static int MAX_READ_AHEAD = 30000000;
+        // TODO KE : ask if anyone remembers what is this ?!
+        // private final static int MAX_READ_AHEAD = 30000000;
 
-        public BufferedImage load(InputStream inputStream, int page)
+        public BufferedImage load(IRandomAccessFile handle, int page)
         {
-            inputStream.mark(MAX_READ_AHEAD);
+            // inputStream.mark(MAX_READ_AHEAD);
             try
             {
-                return loadJavaAdvancedImagingTiff(inputStream, page, false);
+                return loadJavaAdvancedImagingTiff(handle, page, false);
             } catch (RuntimeException ex)
             {
                 if (page == 0)
                 {
-                    try
-                    {
-                        inputStream.reset();
-                    } catch (IOException ex1)
-                    {
-                        throw ex;
-                    }
-                    // There are some TIFF files which cannot be opened by JIA, try ImageJ
+                    handle.seek(0);
+                    // There are some TIFF files which cannot be opened by JAI, try ImageJ
                     // instead...
-                    return loadWithImageJ(inputStream);
+                    return loadWithImageJ(handle);
                 } else
                 {
                     throw ex;
@@ -101,9 +92,12 @@ public class ImageUtil
             }
         }
 
-        private BufferedImage loadWithImageJ(InputStream inputStream)
+        private BufferedImage loadWithImageJ(IRandomAccessFile handle)
         {
-            return new Opener().openTiff(inputStream, "").getBufferedImage();
+            IImageReader imageReader =
+                    ImageReaderFactory.tryGetReader(ImageReaderConstants.IMAGEJ_LIBRARY, "tiff");
+            return imageReader.readImage(handle, null);
+
         }
     }
 
@@ -114,55 +108,57 @@ public class ImageUtil
      *            appropriate buffered imaged type will be used, otherwise the image will be
      *            converted to 24 bits RGB. Useful if access to original pixel values is needed.
      */
-    public static BufferedImage loadJavaAdvancedImagingTiff(InputStream inputStream,
+    public static BufferedImage loadJavaAdvancedImagingTiff(IRandomAccessFile handle,
             Integer pageOrNull, boolean allow16BitGrayscaleModel)
             throws EnvironmentFailureException
     {
+        IImageReader imageReader =
+                ImageReaderFactory.tryGetReader(ImageReaderConstants.JAI_LIBRARY, "tiff");
+        if (imageReader == null)
+        {
+            throw EnvironmentFailureException
+                    .fromTemplate("Cannot find JAI image decoder for TIFF files.");
+        }
+
         int page = getPageNumber(pageOrNull);
-        final ImageDecoder dec = ImageCodec.createImageDecoder("tiff", inputStream, null);
-        Raster raster;
+        TiffReadParams readParams = new TiffReadParams(page);
+        readParams.setAllow16BitGrayscaleModel(allow16BitGrayscaleModel);
         try
         {
-            raster = dec.decodeAsRaster(page);
-        } catch (IOException ex)
+            return imageReader.readImage(handle, readParams);
+        } catch (Exception ex)
         {
             throw EnvironmentFailureException.fromTemplate("Cannot decode image.", ex);
         }
-        int bufferType = findBestImageBufferType(raster, allow16BitGrayscaleModel);
-        final BufferedImage image =
-                new BufferedImage(raster.getWidth(), raster.getHeight(), bufferType);
-        image.setData(raster);
-        return image;
-    }
-
-    private static int findBestImageBufferType(Raster raster, boolean allow16BitGrayscaleModel)
-    {
-        boolean is16BitGrayscale =
-                raster.getNumBands() == 1 && raster.getSampleModel().getSampleSize()[0] == 16;
-        return is16BitGrayscale && allow16BitGrayscaleModel ? BufferedImage.TYPE_USHORT_GRAY
-                : BufferedImage.TYPE_INT_RGB;
     }
 
     private static final class JavaImageLoader implements ImageLoader
     {
-        static final ImageLoader INSTANCE = new JavaImageLoader();
+        private final String fileType;
 
-        public BufferedImage load(InputStream inputStream)
+        JavaImageLoader(String fileType)
         {
-            try
-            {
-                return ImageIO.read(inputStream);
-            } catch (IOException ex)
-            {
-                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-            }
+            this.fileType = fileType;
         }
 
-        public BufferedImage load(InputStream inputStream, int page)
+        public BufferedImage load(IRandomAccessFile handle)
+        {
+            return load(handle, 0);
+        }
+
+        public BufferedImage load(IRandomAccessFile handle, int page)
         {
             if (page == 0)
             {
-                return load(inputStream);
+                IImageReader imageReader =
+                        ImageReaderFactory.tryGetReader(ImageReaderConstants.IMAGEIO_LIBRARY,
+                                fileType);
+                if (imageReader == null)
+                {
+                    throw EnvironmentFailureException.fromTemplate(
+                            "Cannot find ImageIO reader for file type '%s'", fileType);
+                }
+                return imageReader.readImage(handle, null);
             } else
             {
                 throw new UnsupportedOperationException();
@@ -175,10 +171,10 @@ public class ImageUtil
 
     static
     {
-        imageLoaders.put(DataTypeUtil.GIF_FILE, JavaImageLoader.INSTANCE);
-        imageLoaders.put(DataTypeUtil.JPEG_FILE, JavaImageLoader.INSTANCE);
-        imageLoaders.put(DataTypeUtil.PNG_FILE, JavaImageLoader.INSTANCE);
-        imageLoaders.put(DataTypeUtil.TIFF_FILE, TiffImageLoader.INSTANCE);
+        imageLoaders.put(GIF_FILE, new JavaImageLoader(GIF_FILE));
+        imageLoaders.put(JPEG_FILE, new JavaImageLoader(JPEG_FILE));
+        imageLoaders.put(PNG_FILE, new JavaImageLoader(PNG_FILE));
+        imageLoaders.put(TIFF_FILE, new TiffImageLoader());
     }
 
     /**
@@ -190,18 +186,8 @@ public class ImageUtil
     public static boolean isImageFile(File file)
     {
         String fileName = file.getName();
-        String fileType = tryGetFileExtension(fileName);
-        return fileType != null && FILE_TYPES.contains(fileType);
-    }
-
-    private static String tryGetFileExtension(String name)
-    {
-        int lastIndexOfDot = name.lastIndexOf('.');
-        if (lastIndexOfDot < 0)
-        {
-            return null;
-        }
-        return name.substring(lastIndexOfDot + 1).toLowerCase();
+        String fileType = FilenameUtils.getExtension(fileName);
+        return fileType != null && FILE_TYPES.contains(fileType.toLowerCase());
     }
 
     /**
@@ -228,13 +214,9 @@ public class ImageUtil
     public static BufferedImage loadImage(IContent content, Integer pageOrNull)
     {
         int page = getPageNumber(pageOrNull);
-        InputStream markSupportingInputStream = content.getInputStream();
-        if (markSupportingInputStream.markSupported() == false)
-        {
-            markSupportingInputStream = new BufferedInputStream(markSupportingInputStream);
-        }
-        String fileType = DataTypeUtil.tryToFigureOutFileTypeOf(markSupportingInputStream);
-        return loadImage(markSupportingInputStream, fileType, page);
+        IRandomAccessFile handle = content.getReadOnlyRandomAccessFile();
+        String fileType = DataTypeUtil.tryToFigureOutFileTypeOf(handle);
+        return loadImage(handle, fileType, page);
     }
 
     private static int getPageNumber(Integer pageOrNull)
@@ -243,14 +225,14 @@ public class ImageUtil
     }
 
     /**
-     * Loads the specified <var>page</var> from the image from the tiven </var>inputStream</var>.
+     * Loads the specified <var>page</var> from the image from the given </var>handle</var>.
      * Supported images formats are GIF, JPG, PNG, and TIFF. The input stream will be closed after
      * loading. Note that only for TIFF files a <var>page</var> other than 0 may be specified.
      * 
      * @throws IllegalArgumentException if the input stream doesn't start with a magic number
      *             identifying supported image format.
      */
-    private static BufferedImage loadImage(InputStream inputStream, String fileType, int page)
+    private static BufferedImage loadImage(IRandomAccessFile handle, String fileType, int page)
     {
         try
         {
@@ -268,10 +250,10 @@ public class ImageUtil
                 throw new IllegalArgumentException("Unable to load image of file type '" + fileType
                         + "'.");
             }
-            return imageLoader.load(inputStream, page);
+            return imageLoader.load(handle, page);
         } finally
         {
-            IOUtils.closeQuietly(inputStream);
+            closeQuietly(handle);
         }
     }
 
@@ -350,4 +332,16 @@ public class ImageUtil
         graphics2D.drawImage(image, 0, 0, thumbnailWidth, thumbnailHeight, null);
         return thumbnail;
     }
+
+    private static void closeQuietly(IRandomAccessFile handle)
+    {
+        try
+        {
+            handle.close();
+        } catch (Exception ex)
+        {
+            // keep quiet
+        }
+    }
+
 }

@@ -2,7 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="source/java"/>
 	<classpathentry kind="src" path="sourceTest/java"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/datastore_server"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
 	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
@@ -48,5 +47,8 @@
 	<classpathentry kind="lib" path="/libraries/jython/jython.jar" sourcepath="/libraries/jython/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/hibernate/hibernate3.jar" sourcepath="/libraries/hibernate/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/bioformats/bioformats.jar" sourcepath="/libraries/bioformats/bioformats_src.zip"/>
+	<classpathentry kind="lib" path="/libraries/cisd-image_readers/cisd-image_readers-bioformats.jar"/>
+	<classpathentry kind="lib" path="/libraries/cisd-image_readers/cisd-image_readers.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="targets/www/WEB-INF/classes"/>
 </classpath>

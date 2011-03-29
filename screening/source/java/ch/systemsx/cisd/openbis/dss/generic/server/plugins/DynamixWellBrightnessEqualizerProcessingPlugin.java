@@ -162,8 +162,8 @@ public class DynamixWellBrightnessEqualizerProcessingPlugin extends
             ImgImageEnrichedDTO image)
     {
         IContent content = contentRepository.getContent(image.getFilePath());
-        return ImageUtil.loadJavaAdvancedImagingTiff(content.getInputStream(), image.getPage(),
-                true);
+        return ImageUtil.loadJavaAdvancedImagingTiff(content.getReadOnlyRandomAccessFile(),
+                image.getPage(), true);
     }
 
     private static IImageTransformerFactoryProvider createImageTransformerFactoryProvider(
