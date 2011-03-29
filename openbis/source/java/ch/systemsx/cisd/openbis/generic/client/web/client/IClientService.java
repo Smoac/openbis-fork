@@ -49,6 +49,8 @@ public interface IClientService extends RemoteService
      * Tries to login with specified user ID and password. If failed <code>null</code> is returned.
      */
     public SessionContext tryToLogin(String userID, String password) throws UserFailureException;
+    
+    public SessionContext tryToLoginAnonymously() throws UserFailureException;
 
     /**
      * Sets the base URL that the client uses to connect the web server.

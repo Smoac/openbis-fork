@@ -98,6 +98,7 @@ var common = {
   button_process: "Process",
   button_top: "Files",
   button_evaluate: "Evaluate",
+  login_buttonLabel: "Login",
   logout_buttonLabel: "Logout",
   home_buttonLabel: "Home",
   
@@ -125,6 +126,7 @@ var common = {
   login_passwordLabel: "Password",
   login_buttonLabel: "Login",
   login_failed: "Sorry, you entered an invalid username or password. Please try again.",
+  anonymous_login_failed: "Anonymous login is not possible.",
   
   //
   // AbstractAsyncCallback
@@ -374,6 +376,7 @@ var common = {
   // menu user
   USER_MENU_CHANGE_SETTINGS: "Settings",
   USER_MENU_LOGOUT: "Logout",
+  USER_MENU_LOGIN: "Login",
     
   menu_compute: "Perform",
   COMPUTE_MENU_QUERIES: "Query",

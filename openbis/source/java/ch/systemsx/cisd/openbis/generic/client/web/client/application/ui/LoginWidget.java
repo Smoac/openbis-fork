@@ -18,26 +18,19 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.VerticalPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 
 /**
  * The login widget.
@@ -194,13 +187,11 @@ public class LoginWidget extends VerticalPanel
     //
 
     // public only for tests
-    public final class LoginCallback extends AbstractAsyncCallback<SessionContext>
+    public final class LoginCallback extends BasicLoginCallback
     {
-        private static final int TIMER_PERIOD = 30 * 60 * 1000; // 30min
-
         private LoginCallback(final IViewContext<ICommonClientServiceAsync> viewContext)
         {
-            super(viewContext);
+            super(viewContext, Dict.LOGIN_FAILED);
         }
 
         //
@@ -213,69 +204,5 @@ public class LoginWidget extends VerticalPanel
             resetFields();
         }
 
-        @Override
-        public final void process(final SessionContext sessionContext)
-        {
-            if (sessionContext == null)
-            {
-                MessageBox.alert(viewContext.getMessage(Dict.MESSAGEBOX_WARNING), viewContext
-                        .getMessage(Dict.LOGIN_FAILED), new Listener<MessageBoxEvent>()
-                    {
-
-                        //
-                        // Listener
-                        //
-
-                        public void handleEvent(final MessageBoxEvent be)
-                        {
-                            viewContext.getPageController().reload(false);
-                        }
-                    });
-            } else
-            {
-                viewContext.getService().setBaseURL(GWTUtils.getBaseIndexURL(),
-                        new AbstractAsyncCallback<SessionContext>(viewContext)
-                            {
-                                @Override
-                                protected void process(SessionContext result)
-                                {
-                                }
-                            });
-                viewContext.getPageController().reload(false);
-                keepSessionAlive();
-            }
-        }
-
-        /** tries to keep session alive until user logs out or closes browser */
-        private void keepSessionAlive()
-        {
-            Timer t = new Timer()
-                {
-                    @Override
-                    public void run()
-                    {
-                        // callback will cancel keeping session alive if something went wrong
-                        // or user logged out
-                        AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>()
-                            {
-
-                                public void onSuccess(Boolean result)
-                                {
-                                    if (result == false)
-                                    {
-                                        cancel();
-                                    }
-                                }
-
-                                public void onFailure(Throwable caught)
-                                {
-                                    cancel();
-                                }
-                            };
-                        viewContext.getCommonService().keepSessionAlive(callback);
-                    }
-                };
-            t.scheduleRepeating(TIMER_PERIOD);
-        }
     }
 }

@@ -80,6 +80,8 @@ public class BasicConstant
 
     public static final String VIEW_MODE_KEY = "viewMode";
 
+    public static final String ANONYMOUS_KEY = "anonymous";
+    
     public static final String LOCATOR_ACTION_PARAMETER = "action";
 
     public static final String PARENT_CHILD_INTERNAL_RELATIONSHIP = "$PARENT_CHILD";

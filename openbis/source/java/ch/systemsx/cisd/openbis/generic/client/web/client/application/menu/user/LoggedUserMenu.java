@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.Actio
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenuItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.user.action.ChangeUserSettingsAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.user.action.LoginAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.user.action.LogoutAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
@@ -49,11 +50,18 @@ public final class LoggedUserMenu extends TopMenuItem
         this.viewContext = viewContext;
 
         Menu submenu = new Menu();
-        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.USER_MENU_CHANGE_SETTINGS, viewContext,
-                new ChangeUserSettingsAction(viewContext, this,
-                        createOnDisplaySettingsResetAction(componentProvider))));
-        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.USER_MENU_LOGOUT, viewContext,
-                new LogoutAction(viewContext)));
+        if (viewContext.getModel().isAnonymousLogin())
+        {
+            submenu.add(new ActionMenu(TopMenu.ActionMenuKind.USER_MENU_LOGIN, viewContext,
+                    new LoginAction(viewContext)));
+        } else
+        {
+            submenu.add(new ActionMenu(TopMenu.ActionMenuKind.USER_MENU_CHANGE_SETTINGS, viewContext,
+                    new ChangeUserSettingsAction(viewContext, this,
+                            createOnDisplaySettingsResetAction(componentProvider))));
+            submenu.add(new ActionMenu(TopMenu.ActionMenuKind.USER_MENU_LOGOUT, viewContext,
+                    new LogoutAction(viewContext)));
+        }
         setMenu(submenu);
         refreshTitle();
     }

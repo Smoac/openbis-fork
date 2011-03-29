@@ -145,6 +145,8 @@ public abstract class Dict
 
     public static final String BUTTON_EXPORT_TABLE = "button_exportTable";
 
+    public static final String BUTTON_LOGIN_LABEL = "login_buttonLabel";
+    
     public static final String BUTTON_LOGOUT_LABEL = "logout_buttonLabel";
 
     public static final String BUTTON_HOME_LABEL = "home_buttonLabel";
@@ -170,6 +172,8 @@ public abstract class Dict
     public static final String LOGIN_BUTTON_LABEL = "login_buttonLabel";
 
     public static final String LOGIN_FAILED = "login_failed";
+    
+    public static final String ANONYMOUS_LOGIN_FAILED = "anonymous_login_failed";
 
     //
     // AbstractAsyncCallback

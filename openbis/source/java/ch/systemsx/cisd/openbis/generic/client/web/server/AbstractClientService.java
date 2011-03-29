@@ -485,37 +485,12 @@ public abstract class AbstractClientService implements IClientService,
         }
     }
 
-    public final SessionContext tryToLogin(final String userID, final String password)
+    public final SessionContext tryToLoginAnonymously()
     {
         try
         {
-            final SessionContextDTO session = getServer().tryToAuthenticate(userID, password);
-            if (session == null)
-            {
-                return null;
-            }
-            final HttpSession httpSession = createHttpSession();
-            // Expiration time of httpSession is 10 seconds less than of session
-            final int sessionExpirationTimeInMillis = session.getSessionExpirationTime();
-            final int sessionExpirationTimeInSeconds = sessionExpirationTimeInMillis / 1000;
-            if (sessionExpirationTimeInMillis < 0)
-            {
-                httpSession.setMaxInactiveInterval(-1);
-            } else if (sessionExpirationTimeInSeconds < 10)
-            {
-                httpSession.setMaxInactiveInterval(0);
-            } else
-            {
-                httpSession.setMaxInactiveInterval(sessionExpirationTimeInSeconds - 10);
-            }
-            httpSession.setAttribute(SessionConstants.OPENBIS_SESSION_TOKEN_ATTRIBUTE_KEY,
-                    session.getSessionToken());
-            httpSession.setAttribute(SessionConstants.OPENBIS_SERVER_ATTRIBUTE_KEY, getServer());
-            httpSession.setAttribute(SessionConstants.OPENBIS_RESULT_SET_MANAGER,
-                    createCachedResultSetManager());
-            httpSession.setAttribute(SessionConstants.OPENBIS_EXPORT_MANAGER,
-                    CacheManager.createCacheManager());
-            return createSessionContext(session);
+            final SessionContextDTO session = getServer().tryToAuthenticateAnonymously();
+            return tryToLogin(session);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -524,6 +499,52 @@ public abstract class AbstractClientService implements IClientService,
             operationLog.error("Session already invalidated.", e);
             return null;
         }
+    }
+
+    public final SessionContext tryToLogin(final String userID, final String password)
+    {
+        try
+        {
+            final SessionContextDTO session = getServer().tryToAuthenticate(userID, password);
+            return tryToLogin(session);
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        } catch (final IllegalStateException e)
+        {
+            operationLog.error("Session already invalidated.", e);
+            return null;
+        }
+    }
+
+    private SessionContext tryToLogin(final SessionContextDTO session)
+    {
+        if (session == null)
+        {
+            return null;
+        }
+        final HttpSession httpSession = createHttpSession();
+        // Expiration time of httpSession is 10 seconds less than of session
+        final int sessionExpirationTimeInMillis = session.getSessionExpirationTime();
+        final int sessionExpirationTimeInSeconds = sessionExpirationTimeInMillis / 1000;
+        if (sessionExpirationTimeInMillis < 0)
+        {
+            httpSession.setMaxInactiveInterval(-1);
+        } else if (sessionExpirationTimeInSeconds < 10)
+        {
+            httpSession.setMaxInactiveInterval(0);
+        } else
+        {
+            httpSession.setMaxInactiveInterval(sessionExpirationTimeInSeconds - 10);
+        }
+        httpSession.setAttribute(SessionConstants.OPENBIS_SESSION_TOKEN_ATTRIBUTE_KEY,
+                session.getSessionToken());
+        httpSession.setAttribute(SessionConstants.OPENBIS_SERVER_ATTRIBUTE_KEY, getServer());
+        httpSession.setAttribute(SessionConstants.OPENBIS_RESULT_SET_MANAGER,
+                createCachedResultSetManager());
+        httpSession.setAttribute(SessionConstants.OPENBIS_EXPORT_MANAGER,
+                CacheManager.createCacheManager());
+        return createSessionContext(session);
     }
 
     public void setBaseURL(String baseURL)

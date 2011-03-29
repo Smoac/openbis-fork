@@ -46,6 +46,8 @@ public class WebClientConfiguration implements ISerializable
     private Set<String> dataSetTypePatternsWithImageOverview = new HashSet<String>();
 
     private ViewMode defaultViewMode;
+    
+    private boolean defaultAnonymousLogin;
 
     private int maxVisibleColumns;
     
@@ -80,6 +82,16 @@ public class WebClientConfiguration implements ISerializable
     public void setDefaultViewMode(ViewMode defaultViewMode)
     {
         this.defaultViewMode = defaultViewMode;
+    }
+
+    public void setDefaultAnonymousLogin(boolean defaultAnonymousLogin)
+    {
+        this.defaultAnonymousLogin = defaultAnonymousLogin;
+    }
+
+    public boolean isDefaultAnonymousLogin()
+    {
+        return defaultAnonymousLogin;
     }
 
     public Set<String> getDataSetTypePatternsWithImageOverview()

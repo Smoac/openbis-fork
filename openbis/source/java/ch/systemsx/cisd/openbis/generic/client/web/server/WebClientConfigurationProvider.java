@@ -56,6 +56,8 @@ public class WebClientConfigurationProvider
     private static final String DEFAULT_VIEW_MODE = "default-view-mode";
 
     private static final ViewMode DEFAULT_VIEW_MODE_VALUE = ViewMode.NORMAL;
+    
+    private static final String DEFAULT_ANONYMOUS_LOGIN = "default-anonymous-login";
 
     private static final String MAX_VISIBLE_COLUMNS = "max-visible-columns";
     
@@ -99,6 +101,7 @@ public class WebClientConfigurationProvider
     private void init(Properties properties)
     {
         webClientConfiguration.setDefaultViewMode(extractDefaultViewMode(properties));
+        webClientConfiguration.setDefaultAnonymousLogin(extractDefaultAnonymousLogin(properties));
         webClientConfiguration.setMaxVisibleColumns(extractMaxVisibleColumns(properties));
         webClientConfiguration.setMaxEntityVisits(PropertyUtils.getInt(properties,
                 MAX_ENTITY_VISITS, DEFAULT_MAX_ENTITY_VISITS));
@@ -193,6 +196,11 @@ public class WebClientConfigurationProvider
         {
             return ViewMode.NORMAL;
         }
+    }
+
+    private boolean extractDefaultAnonymousLogin(Properties properties)
+    {
+        return PropertyUtils.getBoolean(properties, DEFAULT_ANONYMOUS_LOGIN, false);
     }
 
     private int extractMaxVisibleColumns(Properties properties)

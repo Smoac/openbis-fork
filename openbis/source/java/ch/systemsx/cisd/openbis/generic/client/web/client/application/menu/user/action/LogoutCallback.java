@@ -18,14 +18,13 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.user
 
 import com.google.gwt.user.client.History;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 
 final class LogoutCallback extends AbstractAsyncCallback<Void>
 {
-    LogoutCallback(IViewContext<ICommonClientServiceAsync> viewContext)
+    LogoutCallback(IViewContext<?> viewContext)
     {
         super(viewContext);
         System.out.println("CREATE " + this);

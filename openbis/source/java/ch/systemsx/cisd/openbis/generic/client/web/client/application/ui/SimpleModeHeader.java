@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SearchWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.HomeLocatorResolver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.user.action.LoginAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.user.action.LogoutAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
@@ -71,7 +72,8 @@ public class SimpleModeHeader extends LayoutContainer
         toolBar.add(new FillToolItem());
         toolBar.add(new SearchWidget(viewContext));
         toolBar.add(new SeparatorToolItem());
-        toolBar.add(createLogoutButton());
+        toolBar.add(viewContext.getModel().isAnonymousLogin() ? createLoginButton()
+                : createLogoutButton());
     }
 
     private Component createHomeButton()
@@ -92,21 +94,36 @@ public class SimpleModeHeader extends LayoutContainer
             });
     }
 
-    private Button createLogoutButton()
+    private Button createLoginButton()
     {
-        String logoutLabel = viewContext.getMessage(Dict.BUTTON_LOGOUT_LABEL);
+        String logoutLabel = viewContext.getMessage(Dict.BUTTON_LOGIN_LABEL);
         return new Button(logoutLabel, new SelectionListener<ButtonEvent>()
             {
-                private LogoutAction logoutAction = new LogoutAction(viewContext);
+                private LoginAction loginAction = new LoginAction(viewContext);
                 @Override
                 public void componentSelected(ButtonEvent ce)
                 {
-                    logoutAction.execute();
+                    loginAction.execute();
                 }
 
             });
     }
 
+    private Button createLogoutButton()
+    {
+        String logoutLabel = viewContext.getMessage(Dict.BUTTON_LOGOUT_LABEL);
+        return new Button(logoutLabel, new SelectionListener<ButtonEvent>()
+                {
+            private LogoutAction logoutAction = new LogoutAction(viewContext);
+            @Override
+            public void componentSelected(ButtonEvent ce)
+            {
+                logoutAction.execute();
+            }
+            
+                });
+    }
+    
     @Override
     protected void onRender(final Element parent, final int pos)
     {

@@ -33,7 +33,7 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext.ClientStaticState;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ColumnSetting;
@@ -72,25 +72,22 @@ public class DisplaySettingsManager
         void executeDelayed(int delayMs);
     }
 
-    /**
-     * Creates an instance for the specified display settings.
-     */
     public DisplaySettingsManager(DisplaySettings displaySettings,
-            final IDelegatedAction settingsUpdater, WebClientConfiguration webClientConfiguration)
+            IDelegatedAction settingsUpdater, IViewContext<?> viewContext)
     {
-        this(displaySettings, createDelayedUpdater(settingsUpdater), webClientConfiguration);
+        this(displaySettings, createDelayedUpdater(settingsUpdater, viewContext), viewContext
+                .getModel().getApplicationInfo().getWebClientConfiguration());
     }
 
-    @SuppressWarnings("deprecation")
-    private static IDelayedUpdater createDelayedUpdater(final IDelegatedAction settingsUpdater)
+    private static IDelayedUpdater createDelayedUpdater(final IDelegatedAction settingsUpdater, IViewContext<?> viewContext)
     {
-        if (ClientStaticState.isSimpleMode())
+        if (viewContext.getModel().isDisplaySettingsSaving() == false)
         {
             return new IDelayedUpdater()
                 {
                     public void executeDelayed(int delayMs)
                     {
-                        // in simple view mode settings are temporary - don't save them at all
+                        // in simple view mode or anonymous login settings are temporary - don't save them at all
                     }
                 };
         } else

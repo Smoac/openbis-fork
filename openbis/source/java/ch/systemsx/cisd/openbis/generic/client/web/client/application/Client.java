@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.Vi
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.DefaultClientPluginFactoryProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactoryProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ModuleInitializationController;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.BasicLoginCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
@@ -196,6 +197,7 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
                     GenericViewModel model = viewContext.getModel();
                     model.setApplicationInfo(info);
                     model.setViewMode(viewMode);
+                    model.setAnonymousLogin(isAnonymousLogin(info));
                     // the callback sets the SessionContext and redirects to the login page or the
                     // initial page and may additionaly open an initial tab
                     SessionContextCallback sessionContextCallback =
@@ -213,6 +215,16 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
                                     .getWebClientConfiguration().getDefaultViewMode();
                     viewContext.log("viewMode = " + viewMode);
                     return viewMode;
+                }
+                
+                private boolean isAnonymousLogin(ApplicationInfo info)
+                {
+                    String anonymousOrNull = Window.Location.getParameter(BasicConstant.ANONYMOUS_KEY);
+                    if (anonymousOrNull != null)
+                    {
+                        return anonymousOrNull.equalsIgnoreCase("yes") || anonymousOrNull.equalsIgnoreCase("true");
+                    }
+                    return info.getWebClientConfiguration().isDefaultAnonymousLogin();
                 }
 
                 private ViewMode tryGetUrlViewMode()
@@ -301,7 +313,15 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
             final Dispatcher dispatcher = Dispatcher.get();
             if (sessionContext == null)
             {
-                dispatcher.dispatch(AppEvents.LOGIN);
+                if (viewContext.getModel().isAnonymousLogin())
+                {
+                    viewContext.getService().tryToLoginAnonymously(
+                            new BasicLoginCallback(viewContext.getCommonViewContext(),
+                                    Dict.ANONYMOUS_LOGIN_FAILED));
+                } else
+                {
+                    dispatcher.dispatch(AppEvents.LOGIN);
+                }
             } else
             {
                 viewContext.getModel().setSessionContext(sessionContext);

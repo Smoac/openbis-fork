@@ -27,6 +27,7 @@ import javax.annotation.Resource;
 
 import org.springframework.dao.DataAccessException;
 
+import ch.systemsx.cisd.authentication.IPrincipalProvider;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
@@ -75,6 +76,22 @@ import ch.systemsx.cisd.openbis.generic.shared.util.ServerUtils;
  */
 public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> implements IServer
 {
+    protected static final class AuthenticatedPersonBasedPrincipalProvider implements IPrincipalProvider
+        {
+            private final PersonPE person;
+        
+            AuthenticatedPersonBasedPrincipalProvider(PersonPE person)
+            {
+                this.person = person;
+            }
+        
+            public Principal tryToGetPrincipal(String userID)
+            {
+                return new Principal(person.getUserId(), person.getFirstName(),
+                        person.getLastName(), person.getEmail(), true);
+            }
+        }
+
     @Resource(name = ResourceNames.SAMPLE_PLUGIN_REGISTRY)
     private SampleServerPluginRegistry sampleServerPluginRegistry;
 
@@ -97,6 +114,8 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     private IRemoteHostValidator remoteHostValidator;
 
     private IPropertiesBatchManager propertiesBatchManager;
+    
+    private String userForAnonymousLogin;
 
     protected AbstractServer()
     {
@@ -131,6 +150,11 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
             propertiesBatchManager = new PropertiesBatchManager();
         }
         return propertiesBatchManager;
+    }
+    
+    public final void setUserForAnonymousLogin(String userID)
+    {
+        userForAnonymousLogin = userID != null && userID.startsWith("$") == false ? userID : null;
     }
 
     public final void setSampleTypeSlaveServerPlugin(
@@ -265,9 +289,28 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         }
     }
 
+    public SessionContextDTO tryToAuthenticateAnonymously()
+    {
+        if (userForAnonymousLogin == null)
+        {
+            return null;
+        }
+        final PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(userForAnonymousLogin);
+        if (person == null)
+        {
+            return null;
+        }
+        return tryToAuthenticate(sessionManager.tryToOpenSession(userForAnonymousLogin,
+                new AuthenticatedPersonBasedPrincipalProvider(person)));
+    }
+
     public final SessionContextDTO tryToAuthenticate(final String user, final String password)
     {
-        final String sessionToken = sessionManager.tryToOpenSession(user, password);
+        return tryToAuthenticate(sessionManager.tryToOpenSession(user, password));
+    }
+
+    private SessionContextDTO tryToAuthenticate(final String sessionToken)
+    {
         if (sessionToken == null)
         {
             return null;

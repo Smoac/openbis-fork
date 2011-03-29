@@ -222,6 +222,11 @@ public abstract class AbstractServerLogger implements IServer
         return null;
     }
 
+    public SessionContextDTO tryToAuthenticateAnonymously()
+    {
+        return null;
+    }
+
     public SessionContextDTO tryGetSession(String sessionToken)
     {
         logAccess(sessionToken, "tryGetCurrentSession");

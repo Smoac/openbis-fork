@@ -38,6 +38,9 @@ public interface IClientServiceAsync
     /** @see IClientService#tryToLogin(String, String) */
     public void tryToLogin(String userID, String password, AsyncCallback<SessionContext> callback);
 
+    /** @see IClientService#tryToLoginAnonymously() */
+    public void tryToLoginAnonymously(AsyncCallback<SessionContext> callback);
+    
     /** @see IClientService#setBaseURL(String) */
     public void setBaseURL(String baseURL, AsyncCallback<SessionContext> callback);
 

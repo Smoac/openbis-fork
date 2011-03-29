@@ -32,6 +32,8 @@ public class GenericViewModel
     private SessionContext sessionContext;
 
     private ViewMode viewMode;
+    
+    private boolean anonymousLogin;
 
     public final ApplicationInfo getApplicationInfo()
     {
@@ -61,5 +63,20 @@ public class GenericViewModel
     public void setViewMode(ViewMode viewMode)
     {
         this.viewMode = viewMode;
+    }
+
+    public void setAnonymousLogin(boolean anonymousLogin)
+    {
+        this.anonymousLogin = anonymousLogin;
+    }
+
+    public boolean isAnonymousLogin()
+    {
+        return anonymousLogin;
+    }
+    
+    public boolean isDisplaySettingsSaving()
+    {
+        return isAnonymousLogin() == false && ViewMode.NORMAL.equals(getViewMode());
     }
 }

@@ -163,19 +163,11 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
             {
                 public void execute()
                 {
-                    AbstractAsyncCallback<Void> callback =
-                            new AbstractAsyncCallback<Void>(CommonViewContext.this)
-                                {
-                                    @Override
-                                    public final void process(final Void result)
-                                    {
-                                    }
-                                };
-                    service.updateDisplaySettings(displaySettings, callback);
+                    service.updateDisplaySettings(displaySettings, new VoidAsyncCallback<Void>(
+                            CommonViewContext.this));
                 }
             };
-        return new DisplaySettingsManager(displaySettings, settingsUpdater,
-                webClientConfigurationDTO);
+        return new DisplaySettingsManager(displaySettings, settingsUpdater, this);
     }
 
     public final IGenericImageBundle getImageBundle()

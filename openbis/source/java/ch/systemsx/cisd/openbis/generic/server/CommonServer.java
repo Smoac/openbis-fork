@@ -33,9 +33,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import ch.systemsx.cisd.authentication.IAuthenticationService;
-import ch.systemsx.cisd.authentication.IPrincipalProvider;
 import ch.systemsx.cisd.authentication.ISessionManager;
-import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
@@ -279,14 +277,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         role.setRole(RoleCode.ADMIN);
         systemUser.addRoleAssignment(role);
         String sessionToken =
-                sessionManager.tryToOpenSession(systemUser.getUserId(), new IPrincipalProvider()
-                    {
-                        public Principal tryToGetPrincipal(String userID)
-                        {
-                            return new Principal(systemUser.getUserId(), systemUser.getFirstName(),
-                                    systemUser.getLastName(), systemUser.getEmail(), true);
-                        }
-                    });
+                sessionManager.tryToOpenSession(systemUser.getUserId(),
+                        new AuthenticatedPersonBasedPrincipalProvider(systemUser));
         Session session = sessionManager.getSession(sessionToken);
         session.setPerson(systemUser);
         return tryGetSession(sessionToken);

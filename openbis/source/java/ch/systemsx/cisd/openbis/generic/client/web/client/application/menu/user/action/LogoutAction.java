@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.user.action;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
@@ -28,9 +27,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
  */
 public class LogoutAction implements IDelegatedAction
 {
-    private final IViewContext<ICommonClientServiceAsync> viewContext;
+    private final IViewContext<?> viewContext;
 
-    public LogoutAction(final IViewContext<ICommonClientServiceAsync> viewContext)
+    public LogoutAction(final IViewContext<?> viewContext)
     {
         this.viewContext = viewContext;
     }
@@ -40,7 +39,7 @@ public class LogoutAction implements IDelegatedAction
         DisplaySettings displaySettings =
                 viewContext.getModel().getSessionContext().getDisplaySettings();
 
-        viewContext.getService().logout(displaySettings, viewContext.isSimpleMode(),
-                new LogoutCallback(viewContext));
+        viewContext.getService().logout(displaySettings,
+                viewContext.getModel().isDisplaySettingsSaving(), new LogoutCallback(viewContext));
     }
 }
