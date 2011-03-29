@@ -54,6 +54,10 @@ public class DataSetUploadClientServingServlet extends AbstractWebStartClientSer
                     + "    <argument>${session-id}</argument>\n" + "  </application-desc>\n"
                     + "</jnlp>");
 
+    // This must be the same value as what is assigned to the ${dss_upload_gui} variable in
+    // dss/build.xml .
+    private static final String UPLOAD_GUI_PATH = "dss_upload_gui";
+
     @Resource(name = ResourceNames.COMMON_SERVER)
     private ICommonServer server;
 
@@ -91,7 +95,9 @@ public class DataSetUploadClientServingServlet extends AbstractWebStartClientSer
         {
             if (null == codebaseUrl)
             {
-                codebaseUrl = server.getDefaultPutDataStoreBaseURL(getSessionToken(request));
+                codebaseUrl =
+                        server.getDefaultPutDataStoreBaseURL(getSessionToken(request)) + "/"
+                                + UPLOAD_GUI_PATH;
             }
         }
 
