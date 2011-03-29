@@ -37,6 +37,8 @@ import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.io.FileBasedContent;
 import ch.systemsx.cisd.common.io.IContent;
+import ch.systemsx.cisd.imagereaders.ImageReaderConstants;
+import ch.systemsx.cisd.imagereaders.ImageReadersTestHelper;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.IImagingDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageTransfomationFactories;
@@ -86,8 +88,10 @@ public class ImageChannelsUtilsTest extends AssertJUnit
     private IImageTransformerFactory transformerFactory;
 
     @BeforeMethod
-    public void setUp()
+    public void setUp() throws Exception
     {
+        ImageReadersTestHelper.setUpLibraries(ImageReaderConstants.IMAGEIO_LIBRARY,
+                ImageReaderConstants.JAI_LIBRARY, ImageReaderConstants.IMAGEJ_LIBRARY);
         context = new Mockery();
         loader = context.mock(IImagingDatasetLoader.class);
         transformerFactory = context.mock(IImageTransformerFactory.class);
