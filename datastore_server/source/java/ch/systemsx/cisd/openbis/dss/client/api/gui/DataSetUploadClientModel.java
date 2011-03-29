@@ -36,13 +36,11 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTOBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.PropertyValidator;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.PropertyValidator.IDataTypeValidator;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyTypeGroup;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.util.SimplePropertyValidator;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -64,6 +62,9 @@ public class DataSetUploadClientModel
 
     // Track which files a user selected to make share the list of files in the selection combo box.
     private final ArrayList<File> userSelectedFiles = new ArrayList<File>();
+
+    // Generic validator for property values.
+    private final SimplePropertyValidator simplePropertyValidator = new SimplePropertyValidator();
 
     // References to UI elements that are looking at the client model -- a way of implementing
     // observer.
@@ -471,42 +472,14 @@ public class DataSetUploadClientModel
             return;
         }
 
-        if (propertyType.getDataType() == DataTypeCode.INTEGER)
-        {
-            validatePropertyTypeWithValidator(propertyType, valueOrNull, errors,
-                    new PropertyValidator.IntegerValidator());
-        }
-
-        if (propertyType.getDataType() == DataTypeCode.REAL)
-        {
-            validatePropertyTypeWithValidator(propertyType, valueOrNull, errors,
-                    new PropertyValidator.RealValidator());
-        }
-
-        if (propertyType.getDataType() == DataTypeCode.BOOLEAN)
-        {
-            validatePropertyTypeWithValidator(propertyType, valueOrNull, errors,
-                    new PropertyValidator.BooleanValidator());
-        }
-
-        if (propertyType.getDataType() == DataTypeCode.TIMESTAMP)
-        {
-            validatePropertyTypeWithValidator(propertyType, valueOrNull, errors,
-                    new PropertyValidator.TimestampValidator());
-        }
-
-    }
-
-    private void validatePropertyTypeWithValidator(PropertyType propertyType, String valueOrNull,
-            ArrayList<ValidationError> errors, IDataTypeValidator validator)
-    {
         try
         {
-            validator.validate(valueOrNull);
+            simplePropertyValidator.validatePropertyValue(propertyType.getDataType(), valueOrNull);
         } catch (UserFailureException e)
         {
             errors.add(ValidationError.createPropertyValidationError(propertyType.getCode(),
                     e.getMessage()));
         }
+
     }
 }
