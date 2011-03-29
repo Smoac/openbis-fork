@@ -173,8 +173,6 @@ public abstract class Dict
 
     public static final String LOGIN_FAILED = "login_failed";
     
-    public static final String ANONYMOUS_LOGIN_FAILED = "anonymous_login_failed";
-
     //
     // AbstractAsyncCallback
     //

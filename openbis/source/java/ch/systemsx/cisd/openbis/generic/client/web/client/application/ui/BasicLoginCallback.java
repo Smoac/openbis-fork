@@ -50,19 +50,7 @@ public class BasicLoginCallback extends AbstractAsyncCallback<SessionContext>
     {
         if (sessionContext == null)
         {
-            MessageBox.alert(viewContext.getMessage(Dict.MESSAGEBOX_WARNING), viewContext
-                    .getMessage(warningMessageKey), new Listener<MessageBoxEvent>()
-                {
-
-                    //
-                    // Listener
-                    //
-
-                    public void handleEvent(final MessageBoxEvent be)
-                    {
-                        viewContext.getPageController().reload(false);
-                    }
-                });
+            handleMissingSession();
         } else
         {
             cleanup();
@@ -77,6 +65,23 @@ public class BasicLoginCallback extends AbstractAsyncCallback<SessionContext>
             viewContext.getPageController().reload(false);
             keepSessionAlive();
         }
+    }
+
+    protected void handleMissingSession()
+    {
+        MessageBox.alert(viewContext.getMessage(Dict.MESSAGEBOX_WARNING), viewContext
+                .getMessage(warningMessageKey), new Listener<MessageBoxEvent>()
+            {
+
+                //
+                // Listener
+                //
+
+                public void handleEvent(final MessageBoxEvent be)
+                {
+                    viewContext.getPageController().reload(false);
+                }
+            });
     }
 
     /**

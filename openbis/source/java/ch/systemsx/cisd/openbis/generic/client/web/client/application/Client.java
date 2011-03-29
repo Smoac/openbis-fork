@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.Pe
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ProjectLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.SearchLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorResolverRegistry;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.user.action.LoginAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.DefaultClientPluginFactoryProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactoryProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ModuleInitializationController;
@@ -316,8 +317,14 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
                 if (viewContext.getModel().isAnonymousLogin())
                 {
                     viewContext.getService().tryToLoginAnonymously(
-                            new BasicLoginCallback(viewContext.getCommonViewContext(),
-                                    Dict.ANONYMOUS_LOGIN_FAILED));
+                            new BasicLoginCallback(viewContext.getCommonViewContext(), null)
+                                {
+                                    @Override
+                                    protected void handleMissingSession()
+                                    {
+                                        new LoginAction(viewContext).execute();
+                                    }
+                                });
                 } else
                 {
                     dispatcher.dispatch(AppEvents.LOGIN);
