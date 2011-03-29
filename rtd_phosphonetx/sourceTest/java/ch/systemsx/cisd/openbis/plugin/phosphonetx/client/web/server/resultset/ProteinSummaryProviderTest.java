@@ -51,7 +51,7 @@ public class ProteinSummaryProviderTest extends AbstractProviderTest
         ProteinSummaryProvider provider =
                 new ProteinSummaryProvider(phosphonetxServer, SESSION_TOKEN, new TechId(12));
 
-        TypedTableModel<ProteinSummary> model = provider.createTableModel(10);
+        TypedTableModel<ProteinSummary> model = provider.createTableModel(Integer.MAX_VALUE);
 
         assertEquals("[FDR, PROTEIN_COUNT, PEPTIDE_COUNT]", getHeaderIDs(model).toString());
         assertEquals("[REAL, INTEGER, INTEGER]", getHeaderDataTypes(model).toString());

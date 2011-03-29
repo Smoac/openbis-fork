@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
+package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids;
 
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateMetadataBrowser;
 
 /**
  * Defines IDs of {@link PlateMetadataBrowser}.
  */
-public class PlateMetadataGridIDs
+public class PlateMetadataGridColumnIDs
 {
-    public static final String CODE = "CODE"; 
-    public static final String TYPE = "TYPE"; 
+    public static final String CODE = "CODE";
+
+    public static final String TYPE = "TYPE";
 }

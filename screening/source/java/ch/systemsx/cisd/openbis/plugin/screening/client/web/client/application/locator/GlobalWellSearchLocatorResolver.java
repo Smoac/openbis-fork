@@ -13,7 +13,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureE
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningModule;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ExperimentPlateLocationsSection;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.WellSearchComponent;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
 
 /**
@@ -51,9 +51,14 @@ public class GlobalWellSearchLocatorResolver extends AbstractViewLocatorResolver
                     Boolean exactMatchOnly =
                             getOptionalBooleanParameter(locator,
                                     ScreeningLinkExtractor.WELL_SEARCH_IS_EXACT_PARAMETER_KEY);
+                    boolean showCombinedResults =
+                            getOptionalBooleanParameter(
+                                    locator,
+                                    ScreeningLinkExtractor.WELL_SEARCH_SHOW_COMBINED_RESULTS_PARAMETER_KEY,
+                                    ScreeningLinkExtractor.WELL_SEARCH_SHOW_COMBINED_RESULTS_DEFAULT);
                     TabContent wellSearchTab =
-                            new ExperimentPlateLocationsSection(viewContext, materialsList,
-                                    exactMatchOnly);
+                            new WellSearchComponent(viewContext, materialsList, exactMatchOnly,
+                                    showCombinedResults);
                     return DefaultTabItem.createUnaware(wellSearchTab, false, viewContext);
                 }
 
@@ -66,7 +71,7 @@ public class GlobalWellSearchLocatorResolver extends AbstractViewLocatorResolver
                 @Override
                 public String getTabTitle()
                 {
-                    return ExperimentPlateLocationsSection.getTabTitle(viewContext);
+                    return WellSearchComponent.getTabTitle(viewContext);
                 }
 
                 @Override

@@ -81,6 +81,22 @@ public final class Dict extends ch.systemsx.cisd.openbis.generic.client.web.clie
 
     public static final String WELLS_SEARCH_MENU_ITEM = "WELLS_SEARCH";
 
+    public static final String WELLS_SEARCH_SHOW_COMBINED_RESULTS =
+            "WELLS_SEARCH_SHOW_COMBINED_RESULTS";
+
+    public static final String WELL_SEARCH_NO_RESULTS_IN_ANY_EXP_FOUND =
+            "WELL_SEARCH_NO_RESULTS_IN_ANY_EXP_FOUND";
+
+    public static final String WELL_SEARCH_NO_RESULTS_IN_SELECTED_EXP_FOUND =
+            "WELL_SEARCH_NO_RESULTS_IN_SELECTED_EXP_FOUND";
+
+    public static final String WELL_SEARCH_PERFORM_IN_ALL_EXP = "WELL_SEARCH_PERFORM_IN_ALL_EXP";
+
+    public static final String MATERIAL_DISAMBIGUATION_TITLE = "MATERIAL_DISAMBIGUATION_TITLE";
+
+    public static final String MATERIAL_DISAMBIGUATION_GRID_EXPLANATION =
+            "MATERIAL_DISAMBIGUATION_GRID_EXPLANATION";
+
     private Dict()
     {
         // Can not be instantiated.

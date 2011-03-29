@@ -43,8 +43,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMetadataGridIDs;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.PlateMetadataGridColumnIDs;
 
 /**
  * Allows to create a table containing metadata of selected plate.
@@ -145,7 +145,7 @@ public class PlateMetadataBrowser extends TypedTableGrid<WellMetadata>
 
     private void linkWellSample()
     {
-        registerListenerAndLinkGenerator(PlateMetadataGridIDs.CODE,
+        registerListenerAndLinkGenerator(PlateMetadataGridColumnIDs.CODE,
                 new ICellListenerAndLinkGenerator<WellMetadata>()
                     {
 

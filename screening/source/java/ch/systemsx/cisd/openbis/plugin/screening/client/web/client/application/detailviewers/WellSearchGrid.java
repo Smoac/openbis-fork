@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
-import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchGridColumnIds.WELL;
-import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchGridColumnIds.WELL_CONTENT_MATERIAL;
+import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.WellSearchGridColumnIds.WELL;
+import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.WellSearchGridColumnIds.WELL_CONTENT_MATERIAL;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -88,7 +88,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCrit
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.SingleExperimentSearchCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchGridColumnIds;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.WellSearchGridColumnIds;
 
 /**
  * @author Franz-Josef Elmer
@@ -113,7 +113,8 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
     // by experiment perm id
     public static void openTab(
             final IViewContext<IScreeningClientServiceAsync> screeningViewContext,
-            final String experimentPermId, final MaterialSearchCriteria materialSearchCriteria)
+            final String experimentPermId, final MaterialSearchCriteria materialSearchCriteria,
+            final boolean showCombinedResults)
     {
         screeningViewContext.getCommonService().getEntityInformationHolder(EntityKind.EXPERIMENT,
                 experimentPermId,
@@ -125,7 +126,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
                         {
                             TechId experimentId = new TechId(experimentIdentifier.getId());
                             WellSearchGrid.openTab(screeningViewContext, experimentId,
-                                    materialSearchCriteria);
+                                    materialSearchCriteria, showCombinedResults);
                         }
                     });
     }
@@ -133,7 +134,8 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
     // by experiment tech id
     private static void openTab(
             final IViewContext<IScreeningClientServiceAsync> screeningViewContext,
-            TechId experimentId, final MaterialSearchCriteria materialSearchCriteria)
+            TechId experimentId, final MaterialSearchCriteria materialSearchCriteria,
+            final boolean showCombinedResults)
     {
         screeningViewContext.getCommonService().getExperimentInfo(experimentId,
                 new AbstractAsyncCallback<Experiment>(screeningViewContext)
@@ -145,24 +147,40 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
                                     ExperimentSearchCriteria.createExperiment(experiment.getId(),
                                             experiment.getPermId(), experiment.getIdentifier());
                             WellSearchGrid.openTab(screeningViewContext, experimentCriteria,
-                                    materialSearchCriteria);
+                                    materialSearchCriteria, showCombinedResults);
                         }
                     });
     }
 
     public static void openTab(final IViewContext<IScreeningClientServiceAsync> viewContext,
             final ExperimentSearchCriteria experimentCriteria,
-            final MaterialSearchCriteria materialCriteria)
+            final MaterialSearchCriteria materialCriteria, final boolean showCombinedResults)
     {
-        final AbstractTabItemFactory tabFactory = new AbstractTabItemFactory()
+        WellSearchCriteria searchCriteria =
+                new WellSearchCriteria(experimentCriteria, materialCriteria);
+        if (showCombinedResults)
+        {
+            openWellSearchTab(viewContext, searchCriteria);
+        } else
+        {
+            MaterialDisambiguationGrid.openTab(viewContext, searchCriteria);
+        }
+    }
+
+    private static void openWellSearchTab(
+            final IViewContext<IScreeningClientServiceAsync> viewContext,
+            final WellSearchCriteria searchCriteria)
+    {
+        DispatcherHelper.dispatchNaviEvent(new AbstractTabItemFactory()
             {
                 @Override
                 public ITabItem create()
                 {
-                    IDisposableComponent reviewer =
-                            WellSearchGrid
-                                    .create(viewContext, experimentCriteria, materialCriteria);
-                    return DefaultTabItem.create(getTabTitle(), reviewer, viewContext);
+                    IDisposableComponent grid =
+                            WellSearchGrid.create(viewContext,
+                                    searchCriteria.getExperimentCriteria(),
+                                    searchCriteria.getMaterialSearchCriteria());
+                    return DefaultTabItem.create(getTabTitle(), grid, viewContext);
                 }
 
                 @Override
@@ -188,15 +206,9 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
                 @Override
                 public String tryGetLink()
                 {
-                    SingleExperimentSearchCriteria experimentCriteriaOrNull =
-                            experimentCriteria.tryGetExperiment();
-                    return ScreeningLinkExtractor.createWellsSearchLink(
-                            (experimentCriteriaOrNull != null ? experimentCriteriaOrNull
-                                    .getExperimentPermId() : null), materialCriteria
-                                    .tryGetMaterialCodesOrProperties());
+                    return ScreeningLinkExtractor.createWellsSearchLink(searchCriteria, true);
                 }
-            };
-        DispatcherHelper.dispatchNaviEvent(tabFactory);
+            });
     }
 
     public static IDisposableComponent create(
@@ -220,17 +232,17 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
                 public void update(Set<DatabaseModificationKind> observedModifications)
                 {
                 }
-                
+
                 public DatabaseModificationKind[] getRelevantModifications()
                 {
                     return null;
                 }
-                
+
                 public Component getComponent()
                 {
                     return toolbar;
                 }
-                
+
                 public void dispose()
                 {
                 }
@@ -488,6 +500,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
         chooserField.setEditable(false);
         if (experimentCriteriaOrNull != null && experimentCriteriaOrNull.tryGetExperiment() != null)
         {
+            // we search in a single experiment
             updateSingleExperimentChooser(chooserField, experimentCriteriaOrNull.tryGetExperiment());
         } else
         {
@@ -661,7 +674,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
             TableExportCriteria<TableModelRowWithObject<WellContent>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
-        viewContext.getService().prepareExportPlateLocations(exportCriteria, callback);
+        viewContext.getService().prepareExportPlateWells(exportCriteria, callback);
     }
 
     @Override

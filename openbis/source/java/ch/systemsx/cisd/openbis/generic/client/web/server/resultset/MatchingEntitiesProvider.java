@@ -32,32 +32,38 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public class MatchingEntitiesProvider extends AbstractCommonTableModelProvider<MatchingEntity>
+public class MatchingEntitiesProvider implements ITableModelProvider<MatchingEntity>
 {
+    private final ICommonServer commonServer;
+
+    private final String sessionToken;
+
     private final SearchableEntity[] matchingEntities;
+
     private final String queryText;
+
     private final boolean useWildcardSearchMode;
 
     public MatchingEntitiesProvider(ICommonServer commonServer, String sessionToken,
             SearchableEntity[] matchingEntities, String queryText, boolean useWildcardSearchMode)
     {
-        super(commonServer, sessionToken);
+        this.commonServer = commonServer;
+        this.sessionToken = sessionToken;
+
         this.matchingEntities = matchingEntities;
         this.queryText = queryText;
         this.useWildcardSearchMode = useWildcardSearchMode;
     }
 
-    @Override
-    protected TypedTableModel<MatchingEntity> createTableModel(int maxSize)
+    public TypedTableModel<MatchingEntity> getTableModel(int maxSize)
     {
         List<MatchingEntity> entities =
-            commonServer.listMatchingEntities(sessionToken, matchingEntities, queryText,
-                    useWildcardSearchMode, maxSize);
-        TypedTableModelBuilder<MatchingEntity> builder = new TypedTableModelBuilder<MatchingEntity>();
+                commonServer.listMatchingEntities(sessionToken, matchingEntities, queryText,
+                        useWildcardSearchMode, maxSize);
+        TypedTableModelBuilder<MatchingEntity> builder =
+                new TypedTableModelBuilder<MatchingEntity>();
         builder.addColumn(ENTITY_KIND);
         builder.addColumn(ENTITY_TYPE);
         builder.addColumn(IDENTIFIER).withDefaultWidth(140);

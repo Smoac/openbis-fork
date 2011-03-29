@@ -195,6 +195,13 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                 materialCriteria);
     }
 
+    public List<Material> listMaterials(String sessionToken, WellSearchCriteria materialCriteria)
+    {
+        Session session = getSession(sessionToken);
+        return WellContentLoader.loadMaterials(session, businessObjectFactory, getDAOFactory(),
+                materialCriteria);
+    }
+
     public FeatureVectorValues getWellFeatureVectorValues(String sessionToken, String datasetCode,
             String datastoreCode, WellLocation wellLocation)
     {

@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.server;
 
-import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMetadataGridIDs.CODE;
-import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMetadataGridIDs.TYPE;
+import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.PlateMetadataGridColumnIDs.CODE;
+import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.PlateMetadataGridColumnIDs.TYPE;
 
 import java.util.List;
 

@@ -112,6 +112,17 @@ public interface IScreeningServer extends IServer
             @AuthorizationGuard(guardClass = WellSearchCriteriaPredicate.class) WellSearchCriteria materialCriteria);
 
     /**
+     * @return materials with codes or properties matching to the query. If the experiment is
+     *         specified, only materials inside well locations connected through the plate to this
+     *         specified experiment(s) will be returned.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public List<Material> listMaterials(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = WellSearchCriteriaPredicate.class) WellSearchCriteria materialCriteria);
+
+    /**
      * Loads all materials of specified type connected with the specified experiment.
      * 
      * @param materialType

@@ -24,7 +24,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialSearchCodesCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.SingleExperimentSearchCriteria;
 
 /**
  * Defines the ways simple view mode links for screening specific views are created.
@@ -49,6 +51,12 @@ public class ScreeningLinkExtractor extends LinkExtractor
 
     public final static String WELL_SEARCH_MATERIAL_ITEMS_PARAMETER_KEY = "items";
 
+    /** should we show disambiguation pge if more than one material matchs the query? */
+    public final static String WELL_SEARCH_SHOW_COMBINED_RESULTS_PARAMETER_KEY =
+            "showCombinedResults";
+
+    public final static boolean WELL_SEARCH_SHOW_COMBINED_RESULTS_DEFAULT = true;
+
     public static final String createPlateMetadataBrowserLink(String platePermId)
     {
         URLMethodWithParameters url = new URLMethodWithParameters("");
@@ -57,15 +65,27 @@ public class ScreeningLinkExtractor extends LinkExtractor
         return tryPrint(url);
     }
 
-    // action=WELL_SEARCH&experimentPermId=8127361723172863&isExactSearch=true&types=typeCode1,typeCode2&items=code1,property2"
-    public static String createWellsSearchLink(final String experimentPermId,
-            final MaterialSearchCodesCriteria materialCodesCriteria)
+    // action=WELL_SEARCH&experimentPermId=8127361723172863&isExactSearch=true&types=typeCode1,typeCode2&items=code1,property2&showCombinedResults=false"
+    public static String createWellsSearchLink(WellSearchCriteria searchCriteria,
+            boolean showCombinedResults)
+    {
+        SingleExperimentSearchCriteria expOrNull =
+                searchCriteria.getExperimentCriteria().tryGetExperiment();
+        String experimentPermIdOrNull =
+                (expOrNull == null ? null : expOrNull.getExperimentPermId());
+        MaterialSearchCodesCriteria codesOrProperties =
+                searchCriteria.getMaterialSearchCriteria().tryGetMaterialCodesOrProperties();
+        return createWellsSearchLink(experimentPermIdOrNull, codesOrProperties, showCombinedResults);
+    }
+
+    public static String createWellsSearchLink(final String experimentPermIdOrNull,
+            final MaterialSearchCodesCriteria materialCodesCriteria, boolean showCombinedResults)
     {
         URLMethodWithParameters url = new URLMethodWithParameters("");
         url.addParameter(BasicConstant.LOCATOR_ACTION_PARAMETER, WELL_SEARCH_ACTION);
-        if (false == StringUtils.isBlank(experimentPermId))
+        if (false == StringUtils.isBlank(experimentPermIdOrNull))
         {
-            url.addParameter(EXPERIMENT_PERM_ID_PARAMETER_KEY, experimentPermId);
+            url.addParameter(EXPERIMENT_PERM_ID_PARAMETER_KEY, experimentPermIdOrNull);
         }
         url.addParameter(WELL_SEARCH_IS_EXACT_PARAMETER_KEY,
                 materialCodesCriteria.isExactMatchOnly());
@@ -73,31 +93,37 @@ public class ScreeningLinkExtractor extends LinkExtractor
                 URLListEncoder.encodeItemList(materialCodesCriteria.getMaterialTypeCodes()));
         url.addParameterWithoutEncoding(WELL_SEARCH_MATERIAL_ITEMS_PARAMETER_KEY,
                 URLListEncoder.encodeItemList(materialCodesCriteria.getMaterialCodesOrProperties()));
+        url.addParameterWithoutEncoding(WELL_SEARCH_SHOW_COMBINED_RESULTS_PARAMETER_KEY,
+                showCombinedResults);
+
         return tryPrint(url);
     }
 
     public static final String tryExtractMaterialWithExperiment(IEntityInformationHolder material,
-            String experimentIdentifier)
+            String experimentIdentifierorNull)
     {
         URLMethodWithParameters url =
                 tryCreateMaterialWithExperimentLink(material.getCode(), material.getEntityType()
-                        .getCode(), experimentIdentifier);
+                        .getCode(), experimentIdentifierorNull);
         return tryPrint(url);
     }
 
     private static final URLMethodWithParameters tryCreateMaterialWithExperimentLink(
-            String materialCode, String materialTypeCode, String experimentIdentifier)
+            String materialCode, String materialTypeCode, String experimentIdentifierOrNull)
     {
-        if (materialCode == null || materialTypeCode == null || experimentIdentifier == null)
+        if (materialCode == null || materialTypeCode == null)
         {
             return null;
         }
         URLMethodWithParameters url = tryCreateMaterialLink(materialCode, materialTypeCode);
-        // We know that experiment identifier cannot contain characters that should be encoded
-        // apart from '/'. Encoding '/' makes the URL less readable and on the other hand
-        // leaving it as it is doesn't cause us any problems.
-        url.addParameterWithoutEncoding(EXPERIMENT_PARAMETER_KEY,
-                StringEscapeUtils.unescapeHtml(experimentIdentifier));
+        if (experimentIdentifierOrNull != null)
+        {
+            // We know that experiment identifier cannot contain characters that should be encoded
+            // apart from '/'. Encoding '/' makes the URL less readable and on the other hand
+            // leaving it as it is doesn't cause us any problems.
+            url.addParameterWithoutEncoding(EXPERIMENT_PARAMETER_KEY,
+                    StringEscapeUtils.unescapeHtml(experimentIdentifierOrNull));
+        }
         return url;
     }
 

@@ -69,8 +69,7 @@ public class WellContentLoaderTest extends AbstractScreeningDAOTest
 
         Session session = createSession(getSystemPerson());
         List<WellContent> wellContents =
-                WellContentLoader.load(session, businessObjectFactory,
-                        daoFactory, searchCriteria);
+                WellContentLoader.load(session, businessObjectFactory, daoFactory, searchCriteria);
 
         // the test database contains two matching wells
         assertEquals(2, wellContents.size());

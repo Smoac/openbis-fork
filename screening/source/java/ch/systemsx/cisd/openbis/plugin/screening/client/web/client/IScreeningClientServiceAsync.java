@@ -84,10 +84,25 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
             AsyncCallback<TypedTableResultSet<WellContent>> callback);
 
     /**
-     * @see IScreeningClientService#prepareExportPlateLocations(TableExportCriteria)
+     * @see IScreeningClientService#prepareExportPlateWells(TableExportCriteria)
      */
-    public void prepareExportPlateLocations(
+    public void prepareExportPlateWells(
             TableExportCriteria<TableModelRowWithObject<WellContent>> criteria,
+            AsyncCallback<String> callback);
+
+    /**
+     * @see IScreeningClientService#listMaterials(IResultSetConfig, WellSearchCriteria)
+     */
+    public void listMaterials(
+            IResultSetConfig<String, TableModelRowWithObject<Material>> gridCriteria,
+            WellSearchCriteria materialCriteria,
+            AsyncCallback<TypedTableResultSet<Material>> callback);
+
+    /**
+     * @see IScreeningClientService#prepareExportMaterials(TableExportCriteria)
+     */
+    public void prepareExportMaterials(
+            TableExportCriteria<TableModelRowWithObject<Material>> criteria,
             AsyncCallback<String> callback);
 
     /**

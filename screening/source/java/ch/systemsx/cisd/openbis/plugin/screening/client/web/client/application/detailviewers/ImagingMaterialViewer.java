@@ -78,7 +78,7 @@ public class ImagingMaterialViewer extends GenericMaterialViewer
     {
 
         List<TabContent> sections = new ArrayList<TabContent>();
-        sections.add(new PlateLocationsMaterialSection(screeningViewContext, materialId,
+        sections.add(new WellSearchMaterialSection(screeningViewContext, materialId,
                 experimentCriteriaOrNull));
         return sections;
     }

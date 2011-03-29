@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
+package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids;
 
 
 /**

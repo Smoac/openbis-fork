@@ -28,14 +28,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ITabActionMenuItemDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TabActionMenuItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ExperimentPlateLocationsSection;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ExperimentWellMaterialsSection;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.WellSearchComponent;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator.GlobalWellSearchLocatorResolver;
 
 /**
@@ -57,34 +58,40 @@ public class ScreeningModule implements IModule
 
     public List<? extends MenuItem> getMenuItems()
     {
-        return Collections.singletonList(TabActionMenuItemFactory.createActionMenu(viewContext, ID,
-                new ITabActionMenuItemDefinition<IScreeningClientServiceAsync>()
-                    {
+        ActionMenu globalWellSearch =
+                TabActionMenuItemFactory
+                        .createActionMenu(viewContext, ID, createGlobalWellSearch());
+        return Collections.singletonList(globalWellSearch);
+    }
 
-                        public String getName()
-                        {
-                            return Dict.WELLS_SEARCH_MENU_ITEM;
-                        }
+    private ITabActionMenuItemDefinition<IScreeningClientServiceAsync> createGlobalWellSearch()
+    {
+        return new ITabActionMenuItemDefinition<IScreeningClientServiceAsync>()
+            {
+                public String getName()
+                {
+                    return Dict.WELLS_SEARCH_MENU_ITEM;
+                }
 
-                        public String getHelpPageTitle()
-                        {
-                            return "Global Well Search";
-                        }
+                public String getHelpPageTitle()
+                {
+                    return "Global Well Search";
+                }
 
-                        public DatabaseModificationAwareComponent createComponent(
-                                IViewContext<IScreeningClientServiceAsync> context)
-                        {
-                            TabContent wellSearchTab =
-                                    new ExperimentPlateLocationsSection(viewContext, null, null);
-                            return DatabaseModificationAwareComponent.wrapUnaware(wellSearchTab);
-                        }
+                public DatabaseModificationAwareComponent createComponent(
+                        IViewContext<IScreeningClientServiceAsync> context)
+                {
+                    TabContent wellSearchTab =
+                            new WellSearchComponent(viewContext, null, true, true);
+                    return DatabaseModificationAwareComponent.wrapUnaware(wellSearchTab);
+                }
 
-                        public String tryGetLink()
-                        {
-                            return GlobalWellSearchLocatorResolver.createQueryBrowserLink();
-                        }
+                public String tryGetLink()
+                {
+                    return GlobalWellSearchLocatorResolver.createQueryBrowserLink();
+                }
 
-                    }));
+            };
     }
 
     public String getName()
@@ -103,7 +110,7 @@ public class ScreeningModule implements IModule
         ArrayList<TabContent> sections = new ArrayList<TabContent>();
         if (entity.getEntityKind() == EntityKind.EXPERIMENT)
         {
-            sections.add(new ExperimentPlateLocationsSection(viewContext, entity));
+            sections.add(new WellSearchComponent(viewContext, entity));
             sections.add(new ExperimentWellMaterialsSection(viewContext, entity));
         }
         return sections;

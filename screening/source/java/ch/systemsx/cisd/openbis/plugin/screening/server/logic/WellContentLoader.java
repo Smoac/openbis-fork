@@ -134,6 +134,32 @@ public class WellContentLoader
                 .getFeatureVectorValues(datasetCode, datastoreCode, wellLocation);
     }
 
+    /**
+     * @return list of unique materials with codes or properties matching to the query. If the
+     *         experiment is specified, only materials inside well locations connected through the
+     *         plate to this specified experiment(s) will be returned.
+     */
+    public static List<Material> loadMaterials(Session session,
+            IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
+            WellSearchCriteria materialCriteria)
+    {
+        List<WellContent> locations =
+                new WellContentLoader(session, businessObjectFactory, daoFactory)
+                        .loadLocations(materialCriteria);
+        Set<Material> materials = extractMaterials(locations);
+        return new ArrayList<Material>(materials);
+    }
+
+    private static Set<Material> extractMaterials(List<WellContent> locations)
+    {
+        Set<Material> materials = new HashSet<Material>();
+        for (WellContent location : locations)
+        {
+            materials.add(location.getMaterialContent());
+        }
+        return materials;
+    }
+
     private final Session session;
 
     private final IScreeningBusinessObjectFactory businessObjectFactory;
@@ -162,8 +188,9 @@ public class WellContentLoader
         List<FeatureVectorValues> features = featureVectors.getFeatures();
         if (features.size() == 0)
         {
-            // TODO throw exception?
-            // shouldn't happen
+            // Because of the way we are storing the features it can happen only if dataset contains
+            // no features (NaN are stored in the plate matrix for the wells which have no value
+            // specified).
             return null;
         } else
         {
@@ -610,16 +637,16 @@ public class WellContentLoader
                     materialSearchCriteria.tryGetMaterialCodesOrProperties();
 
             Long expId = tryGetExperimentId(experiment);
-            long[] ids = findMaterialIds(codesCriteria);
+            long[] materialIds = findMaterialIds(codesCriteria);
             if (expId == null)
             {
                 locations =
-                        dao.getPlateLocationsForMaterialCodes(ids,
+                        dao.getPlateLocationsForMaterialCodes(materialIds,
                                 codesCriteria.getMaterialTypeCodes());
             } else
             {
                 locations =
-                        dao.getPlateLocationsForMaterialCodes(ids,
+                        dao.getPlateLocationsForMaterialCodes(materialIds,
                                 codesCriteria.getMaterialTypeCodes(), expId);
             }
 
@@ -804,5 +831,4 @@ public class WellContentLoader
         }
         return experiment.getId();
     }
-
 }

@@ -112,7 +112,13 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
 
     public List<WellContent> listPlateWells(String sessionToken, WellSearchCriteria materialCriteria)
     {
-        logAccess(sessionToken, "getPlateLocations", "criteria(%s)", materialCriteria);
+        logAccess(sessionToken, "listPlateWells", "criteria(%s)", materialCriteria);
+        return null;
+    }
+
+    public List<Material> listMaterials(String sessionToken, WellSearchCriteria materialCriteria)
+    {
+        logAccess(sessionToken, "listMaterials", "criteria(%s)", materialCriteria);
         return null;
     }
 
@@ -315,5 +321,4 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
                 "userEmail(%s), newGenesOrNull(%s), newOligosOrNull(%s), newSamplesWithType(%s)",
                 userEmail, newGenesOrNull, newOligosOrNull, newSamplesWithType);
     }
-
 }

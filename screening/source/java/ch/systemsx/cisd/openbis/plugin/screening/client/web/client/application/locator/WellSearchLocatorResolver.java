@@ -43,6 +43,10 @@ public class WellSearchLocatorResolver extends AbstractViewLocatorResolver
         boolean exactMatchOnly =
                 getMandatoryBooleanParameter(locator,
                         ScreeningLinkExtractor.WELL_SEARCH_IS_EXACT_PARAMETER_KEY);
+        boolean showCombinedResults =
+                getOptionalBooleanParameter(locator,
+                        ScreeningLinkExtractor.WELL_SEARCH_SHOW_COMBINED_RESULTS_PARAMETER_KEY,
+                        ScreeningLinkExtractor.WELL_SEARCH_SHOW_COMBINED_RESULTS_DEFAULT);
 
         MaterialSearchCodesCriteria materialCodesCriteria =
                 new MaterialSearchCodesCriteria(decodeList(materialCodesOrProperties),
@@ -53,10 +57,11 @@ public class WellSearchLocatorResolver extends AbstractViewLocatorResolver
         if (StringUtils.isBlank(experimentPermId))
         {
             WellSearchGrid.openTab(viewContext, ExperimentSearchCriteria.createAllExperiments(),
-                    materialSearchCriteria);
+                    materialSearchCriteria, showCombinedResults);
         } else
         {
-            WellSearchGrid.openTab(viewContext, experimentPermId, materialSearchCriteria);
+            WellSearchGrid.openTab(viewContext, experimentPermId, materialSearchCriteria,
+                    showCombinedResults);
         }
 
     }

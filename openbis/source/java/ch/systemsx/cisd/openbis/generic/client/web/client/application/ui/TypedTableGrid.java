@@ -132,7 +132,7 @@ public abstract class TypedTableGrid<T extends ISerializable>
                 EntityTableCell entityTableCell = (EntityTableCell) value;
                 if (entityTableCell.isMissing())
                 {
-                    return null; 
+                    return null;
                 }
                 String permId = entityTableCell.getPermId();
                 if (entityTableCell.getEntityKind() == EntityKind.MATERIAL)
@@ -460,5 +460,16 @@ public abstract class TypedTableGrid<T extends ISerializable>
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
         refreshGridSilently();
+    }
+
+    protected List<T> getContainedGridElements()
+    {
+        List<TableModelRowWithObject<T>> wrappedElements = super.getGridElements();
+        List<T> elements = new ArrayList<T>();
+        for (TableModelRowWithObject<T> wrappedElement : wrappedElements)
+        {
+            elements.add(wrappedElement.getObjectOrNull());
+        }
+        return elements;
     }
 }

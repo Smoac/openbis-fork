@@ -15,12 +15,12 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCrit
  * @author Tomasz Pylak
  * @author Izabela Adamczyk
  */
-class PlateLocationsMaterialSection extends TabContent
+class WellSearchMaterialSection extends TabContent
 {
 
     private final IDisposableComponent reviewer;
 
-    public PlateLocationsMaterialSection(
+    public WellSearchMaterialSection(
             IViewContext<IScreeningClientServiceAsync> screeningViewContext,
             final TechId materialId, ExperimentSearchCriteria experimentCriteriaOrNull)
     {
@@ -30,8 +30,7 @@ class PlateLocationsMaterialSection extends TabContent
                 screeningViewContext, materialId);
         setHeaderVisible(false);
         this.reviewer =
-                WellSearchGrid.create(screeningViewContext, experimentCriteriaOrNull,
-                        materialId);
+                WellSearchGrid.create(screeningViewContext, experimentCriteriaOrNull, materialId);
         setIds(DisplayTypeIDGenerator.PLATE_LOCATIONS_MATERIAL_SECTION);
     }
 

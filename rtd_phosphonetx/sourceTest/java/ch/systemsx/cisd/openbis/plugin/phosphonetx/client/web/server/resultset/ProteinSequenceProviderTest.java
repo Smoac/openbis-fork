@@ -52,7 +52,7 @@ public class ProteinSequenceProviderTest extends AbstractProviderTest
         ProteinSequenceProvider provider =
                 new ProteinSequenceProvider(phosphonetxServer, SESSION_TOKEN, new TechId(42));
 
-        TypedTableModel<ProteinSequence> model = provider.createTableModel(10);
+        TypedTableModel<ProteinSequence> model = provider.createTableModel(Integer.MAX_VALUE);
 
         assertEquals("[SEQUENCE_SHORT_NAME, DATABASE_NAME_AND_VERSION, SEQUENCE]", getHeaderIDs(model).toString());
         assertEquals("[VARCHAR, VARCHAR, VARCHAR]", getHeaderDataTypes(model).toString());

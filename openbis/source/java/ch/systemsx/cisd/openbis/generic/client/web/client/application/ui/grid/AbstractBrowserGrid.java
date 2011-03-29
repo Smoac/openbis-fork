@@ -435,9 +435,15 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         grid.getSelectionModel().setSelectionMode(SelectionMode.MULTI);
     }
 
-    protected final List<M> getGridModels()
+    protected List<T> getGridElements()
     {
-        return grid.getStore().getModels();
+        List<M> models = grid.getStore().getModels();
+        List<T> elements = new ArrayList<T>();
+        for (M model : models)
+        {
+            elements.add(model.getBaseObject());
+        }
+        return elements;
     }
 
     private IDelegatedAction createApplyFiltersDelagator()
@@ -490,15 +496,23 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         final LayoutContainer subContainer = new LayoutContainer();
         subContainer.setLayout(new RowLayout(Orientation.HORIZONTAL));
         subContainer.add(tree, new RowData(300, 1));
-        if (headerOrNull != null)
-        {
-            this.contentPanel.setHeaderVisible(true);
-            this.contentPanel.setHeading(headerOrNull);
-        }
+        setHeader(headerOrNull);
         subContainer.add(this, new RowData(1, 1));
         container.add(subContainer, new RowData(1, 1));
 
         return asDisposableEntityChooser(container, toolbar);
+    }
+
+    protected final void setHeader(String headerOrNull)
+    {
+        if (headerOrNull != null)
+        {
+            this.contentPanel.setHeaderVisible(true);
+            this.contentPanel.setHeading(headerOrNull);
+        } else
+        {
+            this.contentPanel.setHeaderVisible(false);
+        }
     }
 
     private DisposableEntityChooser<T> asDisposableEntityChooser(final Component mainComponent,

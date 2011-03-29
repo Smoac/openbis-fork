@@ -5,6 +5,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
 import com.extjs.gxt.ui.client.widget.layout.MarginData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.user.client.ui.Widget;
@@ -18,6 +19,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.L
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineItemsField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -30,11 +32,12 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCrit
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialSearchCriteria;
 
 /**
- * Experiment section panel which allows to find wells were selected genes have been inhibited.
+ * Allows to find wells were selected materials are contained. Used in experiment section panel or
+ * as a standalone module.
  * 
  * @author Tomasz Pylak
  */
-public class ExperimentPlateLocationsSection extends TabContent
+public class WellSearchComponent extends TabContent
 {
     public static final String ID_SUFFIX = "ExperimentPlateLocationsSection";
 
@@ -42,11 +45,14 @@ public class ExperimentPlateLocationsSection extends TabContent
 
     private final IViewContext<IScreeningClientServiceAsync> screeningViewContext;
 
+    // null means that we search in all experiments
     private final IEntityInformationHolderWithIdentifier experimentOrNull;
 
     private final MultilineItemsField materialListField;
 
     private final CheckBoxField exactMatchOnly;
+
+    private final CheckBoxField showCombinedResults;
 
     private List<MaterialType> materialTypesOrNull;
 
@@ -55,9 +61,8 @@ public class ExperimentPlateLocationsSection extends TabContent
         return viewContext.getMessage(Dict.EXPERIMENT_PLATE_MATERIAL_REVIEWER_SECTION);
     }
 
-    public ExperimentPlateLocationsSection(
-            IViewContext<IScreeningClientServiceAsync> screeningViewContext, String materialListOrNull,
-            Boolean isExactMatchOrNull)
+    public WellSearchComponent(IViewContext<IScreeningClientServiceAsync> screeningViewContext,
+            String materialListOrNull, Boolean isExactMatchOrNull, Boolean showCombinedResultsOrNull)
     {
         this(screeningViewContext, null);
 
@@ -69,23 +74,27 @@ public class ExperimentPlateLocationsSection extends TabContent
         {
             exactMatchOnly.setValue(isExactMatchOrNull);
         }
+        if (showCombinedResultsOrNull != null)
+        {
+            showCombinedResults.setValue(showCombinedResultsOrNull);
+        }
 
         setContentVisible(true);
     }
 
-    public ExperimentPlateLocationsSection(
-            IViewContext<IScreeningClientServiceAsync> screeningViewContext,
+    public WellSearchComponent(IViewContext<IScreeningClientServiceAsync> screeningViewContext,
             IEntityInformationHolderWithIdentifier experimentOrNull)
     {
-        super(getTabTitle(screeningViewContext),
-                screeningViewContext, experimentOrNull);
+        super(getTabTitle(screeningViewContext), screeningViewContext, experimentOrNull);
         this.screeningViewContext = screeningViewContext;
         this.experimentOrNull = experimentOrNull;
         this.materialListField = createMaterialListArea();
-        this.exactMatchOnly =
-                new CheckBoxField(screeningViewContext.getMessage(Dict.EXACT_MATCH_ONLY), false);
-        exactMatchOnly.setBoxLabel(screeningViewContext.getMessage(Dict.EXACT_MATCH_ONLY));
-        exactMatchOnly.setValue(true);
+        this.exactMatchOnly = createCheckBox(Dict.EXACT_MATCH_ONLY, true, screeningViewContext);
+        this.showCombinedResults =
+                createCheckBox(Dict.WELLS_SEARCH_SHOW_COMBINED_RESULTS,
+                        ScreeningLinkExtractor.WELL_SEARCH_SHOW_COMBINED_RESULTS_DEFAULT,
+                        screeningViewContext);
+
         setIds(DisplayTypeIDGenerator.EXPERIMENT_PLATE_LOCATIONS_SECTION);
         screeningViewContext.getCommonService().listMaterialTypes(
                 new AbstractAsyncCallback<List<MaterialType>>(screeningViewContext)
@@ -96,6 +105,16 @@ public class ExperimentPlateLocationsSection extends TabContent
                             materialTypesOrNull = result;
                         }
                     });
+    }
+
+    private static CheckBoxField createCheckBox(String labelDictKey, Boolean value,
+            IMessageProvider messageProvider)
+    {
+        String label = messageProvider.getMessage(labelDictKey);
+        CheckBoxField checkbox = new CheckBoxField(label, false);
+        checkbox.setBoxLabel(label);
+        checkbox.setValue(value);
+        return checkbox;
     }
 
     private MultilineItemsField createMaterialListArea()
@@ -114,7 +133,11 @@ public class ExperimentPlateLocationsSection extends TabContent
     {
         LayoutContainer container = new LayoutContainer(new RowLayout());
 
-        container.add(exactMatchOnly);
+        CheckBoxGroup checkBoxGroup = new CheckBoxGroup();
+        checkBoxGroup.add(exactMatchOnly);
+        checkBoxGroup.add(showCombinedResults);
+        container.add(checkBoxGroup);
+
         container.add(materialListField);
         container.add(createSearchLink());
 
@@ -143,9 +166,10 @@ public class ExperimentPlateLocationsSection extends TabContent
                     {
                         return null;
                     }
-                    String experimentPermId = (experimentOrNull != null) ? experimentOrNull.getPermId() : null;
+                    String experimentPermId =
+                            (experimentOrNull != null) ? experimentOrNull.getPermId() : null;
                     return ScreeningLinkExtractor.createWellsSearchLink(experimentPermId,
-                            materialCriteria);
+                            materialCriteria, showCombinedResults.getValue());
                 }
             };
         return LinkRenderer.createButtonLink(searchButton, normalModeAction, urlProvider);
@@ -160,7 +184,7 @@ public class ExperimentPlateLocationsSection extends TabContent
         }
         ExperimentSearchCriteria experimentCriteria = getExperimentSearchCriteria();
         WellSearchGrid.openTab(screeningViewContext, experimentCriteria,
-                MaterialSearchCriteria.create(materialCriteria));
+                MaterialSearchCriteria.create(materialCriteria), showCombinedResults.getValue());
     }
 
     private ExperimentSearchCriteria getExperimentSearchCriteria()

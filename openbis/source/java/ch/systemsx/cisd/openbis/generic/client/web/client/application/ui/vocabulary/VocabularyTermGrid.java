@@ -660,9 +660,9 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
     private List<VocabularyTerm> getTerms()
     {
         List<VocabularyTerm> terms = new ArrayList<VocabularyTerm>();
-        for (BaseEntityModel<TableModelRowWithObject<VocabularyTermWithStats>> model : getGridModels())
+        for (VocabularyTermWithStats v : getContainedGridElements())
         {
-            terms.add(model.getBaseObject().getObjectOrNull().getTerm());
+            terms.add(v.getTerm());
         }
         return terms;
     }

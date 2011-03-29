@@ -100,8 +100,21 @@ public interface IScreeningClientService extends IClientService
             IResultSetConfig<String, TableModelRowWithObject<WellContent>> gridCriteria,
             WellSearchCriteria materialCriteria) throws UserFailureException;
 
-    public String prepareExportPlateLocations(
+    public String prepareExportPlateWells(
             TableExportCriteria<TableModelRowWithObject<WellContent>> criteria)
+            throws UserFailureException;
+
+    /**
+     * @return materials with codes or properties matching to the query. If the experiment is
+     *         specified, only materials inside well locations connected through the plate to this
+     *         specified experiment(s) will be returned.
+     */
+    public TypedTableResultSet<Material> listMaterials(
+            IResultSetConfig<String, TableModelRowWithObject<Material>> gridCriteria,
+            WellSearchCriteria materialCriteria) throws UserFailureException;
+
+    public String prepareExportMaterials(
+            TableExportCriteria<TableModelRowWithObject<Material>> criteria)
             throws UserFailureException;
 
     /**

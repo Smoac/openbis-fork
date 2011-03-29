@@ -39,8 +39,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ObjectCreationUtilForTests;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMetadata;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMetadataGridIDs;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.PlateMetadataGridColumnIDs;
 
 /**
  * @author Franz-Josef Elmer
@@ -89,11 +89,11 @@ public class PlateMetadataProviderTest extends AbstractServerTestCase
 
         List<TableModelColumnHeader> headers = tableModel.getHeader();
         assertEquals(null, headers.get(0).getTitle());
-        assertEquals(PlateMetadataGridIDs.CODE, headers.get(0).getId());
+        assertEquals(PlateMetadataGridColumnIDs.CODE, headers.get(0).getId());
         assertEquals(0, headers.get(0).getIndex());
         assertEquals(DataTypeCode.VARCHAR, headers.get(0).getDataType());
         assertEquals(null, headers.get(1).getTitle());
-        assertEquals(PlateMetadataGridIDs.TYPE, headers.get(1).getId());
+        assertEquals(PlateMetadataGridColumnIDs.TYPE, headers.get(1).getId());
         assertEquals(1, headers.get(1).getIndex());
         assertEquals(DataTypeCode.VARCHAR, headers.get(1).getDataType());
         assertEquals("answer", headers.get(2).getTitle());
