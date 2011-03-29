@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ViewMode;
 
 /**
  * {@link PagingToolBar} extension with overwritten behavior of the <i>Refresh</i> button and
@@ -307,10 +308,30 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
     }
 
     /** creates a new export button, the caller has to add it to a parent container */
-    public static Button createExportButton(IMessageProvider messageProvider,
+    public static Button createExportButton(IViewContext<?> viewContext,
             final IBrowserGridActionInvoker invoker)
     {
-        final Button button = new ExportButtonMenu(messageProvider, invoker);
+        if (viewContext.getModel().getViewMode() == ViewMode.EMBEDDED)
+        {
+            return createVisibleColumnsExportButton(viewContext, invoker);
+        } else
+        {
+            return new ExportButtonMenu(viewContext, invoker);
+        }
+    }
+
+    private static Button createVisibleColumnsExportButton(IMessageProvider messageProvider,
+            final IBrowserGridActionInvoker invoker)
+    {
+        Button button = new Button(messageProvider.getMessage(Dict.BUTTON_EXPORT_TABLE));
+        button.addSelectionListener(new SelectionListener<ButtonEvent>()
+            {
+                @Override
+                public void componentSelected(ButtonEvent ce)
+                {
+                    invoker.export(false);
+                }
+            });
         return button;
     }
 
