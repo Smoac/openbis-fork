@@ -39,18 +39,22 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 public class NotifyingTask extends AbstractPostRegistrationTask
 {
     private static final String MESSAGE_TEMPLATE_KEY = "message-template";
-    private static final String DESTINATION_FILE_KEY = "destination-file";
+    private static final String DESTINATION_PATH_TEMPLATE_KEY = "destination-path-template";
     private static final String PROPERTY_PREFIX = "property:";
     private static final String DATA_SET_CODE_PLACE_HOLDER = "data-set-code";
     
-    private final Template template;
-    private final String destination;
+    private final Template messageTemplate;
+
+    private final Template destinationPathTemplate;
 
     public NotifyingTask(Properties properties, IEncapsulatedOpenBISService service)
     {
         super(properties, service);
-        template = new Template(PropertyUtils.getMandatoryProperty(properties, MESSAGE_TEMPLATE_KEY));
-        destination = PropertyUtils.getMandatoryProperty(properties, DESTINATION_FILE_KEY);
+        messageTemplate =
+                new Template(PropertyUtils.getMandatoryProperty(properties, MESSAGE_TEMPLATE_KEY));
+        destinationPathTemplate =
+                new Template(PropertyUtils.getMandatoryProperty(properties,
+                        DESTINATION_PATH_TEMPLATE_KEY));
     }
 
     public boolean requiresDataStoreLock()
@@ -65,20 +69,24 @@ public class NotifyingTask extends AbstractPostRegistrationTask
         {
             throw new IllegalArgumentException("Unknown data set " + dataSetCode);
         }
-        return new Executor(dataSet, template.createFreshCopy(), destination);
+        return new Executor(dataSet, messageTemplate.createFreshCopy(),
+                destinationPathTemplate.createFreshCopy());
     }
-    
+
     private static final class Executor implements IPostRegistrationTaskExecutor
     {
         private final ExternalData dataSet;
-        private final Template template;
-        private final String destination;
 
-        public Executor(ExternalData dataSet, Template template, String destination)
+        private final Template messageTemplate;
+
+        private final Template destinationPathTemplate;
+
+        public Executor(ExternalData dataSet, Template messageTemplate,
+                Template destinationPathTemplate)
         {
             this.dataSet = dataSet;
-            this.template = template;
-            this.destination = destination;
+            this.messageTemplate = messageTemplate;
+            this.destinationPathTemplate = destinationPathTemplate;
         }
 
         public ICleanupTask createCleanupTask()
@@ -87,6 +95,12 @@ public class NotifyingTask extends AbstractPostRegistrationTask
         }
 
         public void execute()
+        {
+            String messageText = fillTemplate(messageTemplate);
+            FileUtilities.writeToFile(new File(fillTemplate(destinationPathTemplate)), messageText);
+        }
+
+        private String fillTemplate(Template template)
         {
             Set<String> placeholderNames = template.getPlaceholderNames();
             for (String placeholderName : placeholderNames)
@@ -105,9 +119,9 @@ public class NotifyingTask extends AbstractPostRegistrationTask
                 }
             }
             String messageText = template.createText();
-            FileUtilities.writeToFile(new File(destination), messageText);
+            return messageText;
         }
-        
+
         private String getProperty(String propertyName)
         {
             for (IEntityProperty property : dataSet.getProperties())
@@ -119,7 +133,7 @@ public class NotifyingTask extends AbstractPostRegistrationTask
             }
             throw new IllegalArgumentException("Unknown property: " + propertyName);
         }
-        
+
     }
 
 }
