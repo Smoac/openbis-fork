@@ -20,11 +20,10 @@ import java.util.Collection;
 
 /**
  * Interface implemented by all entity adaptors
- * <p>
- * All methods of this interface are part of the Dynamic Properties API.
  * 
  * @author Piotr Buczek
  */
+// NOTE: All methods of this interface are part of the Dynamic Properties API.
 public interface IEntityAdaptor
 {
     /** Returns the code. */

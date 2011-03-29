@@ -18,11 +18,10 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.cal
 
 /**
  * Interface implemented by all entity properties
- * <p>
- * All methods of this interface are part of the Dynamic Properties API.
  * 
  * @author Piotr Buczek
  */
+// NOTE: All methods of this interface are part of the Dynamic Properties API.
 public interface IEntityPropertyAdaptor
 {
     /** Returns the code of property type. */
