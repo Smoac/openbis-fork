@@ -260,11 +260,17 @@ class HeatmapPresenter
                     new AbstractAsyncCallback<FeatureVectorValues>(viewContext)
                         {
                             @Override
-                            protected void process(FeatureVectorValues result)
+                            protected void process(FeatureVectorValues resultOrNull)
                             {
                                 viewContext.log("Update Well Feature Values: "
                                         + wellData.getWellLocation().toString());
-                                model.updateWellFeatureValues(result);
+                                if (resultOrNull != null)
+                                {
+                                    model.updateWellFeatureValues(resultOrNull);
+                                } else
+                                {
+                                    model.resetFeatureValues(wellData);
+                                }
                                 refreshTooltipAction.execute();
                             }
                         };

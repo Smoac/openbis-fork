@@ -186,6 +186,11 @@ class PlateLayouterModel
         }
     }
 
+    public void resetFeatureValues(WellData wellData)
+    {
+        wellData.resetFeatureValues();
+    }
+
     // set all well's features
     public void updateWellFeatureValues(FeatureVectorValues wellFeatureVectorValues)
     {
