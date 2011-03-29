@@ -49,7 +49,7 @@ public class ProteinSequenceProvider extends AbstractTableModelProvider<ProteinS
     }
 
     @Override
-    protected TypedTableModel<ProteinSequence> createTableModel(int maxSize)
+    protected TypedTableModel<ProteinSequence> createTableModel()
     {
         List<ProteinSequence> sequences =
                 server.listProteinSequencesByProteinReference(sessionToken, proteinReferenceID);

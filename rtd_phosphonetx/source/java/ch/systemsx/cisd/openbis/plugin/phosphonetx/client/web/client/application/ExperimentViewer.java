@@ -101,7 +101,7 @@ public class ExperimentViewer extends GenericExperimentViewer
     @Override
     protected Component tryCreateLowerLeftComponent()
     {
-        if (viewContext.isSimpleMode())
+        if (viewContext.isSimpleOrEmbeddedMode())
         {
             return null; // no processing in simple view mode
         }

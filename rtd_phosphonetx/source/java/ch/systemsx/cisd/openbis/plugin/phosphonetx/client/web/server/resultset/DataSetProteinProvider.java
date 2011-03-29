@@ -56,7 +56,7 @@ public class DataSetProteinProvider extends AbstractTableModelProvider<DataSetPr
     }
 
     @Override
-    protected TypedTableModel<DataSetProtein> createTableModel(int maxSize)
+    protected TypedTableModel<DataSetProtein> createTableModel()
     {
         List<DataSetProtein> proteins =
                 server.listProteinsByExperimentAndReference(sessionToken, experimentID,

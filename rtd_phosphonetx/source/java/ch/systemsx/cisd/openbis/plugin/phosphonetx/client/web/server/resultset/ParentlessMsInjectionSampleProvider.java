@@ -49,7 +49,7 @@ public class ParentlessMsInjectionSampleProvider extends AbstractCommonTableMode
     }
 
     @Override
-    protected TypedTableModel<Sample> createTableModel(int maxSize)
+    protected TypedTableModel<Sample> createTableModel()
     {
         DetailedSearchCriteria criteria = new DetailedSearchCriteria();
         criteria.setConnection(SearchCriteriaConnection.MATCH_ALL);

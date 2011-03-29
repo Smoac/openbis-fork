@@ -49,7 +49,7 @@ public class ProteinSummaryProvider extends AbstractTableModelProvider<ProteinSu
     }
 
     @Override
-    protected TypedTableModel<ProteinSummary> createTableModel(int maxSize)
+    protected TypedTableModel<ProteinSummary> createTableModel()
     {
         List<ProteinSummary> sumaries = server.listProteinSummariesByExperiment(sessionToken, experimentID);
         TypedTableModelBuilder<ProteinSummary> builder = new TypedTableModelBuilder<ProteinSummary>();
