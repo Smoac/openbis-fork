@@ -1286,7 +1286,7 @@ public final class FileUtilities
             }
             for (String ext : extensionsOrNull)
             {
-                if (extensionFound.equals(ext))
+                if (extensionFound.equalsIgnoreCase(ext))
                 {
                     return true;
                 }
