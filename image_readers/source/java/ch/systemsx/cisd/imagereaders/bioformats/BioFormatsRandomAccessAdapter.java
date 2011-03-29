@@ -39,7 +39,6 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         this.randomAccessFile = randomAccessFile;
     }
 
-    @Override
     public void close() throws IOException
     {
         try
@@ -51,7 +50,6 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         }
     }
 
-    @Override
     public int read(byte[] b) throws IOException
     {
         try
@@ -63,7 +61,6 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         }
     }
 
-    @Override
     public int read(byte[] b, int off, int len) throws IOException
     {
         try
@@ -75,7 +72,6 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         }
     }
 
-    @Override
     public long getFilePointer() throws IOException
     {
         try
@@ -87,7 +83,6 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         }
     }
 
-    @Override
     public void seek(long pos) throws IOException
     {
         try
@@ -99,7 +94,6 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         }
     }
 
-    @Override
     public long length() throws IOException
     {
         try
@@ -111,7 +105,6 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         }
     }
 
-    @Override
     public void readFully(byte[] b) throws IOException
     {
         try
@@ -123,7 +116,6 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         }
     }
 
-    @Override
     public void readFully(byte[] b, int off, int len) throws IOException
     {
         try
@@ -135,7 +127,6 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         }
     }
 
-    @Override
     public int skipBytes(int n) throws IOException
     {
         try
@@ -147,7 +138,6 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         }
     }
 
-    @Override
     public boolean readBoolean() throws IOException
     {
         try
@@ -159,7 +149,6 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         }
     }
 
-    @Override
     public byte readByte() throws IOException
     {
         try
@@ -171,7 +160,6 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         }
     }
 
-    @Override
     public int readUnsignedByte() throws IOException
     {
         try
@@ -183,7 +171,6 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         }
     }
 
-    @Override
     public short readShort() throws IOException
     {
         try
@@ -195,7 +182,6 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         }
     }
 
-    @Override
     public int readUnsignedShort() throws IOException
     {
         try
@@ -207,7 +193,6 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         }
     }
 
-    @Override
     public char readChar() throws IOException
     {
         try
@@ -219,7 +204,6 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         }
     }
 
-    @Override
     public int readInt() throws IOException
     {
         try
@@ -231,7 +215,6 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         }
     }
 
-    @Override
     public long readLong() throws IOException
     {
         try
@@ -243,7 +226,6 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         }
     }
 
-    @Override
     public float readFloat() throws IOException
     {
         try
@@ -255,7 +237,6 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         }
     }
 
-    @Override
     public double readDouble() throws IOException
     {
         try
@@ -267,7 +248,6 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         }
     }
 
-    @Override
     public String readLine() throws IOException
     {
         try
@@ -279,7 +259,6 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         }
     }
 
-    @Override
     public String readUTF() throws IOException
     {
         try
@@ -291,7 +270,6 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         }
     }
 
-    @Override
     public void write(int b) throws IOException
     {
         try
@@ -303,7 +281,6 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         }
     }
 
-    @Override
     public void write(byte[] b) throws IOException
     {
         try
@@ -315,7 +292,6 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         }
     }
 
-    @Override
     public void write(byte[] b, int off, int len) throws IOException
     {
         try
@@ -327,7 +303,6 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         }
     }
 
-    @Override
     public void writeBoolean(boolean v) throws IOException
     {
         try
@@ -339,7 +314,6 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         }
     }
 
-    @Override
     public void writeByte(int v) throws IOException
     {
         try
@@ -351,7 +325,6 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         }
     }
 
-    @Override
     public void writeShort(int v) throws IOException
     {
         try
@@ -363,7 +336,6 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         }
     }
 
-    @Override
     public void writeChar(int v) throws IOException
     {
         try
@@ -375,7 +347,6 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         }
     }
 
-    @Override
     public void writeInt(int v) throws IOException
     {
         try
@@ -387,7 +358,6 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         }
     }
 
-    @Override
     public void writeLong(long v) throws IOException
     {
         try
@@ -399,7 +369,6 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         }
     }
 
-    @Override
     public void writeFloat(float v) throws IOException
     {
         try
@@ -411,7 +380,6 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         }
     }
 
-    @Override
     public void writeDouble(double v) throws IOException
     {
         try
@@ -423,7 +391,6 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         }
     }
 
-    @Override
     public void writeBytes(String s) throws IOException
     {
         try
@@ -435,7 +402,6 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         }
     }
 
-    @Override
     public void writeChars(String s) throws IOException
     {
         try
@@ -447,7 +413,6 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         }
     }
 
-    @Override
     public void writeUTF(String str) throws IOException
     {
         try
@@ -459,25 +424,21 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         }
     }
 
-    @Override
     public ByteOrder getOrder()
     {
         return randomAccessFile.getByteOrder();
     }
 
-    @Override
     public void setOrder(ByteOrder order)
     {
         randomAccessFile.setByteOrder(order);
     }
 
-    @Override
     public void write(ByteBuffer buf) throws IOException
     {
         write(buf, 0, buf.capacity());
     }
 
-    @Override
     public void write(ByteBuffer buffer, int offset, int len) throws IOException
     {
         if (buffer.hasArray())
@@ -500,13 +461,11 @@ final class BioFormatsRandomAccessAdapter implements IRandomAccess
         }
     }
 
-    @Override
     public int read(ByteBuffer buffer) throws IOException
     {
         return read(buffer, 0, buffer.capacity());
     }
 
-    @Override
     public int read(ByteBuffer buffer, int offset, int len) throws IOException
     {
         if (buffer.hasArray())

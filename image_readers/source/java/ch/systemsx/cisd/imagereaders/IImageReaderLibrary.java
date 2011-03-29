@@ -19,8 +19,8 @@ package ch.systemsx.cisd.imagereaders;
 import java.util.List;
 
 /**
+ * TODO KE: add javadoc.
  * 
- *
  * @author Bernd Rinn
  */
 public interface IImageReaderLibrary

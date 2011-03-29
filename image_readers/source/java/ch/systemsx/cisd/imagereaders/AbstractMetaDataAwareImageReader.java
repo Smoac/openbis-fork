@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.imagereaders;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.Map;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.io.ByteBufferRandomAccessFile;
@@ -29,38 +29,25 @@ import ch.systemsx.cisd.base.io.RandomAccessFileImpl;
  * 
  * @author Kaloyan Enimanev
  */
-public abstract class AbstractImageReader implements IImageReader
+public abstract class AbstractMetaDataAwareImageReader extends AbstractImageReader implements
+        IMetaDataAwareImageReader
 {
-    private final String libraryName;
-
-    private final String readerName;
-
-    public AbstractImageReader(String libraryName, String readerName)
+    public AbstractMetaDataAwareImageReader(String libraryName, String readerName)
     {
-        this.libraryName = libraryName;
-        this.readerName = readerName;
+        super(libraryName, readerName);
     }
 
-    public String getLibraryName()
-    {
-        return libraryName;
-    }
-
-    public String getName()
-    {
-        return readerName;
-    }
-
-    public BufferedImage readImage(File file, IReadParams params) throws IOExceptionUnchecked
+    public Map<String, Object> readMetaData(File file, IReadParams params)
+            throws IOExceptionUnchecked
     {
         IRandomAccessFile raf = new RandomAccessFileImpl(file, "r");
-        return readImage(raf, params);
+        return readMetaData(raf, params);
     }
 
-    public BufferedImage readImage(byte[] bytes, IReadParams params)
+    public Map<String, Object> readMetaData(byte[] bytes, IReadParams params)
     {
         IRandomAccessFile raf = new ByteBufferRandomAccessFile(bytes);
-        return readImage(raf, params);
+        return readMetaData(raf, params);
     }
 
 }

@@ -16,44 +16,82 @@
 
 package ch.systemsx.cisd.imagereaders.bioformats;
 
-import java.awt.image.BufferedImage;
 
-import loci.common.IRandomAccess;
+import java.util.Arrays;
+import java.util.List;
+
 import loci.formats.IFormatReader;
 
-import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
-import ch.systemsx.cisd.base.io.IRandomAccessFile;
-import ch.systemsx.cisd.imagereaders.AbstractImageReader;
-import ch.systemsx.cisd.imagereaders.Constants;
+import ch.systemsx.cisd.imagereaders.ImageReaderConstants;
 import ch.systemsx.cisd.imagereaders.IImageReader;
+import ch.systemsx.cisd.imagereaders.IImageReaderLibrary;
 
 /**
- * @author Bernd Rinn
+ * {@link IImageReaderLibrary} implementation for BioFormats.
+ * 
+ * @author Kaloyan Enimanev
  */
-public class BioFormatsReaderLibrary extends AbstractBioFormatsReaderLibrary
+public class BioFormatsReaderLibrary implements IImageReaderLibrary
 {
 
-    @Override
+    private static final List<String> TIFF_FORMAT_SUBSTRINGS = Arrays.asList("tiff",
+            "metamorph stk", "tagged image file format");
+
     public String getName()
     {
-        return Constants.BIOFORMATS_LIBRARY;
+        return ImageReaderConstants.BIOFORMATS_LIBRARY;
     }
 
-    @Override
+    public List<String> getReaderNames()
+    {
+        return BioFormatsImageUtils.getReaderNames();
+    }
+
+    public IImageReader tryGetReader(String readerName)
+    {
+        final IFormatReader formatReaderOrNull =
+                BioFormatsImageUtils.tryFindReaderByName(readerName);
+        return tryAdaptFormatReader(formatReaderOrNull);
+    }
+
+    public IImageReader tryGetReaderForFile(String fileName)
+    {
+        IFormatReader formatReaderOrNull = BioFormatsImageUtils.tryFindReaderForFile(fileName);
+        return tryAdaptFormatReader(formatReaderOrNull);
+    }
+
+    /**
+     * Delegate the wrapping of non-null readers to an abstract method.
+     */
+    protected IImageReader tryAdaptFormatReader(final IFormatReader formatReaderOrNull)
+    {
+        return (formatReaderOrNull == null) ? null : adaptFormatReader(formatReaderOrNull);
+    }
+
     protected IImageReader adaptFormatReader(final IFormatReader formatReader)
     {
         final String libraryName = getName();
         final String readerName = BioFormatsImageUtils.getReaderName(formatReader);
 
-        return new AbstractImageReader(libraryName, readerName)
+        if (isTiffReader(formatReader))
+        {
+            return new TiffBioformatsImageReader(libraryName, readerName, formatReader);
+        } else
+        {
+            return new DefaultBioformatsImageReader(libraryName, readerName, formatReader);
+        }
+    }
+
+    private boolean isTiffReader(IFormatReader reader)
+    {
+        String readerFormat = reader.getFormat().toLowerCase();
+        for (String tiffSubstring : TIFF_FORMAT_SUBSTRINGS)
+        {
+            if (readerFormat.contains(tiffSubstring))
             {
-                @Override
-                public BufferedImage readImage(IRandomAccessFile handle, int page)
-                        throws IOExceptionUnchecked
-                {
-                    IRandomAccess input = new BioFormatsRandomAccessAdapter(handle);
-                    return BioFormatsImageUtils.readImage(formatReader, input, page);
-                }
-            };
+                return true;
+            }
+        }
+        return false;
     }
 }

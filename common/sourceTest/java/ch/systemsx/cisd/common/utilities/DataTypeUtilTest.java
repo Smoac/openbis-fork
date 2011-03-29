@@ -16,17 +16,14 @@
 
 package ch.systemsx.cisd.common.utilities;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 
-import org.apache.commons.io.IOUtils;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.base.io.ByteBufferRandomAccessFile;
+import ch.systemsx.cisd.base.io.RandomAccessFileImpl;
 
 /**
  * 
@@ -78,44 +75,57 @@ public class DataTypeUtilTest extends AssertJUnit
     {
         try
         {
-            DataTypeUtil.tryToFigureOutFileTypeOf(new InputStream()
-            {
-                @Override
-                public int read() throws IOException
+            DataTypeUtil.tryToFigureOutFileTypeOf(new ByteBufferRandomAccessFile(1)
                 {
-                    return 0;
-                }
-            });
+                    @Override
+                    public boolean markSupported()
+                    {
+                        return false;
+                    }
+                });
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ex)
         {
             assertEquals("Input stream does not support marking. "
-                    + "Wrap input stream with a BufferedInputStream to solve the problem.", ex
-                    .getMessage());
+                    + "Wrap input stream with a BufferedInputStream to solve the problem.",
+                    ex.getMessage());
         }
     }
     
     @Test
     public void testInputStreamAtTheBeginning() throws Exception
     {
-        ByteArrayInputStream is = new ByteArrayInputStream("hello world".getBytes());
-        DataTypeUtil.tryToFigureOutFileTypeOf(is);
-        assertEquals("[hello world]", IOUtils.readLines(is).toString());
+        byte[] bytes = "hello world".getBytes();
+        ByteBufferRandomAccessFile buffer = new ByteBufferRandomAccessFile(bytes);
+
+        DataTypeUtil.tryToFigureOutFileTypeOf(buffer);
+
+        assertEquals(0, buffer.getFilePointer());
     }
     
     private void assertFileType(String expectedFileType, String fileName) throws Exception
     {
-        FileInputStream inputStream = null;
+        RandomAccessFileImpl handle = null;
         try
         {
-            inputStream = new FileInputStream(new File(dir, fileName));
-            BufferedInputStream bis = new BufferedInputStream(inputStream);
-            String type = DataTypeUtil.tryToFigureOutFileTypeOf(bis);
+            handle = new RandomAccessFileImpl(new File(dir, fileName), "r");
+            String type = DataTypeUtil.tryToFigureOutFileTypeOf(handle);
             
             assertEquals(expectedFileType, type);
         } finally
         {
-            IOUtils.closeQuietly(inputStream);
+            closeQuetly(handle);
+        }
+
+    }
+
+    private void closeQuetly(RandomAccessFileImpl handle)
+    {
+        try {
+            handle.close();
+        } catch (Exception ex)
+        {
+            // keep quiet
         }
         
     }

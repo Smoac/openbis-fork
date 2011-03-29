@@ -16,9 +16,11 @@
 
 package ch.systemsx.cisd.common.collections;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Some convenience methods/utilities around {@link Collection}.
@@ -280,5 +282,20 @@ public final class CollectionUtils
         }
         builder.append(style.getCollectionEnd());
         return builder.toString();
+    }
+
+    /**
+     * converts {@link Iterator} to {@link List}.
+     */
+    public final static <T> List<T> asList(Iterator<T> iterator)
+    {
+        assert iterator != null : "Given iterator can not be null.";
+
+        ArrayList<T> result = new ArrayList<T>();
+        while (iterator.hasNext())
+        {
+            result.add(iterator.next());
+        }
+        return result;
     }
 }

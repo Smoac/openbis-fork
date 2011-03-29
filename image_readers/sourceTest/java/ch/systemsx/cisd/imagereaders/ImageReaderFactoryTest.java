@@ -16,12 +16,12 @@
 
 package ch.systemsx.cisd.imagereaders;
 
-import static ch.systemsx.cisd.imagereaders.Constants.BIOFORMATS_LIBRARY;
+import static ch.systemsx.cisd.imagereaders.ImageReaderConstants.BIOFORMATS_LIBRARY;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
 
-import org.testng.AssertJUnit;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
@@ -31,21 +31,38 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
  * 
  * @author Kaloyan Enimanev
  */
-public class ImageReaderFactoryTest extends AssertJUnit
+public class ImageReaderFactoryTest extends AbstractImageReaderFactoryTest
 {
-    private static final String IMAGES_DIR = "./sourceTest/resources/images/";
 
-    @Test
-    public void testBioFormatReaders()
+    @DataProvider(name = "libraries")
+    public Object[][] librariesToTest()
     {
-        assertImageReadable(BIOFORMATS_LIBRARY, getResourceFile("demo.tif"));
-        assertImageReadable(BIOFORMATS_LIBRARY, getResourceFile("annapolis.jpg"));
+        return new Object[][]
+            {
+                { ImageReaderConstants.IMAGEIO_LIBRARY.toLowerCase() },
+                { ImageReaderConstants.JAI_LIBRARY.toLowerCase() },
+                { ImageReaderConstants.IMAGEJ_LIBRARY.toLowerCase() },
+                { ImageReaderConstants.BIOFORMATS_LIBRARY.toLowerCase() } };
+    }
+
+    @Test(dataProvider = "libraries")
+    public void testLibrary(String library) throws Exception
+    {
+        ImageReadersTestHelper.setUpLibrariesFromManifest(library);
+        for (File file : listValidImages(library))
+        {
+            assertImageReadable(library, file);
+        }
+        for (File file : listInvalidImages(library))
+        {
+            assertNoReaderFor(library, file);
+        }
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void testGetInvalidLibrary()
     {
-        assertImageReadable("Invalid_library", getResourceFile("demo.tif"));
+        ImageReaderFactory.tryGetImageReaderForFile("invalid_library", null);
     }
 
     @Test(expectedExceptions = IOExceptionUnchecked.class)
@@ -56,30 +73,44 @@ public class ImageReaderFactoryTest extends AssertJUnit
 
         IImageReader reader =
                 ImageReaderFactory.tryGetImageReaderForFile(BIOFORMATS_LIBRARY, invalidName);
-        reader.readImage(invalidFile, 0);
+        reader.readImage(invalidFile, null);
+    }
+
+    private File[] listValidImages(String library)
+    {
+        return getValidImagesDir(library).listFiles();
+    }
+
+    private File[] listInvalidImages(String library)
+    {
+        return getInvalidImagesDir(library).listFiles();
     }
 
     private void assertImageReadable(String libraryName, File file)
     {
         IImageReader reader =
                 ImageReaderFactory.tryGetImageReaderForFile(libraryName, file.getAbsolutePath());
-        assertNotNull("Reader should not have NULL name", reader.getName());
-        assertEquals(libraryName, reader.getLibraryName());
-
         String error =
                 String.format("Cannot find appropriate reader for file '%s' " + "in library '%s'",
-                        libraryName, file.getAbsolutePath());
+                        file.getAbsolutePath(), libraryName);
         assertNotNull(error, reader);
+        assertNotNull("Reader should not have NULL name", reader.getName());
+        assertEquals(libraryName.toLowerCase(), reader.getLibraryName().toLowerCase());
 
-        BufferedImage image = reader.readImage(file, 0);
+        BufferedImage image = reader.readImage(file, null);
         assertNotNull("Read image should not be null", image);
         assertTrue("Image should have non-negative height", image.getHeight() > 0);
         assertTrue("Image should have non-negative width", image.getWidth() > 0);
     }
 
-    private File getResourceFile(String name)
+    private void assertNoReaderFor(String library, File file)
     {
-        return new File(IMAGES_DIR, name);
+        IImageReader reader =
+                ImageReaderFactory.tryGetImageReaderForFile(library, file.getAbsolutePath());
+        String error =
+                String.format("Library file '%s' " + " cannot read file '%s',"
+                        + " but returns a non-null image reader.", library, file.getAbsolutePath());
+        assertNull(error, reader);
     }
 
 }

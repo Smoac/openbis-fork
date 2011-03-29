@@ -16,52 +16,44 @@
 
 package ch.systemsx.cisd.imagereaders;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.Map;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
 
 /**
- * {@link IImageReader} can read images in a particular format (e.g. TIFF, JPG, GIF etc.). To obtain
- * the correct {@link IImageReader} instance use the API of {@link ImageReaderFactory}.
+ * An {@link IImageReader} offering support for reading image metadata.
  * 
- * @author Bernd Rinn
+ * @author Kaloyan Enimanev
  */
-public interface IImageReader
+public interface IMetaDataAwareImageReader extends IImageReader
 {
-    /**
-     * Return the name of the library for this reader.
-     */
-    public String getLibraryName();
 
     /**
-     * Return the name of the reader.
-     */
-    public String getName();
-
-    /**
-     * Reads a {@link BufferedImage} from a {@link File}.
+     * Reads image metadata from {@link File}.
      * 
      * @param file the image file
      * @param params read parameters
      */
-    public BufferedImage readImage(File file, IReadParams params) throws IOExceptionUnchecked;
+    public Map<String, Object> readMetaData(File file, IReadParams params)
+            throws IOExceptionUnchecked;
 
     /**
-     * Reads a {@link BufferedImage} from a byte array.
+     * Reads image metadata from byte array.
      * 
      * @param bytes the image file as a byte array
      * @param params read parameters
      */
-    public BufferedImage readImage(byte[] bytes, IReadParams params);
+    public Map<String, Object> readMetaData(byte[] bytes, IReadParams params);
 
     /**
-     * Reads a {@link BufferedImage} from a handle.
+     * Reads image metadata from handle.
      * 
      * @param handle the image file as {@link IRandomAccessFile}
      * @param params read parameters
      */
-    public BufferedImage readImage(IRandomAccessFile handle, IReadParams params)
+    public Map<String, Object> readMetaData(IRandomAccessFile handle, IReadParams params)
             throws IOExceptionUnchecked;
+
 }

@@ -16,10 +16,7 @@
 
 package ch.systemsx.cisd.common.utilities;
 
-import java.io.IOException;
-import java.io.InputStream;
-
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.base.io.IRandomAccessFile;
 
 /**
  * Utility methods about the type of (binary) data.
@@ -129,27 +126,21 @@ public class DataTypeUtil
      * bytes as a finger print (so-called 'magic numbers') as a heuristic to get the type of
      * content. Currently only the following types are recognized: <code>gif, jpg, png, tif</code>.
      * 
-     * @param inputStream Input stream which supports {@link InputStream#mark(int)}.
+     * @param handle {@link IRandomAccessFile} which supports marking.
      * @return <code>null</code> if file type couldn't be figured out.
      */
-    public static String tryToFigureOutFileTypeOf(InputStream inputStream)
+    public static String tryToFigureOutFileTypeOf(IRandomAccessFile handle)
     {
-        if (inputStream.markSupported() == false)
+        if (handle.markSupported() == false)
         {
             throw new IllegalArgumentException("Input stream does not support marking. "
                     + "Wrap input stream with a BufferedInputStream to solve the problem.");
         }
         int maxLength = MAGIC_NUMBERS_MANAGER.getMaxLength();
-        inputStream.mark(maxLength);
+        handle.mark(maxLength);
         byte[] initialBytes = new byte[maxLength];
-        try
-        {
-            inputStream.read(initialBytes);
-            inputStream.reset();
-        } catch (IOException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        }
+        handle.read(initialBytes);
+        handle.reset();
         return MAGIC_NUMBERS_MANAGER.tryToFigureOutFileTypeOf(initialBytes);
     }
 

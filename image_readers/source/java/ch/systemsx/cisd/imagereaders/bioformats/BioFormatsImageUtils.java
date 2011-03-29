@@ -24,7 +24,10 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import loci.common.IRandomAccess;
@@ -33,6 +36,9 @@ import loci.formats.FormatException;
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 import loci.formats.gui.BufferedImageReader;
+import loci.formats.in.DefaultMetadataOptions;
+import loci.formats.in.MetadataLevel;
+import loci.formats.in.MetadataOptions;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
@@ -112,8 +118,8 @@ final class BioFormatsImageUtils
     }
 
     /**
-     * Returns the image <var>page</var> of the image file given by <var>filename</var> represented
-     * by <var>handle</var> as {@link BufferedImage}.
+     * Returns the image <var>page</var> of the image file represented by <var>handle</var> as
+     * {@link BufferedImage}.
      * 
      * @throws IOExceptionUnchecked If access to <var>handle</var> fails.
      */
@@ -144,6 +150,40 @@ final class BioFormatsImageUtils
             Location.mapFile(handleId, null);
         }
     }
+
+    /**
+     * Returns the metadata of the image file represented by <var>handle</var>.
+     * 
+     * @throws IOExceptionUnchecked If access to <var>handle</var> fails.
+     */
+    public static Map<String, Object> readMetadata(IFormatReader reader, IRandomAccess handle)
+    {
+        // Add to static map.
+        String handleId = generateHandleId();
+        Location.mapFile(handleId, handle);
+
+        try
+        {
+            HashMap<String, Object> result = new HashMap<String, Object>();
+            MetadataOptions metaOptions = new DefaultMetadataOptions(MetadataLevel.ALL);
+            reader.setMetadataOptions(metaOptions);
+
+            reader.setId(handleId);
+            nullSafeAddAll(result, reader.getGlobalMetadata());
+            nullSafeAddAll(result, reader.getSeriesMetadata());
+            reader.close();
+
+            return result;
+        } catch (Exception ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        } finally
+        {
+            // Remove from static map.
+            Location.mapFile(handleId, null);
+        }
+    }
+
 
     /**
      * An utility method that uses bio-formats reader to read an image and ImageJ to do a basic
@@ -194,9 +234,18 @@ final class BioFormatsImageUtils
         return UUID.randomUUID().toString();
     }
 
+    private static void nullSafeAddAll(HashMap<String, Object> accumulator,
+            Hashtable<String, Object> toAdd)
+    {
+        if (toAdd != null)
+        {
+            accumulator.putAll(toAdd);
+        }
+
+    }
+
     private BioFormatsImageUtils()
     {
         // Not to be instantiated.
     }
-
 }
