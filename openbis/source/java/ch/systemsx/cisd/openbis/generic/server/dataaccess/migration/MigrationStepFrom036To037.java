@@ -35,7 +35,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.dbmigration.java.MigrationStepAdapter;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.PropertyValidator.TimestampValidator;
+import ch.systemsx.cisd.openbis.generic.shared.util.SimplePropertyValidator.TimestampValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
@@ -51,8 +51,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 public final class MigrationStepFrom036To037 extends MigrationStepAdapter
 {
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, MigrationStepFrom036To037.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            MigrationStepFrom036To037.class);
 
     private static final String SELECT_ENTITY_PROPERTIES_QUERY =
             "SELECT id, value FROM %s WHERE %s IN (" + "SELECT id FROM %s WHERE prty_id IN ("
