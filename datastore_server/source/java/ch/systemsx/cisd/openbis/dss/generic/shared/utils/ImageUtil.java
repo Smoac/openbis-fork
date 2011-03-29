@@ -68,12 +68,11 @@ public class ImageUtil
             return load(handle, 0);
         }
 
-        // TODO KE : ask if anyone remembers what is this ?!
-        // private final static int MAX_READ_AHEAD = 30000000;
+        private final static int MAX_READ_AHEAD = 30000000;
 
         public BufferedImage load(IRandomAccessFile handle, int page)
         {
-            // inputStream.mark(MAX_READ_AHEAD);
+            handle.mark(MAX_READ_AHEAD);
             try
             {
                 return loadJavaAdvancedImagingTiff(handle, page, false);
@@ -81,7 +80,7 @@ public class ImageUtil
             {
                 if (page == 0)
                 {
-                    handle.seek(0);
+                    handle.reset();
                     // There are some TIFF files which cannot be opened by JAI, try ImageJ
                     // instead...
                     return loadWithImageJ(handle);
