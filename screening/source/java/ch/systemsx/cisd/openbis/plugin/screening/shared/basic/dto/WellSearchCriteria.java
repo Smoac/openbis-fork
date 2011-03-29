@@ -187,7 +187,8 @@ public class WellSearchCriteria implements ISerializable
         public String toString()
         {
             return "Material codes (or properties) = " + Arrays.toString(materialCodesOrProperties)
-                    + ", types = " + Arrays.toString(materialTypeCodes);
+                    + ", types = " + Arrays.toString(materialTypeCodes) + ", exactMatchOnly = "
+                    + exactMatchOnly;
         }
     }
 
