@@ -324,7 +324,10 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
         assertEquals(false, maintenanceTask.requiresDataStoreLock());
         maintenanceTask.execute();
 
-        assertEquals("", logRecorder.getLogContent());
+        assertEquals("INFO  OPERATION.PostRegistrationMaintenanceTask - "
+                + "Post registration of 1. of 2 data sets: ds-1\n"
+                + "INFO  OPERATION.PostRegistrationMaintenanceTask - "
+                + "Post registration of 2. of 2 data sets: ds-2", logRecorder.getLogContent());
         assertEquals(0, criteriaMatcher.recordedObject().getLastSeenDataSetId());
         assertEquals("2", FileUtilities.loadExactToString(lastSeenDataSetFile).trim());
         assertEquals(0, cleanupInvocations.size());
@@ -385,7 +388,8 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
         assertEquals(false, maintenanceTask.requiresDataStoreLock());
         maintenanceTask.execute();
         
-        assertEquals("", logRecorder.getLogContent());
+        assertEquals("INFO  OPERATION.PostRegistrationMaintenanceTask -"
+                + " Post registration of 1. of 1 data sets: ds-1", logRecorder.getLogContent());
         assertEquals(0, criteriaMatcher.recordedObject().getLastSeenDataSetId());
         assertEquals("1", FileUtilities.loadExactToString(lastSeenDataSetFile).trim());
         assertEquals(0, cleanupInvocations.size());

@@ -165,6 +165,8 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
         {
             ExternalData dataSet = dataSets.get(i);
             String code = dataSet.getCode();
+            operationLog.info("Post registration of " + (i + 1) + ". of " + dataSets.size()
+                    + " data sets: " + code);
             try
             {
                 for (Entry<String, IPostRegistrationTask> entry : tasks)
