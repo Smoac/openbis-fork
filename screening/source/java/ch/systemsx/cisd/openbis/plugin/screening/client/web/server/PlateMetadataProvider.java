@@ -52,7 +52,7 @@ class PlateMetadataProvider extends AbstractTableModelProvider<WellMetadata>
     }
 
     @Override
-    public TypedTableModel<WellMetadata> createTableModel(int maxSize)
+    public TypedTableModel<WellMetadata> createTableModel()
     {
         TypedTableModelBuilder<WellMetadata> builder = new TypedTableModelBuilder<WellMetadata>();
         PlateContent plateContent = server.getPlateContent(sessionToken, plateId);

@@ -47,7 +47,7 @@ public class RoleAssignmentProvider extends AbstractCommonTableModelProvider<Rol
     }
 
     @Override
-    protected TypedTableModel<RoleAssignment> createTableModel(int maxSize)
+    protected TypedTableModel<RoleAssignment> createTableModel()
     {
         List<RoleAssignment> roles = commonServer.listRoleAssignments(sessionToken);
         TypedTableModelBuilder<RoleAssignment> builder = new TypedTableModelBuilder<RoleAssignment>();

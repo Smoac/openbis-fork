@@ -40,7 +40,7 @@ public abstract class AbstractTableModelProvider<T extends ISerializable> implem
      */
     public TypedTableModel<T> getTableModel(int maxSize)
     {
-        TypedTableModel<T> tableModel = createTableModel(Integer.MAX_VALUE);
+        TypedTableModel<T> tableModel = createTableModel();
         List<TableModelColumnHeader> headers = tableModel.getHeader();
         List<TableModelRowWithObject<T>> rows = tableModel.getRows();
         List<TableModelRowWithObject<T>> limitedRows = new ArrayList<TableModelRowWithObject<T>>();
@@ -57,8 +57,7 @@ public abstract class AbstractTableModelProvider<T extends ISerializable> implem
 
     /**
      * Creates the complete table model.
-     * @param maxSize TODO
      */
-    protected abstract TypedTableModel<T> createTableModel(int maxSize);
+    protected abstract TypedTableModel<T> createTableModel();
 
 }

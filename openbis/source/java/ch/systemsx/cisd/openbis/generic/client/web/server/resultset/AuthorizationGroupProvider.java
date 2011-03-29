@@ -42,7 +42,7 @@ public class AuthorizationGroupProvider extends AbstractCommonTableModelProvider
     }
 
     @Override
-    protected TypedTableModel<AuthorizationGroup> createTableModel(int maxSize)
+    protected TypedTableModel<AuthorizationGroup> createTableModel()
     {
         List<AuthorizationGroup> groups = commonServer.listAuthorizationGroups(sessionToken);
         TypedTableModelBuilder<AuthorizationGroup> builder =

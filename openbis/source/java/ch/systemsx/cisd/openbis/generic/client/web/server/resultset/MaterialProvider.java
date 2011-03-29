@@ -44,7 +44,7 @@ public class MaterialProvider extends AbstractTableModelProvider<Material>
     }
 
     @Override
-    protected TypedTableModel<Material> createTableModel(int maxSize)
+    protected TypedTableModel<Material> createTableModel()
     {
 
         TypedTableModelBuilder<Material> builder = new TypedTableModelBuilder<Material>();

@@ -52,7 +52,7 @@ public class ScriptProvider extends AbstractCommonTableModelProvider<Script>
     }
 
     @Override
-    protected TypedTableModel<Script> createTableModel(int maxSize)
+    protected TypedTableModel<Script> createTableModel()
     {
         List<Script> scripts = commonServer.listScripts(sessionToken, scriptTypeOrNull, entityKindOrNull);
         TypedTableModelBuilder<Script> builder = new TypedTableModelBuilder<Script>();

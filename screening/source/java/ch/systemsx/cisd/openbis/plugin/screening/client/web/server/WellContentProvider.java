@@ -71,7 +71,7 @@ public class WellContentProvider extends AbstractTableModelProvider<WellContent>
     }
 
     @Override
-    protected TypedTableModel<WellContent> createTableModel(int maxSize)
+    protected TypedTableModel<WellContent> createTableModel()
     {
         TypedTableModelBuilder<WellContent> builder = new TypedTableModelBuilder<WellContent>();
         addStandardWellColumns(builder);

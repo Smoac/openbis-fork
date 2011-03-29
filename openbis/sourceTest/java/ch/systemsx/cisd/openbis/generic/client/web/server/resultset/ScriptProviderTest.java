@@ -55,7 +55,7 @@ public class ScriptProviderTest extends AbstractProviderTest
                 new ScriptProvider(server, SESSION_TOKEN, ScriptType.DYNAMIC_PROPERTY,
                         EntityKind.EXPERIMENT);
 
-        TypedTableModel<Script> tableModel = scriptProvider.createTableModel(Integer.MAX_VALUE);
+        TypedTableModel<Script> tableModel = scriptProvider.createTableModel();
 
         assertEquals(
                 "[NAME, DESCRIPTION, SCRIPT, ENTITY_KIND, SCRIPT_TYPE, REGISTRATOR, REGISTRATION_DATE]",

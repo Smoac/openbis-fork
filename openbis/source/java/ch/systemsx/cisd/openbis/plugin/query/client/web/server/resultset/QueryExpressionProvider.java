@@ -54,7 +54,7 @@ public class QueryExpressionProvider extends AbstractTableModelProvider<QueryExp
     }
 
     @Override
-    protected TypedTableModel<QueryExpression> createTableModel(int maxSize)
+    protected TypedTableModel<QueryExpression> createTableModel()
     {
         List<QueryExpression> expressions = server.listQueries(sessionToken,
                 QueryType.UNSPECIFIED, BasicEntityType.UNSPECIFIED);

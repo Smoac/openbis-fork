@@ -66,7 +66,7 @@ public class RoleAssignmentProviderTest extends AbstractProviderTest
             });
         
         RoleAssignmentProvider provider = new RoleAssignmentProvider(server, SESSION_TOKEN);
-        TypedTableModel<RoleAssignment> model = provider.createTableModel(Integer.MAX_VALUE);
+        TypedTableModel<RoleAssignment> model = provider.createTableModel();
         
         assertEquals("[PERSON, AUTHORIZATION_GROUP, SPACE, ROLE, DATABASE_INSTANCE]",
                 getHeaderIDs(model).toString());

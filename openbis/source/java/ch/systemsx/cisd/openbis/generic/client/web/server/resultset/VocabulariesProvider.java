@@ -51,7 +51,7 @@ public class VocabulariesProvider extends AbstractCommonTableModelProvider<Vocab
     }
 
     @Override
-    protected TypedTableModel<Vocabulary> createTableModel(int maxSize)
+    protected TypedTableModel<Vocabulary> createTableModel()
     {
         List<Vocabulary> vocabularies =
                 commonServer.listVocabularies(sessionToken, withTerms, excludeInternal);

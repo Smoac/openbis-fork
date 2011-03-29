@@ -48,7 +48,7 @@ public class PersonsProvider extends AbstractCommonTableModelProvider<Person>
     }
 
     @Override
-    protected TypedTableModel<Person> createTableModel(int maxSize)
+    protected TypedTableModel<Person> createTableModel()
     {
         List<Person> persons;
         if (authorizationGroupIdOrNull == null)
