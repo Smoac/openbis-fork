@@ -58,5 +58,9 @@
 	<classpathentry kind="lib" path="/libraries/jython/jython.jar" sourcepath="/libraries/jython/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/slf4j/slf4j.jar" sourcepath="/libraries/slf4j/src.jar"/>
 	<classpathentry kind="lib" path="/libraries/truezip/truezip.jar"/>
+	<classpathentry kind="lib" path="/libraries/cisd-image_readers/cisd-image_readers-bioformats.jar"/>
+	<classpathentry kind="lib" path="/libraries/cisd-image_readers/cisd-image_readers-jai.jar"/>
+	<classpathentry kind="lib" path="/libraries/cisd-image_readers/cisd-image_readers.jar"/>
+	<classpathentry kind="lib" path="/libraries/cisd-image_readers/cisd-image_readers-imagej.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
