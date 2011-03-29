@@ -22,8 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeSet;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.imagereaders.IImageReader;
@@ -54,56 +52,84 @@ public class ImageMetadataExtractor
     }
 
     /**
+     * NOTE : the speed of this algorithm can be immensely improved by
+     * 
+     * <pre>
+     * 1) Avoiding auto-boxing (we have multiple collections storing primitive types) 
+     * 2) Avoid parsing all numbers twice 
+     * 3) Use a sorted collection (tree?) + binary search when looking if a value is already present.
+     * </pre>
+     * 
      * @param tileToMetadataMap mapping from tile number to image metadata
      */
     public static Map<Integer/* tile number */, Location> tryGetTileMapping(
-            Map<Integer/* tile number */, Map<String/* name */, Object/* value */>> tileToMetadataMap)
+            Map<Integer/* tile number */, Map<String/* name */, Object/* value */>> tileToMetadataMap,
+            double epsilon)
     {
-        Set<Number> xCoords = new TreeSet<Number>();
-        Set<Number> yCoords = new TreeSet<Number>();
+        List<Double> xCoords = new ArrayList<Double>();
+        List<Double> yCoords = new ArrayList<Double>();
+
         for (Map<String, Object> metadata : tileToMetadataMap.values())
         {
-            xCoords.add(extractXCoord(metadata));
-            yCoords.add(extractYCoord(metadata));
+            addIfNotPresent(xCoords, extractXCoord(metadata), epsilon);
+            addIfNotPresent(yCoords, extractYCoord(metadata), epsilon);
         }
-
-        List<Number> sortedXCoords = new ArrayList<Number>(xCoords);
-        List<Number> sortedYCoords = new ArrayList<Number>(yCoords);
 
         Map<Integer, Location> result = new HashMap<Integer, Location>();
         for (Entry<Integer, Map<String, Object>> entry : tileToMetadataMap.entrySet())
         {
             Integer tileNumber = entry.getKey();
-            Location location = extractLocation(entry.getValue(), sortedXCoords, sortedYCoords);
+            Location location = extractLocation(entry.getValue(), xCoords, yCoords, epsilon);
             result.put(tileNumber, location);
         }
         return result;
     }
 
-    private static Location extractLocation(Map<String, Object> metadata, List<Number> xCoords,
-            List<Number> yCoords)
+    private static void addIfNotPresent(List<Double> values, Double value, double epsilon)
     {
-        Number x = extractXCoord(metadata);
-        Number y = extractYCoord(metadata);
+        int idx = findIdxByEpsilon(values, value, epsilon);
+        if (idx < 0)
+        {
+            values.add(value);
+        }
+    }
 
-        int locationX = xCoords.indexOf(x);
-        int locationY = yCoords.indexOf(y);
+    private static int findIdxByEpsilon(List<Double> values, double toFind, double epsilon)
+    {
+        for (int idx = 0; idx < values.size(); idx++)
+        {
+            if (Math.abs(values.get(idx) - toFind) < epsilon)
+            {
+                return idx;
+            }
+        }
+        return -1;
+    }
+
+    private static Location extractLocation(Map<String, Object> metadata, List<Double> xCoords,
+            List<Double> yCoords, double epsilon)
+    {
+        double x = extractXCoord(metadata);
+        double y = extractYCoord(metadata);
+
+        int locationX = findIdxByEpsilon(xCoords, x, epsilon);
+        int locationY = findIdxByEpsilon(yCoords, y, epsilon);
 
         Location location = new Location(locationY, locationX);
         return location;
     }
 
-    private static Number extractXCoord(Map<String, Object> metadata)
+    private static Double extractXCoord(Map<String, Object> metadata)
     {
         return extractNumber(metadata, POSITION_X_PROP);
     }
 
-    private static Number extractYCoord(Map<String, Object> metadata)
+    private static Double extractYCoord(Map<String, Object> metadata)
     {
         return extractNumber(metadata, POSITION_Y_PROP);
     }
 
-    private static Number extractNumber(Map<String, Object> metadata, String propName)
+    private static Double extractNumber(Map<String, Object> metadata, String propName)
     {
         String numberAsString = (String) metadata.get(propName);
         try
