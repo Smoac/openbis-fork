@@ -33,7 +33,7 @@ public class Material extends CodeWithRegistration<Material> implements
 
     private DatabaseInstance databaseInstance;
 
-    private MaterialType MaterialType;
+    private MaterialType materialType;
 
     private Long id;
 
@@ -43,12 +43,12 @@ public class Material extends CodeWithRegistration<Material> implements
 
     public MaterialType getMaterialType()
     {
-        return MaterialType;
+        return materialType;
     }
 
     public void setMaterialType(MaterialType experimentType)
     {
-        this.MaterialType = experimentType;
+        this.materialType = experimentType;
     }
 
     public List<IEntityProperty> getProperties()
@@ -113,6 +113,25 @@ public class Material extends CodeWithRegistration<Material> implements
     //
     // Comparable
     //
+
+    @Override
+    public int hashCode()
+    {
+        return getIdentifier().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Material other = (Material) obj;
+        return getIdentifier().equals(other.getIdentifier());
+    }
 
     @Override
     public final int compareTo(final Material o)
