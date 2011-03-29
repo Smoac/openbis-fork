@@ -19,7 +19,7 @@ package ch.systemsx.cisd.imagereaders;
 import java.util.List;
 
 /**
- * TODO KE: add javadoc.
+ * Encapsulates a collection image readers coming from a third-party library.
  * 
  * @author Bernd Rinn
  */
