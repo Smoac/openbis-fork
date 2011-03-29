@@ -16,8 +16,10 @@
 
 package ch.systemsx.cisd.base.io;
 
+import java.io.IOException;
 import java.nio.ByteOrder;
 
+import org.apache.commons.io.IOUtils;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.convert.NativeData;
@@ -28,10 +30,12 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
  * 
  * @author Bernd Rinn
  */
-public abstract class IRandomAccerssFileTests extends AbstractFileSystemTestCase
+public abstract class IRandomAccessFileTests extends AbstractFileSystemTestCase
 {
 
     abstract protected IRandomAccessFile createRandomAccessFile(String name);
+
+    abstract protected IRandomAccessFile createRandomAccessFile(String name, byte[] content);
 
     @Test
     public void testSkip()
@@ -157,6 +161,26 @@ public abstract class IRandomAccerssFileTests extends AbstractFileSystemTestCase
                 s,
                 new String(NativeData.byteToChar(buf,
                         ch.systemsx.cisd.base.convert.NativeData.ByteOrder.BIG_ENDIAN)));
+    }
+
+    @Test
+    public void testReadLine() throws IOException
+    {
+        final byte[] bytes = "hello world".getBytes();
+        final IRandomAccessFile raf = createRandomAccessFile("testWriteReadStringChars", bytes);
+        final AdapterIInputStreamToInputStream is = new AdapterIInputStreamToInputStream(raf);
+
+        assertEquals("[hello world]", IOUtils.readLines(is).toString());
+    }
+
+    @Test
+    public void testToByteArray() throws IOException
+    {
+        final byte[] bytes = "hello world".getBytes();
+        final IRandomAccessFile raf = createRandomAccessFile("testWriteReadStringChars", bytes);
+        final AdapterIInputStreamToInputStream is = new AdapterIInputStreamToInputStream(raf);
+
+        assertEquals(bytes, IOUtils.toByteArray(is));
     }
 
 }

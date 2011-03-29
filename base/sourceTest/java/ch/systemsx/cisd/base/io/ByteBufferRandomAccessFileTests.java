@@ -21,13 +21,19 @@ package ch.systemsx.cisd.base.io;
  *
  * @author Bernd Rinn
  */
-public class ByteBufferRandomAccessFileTests extends IRandomAccerssFileTests
+public class ByteBufferRandomAccessFileTests extends IRandomAccessFileTests
 {
 
     @Override
     protected IRandomAccessFile createRandomAccessFile(String name)
     {
         return new ByteBufferRandomAccessFile(4096);
+    }
+
+    @Override
+    protected IRandomAccessFile createRandomAccessFile(String name, byte[] content)
+    {
+        return new ByteBufferRandomAccessFile(content);
     }
 
 }

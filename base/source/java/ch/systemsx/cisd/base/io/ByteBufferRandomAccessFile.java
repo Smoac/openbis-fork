@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.base.io;
 
+import java.io.EOFException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -121,7 +122,13 @@ public class ByteBufferRandomAccessFile implements IRandomAccessFile
 
     public void readFully(byte[] b, int off, int len) throws IOExceptionUnchecked
     {
-        buf.get(b, off, len);
+        if (available0() == -1)
+        {
+            throw new IOExceptionUnchecked(new EOFException());
+        } else
+        {
+            buf.get(b, off, len);
+        }
     }
 
     public int skipBytes(int n) throws IOExceptionUnchecked
@@ -154,7 +161,11 @@ public class ByteBufferRandomAccessFile implements IRandomAccessFile
 
     public int read(byte[] b, int off, int len) throws IOExceptionUnchecked
     {
-        final int bytesRead = Math.min(available(), len);
+        final int bytesRead = Math.min(available0(), len);
+        if (bytesRead < 0)
+        {
+            return bytesRead;
+        }
         buf.get(b, off, bytesRead);
         return bytesRead;
     }
@@ -166,6 +177,11 @@ public class ByteBufferRandomAccessFile implements IRandomAccessFile
             throw new IndexOutOfBoundsException();
         }
         return skipBytes((int) n);
+    }
+    
+    private int available0() throws IOExceptionUnchecked
+    {
+        return (buf.remaining() == 0) ? -1 : buf.remaining();
     }
 
     public int available() throws IOExceptionUnchecked

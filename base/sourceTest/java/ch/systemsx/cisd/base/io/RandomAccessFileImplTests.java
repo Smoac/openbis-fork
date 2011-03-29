@@ -21,13 +21,22 @@ package ch.systemsx.cisd.base.io;
  *
  * @author Bernd Rinn
  */
-public class RandomAccessFileImplTests extends IRandomAccerssFileTests
+public class RandomAccessFileImplTests extends IRandomAccessFileTests
 {
 
     @Override
     protected IRandomAccessFile createRandomAccessFile(String name)
     {
         return new RandomAccessFileImpl(create(name), "rw");
+    }
+
+    @Override
+    protected IRandomAccessFile createRandomAccessFile(String name, byte[] content)
+    {
+        final IRandomAccessFile f = new RandomAccessFileImpl(create(name), "rw");
+        f.write(content);
+        f.seek(0L);
+        return f;
     }
 
 }
