@@ -696,9 +696,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         {
             return false;
         }
-        externalData.setStatus(newStatus);
-        externalData.setPresentInArchive(newPresentInArchive);
-        save();
+        updateStatuses(Arrays.asList(externalData.getCode()), newStatus, newPresentInArchive);
         return true;
     }
 
