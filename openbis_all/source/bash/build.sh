@@ -73,32 +73,23 @@ function copy_to_cisd_server {
 	state_end
 }
 
-function copy_to_sprint_server {
-	state_start "Copying new openBIS components to '$SPRINT_SERVER'..."
-	
-	if [ $EXECUTE_COMMANDS ]; then
-		scp openBIS-server-S*.zip $SPRINT_SERVER:.
-		scp datastore_server-S*.zip $SPRINT_SERVER:.
-		scp *.zip $SPRINT_SERVER:~/sprint_builds
-		rm -f *.zip
-	fi
-	state_end
-}
-
-
 function publish_javadocs {
 
 	state_start "Publishing javadocs ..."
 	
 	if [ $EXECUTE_COMMANDS ]; then
-	    pushd .
+	    local javadocSrcDir=tmp/openbis_all/targets/dist/javadoc
 	    
-	    cp -R tmp/openbis_all/targets/dist/javadoc $JAVADOC_FOLDER/$FULL_VER
-	    cd $JAVADOC_FOLDER
-	    rm -f current
-	    ln -s $FULL_VER current
-	    
-	    popd
+	    if [ -d "$javadocSrcDir" ]; then
+			    pushd .
+			    
+			    cp -R $javadocSrcDir $JAVADOC_FOLDER/$FULL_VER
+			    cd $JAVADOC_FOLDER
+			    rm -f current
+			    ln -s $FULL_VER current
+			    
+			    popd
+			fi
 	fi
 	state_end
 }
@@ -124,7 +115,6 @@ fi
 setup
 build
 copy_to_cisd_server
-copy_to_sprint_server
 publish_javadocs
 install_sprint
 

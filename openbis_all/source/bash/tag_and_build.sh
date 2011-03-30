@@ -74,26 +74,15 @@ function build {
 }
 
 function copy_to_cisd_server {
-	state_start "Copying new openBIS components to '$CISD_SERVER'..."
+	state_start "Copying new openBIS components to sprint-builds'..."
 	
 	if [ $EXECUTE_COMMANDS ]; then
-		OPENBIS_PATH=cisd/sprint_builds/openBIS
+	  
+		OPENBIS_PATH=~openbis/fileserver/sprint_builds/openBIS
 		SPRINT_DIR=$OPENBIS_PATH/$TODAY-$FULL_VER
-		echo "mkdir -p $SPRINT_DIR"  | ssh -T $CISD_SERVER
-		scp *.zip $CISD_SERVER:$SPRINT_DIR
-		echo "chmod g+w -R $SPRINT_DIR" | ssh -T $CISD_SERVER
-	fi
-	state_end
-}
-
-function copy_to_sprint_server {
-	state_start "Copying new openBIS components to '$SPRINT_SERVER'..."
-	
-	if [ $EXECUTE_COMMANDS ]; then
-		scp openBIS-server-S*.zip $SPRINT_SERVER:.
-		scp datastore_server-S*.zip $SPRINT_SERVER:.
-		scp *.zip $SPRINT_SERVER:~/sprint_builds
-		rm -f *.zip
+		mkdir -p $SPRINT_DIR
+		cp -p *.zip $SPRINT_DIR/
+		chmod g+w -R $SPRINT_DIR
 	fi
 	state_end
 }
@@ -103,14 +92,18 @@ function publish_javadocs {
 	state_start "Publishing javadocs ..."
 	
 	if [ $EXECUTE_COMMANDS ]; then
-	    pushd .
+	    local javadocSrcDir=tmp/openbis_all/targets/dist/javadoc
 	    
-	    cp -R tmp/openbis_all/targets/dist/javadoc $JAVADOC_FOLDER/$FULL_VER
-	    cd $JAVADOC_FOLDER
-	    rm -f current
-	    ln -s $FULL_VER current
-	    
-	    popd
+	    if [ -d "$javadocSrcDir" ]; then
+			    pushd .
+			    
+			    cp -R $javadocSrcDir $JAVADOC_FOLDER/$FULL_VER
+			    cd $JAVADOC_FOLDER
+			    rm -f current
+			    ln -s $FULL_VER current
+			    
+			    popd
+			fi
 	fi
 	state_end
 }
@@ -138,7 +131,6 @@ setup
 tag
 build
 copy_to_cisd_server
-copy_to_sprint_server
 publish_javadocs
 install_sprint
 
