@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -39,6 +40,8 @@ import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
 import com.extjs.gxt.ui.client.widget.treegrid.WidgetTreeGridCellRenderer;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -46,9 +49,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.EntityVisitModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SimplifiedBaseModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.EntityVisitComparatorByTimeStamp;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityVisit;
@@ -56,7 +61,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 
 /**
  * History of last visited detail views.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class HistoryWidget extends ContentPanel
@@ -70,7 +75,7 @@ public class HistoryWidget extends ContentPanel
             set(ModelDataPropertyNames.CODE, item);
         }
     }
-    
+
     public HistoryWidget(final IViewContext<?> viewContext)
     {
         setLayout(new FitLayout());
@@ -89,7 +94,7 @@ public class HistoryWidget extends ContentPanel
         treeGrid.setHideHeaders(true);
         add(treeGrid);
     }
-    
+
     private TreeStore<ModelData> createStore(final IViewContext<?> viewContext)
     {
         TreeStore<ModelData> store = new TreeStore<ModelData>();
@@ -99,7 +104,8 @@ public class HistoryWidget extends ContentPanel
         for (EntityKind entityKind : values)
         {
             String entityKindAsString = entityKind.toString();
-            Map<String, List<EntityVisit>> typeToVisitMap = new HashMap<String, List<EntityVisit>>();
+            Map<String, List<EntityVisit>> typeToVisitMap =
+                    new HashMap<String, List<EntityVisit>>();
             for (EntityVisit visit : visits)
             {
                 if (entityKindAsString.equals(visit.getEntityKind()))
@@ -175,7 +181,16 @@ public class HistoryWidget extends ContentPanel
                                             permID, false);
                                 }
                             };
-                        return LinkRenderer.getLinkWidget(displayText, listener, href, false);
+                        final Widget link =
+                                LinkRenderer.getLinkWidget(displayText, listener, href, false);
+                        final String date =
+                                DateRenderer.renderDate(new Date(visit.getTimeStamp()),
+                                        BasicConstant.DATE_WITH_SHORT_TIME);
+
+                        FlowPanel panel = new FlowPanel();
+                        panel.add(link);
+                        panel.add(new InlineHTML(" (" + date + ")"));
+                        return panel;
                     }
                     return new Label(model.get(property).toString());
                 }

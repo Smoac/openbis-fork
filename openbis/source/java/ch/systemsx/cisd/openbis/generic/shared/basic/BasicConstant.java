@@ -76,12 +76,17 @@ public class BasicConstant
      */
     public static final String DATE_WITHOUT_TIME_FORMAT_PATTERN = "yyyy-MM-dd";
 
+    /**
+     * Date format which does not include time zone.
+     */
+    public static final String DATE_WITH_SHORT_TIME = "yyyy-MM-dd HH:mm";
+
     // constants used for link creation and handling
 
     public static final String VIEW_MODE_KEY = "viewMode";
 
     public static final String ANONYMOUS_KEY = "anonymous";
-    
+
     public static final String LOCATOR_ACTION_PARAMETER = "action";
 
     public static final String PARENT_CHILD_INTERNAL_RELATIONSHIP = "$PARENT_CHILD";
