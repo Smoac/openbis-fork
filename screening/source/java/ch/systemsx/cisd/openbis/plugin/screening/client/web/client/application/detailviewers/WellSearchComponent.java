@@ -21,6 +21,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.M
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
@@ -45,8 +46,7 @@ public class WellSearchComponent extends TabContent
 
     private final IViewContext<IScreeningClientServiceAsync> screeningViewContext;
 
-    // null means that we search in all experiments
-    private final IEntityInformationHolderWithIdentifier experimentOrNull;
+    private final ExperimentSearchCriteria experimentSearchCriteria;
 
     private final MultilineItemsField materialListField;
 
@@ -64,7 +64,7 @@ public class WellSearchComponent extends TabContent
     public WellSearchComponent(IViewContext<IScreeningClientServiceAsync> screeningViewContext,
             String materialListOrNull, Boolean isExactMatchOrNull, Boolean showCombinedResultsOrNull)
     {
-        this(screeningViewContext, null);
+        this(screeningViewContext, ExperimentSearchCriteria.createAllExperiments());
 
         if (!StringUtils.isBlank(materialListOrNull))
         {
@@ -82,12 +82,33 @@ public class WellSearchComponent extends TabContent
         setContentVisible(true);
     }
 
-    public WellSearchComponent(IViewContext<IScreeningClientServiceAsync> screeningViewContext,
+    public static WellSearchComponent create(
+            IViewContext<IScreeningClientServiceAsync> screeningViewContext,
+            IEntityInformationHolderWithIdentifier experiment)
+    {
+        assert experiment != null : "experiment is null";
+        return new WellSearchComponent(screeningViewContext,
+                getExperimentSearchCriteria(experiment));
+    }
+
+    private static ExperimentSearchCriteria getExperimentSearchCriteria(
             IEntityInformationHolderWithIdentifier experimentOrNull)
     {
-        super(getTabTitle(screeningViewContext), screeningViewContext, experimentOrNull);
+        if (experimentOrNull == null)
+        {
+            return ExperimentSearchCriteria.createAllExperiments();
+        }
+        return ExperimentSearchCriteria.createExperiment(experimentOrNull.getId(),
+                experimentOrNull.getPermId(), experimentOrNull.getIdentifier());
+    }
+
+    public WellSearchComponent(IViewContext<IScreeningClientServiceAsync> screeningViewContext,
+            ExperimentSearchCriteria experimentSearchCriteria)
+    {
+        super(getTabTitle(screeningViewContext), screeningViewContext,
+                tryGetExperimentId(experimentSearchCriteria));
         this.screeningViewContext = screeningViewContext;
-        this.experimentOrNull = experimentOrNull;
+        this.experimentSearchCriteria = experimentSearchCriteria;
         this.materialListField = createMaterialListArea();
         this.exactMatchOnly = createCheckBox(Dict.EXACT_MATCH_ONLY, true, screeningViewContext);
         this.showCombinedResults =
@@ -105,6 +126,12 @@ public class WellSearchComponent extends TabContent
                             materialTypesOrNull = result;
                         }
                     });
+    }
+
+    private static TechId tryGetExperimentId(ExperimentSearchCriteria experimentSearchCriteria)
+    {
+        return experimentSearchCriteria.tryGetExperiment() == null ? null
+                : experimentSearchCriteria.tryGetExperiment().getExperimentId();
     }
 
     private static CheckBoxField createCheckBox(String labelDictKey, Boolean value,
@@ -166,9 +193,7 @@ public class WellSearchComponent extends TabContent
                     {
                         return null;
                     }
-                    String experimentPermId =
-                            (experimentOrNull != null) ? experimentOrNull.getPermId() : null;
-                    return ScreeningLinkExtractor.createWellsSearchLink(experimentPermId,
+                    return ScreeningLinkExtractor.createWellsSearchLink(experimentSearchCriteria,
                             materialCriteria, showCombinedResults.getValue());
                 }
             };
@@ -182,19 +207,8 @@ public class WellSearchComponent extends TabContent
         {
             return;
         }
-        ExperimentSearchCriteria experimentCriteria = getExperimentSearchCriteria();
-        WellSearchGrid.openTab(screeningViewContext, experimentCriteria,
+        WellSearchGrid.openTab(screeningViewContext, experimentSearchCriteria,
                 MaterialSearchCriteria.create(materialCriteria), showCombinedResults.getValue());
-    }
-
-    private ExperimentSearchCriteria getExperimentSearchCriteria()
-    {
-        if (experimentOrNull == null)
-        {
-            return ExperimentSearchCriteria.createAllExperiments();
-        }
-        return ExperimentSearchCriteria.createExperiment(experimentOrNull.getId(),
-                experimentOrNull.getPermId(), experimentOrNull.getIdentifier());
     }
 
     private MaterialSearchCodesCriteria tryGetMaterialSearchCriteria()

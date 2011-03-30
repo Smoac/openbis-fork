@@ -48,7 +48,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.C
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.dto.ExperimentIdentifierSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.SingleExperimentSearchCriteria;
 
 /**
@@ -150,6 +152,9 @@ public class MaterialDisambiguationGrid extends TypedTableGrid<Material>
     {
         return new AbstractTabItemFactory()
             {
+                private final String reportDate = DateTimeFormat.getMediumTimeFormat().format(
+                        new Date());
+
                 @Override
                 public ITabItem create()
                 {
@@ -160,8 +165,7 @@ public class MaterialDisambiguationGrid extends TypedTableGrid<Material>
                 @Override
                 public String getId()
                 {
-                    final String reportDate =
-                            DateTimeFormat.getMediumTimeFormat().format(new Date());
+
                     return GenericConstants.ID_PREFIX + "-MaterialDisambiguationGrid-" + reportDate;
                 }
 
@@ -180,7 +184,7 @@ public class MaterialDisambiguationGrid extends TypedTableGrid<Material>
                 @Override
                 public String tryGetLink()
                 {
-                    return ScreeningLinkExtractor.createWellsSearchLink(searchCriteria, false);
+                    return ScreeningLinkExtractor.tryCreateWellsSearchLink(searchCriteria, false);
                 }
 
             };
@@ -211,13 +215,11 @@ public class MaterialDisambiguationGrid extends TypedTableGrid<Material>
                     {
                         public String tryGetLink(Material material, ISerializableComparable value)
                         {
-                            SingleExperimentSearchCriteria experiment =
-                                    searchCriteria.getExperimentCriteria().tryGetExperiment();
-                            String experimentIdentifier =
-                                    (experiment != null ? experiment.getExperimentIdentifier()
-                                            : null);
-                            return ScreeningLinkExtractor.tryExtractMaterialWithExperiment(
-                                    material, experimentIdentifier);
+                            ExperimentIdentifierSearchCriteria experimentCriteria =
+                                    convertExperimentCriteria(searchCriteria
+                                            .getExperimentCriteria());
+                            return ScreeningLinkExtractor.tryCreateMaterialDetailsLink(material,
+                                    experimentCriteria);
                         }
 
                         public void handle(TableModelRowWithObject<Material> row,
@@ -226,6 +228,19 @@ public class MaterialDisambiguationGrid extends TypedTableGrid<Material>
                             openImagingMaterialViewer(row.getObjectOrNull());
                         }
                     });
+    }
+
+    private static ExperimentIdentifierSearchCriteria convertExperimentCriteria(
+            ExperimentSearchCriteria experimentSearchCriteria)
+    {
+        SingleExperimentSearchCriteria experiment = experimentSearchCriteria.tryGetExperiment();
+        if (experiment != null)
+        {
+            return new ExperimentIdentifierSearchCriteria(experiment.getExperimentIdentifier());
+        } else
+        {
+            return ExperimentIdentifierSearchCriteria.createSearchAll();
+        }
     }
 
     private void openImagingMaterialViewer(Material material)

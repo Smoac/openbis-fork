@@ -123,7 +123,7 @@ public class ExperimentWellMaterialBrowserGrid extends MaterialBrowserGrid
     {
         BaseEntityModel<Material> basicModel = super.createModel(entity);
         basicModel.set(ModelDataPropertyNames.link(CommonMaterialColDefKind.CODE.id()),
-                ScreeningLinkExtractor.tryExtractMaterialWithExperiment(entity.getOriginalObject(),
+                ScreeningLinkExtractor.tryCreateMaterialDetailsLink(entity.getOriginalObject(),
                         experiment.getIdentifier()));
         return basicModel;
     }

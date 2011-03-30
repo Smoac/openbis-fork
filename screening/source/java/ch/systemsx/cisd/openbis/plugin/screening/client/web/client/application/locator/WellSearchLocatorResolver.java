@@ -33,7 +33,7 @@ public class WellSearchLocatorResolver extends AbstractViewLocatorResolver
     {
         String experimentPermId =
                 getOptionalParameter(locator,
-                        ScreeningLinkExtractor.EXPERIMENT_PERM_ID_PARAMETER_KEY);
+                        ScreeningLinkExtractor.WELL_SEARCH_EXPERIMENT_PERM_ID_PARAMETER_KEY);
         String materialCodesOrProperties =
                 getMandatoryParameter(locator,
                         ScreeningLinkExtractor.WELL_SEARCH_MATERIAL_ITEMS_PARAMETER_KEY);

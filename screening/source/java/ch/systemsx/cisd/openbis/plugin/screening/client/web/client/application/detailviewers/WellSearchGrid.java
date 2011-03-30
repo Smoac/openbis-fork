@@ -206,7 +206,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
                 @Override
                 public String tryGetLink()
                 {
-                    return ScreeningLinkExtractor.createWellsSearchLink(searchCriteria, true);
+                    return ScreeningLinkExtractor.tryCreateWellsSearchLink(searchCriteria, true);
                 }
             });
     }
@@ -311,8 +311,8 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
                             Material material = entity.getMaterialContent();
                             String experimentIdentifier =
                                     entity.getExperiment().getExperimentIdentifier();
-                            return ScreeningLinkExtractor.tryExtractMaterialWithExperiment(
-                                    material, experimentIdentifier);
+                            return ScreeningLinkExtractor.tryCreateMaterialDetailsLink(material,
+                                    experimentIdentifier);
                         }
 
                         public void handle(TableModelRowWithObject<WellContent> wellContent,

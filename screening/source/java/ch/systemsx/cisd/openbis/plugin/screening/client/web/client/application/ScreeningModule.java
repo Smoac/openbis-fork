@@ -110,7 +110,7 @@ public class ScreeningModule implements IModule
         ArrayList<TabContent> sections = new ArrayList<TabContent>();
         if (entity.getEntityKind() == EntityKind.EXPERIMENT)
         {
-            sections.add(new WellSearchComponent(viewContext, entity));
+            sections.add(WellSearchComponent.create(viewContext, entity));
             sections.add(new ExperimentWellMaterialsSection(viewContext, entity));
         }
         return sections;

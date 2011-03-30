@@ -426,7 +426,7 @@ public class WellContentDialog extends Dialog
             final IEntityInformationHolderWithPermId material)
     {
         final String href =
-                ScreeningLinkExtractor.tryExtractMaterialWithExperiment(material,
+                ScreeningLinkExtractor.tryCreateMaterialDetailsLink(material,
                         experimentCriteria.getExperimentIdentifier());
         final ClickHandler listener = new ClickHandler()
             {
