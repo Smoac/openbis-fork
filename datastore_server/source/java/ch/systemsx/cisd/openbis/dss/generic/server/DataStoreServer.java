@@ -34,7 +34,8 @@ import org.apache.log4j.Logger;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.bio.SocketConnector;
-import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.server.ssl.SslConnector;
@@ -128,6 +129,8 @@ public class DataStoreServer
 
     private static Server server;
 
+    private static final String UPLOAD_GUI_SERVING_SERVLET_PATH = "/dss_upload_gui";
+
     public static final void start()
     {
         assert server == null : "Server already started";
@@ -201,21 +204,28 @@ public class DataStoreServer
     private static void initializeContext(final ApplicationContext applicationContext,
             final ConfigParameters configParameters, final Server thisServer)
     {
-        final ServletContextHandler context =
-                new ServletContextHandler(thisServer, "/", ServletContextHandler.SESSIONS);
-        context.setAttribute(APPLICATION_CONTEXT_KEY, applicationContext);
-        context.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE,
+        // Create a handler collection for grouping together the handlers
+        ContextHandlerCollection contextHandlers = new ContextHandlerCollection();
+        thisServer.setHandler(contextHandlers);
+
+        // Register the handler that returns the webstart jars
+        registerDssUploadClientHandler(thisServer, contextHandlers, configParameters);
+
+        ServletContextHandler servletContextHandler =
+                new ServletContextHandler(contextHandlers, "/", ServletContextHandler.SESSIONS);
+        servletContextHandler.setAttribute(APPLICATION_CONTEXT_KEY, applicationContext);
+        servletContextHandler.setAttribute(
+                WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE,
                 ServiceProvider.getApplicationContext());
         String applicationName = "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME;
-        context.addServlet(new ServletHolder(new DataStoreServlet()), "/"
+        servletContextHandler.addServlet(new ServletHolder(new DataStoreServlet()), "/"
                 + DATA_STORE_SERVER_SERVICE_NAME + "/*");
         DatasetDownloadServlet.setDownloadUrl(configParameters.getDownloadURL());
-        context.addServlet(DatasetDownloadServlet.class, applicationName + "/*");
+        servletContextHandler.addServlet(DatasetDownloadServlet.class, applicationName + "/*");
 
-        initializeRpcServices(context, applicationContext, configParameters);
-        registerPluginServlets(context, configParameters.getPluginServlets());
-        registerImageOverviewServlet(context, configParameters);
-        registerDssUploadClientHandler(thisServer, configParameters);
+        initializeRpcServices(servletContextHandler, applicationContext, configParameters);
+        registerPluginServlets(servletContextHandler, configParameters.getPluginServlets());
+        registerImageOverviewServlet(servletContextHandler, configParameters);
     }
 
     /**
@@ -305,14 +315,23 @@ public class DataStoreServer
     }
 
     private static void registerDssUploadClientHandler(Server thisServer,
-            ConfigParameters configParameters)
+            ContextHandlerCollection context, ConfigParameters configParameters)
     {
-        ResourceHandler resourceHandler = new ResourceHandler();
-        resourceHandler.setResourceBase(configParameters.getWebstartJarPath());
-        HandlerList handlers = new HandlerList();
-        handlers.addHandler(thisServer.getHandler());
-        handlers.addHandler(resourceHandler);
-        thisServer.setHandler(handlers);
+        String servletPathSuffix = UPLOAD_GUI_SERVING_SERVLET_PATH;
+        // Map this resource to a name that is accessible from outside
+        String servletPath = DataStoreApiUrlUtilities.getUrlForRpcService(servletPathSuffix);
+
+        ContextHandler webstartContextHandler = new ContextHandler(context, servletPath);
+
+        // The resource base should refer to the folder that contains the jars for the web start
+        // client.
+        // This is the value assigned to the ${dss_upload_gui} variable in dss/build.xml .
+        // We have set this up to be the same as the servletPathSuffix.
+        webstartContextHandler.setResourceBase(configParameters.getWebstartJarPath()
+                + servletPathSuffix);
+        // Add a resource handler to the webstart jar path to serve files from the file system.
+        ResourceHandler webstartJarHandler = new ResourceHandler();
+        webstartContextHandler.setHandler(webstartJarHandler);
     }
 
     private static Connector createSocketConnector(ConfigParameters configParameters)
