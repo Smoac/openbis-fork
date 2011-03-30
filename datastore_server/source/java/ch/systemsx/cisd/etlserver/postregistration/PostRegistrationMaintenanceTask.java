@@ -114,10 +114,10 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
                         POST_REGISTRATION_TASKS_PROPERTY, false);
         for (SectionProperties sectionProperty : sectionProperties)
         {
-            Properties taskPorperties = sectionProperty.getProperties();
-            String className = PropertyUtils.getMandatoryProperty(taskPorperties, "class");
+            Properties taskProperties = sectionProperty.getProperties();
+            String className = PropertyUtils.getMandatoryProperty(taskProperties, "class");
             IPostRegistrationTask task =
-                    ClassUtils.create(IPostRegistrationTask.class, className, taskPorperties,
+                    ClassUtils.create(IPostRegistrationTask.class, className, taskProperties,
                             service);
             if (task.requiresDataStoreLock())
             {
