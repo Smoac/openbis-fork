@@ -1305,6 +1305,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         for (Listener<? extends BaseEvent> listener : listeners)
         {
             columnModelOfVisible.addListener(Events.WidthChange, listener);
+            columnModelOfVisible.addListener(Events.ColumnMove, listener); // track drag&drop
         }
     }
 
@@ -1694,6 +1695,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         grid.setView(new ExtendedGridView());
         grid.setStripeRows(true);
+        grid.setColumnReordering(true);
         return grid;
     }
 

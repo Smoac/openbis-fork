@@ -141,7 +141,55 @@ public class DisplaySettingsManager
                     {
                         return;
                     }
+                    if (event.getType() == Events.ColumnMove)
+                    {
+                        // Update full column model from event triggered by change in trimmed model.
+                        // In trimmed model there are only visible columns.
+                        final int newIndexInTrimmedModel = event.getColIndex();
+                        final ColumnModel trimmedModel = event.getColumnModel();
+                        final ColumnConfig movedColumn =
+                                trimmedModel.getColumn(newIndexInTrimmedModel);
+                        updateColumnOrderInFullModel(movedColumn, newIndexInTrimmedModel);
+                    } else if (isFakeWidthChangeEvent(event))
+                    {
+                        // When FAKE width change event is fired display settings are NOT updated.
+                        // check: AbstractBrowserGrid.refreshColumnHeaderWidths()
+                        return;
+                    }
                     storeSettings(displayTypeID, grid, true);
+                }
+
+                private void updateColumnOrderInFullModel(final ColumnConfig movedColumn,
+                        int newIndexInTrimmedModel)
+                {
+                    int oldIndexInFullModel = 0;
+                    int newIndexInFullModel = 0;
+                    int index = 0;
+                    int visibleIndex = 0;
+                    for (ColumnConfig c : grid.getColumnModel().getColumns())
+                    {
+                        if (c.equals(movedColumn))
+                        {
+                            oldIndexInFullModel = index;
+                        }
+                        if (c.isHidden() == false)
+                        {
+                            if (visibleIndex == newIndexInTrimmedModel)
+                            {
+                                newIndexInFullModel = index;
+                            }
+                            visibleIndex++;
+                        }
+                        index++;
+                    }
+                    if (oldIndexInFullModel < newIndexInFullModel)
+                    {
+                        // In this case the value in event.getColIndex() was decremented
+                        // in ColumnModel.moveColumn(int, int) so we need to increment it.
+                        newIndexInFullModel++;
+                    }
+                    // trigger move in full model
+                    grid.getColumnModel().moveColumn(oldIndexInFullModel, newIndexInFullModel);
                 }
 
                 /**
@@ -166,6 +214,7 @@ public class DisplaySettingsManager
             };
         ColumnModel columnModel = grid.getColumnModel();
         columnModel.addListener(Events.WidthChange, listener);
+        // drag&drop is not added here but in AbstractBrowserGrid
     }
 
     /**
