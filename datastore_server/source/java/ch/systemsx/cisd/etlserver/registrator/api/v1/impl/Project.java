@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IProject;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 
 /**
  * @author Kaloyan Enimanev
@@ -33,17 +32,6 @@ class Project extends ProjectImmutable implements IProject
     public void setDescription(String description)
     {
         getProject().setDescription(description);
-    }
-
-    public void setProjectLeaderId(String leaderId)
-    {
-        Person projectLeader = getProject().getProjectLeader();
-        if (projectLeader == null)
-        {
-            projectLeader = new Person();
-            getProject().setProjectLeader(projectLeader);
-        }
-        projectLeader.setUserId(leaderId);
     }
 
 }

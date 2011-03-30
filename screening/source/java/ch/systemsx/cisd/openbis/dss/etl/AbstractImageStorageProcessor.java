@@ -96,6 +96,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.Color
  * <li>extract-single-image-channels - optional comma separated list of color components. Available
  * values: RED, GREEN or BLUE. If specified then the channels are extracted from the color
  * components and override 'file-extractor' results.
+ * <li>move-unregistered-datasets-to-error-dir - Optional property, true by default. If set to false
+ * then the dataset whcih cannot be registered will be left in the incoming folder and will be
+ * mentioned in the .faulty_paths file.
  * </p>
  * <p>
  * Subclasses of this storage processor can be used in the context of
@@ -317,7 +320,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
             {
                 rollbackDatabaseChanges();
             }
-            return UnstoreDataAction.MOVE_TO_ERROR;
+            return getDefaultUnstoreDataAction(exception);
         }
 
         private void rollbackDatabaseChanges()

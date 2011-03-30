@@ -698,7 +698,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         final IExternalDataBO externalDataBO = businessObjectFactory.createExternalDataBO(session);
         externalDataBO.updateStatuses(dataSetCodes, newStatus, presentInArchive);
     }
-    
+
     public boolean compareAndSetDataSetStatus(String sessionToken, String dataSetCode,
             DataSetArchivingStatus oldStatus, DataSetArchivingStatus newStatus,
             boolean newPresentInArchive) throws UserFailureException
@@ -709,7 +709,6 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         externalDataBO.loadByCode(dataSetCode);
         return externalDataBO.compareAndSetDataSetStatus(oldStatus, newStatus, newPresentInArchive);
     }
-    
 
     public ExternalData tryGetDataSet(String sessionToken, String dataSetCode)
             throws UserFailureException
@@ -797,11 +796,13 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         return datasetLister.listByArchiverCriteria(dataStoreCode, criteria);
     }
 
-    public List<ExternalData> listDataSets(String sessionToken, String dataStoreCode, TrackingDataSetCriteria criteria)
+    public List<ExternalData> listDataSets(String sessionToken, String dataStoreCode,
+            TrackingDataSetCriteria criteria)
     {
         Session session = getSession(sessionToken);
         getDAOFactory().getHomeDatabaseInstance();
-        DataStorePE dataStore = getDAOFactory().getDataStoreDAO().tryToFindDataStoreByCode(dataStoreCode);
+        DataStorePE dataStore =
+                getDAOFactory().getDataStoreDAO().tryToFindDataStoreByCode(dataStoreCode);
         if (dataStore == null)
         {
             throw new UserFailureException("Unknown data store: " + dataStoreCode);
@@ -818,7 +819,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         }
         return result;
     }
-    
+
     private List<ExternalDataPE> loadDataSets(String sessionToken, String dataStoreCode)
     {
         Session session = getSession(sessionToken);
@@ -1047,8 +1048,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
 
         List<Project> projectsCreated = createProjects(sessionToken, operationDetails);
 
-        List<Experiment> experimentsCreated =
-                createExperiments(sessionToken, operationDetails);
+        List<Experiment> experimentsCreated = createExperiments(sessionToken, operationDetails);
 
         List<Sample> samplesCreated = createSamples(sessionToken, operationDetails);
 
@@ -1057,8 +1057,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         List<ExternalData> dataSetsCreated = createDataSets(sessionToken, operationDetails);
 
         return new AtomicEntityOperationResult(spacesCreated, projectsCreated, experimentsCreated,
-                samplesUpdated, samplesCreated,
-                dataSetsCreated);
+                samplesUpdated, samplesCreated, dataSetsCreated);
     }
 
     private List<Space> createSpaces(String sessionToken,
@@ -1085,14 +1084,17 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         groupBO.define(newSpace.getCode(), newSpace.getDescription());
         if (registratorUserIdOrNull != null)
         {
-            groupBO.getGroup().setRegistrator(getOrCreatePerson(sessionToken, registratorUserIdOrNull));
+            groupBO.getGroup().setRegistrator(
+                    getOrCreatePerson(sessionToken, registratorUserIdOrNull));
         }
         groupBO.save();
-        
+
         // create ADMIN role assignemnt
         SpacePE space = groupBO.getGroup();
-        if (newSpace.getSpaceAdminUserId() != null) {
-            IRoleAssignmentTable roleTable = businessObjectFactory.createRoleAssignmentTable(session);
+        if (newSpace.getSpaceAdminUserId() != null)
+        {
+            IRoleAssignmentTable roleTable =
+                    businessObjectFactory.createRoleAssignmentTable(session);
             NewRoleAssignment assignment = new NewRoleAssignment();
             SpaceIdentifier spaceIdentifier = new SpaceIdentifier(space.getCode());
             assignment.setSpaceIdentifier(spaceIdentifier);
@@ -1104,7 +1106,6 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         }
         return space;
 
-        
     }
 
     private List<Project> createProjects(String sessionToken,
@@ -1129,8 +1130,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         IProjectBO projectBO = businessObjectFactory.createProjectBO(session);
         ProjectIdentifier identifier =
                 new ProjectIdentifierFactory(newProject.getIdentifier()).createIdentifier();
-        projectBO.define(identifier, newProject.getDescription(),
-                newProject.getLeaderId());
+        projectBO.define(identifier, newProject.getDescription(), null);
         if (registratorUserIdOrNull != null)
         {
             projectBO.getProject().setRegistrator(

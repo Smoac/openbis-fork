@@ -107,7 +107,7 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor
             // directory structure will persist. Right now, we consider this is fine as these empty
             // directories will not disturb the running application.
             FileRenamer.renameAndLog(targetFile, incomingDataSetDirectory);
-            return UnstoreDataAction.MOVE_TO_ERROR;
+            return getDefaultUnstoreDataAction(ex);
         }
 
         /**
@@ -143,11 +143,5 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor
             return Unzipper.unzip(archiveFile, outputDirectory, deleteUnzipped);
         }
         return Status.OK;
-    }
-
-    @Override
-    public UnstoreDataAction getDefaultUnstoreDataAction(Throwable exception)
-    {
-        return UnstoreDataAction.MOVE_TO_ERROR;
     }
 }

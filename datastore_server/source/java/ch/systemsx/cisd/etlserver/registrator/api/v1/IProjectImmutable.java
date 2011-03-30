@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v1;
 
-
 /**
  * @author Kaloyan Enimanev
  */
@@ -32,12 +31,6 @@ public interface IProjectImmutable
      * Return the description for this project.
      */
     String getDescription();
-
-    /**
-     * Return the project leader id. May be null.
-     */
-    String getProjectLeaderId();
-
 
     /**
      * Return true if the project exists in the database.

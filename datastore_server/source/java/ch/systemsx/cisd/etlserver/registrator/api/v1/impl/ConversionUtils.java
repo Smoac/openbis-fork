@@ -135,8 +135,7 @@ public class ConversionUtils
 
     public static NewProject convertToNewProject(Project apiProject)
     {
-        return new NewProject(apiProject.getProjectIdentifier(), apiProject.getDescription(),
-                apiProject.getProjectLeaderId());
+        return new NewProject(apiProject.getProjectIdentifier(), apiProject.getDescription());
     }
 
 }

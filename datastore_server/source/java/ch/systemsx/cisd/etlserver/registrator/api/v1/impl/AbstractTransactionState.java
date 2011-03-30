@@ -232,9 +232,9 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             return experiment;
         }
 
-        public ISpace createNewSpace(String spaceCode, String spaceAdminUserId)
+        public ISpace createNewSpace(String spaceCode, String spaceAdminUserIdOrNull)
         {
-            Space space = new Space(spaceCode, spaceAdminUserId);
+            Space space = new Space(spaceCode, spaceAdminUserIdOrNull);
             spacesToBeRegistered.add(space);
             return space;
         }

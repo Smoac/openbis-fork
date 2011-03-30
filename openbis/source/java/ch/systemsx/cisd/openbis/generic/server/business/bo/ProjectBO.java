@@ -71,7 +71,7 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
     }
 
     private ProjectPE createProject(final ProjectIdentifier projectIdentifier, String description,
-            String leaderId)
+            String leaderIdOrNull)
     {
         final ProjectPE result = new ProjectPE();
         final SpacePE group =
@@ -80,9 +80,9 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
         result.setRegistrator(findRegistrator());
         result.setCode(projectIdentifier.getProjectCode());
         result.setDescription(description);
-        if (leaderId != null)
+        if (leaderIdOrNull != null)
         {
-            PersonPE leader = getPersonDAO().tryFindPersonByUserId(leaderId);
+            PersonPE leader = getPersonDAO().tryFindPersonByUserId(leaderIdOrNull);
             if (leader == null)
             {
                 throw new UserFailureException("Person '%s' not found in the database.");

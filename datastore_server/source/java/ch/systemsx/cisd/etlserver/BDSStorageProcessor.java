@@ -455,7 +455,7 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor
         protected UnstoreDataAction executeRollback(Throwable ex)
         {
             unstoreData();
-            return UnstoreDataAction.MOVE_TO_ERROR;
+            return getDefaultUnstoreDataAction(ex);
         }
 
         @Override

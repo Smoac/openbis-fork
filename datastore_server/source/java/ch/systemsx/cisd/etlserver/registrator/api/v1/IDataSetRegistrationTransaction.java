@@ -97,9 +97,10 @@ public interface IDataSetRegistrationTransaction
      * Create a new space to register with the openBIS AS.
      * 
      * @param spaceCode the code of the space
-     * @param spaceAdminUserId the user id of the person, who will receive space admin priviliges.
+     * @param spaceAdminUserIdOrNull the user id of the person, who will receive space admin
+     *            priviliges.
      */
-    ISpace createNewSpace(String spaceCode, String spaceAdminUserId);
+    ISpace createNewSpace(String spaceCode, String spaceAdminUserIdOrNull);
 
     /**
      * Get a space from the openBIS AS. Returns null if the space does not exist.

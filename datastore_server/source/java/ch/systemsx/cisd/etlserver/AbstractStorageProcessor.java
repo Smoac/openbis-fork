@@ -31,16 +31,29 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
  */
 public abstract class AbstractStorageProcessor implements IStorageProcessorTransactional
 {
+    /**
+     * Optional property, true by default. If set to false then the dataset whcih cannot be
+     * registered will be left in the incoming folder and will be mentioned in the .faulty_paths
+     * file.
+     */
+    private final static String MOVE_UNREGISTERED_DATASETS_TO_ERROR_DIR_PROPERTY =
+            "move-unregistered-datasets-to-error-dir";
+
     private static final String[] ZIP_FILE_EXTENSIONS =
         { "zip" };
 
     protected final Properties properties;
+
+    private final boolean moveUnregisteredDatasetsToErrorDir;
 
     private File storeRootDir;
 
     protected AbstractStorageProcessor(final Properties properties)
     {
         this.properties = properties;
+        this.moveUnregisteredDatasetsToErrorDir =
+                PropertyUtils.getBoolean(properties,
+                        MOVE_UNREGISTERED_DATASETS_TO_ERROR_DIR_PROPERTY, true);
     }
 
     protected final String getMandatoryProperty(final String propertyKey)
@@ -96,6 +109,7 @@ public abstract class AbstractStorageProcessor implements IStorageProcessorTrans
 
     public UnstoreDataAction getDefaultUnstoreDataAction(Throwable exception)
     {
-        return UnstoreDataAction.LEAVE_UNTOUCHED;
+        return moveUnregisteredDatasetsToErrorDir ? UnstoreDataAction.MOVE_TO_ERROR
+                : UnstoreDataAction.LEAVE_UNTOUCHED;
     }
 }

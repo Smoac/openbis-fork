@@ -30,13 +30,10 @@ public class NewProject implements Serializable
 
     private final String description;
 
-    private final String leaderId;
-
-    public NewProject(String identifier, String description, String leaderId)
+    public NewProject(String identifier, String description)
     {
         this.identifier = identifier;
         this.description = description;
-        this.leaderId = leaderId;
     }
 
     public String getIdentifier()
@@ -47,11 +44,6 @@ public class NewProject implements Serializable
     public String getDescription()
     {
         return description;
-    }
-
-    public String getLeaderId()
-    {
-        return leaderId;
     }
 
     @Override

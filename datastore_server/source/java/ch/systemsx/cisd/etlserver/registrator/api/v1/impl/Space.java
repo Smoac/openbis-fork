@@ -24,12 +24,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
  */
 class Space extends SpaceImmutable implements ISpace
 {
-    public Space(String code, String spaceAdminUserId)
+    public Space(String code, String spaceAdminUserIdOrNull)
     {
         super(new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space(), false);
         getSpace().setCode(code);
         getSpace().setRegistrator(new Person());
-        getSpace().getRegistrator().setUserId(spaceAdminUserId);
+        getSpace().getRegistrator().setUserId(spaceAdminUserIdOrNull);
     }
 
     public void setDescription(String description)

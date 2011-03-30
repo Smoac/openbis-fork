@@ -245,9 +245,9 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         return (null == projectOrNull) ? null : new ProjectImmutable(projectOrNull);
     }
 
-    public ISpace createNewSpace(String spaceCode, String spaceAdminUserId)
+    public ISpace createNewSpace(String spaceCode, String spaceAdminUserIdOrNull)
     {
-        return getStateAsLiveState().createNewSpace(spaceCode, spaceAdminUserId);
+        return getStateAsLiveState().createNewSpace(spaceCode, spaceAdminUserIdOrNull);
     }
 
     public ISpaceImmutable getSpace(String spaceCode)

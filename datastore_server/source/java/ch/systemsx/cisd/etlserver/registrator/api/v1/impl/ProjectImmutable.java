@@ -71,9 +71,4 @@ class ProjectImmutable implements IProjectImmutable
         return project.getDescription();
     }
 
-    public String getProjectLeaderId()
-    {
-        return (project.getProjectLeader() != null) ? project.getProjectLeader().getUserId() : null;
-    }
-
 }

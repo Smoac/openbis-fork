@@ -26,8 +26,4 @@ public interface IProject extends IProjectImmutable
      */
     void setDescription(String description);
 
-    /**
-     * Set the project leader id.
-     */
-    void setProjectLeaderId(String leaderId);
 }

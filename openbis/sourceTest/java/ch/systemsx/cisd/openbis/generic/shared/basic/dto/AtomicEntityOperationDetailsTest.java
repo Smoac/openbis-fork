@@ -40,8 +40,8 @@ public class AtomicEntityOperationDetailsTest extends AssertJUnit
         spaceRegistrations.add(new NewSpace("SPACE2", "description", "adminUser2"));
 
         ArrayList<NewProject> projectRegistrations = new ArrayList<NewProject>();
-        projectRegistrations.add(new NewProject("/SPACE/P1", "description", "leaderId1"));
-        projectRegistrations.add(new NewProject("/SPACE/P2", "description", "leaderId2"));
+        projectRegistrations.add(new NewProject("/SPACE/P1", "description"));
+        projectRegistrations.add(new NewProject("/SPACE/P2", "description"));
 
         ArrayList<NewExperiment> experimentRegistrations = new ArrayList<NewExperiment>();
         experimentRegistrations.add(new NewExperiment("/SPACE/PROJECT/EXP-ID1", "EXP-TYPE"));
@@ -64,8 +64,8 @@ public class AtomicEntityOperationDetailsTest extends AssertJUnit
 
         AtomicEntityOperationDetails details =
                 new AtomicEntityOperationDetails(null, spaceRegistrations, projectRegistrations,
-                        experimentRegistrations, sampleUpdates,
-                        sampleRegistrations, dataSetRegistrations);
+                        experimentRegistrations, sampleUpdates, sampleRegistrations,
+                        dataSetRegistrations);
 
         assertEquals(
                 "AtomicEntityOperationDetails[userIdOrNull=<null>"

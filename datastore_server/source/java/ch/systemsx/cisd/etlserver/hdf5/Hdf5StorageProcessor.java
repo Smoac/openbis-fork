@@ -91,7 +91,7 @@ public class Hdf5StorageProcessor extends AbstractStorageProcessor
 
                     fileBeingProcessed = null;
 
-                    return UnstoreDataAction.MOVE_TO_ERROR;
+                    return getDefaultUnstoreDataAction(exception);
                 }
 
                 public void commit()

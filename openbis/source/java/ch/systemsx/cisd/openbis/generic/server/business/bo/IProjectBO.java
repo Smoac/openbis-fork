@@ -40,7 +40,7 @@ public interface IProjectBO extends IEntityBusinessObject
      *             is unspecified and home group is undefined.
      */
     public void define(final ProjectIdentifier projectIdentifier, String description,
-            String leaderId) throws UserFailureException;
+            String leaderIdOrNull) throws UserFailureException;
 
     /**
      * Returns the loaded project.
