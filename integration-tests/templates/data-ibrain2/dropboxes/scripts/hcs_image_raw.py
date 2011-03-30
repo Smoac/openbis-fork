@@ -11,26 +11,32 @@ PLATE_TYPE_CODE = "PLATE"
 SIRNA_EXP_TYPE = "SIRNA_HCS"
 PLATE_GEOMETRY_PROPERTY_CODE = "$PLATE_GEOMETRY"
 
-def createPlateWithExperimentIfNeeded(transaction, assayParser, plate, space, plateGeometry):
-    project = assayParser.get(assayParser.EXPERIMENTER_PROPERTY)
+def createPlateWithExperimentIfNeeded(transaction, assayParser, plateCode, spaceCode, plateGeometry):
+    projectCode = assayParser.get(assayParser.EXPERIMENTER_PROPERTY)
     experiment = assayParser.get(assayParser.ASSAY_ID_PROPERTY)
     experimentDesc = assayParser.get(assayParser.ASSAY_DESC_PROPERTY)   
     experimentType = assayParser.get(assayParser.ASSAY_TYPE_PROPERTY)
     
-    sampleIdentifier = "/"+space+"/"+plate
-    plate = transaction.getSample(sampleIdentifier)
-    if plate == None:
-        expIdentifier = "/"+space+"/"+project+"/"+experiment
+    if transaction.getSpace(spaceCode) == None:
+        tr.createNewSpace(spaceCode, None)
+    
+    sampleIdentifier = "/"+spaceCode+"/"+plateCode
+    plateCode = transaction.getSample(sampleIdentifier)
+    if plateCode == None:
+        projectIdent = "/" + spaceCode +"/" + projectCode
+        if transaction.getProject(projectIdent) == None:
+            tr.createNewProject(projectIdent)
+        expIdentifier = projectIdent + "/"+experiment
         experiment = transaction.getExperiment(expIdentifier)
         if experiment == None:
             experiment = transaction.createNewExperiment(expIdentifier, SIRNA_EXP_TYPE)
             openbisExpDesc = experimentDesc + " (type: "+experimentType + ")"
             experiment.setPropertyValue("DESCRIPTION", openbisExpDesc)
 
-        plate = transaction.createNewSample(sampleIdentifier, PLATE_TYPE_CODE)
-        plate.setPropertyValue(PLATE_GEOMETRY_PROPERTY_CODE, plateGeometry)
-        plate.setExperiment(experiment)
-    return plate
+        plateCode = transaction.createNewSample(sampleIdentifier, PLATE_TYPE_CODE)
+        plateCode.setPropertyValue(PLATE_GEOMETRY_PROPERTY_CODE, plateGeometry)
+        plateCode.setExperiment(experiment)
+    return plateCode
 
 
 iBrain2DatasetId = None
@@ -52,7 +58,7 @@ if incoming.isDirectory():
     imageRegistrationDetails = factory.createImageRegistrationDetails(imageDataset, incoming)
     for propertyCode, value in metadataParser.getDatasetPropertiesIter():
 		imageRegistrationDetails.setPropertyValue(propertyCode, value)
-
+    
     tr = service.transaction(incoming, factory)
 
     plate = metadataParser.getPlateCode()
