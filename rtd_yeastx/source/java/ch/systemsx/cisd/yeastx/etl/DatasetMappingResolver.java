@@ -339,19 +339,19 @@ class DatasetMappingResolver
     private boolean sampleExistsAndBelongsToExperiment(DataSetMappingInformation mapping,
             String sampleCode, LogUtils log)
     {
-        if (isConnectedToExperiment(mapping, sampleCode, log) == false)
+        SampleIdentifier sampleIdentifier = createSampleIdentifier(sampleCode, mapping);
+        if (isConnectedToExperiment(mapping, sampleIdentifier, log) == false)
         {
-            log.datasetMappingError(mapping, "sample with the code '%s' does not exist"
-                    + " or is not connected to any experiment", sampleCode);
+            log.datasetMappingError(mapping, "sample '%s' does not exist"
+                    + " or is not connected to any experiment.", sampleIdentifier);
             return false;
         }
         return true;
     }
 
-    private boolean isConnectedToExperiment(DataSetMappingInformation mapping, String sampleCode,
-            LogUtils log)
+    private boolean isConnectedToExperiment(DataSetMappingInformation mapping,
+            SampleIdentifier sampleIdentifier, LogUtils log)
     {
-        SampleIdentifier sampleIdentifier = createSampleIdentifier(sampleCode, mapping);
         try
         {
             Sample sample = openbisService.tryGetSampleWithExperiment(sampleIdentifier);
