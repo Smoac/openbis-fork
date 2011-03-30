@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
@@ -25,7 +26,11 @@ import org.apache.log4j.Logger;
 import org.apache.lucene.index.IndexWriter;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.search.FullTextSession;
+import org.hibernate.search.Search;
+import org.hibernate.search.SearchFactory;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.store.DirectoryProvider;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import ch.systemsx.cisd.common.Constants;
@@ -39,14 +44,14 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 public final class FullTextIndexerRunnable extends HibernateDaoSupport implements Runnable
 {
-    public final static String FULL_TEXT_INDEX_MARKER_FILENAME =
-            Constants.MARKER_PREFIX + "full_index";
+    public final static String FULL_TEXT_INDEX_MARKER_FILENAME = Constants.MARKER_PREFIX
+            + "full_index";
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, FullTextIndexerRunnable.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            FullTextIndexerRunnable.class);
 
-    private static final Logger notificationLog =
-            LogFactory.getLogger(LogCategory.NOTIFY, FullTextIndexerRunnable.class);
+    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
+            FullTextIndexerRunnable.class);
 
     private final HibernateSearchContext context;
 
@@ -105,6 +110,8 @@ public final class FullTextIndexerRunnable extends HibernateDaoSupport implement
             IndexWriter.setDefaultWriteLockTimeout(3000);
             final File indexBase = new File(context.getIndexBase());
             final File markerFile = new File(indexBase, FULL_TEXT_INDEX_MARKER_FILENAME);
+            final Session session = getSession();
+            writeLockRecovery(session, indexedEntities); // recover even if marker is found
             if (indexMode == IndexMode.SKIP_IF_MARKER_FOUND && markerFile.exists())
             {
                 operationLog.debug(String.format("Skipping indexing process as "
@@ -113,8 +120,7 @@ public final class FullTextIndexerRunnable extends HibernateDaoSupport implement
             }
             // full text index will be performed so updater queue can be cleared
             fullTextIndexUpdater.clear();
-            //            
-            final Session session = getSession();
+            //
             final StopWatch stopWatch = new StopWatch();
             for (final Class<?> indexedEntity : indexedEntities)
             {
@@ -123,8 +129,8 @@ public final class FullTextIndexerRunnable extends HibernateDaoSupport implement
                 stopWatch.start();
                 fullTextIndexer.doFullTextIndex(session, indexedEntity);
                 stopWatch.stop();
-                operationLog.info(String.format("Indexing entity '%s' took %s.", indexedEntity
-                        .getName(), stopWatch));
+                operationLog.info(String.format("Indexing entity '%s' took %s.",
+                        indexedEntity.getName(), stopWatch));
             }
             FileUtils.touch(markerFile);
             releaseSession(session);
@@ -136,6 +142,30 @@ public final class FullTextIndexerRunnable extends HibernateDaoSupport implement
         // when index creation is finished start index updater thread
         {
             fullTextIndexUpdater.start();
+        }
+    }
+
+    /**
+     * Recovery code that removes stale write locks on directories of specified entities (see
+     * LMS-2168). It should be run only at the server start when we are sure that no other thread
+     * could be writing to the index at the same time. In our case the updater thread shouldn't be
+     * started yet.
+     * 
+     * @see IndexWriter#unlock(org.apache.lucene.store.Directory)
+     */
+    private void writeLockRecovery(Session session, Set<Class<?>> indexedEntities)
+            throws IOException
+    {
+        final FullTextSession fullTextSession = Search.getFullTextSession(session);
+        SearchFactory searchFactory = fullTextSession.getSearchFactory();
+        for (Class<?> indexedEntity : indexedEntities)
+        {
+            DirectoryProvider<?>[] directoryProviders =
+                    searchFactory.getDirectoryProviders(indexedEntity);
+            for (DirectoryProvider<?> provider : directoryProviders)
+            {
+                IndexWriter.unlock(provider.getDirectory());
+            }
         }
     }
 }
