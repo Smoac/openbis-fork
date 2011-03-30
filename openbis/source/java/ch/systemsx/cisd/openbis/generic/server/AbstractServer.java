@@ -440,8 +440,13 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     @SuppressWarnings("deprecation")
     private List<EntityVisit> joinVisits(DisplaySettings displaySettings, PersonPE person)
     {
+        List<EntityVisit> personVisits = person.getDisplaySettings().getVisits();
+        if (displaySettings == null)
+        {
+            return personVisits;
+        }
         List<EntityVisit> visits = displaySettings.getVisits();
-        visits.addAll(person.getDisplaySettings().getVisits());
+        visits.addAll(personVisits);
         return visits;
     }
 
