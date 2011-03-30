@@ -21,6 +21,7 @@ import com.extjs.gxt.ui.client.widget.ProgressBar;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 
 /**
  * {@link AsyncCallback} decorator adding a progress bar that is visible until response is received
@@ -30,6 +31,30 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUt
  */
 public class AsyncCallbackWithProgressBar<T> implements AsyncCallback<T>
 {
+    /** Creates and displays a progress bar with a given message. Returns an action which hides it. */
+    public static IDelegatedAction createProgressBar(String progressMessage)
+    {
+        final AsyncCallback<Void> dummyCallback = new AsyncCallback<Void>()
+            {
+                public void onFailure(Throwable caught)
+                {
+                }
+
+                public void onSuccess(Void result)
+                {
+                }
+            };
+        final AsyncCallback<Void> progressCallback =
+                AsyncCallbackWithProgressBar.decorate(dummyCallback, progressMessage);
+        return new IDelegatedAction()
+            {
+
+                public void execute()
+                {
+                    progressCallback.onSuccess(null);
+                }
+            };
+    }
 
     /**
      * Decorates given callback with a progress bar containing given message.

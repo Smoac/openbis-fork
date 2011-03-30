@@ -35,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 public class GlobalSearchTabItemFactory
 {
 
-
     /**
      * opens a new tab if there are search results.
      */
@@ -50,8 +49,7 @@ public class GlobalSearchTabItemFactory
     /**
      * always opens a new tab, regardless if there were any search entities found.
      */
-    public static void openTab(
-            final IViewContext<ICommonClientServiceAsync> viewContext,
+    public static void openTab(final IViewContext<ICommonClientServiceAsync> viewContext,
             final SearchableEntity searchableEntity, final String queryText)
     {
 
@@ -70,7 +68,8 @@ public class GlobalSearchTabItemFactory
                 new MatchingEntitiesPanel(viewContext, searchableEntity, queryText,
                         useWildcardSearchMode);
 
-        String entityDescription = (searchableEntity != null) ? searchableEntity.getDescription() : null;
+        String entityDescription =
+                (searchableEntity != null) ? searchableEntity.getDescription() : null;
         String title = createTabTitle(viewContext, entityDescription, queryText);
 
         final AbstractTabItemFactory tabFactory =
@@ -78,8 +77,15 @@ public class GlobalSearchTabItemFactory
 
         matchingEntitiesGrid.refresh(new IDataRefreshCallback()
             {
+                private boolean firstCall = true;
+
                 public void postRefresh(boolean wasSuccessful)
                 {
+                    if (firstCall == false)
+                    {
+                        return;
+                    }
+                    firstCall = false;
                     if (matchingEntitiesGrid.getRowNumber() == 0)
                     {
                         Object[] msgParameters = (useWildcardSearchMode == true) ? new String[]
@@ -99,7 +105,6 @@ public class GlobalSearchTabItemFactory
                 }
             });
     }
-
 
     private static String createTabTitle(IViewContext<ICommonClientServiceAsync> viewContext,
             String chosenEntity, String queryText)
