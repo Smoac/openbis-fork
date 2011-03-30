@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ColumnModelEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -31,7 +30,6 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.util.DelayedTask;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
-import com.extjs.gxt.ui.client.widget.grid.Grid;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
@@ -79,7 +77,8 @@ public class DisplaySettingsManager
                 .getModel().getApplicationInfo().getWebClientConfiguration());
     }
 
-    private static IDelayedUpdater createDelayedUpdater(final IDelegatedAction settingsUpdater, IViewContext<?> viewContext)
+    private static IDelayedUpdater createDelayedUpdater(final IDelegatedAction settingsUpdater,
+            IViewContext<?> viewContext)
     {
         if (viewContext.getModel().isDisplaySettingsSaving() == false)
         {
@@ -87,7 +86,8 @@ public class DisplaySettingsManager
                 {
                     public void executeDelayed(int delayMs)
                     {
-                        // in simple view mode or anonymous login settings are temporary - don't save them at all
+                        // in simple view mode or anonymous login settings are temporary - don't
+                        // save them at all
                     }
                 };
         } else
@@ -125,46 +125,12 @@ public class DisplaySettingsManager
     }
 
     /**
-     * This method is deprecated and will be removed when AbstractGridBrowser will be used
-     * everywhere.
-     */
-    public <M extends ModelData> void prepareGrid(final String displayTypeID, final Grid<M> grid)
-    {
-        final ArrayList<String> emptyFilters = new ArrayList<String>();
-        IDisplaySettingsGetter displaySettingsUpdater = new IDisplaySettingsGetter()
-            {
-                public ColumnModel getColumnModel()
-                {
-                    return grid.getColumnModel();
-                }
-
-                public List<String> getFilteredColumnIds()
-                {
-                    return emptyFilters;
-                }
-
-                public Object getModifier()
-                {
-                    return this;
-                }
-            };
-        GridDisplaySettings settings =
-                tryApplySettings(displayTypeID, grid.getColumnModel(), emptyFilters);
-        if (settings != null)
-        {
-            grid.reconfigure(grid.getStore(), new ColumnModel(settings.getColumnConfigs()));
-        }
-        registerGridSettingsChangesListener(displayTypeID, displaySettingsUpdater);
-    }
-
-    /**
      * Register listeners which monitors all the column configuration changes and makes them
      * persistent.
      */
     public void registerGridSettingsChangesListener(final String displayTypeID,
             final IDisplaySettingsGetter grid)
     {
-
         Listener<ColumnModelEvent> listener = new Listener<ColumnModelEvent>()
             {
                 public void handleEvent(ColumnModelEvent event)
@@ -520,7 +486,7 @@ public class DisplaySettingsManager
     {
         displaySettings.getDropDownSettings().put(dropDownSettingsID, newValue);
     }
-    
+
     @SuppressWarnings("deprecation")
     public void rememberVisit(EntityVisit visit)
     {
@@ -532,13 +498,13 @@ public class DisplaySettingsManager
     {
         return displaySettings.getVisits();
     }
-    
+
     @SuppressWarnings("deprecation")
     public void addPortlet(PortletConfiguration portletConfiguration)
     {
         displaySettings.addPortlet(portletConfiguration);
     }
-    
+
     @SuppressWarnings("deprecation")
     public Map<String, PortletConfiguration> getPortletConfigurations()
     {
