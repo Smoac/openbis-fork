@@ -40,6 +40,6 @@ public class LogoutAction implements IDelegatedAction
                 viewContext.getModel().getSessionContext().getDisplaySettings();
 
         viewContext.getService().logout(displaySettings,
-                viewContext.getModel().isDisplaySettingsSaving(), new LogoutCallback(viewContext));
+                viewContext.getModel().isDisplaySettingsSaving() == false, new LogoutCallback(viewContext));
     }
 }
