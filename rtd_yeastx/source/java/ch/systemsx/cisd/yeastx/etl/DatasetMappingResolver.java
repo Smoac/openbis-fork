@@ -117,12 +117,15 @@ class DatasetMappingResolver
         {
             return sampleCodeOrLabel;
         }
+        Boolean sampleExistsAndBelongsToExperiment = null;
         if (mapping.getExperimentName() == null)
         {
             // The main purpose of this checks is to ensure that sample with the given code exists.
             // If it is not a case, we will try to check if the specified sample label is unique (in
             // all experiments).
-            if (sampleExistsAndBelongsToExperiment(mapping, sampleCodeOrLabel, log))
+            sampleExistsAndBelongsToExperiment =
+                    sampleExistsAndBelongsToExperiment(mapping, sampleCodeOrLabel, log);
+            if (sampleExistsAndBelongsToExperiment)
             {
                 return sampleCodeOrLabel;
             }
@@ -139,7 +142,12 @@ class DatasetMappingResolver
         } else if (samples.size() == 0)
         {
             // try to assume that the sample code, not name, has been provided
-            if (sampleExistsAndBelongsToExperiment(mapping, sampleCodeOrLabel, log))
+            if (sampleExistsAndBelongsToExperiment == null)
+            {
+                sampleExistsAndBelongsToExperiment =
+                        sampleExistsAndBelongsToExperiment(mapping, sampleCodeOrLabel, log);
+            }
+            if (sampleExistsAndBelongsToExperiment)
             {
                 return sampleCodeOrLabel;
             } else
