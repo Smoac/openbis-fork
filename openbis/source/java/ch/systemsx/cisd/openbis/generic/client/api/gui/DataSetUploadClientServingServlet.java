@@ -30,7 +30,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 @Controller
 @RequestMapping(
     { "/" + BasicConstant.DATA_SET_UPLOAD_CLIENT_PATH,
-            "/openbis/" + BasicConstant.DATA_SET_UPLOAD_CLIENT_PATH })
+            "/openbis/" + BasicConstant.DATA_SET_UPLOAD_CLIENT_PATH,
+            "/openbis/openbis/" + BasicConstant.DATA_SET_UPLOAD_CLIENT_PATH })
 public class DataSetUploadClientServingServlet extends AbstractWebStartClientServingServlet
 {
     private static final long serialVersionUID = 1L;

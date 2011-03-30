@@ -73,7 +73,7 @@ public class DataSetMenu extends TopMenuItem
                 public void componentSelected(MenuEvent ce)
                 {
                     final URLMethodWithParameters urlParams =
-                            new URLMethodWithParameters("/openbis/"
+                            new URLMethodWithParameters("/openbis/openbis/"
                                     + BasicConstant.DATA_SET_UPLOAD_CLIENT_PATH);
                     String sessionToken = viewContext.getModel().getSessionContext().getSessionID();
                     urlParams.addParameter("session", sessionToken);
