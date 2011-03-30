@@ -48,7 +48,7 @@ public class OpenBISAuthenticationInterceptorTest
 
     private static final String DOWNLOAD_URL = "download-url";
 
-    private static final String DATA_STORE_CODE = "data-store1";
+    private static final String DATA_STORE_CODE = "DATA-STORE-CODE1";
 
     private static final String LIMS_USER = "testuser";
 
