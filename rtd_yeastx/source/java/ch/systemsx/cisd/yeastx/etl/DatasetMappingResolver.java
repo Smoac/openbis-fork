@@ -122,7 +122,7 @@ class DatasetMappingResolver
             // The main purpose of this checks is to ensure that sample with the given code exists.
             // If it is not a case, we will try to check if the specified sample label is unique (in
             // all experiments).
-            if (isConnectedToExperiment(sampleCodeOrLabel, mapping, log))
+            if (sampleExistsAndBelongsToExperiment(mapping, sampleCodeOrLabel, log))
             {
                 return sampleCodeOrLabel;
             }
@@ -139,7 +139,7 @@ class DatasetMappingResolver
         } else if (samples.size() == 0)
         {
             // try to assume that the sample code, not name, has been provided
-            if (isConnectedToExperiment(sampleCodeOrLabel, mapping, log))
+            if (sampleExistsAndBelongsToExperiment(mapping, sampleCodeOrLabel, log))
             {
                 return sampleCodeOrLabel;
             } else
@@ -255,7 +255,7 @@ class DatasetMappingResolver
                         "when dataset is connected to a sample it cannot have parent datasets.");
                 return false;
             }
-            return sampleExistsAndBelongsToExperiment(mapping, log, sampleCode);
+            return sampleExistsAndBelongsToExperiment(mapping, sampleCode, log);
         }
     }
 
@@ -337,9 +337,9 @@ class DatasetMappingResolver
     }
 
     private boolean sampleExistsAndBelongsToExperiment(DataSetMappingInformation mapping,
-            LogUtils log, String sampleCode)
+            String sampleCode, LogUtils log)
     {
-        if (isConnectedToExperiment(sampleCode, mapping, log) == false)
+        if (isConnectedToExperiment(mapping, sampleCode, log) == false)
         {
             log.datasetMappingError(mapping, "sample with the code '%s' does not exist"
                     + " or is not connected to any experiment", sampleCode);
@@ -348,7 +348,7 @@ class DatasetMappingResolver
         return true;
     }
 
-    private boolean isConnectedToExperiment(String sampleCode, DataSetMappingInformation mapping,
+    private boolean isConnectedToExperiment(DataSetMappingInformation mapping, String sampleCode,
             LogUtils log)
     {
         SampleIdentifier sampleIdentifier = createSampleIdentifier(sampleCode, mapping);
