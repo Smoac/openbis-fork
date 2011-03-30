@@ -66,7 +66,7 @@ public class DssPropertyParametersUtil
 
     public static String getDataStoreCode(Properties serviceProperties)
     {
-        return PropertyUtils.getMandatoryProperty(serviceProperties, DSS_CODE_KEY);
+        return PropertyUtils.getMandatoryProperty(serviceProperties, DSS_CODE_KEY).toUpperCase();
     }
 
     public final static File getStoreRootDir(final Properties properties)

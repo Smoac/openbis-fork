@@ -33,7 +33,7 @@ public class OpenBISSessionHolder
 
     public void setDataStoreCode(String dataStoreCode)
     {
-        this.dataStoreCode = dataStoreCode;
+        this.dataStoreCode = dataStoreCode.toUpperCase();
     }
 
     public String getToken()
