@@ -83,7 +83,7 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
         freeSpaceProvider = context.mock(IFreeSpaceProvider.class);
         dataSetMover = context.mock(IDataSetMover.class);
         logger = context.mock(ISimpleLogger.class);
-        store = new File(workingDirectory, "store");
+        store = new File(workingDirectory.getAbsolutePath(), "store");
         store.mkdirs();
         share1 = new File(store, "1");
         share1.mkdir();
@@ -254,7 +254,7 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
         assertEquals(share4, files.get(3).getFile());
         assertEquals(4, files.size());
     }
-    
+
     private SimpleDataSetInformationDTO dataSet(String shareId, String dataSetCode)
     {
         SimpleDataSetInformationDTO dataSet = new SimpleDataSetInformationDTO();

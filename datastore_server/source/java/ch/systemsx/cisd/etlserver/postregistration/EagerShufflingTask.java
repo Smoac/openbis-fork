@@ -34,7 +34,6 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.ETLDaemon;
 import ch.systemsx.cisd.etlserver.plugins.DataSetMover;
 import ch.systemsx.cisd.etlserver.plugins.IDataSetMover;
@@ -107,12 +106,9 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
         this.freeSpaceProvider = freeSpaceProvider;
         this.dataSetMover = dataSetMover;
         this.logger = logger;
-        dataStoreCode =
-                PropertyUtils.getMandatoryProperty(properties,
-                        DssPropertyParametersUtil.DSS_CODE_KEY).toUpperCase();
-        storeRoot =
-                new File(PropertyUtils.getMandatoryProperty(properties,
-                        DssPropertyParametersUtil.STOREROOT_DIR_KEY));
+
+        dataStoreCode = DssPropertyParametersUtil.getDataStoreCode(properties);
+        storeRoot = DssPropertyParametersUtil.getStoreRootDir(properties);
         if (storeRoot.isDirectory() == false)
         {
             throw new ConfigurationFailureException(
