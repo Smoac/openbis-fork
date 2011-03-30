@@ -57,6 +57,8 @@ public abstract class AbstractSwingGUI
 
     private final JFrame windowFrame;
 
+    private final boolean logoutOnClose;
+
     private static final long KEEP_ALIVE_PERIOD_MILLIS = 60 * 1000; // Every minute.
 
     /**
@@ -80,7 +82,10 @@ public abstract class AbstractSwingGUI
                 {
                     try
                     {
-                        dssComponent.logout();
+                        if (logoutOnClose)
+                        {
+                            dssComponent.logout();
+                        }
                     } catch (InvalidSessionException ex)
                     {
                         // Silence this exception.
@@ -100,6 +105,8 @@ public abstract class AbstractSwingGUI
                     notifyUserOfThrowable(windowFrame, message, "Unexpected Error", throwable);
                 }
             });
+
+        logoutOnClose = communicationState.isLogoutOnClose();
     }
 
     public String getSessionId()
@@ -127,7 +134,10 @@ public abstract class AbstractSwingGUI
     {
         if (cancel())
         {
-            dssComponent.logout();
+            if (logoutOnClose)
+            {
+                dssComponent.logout();
+            }
             System.exit(0);
         }
     }
@@ -355,6 +365,8 @@ class DssCommunicationState
 
     private final IGeneralInformationService generalInformationService;
 
+    private final boolean logoutOnClose;
+
     private static IGeneralInformationService createGeneralInformationService(String openBISURL)
     {
         ServiceFinder generalInformationServiceFinder =
@@ -388,6 +400,8 @@ class DssCommunicationState
                     throw new ConfigurationFailureException(
                             "The openBIS File Upload Client was improperly configured -- the session token is not valid. Please talk to the openBIS administrator.");
                 }
+                // Don't logout -- the user wants to keep his/her session token alive.
+                logoutOnClose = false;
                 break;
             default:
                 String userName = args[1];
@@ -398,6 +412,8 @@ class DssCommunicationState
                     throw new ConfigurationFailureException(
                             "The user name / password combination is incorrect.");
                 }
+                // Do logout on close
+                logoutOnClose = true;
         }
 
         generalInformationService = createGeneralInformationService(openBisUrl);
@@ -411,5 +427,10 @@ class DssCommunicationState
     public IGeneralInformationService getGeneralInformationService()
     {
         return generalInformationService;
+    }
+
+    public boolean isLogoutOnClose()
+    {
+        return logoutOnClose;
     }
 }
