@@ -16,13 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.util.Date;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
- * Visit of an entity. Objects of this class are created when the detail view of an entity is
- * opened in the GUI.
- *
+ * Visit of an entity. Objects of this class are created when the detail view of an entity is opened
+ * in the GUI.
+ * 
  * @author Franz-Josef Elmer
  */
 public class EntityVisit implements ISerializable
@@ -30,15 +32,15 @@ public class EntityVisit implements ISerializable
     private static final long serialVersionUID = 1L;
 
     private String entityKind;
-    
+
     private String entityTypeCode;
-    
+
     private String identifier;
-    
+
     private String permID;
-    
+
     private long timeStamp;
-    
+
     public EntityVisit()
     {
     }
@@ -100,5 +102,18 @@ public class EntityVisit implements ISerializable
     public void setTimeStamp(long timeStamp)
     {
         this.timeStamp = timeStamp;
+    }
+
+    @Override
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append("EntityVisit ");
+        sb.append("[entityKind=" + entityKind);
+        sb.append(", entityTypeCode=" + entityTypeCode);
+        sb.append(", identifier=" + identifier);
+        sb.append(", permID=" + permID);
+        sb.append(", timeStamp=" + timeStamp + "(" + new Date(timeStamp) + ")]");
+        return sb.toString();
     }
 }
