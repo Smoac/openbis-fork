@@ -40,6 +40,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 
 /**
  * {@link IMaintenanceTask} performing automatic archiving of data sets.
+ * <p>
+ * TODO KE: implement as asynchronous maintenance task
  * 
  * @author Piotr Buczek
  */
@@ -57,6 +59,8 @@ public class AutoArchiverTask implements IMaintenanceTask
     private static final String OLDER_THAN_PROPERTY_NAME = "older-than";
 
     private static final String REMOVE_DATASETS_FROM_STORE = "remove-datasets-from-store";
+
+    private static final int DEFAULT_OLDER_THAN = 30;
 
     private IEncapsulatedOpenBISService openBISService;
 
@@ -100,7 +104,8 @@ public class AutoArchiverTask implements IMaintenanceTask
     private ArchiverDataSetCriteria createCriteria(Properties properties)
     {
         String dataSetTypeCodeOrNull = properties.getProperty(DATA_SET_TYPE_PROPERTY_NAME);
-        int olderThan = PropertyUtils.getInt(properties, OLDER_THAN_PROPERTY_NAME, 0);
+        int olderThan =
+                PropertyUtils.getInt(properties, OLDER_THAN_PROPERTY_NAME, DEFAULT_OLDER_THAN);
         return new ArchiverDataSetCriteria(olderThan, dataSetTypeCodeOrNull, false);
     }
 
