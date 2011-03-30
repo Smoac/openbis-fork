@@ -14,7 +14,8 @@ function print_result {
 }
 
 for testScript in $TEST_FILE_PATTERN; do
-  echo Executing test $testScript
+  echo =================================================================
+  echo ==================== Executing test $testScript 
   ./$testScript $@
   result=$?
   print_result $testScript $result
