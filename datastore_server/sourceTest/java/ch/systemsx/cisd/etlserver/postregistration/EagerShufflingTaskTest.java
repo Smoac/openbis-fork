@@ -42,9 +42,9 @@ import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.etlserver.plugins.IDataSetMover;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
@@ -65,6 +65,8 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
     private IShareIdManager shareIdManager;
     private IFreeSpaceProvider freeSpaceProvider;
     private IDataSetMover dataSetMover;
+
+    private IConfigProvider configProvider;
     private ISimpleLogger logger;
     private File store;
     private File share1;
@@ -81,6 +83,7 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
         service = context.mock(IEncapsulatedOpenBISService.class);
         shareIdManager = context.mock(IShareIdManager.class);
         freeSpaceProvider = context.mock(IFreeSpaceProvider.class);
+        configProvider = context.mock(IConfigProvider.class);
         dataSetMover = context.mock(IDataSetMover.class);
         logger = context.mock(ISimpleLogger.class);
         store = new File(workingDirectory.getAbsolutePath(), "store");
@@ -110,6 +113,7 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
     @Test
     public void testShufflingIntoAnExtensionShare()
     {
+        prepareConfigProvider();
         EagerShufflingTask task = createTask();
         RecordingMatcher<HostAwareFile> hostAwareFileMatcher =
                 new RecordingMatcher<HostAwareFile>();
@@ -137,6 +141,7 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
     @Test
     public void testShufflingIntoAnotherIncomingShare()
     {
+        prepareConfigProvider();
         EagerShufflingTask task = createTask();
         RecordingMatcher<HostAwareFile> hostAwareFileMatcher =
                 new RecordingMatcher<HostAwareFile>();
@@ -164,11 +169,13 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
     @Test
     public void testShufflingButNoShareFoundExceptTheOwnOne()
     {
+        prepareConfigProvider();
         EagerShufflingTask task = createTask();
         RecordingMatcher<HostAwareFile> hostAwareFileMatcher =
                 new RecordingMatcher<HostAwareFile>();
         prepareFreeSpaceProvider(hostAwareFileMatcher, 200, 10, 10, 0);
         prepareListDataSets();
+
         RecordingMatcher<String> logMessageMatcher = prepareLogging(LogLevel.WARN);
         
         IPostRegistrationTaskExecutor executor = task.createExecutor(DATA_SET_CODE1);
@@ -200,6 +207,19 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
                 {
                     one(service).listDataSets();
                     will(returnValue(Arrays.asList(dataSet("1", DATA_SET_CODE1))));
+                }
+            });
+    }
+
+    private void prepareConfigProvider()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(configProvider).getDataStoreCode();
+                    will(returnValue(DATA_STORE_SERVER_CODE));
+                    allowing(configProvider).getStoreRoot();
+                    will(returnValue(store));
                 }
             });
     }
@@ -269,8 +289,6 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
     private EagerShufflingTask createTask()
     {
         Properties properties = new Properties();
-        properties.setProperty(DssPropertyParametersUtil.DSS_CODE_KEY, DATA_STORE_SERVER_CODE);
-        properties.setProperty(DssPropertyParametersUtil.STOREROOT_DIR_KEY, store.getPath());
         properties.setProperty(EagerShufflingTask.SHARE_FINDER_KEY + ".class",
                 SimpleShareFinder.class.getName());
         return createTask(properties);
@@ -280,7 +298,7 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
     {
         return new EagerShufflingTask(properties,
                 new LinkedHashSet<String>(Arrays.asList("1", "2")), service, shareIdManager,
-                freeSpaceProvider, dataSetMover, logger);
+                freeSpaceProvider, dataSetMover, configProvider, logger);
     }
     
 }

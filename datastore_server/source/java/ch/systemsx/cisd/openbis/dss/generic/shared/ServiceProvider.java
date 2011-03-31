@@ -109,6 +109,11 @@ public class ServiceProvider
         return ((DataSourceProvider) getApplicationContext().getBean("data-source-provider"));
     }
 
+    public static IConfigProvider getConfigProvider()
+    {
+        return ((IConfigProvider) getApplicationContext().getBean("config-provider"));
+    }
+
     public static IDataStoreServiceInternal getDataStoreService()
     {
         Advised advised = (Advised) getApplicationContext().getBean("data-store-service");

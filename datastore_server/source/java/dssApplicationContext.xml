@@ -114,6 +114,8 @@
     
     <bean id="data-source-provider" class="ch.systemsx.cisd.openbis.dss.generic.shared.DataSourceProvider" />
     
+    <bean id="config-provider" class="ch.systemsx.cisd.etlserver.ConfigProvider"/>
+    
     <!-- 
         // This discovers on-the-fly all <code>org.springframework.aop.Advisor</code> implementations.
     -->

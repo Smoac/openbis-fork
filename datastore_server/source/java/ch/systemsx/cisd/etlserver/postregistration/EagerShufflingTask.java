@@ -37,10 +37,10 @@ import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.etlserver.ETLDaemon;
 import ch.systemsx.cisd.etlserver.plugins.DataSetMover;
 import ch.systemsx.cisd.etlserver.plugins.IDataSetMover;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
@@ -93,12 +93,14 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
     {
         this(properties, ETLDaemon.getIdsOfIncomingShares(), service, ServiceProvider.getShareIdManager(),
                 new SimpleFreeSpaceProvider(), new DataSetMover(service,
-                        ServiceProvider.getShareIdManager()), new Log4jSimpleLogger(operationLog));
+                ServiceProvider.getShareIdManager()), ServiceProvider.getConfigProvider(),
+                new Log4jSimpleLogger(operationLog));
     }
 
-    EagerShufflingTask(Properties properties, Set<String> incomingShares, IEncapsulatedOpenBISService service,
-            IShareIdManager shareIdManager, IFreeSpaceProvider freeSpaceProvider,
-            IDataSetMover dataSetMover, ISimpleLogger logger)
+    EagerShufflingTask(Properties properties, Set<String> incomingShares,
+            IEncapsulatedOpenBISService service, IShareIdManager shareIdManager,
+            IFreeSpaceProvider freeSpaceProvider, IDataSetMover dataSetMover,
+            IConfigProvider configProvider, ISimpleLogger logger)
     {
         super(properties, service);
         this.incomingShares = incomingShares;
@@ -107,8 +109,8 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
         this.dataSetMover = dataSetMover;
         this.logger = logger;
 
-        dataStoreCode = DssPropertyParametersUtil.getDataStoreCode(properties);
-        storeRoot = DssPropertyParametersUtil.getStoreRootDir(properties);
+        dataStoreCode = configProvider.getDataStoreCode();
+        storeRoot = configProvider.getStoreRoot();
         if (storeRoot.isDirectory() == false)
         {
             throw new ConfigurationFailureException(
