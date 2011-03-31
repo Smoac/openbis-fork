@@ -45,6 +45,7 @@ class TiffBioformatsImageReader extends AbstractMetaDataAwareImageReader
         this.formatReader = formatReader;
     }
 
+    @Override
     public Map<String, Object> readMetaData(IRandomAccessFile handle, IReadParams params)
             throws IOExceptionUnchecked
     {

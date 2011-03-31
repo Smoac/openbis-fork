@@ -51,6 +51,7 @@ class DefaultBioformatsImageReader extends AbstractMetaDataAwareImageReader
         return BioFormatsImageUtils.readImage(formatReader, input, 0);
     }
 
+    @Override
     public Map<String, Object> readMetaData(IRandomAccessFile handle, IReadParams params)
             throws IOExceptionUnchecked
     {

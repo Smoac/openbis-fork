@@ -18,6 +18,7 @@ package ch.systemsx.cisd.imagereaders;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.Map;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
@@ -64,4 +65,39 @@ public interface IImageReader
      */
     public BufferedImage readImage(IRandomAccessFile handle, IReadParams params)
             throws IOExceptionUnchecked;
+
+    /**
+     * Return <code>true</code> if this reader is capable of reading metadata.
+     */
+    public boolean isMetaDataAware();
+
+    /**
+     * Reads image metadata from {@link File}. Returns an empty map if the reader is not capable of
+     * reading metadata.
+     * 
+     * @param file the image file
+     * @param params read parameters
+     */
+    public Map<String, Object> readMetaData(File file, IReadParams params)
+            throws IOExceptionUnchecked;
+
+    /**
+     * Reads image metadata from byte array. Returns an empty map if the reader is not capable of
+     * reading metadata.
+     * 
+     * @param bytes the image file as a byte array
+     * @param params read parameters
+     */
+    public Map<String, Object> readMetaData(byte[] bytes, IReadParams params);
+
+    /**
+     * Reads image metadata from handle. Returns an empty map if the reader is not capable of
+     * reading metadata.
+     * 
+     * @param handle the image file as {@link IRandomAccessFile}
+     * @param params read parameters
+     */
+    public Map<String, Object> readMetaData(IRandomAccessFile handle, IReadParams params)
+            throws IOExceptionUnchecked;
+
 }

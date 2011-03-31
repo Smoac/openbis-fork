@@ -26,7 +26,6 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.imagereaders.AbstractImageReaderFactoryTest;
 import ch.systemsx.cisd.imagereaders.IImageReader;
-import ch.systemsx.cisd.imagereaders.IMetaDataAwareImageReader;
 import ch.systemsx.cisd.imagereaders.ImageReaderConstants;
 import ch.systemsx.cisd.imagereaders.ImageReaderFactory;
 import ch.systemsx.cisd.imagereaders.ImageReadersTestHelper;
@@ -45,11 +44,9 @@ public class BioFormatsMetaDataReadingTest extends AbstractImageReaderFactoryTes
         File imageFile = getImageFileForLibrary(ImageReaderConstants.BIOFORMATS_LIBRARY, "demo.tif");
         IImageReader reader = getReaderFromFactory(imageFile);
 
-        assertTrue("BioFormat readers shoud be meta-data aware",
-                reader instanceof IMetaDataAwareImageReader);
-        IMetaDataAwareImageReader metaDataReader = (IMetaDataAwareImageReader) reader;
+        assertTrue("BioFormat readers shoud be meta-data aware", reader.isMetaDataAware());
 
-        Map<String, Object> metaData = metaDataReader.readMetaData(imageFile, null);
+        Map<String, Object> metaData = reader.readMetaData(imageFile, null);
         String metaDataAsString = getMetaDataAsString(metaData);
 
         assertEquals(getExpectedMetaData(), metaDataAsString);

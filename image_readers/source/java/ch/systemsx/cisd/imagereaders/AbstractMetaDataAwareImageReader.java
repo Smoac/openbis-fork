@@ -25,18 +25,18 @@ import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.base.io.RandomAccessFileImpl;
 
 /**
- * Abstract class that facilitates the implementations of {@link IMetaDataAwareImageReader}.
+ * Abstract class that facilitates the implementations of metadata aware {@link IImageReader}-s.
  * 
  * @author Kaloyan Enimanev
  */
-public abstract class AbstractMetaDataAwareImageReader extends AbstractImageReader implements
-        IMetaDataAwareImageReader
+public abstract class AbstractMetaDataAwareImageReader extends AbstractImageReader
 {
     public AbstractMetaDataAwareImageReader(String libraryName, String readerName)
     {
         super(libraryName, readerName);
     }
 
+    @Override
     public Map<String, Object> readMetaData(File file, IReadParams params)
             throws IOExceptionUnchecked
     {
@@ -44,10 +44,17 @@ public abstract class AbstractMetaDataAwareImageReader extends AbstractImageRead
         return readMetaData(raf, params);
     }
 
+    @Override
     public Map<String, Object> readMetaData(byte[] bytes, IReadParams params)
     {
         IRandomAccessFile raf = new ByteBufferRandomAccessFile(bytes);
         return readMetaData(raf, params);
+    }
+
+    @Override
+    public boolean isMetaDataAware()
+    {
+        return true;
     }
 
 }
