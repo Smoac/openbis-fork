@@ -121,6 +121,20 @@ public class GeneralInformationServiceTest extends SystemTestCase
         fail("result didn't contain sample " + expectedSampleIdentifier);
     }
 
+    @Test(dependsOnMethods = "testSearchForSamples")
+    public void testSearchForSamplesWithNoCriterion()
+    {
+        SearchCriteria sc = new SearchCriteria();
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "*"));
+        List<Sample> result = generalInformationService.searchForSamples(sessionToken, sc);
+
+        // if no criterion was specified all samples should be returned as well
+        SearchCriteria scWithNoCriterion = new SearchCriteria();
+        List<Sample> resultWithNoCriterion =
+                generalInformationService.searchForSamples(sessionToken, scWithNoCriterion);
+        assertEquals(result, resultWithNoCriterion);
+    }
+
     @Test
     public void testSearchForSamplesByProperty()
     {
@@ -136,7 +150,6 @@ public class GeneralInformationServiceTest extends SystemTestCase
     {
         // Search for Samples with only experiment's code limiting the results
         SearchCriteria sc = new SearchCriteria();
-        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "*"));
         SearchCriteria ec = new SearchCriteria();
         ec.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "EXP-TEST-1"));
         sc.addSubCriteria(SearchSubCriteria.createExperimentCriteria(ec));
@@ -150,7 +163,6 @@ public class GeneralInformationServiceTest extends SystemTestCase
     {
         // Search for Samples with only experiment's property limiting the results
         SearchCriteria sc = new SearchCriteria();
-        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "*"));
         SearchCriteria ec = new SearchCriteria();
         ec.addMatchClause(MatchClause.createPropertyMatch("DESCRIPTION", "A simple experiment"));
         sc.addSubCriteria(SearchSubCriteria.createExperimentCriteria(ec));
@@ -163,7 +175,6 @@ public class GeneralInformationServiceTest extends SystemTestCase
     {
         // Search for Samples with only parent's code limiting the results
         SearchCriteria sc = new SearchCriteria();
-        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "*"));
         SearchCriteria pc = new SearchCriteria();
         pc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "MP002-1"));
         sc.addSubCriteria(SearchSubCriteria.createSampleParentCriteria(pc));
@@ -176,7 +187,6 @@ public class GeneralInformationServiceTest extends SystemTestCase
     {
         // Search for Samples with only child's code limiting the results
         SearchCriteria sc = new SearchCriteria();
-        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "*"));
         SearchCriteria cc = new SearchCriteria();
         cc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "3VCP*"));
         sc.addSubCriteria(SearchSubCriteria.createSampleChildCriteria(cc));
@@ -189,7 +199,6 @@ public class GeneralInformationServiceTest extends SystemTestCase
     {
         // Search for Samples with only container's code limiting the results
         SearchCriteria sc = new SearchCriteria();
-        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "*"));
         SearchCriteria cc = new SearchCriteria();
         cc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "CL1"));
         sc.addSubCriteria(SearchSubCriteria.createSampleContainerCriteria(cc));
@@ -206,7 +215,6 @@ public class GeneralInformationServiceTest extends SystemTestCase
     {
         // Search for Samples first
         SearchCriteria sc = new SearchCriteria();
-        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "*"));
         List<Sample> result = generalInformationService.searchForSamples(sessionToken, sc);
         assertEquals(true, result.size() > 1000);
         // Add experiment criteria limiting results to 7
@@ -228,7 +236,6 @@ public class GeneralInformationServiceTest extends SystemTestCase
     {
         // Search for Samples first
         SearchCriteria sc = new SearchCriteria();
-        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "*"));
         List<Sample> samples = generalInformationService.searchForSamples(sessionToken, sc);
         List<DataSet> result = generalInformationService.listDataSets(sessionToken, samples);
         assertEquals(true, result.size() > 0);

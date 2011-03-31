@@ -32,10 +32,12 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchAssociationCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 
 /**
@@ -95,7 +97,6 @@ public class DetailedSearchManager
                 listParentsChildrenAndFilterParents(childSampleIds, mainSampleIds,
                         filteredSampleIds);
             }
-
         } else
         {
             filteredSampleIds.addAll(mainSampleIds);
@@ -106,7 +107,8 @@ public class DetailedSearchManager
     private void listChildrensParentsAndFilterChildren(final List<Long> allChildrenIds,
             final List<Long> allParentIds, final Set<Long> filteredChildrenIds)
     {
-        Map<Long, Set<Long>> childToParentIds = sampleLister.getChildToParentsIdsMap(allChildrenIds);
+        Map<Long, Set<Long>> childToParentIds =
+                sampleLister.getChildToParentsIdsMap(allChildrenIds);
         for (Entry<Long, Set<Long>> entry : childToParentIds.entrySet())
         {
             Long childId = entry.getKey();
@@ -122,7 +124,8 @@ public class DetailedSearchManager
     private void listParentsChildrenAndFilterParents(final List<Long> allChildrenIds,
             final List<Long> allParentIds, final Set<Long> filteredParentIds)
     {
-        Map<Long, Set<Long>> parentToChildIds = sampleLister.getParentToChildrenIdsMap(allParentIds);
+        Map<Long, Set<Long>> parentToChildIds =
+                sampleLister.getParentToChildrenIdsMap(allParentIds);
         for (Entry<Long, Set<Long>> entry : parentToChildIds.entrySet())
         {
             Long parentId = entry.getKey();
@@ -138,7 +141,8 @@ public class DetailedSearchManager
     private void listParentsChildrenAndFilterChildren(final List<Long> allChildrenIds,
             final List<Long> allParentIds, final Set<Long> filteredChildrenIds)
     {
-        Map<Long, Set<Long>> parentToChildIds = sampleLister.getParentToChildrenIdsMap(allParentIds);
+        Map<Long, Set<Long>> parentToChildIds =
+                sampleLister.getParentToChildrenIdsMap(allParentIds);
         for (Set<Long> childrenIds : parentToChildIds.values())
         {
             filteredChildrenIds.addAll(childrenIds);
@@ -149,7 +153,8 @@ public class DetailedSearchManager
     private void listChildrensParentsAndFilterParents(final List<Long> allChildrenIds,
             final List<Long> allParentIds, final Set<Long> filteredParentsIds)
     {
-        Map<Long, Set<Long>> childToParentIds = sampleLister.getChildToParentsIdsMap(allChildrenIds);
+        Map<Long, Set<Long>> childToParentIds =
+                sampleLister.getChildToParentsIdsMap(allChildrenIds);
         for (Set<Long> parentIds : childToParentIds.values())
         {
             filteredParentsIds.addAll(parentIds);
@@ -196,6 +201,13 @@ public class DetailedSearchManager
         for (DetailedSearchSubCriteria subCriteria : subCriterias)
         {
             associations.add(findAssociatedEntities(subCriteria));
+        }
+        if (subCriterias.isEmpty() && criteria.isEmpty())
+        {
+            // if no criteria were provided find all samples
+            criteria.getCriteria().add(
+                    new DetailedSearchCriterion(DetailedSearchField
+                            .createAttributeField(SampleAttributeSearchFieldKind.CODE), "*"));
         }
         final List<Long> sampleIds =
                 searchDAO.searchForEntityIds(criteria,
