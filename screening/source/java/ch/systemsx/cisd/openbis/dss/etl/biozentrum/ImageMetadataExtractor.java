@@ -25,7 +25,6 @@ import java.util.Map.Entry;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.imagereaders.IImageReader;
-import ch.systemsx.cisd.imagereaders.IMetaDataAwareImageReader;
 import ch.systemsx.cisd.imagereaders.ImageReaderConstants;
 import ch.systemsx.cisd.imagereaders.ImageReaderFactory;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Location;
@@ -46,9 +45,7 @@ public class ImageMetadataExtractor
                 ImageReaderFactory.tryGetImageReaderForFile(
                         ImageReaderConstants.BIOFORMATS_LIBRARY,
                         imageFile.getAbsolutePath());
-
-        IMetaDataAwareImageReader metaDataReader = (IMetaDataAwareImageReader) imageReader;
-        return metaDataReader.readMetaData(imageFile, null);
+        return imageReader.readMetaData(imageFile, null);
     }
 
     /**
