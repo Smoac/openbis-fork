@@ -156,7 +156,7 @@ public class WellContent implements ISerializable
     {
         if (wellProperties == null)
         {
-            return null;
+            return Collections.emptyList();
         } else
         {
             return Collections.unmodifiableList(wellProperties);

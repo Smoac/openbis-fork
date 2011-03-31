@@ -129,7 +129,7 @@ public class WellContentProvider extends AbstractTableModelProvider<WellContent>
                 imageDataset == null ? null : imageDataset.getDatasetReference().getFileTypeCode());
         builder.column(WELL_IMAGES).addString(well.tryGetImageDataset() == null ? "" : "[images]");
 
-        if (well.getWellProperties() != null)
+        if (well.getWellProperties().isEmpty() == false)
         {
             builder.columnGroup(WELL_PROPERTY_ID_PREFIX).addProperties(well.getWellProperties());
         }
