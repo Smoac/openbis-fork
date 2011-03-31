@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyTypeGroup;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.util.SimplePropertyValidator;
 
 /**
@@ -474,7 +475,11 @@ public class DataSetUploadClientModel
 
         try
         {
-            simplePropertyValidator.validatePropertyValue(propertyType.getDataType(), valueOrNull);
+            DataTypeCode dataType = propertyType.getDataType();
+            if (simplePropertyValidator.canValidate(dataType))
+            {
+                simplePropertyValidator.validatePropertyValue(dataType, valueOrNull);
+            }
         } catch (UserFailureException e)
         {
             errors.add(ValidationError.createPropertyValidationError(propertyType.getCode(),
