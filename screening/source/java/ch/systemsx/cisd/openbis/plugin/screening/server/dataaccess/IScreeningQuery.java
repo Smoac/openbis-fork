@@ -57,18 +57,17 @@ public interface IScreeningQuery extends BaseQuery
                     + "      well_material.id as material_content_id,"
                     + "      well_material.code as material_content_code,"
                     + "      well_material_type.code as material_content_type_code"
-                    + " from samples pl"
-                    + "   join samples well on pl.id = well.samp_id_part_of"
-                    + "   join experiments exp on pl.expe_id = exp.id"
-                    + "   join experiment_types exp_type on exp.exty_id = exp_type.id"
-                    + "   join projects on exp.proj_id = projects.id"
-                    + "   join spaces on projects.space_id = spaces.id"
-                    + "   join sample_types pl_type on pl.saty_id = pl_type.id"
-                    + "   join sample_types well_type on well.saty_id = well_type.id"
-                    + "   join sample_properties well_props on well.id = well_props.samp_id"
-                    + "   join materials well_material on well_props.mate_prop_id = well_material.id"
-                    + "   join material_types well_material_type on well_material.maty_id = well_material_type.id";
-
+                    + " from materials well_material "
+                    + "      join sample_properties well_props on well_props.mate_prop_id = well_material.id" 
+                    + "      join samples well on  well_props.samp_id = well.id"
+                    + "      join samples pl on well.samp_id_part_of = pl.id"
+                    + "      join experiments exp on pl.expe_id = exp.id  "
+                    + "      join experiment_types exp_type on exp.exty_id = exp_type.id  "
+                    + "      join projects on exp.proj_id = projects.id   join spaces on projects.space_id = spaces.id  "
+                    + "      join sample_types pl_type on pl.saty_id = pl_type.id   "
+                    + "      join sample_types well_type on well.saty_id = well_type.id  "
+                    + "      join material_types well_material_type on well_material.maty_id = well_material_type.id";
+                    		                     
     /**
      * @return well locations which belong to a parent plate connected to a specified experiment.
      *         Each well will have a material property (e.g. gene) with the specified id.
