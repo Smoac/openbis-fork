@@ -72,6 +72,35 @@ public class WellContentLoaderTest extends AbstractScreeningDAOTest
                 WellContentLoader.load(session, businessObjectFactory, daoFactory, searchCriteria);
 
         // the test database contains two matching wells
+        assertEquals(1, wellContents.size());
+        for (WellContent wc : wellContents)
+        {
+            assertPropertiesPresent(wc);
+        }
+    }
+
+    /**
+     * Test that the same well is not displayed twice if the search query matches two different
+     * materials inside the well.
+     */
+    @Test(enabled = false)
+    public void testDuplicateWellsFilteredOut()
+    {
+        String[] materialCodes = new String[]
+            { "BACTERIUM-X", "BACTERIUM-Y" };
+        String[] materialTypeCodes =
+            { "BACTERIUM" };
+
+        WellSearchCriteria searchCriteria =
+                new WellSearchCriteria(ExperimentSearchCriteria.createAllExperiments(),
+                        MaterialSearchCriteria.createCodesCriteria(materialCodes,
+                                materialTypeCodes, false));
+
+        Session session = createSession(getSystemPerson());
+        List<WellContent> wellContents =
+                WellContentLoader.load(session, businessObjectFactory, daoFactory, searchCriteria);
+
+        // the test database contains two matching wells
         assertEquals(2, wellContents.size());
         for (WellContent wc : wellContents)
         {
