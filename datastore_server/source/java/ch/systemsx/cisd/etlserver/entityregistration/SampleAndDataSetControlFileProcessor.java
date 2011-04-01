@@ -224,7 +224,7 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
             if (null == theUser)
             {
                 hasError = true;
-                sb.append("\tNo user has been specified");
+                sb.append("\tNo valid user has been specified in the control file");
             }
             if (hasError)
             {
