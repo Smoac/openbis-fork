@@ -27,10 +27,13 @@ import java.util.Map;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Label;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -81,6 +84,18 @@ public class HistoryWidget extends ContentPanel
         setLayout(new FitLayout());
         setHeaderVisible(true);
         setHeading(viewContext.getMessage(Dict.LAST_VISITS));
+        final Button clearButton = new Button("Clear", new SelectionListener<ButtonEvent>()
+            {
+                @Override
+                public void componentSelected(ButtonEvent ce)
+                {
+                    List<EntityVisit> visits = viewContext.getDisplaySettingsManager().getVisits();
+                    visits.clear();
+                    // TODO 2011-31-03, Piotr Buczek: refresh the widget
+                }
+            });
+        getHeader().addTool(clearButton);
+
         TreeStore<ModelData> store = createStore(viewContext);
         ColumnModel columnModel = createColumnModel(viewContext);
 
