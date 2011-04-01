@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid.SelectedAndDisplayedItems;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
@@ -31,5 +33,7 @@ public interface IDetailedSearchHitGrid
 
     /** refreshes grid with new criteria and properties */
     void refresh(DetailedSearchCriteria newCriteria, List<PropertyType> propertyTypes);
+
+    IDelegatedActionWithResult<SelectedAndDisplayedItems> getSelectedAndDisplayedItemsAction();
 
 }

@@ -8,6 +8,7 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Element;
 
@@ -47,8 +48,6 @@ public class DetailedSearchToolbar extends ToolBar implements IDisposableCompone
         this.shouldShowSearchWindowOnRender = !initializeDescriptionFromSearchWindow;
         this.grid = grid;
         this.searchWindow = searchWindow;
-        add(description = new LabelToolItem());
-        add(new FillToolItem());
         add(new TextToolItem(buttonName, new SelectionListener<ButtonEvent>()
             {
                 @Override
@@ -57,6 +56,9 @@ public class DetailedSearchToolbar extends ToolBar implements IDisposableCompone
                     searchWindow.show();
                 }
             }));
+        add(new SeparatorToolItem());
+        add(description = new LabelToolItem());
+        add(new FillToolItem());
         if (initializeDescriptionFromSearchWindow)
         {
             updateDescription(searchWindow.getCriteriaDescription());

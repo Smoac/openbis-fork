@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search.DetailedDataSetSearchToolbar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search.DetailedSearchToolbar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search.DetailedSearchWindow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search.IDetailedSearchHitGrid;
@@ -61,8 +62,8 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid implements
         final DetailedSearchWindow searchWindow =
                 new DetailedSearchWindow(viewContext, EntityKind.DATA_SET);
         final DetailedSearchToolbar toolbar =
-                new DetailedSearchToolbar(grid, viewContext.getMessage(Dict.BUTTON_CHANGE_QUERY),
-                        searchWindow);
+                new DetailedDataSetSearchToolbar(viewContext, grid,
+                        viewContext.getMessage(Dict.BUTTON_CHANGE_QUERY), searchWindow);
         searchWindow.setUpdateListener(toolbar);
         return grid.asDisposableWithToolbar(toolbar);
     }
@@ -83,8 +84,8 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid implements
         searchWindow.setInitialSearchCriteria(searchCriteria);
 
         final DetailedSearchToolbar toolbar =
-                new DetailedSearchToolbar(grid, viewContext.getMessage(Dict.BUTTON_CHANGE_QUERY),
-                        searchWindow, true);
+                new DetailedDataSetSearchToolbar(viewContext, grid,
+                        viewContext.getMessage(Dict.BUTTON_CHANGE_QUERY), searchWindow, true);
         searchWindow.setUpdateListener(toolbar);
         return grid.asDisposableWithToolbar(toolbar);
     }

@@ -31,10 +31,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ShowResultSetCutInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid.SelectedAndDisplayedItems;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search.DetailedSearchToolbar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search.DetailedSearchWindow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search.IDetailedSearchHitGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
@@ -117,7 +119,8 @@ public class SampleSearchHitGrid extends SampleBrowserGrid implements IDetailedS
                         {
                             // TODO, 2010-12-13, FJE, show related data sets isn't easy because
                             // TableModelRowWithObject doesn't implement IEntityInformationHolder.
-                            // Changing the code is relatively easy but the method showRelatedDataSets()
+                            // Changing the code is relatively easy but the method
+                            // showRelatedDataSets()
                             // is also used by MatchingEntitiesPanel.
                             showRelatedDataSets(viewContext, SampleSearchHitGrid.this);
                         }
@@ -162,10 +165,16 @@ public class SampleSearchHitGrid extends SampleBrowserGrid implements IDetailedS
     {
         if (callback instanceof AbstractAsyncCallback)
         {
-            AbstractAsyncCallback<TypedTableResultSet<Sample>> asc = (AbstractAsyncCallback<TypedTableResultSet<Sample>>) callback;
-            asc.addOnSuccessAction(new ShowResultSetCutInfo<TypedTableResultSet<Sample>>(viewContext));
+            AbstractAsyncCallback<TypedTableResultSet<Sample>> asc =
+                    (AbstractAsyncCallback<TypedTableResultSet<Sample>>) callback;
+            asc.addOnSuccessAction(new ShowResultSetCutInfo<TypedTableResultSet<Sample>>(
+                    viewContext));
         }
         super.listTableRows(resultSetConfig, callback);
     }
 
+    public IDelegatedActionWithResult<SelectedAndDisplayedItems> getSelectedAndDisplayedItemsAction()
+    {
+        throw new UnsupportedOperationException();
+    }
 }
