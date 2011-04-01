@@ -201,9 +201,28 @@ public class WellContentLoader
     private List<WellContent> loadLocationsAndEnrich(WellSearchCriteria materialCriteria)
     {
         List<WellContent> locations = loadLocations(materialCriteria);
-        List<WellContent> withProperties = enrichWithWellProperties(locations);
+        List<WellContent> uniqueLocations = filterWellDuplicates(locations);
+        List<WellContent> withProperties = enrichWithWellProperties(uniqueLocations);
         List<WellContent> withPropsAndDataSets = enrichWithDatasets(withProperties);
         return enrichWithFeatureVectors(withPropsAndDataSets);
+    }
+
+    private List<WellContent> filterWellDuplicates(List<WellContent> wellContents)
+    {
+        Set<String> seenPermIds = new HashSet<String>();
+        ArrayList<WellContent> filtered = new ArrayList<WellContent>();
+
+        for (WellContent content : wellContents)
+        {
+            String wellPermId = content.getWell().getPermId();
+            if (false == seenPermIds.contains(wellPermId))
+            {
+                seenPermIds.add(wellPermId);
+                filtered.add(content);
+            }
+        }
+
+        return filtered;
     }
 
     private List<WellContent> enrichWithWellProperties(List<WellContent> locations)
@@ -754,6 +773,7 @@ public class WellContentLoader
             DataIterator<ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContent> locations)
     {
         List<WellContent> wellLocations = new ArrayList<WellContent>();
+
         for (ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContent location : locations)
         {
             wellLocations.add(convert(location));
