@@ -34,6 +34,7 @@ import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.http.client.URL;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -98,6 +99,7 @@ public class MainTabPanel extends TabPanel implements IMainPanel
                                 }
                             }, viewContext);
         final MainTabItem intro = new MainTabItem(tabItem, mainComponent.getId(), null, null);
+        intro.setIcon(AbstractImagePrototype.create(viewContext.getImageBundle().getHomeIcon()));
         intro.setClosable(false);
         return intro;
     }

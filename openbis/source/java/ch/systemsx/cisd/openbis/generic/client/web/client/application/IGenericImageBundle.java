@@ -47,4 +47,10 @@ public interface IGenericImageBundle extends ClientBundle
     @Source("info.png")
     public ImageResource getInfoIcon();
 
+    /**
+     * Returns home icon.
+     */
+    @Source("home.png")
+    public ImageResource getHomeIcon();
+
 }
