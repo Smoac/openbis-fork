@@ -19,6 +19,12 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.layout.RowData;
+import com.extjs.gxt.ui.client.widget.layout.RowLayout;
+import com.google.gwt.user.client.ui.Widget;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -29,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.ReportGeneratedCallback.IOnReportComponentGeneratedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search.DetailedDataSetSearchToolbar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search.DetailedSearchToolbar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search.DetailedSearchWindow;
@@ -39,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.DataSetGridUtils;
 
 /**
  * Grid with detailed data set search results.
@@ -55,39 +63,91 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid implements
 
     public static final String GRID_ID = BROWSER_ID + "-grid";
 
+    private static IDisposableComponent disposableComponentOrNull = null;
+
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        DataSetSearchHitGrid grid = new DataSetSearchHitGrid(viewContext);
-        final DetailedSearchWindow searchWindow =
-                new DetailedSearchWindow(viewContext, EntityKind.DATA_SET);
-        final DetailedSearchToolbar toolbar =
-                new DetailedDataSetSearchToolbar(viewContext, grid,
-                        viewContext.getMessage(Dict.BUTTON_CHANGE_QUERY), searchWindow);
-        searchWindow.setUpdateListener(toolbar);
-        return grid.asDisposableWithToolbar(toolbar);
+        return create(viewContext, null);
     }
 
     public static DisposableEntityChooser<ExternalData> createWithInitialSearchCriteria(
             final IViewContext<ICommonClientServiceAsync> viewContext,
             DetailedSearchCriteria searchCriteria)
     {
+        return create(viewContext, searchCriteria);
+    }
+
+    private static DisposableEntityChooser<ExternalData> create(
+            final IViewContext<ICommonClientServiceAsync> viewContext,
+            DetailedSearchCriteria searchCriteriaOrNull)
+    {
         DataSetSearchHitGrid grid = new DataSetSearchHitGrid(viewContext);
-
-        grid.chosenSearchCriteria = searchCriteria;
-
         final DetailedSearchWindow searchWindow =
                 new DetailedSearchWindow(viewContext, EntityKind.DATA_SET);
 
-        // Set the initial search string before creating the toolbar because the toolbar will use
-        // the initial search string in its own initialization.
-        searchWindow.setInitialSearchCriteria(searchCriteria);
+        if (searchCriteriaOrNull != null)
+        {
+            grid.chosenSearchCriteria = searchCriteriaOrNull;
+            // Set the initial search string before creating the toolbar
+            // because the toolbar will use the initial search string in its own initialization.
+            searchWindow.setInitialSearchCriteria(searchCriteriaOrNull);
+        }
+
+        final LayoutContainer container = createContainer();
+        final IOnReportComponentGeneratedAction reportGeneratedAction =
+                createReportGeneratedAction(container, grid);
+        final ReportingPluginSelectionWidget reportSelectionWidget =
+                new ReportingPluginSelectionWidget(viewContext, null);
+
+        SelectionChangedListener<DatastoreServiceDescriptionModel> reportChangedListener =
+                DataSetGridUtils.createReportSelectionChangedListener(viewContext,
+                        grid.asDisposableWithoutToolbar(), reportGeneratedAction);
+        reportSelectionWidget.addSelectionChangedListener(reportChangedListener);
 
         final DetailedSearchToolbar toolbar =
                 new DetailedDataSetSearchToolbar(viewContext, grid,
-                        viewContext.getMessage(Dict.BUTTON_CHANGE_QUERY), searchWindow, true);
+                        viewContext.getMessage(Dict.BUTTON_CHANGE_QUERY), searchWindow,
+                        reportSelectionWidget, searchCriteriaOrNull != null);
         searchWindow.setUpdateListener(toolbar);
-        return grid.asDisposableWithToolbar(toolbar);
+
+        return grid.asDisposableWithToolbar(container, toolbar);
+    }
+
+    private static LayoutContainer createContainer()
+    {
+        final LayoutContainer container = new LayoutContainer();
+        container.setLayout(new RowLayout());
+        return container;
+    }
+
+    private static IOnReportComponentGeneratedAction createReportGeneratedAction(
+            final LayoutContainer container, final DataSetSearchHitGrid grid)
+    {
+        return new IOnReportComponentGeneratedAction()
+            {
+                public void execute(IDisposableComponent gridComponent)
+                {
+                    if (gridComponent != null)
+                    {
+                        // remove second widget (first is the toolbar)
+                        Widget widget = container.getWidget(1);
+                        container.remove(widget);
+
+                        // dispose if it wasn't the main grid component
+                        if (disposableComponentOrNull != null
+                                && disposableComponentOrNull.getComponent().equals(grid) == false)
+                        {
+                            disposableComponentOrNull.dispose();
+                        }
+
+                        // update new component
+                        disposableComponentOrNull = gridComponent;
+                        container.add(gridComponent.getComponent(), new RowData(1, 1));
+                        container.layout();
+                    }
+                }
+            };
     }
 
     private DetailedSearchCriteria chosenSearchCriteria;
@@ -95,6 +155,7 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid implements
     private DataSetSearchHitGrid(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, BROWSER_ID, GRID_ID, DisplayTypeIDGenerator.DATA_SET_SEARCH_RESULT_GRID);
+
     }
 
     @Override
@@ -131,6 +192,17 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid implements
     {
         List<PropertyType> propertyTypes = criteria == null ? null : criteria.tryGetPropertyTypes();
         return DataSetSearchHitModel.createColumnsSchema(viewContext, propertyTypes);
+    }
+
+    /** @return this grid as a disposable component with a specified toolbar at the top. */
+    private DisposableEntityChooser<ExternalData> asDisposableWithToolbar(
+            final LayoutContainer container, final IDisposableComponent toolbar)
+    {
+        container.add(toolbar.getComponent());
+        container.add(this, new RowData(1, 1));
+
+        // TODO 2011-03-10, Piotr Buczek: dispose report
+        return asDisposableEntityChooser(container, toolbar);
     }
 
 }

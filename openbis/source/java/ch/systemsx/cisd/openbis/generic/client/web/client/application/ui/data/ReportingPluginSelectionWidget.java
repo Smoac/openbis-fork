@@ -43,6 +43,9 @@ public class ReportingPluginSelectionWidget extends
 
     public static final String METADATA = "Overview";
 
+    private static final DatastoreServiceDescriptionModel METADATA_MODEL =
+            DatastoreServiceDescriptionModel.createFakeReportingServiceModel(METADATA);
+
     private final IViewContext<?> viewContext;
 
     public ReportingPluginSelectionWidget(final IViewContext<?> viewContext,
@@ -76,6 +79,11 @@ public class ReportingPluginSelectionWidget extends
             };
     }
 
+    public void selectMetadataPlugin()
+    {
+        setValue(METADATA_MODEL);
+    }
+
     @Override
     protected List<DatastoreServiceDescriptionModel> convertItems(
             List<DatastoreServiceDescription> result)
@@ -83,7 +91,7 @@ public class ReportingPluginSelectionWidget extends
         List<DatastoreServiceDescriptionModel> models =
                 DatastoreServiceDescriptionModel.convert(result, null);
 
-        models.add(0, DatastoreServiceDescriptionModel.createFakeReportingServiceModel(METADATA));
+        models.add(0, METADATA_MODEL);
 
         return models;
     }

@@ -4,16 +4,15 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetProcessingMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetSearchHitGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.ReportingPluginSelectionWidget;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.ReportGeneratedCallback.IOnReportComponentGeneratedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.DataSetGridUtils;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.DataSetGridUtils.IAddProcessingPluginsMenuAction;
 
 /**
  * Extension of {@link DetailedSearchWindow} adding widgets for reporting and processing plugins.
@@ -24,63 +23,48 @@ public class DetailedDataSetSearchToolbar extends DetailedSearchToolbar
 {
     private final ReportingPluginSelectionWidget reportSelectionWidget;
 
-    private final IOnReportComponentGeneratedAction reportGeneratedAction;
-
     public DetailedDataSetSearchToolbar(final IViewContext<?> viewContext,
             final DataSetSearchHitGrid grid, String buttonName,
-            final DetailedSearchWindow searchWindow)
+            final DetailedSearchWindow searchWindow,
+            final ReportingPluginSelectionWidget reportSelectionWidget)
     {
-        this(viewContext, grid, buttonName, searchWindow, false);
+        this(viewContext, grid, buttonName, searchWindow, reportSelectionWidget, false);
     }
 
     public DetailedDataSetSearchToolbar(final IViewContext<?> viewContext,
             final DataSetSearchHitGrid grid, String buttonName,
-            final DetailedSearchWindow searchWindow, boolean initializeDescriptionFromSearchWindow)
+            final DetailedSearchWindow searchWindow,
+            final ReportingPluginSelectionWidget reportSelectionWidget,
+            boolean initializeDescriptionFromSearchWindow)
     {
         super(grid, buttonName, searchWindow, initializeDescriptionFromSearchWindow);
-        this.reportSelectionWidget = new ReportingPluginSelectionWidget(viewContext, null);
-        this.reportGeneratedAction = new IOnReportComponentGeneratedAction()
-            {
-                public void execute(IDisposableComponent gridComponent)
-                {
-                    // TODO
-                    // replaceContent(gridComponent);
-                }
-            };
+        this.reportSelectionWidget = reportSelectionWidget;
         add(reportSelectionWidget);
         if (viewContext.isSimpleOrEmbeddedMode() == false)
         {
             // processing plugins should be hidden in simple view mode
-            viewContext.getCommonService().listDataStoreServices(DataStoreServiceKind.PROCESSING,
-                    new LoadProcessingPluginsCallback(viewContext, grid));
+            IAddProcessingPluginsMenuAction addPluginsAction =
+                    new IAddProcessingPluginsMenuAction()
+                        {
+                            public void addProcessingPlugins(DataSetProcessingMenu menu)
+                            {
+                                add(new SeparatorToolItem());
+                                add(menu);
+                            }
+                        };
+            viewContext.getCommonService().listDataStoreServices(
+                    DataStoreServiceKind.PROCESSING,
+                    new DataSetGridUtils.LoadProcessingPluginsCallback(viewContext, grid,
+                            addPluginsAction));
         }
     }
 
-    public final class LoadProcessingPluginsCallback extends
-            AbstractAsyncCallback<List<DatastoreServiceDescription>>
+    @Override
+    public void updateSearchResults(DetailedSearchCriteria searchCriteria,
+            String searchDescription, List<PropertyType> availablePropertyTypes)
     {
-        private final AbstractExternalDataGrid browser;
-
-        public LoadProcessingPluginsCallback(final IViewContext<?> viewContext,
-                AbstractExternalDataGrid browser)
-        {
-            super(viewContext);
-            this.browser = browser;
-        }
-
-        @Override
-        protected void process(List<DatastoreServiceDescription> result)
-        {
-            if (result.isEmpty() == false)
-            {
-
-                DataSetProcessingMenu menu =
-                        new DataSetProcessingMenu(viewContext.getCommonViewContext(),
-                                browser.getSelectedAndDisplayedItemsAction(), result);
-                add(new SeparatorToolItem());
-                add(menu);
-            }
-        }
+        reportSelectionWidget.selectMetadataPlugin();
+        super.updateSearchResults(searchCriteria, searchDescription, availablePropertyTypes);
     }
 
 }

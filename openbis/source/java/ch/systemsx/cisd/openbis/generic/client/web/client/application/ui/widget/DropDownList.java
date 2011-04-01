@@ -196,7 +196,7 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
     {
         return this;
     }
-    
+
     public void dispose()
     {
         if (resultSetKey != null && viewContextOrNull != null)
@@ -205,7 +205,7 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
                     new VoidAsyncCallback<Void>(viewContextOrNull));
         }
     }
-    
+
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
         refreshStore();
@@ -326,7 +326,7 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
         applyEmptyText();
     }
 
-    private void selectFirstModel(final List<M> models)
+    protected void selectFirstModel(final List<M> models)
     {
         setSelection(models);
     }
