@@ -66,6 +66,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTranslator;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningQuery;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.FeatureVectorValuesLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.PlateContentLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ScreeningApiImpl;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.WellContentLoader;
@@ -205,9 +206,9 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     public FeatureVectorValues getWellFeatureVectorValues(String sessionToken, String datasetCode,
             String datastoreCode, WellLocation wellLocation)
     {
-        Session session = getSession(sessionToken);
-        return WellContentLoader.loadFeatureVectorValues(session, businessObjectFactory,
-                getDAOFactory(), datasetCode, datastoreCode, wellLocation);
+        getSession(sessionToken);
+        return FeatureVectorValuesLoader.loadFeatureVectorValues(businessObjectFactory,
+                datasetCode, datastoreCode, wellLocation);
     }
 
     public LogicalImageInfo getImageDatasetInfo(String sessionToken, String datasetCode,

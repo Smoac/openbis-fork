@@ -100,8 +100,11 @@ public class WellContentLoader
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
             TechId geneMaterialId, String experimentPermId)
     {
-        return new WellContentLoader(session, businessObjectFactory, daoFactory).loadLocations(
-                geneMaterialId, experimentPermId);
+        WellContentLoader loader =
+                new WellContentLoader(session, businessObjectFactory, daoFactory);
+
+        List<WellContent> contents = loader.loadLocations(geneMaterialId, experimentPermId);
+        return loader.enrichWithWellProperties(contents);
     }
 
     /** loads wells metadata, but no information about image or image analysis datasets */
@@ -109,8 +112,9 @@ public class WellContentLoader
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
             TechId geneMaterialId)
     {
-        return new WellContentLoader(session, businessObjectFactory, daoFactory)
-                .loadLocations(geneMaterialId);
+        final WellContentLoader loader = new WellContentLoader(session, businessObjectFactory, daoFactory);
+        List<WellContent> contents = loader.loadLocations(geneMaterialId);
+        return loader.enrichWithWellProperties(contents);
     }
 
     /**
@@ -122,16 +126,14 @@ public class WellContentLoader
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
             WellSearchCriteria materialCriteria)
     {
-        return new WellContentLoader(session, businessObjectFactory, daoFactory)
-                .loadLocationsAndEnrich(materialCriteria);
-    }
+        WellContentLoader loader =
+                new WellContentLoader(session, businessObjectFactory, daoFactory);
 
-    public static FeatureVectorValues loadFeatureVectorValues(Session session,
-            IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
-            String datasetCode, String datastoreCode, WellLocation wellLocation)
-    {
-        return new WellContentLoader(session, businessObjectFactory, daoFactory)
-                .getFeatureVectorValues(datasetCode, datastoreCode, wellLocation);
+        List<WellContent> locations = loader.loadLocations(materialCriteria);
+        List<WellContent> uniqueLocations = loader.filterWellDuplicates(locations);
+        List<WellContent> withProperties = loader.enrichWithWellProperties(uniqueLocations);
+        List<WellContent> withPropsAndDataSets = loader.enrichWithDatasets(withProperties);
+        return loader.enrichWithFeatureVectors(withPropsAndDataSets);
     }
 
     /**
@@ -172,39 +174,6 @@ public class WellContentLoader
         this.session = session;
         this.businessObjectFactory = businessObjectFactory;
         this.daoFactory = daoFactory;
-    }
-
-    private FeatureVectorValues getFeatureVectorValues(String dataSetCode, String datastoreCode,
-            WellLocation wellLocation)
-    {
-        IHCSFeatureVectorLoader loader =
-                businessObjectFactory.createHCSFeatureVectorLoader(datastoreCode);
-
-        List<WellFeatureVectorReference> wellReferences =
-                Arrays.asList(new WellFeatureVectorReference(dataSetCode, wellLocation));
-        WellFeatureCollection<FeatureVectorValues> featureVectors =
-                loader.fetchWellFeatureValuesIfPossible(wellReferences);
-
-        List<FeatureVectorValues> features = featureVectors.getFeatures();
-        if (features.size() == 0)
-        {
-            // Because of the way we are storing the features it can happen only if dataset contains
-            // no features (NaN are stored in the plate matrix for the wells which have no value
-            // specified).
-            return null;
-        } else
-        {
-            return featureVectors.getFeatures().get(0);
-        }
-    }
-
-    private List<WellContent> loadLocationsAndEnrich(WellSearchCriteria materialCriteria)
-    {
-        List<WellContent> locations = loadLocations(materialCriteria);
-        List<WellContent> uniqueLocations = filterWellDuplicates(locations);
-        List<WellContent> withProperties = enrichWithWellProperties(uniqueLocations);
-        List<WellContent> withPropsAndDataSets = enrichWithDatasets(withProperties);
-        return enrichWithFeatureVectors(withPropsAndDataSets);
     }
 
     private List<WellContent> filterWellDuplicates(List<WellContent> wellContents)
