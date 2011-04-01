@@ -17,6 +17,9 @@
 package ch.systemsx.cisd.etlserver.entityregistration;
 
 import static ch.systemsx.cisd.common.Constants.IS_FINISHED_PREFIX;
+import static ch.systemsx.cisd.etlserver.entityregistration.SampleAndDataSetRegistrationHandler.DATA_SET_TYPE_PROPERTIES_KEY;
+import static ch.systemsx.cisd.etlserver.entityregistration.SampleAndDataSetRegistrationHandler.SAMPLE_TYPE_PROPERTIES_KEY;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
@@ -43,6 +46,7 @@ import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm;
+import ch.systemsx.cisd.etlserver.IDataSetHandler;
 import ch.systemsx.cisd.etlserver.IExtensibleDataSetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -63,6 +67,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemTestCase
 {
     private static final String SPACE_CODE = "MYSPACE";
+
+    private static final String HANDLER_PROP_PREFIX = IDataSetHandler.DATASET_HANDLER_KEY + ".";
 
     protected Mockery context;
 
@@ -212,6 +218,44 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
                         + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S1,sampleProperties={prop1: VAL10,prop2: VAL20,prop3: VAL30},dataSetInformation=User::test;Data Set Type::MY_DATA_SET_TYPE;Experiment Identifier::/MYSPACE/MYPROJ/EXP1;Production Date::;Is complete::U]\n"
                         + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S2,sampleProperties={prop1: VAL11,prop2: VAL21,prop3: VAL31},dataSetInformation=User::test;Data Set Type::MY_DATA_SET_TYPE;Experiment Identifier::/MYSPACE/MYPROJ/EXP2;Production Date::;Is complete::U]\n"
                         + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S3,sampleProperties={prop1: VAL12,prop2: VAL22,prop3: VAL32},dataSetInformation=User::test;Data Set Type::MY_DATA_SET_TYPE;Experiment Identifier::/MYSPACE/MYPROJ/EXP3;Production Date::;Is complete::U]";
+        checkAppenderContent(logText, folderName);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testDefaultSampleAndDataSetTypes()
+    {
+        final RecordingMatcher<DataSetInformation> dataSetInfoMatcher =
+                new RecordingMatcher<DataSetInformation>();
+        final RecordingMatcher<NewSample> newSampleMatcher = new RecordingMatcher<NewSample>();
+
+        setupOpenBisExpectations();
+        NewExternalData externalData = setupDataSetHandlerExpectations(dataSetInfoMatcher, 3);
+        setupUpdateSampleExistsExpectations("S1", false);
+        setupUpdateSampleExistsExpectations("S2", false);
+        setupUpdateSampleExistsExpectations("S3", false);
+        setupRegisterSampleAndDataSetExpectations(externalData, newSampleMatcher, 3);
+
+        final String folderName = "no-global-config";
+        final RecordingMatcher<DataHandler> attachmentMatcher = new RecordingMatcher<DataHandler>();
+        final RecordingMatcher<EMailAddress[]> addressesMatcher =
+                new RecordingMatcher<EMailAddress[]>();
+        setupSuccessEmailExpectations(attachmentMatcher, addressesMatcher, folderName);
+
+        createWorkingCopyOfTestFolder(folderName);
+
+        Properties props = createDefaultHandlerProps();
+        props.put(HANDLER_PROP_PREFIX + SAMPLE_TYPE_PROPERTIES_KEY, "DEF_SAMPLE_TYPE");
+        props.put(HANDLER_PROP_PREFIX + DATA_SET_TYPE_PROPERTIES_KEY, "DEF_DS_TYPE");
+        initializeDataSetHandler(props);
+        handler.handleDataSet(markerFile);
+
+        String logText =
+                "Global properties extracted from file 'control.tsv': SAMPLE_TYPE(null) DATA_SET_TYPE(null) USER(test@test.test)\n"
+                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S1,sampleProperties={prop1: VAL10,prop2: VAL20,prop3: VAL30},dataSetInformation=User::test;Data Set Type::DEF_DS_TYPE;Experiment Identifier::/MYSPACE/MYPROJ/EXP1;Production Date::;Is complete::U]\n"
+                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S2,sampleProperties={prop1: VAL11,prop2: VAL21,prop3: VAL31},dataSetInformation=User::test;Data Set Type::DEF_DS_TYPE;Experiment Identifier::/MYSPACE/MYPROJ/EXP2;Production Date::;Is complete::U]\n"
+                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S3,sampleProperties={prop1: VAL12,prop2: VAL22,prop3: VAL32},dataSetInformation=User::test;Data Set Type::DEF_DS_TYPE;Experiment Identifier::/MYSPACE/MYPROJ/EXP3;Production Date::;Is complete::U]";
         checkAppenderContent(logText, folderName);
 
         context.assertIsSatisfied();
@@ -393,10 +437,16 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
         context.assertIsSatisfied();
     }
 
-    private void initializeDefaultDataSetHandler()
+    private Properties createDefaultHandlerProps()
     {
         final Properties props = new Properties();
         props.setProperty("dataset-handler.data-space", "store");
+        return props;
+    }
+
+    private void initializeDefaultDataSetHandler()
+    {
+        Properties props = createDefaultHandlerProps();
         initializeDataSetHandler(props);
     }
 
@@ -415,7 +465,11 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
 
         workingCopy = new File(workingDirectory, folderName);
         FileOperations.getInstance().copy(dataSetFile, workingCopy);
-        FileOperations.getInstance().deleteRecursively(new File(workingCopy, ".svn"));
+        final File svnFolder = new File(workingCopy, ".svn");
+        if (svnFolder.exists())
+        {
+            FileOperations.getInstance().deleteRecursively(svnFolder);
+        }
 
         markerFile = new File(workingDirectory, IS_FINISHED_PREFIX + folderName);
         FileUtilities.writeToFile(markerFile, "");

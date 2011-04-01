@@ -103,7 +103,7 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
         {
             String sampleTypeCode =
                     properties
-                            .get(SampleAndDataSetRegistrationHandler.SAMPLE_TYPE_CONTROL_FILE_KEY);
+                            .tryGet(SampleAndDataSetRegistrationHandler.SAMPLE_TYPE_CONTROL_FILE_KEY);
             if (null == sampleTypeCode)
             {
                 return null;
@@ -117,7 +117,7 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
         {
             String dataSetTypeCode =
                     properties
-                            .get(SampleAndDataSetRegistrationHandler.DATA_SET_TYPE_CONTROL_FILE_KEY);
+                            .tryGet(SampleAndDataSetRegistrationHandler.DATA_SET_TYPE_CONTROL_FILE_KEY);
             if (null == dataSetTypeCode)
             {
                 return null;
@@ -129,7 +129,7 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
 
         public String tryUserString()
         {
-            return properties.get(SampleAndDataSetRegistrationHandler.USER_CONTROL_FILE_KEY);
+            return properties.tryGet(SampleAndDataSetRegistrationHandler.USER_CONTROL_FILE_KEY);
         }
     }
 
