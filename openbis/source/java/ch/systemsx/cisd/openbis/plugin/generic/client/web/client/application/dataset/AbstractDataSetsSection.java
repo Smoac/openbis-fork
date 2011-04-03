@@ -23,14 +23,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Disposable
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetGridUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetProcessingMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DatastoreServiceDescriptionModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.ReportingPluginSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetGridUtils.IAddProcessingPluginsMenuAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.ReportGeneratedCallback.IOnReportComponentGeneratedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.DataSetGridUtils.IAddProcessingPluginsMenuAction;
 
 /**
  * @author Piotr Buczek

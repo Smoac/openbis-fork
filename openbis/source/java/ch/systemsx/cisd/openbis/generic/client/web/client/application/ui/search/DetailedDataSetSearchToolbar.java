@@ -5,14 +5,14 @@ import java.util.List;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetGridUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetProcessingMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetSearchHitGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.ReportingPluginSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetGridUtils.IAddProcessingPluginsMenuAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.DataSetGridUtils;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.DataSetGridUtils.IAddProcessingPluginsMenuAction;
 
 /**
  * Extension of {@link DetailedSearchWindow} adding widgets for reporting and processing plugins.
