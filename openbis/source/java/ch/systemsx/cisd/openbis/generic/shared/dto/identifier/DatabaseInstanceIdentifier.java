@@ -46,9 +46,11 @@ public class DatabaseInstanceIdentifier implements Serializable
 
     public static final String HOME = null;
 
+    public static DatabaseInstanceIdentifier HOME_INSTANCE = new DatabaseInstanceIdentifier(HOME);
+
     public static DatabaseInstanceIdentifier createHome()
     {
-        return new DatabaseInstanceIdentifier(HOME);
+        return HOME_INSTANCE;
     }
 
     public DatabaseInstanceIdentifier(final String databaseInstanceCode)
@@ -132,7 +134,7 @@ public class DatabaseInstanceIdentifier implements Serializable
 
     public int compareTo(DatabaseInstanceIdentifier other)
     {
-        return StringUtilities.compareNullable(databaseInstanceCode, other
-                .getDatabaseInstanceCode());
+        return StringUtilities.compareNullable(databaseInstanceCode,
+                other.getDatabaseInstanceCode());
     }
 }

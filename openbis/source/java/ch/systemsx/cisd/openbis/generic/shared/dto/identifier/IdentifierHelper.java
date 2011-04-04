@@ -29,9 +29,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -55,7 +55,8 @@ public final class IdentifierHelper
         assert groupPE != null : "Unspecified space";
         assert groupPE.getDatabaseInstance() != null : "Any space must "
                 + "be attached to a database instance";
-        return new GroupIdentifier(groupPE.getDatabaseInstance().getCode(), groupPE.getCode());
+        return new GroupIdentifier(createDatabaseInstanceIdentifier(groupPE.getDatabaseInstance()),
+                groupPE.getCode());
     }
 
     /**
@@ -65,7 +66,13 @@ public final class IdentifierHelper
             final DatabaseInstancePE databaseInstancePE)
     {
         assert databaseInstancePE != null : "Unspecified database instance";
-        return new DatabaseInstanceIdentifier(databaseInstancePE.getCode());
+        if (databaseInstancePE.isOriginalSource())
+        {
+            return DatabaseInstanceIdentifier.createHome();
+        } else
+        {
+            return new DatabaseInstanceIdentifier(databaseInstancePE.getCode());
+        }
     }
 
     /**
