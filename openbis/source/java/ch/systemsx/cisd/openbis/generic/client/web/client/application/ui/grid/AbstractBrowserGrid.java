@@ -475,7 +475,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     /** @return this grid as a disposable component */
     protected final DisposableEntityChooser<T> asDisposableWithoutToolbar()
     {
-        return asDisposableEntityChooser(this, null);
+        return asDisposableEntityChooser(this);
     }
 
     /**
@@ -513,8 +513,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         }
     }
 
-    protected DisposableEntityChooser<T> asDisposableEntityChooser(final Component mainComponent,
-            final IDisposableComponent disposableComponentOrNull)
+    protected final DisposableEntityChooser<T> asDisposableEntityChooser(
+            final Component mainComponent, final IDisposableComponent... disposableComponents)
     {
         final AbstractBrowserGrid<T, M> self = this;
         return new DisposableEntityChooser<T>()
@@ -535,9 +535,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 {
                     debug("dispose a browser");
                     self.disposeCache();
-                    if (disposableComponentOrNull != null)
+                    for (IDisposableComponent disposableComponent : disposableComponents)
                     {
-                        disposableComponentOrNull.dispose();
+                        disposableComponent.dispose();
                     }
                 }
 
