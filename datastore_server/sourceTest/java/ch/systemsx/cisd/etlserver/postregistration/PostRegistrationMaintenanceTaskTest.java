@@ -213,7 +213,8 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
         maintenanceTask.setUp("post-registration", properties);
         maintenanceTask.execute();
         
-        assertEquals("", logRecorder.getLogContent());
+        assertEquals("INFO  OPERATION.PostRegistrationMaintenanceTask - Perform 0 clean up task.",
+                logRecorder.getLogContent());
         assertEquals(42, criteriaMatcher.recordedObject().getLastSeenDataSetId());
         assertEquals("42", FileUtilities.loadExactToString(lastSeenDataSetFile).trim());
         assertEquals(0, cleanupInvocations.size());
@@ -252,7 +253,7 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
         maintenanceTask.setUp("post-registration", properties);
         maintenanceTask.execute();
         
-        AssertionUtil.assertContains("ERROR OPERATION.TaskExecutor - "
+        AssertionUtil.assertContains("ERROR OPERATION.PostRegistrationMaintenanceTask - "
                 + "Couldn't performed clean up task " + cleanupFile2, logRecorder.getLogContent());
         assertEquals(0, criteriaMatcher.recordedObject().getLastSeenDataSetId());
         assertEquals(true, maintenanceTask.requiresDataStoreLock());
@@ -325,7 +326,8 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
         assertEquals(false, maintenanceTask.requiresDataStoreLock());
         maintenanceTask.execute();
 
-        assertEquals("INFO  OPERATION.PostRegistrationMaintenanceTask - "
+        assertEquals("INFO  OPERATION.PostRegistrationMaintenanceTask - Perform 0 clean up task.\n"
+                + "INFO  OPERATION.PostRegistrationMaintenanceTask - "
                 + "Post registration of 1. of 2 data sets: ds-1\n"
                 + "INFO  OPERATION.PostRegistrationMaintenanceTask - "
                 + "Post registration of 2. of 2 data sets: ds-2", logRecorder.getLogContent());
@@ -389,7 +391,8 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
         assertEquals(false, maintenanceTask.requiresDataStoreLock());
         maintenanceTask.execute();
         
-        assertEquals("INFO  OPERATION.PostRegistrationMaintenanceTask -"
+        assertEquals("INFO  OPERATION.PostRegistrationMaintenanceTask - Perform 0 clean up task.\n"
+                + "INFO  OPERATION.PostRegistrationMaintenanceTask -"
                 + " Post registration of 1. of 1 data sets: ds-1", logRecorder.getLogContent());
         assertEquals(0, criteriaMatcher.recordedObject().getLastSeenDataSetId());
         assertEquals("1", FileUtilities.loadExactToString(lastSeenDataSetFile).trim());
@@ -463,7 +466,7 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
         assertEquals(false, maintenanceTask.requiresDataStoreLock());
         maintenanceTask.execute();
         
-        AssertionUtil.assertContains("ERROR OPERATION.TaskExecutor - "
+        AssertionUtil.assertContains("ERROR OPERATION.PostRegistrationMaintenanceTask - "
                 + "Task '2' for data set ds-2 failed.",
                 logRecorder.getLogContent());
         AssertionUtil.assertContains("ERROR OPERATION.PostRegistrationMaintenanceTask - "

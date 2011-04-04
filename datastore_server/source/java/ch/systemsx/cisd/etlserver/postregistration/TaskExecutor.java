@@ -29,8 +29,6 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
  * Executing engine of {@link IPostRegistrationTask} instances. Manages persistent
@@ -54,8 +52,7 @@ public class TaskExecutor
             }
         };
 
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            TaskExecutor.class);
+    private final Logger operationLog;
 
     private final File cleanupTasksFolder;
 
@@ -63,8 +60,9 @@ public class TaskExecutor
      * Creates an instance for specified folder which will store persistent {@link ICleanupTask}
      * instances. 
      */
-    public TaskExecutor(Properties properties)
+    public TaskExecutor(Properties properties, Logger operationLog)
     {
+        this.operationLog = operationLog;
         cleanupTasksFolder =
             new File(properties.getProperty(CLEANUP_TASKS_FOLDER_PROPERTY,
                     DEFAULT_CLEANUP_TASKS_FOLDER));

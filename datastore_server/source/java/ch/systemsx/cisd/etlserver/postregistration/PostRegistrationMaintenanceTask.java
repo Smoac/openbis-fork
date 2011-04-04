@@ -106,8 +106,7 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
             map.put(sectionProperty.getKey(), task);
         }
         tasks = map.entrySet();
-        executor = new TaskExecutor(properties);
-        executor.cleanup();
+        executor = new TaskExecutor(properties, operationLog);
         String fileName =
                 properties.getProperty(LAST_SEEN_DATA_SET_FILE_PROPERTY,
                         DEFAULT_LAST_SEEN_DATA_SET_FILE);
@@ -132,6 +131,7 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
 
     public void execute()
     {
+        executor.cleanup();
         List<ExternalData> dataSets = getSortedUnseenDataSets();
         for (int i = 0; i < dataSets.size(); i++)
         {
