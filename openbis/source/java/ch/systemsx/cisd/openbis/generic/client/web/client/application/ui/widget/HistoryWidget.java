@@ -84,19 +84,22 @@ public class HistoryWidget extends ContentPanel
         setLayout(new FitLayout());
         setHeaderVisible(true);
         setHeading(viewContext.getMessage(Dict.LAST_VISITS));
-        final Button clearButton = new Button("Clear", new SelectionListener<ButtonEvent>()
-            {
-                @Override
-                public void componentSelected(ButtonEvent ce)
-                {
-                    List<EntityVisit> visits = viewContext.getDisplaySettingsManager().getVisits();
-                    visits.clear();
-                    // TODO 2011-31-03, Piotr Buczek: refresh the widget
-                }
-            });
+
+        final TreeStore<ModelData> store = createStore(viewContext);
+        final Button clearButton =
+                new Button(viewContext.getMessage(Dict.CLEAR), new SelectionListener<ButtonEvent>()
+                    {
+                        @Override
+                        public void componentSelected(ButtonEvent ce)
+                        {
+                            List<EntityVisit> visits =
+                                    viewContext.getDisplaySettingsManager().getVisits();
+                            visits.clear();
+                            store.removeAll();
+                        }
+                    });
         getHeader().addTool(clearButton);
 
-        TreeStore<ModelData> store = createStore(viewContext);
         ColumnModel columnModel = createColumnModel(viewContext);
 
         final TreeGrid<ModelData> treeGrid = new TreeGrid<ModelData>(store, columnModel);

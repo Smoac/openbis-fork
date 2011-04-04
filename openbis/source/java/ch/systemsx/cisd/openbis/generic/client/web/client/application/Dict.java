@@ -146,7 +146,7 @@ public abstract class Dict
     public static final String BUTTON_EXPORT_TABLE = "button_exportTable";
 
     public static final String BUTTON_LOGIN_LABEL = "login_buttonLabel";
-    
+
     public static final String BUTTON_LOGOUT_LABEL = "logout_buttonLabel";
 
     public static final String BUTTON_HOME_LABEL = "home_buttonLabel";
@@ -172,7 +172,7 @@ public abstract class Dict
     public static final String LOGIN_BUTTON_LABEL = "login_buttonLabel";
 
     public static final String LOGIN_FAILED = "login_failed";
-    
+
     //
     // AbstractAsyncCallback
     //
@@ -1091,6 +1091,8 @@ public abstract class Dict
     public static final String WARNING_NO_SCRIPT_MESSAGE = "warning_no_script_message";
 
     public static final String LAST_VISITS = "last_visits";
+
+    public static final String CLEAR = "clear";
 
     // ----- end generic ------------------
 }

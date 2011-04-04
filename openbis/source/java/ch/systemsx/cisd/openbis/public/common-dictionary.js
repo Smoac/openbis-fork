@@ -753,6 +753,7 @@ warning_no_script_message: "No script provided",
 // History Widget
 //
 last_visits: "Last Visited Places",
+clear: "Clear",
  
  // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma
