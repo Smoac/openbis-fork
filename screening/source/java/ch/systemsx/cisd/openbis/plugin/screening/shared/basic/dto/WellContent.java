@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityReference;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
@@ -42,14 +43,15 @@ public class WellContent implements ISerializable
 
     private EntityReference well;
 
+    /**
+     * well properties also contain the referenced materials (if any) enriched with material
+     * properties.
+     */
     private List<IEntityProperty> wellProperties = new ArrayList<IEntityProperty>(0);
 
     private EntityReference plate;
 
     private ExperimentReference experiment;
-
-    // Material which was being searched for inside a well. Enriched with properties.
-    private Material materialContent;
 
     // ------------ Dataset Data -------------
 
@@ -69,13 +71,13 @@ public class WellContent implements ISerializable
     }
 
     public WellContent(WellLocation locationOrNull, EntityReference well, EntityReference plate,
-            ExperimentReference experiment, Material materialContent)
+            ExperimentReference experiment)
     {
-        this(locationOrNull, well, plate, experiment, materialContent, null, null, null, null);
+        this(locationOrNull, well, plate, experiment, null, null, null, null);
     }
 
     private WellContent(WellLocation locationOrNull, EntityReference well, EntityReference plate,
-            ExperimentReference experiment, Material materialContent,
+            ExperimentReference experiment,
             List<IEntityProperty> wellProperties, DatasetImagesReference imagesDatasetOrNull,
             DatasetReference featureVectorDatasetOrNull, NamedFeatureVector featureVectorOrNull)
     {
@@ -83,7 +85,6 @@ public class WellContent implements ISerializable
         this.well = well;
         this.plate = plate;
         this.experiment = experiment;
-        this.materialContent = materialContent;
         this.imagesDatasetOrNull = imagesDatasetOrNull;
         this.featureVectorDatasetOrNull = featureVectorDatasetOrNull;
         this.featureVectorOrNull = featureVectorOrNull;
@@ -105,9 +106,22 @@ public class WellContent implements ISerializable
         return plate;
     }
 
-    public Material getMaterialContent()
+    public List<Material> getMaterialContents()
     {
-        return materialContent;
+        ArrayList<Material> materials = new ArrayList<Material>();
+        for (IEntityProperty property : wellProperties)
+        {
+            DataTypeCode propertyDataTypeCode = property.getPropertyType().getDataType().getCode();
+            if (propertyDataTypeCode == DataTypeCode.MATERIAL)
+            {
+                Material materialOrNull = property.getMaterial();
+                if (materialOrNull != null)
+                {
+                    materials.add(materialOrNull);
+                }
+            }
+        }
+        return materials;
     }
 
     public DatasetImagesReference tryGetImageDataset()
@@ -134,14 +148,14 @@ public class WellContent implements ISerializable
             DatasetReference newFeatureVectorDatasetOrNull)
     {
         return new WellContent(this.locationOrNull, this.well, this.plate, this.experiment,
-                this.materialContent, this.wellProperties, newImagesDatasetOrNull,
+                this.wellProperties, newImagesDatasetOrNull,
                 newFeatureVectorDatasetOrNull, this.featureVectorOrNull);
     }
 
     public WellContent cloneWithFeatureVector(NamedFeatureVector newFeatureVectorOrNull)
     {
         return new WellContent(this.locationOrNull, this.well, this.plate, this.experiment,
-                this.materialContent, this.wellProperties, this.imagesDatasetOrNull,
+                this.wellProperties, this.imagesDatasetOrNull,
                 this.featureVectorDatasetOrNull, newFeatureVectorOrNull);
     }
 
@@ -149,7 +163,7 @@ public class WellContent implements ISerializable
     public String toString()
     {
         return "location = " + locationOrNull + ", experiment = " + experiment + ", plate = "
-                + plate + ", well = " + well + ", content = " + materialContent;
+                + plate + ", well = " + well;
     }
 
     public List<IEntityProperty> getWellProperties()
@@ -167,4 +181,5 @@ public class WellContent implements ISerializable
     {
         this.wellProperties = properties;
     }
+
 }

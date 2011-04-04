@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.StringArrayMapper;
  * @author Tomasz Pylak
  */
 @Private
-@Friend(toClasses = WellContent.class)
+@Friend(toClasses = WellContentQueryResult.class)
 public interface IScreeningQuery extends BaseQuery
 {
 
@@ -73,7 +73,7 @@ public interface IScreeningQuery extends BaseQuery
      *         Each well will have a material property (e.g. gene) with the specified id.
      */
     @Select(sql = WELLS_FOR_MATERIAL_ID_SELECT + " where well_material.id = ?{1} and exp.id = ?{2}")
-    public DataIterator<WellContent> getPlateLocationsForMaterialId(long materialId,
+    public DataIterator<WellContentQueryResult> getPlateLocationsForMaterialId(long materialId,
             long experimentId);
 
     /**
@@ -81,7 +81,7 @@ public interface IScreeningQuery extends BaseQuery
      *         id.
      */
     @Select(sql = WELLS_FOR_MATERIAL_ID_SELECT + " where well_material.id = ?{1}")
-    public DataIterator<WellContent> getPlateLocationsForMaterialId(long materialId);
+    public DataIterator<WellContentQueryResult> getPlateLocationsForMaterialId(long materialId);
 
     /**
      * @return well locations which belong to a parent plate connected to a specified experiment.
@@ -91,7 +91,7 @@ public interface IScreeningQuery extends BaseQuery
     @Select(sql = WELLS_FOR_MATERIAL_ID_SELECT + " where well_material.id = any(?{1}) and "
             + "well_material_type.code = any(?{2}) and exp.id = ?{3}", parameterBindings =
         { LongArrayMapper.class, StringArrayMapper.class, TypeMapper.class /* default mapper */}, fetchSize = FETCH_SIZE)
-    public DataIterator<WellContent> getPlateLocationsForMaterialCodes(long[] materialIds,
+    public DataIterator<WellContentQueryResult> getPlateLocationsForMaterialCodes(long[] materialIds,
             String[] materialTypeCodes, long experimentId);
 
     /**
@@ -102,7 +102,7 @@ public interface IScreeningQuery extends BaseQuery
     @Select(sql = WELLS_FOR_MATERIAL_ID_SELECT + " where well_material.id = any(?{1}) and "
             + "well_material_type.code = any(?{2})", parameterBindings =
         { LongArrayMapper.class, StringArrayMapper.class }, fetchSize = FETCH_SIZE)
-    public DataIterator<WellContent> getPlateLocationsForMaterialCodes(long[] materialIds,
+    public DataIterator<WellContentQueryResult> getPlateLocationsForMaterialCodes(long[] materialIds,
             String[] materialTypeCodes);
 
     /**
@@ -120,7 +120,7 @@ public interface IScreeningQuery extends BaseQuery
             + "   join materials well_material on well_props.mate_prop_id = well_material.id"
             + "   join material_types well_material_type on well_material.maty_id = well_material_type.id"
             + " where well_material_type.code=?{2} and pl.perm_id=?{1}")
-    public DataIterator<WellContent> getPlateMappingForMaterialType(String platePermId,
+    public DataIterator<WellContentQueryResult> getPlateMappingForMaterialType(String platePermId,
             String materialTypeCode);
 
     /**
@@ -139,7 +139,7 @@ public interface IScreeningQuery extends BaseQuery
             + "   join materials well_material on well_props.mate_prop_id = well_material.id"
             + "   join material_types well_material_type on well_material.maty_id = well_material_type.id"
             + " where pl.perm_id=?{1} order by material_content_type_code")
-    public DataIterator<WellContent> getPlateMapping(String platePermId);
+    public DataIterator<WellContentQueryResult> getPlateMapping(String platePermId);
 
     /**
      * @return the material to well plate mapping for the given <var>spaceCode</var> and
@@ -157,7 +157,7 @@ public interface IScreeningQuery extends BaseQuery
             + "   join materials well_material on well_props.mate_prop_id = well_material.id"
             + "   join material_types well_material_type on well_material.maty_id = well_material_type.id"
             + " where well_material_type.code = ?{3} and pl.code = ?{2} and sp.code = ?{1}")
-    public DataIterator<WellContent> getPlateMappingForMaterialType(String spaceCode,
+    public DataIterator<WellContentQueryResult> getPlateMappingForMaterialType(String spaceCode,
             String plateCode, String materialTypeCode);
 
     /**
@@ -177,7 +177,7 @@ public interface IScreeningQuery extends BaseQuery
             + "   join materials well_material on well_props.mate_prop_id = well_material.id"
             + "   join material_types well_material_type on well_material.maty_id = well_material_type.id"
             + " where sp.code = ?{1} and pl.code = ?{2} order by material_content_type_code")
-    public DataIterator<WellContent> getPlateMapping(String spaceCode, String plateCode);
+    public DataIterator<WellContentQueryResult> getPlateMapping(String spaceCode, String plateCode);
 
     /**
      * Returns the plate geometry string for the plate with given <var>platePermId</var>, or

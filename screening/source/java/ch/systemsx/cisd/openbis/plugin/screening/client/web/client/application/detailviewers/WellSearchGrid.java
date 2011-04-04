@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
 import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.WellSearchGridColumnIds.WELL;
-import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.WellSearchGridColumnIds.WELL_CONTENT_MATERIAL;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -70,10 +69,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplayTypeIDGenerator;
@@ -81,7 +78,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
@@ -272,7 +268,6 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
         final IDefaultChannelState defaultChannelState =
                 createDefaultChannelState(viewContext, experimentCriteriaOrNull);
         channelChooser = new ChannelChooserPanel(defaultChannelState);
-        linkWellContent();
         linkExperiment();
         linkPlate();
         linkWell();
@@ -299,38 +294,6 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
             displayTypeId = displayTypeIdGenerator.createID(null);
         }
         return new DefaultChannelState(viewContext, displayTypeId);
-    }
-
-    private void linkWellContent()
-    {
-        registerListenerAndLinkGenerator(WELL_CONTENT_MATERIAL,
-                new ICellListenerAndLinkGenerator<WellContent>()
-                    {
-                        public String tryGetLink(WellContent entity, ISerializableComparable value)
-                        {
-                            Material material = entity.getMaterialContent();
-                            String experimentIdentifier =
-                                    entity.getExperiment().getExperimentIdentifier();
-                            return ScreeningLinkExtractor.tryCreateMaterialDetailsLink(material,
-                                    experimentIdentifier);
-                        }
-
-                        public void handle(TableModelRowWithObject<WellContent> wellContent,
-                                boolean specialKeyPressed)
-                        {
-                            Material contentMaterial =
-                                    wellContent.getObjectOrNull().getMaterialContent();
-                            ExperimentReference experiment =
-                                    wellContent.getObjectOrNull().getExperiment();
-                            ExperimentSearchCriteria experimentCriteria =
-                                    ExperimentSearchCriteria.createExperiment(experiment.getId(),
-                                            experiment.getPermId(),
-                                            experiment.getExperimentIdentifier());
-
-                            ClientPluginFactory.openImagingMaterialViewer(contentMaterial,
-                                    experimentCriteria, viewContext);
-                        }
-                    });
     }
 
     private void linkExperiment()
@@ -680,7 +643,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
     @Override
     protected List<String> getColumnIdsOfFilters()
     {
-        return Arrays.asList(WELL_CONTENT_MATERIAL, WELL);
+        return Arrays.asList(WELL);
     }
 
 }

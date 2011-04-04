@@ -92,7 +92,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
  * @author Tomasz Pylak
  */
 @Friend(toClasses =
-    { ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContent.class,
+    { ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContentQueryResult.class,
             PlateGeometryContainer.class })
 public class ScreeningApiImpl
 {
@@ -529,7 +529,7 @@ public class ScreeningApiImpl
             PlateIdentifier plateIdentifier,
             MaterialTypeIdentifier materialTypeIdentifierOrNull,
             PlateGeometryContainer plateGeometryContainer,
-            DataIterator<ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContent> wellContentList)
+            DataIterator<ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContentQueryResult> wellContentList)
     {
         final Geometry plateGeometry =
                 Geometry.createFromPlateGeometryString(plateGeometryContainer.plate_geometry);
@@ -540,7 +540,7 @@ public class ScreeningApiImpl
                 new PlateWellMaterialMapping(finalPlateIdentifier, plateGeometry, 1);
         if (materialTypeIdentifierOrNull != null)
         {
-            for (ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContent wellContent : wellContentList)
+            for (ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContentQueryResult wellContent : wellContentList)
             {
                 final WellLocation location =
                         ScreeningUtils.tryCreateLocationFromMatrixCoordinate(wellContent.well_code);
@@ -552,7 +552,7 @@ public class ScreeningApiImpl
         {
             final Map<String, MaterialTypeIdentifier> map =
                     new HashMap<String, MaterialTypeIdentifier>();
-            for (ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContent wellContent : wellContentList)
+            for (ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContentQueryResult wellContent : wellContentList)
             {
                 MaterialTypeIdentifier typeId = map.get(wellContent.material_content_type_code);
                 if (typeId == null)
@@ -597,7 +597,7 @@ public class ScreeningApiImpl
         return plateGeometryContainer;
     }
 
-    private DataIterator<ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContent> getPlateMapping(
+    private DataIterator<ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContentQueryResult> getPlateMapping(
             IScreeningQuery query, PlateIdentifier plate,
             MaterialTypeIdentifier materialTypeIdentifierOrNull)
     {

@@ -28,7 +28,6 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.bds.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
@@ -106,12 +105,14 @@ public class WellContentLoaderTest extends AbstractScreeningDAOTest
         assertTrue("At least one property per well is expected", props.size() > 0);
         for (IEntityProperty prop : props)
         {
-            MaterialEntityProperty wellProp = (MaterialEntityProperty) prop;
-            assertNotNull(wellProp.getPropertyType().getCode());
-            assertNotNull(wellProp.getMaterial());
+            assertNotNull(prop.getPropertyType().getCode());
+            assertNotNull(prop.getMaterial());
+            assertTrue("Material properties should be populated", prop.getMaterial()
+                    .getProperties().size() > 0);
             // assert the string representation actually has contents
-            String stringValue = wellProp.tryGetAsString();
+            String stringValue = prop.tryGetAsString();
             assertEquals(false, StringUtils.isBlank(stringValue));
+
         }
     }
 

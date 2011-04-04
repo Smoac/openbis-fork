@@ -24,8 +24,6 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids;
  */
 public class WellSearchGridColumnIds 
 {
-    public static final String WELL_CONTENT_MATERIAL = "WELL_CONTENT_MATERIAL";
-    public static final String WELL_CONTENT_MATERIAL_TYPE = "WELL_CONTENT_MATERIAL_TYPE";
     public static final String EXPERIMENT = "experiment";
     public static final String PLATE = "PLATE";
     public static final String WELL = "WELL";

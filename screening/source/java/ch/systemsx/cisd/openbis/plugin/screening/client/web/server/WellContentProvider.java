@@ -23,8 +23,6 @@ import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.W
 import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.WellSearchGridColumnIds.PLATE;
 import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.WellSearchGridColumnIds.WELL;
 import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.WellSearchGridColumnIds.WELL_COLUMN;
-import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.WellSearchGridColumnIds.WELL_CONTENT_MATERIAL;
-import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.WellSearchGridColumnIds.WELL_CONTENT_MATERIAL_TYPE;
 import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.WellSearchGridColumnIds.WELL_IMAGES;
 import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.WellSearchGridColumnIds.WELL_ROW;
 
@@ -32,6 +30,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AbstractTableModelProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 import ch.systemsx.cisd.openbis.generic.shared.util.IColumn;
@@ -51,6 +50,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCrit
 public class WellContentProvider extends AbstractTableModelProvider<WellContent>
 {
     static final String WELL_PROPERTY_ID_PREFIX = "WELL_PROPERTY-";
+
+    static final String MATERIAL_PROPERTY_ID_PREFIX = "MATERIAL-PROPERTY-";
 
     static final String WELL_CONTENT_PROPERTY_ID_PREFIX = "WELL_CONTENT_PROPERTY-";
 
@@ -85,8 +86,6 @@ public class WellContentProvider extends AbstractTableModelProvider<WellContent>
 
     private void addStandardWellColumns(TypedTableModelBuilder<WellContent> builder)
     {
-        builder.addColumn(WELL_CONTENT_MATERIAL);
-        builder.addColumn(WELL_CONTENT_MATERIAL_TYPE);
         builder.addColumn(EXPERIMENT);
         builder.addColumn(PLATE);
         builder.addColumn(WELL);
@@ -101,12 +100,6 @@ public class WellContentProvider extends AbstractTableModelProvider<WellContent>
     private void addRow(TypedTableModelBuilder<WellContent> builder, WellContent well)
     {
         builder.addRow(well);
-        Material material = well.getMaterialContent();
-        String value = material.getCode();
-        builder.column(WELL_CONTENT_MATERIAL).addString(value);
-        builder.column(WELL_CONTENT_MATERIAL_TYPE).addString(material.getEntityType().getCode());
-        builder.columnGroup(WELL_CONTENT_PROPERTY_ID_PREFIX)
-                .addProperties(material.getProperties());
         NamedFeatureVector featureVector = well.tryGetFeatureVectorValues();
         if (featureVector != null)
         {
@@ -129,10 +122,43 @@ public class WellContentProvider extends AbstractTableModelProvider<WellContent>
                 imageDataset == null ? null : imageDataset.getDatasetReference().getFileTypeCode());
         builder.column(WELL_IMAGES).addString(well.tryGetImageDataset() == null ? "" : "[images]");
 
-        if (well.getWellProperties().isEmpty() == false)
+        List<IEntityProperty> wellProperties = well.getWellProperties();
+        builder.columnGroup(WELL_PROPERTY_ID_PREFIX).addProperties(wellProperties);
+        addMaterialProperties(builder, wellProperties);
+    }
+
+    private void addMaterialProperties(TypedTableModelBuilder<WellContent> builder,
+            List<IEntityProperty> wellProperties)
+    {
+        for (IEntityProperty property : wellProperties)
         {
-            builder.columnGroup(WELL_PROPERTY_ID_PREFIX).addProperties(well.getWellProperties());
+            DataTypeCode propertyDataTypeCode = property.getPropertyType().getDataType().getCode();
+            if (propertyDataTypeCode == DataTypeCode.MATERIAL)
+            {
+                addMaterialProperties(builder, property);
+            }
         }
+    }
+
+    private void addMaterialProperties(TypedTableModelBuilder<WellContent> builder,
+            IEntityProperty materialProperty)
+    {
+        Material materialOrNull = materialProperty.getMaterial();
+        if (materialOrNull != null)
+        {
+            List<IEntityProperty> materialProperties = materialOrNull.getProperties();
+            if (materialProperties != null)
+            {
+                String materialPropsGroupId = getMaterialPropsGroupId(materialProperty);
+                builder.columnGroup(materialPropsGroupId)
+                        .addProperties(materialOrNull.getProperties());
+            }
+        }
+    }
+
+    private String getMaterialPropsGroupId(IEntityProperty property)
+    {
+        return MATERIAL_PROPERTY_ID_PREFIX + property.getPropertyType().getSimpleCode() + "-";
     }
 
     private void addFeatureColumns(TypedTableModelBuilder<WellContent> builder,

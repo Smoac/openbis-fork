@@ -65,7 +65,7 @@ public class ScreeningDAOTest extends AbstractScreeningDAOTest
     public void testGetPlateLocationsForOneMaterial()
     {
         // it just tests if the sql runs
-        List<WellContent> locations =
+        List<WellContentQueryResult> locations =
                 EntityListingTestUtils.asList(query.getPlateLocationsForMaterialId(1, 1));
         AssertJUnit.assertEquals(0, locations.size());
     }
@@ -74,7 +74,7 @@ public class ScreeningDAOTest extends AbstractScreeningDAOTest
     public void testGetPlateLocationsForOneMaterialAllExperiments()
     {
         // it just tests if the sql runs
-        List<WellContent> locations =
+        List<WellContentQueryResult> locations =
                 EntityListingTestUtils.asList(query.getPlateLocationsForMaterialId(1));
         AssertJUnit.assertEquals(0, locations.size());
     }
@@ -83,7 +83,7 @@ public class ScreeningDAOTest extends AbstractScreeningDAOTest
     public void testGetPlateMappingAllTypes()
     {
         // it just tests if the sql runs
-        List<WellContent> locations = EntityListingTestUtils.asList(query.getPlateMapping("xxx"));
+        List<WellContentQueryResult> locations = EntityListingTestUtils.asList(query.getPlateMapping("xxx"));
         AssertJUnit.assertEquals(0, locations.size());
     }
 
@@ -91,7 +91,7 @@ public class ScreeningDAOTest extends AbstractScreeningDAOTest
     public void testGetPlateMappingAllTypesAugmentedCode()
     {
         // it just tests if the sql runs
-        List<WellContent> locations =
+        List<WellContentQueryResult> locations =
                 EntityListingTestUtils.asList(query.getPlateMapping("xxx", "yyy"));
         AssertJUnit.assertEquals(0, locations.size());
     }
@@ -117,7 +117,7 @@ public class ScreeningDAOTest extends AbstractScreeningDAOTest
     public void testGetPlateMappingGeneType()
     {
         // it just tests if the sql runs
-        List<WellContent> locations =
+        List<WellContentQueryResult> locations =
                 EntityListingTestUtils.asList(query.getPlateMappingForMaterialType("xxx", "Gene"));
         AssertJUnit.assertEquals(0, locations.size());
     }
@@ -126,7 +126,7 @@ public class ScreeningDAOTest extends AbstractScreeningDAOTest
     public void testGetPlateMappingGeneTypeAugmentedCode()
     {
         // it just tests if the sql runs
-        List<WellContent> locations =
+        List<WellContentQueryResult> locations =
                 EntityListingTestUtils.asList(query.getPlateMappingForMaterialType("xxx", "yyy",
                         "Gene"));
         AssertJUnit.assertEquals(0, locations.size());
@@ -143,7 +143,7 @@ public class ScreeningDAOTest extends AbstractScreeningDAOTest
             { 1, 2 };
 
         // one experiment
-        List<WellContent> locations =
+        List<WellContentQueryResult> locations =
                 EntityListingTestUtils.asList(query.getPlateLocationsForMaterialCodes(ids,
                         materialTypeCodes, 1));
         AssertJUnit.assertEquals(0, locations.size());
