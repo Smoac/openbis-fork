@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.etlserver.postregistration;
 
 import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,15 +29,11 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.SerializationUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -62,26 +56,12 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
 {
     @Private static final String POST_REGISTRATION_TASKS_PROPERTY = "post-registration-tasks";
     
-    @Private static final String CLEANUP_TASKS_FOLDER_PROPERTY = "cleanup-tasks-folder";
-
-    private static final String DEFAULT_CLEANUP_TASKS_FOLDER = "clean-up-tasks";
-    
     @Private static final String IGNORE_DATA_SETS = "ignore-data-sets-before-date";
     
     @Private static final String LAST_SEEN_DATA_SET_FILE_PROPERTY = "last-seen-data-set-file";
     
     private static final String DEFAULT_LAST_SEEN_DATA_SET_FILE = "last-seen-data-set.txt";
     
-    private static final String FILE_TYPE = ".ser";
-
-    private static final FilenameFilter FILTER = new FilenameFilter()
-        {
-            public boolean accept(File dir, String name)
-            {
-                return name.endsWith(FILE_TYPE);
-            }
-        };
-
     private static final Logger operationLog =
         LogFactory.getLogger(LogCategory.OPERATION, PostRegistrationMaintenanceTask.class);
     
@@ -91,13 +71,13 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
     
     private Set<Entry<String, IPostRegistrationTask>> tasks;
     
-    private File cleanupTasksFolder;
-
     private File lastSeenDataSetFile;
 
     private File newLastSeenDataSetFile;
 
     private Date ignoreBeforeDate;
+
+    private TaskExecutor executor;
 
     public boolean requiresDataStoreLock()
     {
@@ -126,15 +106,8 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
             map.put(sectionProperty.getKey(), task);
         }
         tasks = map.entrySet();
-        cleanupTasksFolder =
-                new File(properties.getProperty(CLEANUP_TASKS_FOLDER_PROPERTY,
-                        DEFAULT_CLEANUP_TASKS_FOLDER));
-        if (cleanupTasksFolder.isFile())
-        {
-            throw new EnvironmentFailureException("Cleanup tasks folder is a file: "
-                    + cleanupTasksFolder.getAbsolutePath());
-        }
-        cleanupTasksFolder.mkdirs();
+        executor = new TaskExecutor(properties);
+        executor.cleanup();
         String fileName =
                 properties.getProperty(LAST_SEEN_DATA_SET_FILE_PROPERTY,
                         DEFAULT_LAST_SEEN_DATA_SET_FILE);
@@ -159,7 +132,6 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
 
     public void execute()
     {
-        cleanup();
         List<ExternalData> dataSets = getSortedUnseenDataSets();
         for (int i = 0; i < dataSets.size(); i++)
         {
@@ -172,26 +144,8 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
                 for (Entry<String, IPostRegistrationTask> entry : tasks)
                 {
                     IPostRegistrationTask task = entry.getValue();
-                    ICleanupTask cleanupTask = null;
-                    File savedCleanupTask = null;
                     String taskName = entry.getKey();
-                    try
-                    {
-                        IPostRegistrationTaskExecutor executor = task.createExecutor(code);
-                        cleanupTask = executor.createCleanupTask();
-                        savedCleanupTask = save(code, taskName, cleanupTask);
-                        executor.execute();
-                    } catch (Throwable t)
-                    {
-                        cleanUpAndLog(t, cleanupTask, code, taskName);
-                        throw t;
-                    } finally
-                    {
-                        if (savedCleanupTask != null)
-                        {
-                            savedCleanupTask.delete();
-                        }
-                    }
+                    executor.execute(task, taskName, code);
                 }
                 saveLastSeenDataSetId(dataSet.getId());
             } catch (Throwable ex)
@@ -236,24 +190,6 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
         newLastSeenDataSetFile.renameTo(lastSeenDataSetFile);
     }
 
-    private void cleanUpAndLog(Throwable throwable, ICleanupTask cleanupTaskOrNull,
-            String dataSetCode, String taskName)
-    {
-        operationLog.error("Post registration task '" + taskName + "' for data set " + dataSetCode
-                + " failed.", throwable);
-        if (cleanupTaskOrNull != null)
-        {
-            try
-            {
-                cleanupTaskOrNull.cleanup();
-            } catch (Throwable t)
-            {
-                operationLog.error("Clean up of failed post registration task '" + taskName
-                        + "' for data set " + dataSetCode + " failed, too.", t);
-            }
-        }
-    }
-
     private void logPostponingMessage(List<ExternalData> dataSets, int i)
     {
         int numberOfDataSets = dataSets.size();
@@ -271,41 +207,6 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
             operationLog.error("Because post registration task failed for data set "
                     + dataSets.get(i).getCode() + " post registration tasks are postponed for "
                     + "the following data sets: " + builder);
-        }
-    }
-
-    private void cleanup()
-    {
-        File[] files = cleanupTasksFolder.listFiles(FILTER);
-        for (File file : files)
-        {
-            cleanupTask(file);
-        }
-    }
-
-    private void cleanupTask(File file)
-    {
-        try
-        {
-            byte[] bytes = FileUtils.readFileToByteArray(file);
-            ((ICleanupTask) SerializationUtils.deserialize(bytes)).cleanup();
-        } catch (Exception ex)
-        {
-            operationLog.error("Couldn't performed clean up task " + file, ex);
-        }
-        file.delete();
-    }
-
-    private File save(String code, String taskName, ICleanupTask cleanupTask)
-    {
-        try
-        {
-            File file = new File(cleanupTasksFolder, code + "_" + taskName + FILE_TYPE);
-            FileUtils.writeByteArrayToFile(file, SerializationUtils.serialize(cleanupTask));
-            return file;
-        } catch (IOException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
 

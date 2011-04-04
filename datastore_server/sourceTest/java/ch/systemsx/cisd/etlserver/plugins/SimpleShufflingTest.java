@@ -21,9 +21,11 @@ import static org.apache.commons.io.FileUtils.ONE_MB;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -38,12 +40,15 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.HostAwareFile;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
-import ch.systemsx.cisd.common.utilities.ITimeProvider;
+import ch.systemsx.cisd.etlserver.postregistration.EagerShufflingTask;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
@@ -55,6 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 @Friend(toClasses=SimpleShuffling.class)
 public class SimpleShufflingTest extends AbstractFileSystemTestCase
 {
+    private static final String DSS_CODE = "dss1";
     private static final String STORE_PATH = "01/02/03/";
 
     private static final class MockSpaceProvider implements IFreeSpaceProvider
@@ -100,6 +106,9 @@ public class SimpleShufflingTest extends AbstractFileSystemTestCase
     private ISimpleLogger logger;
     private SimpleShuffling balancer;
     private File store;
+    private EagerShufflingTask eagerShufflingTask;
+    private IShareIdManager shareIdManager;
+    private IConfigProvider configProvider;
 
     @BeforeMethod
     public void beforeMethod()
@@ -107,94 +116,130 @@ public class SimpleShufflingTest extends AbstractFileSystemTestCase
         spaceProvider = new MockSpaceProvider();
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
+        shareIdManager = context.mock(IShareIdManager.class);
+        configProvider = context.mock(IConfigProvider.class);
         dataSetMover = context.mock(IDataSetMover.class);
         logger = context.mock(ISimpleLogger.class);
-        final ITimeProvider timeProvider = context.mock(ITimeProvider.class);
+        Properties properties = new Properties();
+        properties.setProperty(SimpleShuffling.MINIMUM_FREE_SPACE_KEY, "2");
+        properties.setProperty(EagerShufflingTask.SHARE_FINDER_KEY + ".class", SimpleShufflingShareFinder.class.getName());
+        properties.setProperty(EagerShufflingTask.SHARE_FINDER_KEY + "." + SimpleShufflingShareFinder.MINIMUM_FREE_SPACE_KEY, "2");
+        store = new File(workingDirectory, "store");
+        store.mkdirs();
+        File ds1 = new File(store, "1/" + STORE_PATH + "ds1");
+        ds1.getParentFile().mkdirs();
+        FileUtilities.writeToFile(ds1, "hello ds1");
+        FileUtilities.writeToFile(new File(store, "1/" + STORE_PATH + "ds2"), "hello ds2");
+        FileUtilities.writeToFile(new File(store, "1/" + STORE_PATH + "ds3"), "hello ds3");
+        File share2 = new File(store, "2/" + STORE_PATH);
+        share2.mkdirs();
+        FileUtilities.writeToFile(new File(share2, "ds4"), "hello ds4");
+        new File(store, "3").mkdirs();
+        new File(store, "4").mkdirs();
         context.checking(new Expectations()
             {
                 {
-                    allowing(timeProvider).getTimeInMilliseconds();
-                    will(returnValue(0L));
+                    allowing(configProvider).getDataStoreCode();
+                    will(returnValue(DSS_CODE));
+                    
+                    allowing(configProvider).getStoreRoot();
+                    will(returnValue(store));
                 }
             });
-        Properties properties = new Properties();
-        properties.setProperty(SimpleShuffling.MINIMUM_FREE_SPACE_KEY, "2");
-        balancer = new SimpleShuffling(properties, timeProvider);
-        store = new File(workingDirectory, "store");
+        eagerShufflingTask =
+                new EagerShufflingTask(properties, new HashSet<String>(Arrays.asList("1", "2")),
+                        service, shareIdManager, spaceProvider, dataSetMover, configProvider,
+                        logger);
+        balancer = new SimpleShuffling(properties, eagerShufflingTask);
     }
     
     @AfterMethod
-    public void afterMethod()
+    public void afterMethod(Method method)
     {
-        // The following line of code should also be called at the end of each test method.
-        // Otherwise one do not known which test failed.
-        context.assertIsSatisfied();
+        try
+        {
+            context.assertIsSatisfied();
+        } catch (Throwable t)
+        {
+            // assert expectations were met, including the name of the failed method
+            throw new Error(method.getName() + "() : ", t);
+        }
     }
 
     @Test
     public void test()
     {
         final Share share1 = new Share(new File(store, "1"), spaceProvider);
-        share1.addDataSet(dataSet("ds1", 2000));
-        share1.addDataSet(dataSet("ds2", ONE_MB));
-        share1.addDataSet(dataSet("ds3", ONE_MB + 100));
+        final SimpleDataSetInformationDTO ds1 = dataSet("ds1", "1", 2000);
+        share1.addDataSet(ds1);
+        final SimpleDataSetInformationDTO ds2 = dataSet("ds2", "1", ONE_MB);
+        share1.addDataSet(ds2);
+        final SimpleDataSetInformationDTO ds3 = dataSet("ds3", "1", ONE_MB + 100);
+        share1.addDataSet(ds3);
         spaceProvider.addFreeSpaceExpectationFor(share1, 100l);
         spaceProvider.addFreeSpaceExpectationFor(share1, 100l);
-        spaceProvider.addFreeSpaceExpectationFor(share1, 1100l);
-        spaceProvider.addFreeSpaceExpectationFor(share1, 2100l);
+        spaceProvider.addFreeSpaceExpectationFor(share1, 100l);
+        spaceProvider.addFreeSpaceExpectationFor(share1, 100l);
         final Share share2 = new Share(new File(store, "2"), spaceProvider);
-        share2.addDataSet(dataSet("ds4", 2 * ONE_MB));
+        final SimpleDataSetInformationDTO ds4 = dataSet("ds4", "2", 2 * ONE_MB);
+        share2.addDataSet(ds4);
+        spaceProvider.addFreeSpaceExpectationFor(share2, 500l);
+        spaceProvider.addFreeSpaceExpectationFor(share2, 500l);
         spaceProvider.addFreeSpaceExpectationFor(share2, 500l);
         spaceProvider.addFreeSpaceExpectationFor(share2, 500l);
         final Share share3 = new Share(new File(store, "3"), spaceProvider);
         spaceProvider.addFreeSpaceExpectationFor(share3, 4 * 1024l);
         spaceProvider.addFreeSpaceExpectationFor(share3, 3 * 1024l);
-        spaceProvider.addFreeSpaceExpectationFor(share3, 1024l);
+        spaceProvider.addFreeSpaceExpectationFor(share3, 2 * 1024l);
         final Share share4 = new Share(new File(store, "4"), spaceProvider);
         spaceProvider.addFreeSpaceExpectationFor(share4, 3 * 1024l);
+        spaceProvider.addFreeSpaceExpectationFor(share4, 4 * 1024l);
+        spaceProvider.addFreeSpaceExpectationFor(share4, 1024l);
         context.checking(new Expectations()
             {
                 {
+                    allowing(service).listDataSets();
+                    will(returnValue(Arrays.asList(ds1, ds2, ds3, ds4)));
                     one(logger).log(LogLevel.INFO, "BEGIN Computing number of data sets to move for share 1");
                     one(logger).log(LogLevel.INFO, "\tSpace needed to free: 1994752 bytes (1948.00 kB, 1.90 MB)");
                     one(logger).log(LogLevel.INFO, "\tInspecting 3 data sets.");
                     one(logger).log(LogLevel.INFO, "END Computing number of data sets to move for share 1");
                     one(logger).log(LogLevel.INFO, "\t2 data sets to move, available space : 102500");
                     
-                    one(logger).log(LogLevel.INFO, "Copying data set ds3 from share 1 to share 3 ...");
-                    one(dataSetMover).moveDataSetToAnotherShare(new File(share1.getShare(), STORE_PATH + "ds3"), share3.getShare(), logger);
-                    one(logger).log(LogLevel.INFO, "Copying data set ds3 from share 1 to share 3 took 0 seconds.");
+                    one(shareIdManager).getShareId(ds3.getDataSetCode());
+                    will(returnValue(ds3.getDataSetShareId()));
                     
-                    one(logger).log(LogLevel.INFO, "Copying data set ds2 from share 1 to share 3 ...");
-                    one(dataSetMover).moveDataSetToAnotherShare(new File(share1.getShare(), STORE_PATH + "ds2"), share3.getShare(), logger);
-                    one(logger).log(LogLevel.INFO, "Copying data set ds2 from share 1 to share 3 took 0 seconds.");
+                    one(dataSetMover).moveDataSetToAnotherShare(new File(share1.getShare(), STORE_PATH + "ds3"), share3.getShare(), logger);
+                    one(logger).log(LogLevel.INFO, "Data set ds3 successfully moved from share 1 to 3.");
                     
                     one(logger).log(LogLevel.INFO, "BEGIN Computing number of data sets to move for share 2");
                     one(logger).log(LogLevel.INFO, "\tSpace needed to free: 1585152 bytes (1548.00 kB, 1.51 MB)");
                     one(logger).log(LogLevel.INFO, "\tInspecting 1 data sets.");
                     one(logger).log(LogLevel.INFO, "END Computing number of data sets to move for share 2");
+                    one(shareIdManager).getShareId(ds2.getDataSetCode());
+                    will(returnValue(ds2.getDataSetShareId()));
+                    
+                    one(dataSetMover).moveDataSetToAnotherShare(new File(share1.getShare(), STORE_PATH + "ds2"), share4.getShare(), logger);
+                    one(logger).log(LogLevel.INFO, "Data set ds2 successfully moved from share 1 to 4.");
+                    
+                    one(logger).log(LogLevel.WARN, "No share found for shuffling data set ds4.");
                 }
             });
         
         balancer.shuffleDataSets(Arrays.asList(share1, share2),
                 Arrays.asList(share1, share2, share3, share4), service, dataSetMover, logger);
         
-        assertEquals(1, share1.getDataSetsOrderedBySize().size());
-        assertEquals(1, share2.getDataSetsOrderedBySize().size());
-        assertEquals("ds3", share3.getDataSetsOrderedBySize().get(0).getDataSetCode());
-        assertEquals("ds2", share3.getDataSetsOrderedBySize().get(1).getDataSetCode());
-        assertEquals(2, share3.getDataSetsOrderedBySize().size());
-        assertEquals(0, share4.getDataSetsOrderedBySize().size());
         spaceProvider.assertIsSatiesfied();
-        context.assertIsSatisfied();
     }
     
-    private SimpleDataSetInformationDTO dataSet(String code, long size)
+    private SimpleDataSetInformationDTO dataSet(String code, String shareId, long size)
     {
         SimpleDataSetInformationDTO dataSet = new SimpleDataSetInformationDTO();
         dataSet.setDataSetCode(code);
+        dataSet.setDataSetShareId(shareId);
         dataSet.setDataSetLocation(STORE_PATH + code);
         dataSet.setDataSetSize(size);
+        dataSet.setDataStoreCode(DSS_CODE);
         return dataSet;
     }
 }

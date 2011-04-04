@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.etlserver.postregistration;
 
-import static ch.systemsx.cisd.etlserver.postregistration.PostRegistrationMaintenanceTask.CLEANUP_TASKS_FOLDER_PROPERTY;
+import static ch.systemsx.cisd.etlserver.postregistration.TaskExecutor.CLEANUP_TASKS_FOLDER_PROPERTY;
 import static ch.systemsx.cisd.etlserver.postregistration.PostRegistrationMaintenanceTask.LAST_SEEN_DATA_SET_FILE_PROPERTY;
 import static ch.systemsx.cisd.etlserver.postregistration.PostRegistrationMaintenanceTask.POST_REGISTRATION_TASKS_PROPERTY;
 
@@ -48,6 +48,7 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
+import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -60,7 +61,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder
  *
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses=PostRegistrationMaintenanceTask.class)
+@Friend(toClasses={PostRegistrationMaintenanceTask.class, TaskExecutor.class})
 public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestCase
 {
     private static final String TASK_1_NAME = "task 1";
@@ -78,7 +79,7 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
             this.name = name;
         }
 
-        public void cleanup()
+        public void cleanup(ISimpleLogger logger)
         {
             cleanupInvocations.add(name);
         }
@@ -251,7 +252,7 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
         maintenanceTask.setUp("post-registration", properties);
         maintenanceTask.execute();
         
-        AssertionUtil.assertContains("ERROR OPERATION.PostRegistrationMaintenanceTask - "
+        AssertionUtil.assertContains("ERROR OPERATION.TaskExecutor - "
                 + "Couldn't performed clean up task " + cleanupFile2, logRecorder.getLogContent());
         assertEquals(0, criteriaMatcher.recordedObject().getLastSeenDataSetId());
         assertEquals(true, maintenanceTask.requiresDataStoreLock());
@@ -462,8 +463,8 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
         assertEquals(false, maintenanceTask.requiresDataStoreLock());
         maintenanceTask.execute();
         
-        AssertionUtil.assertContains("ERROR OPERATION.PostRegistrationMaintenanceTask - "
-                + "Post registration task '2' for data set ds-2 failed.",
+        AssertionUtil.assertContains("ERROR OPERATION.TaskExecutor - "
+                + "Task '2' for data set ds-2 failed.",
                 logRecorder.getLogContent());
         AssertionUtil.assertContains("ERROR OPERATION.PostRegistrationMaintenanceTask - "
                 + "Because post registration task failed for data set ds-2 "

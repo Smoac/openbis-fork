@@ -25,8 +25,10 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IArchiverPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -148,7 +150,7 @@ public class ArchivingPostRegistrationTask extends AbstractPostRegistrationTask
             this.dataSetCode = dataSetCode;
         }
 
-        public void cleanup()
+        public void cleanup(ISimpleLogger logger)
         {
             IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
             boolean statusUpdated = openBISService
@@ -168,6 +170,7 @@ public class ArchivingPostRegistrationTask extends AbstractPostRegistrationTask
                         new DeletedDataSet(dataSetCode, dataSet.getDataSetLocation(), 0);
                 List<DeletedDataSet> dataSetAsList = Collections.singletonList(deletedDataset);
                 archiver.deleteFromArchive(dataSetAsList);
+                logger.log(LogLevel.INFO, "Data set " + dataSetCode + " deleted from archive.");
             }
         }
     }

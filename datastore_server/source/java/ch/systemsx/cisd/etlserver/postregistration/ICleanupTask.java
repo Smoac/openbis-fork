@@ -18,6 +18,8 @@ package ch.systemsx.cisd.etlserver.postregistration;
 
 import java.io.Serializable;
 
+import ch.systemsx.cisd.common.logging.ISimpleLogger;
+
 /**
  * Interface for cleanup tasks. Clean up tasks have to be {@link Serializable} because they are made
  * persistent.
@@ -37,6 +39,8 @@ public interface ICleanupTask extends Serializable
      * Clean up stuff an interrupted {@link IPostRegistrationTaskExecutor#execute()} has created.
      * This method should not throw an exception if there is nothing to clean up or the clean up
      * state is invalid.
+     * 
+     * @param logger Logger which can be used to log what has been done.
      */
-    public void cleanup();
+    public void cleanup(ISimpleLogger logger);
 }

@@ -62,6 +62,10 @@ public class SegmentedStoreShufflingTask implements IDataStoreLockingMaintenance
         {
             private static final int N = 3;
 
+            public void init(ISimpleLogger logger)
+            {
+            }
+
             public void shuffleDataSets(List<Share> sourceShares, List<Share> targetShares,
                     IEncapsulatedOpenBISService service, IDataSetMover dataSetMover,
                     ISimpleLogger logger)
@@ -162,6 +166,7 @@ public class SegmentedStoreShufflingTask implements IDataStoreLockingMaintenance
                             + storeRoot.getAbsolutePath());
         }
         shuffling = createShuffling(properties);
+        shuffling.init(operationLogger);
         operationLog.info("Plugin '" + pluginName + "' initialized: shuffling strategy: "
                 + shuffling.getClass().getName() + ", data store code: " + dataStoreCode
                 + ", data store root: " + storeRoot.getAbsolutePath() + ", incoming shares: "

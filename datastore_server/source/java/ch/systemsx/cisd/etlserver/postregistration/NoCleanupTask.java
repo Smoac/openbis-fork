@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.etlserver.postregistration;
 
+import ch.systemsx.cisd.common.logging.ISimpleLogger;
+
 /**
  * An implementation of {@link ICleanupTask} which does nothing.
  *
@@ -25,7 +27,7 @@ public class NoCleanupTask implements ICleanupTask
 {
     private static final long serialVersionUID = 1L;
 
-    public void cleanup()
+    public void cleanup(ISimpleLogger logger)
     {
     }
 

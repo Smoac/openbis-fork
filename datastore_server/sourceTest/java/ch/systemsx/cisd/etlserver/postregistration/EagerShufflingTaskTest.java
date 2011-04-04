@@ -132,7 +132,7 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
         executor.createCleanupTask();
         executor.execute();
         
-        assertEquals("Data set ds-1 succesffully moved from share 1 to 4.",
+        assertEquals("Data set ds-1 successfully moved from share 1 to 4.",
                 infoMessageMatcher.recordedObject());
         assertHostAwareFile(hostAwareFileMatcher);
         context.assertIsSatisfied();
@@ -160,7 +160,7 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
         executor.createCleanupTask();
         executor.execute();
 
-        assertEquals("Data set ds-1 succesffully moved from share 1 to 2.",
+        assertEquals("Data set ds-1 successfully moved from share 1 to 2.",
                 infoMessageMatcher.recordedObject());
         assertHostAwareFile(hostAwareFileMatcher);
         context.assertIsSatisfied();

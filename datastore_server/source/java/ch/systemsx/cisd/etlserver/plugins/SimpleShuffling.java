@@ -18,7 +18,6 @@ package ch.systemsx.cisd.etlserver.plugins;
 
 import static ch.systemsx.cisd.common.logging.LogLevel.INFO;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -28,11 +27,15 @@ import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
-import ch.systemsx.cisd.common.utilities.ITimeProvider;
+import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
+import ch.systemsx.cisd.etlserver.postregistration.EagerShufflingTask;
+import ch.systemsx.cisd.etlserver.postregistration.IPostRegistrationTask;
+import ch.systemsx.cisd.etlserver.postregistration.TaskExecutor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
@@ -47,20 +50,15 @@ public class SimpleShuffling implements ISegmentedStoreShuffling
     @Private
     static final String MINIMUM_FREE_SPACE_KEY = "minimum-free-space-in-MB";
 
-    private static final class ShareState
+    private static final class ShareAndFreeSpace
     {
         private final Share share;
 
         private long freeSpace;
 
-        ShareState(Share share)
+        ShareAndFreeSpace(Share share)
         {
             this.share = share;
-            recalculateFreeSpace();
-        }
-
-        private void recalculateFreeSpace()
-        {
             freeSpace = share.calculateFreeSpace();
         }
 
@@ -73,50 +71,38 @@ public class SimpleShuffling implements ISegmentedStoreShuffling
         {
             return share;
         }
-
-        void removeDataSet(int dataSetIndex)
-        {
-            share.getDataSetsOrderedBySize().remove(dataSetIndex);
-            recalculateFreeSpace();
-        }
-
-        void addDataSet(SimpleDataSetInformationDTO dataSet)
-        {
-            List<SimpleDataSetInformationDTO> dataSets = share.getDataSetsOrderedBySize();
-            int index = Collections.binarySearch(dataSets, dataSet, Share.DATA_SET_SIZE_COMPARATOR);
-            if (index < 0)
-            {
-                index = -index - 1;
-            }
-            dataSets.add(index, dataSet);
-            recalculateFreeSpace();
-        }
     }
 
     private final long minimumFreeSpace;
 
-    private final ITimeProvider timeProvider;
+    private IPostRegistrationTask shufflingTask;
+
+    private TaskExecutor taskExecutor;
 
     public SimpleShuffling(Properties properties)
     {
-        this(properties, SystemTimeProvider.SYSTEM_TIME_PROVIDER);
+        this(properties, new EagerShufflingTask(properties, ServiceProvider.getOpenBISService()));
     }
 
-    SimpleShuffling(Properties properties, ITimeProvider timeProvider)
+    SimpleShuffling(Properties properties, IPostRegistrationTask shufflingTask)
     {
-        this.timeProvider = timeProvider;
+        this.shufflingTask = shufflingTask;
         minimumFreeSpace =
                 FileUtils.ONE_MB * PropertyUtils.getLong(properties, MINIMUM_FREE_SPACE_KEY, 1024);
+        taskExecutor = new TaskExecutor(properties);
+    }
 
+    public void init(ISimpleLogger logger)
+    {
+        taskExecutor.cleanup();
+        logger.log(LogLevel.INFO, "Simple shuffling strategy initialized");
     }
 
     public void shuffleDataSets(List<Share> sourceShares, List<Share> targetShares,
             IEncapsulatedOpenBISService service, IDataSetMover dataSetMover, ISimpleLogger logger)
     {
-        List<ShareState> shareStates = getSortedShares(targetShares);
-        ShareState shareWithMostFree = shareStates.get(shareStates.size() - 1);
-        List<ShareState> fullShares = getFullShares(sourceShares);
-        for (ShareState fullShare : fullShares)
+        List<ShareAndFreeSpace> fullShares = getFullShares(sourceShares);
+        for (ShareAndFreeSpace fullShare : fullShares)
         {
             List<SimpleDataSetInformationDTO> dataSets =
                     fullShare.getShare().getDataSetsOrderedBySize();
@@ -135,10 +121,13 @@ public class SimpleShuffling implements ISegmentedStoreShuffling
             }
             for (int i = 0; i < numberOfDataSetsToMove; i++)
             {
-                long dataSetSize = dataSets.get(i).getDataSetSize();
-                if (shareWithMostFree.getFreeSpace() - dataSetSize > minimumFreeSpace)
+                SimpleDataSetInformationDTO dataSet = dataSets.get(i);
+                try
                 {
-                    copy(fullShare, 0, shareWithMostFree, dataSetMover, logger);
+                    taskExecutor.execute(shufflingTask, "shuffling", dataSet.getDataSetCode());
+                } catch (Throwable ex)
+                {
+                    throw CheckedExceptionTunnel.wrapIfNecessary(ex);
                 }
             }
         }
@@ -170,30 +159,10 @@ public class SimpleShuffling implements ISegmentedStoreShuffling
         return freeSpaceAboveMinimum > 0 ? dataSets.size() : -1;
     }
 
-    private void copy(ShareState from, int dataSetIndex, ShareState to, IDataSetMover mover,
-            ISimpleLogger logger)
+    private List<ShareAndFreeSpace> getFullShares(List<Share> sourceShares)
     {
-        Share fromShare = from.getShare();
-        Share toShare = to.getShare();
-        SimpleDataSetInformationDTO dataSet =
-                fromShare.getDataSetsOrderedBySize().get(dataSetIndex);
-        File dataSetDirInStore = new File(fromShare.getShare(), dataSet.getDataSetLocation());
-        String commonMessage =
-                "Copying data set " + dataSet.getDataSetCode() + " from share "
-                        + fromShare.getShareId() + " to share " + toShare.getShareId();
-        logger.log(INFO, commonMessage + " ...");
-        long t0 = timeProvider.getTimeInMilliseconds();
-        mover.moveDataSetToAnotherShare(dataSetDirInStore, toShare.getShare(), logger);
-        from.removeDataSet(dataSetIndex);
-        to.addDataSet(dataSet);
-        logger.log(INFO, commonMessage + " took "
-                + ((timeProvider.getTimeInMilliseconds() - t0 + 500) / 1000) + " seconds.");
-    }
-
-    private List<ShareState> getFullShares(List<Share> sourceShares)
-    {
-        List<ShareState> fullShares = new ArrayList<ShareState>();
-        for (ShareState shareState : getSortedShares(sourceShares))
+        List<ShareAndFreeSpace> fullShares = new ArrayList<ShareAndFreeSpace>();
+        for (ShareAndFreeSpace shareState : getSortedShares(sourceShares))
         {
             if (shareState.getFreeSpace() < minimumFreeSpace)
             {
@@ -203,16 +172,16 @@ public class SimpleShuffling implements ISegmentedStoreShuffling
         return fullShares;
     }
 
-    private List<ShareState> getSortedShares(List<Share> shares)
+    private List<ShareAndFreeSpace> getSortedShares(List<Share> shares)
     {
-        List<ShareState> shareStates = new ArrayList<ShareState>();
+        List<ShareAndFreeSpace> shareStates = new ArrayList<ShareAndFreeSpace>();
         for (Share share : shares)
         {
-            shareStates.add(new ShareState(share));
+            shareStates.add(new ShareAndFreeSpace(share));
         }
-        Collections.sort(shareStates, new Comparator<ShareState>()
+        Collections.sort(shareStates, new Comparator<ShareAndFreeSpace>()
             {
-                public int compare(ShareState o1, ShareState o2)
+                public int compare(ShareAndFreeSpace o1, ShareAndFreeSpace o2)
                 {
                     long s1 = o1.getFreeSpace();
                     long s2 = o2.getFreeSpace();

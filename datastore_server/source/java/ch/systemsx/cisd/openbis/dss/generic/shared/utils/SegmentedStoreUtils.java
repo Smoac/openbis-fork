@@ -222,8 +222,8 @@ public class SegmentedStoreUtils
      * <li>Copying data set to new share.
      * <li>Sanity check of successfully copied data set.
      * <li>Changing share id in openBIS AS.
-     * <li>Spawn an asynchronous task which deletes the data set at the old location if all locks on
-     * the data set have been released.
+     * <li>Deletes the data set at the old location after all locks on the data set have been
+     * released.
      * </ol>
      * 
      * @param service to access openBIS AS.
@@ -249,13 +249,7 @@ public class SegmentedStoreUtils
         String shareId = share.getName();
         shareIdManager.setShareId(dataSetCode, shareId);
         service.updateShareIdAndSize(dataSetCode, shareId, size);
-        new Thread(new Runnable()
-            {
-                public void run()
-                {
-                    deleteDataSet(dataSetCode, dataSetDirInStore, shareIdManager, logger);
-                }
-            }).start();
+        deleteDataSet(dataSetCode, dataSetDirInStore, shareIdManager, logger);
     }
 
     /**
@@ -280,6 +274,25 @@ public class SegmentedStoreUtils
             logger.log(LogLevel.WARN, "Deletion of data set " + dataSetCode + " at "
                     + dataSetDirInStore + " failed.");
         }
+    }
+
+    public static void cleanUp(SimpleDataSetInformationDTO dataSet, File storeRoot,
+            String newShareId, IShareIdManager shareIdManager, ISimpleLogger logger)
+    {
+        String dataSetCode = dataSet.getDataSetCode();
+        String shareId = shareIdManager.getShareId(dataSetCode);
+        String oldShareId = dataSet.getDataSetShareId();
+        boolean currentIsOld = shareId.equals(oldShareId);
+        boolean currentIsNew = shareId.equals(newShareId);
+        if (currentIsOld == false && currentIsNew == false)
+        {
+            logger.log(LogLevel.WARN, "No clean up will be performed because data set "
+                    + dataSetCode + " is neither in share " + oldShareId + " nor in share "
+                    + newShareId + " but in share " + shareId + ".");
+            return;
+        }
+        File shareFolder = new File(storeRoot, currentIsOld ? newShareId : oldShareId);
+        deleteDataSet(dataSetCode, new File(shareFolder, dataSet.getDataSetLocation()), shareIdManager, logger);
     }
 
     private static void copyToShare(File file, File share)

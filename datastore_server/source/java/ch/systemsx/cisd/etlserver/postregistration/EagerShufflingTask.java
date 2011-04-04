@@ -52,7 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
  */
 public class EagerShufflingTask extends AbstractPostRegistrationTask
 {
-    @Private static final String SHARE_FINDER_KEY = "share-finder";
+    @Private public static final String SHARE_FINDER_KEY = "share-finder";
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             EagerShufflingTask.class);
@@ -97,7 +97,7 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
                 new Log4jSimpleLogger(operationLog));
     }
 
-    EagerShufflingTask(Properties properties, Set<String> incomingShares,
+    @Private public EagerShufflingTask(Properties properties, Set<String> incomingShares,
             IEncapsulatedOpenBISService service, IShareIdManager shareIdManager,
             IFreeSpaceProvider freeSpaceProvider, IDataSetMover dataSetMover,
             IConfigProvider configProvider, ISimpleLogger logger)
@@ -143,7 +143,6 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
         Executor(String dataSetCode)
         {
             this.dataSetCode = dataSetCode;
-            
         }
 
         public ICleanupTask createCleanupTask()
@@ -163,12 +162,7 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
                         + ".");
                 return new NoCleanupTask();
             }
-            return new NoCleanupTask();
-            // TODO, 2011-03-28, FJE: A better CleanupTask class is needed because
-            // I'm not 100% sure that the data set might be delete in the new share even though 
-            // shuffling is almost finished. 
-            // The worst case is that the data set is deleted in both shares.
-//            return new CleanupTask(dataSet, storeRoot, shareWithMostFreeOrNull.getShareId());
+            return new CleanupTask(dataSet, storeRoot, shareWithMostFreeOrNull.getShareId());
         }
         
         public void execute()
@@ -180,40 +174,33 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
                         new File(share, dataSet.getDataSetLocation()),
                         shareWithMostFreeOrNull.getShare(), logger);
                 logger.log(LogLevel.INFO, "Data set " + dataSetCode
-                        + " succesffully moved from share " + dataSet.getDataSetShareId() + " to "
+                        + " successfully moved from share " + dataSet.getDataSetShareId() + " to "
                         + shareWithMostFreeOrNull.getShareId() + ".");
             }
         }
     }
     
     
-//    private static final class CleanupTask implements ICleanupTask
-//    {
-//        private static final long serialVersionUID = 1L;
-//
-//        private final SimpleDataSetInformationDTO dataSet;
-//        private final File storeRoot;
-//        private final String newShareId;
-//        
-//        CleanupTask(SimpleDataSetInformationDTO dataSet, File storeRoot, String newShareId)
-//        {
-//            this.dataSet = dataSet;
-//            this.storeRoot = storeRoot;
-//            this.newShareId = newShareId;
-//        }
-//
-//        public void cleanup()
-//        {
-//            IShareIdManager shareIdManager = ServiceProvider.getShareIdManager();
-//            String currentShareId =
-//                    shareIdManager.getShareId(dataSet.getDataSetCode());
-//            if (currentShareId.equals(newShareId) == false)
-//            {
-//                File dataSetFolder =
-//                        new File(new File(storeRoot, newShareId), dataSet.getDataSetLocation());
-//                FileUtilities.deleteRecursively(dataSetFolder);
-//            }
-//        }
-//    }
+    private static final class CleanupTask implements ICleanupTask
+    {
+        private static final long serialVersionUID = 1L;
+
+        private final SimpleDataSetInformationDTO dataSet;
+        private final File storeRoot;
+        private final String newShareId;
+        
+        CleanupTask(SimpleDataSetInformationDTO dataSet, File storeRoot, String newShareId)
+        {
+            this.dataSet = dataSet;
+            this.storeRoot = storeRoot;
+            this.newShareId = newShareId;
+        }
+
+        public void cleanup(ISimpleLogger logger)
+        {
+            IShareIdManager shareIdManager = ServiceProvider.getShareIdManager();
+            SegmentedStoreUtils.cleanUp(dataSet, storeRoot, newShareId, shareIdManager, logger);
+        }
+    }
 
 }

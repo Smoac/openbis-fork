@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.etlserver.plugins;
 
-import static ch.systemsx.cisd.etlserver.plugins.SegmentedStoreShufflingTask.SHUFFLING_SECTION_NAME;
 import static ch.systemsx.cisd.etlserver.plugins.SegmentedStoreShufflingTask.CLASS_PROPERTY_NAME;
+import static ch.systemsx.cisd.etlserver.plugins.SegmentedStoreShufflingTask.SHUFFLING_SECTION_NAME;
 
 import java.io.File;
 import java.util.Arrays;
@@ -55,6 +55,7 @@ public class SegmentedStoreShufflingTaskTest extends AbstractFileSystemTestCase
     public static final class Balancer implements ISegmentedStoreShuffling
     {
         private final Properties properties;
+        private boolean initialized;
         private List<Share> sourceShares;
         private List<Share> targetShares;
         private IEncapsulatedOpenBISService service;
@@ -64,6 +65,11 @@ public class SegmentedStoreShufflingTaskTest extends AbstractFileSystemTestCase
         public Balancer(Properties properties)
         {
             this.properties = properties;
+        }
+
+        public void init(ISimpleLogger l)
+        {
+            initialized = true;
         }
 
         public void shuffleDataSets(List<Share> sources, List<Share> targets,
@@ -158,6 +164,7 @@ public class SegmentedStoreShufflingTaskTest extends AbstractFileSystemTestCase
         assertSame(service, balancer.service);
         assertSame(dataSetMover, balancer.dataSetMover);
         assertSame(logger, balancer.logger);
+        assertEquals(true, balancer.initialized);
         context.assertIsSatisfied();
     }
     

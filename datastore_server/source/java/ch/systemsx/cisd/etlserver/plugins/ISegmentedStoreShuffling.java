@@ -31,6 +31,11 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 public interface ISegmentedStoreShuffling
 {
     /**
+     * Initialize this instance.
+     */
+    public void init(ISimpleLogger logger);
+    
+    /**
      * Moves data sets from source shares to some target shares if necessary.
      */
     public void shuffleDataSets(List<Share> sourceShares, List<Share> targetShares,
