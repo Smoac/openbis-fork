@@ -81,19 +81,43 @@ public class ImageReaderFactory
      * 
      * @throws IllegalArgumentException if libraryName does not specify a valid library name.
      */
-    public static IImageReader tryGetImageReaderForFile(String libraryName, String fileName)
+    public static IImageReader tryGetReaderForFile(String libraryName, String fileName)
     {
         IImageReaderLibrary library = findLibrary(libraryName);
         return (library == null) ? null : library.tryGetReaderForFile(fileName);
     }
 
+    /**
+     * Iterates over all available reader libraries and tries to find a suitable reader for a
+     * specified <var>fileName</var>. May return <code>null</code> if no suitable reader is found.
+     * <p>
+     * The method produces non-deterministic results as it relies upon an arbitrary ordering of the
+     * known image libraries, where the first library to return a valid image reader "wins".
+     * <p>
+     * The behavior of this method may vary across libraries. For example, some image libraries can
+     * use the suffix of <var>fileName</var> to find the right reader, while others might attempt to
+     * open the file and apply heuristics on its content to determine the appropriate reader.
+     * 
+     * @throws IllegalArgumentException if libraryName does not specify a valid library name.
+     */
+    public static IImageReader tryGetReaderForFile(String fileName)
+    {
+        for (IImageReaderLibrary library : libraries)
+        {
+            IImageReader imageReader = library.tryGetReaderForFile(fileName);
+            if (imageReader != null)
+            {
+                return imageReader;
+            }
+        }
+        return null;
+    }
+
     private static IImageReaderLibrary findLibrary(String libraryName)
             throws IllegalArgumentException
     {
-        Iterator<IImageReaderLibrary> iterator = libraries.iterator();
-        while (iterator.hasNext())
+        for (IImageReaderLibrary library : libraries)
         {
-            IImageReaderLibrary library = iterator.next();
             if (library.getName().equalsIgnoreCase(libraryName))
             {
                 return library;

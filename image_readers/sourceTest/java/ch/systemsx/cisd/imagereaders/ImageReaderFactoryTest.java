@@ -67,10 +67,26 @@ public class ImageReaderFactoryTest extends AbstractImageReaderFactoryTest
         }
     }
 
+    @Test
+    public void testFindWithoutLibraryName() throws Exception
+    {
+        String tiffFileName = "./demo.tiff";
+        ImageReadersTestHelper.setUpLibraries(ImageReaderConstants.IMAGEIO_LIBRARY);
+
+        assertNull("ImageIO library should not return TIFF readers",
+                ImageReaderFactory.tryGetReaderForFile(tiffFileName));
+
+        ImageReadersTestHelper.setUpLibraries(ImageReaderConstants.JAI_LIBRARY);
+
+        assertNotNull("JAI library should return TIFF readers",
+                ImageReaderFactory.tryGetReaderForFile(tiffFileName));
+
+    }
+
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void testGetInvalidLibrary()
     {
-        ImageReaderFactory.tryGetImageReaderForFile("invalid_library", null);
+        ImageReaderFactory.tryGetReaderForFile("invalid_library", null);
     }
 
     @Test(expectedExceptions = IOExceptionUnchecked.class)
@@ -80,7 +96,7 @@ public class ImageReaderFactoryTest extends AbstractImageReaderFactoryTest
         final File invalidFile = new File(invalidName);
 
         IImageReader reader =
-                ImageReaderFactory.tryGetImageReaderForFile(BIOFORMATS_LIBRARY, invalidName);
+                ImageReaderFactory.tryGetReaderForFile(BIOFORMATS_LIBRARY, invalidName);
         reader.readImage(invalidFile, null);
     }
 
@@ -97,7 +113,7 @@ public class ImageReaderFactoryTest extends AbstractImageReaderFactoryTest
     private void assertImageReadable(String libraryName, File file)
     {
         IImageReader reader =
-                ImageReaderFactory.tryGetImageReaderForFile(libraryName, file.getAbsolutePath());
+                ImageReaderFactory.tryGetReaderForFile(libraryName, file.getAbsolutePath());
         String error =
                 String.format("Cannot find appropriate reader for file '%s' " + "in library '%s'",
                         file.getAbsolutePath(), libraryName);
@@ -114,7 +130,7 @@ public class ImageReaderFactoryTest extends AbstractImageReaderFactoryTest
     private void assertNoReaderFor(String library, File file)
     {
         IImageReader reader =
-                ImageReaderFactory.tryGetImageReaderForFile(library, file.getAbsolutePath());
+                ImageReaderFactory.tryGetReaderForFile(library, file.getAbsolutePath());
         String error =
                 String.format("Library file '%s' " + " cannot read file '%s',"
                         + " but returns a non-null image reader.", library, file.getAbsolutePath());

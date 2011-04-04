@@ -158,7 +158,7 @@ public class BioFormatsMetaDataReadingTest extends AbstractImageReaderFactoryTes
         ImageReadersTestHelper.setUpLibraries(ImageReaderConstants.BIOFORMATS_LIBRARY);
 
         IImageReader reader =
-                ImageReaderFactory.tryGetImageReaderForFile(ImageReaderConstants.BIOFORMATS_LIBRARY,
+                ImageReaderFactory.tryGetReaderForFile(ImageReaderConstants.BIOFORMATS_LIBRARY,
                         imageFile.getAbsolutePath());
         return reader;
     }

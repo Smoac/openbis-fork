@@ -62,7 +62,7 @@ public class BioFormatsImageJImageViewer
 
         final String fileName = args[0];
         IImageReader imageReader =
-                ImageReaderFactory.tryGetImageReaderForFile(ImageReaderConstants.BIOFORMATS_LIBRARY,
+                ImageReaderFactory.tryGetReaderForFile(ImageReaderConstants.BIOFORMATS_LIBRARY,
                         fileName);
 
         File file = new File(fileName);
