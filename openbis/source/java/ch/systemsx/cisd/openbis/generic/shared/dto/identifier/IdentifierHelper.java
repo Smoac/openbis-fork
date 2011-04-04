@@ -108,13 +108,17 @@ public final class IdentifierHelper
         final Space space = sample.getSpace();
         if (space != null)
         {
+            DatabaseInstanceIdentifier instanceIdentifier =
+                    space.getInstance().isHomeDatabase() ? DatabaseInstanceIdentifier.HOME_INSTANCE
+                            : new DatabaseInstanceIdentifier(space.getInstance().getCode());
             GroupIdentifier groupIdentifier =
-                    new GroupIdentifier(space.getInstance().getCode(), space.getCode());
+                    new GroupIdentifier(instanceIdentifier, space.getCode());
             return new SampleIdentifier(groupIdentifier, sample.getCode());
         } else
         {
             DatabaseInstanceIdentifier instanceIdentifier =
-                    new DatabaseInstanceIdentifier(sample.getDatabaseInstance().getCode());
+                    (sample.getDatabaseInstance().isHomeDatabase()) ? DatabaseInstanceIdentifier.HOME_INSTANCE
+                            : new DatabaseInstanceIdentifier(sample.getDatabaseInstance().getCode());
             return new SampleIdentifier(instanceIdentifier, sample.getCode());
         }
     }

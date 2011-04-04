@@ -51,8 +51,6 @@ public class SampleBrowsingTest extends GenericSystemTestCase
 {
     private static final boolean DEBUG = false;
 
-    private static final String DEFAULT_INSTANCE = "CISD";
-
     private static final String DEFAULT_GROUP = "CISD";
 
     private static final String DEFAULT_PLATE_GEOMETRY_VALUE = "384_WELLS_16X24";
@@ -94,10 +92,10 @@ public class SampleBrowsingTest extends GenericSystemTestCase
         // test that 3 parents of a 'REINFECT_PLATE' are loaded
         Sample s3 = getSample(list, createSampleIdentifier("RP1-A2X"));
         assertEquals("REINFECT_PLATE", s3.getSampleType().getCode());
-        assertEquals("CISD:/CISD/CP1-A2", s3.getGeneratedFrom().getIdentifier());
-        assertEquals("CISD:/CISD/DP1-A", s3.getGeneratedFrom().getGeneratedFrom().getIdentifier());
-        assertEquals("CISD:/CISD/MP1-MIXED", s3.getGeneratedFrom().getGeneratedFrom()
-                .getGeneratedFrom().getIdentifier());
+        assertEquals("/CISD/CP1-A2", s3.getGeneratedFrom().getIdentifier());
+        assertEquals("/CISD/DP1-A", s3.getGeneratedFrom().getGeneratedFrom().getIdentifier());
+        assertEquals("/CISD/MP1-MIXED", s3.getGeneratedFrom().getGeneratedFrom().getGeneratedFrom()
+                .getIdentifier());
     }
 
     @Test
@@ -170,7 +168,7 @@ public class SampleBrowsingTest extends GenericSystemTestCase
         Sample s = getSample(list, createSampleIdentifier("3VCP1"));
         assertNotNull(s.getInvalidation());
         assertEquals("/CISD/NEMO/EXP1", s.getExperiment().getIdentifier());
-        assertEquals("CISD:/CISD/3V-123", s.getGeneratedFrom().getIdentifier());
+        assertEquals("/CISD/3V-123", s.getGeneratedFrom().getIdentifier());
         assertNull(s.getGeneratedFrom().getGeneratedFrom());
     }
 
@@ -203,18 +201,17 @@ public class SampleBrowsingTest extends GenericSystemTestCase
 
     private static String createSampleIdentifier(String sampleCode)
     {
-        return createSampleIdentifier(DEFAULT_INSTANCE, DEFAULT_GROUP, sampleCode);
+        return createSampleIdentifier(DEFAULT_GROUP, sampleCode);
     }
 
     private static String createSharedSampleIdentifier(String sampleCode)
     {
-        return createSampleIdentifier(DEFAULT_INSTANCE, null, sampleCode);
+        return createSampleIdentifier(null, sampleCode);
     }
 
-    private static String createSampleIdentifier(String instanceCode, String spaceCode,
-            String sampleCode)
+    private static String createSampleIdentifier(String spaceCode, String sampleCode)
     {
-        return instanceCode + ":/" + (spaceCode == null ? "" : spaceCode + "/") + sampleCode;
+        return "/" + (spaceCode == null ? "" : spaceCode + "/") + sampleCode;
     }
 
     private SampleType getAllSampleType()

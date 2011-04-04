@@ -29,6 +29,8 @@ public class DatabaseInstance extends Code<DatabaseInstance>
 
     private String identifier;
 
+    private boolean isHomeDatabase;
+
     public final String getUuid()
     {
         return uuid;
@@ -57,5 +59,15 @@ public class DatabaseInstance extends Code<DatabaseInstance>
     public void setId(Long id)
     {
         this.id = id;
+    }
+
+    public boolean isHomeDatabase()
+    {
+        return isHomeDatabase;
+    }
+
+    public void setHomeDatabase(boolean isHomeDatabase)
+    {
+        this.isHomeDatabase = isHomeDatabase;
     }
 }

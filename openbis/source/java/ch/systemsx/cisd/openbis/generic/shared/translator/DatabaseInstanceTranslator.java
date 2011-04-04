@@ -44,6 +44,7 @@ public final class DatabaseInstanceTranslator
         result.setId(HibernateUtils.getId(databaseInstance));
         result.setCode(databaseInstance.getCode());
         result.setUuid(databaseInstance.getUuid());
+        result.setHomeDatabase(databaseInstance.isOriginalSource());
         result.setIdentifier(IdentifierHelper.createDatabaseInstanceIdentifier(databaseInstance)
                 .toString());
         return result;

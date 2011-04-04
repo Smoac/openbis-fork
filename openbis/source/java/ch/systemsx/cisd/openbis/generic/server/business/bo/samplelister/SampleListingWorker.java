@@ -53,10 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
  * A business worker object for fast sample listing. It has only one interface method, which is
@@ -626,17 +623,21 @@ final class SampleListingWorker extends AbstractLister
     private void setSpace(final Sample sample, final Space space)
     {
         sample.setSpace(space);
-        final GroupIdentifier groupId =
-                new GroupIdentifier(databaseInstance.getCode(), space.getCode());
-        sample.setIdentifier(new SampleIdentifier(groupId, sample.getCode()).toString());
+        // final DatabaseInstanceIdentifier dbId =
+        // databaseInstance.isHomeDatabase() ? DatabaseInstanceIdentifier.HOME_INSTANCE
+        // : new DatabaseInstanceIdentifier(databaseInstance.getCode());
+        // final GroupIdentifier groupId = new GroupIdentifier(dbId, space.getCode());
+        sample.setIdentifier(IdentifierHelper.createSampleIdentifier(sample).toString());
     }
 
     private void setDatabaseInstance(final Sample sample)
     {
         sample.setDatabaseInstance(databaseInstance);
-        final DatabaseInstanceIdentifier dbId =
-                new DatabaseInstanceIdentifier(databaseInstance.getCode());
-        sample.setIdentifier(new SampleIdentifier(dbId, sample.getCode()).toString());
+        // final DatabaseInstanceIdentifier dbId =
+        // databaseInstance.isHomeDatabase() ? DatabaseInstanceIdentifier.HOME_INSTANCE
+        // : new DatabaseInstanceIdentifier(databaseInstance.getCode());
+        sample.setIdentifier(IdentifierHelper.createSampleIdentifier(sample).toString());
+        // new SampleIdentifier(dbId, sample.getCode()).toString());
     }
 
     private void addRelatedContainerSampleToRequested(long containerId)

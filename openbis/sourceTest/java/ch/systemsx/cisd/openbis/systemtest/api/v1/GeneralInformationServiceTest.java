@@ -110,7 +110,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "*"));
         List<Sample> result = generalInformationService.searchForSamples(sessionToken, sc);
         assertEquals(true, result.size() > 0);
-        String expectedSampleIdentifier = "CISD:/CISD/CL1";
+        String expectedSampleIdentifier = "/CISD/CL1";
         for (Sample sample : result)
         {
             if (expectedSampleIdentifier.equals(sample.getIdentifier()))
