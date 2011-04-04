@@ -124,10 +124,7 @@ public class DataSetFileOperationsManager
         try
         {
             File destinationFolder = new File(destination, dataset.getDataSetLocation());
-            if (false == createFolderIfNotExists(destinationFolder.getParentFile()))
-            {
-                deleteFolderIfExists(destinationFolder);
-            }
+            createFolderIfNotExists(destinationFolder.getParentFile());
             operationLog.info("Copy dataset '" + dataset.getDatasetCode() + "' from '"
                     + originalData.getPath() + "' to '" + destinationFolder.getParentFile());
             executor.copyDataSetToDestination(originalData, destinationFolder.getParentFile());
@@ -214,15 +211,6 @@ public class DataSetFileOperationsManager
         {
             operationLog.error("Destination folder '" + destinationFolder + "' doesn't exist");
             throw new ExceptionWithStatus(Status.createError(DESTINATION_DOES_NOT_EXIST));
-        }
-    }
-
-    private void deleteFolderIfExists(File destinationFolder)
-    {
-        BooleanStatus destinationExists = destinationExists(destinationFolder);
-        if (destinationExists.isSuccess())
-        {
-            executor.deleteFolder(destinationFolder);
         }
     }
 

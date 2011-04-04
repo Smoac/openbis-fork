@@ -516,18 +516,11 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(Status.OK));
 
                     /*
-                     * ds2: directory exists in archive -> delete and copy
+                     * ds2: directory exists in archive -> just copy
                      */
                     one(sshExecutor).exists(ds2ArchivedLocationFile.getParentFile().getPath(),
                             SSH_TIMEOUT_MILLIS);
                     will(returnValue(BooleanStatus.createTrue()));
-
-                    one(sshExecutor).exists(ds2ArchivedLocationFile.getPath(), SSH_TIMEOUT_MILLIS);
-                    will(returnValue(BooleanStatus.createTrue()));
-
-                    one(sshExecutor).executeCommandRemotely(
-                            "rm -rf " + ds2ArchivedLocationFile.getPath(), SSH_TIMEOUT_MILLIS);
-                    will(returnValue(OK_RESULT));
 
                     one(copier).copyToRemote(ds2Location, ds2ArchivedLocationFile.getParentFile(),
                             HOST, null, null);
