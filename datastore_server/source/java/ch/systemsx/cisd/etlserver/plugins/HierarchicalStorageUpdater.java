@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.etlserver.plugins;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,6 +27,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -185,7 +187,7 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
      */
     private void rebuildHierarchy()
     {
-        logInfo(REBUILDING_HIERARCHICAL_STORAGE);
+        operationLog.info(REBUILDING_HIERARCHICAL_STORAGE);
         Map<String, String> newLinkMappings = convertDataToLinkMappings();
         Set<String> toCreate = new HashSet<String>(newLinkMappings.keySet());
         Set<String> toDelete = linkNamingStrategy.extractPaths(hierarchyRoot);
@@ -193,7 +195,7 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
         toCreate.removeAll(dontTouch);
         toDelete.removeAll(dontTouch);
         removeUnnecessaryMappings(newLinkMappings, toCreate);
-        deleteObsoleteLinks(hierarchyRoot, toDelete);
+        deleteObsoleteLinks(toDelete);
         createLinksForChangedData(newLinkMappings);
     }
 
@@ -275,7 +277,7 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
      * Removes from the <code>linkMappings</code> map all the elements with keys not belonging to
      * <code>keep</code> set.
      */
-    private static void removeUnnecessaryMappings(Map<String, String> linkMappings, Set<String> keep)
+    private void removeUnnecessaryMappings(Map<String, String> linkMappings, Set<String> keep)
     {
         Set<String> keys = new HashSet<String>(linkMappings.keySet());
         for (String path : keys)
@@ -290,7 +292,7 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
     /**
      * Creates a new {@link Set} containing the elements that belong to both {@link Set}s.
      */
-    private static Set<String> intersection(Set<String> setA, Set<String> setB)
+    private Set<String> intersection(Set<String> setA, Set<String> setB)
     {
         Set<String> toBeUntouched = new HashSet<String>(setA);
         toBeUntouched.retainAll(setB);
@@ -301,15 +303,14 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
      * Recursively removes from the file system files with paths defined in <code>toBeDeleted</code>
      * {@link Set}.
      */
-    private static void deleteObsoleteLinks(File hierarchyRoot, Set<String> toBeDeleted)
+    private void deleteObsoleteLinks(Set<String> toBeDeleted)
     {
         for (String pathToDelete : toBeDeleted)
         {
             File toDelete = new File(pathToDelete);
             File parent = toDelete.getParentFile();
             deleteWithSymbolicLinks(toDelete);
-            while (parent != null
-                    && parent.getAbsolutePath().equals(hierarchyRoot.getAbsolutePath()) == false)
+            while (parent != null && false == isSameFile(parent, hierarchyRoot))
             {
                 if (parent.list().length == 0)
                 {
@@ -324,7 +325,18 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
         }
     }
 
-    private static void deleteWithSymbolicLinks(File toDelete)
+    private boolean isSameFile(File file1, File file2)
+    {
+        try
+        {
+            return file1.getCanonicalPath().equals(file2.getCanonicalPath());
+        } catch (IOException ioex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ioex);
+        }
+    }
+
+    private void deleteWithSymbolicLinks(File toDelete)
     {
         if (toDelete.isDirectory())
         {
@@ -343,9 +355,9 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
         delete(toDelete);
     }
 
-    private static boolean delete(File file)
+    private boolean delete(File file)
     {
-        if (FileUtilities.isSymbolicLink(file) || file.isDirectory())
+        if (canBeDeleted(file))
         {
             operationLog.info("Deleting " + file.getAbsolutePath());
             return file.delete();
@@ -357,11 +369,31 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
 
     }
 
+    private boolean canBeDeleted(File file)
+    {
+        if (isUnderHierarchyRoot(file))
+        {
+            return FileUtilities.isSymbolicLink(file) || file.isDirectory();
+        } else
+        {
+            operationLog.warn("Aborting an attempt to delete content outside of hierarchy root : "
+                    + file.getAbsolutePath() + ". Please analyze, this is a programming error.");
+            return false;
+        }
+    }
+
+    /**
+     * we cannot use cannonical paths here, because they resolve symbolic links.
+     */
+    private boolean isUnderHierarchyRoot(File file)
+    {
+        return file.getAbsolutePath().startsWith(hierarchyRoot.getAbsolutePath());
+    }
 
     /**
      * Creates the soft links for files with paths defined in <code>linkMappings</code> {@link Map}.
      */
-    private static void createLinksForChangedData(Map<String, String> linkMappings)
+    private void createLinksForChangedData(Map<String, String> linkMappings)
     {
         for (String targetPath : linkMappings.keySet())
         {
@@ -370,14 +402,6 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
             File sourceFile = new File(sourcePath);
             targetDir.getParentFile().mkdirs();
             SoftLinkMaker.createSymbolicLink(sourceFile, targetDir);
-        }
-    }
-
-    private static void logInfo(String info)
-    {
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info(info);
         }
     }
 

@@ -49,6 +49,8 @@ public class HierarchicalStorageUpdaterTest extends AbstractFileSystemTestCase
 
     private final static String DATASET_TYPE = "dataset-type";
 
+    private final static String SHARE_ID = "1";
+
     private final static FileFilter ignoreSVNFiles = new FileFilter()
         {
             public boolean accept(File pathname)
@@ -108,6 +110,29 @@ public class HierarchicalStorageUpdaterTest extends AbstractFileSystemTestCase
 
     }
 
+    @Test
+    public void testBrokenLinksAreDeleted() throws Exception
+    {
+
+        HierarchicalStorageUpdater storageUpdater = createUpdater(true);
+        storageUpdater.execute();
+
+        File shareRoot = new File(getStoreRoot(), SHARE_ID);
+        File dataSetSource = new File(shareRoot, "ds2");
+        assertTrue(dataSetSource.isDirectory());
+
+        File symboliLink =
+                new File(getHierarchyRoot().getAbsolutePath()
+                        + "/space/project/experiment/dataset-type+sample+ds2");
+        assertTrue("Symbolic links should be created", FileUtilities.isSymbolicLink(symboliLink));
+
+        FileUtilities.deleteRecursively(dataSetSource);
+
+        storageUpdater.execute();
+
+        assertTrue("Broken symlinks should be deleted", false == symboliLink.exists());
+    }
+
     private void prepareDirectoryStructures() throws IOException
     {
         FileUtils.copyDirectory(STORE_ROOT_TEMPLATE, getStoreRoot(), ignoreSVNFiles);
@@ -150,7 +175,7 @@ public class HierarchicalStorageUpdaterTest extends AbstractFileSystemTestCase
     }
 
 
-    private HierarchicalStorageUpdater createUpdater(boolean reconfiguredExecution)
+    private HierarchicalStorageUpdater createUpdater(boolean linkFromFirstChild)
     {
         final String pluginName = "hierarchical-storage-updater";
         final String pluginPrefix = pluginName + ".";
@@ -158,12 +183,11 @@ public class HierarchicalStorageUpdaterTest extends AbstractFileSystemTestCase
         System.setProperty(DssPropertyParametersUtil.OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX
                 + HierarchicalStorageUpdater.STOREROOT_DIR_KEY, getStoreRoot().getAbsolutePath());
         System.setProperty(DssPropertyParametersUtil.OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX
-                + pluginPrefix
-                + HierarchicalStorageUpdater.HIERARCHY_ROOT_DIR_KEY, getHierarchyRoot()
-                .getAbsolutePath());
+                + pluginPrefix + HierarchicalStorageUpdater.HIERARCHY_ROOT_DIR_KEY,
+                getHierarchyRoot().getAbsolutePath());
 
         Properties properties = new Properties();
-        if (reconfiguredExecution)
+        if (linkFromFirstChild)
         {
             properties.put(HierarchicalStorageUpdater.LINK_SOURCE_SUBFOLDER + "." + DATASET_TYPE,
                     "original");
@@ -178,8 +202,7 @@ public class HierarchicalStorageUpdaterTest extends AbstractFileSystemTestCase
 
     private List<SimpleDataSetInformationDTO> listDataSets()
     {
-        final String share = "1";
-        final File shareRoot = new File(getStoreRoot(), share); 
+        final File shareRoot = new File(getStoreRoot(), SHARE_ID);
         final List<SimpleDataSetInformationDTO> result = new ArrayList<SimpleDataSetInformationDTO>();
         for (File directory : FileUtilities.listDirectories(shareRoot, false))
         {
@@ -188,7 +211,7 @@ public class HierarchicalStorageUpdaterTest extends AbstractFileSystemTestCase
             dataset.setDataSetType(DATASET_TYPE);
             dataset.setDataSetCode(directory.getName());
             dataset.setDataSetLocation(directory.getName());
-            dataset.setDataSetShareId(share);
+            dataset.setDataSetShareId(SHARE_ID);
             dataset.setExperimentCode("experiment");
             dataset.setGroupCode("space");
             dataset.setProjectCode("project");
