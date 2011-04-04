@@ -326,7 +326,7 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
         applyEmptyText();
     }
 
-    protected void selectFirstModel(final List<M> models)
+    private void selectFirstModel(final List<M> models)
     {
         setSelection(models);
     }
