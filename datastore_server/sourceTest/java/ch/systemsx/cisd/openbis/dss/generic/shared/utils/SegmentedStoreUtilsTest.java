@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -81,9 +82,16 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
     }
 
     @AfterMethod
-    public void tearDown()
+    public void tearDown(Method method)
     {
-        context.assertIsSatisfied();
+        try
+        {
+            context.assertIsSatisfied();
+        } catch (Throwable t)
+        {
+            // assert expectations were met, including the name of the failed method
+            throw new Error(method.getName() + "() : ", t);
+        }
     }
     
     @Test
@@ -156,8 +164,6 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         assertEquals(1, shares.get(1).getDataSetsOrderedBySize().size());
         assertEquals(123456789L, shares.get(1).getTotalSizeOfDataSets());
         assertEquals(2, shares.size());
-        
-        context.assertIsSatisfied();
     }
 
     @Test
@@ -205,7 +211,70 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         assertEquals("hello world\n",
                 FileUtilities.loadToString(new File(share2uuid01, "02/03/ds-1/original/hello.txt")));
         log.assertNoMoreLogMessages();
-        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testCleanupOld()
+    {
+        File ds1In1 = dataSetFile("1", false);
+        File ds1In2 = dataSetFile("2", false);
+        SimpleDataSetInformationDTO dataSet = dataSet(ds1In1, DATA_STORE_CODE, null);
+        context.checking(new Expectations()
+            {
+                {
+                    one(shareIdManager).getShareId("ds-1");
+                    will(returnValue("2"));
+                    
+                    one(shareIdManager).await("ds-1");
+                }
+            });
+        
+        SegmentedStoreUtils.cleanUp(dataSet, store, "2", shareIdManager, log);
+        
+        assertEquals(false, ds1In1.exists());
+        assertEquals(true, ds1In2.exists());
+        log.assertNextLogMessage("Await for data set ds-1 to be unlocked.");
+        log.assertNextLogMessage("Start deleting data set ds-1 at " + ds1In1);
+        log.assertNextLogMessage("Data set ds-1 at " + ds1In1 + " has been successfully deleted.");
+        log.assertNoMoreLogMessages();
+    }
+
+    @Test
+    public void testCleanupNew()
+    {
+        File ds1In1 = dataSetFile("1", false);
+        File ds1In2 = dataSetFile("2", true);
+        SimpleDataSetInformationDTO dataSet = dataSet(ds1In1, DATA_STORE_CODE, null);
+        context.checking(new Expectations()
+            {
+                {
+                    one(shareIdManager).getShareId("ds-1");
+                    will(returnValue("1"));
+
+                    one(shareIdManager).await("ds-1");
+                }
+            });
+
+        SegmentedStoreUtils.cleanUp(dataSet, store, "2", shareIdManager, log);
+
+        assertEquals(true, ds1In1.exists());
+        log.assertNextLogMessage("Await for data set ds-1 to be unlocked.");
+        log.assertNextLogMessage("Start deleting data set ds-1 at " + ds1In2);
+        log.assertNextLogMessage("Deletion of data set ds-1 at " + ds1In2 + " failed.");
+        log.assertNoMoreLogMessages();
+    }
+    
+    private File dataSetFile(String shareId, boolean empty)
+    {
+        File share = new File(store, shareId);
+        File dataSetFile = new File(share, "uuid/01/0b/0c/ds-1");
+        if (empty)
+        {
+            return dataSetFile;
+        }
+        dataSetFile.mkdirs();
+        FileUtilities.writeToFile(new File(dataSetFile, "read.me"), "do nothing");
+        return dataSetFile;
     }
     
     private void assertFileNames(File file, String... names)
