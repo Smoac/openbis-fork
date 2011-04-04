@@ -161,6 +161,21 @@ public class TableMap<K, E> implements Iterable<E>
     }
 
     /**
+     * Gets the row for the specified key.
+     * 
+     * @throws IllegalStateException if key cannot be found.
+     */
+    public final E getOrDie(final K key)
+    {
+        E elem = tryGet(key);
+        if (elem == null)
+        {
+            throw new IllegalStateException("No value for teh specified key found: " + key);
+        }
+        return elem;
+    }
+
+    /**
      * Gets the row for the specified key or <code>null</code> if not found.
      */
     public final E tryGet(final K key)
@@ -189,7 +204,7 @@ public class TableMap<K, E> implements Iterable<E>
     {
         return Collections.unmodifiableSet(map.keySet());
     }
-    
+
     /**
      * Removes and returns the row for the specified key.
      * 

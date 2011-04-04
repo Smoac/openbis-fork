@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.collections;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,9 +72,31 @@ public class GroupByMap<K, E>
         return map.get(key);
     }
 
+    /**
+     * Returns all rows added at the specified key.
+     * 
+     * @throws IllegalStateException if the key is not in the map
+     */
+    public List<E> getOrDie(K key)
+    {
+        List<E> result = tryGet(key);
+        if (result == null)
+        {
+            throw new IllegalStateException("No element with the key " + key);
+        }
+        return result;
+    }
+
     /** @return all available keys */
     public Set<K> getKeys()
     {
         return map.keySet();
     }
+
+    /** @return unmodifiable map from key to a list of its values. */
+    public Map<K, List<E>> getMap()
+    {
+        return Collections.unmodifiableMap(map);
+    }
+
 }
