@@ -54,9 +54,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sam
 public class SampleDetailsTest extends GenericSystemTestCase
 {
 
-    private static final String CISD_ID_PREFIX = "CISD:/CISD/";
-
-    private static final String DEFAULT_INSTANCE = "CISD";
+    private static final String CISD_ID_PREFIX = "/CISD/";
 
     private static final String DEFAULT_GROUP = "CISD";
 
@@ -261,13 +259,12 @@ public class SampleDetailsTest extends GenericSystemTestCase
 
     private static String createSampleIdentifier(String sampleCode)
     {
-        return createSampleIdentifier(DEFAULT_INSTANCE, DEFAULT_GROUP, sampleCode);
+        return createSampleIdentifier(DEFAULT_GROUP, sampleCode);
     }
 
-    private static String createSampleIdentifier(String instanceCode, String spaceCode,
-            String sampleCode)
+    private static String createSampleIdentifier(String spaceCode, String sampleCode)
     {
-        return instanceCode + ":/" + (spaceCode == null ? "" : spaceCode + "/") + sampleCode;
+        return "/" + (spaceCode == null ? "" : spaceCode + "/") + sampleCode;
     }
 
     private SampleType getSampleType(String sampleTypeCode)

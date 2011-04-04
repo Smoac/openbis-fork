@@ -50,9 +50,7 @@ public class SampleRegistrationTest extends GenericSystemTestCase
 
     private static final String WELL = "WELL";
 
-    private static final String CISD_SHORT = "/CISD/";
-
-    private static final String CISD_LONG = "CISD:/CISD/";
+    private static final String CISD = "/CISD/";
 
     @Test
     public void testSimpleRegistration()
@@ -83,7 +81,7 @@ public class SampleRegistrationTest extends GenericSystemTestCase
         assertEquals(StringEscapeUtils.escapeHtml("test samplé"), properties.get(0).getValue());
         assertEquals(1, properties.size());
         assertEquals(3, s.getParents().size());
-        assertEquals("[CISD:/CISD/C1, CISD:/CISD/C2, CISD:/CISD/C3]",
+        assertEquals("[/CISD/C1, /CISD/C2, /CISD/C3]",
                 Arrays.toString(IdentifierExtractor.extract(s.getParents()).toArray()));
     }
 
@@ -95,9 +93,9 @@ public class SampleRegistrationTest extends GenericSystemTestCase
 
         final NewSample sample = new NewSample();
         final String sampleCode = "dp4";
-        final String identifier = CISD_SHORT + sampleCode;
+        final String identifier = CISD + sampleCode;
         sample.setIdentifier(identifier);
-        final String parent = "CISD:/CISD/C1";
+        final String parent = CISD + "C1";
         sample.setParentsOrNull(new String[]
             { parent });
         final SampleType sampleType = new SampleType();
@@ -118,9 +116,9 @@ public class SampleRegistrationTest extends GenericSystemTestCase
 
         final NewSample sample = new NewSample();
         final String sampleCode = "W12";
-        final String simpleIdentifier = CISD_SHORT + sampleCode;
+        final String simpleIdentifier = CISD + sampleCode;
         final String containerCode = "3VCP5";
-        final String containerIdentifier = CISD_LONG + containerCode;
+        final String containerIdentifier = CISD + containerCode;
         sample.setIdentifier(simpleIdentifier);
         sample.setContainerIdentifier(containerIdentifier);
         final SampleType sampleType = new SampleType();

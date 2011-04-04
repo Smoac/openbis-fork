@@ -343,8 +343,8 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
             });
         Sample sample = list.get(0).getOriginalObject();
         assertEquals("Sample identifier " + sample.getIdentifier()
-                + " should start with CISD:/TESTGROUP/", true,
-                sample.getIdentifier().startsWith("CISD:/TESTGROUP/"));
+                + " should start with /TESTGROUP/", true,
+                sample.getIdentifier().startsWith("/TESTGROUP/"));
         assertEquals("TESTGROUP", sample.getSpace().getCode());
     }
 
