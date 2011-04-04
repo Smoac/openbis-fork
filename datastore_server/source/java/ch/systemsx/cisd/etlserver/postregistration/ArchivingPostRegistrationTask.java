@@ -150,8 +150,6 @@ public class ArchivingPostRegistrationTask extends AbstractPostRegistrationTask
 
         public void cleanup()
         {
-            // fetch the service from ServiceProvider, because after the deserialization we
-            // we cannot rely on the field coming from the encapsulating class
             IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
             boolean statusUpdated = openBISService
                     .compareAndSetDataSetStatus(dataSetCode, BACKUP_PENDING, AVAILABLE, false);
