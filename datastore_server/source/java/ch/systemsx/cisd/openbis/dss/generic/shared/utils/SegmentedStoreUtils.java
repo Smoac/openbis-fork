@@ -247,8 +247,8 @@ public class SegmentedStoreUtils
         copyToShare(dataSetDirInStore, dataSetDirInNewShare);
         long size = assertEqualSizeAndChildren(dataSetDirInStore, dataSetDirInNewShare);
         String shareId = share.getName();
-        shareIdManager.setShareId(dataSetCode, shareId);
         service.updateShareIdAndSize(dataSetCode, shareId, size);
+        shareIdManager.setShareId(dataSetCode, shareId);
         deleteDataSet(dataSetCode, dataSetDirInStore, shareIdManager, logger);
     }
 
@@ -276,12 +276,24 @@ public class SegmentedStoreUtils
         }
     }
 
+    /**
+     * Deletes specified data set in the old share if it is already in the new one or in the new one
+     * if it is still in the old one.
+     * 
+     * @param shareIdManager provides the current share.
+     */
     public static void cleanUp(SimpleDataSetInformationDTO dataSet, File storeRoot,
             String newShareId, IShareIdManager shareIdManager, ISimpleLogger logger)
     {
         String dataSetCode = dataSet.getDataSetCode();
         String shareId = shareIdManager.getShareId(dataSetCode);
         String oldShareId = dataSet.getDataSetShareId();
+        if (newShareId.equals(oldShareId))
+        {
+            logger.log(LogLevel.WARN, "No clean up will be performed because for data set "
+                    + dataSetCode + " both shares are the same: " + oldShareId);
+            return;
+        }
         boolean currentIsOld = shareId.equals(oldShareId);
         boolean currentIsNew = shareId.equals(newShareId);
         if (currentIsOld == false && currentIsNew == false)
@@ -292,7 +304,8 @@ public class SegmentedStoreUtils
             return;
         }
         File shareFolder = new File(storeRoot, currentIsOld ? newShareId : oldShareId);
-        deleteDataSet(dataSetCode, new File(shareFolder, dataSet.getDataSetLocation()), shareIdManager, logger);
+        String location = dataSet.getDataSetLocation();
+        deleteDataSet(dataSetCode, new File(shareFolder, location), shareIdManager, logger);
     }
 
     private static void copyToShare(File file, File share)

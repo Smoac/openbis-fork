@@ -28,7 +28,6 @@ import org.apache.log4j.Logger;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -133,29 +132,34 @@ public class TaskExecutor
     }
 
     /**
-     * Performs all cleanup task in cleanup-tasks folder.
+     * Performs all cleanup tasks in cleanup-tasks folder.
      */
     public void cleanup()
     {
         Log4jSimpleLogger logger = new Log4jSimpleLogger(operationLog);
         File[] files = cleanupTasksFolder.listFiles(FILTER);
-        for (File file : files)
+        if (files != null)
         {
-            cleanupTask(file, logger);
+            operationLog.info("Perform " + files.length + " clean up task.");
+            for (File file : files)
+            {
+                try
+                {
+                    ICleanupTask cleanupTask = deserializeFromFile(file);
+                    cleanupTask.cleanup(logger);
+                } catch (Exception ex)
+                {
+                    operationLog.error("Couldn't performed clean up task " + file, ex);
+                }
+                file.delete();
+            }
         }
     }
 
-    private void cleanupTask(File file, ISimpleLogger logger)
+    private ICleanupTask deserializeFromFile(File file) throws IOException
     {
-        try
-        {
-            byte[] bytes = FileUtils.readFileToByteArray(file);
-            ((ICleanupTask) SerializationUtils.deserialize(bytes)).cleanup(logger);
-        } catch (Exception ex)
-        {
-            operationLog.error("Couldn't performed clean up task " + file, ex);
-        }
-        file.delete();
+        byte[] bytes = FileUtils.readFileToByteArray(file);
+        return (ICleanupTask) SerializationUtils.deserialize(bytes);
     }
 
 }
