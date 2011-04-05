@@ -51,7 +51,7 @@ public class ProteinSamplesSection extends ContentPanel
         setBodyBorder(true);
         setLayout(new FitLayout());
         Long experimentID = experimentOrNull == null ? null : experimentOrNull.getId();
-        disposableComponent = SampleAbundanceBrowserGrid.createGridForProteinSamples(viewContext,
+        disposableComponent = ProteinRelatedSampleGrid.createGridForProteinSamples(viewContext,
                 proteinReferenceID, experimentID, createGridId(proteinReferenceID));
         add(disposableComponent.getComponent());
     }

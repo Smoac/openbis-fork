@@ -33,9 +33,9 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AggregateFun
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.DataSetProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinInfo;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinRelatedSample;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSequence;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSummary;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.SampleWithPropertiesAndAbundance;
 
 /**
  * 
@@ -91,8 +91,7 @@ public interface IPhosphoNetXServer extends IServer
     
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public List<SampleWithPropertiesAndAbundance> listSamplesWithAbundanceByProtein(
+    public List<ProteinRelatedSample> listProteinRelatedSamplesByProtein(
             String sessionToken, TechId experimentID, TechId proteinReferenceID)
             throws UserFailureException;
-
 }

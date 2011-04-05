@@ -66,17 +66,25 @@ public class OccurrenceUtil
         List<Occurrence> result = new ArrayList<Occurrence>();
         for (String word : peptides)
         {
-            int startIndex = 0;
-            while (true)
+            result.addAll(findAllOccurrences(protein, word));
+        }
+        Collections.sort(result);
+        return result;
+    }
+    
+    public static List<Occurrence> findAllOccurrences(String protein, String peptide)
+    {
+        List<Occurrence> result = new ArrayList<Occurrence>();
+        int startIndex = 0;
+        while (true)
+        {
+            int occurrenceIndex = protein.indexOf(peptide, startIndex);
+            if (occurrenceIndex == -1)
             {
-                int occurrenceIndex = protein.indexOf(word, startIndex);
-                if (occurrenceIndex == -1)
-                {
-                    break;
-                }
-                result.add(new Occurrence(word, occurrenceIndex));
-                startIndex = occurrenceIndex + 1; // maybe the word overlaps with itself?
+                break;
             }
+            result.add(new Occurrence(peptide, occurrenceIndex));
+            startIndex = occurrenceIndex + 1; // maybe the word overlaps with itself?
         }
         Collections.sort(result);
         return result;

@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProbabilityAndPeptide;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.SampleAbundance;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.SamplePeptideModification;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.Sequence;
 
 /**
@@ -119,5 +120,19 @@ public interface IProteinQueryDAO extends BaseQuery
             + "where e.perm_id = ?{1} and s.prre_id = ?{2} and ip.is_primary = 't'")
     public DataSet<SampleAbundance> listSampleAbundanceByProtein(String experimentPermID,
             long proteinReferenceID);
+    
+    @Select("select distinct mf.id, samples.perm_id, fraction, pos, mass, sequence "
+            + "from modification_fractions as mf left join modifications as m on mf.modi_id = m.id "
+            + "                     left join modified_peptides as mp on m.mope_id = mp.id "
+            + "                     left join peptides as pe on mp.pept_id = pe.id "
+            + "                     left join proteins as p on pe.prot_id = p.id "
+            + "                     left join data_sets as d on p.dase_id = d.id "
+            + "                     left join experiments as e on d.expe_id = e.id "
+            + "                     left join identified_proteins as ip on ip.prot_id = p.id "
+            + "                     left join sequences as s on ip.sequ_id = s.id "
+            + "                     left join samples on mf.samp_id = samples.id "
+            + "where e.perm_id = ?{1} and s.prre_id = ?{2} and ip.is_primary = 't'")
+    public DataSet<SamplePeptideModification> listSamplePeptideModificatioByProtein(
+            String experimentPermID, long proteinReferenceID);
     
 }

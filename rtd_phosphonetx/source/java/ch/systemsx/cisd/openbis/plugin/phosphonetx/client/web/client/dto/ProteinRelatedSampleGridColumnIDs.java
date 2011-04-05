@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 ETH Zuerich, CISD
+ * Copyright 2011 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,31 +14,19 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto;
-
-import net.lemnik.eodsql.ResultColumn;
-
+package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public class SampleAbundance extends AbstractSample
+public class ProteinRelatedSampleGridColumnIDs
 {
-    private static final long serialVersionUID = 1L;
-
-    @ResultColumn("value")
-    private double abundance;
-    
-    public final double getAbundance()
-    {
-        return abundance;
-    }
-
-    public final void setAbundance(double abundance)
-    {
-        this.abundance = abundance;
-    }
-
+    public static final String SAMPLE_IDENTIFIER = "SAMPLE_IDENTIFIER";
+    public static final String SAMPLE_TYPE = "SAMPLE_TYPE";
+    public static final String ABUNDANCE = "ABUNDANCE";
+    public static final String MODIFICATION_POSITION = "MODIFICATION_POSITION";
+    public static final String MODIFICATION_MASS = "MODIFICATION_MASS";
+    public static final String MODIFICATION_FRACTION = "MODIFICATION_FRACTION";
 }

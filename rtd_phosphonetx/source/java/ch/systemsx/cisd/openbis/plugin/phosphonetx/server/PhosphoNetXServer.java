@@ -16,7 +16,11 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 
@@ -35,10 +39,14 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
+import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTranslator;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.AccessionNumberBuilder;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IAbundanceColumnDefinitionTable;
@@ -49,7 +57,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinInfoT
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinSequenceTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinSummaryTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.ISampleProvider;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.ISampleTable;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.SampleIDProvider;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNetXDAOFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IProteinQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IPhosphoNetXServer;
@@ -57,12 +65,18 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AbundanceColumnDefinition;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AggregateFunction;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.DataSetProtein;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.Occurrence;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.OccurrenceUtil;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinDetails;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinInfo;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinRelatedSample;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSequence;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSummary;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.SampleWithPropertiesAndAbundance;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.AbstractSample;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.SampleAbundance;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.SamplePeptideModification;
 
 /**
  * @author Franz-Josef Elmer
@@ -207,14 +221,141 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
         return dataSetProteinTable.getDataSetProteins();
     }
 
-    public List<SampleWithPropertiesAndAbundance> listSamplesWithAbundanceByProtein(
+    public List<ProteinRelatedSample> listProteinRelatedSamplesByProtein(
             String sessionToken, TechId experimentID, TechId proteinReferenceID)
             throws UserFailureException
     {
         final Session session = getSession(sessionToken);
-        ISampleTable sampleTable = specificBOFactory.createSampleTable(session);
-        sampleTable.loadSamplesWithAbundance(experimentID, proteinReferenceID);
-        return sampleTable.getSamples();
+        
+        IProteinDetailsBO proteinDetailsBO = specificBOFactory.createProteinDetailsBO(session);
+        proteinDetailsBO.loadByExperimentAndReference(experimentID, proteinReferenceID);
+        ProteinDetails detailsOrNull = proteinDetailsBO.getDetailsOrNull();
+        String sequenceOrNull = detailsOrNull == null ? null : detailsOrNull.getSequence();
+        IProteinQueryDAO proteinQueryDAO = specificDAOFactory.getProteinQueryDAO();
+        proteinQueryDAO.listProteinSequencesByProteinReference(proteinReferenceID.getId());
+        IDAOFactory daoFactory = getDAOFactory();
+        String experimentPermID =
+                daoFactory.getExperimentDAO().getByTechId(experimentID).getPermId();
+        Map<String, List<SampleAbundance>> sampleAbundanceMap =
+                createSampleMap(proteinQueryDAO.listSampleAbundanceByProtein(experimentPermID,
+                        proteinReferenceID.getId()));
+        Map<String, List<SamplePeptideModification>> samplePeptideModificationMap =
+                createSampleMap(proteinQueryDAO.listSamplePeptideModificatioByProtein(
+                        experimentPermID, proteinReferenceID.getId()));
+        List<ProteinRelatedSample> result = new ArrayList<ProteinRelatedSample>();
+        SampleIDProvider sampleIDProvider = new SampleIDProvider(daoFactory.getSampleDAO());
+        Map<PropertyTypePE, PropertyType> cache = new HashMap<PropertyTypePE, PropertyType>();
+        for (Entry<String, List<SampleAbundance>> entry : sampleAbundanceMap.entrySet())
+        {
+            String key = entry.getKey();
+            SamplePE sample = sampleIDProvider.getSampleOrParentSample(key);
+            List<SampleAbundance> sampleAbundances = entry.getValue();
+            List<SamplePeptideModification> samplePeptideModifications =
+                    samplePeptideModificationMap.get(key);
+            if (samplePeptideModifications == null)
+            {
+                for (SampleAbundance sampleAbundance : sampleAbundances)
+                {
+                    ProteinRelatedSample s = createFrom(sample, cache);
+                    s.setAbundance(sampleAbundance.getAbundance());
+                    result.add(s);
+                }
+            } else
+            {
+                for (SampleAbundance sampleAbundance : sampleAbundances)
+                {
+                    Double abundance = sampleAbundance.getAbundance();
+                    result.addAll(createSamplesForPeptideModifications(samplePeptideModifications,
+                            sample, abundance, sequenceOrNull, cache));
+                }
+            }
+        }
+        for (Entry<String, List<SamplePeptideModification>> entry : samplePeptideModificationMap
+                .entrySet())
+        {
+            String key = entry.getKey();
+            if (sampleAbundanceMap.containsKey(key) == false)
+            {
+                SamplePE sample = sampleIDProvider.getSampleOrParentSample(key);
+                List<SamplePeptideModification> samplePeptideModifications = entry.getValue();
+                result.addAll(createSamplesForPeptideModifications(samplePeptideModifications,
+                        sample, null, sequenceOrNull, cache));
+            }
+        }
+        return result;
+    }
+
+    private List<ProteinRelatedSample> createSamplesForPeptideModifications(
+            List<SamplePeptideModification> samplePeptideModifications, SamplePE sample,
+            Double abundanceOrNull, String sequenceOrNull, Map<PropertyTypePE, PropertyType> cache)
+    {
+        List<ProteinRelatedSample> samples = new ArrayList<ProteinRelatedSample>();
+        for (SamplePeptideModification samplePeptideModification : samplePeptideModifications)
+        {
+            int position = samplePeptideModification.getPosition();
+            if (sequenceOrNull != null)
+            {
+                List<Occurrence> occurances =
+                        OccurrenceUtil.findAllOccurrences(sequenceOrNull,
+                                samplePeptideModification.getSequence());
+                for (Occurrence occurrence : occurances)
+                {
+                    samples.add(createProteinRelatedSample(samplePeptideModification, sample,
+                            abundanceOrNull, position + occurrence.getEndIndex(), cache));
+                }
+            } else
+            {
+                samples.add(createProteinRelatedSample(samplePeptideModification, sample,
+                        abundanceOrNull, position, cache));
+            }
+        }
+        return samples;
+    }
+
+    private ProteinRelatedSample createProteinRelatedSample(
+            SamplePeptideModification samplePeptideModification, SamplePE sample,
+            Double abundanceOrNull, int position, Map<PropertyTypePE, PropertyType> cache)
+    {
+        ProteinRelatedSample s = createFrom(sample, cache);
+        s.setAbundance(abundanceOrNull);
+        s.setModificationFraction(samplePeptideModification.getFraction());
+        s.setModificationMass(samplePeptideModification.getMass());
+        s.setModificationPosition((long) position);
+        return s;
+    }
+    
+    private ProteinRelatedSample createFrom(SamplePE sample, Map<PropertyTypePE, PropertyType> cache)
+    {
+        ProteinRelatedSample s = new ProteinRelatedSample();
+        s.setCode(sample.getCode());
+        s.setEntityType(SampleTypeTranslator.translate(sample.getSampleType(), cache));
+        s.setId(sample.getId());
+        s.setIdentifier(sample.getIdentifier());
+        s.setPermId(sample.getPermId());
+        return s;
+    }
+
+    private <T extends AbstractSample> Map<String, List<T>> createSampleMap(DataSet<T> items)
+    {
+        Map<String, List<T>> map = new HashMap<String, List<T>>();
+        try
+        {
+            for (T item : items)
+            {
+                String samplePermID = item.getSamplePermID();
+                List<T> list = map.get(samplePermID);
+                if (list == null)
+                {
+                    list = new ArrayList<T>();
+                    map.put(samplePermID, list);
+                }
+                list.add(item);
+            }
+        } finally
+        {
+            items.close();
+        }
+        return map;
     }
 
     private String getExperimentPermIDFor(TechId experimentId)

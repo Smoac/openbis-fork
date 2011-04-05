@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 ETH Zuerich, CISD
+ * Copyright 2011 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,25 +20,26 @@ import net.lemnik.eodsql.ResultColumn;
 
 
 /**
- * 
+ * Abstract super class of sample.
  *
  * @author Franz-Josef Elmer
  */
-public class SampleAbundance extends AbstractSample
+public abstract class AbstractSample extends AbstractDTOWithID
 {
     private static final long serialVersionUID = 1L;
-
-    @ResultColumn("value")
-    private double abundance;
     
-    public final double getAbundance()
-    {
-        return abundance;
-    }
+    @ResultColumn("perm_id")
+    private String samplePermID;
 
-    public final void setAbundance(double abundance)
+    public final String getSamplePermID()
     {
-        this.abundance = abundance;
+        return samplePermID;
     }
+    
+    public final void setSamplePermID(String samplePermID)
+    {
+        this.samplePermID = samplePermID;
+    }
+    
 
 }

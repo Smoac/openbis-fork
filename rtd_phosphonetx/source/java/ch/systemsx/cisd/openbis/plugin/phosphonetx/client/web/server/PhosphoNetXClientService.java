@@ -76,6 +76,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListSam
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.server.resultset.BiologicalSampleProvider;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.server.resultset.DataSetProteinProvider;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.server.resultset.ParentlessMsInjectionSampleProvider;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.server.resultset.ProteinRelatedSampleProvider;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.server.resultset.ProteinSequenceProvider;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.server.resultset.ProteinSummaryProvider;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.CacheData;
@@ -87,9 +88,9 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AggregateFun
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.DataSetProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinInfo;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinRelatedSample;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSequence;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSummary;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.SampleWithPropertiesAndAbundance;
 
 /**
  * @author Franz-Josef Elmer
@@ -336,16 +337,19 @@ public class PhosphoNetXClientService extends AbstractClientService implements
         return prepareExportEntities(exportCriteria);
     }
 
-    public ResultSet<SampleWithPropertiesAndAbundance> listSamplesWithAbundanceByProtein(
+    public TypedTableResultSet<ProteinRelatedSample> listProteinRelatedSamplesByProtein(
             ListSampleAbundanceByProteinCriteria criteria)
     {
         final String sessionToken = getSessionToken();
-        return listEntities(criteria, new ListSampleAbundanceDataProvider(server, sessionToken,
-                criteria.getExperimentID(), criteria.getProteinReferenceID()));
+        ProteinRelatedSampleProvider provider =
+                new ProteinRelatedSampleProvider(server, sessionToken, criteria.getExperimentID(),
+                        criteria.getProteinReferenceID());
+        return listEntities(provider, criteria);
     }
 
-    public String prepareExportSamplesWithAbundance(
-            TableExportCriteria<SampleWithPropertiesAndAbundance> exportCriteria)
+    public String prepareExportProteinRelatedSamples(
+            TableExportCriteria<TableModelRowWithObject<ProteinRelatedSample>> exportCriteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return prepareExportEntities(exportCriteria);
     }

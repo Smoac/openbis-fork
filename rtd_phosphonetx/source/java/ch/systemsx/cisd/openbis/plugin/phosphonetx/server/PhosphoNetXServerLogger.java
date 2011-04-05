@@ -31,9 +31,9 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AggregateFun
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.DataSetProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinInfo;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinRelatedSample;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSequence;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSummary;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.SampleWithPropertiesAndAbundance;
 
 /**
  * @author Franz-Josef Elmer
@@ -105,11 +105,10 @@ public class PhosphoNetXServerLogger extends AbstractServerLogger implements IPh
         return null;
     }
 
-    public List<SampleWithPropertiesAndAbundance> listSamplesWithAbundanceByProtein(
-            String sessionToken, TechId experimentID, TechId proteinReferenceID)
-            throws UserFailureException
+    public List<ProteinRelatedSample> listProteinRelatedSamplesByProtein(String sessionToken,
+            TechId experimentID, TechId proteinReferenceID) throws UserFailureException
     {
-        logAccess(sessionToken, "list_samples_with_abundance_by_protein",
+        logAccess(sessionToken, "list_protein_related_samples_by_protein",
                 "EXPERIMENT_ID(%s) PROTEIN_REFERENCE_ID(%s)", experimentID, proteinReferenceID);
         return null;
     }

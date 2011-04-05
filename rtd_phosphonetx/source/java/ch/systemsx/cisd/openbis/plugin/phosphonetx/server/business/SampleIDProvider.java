@@ -29,12 +29,12 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  *
  * @author Franz-Josef Elmer
  */
-class SampleIDProvider implements ISampleIDProvider
+public class SampleIDProvider implements ISampleIDProvider
 {
     private final ISampleDAO sampleDAO;
     private final Map<String, SamplePE> samples = new LinkedHashMap<String, SamplePE>();
 
-    SampleIDProvider(ISampleDAO sampleDAO)
+    public SampleIDProvider(ISampleDAO sampleDAO)
     {
         this.sampleDAO = sampleDAO;
     }

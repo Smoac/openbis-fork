@@ -39,9 +39,9 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AbundanceCol
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.DataSetProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinInfo;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinRelatedSample;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSequence;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSummary;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.SampleWithPropertiesAndAbundance;
 
 /**
  * * Service interface for the PhosphoNetX GWT client.
@@ -102,11 +102,11 @@ public interface IPhosphoNetXClientService extends IClientService
             TableExportCriteria<TableModelRowWithObject<DataSetProtein>> exportCriteria)
             throws UserFailureException;
 
-    public ResultSet<SampleWithPropertiesAndAbundance> listSamplesWithAbundanceByProtein(
+    public TypedTableResultSet<ProteinRelatedSample> listProteinRelatedSamplesByProtein(
             ListSampleAbundanceByProteinCriteria criteria) throws UserFailureException;
 
-    public String prepareExportSamplesWithAbundance(
-            TableExportCriteria<SampleWithPropertiesAndAbundance> exportCriteria)
+    public String prepareExportProteinRelatedSamples(
+            TableExportCriteria<TableModelRowWithObject<ProteinRelatedSample>> exportCriteria)
             throws UserFailureException;
 
     public TypedTableResultSet<Sample> listRawDataSamples(

@@ -40,9 +40,9 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AbundanceCol
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.DataSetProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinInfo;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinRelatedSample;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSequence;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSummary;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.SampleWithPropertiesAndAbundance;
 
 /**
  * @author Franz-Josef Elmer
@@ -116,13 +116,13 @@ public interface IPhosphoNetXClientServiceAsync extends IClientServiceAsync
     public void prepareExportDataSetProteins(TableExportCriteria<TableModelRowWithObject<DataSetProtein>> exportCriteria,
             AsyncCallback<String> callback);
 
-    /** @see IPhosphoNetXClientService#listSamplesWithAbundanceByProtein(ListSampleAbundanceByProteinCriteria) */
-    public void listSamplesWithAbundanceByProtein(ListSampleAbundanceByProteinCriteria criteria,
-            AsyncCallback<ResultSet<SampleWithPropertiesAndAbundance>> callback);
+    /** @see IPhosphoNetXClientService#listProteinRelatedSamplesByProtein(ListSampleAbundanceByProteinCriteria) */
+    public void listProteinRelatedSamplesByProtein(ListSampleAbundanceByProteinCriteria criteria,
+            AsyncCallback<TypedTableResultSet<ProteinRelatedSample>> callback);
 
-    /** @see IPhosphoNetXClientService#prepareExportSamplesWithAbundance(TableExportCriteria) */
-    public void prepareExportSamplesWithAbundance(
-            TableExportCriteria<SampleWithPropertiesAndAbundance> exportCriteria,
+    /** @see IPhosphoNetXClientService#prepareExportProteinRelatedSamples(TableExportCriteria) */
+    public void prepareExportProteinRelatedSamples(
+            TableExportCriteria<TableModelRowWithObject<ProteinRelatedSample>> exportCriteria,
             AsyncCallback<String> callback);
 
     /** @see IPhosphoNetXClientService#listRawDataSamples(IResultSetConfig) */
