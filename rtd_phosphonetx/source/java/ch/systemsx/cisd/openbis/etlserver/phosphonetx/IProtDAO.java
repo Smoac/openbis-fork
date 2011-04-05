@@ -73,8 +73,8 @@ public interface IProtDAO extends BaseQuery
     @Select("insert into modified_peptides (pept_id, nterm_mass, cterm_mass) values (?{1}, ?{2}, ?{3}) returning id")
     public long createModifiedPeptide(long peptideID, double nTermMass, double cTermMass);
 
-    @Update("insert into modifications (mope_id, pos, mass) values (?{1}, ?{2}, ?{3})")
-    public void createModification(long modPeptideID, int position, double mass);
+    @Select("insert into modifications (mope_id, pos, mass) values (?{1}, ?{2}, ?{3}) returning id")
+    public long createModification(long modPeptideID, int position, double mass);
 
     @Select("select * from protein_references where accession_number = ?{1}")
     public ProteinReference tryToGetProteinReference(String accessionNumber);
@@ -98,5 +98,8 @@ public interface IProtDAO extends BaseQuery
 
     @Update("insert into abundances (prot_id, samp_id, value) values (?{1}, ?{2}, ?{3})")
     public void createAbundance(long proteinID, long sampleID, double value);
+
+    @Update("insert into modification_fractions (modi_id, samp_id, fraction) values (?{1}, ?{2}, ?{3})")
+    public void createModificationFraction(long modID, long sampleID, double fraction);
 
 }

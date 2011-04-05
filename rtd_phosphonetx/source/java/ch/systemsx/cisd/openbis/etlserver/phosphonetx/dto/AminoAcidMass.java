@@ -49,6 +49,27 @@ public class AminoAcidMass
     }
     
     @Override
+    public boolean equals(Object obj)
+    {
+        if (obj == this)
+        {
+            return true;
+        }
+        if (obj instanceof AminoAcidMass == false)
+        {
+            return false;
+        }
+        AminoAcidMass that = (AminoAcidMass) obj;
+        return this.position == that.position && this.mass == that.mass;
+    }
+    
+    @Override
+    public int hashCode()
+    {
+        return (int) (37 * position + mass);
+    }
+    
+    @Override
     public String toString()
     {
         return mass + "@" + position;

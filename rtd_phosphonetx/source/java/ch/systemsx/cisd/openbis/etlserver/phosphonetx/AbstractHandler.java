@@ -16,11 +16,9 @@
 
 package ch.systemsx.cisd.openbis.etlserver.phosphonetx;
 
-import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Experiment;
-import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Sample;
 
 /**
- * 
+ * Abstract super class of classes using {@link IProtDAO}.
  *
  * @author Franz-Josef Elmer
  */
@@ -31,18 +29,6 @@ abstract class AbstractHandler
     AbstractHandler(IProtDAO dao)
     {
         this.dao = dao;
-    }
-    
-    protected Sample getOrCreateSample(Experiment experiment, String samplePermID)
-    {
-        Sample sample = dao.tryToGetSampleByPermID(samplePermID);
-        if (sample == null)
-        {
-            sample = new Sample();
-            sample.setPermID(samplePermID);
-            sample.setId(dao.createSample(experiment.getId(), samplePermID));
-        }
-        return sample;
     }
 
 }

@@ -18,8 +18,12 @@ package ch.systemsx.cisd.openbis.etlserver.phosphonetx;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import net.lemnik.eodsql.QueryTool;
@@ -45,6 +49,7 @@ import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinProphetDetails;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinReference;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinSummary;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinSummaryDataFilter;
+import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Sample;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Sequence;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.ProbabilityToFDRCalculator;
@@ -59,6 +64,8 @@ class ResultDataSetUploader extends AbstractHandler
     private static final double MAX_FALSE_DISCOVERY_RATE = 0.1;
 
     static final String PARAMETER_TYPE_ABUNDANCE = "abundance";
+    
+    static final String PARAMETER_TYPE_MODIFICATION = "modification";
 
     private final Connection connection;
 
@@ -198,6 +205,9 @@ class ResultDataSetUploader extends AbstractHandler
         Long databaseID = dataSet.getDatabaseID();
         AbundanceHandler abundanceHandler =
                 new AbundanceHandler(openbisService, dao, experimentIdentifier, experiment);
+        ModificationFractionHandler modificationFractionHandler =
+                new ModificationFractionHandler(openbisService, dao, experimentIdentifier,
+                        experiment);
         ProbabilityToFDRCalculator calculator = createProbabilityToFDRMapping(dataSetID, summary);
         List<ProteinGroup> proteinGroups = summary.getProteinGroups();
         for (ProteinGroup proteinGroup : proteinGroups)
@@ -211,7 +221,8 @@ class ResultDataSetUploader extends AbstractHandler
                 {
                     if (calculator.calculateFDR(protein.getProbability()) <= MAX_FALSE_DISCOVERY_RATE)
                     {
-                        addProtein(protein, dataSetID, databaseID, abundanceHandler);
+                        addProtein(protein, dataSetID, databaseID, abundanceHandler,
+                                modificationFractionHandler);
                     }
                 } catch (Exception e)
                 {
@@ -236,7 +247,8 @@ class ResultDataSetUploader extends AbstractHandler
     }
 
     private void addProtein(Protein protein, long dataSetID, Long databaseID,
-            AbundanceHandler abundanceHandler)
+            AbundanceHandler abundanceHandler,
+            ModificationFractionHandler modificationFractionHandler)
     {
         long proteinID = dao.createProtein(dataSetID, protein.getProbability());
         for (Parameter parameter : protein.getParameters())
@@ -252,7 +264,7 @@ class ResultDataSetUploader extends AbstractHandler
         {
             try
             {
-                addPeptide(proteinID, peptide);
+                addPeptide(proteinID, peptide, modificationFractionHandler);
                 peptideSequences.add(peptide.getSequence());
             } catch (Exception e)
             {
@@ -266,7 +278,8 @@ class ResultDataSetUploader extends AbstractHandler
         }
     }
 
-    private void addPeptide(long proteinID, Peptide peptide)
+    private void addPeptide(long proteinID, Peptide peptide,
+            ModificationFractionHandler modificationFractionHandler)
     {
         String peptideSequence = peptide.getSequence();
         int charge = peptide.getCharge();
@@ -282,6 +295,54 @@ class ResultDataSetUploader extends AbstractHandler
                 logException(e, "modification", modification.toString());
             }
         }
+        List<ModificationFraction> modificationFractions = extractModificationFractions(peptide);
+        if (modificationFractions.isEmpty())
+        {
+            return;
+        }
+        long modPeptideID = dao.createModifiedPeptide(peptideID, 0, 0);
+        Map<AminoAcidMass, List<ModificationFraction>> map =
+                groupByPositionAndMass(modificationFractions);
+        Set<Entry<AminoAcidMass, List<ModificationFraction>>> entrySet = map.entrySet();
+        for (Entry<AminoAcidMass, List<ModificationFraction>> entry : entrySet)
+        {
+            AminoAcidMass positionAndMass = entry.getKey();
+            long modID = createModification(modPeptideID, positionAndMass);
+            List<ModificationFraction> list = entry.getValue();
+            modificationFractionHandler.addModificationFractions(peptideSequence, modID, list);
+        }
+    }
+
+    private Map<AminoAcidMass, List<ModificationFraction>> groupByPositionAndMass(
+            List<ModificationFraction> modificationFractions)
+    {
+        Map<AminoAcidMass, List<ModificationFraction>> result =
+                new HashMap<AminoAcidMass, List<ModificationFraction>>();
+        for (ModificationFraction modificationFraction : modificationFractions)
+        {
+            AminoAcidMass positionAndMass = modificationFraction.getAminoAcidMass();
+            List<ModificationFraction> list = result.get(positionAndMass);
+            if (list == null)
+            {
+                list = new ArrayList<ModificationFraction>();
+                result.put(positionAndMass, list);
+            }
+            list.add(modificationFraction);
+        }
+        return result;
+    }
+    
+    private List<ModificationFraction> extractModificationFractions(Peptide peptide)
+    {
+        List<ModificationFraction> result = new ArrayList<ModificationFraction>();
+        for (Parameter parameter : peptide.getParameters())
+        {
+            if (PARAMETER_TYPE_MODIFICATION.equals(parameter.getType()))
+            {
+                result.add(new ModificationFraction(parameter.getName(), parameter.getValue()));
+            }
+        }
+        return result;
     }
 
     private void addPeptideModification(long peptideID, PeptideModification modification)
@@ -292,12 +353,16 @@ class ResultDataSetUploader extends AbstractHandler
         List<AminoAcidMass> aminoAcidMasses = modification.getAminoAcidMasses();
         for (AminoAcidMass aminoAcidMass : aminoAcidMasses)
         {
-            double mass = aminoAcidMass.getMass();
-            int position = aminoAcidMass.getPosition();
-            dao.createModification(modPeptideID, position, mass);
+            createModification(modPeptideID, aminoAcidMass);
         }
     }
 
+    private long createModification(long modPeptideID, AminoAcidMass aminoAcidMass)
+    {
+        return dao.createModification(modPeptideID, aminoAcidMass.getPosition(),
+                aminoAcidMass.getMass());
+    }
+    
     private void createIdentifiedProtein(long proteinID, Set<String> peptideSequences,
             Long databaseID, ProteinAnnotation annotation, boolean primary)
     {
@@ -379,5 +444,17 @@ class ResultDataSetUploader extends AbstractHandler
             }
         }
         throw new UserFailureException("Missing Protein Prophet details.");
+    }
+
+    protected Sample getOrCreateSample(Experiment experiment, String samplePermID)
+    {
+        Sample sample = dao.tryToGetSampleByPermID(samplePermID);
+        if (sample == null)
+        {
+            sample = new Sample();
+            sample.setPermID(samplePermID);
+            sample.setId(dao.createSample(experiment.getId(), samplePermID));
+        }
+        return sample;
     }
 }

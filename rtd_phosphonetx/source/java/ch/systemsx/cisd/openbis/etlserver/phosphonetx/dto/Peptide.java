@@ -38,6 +38,7 @@ public class Peptide
     private int charge;
     private double initialProbability;
     private double weight;
+    private List<Parameter> parameters = new ArrayList<Parameter>();
     private List<PeptideModification> modifications = new ArrayList<PeptideModification>();
 
     @XmlAttribute(name = "peptide_sequence", required = true)
@@ -93,6 +94,17 @@ public class Peptide
     public final void setModifications(List<PeptideModification> modifications)
     {
         this.modifications = modifications;
+    }
+
+    @XmlElement(name = "parameter", namespace = Constants.NAMESPACE)
+    public final List<Parameter> getParameters()
+    {
+        return parameters;
+    }
+
+    public final void setParameters(List<Parameter> parameters)
+    {
+        this.parameters = parameters;
     }
 
     @Override
