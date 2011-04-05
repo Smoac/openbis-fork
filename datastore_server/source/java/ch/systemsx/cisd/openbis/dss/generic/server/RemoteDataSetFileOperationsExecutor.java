@@ -128,6 +128,11 @@ public final class RemoteDataSetFileOperationsExecutor implements IDataSetFileOp
         }
     }
 
+    public void syncDataSetWithDestination(File dataSet, File destination)
+    {
+        copyDataSetToDestination(dataSet, destination);
+    }
+
     public void retrieveDataSetFromDestination(File dataSet, File destination)
     {
         Status result =

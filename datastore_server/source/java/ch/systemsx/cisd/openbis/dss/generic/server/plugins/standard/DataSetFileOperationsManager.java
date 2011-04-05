@@ -92,9 +92,16 @@ public class DataSetFileOperationsManager
 
         if (hostOrNull == null)
         {
+            File sshExecutable = null; // don't use ssh locally
+            File rsyncExecutable = Copier.getExecutable(properties, RSYNC_EXEC);
+            IPathCopier copier = pathCopierFactory.create(rsyncExecutable, sshExecutable);
+            copier.check();
+            String rsyncModule = hostAwareFile.tryGetRsyncModule();
+            String rsyncPasswordFile = properties.getProperty(RSYNC_PASSWORD_FILE_KEY);
             this.executor =
                     new LocalDataSetFileOperationsExcecutor(
-                            FileOperations.getMonitoredInstanceForCurrentThread());
+                            FileOperations.getMonitoredInstanceForCurrentThread(), copier,
+                            rsyncModule, rsyncPasswordFile);
         } else
         {
             File sshExecutable = Copier.getExecutable(properties, SSH_EXEC);
@@ -124,10 +131,18 @@ public class DataSetFileOperationsManager
         try
         {
             File destinationFolder = new File(destination, dataset.getDataSetLocation());
-            createFolderIfNotExists(destinationFolder.getParentFile());
-            operationLog.info("Copy dataset '" + dataset.getDatasetCode() + "' from '"
-                    + originalData.getPath() + "' to '" + destinationFolder.getParentFile());
-            executor.copyDataSetToDestination(originalData, destinationFolder.getParentFile());
+            if (createFolderIfNotExists(destinationFolder.getParentFile())
+                    || destinationExists(destinationFolder).isSuccess() == false)
+            {
+                operationLog.info("Copy dataset '" + dataset.getDatasetCode() + "' from '"
+                        + originalData.getPath() + "' to '" + destinationFolder.getParentFile());
+                executor.copyDataSetToDestination(originalData, destinationFolder.getParentFile());
+            } else
+            {
+                operationLog.info("Update dataset '" + dataset.getDatasetCode() + "' from '"
+                        + originalData.getPath() + "' to '" + destinationFolder.getParentFile());
+                executor.syncDataSetWithDestination(originalData, destinationFolder.getParentFile());
+            }
             return Status.OK;
         } catch (ExceptionWithStatus ex)
         {

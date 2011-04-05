@@ -32,6 +32,7 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
+import ch.systemsx.cisd.common.filesystem.IPathCopier;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
@@ -40,11 +41,21 @@ public final class LocalDataSetFileOperationsExcecutor implements IDataSetFileOp
     final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             LocalDataSetFileOperationsExcecutor.class);
 
+    private final IPathCopier copier;
+
+    private final String rsyncModuleNameOrNull;
+
+    private final String rsyncPasswordFileOrNull;
+
     private final IFileOperations fileOperations;
 
-    public LocalDataSetFileOperationsExcecutor(IFileOperations fileOperations)
+    public LocalDataSetFileOperationsExcecutor(IFileOperations fileOperations, IPathCopier copier,
+            String rsyncModuleNameOrNull, String rsyncPasswordFileOrNull)
     {
         this.fileOperations = fileOperations;
+        this.copier = copier;
+        this.rsyncModuleNameOrNull = rsyncModuleNameOrNull;
+        this.rsyncPasswordFileOrNull = rsyncPasswordFileOrNull;
     }
 
     public BooleanStatus checkSame(File dataSet, File destination)
@@ -63,7 +74,6 @@ public final class LocalDataSetFileOperationsExcecutor implements IDataSetFileOp
             if (destination.isDirectory())
             {
                 FileFilter nullFilter = null;
-                // TODO ignore symlinks?
                 List<File> storeFiles = FileUtilities.listFiles(dataSet, nullFilter, true);
                 List<File> destFiles = FileUtilities.listFiles(destination, nullFilter, true);
 
@@ -151,6 +161,19 @@ public final class LocalDataSetFileOperationsExcecutor implements IDataSetFileOp
         {
             operationLog.error("Couldn't copy '" + dataSet + "' to '" + destination + "'", ex);
             throw new ExceptionWithStatus(Status.createError("copy failed"), ex);
+        }
+    }
+
+    public void syncDataSetWithDestination(File dataSet, File destination)
+    {
+        // rsync --delete is more effective then deletion of destination directory & copy all
+        String host = null; // local
+        Status result =
+                copier.copyToRemote(dataSet, destination, host, rsyncModuleNameOrNull,
+                        rsyncPasswordFileOrNull);
+        if (result.isError())
+        {
+            throw new ExceptionWithStatus(result);
         }
     }
 

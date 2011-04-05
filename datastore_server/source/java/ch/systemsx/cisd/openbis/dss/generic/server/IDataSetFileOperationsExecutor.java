@@ -35,6 +35,9 @@ public interface IDataSetFileOperationsExecutor
 
     void copyDataSetToDestination(File dataSet, File destination);
 
+    // uses rsync --delete for performance both locally and remotely
+    void syncDataSetWithDestination(File dataSet, File destination);
+
     void retrieveDataSetFromDestination(File dataSet, File destination);
 
     void renameTo(File newFile, File oldFile);

@@ -52,12 +52,12 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
 
     public RsyncArchiver(Properties properties, File storeRoot)
     {
-        this(properties, storeRoot, new RsyncCopierFactory(), new SshCommandExecutorFactory());
+        this(properties, storeRoot, new RsyncArchiveCopierFactory(),
+                new SshCommandExecutorFactory());
     }
 
     @Private
-    RsyncArchiver(Properties properties, File storeRoot,
-            IPathCopierFactory pathCopierFactory,
+    RsyncArchiver(Properties properties, File storeRoot, IPathCopierFactory pathCopierFactory,
             ISshCommandExecutorFactory sshCommandExecutorFactory)
     {
         super(properties, storeRoot, null, null);
@@ -131,7 +131,8 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
         if (fileOperationsManager == null)
         {
             this.fileOperationsManager =
-                    new DataSetFileOperationsManager(properties, pathCopierFactory, sshCommandExecutorFactory);
+                    new DataSetFileOperationsManager(properties, pathCopierFactory,
+                            sshCommandExecutorFactory);
         }
     }
 

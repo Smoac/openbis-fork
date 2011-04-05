@@ -249,6 +249,18 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
         /*
          * archive 2nd time (could happen on crash of DSS, but shouldn't hurt)
          */
+        context.checking(new Expectations()
+            {
+                {
+                    /*
+                     * use rsync
+                     */
+                    one(copier).copyToRemote(ds1Location,
+                            ds1ArchivedLocationFile.getParentFile().getAbsoluteFile(), null, null,
+                            null);
+                    will(returnValue(Status.OK));
+                }
+            });
         status = dataSetCopier.copyToDestination(ds1Location, ds1);
         assertSuccessful(status);
         // check that data set is now in archive
@@ -482,6 +494,9 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
     {
         final Properties properties = new Properties();
         properties.setProperty(DataSetFileOperationsManager.DESTINATION_KEY, destination.getPath());
+        properties.setProperty(DataSetFileOperationsManager.RSYNC_EXEC + "-executable",
+                rsyncExec.getPath());
+        prepareLocalCreateAndCheckCopier();
         return properties;
     }
 
@@ -520,6 +535,8 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
                      */
                     one(sshExecutor).exists(ds2ArchivedLocationFile.getParentFile().getPath(),
                             SSH_TIMEOUT_MILLIS);
+                    will(returnValue(BooleanStatus.createTrue()));
+                    one(sshExecutor).exists(ds2ArchivedLocationFile.getPath(), SSH_TIMEOUT_MILLIS);
                     will(returnValue(BooleanStatus.createTrue()));
 
                     one(copier).copyToRemote(ds2Location, ds2ArchivedLocationFile.getParentFile(),
@@ -850,6 +867,19 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
     //
     // context.assertIsSatisfied();
     // }
+
+    private void prepareLocalCreateAndCheckCopier()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(copierFactory).create(rsyncExec, null);
+                    will(returnValue(copier));
+
+                    one(copier).check();
+                }
+            });
+    }
 
     private void prepareRemoteCreateAndCheckCopier(final String hostOrNull,
             final String rsyncModuleOrNull, final boolean checkingResult)
