@@ -27,11 +27,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListenerAndLinkGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListSampleAbundanceByProteinCriteria;
@@ -84,6 +87,23 @@ public class ProteinRelatedSampleGrid extends TypedTableGrid<ProteinRelatedSampl
         this.phosphoViewContext = viewContext;
         setId(BROWSER_ID);
         this.criteria = criteria;
+        registerListenerAndLinkGenerator(ProteinRelatedSampleGridColumnIDs.SAMPLE_IDENTIFIER,
+                new ICellListenerAndLinkGenerator<ProteinRelatedSample>()
+                    {
+
+                        public void handle(TableModelRowWithObject<ProteinRelatedSample> rowItem,
+                                boolean specialKeyPressed)
+                        {
+                            showEntityInformationHolderViewer(rowItem.getObjectOrNull(), false,
+                                    specialKeyPressed);
+                        }
+
+                        public String tryGetLink(ProteinRelatedSample entity,
+                                ISerializableComparable comparableValue)
+                        {
+                            return LinkExtractor.tryExtract(entity);
+                        }
+                    });
     }
 
     @Override
