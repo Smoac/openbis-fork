@@ -50,8 +50,12 @@ def register(incomingPath):
     dataset.setFileFormatType('CSV')
     commonDropbox.registerDerivedDataset(state, transaction, dataset, incoming, metadataParser)
  
-def rollback_transaction(service, transaction, algorithmRunner, throwable):
+def rollback_service(service, throwable):
+    global iBrain2DatasetId
     commonDropbox.createFailureStatus(iBrain2DatasetId, throwable, incoming)
+        
+def rollback_transaction(service, transaction, algorithmRunner, throwable):
+    rollback_service(service, throwable)
             
 if incoming.isDirectory():
     register(incoming.getPath())

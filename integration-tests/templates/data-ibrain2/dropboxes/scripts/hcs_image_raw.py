@@ -11,6 +11,8 @@ PLATE_TYPE_CODE = "PLATE"
 SIRNA_EXP_TYPE = "SIRNA_HCS"
 PLATE_GEOMETRY_PROPERTY_CODE = "$PLATE_GEOMETRY"
 
+iBrain2DatasetId = None
+
 def createPlateWithExperimentIfNeeded(transaction, assayParser, plateCode, spaceCode, plateGeometry):
     projectCode = assayParser.get(assayParser.EXPERIMENTER_PROPERTY)
     experiment = assayParser.get(assayParser.ASSAY_ID_PROPERTY)
@@ -38,9 +40,13 @@ def createPlateWithExperimentIfNeeded(transaction, assayParser, plateCode, space
         plate.setExperiment(experiment)
     return plate
 
-
-iBrain2DatasetId = None
-
+def rollback_service(service, throwable):
+    global iBrain2DatasetId
+    commonDropbox.createFailureStatus(iBrain2DatasetId, throwable, incoming)
+        
+def rollback_transaction(service, transaction, algorithmRunner, throwable):
+    rollback_service(service, throwable)
+    
 if incoming.isDirectory():
     incomingPath = incoming.getPath()
     metadataParser = commonDropbox.AcquiredDatasetMetadataParser(incomingPath)
@@ -69,8 +75,5 @@ if incoming.isDirectory():
     dataset = tr.createNewDataSet(imageRegistrationDetails)
     dataset.setSample(plate)
     imageDataSetFolder = tr.moveFile(incomingPath, dataset)
-    tr.commit()
-    commonDropbox.createSuccessStatus(iBrain2DatasetId, dataset, incomingPath)
-
-def rollback_transaction(service, transaction, algorithmRunner, throwable):
-    commonDropbox.createFailureStatus(iBrain2DatasetId, throwable, incoming)
+    if tr.commit():
+        commonDropbox.createSuccessStatus(iBrain2DatasetId, dataset, incomingPath)

@@ -12,6 +12,13 @@ reload(commonDropbox)
 # so that the rollback can use it as well.
 iBrain2DatasetId = None
 
+def rollback_service(service, throwable):
+    global iBrain2DatasetId
+    commonDropbox.createFailureStatus(iBrain2DatasetId, throwable, incoming)
+        
+def rollback_transaction(service, transaction, algorithmRunner, throwable):
+    rollback_service(service, throwable)
+    
 def register(incomingPath):
     metadataParser = commonDropbox.DerivedDatasetMetadataParser(incomingPath)
     global iBrain2DatasetId
@@ -34,9 +41,6 @@ def register(incomingPath):
     imageDataset.setOriginalDataStorageFormat(OriginalDataStorageFormat.HDF5)
   
     commonDropbox.setImageDatasetPropertiesAndRegister(imageDataset, metadataParser, incoming, service, factory)
-
-def rollback_transaction(service, transaction, algorithmRunner, throwable):
-    commonDropbox.createFailureStatus(iBrain2DatasetId, throwable, incoming)
-            
+          
 if incoming.isDirectory():
     register(incoming.getPath())

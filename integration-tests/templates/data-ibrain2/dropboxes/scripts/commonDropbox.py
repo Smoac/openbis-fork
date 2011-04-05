@@ -77,7 +77,7 @@ class AbstractMetadataParser(AbstractPropertiesParser):
 class AcquiredDatasetMetadataParser(AbstractMetadataParser):
 	PLATE_CODE_PRPOPERTY = "barcode"
 	INSTRUMENT_PROPERTY = "instrument.id"
-	TIMESTAMP_PROPERTY = "timestamp" # not used
+	TIMESTAMP_PROPERTY = "timestamp"
 	
 	# All dataset properties.
 	# Returns:
@@ -86,6 +86,7 @@ class AcquiredDatasetMetadataParser(AbstractMetadataParser):
 		properties = AbstractPropertiesParser.getDatasetPropertiesIter(self)
 		properties = [ (key, value) for (key, value) in properties if key != "ibrain2.assay.id" ]
 		properties.append((self.INSTRUMENT_PROPERTY, self.get(self.INSTRUMENT_PROPERTY)))
+		properties.append((self.TIMESTAMP_PROPERTY, self.get(self.TIMESTAMP_PROPERTY)))	
 		return properties
 	
 	def getPlateCode(self):
@@ -254,7 +255,10 @@ def createSuccessStatus(iBrain2DatasetId, dataset, incomingPath):
 	RegistrationConfirmationUtils().createSuccessStatus(iBrain2DatasetId, datasetCode, incomingPath)
 
 def createFailureStatus(iBrain2DatasetId, throwable, incoming):
-    RegistrationConfirmationUtils().createFailureStatus(iBrain2DatasetId, throwable.getMessage(), incoming.getPath())
+	msg = throwable.getMessage()
+	if msg == None:
+		msg = throwable.toString()
+	RegistrationConfirmationUtils().createFailureStatus(iBrain2DatasetId, msg, incoming.getPath())
 	
 # -------------- TODO: remove tests
 
