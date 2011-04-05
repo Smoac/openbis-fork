@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.ProcessingDisplayCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
@@ -170,7 +171,8 @@ public class ExperimentViewer extends GenericExperimentViewer
                             new ProcessingDisplayCallback(viewContext));
                 }
             };
-        return LinkRenderer.getLinkWidget(description.getLabel(), listener, href, false);
+        String label = StringEscapeUtils.unescapeHtml(description.getLabel());
+        return LinkRenderer.getLinkWidget(label, listener, href, false);
     }
 
 }
