@@ -49,6 +49,12 @@ public class WellContent implements ISerializable
      */
     private List<IEntityProperty> wellProperties = new ArrayList<IEntityProperty>(0);
 
+    /**
+     * this is a lazy-initialized sublist of ({@link #wellProperties}),
+     * containing only the properties associated with a material.
+     */
+    private List<IEntityProperty> materialTypeProperties;
+
     private EntityReference plate;
 
     private ExperimentReference experiment;
@@ -106,19 +112,38 @@ public class WellContent implements ISerializable
         return plate;
     }
 
-    public List<Material> getMaterialContents()
+    public List<IEntityProperty> getMaterialTypeProperties()
     {
-        ArrayList<Material> materials = new ArrayList<Material>();
-        for (IEntityProperty property : wellProperties)
+        if (materialTypeProperties == null)
+        {
+            materialTypeProperties = lazyLoadMaterialProperties();
+        }
+        return Collections.unmodifiableList(materialTypeProperties);
+    }
+
+    private List<IEntityProperty> lazyLoadMaterialProperties()
+    {
+        ArrayList<IEntityProperty> materialProps = new ArrayList<IEntityProperty>();
+        for (IEntityProperty property : getWellProperties())
         {
             DataTypeCode propertyDataTypeCode = property.getPropertyType().getDataType().getCode();
             if (propertyDataTypeCode == DataTypeCode.MATERIAL)
             {
-                Material materialOrNull = property.getMaterial();
-                if (materialOrNull != null)
-                {
-                    materials.add(materialOrNull);
-                }
+                materialProps.add(property);
+            }
+        }
+        return materialProps;
+    }
+
+    public List<Material> getMaterialContents()
+    {
+        ArrayList<Material> materials = new ArrayList<Material>();
+        for (IEntityProperty property : getMaterialTypeProperties())
+        {
+            Material materialOrNull = property.getMaterial();
+            if (materialOrNull != null)
+            {
+                materials.add(materialOrNull);
             }
         }
         return materials;

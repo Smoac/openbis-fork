@@ -17,9 +17,11 @@
 package ch.systemsx.cisd.openbis.generic.shared.util;
 
 import java.util.Collection;
+import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 
 /**
@@ -47,7 +49,19 @@ public interface IColumnGroup
      * the column id. The property type label is used as column title.
      */
     public void addColumnsForAssignedProperties(String idPrefix, EntityType entityType);
-    
+
+    /**
+     * Adds a column for all given property types using the groyp identifier as prefix.
+     */
+    public void addColumnsForPropertyTypes(List<PropertyType> propertyTypes);
+
+    /**
+     * Adds a column for all given property types. The specified identifier prefix is used as a
+     * prefix which combined with the property type code to determine the column id. The property
+     * type label is used as column title.
+     */
+    public void addColumnsForPropertyTypes(String idPrefix, List<PropertyType> propertyTypes);
+
     /**
      * Adds all specified properties. The group name is used as a prefix which combined with the property
      * type code to determine the column id. The property type label is used as column title.
@@ -59,4 +73,5 @@ public interface IColumnGroup
      * type code to determine the column id. The property type label is used as column title.
      */
     public void addProperties(String idPrefix, Collection<IEntityProperty> properties);
+
 }

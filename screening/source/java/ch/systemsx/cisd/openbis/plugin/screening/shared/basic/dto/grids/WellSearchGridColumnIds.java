@@ -27,8 +27,6 @@ public class WellSearchGridColumnIds
     public static final String EXPERIMENT = "experiment";
     public static final String PLATE = "PLATE";
     public static final String WELL = "WELL";
-    public static final String WELL_ROW = "WELL_ROW";
-    public static final String WELL_COLUMN = "WELL_COLUMN";
     public static final String IMAGE_DATA_SET = "IMAGE_DATA_SET";
     public static final String IMAGE_ANALYSIS_DATA_SET = "IMAGE_ANALYSIS_DATA_SET";
     public static final String FILE_FORMAT_TYPE = "file_format_type";

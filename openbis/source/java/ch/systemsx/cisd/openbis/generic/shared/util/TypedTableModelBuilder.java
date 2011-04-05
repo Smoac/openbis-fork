@@ -141,6 +141,18 @@ public class TypedTableModelBuilder<T extends ISerializable>
             }
         }
 
+        public void addColumnsForPropertyTypes(List<PropertyType> propertyTypes)
+        {
+            addColumnsForPropertyTypes(groupKey, propertyTypes);
+        }
+
+        public void addColumnsForPropertyTypes(String idPrefix, List<PropertyType> propertyTypes)
+        {
+            for (PropertyType propertyType : propertyTypes) {
+                addColumn(idPrefix, propertyType);
+            }
+        }
+
         private IColumn addColumn(String idPrefix, PropertyType propertyType)
         {
             String label = propertyType.getLabel();
@@ -186,6 +198,7 @@ public class TypedTableModelBuilder<T extends ISerializable>
                 column.addValue(value);
             }
         }
+
     }
 
     private static final class Column implements IColumn, IColumnItem

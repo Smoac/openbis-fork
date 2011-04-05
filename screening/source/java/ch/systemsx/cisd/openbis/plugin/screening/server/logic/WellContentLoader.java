@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -715,7 +714,6 @@ public class WellContentLoader
         {
             wellContents.add(convert(uniqueWell));
         }
-        sortByWellCode(wellContents);
         List<WellContent> withProperties = enrichWithWellProperties(wellContents);
         IMaterialLister materialLister = businessObjectFactory.createMaterialLister(session);
         List<Material> containedMaterials = getMaterialsWithDuplicates(withProperties);
@@ -746,22 +744,6 @@ public class WellContentLoader
             materials.addAll(wc.getMaterialContents());
         }
         return materials;
-    }
-
-    // TODO KE: talk with Tomek : sorting by material code will appear artificial
-    // Material m1 = o1.getMaterialContents();
-    // Material m2 = o2.getMaterialContents();
-    private static void sortByWellCode(List<? extends WellContent> wellLocations)
-    {
-        Collections.sort(wellLocations, new Comparator<WellContent>()
-            {
-                public int compare(WellContent o1, WellContent o2)
-                {
-                    String o1Code = o1.getWell().getCode();
-                    String o2Code = o2.getWell().getCode();
-                    return o1Code.compareTo(o2Code);
-                }
-            });
     }
 
     private List<WellContentQueryResult> removeDuplicateWells(

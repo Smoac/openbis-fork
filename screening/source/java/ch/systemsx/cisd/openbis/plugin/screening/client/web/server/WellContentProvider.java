@@ -22,18 +22,22 @@ import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.W
 import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.WellSearchGridColumnIds.IMAGE_DATA_SET;
 import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.WellSearchGridColumnIds.PLATE;
 import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.WellSearchGridColumnIds.WELL;
-import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.WellSearchGridColumnIds.WELL_COLUMN;
 import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.WellSearchGridColumnIds.WELL_IMAGES;
-import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.WellSearchGridColumnIds.WELL_ROW;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.TreeMap;
 
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AbstractTableModelProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 import ch.systemsx.cisd.openbis.generic.shared.util.IColumn;
+import ch.systemsx.cisd.openbis.generic.shared.util.IColumnGroup;
 import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
@@ -41,7 +45,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReferen
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureValue;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.NamedFeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 
 /**
@@ -51,11 +54,9 @@ public class WellContentProvider extends AbstractTableModelProvider<WellContent>
 {
     static final String WELL_PROPERTY_ID_PREFIX = "WELL_PROPERTY-";
 
-    static final String MATERIAL_PROPERTY_ID_PREFIX = "MATERIAL-PROPERTY-";
+    static final String MATERIAL_PROPERTY_GROUP = "MATERIAL_PROPERTY-";
 
-    static final String WELL_CONTENT_PROPERTY_ID_PREFIX = "WELL_CONTENT_PROPERTY-";
-
-    static final String WELL_CONTENT_FEATURE_VECTOR_PREFIX = "WELL_CONTENT_FEATURE_VECTOR-";
+    static final String WELL_CONTENT_FEATURE_VECTOR_GROUP = "WELL_CONTENT_FEATURE_VECTOR-";
 
     private final IScreeningServer server;
 
@@ -75,90 +76,149 @@ public class WellContentProvider extends AbstractTableModelProvider<WellContent>
     protected TypedTableModel<WellContent> createTableModel()
     {
         TypedTableModelBuilder<WellContent> builder = new TypedTableModelBuilder<WellContent>();
-        addStandardWellColumns(builder);
+
         List<WellContent> wells = server.listPlateWells(sessionToken, materialCriteria);
+        List<IEntityProperty> materialPropertyOrder = extractOrderedMaterialProperties(wells);
+        sortByMaterialCodes(wells, materialPropertyOrder);
+
+        initColumnItems(builder, materialPropertyOrder);
         for (WellContent well : wells)
         {
-            addRow(builder, well);
+            addRow(builder, well, materialPropertyOrder);
         }
         return builder.getModel();
     }
 
-    private void addStandardWellColumns(TypedTableModelBuilder<WellContent> builder)
+    private void initColumnItems(TypedTableModelBuilder<WellContent> builder,
+            List<IEntityProperty> materialPropertyOrder)
     {
+        builder.addColumn(WELL_IMAGES).withDefaultWidth(500);
+
+        addMaterialColumns(builder, materialPropertyOrder);
+
+        builder.columnGroup(WELL_PROPERTY_ID_PREFIX);
         builder.addColumn(EXPERIMENT);
         builder.addColumn(PLATE);
         builder.addColumn(WELL);
-        builder.addColumn(WELL_ROW).withDataType(DataTypeCode.INTEGER);
-        builder.addColumn(WELL_COLUMN).withDataType(DataTypeCode.INTEGER);
+        builder.columnGroup(WELL_CONTENT_FEATURE_VECTOR_GROUP);
+        builder.addColumn(FILE_FORMAT_TYPE);
         builder.addColumn(IMAGE_DATA_SET);
         builder.addColumn(IMAGE_ANALYSIS_DATA_SET);
-        builder.addColumn(FILE_FORMAT_TYPE);
-        builder.addColumn(WELL_IMAGES).withDefaultWidth(500);
     }
 
-    private void addRow(TypedTableModelBuilder<WellContent> builder, WellContent well)
+    private void addMaterialColumns(TypedTableModelBuilder<WellContent> builder,
+            List<IEntityProperty> materialPropertyOrder)
+    {
+        for (IEntityProperty materialProperty : materialPropertyOrder)
+        {
+            List<PropertyType> materialPropertyType =
+                    Collections.singletonList(materialProperty.getPropertyType());
+            getMaterialColumnGroup(builder, materialProperty).addColumnsForPropertyTypes(
+                    materialPropertyType);
+
+            List<IEntityProperty> materialProperties =
+                    materialProperty.getMaterial().getProperties();
+            List<PropertyType> propertyTypes = extractPropertyTypes(materialProperties);
+            getMaterialPropsColumnGroup(builder, materialProperty).addColumnsForPropertyTypes(
+                    propertyTypes);
+        }
+    }
+
+    /**
+     * Return the id of a column group which will contain a single well property of type material.
+     * It has to be in a separate group to achieve a specific sorting in UI, where a material
+     * precedes its own properties.
+     */
+    private IColumnGroup getMaterialColumnGroup(TypedTableModelBuilder<WellContent> builder,
+            IEntityProperty materialProperty)
+    {
+        return builder.columnGroup(MATERIAL_PROPERTY_GROUP
+                + materialProperty.getPropertyType().getSimpleCode());
+    }
+
+    /**
+     * Return the id of a column group which will contain all properties for a material.
+     */
+    private IColumnGroup getMaterialPropsColumnGroup(TypedTableModelBuilder<WellContent> builder,
+            IEntityProperty materialProperty)
+    {
+        return builder.columnGroup(MATERIAL_PROPERTY_GROUP + "PROP"
+                + materialProperty.getPropertyType().getSimpleCode());
+    }
+
+    private void addRow(TypedTableModelBuilder<WellContent> builder, WellContent well,
+            List<IEntityProperty> materialPropertyOrder)
     {
         builder.addRow(well);
+
+        builder.column(WELL_IMAGES).addString(well.tryGetImageDataset() == null ? "" : "[images]");
+
+        addMaterialProperties(builder, well, materialPropertyOrder);
+        addNonMaterialProperties(builder, well);
+
+        builder.column(EXPERIMENT).addString(well.getExperiment().toString());
+        builder.column(PLATE).addString(well.getPlate().getCode());
+        builder.column(WELL).addString(well.getWell().getCode());
+
         NamedFeatureVector featureVector = well.tryGetFeatureVectorValues();
         if (featureVector != null)
         {
             addFeatureColumns(builder, featureVector);
         }
-        builder.column(EXPERIMENT).addString(well.getExperiment().toString());
-        builder.column(PLATE).addString(well.getPlate().getCode());
-        builder.column(WELL).addString(well.getWell().getCode());
-        WellLocation location = well.tryGetLocation();
-        builder.column(WELL_ROW).addInteger(location == null ? null : new Long(location.getRow()));
-        builder.column(WELL_COLUMN).addInteger(
-                location == null ? null : new Long(location.getColumn()));
+
         DatasetImagesReference imageDataset = well.tryGetImageDataset();
+        builder.column(FILE_FORMAT_TYPE).addString(
+                imageDataset == null ? null : imageDataset.getDatasetReference().getFileTypeCode());
         builder.column(IMAGE_DATA_SET).addString(
                 imageDataset == null ? null : imageDataset.getDatasetCode());
         DatasetReference dataset = well.tryGetFeatureVectorDataset();
         builder.column(IMAGE_ANALYSIS_DATA_SET).addString(
                 dataset == null ? null : dataset.getCode());
-        builder.column(FILE_FORMAT_TYPE).addString(
-                imageDataset == null ? null : imageDataset.getDatasetReference().getFileTypeCode());
-        builder.column(WELL_IMAGES).addString(well.tryGetImageDataset() == null ? "" : "[images]");
 
-        List<IEntityProperty> wellProperties = well.getWellProperties();
-        builder.columnGroup(WELL_PROPERTY_ID_PREFIX).addProperties(wellProperties);
-        addMaterialProperties(builder, wellProperties);
     }
 
-    private void addMaterialProperties(TypedTableModelBuilder<WellContent> builder,
-            List<IEntityProperty> wellProperties)
+    private void addNonMaterialProperties(TypedTableModelBuilder<WellContent> builder,
+            WellContent well)
     {
+        List<IEntityProperty> wellProperties = well.getWellProperties();
+        List<IEntityProperty> nonMaterialProperties = new ArrayList<IEntityProperty>();
         for (IEntityProperty property : wellProperties)
         {
             DataTypeCode propertyDataTypeCode = property.getPropertyType().getDataType().getCode();
             if (propertyDataTypeCode == DataTypeCode.MATERIAL)
             {
-                addMaterialProperties(builder, property);
+                // skip
+            } else
+            {
+                nonMaterialProperties.add(property);
             }
+
         }
+        builder.columnGroup(WELL_PROPERTY_ID_PREFIX).addProperties(nonMaterialProperties);
+
     }
 
     private void addMaterialProperties(TypedTableModelBuilder<WellContent> builder,
-            IEntityProperty materialProperty)
+            WellContent well, List<IEntityProperty> materialPropsOrder)
     {
-        Material materialOrNull = materialProperty.getMaterial();
-        if (materialOrNull != null)
+        for (IEntityProperty materialTypeProperty : well.getMaterialTypeProperties())
         {
-            List<IEntityProperty> materialProperties = materialOrNull.getProperties();
-            if (materialProperties != null)
+            Material materialOrNull = materialTypeProperty.getMaterial();
+            if (materialOrNull != null)
             {
-                String materialPropsGroupId = getMaterialPropsGroupId(materialProperty);
-                builder.columnGroup(materialPropsGroupId)
-                        .addProperties(materialOrNull.getProperties());
+                // add the material as a column
+                getMaterialColumnGroup(builder, materialTypeProperty).addProperties(
+                        Collections.singletonList(materialTypeProperty));
+
+                // add the material properties as columns
+                List<IEntityProperty> materialProperties = materialOrNull.getProperties();
+                if (materialProperties != null)
+                {
+                    getMaterialPropsColumnGroup(builder, materialTypeProperty).addProperties(
+                            materialOrNull.getProperties());
+                }
             }
         }
-    }
-
-    private String getMaterialPropsGroupId(IEntityProperty property)
-    {
-        return MATERIAL_PROPERTY_ID_PREFIX + property.getPropertyType().getSimpleCode() + "-";
     }
 
     private void addFeatureColumns(TypedTableModelBuilder<WellContent> builder,
@@ -170,7 +230,7 @@ public class WellContentProvider extends AbstractTableModelProvider<WellContent>
         for (int i = 0; i < values.length; i++)
         {
             IColumn column =
-                    builder.column(WELL_CONTENT_FEATURE_VECTOR_PREFIX + codes[i]).withTitle(
+                    builder.column(WELL_CONTENT_FEATURE_VECTOR_GROUP + codes[i]).withTitle(
                             labels[i]);
             FeatureValue featureValue = values[i];
             if (featureValue.isFloat())
@@ -181,5 +241,70 @@ public class WellContentProvider extends AbstractTableModelProvider<WellContent>
                 column.addString(featureValue.tryAsVocabularyTerm());
             }
         }
+    }
+
+    private List<PropertyType> extractPropertyTypes(List<IEntityProperty> materialProperties)
+    {
+        List<PropertyType> propertyTypes = new ArrayList<PropertyType>();
+        if (materialProperties != null)
+        {
+            for (IEntityProperty prop : materialProperties)
+            {
+                propertyTypes.add(prop.getPropertyType());
+            }
+        }
+        return propertyTypes;
+    }
+
+    private List<IEntityProperty> extractOrderedMaterialProperties(List<WellContent> wells)
+    {
+        TreeMap<String, IEntityProperty> orderedMaterialProps =
+                new TreeMap<String, IEntityProperty>();
+        for (WellContent well : wells)
+        {
+            for (IEntityProperty materialProperty : well.getMaterialTypeProperties())
+            {
+                String propCode = materialProperty.getPropertyType().getCode();
+                orderedMaterialProps.put(propCode, materialProperty);
+            }
+        }
+
+        return new ArrayList<IEntityProperty>(orderedMaterialProps.values());
+    }
+
+    
+    private void sortByMaterialCodes(List<WellContent> wells,
+            final List<IEntityProperty> materialPropsOrder)
+    {
+        Collections.sort(wells, new Comparator<WellContent>()
+            {
+                public int compare(WellContent o1, WellContent o2)
+                {
+                    for (IEntityProperty materialProperty : materialPropsOrder)
+                    {
+                        String materialPropCode = materialProperty.getPropertyType().getCode();
+                        boolean o1HasMaterial = hasMaterialTypeProperty(o1, materialPropCode);
+                        boolean o2HasMaterial = hasMaterialTypeProperty(o2, materialPropCode);
+                        if (o1HasMaterial != o2HasMaterial)
+                        {
+                            return (o1HasMaterial) ? -1 : 1;
+                        }
+                    }
+                    return 0;
+                }
+
+            });
+    }
+
+    private boolean hasMaterialTypeProperty(WellContent well, String materialPropCode)
+    {
+        for (IEntityProperty materialProp : well.getMaterialTypeProperties())
+        {
+            if (materialProp.getPropertyType().getCode().equals(materialPropCode))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }
