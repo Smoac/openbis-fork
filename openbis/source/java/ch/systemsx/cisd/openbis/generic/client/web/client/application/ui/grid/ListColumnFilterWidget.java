@@ -52,7 +52,9 @@ public class ListColumnFilterWidget<T> extends ComboBox<ModelData> implements
 {
     private static final int FILTER_APPLICATION_TIMEOUT_MS = 500;
 
-    private final static String MODEL_DISPLAY_KEY = "key";
+    private final static String MODEL_DISPLAY_KEY = "unescaped_value";
+
+    private final static String MODEL_ESCAPED_DISPLAY_KEY = "escaped_value";
 
     private final static String MODEL_VALUE_KEY = "value";
 
@@ -96,7 +98,8 @@ public class ListColumnFilterWidget<T> extends ComboBox<ModelData> implements
         String label = filteredField.getHeader();
         setEmptyText(label);
         setToolTip(label);
-        setTemplate(GWTUtils.getTooltipTemplate(MODEL_VALUE_KEY, ModelDataPropertyNames.TOOLTIP));
+        setTemplate(GWTUtils.getTooltipTemplate(MODEL_ESCAPED_DISPLAY_KEY,
+                ModelDataPropertyNames.TOOLTIP));
 
         GWTUtils.setupAutoWidth(this);
     }
@@ -151,10 +154,13 @@ public class ListColumnFilterWidget<T> extends ComboBox<ModelData> implements
             {
                 displayValue = EMPTY_VALUE;
             }
-            displayValue = StringEscapeUtils.unescapeHtml(displayValue);
             model.set(MODEL_DISPLAY_KEY, displayValue);
+            displayValue = StringEscapeUtils.escapeHtml(displayValue);
+            model.set(MODEL_ESCAPED_DISPLAY_KEY, displayValue);
+            // WORKAROUND to have consistent value displayed in combo box field, list & tooltip 
+            // (no idea why tooltip has to be escaped twice)
+            model.set(ModelDataPropertyNames.TOOLTIP, StringEscapeUtils.escapeHtml(displayValue));
             model.set(MODEL_VALUE_KEY, value);
-            model.set(ModelDataPropertyNames.TOOLTIP, StringEscapeUtils.escapeHtml(value));
             models.add(model);
         }
         return models;
