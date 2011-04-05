@@ -41,12 +41,6 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         AbstractOmniscientTopLevelDataSetRegistrator<T>
 {
     /**
-     * The name of the function to define to hook into the data set registration rollback mechanism.
-     */
-    private static final String ROLLBACK_DATA_SET_REGISTRATION_FUNCTION_NAME =
-            "rollback_data_set_registration";
-
-    /**
      * The name of the function to define to hook into the service rollback mechanism.
      */
     private static final String ROLLBACK_SERVICE_FUNCTION_NAME = "rollback_service";
@@ -166,22 +160,6 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     }
 
     @Override
-    public void rollback(DataSetRegistrationService<T> service,
-            DataSetRegistrationAlgorithm registrationAlgorithm, Throwable throwable)
-    {
-        PythonInterpreter interpreter = getInterpreterFromService(service);
-        PyFunction function =
-                tryJythonFunction(interpreter, ROLLBACK_DATA_SET_REGISTRATION_FUNCTION_NAME);
-        if (null != function)
-        {
-            invokeRollbackDataSetRegistrationFunction(function, service, registrationAlgorithm,
-                    throwable);
-        }
-
-        super.rollback(service, registrationAlgorithm, throwable);
-    }
-
-    @Override
     protected void rollback(DataSetRegistrationService<T> service, Throwable throwable)
     {
         PythonInterpreter interpreter = getInterpreterFromService(service);
@@ -212,6 +190,15 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         if (null != function)
         {
             invokeRollbackTransactionFunction(function, service, transaction, algorithmRunner, ex);
+        } else
+        {
+            // No Rollback transaction function was called, see if the rollback service function was
+            // defined, and call it.
+            function = tryJythonFunction(interpreter, ROLLBACK_SERVICE_FUNCTION_NAME);
+            if (null != function)
+            {
+                invokeRollbackServiceFunction(function, service, ex);
+            }
         }
     }
 

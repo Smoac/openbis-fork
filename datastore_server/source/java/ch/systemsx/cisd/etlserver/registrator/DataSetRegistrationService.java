@@ -25,7 +25,6 @@ import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.BaseDirectoryHolder;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm;
-import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm.DataSetRegistrationAlgorithmState;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithmRunner;
 import ch.systemsx.cisd.etlserver.FileRenamer;
 import ch.systemsx.cisd.etlserver.IDataStoreStrategy;
@@ -33,13 +32,11 @@ import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.IdentifiedDataStrategy;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.TransferredDataSetHandler;
-import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.DoNothingDelegatedAction;
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
 
 /**
@@ -47,50 +44,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-/**
- * 
- *
- * @author Chandrasekhar Ramakrishnan
- */
-/**
- * 
- *
- * @author Chandrasekhar Ramakrishnan
- */
-/**
- * 
- *
- * @author Chandrasekhar Ramakrishnan
- */
-/**
- * @author Chandrasekhar Ramakrishnan
- */
-/**
- * @author Chandrasekhar Ramakrishnan
- */
 public class DataSetRegistrationService<T extends DataSetInformation> implements
-        DataSetRegistrationAlgorithm.IRollbackDelegate, IDataSetRegistrationService
+        IDataSetRegistrationService
 {
-    /**
-     * A data set that will be created but might not yet exist.
-     * 
-     * @author Chandrasekhar Ramakrishnan
-     */
-    public static class FutureDataSet
-    {
-        private final String code;
-
-        public FutureDataSet(String code)
-        {
-            this.code = code;
-        }
-
-        public String getCode()
-        {
-            return code;
-        }
-    }
-
     static final String STAGING_DIR = "staging-dir";
 
     private final AbstractOmniscientTopLevelDataSetRegistrator<T> registrator;
@@ -156,21 +112,6 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     public OmniscientTopLevelDataSetRegistratorState getRegistratorContext()
     {
         return registratorContext;
-    }
-
-    /**
-     * Queue registration a data set and return a future for the data set that will be created.
-     */
-    public FutureDataSet queueDataSetRegistration(File dataSetFile,
-            final DataSetRegistrationDetails<T> details)
-    {
-        DataSetRegistrationAlgorithm registration =
-                createRegistrationAlgorithm(dataSetFile, details);
-        dataSetRegistrations.add(registration);
-
-        FutureDataSet future =
-                new FutureDataSet(registration.getDataSetInformation().getDataSetCode());
-        return future;
     }
 
     /**
@@ -363,62 +304,6 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
                 transaction.rollback();
             }
         }
-    }
-
-    private DataSetRegistrationAlgorithm createRegistrationAlgorithm(File aDataSetFile,
-            DataSetRegistrationDetails<T> details)
-    {
-        final TopLevelDataSetRegistratorGlobalState globalState =
-                registratorContext.getGlobalState();
-        details.getDataSetInformation().setShareId(globalState.getShareId());
-        final IDelegatedActionWithResult<Boolean> cleanAfterwardsAction =
-                new DoNothingDelegatedAction();
-
-        IDataStoreStrategy dataStoreStrategy =
-                registratorContext.getDataStrategyStore().getDataStoreStrategy(
-                        details.getDataSetInformation(), aDataSetFile);
-
-        DataSetRegistrationAlgorithmState state =
-                new DataSetRegistrationAlgorithmState(aDataSetFile,
-                        globalState.getOpenBisService(), cleanAfterwardsAction,
-                        registratorContext.getPreRegistrationAction(),
-                        registratorContext.getPostRegistrationAction(),
-                        details.getDataSetInformation(), dataStoreStrategy, details,
-                        registratorContext.getStorageProcessor(),
-                        registratorContext.getFileOperations(), globalState.getDataSetValidator(),
-                        globalState.getMailClient(), globalState.isDeleteUnidentified(),
-                        registratorContext.getRegistrationLock(), globalState.getDssCode(),
-                        globalState.isNotifySuccessfulRegistration());
-        return new DataSetRegistrationAlgorithm(state, this,
-                new DefaultApplicationServerRegistrator(registrator,
-                        details.getDataSetInformation()));
-    }
-
-    private static class DefaultApplicationServerRegistrator implements
-            DataSetRegistrationAlgorithm.IDataSetInApplicationServerRegistrator
-    {
-        private final AbstractOmniscientTopLevelDataSetRegistrator<?> registrator;
-
-        private final DataSetInformation dataSetInformation;
-
-        DefaultApplicationServerRegistrator(
-                AbstractOmniscientTopLevelDataSetRegistrator<?> registrator,
-                DataSetInformation dataSetInformation)
-        {
-            this.dataSetInformation = dataSetInformation;
-            this.registrator = registrator;
-        }
-
-        public void registerDataSetInApplicationServer(NewExternalData data) throws Throwable
-        {
-            registrator.registerDataSetInApplicationServer(dataSetInformation, data);
-        }
-    }
-
-    public void rollback(DataSetRegistrationAlgorithm algorithm, Throwable ex)
-    {
-        encounteredErrors.add(ex);
-        registrator.rollback(this, algorithm, ex);
     }
 
     protected AbstractOmniscientTopLevelDataSetRegistrator<T> getRegistrator()

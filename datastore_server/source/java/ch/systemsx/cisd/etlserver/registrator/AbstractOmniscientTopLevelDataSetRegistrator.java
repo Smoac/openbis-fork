@@ -34,8 +34,6 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.etlserver.AbstractTopLevelDataSetRegistrator;
-import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm;
-import ch.systemsx.cisd.etlserver.DataSetRegistrationRollbacker;
 import ch.systemsx.cisd.etlserver.DataStrategyStore;
 import ch.systemsx.cisd.etlserver.IDataStrategyStore;
 import ch.systemsx.cisd.etlserver.IPostRegistrationAction;
@@ -317,23 +315,6 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
     {
         new TopLevelDataSetChecker(operationLog, state.storageProcessor, state.fileOperations)
                 .runCheck();
-    }
-
-    /**
-     * Rollback a failure when trying to register an individual data set.
-     * <p>
-     * Subclasses may override, but should call super.
-     * 
-     * @param dataSetRegistrationService
-     */
-    public void rollback(DataSetRegistrationService<T> dataSetRegistrationService,
-            DataSetRegistrationAlgorithm registrationAlgorithm, Throwable throwable)
-    {
-        updateStopped(throwable instanceof InterruptedExceptionUnchecked);
-
-        new DataSetRegistrationRollbacker(stopped, registrationAlgorithm,
-                registrationAlgorithm.getIncomingDataSetFile(), notificationLog, operationLog,
-                throwable).doRollback();
     }
 
     /**

@@ -988,14 +988,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
 
         @Override
         public void rollback(DataSetRegistrationService<DataSetInformation> service,
-                DataSetRegistrationAlgorithm registrationAlgorithm, Throwable throwable)
-        {
-            super.rollback(service, registrationAlgorithm, throwable);
-            didDataSetRollbackHappen = true;
-        }
-
-        @Override
-        public void rollback(DataSetRegistrationService<DataSetInformation> service,
                 Throwable throwable)
         {
             super.rollback(service, throwable);
