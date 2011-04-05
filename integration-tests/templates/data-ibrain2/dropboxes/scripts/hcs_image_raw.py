@@ -18,14 +18,14 @@ def createPlateWithExperimentIfNeeded(transaction, assayParser, plateCode, space
     experimentType = assayParser.get(assayParser.ASSAY_TYPE_PROPERTY)
     
     if transaction.getSpace(spaceCode) == None:
-        tr.createNewSpace(spaceCode, None)
+        transaction.createNewSpace(spaceCode, None)
     
     sampleIdentifier = "/"+spaceCode+"/"+plateCode
-    plateCode = transaction.getSample(sampleIdentifier)
-    if plateCode == None:
+    plate = transaction.getSample(sampleIdentifier)
+    if plate == None:
         projectIdent = "/" + spaceCode +"/" + projectCode
         if transaction.getProject(projectIdent) == None:
-            tr.createNewProject(projectIdent)
+            transaction.createNewProject(projectIdent)
         expIdentifier = projectIdent + "/"+experiment
         experiment = transaction.getExperiment(expIdentifier)
         if experiment == None:
@@ -33,10 +33,10 @@ def createPlateWithExperimentIfNeeded(transaction, assayParser, plateCode, space
             openbisExpDesc = experimentDesc + " (type: "+experimentType + ")"
             experiment.setPropertyValue("DESCRIPTION", openbisExpDesc)
 
-        plateCode = transaction.createNewSample(sampleIdentifier, PLATE_TYPE_CODE)
-        plateCode.setPropertyValue(PLATE_GEOMETRY_PROPERTY_CODE, plateGeometry)
-        plateCode.setExperiment(experiment)
-    return plateCode
+        plate = transaction.createNewSample(sampleIdentifier, PLATE_TYPE_CODE)
+        plate.setPropertyValue(PLATE_GEOMETRY_PROPERTY_CODE, plateGeometry)
+        plate.setExperiment(experiment)
+    return plate
 
 
 iBrain2DatasetId = None
