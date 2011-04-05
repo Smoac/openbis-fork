@@ -206,11 +206,11 @@ public class WellContentProvider extends AbstractTableModelProvider<WellContent>
             Material materialOrNull = materialTypeProperty.getMaterial();
             if (materialOrNull != null)
             {
-                // add the material as a column
+                // add material column
                 getMaterialColumnGroup(builder, materialTypeProperty).addProperties(
                         Collections.singletonList(materialTypeProperty));
 
-                // add the material properties as columns
+                // add material properties columns
                 List<IEntityProperty> materialProperties = materialOrNull.getProperties();
                 if (materialProperties != null)
                 {
