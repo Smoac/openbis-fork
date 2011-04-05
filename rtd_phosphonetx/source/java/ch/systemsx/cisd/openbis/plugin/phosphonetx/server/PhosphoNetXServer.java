@@ -301,7 +301,7 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
                 for (Occurrence occurrence : occurances)
                 {
                     samples.add(createProteinRelatedSample(samplePeptideModification, sample,
-                            abundanceOrNull, position + occurrence.getEndIndex(), cache));
+                            abundanceOrNull, position + occurrence.getStartIndex(), cache));
                 }
             } else
             {
