@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 public abstract class AbstractTableModelProvider<T extends ISerializable> implements
         ITableModelProvider<T>
 {
+    private TypedTableModel<T> tableModel = null;
 
     /**
      * Creates the table model with the specified maximum number of rows. If
@@ -40,7 +41,10 @@ public abstract class AbstractTableModelProvider<T extends ISerializable> implem
      */
     public TypedTableModel<T> getTableModel(int maxSize)
     {
-        TypedTableModel<T> tableModel = createTableModel();
+        if (tableModel == null)
+        {
+            tableModel = createTableModel();
+        }
         List<TableModelColumnHeader> headers = tableModel.getHeader();
         List<TableModelRowWithObject<T>> rows = tableModel.getRows();
         List<TableModelRowWithObject<T>> limitedRows = new ArrayList<TableModelRowWithObject<T>>();
