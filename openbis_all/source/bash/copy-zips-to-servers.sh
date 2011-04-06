@@ -19,9 +19,9 @@ export CHIPDB=bs-openbis09.ethz.ch
 # Different types of server specific zips we distinguish
 export ZIPS="openBIS-server-S*.zip  datastore_server-S*.zip"
 export ZIPS_PHOSPHONETX="*phosphonetx*.zip datastore_server-S*.zip"
-export ZIPS_DSU="openBIS-server-S*.zip datastore_server-S*.zip *dsu*.zip"
+export ZIPS_DSU="openBIS-server-S*.zip datastore_server-S*.zip *dsu*.zip *tracking*"
 export ZIPS_BASYSBIO="*basysbio*.zip openBIS-server-S*.zip datastore_server-S*"
-export ZIPS_CINA=" openBIS-server-S*.zip *cina-*.zip datastore_server-S*"
+export ZIPS_CINA="*screening* *cina*"
 export ZIPS_PLASMIDS="*plasmid* openBIS-server-S*.zip datastore_server-S*"
 
 # Special plugin
