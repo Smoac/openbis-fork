@@ -473,13 +473,15 @@ public abstract class AbstractClientService implements IClientService,
     {
         try
         {
-            final SessionContextDTO session = getServer().tryGetSession(getSessionToken());
+            final String sessionToken = getSessionToken();
+            final SessionContextDTO session = getServer().tryGetSession(sessionToken);
             if (session == null)
             {
                 return null;
             } else if (anonymous != session.isAnonymous())
             {
                 operationLog.debug("expected: " + anonymous + " found: " + session.isAnonymous());
+                getServer().logout(sessionToken);
                 return null;
             }
             return createSessionContext(session);
