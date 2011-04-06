@@ -22,6 +22,11 @@ mkdir -p $CONFIG
 $BASE/backup-config.sh $CONFIG
 
 OLD_BIS=$BACKUP_DIR/openBIS-server
+
+echo "Copying old installation to backup dir"
+echo "mv $ROOT_DIR/openBIS-server $OLD_BIS"
+echo "mv $ROOT_DIR/datastore_server $BACKUP_DIR/datastore_server"
+
 mv $ROOT_DIR/openBIS-server $OLD_BIS 
 mv $ROOT_DIR/datastore_server $BACKUP_DIR/datastore_server
 
