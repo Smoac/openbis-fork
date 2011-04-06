@@ -31,10 +31,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IAbundanceColumnDefinitionTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinDetailsBO;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinRelatedSampleTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.ISampleProvider;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNetXDAOFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IProteinQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AbundanceColumnDefinition;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinDetails;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinRelatedSample;
 
 /**
  * 
@@ -55,6 +59,8 @@ public class PhosphoNetXServerTest extends AbstractServerTestCase
     private PhosphoNetXServer server;
     private IAbundanceColumnDefinitionTable abundanceColumnDefinitionTable;
     private ISampleProvider sampleProvider;
+    private IProteinDetailsBO proteinDetailsBO;
+    private IProteinRelatedSampleTable proteinRelatedSampleTable;
     
     @Override
     @BeforeMethod
@@ -67,6 +73,8 @@ public class PhosphoNetXServerTest extends AbstractServerTestCase
         dataSetTypeSlaveServerPlugin = context.mock(IDataSetTypeSlaveServerPlugin.class);
         proteinDAO = context.mock(IProteinQueryDAO.class);
         abundanceColumnDefinitionTable = context.mock(IAbundanceColumnDefinitionTable.class);
+        proteinDetailsBO = context.mock(IProteinDetailsBO.class);
+        proteinRelatedSampleTable = context.mock(IProteinRelatedSampleTable.class);
         sampleProvider = context.mock(ISampleProvider.class);
         server =
                 new PhosphoNetXServer(sessionManager, daoFactory, propertiesBatchManager,
@@ -77,6 +85,12 @@ public class PhosphoNetXServerTest extends AbstractServerTestCase
                 {
                     allowing(phosphoNetXDAOFactory).getProteinQueryDAO();
                     will(returnValue(proteinDAO));
+                    
+                    allowing(boFactory).createProteinDetailsBO(SESSION);
+                    will(returnValue(proteinDetailsBO));
+                    
+                    allowing(boFactory).createProteinRelatedSampleTable(SESSION);
+                    will(returnValue(proteinRelatedSampleTable));
                 }
             });
     }
@@ -124,6 +138,38 @@ public class PhosphoNetXServerTest extends AbstractServerTestCase
                     EXPERIMENT_ID, "PH");
         assertSame(result, definitions);
         assertEquals(true, mockDataSet.hasCloseBeenInvoked());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testListProteinRelatedSamplesByProtein()
+    {
+        prepareGetSession();
+        final TechId experimentID = new TechId(42);
+        final TechId proteinReferenceID = new TechId(4711);
+        final List<Object> result = Arrays.asList();
+        context.checking(new Expectations()
+            {
+                {
+                    one(proteinDetailsBO).loadByExperimentAndReference(experimentID,
+                            proteinReferenceID);
+                    one(proteinDetailsBO).getDetailsOrNull();
+                    ProteinDetails details = new ProteinDetails();
+                    String sequence = "abcdefabcab";
+                    details.setSequence(sequence);
+                    will(returnValue(details));
+
+                    one(proteinRelatedSampleTable).load(experimentID, proteinReferenceID, sequence);
+                    one(proteinRelatedSampleTable).getSamples();
+                    will(returnValue(result));
+                }
+            });
+
+        List<ProteinRelatedSample> list =
+                server.listProteinRelatedSamplesByProtein(SESSION_TOKEN, experimentID,
+                        proteinReferenceID);
+        
+        assertSame(result, list);
         context.assertIsSatisfied();
     }
     

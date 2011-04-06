@@ -36,6 +36,11 @@ public class EntityTypePropertyTypePEBuilder
         entityTypePropertyTypePE.setPropertyType(propertyType);
     }
     
+    public EntityTypePropertyTypePE getEntityTypePropertyType()
+    {
+        return entityTypePropertyTypePE;
+    }
+    
     public EntityTypePropertyTypePEBuilder ordinal(int ordinal)
     {
         entityTypePropertyTypePE.setOrdinal((long) ordinal);

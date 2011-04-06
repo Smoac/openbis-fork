@@ -77,6 +77,11 @@ public class BusinessObjectFactory  extends AbstractPluginBusinessObjectFactory 
         return new ProteinDetailsBO(daoFactory, specificDAOFactory, session);
     }
 
+    public IProteinRelatedSampleTable createProteinRelatedSampleTable(Session session)
+    {
+        return new ProteinRelatedSampleTable(daoFactory, specificDAOFactory);
+    }
+
     public ISampleTable createSampleTable(Session session)
     {
         return new SampleTable(daoFactory, specificDAOFactory, session);

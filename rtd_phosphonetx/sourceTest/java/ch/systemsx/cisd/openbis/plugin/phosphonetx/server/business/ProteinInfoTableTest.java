@@ -30,13 +30,10 @@ import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.MockDataSet;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNetXDAOFactory;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IProteinQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AbundanceColumnDefinition;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AggregateFunction;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinInfo;
@@ -49,7 +46,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWi
  *
  * @author Franz-Josef Elmer
  */
-public class ProteinInfoTableTest extends AbstractServerTestCase
+public class ProteinInfoTableTest extends AbstractBOTestCase
 {
     private static final double COVERAGE = 0.5;
     private static final String PERM_ID_PREFIX = "abc-";
@@ -67,8 +64,6 @@ public class ProteinInfoTableTest extends AbstractServerTestCase
     private static final double FALSE_DISCOVERY_RATE = 0.25;
     private static final String ACCESSION_NUMBER = "ABC123";
     
-    private IPhosphoNetXDAOFactory specificDAOFactory;
-    private IProteinQueryDAO proteinDAO;
     private ProteinInfoTable table;
     private ArrayList<AbundanceColumnDefinition> definitions;
     private ISampleProvider sampleProvider;
@@ -78,16 +73,7 @@ public class ProteinInfoTableTest extends AbstractServerTestCase
     public void setUp()
     {
         super.setUp();
-        specificDAOFactory = context.mock(IPhosphoNetXDAOFactory.class);
-        proteinDAO = context.mock(IProteinQueryDAO.class);
         sampleProvider = context.mock(ISampleProvider.class);
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(specificDAOFactory).getProteinQueryDAO();
-                    will(returnValue(proteinDAO));
-                }
-            });
         table = new ProteinInfoTable(daoFactory, specificDAOFactory, SESSION, sampleProvider);
         definitions = new ArrayList<AbundanceColumnDefinition>();
         definitions.add(create(SAMPLE_ID_1, SAMPLE_ID_2));
