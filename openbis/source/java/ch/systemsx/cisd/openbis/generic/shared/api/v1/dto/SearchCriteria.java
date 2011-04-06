@@ -28,15 +28,19 @@ import org.apache.commons.lang.builder.ToStringStyle;
 
 /**
  * A (mutable) object representing the specification of a search. A search is specified by
- * MatchClause objects and an operator for combining match clauses.
+ * MatchClause objects and an operator for combining match clauses. Additionally sub criteria can be
+ * added for entities connected with the main entity object.
  * <p>
  * A MatchClause is made up of a property or attribute to compare against and a desired value for
  * that property or attribute.
  * <p>
  * Example:<br>
- * <blockquote> Match all of the following clauses: <blockquote> Attribute('TYPE') = [desired value]
- * <br>
- * Property('PROPERTY_CODE') = [desired value] </blockquote> </blockquote>
+ * <blockquote> Match all of the following clauses:
+ * <ul>
+ * <li>Attribute('TYPE') = [desired value]
+ * <li>Property('PROPERTY_CODE') = [desired value]
+ * </ul>
+ * </blockquote>
  * <p>
  * Looks like this:<br>
  * <blockquote><code>
@@ -44,7 +48,17 @@ import org.apache.commons.lang.builder.ToStringStyle;
         sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE, "A_TYPE_CODE"));<br>
         sc.addMatchClause(MatchClause.createPropertyMatch("PROPERTY_CODE", "a property value"));<br>
  * </code></blockquote>
+ * <p>
+ * Extension of the previous example with with experiment criteria:<br>
+ * <blockquote><code>
+        SearchCriteria ec = new SearchCriteria();<br>
+        ec.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "EXP_CODE"));<br>
+        sc.addSubCriteria(SearchSubCriteria.createExperimentCriteria(ec));<br>
+ * </code> </blockquote>
+ * <p>
+ * For other sub criteria types see {@link SearchSubCriteria}.
  * 
+ * @see SearchSubCriteria
  * @author Chandrasekhar Ramakrishnan
  */
 public class SearchCriteria implements Serializable
