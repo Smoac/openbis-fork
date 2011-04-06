@@ -348,7 +348,7 @@ public final class FileUploadWidget extends LayoutContainer
         textAreaConfig.setAllowBlank(true);
         textAreaConfig.setFieldLabel(msg(CREATE_USER_COMMENT_LABEL));
         textAreaConfig.setName("upload-comment");
-        textAreaConfig.setPreventScrollbars(true);
+        textAreaConfig.setPreventScrollbars(false);
         trySetInitialValueFromURL(textAreaConfig, Constants.COMMENT_PARAMETER);
         return textAreaConfig;
     }
