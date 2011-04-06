@@ -20,9 +20,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.RandomAccessFile;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
@@ -85,12 +83,6 @@ public class FileBasedContent implements IContent
 
     public IRandomAccessFile getReadOnlyRandomAccessFile()
     {
-        try
-        {
-            return new RandomAccessFileImpl(new RandomAccessFile(file, "r"));
-        } catch (IOException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        }
+        return new RandomAccessFileImpl(file, "r");
     }
 }
