@@ -96,14 +96,16 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
                 //
                 // IPageController
                 //
-
                 public final void reload(final boolean logout)
                 {
                     if (logout)
                     {
-                        initializeControllers(openUrlController);
+                        // refresh the entire page
+                        Window.Location.reload();
+                    } else
+                    {
+                        onModuleLoad();
                     }
-                    onModuleLoad();
                 }
 
             };

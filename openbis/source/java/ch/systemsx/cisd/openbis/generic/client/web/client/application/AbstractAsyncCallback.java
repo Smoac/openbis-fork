@@ -230,7 +230,7 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
         }
         if (caught instanceof InvalidSessionException)
         {
-            showSessionTerminated(msg);
+            handleSessionTerminated(msg);
         } else
         {
             callbackListener.onFailureOf(viewContext, this, msg, caught);
@@ -253,6 +253,25 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
         }
     }
 
+    private void refreshPageInBrowser()
+    {
+        if (viewContext != null)
+        {
+            viewContext.getPageController().reload(true);
+        }
+    }
+
+    private void handleSessionTerminated(String msg)
+    {
+        if (viewContext.isSimpleOrEmbeddedMode())
+        {
+            refreshPageInBrowser();
+        } else
+        {
+            showSessionTerminated(msg);
+        }
+    }
+
     private void showSessionTerminated(String msg)
     {
         Dialog dialog = new Dialog();
@@ -269,10 +288,9 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
                 @Override
                 public void windowHide(WindowEvent we)
                 {
-                    if (viewContext != null && reloadWhenSessionTerminated)
+                    if (reloadWhenSessionTerminated)
                     {
-                        final IPageController pageController = viewContext.getPageController();
-                        pageController.reload(true);
+                        refreshPageInBrowser();
                     }
                 }
             });
