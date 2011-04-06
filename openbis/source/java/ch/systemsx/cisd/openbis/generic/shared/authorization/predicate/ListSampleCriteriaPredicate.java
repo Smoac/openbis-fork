@@ -16,12 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.authorization.predicate;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -39,6 +42,9 @@ public class ListSampleCriteriaPredicate extends AbstractSpacePredicate<ListSamp
 
     private final SampleTechIdPredicate sampleTechIdPredicate = new SampleTechIdPredicate();
 
+    private final SampleTechIdCollectionPredicate sampleTechIdCollectionPredicate =
+            new SampleTechIdCollectionPredicate();
+
     private DatabaseInstancePE homeDatabase;
 
     @Override
@@ -54,6 +60,7 @@ public class ListSampleCriteriaPredicate extends AbstractSpacePredicate<ListSamp
         homeDatabase = provider.getHomeDatabaseInstance();
         experimentTechIdPredicate.init(provider);
         sampleTechIdPredicate.init(provider);
+        sampleTechIdCollectionPredicate.init(provider);
     }
 
     @Override
@@ -64,29 +71,39 @@ public class ListSampleCriteriaPredicate extends AbstractSpacePredicate<ListSamp
         if (value.getExperimentId() != null)
         {
             status =
-                    experimentTechIdPredicate.doEvaluation(person, allowedRoles, value
-                            .getExperimentId());
-        } else if (value.getContainerSampleId() != null)
+                    experimentTechIdPredicate.doEvaluation(person, allowedRoles,
+                            value.getExperimentId());
+        } else if (value.getContainerSampleIds() != null)
         {
             status =
-                    sampleTechIdPredicate.doEvaluation(person, allowedRoles, value
-                            .getContainerSampleId());
+                    sampleTechIdCollectionPredicate.doEvaluation(person, allowedRoles,
+                            asTechIds(value.getContainerSampleIds()));
         } else if (value.getParentSampleId() != null)
         {
             status =
-                    sampleTechIdPredicate.doEvaluation(person, allowedRoles, value
-                            .getParentSampleId());
+                    sampleTechIdPredicate.doEvaluation(person, allowedRoles,
+                            value.getParentSampleId());
         } else if (value.getChildSampleId() != null)
         {
             status =
-                    sampleTechIdPredicate.doEvaluation(person, allowedRoles, value
-                            .getChildSampleId());
+                    sampleTechIdPredicate.doEvaluation(person, allowedRoles,
+                            value.getChildSampleId());
         }
         if (value.isIncludeSpace() && status == Status.OK)
         {
             status = evaluate(person, allowedRoles, homeDatabase, value.getSpaceCode());
         }
         return status;
+    }
+
+    private static List<TechId> asTechIds(Collection<Long> ids)
+    {
+        List<TechId> techIds = new ArrayList<TechId>();
+        for (Long id : ids)
+        {
+            techIds.add(new TechId(id));
+        }
+        return techIds;
     }
 
 }

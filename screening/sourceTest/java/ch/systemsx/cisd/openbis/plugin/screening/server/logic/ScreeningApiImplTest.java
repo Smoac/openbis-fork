@@ -107,7 +107,8 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
             });
 
         List<WellIdentifier> wells = screeningApi.listPlateWells(pi);
-        assertEquals(plate.getId(), listerCriteria.recordedObject().getContainerSampleId().getId());
+        assertEquals(plate.getId(), listerCriteria.recordedObject().getContainerSampleIds()
+                .iterator().next());
         assertEquals(2, wells.size());
         assertEquals(wellIdentifier(pi, "w1", 1, 1), wells.get(0));
         assertEquals(wellIdentifier(pi, "w2", 1, 2), wells.get(1));
@@ -143,7 +144,8 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
 
         List<WellIdentifier> wells = screeningApi.listPlateWells(pi);
 
-        assertEquals(plate.getId(), listerCriteria.recordedObject().getContainerSampleId().getId());
+        assertEquals(plate.getId(), listerCriteria.recordedObject().getContainerSampleIds()
+                .iterator().next());
         assertEquals(2, wells.size());
         assertEquals(wellIdentifier(pi, "w1", 1, 1), wells.get(0));
         assertEquals(wellIdentifier(pi, "w2", 1, 2), wells.get(1));

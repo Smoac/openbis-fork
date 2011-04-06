@@ -222,10 +222,11 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
     //
 
     /**
-     * Returns the samples for the given <var>sampleContainerId</var>.
+     * Returns the samples for the given <var>sampleContainerIds</var>.
      */
-    @Select(sql = SELECT_FROM_SAMPLES_S + " where s.samp_id_part_of=?{1}", fetchSize = FETCH_SIZE)
-    public DataIterator<SampleRecord> getSamplesForContainer(long sampleContainerId);
+    @Select(sql = SELECT_FROM_SAMPLES_S + " where s.samp_id_part_of=any(?{1})", parameterBindings =
+        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<SampleRecord> getSamplesForContainer(LongSet sampleContainerIds);
 
     //
     // Samples for parent/child

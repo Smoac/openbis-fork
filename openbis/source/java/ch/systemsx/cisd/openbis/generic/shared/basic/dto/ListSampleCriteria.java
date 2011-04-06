@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
@@ -52,7 +53,7 @@ public class ListSampleCriteria implements ISerializable
     private boolean excludeWithoutExperiment;
 
     // --------- filter 2 fields
-    private TechId containerSampleId;
+    private Collection<Long> containerSampleIds;
 
     // --------- filter 3 fields
     private TechId parentSampleId;
@@ -63,14 +64,20 @@ public class ListSampleCriteria implements ISerializable
     // --------- filter 5 fields
     private TechId experimentId;
 
+    // --------- filter 6 fields
     private Collection<Long> childrenSampleIds;
 
     // ----
 
     public static ListSampleCriteria createForContainer(final TechId containerSampleId)
     {
+        return createForContainers(Arrays.asList(containerSampleId.getId()));
+    }
+
+    public static ListSampleCriteria createForContainers(final Collection<Long> containerSampleIds)
+    {
         final ListSampleCriteria criteria = new ListSampleCriteria();
-        criteria.setContainerId(containerSampleId);
+        criteria.setContainerIds(containerSampleIds);
         return criteria;
     }
 
@@ -102,14 +109,14 @@ public class ListSampleCriteria implements ISerializable
         return criteria;
     }
 
-    public TechId getContainerSampleId()
+    public Collection<Long> getContainerSampleIds()
     {
-        return containerSampleId;
+        return containerSampleIds;
     }
 
-    private final void setContainerId(final TechId containerSampleId)
+    private final void setContainerIds(final Collection<Long> containerSampleIds)
     {
-        this.containerSampleId = containerSampleId;
+        this.containerSampleIds = containerSampleIds;
     }
 
     public TechId getParentSampleId()

@@ -354,19 +354,19 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
                                             assertEquals(s.getId(), sampleUpdate
                                                     .getSampleIdOrNull().getId());
                                             assertEquals(0, sampleUpdate.getAttachments().size());
-                                            assertEquals(null, sampleUpdate
-                                                    .getContainerIdentifierOrNull());
-                                            assertEquals(null, sampleUpdate
-                                                    .getExperimentIdentifierOrNull());
+                                            assertEquals(null,
+                                                    sampleUpdate.getContainerIdentifierOrNull());
+                                            assertEquals(null,
+                                                    sampleUpdate.getExperimentIdentifierOrNull());
                                             assertEquals(s.getIdentifier(), sampleUpdate
                                                     .getSampleIdentifier().toString());
                                             List<IEntityProperty> properties =
                                                     sampleUpdate.getProperties();
-                                            assertEquals(s.getProperties().size() + 1, properties
-                                                    .size());
-                                            assertEquals("DATA_TRANSFERRED", properties.get(
-                                                    properties.size() - 1).getPropertyType()
-                                                    .getCode());
+                                            assertEquals(s.getProperties().size() + 1,
+                                                    properties.size());
+                                            assertEquals("DATA_TRANSFERRED",
+                                                    properties.get(properties.size() - 1)
+                                                            .getPropertyType().getCode());
                                             break;
                                         }
                                     }
@@ -591,8 +591,8 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
                                 if (item instanceof ListSampleCriteria)
                                 {
                                     ListSampleCriteria criteria = (ListSampleCriteria) item;
-                                    return criteria.getContainerSampleId().getId().equals(
-                                            flowCellSample.getId());
+                                    return criteria.getContainerSampleIds().iterator().next()
+                                            .equals(flowCellSample.getId());
                                 }
                                 return false;
                             }
@@ -659,16 +659,18 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
 
         File flowLane = new File(ds, originalFlowLane.getName());
         assertEquals(true, flowLane.isFile());
-        assertEquals(FileUtilities.loadToString(originalFlowLane), FileUtilities
-                .loadToString(flowLane));
+        assertEquals(FileUtilities.loadToString(originalFlowLane),
+                FileUtilities.loadToString(flowLane));
         assertHardLinkOnSameFile(originalFlowLane, flowLane);
         String metaDataFileName =
                 META_DATA_PREFIX
                         + (SAMPLE_CODE + "_" + FlowLaneFeeder.escapeSampleCode(flowLaneNumber))
                         + FlowLaneFeeder.META_DATA_FILE_TYPE;
         assertEquals(true, new File(ds, FlowLaneFeeder.escapeSampleCode(metaDataFileName)).exists());
-        assertEquals(true, new File(dropBox, Constants.IS_FINISHED_PREFIX
-                + FlowLaneFeeder.escapeSampleCode(fileName)).exists());
+        assertEquals(
+                true,
+                new File(dropBox, Constants.IS_FINISHED_PREFIX
+                        + FlowLaneFeeder.escapeSampleCode(fileName)).exists());
     }
 
     private void assertHardLinkOnSameFile(File file1, File file2)
@@ -704,11 +706,10 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
     {
         Properties properties = new Properties();
         properties.setProperty(FlowLaneFeeder.FLOW_LANE_DROP_BOX_TEMPLATE, new File(
-                workingDirectory, DROP_BOX_PREFIX).getAbsolutePath()
-                + "{0}");
+                workingDirectory, DROP_BOX_PREFIX).getAbsolutePath() + "{0}");
         properties.setProperty(FlowLaneFeeder.META_DATA_FILE_PREFIX, META_DATA_PREFIX);
-        properties.setProperty(FlowLaneFeeder.TRANSFER_PREFIX + AFFILIATION, transferDropBox
-                .getAbsolutePath());
+        properties.setProperty(FlowLaneFeeder.TRANSFER_PREFIX + AFFILIATION,
+                transferDropBox.getAbsolutePath());
         if (srfInfoScriptOrNull != null)
         {
             properties.setProperty(FlowLaneFeeder.SRF_INFO_PATH, srfInfo.getAbsolutePath());

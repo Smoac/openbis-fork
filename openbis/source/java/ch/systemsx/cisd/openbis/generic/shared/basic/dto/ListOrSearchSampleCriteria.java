@@ -149,9 +149,9 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
     // delegation to ListSampleCriteria
 
     @Override
-    public TechId getContainerSampleId()
+    public Collection<Long> getContainerSampleIds()
     {
-        return listCriteria == null ? null : listCriteria.getContainerSampleId();
+        return listCriteria == null ? null : listCriteria.getContainerSampleIds();
     }
 
     @Override
@@ -170,9 +170,9 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
     public Collection<Long> getChildrenSampleIds()
     {
         if (listCriteria == null)
-    {
-            return Collections.<Long>emptySet();
-    }
+        {
+            return Collections.<Long> emptySet();
+        }
         Collection<Long> childrenSampleIds = listCriteria.getChildrenSampleIds();
         if (childrenSampleIds != null)
         {
@@ -181,11 +181,11 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
         TechId childSampleId = listCriteria.getChildSampleId();
         if (childSampleId == null)
         {
-            return Collections.<Long>emptySet();
+            return Collections.<Long> emptySet();
         }
-        return Collections.<Long>singleton(childSampleId.getId());
+        return Collections.<Long> singleton(childSampleId.getId());
     }
-    
+
     @Override
     public TechId getExperimentId()
     {

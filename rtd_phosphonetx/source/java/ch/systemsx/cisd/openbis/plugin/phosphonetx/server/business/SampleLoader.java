@@ -99,6 +99,7 @@ public class SampleLoader implements ISampleLoader
         final long relationshipTypeID =
                 sampleLister
                         .getRelationshipTypeID(BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
+        @SuppressWarnings("deprecation")
         List<SampleRelationShipSkeleton> relationshipSkeletons =
                 sampleLister.listSampleRelationShipsBy(new IValidator<SampleRelationShipSkeleton>()
                     {

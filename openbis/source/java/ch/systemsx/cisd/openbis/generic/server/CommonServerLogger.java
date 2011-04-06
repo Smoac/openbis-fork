@@ -221,7 +221,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
             logAccess(sessionToken, "list_samples",
                     "TYPE(%s) OWNERS(space=%s) CONTAINER(%s) PARENT(%s) CHILD(%s) EXPERIMENT(%s)",
                     criteria.getSampleType(), criteria.getSpaceCode(),
-                    criteria.getContainerSampleId(), criteria.getParentSampleId(),
+                    criteria.getContainerSampleIds(), criteria.getParentSampleId(),
                     criteria.getChildSampleId(), criteria.getExperimentId());
         } else if (criteria.isIncludeInstance())
         {
@@ -230,13 +230,13 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                     "list_samples",
                     "TYPE(%s) OWNERS(instance=%s) CONTAINER(%s) PARENT(%s) CHILD(%s) EXPERIMENT(%s)",
                     criteria.getSampleType(), criteria.getSampleType().getDatabaseInstance(),
-                    criteria.getContainerSampleId(), criteria.getParentSampleId(),
+                    criteria.getContainerSampleIds(), criteria.getParentSampleId(),
                     criteria.getChildSampleId(), criteria.getExperimentId());
         } else
         {
             logAccess(sessionToken, "list_samples",
                     "TYPE(%s) CONTAINER(%s) PARENT(%s) CHILD(%s) EXPERIMENT(%s)",
-                    criteria.getSampleType(), criteria.getContainerSampleId(),
+                    criteria.getSampleType(), criteria.getContainerSampleIds(),
                     criteria.getParentSampleId(), criteria.getChildSampleId(),
                     criteria.getExperimentId());
         }

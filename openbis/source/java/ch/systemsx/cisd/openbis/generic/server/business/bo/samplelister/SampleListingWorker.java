@@ -452,12 +452,12 @@ final class SampleListingWorker extends AbstractLister
 
     private Iterable<SampleRecord> tryGetIteratorForContainedSamples()
     {
-        final TechId containerTechId = criteria.getContainerSampleId();
+        Collection<Long> containerTechId = criteria.getContainerSampleIds();
         if (containerTechId == null)
         {
             return null;
         }
-        return query.getSamplesForContainer(containerTechId.getId());
+        return query.getSamplesForContainer(new LongOpenHashSet(containerTechId));
     }
 
     private Iterable<SampleRecord> tryGetIteratorForChildSamples()

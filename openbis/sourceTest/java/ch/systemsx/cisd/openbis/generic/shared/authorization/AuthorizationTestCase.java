@@ -35,12 +35,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleAccessPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleAccessPE.SampleOwnerType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 
@@ -269,6 +271,14 @@ public class AuthorizationTestCase extends AssertJUnit
         final SamplePE sample = new SamplePE();
         sample.setSpace(group);
         sample.setSampleType(createSampleType());
+        return sample;
+    }
+
+    protected static SampleAccessPE createSampleAccess(SpacePE group)
+    {
+        final SampleAccessPE sample = new SampleAccessPE();
+        sample.setOwnerCode(group.getCode());
+        sample.setOwnerType(SampleOwnerType.SPACE);
         return sample;
     }
 

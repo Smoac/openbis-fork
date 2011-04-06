@@ -331,7 +331,9 @@ public class SampleListingQueryTest extends AbstractDAOTest
     public void testQueryContainedSamples()
     {
         int sampleCount = 0;
-        for (SampleRecord sample : query.getSamplesForContainer(sharedMasterPlate.getId()))
+        LongSet childrenIds = new LongOpenHashSet();
+        childrenIds.add(sharedMasterPlate.getId());
+        for (SampleRecord sample : query.getSamplesForContainer(childrenIds))
         {
             final String msg = "id: " + sample.id;
             final SampleRecord sample2 = query.getSample(sample.id);

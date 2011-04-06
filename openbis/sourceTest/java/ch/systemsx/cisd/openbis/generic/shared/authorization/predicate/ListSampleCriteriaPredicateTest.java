@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.authorization.predicate;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 
 import org.jmock.Expectations;
 import org.testng.annotations.Test;
@@ -27,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.SpaceOwnerKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleAccessPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
@@ -42,8 +45,8 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
         boolean fail = true;
         try
         {
-            predicate.doEvaluation(createPerson(), createRoles(false), ListSampleCriteria
-                    .createForExperiment(new TechId(1L)));
+            predicate.doEvaluation(createPerson(), createRoles(false),
+                    ListSampleCriteria.createForExperiment(new TechId(1L)));
         } catch (final AssertionError e)
         {
             fail = false;
@@ -120,8 +123,7 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
                 }
             });
         predicate.init(provider);
-        final ListSampleCriteria criteria =
-                ListSampleCriteria.createForExperiment(new TechId(17L));
+        final ListSampleCriteria criteria = ListSampleCriteria.createForExperiment(new TechId(17L));
         final Status evaluation =
                 predicate.doEvaluation(createPerson(), createRoles(false), criteria);
         assertEquals(Status.OK, evaluation);
@@ -141,8 +143,7 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
                 }
             });
         predicate.init(provider);
-        final ListSampleCriteria criteria =
-                ListSampleCriteria.createForExperiment(new TechId(17L));
+        final ListSampleCriteria criteria = ListSampleCriteria.createForExperiment(new TechId(17L));
         final Status evaluation =
                 predicate.doEvaluation(createPerson(), createRoles(false), criteria);
         assertTrue(evaluation.isError());
@@ -157,11 +158,8 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(provider).getSample(new TechId(42L));
-                    will(returnValue(createSample(createGroup())));
-
-                    one(provider).tryFindDatabaseInstanceByCode(INSTANCE_CODE);
-                    will(returnValue(createDatabaseInstance()));
+                    one(provider).getSampleCollectionAccessData(Arrays.asList(new TechId(42L)));
+                    will(returnValue(createSampleAccessSet(createGroup())));
                 }
             });
         predicate.init(provider);
@@ -180,20 +178,20 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(provider).getSample(new TechId(42L));
-                    will(returnValue(createSample(createAnotherGroup())));
-
-                    one(provider).tryFindDatabaseInstanceByCode(ANOTHER_INSTANCE_CODE);
-                    will(returnValue(createAnotherDatabaseInstance()));
+                    one(provider).getSampleCollectionAccessData(Arrays.asList(new TechId(42L)));
+                    will(returnValue(createSampleAccessSet(createAnotherGroup())));
                 }
             });
         predicate.init(provider);
-        final ListSampleCriteria criteria =
-                ListSampleCriteria.createForContainer(new TechId(42L));
+        final ListSampleCriteria criteria = ListSampleCriteria.createForContainer(new TechId(42L));
         final Status evaluation =
                 predicate.doEvaluation(createPerson(), createRoles(false), criteria);
         assertTrue(evaluation.isError());
         context.assertIsSatisfied();
     }
 
+    private static HashSet<SampleAccessPE> createSampleAccessSet(SpacePE space)
+    {
+        return new HashSet<SampleAccessPE>(Arrays.asList(createSampleAccess(space)));
+    }
 }
