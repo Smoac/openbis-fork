@@ -60,7 +60,7 @@ public interface ISampleLister
      * 
      * @deprecated This way of loading relationships is slow. There is no filtering on DB level. If
      *             the <code>criteria</code> use only a collection of parent/children ids than use
-     *             listChildrenIds/listParentIds.
+     *             getParentToChildrenIdsMap/getChildToParentsIdsMap.
      */
     @Deprecated
     public List<SampleRelationShipSkeleton> listSampleRelationShipsBy(
