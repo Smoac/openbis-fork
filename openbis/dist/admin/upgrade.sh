@@ -11,7 +11,7 @@ source $BASE/env
 
 ROOT_DIR=$BASE/../servers
 
-NOW=`date +%y%m%d-%H%m`
+NOW=`date +%y%m%d-%H%M`
 BACKUP_DIR=$BASE/../backup/$NOW
 
 $BASE/alldown.sh
