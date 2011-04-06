@@ -28,8 +28,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Implements {@link Filter} and sets the cache to store data for resources that don't have
- * '.nocache.' in their name. Static resources such as images should stay in cache for a long time.
+ * A {@link Filter} implementing the a simple caching policy that
+ * <ul>
+ * <li>Instructs browsers and proxies not to cache resources having '.nocache' in their URLs</li>
+ * <li>Sets the correct caching HTTP headers for all other resources (i.e. the ones without
+ * '.nocache.' in their names). As a result, static resources such as images stay in cache for a
+ * long time.</li>
+ * </ul>
  * 
  * @author Piotr Buczek
  */
@@ -39,7 +44,11 @@ public class CacheFilter implements Filter
 
     private static final int DAY_IN_SECONDS = 24 * 60 * 60;
 
+    private static final int DAY_IN_MILLIS = DAY_IN_SECONDS * 1000;
+
     private static final int SPRINT_IN_SECONDS = 14 * DAY_IN_SECONDS;
+
+    private static final String NO_CACHE = ".nocache.";
 
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
             throws IOException, ServletException
@@ -48,14 +57,26 @@ public class CacheFilter implements Filter
         HttpServletRequest httpRequest = (HttpServletRequest) request;
 
         String requestURI = httpRequest.getRequestURI();
-        if (requestURI.contains(".nocache.") == false)
+        HttpServletResponse httpResponse = (HttpServletResponse) response;
+        if (requestURI.contains(NO_CACHE))
         {
-            HttpServletResponse httpResponse = (HttpServletResponse) response;
+            setNoCacheHeaders(httpResponse);
+        } else
+        {
             httpResponse.addHeader("Cache-Control", "max-age="
                     + (isPictureOrCache(requestURI) ? SPRINT_IN_SECONDS : HOUR_IN_SECONDS));
         }
         filterChain.doFilter(request, response);
 
+    }
+
+    private void setNoCacheHeaders(HttpServletResponse httpResponse)
+    {
+        long now = System.currentTimeMillis();
+        httpResponse.setDateHeader("Date", now);
+        httpResponse.setDateHeader("Expires", now - DAY_IN_MILLIS);
+        httpResponse.setHeader("Pragma", "no-cache");
+        httpResponse.setHeader("Cache-control", "no-cache, no-store, must-revalidate");
     }
 
     private boolean isPictureOrCache(String requestURI)

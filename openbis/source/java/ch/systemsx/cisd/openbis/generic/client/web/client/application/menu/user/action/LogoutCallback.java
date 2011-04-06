@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.user.action;
 
 import com.google.gwt.user.client.History;
+import com.google.gwt.user.client.Window;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -41,6 +42,6 @@ final class LogoutCallback extends AbstractAsyncCallback<Void>
     {
         History.newItem(""); // clears history token in URL
         GWTUtils.removeConfirmExitMessage();
-        viewContext.getPageController().reload(true);
+        Window.Location.reload();
     }
 }
