@@ -83,8 +83,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
     private static final String SCRIPTS_FOLDER =
             "sourceTest/java/ch/systemsx/cisd/etlserver/registrator/";
 
-    private static final String SHARED_SCRIPT_PATH = SCRIPTS_FOLDER + "script.py";
-
     private static final String DATA_SET_CODE = "data-set-code";
 
     private static final String DATABASE_INSTANCE_UUID = "db-uuid";
@@ -399,32 +397,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
     }
 
     @Test
-    public void testDataSetRegistration()
-    {
-        setUpOpenBisExpectations();
-
-        createHandler();
-        createData();
-
-        setUpDataSetValidatorExpectations();
-        setUpMailClientExpectations();
-
-        handler.handle(markerFile);
-
-        // Causes problems in Hudson
-        // assertTrue(
-        // logAppender.getLogContent(),
-        // logAppender.getLogContent().endsWith(
-        // ".MARKER_is_finished_data_set' has been removed."));
-
-        assertEquals(2, MockStorageProcessor.instance.incomingDirs.size());
-        assertEquals(2, MockStorageProcessor.instance.calledCommitCount);
-        assertEquals(
-                "Data Set Code::data-set-code2;Data Set Type::O1;Experiment Identifier::/SPACE/PROJECT/EXP-CODE;Production Date::;Parent Data Sets::data-set-code1;Is complete::U",
-                MockStorageProcessor.instance.dataSetInfoString);
-    }
-
-    @Test
     public void testTransactionWithNewExperiment()
     {
         setUpHomeDataBaseExpectations();
@@ -577,37 +549,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
     }
 
-    @Test
-    public void testRegistrationFails()
-    {
-        setUpOpenBisExpectations();
-
-        // Create a handler that throws an exception during registration
-        Properties threadProperties = createThreadProperties(SHARED_SCRIPT_PATH);
-        createHandler(threadProperties, true);
-
-        createData();
-
-        setUpDataSetValidatorExpectations();
-        setUpMailClientExpectations();
-
-        didDataSetRollbackHappen = false;
-        didServiceRollbackHappen = false;
-
-        handler.handle(markerFile);
-
-        // Causes problems in Hudson
-        // assertTrue(
-        // logAppender.getLogContent(),
-        // logAppender.getLogContent().endsWith(
-        // ".MARKER_is_finished_data_set' has been removed."));
-
-        assertEquals(2, MockStorageProcessor.instance.incomingDirs.size());
-        assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
-        assertTrue("Data set rollback should have been invoked", didDataSetRollbackHappen);
-        assertFalse("Service rollback should not have been invoked", didServiceRollbackHappen);
-    }
-
     private void createData()
     {
         incomingDataSetFile = createDirectory(workingDirectory, "data_set");
@@ -620,32 +561,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
 
         markerFile = new File(workingDirectory, IS_FINISHED_PREFIX + "data_set");
         FileUtilities.writeToFile(markerFile, "");
-    }
-
-    @Test
-    public void testRollbackDataSetRegistration()
-    {
-        setUpOpenBisExpectations();
-
-        // Create a handler that throws an exception during registration
-        Properties threadProperties = createThreadProperties(SCRIPTS_FOLDER + "rollback-script.py");
-        createHandler(threadProperties, true);
-
-        createData();
-
-        setUpDataSetValidatorExpectations();
-        setUpMailClientExpectations();
-
-        handler.handle(markerFile);
-
-        assertEquals(2, MockStorageProcessor.instance.incomingDirs.size());
-        assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
-
-        TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
-        assertTrue("Python data set rollback should have run",
-                theHandler.didRollbackDataSetRegistrationFunctionRun);
-        assertFalse("Python service rollback should not have run",
-                theHandler.didRollbackServiceFunctionRun);
     }
 
     @Test
@@ -758,13 +673,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         final File file = new File(parentDir, directoryName);
         file.mkdir();
         return file;
-    }
-
-    private void createHandler()
-    {
-        Properties threadProperties = createThreadProperties(SHARED_SCRIPT_PATH);
-
-        createHandler(threadProperties, false);
     }
 
     private void createHandler(Properties threadProperties, final boolean registrationShouldFail)
