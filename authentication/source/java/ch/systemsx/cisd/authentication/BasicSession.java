@@ -95,6 +95,14 @@ public class BasicSession implements Serializable
     }
 
     /**
+     * Returns 'true' if the session is anonymous.
+     */
+    public final boolean isAnonymous()
+    {
+        return principal.isAnonymous();
+    }
+
+    /**
      * Returns the remote host.
      */
     public final String getRemoteHost()

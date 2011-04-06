@@ -47,19 +47,22 @@ public final class Principal extends AbstractHashable implements Serializable
     private String lastName;
 
     private String email;
-    
+
     private boolean authenticated;
+
+    private boolean anonymous;
 
     private Map<String, String> properties;
 
     /**
-     * Returns <code>true</code>, if <var>principalOrNull</var> is not <code>null</code> and has been successfully authenticated.
+     * Returns <code>true</code>, if <var>principalOrNull</var> is not <code>null</code> and has
+     * been successfully authenticated.
      */
     public static boolean isAuthenticated(Principal principalOrNull)
     {
         return (principalOrNull == null) ? false : principalOrNull.isAuthenticated();
     }
-    
+
     /**
      * For bean operations only.
      */
@@ -88,7 +91,8 @@ public final class Principal extends AbstractHashable implements Serializable
      * @param firstName can not be <code>null</code>.
      * @param lastName can not be <code>null</code>.
      * @param email can not be <code>null</code>.
-     * @param authenticated <code>true</code> if this principal has been authenticated in the operation.
+     * @param authenticated <code>true</code> if this principal has been authenticated in the
+     *            operation.
      */
     public Principal(final String userId, final String firstName, final String lastName,
             final String email, boolean authenticated)
@@ -103,7 +107,8 @@ public final class Principal extends AbstractHashable implements Serializable
      * @param firstName can not be <code>null</code>.
      * @param lastName can not be <code>null</code>.
      * @param email can not be <code>null</code>.
-     * @param authenticated <code>true</code> if this principal has been authenticated in the operation.
+     * @param authenticated <code>true</code> if this principal has been authenticated in the
+     *            operation.
      * @param properties can not be <code>null</code>.
      */
     public Principal(final String userId, final String firstName, final String lastName,
@@ -179,6 +184,14 @@ public final class Principal extends AbstractHashable implements Serializable
     }
 
     /**
+     * Returns <code>true</code> if this principal has been authenticated anonymously.
+     */
+    public boolean isAnonymous()
+    {
+        return anonymous;
+    }
+
+    /**
      * Returns the property map for this principal.
      */
     public Map<String, String> getProperties()
@@ -229,6 +242,14 @@ public final class Principal extends AbstractHashable implements Serializable
     /**
      * For bean operations only.
      */
+    public void setAnonymous(boolean anonymous)
+    {
+        this.anonymous = anonymous;
+    }
+
+    /**
+     * For bean operations only.
+     */
     public void setProperties(Map<String, String> properties)
     {
         this.properties = properties;
@@ -243,4 +264,5 @@ public final class Principal extends AbstractHashable implements Serializable
     {
         return ToStringBuilder.reflectionToString(this);
     }
+
 }

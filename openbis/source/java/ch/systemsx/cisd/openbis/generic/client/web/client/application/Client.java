@@ -198,13 +198,14 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
                     GenericViewModel model = viewContext.getModel();
                     model.setApplicationInfo(info);
                     model.setViewMode(viewMode);
-                    model.setAnonymousLogin(isAnonymousLogin(info));
+                    boolean anonymous = isAnonymousLogin(info);
+                    model.setAnonymousLogin(anonymous);
                     // the callback sets the SessionContext and redirects to the login page or the
                     // initial page and may additionaly open an initial tab
                     SessionContextCallback sessionContextCallback =
                             new SessionContextCallback((CommonViewContext) viewContext,
                                     UrlParamsHelper.createNavigateToCurrentUrlAction(viewContext));
-                    service.tryToGetCurrentSessionContext(sessionContextCallback);
+                    service.tryToGetCurrentSessionContext(anonymous, sessionContextCallback);
                 }
 
                 private ViewMode findViewMode(ApplicationInfo info)
@@ -217,13 +218,15 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
                     viewContext.log("viewMode = " + viewMode);
                     return viewMode;
                 }
-                
+
                 private boolean isAnonymousLogin(ApplicationInfo info)
                 {
-                    String anonymousOrNull = Window.Location.getParameter(BasicConstant.ANONYMOUS_KEY);
+                    String anonymousOrNull =
+                            Window.Location.getParameter(BasicConstant.ANONYMOUS_KEY);
                     if (anonymousOrNull != null)
                     {
-                        return anonymousOrNull.equalsIgnoreCase("yes") || anonymousOrNull.equalsIgnoreCase("true");
+                        return anonymousOrNull.equalsIgnoreCase("yes")
+                                || anonymousOrNull.equalsIgnoreCase("true");
                     }
                     return info.getWebClientConfiguration().isDefaultAnonymousLogin();
                 }
@@ -358,7 +361,8 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
         @SuppressWarnings("deprecation")
         private String tryGetLastHistoryToken()
         {
-            if (viewContext.isSimpleOrEmbeddedMode() == false && StringUtils.isBlank(History.getToken()))
+            if (viewContext.isSimpleOrEmbeddedMode() == false
+                    && StringUtils.isBlank(History.getToken()))
             {
                 DisplaySettings displaySettings =
                         viewContext.getModel().getSessionContext().getDisplaySettings();

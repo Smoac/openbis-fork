@@ -469,13 +469,17 @@ public abstract class AbstractClientService implements IClientService,
         return false;
     }
 
-    public final SessionContext tryToGetCurrentSessionContext()
+    public final SessionContext tryToGetCurrentSessionContext(boolean anonymous)
     {
         try
         {
             final SessionContextDTO session = getServer().tryGetSession(getSessionToken());
             if (session == null)
             {
+                return null;
+            } else if (anonymous != session.isAnonymous())
+            {
+                operationLog.debug("expected: " + anonymous + " found: " + session.isAnonymous());
                 return null;
             }
             return createSessionContext(session);
@@ -644,7 +648,9 @@ public abstract class AbstractClientService implements IClientService,
         }
     }
 
-    protected <T extends ISerializable> TypedTableResultSet<T> listEntities(ITableModelProvider<T> provider, IResultSetConfig<String, TableModelRowWithObject<T>> criteria)
+    protected <T extends ISerializable> TypedTableResultSet<T> listEntities(
+            ITableModelProvider<T> provider,
+            IResultSetConfig<String, TableModelRowWithObject<T>> criteria)
     {
         try
         {

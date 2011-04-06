@@ -55,11 +55,11 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     // should be different than SESSION_TOKEN_SEPARATOR
     private static final char TIMESTAMP_TOKEN_SEPARATOR = 'x';
 
-    private static final Logger authenticationLog =
-            LogFactory.getLogger(LogCategory.AUTH, DefaultSessionManager.class);
+    private static final Logger authenticationLog = LogFactory.getLogger(LogCategory.AUTH,
+            DefaultSessionManager.class);
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, DefaultSessionManager.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            DefaultSessionManager.class);
 
     private static final TokenGenerator tokenGenerator = new TokenGenerator();
 
@@ -157,8 +157,8 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
 
         operationLog.info(String.format("Authentication service: '%s'", authenticationService
                 .getClass().getName()));
-        operationLog.info(String.format("Session expiration period: %s", DurationFormatUtils
-                .formatDurationHMS(sessionExpirationPeriodMillis)));
+        operationLog.info(String.format("Session expiration period: %s",
+                DurationFormatUtils.formatDurationHMS(sessionExpirationPeriodMillis)));
         authenticationService.check();
     }
 
@@ -202,7 +202,8 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     {
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(LOGIN_PREFIX + "User '" + session.getUserName()
+            operationLog.info(LOGIN_PREFIX + (session.isAnonymous() ? "Anonymous user" : "User")
+                    + " '" + session.getUserName()
                     + "' has been successfully authenticated from host '" + getRemoteHost()
                     + "'. Session token: '" + session.getSessionToken() + "'.");
         }

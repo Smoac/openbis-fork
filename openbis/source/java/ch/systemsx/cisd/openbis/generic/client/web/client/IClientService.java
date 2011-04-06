@@ -42,14 +42,16 @@ public interface IClientService extends RemoteService
 
     /**
      * Tries to return the current session context. If failed <code>null</code> is returned.
+     * 
+     * @param anonymous whether the session is expected to be anonymous or not
      */
-    public SessionContext tryToGetCurrentSessionContext();
+    public SessionContext tryToGetCurrentSessionContext(boolean anonymous);
 
     /**
      * Tries to login with specified user ID and password. If failed <code>null</code> is returned.
      */
     public SessionContext tryToLogin(String userID, String password) throws UserFailureException;
-    
+
     public SessionContext tryToLoginAnonymously() throws UserFailureException;
 
     /**

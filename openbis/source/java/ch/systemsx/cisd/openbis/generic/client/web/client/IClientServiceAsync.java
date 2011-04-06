@@ -32,15 +32,16 @@ public interface IClientServiceAsync
     /** @see IClientService#getApplicationInfo() */
     public void getApplicationInfo(AsyncCallback<ApplicationInfo> callback);
 
-    /** @see IClientService#tryToGetCurrentSessionContext() */
-    public void tryToGetCurrentSessionContext(AsyncCallback<SessionContext> callback);
+    /** @see IClientService#tryToGetCurrentSessionContext(boolean anonymous) */
+    public void tryToGetCurrentSessionContext(boolean anonymous,
+            AsyncCallback<SessionContext> callback);
 
     /** @see IClientService#tryToLogin(String, String) */
     public void tryToLogin(String userID, String password, AsyncCallback<SessionContext> callback);
 
     /** @see IClientService#tryToLoginAnonymously() */
     public void tryToLoginAnonymously(AsyncCallback<SessionContext> callback);
-    
+
     /** @see IClientService#setBaseURL(String) */
     public void setBaseURL(String baseURL, AsyncCallback<SessionContext> callback);
 

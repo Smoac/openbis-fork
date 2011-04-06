@@ -42,6 +42,8 @@ public class SessionContextDTO implements Serializable
 
     private String userEmail;
 
+    private boolean isAnonymous;
+
     public void setSessionToken(String sessionToken)
     {
         this.sessionToken = sessionToken;
@@ -100,6 +102,16 @@ public class SessionContextDTO implements Serializable
     public String getUserEmail()
     {
         return userEmail;
+    }
+
+    public boolean isAnonymous()
+    {
+        return isAnonymous;
+    }
+
+    public void setAnonymous(boolean isAnonymous)
+    {
+        this.isAnonymous = isAnonymous;
     }
 
 }

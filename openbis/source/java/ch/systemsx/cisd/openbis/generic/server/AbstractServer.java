@@ -77,20 +77,23 @@ import ch.systemsx.cisd.openbis.generic.shared.util.ServerUtils;
 public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> implements IServer
 {
     protected static final class AuthenticatedPersonBasedPrincipalProvider implements IPrincipalProvider
+    {
+        private final PersonPE person;
+
+        AuthenticatedPersonBasedPrincipalProvider(PersonPE person)
         {
-            private final PersonPE person;
-        
-            AuthenticatedPersonBasedPrincipalProvider(PersonPE person)
-            {
-                this.person = person;
-            }
-        
-            public Principal tryToGetPrincipal(String userID)
-            {
-                return new Principal(person.getUserId(), person.getFirstName(),
-                        person.getLastName(), person.getEmail(), true);
-            }
+            this.person = person;
         }
+
+        public Principal tryToGetPrincipal(String userID)
+        {
+            Principal result =
+                    new Principal(person.getUserId(), person.getFirstName(), person.getLastName(),
+                            person.getEmail(), true);
+            result.setAnonymous(true);
+            return result;
+        }
+    }
 
     @Resource(name = ResourceNames.SAMPLE_PLUGIN_REGISTRY)
     private SampleServerPluginRegistry sampleServerPluginRegistry;
@@ -114,7 +117,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     private IRemoteHostValidator remoteHostValidator;
 
     private IPropertiesBatchManager propertiesBatchManager;
-    
+
     private String userForAnonymousLogin;
 
     protected AbstractServer()
@@ -151,7 +154,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         }
         return propertiesBatchManager;
     }
-    
+
     public final void setUserForAnonymousLogin(String userID)
     {
         userForAnonymousLogin = userID != null && userID.startsWith("$") == false ? userID : null;
@@ -370,6 +373,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         result.setSessionToken(session.getSessionToken());
         result.setUserName(session.getUserName());
         result.setUserEmail(session.getUserEmail());
+        result.setAnonymous(session.isAnonymous());
         return result;
     }
 
