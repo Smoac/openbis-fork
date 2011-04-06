@@ -23,9 +23,6 @@ import net.lemnik.eodsql.ResultColumn;
  */
 public class ImgImageDTO extends AbstractImageTransformerFactoryHolder
 {
-    @ResultColumn("id")
-    private long id;
-
     @ResultColumn("PATH")
     private String filePath;
 
@@ -43,21 +40,11 @@ public class ImgImageDTO extends AbstractImageTransformerFactoryHolder
     public ImgImageDTO(long id, String filePath, Integer pageOrNull,
             ColorComponent colorComponentOrNull)
     {
-        this.id = id;
+        super.setId(id);
         this.filePath = filePath;
         this.pageOrNull = pageOrNull;
         this.colorComponentOrNull =
                 colorComponentOrNull == null ? null : colorComponentOrNull.name();
-    }
-
-    public long getId()
-    {
-        return id;
-    }
-
-    public void setId(long id)
-    {
-        this.id = id;
     }
 
     public String getFilePath()

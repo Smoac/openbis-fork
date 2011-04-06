@@ -21,14 +21,11 @@ import net.lemnik.eodsql.ResultColumn;
 import org.apache.commons.lang.SerializationUtils;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
-import ch.systemsx.cisd.common.utilities.AbstractHashable;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-abstract class AbstractImageTransformerFactoryHolder extends AbstractHashable
+abstract class AbstractImageTransformerFactoryHolder extends AbstractImgIdentifiable
 {
     @ResultColumn("IMAGE_TRANSFORMER_FACTORY")
     private byte[] serializedImageTransformerFactory;
@@ -42,14 +39,15 @@ abstract class AbstractImageTransformerFactoryHolder extends AbstractHashable
     {
         this.serializedImageTransformerFactory = serializedImageTransformerFactory;
     }
-    
+
     public IImageTransformerFactory tryGetImageTransformerFactory()
     {
         if (serializedImageTransformerFactory == null)
         {
             return null;
         }
-        return (IImageTransformerFactory) SerializationUtils.deserialize(serializedImageTransformerFactory);
+        return (IImageTransformerFactory) SerializationUtils
+                .deserialize(serializedImageTransformerFactory);
     }
 
 }

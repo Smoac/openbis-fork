@@ -38,6 +38,9 @@ public class ImgFeatureVocabularyTermDTO
     @ResultColumn("FD_ID")
     private long featureDefId;
 
+    @ResultColumn("DS_ID")
+    private long dataSetId;
+    
     // All Data-Object classes must have a default constructor.
     @SuppressWarnings("unused")
     private ImgFeatureVocabularyTermDTO()
@@ -97,4 +100,13 @@ public class ImgFeatureVocabularyTermDTO
         this.featureDefId = featureDefId;
     }
 
+    public long getDataSetId()
+    {
+        return dataSetId;
+    }
+
+    public void setDataSetId(long dataSetId)
+    {
+        this.dataSetId = dataSetId;
+    }
 }
