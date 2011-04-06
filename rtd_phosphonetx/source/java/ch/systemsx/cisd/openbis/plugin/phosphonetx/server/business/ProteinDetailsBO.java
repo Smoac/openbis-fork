@@ -17,7 +17,11 @@
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.lemnik.eodsql.DataSet;
 
@@ -30,8 +34,9 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNet
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IProteinQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.IndistinguishableProteinInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.Peptide;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.PeptideModification;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinDetails;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IdentifiedPeptide;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.PeptideWithModification;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IdentifiedProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IndistinguishableProtein;
 
@@ -122,19 +127,40 @@ class ProteinDetailsBO extends AbstractBusinessObject implements IProteinDetails
     private List<Peptide> loadPeptides(IdentifiedProtein protein)
     {
         IProteinQueryDAO proteinQueryDAO = getSpecificDAOFactory().getProteinQueryDAO();
-        DataSet<IdentifiedPeptide> identifiedPeptides =
+        DataSet<PeptideWithModification> identifiedPeptides =
                 proteinQueryDAO.listIdentifiedPeptidesByProtein(protein.getProteinID());
         try
         {
-            List<Peptide> peptides = new ArrayList<Peptide>();
-            for (IdentifiedPeptide identifiedPeptide : identifiedPeptides)
+            Map<Long, Peptide> peps = new HashMap<Long, Peptide>();
+            for (PeptideWithModification peptidWithModification : identifiedPeptides)
             {
-                Peptide peptide = new Peptide();
-                peptide.setSequence(identifiedPeptide.getSequence());
-                peptide.setCharge(identifiedPeptide.getCharge());
-                peptides.add(peptide);
+                long id = peptidWithModification.getId();
+                Peptide peptide = peps.get(id);
+                if (peptide == null)
+                {
+                    peptide = new Peptide();
+                    peptide.setSequence(peptidWithModification.getSequence());
+                    peps.put(id, peptide);
+                }
+                Integer position = peptidWithModification.getPosition();
+                Double mass = peptidWithModification.getMass();
+                if (position != null && mass != null)
+                {
+                    PeptideModification peptideModification = new PeptideModification();
+                    peptideModification.setPosition(position);
+                    peptideModification.setMass(mass);
+                    peptide.getModifications().add(peptideModification);
+                }
             }
-            return peptides;
+            List<Peptide> result = new ArrayList<Peptide>(peps.values());
+            Collections.sort(result, new Comparator<Peptide>()
+                {
+                    public int compare(Peptide p1, Peptide p2)
+                    {
+                        return p1.getSequence().compareTo(p2.getSequence());
+                    }
+                });
+            return result;
         } finally
         {
             identifiedPeptides.close();

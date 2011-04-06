@@ -23,9 +23,9 @@ import net.lemnik.eodsql.DataSet;
 import net.lemnik.eodsql.Select;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LongSetMapper;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IdentifiedPeptide;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IdentifiedProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IndistinguishableProtein;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.PeptideWithModification;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProbabilityFDRMapping;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinAbundance;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
@@ -101,8 +101,11 @@ public interface IProteinQueryDAO extends BaseQuery
     public DataSet<IdentifiedProtein> listProteinsByProteinReferenceAndExperiment(
             String experimentPermID, long proteinReferenceID);
     
-    @Select("select * from peptides where prot_id = ?{1}")
-    public DataSet<IdentifiedPeptide> listIdentifiedPeptidesByProtein(long proteinID);
+    @Select("select pe.id, sequence, pos, mass "
+            + "from peptides as pe left join modified_peptides as mp on mp.pept_id = pe.id "
+            + "                    left join modifications as m on m.mope_id = mp.id "
+            + "where prot_id = ?{1} order by pe.id")
+    public DataSet<PeptideWithModification> listIdentifiedPeptidesByProtein(long proteinID);
     
     @Select("select accession_number, description, amino_acid_sequence, coverage "
             + "from identified_proteins as ip join sequences as s on ip.sequ_id = s.id "

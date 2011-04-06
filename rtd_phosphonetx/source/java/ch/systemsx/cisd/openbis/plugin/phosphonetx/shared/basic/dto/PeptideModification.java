@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 ETH Zuerich, CISD
+ * Copyright 2011 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,38 +16,41 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
- * Peptide sequence and optional modifications.
- * 
- * @author Tomasz Pylak
+ * Position and mass of a modified amino acid in a peptide.
+ *
+ * @author Franz-Josef Elmer
  */
-public class Peptide implements ISerializable
+public class PeptideModification implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
-
-    private String sequence;
     
-    private List<PeptideModification> modifications = new ArrayList<PeptideModification>();
+    private int position;
+    
+    private double mass;
 
-    public String getSequence()
+    public int getPosition()
     {
-        return sequence;
+        return position;
     }
 
-    public void setSequence(String sequence)
+    public void setPosition(int position)
     {
-        this.sequence = sequence;
+        this.position = position;
     }
 
-    public List<PeptideModification> getModifications()
+    public double getMass()
     {
-        return modifications;
+        return mass;
     }
+
+    public void setMass(double mass)
+    {
+        this.mass = mass;
+    }
+    
 
 }

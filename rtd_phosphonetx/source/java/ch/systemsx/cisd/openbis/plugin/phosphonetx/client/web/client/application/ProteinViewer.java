@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -221,7 +220,7 @@ public class ProteinViewer extends AbstractViewerWithVerticalSplit<IEntityInform
             final Map<String, Object> properties = new LinkedHashMap<String, Object>();
             properties.put(viewContext.getMessage(Dict.ACCESSION_NUMBER), info);
             propertyGrid.registerPropertyValueRenderer(IndistinguishableProteinInfo.class,
-                    PropertyValueRenderers.createProteinIdentLinkRenderer(viewContext));
+                    ProteinRenderers.createProteinIdentLinkRenderer(viewContext));
             properties.put(viewContext.getMessage(Dict.PROTEIN_DESCRIPTION), info.getDescription());
             String markedSequence = markPeptides(info.getSequence(), peptides);
             properties.put(viewContext.getMessage(Dict.SEQUENCE_NAME), markedSequence);
@@ -291,11 +290,11 @@ public class ProteinViewer extends AbstractViewerWithVerticalSplit<IEntityInform
         {
             properties.put(viewContext.getMessage(Dict.EXPERIMENT_LABEL), experimentOrNull);
             propertyGrid.registerPropertyValueRenderer(Experiment.class,
-                    PropertyValueRenderers.createExperimentPropertyValueRenderer(viewContext));
+                    ProteinRenderers.createExperimentPropertyValueRenderer(viewContext));
         }
         properties.put(viewContext.getMessage(Dict.ACCESSION_NUMBER), protein);
         propertyGrid.registerPropertyValueRenderer(ProteinByExperiment.class,
-                PropertyValueRenderers.createProteinIdentLinkRenderer(viewContext));
+                ProteinRenderers.createProteinIdentLinkRenderer(viewContext));
 
         properties.put(viewContext.getMessage(Dict.PROTEIN_DESCRIPTION), protein.getDescription());
         if (protein.getDetails() != null)
@@ -320,7 +319,7 @@ public class ProteinViewer extends AbstractViewerWithVerticalSplit<IEntityInform
         properties.put(viewContext.getMessage(Dict.COVERAGE), proteinDetails.getCoverage());
 
         propertyGrid.registerPropertyValueRenderer(Peptide.class,
-                PropertyValueRenderers.createPeptideRenderer(viewContext));
+                ProteinRenderers.createPeptideRenderer(viewContext));
         properties.put(viewContext.getMessage(Dict.PEPTIDES, proteinDetails.getPeptides().size()),
                 proteinDetails.getPeptides().toArray());
 
@@ -330,32 +329,16 @@ public class ProteinViewer extends AbstractViewerWithVerticalSplit<IEntityInform
         DatasetInformationHolder dataset = new DatasetInformationHolder(proteinDetails);
         properties.put(viewContext.getMessage(Dict.DATA_SET_PERM_ID), dataset);
         propertyGrid.registerPropertyValueRenderer(DatasetInformationHolder.class,
-                PropertyValueRenderers.createEntityInformationPropertyValueRenderer(viewContext));
+                ProteinRenderers.createEntityInformationPropertyValueRenderer(viewContext));
     }
 
     private static String markPeptides(String sequence, List<Peptide> peptides)
     {
-        List<String> peptideSequences = extractSequences(peptides);
         String markedSequence =
-                OccurrencesMarker.markOccurrencesWithHtml(sequence, peptideSequences,
+                ProteinRenderers.markOccurrencesWithHtml(sequence, peptides,
                         AMINOACIDS_IN_SEQUENCE_PER_LINE, AMINOACIDS_IN_ONE_BLOCK);
         // the letters should have fixed width
-        return getFixedWidthHTMLString(markedSequence);
-    }
-
-    private static String getFixedWidthHTMLString(String text)
-    {
-        return "<font style=\"font-family:monospace\">" + text + "</font>";
-    }
-
-    private static List<String> extractSequences(List<Peptide> peptides)
-    {
-        List<String> result = new ArrayList<String>();
-        for (Peptide peptide : peptides)
-        {
-            result.add(peptide.getSequence());
-        }
-        return result;
+        return ProteinRenderers.getFixedWidthHTMLString(markedSequence);
     }
 
     public static class DatasetInformationHolder implements IEntityInformationHolderWithIdentifier

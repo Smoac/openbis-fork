@@ -24,16 +24,19 @@ import net.lemnik.eodsql.ResultColumn;
  *
  * @author Franz-Josef Elmer
  */
-public class IdentifiedPeptide extends AbstractDTOWithID
+public class PeptideWithModification extends AbstractDTOWithID
 {
     private static final long serialVersionUID = 1L;
-
+    
     @ResultColumn("sequence")
     private String sequence;
     
-    @ResultColumn("charge")
-    private int charge;
-
+    @ResultColumn("pos")
+    private Integer position; 
+    
+    @ResultColumn("mass")
+    private Double mass;
+    
     public final String getSequence()
     {
         return sequence;
@@ -44,13 +47,24 @@ public class IdentifiedPeptide extends AbstractDTOWithID
         this.sequence = sequence;
     }
 
-    public final int getCharge()
+    public Integer getPosition()
     {
-        return charge;
+        return position;
     }
 
-    public final void setCharge(int charge)
+    public void setPosition(Integer position)
     {
-        this.charge = charge;
+        this.position = position;
     }
+
+    public Double getMass()
+    {
+        return mass;
+    }
+
+    public void setMass(Double mass)
+    {
+        this.mass = mass;
+    }
+
 }
