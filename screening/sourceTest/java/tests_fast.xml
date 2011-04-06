@@ -1,0 +1,16 @@
+<!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
+
+<suite name="Fast" verbose="1">
+    <test name="Fast">
+        <groups>
+            <run>
+                <exclude name="slow" />
+                <exclude name="broken" />
+            </run>
+        </groups>
+        <packages>
+          <package name="ch.systemsx.cisd.openbis.plugin.screening.*" />
+          <package name="ch.systemsx.cisd.openbis.dss.*" />
+       </packages>
+    </test>
+</suite>
