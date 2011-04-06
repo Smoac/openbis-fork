@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
+import ch.systemsx.cisd.openbis.generic.shared.translator.EntityPropertyTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTranslator;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.AccessionNumberBuilder;
@@ -318,6 +319,12 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
     {
         ProteinRelatedSample s = createFrom(sample, cache);
         s.setAbundance(abundanceOrNull);
+        int index = samplePeptideModification.getPosition() - 1;
+        String sequence = samplePeptideModification.getSequence();
+        if (index >= 0 && index < sequence.length())
+        {
+            s.setModifiedAminoAcid(sequence.charAt(index));
+        }
         s.setModificationFraction(samplePeptideModification.getFraction());
         s.setModificationMass(samplePeptideModification.getMass());
         s.setModificationPosition((long) position);
@@ -332,6 +339,7 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
         s.setId(sample.getId());
         s.setIdentifier(sample.getIdentifier());
         s.setPermId(sample.getPermId());
+        s.setProperties(EntityPropertyTranslator.translate(sample.getProperties(), cache));
         return s;
     }
 

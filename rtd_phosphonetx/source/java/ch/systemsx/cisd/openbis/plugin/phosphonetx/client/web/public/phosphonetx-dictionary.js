@@ -42,6 +42,7 @@ var phosphonetx = {
   openbis_protein_related_sample_grid_main_SAMPLE_IDENTIFIER: "Identifier",
   openbis_protein_related_sample_grid_main_SAMPLE_TYPE: "Sample Type",
   openbis_protein_related_sample_grid_main_ABUNDANCE: "Abundance",
+  openbis_protein_related_sample_grid_main_MODIFIED_AMINO_ACID: "Modified Amino Acid",
   openbis_protein_related_sample_grid_main_MODIFICATION_POSITION: "Modification Position",
   openbis_protein_related_sample_grid_main_MODIFICATION_MASS: "Modification Mass",
   openbis_protein_related_sample_grid_main_MODIFICATION_FRACTION: "Modification Fraction",

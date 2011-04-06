@@ -16,10 +16,13 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
+import java.util.List;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithProperties;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
@@ -27,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  *
  * @author Franz-Josef Elmer
  */
-public class ProteinRelatedSample implements ISerializable, IEntityInformationHolderWithPermId
+public class ProteinRelatedSample implements ISerializable, IEntityInformationHolderWithProperties
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
     
@@ -41,7 +44,11 @@ public class ProteinRelatedSample implements ISerializable, IEntityInformationHo
     
     private BasicEntityType entityType;
     
+    private List<IEntityProperty> properties;
+    
     private Double abundance;
+    
+    private char modifiedAminoAcid;
     
     private Long modificationPosition;
     
@@ -109,6 +116,16 @@ public class ProteinRelatedSample implements ISerializable, IEntityInformationHo
         this.abundance = abundance;
     }
 
+    public char getModifiedAminoAcid()
+    {
+        return modifiedAminoAcid;
+    }
+
+    public void setModifiedAminoAcid(char modifiedAminoAcid)
+    {
+        this.modifiedAminoAcid = modifiedAminoAcid;
+    }
+
     public Long getModificationPosition()
     {
         return modificationPosition;
@@ -142,6 +159,16 @@ public class ProteinRelatedSample implements ISerializable, IEntityInformationHo
     public EntityKind getEntityKind()
     {
         return EntityKind.SAMPLE;
+    }
+
+    public List<IEntityProperty> getProperties()
+    {
+        return properties;
+    }
+
+    public void setProperties(List<IEntityProperty> properties)
+    {
+        this.properties = properties;
     }
 
 }
