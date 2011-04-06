@@ -96,6 +96,16 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
             return new DataSetInformation();
         }
 
+        public DataSetRegistrationDetails<ImageDataSetInformation> createImageRegistrationDetails()
+        {
+            DataSetRegistrationDetails<ImageDataSetInformation> registrationDetails =
+                    new DataSetRegistrationDetails<ImageDataSetInformation>();
+            ImageDataSetInformation dataSetInfo = new ImageDataSetInformation();
+            setDatabaseInstance(dataSetInfo);
+            registrationDetails.setDataSetInformation(dataSetInfo);
+            return registrationDetails;
+        }
+        
         public DataSetRegistrationDetails<ImageDataSetInformation> createImageRegistrationDetails(
                 SimpleImageDataConfig imageDataSet, File incomingDatasetFolder)
         {
