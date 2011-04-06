@@ -246,26 +246,15 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     {
         prepareAssetDataSetsAreAccessible();
         prepareLockDataSet("ds1", "ds2");
-        prepareGetFeatureDefinitions(1, "f1", "f2");
-        prepareGetFeatureDefinitions(2, "f2", "f3");
 
-        @SuppressWarnings("deprecation")
-        List<String> names =
-                screeningService.listAvailableFeatureNames(SESSION_TOKEN, Arrays.asList(
-                        featureVectorDatasetIdentifier1, featureVectorDatasetIdentifier2));
-
-        assertEquals("[f1, f2, f3]", names.toString());
-        assertTrue(testMethodInterceptor.methodInvoked);
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public void testAuthorization()
-    {
-        prepareAssetDataSetsAreAccessible();
-        prepareLockDataSet("ds1", "ds2");
-        prepareGetFeatureDefinitions(1, "f1", "f2");
-        prepareGetFeatureDefinitions(2, "f2", "f3");
+        long[] dataSetIDs = new long[]
+            { 1, 2 };
+        String[][] featureCodesPerDataset = new String[][]
+            {
+                { "f1", "f2" },
+                { "f2", "f3" } };
+        prepareListDatasets(dataSetIDs);
+        prepareGetFeatureDefinitions(dataSetIDs, featureCodesPerDataset);
 
         List<String> names =
                 screeningService.listAvailableFeatureCodes(SESSION_TOKEN, Arrays.asList(
@@ -283,8 +272,16 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         prepareLockDataSet("ds1", "ds2");
         FeatureVectorDatasetReference r1 = createFeatureVectorDatasetReference(DATASET_CODE);
         FeatureVectorDatasetReference r2 = createFeatureVectorDatasetReference("ds2");
-        prepareCreateFeatureVectorDataSet(1, "F1", "F2");
-        prepareCreateFeatureVectorDataSet(2, "F2");
+        String[][] featureCodesPerDataset = new String[][]
+            {
+                { "F1", "F2" } };
+        prepareLoadFeatures(new long[]
+            { 1 }, featureCodesPerDataset);
+        featureCodesPerDataset = new String[][]
+            {
+                { "F2" } };
+        prepareLoadFeatures(new long[]
+            { 2 }, featureCodesPerDataset);
 
         List<FeatureVectorDataset> dataSets =
                 screeningService.loadFeatures(SESSION_TOKEN, Arrays.asList(r1, r2),
@@ -306,6 +303,15 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
 
         assertTrue(testMethodInterceptor.methodInvoked);
         context.assertIsSatisfied();
+    }
+
+    private void prepareLoadFeatures(long[] dataSetIDs, String[][] featureCodesPerDataset)
+    {
+        prepareListDatasets(dataSetIDs);
+        prepareListContainers(dataSetIDs);
+        prepareGetFeatureDefinitions(dataSetIDs, featureCodesPerDataset);
+        prepareGetFeatureVocabularyTerms(dataSetIDs);
+        prepareCreateFeatureVectorDataSet(dataSetIDs, featureCodesPerDataset);
     }
 
     @Test
@@ -590,69 +596,152 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
             });
     }
 
-    private void prepareCreateFeatureVectorDataSet(final long dataSetID,
-            final String... featureCodes)
+    private void prepareCreateFeatureVectorDataSet(final long[] dataSetIDs,
+            final String[]... featureCodesPerDataset)
     {
-        prepareGetFeatureDefinitions(dataSetID, featureCodes);
-        prepareGetFeatureVocabularyTerms(dataSetID);
         context.checking(new Expectations()
             {
                 {
-                    one(dao).getContainerById(100 + dataSetID);
-                    will(returnValue(new ImgContainerDTO("12-34", 1, 2, 0)));
+                    List<ImgFeatureValuesDTO> values = new ArrayList<ImgFeatureValuesDTO>();
+                    long[] featureDefIds = new long[countFeatureCodes(featureCodesPerDataset)];
+                    int featureDefIx = 0;
+                    int datasetIx = 0;
 
-                    one(service).tryToGetSampleIdentifier("12-34");
-                    will(returnValue(new SampleIdentifier(new SpaceIdentifier("1", "S"), "P1")));
-
-                    for (String code : featureCodes)
+                    for (String[] featureCodes : featureCodesPerDataset)
                     {
-                        one(dao).getFeatureValues(new ImgFeatureDefDTO(code, code, "", 0));
-                        int offset = Integer.parseInt(code, 16);
-                        PlateFeatureValues array =
-                                new PlateFeatureValues(NativeTaggedArray
-                                        .toByteArray(new MDFloatArray(new float[][]
-                                            {
-                                                { 3.5f * dataSetID + offset },
-                                                { 1.25f * dataSetID + offset } })));
-                        will(returnValue(Arrays
-                                .asList(new ImgFeatureValuesDTO(0.0, 0.0, array, 0L))));
+                        long dataSetId = dataSetIDs[datasetIx++];
+                        for (String featureCode : featureCodes)
+                        {
+                            featureDefIds[featureDefIx] = getFeatureDefId(featureCode);
+                            int offset = getFeatureDefId(featureCode);
+                            PlateFeatureValues matrixValues =
+                                    new PlateFeatureValues(NativeTaggedArray
+                                            .toByteArray(new MDFloatArray(new float[][]
+                                                {
+                                                    { 3.5f * dataSetId + offset },
+                                                    { 1.25f * dataSetId + offset } })));
+                            ImgFeatureValuesDTO value =
+                                    new ImgFeatureValuesDTO(0.0, 0.0, matrixValues, 0L);
+                            value.setFeatureDefId(featureDefIds[featureDefIx]);
+                            values.add(value);
+
+                            featureDefIx++;
+                        }
                     }
+                    one(dao).getFeatureValues(featureDefIds);
+                    will(returnValue(values));
+                }
+
+            });
+    }
+
+    private void prepareListContainers(final long[] dataSetIDs)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    long[] containerIds = new long[dataSetIDs.length];
+                    List<ImgContainerDTO> containers = new ArrayList<ImgContainerDTO>();
+
+                    for (int i = 0; i < dataSetIDs.length; i++)
+                    {
+                        long id = dataSetIDs[i];
+                        containerIds[i] = getContainerId(id);
+                        ImgContainerDTO container = new ImgContainerDTO("12-34", 1, 2, 0);
+                        container.setId(containerIds[i]);
+                        containers.add(container);
+
+                        one(service).tryToGetSampleIdentifier("12-34");
+                        will(returnValue(new SampleIdentifier(new SpaceIdentifier("1", "S"), "P1")));
+                    }
+
+                    one(dao).listContainersByIds(containerIds);
+                    will(returnValue(containers));
                 }
             });
     }
 
-    private void prepareGetFeatureDefinitions(final long dataSetID, final String... featureCodes)
+    private void prepareListDatasets(final long[] dataSetIDs)
     {
         context.checking(new Expectations()
             {
                 {
-                    String permID = "ds" + dataSetID;
-                    one(dao).tryGetDatasetByPermId(permID);
-                    ImgDatasetDTO dataSet =
-                            new ImgDatasetDTO(permID, null, null, 100 + dataSetID, false);
-                    dataSet.setId(dataSetID);
-                    will(returnValue(dataSet));
+                    String[] permIDs = new String[dataSetIDs.length];
+                    List<ImgDatasetDTO> dataSets = new ArrayList<ImgDatasetDTO>();
 
-                    one(dao).listFeatureDefsByDataSetId(dataSetID);
-                    List<ImgFeatureDefDTO> defs = new ArrayList<ImgFeatureDefDTO>();
-                    for (String code : featureCodes)
+                    for (int i = 0; i < dataSetIDs.length; i++)
                     {
-                        defs.add(new ImgFeatureDefDTO(code, code, "", 0));
+                        long id = dataSetIDs[i];
+                        permIDs[i] = "ds" + id;
+
+                        ImgDatasetDTO dataSet =
+                                new ImgDatasetDTO(permIDs[i], null, null, getContainerId(id), false);
+                        dataSet.setId(id);
+                        dataSets.add(dataSet);
                     }
+
+                    one(dao).listDatasetsByPermId(permIDs);
+                    will(returnValue(dataSets));
+                }
+            });
+    }
+
+    private void prepareGetFeatureDefinitions(final long[] dataSetIDs,
+            final String[]... featureCodesPerDataset)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    List<ImgFeatureDefDTO> defs = new ArrayList<ImgFeatureDefDTO>();
+                    int datasetIx = 0;
+                    for (String[] featureCodes : featureCodesPerDataset)
+                    {
+                        long dataSetID = dataSetIDs[datasetIx];
+                        for (String code : featureCodes)
+                        {
+                            ImgFeatureDefDTO def = new ImgFeatureDefDTO(code, code, "", 0);
+                            def.setDataSetId(dataSetID);
+                            def.setId(getFeatureDefId(code));
+                            defs.add(def);
+                        }
+                        datasetIx++;
+                    }
+
+                    one(dao).listFeatureDefsByDataSetIds(dataSetIDs);
                     will(returnValue(defs));
                 }
             });
     }
 
-    private void prepareGetFeatureVocabularyTerms(final long dataSetID)
+    private void prepareGetFeatureVocabularyTerms(final long[] dataSetIDs)
     {
         context.checking(new Expectations()
             {
                 {
-                    one(dao).listFeatureVocabularyTermsByDataSetId(dataSetID);
+                    one(dao).listFeatureVocabularyTermsByDataSetId(dataSetIDs);
                     will(returnValue(new ArrayList<ImgFeatureVocabularyTermDTO>()));
                 }
             });
+    }
+
+    private static long getContainerId(long datasetId)
+    {
+        return datasetId + 100;
+    }
+
+    private static int countFeatureCodes(String[][] featureCodesPerDataset)
+    {
+        int counter = 0;
+        for (String[] featureCodes : featureCodesPerDataset)
+        {
+            counter += featureCodes.length;
+        }
+        return counter;
+    }
+
+    private static int getFeatureDefId(String code)
+    {
+        return Integer.parseInt(code, 16);
     }
 
     private void prepareAssetDataSetIsAccessible(final String dsCode)

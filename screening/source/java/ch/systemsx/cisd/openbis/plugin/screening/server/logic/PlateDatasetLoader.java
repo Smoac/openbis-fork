@@ -115,7 +115,7 @@ class PlateDatasetLoader
 
     private void loadDatasets()
     {
-        List<Long> sampleIds = extractSampleIds();
+        Set<Long> sampleIds = extractSampleIds();
         IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
         datasets = datasetLister.listBySampleIds(sampleIds);
         datasets =
@@ -227,7 +227,7 @@ class PlateDatasetLoader
         throw new UserFailureException("Sample '" + sample.getIdentifier() + "' has no property "
                 + ScreeningConstants.PLATE_GEOMETRY);
     }
-    
+
     protected Map<String, String> extractProperties(ExternalData dataSet)
     {
         final Map<String, String> properties = new HashMap<String, String>();
@@ -289,14 +289,9 @@ class PlateDatasetLoader
         return sampleCodesArray;
     }
 
-    private List<Long> extractSampleIds()
+    private Set<Long> extractSampleIds()
     {
-        ArrayList<Long> sampleIds = new ArrayList<Long>(samples.size());
-        for (Sample sample : samples)
-        {
-            sampleIds.add(sample.getId());
-        }
-        return sampleIds;
+        return samplesById.keySet();
     }
 
     protected static String getDataStoreUrlFromDataStore(DataStore dataStore)

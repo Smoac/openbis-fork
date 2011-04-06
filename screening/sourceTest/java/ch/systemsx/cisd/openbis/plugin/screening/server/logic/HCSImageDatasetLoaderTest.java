@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -45,16 +46,16 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifi
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class HCSImageDatasetLoaderTest extends AbstractServerTestCase
 {
     private static final String STORE_CODE = "store-1";
+
     private static final String DOWNLOAD_URL = "http://download";
+
     private static final String HOST_URL = "http://host";
-    
+
     private IScreeningBusinessObjectFactory screeningBOFactory;
 
     @BeforeMethod
@@ -62,7 +63,7 @@ public class HCSImageDatasetLoaderTest extends AbstractServerTestCase
     {
         screeningBOFactory = context.mock(IScreeningBusinessObjectFactory.class);
     }
-    
+
     private DataSetBuilder dataSet(long id)
     {
         DataStoreBuilder dataStoreBuilder = new DataStoreBuilder(STORE_CODE);
@@ -70,24 +71,34 @@ public class HCSImageDatasetLoaderTest extends AbstractServerTestCase
         Experiment experiment = new ExperimentBuilder().identifier("/S/P/E1").getExperiment();
         return new DataSetBuilder(id).store(dataStoreBuilder.getStore()).experiment(experiment);
     }
-    
+
     @Test
     public void testGetSegmentationImageDatasetReferences()
     {
         final RecordingMatcher<ListOrSearchSampleCriteria> recordingCriteriaMatcher =
-            new RecordingMatcher<ListOrSearchSampleCriteria>();
+                new RecordingMatcher<ListOrSearchSampleCriteria>();
         SampleBuilder sampleBuilder = new SampleBuilder("/S/P1").id(42l).permID("s-1");
         VocabularyTerm value = new VocabularyTerm();
         value.setCode("96_WELLS_8X12");
         sampleBuilder.property(ScreeningConstants.PLATE_GEOMETRY).value(value);
         final Sample sample = sampleBuilder.getSample();
-        final ExternalData ids1 = dataSet(1l).code("ids1").type("HCS_IMAGE").sample(sample).getDataSet();
-        final ExternalData sds1 = dataSet(11l).code("sds1").type("HCS_IMAGE_SEGMENTATION").sample(sample).getDataSet();
-        final ExternalData sds2 = dataSet(12l).code("sds2").type("HCS_IMAGE_SEGMENTATION").sample(sample).getDataSet();
-        final ExternalData ids2 = dataSet(2l).code("ids2").type("HCS_IMAGE").sample(sample).getDataSet();
-        final ExternalData sds3 = dataSet(21l).code("sds3").type("HCS_IMAGE_SEGMENTATION").sample(sample).getDataSet();
-        final ExternalData sds4 = dataSet(100l).code("sds4").type("HCS_IMAGE_SEGMENTATION").getDataSet();
-        final ExternalData ds1 = dataSet(101l).code("ds1").type("BLABLA").sample(sample).getDataSet();
+        final ExternalData ids1 =
+                dataSet(1l).code("ids1").type("HCS_IMAGE").sample(sample).getDataSet();
+        final ExternalData sds1 =
+                dataSet(11l).code("sds1").type("HCS_IMAGE_SEGMENTATION").sample(sample)
+                        .getDataSet();
+        final ExternalData sds2 =
+                dataSet(12l).code("sds2").type("HCS_IMAGE_SEGMENTATION").sample(sample)
+                        .getDataSet();
+        final ExternalData ids2 =
+                dataSet(2l).code("ids2").type("HCS_IMAGE").sample(sample).getDataSet();
+        final ExternalData sds3 =
+                dataSet(21l).code("sds3").type("HCS_IMAGE_SEGMENTATION").sample(sample)
+                        .getDataSet();
+        final ExternalData sds4 =
+                dataSet(100l).code("sds4").type("HCS_IMAGE_SEGMENTATION").getDataSet();
+        final ExternalData ds1 =
+                dataSet(101l).code("ds1").type("BLABLA").sample(sample).getDataSet();
         context.checking(new Expectations()
             {
                 {
@@ -101,7 +112,7 @@ public class HCSImageDatasetLoaderTest extends AbstractServerTestCase
                     samples.add(sample);
                     will(returnValue(samples));
 
-                    one(datasetLister).listBySampleIds(Arrays.asList(42l));
+                    one(datasetLister).listBySampleIds(new HashSet<Long>(Arrays.asList(42l)));
                     will(returnValue(Arrays.asList(ids1, sds1, sds2, ids2, sds3, sds4, ds1)));
 
                     one(datasetLister).listByParentTechIds(Arrays.asList(1l, 2l));
@@ -135,11 +146,14 @@ public class HCSImageDatasetLoaderTest extends AbstractServerTestCase
                 }
             });
         assertEquals("sds1 (plate: /S/P1 [s-1])", references.get(0).toString());
-        assertEquals("ids1 (plate: /S/P1 [s-1])", references.get(0).getParentImageDatasetReference().toString());
+        assertEquals("ids1 (plate: /S/P1 [s-1])", references.get(0)
+                .getParentImageDatasetReference().toString());
         assertEquals("sds2 (plate: /S/P1 [s-1])", references.get(1).toString());
-        assertEquals("ids1 (plate: /S/P1 [s-1])", references.get(1).getParentImageDatasetReference().toString());
+        assertEquals("ids1 (plate: /S/P1 [s-1])", references.get(1)
+                .getParentImageDatasetReference().toString());
         assertEquals("sds3 (plate: /S/P1 [s-1])", references.get(2).toString());
-        assertEquals("ids2 (plate: /S/P1 [s-1])", references.get(2).getParentImageDatasetReference().toString());
+        assertEquals("ids2 (plate: /S/P1 [s-1])", references.get(2)
+                .getParentImageDatasetReference().toString());
         assertEquals(3, references.size());
         context.assertIsSatisfied();
 

@@ -86,67 +86,55 @@ public class ImageAnalysisMergedRowsReportingPluginTest extends AssertJUnit
         final DatasetDescription ds1 = new DatasetDescription();
         ds1.setDatasetCode("ds1");
         final ImgContainerDTO p1 = new ImgContainerDTO("p1", 3, 2, 0);
+        p1.setId(101);
         final SampleIdentifier p1Identifier =
                 new SampleIdentifier(new SpaceIdentifier("1", "S"), "P1");
         final DatasetDescription ds2 = new DatasetDescription();
         ds2.setDatasetCode("ds2");
         final ImgContainerDTO p2 = new ImgContainerDTO("p2", 2, 1, 0);
+        p2.setId(102);
         final SampleIdentifier p2Identifier =
                 new SampleIdentifier(new SpaceIdentifier("1", "S"), "P2");
         final ImgFeatureDefDTO ds1f1 = new ImgFeatureDefDTO("f1", "F1", "", 1);
+        ds1f1.setId(1);
         final ImgFeatureDefDTO ds1f2 = new ImgFeatureDefDTO("f2", "F2", "", 1);
+        ds1f2.setId(2);
         final ImgFeatureDefDTO ds2f2 = new ImgFeatureDefDTO("f2", "F2", "", 2);
+        ds2f2.setId(3);
         final ImgFeatureDefDTO ds2f3 = new ImgFeatureDefDTO("f3", "F3", "", 2);
+        ds2f3.setId(4);
         final ImgFeatureValuesDTO ds1f1Values =
-                createFeatureValues("12, 2.5", "24, 3.25", "-1.5, 42");
+                createFeatureValues(ds1f1.getId(), "12, 2.5", "24, 3.25", "-1.5, 42");
         final ImgFeatureValuesDTO ds1f2Values =
-                createFeatureValues("-3.5, 12.5", "-2, 1", "5, 4.25");
-        final ImgFeatureValuesDTO ds2f2Values = createFeatureValues("23", "5.75");
-        final ImgFeatureValuesDTO ds2f3Values = createFeatureValues("-9", "44.125");
+                createFeatureValues(ds1f2.getId(), "-3.5, 12.5", "-2, 1", "5, 4.25");
+        final ImgFeatureValuesDTO ds2f2Values = createFeatureValues(ds2f2.getId(), "23", "5.75");
+        final ImgFeatureValuesDTO ds2f3Values = createFeatureValues(ds2f3.getId(), "-9", "44.125");
         context.checking(new Expectations()
             {
                 {
-                    one(dao).tryGetDatasetByPermId(ds1.getDatasetCode());
-                    will(returnValue(createDataSet(1)));
+                    one(dao).listDatasetsByPermId(ds1.getDatasetCode(), ds2.getDatasetCode());
+                    will(returnValue(Arrays.asList(createDataSet(1), createDataSet(2))));
 
-                    one(dao).listFeatureDefsByDataSetId(1);
-                    will(returnValue(Arrays.asList(ds1f1, ds1f2)));
+                    one(dao).listFeatureDefsByDataSetIds(1, 2);
+                    will(returnValue(Arrays.asList(ds1f1, ds1f2, ds2f2, ds2f3)));
 
-                    one(dao).listFeatureVocabularyTermsByDataSetId(1);
+                    one(dao).listFeatureVocabularyTermsByDataSetId(1, 2);
                     will(returnValue(new ArrayList<ImgFeatureVocabularyTermDTO>()));
 
-                    one(dao).getContainerById(101);
-                    will(returnValue(p1));
+                    one(dao).listContainersByIds(101, 102);
+                    will(returnValue(Arrays.asList(p1, p2)));
 
                     one(service).tryGetSampleIdentifier(p1.getPermId());
                     will(returnValue(p1Identifier));
 
-                    one(dao).getFeatureValues(ds1f1);
-                    will(returnValue(Arrays.asList(ds1f1Values)));
-
-                    one(dao).getFeatureValues(ds1f2);
-                    will(returnValue(Arrays.asList(ds1f2Values)));
-
-                    one(dao).tryGetDatasetByPermId(ds2.getDatasetCode());
-                    will(returnValue(createDataSet(2)));
-
-                    one(dao).listFeatureDefsByDataSetId(2);
-                    will(returnValue(Arrays.asList(ds2f2, ds2f3)));
-
-                    one(dao).listFeatureVocabularyTermsByDataSetId(2);
-                    will(returnValue(new ArrayList<ImgFeatureVocabularyTermDTO>()));
-
-                    one(dao).getContainerById(102);
-                    will(returnValue(p2));
+                    one(dao).getFeatureValues(ds1f1Values.getFeatureDefId(),
+                            ds1f2Values.getFeatureDefId(), ds2f2Values.getFeatureDefId(),
+                            ds2f3Values.getFeatureDefId());
+                    will(returnValue(Arrays.asList(ds1f1Values, ds1f2Values, ds2f2Values,
+                            ds2f3Values)));
 
                     one(service).tryGetSampleIdentifier(p2.getPermId());
                     will(returnValue(p2Identifier));
-
-                    one(dao).getFeatureValues(ds2f2);
-                    will(returnValue(Arrays.asList(ds2f2Values)));
-
-                    one(dao).getFeatureValues(ds2f3);
-                    will(returnValue(Arrays.asList(ds2f3Values)));
 
                 }
             });
@@ -178,7 +166,7 @@ public class ImageAnalysisMergedRowsReportingPluginTest extends AssertJUnit
         return datasetDTO;
     }
 
-    private ImgFeatureValuesDTO createFeatureValues(String... rows)
+    private ImgFeatureValuesDTO createFeatureValues(long featureDefId, String... rows)
     {
         float[][] matrix = new float[rows[0].split(",").length][rows.length];
         for (int i = 0; i < rows.length; i++)
@@ -192,6 +180,6 @@ public class ImageAnalysisMergedRowsReportingPluginTest extends AssertJUnit
         }
         final MDFloatArray array = new MDFloatArray(matrix);
         return new ImgFeatureValuesDTO(0.0, 0.0, new PlateFeatureValues(
-                NativeTaggedArray.toByteArray(array)), 0L);
+                NativeTaggedArray.toByteArray(array)), featureDefId);
     }
 }

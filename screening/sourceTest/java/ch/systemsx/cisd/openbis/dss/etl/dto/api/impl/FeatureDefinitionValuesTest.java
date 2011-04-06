@@ -96,17 +96,20 @@ public class FeatureDefinitionValuesTest extends AssertJUnit
         List<ImgFeatureVocabularyTermDTO> terms = vector.getVocabularyTerms();
         assertNotNull(terms);
         assertEquals(2, terms.size());
-        assertEquals("a", terms.get(0).getCode());
-        assertEquals("b", terms.get(1).getCode());
+        int termIxA = terms.get(0).getCode().equals("a") ? 0 : 1;
+
+        assertEquals("a", terms.get(termIxA).getCode());
+        assertEquals("b", terms.get(1 - termIxA).getCode());
 
         assertEquals(1, vector.getValues().size());
         ImgFeatureValuesDTO featureValuesDTO = vector.getValues().get(0);
         assertNull(featureValuesDTO.getT());
         assertNull(featureValuesDTO.getZ());
         PlateFeatureValues values = featureValuesDTO.getValues();
-        assertEquals(terms.get(0).getSequenceNumber(), (int) values.getForWellLocation(1, 1));
-        assertEquals(terms.get(1).getSequenceNumber(), (int) values.getForWellLocation(1, 2));
-        assertEquals(terms.get(0).getSequenceNumber(), (int) values.getForWellLocation(1, 3));
+        assertEquals(terms.get(termIxA).getSequenceNumber(), (int) values.getForWellLocation(1, 1));
+        assertEquals(terms.get(1 - termIxA).getSequenceNumber(),
+                (int) values.getForWellLocation(1, 2));
+        assertEquals(terms.get(termIxA).getSequenceNumber(), (int) values.getForWellLocation(1, 3));
     }
 
 }

@@ -110,7 +110,8 @@ public class WellContentLoader
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
             TechId geneMaterialId)
     {
-        final WellContentLoader loader = new WellContentLoader(session, businessObjectFactory, daoFactory);
+        final WellContentLoader loader =
+                new WellContentLoader(session, businessObjectFactory, daoFactory);
         return loader.loadLocations(geneMaterialId);
     }
 
@@ -123,12 +124,18 @@ public class WellContentLoader
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
             WellSearchCriteria materialCriteria)
     {
+        long start = System.currentTimeMillis();
         WellContentLoader loader =
                 new WellContentLoader(session, businessObjectFactory, daoFactory);
-
         List<WellContent> locations = loader.loadLocations(materialCriteria);
+
+        operationLog.info(String.format("[%d msec] Load %d locations.",
+                (System.currentTimeMillis() - start), locations.size()));
+
         List<WellContent> withPropsAndDataSets = loader.enrichWithDatasets(locations);
-        return loader.enrichWithFeatureVectors(withPropsAndDataSets);
+        List<WellContent> withFeatureVectors =
+                loader.enrichWithFeatureVectors(withPropsAndDataSets);
+        return withFeatureVectors;
     }
 
     /**
@@ -189,14 +196,24 @@ public class WellContentLoader
 
     private List<WellContent> enrichWithDatasets(List<WellContent> locations)
     {
+        long start = System.currentTimeMillis();
+
         Collection<PlateIdentifier> plates = extractPlates(locations);
         FeatureVectorDatasetLoader datasetsRetriever =
                 new FeatureVectorDatasetLoader(session, businessObjectFactory, null, plates);
         Collection<ExternalData> imageDatasets = datasetsRetriever.getImageDatasets();
-        Map<String, ImageDatasetParameters> imageParams = loadImagesReport(imageDatasets);
-
         Collection<ExternalData> featureVectorDatasets =
                 datasetsRetriever.getFeatureVectorDatasets();
+
+        operationLog.info(String.format("[%d msec] load datasets (%d image, %d fv).",
+                (System.currentTimeMillis() - start), imageDatasets.size(),
+                featureVectorDatasets.size()));
+        start = System.currentTimeMillis();
+
+        Map<String, ImageDatasetParameters> imageParams = loadImagesReport(imageDatasets);
+        operationLog.info(String.format("[%d msec] loadImagesReport",
+                (System.currentTimeMillis() - start)));
+
         Collection<ExternalData> childlessImageDatasets =
                 selectChildlessImageDatasets(imageDatasets, featureVectorDatasets);
 
@@ -557,6 +574,7 @@ public class WellContentLoader
         return map;
     }
 
+    // TODO 2011-04-04, Tomasz Pylak: inefficient, rewrite to use single queryfor all datasets
     private Map<String/* dataset code */, ImageDatasetParameters> loadImagesReport(
             Collection<ExternalData> imageDatasets)
     {
@@ -581,7 +599,7 @@ public class WellContentLoader
 
     private List<WellContent> loadLocations(WellSearchCriteria materialCriteria)
     {
-        DataIterator<WellContentQueryResult> locations;
+        Iterable<WellContentQueryResult> locations;
         MaterialSearchCriteria materialSearchCriteria =
                 materialCriteria.getMaterialSearchCriteria();
         ExperimentSearchCriteria experiment = materialCriteria.getExperimentCriteria();
@@ -592,7 +610,15 @@ public class WellContentLoader
                     materialSearchCriteria.tryGetMaterialCodesOrProperties();
 
             Long expId = tryGetExperimentId(experiment);
+            long start = System.currentTimeMillis();
             long[] materialIds = findMaterialIds(codesCriteria);
+
+            operationLog.info(String.format(
+                    "[%d msec] Finding %d materials for criteria '%s'. Result: %s",
+                    (System.currentTimeMillis() - start), materialIds.length, codesCriteria,
+                    Arrays.toString(materialIds)));
+            start = System.currentTimeMillis();
+
             if (expId == null)
             {
                 locations =
@@ -705,22 +731,18 @@ public class WellContentLoader
         return convert(locations);
     }
 
-    private List<WellContent> convert(DataIterator<WellContentQueryResult> queryResults)
+    private List<WellContent> convert(Iterable<WellContentQueryResult> queryResults)
     {
-        List<WellContentQueryResult> uniqueResults = removeDuplicateWells(queryResults);
+        List<WellContent> wellContents = removeDuplicateWells(queryResults);
 
-        ArrayList<WellContent> wellContents = new ArrayList<WellContent>();
-        for (WellContentQueryResult uniqueWell : uniqueResults)
-        {
-            wellContents.add(convert(uniqueWell));
-        }
         List<WellContent> withProperties = enrichWithWellProperties(wellContents);
         IMaterialLister materialLister = businessObjectFactory.createMaterialLister(session);
         List<Material> containedMaterials = getMaterialsWithDuplicates(withProperties);
         materialLister.enrichWithProperties(containedMaterials);
+
         return wellContents;
     }
-    
+
     private static Set<Material> extractMaterials(List<WellContent> locations)
     {
         Set<Material> materials = new HashSet<Material>();
@@ -746,11 +768,10 @@ public class WellContentLoader
         return materials;
     }
 
-    private List<WellContentQueryResult> removeDuplicateWells(
-            DataIterator<WellContentQueryResult> queryResults)
+    private List<WellContent> removeDuplicateWells(Iterable<WellContentQueryResult> queryResults)
     {
+        List<WellContent> wellContents = new ArrayList<WellContent>();
         Set<String> seenWellPermIds = new HashSet<String>();
-        List<WellContentQueryResult> result = new ArrayList<WellContentQueryResult>();
 
         for (WellContentQueryResult queryResult : queryResults)
         {
@@ -758,10 +779,10 @@ public class WellContentLoader
             if (false == seenWellPermIds.contains(permId))
             {
                 seenWellPermIds.add(permId);
-                result.add(queryResult);
+                wellContents.add(convert(queryResult));
             }
         }
-        return result;
+        return wellContents;
     }
 
     private static WellContent convert(WellContentQueryResult well)
@@ -769,11 +790,11 @@ public class WellContentLoader
         WellLocation location =
                 ScreeningUtils.tryCreateLocationFromMatrixCoordinate(well.well_code);
         EntityReference wellReference =
-                new EntityReference(well.well_id, well.well_code,
-                        well.well_type_code, EntityKind.SAMPLE, well.well_perm_id);
+                new EntityReference(well.well_id, well.well_code, well.well_type_code,
+                        EntityKind.SAMPLE, well.well_perm_id);
         EntityReference plate =
-                new EntityReference(well.plate_id, well.plate_code,
-                        well.plate_type_code, EntityKind.SAMPLE, well.plate_perm_id);
+                new EntityReference(well.plate_id, well.plate_code, well.plate_type_code,
+                        EntityKind.SAMPLE, well.plate_perm_id);
 
         return new WellContent(location, wellReference, plate, convertExperiment(well));
     }

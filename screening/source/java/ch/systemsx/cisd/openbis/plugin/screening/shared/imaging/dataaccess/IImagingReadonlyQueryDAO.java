@@ -22,6 +22,8 @@ import net.lemnik.eodsql.BaseQuery;
 import net.lemnik.eodsql.Select;
 
 import ch.systemsx.cisd.bds.hcs.Location;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LongArrayMapper;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.StringArrayMapper;
 
 /**
  * Operations on imaging database which are read-only.<br>
@@ -126,7 +128,7 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
      *         information about the spot to which it belongs.
      */
     @Select("select i.*, ai.image_transformer_factory as image_transformer_factory, "
-            +"s.id as spot_id, ai.id as acquired_image_id              "
+            + "s.id as spot_id, ai.id as acquired_image_id              "
             + " from data_sets d                                       "
             + " join channel_stacks cs on cs.ds_id = d.id              "
             + " join spots s on cs.spot_id = s.id                      "
@@ -215,6 +217,10 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
     @Select("select * from DATA_SETS where PERM_ID = ?{1}")
     public ImgDatasetDTO tryGetDatasetByPermId(String datasetPermId);
 
+    @Select(sql = "select * from DATA_SETS where PERM_ID = any(?{1})", parameterBindings =
+        { StringArrayMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ImgDatasetDTO> listDatasetsByPermId(String... datasetPermIds);
+
     // ---------------- HCS - experiments, containers, channels ---------------------------------
 
     @Select("select * from EXPERIMENTS where PERM_ID = ?{1}")
@@ -228,6 +234,10 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
 
     @Select("select * from CONTAINERS where ID = ?{1}")
     public ImgContainerDTO getContainerById(long containerId);
+
+    @Select(sql = "select * from CONTAINERS where ID = any(?{1})", parameterBindings =
+        { LongArrayMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ImgContainerDTO> listContainersByIds(long... containerIds);
 
     // join with container is needed to use spots index
     @Select("select cs.* from CHANNEL_STACKS cs               "
@@ -252,15 +262,19 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
 
     // ---------------- HCS - feature vectors ---------------------------------
 
-    @Select("select * from FEATURE_DEFS where DS_ID = ?{1}")
-    public List<ImgFeatureDefDTO> listFeatureDefsByDataSetId(long dataSetId);
+    @Select(sql = "select * from FEATURE_DEFS where DS_ID = any(?{1})", parameterBindings =
+        { LongArrayMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ImgFeatureDefDTO> listFeatureDefsByDataSetIds(long... dataSetIds);
 
-    @Select("select t.* from FEATURE_VOCABULARY_TERMS t            "
-            + "join FEATURE_DEFS fd on fd.id = t.fd_id             "
-            + "where fd.DS_ID = ?{1}                               ")
-    public List<ImgFeatureVocabularyTermDTO> listFeatureVocabularyTermsByDataSetId(long dataSetId);
+    @Select(sql = "select t.*, fd.ds_id as DS_ID from FEATURE_VOCABULARY_TERMS t      "
+            + "join FEATURE_DEFS fd on fd.id = t.fd_id                                "
+            + "where fd.DS_ID = any(?{1})                                             ", parameterBindings =
+        { LongArrayMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ImgFeatureVocabularyTermDTO> listFeatureVocabularyTermsByDataSetId(
+            long... dataSetIds);
 
-    @Select(sql = "select * from FEATURE_VALUES where FD_ID = ?{1.id} order by T_in_SEC, Z_in_M", resultSetBinding = FeatureVectorDataObjectBinding.class)
-    public List<ImgFeatureValuesDTO> getFeatureValues(ImgFeatureDefDTO featureDef);
+    @Select(sql = "select * from FEATURE_VALUES where FD_ID = any(?{1}) order by T_in_SEC, Z_in_M", parameterBindings =
+        { LongArrayMapper.class }, fetchSize = FETCH_SIZE, resultSetBinding = FeatureVectorDataObjectBinding.class)
+    public List<ImgFeatureValuesDTO> getFeatureValues(long... featureDefIds);
 
 }

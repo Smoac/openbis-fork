@@ -64,7 +64,7 @@ public class TabularDataHeatmapTest extends AbstractTabularDataGraphTest
         assertTrue(outputFile.length() > 0);
     }
 
-    @Test
+    @Test(groups = "slow")
     public void testBigNumberHeatmap() throws IOException
     {
         File outputFile = getImageOutputFile();

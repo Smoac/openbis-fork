@@ -165,18 +165,16 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     public List<String> listAvailableFeatureCodes(String sessionToken,
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
     {
+        List<ImgFeatureDefDTO> featureDefinitions = getFeatureDefinitions(featureDatasets);
+
+        // add only new feature names
         List<String> result = new ArrayList<String>(); // keep the order
-        for (IFeatureVectorDatasetIdentifier identifier : featureDatasets)
+        for (ImgFeatureDefDTO featureDefinition : featureDefinitions)
         {
-            // add only new feature names
-            List<ImgFeatureDefDTO> featureDefinitions = getFeatureDefinitions(identifier);
-            for (ImgFeatureDefDTO featureDefinition : featureDefinitions)
+            String featureCode = featureDefinition.getCode();
+            if (result.contains(featureCode) == false)
             {
-                String featureCode = featureDefinition.getCode();
-                if (result.contains(featureCode) == false)
-                {
-                    result.add(featureCode);
-                }
+                result.add(featureCode);
             }
         }
         return result;
@@ -771,6 +769,42 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         }
     }
 
+    private List<ImgDatasetDTO> getDatasets(List<? extends IDatasetIdentifier> datasetIdents)
+    {
+        String[] permIds = extractPermIds(datasetIdents);
+        List<ImgDatasetDTO> datasets = getDAO().listDatasetsByPermId(permIds);
+        if (datasets.size() != datasetIdents.size())
+        {
+            Set<String> missing = new HashSet<String>(Arrays.asList(permIds));
+            for (ImgDatasetDTO dataset : datasets)
+            {
+                missing.remove(dataset.getPermId());
+            }
+            throw new UserFailureException("Following datasets could not be found: " + missing);
+        }
+        return datasets;
+    }
+
+    private long[] extractIds(List<ImgDatasetDTO> dataSets)
+    {
+        long[] ids = new long[dataSets.size()];
+        for (int i = 0; i < ids.length; i++)
+        {
+            ids[i] = dataSets.get(i).getId();
+        }
+        return ids;
+    }
+
+    private static String[] extractPermIds(List<? extends IDatasetIdentifier> datasets)
+    {
+        String[] permIds = new String[datasets.size()];
+        for (int i = 0; i < permIds.length; i++)
+        {
+            permIds[i] = datasets.get(i).getDatasetCode();
+        }
+        return permIds;
+    }
+
     private ImgDatasetDTO getImagingDataset(IDatasetIdentifier datasetIdentifier)
     {
         ImgDatasetDTO dataset = getDAO().tryGetDatasetByPermId(datasetIdentifier.getDatasetCode());
@@ -1001,10 +1035,11 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                         .matches(ScreeningConstants.ANY_MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN);
     }
 
-    private List<ImgFeatureDefDTO> getFeatureDefinitions(IDatasetIdentifier identifier)
+    private List<ImgFeatureDefDTO> getFeatureDefinitions(
+            List<? extends IDatasetIdentifier> featureDatasets)
     {
-        ImgDatasetDTO dataSet = getImagingDataset(identifier);
-        return getDAO().listFeatureDefsByDataSetId(dataSet.getId());
+        List<ImgDatasetDTO> dataSets = getDatasets(featureDatasets);
+        return getDAO().listFeatureDefsByDataSetIds(extractIds(dataSets));
     }
 
     private IImagingReadonlyQueryDAO getDAO()

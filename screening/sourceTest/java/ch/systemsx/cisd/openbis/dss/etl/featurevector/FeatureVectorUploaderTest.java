@@ -98,7 +98,7 @@ public class FeatureVectorUploaderTest extends AbstractDBTest
 
         private void verify()
         {
-            List<ImgFeatureDefDTO> featureDefs = dao.listFeatureDefsByDataSetId(datasetId);
+            List<ImgFeatureDefDTO> featureDefs = dao.listFeatureDefsByDataSetIds(datasetId);
             assertEquals(2, featureDefs.size());
 
             count = 0;
@@ -112,7 +112,7 @@ public class FeatureVectorUploaderTest extends AbstractDBTest
         private void verifyFeatureDef()
         {
             assertEquals(TEST_FEATURE_NAME + count, featureDef.getLabel());
-            List<ImgFeatureValuesDTO> featureValuesList = dao.getFeatureValues(featureDef);
+            List<ImgFeatureValuesDTO> featureValuesList = dao.getFeatureValues(featureDef.getId());
             assertEquals(1, featureValuesList.size());
             featureValues = featureValuesList.get(0);
             verifyFeatureValues();

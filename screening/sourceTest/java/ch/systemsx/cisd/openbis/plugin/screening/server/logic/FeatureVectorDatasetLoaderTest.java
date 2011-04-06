@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -39,8 +40,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObject
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class FeatureVectorDatasetLoaderTest extends AbstractServerTestCase
@@ -52,18 +51,28 @@ public class FeatureVectorDatasetLoaderTest extends AbstractServerTestCase
     {
         screeningBOFactory = context.mock(IScreeningBusinessObjectFactory.class);
     }
-    
+
     @Test
     public void testGetFeatureVectorDatasets()
     {
         final RecordingMatcher<ListOrSearchSampleCriteria> recordingCriteriaMatcher =
                 new RecordingMatcher<ListOrSearchSampleCriteria>();
-        final ExternalData ids1 = new DataSetBuilder(1l).code("ids1").type("HCS_IMAGE").getDataSet();
-        final ExternalData fds1 = new DataSetBuilder(11l).code("fds1").type("HCS_ANALYSIS_WELL_FEATURES").getDataSet();
-        final ExternalData fds2 = new DataSetBuilder(12l).code("fds2").type("HCS_ANALYSIS_WELL_FEATURES").getDataSet();
-        final ExternalData ids2 = new DataSetBuilder(2l).code("ids2").type("HCS_IMAGE").getDataSet();
-        final ExternalData fds3 = new DataSetBuilder(21l).code("fds3").type("HCS_ANALYSIS_WELL_FEATURES").getDataSet();
-        final ExternalData fds4 = new DataSetBuilder(100l).code("fds4").type("HCS_ANALYSIS_WELL_FEATURES").getDataSet();
+        final ExternalData ids1 =
+                new DataSetBuilder(1l).code("ids1").type("HCS_IMAGE").getDataSet();
+        final ExternalData fds1 =
+                new DataSetBuilder(11l).code("fds1").type("HCS_ANALYSIS_WELL_FEATURES")
+                        .getDataSet();
+        final ExternalData fds2 =
+                new DataSetBuilder(12l).code("fds2").type("HCS_ANALYSIS_WELL_FEATURES")
+                        .getDataSet();
+        final ExternalData ids2 =
+                new DataSetBuilder(2l).code("ids2").type("HCS_IMAGE").getDataSet();
+        final ExternalData fds3 =
+                new DataSetBuilder(21l).code("fds3").type("HCS_ANALYSIS_WELL_FEATURES")
+                        .getDataSet();
+        final ExternalData fds4 =
+                new DataSetBuilder(100l).code("fds4").type("HCS_ANALYSIS_WELL_FEATURES")
+                        .getDataSet();
         final ExternalData ds1 = new DataSetBuilder(101l).code("ds1").type("BLABLA").getDataSet();
         context.checking(new Expectations()
             {
@@ -72,18 +81,18 @@ public class FeatureVectorDatasetLoaderTest extends AbstractServerTestCase
                     will(returnValue(sampleLister));
                     allowing(screeningBOFactory).createDatasetLister(SESSION);
                     will(returnValue(datasetLister));
-                    
+
                     one(sampleLister).list(with(recordingCriteriaMatcher));
                     ArrayList<Sample> samples = new ArrayList<Sample>();
                     samples.add(new SampleBuilder("/S/P1").id(42l).permID("s-1").getSample());
                     will(returnValue(samples));
-                    
-                    one(datasetLister).listBySampleIds(Arrays.asList(42l));
+
+                    one(datasetLister).listBySampleIds(new HashSet<Long>(Arrays.asList(42l)));
                     will(returnValue(Arrays.asList(ids1, fds1, fds2, ids2, fds3, fds4, ds1)));
-                    
+
                     one(datasetLister).listByParentTechIds(Arrays.asList(1l, 2l));
                     will(returnValue(Arrays.asList(fds1, fds2, fds3, ds1)));
-                    
+
                     one(datasetLister).listParentIds(Arrays.asList(11l, 12l, 21l));
                     HashMap<Long, Set<Long>> map = new HashMap<Long, Set<Long>>();
                     map.put(11l, Collections.singleton(1l));
@@ -96,11 +105,15 @@ public class FeatureVectorDatasetLoaderTest extends AbstractServerTestCase
                 Arrays.<PlateIdentifier> asList(new PlateIdentifier("P1", "S", "s-1"));
         FeatureVectorDatasetLoader loader =
                 new FeatureVectorDatasetLoader(SESSION, screeningBOFactory, null, plateIdentifiers);
-        
-        List<ExternalData> datasets = new ArrayList<ExternalData>(loader.getFeatureVectorDatasets());
-        
-        assertEquals("[]", Arrays.asList(recordingCriteriaMatcher.recordedObject().trySampleCodes()).toString());
-        assertEquals("[s-1]", Arrays.asList(recordingCriteriaMatcher.recordedObject().trySamplePermIds()).toString());
+
+        List<ExternalData> datasets =
+                new ArrayList<ExternalData>(loader.getFeatureVectorDatasets());
+
+        assertEquals("[]", Arrays
+                .asList(recordingCriteriaMatcher.recordedObject().trySampleCodes()).toString());
+        assertEquals("[s-1]",
+                Arrays.asList(recordingCriteriaMatcher.recordedObject().trySamplePermIds())
+                        .toString());
         Collections.sort(datasets, new Comparator<ExternalData>()
             {
                 public int compare(ExternalData o1, ExternalData o2)

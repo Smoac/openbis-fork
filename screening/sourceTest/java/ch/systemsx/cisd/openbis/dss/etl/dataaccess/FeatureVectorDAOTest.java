@@ -103,7 +103,7 @@ public class FeatureVectorDAOTest extends AbstractDBTest
         dataset = createDataSet();
 
         createFeatureDef(dataset);
-        List<ImgFeatureDefDTO> featureDefs = dao.listFeatureDefsByDataSetId(dataset.getId());
+        List<ImgFeatureDefDTO> featureDefs = dao.listFeatureDefsByDataSetIds(dataset.getId());
         assertEquals(1, featureDefs.size());
 
         ImgFeatureDefDTO featureDef = featureDefs.get(0);
@@ -113,7 +113,7 @@ public class FeatureVectorDAOTest extends AbstractDBTest
         testCreateAndListFeatureVocabularyValues(featureDef);
 
         createFeatureFloatValues(featureDef);
-        List<ImgFeatureValuesDTO> featureValuesList = dao.getFeatureValues(featureDef);
+        List<ImgFeatureValuesDTO> featureValuesList = dao.getFeatureValues(featureDef.getId());
         assertEquals(1, featureValuesList.size());
 
         ImgFeatureValuesDTO featureValues = featureValuesList.get(0);

@@ -171,7 +171,7 @@ public class TabularDataHistogramTest extends AbstractTabularDataGraphTest
         assertTrue(outputFile.length() > 0);
     }
 
-    @Test
+    @Test(groups = "slow")
     public void testLotsOfBlanksHistogram() throws IOException
     {
         File outputFile = getImageOutputFile();
@@ -189,7 +189,7 @@ public class TabularDataHistogramTest extends AbstractTabularDataGraphTest
         assertTrue(outputFile.length() > 0);
     }
 
-    @Test
+    @Test(groups = "slow")
     public void testIncorrectlyConfiguredHistogram() throws IOException
     {
         File outputFile = getImageOutputFile();

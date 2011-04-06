@@ -150,6 +150,11 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
         context.assertIsSatisfied();
     }
 
+    private static HashSet<Long> asSet(long id)
+    {
+        return new HashSet<Long>(Arrays.asList(id));
+    }
+
     @Test
     public void testListImageDatasets()
     {
@@ -165,7 +170,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
 
                     one(screeningBOFactory).createDatasetLister(SESSION);
                     will(returnValue(datasetLister));
-                    one(datasetLister).listBySampleIds(with(Arrays.asList((long) 1)));
+                    one(datasetLister).listBySampleIds(with(asSet(1)));
                     will(returnValue(Arrays.asList(imageDataSet(p1, "1", 1),
                             imageAnalysisDataSet(p1, "2", 2))));
                 }
@@ -199,7 +204,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
 
                     one(screeningBOFactory).createDatasetLister(SESSION);
                     will(returnValue(datasetLister));
-                    one(datasetLister).listBySampleIds(with(Arrays.asList((long) 1)));
+                    one(datasetLister).listBySampleIds(with(asSet(1)));
                     will(returnValue(Arrays.asList(imageRawDataSet(p1, "1", 1),
                             imageRawDataSet(p1, "2", 2), imageAnalysisDataSet(p1, "3", 3))));
                 }
@@ -240,17 +245,17 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
 
                     allowing(screeningBOFactory).createDatasetLister(SESSION);
                     will(returnValue(datasetLister));
-                    one(datasetLister).listBySampleIds(with(Arrays.asList((long) 1)));
+                    one(datasetLister).listBySampleIds(with(asSet(1)));
                     final ExternalData rawImage = imageRawDataSet(p1, "2", 2);
-                    ExternalData imageSegmentationDataSet = imageSegmentationDataSet(p1, "3", 3, rawImage);
+                    ExternalData imageSegmentationDataSet =
+                            imageSegmentationDataSet(p1, "3", 3, rawImage);
                     ExternalData imageAnalysisDataSet = imageAnalysisDataSet(p1, "4", 4);
                     will(returnValue(Arrays.asList(imageDataSet(p1, "1", 1), rawImage,
-                            imageSegmentationDataSet,
-                            imageAnalysisDataSet)));
-                    
+                            imageSegmentationDataSet, imageAnalysisDataSet)));
+
                     one(datasetLister).listByParentTechIds(Arrays.asList(1l, 2l));
                     will(returnValue(Arrays.asList(imageSegmentationDataSet, imageAnalysisDataSet)));
-                    
+
                     one(datasetLister).listParentIds(Arrays.asList(3l));
                     HashMap<Long, Set<Long>> result = new HashMap<Long, Set<Long>>();
                     result.put(3l, Collections.singleton(2l));
@@ -295,7 +300,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
 
                     one(screeningBOFactory).createDatasetLister(SESSION);
                     will(returnValue(datasetLister));
-                    one(datasetLister).listBySampleIds(with(Arrays.asList((long) 1)));
+                    one(datasetLister).listBySampleIds(with(asSet(1)));
                     will(returnValue(Arrays.asList(imageDataSet(p1, "1", 1))));
                 }
             });
@@ -356,7 +361,8 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
                     exactly(2).of(screeningBOFactory).createDatasetLister(SESSION);
                     will(returnValue(datasetLister));
                     long imageDatasetId = 1;
-                    one(datasetLister).listBySampleIds(with(Arrays.asList(imageDatasetId)));
+                    one(datasetLister).listBySampleIds(
+                            with(new HashSet<Long>(asSet(imageDatasetId))));
                     will(returnValue(Arrays.asList(
                             imageDataSet(p1, "" + imageDatasetId, imageDatasetId),
                             imageAnalysisDataSet(p1, "2", 2))));
@@ -411,7 +417,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
 
                     one(screeningBOFactory).createDatasetLister(SESSION);
                     will(returnValue(datasetLister));
-                    one(datasetLister).listBySampleIds(with(Arrays.asList((long) 1)));
+                    one(datasetLister).listBySampleIds(with(asSet(1)));
                     will(returnValue(Arrays.asList(imageDataSet(p1, "1", 1))));
                 }
             });

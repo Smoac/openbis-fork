@@ -354,6 +354,10 @@ public class ImagingQueryDAOTest extends AbstractDBTest
         assertEquals(spotHeight, loadedContainer.getNumberOfRows());
         assertEquals(experimentId, loadedContainer.getExperimentId());
 
+        List<ImgContainerDTO> containers = dao.listContainersByIds(containerId);
+        assertEquals(1, containers.size());
+        assertEquals(loadedContainer, containers.get(0));
+
         return containerId;
     }
 
@@ -371,6 +375,12 @@ public class ImagingQueryDAOTest extends AbstractDBTest
         assertEquals(fieldsWidth, loadedDataset.getFieldNumberOfColumns());
         assertEquals(fieldsHeight, loadedDataset.getFieldNumberOfRows());
         assertEquals(containerIdOrNull, loadedDataset.getContainerId());
+
+        // test listDatasetsByPermId
+        final List<ImgDatasetDTO> datasets = dao.listDatasetsByPermId(new String[]
+            { permId, "not existing" });
+        assertEquals(1, datasets.size());
+        assertEquals(loadedDataset, datasets.get(0));
 
         return datasetId;
     }
