@@ -115,7 +115,7 @@ public class ImageUtilTest extends AssertJUnit
         assertImageSize(805, 1023, loadImageByInputStream("png-example.png"));
     }
     
-    @Test
+    @Test(groups = "slow")
     public void testTiffImage()
     {
         assertImageSize(805, 1023, loadImageByFile("tiff-example.tiff"));

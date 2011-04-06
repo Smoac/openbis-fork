@@ -422,7 +422,7 @@ public class DatasetDownloadServletTest
         context.assertIsSatisfied();
     }
 
-    @Test
+    @Test(groups = "slow")
     public void testDoGetThumbnail() throws Exception
     {
         BufferedImage image = new BufferedImage(100, 200, BufferedImage.TYPE_INT_RGB);

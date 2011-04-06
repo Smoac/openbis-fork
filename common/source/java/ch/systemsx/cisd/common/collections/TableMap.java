@@ -170,7 +170,7 @@ public class TableMap<K, E> implements Iterable<E>
         E elem = tryGet(key);
         if (elem == null)
         {
-            throw new IllegalStateException("No value for teh specified key found: " + key);
+            throw new IllegalStateException("No value for the specified key found: " + key);
         }
         return elem;
     }

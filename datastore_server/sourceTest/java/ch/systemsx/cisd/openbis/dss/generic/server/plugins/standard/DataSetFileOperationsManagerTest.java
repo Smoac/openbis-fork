@@ -225,7 +225,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
      * --< LOCAL >----------------------------------------------------------------------------------
      */
 
-    @Test
+    @Test(groups = "slow")
     public void testLocalCopyToDestination()
     {
         Properties properties = createLocalDestinationProperties();
@@ -271,7 +271,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
-    @Test
+    @Test(groups = "slow")
     public void testLocalCopyToNonExistentDestination()
     {
         Properties properties = createLocalDestinationProperties();
@@ -297,7 +297,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
-    @Test(dependsOnMethods = "testLocalCopyToDestination")
+    @Test(dependsOnMethods = "testLocalCopyToDestination", groups = "slow")
     public void testLocalCopyTwoDataSetsToDestination()
     {
         Properties properties = createLocalDestinationProperties();
@@ -334,7 +334,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
-    @Test(dependsOnMethods = "testLocalCopyToDestination")
+    @Test(dependsOnMethods = "testLocalCopyToDestination", groups = "slow")
     public void testLocalRetrieveFromDestination()
     {
         /*
@@ -387,7 +387,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
-    @Test(dependsOnMethods = "testLocalCopyToDestination")
+    @Test(dependsOnMethods = "testLocalCopyToDestination", groups = "slow")
     public void testLocalPresentInDestination()
     {
         Properties properties = createLocalDestinationProperties();
@@ -459,7 +459,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
-    @Test(dependsOnMethods = "testLocalCopyToDestination")
+    @Test(dependsOnMethods = "testLocalCopyToDestination", groups = "slow")
     public void testLocalDeleteFromDestination()
     {
         /*
