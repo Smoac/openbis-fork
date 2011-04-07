@@ -20,22 +20,24 @@ import java.io.File;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IDatasetLocation;
 
 /**
  * Implementation of {@link IDataSetDirectoryProvider}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class DataSetDirectoryProvider implements IDataSetDirectoryProvider
 {
     private final File storeRoot;
+
     private final IShareIdManager shareIdManager;
 
-    public DataSetDirectoryProvider(File storeRoot, IShareIdManager shareIdManager){
+    public DataSetDirectoryProvider(File storeRoot, IShareIdManager shareIdManager)
+    {
         this.storeRoot = storeRoot;
         this.shareIdManager = shareIdManager;
-        
+
     }
 
     public File getStoreRoot()
@@ -43,7 +45,7 @@ public class DataSetDirectoryProvider implements IDataSetDirectoryProvider
         return storeRoot;
     }
 
-    public File getDataSetDirectory(DatasetDescription dataSet)
+    public File getDataSetDirectory(IDatasetLocation dataSet)
     {
         String location = dataSet.getDataSetLocation();
         location = location.replace("\\", File.separator);

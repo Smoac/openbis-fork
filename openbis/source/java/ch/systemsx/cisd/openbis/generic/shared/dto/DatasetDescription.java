@@ -25,7 +25,7 @@ import java.util.List;
  * 
  * @author Tomasz Pylak
  */
-public class DatasetDescription implements Serializable
+public class DatasetDescription implements Serializable, IDatasetLocation
 {
     private static final long serialVersionUID = 20L;
 

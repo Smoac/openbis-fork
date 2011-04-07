@@ -20,11 +20,12 @@ import java.io.File;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IDatasetLocation;
 
 public final class MockDataSetDirectoryProvider implements IDataSetDirectoryProvider
 {
     private final File store;
+
     private final String shareID;
 
     public MockDataSetDirectoryProvider(File store, String shareID)
@@ -32,13 +33,13 @@ public final class MockDataSetDirectoryProvider implements IDataSetDirectoryProv
         this.store = store;
         this.shareID = shareID;
     }
-    
+
     public File getStoreRoot()
     {
         return store;
     }
 
-    public File getDataSetDirectory(DatasetDescription dataSet)
+    public File getDataSetDirectory(IDatasetLocation dataSet)
     {
         return new File(new File(getStoreRoot(), shareID), dataSet.getDataSetLocation());
     }

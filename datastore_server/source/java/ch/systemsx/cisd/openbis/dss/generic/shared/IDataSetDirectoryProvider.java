@@ -18,11 +18,11 @@ package ch.systemsx.cisd.openbis.dss.generic.shared;
 
 import java.io.File;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IDatasetLocation;
 
 /**
  * Provider of the root directory of a data set in the data store.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IDataSetDirectoryProvider
@@ -31,15 +31,15 @@ public interface IDataSetDirectoryProvider
      * Returns the root directory of data store.
      */
     public File getStoreRoot();
-    
+
     /**
      * Returns the root directory of specified data set.
      */
-    public File getDataSetDirectory(DatasetDescription dataSet);
+    public File getDataSetDirectory(IDatasetLocation dataSet);
 
     /**
-     * Returns the share id manager which is used for
-     * {@link #getDataSetDirectory(DatasetDescription)}.
+     * Returns the share id manager which is used for {@link #getDataSetDirectory(IDatasetLocation)}
+     * .
      */
     public IShareIdManager getShareIdManager();
 }

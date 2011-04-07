@@ -57,11 +57,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -75,9 +75,11 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator
 public class UploadingCommandTest extends AssertJUnit
 {
     private static final File TEST_FOLDER = new File("targets/upload-test");
+
     private static final File STORE = new File(TEST_FOLDER, "store");
+
     private static final String SHARE_ID = "share-id";
-    
+
     private static final class MockDataSetDirectoryProvider implements IDataSetDirectoryProvider
     {
         public File getStoreRoot()
@@ -85,7 +87,7 @@ public class UploadingCommandTest extends AssertJUnit
             return STORE;
         }
 
-        public File getDataSetDirectory(DatasetDescription dataSet)
+        public File getDataSetDirectory(IDatasetLocation dataSet)
         {
             return new File(new File(getStoreRoot(), SHARE_ID), dataSet.getDataSetLocation());
         }
@@ -95,7 +97,7 @@ public class UploadingCommandTest extends AssertJUnit
             return null;
         }
     }
-    
+
     private static final String ZIP_FILENAME = "myData";
 
     private static final String INFO_UPLOAD_PREFIX = "INFO  OPERATION.UploadingCommand - ";
@@ -103,8 +105,6 @@ public class UploadingCommandTest extends AssertJUnit
     private static final String WARN_UPLOAD_PREFIX = "WARN  OPERATION.UploadingCommand - ";
 
     private static final String INFO_MAIL_PREFIX = "INFO  OPERATION.MailClient - ";
-
-
 
     private static final File TMP = new File(STORE, "tmp");
 
@@ -143,6 +143,7 @@ public class UploadingCommandTest extends AssertJUnit
     private UploadingCommand commandAdminSessionNotAuthenticated;
 
     private File ds2;
+
     private IDataSetDirectoryProvider directoryProvider;
 
     @BeforeMethod
@@ -532,8 +533,8 @@ public class UploadingCommandTest extends AssertJUnit
                         + "experiment\texperiment_code\texp1\n"
                         + "experiment\texperiment_type_code\tE\n"
                         + "experiment\tregistration_timestamp\t1970-01-01 01:00:00 +0100\n"
-                        + "experiment\tregistrator\tCharles Darwin <cd@cd.org>\n", outputStream
-                        .toString());
+                        + "experiment\tregistrator\tCharles Darwin <cd@cd.org>\n",
+                        outputStream.toString());
             } catch (AssertionError err)
             {
                 // We have an ambiguity here: sometimes we get "parent1,parent2", sometimes we get
@@ -546,8 +547,8 @@ public class UploadingCommandTest extends AssertJUnit
                         + "experiment\texperiment_code\texp1\n"
                         + "experiment\texperiment_type_code\tE\n"
                         + "experiment\tregistration_timestamp\t1970-01-01 01:00:00 +0100\n"
-                        + "experiment\tregistrator\tCharles Darwin <cd@cd.org>\n", outputStream
-                        .toString());
+                        + "experiment\tregistrator\tCharles Darwin <cd@cd.org>\n",
+                        outputStream.toString());
             }
         } finally
         {
