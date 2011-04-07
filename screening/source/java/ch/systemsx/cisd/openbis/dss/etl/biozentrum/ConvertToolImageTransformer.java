@@ -17,11 +17,17 @@
 package ch.systemsx.cisd.openbis.dss.etl.biozentrum;
 
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.imageio.ImageIO;
 
@@ -34,6 +40,7 @@ import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.process.IProcessIOHandler;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.process.ProcessIOStrategy;
 import ch.systemsx.cisd.common.process.ProcessResult;
@@ -78,21 +85,14 @@ public class ConvertToolImageTransformer implements IImageTransformer
 
     public BufferedImage transform(BufferedImage image)
     {
-        File tmpFile = null;
         try
         {
-            tmpFile = createTempImageFile(image);
-            byte[] output = transform(tmpFile);
+            byte[] input = toByteArray(image);
+            byte[] output = transform(input);
             return toBufferedImage(output);
         } catch (IOException ioex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ioex);
-        } finally
-        {
-            if (tmpFile != null)
-            {
-                tmpFile.delete();
-            }
         }
     }
 
@@ -107,25 +107,56 @@ public class ConvertToolImageTransformer implements IImageTransformer
         return imageReader.readImage(output, null);
     }
 
-    private byte[] transform(File imageFile) throws IOException
+    private byte[] transform(final byte[] input) throws IOException
     {
-        String filePath = imageFile.getAbsolutePath();
 
+        final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        final List<String> errorLines = new ArrayList<String>();
+        ProcessIOStrategy customIOStrategy = createCustomProcessIOStrategy(input, bos, errorLines);
+        
         ProcessResult result =
-                ProcessExecutionHelper.run(getCommandLine(filePath), operationLog, machineLog,
-                        ConcurrencyUtilities.NO_TIMEOUT,
-                        ProcessIOStrategy.BINARY_DISCARD_STDERR_IO_STRATEGY, false);
+                ProcessExecutionHelper.run(getCommandLine(), operationLog, machineLog,
+                        ConcurrencyUtilities.NO_TIMEOUT, customIOStrategy, false);
 
         if (result.isOK() == false)
         {
+            operationLog.warn("Execution of 'convert' failed. Dumping standard error...\n"
+                    + errorLines.toString());
             throw new IOException(String.format(
-                    "Error calling 'convert' for image '%s'. Exit value: %d, I/O status: %s",
-                    filePath, result.getExitValue(), result.getProcessIOResult().getStatus()));
+                    "Error calling 'convert'. Exit value: %d, I/O status: %s",
+                    result.getExitValue(), result.getProcessIOResult().getStatus()));
         } else
         {
-            return result.getBinaryOutput();
+            return bos.toByteArray();
         }
 
+    }
+
+    private ProcessIOStrategy createCustomProcessIOStrategy(final byte[] input,
+            final ByteArrayOutputStream bos, final List<String> errorLines)
+    {
+        return ProcessIOStrategy.createCustom(new IProcessIOHandler()
+            {
+                
+                public void handle(AtomicBoolean processRunning, OutputStream stdin, InputStream stdout,
+                        InputStream stderr) throws IOException
+                {
+                    stdin.write(input);
+                    stdin.flush();
+                    stdin.close();
+
+                    byte[] buffer = new byte[ProcessExecutionHelper.RECOMMENDED_BUFFER_SIZE];
+                    BufferedReader stdErrReader = new BufferedReader(new InputStreamReader(stderr));
+                    while (processRunning.get())
+                    {
+                        ProcessExecutionHelper.readBytesIfAvailable(stdout, bos, buffer, -1, false);
+                        ProcessExecutionHelper.readTextIfAvailable(stdErrReader, errorLines, false);
+                    }
+
+                    ProcessExecutionHelper.readBytesIfAvailable(stdout, bos, buffer, -1, false);
+                    ProcessExecutionHelper.readTextIfAvailable(stdErrReader, errorLines, false);
+                }
+            });
     }
 
     private List<String> parseCommandArguments(String argsString)
@@ -134,22 +165,23 @@ public class ConvertToolImageTransformer implements IImageTransformer
         return Arrays.asList(arguments);
     }
 
-    private List<String> getCommandLine(String filePath)
+    private List<String> getCommandLine()
     {
         ArrayList<String> result = new ArrayList<String>();
         result.add(convertUtilityOrNull.getPath());
         result.addAll(convertCliArguments);
-        result.add(filePath);
+        // use standard input to read image
+        result.add("-");
+        // use standard output to produce result
         result.add("png:-");
         return result;
     }
 
-    private File createTempImageFile(BufferedImage image) throws IOException
+    private byte[] toByteArray(BufferedImage image) throws IOException
     {
-        File tmpFile = File.createTempFile(getClass().getSimpleName(), PNG);
-        tmpFile.deleteOnExit();
-        ImageIO.write(image, PNG, tmpFile);
-        return tmpFile;
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ImageIO.write(image, PNG, bos);
+        return bos.toByteArray();
     }
 
 }
