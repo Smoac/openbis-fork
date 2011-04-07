@@ -61,7 +61,7 @@ class ModificationFractionHandler extends AbstractSampleHandler
         if (sampleOrError.error != null)
         {
             throw new UserFailureException("Protein '" + peptideSequence
-                    + "' has an abundance value for " + sampleOrError.error);
+                    + "' has modification for " + sampleOrError.error);
         }
         return sampleOrError.sample;
     }

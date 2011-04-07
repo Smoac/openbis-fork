@@ -238,23 +238,11 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         p1.setName(PROTEIN_NAME1);
         p1.getParameters().add(createAbundance(CELL_LYSATE1, 2.5));
         p1.getParameters().add(new Parameter());
+        prepareCreateSample();
         context.checking(new Expectations()
             {
                 {
-                    one(service).tryGetSampleWithExperiment(
-                            new SampleIdentifier(new SpaceIdentifier(DB_INSTANCE,
-                                    CommonConstants.MS_DATA_SPACE), CELL_LYSATE1));
-                    ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample =
-                            new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample();
-                    sample.setPermId(CELL_LYSATE_PERM_ID1);
-                    will(returnValue(sample));
-                    
                     one(service).registerSample(with(any(NewSample.class)), with(new IsNull<String>()));
-
-                    one(dao).tryToGetSampleByPermID(CELL_LYSATE_PERM_ID1);
-                    will(returnValue(null));
-                    one(dao).createSample(EXPERIMENT_ID, CELL_LYSATE_PERM_ID1);
-                    will(returnValue(CELL_LYSATE_ID1));
 
                     one(dao).createAbundance(PROTEIN1_ID, CELL_LYSATE_ID1, 2.5);
                 }
@@ -410,6 +398,49 @@ public class ResultDataSetUploaderTest extends AssertJUnit
 
         context.assertIsSatisfied();
     }
+    
+    @Test
+    public void testProteinWithPeptideWithModificationParameter()
+    {
+        prepareForCreatingExperimentSampleDatabaseAndDataSet();
+        double probability = 1.0;
+        prepareForCreatingProtein(probability);
+        ProteinAnnotation a1 = createAnnotation(UNIPROT_ID1, PROTEIN_NAME1, SEQUENCE1);
+        prepareForCreatingIdentifiedProtein(a1, false, true);
+        
+        ProteinSummary summary = createProteinSummary();
+        Protein p1 = createProtein(probability, a1);
+        final Peptide peptide = new Peptide();
+        Parameter parameter = new Parameter();
+        parameter.setName(CELL_LYSATE1);
+        parameter.setValue("2:9.5:0.125");
+        parameter.setType(ResultDataSetUploader.PARAMETER_TYPE_MODIFICATION);
+        peptide.setParameters(Arrays.asList(parameter));
+        peptide.setSequence("abcd");
+        peptide.setCharge(3);
+        p1.setPeptides(Arrays.asList(peptide));
+        summary.getProteinGroups().add(createProteinGroup(p1));
+        prepareCreateSample();
+        context.checking(new Expectations()
+            {
+                {
+                    one(dao).createPeptide(PROTEIN1_ID, peptide.getSequence(), peptide.getCharge());
+                    will(returnValue(PEPTIDE_ID));
+
+                    one(dao).createModifiedPeptide(PEPTIDE_ID, 0, 0);
+                    will(returnValue(MOD_PEPTIDE_ID));
+
+                    one(dao).createModification(MOD_PEPTIDE_ID, 2, 9.5);
+                    will(returnValue(157L));
+                    
+                    one(dao).createModificationFraction(157L, CELL_LYSATE_ID1, 0.125);
+                }
+            });
+        
+        uploader.upload(createDataSetInfo(), summary);
+        
+        context.assertIsSatisfied();
+    }
 
     private Parameter createAbundance(String sampleCode, double value)
     {
@@ -464,6 +495,26 @@ public class ResultDataSetUploaderTest extends AssertJUnit
                 {
                     one(dao).createProtein(DATA_SET_ID, probability);
                     will(returnValue(PROTEIN1_ID));
+                }
+            });
+    }
+
+    private void prepareCreateSample()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).tryGetSampleWithExperiment(
+                            new SampleIdentifier(new SpaceIdentifier(DB_INSTANCE,
+                                    CommonConstants.MS_DATA_SPACE), CELL_LYSATE1));
+                    ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample =
+                            new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample();
+                    sample.setPermId(CELL_LYSATE_PERM_ID1);
+                    will(returnValue(sample));
+                    one(dao).tryToGetSampleByPermID(CELL_LYSATE_PERM_ID1);
+                    will(returnValue(null));
+                    one(dao).createSample(EXPERIMENT_ID, CELL_LYSATE_PERM_ID1);
+                    will(returnValue(CELL_LYSATE_ID1));
                 }
             });
     }
