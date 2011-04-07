@@ -27,6 +27,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.openbis.dss.etl.ImagingDatabaseHelper.ImagingChannelsMap;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgAcquiredImageDTO;
@@ -55,12 +56,16 @@ abstract class AbstractImageDatasetUploader
 
         private final RelativeImageReference thumbnailPathOrNull;
 
+        private final IImageTransformerFactory imageTransformerFactoryOrNull;
+
         public AcquiredImageInStack(String channelCode, RelativeImageReference imageFilePath,
-                RelativeImageReference thumbnailPathOrNull)
+                RelativeImageReference thumbnailPathOrNull,
+                IImageTransformerFactory imageTransformerFactoryOrNull)
         {
             this.channelCode = channelCode.toUpperCase();
             this.imageFilePath = imageFilePath;
             this.thumbnailPathOrNull = thumbnailPathOrNull;
+            this.imageTransformerFactoryOrNull = imageTransformerFactoryOrNull;
         }
 
         public String getChannelCode()
@@ -76,6 +81,11 @@ abstract class AbstractImageDatasetUploader
         public final RelativeImageReference getThumbnailPathOrNull()
         {
             return thumbnailPathOrNull;
+        }
+
+        public IImageTransformerFactory getImageTransformerFactoryOrNull()
+        {
+            return imageTransformerFactoryOrNull;
         }
     }
 
@@ -137,7 +147,7 @@ abstract class AbstractImageDatasetUploader
     private static AcquiredImageInStack makeAcquiredImageInStack(AcquiredSingleImage image)
     {
         return new AcquiredImageInStack(image.getChannelCode(), image.getImageReference(),
-                image.getThumbnailFilePathOrNull());
+                image.getThumbnailFilePathOrNull(), image.getImageTransformerFactoryOrNull());
     }
 
     private ImgChannelStackDTO makeStackDtoWithouId(AcquiredSingleImage image,
@@ -178,19 +188,22 @@ abstract class AbstractImageDatasetUploader
         List<ImgAcquiredImageDTO> acquiredImageDTOs = imagesToCreate.getAcquiredImages();
         for (AcquiredImageInStack image : images)
         {
-            long channelTechId = channelsMap.getChannelId(image.getChannelCode());
-
             ImgImageDTO imageDTO = mkImageWithIdDTO(image.getImageFilePath());
-            ImgImageDTO thumbnailDTO = tryMkImageWithIdDTO(image.getThumbnailPathOrNull());
-            Long thumbnailId = thumbnailDTO == null ? null : thumbnailDTO.getId();
-            ImgAcquiredImageDTO acquiredImage =
-                    mkAcquiredImage(stackId, channelTechId, imageDTO.getId(), thumbnailId);
-
             imageDTOs.add(imageDTO);
+
+            ImgImageDTO thumbnailDTO = tryMkImageWithIdDTO(image.getThumbnailPathOrNull());
+            Long thumbnailId = null;
             if (thumbnailDTO != null)
             {
+                thumbnailId = thumbnailDTO.getId();
                 imageDTOs.add(thumbnailDTO);
             }
+
+            long channelTechId = channelsMap.getChannelId(image.getChannelCode());
+            ImgAcquiredImageDTO acquiredImage =
+                    mkAcquiredImage(stackId, channelTechId, imageDTO.getId(), thumbnailId,
+                            image.getImageTransformerFactoryOrNull());
+
             acquiredImageDTOs.add(acquiredImage);
         }
     }
@@ -220,13 +233,14 @@ abstract class AbstractImageDatasetUploader
     }
 
     private ImgAcquiredImageDTO mkAcquiredImage(long stackId, long channelTechId, long imageId,
-            Long thumbnailId)
+            Long thumbnailId, IImageTransformerFactory transformerFactoryOrNull)
     {
         ImgAcquiredImageDTO acquiredImage = new ImgAcquiredImageDTO();
         acquiredImage.setImageId(imageId);
         acquiredImage.setThumbnailId(thumbnailId);
         acquiredImage.setChannelStackId(stackId);
         acquiredImage.setChannelId(channelTechId);
+        acquiredImage.setImageTransformerFactory(transformerFactoryOrNull);
         return acquiredImage;
     }
 
@@ -241,6 +255,7 @@ abstract class AbstractImageDatasetUploader
 
     private ImgImageDTO mkImageWithIdDTO(RelativeImageReference imageReferenceOrNull)
     {
+        
         ImgImageDTO dto =
                 new ImgImageDTO(dao.createImageId(), imageReferenceOrNull.getRelativeImagePath(),
                         imageReferenceOrNull.tryGetPage(),

@@ -21,7 +21,7 @@ import net.lemnik.eodsql.ResultColumn;
 /**
  * @author Tomasz Pylak
  */
-public class ImgAcquiredImageDTO extends AbstractImgIdentifiable
+public class ImgAcquiredImageDTO extends AbstractImageTransformerFactoryHolder
 {
     @ResultColumn("IMG_ID")
     private long imageId;

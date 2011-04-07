@@ -69,18 +69,18 @@ public class SimpleImageDataSetRegistrator
     }
 
     public static DataSetRegistrationDetails<ImageDataSetInformation> createImageDatasetDetails(
-            SimpleImageDataConfig imageDataSet, File incoming,
+            SimpleImageDataConfig simpleImageConfig, File incoming,
             IDataSetRegistrationDetailsFactory<ImageDataSetInformation> factory)
     {
-        return new SimpleImageDataSetRegistrator(imageDataSet).createImageDatasetDetails(incoming,
+        return new SimpleImageDataSetRegistrator(simpleImageConfig).createImageDatasetDetails(incoming,
                 factory);
     }
 
-    private final SimpleImageDataConfig imageDataSet;
+    private final SimpleImageDataConfig simpleImageConfig;
 
-    private SimpleImageDataSetRegistrator(SimpleImageDataConfig imageDataSet)
+    private SimpleImageDataSetRegistrator(SimpleImageDataConfig simpleImageConfig)
     {
-        this.imageDataSet = imageDataSet;
+        this.simpleImageConfig = simpleImageConfig;
     }
 
     private DataSetRegistrationDetails<ImageDataSetInformation> createImageDatasetDetails(
@@ -101,7 +101,7 @@ public class SimpleImageDataSetRegistrator
     private List<File> listImageFiles(final File incomingDirectory)
     {
         return FileOperations.getInstance().listFiles(incomingDirectory,
-                imageDataSet.getRecognizedImageExtensions(), true);
+                simpleImageConfig.getRecognizedImageExtensions(), true);
     }
 
     /**
@@ -115,7 +115,7 @@ public class SimpleImageDataSetRegistrator
         {
             String imageRelativePath =
                     FileUtilities.getRelativeFile(incomingDirectory, new File(imageFile.getPath()));
-            ImageMetadata imageTokens = imageDataSet.extractImageMetadata(imageRelativePath);
+            ImageMetadata imageTokens = simpleImageConfig.extractImageMetadata(imageRelativePath);
             imageTokens.ensureValid();
             imageTokensList.add(new ImageTokensWithPath(imageTokens, imageRelativePath));
         }
@@ -124,7 +124,7 @@ public class SimpleImageDataSetRegistrator
             throw UserFailureException.fromTemplate(
                     "Incoming directory '%s' contains no images with extensions %s!",
                     incomingDirectory.getPath(),
-                    CollectionUtils.abbreviate(imageDataSet.getRecognizedImageExtensions(), -1));
+                    CollectionUtils.abbreviate(simpleImageConfig.getRecognizedImageExtensions(), -1));
         }
         return imageTokensList;
     }
@@ -135,7 +135,7 @@ public class SimpleImageDataSetRegistrator
     protected ImageFileInfo createImageInfo(ImageTokensWithPath imageTokens, Geometry tileGeometry)
     {
         Location tileCoords =
-                imageDataSet.getTileCoordinates(imageTokens.getTileNumber(), tileGeometry);
+                simpleImageConfig.getTileCoordinates(imageTokens.getTileNumber(), tileGeometry);
         ImageFileInfo img =
                 new ImageFileInfo(imageTokens.getChannelCode(), tileCoords.getRow(),
                         tileCoords.getColumn(), imageTokens.getImagePath());
@@ -172,7 +172,7 @@ public class SimpleImageDataSetRegistrator
         List<Channel> channels = new ArrayList<Channel>();
         for (String channelCode : channelCodes)
         {
-            channels.add(imageDataSet.createChannel(channelCode));
+            channels.add(simpleImageConfig.createChannel(channelCode));
         }
         return channels;
     }
@@ -195,18 +195,18 @@ public class SimpleImageDataSetRegistrator
      */
     protected void setImageDataset(File incoming, ImageDataSetInformation dataset)
     {
-        dataset.setDatasetTypeCode(imageDataSet.getDataSetType());
-        dataset.setFileFormatCode(imageDataSet.getFileFormatType());
-        dataset.setMeasured(imageDataSet.isMeasuredData());
+        dataset.setDatasetTypeCode(simpleImageConfig.getDataSetType());
+        dataset.setFileFormatCode(simpleImageConfig.getFileFormatType());
+        dataset.setMeasured(simpleImageConfig.isMeasuredData());
 
-        String sampleCode = imageDataSet.getPlateCode();
-        String spaceCode = imageDataSet.getPlateSpace();
+        String sampleCode = simpleImageConfig.getPlateCode();
+        String spaceCode = simpleImageConfig.getPlateSpace();
         dataset.setSample(spaceCode, sampleCode);
         dataset.setMeasured(true);
 
         List<ImageTokensWithPath> imageTokensList = parseImageTokens(incoming);
         int maxTileNumber = getMaxTileNumber(imageTokensList);
-        Geometry tileGeometry = imageDataSet.getTileGeometry(imageTokensList, maxTileNumber);
+        Geometry tileGeometry = simpleImageConfig.getTileGeometry(imageTokensList, maxTileNumber);
         List<ImageFileInfo> images = createImageInfos(imageTokensList, tileGeometry);
         List<Channel> channels = getAvailableChannels(images);
 
@@ -214,16 +214,16 @@ public class SimpleImageDataSetRegistrator
         dataset.setChannels(channels);
         dataset.setTileGeometry(tileGeometry.getNumberOfRows(), tileGeometry.getNumberOfColumns());
 
-        dataset.setImageStorageConfiguraton(imageDataSet.getImageStorageConfiguration());
+        dataset.setImageStorageConfiguraton(simpleImageConfig.getImageStorageConfiguration());
     }
 
     private <T extends DataSetInformation> void setRegistrationDetails(
             DataSetRegistrationDetails<T> registrationDetails, T dataset)
     {
         registrationDetails.setDataSetInformation(dataset);
-        registrationDetails.setFileFormatType(new FileFormatType(imageDataSet.getFileFormatType()));
-        registrationDetails.setDataSetType(new DataSetType(imageDataSet.getDataSetType()));
-        registrationDetails.setMeasuredData(imageDataSet.isMeasuredData());
+        registrationDetails.setFileFormatType(new FileFormatType(simpleImageConfig.getFileFormatType()));
+        registrationDetails.setDataSetType(new DataSetType(simpleImageConfig.getDataSetType()));
+        registrationDetails.setMeasuredData(simpleImageConfig.isMeasuredData());
 
     }
 

@@ -32,6 +32,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
@@ -640,6 +641,8 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
             imageStorageConfiguraton = globalImageStorageConfiguraton;
         }
 
+        setPerImageTransformationIfNeeded(images, imageStorageConfiguraton);
+
         ImageFileExtractionResult extractionResult =
                 new ImageFileExtractionResult(images, invalidFiles, imageDataSetInfo.getChannels(),
                         tileGeometry, imageStorageConfiguraton.getStoreChannelsOnExperimentLevel());
@@ -680,6 +683,20 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
     private static ColorComponent asColorComponent(ChannelColorComponent channelColorComponent)
     {
         return ColorComponent.valueOf(channelColorComponent.name());
+    }
+
+    private void setPerImageTransformationIfNeeded(List<AcquiredSingleImage> images,
+            ImageStorageConfiguraton imageStorageConfiguraton)
+    {
+        if (imageStorageConfiguraton != null
+                && imageStorageConfiguraton.getImageTransformerFactory() != null)
+        {
+            IImageTransformerFactory imgTransformerFactory =
+                    imageStorageConfiguraton.getImageTransformerFactory();
+            for (AcquiredSingleImage image : images) {
+                image.setImageTransformerFactoryOrNull(imgTransformerFactory);
+            }
+        }
     }
 
     protected IImageFileExtractor tryGetImageFileExtractor(File incomingDataSetDirectory)

@@ -1,5 +1,6 @@
 /*
  * Copyright 2010 ETH Zuerich, CISD
+
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +26,7 @@ import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 /**
  * @author Franz-Josef Elmer
  */
-abstract class AbstractImageTransformerFactoryHolder extends AbstractImgIdentifiable
+public abstract class AbstractImageTransformerFactoryHolder extends AbstractImgIdentifiable
 {
     @ResultColumn("IMAGE_TRANSFORMER_FACTORY")
     private byte[] serializedImageTransformerFactory;
@@ -40,7 +41,18 @@ abstract class AbstractImageTransformerFactoryHolder extends AbstractImgIdentifi
         this.serializedImageTransformerFactory = serializedImageTransformerFactory;
     }
 
-    public IImageTransformerFactory tryGetImageTransformerFactory()
+    public final void setImageTransformerFactory(IImageTransformerFactory factory)
+    {
+        if (factory != null)
+        {
+            this.serializedImageTransformerFactory = SerializationUtils.serialize(factory);
+        } else
+        {
+            this.serializedImageTransformerFactory = null;
+        }
+    }
+
+    public final IImageTransformerFactory tryGetImageTransformerFactory()
     {
         if (serializedImageTransformerFactory == null)
         {

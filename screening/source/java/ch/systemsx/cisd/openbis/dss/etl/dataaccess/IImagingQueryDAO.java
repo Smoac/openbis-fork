@@ -60,8 +60,8 @@ public interface IImagingQueryDAO extends TransactionQuery, IImagingReadonlyQuer
             + "(?{1.id}, ?{1.filePath}, ?{1.page}, ?{1.colorComponentAsString})", batchUpdate = true)
     public void addImages(List<ImgImageDTO> images);
 
-    @Update(sql = "insert into ACQUIRED_IMAGES (IMG_ID, THUMBNAIL_ID, CHANNEL_STACK_ID, CHANNEL_ID) values "
-            + "(?{1.imageId}, ?{1.thumbnailId}, ?{1.channelStackId}, ?{1.channelId})", batchUpdate = true)
+    @Update(sql = "insert into ACQUIRED_IMAGES (IMG_ID, THUMBNAIL_ID, CHANNEL_STACK_ID, CHANNEL_ID, IMAGE_TRANSFORMER_FACTORY) values "
+            + "(?{1.imageId}, ?{1.thumbnailId}, ?{1.channelStackId}, ?{1.channelId}, ?{1.serializedImageTransformerFactory})", batchUpdate = true)
     public void addAcquiredImages(List<ImgAcquiredImageDTO> acquiredImages);
 
     // inserts

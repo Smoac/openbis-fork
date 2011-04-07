@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
 
+import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
 
 /**
@@ -37,6 +38,11 @@ public class ImageStorageConfiguraton extends AbstractHashable
 
     /** No preferences by default, each storage processor decides by its own if it is not set. */
     private Boolean storeChannelsOnExperimentLevelOrNull = null;
+
+    /**
+     * an image transformation to be applied before the image is stored.
+     */
+    private IImageTransformerFactory imageTransformerFactoryOrNull;
 
     /** Returns the default configuration. */
     public static ImageStorageConfiguraton createDefault()
@@ -87,6 +93,19 @@ public class ImageStorageConfiguraton extends AbstractHashable
     public Boolean getStoreChannelsOnExperimentLevel()
     {
         return storeChannelsOnExperimentLevelOrNull;
+    }
+
+    public IImageTransformerFactory getImageTransformerFactory()
+    {
+        return imageTransformerFactoryOrNull;
+    }
+
+    /**
+     * Allows for applying an image transformation before persisting an image in the store.
+     */
+    public void setImageTransformerFactory(IImageTransformerFactory transformerFactory)
+    {
+        this.imageTransformerFactoryOrNull = transformerFactory;
     }
 
 }

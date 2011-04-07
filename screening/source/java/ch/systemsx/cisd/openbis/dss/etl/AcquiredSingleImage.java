@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.etl;
 
+import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
 
@@ -44,6 +45,8 @@ public class AcquiredSingleImage extends AbstractHashable
                                                         // directory
 
     private RelativeImageReference thumbnailFilePathOrNull;
+
+    private IImageTransformerFactory imageTransformerFactoryOrNull;
 
     public AcquiredSingleImage(Location wellLocationOrNull, Location tileLocation,
             String channelCode, Float timePointOrNull, Float depthOrNull, Integer seriesNumberOrNull,
@@ -127,5 +130,16 @@ public class AcquiredSingleImage extends AbstractHashable
     public void setSeriesNumber(int seriesNumber)
     {
         this.seriesNumberOrNull = seriesNumber;
+    }
+
+    public IImageTransformerFactory getImageTransformerFactoryOrNull()
+    {
+        return imageTransformerFactoryOrNull;
+    }
+
+    public void setImageTransformerFactoryOrNull(
+            IImageTransformerFactory imageTransformerFactoryOrNull)
+    {
+        this.imageTransformerFactoryOrNull = imageTransformerFactoryOrNull;
     }
 }

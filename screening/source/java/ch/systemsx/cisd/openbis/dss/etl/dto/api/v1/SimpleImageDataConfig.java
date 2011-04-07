@@ -18,6 +18,9 @@ package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
 
 import java.util.List;
 
+import ch.systemsx.cisd.base.image.IImageTransformerFactory;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.openbis.dss.etl.biozentrum.ConvertToolImageTransformerFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
@@ -110,6 +113,8 @@ abstract public class SimpleImageDataConfig
     private OriginalDataStorageFormat originalDataStorageFormat =
             OriginalDataStorageFormat.UNCHANGED;
 
+    private String convertTransformationCliArgumentsOrNull;
+
     // --- getters & setters ----------------------------------------------
 
     public ImageStorageConfiguraton getImageStorageConfiguration()
@@ -129,6 +134,13 @@ abstract public class SimpleImageDataConfig
             thumbnailsStorageFormat.setGenerateWithImageMagic(generateThumbnailsWithImageMagic);
             thumbnailsStorageFormat.setHighQuality(generateThumbnailsInHighQuality);
             imageStorageConfiguraton.setThumbnailsStorageFormat(thumbnailsStorageFormat);
+        }
+        if (false == StringUtils.isBlank(convertTransformationCliArgumentsOrNull))
+        {
+            IImageTransformerFactory convertTransformerFactory =
+                    new ConvertToolImageTransformerFactory(convertTransformationCliArgumentsOrNull);
+            imageStorageConfiguraton.setImageTransformerFactory(convertTransformerFactory);
+
         }
         return imageStorageConfiguraton;
     }
@@ -319,6 +331,20 @@ abstract public class SimpleImageDataConfig
     public boolean isMeasuredData()
     {
         return isMeasured;
+    }
+
+    public String getConvertTransformationCliArguments()
+    {
+        return convertTransformationCliArgumentsOrNull;
+    }
+
+    /**
+     * Sets parameters for the 'convert' command line tool, which will be used to apply an image
+     * transformation before persisting the images in the data store.
+     */
+    public void setConvertTransformationCliArguments(String convertTransformationCliArguments)
+    {
+        this.convertTransformationCliArgumentsOrNull = convertTransformationCliArguments;
     }
 
 }
