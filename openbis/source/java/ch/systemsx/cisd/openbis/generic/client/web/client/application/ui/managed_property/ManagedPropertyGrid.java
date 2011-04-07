@@ -182,8 +182,6 @@ public class ManagedPropertyGrid extends TypedTableGrid<ReportRowModel>
         viewContext.getService().prepareExportReport(exportCriteria, callback);
     }
 
-    // FIXME auto refresh doesn't work
-
     @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {

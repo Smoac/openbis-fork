@@ -225,7 +225,6 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
         assertEquals(new Date(200), dataSets.get(1).getRegistrationDate());
         assertEquals(SERVER_URL, dataSets.get(0).getDatastoreServerUrl());
         assertEquals(SERVER_URL, dataSets.get(1).getDatastoreServerUrl());
-        // FIXME this check doesn't work because of space code (as well as 2 other cases below)
         // assertEquals(pi1, dataSets.get(0).getPlate());
         assertEquals(pi1.getPlateCode(), dataSets.get(0).getPlate().getPlateCode());
         assertEquals(pi1.getPlateCode(), dataSets.get(1).getPlate().getPlateCode());
@@ -276,7 +275,6 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
         assertEquals("2", dataSets.get(0).getParentImageDatasetReference().getDatasetCode());
         assertEquals(SERVER_URL, dataSets.get(0).getParentImageDatasetReference()
                 .getDatastoreServerUrl());
-        // FIXME this check doesn't work because of space code (as well as 2 other cases below)
         // assertEquals(pi1, dataSets.get(0).getPlate());
         assertEquals(pi1.getPlateCode(), dataSets.get(0).getPlate().getPlateCode());
         context.assertIsSatisfied();
