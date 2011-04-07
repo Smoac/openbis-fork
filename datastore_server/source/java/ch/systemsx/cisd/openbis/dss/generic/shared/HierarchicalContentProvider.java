@@ -71,6 +71,7 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
     {
         // this is temporary implementation - it shouldn't access openBIS after LMS-2172 is done
         ExternalData dataSet = getOpenBISService().tryGetDataSet(dataSetCode);
+        
         return asContent(dataSet);
     }
 
