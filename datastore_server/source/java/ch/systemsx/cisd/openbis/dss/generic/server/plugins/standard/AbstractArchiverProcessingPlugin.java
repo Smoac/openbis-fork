@@ -56,6 +56,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SimpleDataSetHelper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
@@ -560,24 +561,29 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
             return provider.getShareIdManager();
         }
         
-        public File getDataSetDirectory(DatasetDescription dataSet)
+        public File getDataSetDirectory(IDatasetLocation dataSetLocation)
         {
-            SimpleDataSetInformationDTO translatedDataSet = SimpleDataSetHelper.translate(dataSet);
-            String dataSetCode = dataSet.getDatasetCode();
-            IShareIdManager shareIdManager = getShareIdManager();
-            String shareId = shareIdManager.getShareId(dataSetCode);
-            translatedDataSet.setDataSetShareId(shareId);
-            Share share = shareFinder.tryToFindShare(translatedDataSet, shares);
-            if (share != null)
+            if (dataSetLocation instanceof DatasetDescription)
             {
-                String newShareId = share.getShareId();
-                if (newShareId.equals(shareId) == false)
+                // TODO 2011-04-07, FJE: A quick hack because somebody changed this interface method in the same time
+                DatasetDescription dataSet = (DatasetDescription) dataSetLocation;
+                SimpleDataSetInformationDTO translatedDataSet = SimpleDataSetHelper.translate(dataSet);
+                String dataSetCode = dataSet.getDatasetCode();
+                IShareIdManager shareIdManager = getShareIdManager();
+                String shareId = shareIdManager.getShareId(dataSetCode);
+                translatedDataSet.setDataSetShareId(shareId);
+                Share share = shareFinder.tryToFindShare(translatedDataSet, shares);
+                if (share != null)
                 {
-                    service.updateShareIdAndSize(dataSetCode, newShareId, dataSet.getDataSetSize());
-                    shareIdManager.setShareId(dataSetCode, newShareId);
+                    String newShareId = share.getShareId();
+                    if (newShareId.equals(shareId) == false)
+                    {
+                        service.updateShareIdAndSize(dataSetCode, newShareId, dataSet.getDataSetSize());
+                        shareIdManager.setShareId(dataSetCode, newShareId);
+                    }
                 }
             }
-            return provider.getDataSetDirectory(dataSet);
+            return provider.getDataSetDirectory(dataSetLocation);
         }
         
     }
