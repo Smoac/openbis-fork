@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
@@ -72,6 +73,21 @@ public class SimpleDataSetHelper
 
         result.setParentDataSetCodes(parentCodes);
 
+        return result;
+    }
+    
+    public static SimpleDataSetInformationDTO translate(DatasetDescription datasetDescription)
+    {
+        SimpleDataSetInformationDTO result = new SimpleDataSetInformationDTO();
+        result.setDatabaseInstanceCode(datasetDescription.getDatabaseInstanceCode());
+        result.setDataSetCode(datasetDescription.getDatasetCode());
+        result.setDataSetLocation(datasetDescription.getDataSetLocation());
+        result.setDataSetSize(datasetDescription.getDataSetSize());
+        result.setDataSetType(datasetDescription.getDatasetTypeCode());
+        result.setExperimentCode(datasetDescription.getExperimentCode());
+        result.setGroupCode(datasetDescription.getSpaceCode());
+        result.setProjectCode(datasetDescription.getProjectCode());
+        result.setSampleCode(datasetDescription.getSampleCode());
         return result;
     }
 }

@@ -20,6 +20,7 @@ import static ch.systemsx.cisd.common.logging.LogLevel.INFO;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -201,7 +202,8 @@ public class SegmentedStoreShufflingTask implements IDataStoreLockingMaintenance
         operationLog.info("Starting segmented store shuffling.");
         List<Share> shares =
                 SegmentedStoreUtils.getDataSetsPerShare(storeRoot, dataStoreCode,
-                        freeSpaceProvider, service, operationLogger);
+                        Collections.<String> emptySet(), freeSpaceProvider, service,
+                        operationLogger);
         List<Share> sourceShares = new ArrayList<Share>();
         for (Share share : shares)
         {

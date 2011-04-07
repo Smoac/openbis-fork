@@ -26,6 +26,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
@@ -141,17 +142,24 @@ public class SegmentedStoreUtils
      * and updates the size of all data sets if necessary.
      * 
      * @param dataStoreCode Code of the data store to which the root belongs.
+     * @param incomingShares Set of IDs of incoming shares. Will be used to mark {@link Share}
+     *            object in the returned list.
      * @param freeSpaceProvider Provider of free space used for all shares.
      * @param service Access to openBIS API in order to get all data sets and to update data set
      *            size.
      * @param log Logger for logging size calculations.
      */
     public static List<Share> getDataSetsPerShare(File storeRoot, String dataStoreCode,
-            IFreeSpaceProvider freeSpaceProvider, IEncapsulatedOpenBISService service,
-            ISimpleLogger log)
+            Set<String> incomingShares, IFreeSpaceProvider freeSpaceProvider,
+            IEncapsulatedOpenBISService service, ISimpleLogger log)
     {
-        return getDataSetsPerShare(storeRoot, dataStoreCode, freeSpaceProvider, service, log,
+        List<Share> shares = getDataSetsPerShare(storeRoot, dataStoreCode, freeSpaceProvider, service, log,
                 SystemTimeProvider.SYSTEM_TIME_PROVIDER);
+        for (Share share : shares)
+        {
+            share.setIncoming(incomingShares.contains(share.getShareId()));
+        }
+        return shares;
     }
 
     static List<Share> getDataSetsPerShare(File storeRoot, String dataStoreCode,

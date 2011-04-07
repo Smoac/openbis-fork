@@ -26,20 +26,38 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
+
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
+import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
+import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
+import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
+import ch.systemsx.cisd.common.utilities.ClassUtils;
+import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
+import ch.systemsx.cisd.etlserver.ETLDaemon;
+import ch.systemsx.cisd.etlserver.postregistration.IShareFinder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IArchiverPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDeleter;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.QueueingDataSetStatusUpdaterService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetCodesWithStatus;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.SimpleDataSetHelper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
  * The base class for archiving.
@@ -53,9 +71,15 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
 
     private static final long serialVersionUID = 1L;
 
+    @Private public static final String SHARE_FINDER_KEY = "share-finder";
+    
     private final IStatusChecker archivePrerequisiteOrNull;
 
     private final IStatusChecker unarchivePrerequisiteOrNull;
+    
+    private transient IShareIdManager shareIdManager;
+    
+    private transient IEncapsulatedOpenBISService service;
 
     public AbstractArchiverProcessingPlugin(Properties properties, File storeRoot,
             IStatusChecker archivePrerequisiteOrNull, IStatusChecker unarchivePrerequisiteOrNull)
@@ -64,7 +88,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         this.archivePrerequisiteOrNull = archivePrerequisiteOrNull;
         this.unarchivePrerequisiteOrNull = unarchivePrerequisiteOrNull;
     }
-
+    
     /**
      * NOTE: this method is not allowed to throw exception as this will leave data sets in the
      * openBIS database with an inconsistent status.
@@ -97,6 +121,18 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
     {
         operationLog.info("Archiving of the following datasets has been requested: "
                 + CollectionUtils.abbreviate(datasets, 10));
+        for (DatasetDescription dataset : datasets)
+        {
+            if (dataset.getDataSetSize() == null)
+            {
+                String dataSetCode = dataset.getDatasetCode();
+                String shareId = getShareIdManager().getShareId(dataSetCode);
+                File shareFolder = new File(storeRoot, shareId);
+                String dataSetLocation = dataset.getDataSetLocation();
+                long size = FileUtils.sizeOfDirectory(new File(shareFolder, dataSetLocation));
+                getService().updateShareIdAndSize(dataSetCode, shareId, size);
+            }
+        }
 
         DatasetProcessingStatuses statuses = safeArchive(datasets, context, removeFromDataStore);
 
@@ -212,19 +248,44 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         IDataSetDeleter dataSetDeleter = ServiceProvider.getDataStoreService().getDataSetDeleter();
         dataSetDeleter.scheduleDeletionOfDataSets(datasets);
     }
-
+    
     public ProcessingStatus unarchive(List<DatasetDescription> datasets,
-            final ArchiverTaskContext context)
+            ArchiverTaskContext context)
     {
         operationLog.info("Unarchiving of the following datasets has been requested: "
                 + CollectionUtils.abbreviate(datasets, 10));
-
-        DatasetProcessingStatuses statuses = safeUnarchive(datasets, context);
+        
+        DatasetProcessingStatuses statuses =
+                safeUnarchive(datasets, createUnarchivingContext(context));
 
         asyncUpdateStatuses(statuses.getSuccessfulDatasetCodes(), AVAILABLE, true);
         asyncUpdateStatuses(statuses.getFailedDatasetCodes(), ARCHIVED, true);
 
         return statuses.getProcessingStatus();
+    }
+
+    private ArchiverTaskContext createUnarchivingContext(ArchiverTaskContext context)
+    {
+        Properties props =
+            PropertyParametersUtil.extractSingleSectionProperties(properties, SHARE_FINDER_KEY,
+                    false).getProperties();
+        if (props.isEmpty())
+        {
+            return context;
+        }
+
+        String dataStoreCode = ServiceProvider.getConfigProvider().getDataStoreCode();
+        Set<String> incomingShares = ETLDaemon.getIdsOfIncomingShares();
+        IFreeSpaceProvider freeSpaceProvider = new SimpleFreeSpaceProvider();
+        List<Share> shares =
+                SegmentedStoreUtils.getDataSetsPerShare(storeRoot, dataStoreCode, incomingShares,
+                        freeSpaceProvider, getService(), new Log4jSimpleLogger(operationLog));
+        IShareFinder shareFinder =
+            ClassUtils.create(IShareFinder.class, props.getProperty("class"), props);
+        DataSetDirectoryProviderForUnarchiving directoryProvider =
+                new DataSetDirectoryProviderForUnarchiving(context.getDirectoryProvider(),
+                        shareFinder, getService(), shares);
+        return new ArchiverTaskContext(directoryProvider);
     }
 
     /**
@@ -443,6 +504,82 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         }
         
         return new GroupedDatasets(present, notPresent);
+    }
+    
+    private IShareIdManager getShareIdManager()
+    {
+        if (shareIdManager == null)
+        {
+            shareIdManager = ServiceProvider.getShareIdManager();
+        }
+        return shareIdManager;
+    }
+    
+    private IEncapsulatedOpenBISService getService()
+    {
+        if (service == null)
+        {
+            service = ServiceProvider.getOpenBISService();
+        }
+        return service;
+    }
+
+    /**
+     * Data set directory provider which might change share in accordance with a
+     * {@link IShareFinder}.
+     * 
+     * @author Franz-Josef Elmer
+     */
+    private static final class DataSetDirectoryProviderForUnarchiving implements
+            IDataSetDirectoryProvider
+    {
+        private final IDataSetDirectoryProvider provider;
+
+        private final IShareFinder shareFinder;
+
+        private final IEncapsulatedOpenBISService service;
+
+        private final List<Share> shares;
+
+        DataSetDirectoryProviderForUnarchiving(IDataSetDirectoryProvider provider,
+                IShareFinder shareFinder, IEncapsulatedOpenBISService service, List<Share> shares)
+        {
+            this.provider = provider;
+            this.shareFinder = shareFinder;
+            this.service = service;
+            this.shares = shares;
+        }
+
+        public File getStoreRoot()
+        {
+            return provider.getStoreRoot();
+        }
+
+        public IShareIdManager getShareIdManager()
+        {
+            return provider.getShareIdManager();
+        }
+        
+        public File getDataSetDirectory(DatasetDescription dataSet)
+        {
+            SimpleDataSetInformationDTO translatedDataSet = SimpleDataSetHelper.translate(dataSet);
+            String dataSetCode = dataSet.getDatasetCode();
+            IShareIdManager shareIdManager = getShareIdManager();
+            String shareId = shareIdManager.getShareId(dataSetCode);
+            translatedDataSet.setDataSetShareId(shareId);
+            Share share = shareFinder.tryToFindShare(translatedDataSet, shares);
+            if (share != null)
+            {
+                String newShareId = share.getShareId();
+                if (newShareId.equals(shareId) == false)
+                {
+                    service.updateShareIdAndSize(dataSetCode, newShareId, dataSet.getDataSetSize());
+                    shareIdManager.setShareId(dataSetCode, newShareId);
+                }
+            }
+            return provider.getDataSetDirectory(dataSet);
+        }
+        
     }
 
 

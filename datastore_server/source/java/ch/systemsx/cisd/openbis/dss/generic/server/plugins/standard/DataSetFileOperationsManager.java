@@ -160,9 +160,11 @@ public class DataSetFileOperationsManager
         {
             File destinationFolder = new File(destination, dataset.getDataSetLocation());
             checkDestinationExists(destinationFolder);
+            File folder = originalData.getParentFile();
             operationLog.info("Retrieve data set '" + dataset.getDatasetCode() + "' from '"
-                    + destinationFolder.getPath() + "' to '" + originalData.getParentFile());
-            executor.retrieveDataSetFromDestination(originalData.getParentFile(), destinationFolder);
+                    + destinationFolder.getPath() + "' to '" + folder);
+            folder.mkdirs();
+            executor.retrieveDataSetFromDestination(folder, destinationFolder);
             return Status.OK;
         } catch (ExceptionWithStatus ex)
         {

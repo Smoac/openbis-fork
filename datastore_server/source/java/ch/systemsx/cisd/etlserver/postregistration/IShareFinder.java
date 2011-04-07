@@ -34,7 +34,7 @@ public interface IShareFinder
      * Tries to find a share from the specified shares to whom the specified data set can be moved.
      * 
      * @param dataSet with known size and old share ID.
-     * @param shares All shares. Share instances know whether they are icoming or external.
+     * @param shares All shares. Share instances know whether they are incoming or external.
      * @return <code>null</code> if no share could be found.
      */
     public Share tryToFindShare(SimpleDataSetInformationDTO dataSet, List<Share> shares);

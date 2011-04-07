@@ -148,12 +148,8 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
         public ICleanupTask createCleanupTask()
         {
             List<Share> shares =
-                SegmentedStoreUtils.getDataSetsPerShare(storeRoot, dataStoreCode,
+                SegmentedStoreUtils.getDataSetsPerShare(storeRoot, dataStoreCode, incomingShares, 
                         freeSpaceProvider, service, logger);
-            for (Share share : shares)
-            {
-                share.setIncoming(incomingShares.contains(share.getShareId()));
-            }
             dataSet = findDataSet(shares, dataSetCode);
             shareWithMostFreeOrNull = finder.tryToFindShare(dataSet, shares);
             if (shareWithMostFreeOrNull == null)
