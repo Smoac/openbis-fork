@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared;
 
 import ch.systemsx.cisd.common.io.IHierarchicalContent;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IDatasetLocation;
 
 /**
@@ -30,8 +29,6 @@ public interface IHierarchicalContentProvider
 {
 
     IHierarchicalContent asContent(String dataSetCode);
-
-    IHierarchicalContent asContent(ExternalData externalData);
 
     IHierarchicalContent asContent(IDatasetLocation datasetLocation);
 

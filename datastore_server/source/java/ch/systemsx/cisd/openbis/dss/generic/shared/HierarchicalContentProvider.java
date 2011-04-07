@@ -35,6 +35,8 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
 
     private IHierarchicalContentFactory hierarchicalContentFactory;
 
+    private IEncapsulatedOpenBISService openbisService;
+
     private IDataSetDirectoryProvider getDataSetDirectoryProvider()
     {
         if (directoryProvider == null)
@@ -56,21 +58,26 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
         return hierarchicalContentFactory;
     }
 
+    private IEncapsulatedOpenBISService getOpenBISService()
+    {
+        if (openbisService == null)
+        {
+            openbisService = ServiceProvider.getOpenBISService();
+        }
+        return openbisService;
+    }
+
     public IHierarchicalContent asContent(String dataSetCode)
     {
-        File dataSetDirectory = null; // TODO
-        return asContent(dataSetDirectory);
+        // this is temporary implementation - it shouldn't access openBIS after LMS-2172 is done
+        ExternalData dataSet = getOpenBISService().tryGetDataSet(dataSetCode);
+        return asContent(dataSet);
     }
 
-    public IHierarchicalContent asContent(ExternalData externalData)
+    public IHierarchicalContent asContent(IDatasetLocation datasetLocation)
     {
-        File dataSetDirectory = null; // TODO
-        return asContent(dataSetDirectory);
-    }
-
-    public IHierarchicalContent asContent(IDatasetLocation dataset)
-    {
-        File dataSetDirectory = getDataSetDirectoryProvider().getDataSetDirectory(dataset);
+        // this is temporary implementation - it should access DB instead of filesystem
+        File dataSetDirectory = getDataSetDirectoryProvider().getDataSetDirectory(datasetLocation);
         return asContent(dataSetDirectory);
     }
 

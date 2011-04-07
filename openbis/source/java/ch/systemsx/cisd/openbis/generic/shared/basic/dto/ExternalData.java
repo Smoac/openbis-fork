@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWit
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IInvalidationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IDatasetLocation;
 
 /**
  * A DTO for external data sets.
@@ -32,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
  */
 public class ExternalData extends CodeWithRegistration<ExternalData> implements
         IInvalidationProvider, IEntityInformationHolderWithProperties, IIdAndCodeHolder,
-        IPermIdHolder
+        IPermIdHolder, IDatasetLocation
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -57,7 +58,7 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
     private Collection<ExternalData> parents;
 
     private Long size;
-    
+
     private String location;
 
     private FileFormatType fileFormatType;
@@ -338,6 +339,18 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
     }
 
     public String getPermId()
+    {
+        return getCode();
+    }
+
+    // IDatasetLocation
+
+    public String getDataSetLocation()
+    {
+        return getLocation();
+    }
+
+    public String getDatasetCode()
     {
         return getCode();
     }
