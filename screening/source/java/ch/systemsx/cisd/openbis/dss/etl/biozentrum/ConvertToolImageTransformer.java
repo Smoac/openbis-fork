@@ -51,7 +51,17 @@ public class ConvertToolImageTransformer implements IImageTransformer
 
     private static final String PNG = "png";
 
-    private static final File convertUtilityOrNull = OSUtilities.findExecutable("convert");
+    private static final File convertUtilityOrNull;
+    static
+    {
+        convertUtilityOrNull = OSUtilities.findExecutable("convert");
+        if (convertUtilityOrNull == null)
+        {
+            throw new ConfigurationFailureException(
+                    "The 'convert' command line tool cannot be found on the system path. "
+                            + "Requested image transformations cannot be completed.");
+        }
+    }
 
     private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE,
             ConvertToolImageTransformer.class);
@@ -71,7 +81,6 @@ public class ConvertToolImageTransformer implements IImageTransformer
         File tmpFile = null;
         try
         {
-            // TODO KE: we should use the standard input to instead of a temporary file
             tmpFile = createTempImageFile(image);
             byte[] output = transform(tmpFile);
             return toBufferedImage(output);
@@ -109,9 +118,6 @@ public class ConvertToolImageTransformer implements IImageTransformer
 
         if (result.isOK() == false)
         {
-            System.err.println(result.getErrorOutput());
-            System.err.println(result.getOutput());
-            System.err.println(result.getCommandLine());
             throw new IOException(String.format(
                     "Error calling 'convert' for image '%s'. Exit value: %d, I/O status: %s",
                     filePath, result.getExitValue(), result.getProcessIOResult().getStatus()));
