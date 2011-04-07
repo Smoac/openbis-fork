@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dataaccess;
 
+import java.awt.image.BufferedImage;
+
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
@@ -30,6 +32,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackR
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference.HCSChannelStackByLocationReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference.MicroscopyChannelStackByLocationReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.HCSDatasetLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
@@ -82,6 +85,21 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
             return null;
         }
         AbsoluteImageReference imgRef = createAbsoluteImageReference(imageDTO, channel, imageSize);
+        if (thumbnailPrefered)
+        {
+            Size requestedThumbnailSize = imageSize.tryGetThumbnailSize();
+            BufferedImage image = imgRef.getImage();
+            double width = 1.5 * image.getWidth();
+            double height = 1.5 * image.getHeight();
+            if (requestedThumbnailSize.getWidth() > width || requestedThumbnailSize.getHeight() > height)
+            {
+                imageDTO = tryGetImageDTO(channelStackReference, false, channel.getId(), datasetId);
+                if (imageDTO != null)
+                {
+                    imgRef = createAbsoluteImageReference(imageDTO, channel, imageSize);
+                }
+            }
+        }
 
         return imgRef;
     }

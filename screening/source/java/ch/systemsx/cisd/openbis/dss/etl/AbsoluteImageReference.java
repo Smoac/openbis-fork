@@ -16,9 +16,12 @@
 
 package ch.systemsx.cisd.openbis.dss.etl;
 
+import java.awt.image.BufferedImage;
+
 import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageTransfomationFactories;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 
 /**
@@ -30,13 +33,15 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.Color
 public class AbsoluteImageReference extends AbstractImageReference
 {
     private final IContent content;
-
+    
     private final String uniqueId;
 
     private final RequestedImageSize imageSize;
 
     private final ImageTransfomationFactories imageTransfomationFactories;
 
+    private BufferedImage image;
+    
     // This is an artificial value which helps to keep coloring channels constant. Starts with 0.
     // Unique for a given experiment or dataset (if channels are per dataset).
     private int channelIndex;
@@ -71,6 +76,15 @@ public class AbsoluteImageReference extends AbstractImageReference
     public IContent getContent()
     {
         return content;
+    }
+    
+    public BufferedImage getImage()
+    {
+        if (image == null)
+        {
+            image = ImageUtil.loadImage(content, tryGetPage());
+        }
+        return image;
     }
 
     public RequestedImageSize getRequestedSize()

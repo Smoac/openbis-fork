@@ -430,7 +430,7 @@ public class ImageChannelsUtils
     private static BufferedImage calculateSingleImage(AbsoluteImageReference imageReference)
     {
         long start = operationLog.isDebugEnabled() ? System.currentTimeMillis() : 0;
-        BufferedImage image = loadImage(imageReference);
+        BufferedImage image = imageReference.getImage();
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug("Load original image: " + (System.currentTimeMillis() - start));
@@ -466,11 +466,6 @@ public class ImageChannelsUtils
             }
         }
         return image;
-    }
-
-    private static BufferedImage loadImage(AbsoluteImageReference imageReference)
-    {
-        return ImageUtil.loadImage(imageReference.getContent(), imageReference.tryGetPage());
     }
 
     /**
