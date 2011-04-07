@@ -138,7 +138,15 @@ class UserManager extends AbstractManager implements IUserManager
             return userBO.getUser();
         } catch (final DataIntegrityViolationException ex)
         {
-            final String msg = "Cannot create user '" + user.getUserCode() + "': user exists.";
+            final Throwable rootCauseOrNull = ex.getRootCause();
+            final String msg;
+            if (rootCauseOrNull != null && ex.getMessage().contains("value too long"))
+            {
+                msg = "Cannot create user '" + user.getUserCode() + "': length constraint exceeded.";
+            } else
+            {
+                msg = "Cannot create user '" + user.getUserCode() + "': user exists.";
+            }
             operationLog.error(msg, ex);
             throw new UserFailureException(msg);
         }

@@ -138,7 +138,11 @@ public final class FileUploadServlet extends AbstractFileUploadDownloadServlet
         } catch (final Exception ex)
         {
             operationLog.error("Could not process multipart content.", ex);
-            final String msg = getErrorMessage(ex);
+            String msg = getErrorMessage(ex);
+            if (msg.contains("value too long"))
+            {
+                msg = "Cannot upload file(s): length constraint in database exceeded.";
+            }
             feedbackProvider.setMessage(new Message(Message.Type.ERROR, msg));
         }
     }
