@@ -78,8 +78,8 @@ public class DssCommandFactoryTest extends AssertJUnit
         cmd.printUsage(out);
         String helpText =
                 "usage: dss_client.sh COMMAND [options...] <command arguments>\n" + "\n"
-                        + "Commands:\n" + " ls\n" + " get\n" + " put\n" + "\n" + "Options:\n"
-                        + " [-p,--password] VAL        : User login password\n"
+                        + "Commands:\n" + " ls\n" + " get\n" + " put\n" + "testvalid\n" + "\n"
+                        + "Options:\n" + " [-p,--password] VAL        : User login password\n"
                         + " [-s,--server-base-url] VAL : URL for openBIS Server (required)\n"
                         + " [-u,--username] VAL        : User login name\n";
         assertEquals(helpText, bos.toString());

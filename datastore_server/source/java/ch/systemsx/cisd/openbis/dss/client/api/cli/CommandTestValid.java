@@ -21,12 +21,16 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import ch.systemsx.cisd.args4j.ExampleMode;
 import ch.systemsx.cisd.args4j.Option;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.etlserver.validation.ValidationError;
+import ch.systemsx.cisd.etlserver.validation.ValidationScriptRunner;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssBuilder;
@@ -36,13 +40,14 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetO
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
 
 /**
- * Command that uploads a data set.
+ * Command that runs a validation script and returns the error messages if the data set is not
+ * valid.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-class CommandPut extends AbstractDssCommand<CommandPut.CommandPutArguments>
+class CommandTestValid extends AbstractDssCommand<CommandTestValid.CommandTestValidArguments>
 {
-    static class CommandPutArguments extends GlobalArguments
+    static class CommandTestValidArguments extends GlobalArguments
     {
         @Option(name = "t", longName = "type", usage = "Set the data set type")
         private String dataSetType;
@@ -75,6 +80,11 @@ class CommandPut extends AbstractDssCommand<CommandPut.CommandPutArguments>
             return new File(getFilePath());
         }
 
+        public String getScriptPath()
+        {
+            return getArguments().get(3);
+        }
+
         public HashMap<String, String> getProperties()
         {
             HashMap<String, String> propsMap = new HashMap<String, String>();
@@ -97,7 +107,7 @@ class CommandPut extends AbstractDssCommand<CommandPut.CommandPutArguments>
         @Override
         public boolean isComplete()
         {
-            if (getArguments().size() < 3)
+            if (getArguments().size() < 4)
                 return false;
 
             try
@@ -118,6 +128,29 @@ class CommandPut extends AbstractDssCommand<CommandPut.CommandPutArguments>
                 return false;
             }
 
+            try
+            {
+                String path = getScriptPath();
+                // Require a script at the moment. In the future, this might change to validate
+                // against the script on the server.
+                if (null == path)
+                {
+                    return false;
+                }
+
+                File scriptFile = new File(path);
+                if (false == scriptFile.exists())
+                {
+                    System.err.println("\n" + path
+                            + " does not exist. Please specify a python (jython) script.");
+                    return false;
+                }
+
+            } catch (Exception e)
+            {
+                System.err.println("\nThe script must be a valid python (jython) script.");
+            }
+
             if (false == super.isComplete())
                 return false;
 
@@ -125,11 +158,12 @@ class CommandPut extends AbstractDssCommand<CommandPut.CommandPutArguments>
         }
     }
 
-    private static class CommandPutExecutor extends AbstractExecutor<CommandPutArguments>
+    private static class CommandTestValidExecutor extends
+            AbstractExecutor<CommandTestValidArguments>
     {
 
-        CommandPutExecutor(CommandPutArguments arguments,
-                AbstractDssCommand<CommandPutArguments> command)
+        CommandTestValidExecutor(CommandTestValidArguments arguments,
+                AbstractDssCommand<CommandTestValidArguments> command)
         {
             super(arguments, command);
         }
@@ -155,8 +189,14 @@ class CommandPut extends AbstractDssCommand<CommandPut.CommandPutArguments>
                     }
                     return ResultCode.INVALID_ARGS;
                 }
-                IDataSetDss dataSet = component.putDataSet(newDataSet, arguments.getFile());
-                System.out.println("Registered new data set " + dataSet.getCode());
+                ValidationScriptRunner scriptRunner =
+                        new ValidationScriptRunner(arguments.getScriptPath());
+
+                List<ValidationError> errors = scriptRunner.validate(arguments.getFile());
+                for (ValidationError error : errors)
+                {
+                    System.out.println(error.getErrorMessage());
+                }
             } catch (IOException e)
             {
                 throw new IOExceptionUnchecked(e);
@@ -213,20 +253,20 @@ class CommandPut extends AbstractDssCommand<CommandPut.CommandPutArguments>
         }
     }
 
-    CommandPut()
+    CommandTestValid()
     {
-        super(new CommandPutArguments());
+        super(new CommandTestValidArguments());
     }
 
     public ResultCode execute(String[] args) throws UserFailureException,
             EnvironmentFailureException
     {
-        return new CommandPutExecutor(arguments, this).execute(args);
+        return new CommandTestValidExecutor(arguments, this).execute(args);
     }
 
     public String getName()
     {
-        return "put";
+        return "testvalid";
     }
 
     /**
@@ -235,12 +275,59 @@ class CommandPut extends AbstractDssCommand<CommandPut.CommandPutArguments>
     @Override
     public void printUsage(PrintStream out)
     {
-        out.println(getUsagePrefixString() + " [options] <owner type> <owner> <path>");
+        out.println(getUsagePrefixString() + " [options] " + getRequiredArgumentsString());
         parser.printUsage(out);
         out.println("  Examples : ");
         out.println("     " + getCommandCallString() + parser.printExample(ExampleMode.ALL)
-                + " EXPERIMENT <experiment identifier> <path>");
+                + " EXPERIMENT <experiment identifier> <path> <script>");
         out.println("     " + getCommandCallString() + parser.printExample(ExampleMode.ALL)
-                + " SAMPLE <sample identifier> <path>");
+                + " SAMPLE <sample identifier> <path> <script>");
+    }
+
+    @Override
+    protected String getRequiredArgumentsString()
+    {
+        return "<owner type> <owner> <path> <script>";
+    }
+
+    /**
+     * Creates the DSS Component object and logs into the server.
+     */
+    @Override
+    protected IDssComponent login(GlobalArguments args)
+    {
+        // Create a dummy component.
+        IDssComponent component = new IDssComponent()
+            {
+
+                public void checkSession() throws InvalidSessionException
+                {
+
+                }
+
+                public String getSessionToken() throws IllegalStateException
+                {
+                    return null;
+                }
+
+                public IDataSetDss getDataSet(String code) throws IllegalStateException,
+                        EnvironmentFailureException
+                {
+                    return null;
+                }
+
+                public IDataSetDss putDataSet(NewDataSetDTO newDataset, File dataSetFile)
+                        throws IllegalStateException, EnvironmentFailureException
+                {
+                    return null;
+                }
+
+                public void logout()
+                {
+
+                }
+
+            };
+        return component;
     }
 }

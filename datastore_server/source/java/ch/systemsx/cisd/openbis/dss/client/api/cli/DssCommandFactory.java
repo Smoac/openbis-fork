@@ -28,7 +28,7 @@ public class DssCommandFactory extends AbstractCommandFactory
 
     private static enum Command
     {
-        LS, GET, HELP, PUT
+        LS, GET, HELP, PUT, TESTVALID
     }
 
     public ICommand tryCommandForName(String name)
@@ -63,6 +63,9 @@ public class DssCommandFactory extends AbstractCommandFactory
             case PUT:
                 result = new CommandPut();
                 break;
+            case TESTVALID:
+                result = new CommandTestValid();
+                break;
             default:
                 result = null;
                 break;
@@ -79,7 +82,7 @@ public class DssCommandFactory extends AbstractCommandFactory
     public List<String> getKnownCommands()
     {
         String[] commands =
-            { "ls", "get", "put" };
+            { "ls", "get", "put", "testvalid" };
         return Arrays.asList(commands);
     }
 }

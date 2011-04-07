@@ -21,6 +21,8 @@ import java.awt.Color;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 
+import ch.systemsx.cisd.etlserver.validation.ValidationError;
+
 /**
  * @author Chandrasekhar Ramakrishnan
  */
