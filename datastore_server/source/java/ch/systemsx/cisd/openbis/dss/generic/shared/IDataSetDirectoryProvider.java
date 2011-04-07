@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.shared;
 
 import java.io.File;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.IDatasetLocation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 
 /**
  * Provider of the root directory of a data set in the data store.

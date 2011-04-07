@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared;
 
 import ch.systemsx.cisd.common.io.IHierarchicalContent;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IDatasetLocation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 
 /**
  * A provider of {@link IHierarchicalContent} for given data set.

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.dto;
+package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 /**
  * Encapsulates location and code of a data set in a store.

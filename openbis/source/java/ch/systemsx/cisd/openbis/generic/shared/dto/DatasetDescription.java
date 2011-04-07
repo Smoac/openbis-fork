@@ -20,6 +20,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
+
 /**
  * Describes one dataset which should be processed by the plugin task.
  * 

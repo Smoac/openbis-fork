@@ -24,7 +24,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWit
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IInvalidationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IDatasetLocation;
 
 /**
  * A DTO for external data sets.
