@@ -55,6 +55,8 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 public final class MainPage extends Viewport
 {
 
+    private static final int MAX_NAME_DISPLAY_LENGTH = 50;
+
     private static final int LOGO_WIDTH_IN_PIXELS = 81;
 
     private static final int HEADER_HEIGHT_IN_PIXELS = 50;
@@ -143,15 +145,15 @@ public final class MainPage extends Viewport
     {
 
         final StringBuffer buffer = new StringBuffer();
-        buffer.append(user.getUserCode());
+        buffer.append(StringUtils.abbreviate(user.getUserCode(), MAX_NAME_DISPLAY_LENGTH));
         buffer.append(" (");
         final String fullUserName = user.getUserFullName();
         if (fullUserName != null)
         {
-            buffer.append(fullUserName);
+            buffer.append(StringUtils.abbreviate(fullUserName, MAX_NAME_DISPLAY_LENGTH));
         } else
         {
-            buffer.append(user.getEmail());
+            buffer.append(StringUtils.abbreviate(user.getEmail(), MAX_NAME_DISPLAY_LENGTH));
         }
         buffer.append(")");
         boolean isTemporary = !(user.isAdmin() || user.isPermanent());
