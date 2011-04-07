@@ -19,10 +19,8 @@ package ch.systemsx.cisd.common.io;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,6 +40,14 @@ class SimpleFileBasedHierarchicalContent implements IHierarchicalContent
 
     SimpleFileBasedHierarchicalContent(File file)
     {
+        if (file.exists() == false)
+        {
+            throw new IllegalArgumentException(file.getAbsolutePath() + " doesn't exist");
+        }
+        if (file.isDirectory() == false)
+        {
+            throw new IllegalArgumentException(file.getAbsolutePath() + " is not a directory");
+        }
         this.root = file;
     }
 
@@ -73,20 +79,85 @@ class SimpleFileBasedHierarchicalContent implements IHierarchicalContent
         return nodes;
     }
 
-    // TODO Implement hash/equals
+    //
+    // Object
+    //
 
-    class SimpleFileBasedHierarchicalContentNode implements IHierarchicalContentNode
+    @Override
+    public String toString()
     {
-        @SuppressWarnings("unused")
+        return "SimpleFileBasedHierarchicalContent [root=" + root + "]";
+    }
+
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((root == null) ? 0 : root.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+        {
+            return true;
+        }
+        if (obj == null)
+        {
+            return false;
+        }
+        if (!(obj instanceof SimpleFileBasedHierarchicalContent))
+        {
+            return false;
+        }
+        SimpleFileBasedHierarchicalContent other = (SimpleFileBasedHierarchicalContent) obj;
+        if (root == null)
+        {
+            if (other.root != null)
+            {
+                return false;
+            }
+        } else if (!root.equals(other.root))
+        {
+            return false;
+        }
+        return true;
+    }
+
+    static class SimpleFileBasedHierarchicalContentNode implements IHierarchicalContentNode
+    {
         private final SimpleFileBasedHierarchicalContent parent;
 
         private final File file;
 
-        private SimpleFileBasedHierarchicalContentNode(SimpleFileBasedHierarchicalContent parent,
-                File file)
+        SimpleFileBasedHierarchicalContentNode(SimpleFileBasedHierarchicalContent parent, File file)
         {
+            assert parent != null;
+            assert file != null;
             this.parent = parent;
             this.file = file;
+        }
+
+        public String getName()
+        {
+            return file.getName();
+        }
+
+        public List<IHierarchicalContentNode> getChildNodes()
+        {
+            File[] files = file.listFiles();
+            List<IHierarchicalContentNode> result = new ArrayList<IHierarchicalContentNode>();
+            if (files != null)
+            {
+                for (File aFile : files)
+                {
+                    result.add(new SimpleFileBasedHierarchicalContentNode(parent, aFile));
+                }
+            }
+            return result;
         }
 
         public File getFile()
@@ -110,17 +181,55 @@ class SimpleFileBasedHierarchicalContent implements IHierarchicalContent
             }
         }
 
-        public OutputStream getOutputStream()
+        //
+        // Object
+        //
+
+        @Override
+        public String toString()
         {
-            try
-            {
-                return new FileOutputStream(file);
-            } catch (FileNotFoundException ex)
-            {
-                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-            }
+            return "SimpleFileBasedHierarchicalContentNode [parent=" + parent + ", file=" + file
+                    + "]";
         }
 
-        // TODO Implement hash/equals
+        @Override
+        public int hashCode()
+        {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + file.hashCode();
+            result = prime * result + parent.hashCode();
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+            {
+                return true;
+            }
+            if (obj == null)
+            {
+                return false;
+            }
+            if (!(obj instanceof SimpleFileBasedHierarchicalContentNode))
+            {
+                return false;
+            }
+            SimpleFileBasedHierarchicalContentNode other =
+                    (SimpleFileBasedHierarchicalContentNode) obj;
+            if (!file.equals(other.file))
+            {
+                return false;
+            }
+            if (!parent.equals(other.parent))
+            {
+                return false;
+            }
+            return true;
+        }
+
     }
+
 }
