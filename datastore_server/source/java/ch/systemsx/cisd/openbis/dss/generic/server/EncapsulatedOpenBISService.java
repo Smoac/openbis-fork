@@ -398,6 +398,11 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         service.checkInstanceAdminAuthorization(sToken);
     }
 
+    public void checkSpacePowerUserAuthorization(String sessionToken) throws UserFailureException
+    {
+        service.checkSpacePowerUserAuthorization(sessionToken);
+    }
+
     public void checkDataSetAccess(String sToken, String dataSetCode)
             throws UserFailureException
     {

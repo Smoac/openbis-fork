@@ -53,6 +53,11 @@ public class DssSessionAuthorizationHolder
             {
                 return Status.createError("Data set authorizer not set.");
             }
+
+            public Status checkSpacePowerUserAuthorization(String sessionToken)
+            {
+                return Status.createError("Data set authorizer not set.");
+            }
         };
 
     /**

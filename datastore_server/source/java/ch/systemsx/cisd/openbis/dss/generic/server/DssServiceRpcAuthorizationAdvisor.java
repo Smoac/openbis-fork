@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.Da
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.DssSessionAuthorizationHolder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.IAuthorizationGuardPredicate;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.IDssSessionAuthorizer;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.PrivilegeLevel;
 
 /**
  * The advisor for authorization in the DSS RPC interfaces.
@@ -213,15 +214,16 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
                     manager.lock(dataSetCode);
                 }
             }
-            boolean shouldLocksAutomaticallyBeReleased = shouldLocksAutomaticallyBeReleased(methodInvocation.getMethod());
+            boolean shouldLocksAutomaticallyBeReleased =
+                    shouldLocksAutomaticallyBeReleased(methodInvocation.getMethod());
             try
             {
-                final boolean requiresInstanceAdmin =
-                    checkRequiresInstanceAdmin(methodInvocation.getMethod(), sessionToken);
                 // At least one of the parameters must be annotated
-                assert requiresInstanceAdmin || annotatedParameters.size() > 0 : "No guard defined";
-                
-                if (requiresInstanceAdmin == false) // An instance admin is allowed to work on all data sets.
+                assert annotatedParameters.size() > 0 : "No guard defined";
+                PrivilegeLevel level = getAndCheckPrivilegeLevel(sessionToken, methodInvocation.getMethod());
+
+                if (level != PrivilegeLevel.INSTANCE_ADMIN) // An instance admin is allowed to work on all
+                                                    // data sets.
                 {
                     final Object recv = methodInvocation.getThis();
                     
@@ -266,38 +268,45 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
             DataSetAccessGuard guard = method.getAnnotation(DataSetAccessGuard.class);
             return guard == null ? true : guard.releaseDataSetLocks();
         }
-
-        private boolean checkRequiresInstanceAdmin(final Method method, final String sessionToken)
+        
+        private PrivilegeLevel getAndCheckPrivilegeLevel(String sessionToken, Method method)
         {
-            final DataSetAccessGuard guard = method.getAnnotation(DataSetAccessGuard.class);
-            final boolean requiresInstanceAdmin =
-                    (guard != null) ? guard.requiresInstanceAdmin() : false;
+            DataSetAccessGuard guard = method.getAnnotation(DataSetAccessGuard.class);
+            PrivilegeLevel level = guard == null ? PrivilegeLevel.DEFAULT : guard.privilegeLevel();
             if (operationLog.isInfoEnabled())
             {
-                operationLog.info("Check instance admin privileges.");
+                operationLog.info("Check access for privilege level " + level);
             }
-
-            if (requiresInstanceAdmin)
+            IDssSessionAuthorizer authorizer = DssSessionAuthorizationHolder.getAuthorizer();
+            Status status;
+            switch (level)
             {
-                final Status status =
-                        DssSessionAuthorizationHolder.getAuthorizer()
-                                .checkInstanceAdminAuthorization(sessionToken);
-                if (status != Status.OK)
-                {
-                    authorizationLog.info(String.format(
-                            "[SESSION:'%s']: Authorization failure while "
-                                    + "invoking method '%s', user is not an instance admin.",
-                            sessionToken, MethodUtils.describeMethod(method)));
-                    String errorMessage = "You are not an instance administrator.";
-                    if (null != status.tryGetErrorMessage())
-                    {
-                        errorMessage = status.tryGetErrorMessage();
-                    }
-
-                    throw new AuthorizationFailureException(errorMessage);
-                }
+                case INSTANCE_ADMIN:
+                    status = authorizer.checkInstanceAdminAuthorization(sessionToken);
+                    break;
+                case SPACE_POWER_USER:
+                    status = authorizer.checkSpacePowerUserAuthorization(sessionToken);
+                    break;
+                default:
+                    status = Status.OK;
+                    break;
             }
-            return requiresInstanceAdmin;
+            if (status.isError())
+            {
+                authorizationLog.info(String.format(
+                        "[SESSION:'%s']: Authorization failure while "
+                                + "invoking method '%s', user has not " + level + " privilege.",
+                        sessionToken, MethodUtils.describeMethod(method)));
+                String errorMessage = "You have not " + level + " privilege.";
+                if (null != status.tryGetErrorMessage())
+                {
+                    errorMessage = status.tryGetErrorMessage();
+                }
+
+                throw new AuthorizationFailureException(errorMessage);
+                
+            }
+            return level;
         }
 
         /**

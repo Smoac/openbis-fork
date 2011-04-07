@@ -178,6 +178,26 @@ public class DatasetSessionAuthorizer implements IDssSessionAuthorizer
         }
     }
 
+    public Status checkSpacePowerUserAuthorization(String sessionToken)
+    {
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format(
+                    "Checking if session '%s' has space power user privileges on "
+                    + "openBIS application server.", sessionToken));
+        }
+        final IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
+        
+        try
+        {
+            openBISService.checkSpacePowerUserAuthorization(sessionToken);
+            return Status.OK;
+        } catch (UserFailureException ex)
+        {
+            return Status.createError(ex.getMessage());
+        }
+    }
+    
     /**
      * Clears all entries from the cache (for unit tests).
      */

@@ -86,6 +86,12 @@ public interface IEncapsulatedOpenBISService
     public void checkInstanceAdminAuthorization(String sessionToken) throws UserFailureException;
 
     /**
+     * Checks if the current user has SPACE_POWER_USER access rights.
+     */
+    @ManagedAuthentication
+    public void checkSpacePowerUserAuthorization(String sessionToken) throws UserFailureException;
+    
+    /**
      * Checks if the current user has access rights to a dataset with the specified data set code.
      */
     @ManagedAuthentication

@@ -36,9 +36,9 @@ import java.lang.annotation.Target;
 public @interface DataSetAccessGuard
 {
     /**
-     * If calling this method requires instance admin privileges.
+     * Privilege level.
      */
-    boolean requiresInstanceAdmin() default false;
+    PrivilegeLevel privilegeLevel() default PrivilegeLevel.DEFAULT;
     
     /**
      * By default locks on data sets are released after method invocation. 

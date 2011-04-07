@@ -246,6 +246,11 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
         logAccess(sessionToken, "checkInstanceAdminAuthorization");
     }
 
+    public void checkSpacePowerUserAuthorization(String sessionToken) throws UserFailureException
+    {
+        logAccess(sessionToken, "checkSpacePowerUserAuthorization");
+    }
+
     public void checkDataSetAccess(String sessionToken, String dataSetCode)
             throws UserFailureException
     {

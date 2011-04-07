@@ -348,6 +348,13 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void checkInstanceAdminAuthorization(String sessionToken) throws UserFailureException;
+    
+    /**
+     * Checks that the user of specified session has SPACE_POWER_USER access rights.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    public void checkSpacePowerUserAuthorization(String sessionToken) throws UserFailureException;
 
     /**
      * Does nothing besides checking that the current user has rights to access the content of the

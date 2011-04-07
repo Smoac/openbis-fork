@@ -24,6 +24,7 @@ import ch.systemsx.cisd.common.api.IRpcService;
 import ch.systemsx.cisd.common.api.MinimalMinorVersion;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.DataSetAccessGuard;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.PrivilegeLevel;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.internal.authorization.DatasetIdentifierPredicate;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.internal.authorization.SingleDataSetIdentifierPredicate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
@@ -309,7 +310,7 @@ public interface IDssServiceRpcScreening extends IRpcService
      * @since 1.4
      */
     @MinimalMinorVersion(4)
-    @DataSetAccessGuard(requiresInstanceAdmin = true)
+    @DataSetAccessGuard(privilegeLevel = PrivilegeLevel.SPACE_POWER_USER)
     public void saveImageTransformerFactory(
             String sessionToken,
             @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class) List<IDatasetIdentifier> dataSetIdentifiers,

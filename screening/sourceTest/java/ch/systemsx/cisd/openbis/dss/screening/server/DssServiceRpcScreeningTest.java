@@ -439,8 +439,8 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(service).checkInstanceAdminAuthorization(SESSION_TOKEN);
-                    will(throwException(new UserFailureException("You are not an admin.")));
+                    one(service).checkSpacePowerUserAuthorization(SESSION_TOKEN);
+                    will(throwException(new UserFailureException("You are not a space power user.")));
                 }
             });
 
@@ -451,7 +451,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
             fail("Unauthorized access not detected.");
         } catch (AuthorizationFailureException ex)
         {
-            assertEquals("Authorization failure: You are not an admin.", ex.getMessage());
+            assertEquals("Authorization failure: You are not a space power user.", ex.getMessage());
         }
 
         assertTrue(testMethodInterceptor.methodInvoked);
@@ -465,11 +465,12 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         final DatasetIdentifier ds2 = new DatasetIdentifier("ds2", "url1");
         final String channel = "dapi";
         prepareLockDataSet(DATASET_CODE, "ds2");
+        prepareAssetDataSetsAreAccessible();
         context.checking(new Expectations()
             {
                 {
-                    one(service).checkInstanceAdminAuthorization(SESSION_TOKEN);
-
+                    one(service).checkSpacePowerUserAuthorization(SESSION_TOKEN);
+                    
                     long datasetId = 123;
                     ImgDatasetDTO dataset = createDataset(datasetId);
                     dataset.setPermId(DATASET_CODE);
@@ -509,10 +510,11 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     {
         final DatasetIdentifier ds1 = new DatasetIdentifier(DATASET_CODE, "url1");
         prepareLockDataSet(DATASET_CODE);
+        prepareAssetDataSetsAreAccessible("ds1");
         context.checking(new Expectations()
             {
                 {
-                    one(service).checkInstanceAdminAuthorization(SESSION_TOKEN);
+                    one(service).checkSpacePowerUserAuthorization(SESSION_TOKEN);
 
                     Long containerId = 312L;
 
