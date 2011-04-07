@@ -17,15 +17,15 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 
 /**
  * Describes a deleted data set.
  * 
  * @author Izabela Adamczyk
  */
-public class DeletedDataSet implements Serializable
+public class DeletedDataSet implements Serializable, ICodeHolder
 {
 
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
@@ -35,19 +35,6 @@ public class DeletedDataSet implements Serializable
     private final long eventId;
 
     private final String location; // the location where the data set existed before deletion
-
-    public static List<String> extractDataSetCodes(List<DeletedDataSet> dataSets)
-    {
-        List<String> result = new ArrayList<String>();
-        if (dataSets != null)
-        {
-            for (DeletedDataSet description : dataSets)
-            {
-                result.add(description.getIdentifier());
-            }
-        }
-        return result;
-    }
 
     public DeletedDataSet(String identifier, String location, long eventId)
     {
@@ -59,6 +46,11 @@ public class DeletedDataSet implements Serializable
     public String getLocation()
     {
         return location;
+    }
+
+    public String getCode()
+    {
+        return getIdentifier();
     }
 
     public String getIdentifier()
@@ -76,4 +68,5 @@ public class DeletedDataSet implements Serializable
     {
         return "DeletedDataSet [identifier=" + identifier + "]";
     }
+
 }
