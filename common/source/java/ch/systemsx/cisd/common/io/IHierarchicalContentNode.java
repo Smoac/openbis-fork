@@ -16,27 +16,32 @@
 
 package ch.systemsx.cisd.common.io;
 
+import java.io.File;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
 
 /**
+ * Read only abstraction over a node in {@link IHierarchicalContent} that provides access to a file 
+ * and its content.
+ * 
  * @author Chandrasekhar Ramakrishnan
  * @author Piotr Buczek
  */
 public interface IHierarchicalContentNode
 {
     /** @throws UnsupportedOperationException if the backing store is not a file. */
-    java.io.File getFile() throws UnsupportedOperationException;
+    File getFile() throws UnsupportedOperationException;
 
-    /** @throws IOExceptionUnchecked if an I/O error occurs. */
+    /**
+     * Returns a read only {@link IRandomAccessFile} with file content of the node.
+     * 
+     * @throws IOExceptionUnchecked if an I/O error occurs.
+     */
     IRandomAccessFile getFileContent() throws IOExceptionUnchecked;
 
     /** @throws IOExceptionUnchecked if an I/O error occurs. */
     InputStream getInputStream() throws IOExceptionUnchecked;
 
-    /** @throws IOExceptionUnchecked if an I/O error occurs. */
-    OutputStream getOutputStream() throws IOExceptionUnchecked;
 }

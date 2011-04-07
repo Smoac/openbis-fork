@@ -86,7 +86,13 @@ public class ServiceProvider
     {
         return ((IShareIdManager) getApplicationContext().getBean("share-id-manager"));
     }
-    
+
+    public static IHierarchicalContentProvider getHierarchicalContentProvider()
+    {
+        return ((IHierarchicalContentProvider) getApplicationContext().getBean(
+                "hierarchical-content-provider")); // TODO
+    }
+
     public static HttpInvokerServiceExporter getDataStoreServer()
     {
         return ((HttpInvokerServiceExporter) getApplicationContext().getBean("data-store-server"));

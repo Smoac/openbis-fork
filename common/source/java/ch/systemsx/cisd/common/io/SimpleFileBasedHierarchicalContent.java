@@ -40,9 +40,45 @@ class SimpleFileBasedHierarchicalContent implements IHierarchicalContent
 {
     private final File root;
 
+    SimpleFileBasedHierarchicalContent(File file)
+    {
+        this.root = file;
+    }
+
+    public IHierarchicalContentNode getRootNode()
+    {
+        return getNode("/");
+    }
+
+    public IHierarchicalContentNode getNode(String relativePath)
+    {
+        return new SimpleFileBasedHierarchicalContentNode(this, new File(root, relativePath));
+    }
+
+    public List<IHierarchicalContentNode> listMatchingNodes(final String pattern)
+    {
+        File[] files = root.listFiles(new FilenameFilter()
+            {
+                public boolean accept(File dir, String name)
+                {
+                    return name.matches(pattern);
+                }
+            });
+
+        List<IHierarchicalContentNode> nodes = new ArrayList<IHierarchicalContentNode>();
+        for (File file : files)
+        {
+            nodes.add(new SimpleFileBasedHierarchicalContentNode(this, file));
+        }
+        return nodes;
+    }
+
+    // TODO Implement hash/equals
+
     class SimpleFileBasedHierarchicalContentNode implements IHierarchicalContentNode
     {
-        private final SimpleFileBasedHierarchicalContent parent; // TODO do we need this?
+        @SuppressWarnings("unused")
+        private final SimpleFileBasedHierarchicalContent parent;
 
         private final File file;
 
@@ -87,45 +123,4 @@ class SimpleFileBasedHierarchicalContent implements IHierarchicalContent
 
         // TODO Implement hash/equals
     }
-
-    SimpleFileBasedHierarchicalContent(File file)
-    {
-        this.root = file;
-    }
-
-    public IHierarchicalContentNode getRootNode()
-    {
-        return getNode("/");
-    }
-
-    public IHierarchicalContentNode getNode(String relativePath)
-    {
-        return new SimpleFileBasedHierarchicalContentNode(this, new File(root, relativePath));
-    }
-
-    public List<IHierarchicalContentNode> listMatchingNodes(final String pattern)
-    {
-        File[] files = root.listFiles(new FilenameFilter()
-            {
-                // boolean accept(String filename)
-                // {
-                // return filename.matches(pattern);
-                // }
-
-                public boolean accept(File dir, String name)
-                {
-                    final String filename = new File(dir, name).getAbsolutePath(); // TODO absolute?
-                    return filename.matches(pattern);
-                }
-            });
-
-        List<IHierarchicalContentNode> nodes = new ArrayList<IHierarchicalContentNode>();
-        for (File file : files)
-        {
-            nodes.add(new SimpleFileBasedHierarchicalContentNode(this, file));
-        }
-        return nodes;
-    }
-
-    // TODO Implement hash/equals
 }
