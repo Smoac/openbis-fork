@@ -16,41 +16,30 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
-
 /**
- * Aggregated feature vector with its ranking in one experiment for one material.
- * 
  * @author Tomasz Pylak
  */
-public class MaterialFeatureVectorSummary
+public class MaterialSingleReplicaFeatureVector
 {
-    private Material material;
+    private int replicaSequenceNumber;
 
     private float[] featueVectorSummary;
 
-    private float[] featueVectorDeviations;
-
-    private int[] featureVectorRanks;
-
-    // GTW
+    // GWT only
     @SuppressWarnings("unused")
-    private MaterialFeatureVectorSummary()
+    private MaterialSingleReplicaFeatureVector()
     {
     }
 
-    public MaterialFeatureVectorSummary(Material material, float[] featueVectorSummary,
-            float[] featueVectorDeviations, int[] featueVectorRanks)
+    public MaterialSingleReplicaFeatureVector(int replicaSequenceNumber, float[] featueVectorSummary)
     {
-        this.material = material;
+        this.replicaSequenceNumber = replicaSequenceNumber;
         this.featueVectorSummary = featueVectorSummary;
-        this.featueVectorDeviations = featueVectorDeviations;
-        this.featureVectorRanks = featueVectorRanks;
     }
 
-    public Material getMaterial()
+    public int getReplicaSequenceNumber()
     {
-        return material;
+        return replicaSequenceNumber;
     }
 
     public float[] getFeatueVectorSummary()
@@ -58,13 +47,4 @@ public class MaterialFeatureVectorSummary
         return featueVectorSummary;
     }
 
-    public float[] getFeatueVectorDeviations()
-    {
-        return featueVectorDeviations;
-    }
-
-    public int[] getFeatueVectorRanks()
-    {
-        return featureVectorRanks;
-    }
 }
