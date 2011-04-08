@@ -132,7 +132,7 @@ class SimpleFileBasedHierarchicalContent implements IHierarchicalContent
         return true;
     }
 
-    static class SimpleFileBasedHierarchicalContentNode implements IHierarchicalContentNode
+    static class SimpleFileBasedHierarchicalContentNode extends AbstractHierarchicalContentNode
     {
         private final SimpleFileBasedHierarchicalContent parent;
 
@@ -151,7 +151,24 @@ class SimpleFileBasedHierarchicalContent implements IHierarchicalContent
             return file.getName();
         }
 
-        public List<IHierarchicalContentNode> getChildNodes()
+        public boolean isDirectory()
+        {
+            return file.isDirectory();
+        }
+
+        public File getFile()
+        {
+            return file;
+        }
+
+        @Override
+        public long doGetSize()
+        {
+            return file.length();
+        }
+
+        @Override
+        public List<IHierarchicalContentNode> doGetChildNodes()
         {
             File[] files = file.listFiles();
             List<IHierarchicalContentNode> result = new ArrayList<IHierarchicalContentNode>();
@@ -165,17 +182,14 @@ class SimpleFileBasedHierarchicalContent implements IHierarchicalContent
             return result;
         }
 
-        public File getFile()
-        {
-            return file;
-        }
-
-        public IRandomAccessFile getFileContent()
+        @Override
+        public IRandomAccessFile doGetFileContent()
         {
             return new RandomAccessFileImpl(file, "r");
         }
 
-        public InputStream getInputStream()
+        @Override
+        public InputStream doGetInputStream()
         {
             try
             {

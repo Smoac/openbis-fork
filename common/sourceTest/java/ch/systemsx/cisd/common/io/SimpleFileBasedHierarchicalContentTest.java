@@ -176,11 +176,13 @@ public class SimpleFileBasedHierarchicalContentTest extends AbstractFileSystemTe
         checkFakeFileNode(fakeFileName, subFakeFileExpectedPath, subFakeFileNode);
     }
 
-    private static void checkFileNode(File expectedFile, IHierarchicalContentNode fileNode)
+    private static void checkFileNode(File expectedFile, final IHierarchicalContentNode fileNode)
             throws IOExceptionUnchecked, IOException
     {
+        assertFalse(fileNode.isDirectory());
         assertEquals(expectedFile, fileNode.getFile());
         assertEquals(expectedFile.getName(), fileNode.getName());
+        assertEquals(expectedFile.length(), fileNode.getSize());
 
         final String expectedFileData = expectedFile.getName() + " data";
         // check random access to file content
@@ -193,25 +195,53 @@ public class SimpleFileBasedHierarchicalContentTest extends AbstractFileSystemTe
         assertEquals("[" + expectedFileData + "]", IOUtils.readLines(fileNode.getInputStream())
                 .toString());
 
-        assertEquals(0, fileNode.getChildNodes().size());
+        assertUnsupportedFileOperationOnAction(new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    fileNode.getChildNodes();
+                }
+            });
     }
 
     private static void checkFakeFileNode(String fakeFileName, String fakeFileExpectedPath,
             IHierarchicalContentNode fakeFileNode) throws IOExceptionUnchecked, IOException
     {
+        assertFalse(fakeFileNode.isDirectory());
         assertEquals(fakeFileName, fakeFileNode.getName());
+        assertEquals(0, fakeFileNode.getSize());
         assertEquals(fakeFileExpectedPath, fakeFileNode.getFile().toString());
         assertIOExceptionOnFileContentAccess(fakeFileNode);
         assertIOExceptionOnInputStreamAccess(fakeFileNode);
     }
 
-    private static void checkDirNode(File expectedDir, IHierarchicalContentNode dirNode)
+    private static void checkDirNode(File expectedDir, final IHierarchicalContentNode dirNode)
     {
+        assertTrue(dirNode.isDirectory());
         assertEquals(expectedDir, dirNode.getFile());
         assertEquals(expectedDir.getName(), dirNode.getName());
-        assertIOExceptionOnFileContentAccess(dirNode);
-        assertIOExceptionOnInputStreamAccess(dirNode);
         assertEquals(expectedDir.list().length, dirNode.getChildNodes().size());
+        assertUnsupportedDirectoryOperationOnAction(new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    dirNode.getSize();
+                }
+            });
+        assertUnsupportedDirectoryOperationOnAction(new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    dirNode.getFileContent();
+                }
+            });
+        assertUnsupportedDirectoryOperationOnAction(new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    dirNode.getInputStream();
+                }
+            });
     }
 
     private static void assertIOExceptionOnFileContentAccess(final IHierarchicalContentNode node)
@@ -245,6 +275,32 @@ public class SimpleFileBasedHierarchicalContentTest extends AbstractFileSystemTe
         } catch (IOExceptionUnchecked ex)
         {
             // no expectation - IOException messages are OS dependent
+        }
+    }
+
+    private static void assertUnsupportedDirectoryOperationOnAction(IDelegatedAction action)
+    {
+        try
+        {
+            action.execute();
+            fail("expected UnsupportedOperationException");
+        } catch (UnsupportedOperationException ex)
+        {
+            assertEquals(AbstractHierarchicalContentNode.OPERATION_NOT_SUPPORTED_FOR_A_DIRECTORY,
+                    ex.getMessage());
+        }
+    }
+
+    private static void assertUnsupportedFileOperationOnAction(IDelegatedAction action)
+    {
+        try
+        {
+            action.execute();
+            fail("expected UnsupportedOperationException");
+        } catch (UnsupportedOperationException ex)
+        {
+            assertEquals(AbstractHierarchicalContentNode.OPERATION_SUPPORTED_ONLY_FOR_A_DIRECTORY,
+                    ex.getMessage());
         }
     }
 
