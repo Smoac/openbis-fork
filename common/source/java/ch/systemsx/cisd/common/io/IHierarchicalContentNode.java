@@ -48,5 +48,14 @@ public interface IHierarchicalContentNode
 
     /** @throws IOExceptionUnchecked if an I/O error occurs. */
     InputStream getInputStream() throws IOExceptionUnchecked;
+    
+    /**
+     * Returns <code>true</code> if this node refers to a directory.
+     */
+    boolean isDirectory();
 
+    /**
+     * Returns the size (in bytes) of this node.
+     */
+    long getSize();
 }
