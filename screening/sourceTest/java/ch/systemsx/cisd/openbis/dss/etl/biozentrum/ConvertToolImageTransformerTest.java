@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.dss.etl.biozentrum;
 
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBuffer;
 import java.io.File;
 
 import org.testng.AssertJUnit;
@@ -58,18 +57,24 @@ public class ConvertToolImageTransformerTest extends AssertJUnit
 
     private void assertEqualImages(BufferedImage expected, BufferedImage actual)
     {
-        DataBuffer expectedDB = expected.getData().getDataBuffer();
-        DataBuffer actualDB = actual.getData().getDataBuffer();
+
+        int columns = expected.getWidth();
+        int rows = expected.getHeight();
 
         String notEqualError = "Converted image not equal to expected result";
-        assertEquals(notEqualError, expectedDB.getSize(), actualDB.getSize());
+        assertEquals(notEqualError, columns, actual.getWidth());
+        assertEquals(notEqualError, rows, actual.getHeight());
 
-        for (int i = 0; i < expectedDB.getSize(); i++)
+        for (int row = 0; row < rows; row++)
         {
-            assertEquals(notEqualError, expectedDB.getElem(i), actualDB.getElem(i));
+            for (int col = 0; col < columns; col++)
+            {
+                int expectedPixel = expected.getRGB(col, row);
+                int actualPixel = actual.getRGB(col, row);
 
+                assertEquals(notEqualError, expectedPixel, actualPixel);
+            }
         }
-
     }
 
     private BufferedImage readImage(String image)
