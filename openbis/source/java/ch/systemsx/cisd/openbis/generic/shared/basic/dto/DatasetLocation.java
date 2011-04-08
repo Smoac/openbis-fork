@@ -54,7 +54,7 @@ public class DatasetLocation implements IDatasetLocation, ISerializable
     @Override
     public String toString()
     {
-        return String.format("Dataset '%s' location '%s'", datasetCode, dataSetLocation);
+        return "Dataset[" + datasetCode + "], location[" + dataSetLocation + "]";
     }
 
 }
