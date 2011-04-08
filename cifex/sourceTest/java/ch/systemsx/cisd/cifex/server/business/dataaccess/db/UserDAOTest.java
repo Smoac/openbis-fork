@@ -26,8 +26,6 @@ import static org.testng.AssertJUnit.fail;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.annotation.Rollback;
 import org.testng.annotations.DataProvider;
@@ -180,16 +178,6 @@ public final class UserDAOTest extends AbstractDAOTest
             assertTrue(userDAO.isMainUserOfQuotaGroup(userDTO));
         }
         fail("Created user not found.");
-    }
-
-    @Test(groups =
-        { "user.create" }, dependsOnMethods = "testCreateUser", expectedExceptions = DataAccessException.class)
-    public final void testCreateUserWithTooLong()
-    {
-        final IUserDAO userDAO = daoFactory.getUserDAO();
-        final UserDTO newUser =
-                createUser(true, false, StringUtils.repeat("A", 51), "u@v.org", testAdminUser, null);
-        userDAO.createUser(newUser);
     }
 
     @Test(groups = "user.create", dependsOnMethods = "testCreateUser", expectedExceptions = DataIntegrityViolationException.class)
