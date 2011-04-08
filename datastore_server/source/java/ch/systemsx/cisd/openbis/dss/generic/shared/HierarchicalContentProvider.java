@@ -26,51 +26,40 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 
 /**
+ * The default implementation of {@link IHierarchicalContentProvider}.
+ * 
  * @author Piotr Buczek
  */
 public class HierarchicalContentProvider implements IHierarchicalContentProvider
 {
 
-    private IDataSetDirectoryProvider directoryProvider;
+    private final IDataSetDirectoryProvider directoryProvider;
 
-    private IHierarchicalContentFactory hierarchicalContentFactory;
+    private final IHierarchicalContentFactory hierarchicalContentFactory;
 
-    private IEncapsulatedOpenBISService openbisService;
+    private final IEncapsulatedOpenBISService openbisService;
 
-    private IDataSetDirectoryProvider getDataSetDirectoryProvider()
+    public HierarchicalContentProvider(IEncapsulatedOpenBISService openbisService,
+            IShareIdManager shareIdManager, IConfigProvider configProvider)
     {
-        if (directoryProvider == null)
-        {
-            IShareIdManager shareIdManager = ServiceProvider.getShareIdManager();
-            IConfigProvider configProvider = ServiceProvider.getConfigProvider();
-            directoryProvider =
-                    new DataSetDirectoryProvider(configProvider.getStoreRoot(), shareIdManager);
-        }
-        return directoryProvider;
+        this(openbisService, new DataSetDirectoryProvider(configProvider.getStoreRoot(),
+                shareIdManager), new HierarchicalContentFactory());
     }
 
-    private IHierarchicalContentFactory getHierarchicalContentFactory()
+    // for tests
+    HierarchicalContentProvider(IEncapsulatedOpenBISService openbisService,
+            IDataSetDirectoryProvider directoryProvider,
+            IHierarchicalContentFactory hierarchicalContentFactory)
     {
-        if (hierarchicalContentFactory == null)
-        {
-            hierarchicalContentFactory = new HierarchicalContentFactory();
-        }
-        return hierarchicalContentFactory;
-    }
-
-    private IEncapsulatedOpenBISService getOpenBISService()
-    {
-        if (openbisService == null)
-        {
-            openbisService = ServiceProvider.getOpenBISService();
-        }
-        return openbisService;
+        this.openbisService = openbisService;
+        this.directoryProvider = directoryProvider;
+        this.hierarchicalContentFactory = hierarchicalContentFactory;
     }
 
     public IHierarchicalContent asContent(String dataSetCode)
     {
         // this is temporary implementation - it shouldn't access openBIS after LMS-2172 is done
-        ExternalData dataSet = getOpenBISService().tryGetDataSet(dataSetCode);
+        ExternalData dataSet = openbisService.tryGetDataSet(dataSetCode);
         
         return asContent(dataSet);
     }
@@ -78,13 +67,13 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
     public IHierarchicalContent asContent(IDatasetLocation datasetLocation)
     {
         // this is temporary implementation - it should access DB instead of filesystem
-        File dataSetDirectory = getDataSetDirectoryProvider().getDataSetDirectory(datasetLocation);
+        File dataSetDirectory = directoryProvider.getDataSetDirectory(datasetLocation);
         return asContent(dataSetDirectory);
     }
 
     private IHierarchicalContent asContent(File dataSetDirectory)
     {
-        return getHierarchicalContentFactory().asHierarchicalContent(dataSetDirectory);
+        return hierarchicalContentFactory.asHierarchicalContent(dataSetDirectory);
     }
 
 }

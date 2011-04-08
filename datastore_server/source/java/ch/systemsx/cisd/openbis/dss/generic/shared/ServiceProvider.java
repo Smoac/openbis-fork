@@ -90,7 +90,7 @@ public class ServiceProvider
     public static IHierarchicalContentProvider getHierarchicalContentProvider()
     {
         return ((IHierarchicalContentProvider) getApplicationContext().getBean(
-                "hierarchical-content-provider")); // TODO
+                "hierarchical-content-provider"));
     }
 
     public static HttpInvokerServiceExporter getDataStoreServer()
