@@ -53,12 +53,17 @@ class SimpleFileBasedHierarchicalContent implements IHierarchicalContent
 
     public IHierarchicalContentNode getRootNode()
     {
-        return getNode("/");
+        return asNode(root);
     }
 
     public IHierarchicalContentNode getNode(String relativePath)
     {
-        return new SimpleFileBasedHierarchicalContentNode(this, new File(root, relativePath));
+        return asNode(new File(root, relativePath));
+    }
+
+    private IHierarchicalContentNode asNode(File file)
+    {
+        return new SimpleFileBasedHierarchicalContentNode(this, file);
     }
 
     public List<IHierarchicalContentNode> listMatchingNodes(final String pattern)
