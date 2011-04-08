@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEn
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
@@ -153,4 +154,13 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
      */
     public void listExperimentMaterials(TechId experimentId, ListMaterialDisplayCriteria criteria,
             AsyncCallback<ResultSet<Material>> callback);
+
+    /**
+     * @see IScreeningClientService#listExperimentFeatureVectorSummary(IResultSetConfig, TechId)
+     */
+    public void listExperimentFeatureVectorSummary(
+            IResultSetConfig<String, TableModelRowWithObject<MaterialFeatureVectorSummary>> resultSetConfig,
+            TechId experimentId,
+            AsyncCallback<TypedTableResultSet<MaterialFeatureVectorSummary>> callback);
+
 }

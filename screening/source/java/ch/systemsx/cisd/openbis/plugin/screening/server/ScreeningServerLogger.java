@@ -51,6 +51,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMate
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
@@ -320,5 +321,13 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         logAccess(sessionToken, "registerLibrary",
                 "userEmail(%s), newGenesOrNull(%s), newOligosOrNull(%s), newSamplesWithType(%s)",
                 userEmail, newGenesOrNull, newOligosOrNull, newSamplesWithType);
+    }
+
+    public ExperimentFeatureVectorSummary getExperimentFeatureVectorSummary(String sessionToken,
+            TechId experimentId)
+    {
+        logAccess(sessionToken, "getExperimentFeatureVectorSummary",
+                "sessionToken(%s), experimentId(%s)", sessionToken, experimentId);
+        return null;
     }
 }

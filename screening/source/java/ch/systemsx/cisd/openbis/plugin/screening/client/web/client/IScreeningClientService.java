@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEn
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
@@ -169,5 +170,12 @@ public interface IScreeningClientService extends IClientService
      * Returns plate geometry vocabulary.
      */
     public Vocabulary getPlateGeometryVocabulary() throws UserFailureException;
+
+    /**
+     * Lists {@link MaterialFeatureVectorSummary} for a given experiment.
+     */
+    public TypedTableResultSet<MaterialFeatureVectorSummary> listExperimentFeatureVectorSummary(
+            IResultSetConfig<String, TableModelRowWithObject<MaterialFeatureVectorSummary>> resultSetConfig,
+            TechId experimentId);
 
 }

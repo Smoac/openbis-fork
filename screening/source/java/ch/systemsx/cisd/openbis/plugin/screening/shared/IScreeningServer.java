@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.authorization.DatasetRef
 import ch.systemsx.cisd.openbis.plugin.screening.shared.authorization.WellContentValidator;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.authorization.WellSearchCriteriaPredicate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
@@ -187,4 +188,14 @@ public interface IScreeningServer extends IServer
     public void registerLibrary(String sessionToken, String userEmail,
             List<NewMaterial> newGenesOrNull, List<NewMaterial> newOligosOrNull,
             List<NewSamplesWithTypes> newSamplesWithType);
+
+    /**
+     * Returns a list of all {@link ExperimentFeatureVectorSummary} objects for a given experiment.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public ExperimentFeatureVectorSummary getExperimentFeatureVectorSummary(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId);
+
 }

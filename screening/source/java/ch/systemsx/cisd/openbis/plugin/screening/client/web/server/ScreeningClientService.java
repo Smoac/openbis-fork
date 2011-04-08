@@ -59,6 +59,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEn
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
@@ -315,6 +316,16 @@ public final class ScreeningClientService extends AbstractClientService implemen
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
+    }
+
+    public TypedTableResultSet<MaterialFeatureVectorSummary> listExperimentFeatureVectorSummary(
+            IResultSetConfig<String, TableModelRowWithObject<MaterialFeatureVectorSummary>> criteria,
+            TechId experimentId)
+    {
+        FeatureVectorSummaryProvider provider =
+                new FeatureVectorSummaryProvider(server, getSessionToken(), experimentId);
+        return listEntities(provider, criteria);
+
     }
 
 }

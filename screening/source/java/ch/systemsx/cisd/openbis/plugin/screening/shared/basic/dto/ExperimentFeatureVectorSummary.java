@@ -18,15 +18,19 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * Aggregated feature vectors with its rankings in one experiment for all material.
  * 
  * @author Tomasz Pylak
  */
-public class ExperimentFeatureVectorSummary
+public class ExperimentFeatureVectorSummary implements ISerializable
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private ExperimentReference experiment;
 
     private List<MaterialFeatureVectorSummary> materialsSummary;

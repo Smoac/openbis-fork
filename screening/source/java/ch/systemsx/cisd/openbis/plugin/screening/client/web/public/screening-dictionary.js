@@ -84,6 +84,8 @@ PLATE_MATERIAL_REVIEWER_SPECIFY_METERIAL_ITEMS: "E.g. gene symbols, gene ids, ge
 
 EXPERIMENT_PLATE_MATERIAL_REVIEWER_SECTION: "Wells Search",
 EXPERIMENT_PLATE_MATERIAL_BROWSER_SECTION: "Library Index",
+EXPERIMENT_FEATURE_VECTOR_SUMMARY_SECTION: "Feature Vector Summary",
+experiment_feature_vector_summary_section_RANK: "Rank",
 
 EXACT_MATCH_ONLY: "Exact Matches Only",
 WELLS_SEARCH_SHOW_COMBINED_RESULTS: "Show all matching results combined",

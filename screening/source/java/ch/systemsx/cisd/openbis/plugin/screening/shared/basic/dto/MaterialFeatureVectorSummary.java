@@ -16,15 +16,19 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * Aggregated feature vector with its ranking in one experiment for one material.
  * 
  * @author Tomasz Pylak
  */
-public class MaterialFeatureVectorSummary
+public class MaterialFeatureVectorSummary implements ISerializable
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private Material material;
 
     private float[] featueVectorSummary;

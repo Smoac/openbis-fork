@@ -67,11 +67,24 @@ public class ScreeningLinkExtractor extends LinkExtractor
 
     public final static boolean WELL_SEARCH_SHOW_COMBINED_RESULTS_DEFAULT = true;
 
+    public final static String FEATURE_VECTOR_SUMMARY_ACTION = "FEATURE_VECTOR_SUMMARY";
+
+    public final static String FEATURE_VECTOR_SUMMARY_EXPERIMENT_PERMID_PARAMETER_KEY =
+            "experimentPermId";
+
     public static final String createPlateMetadataBrowserLink(String platePermId)
     {
         URLMethodWithParameters url = new URLMethodWithParameters("");
         url.addParameter(BasicConstant.LOCATOR_ACTION_PARAMETER, PLATE_METADATA_BROWSER_ACTION);
         url.addParameter(PermlinkUtilities.PERM_ID_PARAMETER_KEY, platePermId);
+        return tryPrint(url);
+    }
+
+    public static final String createFeatureVectorSummaryBrowserLink(String experimentPermId)
+    {
+        URLMethodWithParameters url = new URLMethodWithParameters("");
+        url.addParameter(BasicConstant.LOCATOR_ACTION_PARAMETER, FEATURE_VECTOR_SUMMARY_ACTION);
+        url.addParameter(FEATURE_VECTOR_SUMMARY_EXPERIMENT_PERMID_PARAMETER_KEY, experimentPermId);
         return tryPrint(url);
     }
 
