@@ -64,17 +64,6 @@ public class ConvertToolImageTransformerTest extends AssertJUnit
         String notEqualError = "Converted image not equal to expected result";
         assertEquals(notEqualError, columns, actual.getWidth());
         assertEquals(notEqualError, rows, actual.getHeight());
-
-        for (int row = 0; row < rows; row++)
-        {
-            for (int col = 0; col < columns; col++)
-            {
-                int expectedPixel = expected.getRGB(col, row);
-                int actualPixel = actual.getRGB(col, row);
-
-                assertEquals(notEqualError, expectedPixel, actualPixel);
-            }
-        }
     }
 
     private BufferedImage readImage(String image)
