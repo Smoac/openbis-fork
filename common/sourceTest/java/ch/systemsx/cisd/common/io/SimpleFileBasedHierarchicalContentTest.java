@@ -19,7 +19,9 @@ package ch.systemsx.cisd.common.io;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.testng.annotations.BeforeMethod;
@@ -116,10 +118,23 @@ public class SimpleFileBasedHierarchicalContentTest extends AbstractFileSystemTe
         IHierarchicalContentNode rootNode = content.getRootNode();
 
         List<IHierarchicalContentNode> childNodes = rootNode.getChildNodes();
-        assertEquals(3, childNodes.size());
-        checkFileNode(file1, childNodes.get(0));
-        checkFileNode(file2, childNodes.get(1));
-        checkDirNode(subDir, childNodes.get(2));
+        List<File> expectedFiles = Arrays.asList(file1, file2, subDir);
+        Set<File> remainingFiles = new HashSet<File>(expectedFiles);
+        assertEquals(expectedFiles.size(), childNodes.size());
+        for (IHierarchicalContentNode node : childNodes)
+        {
+            File nodeFile = node.getFile();
+            assertTrue("unexpected file: " + nodeFile, expectedFiles.contains(nodeFile));
+            remainingFiles.remove(nodeFile);
+            if (nodeFile.isDirectory())
+            {
+                checkDirNode(nodeFile, node);
+            } else
+            {
+                checkFileNode(nodeFile, node);
+            }
+        }
+        assertTrue("missing files: " + remainingFiles, remainingFiles.isEmpty());
     }
 
     @Test
