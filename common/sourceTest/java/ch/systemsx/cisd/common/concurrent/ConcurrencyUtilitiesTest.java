@@ -195,7 +195,7 @@ public class ConcurrencyUtilitiesTest
         assertTrue(future.isDone());
     }
 
-    @Test(groups = "slow")
+    @Test(groups = "slow", retryAnalyzer = Retry10.class)
     public void testTryGetFutureTimeout()
     {
         final ThreadPoolExecutor eservice =
