@@ -114,9 +114,14 @@
     
     <bean id="data-source-provider" class="ch.systemsx.cisd.openbis.dss.generic.shared.DataSourceProvider" />
     
-    <bean id="hierarchical-content-provider" class="ch.systemsx.cisd.openbis.dss.generic.shared.HierarchicalContentProvider"/>
-    
     <bean id="config-provider" class="ch.systemsx.cisd.etlserver.ConfigProvider"/>
+
+    <bean id="hierarchical-content-provider" 
+        class="ch.systemsx.cisd.openbis.dss.generic.shared.HierarchicalContentProvider">
+        <constructor-arg ref="openBIS-service" />
+        <constructor-arg ref="share-id-manager" />
+        <constructor-arg ref="config-provider" />
+    </bean>
 
     <!-- 
         // This discovers on-the-fly all <code>org.springframework.aop.Advisor</code> implementations.
