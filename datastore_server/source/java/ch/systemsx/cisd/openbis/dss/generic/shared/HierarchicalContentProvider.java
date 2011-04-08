@@ -21,7 +21,6 @@ import java.io.File;
 import ch.systemsx.cisd.common.io.HierarchicalContentFactory;
 import ch.systemsx.cisd.common.io.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.IHierarchicalContentFactory;
-import ch.systemsx.cisd.openbis.dss.generic.server.DataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 
