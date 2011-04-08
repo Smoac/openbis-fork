@@ -409,6 +409,9 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         return MINOR_VERSION;
     }
 
+    // TODO KE: 2011-04-07 this is a mock implementation. Tomek/I will have to connect it to real
+    // backend ASAP. All data generation methods underneath must be removed in the final
+    // version of the code.
     public ExperimentFeatureVectorSummary getExperimentFeatureVectorSummary(
             String sessionToken, TechId experimentId)
     {
@@ -421,7 +424,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                 new ExperimentFeatureVectorSummary(experimentReference, materials, featureDescs);
 
         String[] materialCodes = new String[]
-            { "BACTERIUM-X", "BACTERIUM-Y", "747", "gfp", "scrum" };
+            { "BACTERIUM-X", "BACTERIUM-Y", "747", "gfp", "scrum", "m1", "m2", "m5" };
         List<MaterialType> materialTypes = commonServer.listMaterialTypes(sessionToken);
         String[] materialTypeCodes = Code.extractCodesToArray(materialTypes);
 
