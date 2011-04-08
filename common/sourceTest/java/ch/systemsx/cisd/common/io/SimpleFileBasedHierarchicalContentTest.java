@@ -38,10 +38,6 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 public class SimpleFileBasedHierarchicalContentTest extends AbstractFileSystemTestCase
 {
 
-    private static String NOT_A_DIRECTORY_ERROR = "Not a directory";
-
-    private static String NO_SUCH_FILE_OR_DIRECTORY = "No such file or directory";
-
     private File rootDir;
 
     private File file1;
@@ -109,11 +105,7 @@ public class SimpleFileBasedHierarchicalContentTest extends AbstractFileSystemTe
         SimpleFileBasedHierarchicalContent content =
                 new SimpleFileBasedHierarchicalContent(rootDir);
         IHierarchicalContentNode rootNode = content.getRootNode();
-
-        assertEquals(rootDir, rootNode.getFile());
-        assertEquals(rootDir.getName(), rootNode.getName());
-        assertIOExceptionOnFileContentAccess(rootNode, NO_SUCH_FILE_OR_DIRECTORY);
-        assertIOExceptionOnInputStreamAccess(rootNode, NO_SUCH_FILE_OR_DIRECTORY);
+        checkDirNode(rootDir, rootNode);
     }
 
     @Test
@@ -194,44 +186,55 @@ public class SimpleFileBasedHierarchicalContentTest extends AbstractFileSystemTe
     {
         assertEquals(fakeFileName, fakeFileNode.getName());
         assertEquals(fakeFileExpectedPath, fakeFileNode.getFile().toString());
-        assertIOExceptionOnFileContentAccess(fakeFileNode, NO_SUCH_FILE_OR_DIRECTORY);
-        assertIOExceptionOnInputStreamAccess(fakeFileNode, NO_SUCH_FILE_OR_DIRECTORY);
+        assertIOExceptionOnFileContentAccess(fakeFileNode);
+        assertIOExceptionOnInputStreamAccess(fakeFileNode);
     }
 
     private static void checkDirNode(File expectedDir, IHierarchicalContentNode dirNode)
     {
         assertEquals(expectedDir, dirNode.getFile());
         assertEquals(expectedDir.getName(), dirNode.getName());
-        assertIOExceptionOnFileContentAccess(dirNode, NOT_A_DIRECTORY_ERROR);
-        assertIOExceptionOnInputStreamAccess(dirNode, NOT_A_DIRECTORY_ERROR);
+        assertIOExceptionOnFileContentAccess(dirNode);
+        assertIOExceptionOnInputStreamAccess(dirNode);
         assertEquals(expectedDir.list().length, dirNode.getChildNodes().size());
     }
 
-    private static void assertIOExceptionOnFileContentAccess(IHierarchicalContentNode node,
-            String expectedCause)
+    private static void assertIOExceptionOnFileContentAccess(final IHierarchicalContentNode node)
+    {
+        assertIOExceptionThrownOnAction(new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    node.getFileContent();
+                }
+            });
+    }
+
+    private static void assertIOExceptionOnInputStreamAccess(final IHierarchicalContentNode node)
+    {
+        assertIOExceptionThrownOnAction(new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    node.getInputStream();
+                }
+            });
+    }
+
+    private static void assertIOExceptionThrownOnAction(IDelegatedAction action)
     {
         try
         {
-            node.getFileContent();
+            action.execute();
             fail("expected IOException");
         } catch (IOExceptionUnchecked ex)
         {
-            assertEquals("java.io.FileNotFoundException: " + node.getFile().getPath() + " ("
-                    + expectedCause + ")", ex.getMessage());
+            // no expectation - IOException messages are OS dependent
         }
     }
 
-    private static void assertIOExceptionOnInputStreamAccess(IHierarchicalContentNode node,
-            String expectedCause)
+    private interface IDelegatedAction
     {
-        try
-        {
-            node.getInputStream();
-            fail("expected IOException");
-        } catch (IOExceptionUnchecked ex)
-        {
-            assertEquals("java.io.FileNotFoundException: " + node.getFile().getPath() + " ("
-                    + expectedCause + ")", ex.getMessage());
-        }
+        void execute();
     }
 }
