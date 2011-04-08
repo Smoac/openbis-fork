@@ -162,10 +162,6 @@ public class TypedTableModelBuilder<T extends ISerializable>
                             + propertyType.getSimpleCode();
             DataTypeCode dataType = propertyType.getDataType().getCode();
             IColumn column = column(code).withTitle(label).withDataType(dataType);
-            if (dataType == DataTypeCode.MATERIAL)
-            {
-                column.withEntityKind(EntityKind.MATERIAL);
-            }
             return column;
         }
 

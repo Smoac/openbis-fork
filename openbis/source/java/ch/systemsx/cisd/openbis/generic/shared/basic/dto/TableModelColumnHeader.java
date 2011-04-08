@@ -62,6 +62,10 @@ public class TableModelColumnHeader implements ISerializable
     public void setDataType(DataTypeCode dataType)
     {
         this.dataType = dataType;
+        if (dataType == DataTypeCode.MATERIAL)
+        {
+            setEntityKind(EntityKind.MATERIAL);
+        }
     }
 
     public DataTypeCode getDataType()
