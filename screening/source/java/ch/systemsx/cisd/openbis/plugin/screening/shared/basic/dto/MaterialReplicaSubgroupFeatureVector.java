@@ -2,11 +2,16 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
+
 /**
  * @author Tomasz Pylak
  */
-public class MaterialReplicaSubgroupFeatureVector
+public class MaterialReplicaSubgroupFeatureVector implements ISerializable
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     // DISPLAY NOTE: The header of each column should be:
     // <subgroupName> repl. <replicaSequenceNumber>
     // e.g. SIRNA XYZ repl. 2
@@ -22,6 +27,12 @@ public class MaterialReplicaSubgroupFeatureVector
     private ReplicaSummaryAggregationType summaryAggregationType;
 
     private String subgroupLabel;
+
+    // GWT only
+    @SuppressWarnings("unused")
+    private MaterialReplicaSubgroupFeatureVector()
+    {
+    }
 
     public MaterialReplicaSubgroupFeatureVector(
             List<MaterialSingleReplicaFeatureVector> singleReplicaValues,

@@ -2,13 +2,17 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * @author Tomasz Pylak
  */
-public class MaterialAllReplicasFeatureVectors
+public class MaterialAllReplicasFeatureVectors implements ISerializable
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     // NOTE: has the same length as feature vectors in all summaries
     private List<CodeAndLabel> featureDescriptions;
 

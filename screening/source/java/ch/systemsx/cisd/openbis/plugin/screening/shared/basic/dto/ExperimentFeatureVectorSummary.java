@@ -38,6 +38,12 @@ public class ExperimentFeatureVectorSummary implements ISerializable
     // has the same length as feature vectors in all material summaries
     private List<CodeAndLabel> featureDescriptions;
 
+    // GWT only
+    @SuppressWarnings("unused")
+    private ExperimentFeatureVectorSummary()
+    {
+    }
+
     public ExperimentFeatureVectorSummary(ExperimentReference experiment,
             List<MaterialFeatureVectorSummary> materialsSummary,
             List<CodeAndLabel> featureDescriptions)
