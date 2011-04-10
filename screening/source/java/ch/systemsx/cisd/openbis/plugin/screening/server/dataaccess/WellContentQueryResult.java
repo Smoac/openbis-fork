@@ -44,14 +44,6 @@ public class WellContentQueryResult
 
     public String plate_perm_id;
 
-    // a pointer to a material which was being searched for inside a well
-
-    public long material_content_id;
-
-    public String material_content_code;
-
-    public String material_content_type_code;
-
     // a pointer to the experiment of the plate
 
     public long exp_id;
@@ -65,5 +57,13 @@ public class WellContentQueryResult
     public String proj_code;
 
     public String space_code;
+
+    // a pointer to a material which was being searched for inside a well
+    // NOTE: this information is filled just in few queries.
+    @Deprecated
+    public String material_content_code;
+
+    @Deprecated
+    public String material_content_type_code;
 
 }

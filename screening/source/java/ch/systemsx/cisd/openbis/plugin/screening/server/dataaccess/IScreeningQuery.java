@@ -40,23 +40,20 @@ public interface IScreeningQuery extends BaseQuery
 
     final String WELLS_FOR_MATERIAL_ID_SELECT =
             "select "
+                    + "      well.id as well_id,"
+                    + "      well.perm_id as well_perm_id,"
+                    + "      well.code as well_code,"
+                    + "      well_type.code as well_type_code,"
                     + "      pl.id as plate_id,"
+                    + "      pl.perm_id as plate_perm_id,"
+                    + "      pl.code as plate_code,"
+                    + "      pl_type.code as plate_type_code,"
                     + "      exp.id as exp_id,"
                     + "      exp.code as exp_code,"
                     + "      exp.perm_id as exp_perm_id,"
                     + "      exp_type.code as exp_type_code,"
                     + "      projects.code as proj_code,"
-                    + "      spaces.code as space_code,"
-                    + "      pl.perm_id as plate_perm_id,"
-                    + "      pl.code as plate_code,"
-                    + "      pl_type.code as plate_type_code,"
-                    + "      well.id as well_id,"
-                    + "      well.perm_id as well_perm_id,"
-                    + "      well.code as well_code,"
-                    + "      well_type.code as well_type_code,"
-                    + "      well_material.id as material_content_id,"
-                    + "      well_material.code as material_content_code,"
-                    + "      well_material_type.code as material_content_type_code"
+                    + "      spaces.code as space_code"
                     + " from materials well_material "
                     + "      join sample_properties well_props on well_props.mate_prop_id = well_material.id"
                     + "      join samples well on  well_props.samp_id = well.id"
@@ -122,6 +119,7 @@ public interface IScreeningQuery extends BaseQuery
             + " where well_material_type.code=?{2} and pl.perm_id=?{1}", fetchSize = FETCH_SIZE)
     public DataIterator<WellContentQueryResult> getPlateMappingForMaterialType(String platePermId,
             String materialTypeCode);
+
 
     /**
      * @return the material to well plate mapping for the given <var>platePermId</var>. Consider all
