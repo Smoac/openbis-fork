@@ -115,6 +115,10 @@ public class PlateIdentifier extends PermanentIdentifier
     @Override
     public int hashCode()
     {
+        if (getPermId() != null)
+        {
+            return getPermId().hashCode();
+        }
         final int prime = 31;
         int result = super.hashCode();
         result = prime * result + ((plateCode == null) ? 0 : plateCode.hashCode());
@@ -125,6 +129,10 @@ public class PlateIdentifier extends PermanentIdentifier
     @Override
     public boolean equals(Object obj)
     {
+        if (getPermId() != null)
+        {
+            return super.equals(obj);
+        }
         if (this == obj)
         {
             return true;
