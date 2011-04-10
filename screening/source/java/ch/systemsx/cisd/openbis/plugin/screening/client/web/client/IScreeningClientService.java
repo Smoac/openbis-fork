@@ -176,6 +176,6 @@ public interface IScreeningClientService extends IClientService
      */
     public TypedTableResultSet<MaterialFeatureVectorSummary> listExperimentFeatureVectorSummary(
             IResultSetConfig<String, TableModelRowWithObject<MaterialFeatureVectorSummary>> resultSetConfig,
-            TechId experimentId);
+            TechId experimentId) throws UserFailureException;
 
 }
