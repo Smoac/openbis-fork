@@ -33,8 +33,7 @@ public class WellFeatureVectorReference implements ISerializable
     private WellLocation wellLocation;
 
     // GWT only
-    @SuppressWarnings("unused")
-    private WellFeatureVectorReference()
+    protected WellFeatureVectorReference()
     {
     }
 
@@ -71,7 +70,7 @@ public class WellFeatureVectorReference implements ISerializable
             return true;
         if (obj == null)
             return false;
-        if (getClass() != obj.getClass())
+        if (obj instanceof WellFeatureVectorReference == false)
             return false;
         WellFeatureVectorReference other = (WellFeatureVectorReference) obj;
         if (dataSetCode == null)
