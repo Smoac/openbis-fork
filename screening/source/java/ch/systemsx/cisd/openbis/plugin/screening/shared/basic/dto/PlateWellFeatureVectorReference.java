@@ -16,42 +16,35 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
- * Feature vector for one well.
+ * {@link WellFeatureVectorReference} enriched with the perm id of the plate to which the well
+ * belongs.
  * 
  * @author Tomasz Pylak
  */
-public class MaterialSingleReplicaFeatureVector implements ISerializable
+public class PlateWellFeatureVectorReference extends WellFeatureVectorReference
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private int replicaSequenceNumber;
-
-    private float[] featueVectorSummary;
+    private String platePermId;
 
     // GWT only
     @SuppressWarnings("unused")
-    private MaterialSingleReplicaFeatureVector()
+    private PlateWellFeatureVectorReference()
     {
     }
 
-    public MaterialSingleReplicaFeatureVector(int replicaSequenceNumber, float[] featueVectorSummary)
+    public PlateWellFeatureVectorReference(String dataSetCode, WellLocation wellLocation,
+            String platePermId)
     {
-        this.replicaSequenceNumber = replicaSequenceNumber;
-        this.featueVectorSummary = featueVectorSummary;
+        super(dataSetCode, wellLocation);
+        this.platePermId = platePermId;
     }
 
-    public int getReplicaSequenceNumber()
+    public String getPlatePermId()
     {
-        return replicaSequenceNumber;
+        return platePermId;
     }
-
-    public float[] getFeatueVectorSummary()
-    {
-        return featueVectorSummary;
-    }
-
 }

@@ -164,7 +164,7 @@ public class WellTooltipGeneratorTest extends AssertJUnit
             featureValuesMap.put(label, featureValue);
         }
         List<FeatureVectorValues> features = new ArrayList<FeatureVectorValues>();
-        features.add(new FeatureVectorValues(null, getLocation(WELL_A2), featureValuesMap));
+        features.add(new FeatureVectorValues(null, getLocation(WELL_A2), null, featureValuesMap));
         return new FeatureVectorDataset(createDatasetReference(), features, featureNames);
     }
 
@@ -175,11 +175,11 @@ public class WellTooltipGeneratorTest extends AssertJUnit
             { "FeatureX", "FeatureY" };
 
         List<FeatureVectorValues> features = new ArrayList<FeatureVectorValues>();
-        features.add(new FeatureVectorValues(null, getLocation(WELL_A2), createFeatureVectorMap(
-                featureLabels, new FeatureValue[]
+        features.add(new FeatureVectorValues(null, getLocation(WELL_A2), null,
+                createFeatureVectorMap(featureLabels, new FeatureValue[]
                     { FeatureValue.createFloat(1), FeatureValue.createFloat(2) })));
-        features.add(new FeatureVectorValues(null, getLocation(WELL_B3), createFeatureVectorMap(
-                featureLabels, new FeatureValue[]
+        features.add(new FeatureVectorValues(null, getLocation(WELL_B3), null,
+                createFeatureVectorMap(featureLabels, new FeatureValue[]
                     { FeatureValue.createFloat(-1), FeatureValue.createFloat(-2) })));
         return new FeatureVectorDataset(createDatasetReference(), features, Arrays.asList(
                 new CodeAndLabel(featureLabels[0], featureLabels[0]), new CodeAndLabel(

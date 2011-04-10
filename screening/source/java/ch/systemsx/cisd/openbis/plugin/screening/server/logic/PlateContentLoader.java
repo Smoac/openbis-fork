@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -321,7 +322,8 @@ public class PlateContentLoader
             featuresToLoad = featuresToLoad.subList(0, 1);
         }
         WellFeatureCollection<FeatureVectorValues> featureValues =
-                loader.fetchDatasetFeatureValues(datasetReference.getCode(), featuresToLoad);
+                loader.fetchDatasetFeatureValues(Arrays.asList(datasetReference.getCode()),
+                        CodeAndLabel.asCodes(featuresToLoad));
         List<FeatureVectorValues> featureVectors = featureValues.getFeatures();
 
         FeatureVectorDataset featureVectorDataset =
@@ -337,8 +339,8 @@ public class PlateContentLoader
                 loader.fetchDatasetFeatureNames(datasetReference.getCode());
 
         WellFeatureCollection<FeatureVectorValues> featureValues =
-                loader.fetchDatasetFeatureValues(datasetReference.getCode(),
-                        Collections.singletonList(featureName));
+                loader.fetchDatasetFeatureValues(Arrays.asList(datasetReference.getCode()),
+                        Collections.singletonList(featureName.getCode()));
 
         List<FeatureVectorValues> featureVectors = featureValues.getFeatures();
 

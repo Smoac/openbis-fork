@@ -1,7 +1,6 @@
 package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -50,7 +49,7 @@ class PlateDatasetLoader
     protected final IScreeningBusinessObjectFactory businessObjectFactory;
 
     // Parameter state
-    private final Collection<? extends PlateIdentifier> plates;
+    private final Set<? extends PlateIdentifier> plates;
 
     private final String[] datasetTypeCodePatterns;
 
@@ -68,7 +67,7 @@ class PlateDatasetLoader
     private boolean loaded = false;
 
     PlateDatasetLoader(Session session, IScreeningBusinessObjectFactory businessObjectFactory,
-            String homeSpaceOrNull, Collection<? extends PlateIdentifier> plates,
+            String homeSpaceOrNull, Set<? extends PlateIdentifier> plates,
             String... datasetTypeCodes)
     {
         this.session = session;

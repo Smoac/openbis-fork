@@ -59,8 +59,7 @@ class HCSImageDatasetLoader extends PlateDatasetLoader
                 new HashMap<Long, List<ExternalData>>();
         for (Entry<Long, Set<Long>> entry : childIdToParentIdsMap.entrySet())
         {
-            List<ExternalData> parents =
-                    findDatasetsWithIds(entry.getValue(), parentDatasets);
+            List<ExternalData> parents = findDatasetsWithIds(entry.getValue(), parentDatasets);
             // NOTE: if a child data set has more than one parent data set, all the
             // parents will be ignored.
             if (parents.size() == 1)
@@ -72,7 +71,8 @@ class HCSImageDatasetLoader extends PlateDatasetLoader
         return childDataSetToParentDataSetsMap;
     }
 
-    private static List<ExternalData> findDatasetsWithIds(Set<Long> datasetIds, List<ExternalData> datasets)
+    private static List<ExternalData> findDatasetsWithIds(Set<Long> datasetIds,
+            List<ExternalData> datasets)
     {
         List<ExternalData> found = new ArrayList<ExternalData>();
         for (ExternalData dataset : datasets)
@@ -86,7 +86,7 @@ class HCSImageDatasetLoader extends PlateDatasetLoader
     }
 
     HCSImageDatasetLoader(Session session, IScreeningBusinessObjectFactory businessObjectFactory,
-            String homeSpaceOrNull, Collection<? extends PlateIdentifier> plates,
+            String homeSpaceOrNull, Set<? extends PlateIdentifier> plates,
             String... datasetTypeCodes)
     {
         super(session, businessObjectFactory, homeSpaceOrNull, plates,
@@ -131,7 +131,7 @@ class HCSImageDatasetLoader extends PlateDatasetLoader
                 ScreeningConstants.HCS_SEGMENTATION_IMAGE_DATASET_TYPE_PATTERN);
         return new ArrayList<ExternalData>(segmentationImageDataSets.values());
     }
-    
+
     /**
      * Return the image datasets references for the specified plates.
      */
@@ -213,8 +213,7 @@ class HCSImageDatasetLoader extends PlateDatasetLoader
         // sets, if they exist.
         for (ExternalData child : filteredChildrenDataSets)
         {
-            List<ExternalData> parentImageDatasets =
-                    childIdToParentDataSetsMap.get(child.getId());
+            List<ExternalData> parentImageDatasets = childIdToParentDataSetsMap.get(child.getId());
             if (parentImageDatasets != null)
             {
                 child.setParents(parentImageDatasets);

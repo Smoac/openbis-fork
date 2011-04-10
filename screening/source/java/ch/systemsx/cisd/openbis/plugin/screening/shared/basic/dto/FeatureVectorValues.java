@@ -33,7 +33,7 @@ public class FeatureVectorValues implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private WellFeatureVectorReference featureVectorReference;
+    private PlateWellFeatureVectorReference featureVectorReference;
 
     private Map<String /* feature label */, FeatureValue /* value */> featureMap;
 
@@ -43,13 +43,14 @@ public class FeatureVectorValues implements ISerializable
     {
     }
 
-    public FeatureVectorValues(String dataSetCode, WellLocation wellLocation,
+    public FeatureVectorValues(String dataSetCode, WellLocation wellLocation, String platePermId,
             Map<String, FeatureValue> featureMap)
     {
-        this(new WellFeatureVectorReference(dataSetCode, wellLocation), featureMap);
+        this(new PlateWellFeatureVectorReference(dataSetCode, wellLocation, platePermId),
+                featureMap);
     }
 
-    public FeatureVectorValues(WellFeatureVectorReference featureVectorReference,
+    public FeatureVectorValues(PlateWellFeatureVectorReference featureVectorReference,
             Map<String, FeatureValue> featureMap)
     {
         this.featureVectorReference = featureVectorReference;
@@ -78,9 +79,18 @@ public class FeatureVectorValues implements ISerializable
         return featureVectorReference.getWellLocation();
     }
 
-    public WellFeatureVectorReference getFeatureVectorReference()
+    public String getPlatePermId()
+    {
+        return featureVectorReference.getPlatePermId();
+    }
+
+    public PlateWellFeatureVectorReference getFeatureVectorReference()
     {
         return featureVectorReference;
     }
 
+    public WellReference getWellReference()
+    {
+        return new WellReference(getWellLocation(), getPlatePermId());
+    }
 }

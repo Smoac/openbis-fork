@@ -79,14 +79,15 @@ public final class ScreeningBusinessObjectFactory extends AbstractPluginBusiness
                 }
 
                 public WellFeatureCollection<FeatureVectorValues> fetchDatasetFeatureValues(
-                        String dataSetCode, List<CodeAndLabel> featureNames)
+                        List<String> datasetCodes, List<String> featureCodes)
                 {
-                    return FeatureVectorLoader.fetchDatasetFeatures(dataSetCode, featureNames, dao);
+                    return FeatureVectorLoader
+                            .fetchDatasetFeatures(datasetCodes, featureCodes, dao);
                 }
 
-                public List<CodeAndLabel> fetchDatasetFeatureNames(String dataSetCode)
+                public List<CodeAndLabel> fetchDatasetFeatureNames(String datasetCode)
                 {
-                    return FeatureVectorLoader.fetchDatasetFeatureNames(dataSetCode, dao);
+                    return FeatureVectorLoader.fetchDatasetFeatureNames(datasetCode, dao);
                 }
             };
     }

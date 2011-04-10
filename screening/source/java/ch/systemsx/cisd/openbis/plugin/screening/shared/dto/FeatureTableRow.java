@@ -38,7 +38,7 @@ public class FeatureTableRow extends FeatureVectorValues
     public FeatureTableRow(FeatureVectorValues featureVector)
     {
         super(featureVector.getDataSetCode(), featureVector.getWellLocation(), featureVector
-                .getFeatureMap());
+                .getPlatePermId(), featureVector.getFeatureMap());
     }
 
     public FeatureVectorDatasetWellReference getReference()

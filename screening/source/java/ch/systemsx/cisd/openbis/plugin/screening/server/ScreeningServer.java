@@ -20,8 +20,6 @@ import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Random;
-import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -51,7 +49,6 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlug
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
@@ -69,6 +66,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTranslator;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningQuery;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ExperimentFeatureVectorSummaryLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.FeatureVectorValuesLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.PlateContentLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ScreeningApiImpl;
@@ -89,20 +87,19 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellRefe
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentFeatureVectorSummary;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialFeatureVectorSummary;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSummarySettings;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ReplicaSummaryAggregationType;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialSearchCriteria;
 
 /**
  * The concrete {@link IScreeningServer} implementation.
@@ -266,6 +263,41 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                 mailClient));
     }
 
+    public List<Material> listExperimentMaterials(String sessionToken, TechId experimentId,
+            MaterialType materialType)
+    {
+        // TODO 2010-09-01, Piotr Buczek: move it to some BO when we have more queries like that
+        IScreeningQuery dao = createDAO(getDAOFactory());
+        DataIterator<Long> materialIdsIterator =
+                dao.getMaterialsForExperimentWells(experimentId.getId(), materialType.getId());
+        Collection<Long> materialIds = new ArrayList<Long>();
+        for (Long id : materialIdsIterator)
+        {
+            materialIds.add(id);
+        }
+        return commonServer.listMaterials(sessionToken, new ListMaterialCriteria(materialType,
+                materialIds), true);
+    }
+
+    public ExperimentFeatureVectorSummary getExperimentFeatureVectorSummary(String sessionToken,
+            TechId experimentId)
+    {
+        Session session = getSession(sessionToken);
+        // NOTE: we want the settings t be passed form the client in future
+        MaterialSummarySettings settings = createDefaultSettings();
+        return ExperimentFeatureVectorSummaryLoader.loadExperimentFeatureVectors(session,
+                businessObjectFactory, getDAOFactory(), experimentId, settings);
+    }
+
+    public static MaterialSummarySettings createDefaultSettings()
+    {
+        MaterialSummarySettings settings = new MaterialSummarySettings();
+        settings.setAggregationType(ReplicaSummaryAggregationType.MEDIAN);
+        settings.setFeatureCodes(new ArrayList<String>());
+        settings.setReplicaMatrialTypePatterns(ScreeningConstants.REPLICA_METERIAL_TYPE_PATTERN);
+        return settings;
+    }
+
     // --------- IScreeningOpenbisServer - method signature should be changed with care
 
     public List<FeatureVectorDatasetReference> listFeatureVectorDatasets(String sessionToken,
@@ -354,22 +386,6 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                 materialTypeIdentifierOrNull);
     }
 
-    public List<Material> listExperimentMaterials(String sessionToken, TechId experimentId,
-            MaterialType materialType)
-    {
-        // TODO 2010-09-01, Piotr Buczek: move it to some BO when we have more queries like that
-        IScreeningQuery dao = createDAO(getDAOFactory());
-        DataIterator<Long> materialIdsIterator =
-                dao.getMaterialsForExperimentWells(experimentId.getId(), materialType.getId());
-        Collection<Long> materialIds = new ArrayList<Long>();
-        for (Long id : materialIdsIterator)
-        {
-            materialIds.add(id);
-        }
-        return commonServer.listMaterials(sessionToken, new ListMaterialCriteria(materialType,
-                materialIds), true);
-    }
-
     private static IScreeningQuery createDAO(IDAOFactory daoFactory)
     {
         Connection connection = DatabaseContextUtils.getConnection(daoFactory);
@@ -408,92 +424,4 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     {
         return MINOR_VERSION;
     }
-
-    // TODO KE: 2011-04-07 this is a mock implementation. Tomek/I will have to connect it to real
-    // backend ASAP. All data generation methods underneath must be removed in the final
-    // version of the code.
-    public ExperimentFeatureVectorSummary getExperimentFeatureVectorSummary(
-            String sessionToken, TechId experimentId)
-    {
-        ExperimentReference experimentReference =
-                new ExperimentReference(1, "", generateString(), generateString(),
-                        generateString(), generateString());
-        List<MaterialFeatureVectorSummary> materials = new ArrayList<MaterialFeatureVectorSummary>();
-        List<CodeAndLabel> featureDescs = new ArrayList<CodeAndLabel>();
-        ExperimentFeatureVectorSummary result =
-                new ExperimentFeatureVectorSummary(experimentReference, materials, featureDescs);
-
-        String[] materialCodes = new String[]
-            { "BACTERIUM-X", "BACTERIUM-Y", "747", "gfp", "scrum", "m1", "m2", "m5" };
-        List<MaterialType> materialTypes = commonServer.listMaterialTypes(sessionToken);
-        String[] materialTypeCodes = Code.extractCodesToArray(materialTypes);
-
-        WellSearchCriteria searchCriteria =
-                new WellSearchCriteria(ExperimentSearchCriteria.createAllExperiments(),
-                        MaterialSearchCriteria.createCodesCriteria(materialCodes,
-                                materialTypeCodes, false));
-
-        List<Material> existingMaterials = listMaterials(sessionToken, searchCriteria);
-
-        int rows = 10;
-        int numFeatureVectors = 5;
-        for (int i = 0; i < rows; i++)
-        {
-            MaterialFeatureVectorSummary material =
-                    new MaterialFeatureVectorSummary(randomMaterial(existingMaterials),
-                            generateFloats(numFeatureVectors), generateFloats(numFeatureVectors),
-                            generateInts(numFeatureVectors));
-            materials.add(material);
-        }
-
-        for (int i = 0; i < numFeatureVectors; i++)
-        {
-            CodeAndLabel codeAndLabel = generateCodesAndLabel("Label-" + i);
-            featureDescs.add(codeAndLabel);
-        }
-
-        return result;
-    }
-
-    private Material randomMaterial(List<Material> existingMaterials)
-    {
-        int idx = new Random().nextInt(existingMaterials.size());
-        return existingMaterials.get(idx);
-    }
-
-    private CodeAndLabel generateCodesAndLabel(String label)
-    {
-        CodeAndLabel result = new CodeAndLabel(generateString(), label);
-        return result;
-    }
-
-    private float[] generateFloats(int len)
-    {
-        float[] result = new float[len];
-        for (int i = 0; i < len; i++)
-        {
-            result[i] = new Random().nextFloat() * 20;
-
-        }
-        return result;
-    }
-
-    private int[] generateInts(int len)
-    {
-        int[] result = new int[len];
-        for (int i = 0; i < len; i++)
-        {
-            result[i] = new Random().nextInt(100);
-
-        }
-        return result;
-    }
-
-    private String generateString()
-    {
-        int len = new Random().nextInt(8) + 5;
-        String str = UUID.randomUUID().toString().substring(0, len);
-        return str;
-    }
-
 }

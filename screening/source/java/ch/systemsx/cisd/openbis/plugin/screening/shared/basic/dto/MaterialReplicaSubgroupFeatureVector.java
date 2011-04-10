@@ -6,6 +6,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
+ * Feature vector summary for the subgroup of well replicas together with detailed feature vectors
+ * which were used to calculate the summary.
+ * 
  * @author Tomasz Pylak
  */
 public class MaterialReplicaSubgroupFeatureVector implements ISerializable

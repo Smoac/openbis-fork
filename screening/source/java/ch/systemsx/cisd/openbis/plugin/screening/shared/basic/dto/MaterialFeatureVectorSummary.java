@@ -31,9 +31,9 @@ public class MaterialFeatureVectorSummary implements ISerializable
 
     private Material material;
 
-    private float[] featueVectorSummary;
+    private float[] featureVectorSummary;
 
-    private float[] featueVectorDeviations;
+    private float[] featureVectorDeviations;
 
     private int[] featureVectorRanks;
 
@@ -43,13 +43,13 @@ public class MaterialFeatureVectorSummary implements ISerializable
     {
     }
 
-    public MaterialFeatureVectorSummary(Material material, float[] featueVectorSummary,
-            float[] featueVectorDeviations, int[] featueVectorRanks)
+    public MaterialFeatureVectorSummary(Material material, float[] featureVectorSummary,
+            float[] featureVectorDeviations, int[] featureVectorRanks)
     {
         this.material = material;
-        this.featueVectorSummary = featueVectorSummary;
-        this.featueVectorDeviations = featueVectorDeviations;
-        this.featureVectorRanks = featueVectorRanks;
+        this.featureVectorSummary = featureVectorSummary;
+        this.featureVectorDeviations = featureVectorDeviations;
+        this.featureVectorRanks = featureVectorRanks;
     }
 
     public Material getMaterial()
@@ -57,17 +57,17 @@ public class MaterialFeatureVectorSummary implements ISerializable
         return material;
     }
 
-    public float[] getFeatueVectorSummary()
+    public float[] getFeatureVectorSummary()
     {
-        return featueVectorSummary;
+        return featureVectorSummary;
     }
 
-    public float[] getFeatueVectorDeviations()
+    public float[] getFeatureVectorDeviations()
     {
-        return featueVectorDeviations;
+        return featureVectorDeviations;
     }
 
-    public int[] getFeatueVectorRanks()
+    public int[] getFeatureVectorRanks()
     {
         return featureVectorRanks;
     }

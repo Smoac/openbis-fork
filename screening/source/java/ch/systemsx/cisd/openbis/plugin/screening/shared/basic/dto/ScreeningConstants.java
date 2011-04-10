@@ -116,6 +116,9 @@ public class ScreeningConstants
     // Used to import Qiagen siRNA libraries
     public static final String LIBRARY_PLUGIN_TYPE_CODE = "LIBRARY";
 
+    /** Types of materials which should be for grouping the analysis results */
+    public static final String REPLICA_METERIAL_TYPE_PATTERN = ".*GENE.*|.*CONTROL.*|.*COMPOUND.*";
+
     // --- !!!!!! It's discouraged to use this constant, try hard not to do that !!!!!!!! ---
 
     /** It's discouraged to use this constant, use {@link #HCS_PLATE_SAMPLE_TYPE_PATTERN} instead. */

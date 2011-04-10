@@ -40,8 +40,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.FeatureV
  * 
  * @author Kaloyan Enimanev
  */
-class FeatureVectorSummaryProvider extends
-        AbstractTableModelProvider<MaterialFeatureVectorSummary>
+class FeatureVectorSummaryProvider extends AbstractTableModelProvider<MaterialFeatureVectorSummary>
 {
     private static final String MATERIAL_PROPS_GROUP = "MATERIAL_PROP-";
 
@@ -103,7 +102,7 @@ class FeatureVectorSummaryProvider extends
             List<String> rankColumnIds)
     {
         builder.addRow(summary);
-        
+
         Material material = summary.getMaterial();
         builder.column(MATERIAL).addValue(
                 new EntityTableCell(EntityKind.MATERIAL, material.getPermId()));
@@ -111,9 +110,9 @@ class FeatureVectorSummaryProvider extends
         {
             builder.columnGroup(MATERIAL_PROPS_GROUP).addProperties(material.getProperties());
         }
-        
-        float[] featureSummaries = summary.getFeatueVectorSummary();
-        int[] ranksValues = summary.getFeatueVectorRanks();
+
+        float[] featureSummaries = summary.getFeatureVectorSummary();
+        int[] ranksValues = summary.getFeatureVectorRanks();
 
         for (int pos = 0; pos < featureSummaries.length; pos++)
         {

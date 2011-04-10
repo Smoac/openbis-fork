@@ -126,8 +126,9 @@ public class HCSImageDatasetLoaderTest extends AbstractServerTestCase
                     will(returnValue(map));
                 }
             });
-        List<PlateIdentifier> plateIdentifiers =
-                Arrays.<PlateIdentifier> asList(new PlateIdentifier("P1", "S", "s-1"));
+        Set<PlateIdentifier> plateIdentifiers =
+                new HashSet<PlateIdentifier>(Arrays.<PlateIdentifier> asList(new PlateIdentifier(
+                        "P1", "S", "s-1")));
         HCSImageDatasetLoader loader =
                 new HCSImageDatasetLoader(SESSION, screeningBOFactory, null, plateIdentifiers);
 

@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -45,7 +46,7 @@ class FeatureVectorDatasetLoader extends HCSImageDatasetLoader
 
     FeatureVectorDatasetLoader(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, String homeSpaceOrNull,
-            Collection<? extends PlateIdentifier> plates)
+            Set<? extends PlateIdentifier> plates)
     {
         super(session, businessObjectFactory, homeSpaceOrNull, plates,
                 ScreeningConstants.ANY_HCS_IMAGE_DATASET_TYPE_PATTERN,
@@ -114,7 +115,7 @@ class FeatureVectorDatasetLoader extends HCSImageDatasetLoader
                 imageDatasets.add(dataset);
             }
         }
-        
+
         gatherChildrenDataSets(featureVectorDatasetSet, imageDatasets, featureVectorDatasetTypeCode);
         featureVectorDatasets = featureVectorDatasetSet.values();
     }

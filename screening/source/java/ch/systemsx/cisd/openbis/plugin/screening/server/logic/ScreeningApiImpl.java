@@ -113,9 +113,7 @@ public class ScreeningApiImpl
     public List<FeatureVectorDatasetReference> listFeatureVectorDatasets(
             List<? extends PlateIdentifier> plates)
     {
-        FeatureVectorDatasetLoader datasetRetriever =
-                new FeatureVectorDatasetLoader(session, businessObjectFactory,
-                        session.tryGetHomeGroupCode(), plates);
+        FeatureVectorDatasetLoader datasetRetriever = createDatasetRetriever(plates);
         List<FeatureVectorDatasetReference> result =
                 datasetRetriever.getFeatureVectorDatasetReferences();
 
@@ -124,20 +122,24 @@ public class ScreeningApiImpl
 
     public List<ImageDatasetReference> listImageDatasets(List<? extends PlateIdentifier> plates)
     {
-        return new HCSImageDatasetLoader(session, businessObjectFactory,
-                session.tryGetHomeGroupCode(), plates).getImageDatasetReferences();
+        return createDatasetRetriever(plates).getImageDatasetReferences();
     }
 
     public List<ImageDatasetReference> listRawImageDatasets(List<? extends PlateIdentifier> plates)
     {
-        return new HCSImageDatasetLoader(session, businessObjectFactory,
-                session.tryGetHomeGroupCode(), plates).getRawImageDatasetReferences();
+        return createDatasetRetriever(plates).getRawImageDatasetReferences();
     }
 
-    public List<ImageDatasetReference> listSegmentationImageDatasets(List<? extends PlateIdentifier> plates)
+    public List<ImageDatasetReference> listSegmentationImageDatasets(
+            List<? extends PlateIdentifier> plates)
     {
-        return new HCSImageDatasetLoader(session, businessObjectFactory,
-                session.tryGetHomeGroupCode(), plates).getSegmentationImageDatasetReferences();
+        return createDatasetRetriever(plates).getSegmentationImageDatasetReferences();
+    }
+
+    private FeatureVectorDatasetLoader createDatasetRetriever(List<? extends PlateIdentifier> plates)
+    {
+        return new FeatureVectorDatasetLoader(session, businessObjectFactory,
+                session.tryGetHomeGroupCode(), new HashSet<PlateIdentifier>(plates));
     }
 
     public List<Plate> listPlates()
@@ -525,6 +527,9 @@ public class ScreeningApiImpl
         return result;
     }
 
+    @SuppressWarnings("deprecation")
+    // NOTE: this method will return duplicated wells if there are two materials connected to one
+    // well
     private PlateWellMaterialMapping toPlateWellMaterialMapping(
             PlateIdentifier plateIdentifier,
             MaterialTypeIdentifier materialTypeIdentifierOrNull,

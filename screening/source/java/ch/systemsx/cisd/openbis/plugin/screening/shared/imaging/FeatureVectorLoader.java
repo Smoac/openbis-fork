@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.imaging;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -150,11 +149,10 @@ public class FeatureVectorLoader
      *             exist.
      */
     public static WellFeatureCollection<FeatureVectorValues> fetchDatasetFeatures(
-            String datasetCode, List<CodeAndLabel> featureNames, IImagingReadonlyQueryDAO dao)
+            List<String> datasetCodes, List<String> featureCodes, IImagingReadonlyQueryDAO dao)
     {
-        List<String> featureCodes = CodeAndLabel.asCodes(featureNames);
         WellFeatureCollection<FeatureTableRow> features =
-                fetchDatasetFeatures(Arrays.asList(datasetCode), featureCodes, dao, null);
+                fetchDatasetFeatures(datasetCodes, featureCodes, dao, null);
         return asFeatureVectorValues(features);
     }
 
@@ -717,7 +715,8 @@ public class FeatureVectorLoader
         FeatureValue[] valueArray =
                 createFeatureValueArray(bundle.featureDefToValuesMap,
                         bundle.featureDefToVocabularyTerms, wellLocation);
-        return new FeatureVectorValues(permId, wellLocation, asValueMap(valueArray));
+        return new FeatureVectorValues(permId, wellLocation, bundle.container.getPermId(),
+                asValueMap(valueArray));
     }
 
     private Map<String, FeatureValue> asValueMap(FeatureValue[] valueArray)

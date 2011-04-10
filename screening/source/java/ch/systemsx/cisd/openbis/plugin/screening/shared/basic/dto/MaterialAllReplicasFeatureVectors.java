@@ -7,6 +7,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
+ * Feature vectors (details and summaries) for one material.
+ * 
  * @author Tomasz Pylak
  */
 public class MaterialAllReplicasFeatureVectors implements ISerializable

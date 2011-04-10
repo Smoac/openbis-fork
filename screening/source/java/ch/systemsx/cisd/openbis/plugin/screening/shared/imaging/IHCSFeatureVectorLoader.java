@@ -42,12 +42,12 @@ public interface IHCSFeatureVectorLoader
      * fetched.<br>
      * Can be empty if a dataset contains no feature vectors.
      */
-    WellFeatureCollection<FeatureVectorValues> fetchDatasetFeatureValues(String dataSetCode,
-            List<CodeAndLabel> featureNames);
+    WellFeatureCollection<FeatureVectorValues> fetchDatasetFeatureValues(List<String> datasetCodes,
+            List<String> featureCodes);
 
     /**
      * Fetches names of all features from a specified dataset. <br>
      * Can be empty if a dataset contains no feature vectors.
      */
-    List<CodeAndLabel> fetchDatasetFeatureNames(String dataSetCode);
+    List<CodeAndLabel> fetchDatasetFeatureNames(String datasetCode);
 }

@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,16 +28,12 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import net.lemnik.eodsql.DataIterator;
-import net.lemnik.eodsql.QueryTool;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
+import ch.systemsx.cisd.common.collections.GroupByMap;
+import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -55,7 +50,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -86,11 +80,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSFeatureVecto
  * @author Tomasz Pylak
  */
 @Friend(toClasses = IScreeningQuery.class)
-public class WellContentLoader
+public class WellContentLoader extends AbstractContentLoader
 {
-    private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            WellContentLoader.class);
-
     /**
      * Finds wells containing the specified material and belonging to the specified experiment.
      * Loads wells metadata, but no information about connected datasets.
@@ -154,18 +145,10 @@ public class WellContentLoader
         return new ArrayList<Material>(materials);
     }
 
-    private final Session session;
-
-    private final IScreeningBusinessObjectFactory businessObjectFactory;
-
-    private final IDAOFactory daoFactory;
-
     private WellContentLoader(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory)
     {
-        this.session = session;
-        this.businessObjectFactory = businessObjectFactory;
-        this.daoFactory = daoFactory;
+        super(session, businessObjectFactory, daoFactory);
     }
 
     private List<WellContent> enrichWithWellProperties(List<WellContent> locations)
@@ -198,9 +181,7 @@ public class WellContentLoader
     {
         long start = System.currentTimeMillis();
 
-        Collection<PlateIdentifier> plates = extractPlates(locations);
-        FeatureVectorDatasetLoader datasetsRetriever =
-                new FeatureVectorDatasetLoader(session, businessObjectFactory, null, plates);
+        FeatureVectorDatasetLoader datasetsRetriever = createDatasetsRetriever(locations);
         Collection<ExternalData> imageDatasets = datasetsRetriever.getImageDatasets();
         Collection<ExternalData> featureVectorDatasets =
                 datasetsRetriever.getFeatureVectorDatasets();
@@ -224,6 +205,12 @@ public class WellContentLoader
 
         return enrichWithDatasets(locations, plateToChildlessImageDatasetMap,
                 plateToFeatureVectoreDatasetMap, imageParams);
+    }
+
+    private FeatureVectorDatasetLoader createDatasetsRetriever(List<WellContent> locations)
+    {
+        Set<PlateIdentifier> plates = extractPlates(locations);
+        return createDatasetsRetriever(plates);
     }
 
     private static Collection<ExternalData> selectChildlessImageDatasets(
@@ -258,9 +245,9 @@ public class WellContentLoader
         return codes;
     }
 
-    private static Collection<PlateIdentifier> extractPlates(List<WellContent> locations)
+    private static Set<PlateIdentifier> extractPlates(Collection<WellContent> locations)
     {
-        Collection<PlateIdentifier> plates = new ArrayList<PlateIdentifier>();
+        Set<PlateIdentifier> plates = new HashSet<PlateIdentifier>();
         for (WellContent location : locations)
         {
             plates.add(PlateIdentifier.createFromPermId(location.getPlate().getPermId()));
@@ -318,25 +305,21 @@ public class WellContentLoader
 
     // Groups elements according to the datastore server to which the connected analysis dataset
     // belongs. At null key we store all elements which do not have the dataset assigned.
-    private Map<String, List<WellContent>> createAnalysisDatastoreToWellContentsMap(
+    private Map<String/* dss code */, List<WellContent>> createAnalysisDatastoreToWellContentsMap(
             List<WellContent> wellContents)
     {
-        Map<String/* dss code */, List<WellContent>> map =
-                new HashMap<String/* dss code */, List<WellContent>>();
-        for (WellContent wellContent : wellContents)
-        {
-            DatasetReference featureVectorDataset = wellContent.tryGetFeatureVectorDataset();
-            String datastoreCode =
-                    (featureVectorDataset == null ? null : featureVectorDataset.getDatastoreCode());
-            List<WellContent> datastoreWellContents = map.get(datastoreCode);
-            if (datastoreWellContents == null)
+        return GroupByMap.create(wellContents, new IKeyExtractor<String, WellContent>()
             {
-                datastoreWellContents = new ArrayList<WellContent>();
-            }
-            datastoreWellContents.add(wellContent);
-            map.put(datastoreCode, datastoreWellContents);
-        }
-        return map;
+                public String getKey(WellContent wellContent)
+                {
+                    DatasetReference featureVectorDataset =
+                            wellContent.tryGetFeatureVectorDataset();
+                    String datastoreCode =
+                            (featureVectorDataset == null ? null : featureVectorDataset
+                                    .getDatastoreCode());
+                    return datastoreCode;
+                }
+            }).getMap();
     }
 
     // should be called for wells which have feature vector datasets from the same DSS
@@ -715,7 +698,7 @@ public class WellContentLoader
 
     private List<WellContent> loadLocations(TechId geneMaterialId, String experimentPermId)
     {
-        final long experimentId = loadExperimentIdByPermId(experimentPermId);
+        final long experimentId = loadExperimentByPermId(experimentPermId).getId();
 
         DataIterator<WellContentQueryResult> locations =
                 createDAO(daoFactory).getPlateLocationsForMaterialId(geneMaterialId.getId(),
@@ -733,7 +716,7 @@ public class WellContentLoader
 
     private List<WellContent> convert(Iterable<WellContentQueryResult> queryResults)
     {
-        List<WellContent> wellContents = removeDuplicateWells(queryResults);
+        List<WellContent> wellContents = convertAndRemoveDuplicateWells(queryResults);
 
         List<WellContent> withProperties = enrichWithWellProperties(wellContents);
         IMaterialLister materialLister = businessObjectFactory.createMaterialLister(session);
@@ -768,7 +751,8 @@ public class WellContentLoader
         return materials;
     }
 
-    private List<WellContent> removeDuplicateWells(Iterable<WellContentQueryResult> queryResults)
+    private List<WellContent> convertAndRemoveDuplicateWells(
+            Iterable<WellContentQueryResult> queryResults)
     {
         List<WellContent> wellContents = new ArrayList<WellContent>();
         Set<String> seenWellPermIds = new HashSet<String>();
@@ -803,23 +787,5 @@ public class WellContentLoader
     {
         return new ExperimentReference(loc.exp_id, loc.exp_perm_id, loc.exp_code,
                 loc.exp_type_code, loc.proj_code, loc.space_code);
-    }
-
-    private static IScreeningQuery createDAO(IDAOFactory daoFactory)
-    {
-        Connection connection = DatabaseContextUtils.getConnection(daoFactory);
-        return QueryTool.getQuery(connection, IScreeningQuery.class);
-    }
-
-    private long loadExperimentIdByPermId(String experimentPermId)
-    {
-        final ExperimentPE experiment =
-                daoFactory.getExperimentDAO().tryGetByPermID(experimentPermId);
-        if (experiment == null)
-        {
-            throw new UserFailureException("Unkown experiment for permId '" + experimentPermId
-                    + "'.");
-        }
-        return experiment.getId();
     }
 }

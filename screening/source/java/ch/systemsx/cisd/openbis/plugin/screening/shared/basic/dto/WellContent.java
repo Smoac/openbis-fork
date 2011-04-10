@@ -50,10 +50,10 @@ public class WellContent implements ISerializable
     private List<IEntityProperty> wellProperties = new ArrayList<IEntityProperty>(0);
 
     /**
-     * this is a lazy-initialized sublist of ({@link #wellProperties}),
-     * containing only the properties associated with a material.
+     * this is a lazy-initialized sublist of ({@link #wellProperties}), containing only the
+     * properties associated with a material.
      */
-    private List<IEntityProperty> materialTypeProperties;
+    private List<IEntityProperty> wellPropertiesOfMaterialType;
 
     private EntityReference plate;
 
@@ -83,8 +83,8 @@ public class WellContent implements ISerializable
     }
 
     private WellContent(WellLocation locationOrNull, EntityReference well, EntityReference plate,
-            ExperimentReference experiment,
-            List<IEntityProperty> wellProperties, DatasetImagesReference imagesDatasetOrNull,
+            ExperimentReference experiment, List<IEntityProperty> wellProperties,
+            DatasetImagesReference imagesDatasetOrNull,
             DatasetReference featureVectorDatasetOrNull, NamedFeatureVector featureVectorOrNull)
     {
         this.locationOrNull = locationOrNull;
@@ -114,14 +114,14 @@ public class WellContent implements ISerializable
 
     public List<IEntityProperty> getMaterialTypeProperties()
     {
-        if (materialTypeProperties == null)
+        if (wellPropertiesOfMaterialType == null)
         {
-            materialTypeProperties = lazyLoadMaterialProperties();
+            wellPropertiesOfMaterialType = filterWellPropertiesOfMaterialType();
         }
-        return Collections.unmodifiableList(materialTypeProperties);
+        return Collections.unmodifiableList(wellPropertiesOfMaterialType);
     }
 
-    private List<IEntityProperty> lazyLoadMaterialProperties()
+    private List<IEntityProperty> filterWellPropertiesOfMaterialType()
     {
         ArrayList<IEntityProperty> materialProps = new ArrayList<IEntityProperty>();
         for (IEntityProperty property : getWellProperties())
@@ -173,15 +173,15 @@ public class WellContent implements ISerializable
             DatasetReference newFeatureVectorDatasetOrNull)
     {
         return new WellContent(this.locationOrNull, this.well, this.plate, this.experiment,
-                this.wellProperties, newImagesDatasetOrNull,
-                newFeatureVectorDatasetOrNull, this.featureVectorOrNull);
+                this.wellProperties, newImagesDatasetOrNull, newFeatureVectorDatasetOrNull,
+                this.featureVectorOrNull);
     }
 
     public WellContent cloneWithFeatureVector(NamedFeatureVector newFeatureVectorOrNull)
     {
         return new WellContent(this.locationOrNull, this.well, this.plate, this.experiment,
-                this.wellProperties, this.imagesDatasetOrNull,
-                this.featureVectorDatasetOrNull, newFeatureVectorOrNull);
+                this.wellProperties, this.imagesDatasetOrNull, this.featureVectorDatasetOrNull,
+                newFeatureVectorOrNull);
     }
 
     @Override
