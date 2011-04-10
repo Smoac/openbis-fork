@@ -37,9 +37,8 @@ public final class CollectionUtils
     /**
      * Abbreviates a given array of <code>Object</code>.
      * <p>
-     * By default it shows the number of items left,
-     * {@link CollectionStyle#DEFAULT} and {@link ToStringDefaultConverter} are
-     * used.
+     * By default it shows the number of items left, {@link CollectionStyle#DEFAULT} and
+     * {@link ToStringDefaultConverter} are used.
      * </p>
      * 
      * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then
@@ -53,9 +52,8 @@ public final class CollectionUtils
     /**
      * Abbreviates a given <code>Collection</code>.
      * <p>
-     * By default it shows the number of items left,
-     * {@link CollectionStyle#DEFAULT} and {@link ToStringDefaultConverter} are
-     * used.
+     * By default it shows the number of items left, {@link CollectionStyle#DEFAULT} and
+     * {@link ToStringDefaultConverter} are used.
      * </p>
      * 
      * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then
@@ -108,8 +106,7 @@ public final class CollectionUtils
     public final static <T> String abbreviate(final Collection<T> collection, final int maxLength,
             final IToStringConverter<? super T> converter)
     {
-        return abbreviate(collection, maxLength, converter,
-                CollectionStyle.DEFAULT);
+        return abbreviate(collection, maxLength, converter, CollectionStyle.DEFAULT);
     }
 
     /**
@@ -130,8 +127,7 @@ public final class CollectionUtils
     /**
      * Abbreviates a given array of <code>Object</code>.
      * <p>
-     * By default {@link CollectionStyle#DEFAULT} and
-     * {@link ToStringDefaultConverter} are used.
+     * By default {@link CollectionStyle#DEFAULT} and {@link ToStringDefaultConverter} are used.
      * </p>
      * 
      * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then
@@ -146,8 +142,7 @@ public final class CollectionUtils
     /**
      * Abbreviates a given <code>Collection</code>.
      * <p>
-     * By default {@link CollectionStyle#DEFAULT} and
-     * {@link ToStringDefaultConverter} are used.
+     * By default {@link CollectionStyle#DEFAULT} and {@link ToStringDefaultConverter} are used.
      * </p>
      * 
      * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then
@@ -171,8 +166,7 @@ public final class CollectionUtils
     public final static <T> String abbreviate(final T[] objects, final int maxLength,
             final boolean showLeft, final IToStringConverter<? super T> converter)
     {
-        return abbreviate(objects, maxLength, showLeft, converter,
-                CollectionStyle.DEFAULT);
+        return abbreviate(objects, maxLength, showLeft, converter, CollectionStyle.DEFAULT);
     }
 
     /**
@@ -199,8 +193,7 @@ public final class CollectionUtils
     public final static <T> String abbreviate(final Collection<T> collection, final int maxLength,
             final boolean showLeft, final IToStringConverter<? super T> converter)
     {
-        return abbreviate(collection, maxLength, showLeft, converter,
-                CollectionStyle.DEFAULT);
+        return abbreviate(collection, maxLength, showLeft, converter, CollectionStyle.DEFAULT);
     }
 
     /**
@@ -297,5 +290,22 @@ public final class CollectionUtils
             result.add(iterator.next());
         }
         return result;
+    }
+
+    public static interface CollectionMappingFunction<K, V>
+    {
+        K map(V element);
+    }
+
+    /** Transforms one list into another by converting each element with the specified function. */
+    public static final <K, V> List<K> map(Collection<V> list,
+            CollectionMappingFunction<K, V> mapping)
+    {
+        List<K> mapped = new ArrayList<K>();
+        for (V elem : list)
+        {
+            mapped.add(mapping.map(elem));
+        }
+        return mapped;
     }
 }

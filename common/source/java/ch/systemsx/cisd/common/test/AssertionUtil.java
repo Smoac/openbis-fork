@@ -16,7 +16,8 @@
 
 package ch.systemsx.cisd.common.test;
 
-import org.testng.AssertJUnit;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 /**
  * Utilities for making assertions in unit tests.
@@ -30,7 +31,7 @@ public class AssertionUtil
     {
         String errorMsg =
                 String.format("String '%s' was expected to start with '%s'.", text, expectedPrefix);
-        AssertJUnit.assertTrue(errorMsg, text.startsWith(expectedPrefix));
+        assertTrue(errorMsg, text.startsWith(expectedPrefix));
     }
 
     /** asserts that given text ends with expectedSubstring */
@@ -38,7 +39,7 @@ public class AssertionUtil
     {
         String errorMsg =
                 String.format("String '%s' was expected to end with '%s'.", text, expectedSuffix);
-        AssertJUnit.assertTrue(errorMsg, text.endsWith(expectedSuffix));
+        assertTrue(errorMsg, text.endsWith(expectedSuffix));
     }
 
     /** asserts that given text contains expectedSubstring */
@@ -47,7 +48,7 @@ public class AssertionUtil
         String errorMsg =
                 String.format("String '%s' was expected to be a substring of '%s'.",
                         expectedSubstring, text);
-        AssertJUnit.assertTrue(errorMsg, text.contains(expectedSubstring));
+        assertTrue(errorMsg, text.contains(expectedSubstring));
     }
 
     /** asserts that given text contains expectedSubstring. Comparision is case insensitive. */
@@ -55,4 +56,25 @@ public class AssertionUtil
     {
         assertContains(expectedSubstring.toUpperCase(), text.toUpperCase());
     }
+
+    /** asserts that two int arrays are equal **/
+    public static void assertArraysEqual(int[] a1, int[] a2)
+    {
+        assertEquals(a1.length, a2.length);
+        for (int i = 0; i < a1.length; i++)
+        {
+            assertEquals("Different elements at position, " + i, a1[i], a2[i]);
+        }
+    }
+
+    /** asserts that two float arrays are equal **/
+    public static void assertArraysEqual(float[] a1, float[] a2)
+    {
+        assertEquals(a1.length, a2.length);
+        for (int i = 0; i < a1.length; i++)
+        {
+            assertEquals("Different elements at position, " + i, a1[i], a2[i]);
+        }
+    }
+
 }
