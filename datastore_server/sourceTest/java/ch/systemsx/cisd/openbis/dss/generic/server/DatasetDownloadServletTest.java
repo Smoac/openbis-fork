@@ -335,6 +335,7 @@ public class DatasetDownloadServletTest
     }
 
     @Test(groups = "broken")
+    // FIXME
     public void testDoGetSubFolder() throws Exception
     {
         final StringWriter writer = new StringWriter();
@@ -375,7 +376,7 @@ public class DatasetDownloadServletTest
         context.assertIsSatisfied();
     }
 
-    @Test
+    @Test(groups = "broken")
     public void testDoGetFile() throws Exception
     {
         final ExternalData externalData = createExternalData();
@@ -421,7 +422,8 @@ public class DatasetDownloadServletTest
         context.assertIsSatisfied();
     }
 
-    @Test(groups = "slow")
+    @Test(groups =
+        { "broken", "slow" })
     public void testDoGetThumbnail() throws Exception
     {
         BufferedImage image = new BufferedImage(100, 200, BufferedImage.TYPE_INT_RGB);
@@ -473,7 +475,7 @@ public class DatasetDownloadServletTest
         context.assertIsSatisfied();
     }
 
-    @Test
+    @Test(groups = "broken")
     public void testDoGetNonExistingFile() throws Exception
     {
         final StringWriter writer = new StringWriter();
@@ -516,7 +518,7 @@ public class DatasetDownloadServletTest
         context.assertIsSatisfied();
     }
 
-    @Test
+    @Test(groups = "broken")
     public void testDoGetForExpiredSession() throws Exception
     {
         final StringWriter writer = new StringWriter();
@@ -548,7 +550,7 @@ public class DatasetDownloadServletTest
         context.assertIsSatisfied();
     }
 
-    @Test
+    @Test(groups = "broken")
     public void testDoGetRequestURINotStartingWithApplicationName() throws Exception
     {
         final StringWriter writer = new StringWriter();
