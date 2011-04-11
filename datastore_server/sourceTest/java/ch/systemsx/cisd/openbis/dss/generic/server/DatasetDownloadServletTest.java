@@ -415,7 +415,7 @@ public class DatasetDownloadServletTest
         assertContains(getSessionCreationLogMessage() + OSUtilities.LINE_SEPARATOR + LOG_INFO
                 + "Check access to the data set '1234-1' at openBIS server.", normalizedLogContent);
         assertContains(LOG_INFO + "For data set '1234-1' deliver file "
-                + "read me @home.txt (12 bytes).", normalizedLogContent);
+                + "'read me @home.txt' (12 bytes).", normalizedLogContent);
 
         context.assertIsSatisfied();
     }
