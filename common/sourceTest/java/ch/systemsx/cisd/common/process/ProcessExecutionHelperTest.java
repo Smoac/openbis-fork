@@ -40,6 +40,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.process.IProcessHandler;
+import ch.systemsx.cisd.common.test.Retry10;
 
 /**
  * Test cases for the {@link ProcessExecutionHelper}.
@@ -198,7 +199,7 @@ public class ProcessExecutionHelperTest
 
     @Test(groups =
         { "requires_unix", "slow" }, expectedExceptions =
-        { InterruptedExceptionUnchecked.class })
+        { InterruptedExceptionUnchecked.class }, retryAnalyzer = Retry10.class)
     public void testSleepyExecutionGetsStopped() throws Exception
     {
         final Thread thisThread = Thread.currentThread();
