@@ -78,6 +78,7 @@ public class WellContent extends WellImage implements ISerializable
             DatasetImagesReference imagesDatasetOrNull,
             DatasetReference featureVectorDatasetOrNull, NamedFeatureVector featureVectorOrNull)
     {
+        super(locationOrNull, well, experiment, imagesDatasetOrNull);
         this.plate = plate;
         this.featureVectorDatasetOrNull = featureVectorDatasetOrNull;
         this.featureVectorOrNull = featureVectorOrNull;
