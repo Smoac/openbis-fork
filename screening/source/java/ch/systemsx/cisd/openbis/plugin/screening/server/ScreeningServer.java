@@ -68,6 +68,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningQuery;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ExperimentFeatureVectorSummaryLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.FeatureVectorValuesLoader;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.LogicalImageLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.PlateContentLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ScreeningApiImpl;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.WellContentLoader;
@@ -92,10 +93,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorV
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaSummaryAggregationType;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSummarySettings;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaSummaryAggregationType;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
@@ -220,7 +221,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
             String datastoreCode, WellLocation wellLocationOrNull)
     {
         Session session = getSession(sessionToken);
-        return PlateContentLoader.getImageDatasetInfo(session, businessObjectFactory, datasetCode,
+        return LogicalImageLoader.loadLogicalImageInfo(session, businessObjectFactory, datasetCode,
                 datastoreCode, wellLocationOrNull);
     }
 
@@ -228,7 +229,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
             String datasetCode, String datastoreCode)
     {
         Session session = getSession(sessionToken);
-        return PlateContentLoader.getImageDatasetReference(session, businessObjectFactory,
+        return LogicalImageLoader.getImageDatasetReference(session, businessObjectFactory,
                 datasetCode, datastoreCode);
     }
 

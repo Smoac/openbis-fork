@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -36,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -50,9 +48,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesR
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
@@ -63,7 +59,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateDimensionParser;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.WellFeatureCollection;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSFeatureVectorLoader;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IImageDatasetLoader;
 
 /**
  * Loads content of the plate.
@@ -105,30 +100,6 @@ public class PlateContentLoader
     }
 
     /**
-     * Loads information about the logical image in the chosen image dataset (restricted to one well
-     * in HCS case).
-     */
-    public static LogicalImageInfo getImageDatasetInfo(Session session,
-            IScreeningBusinessObjectFactory businessObjectFactory, String datasetCode,
-            String datastoreCode, WellLocation wellLocationOrNull)
-    {
-        return new PlateContentLoader(session, businessObjectFactory).getImageDatasetInfo(
-                datasetCode, datastoreCode, wellLocationOrNull);
-    }
-
-    /**
-     * Returns information about image dataset for a given image dataset id. Used to refresh
-     * information about the dataset.
-     */
-    public static ImageDatasetEnrichedReference getImageDatasetReference(Session session,
-            IScreeningBusinessObjectFactory businessObjectFactory, String datasetCode,
-            String datastoreCode)
-    {
-        return new PlateContentLoader(session, businessObjectFactory).getImageDatasetReference(
-                datasetCode, datastoreCode);
-    }
-
-    /**
      * Loads information about datasets connected to specified sample (microscopy) or a container
      * sample (HCS). In particular loads the logical images in datasets belonging to the specified
      * sample (restricted to one well in HCS case).
@@ -145,11 +116,14 @@ public class PlateContentLoader
 
     private final IScreeningBusinessObjectFactory businessObjectFactory;
 
+    private final LogicalImageLoader imageLoader;
+
     private PlateContentLoader(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory)
     {
         this.session = session;
         this.businessObjectFactory = businessObjectFactory;
+        this.imageLoader = new LogicalImageLoader(session, businessObjectFactory);
     }
 
     private PlateImages getPlateContentForDataset(TechId datasetId)
@@ -162,7 +136,8 @@ public class PlateContentLoader
                     externalData.getCode());
         }
         List<WellMetadata> wells = loadWells(new TechId(HibernateUtils.getId(plate)));
-        DatasetImagesReference datasetImagesReference = loadImageDatasetReference(externalData);
+        DatasetImagesReference datasetImagesReference =
+                imageLoader.loadImageDatasetReference(externalData);
         Geometry plateGeometry = getPlateGeometry(plate);
         PlateMetadata plateMetadata =
                 new PlateMetadata(translate(plate), wells, plateGeometry.getNumberOfRows(),
@@ -185,15 +160,6 @@ public class PlateContentLoader
         return externalData;
     }
 
-    private ExternalDataPE loadDatasetWithChildren(String datasetPermId)
-    {
-        IExternalDataBO externalDataBO = businessObjectFactory.createExternalDataBO(session);
-        externalDataBO.loadByCode(datasetPermId);
-        externalDataBO.enrichWithChildren();
-        ExternalDataPE externalData = externalDataBO.getExternalData();
-        return externalData;
-    }
-
     private ExternalData translate(ExternalDataPE externalData)
     {
         return ExternalDataTranslator.translate(externalData, session.getBaseIndexURL());
@@ -207,7 +173,8 @@ public class PlateContentLoader
         List<ExternalDataPE> datasets = loadDatasets(plateId, externalDataTable);
         List<WellMetadata> wells = loadWells(plateId);
 
-        List<ImageDatasetEnrichedReference> imageDatasetReferences = fetchImageDatasets(datasets);
+        List<ImageDatasetEnrichedReference> imageDatasetReferences =
+                imageLoader.loadImageDatasets(datasets);
         List<FeatureVectorDataset> featureVectorDatasets = filterAndFetchFeatureVectors(datasets);
         List<DatasetReference> unknownDatasetReferences = extractUnknownDatasets(datasets);
 
@@ -224,51 +191,6 @@ public class PlateContentLoader
         List<ExternalDataPE> unknownDatasets = ScreeningUtils.filterUnknownDatasets(datasets);
         List<DatasetReference> unknownDatasetReferences = createDatasetReferences(unknownDatasets);
         return unknownDatasetReferences;
-    }
-
-    private List<ImageDatasetEnrichedReference> fetchImageDatasets(List<ExternalDataPE> datasets)
-    {
-        List<ImageDatasetEnrichedReference> refs = new ArrayList<ImageDatasetEnrichedReference>();
-        List<ExternalDataPE> imageDatasets = ScreeningUtils.filterImageDatasets(datasets);
-        for (ExternalDataPE imageDataset : imageDatasets)
-        {
-            DatasetImagesReference ref = loadImageDatasetReference(imageDataset);
-            List<DatasetImagesReference> overlays = extractImageOverlays(imageDataset);
-            ImageDatasetEnrichedReference enrichedRef =
-                    new ImageDatasetEnrichedReference(ref, overlays);
-            refs.add(enrichedRef);
-        }
-        return refs;
-    }
-
-    private List<DatasetImagesReference> extractImageOverlays(ExternalDataPE imageDataset)
-    {
-        List<ExternalData> overlayDatasets = fetchOverlayDatasets(imageDataset);
-
-        List<DatasetImagesReference> overlays = new ArrayList<DatasetImagesReference>();
-        for (ExternalData overlay : overlayDatasets)
-        {
-            overlays.add(loadImageDatasetReference(overlay));
-        }
-        return overlays;
-    }
-
-    private List<ExternalData> fetchOverlayDatasets(ExternalDataPE imageDataset)
-    {
-        List<DataPE> overlayPEs =
-                ScreeningUtils.filterImageOverlayDatasets(imageDataset.getChildren());
-        Collection<Long> datasetIds = extractIds(overlayPEs);
-        return businessObjectFactory.createDatasetLister(session).listByDatasetIds(datasetIds);
-    }
-
-    private static Collection<Long> extractIds(List<DataPE> datasets)
-    {
-        List<Long> ids = new ArrayList<Long>();
-        for (DataPE dataset : datasets)
-        {
-            ids.add(HibernateUtils.getId(dataset));
-        }
-        return ids;
     }
 
     private List<FeatureVectorDataset> filterAndFetchFeatureVectors(List<ExternalDataPE> datasets)
@@ -359,11 +281,6 @@ public class PlateContentLoader
         return datasetReferences;
     }
 
-    private DatasetImagesReference loadImageDatasetReference(ExternalDataPE imageDataset)
-    {
-        return loadImageDatasetReference(translate(imageDataset));
-    }
-
     private IExternalDataTable createExternalDataTable()
     {
         return businessObjectFactory.createExternalDataTable(session);
@@ -419,20 +336,6 @@ public class PlateContentLoader
         return externalDataTable.getExternalData();
     }
 
-    private DatasetImagesReference loadImageDatasetReference(ExternalData dataset)
-    {
-        ImageDatasetParameters imageParameters =
-                ScreeningUtils.loadImageParameters(dataset, businessObjectFactory);
-        return createDatasetImagesReference(dataset, imageParameters);
-    }
-
-    private DatasetImagesReference createDatasetImagesReference(ExternalData dataset,
-            ImageDatasetParameters imageParameters)
-    {
-        return DatasetImagesReference.create(ScreeningUtils.createDatasetReference(dataset),
-                imageParameters);
-    }
-
     private static List<WellMetadata> createWells(List<Sample> wellSamples)
     {
         List<WellMetadata> wells = new ArrayList<WellMetadata>();
@@ -462,36 +365,6 @@ public class PlateContentLoader
                 ListOrSearchSampleCriteria.createForContainer(plateId));
     }
 
-    private ImageDatasetEnrichedReference getImageDatasetReference(String datasetCode,
-            String datastoreCode)
-    {
-        IImageDatasetLoader datasetLoader =
-                businessObjectFactory.createImageDatasetLoader(datasetCode, datastoreCode);
-        return getImageDataset(datasetCode, datasetLoader);
-    }
-
-    private LogicalImageInfo getImageDatasetInfo(String datasetCode, String datastoreCode,
-            WellLocation wellLocationOrNull)
-    {
-        IImageDatasetLoader datasetLoader =
-                businessObjectFactory.createImageDatasetLoader(datasetCode, datastoreCode);
-        List<ImageChannelStack> stacks = datasetLoader.listImageChannelStacks(wellLocationOrNull);
-        ImageDatasetEnrichedReference imageDataset = getImageDataset(datasetCode, datasetLoader);
-        return new LogicalImageInfo(imageDataset, stacks);
-    }
-
-    private ImageDatasetEnrichedReference getImageDataset(String datasetCode,
-            IImageDatasetLoader datasetLoader)
-    {
-        ImageDatasetParameters imageParameters = datasetLoader.getImageParameters();
-
-        ExternalDataPE dataset = loadDatasetWithChildren(datasetCode);
-        DatasetImagesReference datasetImagesReference =
-                createDatasetImagesReference(translate(dataset), imageParameters);
-        List<DatasetImagesReference> overlayDatasets = extractImageOverlays(dataset);
-        return new ImageDatasetEnrichedReference(datasetImagesReference, overlayDatasets);
-    }
-
     private TechId fetchContainerId(TechId wellId)
     {
         ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
@@ -519,8 +392,8 @@ public class PlateContentLoader
         for (ExternalDataPE imageDataset : imageDatasets)
         {
             LogicalImageInfo logicalImage =
-                    getImageDatasetInfo(imageDataset.getCode(), imageDataset.getDataStore()
-                            .getCode(), wellLocationOrNull);
+                    imageLoader.loadLogicalImageInfo(imageDataset.getCode(), imageDataset
+                            .getDataStore().getCode(), wellLocationOrNull);
             logicalImages.add(logicalImage);
         }
 
