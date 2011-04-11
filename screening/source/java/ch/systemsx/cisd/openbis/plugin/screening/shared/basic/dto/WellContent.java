@@ -33,15 +33,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  * 
  * @author Tomasz Pylak
  */
-public class WellContent implements ISerializable
+public class WellContent extends WellImage implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     // ------------ Metadata -----------
-
-    private WellLocation locationOrNull; // null only if well code was incorrect
-
-    private EntityReference well;
 
     /**
      * well properties also contain the referenced materials (if any) enriched with material
@@ -50,19 +46,14 @@ public class WellContent implements ISerializable
     private List<IEntityProperty> wellProperties = new ArrayList<IEntityProperty>(0);
 
     /**
-     * this is a lazy-initialized sublist of ({@link #wellProperties}), containing only the
-     * properties associated with a material.
+     * this is a lazy-initialized sublist of ({@link #wellProperties}), containing only the well
+     * properties which refer to a material.
      */
     private List<IEntityProperty> wellPropertiesOfMaterialType;
 
     private EntityReference plate;
 
-    private ExperimentReference experiment;
-
     // ------------ Dataset Data -------------
-
-    // dataset which contains images for this well, null if no images have been acquired
-    private DatasetImagesReference imagesDatasetOrNull;
 
     // dataset which contains feature vectors for this well, null if images have not been analyzed
     private DatasetReference featureVectorDatasetOrNull;
@@ -87,24 +78,10 @@ public class WellContent implements ISerializable
             DatasetImagesReference imagesDatasetOrNull,
             DatasetReference featureVectorDatasetOrNull, NamedFeatureVector featureVectorOrNull)
     {
-        this.locationOrNull = locationOrNull;
-        this.well = well;
         this.plate = plate;
-        this.experiment = experiment;
-        this.imagesDatasetOrNull = imagesDatasetOrNull;
         this.featureVectorDatasetOrNull = featureVectorDatasetOrNull;
         this.featureVectorOrNull = featureVectorOrNull;
         this.wellProperties = wellProperties;
-    }
-
-    public WellLocation tryGetLocation()
-    {
-        return locationOrNull;
-    }
-
-    public EntityReference getWell()
-    {
-        return well;
     }
 
     public EntityReference getPlate()
@@ -149,11 +126,6 @@ public class WellContent implements ISerializable
         return materials;
     }
 
-    public DatasetImagesReference tryGetImageDataset()
-    {
-        return imagesDatasetOrNull;
-    }
-
     public DatasetReference tryGetFeatureVectorDataset()
     {
         return featureVectorDatasetOrNull;
@@ -162,11 +134,6 @@ public class WellContent implements ISerializable
     public NamedFeatureVector tryGetFeatureVectorValues()
     {
         return featureVectorOrNull;
-    }
-
-    public ExperimentReference getExperiment()
-    {
-        return experiment;
     }
 
     public WellContent cloneWithDatasets(DatasetImagesReference newImagesDatasetOrNull,

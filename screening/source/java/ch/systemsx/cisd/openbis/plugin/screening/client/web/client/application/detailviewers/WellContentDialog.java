@@ -63,7 +63,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentRefe
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
@@ -136,15 +136,14 @@ public class WellContentDialog extends Dialog
      */
     public static Widget createImageViewerForChannel(
             final IViewContext<IScreeningClientServiceAsync> viewContext,
-            final WellContent wellContent, int imageWidthPx, int imageHeightPx,
-            List<String> channels)
+            final WellImage wellImage, int imageWidthPx, int imageHeightPx, List<String> channels)
     {
-        final ImageDatasetEnrichedReference imageDataset = tryGetImageDataset(wellContent);
+        final ImageDatasetEnrichedReference imageDataset = tryGetImageDataset(wellImage);
         if (imageDataset == null)
         {
             return new Text(NO_IMAGE_DATASETS_LABEL);
         }
-        WellLocation locationOrNull = wellContent.tryGetLocation();
+        WellLocation locationOrNull = wellImage.tryGetLocation();
         if (locationOrNull == null)
         {
             return new Text(INCORRECT_WELL_CODE_LABEL);
@@ -174,7 +173,7 @@ public class WellContentDialog extends Dialog
                 {
                     public void handleEvent(BaseEvent be)
                     {
-                        showContentDialog(viewContext, wellContent, imageDataset);
+                        showContentDialog(viewContext, wellImage, imageDataset);
                     }
                 });
         }
@@ -182,11 +181,11 @@ public class WellContentDialog extends Dialog
         return staticTilesGrid;
     }
 
-    private static ImageDatasetEnrichedReference tryGetImageDataset(final WellContent wellContent)
+    private static ImageDatasetEnrichedReference tryGetImageDataset(final WellImage wellImage)
     {
-        if (wellContent.tryGetImageDataset() != null)
+        if (wellImage.tryGetImageDataset() != null)
         {
-            return new ImageDatasetEnrichedReference(wellContent.tryGetImageDataset());
+            return new ImageDatasetEnrichedReference(wellImage.tryGetImageDataset());
         } else
         {
             return null;
@@ -194,11 +193,11 @@ public class WellContentDialog extends Dialog
     }
 
     private static void showContentDialog(IViewContext<IScreeningClientServiceAsync> viewContext,
-            WellContent wellContent, ImageDatasetEnrichedReference imageDatasetOrNull)
+            WellImage wellImage, ImageDatasetEnrichedReference imageDatasetOrNull)
     {
         WellContentDialog contentDialog =
-                new WellContentDialog(wellContent.getWell(), null, wellContent.tryGetLocation(),
-                        getExperiment(wellContent.getExperiment()), viewContext);
+                new WellContentDialog(wellImage.getWell(), null, wellImage.tryGetLocation(),
+                        getExperiment(wellImage.getExperiment()), viewContext);
 
         showContentDialog(contentDialog, imageDatasetOrNull, viewContext);
     }
