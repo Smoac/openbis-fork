@@ -276,15 +276,14 @@ public class ImageUtil
     /**
      * Loads an image from specified file node. Supported file formats are GIF, JPG, PNG, and TIFF.
      * 
-     * @throws IllegalArgumentException if either the file does not exist or it isn't a valid image
-     *             file.
+     * @throws IllegalArgumentException if the file isn't a valid image file.
      */
     public static BufferedImage loadImage(IHierarchicalContentNode fileNode)
     {
-        // if (file.exists() == false) TODO??
-        // {
-        // throw new IllegalArgumentException("File does not exist: " + file.getAbsolutePath());
-        // }
+        if (fileNode.exists() == false)
+        {
+            throw new IllegalArgumentException("File does not exist: " + fileNode.getRelativePath());
+        }
         return loadImage(new HierarchicalNodeBasedContent(fileNode));
     }
 

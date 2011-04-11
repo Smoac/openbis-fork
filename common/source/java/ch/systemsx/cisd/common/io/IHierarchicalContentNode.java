@@ -42,6 +42,11 @@ public interface IHierarchicalContentNode
     String getParentRelativePath();
 
     /**
+     * Returns <code>true</code> if the content node exists.
+     */
+    boolean exists();
+
+    /**
      * Returns <code>true</code> if this node is an abstraction of a directory, <code>false</code>
      * otherwise.
      */

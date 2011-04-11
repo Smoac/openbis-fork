@@ -343,11 +343,11 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
     {
 
         IHierarchicalContentNode node = renderingContext.getContentNode();
-        // TODO do we need exists?
-        // if (file.exists() == false)
-        // {
-        // throw new EnvironmentFailureException("File '" + file.getName() + "' does not exist.");
-        // }
+        if (node.exists() == false)
+        {
+            throw new EnvironmentFailureException("Resource '" + node.getName()
+                    + "' does not exist.");
+        }
 
         // If we want to browse a directory, we need a whole dataset metadata from openbis to
         // display them for the user. But if just a file is needed, then it's much faster to just
@@ -380,8 +380,7 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
             HttpSession session, IHierarchicalContentNode dirNode, ExternalData dataSet,
             boolean shouldForce) throws IOException
     {
-        assert dirNode.isDirectory(); // exists?
-        // assert dir.exists() && dir.isDirectory();
+        assert dirNode.exists() && dirNode.isDirectory();
         List<File> mainDataSets =
                 AutoResolveUtils.findSomeMatchingFiles(renderingContext.getRootDir(),
                         requestParams.tryGetMainDataSetPath(),
