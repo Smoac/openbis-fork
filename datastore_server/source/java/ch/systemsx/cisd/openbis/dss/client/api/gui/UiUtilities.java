@@ -21,7 +21,7 @@ import java.awt.Color;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 
-import ch.systemsx.cisd.etlserver.validation.ValidationError;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
 
 /**
  * @author Chandrasekhar Ramakrishnan

@@ -51,9 +51,9 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
-import ch.systemsx.cisd.etlserver.validation.ValidationError;
 import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClientModel.NewDataSetInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTOBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 

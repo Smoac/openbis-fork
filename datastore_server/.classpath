@@ -3,6 +3,7 @@
 	<classpathentry kind="src" path="source/java"/>
 	<classpathentry kind="src" path="sourceTest/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/libraries/jython/standalone/jython.jar"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/common"/>
 	<classpathentry kind="lib" path="/libraries/log4j/log4j.jar" sourcepath="/libraries/log4j/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/commons-lang/commons-lang.jar" sourcepath="/libraries/commons-lang/src.zip"/>
@@ -55,7 +56,6 @@
 	<classpathentry kind="lib" path="/libraries/gwt2.0/gwt-isserializable.jar"/>
 	<classpathentry kind="lib" path="/libraries/spring/third-party/stream-supporting-httpinvoker.jar" sourcepath="/libraries/spring/third-party/stream-supporting-httpinvoker-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/cifex/cifex.jar"/>
-	<classpathentry kind="lib" path="/libraries/jython/jython.jar" sourcepath="/libraries/jython/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/slf4j/slf4j.jar" sourcepath="/libraries/slf4j/src.jar"/>
 	<classpathentry kind="lib" path="/libraries/truezip/truezip.jar"/>
 	<classpathentry kind="lib" path="/libraries/cisd-image_readers/cisd-image_readers-bioformats.jar"/>

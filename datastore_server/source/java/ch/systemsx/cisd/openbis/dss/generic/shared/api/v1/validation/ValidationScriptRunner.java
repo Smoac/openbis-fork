@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.validation;
+package ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -35,10 +35,18 @@ public class ValidationScriptRunner
 {
     private final static String FILE_VALIDATION_FUNCTION_NAME = "validate_data_set_file";
 
-    private static String getValidationScriptString(File validationScriptFile)
+    // Factory methods
+
+    public static ValidationScriptRunner getScriptFromPath(String scriptPath)
+    {
+        String fileString = FileUtilities.loadToString(new File(scriptPath));
+        String scriptString = getValidationScriptString(fileString);
+        return new ValidationScriptRunner(scriptString);
+    }
+
+    private static String getValidationScriptString(String scriptString)
     {
         String standardImports = "from " + ValidationError.class.getCanonicalName() + " import *";
-        String scriptString = FileUtilities.loadToString(validationScriptFile);
         return standardImports + "\n" + scriptString;
 
         // String scriptString = FileUtilities.loadToString(validationScriptFile);
@@ -47,16 +55,13 @@ public class ValidationScriptRunner
 
     private final PythonInterpreter interpreter;
 
-    private final String scriptPath;
-
     private final String scriptString;
 
-    public ValidationScriptRunner(String scriptPath)
+    private ValidationScriptRunner(String scriptString)
     {
         this.interpreter = new PythonInterpreter();
-        this.scriptPath = scriptPath;
         // Load the script
-        scriptString = getValidationScriptString(new File(this.scriptPath));
+        this.scriptString = scriptString;
 
         interpreter.exec(this.scriptString);
     }
