@@ -435,7 +435,7 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
         assert dirNode.isDirectory();
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("For data set '%s' show directory %s",
+            operationLog.info(String.format("For data set '%s' show directory '%s'",
                     dataSet.getCode(),
                     (dirNode.getRelativePath() == null) ? "(root)" : dirNode.getRelativePath()));
         }
