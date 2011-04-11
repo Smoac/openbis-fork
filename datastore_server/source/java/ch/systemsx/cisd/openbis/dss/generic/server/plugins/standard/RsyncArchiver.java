@@ -44,33 +44,26 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
 {
     private static final long serialVersionUID = 1L;
 
-    private transient DataSetFileOperationsManager fileOperationsManager;
-
-    private final IPathCopierFactory pathCopierFactory;
-
-    private final ISshCommandExecutorFactory sshCommandExecutorFactory;
+    private transient IDataSetFileOperationsManager fileOperationsManager;
 
     public RsyncArchiver(Properties properties, File storeRoot)
     {
-        this(properties, storeRoot, new RsyncArchiveCopierFactory(),
-                new SshCommandExecutorFactory());
+        this(properties, storeRoot, new DataSetFileOperationsManager(properties,
+                new RsyncArchiveCopierFactory(), new SshCommandExecutorFactory()));
     }
 
     @Private
-    RsyncArchiver(Properties properties, File storeRoot, IPathCopierFactory pathCopierFactory,
-            ISshCommandExecutorFactory sshCommandExecutorFactory)
+    RsyncArchiver(Properties properties, File storeRoot,
+            IDataSetFileOperationsManager fileOperationsManager)
     {
         super(properties, storeRoot, null, null);
-        this.pathCopierFactory = pathCopierFactory;
-        this.sshCommandExecutorFactory = sshCommandExecutorFactory;
+        this.fileOperationsManager = fileOperationsManager;
     }
 
     @Override
     protected DatasetProcessingStatuses doArchive(List<DatasetDescription> datasets,
             ArchiverTaskContext context) throws UserFailureException
     {
-        initIfNecessary();
-
         DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
         for (DatasetDescription dataset : datasets)
         {
@@ -86,9 +79,6 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
     protected DatasetProcessingStatuses doUnarchive(List<DatasetDescription> datasets,
             ArchiverTaskContext context) throws UserFailureException
     {
-        initIfNecessary();
-
-        // no need to lock - this is processing task
         DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
         for (DatasetDescription dataset : datasets)
         {
@@ -104,9 +94,6 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
     @Override
     protected DatasetProcessingStatuses doDeleteFromArchive(List<DeletedDataSet> datasets)
     {
-        initIfNecessary();
-
-        // no need to lock - this is processing task
         DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
         for (DeletedDataSet dataset : datasets)
         {
@@ -121,20 +108,8 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
     protected BooleanStatus isDataSetPresentInArchive(DatasetDescription dataset,
             ArchiverTaskContext context)
     {
-        initIfNecessary();
-
         File originalData = getDatasetDirectory(context, dataset);
         return fileOperationsManager.isPresentInDestination(originalData, dataset);
-    }
-
-    private void initIfNecessary()
-    {
-        if (fileOperationsManager == null)
-        {
-            this.fileOperationsManager =
-                    new DataSetFileOperationsManager(properties, pathCopierFactory,
-                            sshCommandExecutorFactory);
-        }
     }
 
     private Status doArchive(DatasetDescription dataset, File originalData)

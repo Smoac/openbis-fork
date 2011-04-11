@@ -229,7 +229,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
     public void testLocalCopyToDestination()
     {
         Properties properties = createLocalDestinationProperties();
-        DataSetFileOperationsManager dataSetCopier =
+        IDataSetFileOperationsManager dataSetCopier =
                 new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
         prepareForCheckingLastModifiedDate();
 
@@ -275,7 +275,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
     public void testLocalCopyToNonExistentDestination()
     {
         Properties properties = createLocalDestinationProperties();
-        DataSetFileOperationsManager dataSetCopier =
+        IDataSetFileOperationsManager dataSetCopier =
                 new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
         prepareForCheckingLastModifiedDate();
 
@@ -301,7 +301,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
     public void testLocalCopyTwoDataSetsToDestination()
     {
         Properties properties = createLocalDestinationProperties();
-        DataSetFileOperationsManager dataSetCopier =
+        IDataSetFileOperationsManager dataSetCopier =
                 new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
         prepareForCheckingLastModifiedDate();
 
@@ -341,7 +341,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
          * copy to archive
          */
         Properties properties = createLocalDestinationProperties();
-        DataSetFileOperationsManager dataSetCopier =
+        IDataSetFileOperationsManager dataSetCopier =
                 new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
         prepareForCheckingLastModifiedDate();
 
@@ -391,7 +391,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
     public void testLocalPresentInDestination()
     {
         Properties properties = createLocalDestinationProperties();
-        DataSetFileOperationsManager dataSetCopier =
+        IDataSetFileOperationsManager dataSetCopier =
                 new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
         prepareForCheckingLastModifiedDate();
 
@@ -466,7 +466,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
          * copy to archive
          */
         Properties properties = createLocalDestinationProperties();
-        DataSetFileOperationsManager dataSetCopier =
+        IDataSetFileOperationsManager dataSetCopier =
                 new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
         prepareForCheckingLastModifiedDate();
 
@@ -509,7 +509,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
     {
         Properties properties = createRemoteViaSshDestinationProperties();
         prepareRemoteCreateAndCheckCopier(HOST, null, true);
-        DataSetFileOperationsManager dataSetCopier =
+        IDataSetFileOperationsManager dataSetCopier =
                 new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
         context.checking(new Expectations()
             {
@@ -557,7 +557,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
     {
         Properties properties = createRemoteViaSshDestinationProperties();
         prepareRemoteCreateAndCheckCopier(HOST, null, true);
-        DataSetFileOperationsManager dataSetCopier =
+        IDataSetFileOperationsManager dataSetCopier =
                 new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
         context.checking(new Expectations()
             {
@@ -587,7 +587,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
     {
         Properties properties = createRemoteViaSshDestinationProperties();
         prepareRemoteCreateAndCheckCopier(HOST, null, true);
-        DataSetFileOperationsManager dataSetCopier =
+        IDataSetFileOperationsManager dataSetCopier =
                 new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
         context.checking(new Expectations()
             {
@@ -609,7 +609,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
     {
         Properties properties = createRemoteViaSshDestinationProperties();
         prepareRemoteCreateAndCheckCopier(HOST, null, true);
-        DataSetFileOperationsManager dataSetCopier =
+        IDataSetFileOperationsManager dataSetCopier =
                 new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
         context.checking(new Expectations()
             {
@@ -645,7 +645,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
     {
         Properties properties = createRemoteViaSshDestinationProperties();
         prepareRemoteCreateAndCheckCopier(HOST, null, true);
-        DataSetFileOperationsManager dataSetCopier =
+        IDataSetFileOperationsManager dataSetCopier =
                 new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
         context.checking(new Expectations()
             {
@@ -676,7 +676,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
     {
         Properties properties = createRemoteViaSshDestinationProperties();
         prepareRemoteCreateAndCheckCopier(HOST, null, true);
-        DataSetFileOperationsManager dataSetCopier =
+        IDataSetFileOperationsManager dataSetCopier =
                 new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
         context.checking(new Expectations()
             {
@@ -730,7 +730,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
     {
         Properties properties = createRemoteViaSshDestinationProperties();
         prepareRemoteCreateAndCheckCopier(HOST, null, true);
-        DataSetFileOperationsManager dataSetCopier =
+        IDataSetFileOperationsManager dataSetCopier =
                 new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
         context.checking(new Expectations()
             {
@@ -766,7 +766,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
     {
         Properties properties = createRemoteViaSshDestinationProperties();
         prepareRemoteCreateAndCheckCopier(HOST, null, true);
-        DataSetFileOperationsManager dataSetCopier =
+        IDataSetFileOperationsManager dataSetCopier =
                 new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
         context.checking(new Expectations()
             {
@@ -800,7 +800,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
     {
         Properties properties = createRemoteViaSshDestinationProperties();
         prepareRemoteCreateAndCheckCopier(HOST, null, true);
-        DataSetFileOperationsManager dataSetCopier =
+        IDataSetFileOperationsManager dataSetCopier =
                 new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
         context.checking(new Expectations()
             {

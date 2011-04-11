@@ -45,6 +45,12 @@ public class DatasetDescriptionBuilder
         return this;
     }
     
+    public DatasetDescriptionBuilder size(long size)
+    {
+        datasetDescription.setDataSetSize(size);
+        return this;
+    }
+    
     public DatasetDescriptionBuilder sample(String sampleCode)
     {
         datasetDescription.setSampleCode(sampleCode);

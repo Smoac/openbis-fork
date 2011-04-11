@@ -46,7 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
  * 
  * @author Piotr Buczek
  */
-public class DataSetFileOperationsManager
+public class DataSetFileOperationsManager implements IDataSetFileOperationsManager
 {
 
     private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,

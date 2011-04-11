@@ -43,6 +43,7 @@ import ch.systemsx.cisd.etlserver.postregistration.IShareFinder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IArchiverPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDeleter;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetStatusUpdater;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IUnarchivingPreparation;
@@ -80,6 +81,8 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
     private transient IShareIdManager shareIdManager;
     
     private transient IEncapsulatedOpenBISService service;
+    
+    @Private transient IDataSetStatusUpdater statusUpdater;
 
     public AbstractArchiverProcessingPlugin(Properties properties, File storeRoot,
             IStatusChecker archivePrerequisiteOrNull, IStatusChecker unarchivePrerequisiteOrNull)
@@ -257,7 +260,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
     {
         operationLog.info("Unarchiving of the following datasets has been requested: "
                 + CollectionUtils.abbreviate(datasets, 10));
-        setUpUnarchivingPraparation(context);
+        setUpUnarchivingPreparation(context);
         DatasetProcessingStatuses statuses = safeUnarchive(datasets, context);
 
         asyncUpdateStatuses(statuses.getSuccessfulDatasetCodes(), AVAILABLE, true);
@@ -266,7 +269,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         return statuses.getProcessingStatus();
     }
 
-    private void setUpUnarchivingPraparation(ArchiverTaskContext context)
+    private void setUpUnarchivingPreparation(ArchiverTaskContext context)
     {
         Properties props =
                 PropertyParametersUtil.extractSingleSectionProperties(properties, SHARE_FINDER_KEY,
@@ -285,7 +288,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         IShareFinder shareFinder =
                 ClassUtils.create(IShareFinder.class, props.getProperty("class"), props);
         context.setUnarchivingPreparation(new UnarchivingPreparation(shareFinder,
-                getShareIdManager(), service, shares));
+                getShareIdManager(), getService(), shares));
     }
 
     /**
@@ -445,11 +448,22 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         return statuses;
     }
 
-    private static void asyncUpdateStatuses(List<String> dataSetCodes,
-            DataSetArchivingStatus newStatus, boolean presentInArchive)
+    private void asyncUpdateStatuses(List<String> dataSetCodes, DataSetArchivingStatus newStatus,
+            boolean presentInArchive)
     {
-        QueueingDataSetStatusUpdaterService.update(new DataSetCodesWithStatus(dataSetCodes,
-                newStatus, presentInArchive));
+        if (statusUpdater == null)
+        {
+            statusUpdater = new IDataSetStatusUpdater()
+                {
+                    public void update(List<String> codes, DataSetArchivingStatus status,
+                            boolean present)
+                    {
+                        QueueingDataSetStatusUpdaterService.update(new DataSetCodesWithStatus(
+                                codes, status, present));
+                    }
+                };
+        }
+        statusUpdater.update(dataSetCodes, newStatus, presentInArchive);
     }
 
     protected static class GroupedDatasets
@@ -493,7 +507,8 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         List<DatasetDescription> present = new ArrayList<DatasetDescription>();
         Map<DatasetDescription, BooleanStatus> notPresent = new HashMap<DatasetDescription, BooleanStatus>();
         
-        for (DatasetDescription dataset : datasets) {
+        for (DatasetDescription dataset : datasets) 
+        {
             BooleanStatus presentStatus = isDataSetPresentInArchive(dataset, context);
             if (presentStatus.isSuccess())
             {
