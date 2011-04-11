@@ -179,7 +179,7 @@ public class DatasetDownloadServletTest
         assertEquals("text/plain", DatasetDownloadServlet.getMimeType("filewithoutext", false));
     }
 
-    @Test
+    @Test(groups = "broken")
     public void testInitialDoGet() throws Exception
     {
         final StringWriter writer = new StringWriter();
@@ -256,7 +256,7 @@ public class DatasetDownloadServletTest
             });
     }
 
-    @Test
+    @Test(groups = "broken")
     public void testInitialDoGetButDataSetNotFoundInStore() throws Exception
     {
         final StringWriter writer = new StringWriter();
