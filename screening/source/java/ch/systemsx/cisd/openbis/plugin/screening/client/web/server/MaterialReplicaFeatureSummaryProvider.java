@@ -131,12 +131,12 @@ class MaterialReplicaFeatureSummaryProvider extends
             String groupId, String groupLabel, MaterialReplicaSubgroupFeatureSummary subgroup)
     {
         IColumnGroup columnGroup = builder.columnGroup(groupId);
-        
+
         float[] featureValues = subgroup.getFeatureValues();
         for (int i = 0; i < featureValues.length; i++)
         {
             String replicaColumnId = getReplicaColumnId(groupLabel, i);
-            String replicaColumnTitle = getReplicaColumnTitle(groupLabel, i);
+            String replicaColumnTitle = getReplicaColumnTitle(groupLabel, i + 1);
             columnGroup.column(replicaColumnId).withDataType(DataTypeCode.REAL)
                     .withTitle(replicaColumnTitle).addDouble((double) featureValues[i]);
         }
@@ -151,7 +151,7 @@ class MaterialReplicaFeatureSummaryProvider extends
                     .withTitle(aggreationColumnTitle)
                     .addDouble((double) subgroup.getAggregatedSummary());
         }
-        
+
     }
 
     private String getAggreationColumnId(String group,
@@ -176,6 +176,5 @@ class MaterialReplicaFeatureSummaryProvider extends
     {
         return group + ":" + replicaIdx;
     }
-
 
 }
