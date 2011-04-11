@@ -145,7 +145,7 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
         EagerShufflingTask task = createTask();
         RecordingMatcher<HostAwareFile> hostAwareFileMatcher =
                 new RecordingMatcher<HostAwareFile>();
-        prepareFreeSpaceProvider(hostAwareFileMatcher, 200, 100, 10, 0);
+        prepareFreeSpaceProvider(hostAwareFileMatcher, 100, 200, 10, 0);
         prepareListDataSets();
         prepareGetShareId();
         RecordingMatcher<String> infoMessageMatcher = prepareLogging(LogLevel.INFO);
