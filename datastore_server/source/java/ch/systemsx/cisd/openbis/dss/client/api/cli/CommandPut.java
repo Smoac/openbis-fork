@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import ch.systemsx.cisd.args4j.ExampleMode;
 import ch.systemsx.cisd.args4j.Option;
@@ -34,6 +35,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwner;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
 
 /**
  * Command that uploads a data set.
@@ -155,8 +157,21 @@ class CommandPut extends AbstractDssCommand<CommandPut.CommandPutArguments>
                     }
                     return ResultCode.INVALID_ARGS;
                 }
-                IDataSetDss dataSet = component.putDataSet(newDataSet, arguments.getFile());
-                System.out.println("Registered new data set " + dataSet.getCode());
+                List<ValidationError> errors =
+                        component.validateDataSet(newDataSet, arguments.getFile());
+                if (errors.isEmpty())
+                {
+                    IDataSetDss dataSet = component.putDataSet(newDataSet, arguments.getFile());
+                    System.out.println("Registered new data set " + dataSet.getCode());
+                } else
+                {
+                    System.out.println("Data set has errors:");
+                    for (ValidationError error : errors)
+                    {
+                        System.out.println("\t" + error.getErrorMessage());
+                    }
+                    return ResultCode.USER_ERROR;
+                }
             } catch (IOException e)
             {
                 throw new IOExceptionUnchecked(e);

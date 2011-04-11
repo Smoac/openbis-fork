@@ -20,11 +20,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import ch.systemsx.cisd.args4j.ExampleMode;
-import ch.systemsx.cisd.args4j.Option;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
@@ -47,92 +45,33 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationS
  */
 class CommandTestValid extends AbstractDssCommand<CommandTestValid.CommandTestValidArguments>
 {
-    static class CommandTestValidArguments extends GlobalArguments
+    static class CommandTestValidArguments extends CommandPut.CommandPutArguments
     {
-        @Option(name = "t", longName = "type", usage = "Set the data set type")
-        private String dataSetType;
 
-        @Option(longName = "props", usage = "Set properties of the data set (format: code=val[,code=val]*")
-        private String propertiesString;
-
-        public String getDataSetType()
+        public String getScriptPathOrNull()
         {
-            return dataSetType;
-        }
-
-        public DataSetOwnerType getOwnerType()
-        {
-            return DataSetOwnerType.valueOf(getArguments().get(0).toString().toUpperCase());
-        }
-
-        public String getOwnerIdentifier()
-        {
-            return getArguments().get(1);
-        }
-
-        public String getFilePath()
-        {
-            return getArguments().get(2);
-        }
-
-        public File getFile()
-        {
-            return new File(getFilePath());
-        }
-
-        public String getScriptPath()
-        {
-            return getArguments().get(3);
-        }
-
-        public HashMap<String, String> getProperties()
-        {
-            HashMap<String, String> propsMap = new HashMap<String, String>();
-            String propsString = propertiesString;
-            if (propsString == null || propsString.length() == 0)
+            if (getArguments().size() > 3)
             {
-                return propsMap;
-            }
-
-            String[] propsArray = propsString.split(",");
-            for (String propLine : propsArray)
+                return getArguments().get(3);
+            } else
             {
-                String[] keyAndValue = propLine.split("=");
-                assert keyAndValue.length == 2;
-                propsMap.put(keyAndValue[0], keyAndValue[1]);
+                return null;
             }
-            return propsMap;
         }
 
         @Override
         public boolean isComplete()
         {
-            if (getArguments().size() < 4)
-                return false;
-
-            try
+            boolean parentIsComplete = super.isComplete();
+            // no script argument was provided
+            if (false == parentIsComplete || getArguments().size() < 4)
             {
-                getOwnerType();
-            } catch (IllegalArgumentException e)
-            {
-                return false;
+                return parentIsComplete;
             }
 
             try
             {
-                getProperties();
-            } catch (Exception e)
-            {
-                System.err
-                        .println("\nProprties must be specified using as code=value[,code=value]*\n");
-                return false;
-            }
-
-            try
-            {
-                String path = getScriptPath();
-                // Require a script at the moment. In the future, this might change to validate
-                // against the script on the server.
+                String path = getScriptPathOrNull();
                 if (null == path)
                 {
                     return false;
@@ -189,10 +128,20 @@ class CommandTestValid extends AbstractDssCommand<CommandTestValid.CommandTestVa
                     }
                     return ResultCode.INVALID_ARGS;
                 }
-                ValidationScriptRunner scriptRunner =
-                        ValidationScriptRunner.createValidatorFromScriptPath(arguments.getScriptPath());
 
-                List<ValidationError> errors = scriptRunner.validate(arguments.getFile());
+                // If no script was provided, validate against the server's script
+                List<ValidationError> errors;
+                if (null == arguments.getScriptPathOrNull())
+                {
+                    errors = component.validateDataSet(newDataSet, arguments.getFile());
+                } else
+                {
+                    ValidationScriptRunner scriptRunner =
+                            ValidationScriptRunner.createValidatorFromScriptPath(arguments
+                                    .getScriptPathOrNull());
+
+                    errors = scriptRunner.validate(arguments.getFile());
+                }
                 for (ValidationError error : errors)
                 {
                     System.err.println("ERROR: " + error.getErrorMessage());
@@ -303,7 +252,15 @@ class CommandTestValid extends AbstractDssCommand<CommandTestValid.CommandTestVa
     @Override
     protected IDssComponent login(GlobalArguments args)
     {
-        // Create a dummy component.
+        // The user wants to validate against the server's script, so we'll need to provide access
+        // to the server.
+        if (args.getArguments().size() < 4)
+        {
+            return super.login(args);
+        }
+
+        // If a script was specified, create a dummy component, since we don't need to access the
+        // server.
         IDssComponent component = new IDssComponent()
             {
 
