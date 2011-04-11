@@ -51,8 +51,10 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.io.HierarchicalContentFactory;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.test.AssertionUtil;
+import ch.systemsx.cisd.openbis.dss.generic.shared.HierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
@@ -150,7 +152,9 @@ public class DatasetDownloadServletTest
         response = context.mock(HttpServletResponse.class);
         dataSetService = context.mock(IEncapsulatedOpenBISService.class);
         shareIdManager = context.mock(IShareIdManager.class);
-        hierarchicalContentProvider = context.mock(IHierarchicalContentProvider.class);
+        hierarchicalContentProvider =
+                new HierarchicalContentProvider(null, null, new HierarchicalContentFactory());
+        // context.mock(IHierarchicalContentProvider.class); FIXME
         httpSession = context.mock(HttpSession.class);
         TEST_FOLDER.mkdirs();
         EXAMPLE_DATA_SET_FOLDER.mkdirs();
@@ -179,7 +183,7 @@ public class DatasetDownloadServletTest
         assertEquals("text/plain", DatasetDownloadServlet.getMimeType("filewithoutext", false));
     }
 
-    @Test(groups = "broken")
+    @Test()
     public void testInitialDoGet() throws Exception
     {
         final StringWriter writer = new StringWriter();
@@ -256,7 +260,7 @@ public class DatasetDownloadServletTest
             });
     }
 
-    @Test(groups = "broken")
+    @Test()
     public void testInitialDoGetButDataSetNotFoundInStore() throws Exception
     {
         final StringWriter writer = new StringWriter();
@@ -284,7 +288,7 @@ public class DatasetDownloadServletTest
         DatasetDownloadServlet servlet = createServlet();
         servlet.doGet(request, response);
         String pageContent = writer.toString();
-        String snippet = "File 'blabla' does not exist.";
+        String snippet = "Resource 'blabla' does not exist.";
         assertEquals("Text snippet >" + snippet + "< not found in following page content: "
                 + pageContent, true, pageContent.indexOf(snippet) > 0);
         String logContent = logRecorder.getLogContent();
@@ -294,8 +298,7 @@ public class DatasetDownloadServletTest
         context.assertIsSatisfied();
     }
 
-    @Test(groups = "broken")
-    // FIXME
+    @Test()
     public void testDoGetButUnknownDataSetCode() throws Exception
     {
         final StringWriter writer = new StringWriter();
@@ -334,8 +337,7 @@ public class DatasetDownloadServletTest
                 + "Creating a new session with the following parameters: [sessionID=AV76CF] Session Timeout: 120 sec";
     }
 
-    @Test(groups = "broken")
-    // FIXME
+    @Test()
     public void testDoGetSubFolder() throws Exception
     {
         final StringWriter writer = new StringWriter();
@@ -369,14 +371,13 @@ public class DatasetDownloadServletTest
                         + OSUtilities.LINE_SEPARATOR
                         + "</table> </div> </body></html>"
                         + OSUtilities.LINE_SEPARATOR, writer.toString());
-        assertContains(LOG_INFO
-                + "For data set '1234-1' show directory <wd>/1/db-uuid/0a/28/59/1234-1/"
+        assertContains(LOG_INFO + "For data set '1234-1' show directory "
                 + EXAMPLE_DATA_SET_SUB_FOLDER_NAME, getNormalizedLogContent());
 
         context.assertIsSatisfied();
     }
 
-    @Test(groups = "broken")
+    @Test()
     public void testDoGetFile() throws Exception
     {
         final ExternalData externalData = createExternalData();
@@ -422,8 +423,7 @@ public class DatasetDownloadServletTest
         context.assertIsSatisfied();
     }
 
-    @Test(groups =
-        { "broken", "slow" })
+    @Test(groups = "slow")
     public void testDoGetThumbnail() throws Exception
     {
         BufferedImage image = new BufferedImage(100, 200, BufferedImage.TYPE_INT_RGB);
@@ -475,7 +475,7 @@ public class DatasetDownloadServletTest
         context.assertIsSatisfied();
     }
 
-    @Test(groups = "broken")
+    @Test()
     public void testDoGetNonExistingFile() throws Exception
     {
         final StringWriter writer = new StringWriter();
@@ -503,8 +503,8 @@ public class DatasetDownloadServletTest
         DatasetDownloadServlet servlet = createServlet();
         servlet.doGet(request, response);
         assertEquals("<html><body><h1>Error</h1>" + OSUtilities.LINE_SEPARATOR
-                + "File 'blabla' does not exist." + OSUtilities.LINE_SEPARATOR + "</body></html>"
-                + OSUtilities.LINE_SEPARATOR, writer.toString());
+                + "Resource 'blabla' does not exist." + OSUtilities.LINE_SEPARATOR
+                + "</body></html>" + OSUtilities.LINE_SEPARATOR, writer.toString());
         String logContent = getNormalizedLogContent();
         String[] logContentLines = logContent.split("\n");
         // Skip the first line which has information about session creation
@@ -518,7 +518,7 @@ public class DatasetDownloadServletTest
         context.assertIsSatisfied();
     }
 
-    @Test(groups = "broken")
+    @Test()
     public void testDoGetForExpiredSession() throws Exception
     {
         final StringWriter writer = new StringWriter();
@@ -550,7 +550,7 @@ public class DatasetDownloadServletTest
         context.assertIsSatisfied();
     }
 
-    @Test(groups = "broken")
+    @Test()
     public void testDoGetRequestURINotStartingWithApplicationName() throws Exception
     {
         final StringWriter writer = new StringWriter();
@@ -605,7 +605,14 @@ public class DatasetDownloadServletTest
 
         prepareGetRequestURI(exp, externalData, path);
 
-        exp.oneOf(response).addHeader("pragma", "no-cache");
+        exp.oneOf(response).setHeader("Pragma", "no-cache");
+        exp.oneOf(response).setHeader("Cache-control", "no-cache, no-store, must-revalidate");
+        exp.allowing(response).setDateHeader(exp.with(Expectations.any(String.class)),
+                exp.with(Expectations.any(long.class)));
+        // exp.oneOf(response).addDateHeader(exp.with("Date"),
+        // exp.with(Expectations.any(long.class)));
+        // exp.oneOf(response).addDateHeader(exp.with("Expires"),
+        // exp.with(Expectations.any(long.class)));
     }
 
     private void prepareGetRequestURI(Expectations exp, final ExternalData externalData,
