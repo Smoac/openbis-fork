@@ -16,7 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.server;
 
-import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.FeatureVectorSummaryGridColumnIDs.MATERIAL;
+import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.FeatureVectorSummaryGridColumnIDs.DETAILS;
+import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.FeatureVectorSummaryGridColumnIDs.MATERIAL_ID;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,8 +26,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AbstractTabl
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
@@ -68,9 +67,9 @@ class FeatureVectorSummaryProvider extends AbstractTableModelProvider<MaterialFe
         ExperimentFeatureVectorSummary fvSummary =
                 server.getExperimentFeatureVectorSummary(sessionToken, experimentId);
 
-        builder.addColumn(MATERIAL).withDataType(DataTypeCode.MATERIAL);
-
+        builder.addColumn(MATERIAL_ID);
         builder.columnGroup(MATERIAL_PROPS_GROUP);
+        builder.addColumn(DETAILS);
 
         List<CodeAndLabel> featureDescriptions = fvSummary.getFeatureDescriptions();
         List<String> featureColumnIds = new ArrayList<String>();
@@ -89,6 +88,7 @@ class FeatureVectorSummaryProvider extends AbstractTableModelProvider<MaterialFe
             rankColumnIds.add(rankColumnId);
         }
 
+
         for (MaterialFeatureVectorSummary summary : fvSummary.getMaterialsSummary())
         {
             addRow(builder, summary, featureColumnIds, rankColumnIds);
@@ -104,12 +104,12 @@ class FeatureVectorSummaryProvider extends AbstractTableModelProvider<MaterialFe
         builder.addRow(summary);
 
         Material material = summary.getMaterial();
-        builder.column(MATERIAL).addValue(
-                new EntityTableCell(EntityKind.MATERIAL, material.getPermId()));
+        builder.column(MATERIAL_ID).addString(material.getCode());
         if (material.getProperties() != null)
         {
             builder.columnGroup(MATERIAL_PROPS_GROUP).addProperties(material.getProperties());
         }
+        builder.column(DETAILS).addString("Show details");
 
         float[] featureSummaries = summary.getFeatureVectorSummary();
         int[] ranksValues = summary.getFeatureVectorRanks();
@@ -122,7 +122,6 @@ class FeatureVectorSummaryProvider extends AbstractTableModelProvider<MaterialFe
             String rankColumnId = rankColumnIds.get(pos);
             builder.column(rankColumnId).addInteger((long) ranksValues[pos]);
         }
-
     }
 
     private String getFeatureColumnId(String code)

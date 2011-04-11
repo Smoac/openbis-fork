@@ -176,6 +176,13 @@ public interface IScreeningServer extends IServer
             @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class) TechId datasetId);
 
     /**
+     * For given {@link TechId} returns the corresponding {@link Material}.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public Material getMaterialInfo(String sessionToken, TechId materialId);
+
+    /**
      * Returns vocabulary with given code.
      */
     @Transactional

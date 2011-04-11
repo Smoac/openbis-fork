@@ -23,27 +23,24 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.BrowserGridPagingToolBar.PagingToolBarButtonKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListenerAndLinkGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningModule;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialFeatureVectorSummary;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.FeatureVectorSummaryGridColumnIDs;
 
 /**
  * A grid showing feature vector summary for an experiment.
@@ -61,86 +58,60 @@ public class FeatureVectorSummaryGrid extends TypedTableGrid<MaterialFeatureVect
 
     private final IViewContext<IScreeningClientServiceAsync> specificViewContext;
 
-    private final TechId experimentId;
+    private final IEntityInformationHolderWithPermId experiment;
 
-
-    public static void openTab(final IViewContext<IScreeningClientServiceAsync> screeningViewContext,
-            String experimentPermId)
-    {
-        screeningViewContext.getCommonService().getEntityInformationHolder(EntityKind.EXPERIMENT,
-                experimentPermId,
-                new AbstractAsyncCallback<IEntityInformationHolderWithPermId>(screeningViewContext)
-                    {
-                        @Override
-                        protected void process(IEntityInformationHolderWithPermId experiment)
-                        {
-                            AbstractTabItemFactory factory =
-                                    createTabFactory(screeningViewContext, experiment);
-                            DispatcherHelper.dispatchNaviEvent(factory);
-                        }
-                    });
-    }
 
     public static IDisposableComponent create(
-            IViewContext<IScreeningClientServiceAsync> viewContext, TechId experimentId)
+            IViewContext<IScreeningClientServiceAsync> viewContext,
+            IEntityInformationHolderWithPermId experiment)
     {
-        return new FeatureVectorSummaryGrid(viewContext, experimentId).asDisposableWithoutToolbar();
+        return new FeatureVectorSummaryGrid(viewContext, experiment).asDisposableWithoutToolbar();
     }
 
-    private static AbstractTabItemFactory createTabFactory(final IViewContext<IScreeningClientServiceAsync> viewContext,
-            final IEntityInformationHolderWithPermId experiment)
+
+    private ICellListenerAndLinkGenerator<MaterialFeatureVectorSummary> createMaterialReplicaSummaryLinkGenerator()
     {
-        return new AbstractTabItemFactory()
-        {
+        return new ICellListenerAndLinkGenerator<MaterialFeatureVectorSummary>()
+                {
 
-            @Override
-            public String getId()
-            {
-                    return ScreeningModule.ID
-                            + ScreeningLinkExtractor.FEATURE_VECTOR_SUMMARY_ACTION
-                            + experiment.getCode();
-            }
+                    public void handle(
+                            TableModelRowWithObject<MaterialFeatureVectorSummary> rowItem,
+                            boolean specialKeyPressed)
+                    {
+                        Material material = rowItem.getObjectOrNull().getMaterial();
+                        MaterialIdentifier materialIdentifier =
+                                new MaterialIdentifier(material.getCode(), material
+                                        .getMaterialType().getCode());
+                        MaterialReplicaFeatureSummaryViewer.openTab(specificViewContext,
+                                experiment.getPermId(), materialIdentifier);
+                    }
 
-            @Override
-            public ITabItem create()
-            {
-                IDisposableComponent tabComponent =
-                        FeatureVectorSummaryGrid.create(viewContext, new TechId(experiment));
-                return DefaultTabItem.create(getTabTitle(), tabComponent, viewContext);
-            }
-
-            @Override
-            public String tryGetLink()
-            {
-                return ScreeningLinkExtractor.createFeatureVectorSummaryBrowserLink(experiment.getPermId());
-            }
-
-            @Override
-            public String getTabTitle()
-            {
-                    return "Feature Vector Summary: " + experiment.getCode();
-            }
-
-            @Override
-            public HelpPageIdentifier getHelpPageIdentifier()
-            {
-                return null;
-            }
-
-            };
+                    public String tryGetLink(MaterialFeatureVectorSummary entity,
+                            ISerializableComparable comparableValue)
+                    {
+                        Material material = entity.getMaterial();
+                        return ScreeningLinkExtractor
+                                .createMaterialReplicaFeatureSummaryBrowserLink(experiment
+                                        .getPermId(), material.getCode(), material
+                                        .getMaterialType().getCode());
+                    }
+                };
     }
 
     FeatureVectorSummaryGrid(IViewContext<IScreeningClientServiceAsync> viewContext,
-            TechId experimentId)
+            final IEntityInformationHolderWithPermId experiment)
     {
         super(viewContext.getCommonViewContext(), BROWSER_ID, true,
                 DisplayTypeIDGenerator.EXPERIMENT_FEATURE_VECTOR_SUMMARY_SECTION);
         this.specificViewContext = viewContext;
-        this.experimentId = experimentId;
+        this.experiment = experiment;
 
-        // TODO KE: ask Franz-Josef/Tomek for a quick explanation on how export should be
-        // implemented
-        removeButtons(PagingToolBarButtonKind.EXPORT);
+        ICellListenerAndLinkGenerator<MaterialFeatureVectorSummary> linkGenerator =
+                createMaterialReplicaSummaryLinkGenerator();
+        registerListenerAndLinkGenerator(FeatureVectorSummaryGridColumnIDs.MATERIAL_ID,
+                linkGenerator);
+        registerListenerAndLinkGenerator(FeatureVectorSummaryGridColumnIDs.DETAILS, linkGenerator);
+
         setBorders(true);
     }
 
@@ -150,7 +121,7 @@ public class FeatureVectorSummaryGrid extends TypedTableGrid<MaterialFeatureVect
             AsyncCallback<TypedTableResultSet<MaterialFeatureVectorSummary>> callback)
     {
         specificViewContext.getService().listExperimentFeatureVectorSummary(resultSetConfig,
-                experimentId, callback);
+                new TechId(experiment), callback);
 
     }
 
@@ -159,24 +130,20 @@ public class FeatureVectorSummaryGrid extends TypedTableGrid<MaterialFeatureVect
             TableExportCriteria<TableModelRowWithObject<MaterialFeatureVectorSummary>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
-        // TODO KE: implement export functionality once I know how it is supposed to work
+        specificViewContext.getService()
+                .prepareExportFeatureVectorSummary(exportCriteria, callback);
     }
 
     @Override
     protected String translateColumnIdToDictionaryKey(String columnID)
     {
+        String id = columnID;
         if (columnID.startsWith(RANK_PREFIX))
         {
-            return getRankDictionaryKey();
-        } else
-        {
-            return columnID.toLowerCase();
+            id = RANK_PREFIX;
         }
-    }
-    
-    private String getRankDictionaryKey()
-    {
-        return Dict.EXPERIMENT_FEATURE_VECTOR_SUMMARY_SECTION.toLowerCase() + "_" + RANK_PREFIX;
+        return Dict.EXPERIMENT_FEATURE_VECTOR_SUMMARY_SECTION.toLowerCase() + "_"
+                + id.toUpperCase();
     }
 
     public void dispose()

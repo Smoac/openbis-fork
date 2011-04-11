@@ -22,7 +22,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.BrowserGridPagingToolBar.PagingToolBarButtonKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -75,9 +74,6 @@ public class MaterialReplicaFeatureSummaryGrid extends
         this.experimentId = experimentId;
         this.materialId = materialId;
 
-        // TODO KE: ask Franz-Josef/Tomek for a quick explanation on how export should be
-        // implemented
-        removeButtons(PagingToolBarButtonKind.EXPORT);
         setBorders(true);
     }
 
@@ -96,7 +92,10 @@ public class MaterialReplicaFeatureSummaryGrid extends
             TableExportCriteria<TableModelRowWithObject<MaterialReplicaFeatureSummary>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
-        // TODO KE: implement export functionality once I know how it is supposed to work
+        specificViewContext.getService().prepareExportMaterialReplicaFeatureSummary(
+
+        exportCriteria,
+                callback);
     }
 
     @Override

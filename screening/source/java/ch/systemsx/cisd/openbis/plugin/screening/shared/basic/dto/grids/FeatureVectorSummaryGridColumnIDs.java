@@ -21,7 +21,9 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids;
  */
 public class FeatureVectorSummaryGridColumnIDs
 {
-    public static final String MATERIAL = "material";
+    public static final String MATERIAL_ID = "id";
+
+    public static final String DETAILS = "details";
 
     public static final String RANK_PREFIX = "RANK";
 

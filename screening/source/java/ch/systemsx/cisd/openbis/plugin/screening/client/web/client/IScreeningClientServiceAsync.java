@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDispla
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -76,6 +77,10 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
 
     /** @see IScreeningClientService#getDataSetInfo(TechId) */
     public void getDataSetInfo(TechId datasetTechId, AsyncCallback<ExternalData> callback);
+
+    /** @see IScreeningClientService#getMaterialInfo(TechId) */
+    public void getMaterialInfo(TechId materialTechId, AsyncCallback<Material> callback)
+            throws UserFailureException;
 
     /**
      * @see IScreeningClientService#listPlateWells(IResultSetConfig, WellSearchCriteria)
@@ -165,6 +170,13 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
             AsyncCallback<TypedTableResultSet<MaterialFeatureVectorSummary>> callback);
 
     /**
+     * @see IScreeningClientService#prepareExportFeatureVectorSummary(TableExportCriteria)
+     */
+    public void prepareExportFeatureVectorSummary(
+            TableExportCriteria<TableModelRowWithObject<MaterialFeatureVectorSummary>> criteria,
+            AsyncCallback<String> callback);
+
+    /**
      * @see IScreeningClientService#listMaterialReplicaFeatureSummary(IResultSetConfig, TechId,
      *      TechId)
      */
@@ -173,4 +185,10 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
             TechId experimentId, TechId materialId,
             AsyncCallback<TypedTableResultSet<MaterialReplicaFeatureSummary>> callback);
 
+    /**
+     * @see IScreeningClientService#prepareExportMaterialReplicaFeatureSummary(TableExportCriteria)
+     */
+    public void prepareExportMaterialReplicaFeatureSummary(
+            TableExportCriteria<TableModelRowWithObject<MaterialReplicaFeatureSummary>> criteria,
+            AsyncCallback<String> callback);
 }

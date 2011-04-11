@@ -162,6 +162,12 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
+    public Material getMaterialInfo(String sessionToken, TechId materialId)
+    {
+        logAccess(sessionToken, "getMaterialInfo", "datasetId(%s)", materialId.getId());
+        return null;
+    }
+
     public TableModel loadImageAnalysisForExperiment(String sessionToken, TechId experimentId)
     {
         logAccess(sessionToken, "loadImageAnalysisForExperiment", "EXPERIMENT(%s)",

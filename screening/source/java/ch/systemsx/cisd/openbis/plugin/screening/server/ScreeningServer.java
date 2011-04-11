@@ -253,6 +253,11 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         return commonServer.getDataSetInfo(sessionToken, datasetId);
     }
 
+    public Material getMaterialInfo(String sessionToken, TechId materialId)
+    {
+        return genericServer.getMaterialInfo(sessionToken, materialId);
+    }
+
     public Vocabulary getVocabulary(String sessionToken, String code) throws UserFailureException
     {
         checkSession(sessionToken);
@@ -518,4 +523,5 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     {
         return MINOR_VERSION;
     }
+
 }

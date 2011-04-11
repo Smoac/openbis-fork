@@ -72,6 +72,11 @@ public interface IScreeningClientService extends IClientService
     public ExternalData getDataSetInfo(TechId datasetTechId) throws UserFailureException;
 
     /**
+     * For given {@link TechId} returns corresponding {@link Material}.
+     */
+    public Material getMaterialInfo(TechId materialTechId) throws UserFailureException;
+
+    /**
      * Fetches information about wells on a plate and their content.
      */
     public PlateContent getPlateContent(TechId sampleId) throws UserFailureException;
@@ -179,6 +184,10 @@ public interface IScreeningClientService extends IClientService
             IResultSetConfig<String, TableModelRowWithObject<MaterialFeatureVectorSummary>> resultSetConfig,
             TechId experimentId) throws UserFailureException;
 
+    public String prepareExportFeatureVectorSummary(
+            TableExportCriteria<TableModelRowWithObject<MaterialFeatureVectorSummary>> criteria)
+            throws UserFailureException;
+
     /**
      * Return the selected {@link MaterialReplicaFeatureSummary}-s for a given experiment and
      * material.
@@ -186,4 +195,9 @@ public interface IScreeningClientService extends IClientService
     public TypedTableResultSet<MaterialReplicaFeatureSummary> listMaterialReplicaFeatureSummary(
             IResultSetConfig<String, TableModelRowWithObject<MaterialReplicaFeatureSummary>> resultSetConfig,
             TechId experimentId, TechId materialId) throws UserFailureException;
+
+    public String prepareExportMaterialReplicaFeatureSummary(
+            TableExportCriteria<TableModelRowWithObject<MaterialReplicaFeatureSummary>> criteria)
+            throws UserFailureException;
+
 }

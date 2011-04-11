@@ -137,6 +137,17 @@ public final class ScreeningClientService extends AbstractClientService implemen
         }
     }
 
+    public Material getMaterialInfo(TechId materialTechId) throws UserFailureException
+    {
+        try
+        {
+            return server.getMaterialInfo(getSessionToken(), materialTechId);
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
     public PlateContent getPlateContent(TechId plateId) throws UserFailureException
     {
         try
@@ -337,6 +348,20 @@ public final class ScreeningClientService extends AbstractClientService implemen
                 new MaterialReplicaFeatureSummaryProvider(server, getSessionToken(), experimentId,
                         materialId);
         return listEntities(provider, resultSetConfig);
+    }
+
+    public String prepareExportFeatureVectorSummary(
+            TableExportCriteria<TableModelRowWithObject<MaterialFeatureVectorSummary>> criteria)
+            throws UserFailureException
+    {
+        return prepareExportEntities(criteria);
+    }
+
+    public String prepareExportMaterialReplicaFeatureSummary(
+            TableExportCriteria<TableModelRowWithObject<MaterialReplicaFeatureSummary>> criteria)
+            throws UserFailureException
+    {
+        return prepareExportEntities(criteria);
     }
 
 }

@@ -86,6 +86,8 @@ EXPERIMENT_PLATE_MATERIAL_REVIEWER_SECTION: "Wells Search",
 EXPERIMENT_PLATE_MATERIAL_BROWSER_SECTION: "Library Index",
 EXPERIMENT_FEATURE_VECTOR_SUMMARY_SECTION: "Feature Vector Summary",
 experiment_feature_vector_summary_section_RANK: "Rank",
+experiment_feature_vector_summary_section_ID: "Id",
+experiment_feature_vector_summary_section_DETAILS: "Details",
 
 material_replica_feature_summary_FEATURE: "Feature",
 material_replica_feature_summary_RANK: "Rank",
