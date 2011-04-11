@@ -39,16 +39,22 @@ public class SimpleShareFinder implements IShareFinder
 
     public Share tryToFindShare(SimpleDataSetInformationDTO dataSet, List<Share> shares)
     {
+        Long dataSetSize = dataSet.getDataSetSize();
+        String dataSetShareId = dataSet.getDataSetShareId();
+        long dataSetShareFreeSpace = 0;
+        boolean dataSetShareIncoming = false;
         Share incomingShareWithMostFree = null;
-        long incomingMaxFreeSpace = dataSet.getDataSetSize();
+        long incomingMaxFreeSpace = dataSetSize;
         Share extensionShareWithMostFree = null;
-        long extensionsMaxFreeSpace = dataSet.getDataSetSize();
+        long extensionsMaxFreeSpace = dataSetSize;
         for (Share share : shares)
         {
             long freeSpace = share.calculateFreeSpace();
             String shareId = share.getShareId();
-            if (dataSet.getDataSetShareId().equals(shareId))
+            if (dataSetShareId.equals(shareId))
             {
+                dataSetShareFreeSpace = freeSpace;
+                dataSetShareIncoming = share.isIncoming();
                 continue;
             }
             if (share.isIncoming())
@@ -67,8 +73,22 @@ public class SimpleShareFinder implements IShareFinder
                 }
             }
         }
-        return extensionShareWithMostFree != null ? extensionShareWithMostFree
-                : incomingShareWithMostFree;
+        if (extensionShareWithMostFree != null)
+        {
+            if (dataSetShareIncoming
+                    || extensionsMaxFreeSpace - dataSetSize > dataSetShareFreeSpace)
+            {
+                return extensionShareWithMostFree;
+            }
+        } else if (incomingShareWithMostFree != null)
+        {
+            if (dataSetShareIncoming == false
+                    || incomingMaxFreeSpace - dataSetSize > dataSetShareFreeSpace)
+            {
+                return incomingShareWithMostFree;
+            }
+        }
+        return null;
     }
 
 }
