@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ch.systemsx.cisd.common.collections.CollectionUtils;
-import ch.systemsx.cisd.common.collections.CollectionUtils.CollectionMappingFunction;
+import ch.systemsx.cisd.common.collections.CollectionUtils.ICollectionMappingFunction;
 import ch.systemsx.cisd.common.collections.GroupByMap;
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.common.collections.TableMap;
@@ -78,7 +78,7 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
                 settings).loadExperimentFeatureVectors(experimentId);
     }
 
-    private final MaterialSummarySettings settings;
+    protected final MaterialSummarySettings settings;
 
     protected ExperimentFeatureVectorSummaryLoader(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
@@ -211,54 +211,7 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
         {
             return null;
         }
-        Double subgroup = tryFindSubgroup(well, settings);
-        return new WellData(replicaMaterial.getId(), subgroup, featureVectorNumbers,
-                replicaMaterial);
-    }
-
-    private static Double tryFindSubgroup(Sample well, MaterialSummarySettings settings)
-    {
-        String subgroupPropertyTypeCode = settings.getSubgroupPropertyTypeCode();
-        if (subgroupPropertyTypeCode == null)
-        {
-            return null;
-        }
-        IEntityProperty subgroupProperty =
-                tryFindProperty(well.getProperties(), subgroupPropertyTypeCode);
-        if (subgroupProperty == null)
-        {
-            return null;
-        }
-        return tryExtractSubgroupValue(subgroupProperty);
-    }
-
-    private static Double tryExtractSubgroupValue(IEntityProperty subgroupProperty)
-    {
-        Material subgroupMaterial = subgroupProperty.getMaterial();
-        if (subgroupMaterial != null)
-        {
-            return new Double(subgroupMaterial.getId());
-        }
-        try
-        {
-            return new Double(subgroupProperty.tryGetAsString());
-        } catch (NumberFormatException ex)
-        {
-            return null;
-        }
-    }
-
-    private static IEntityProperty tryFindProperty(List<IEntityProperty> properties,
-            String propertyTypeCode)
-    {
-        for (IEntityProperty property : properties)
-        {
-            if (property.getPropertyType().getCode().equals(propertyTypeCode))
-            {
-                return property;
-            }
-        }
-        return null;
+        return new WellData(replicaMaterial.getId(), featureVectorNumbers, well, replicaMaterial);
     }
 
     private static Material tryFindReplicaMaterial(Sample well, MaterialSummarySettings settings)
@@ -453,7 +406,7 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
         private static List<String> extractCodes(List<DatasetReference> datasets)
         {
             return CollectionUtils.map(datasets,
-                    new CollectionMappingFunction<String, DatasetReference>()
+                    new ICollectionMappingFunction<String, DatasetReference>()
                         {
                             public String map(DatasetReference element)
                             {

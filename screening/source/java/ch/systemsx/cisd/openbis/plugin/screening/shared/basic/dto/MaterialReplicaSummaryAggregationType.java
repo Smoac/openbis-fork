@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  * 
  * @author Tomasz Pylak
  */
-public enum ReplicaSummaryAggregationType implements ISerializable
+public enum MaterialReplicaSummaryAggregationType implements ISerializable
 {
     MEDIAN,
 

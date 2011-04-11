@@ -32,23 +32,31 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.IWellData;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.WellData;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialFeatureVectorSummary;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ReplicaSummaryAggregationType;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaSummaryAggregationType;
 
 /**
- * Calculates summaries and ranks for each group and subgroup of well replicas. Usually a replica is
- * determined by the material in the well, e.g. gene or compound. A subgroup can be e.g. oligo or
- * compound concentration.
+ * Calculates summaries and ranks for each group of well replicas. Usually a replica is
+ * determined by the material in the well, e.g. gene or compound.
  * 
  * @author Tomasz Pylak
  */
 public class WellReplicaSummaryCalculator
 {
     public static List<MaterialFeatureVectorSummary> calculateReplicasFeatureVectorSummaries(
-            List<IWellData> wellDataList, ReplicaSummaryAggregationType aggregationType)
+            List<IWellData> wellDataList, MaterialReplicaSummaryAggregationType aggregationType)
     {
         validate(wellDataList);
         return new WellReplicaSummaryCalculator(wellDataList, aggregationType)
                 .calculateReplicasFeatureVectorSummaries();
+    }
+
+    public static float[] calculateSummaryFeatureVector(List<IWellData> oneReplicaWells,
+            MaterialReplicaSummaryAggregationType aggregationType)
+    {
+        validate(oneReplicaWells);
+        int numberOfFeatures = getNumberOfFeatures(oneReplicaWells);
+        return calculateSummaryFeatureVector(oneReplicaWells, aggregationType, numberOfFeatures)
+                .getAggregates();
     }
 
     private static void validate(List<IWellData> wellDataList)
@@ -75,12 +83,12 @@ public class WellReplicaSummaryCalculator
 
     private final GroupByMap<Long/* replica id */, IWellData> replicaToWellDataMap;
 
-    private final ReplicaSummaryAggregationType aggregationType;
+    private final MaterialReplicaSummaryAggregationType aggregationType;
 
     private final int numberOfFeatures;
 
     private WellReplicaSummaryCalculator(List<IWellData> wellDataList,
-            ReplicaSummaryAggregationType aggregationType)
+            MaterialReplicaSummaryAggregationType aggregationType)
     {
         this.numberOfFeatures = getNumberOfFeatures(wellDataList);
         this.aggregationType = aggregationType;
@@ -175,7 +183,7 @@ public class WellReplicaSummaryCalculator
         {
             Long replicaId = entry.getKey();
             float[] aggregates = entry.getValue().getAggregates();
-            IWellData summaryWellData = new WellData(replicaId, null, aggregates, null);
+            IWellData summaryWellData = new WellData(replicaId, aggregates, null, null);
             summaryWellDataList.add(summaryWellData);
         }
         return summaryWellDataList;
@@ -201,7 +209,8 @@ public class WellReplicaSummaryCalculator
         for (Long replicaId : replicaIds)
         {
             List<IWellData> replicaWells = replicaToWellDataMap.getOrDie(replicaId);
-            SummaryFeatureVector summary = calculateSummaryFeatures(replicaWells);
+            SummaryFeatureVector summary =
+                    calculateSummaryFeatureVector(replicaWells, aggregationType, numberOfFeatures);
             replicaToSummaryMap.put(replicaId, summary);
         }
         return replicaToSummaryMap;
@@ -231,7 +240,8 @@ public class WellReplicaSummaryCalculator
         }
     }
 
-    private SummaryFeatureVector calculateSummaryFeatures(List<IWellData> replicaWells)
+    private static SummaryFeatureVector calculateSummaryFeatureVector(List<IWellData> replicaWells,
+            MaterialReplicaSummaryAggregationType aggregationType, int numberOfFeatures)
     {
         switch (aggregationType)
         {

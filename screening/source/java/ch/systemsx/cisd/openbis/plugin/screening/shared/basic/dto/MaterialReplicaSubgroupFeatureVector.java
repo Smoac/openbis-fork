@@ -27,7 +27,7 @@ public class MaterialReplicaSubgroupFeatureVector implements ISerializable
 
     // DISPLAY NOTE: this decides about the header of the subgroup summary (aggregatedSummaryfield).
     // For now only "Median", but "Average" will be added in future.
-    private ReplicaSummaryAggregationType summaryAggregationType;
+    private MaterialReplicaSummaryAggregationType summaryAggregationType;
 
     private String subgroupLabel;
 
@@ -39,7 +39,7 @@ public class MaterialReplicaSubgroupFeatureVector implements ISerializable
 
     public MaterialReplicaSubgroupFeatureVector(
             List<MaterialSingleReplicaFeatureVector> singleReplicaValues,
-            float[] aggregatedSummary, ReplicaSummaryAggregationType summaryAggregationType,
+            float[] aggregatedSummary, MaterialReplicaSummaryAggregationType summaryAggregationType,
             String subgroupLabel)
     {
         this.singleReplicaValues = singleReplicaValues;
@@ -58,7 +58,7 @@ public class MaterialReplicaSubgroupFeatureVector implements ISerializable
         return aggregatedSummary;
     }
 
-    public ReplicaSummaryAggregationType getSummaryAggregationType()
+    public MaterialReplicaSummaryAggregationType getSummaryAggregationType()
     {
         return summaryAggregationType;
     }

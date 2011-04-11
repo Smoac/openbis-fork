@@ -34,7 +34,7 @@ public class MaterialSummarySettings implements ISerializable
 
     private String subgroupPropertyTypeCode;
 
-    private ReplicaSummaryAggregationType aggregationType;
+    private MaterialReplicaSummaryAggregationType aggregationType;
 
     public List<String> getFeatureCodes()
     {
@@ -66,12 +66,12 @@ public class MaterialSummarySettings implements ISerializable
         this.subgroupPropertyTypeCode = subgroupPropertyTypeCode;
     }
 
-    public ReplicaSummaryAggregationType getAggregationType()
+    public MaterialReplicaSummaryAggregationType getAggregationType()
     {
         return aggregationType;
     }
 
-    public void setAggregationType(ReplicaSummaryAggregationType aggregationType)
+    public void setAggregationType(MaterialReplicaSummaryAggregationType aggregationType)
     {
         this.aggregationType = aggregationType;
     }

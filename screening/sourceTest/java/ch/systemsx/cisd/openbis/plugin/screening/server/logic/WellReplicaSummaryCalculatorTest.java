@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.server.logic.WellReplicaSummary
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.IWellData;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.WellData;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialFeatureVectorSummary;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ReplicaSummaryAggregationType;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaSummaryAggregationType;
 
 /**
  * Test of {@link WellReplicaSummaryCalculator}
@@ -169,12 +169,12 @@ public class WellReplicaSummaryCalculatorTest extends AssertJUnit
     {
         Material material = new Material();
         material.setId(replicaId);
-        return new WellData(replicaId, null, featureValues, material);
+        return new WellData(replicaId, featureValues, null, material);
     }
 
     private List<MaterialFeatureVectorSummary> calculate(List<IWellData> wellDataList)
     {
         return WellReplicaSummaryCalculator.calculateReplicasFeatureVectorSummaries(wellDataList,
-                ReplicaSummaryAggregationType.MEDIAN);
+                MaterialReplicaSummaryAggregationType.MEDIAN);
     }
 }

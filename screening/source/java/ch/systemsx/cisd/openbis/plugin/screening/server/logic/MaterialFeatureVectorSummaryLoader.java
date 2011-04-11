@@ -17,16 +17,26 @@
 package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import ch.systemsx.cisd.common.collections.CollectionUtils;
+import ch.systemsx.cisd.common.collections.CollectionUtils.ICollectionFilter;
+import ch.systemsx.cisd.common.collections.GroupByMap;
+import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.IWellData;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.WellDataCollection;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialAllReplicasFeatureVectors;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaSubgroupFeatureVector;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaSummaryAggregationType;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSingleReplicaFeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSummarySettings;
 
@@ -65,19 +75,120 @@ public class MaterialFeatureVectorSummaryLoader extends ExperimentFeatureVectorS
         {
             return null;
         }
+        return tryLoadMaterialFeatureVectors(materialId, wellDataCollection);
+    }
+
+    private MaterialAllReplicasFeatureVectors tryLoadMaterialFeatureVectors(TechId materialId,
+            WellDataCollection wellDataCollection)
+    {
         MaterialFeatureVectorSummary materialGeneralSummary =
                 tryCalculateMaterialSummary(materialId, wellDataCollection);
         if (materialGeneralSummary == null)
         {
             return null;
         }
+        List<IWellData> materialWellDataList =
+                filterMaterialWells(wellDataCollection.getWellDataList(), materialId);
+        GroupByMap<Double, IWellData> subgroupMap = groupBySubgroup(materialWellDataList);
 
-        // TODO 2011-04-10, Tomasz Pylak: implement me!!!!!!!!!
-        List<MaterialReplicaSubgroupFeatureVector> subgroups =
-                new ArrayList<MaterialReplicaSubgroupFeatureVector>();
-        List<MaterialSingleReplicaFeatureVector> replicas = null;
+        List<MaterialReplicaSubgroupFeatureVector> subgroups = Collections.emptyList();
+        List<MaterialSingleReplicaFeatureVector> replicas = Collections.emptyList();
+        if (hasNoSubgroups(subgroupMap))
+        {
+            replicas = createReplicas(materialWellDataList);
+        } else
+        {
+            subgroups = createSubgroups(subgroupMap);
+        }
         return new MaterialAllReplicasFeatureVectors(wellDataCollection.getFeatureDescriptions(),
                 materialGeneralSummary, subgroups, replicas);
+    }
+
+    private List<MaterialReplicaSubgroupFeatureVector> createSubgroups(
+            GroupByMap<Double, IWellData> subgroupMap)
+    {
+        List<MaterialReplicaSubgroupFeatureVector> subgroups =
+                new ArrayList<MaterialReplicaSubgroupFeatureVector>();
+        MaterialReplicaSummaryAggregationType aggregationType = settings.getAggregationType();
+        int subgroupSequenceNumber = 1;
+        for (Double subgroupKey : subgroupMap.getKeys())
+        {
+            if (subgroupKey != null)
+            {
+                List<IWellData> subgroupWellDataList = subgroupMap.getOrDie(subgroupKey);
+                MaterialReplicaSubgroupFeatureVector subgroup =
+                        createSubgroup(subgroupWellDataList, subgroupSequenceNumber,
+                                aggregationType);
+                subgroups.add(subgroup);
+                subgroupSequenceNumber++;
+            }
+        }
+        return subgroups;
+    }
+
+    private MaterialReplicaSubgroupFeatureVector createSubgroup(
+            List<IWellData> subgroupWellDataList, int subgroupSequenceNumber,
+            MaterialReplicaSummaryAggregationType aggregationType)
+    {
+        float[] aggregatedSummary =
+                WellReplicaSummaryCalculator.calculateSummaryFeatureVector(subgroupWellDataList,
+                        aggregationType);
+        List<MaterialSingleReplicaFeatureVector> replicas = createReplicas(subgroupWellDataList);
+        String subgroupLabel = getSubgroupLabel(subgroupWellDataList, subgroupSequenceNumber);
+        return new MaterialReplicaSubgroupFeatureVector(replicas, aggregatedSummary,
+                aggregationType, subgroupLabel);
+    }
+
+    private String getSubgroupLabel(List<IWellData> subgroupWellDataList, int subgroupSequenceNumber)
+    {
+        assert subgroupWellDataList.size() > 0 : "empty subgroup";
+        Sample well = subgroupWellDataList.get(0).getWell();
+        IEntityProperty subgroupProperty = tryFindSubgroupProperty(well);
+        assert subgroupProperty != null : "cannot fnd the subgroup property";
+
+        String propertyLabel = subgroupProperty.getPropertyType().getLabel();
+        Material subgroupMaterial = subgroupProperty.getMaterial();
+        if (subgroupMaterial != null)
+        {
+            return propertyLabel + " " + subgroupSequenceNumber;
+        } else
+        {
+            return propertyLabel + " " + subgroupProperty.tryGetAsString();
+        }
+    }
+
+    /**
+     * A subgroup can be e.g. oligo or compound concentration.
+     */
+    private GroupByMap<Double, IWellData> groupBySubgroup(List<IWellData> materialWellDataList)
+    {
+        return GroupByMap.create(materialWellDataList, new IKeyExtractor<Double, IWellData>()
+            {
+                public Double getKey(IWellData wellData)
+                {
+                    return tryFindSubgroup(wellData.getWell());
+                }
+            });
+    }
+
+    private Double tryFindSubgroup(Sample well)
+    {
+        IEntityProperty subgroupProperty = tryFindSubgroupProperty(well);
+        if (subgroupProperty == null)
+        {
+            return null;
+        }
+        return tryExtractSubgroupValue(subgroupProperty);
+    }
+
+    private IEntityProperty tryFindSubgroupProperty(Sample well)
+    {
+        String subgroupPropertyTypeCode = settings.getSubgroupPropertyTypeCode();
+        if (subgroupPropertyTypeCode == null)
+        {
+            return null;
+        }
+        return tryFindProperty(well.getProperties(), subgroupPropertyTypeCode);
     }
 
     private MaterialFeatureVectorSummary tryCalculateMaterialSummary(TechId materialId,
@@ -86,6 +197,39 @@ public class MaterialFeatureVectorSummaryLoader extends ExperimentFeatureVectorS
         List<MaterialFeatureVectorSummary> featureSummaries =
                 calculateReplicasFeatureVectorSummaries(wellDataCollection);
         return tryFindMaterialSummary(materialId, featureSummaries);
+    }
+
+    private static List<MaterialSingleReplicaFeatureVector> createReplicas(
+            List<IWellData> materialWellDataList)
+    {
+        List<MaterialSingleReplicaFeatureVector> replicas =
+                new ArrayList<MaterialSingleReplicaFeatureVector>();
+        int replicaSequenceNumber = 1;
+        for (IWellData wellData : materialWellDataList)
+        {
+            MaterialSingleReplicaFeatureVector featureVector =
+                    new MaterialSingleReplicaFeatureVector(replicaSequenceNumber++,
+                            wellData.getFeatureVector());
+            replicas.add(featureVector);
+        }
+        return replicas;
+    }
+
+    private static boolean hasNoSubgroups(GroupByMap<Double, IWellData> subgroupMap)
+    {
+        return subgroupMap.getKeys().size() == 1 && subgroupMap.getKeys().contains(null);
+    }
+
+    private static List<IWellData> filterMaterialWells(List<IWellData> wellDataList,
+            final TechId materialId)
+    {
+        return CollectionUtils.filter(wellDataList, new ICollectionFilter<IWellData>()
+            {
+                public boolean isPresent(IWellData element)
+                {
+                    return element.getMaterial().getId().equals(materialId.getId());
+                }
+            });
     }
 
     private static MaterialFeatureVectorSummary tryFindMaterialSummary(TechId materialId,
@@ -101,4 +245,32 @@ public class MaterialFeatureVectorSummaryLoader extends ExperimentFeatureVectorS
         return null;
     }
 
+    private static Double tryExtractSubgroupValue(IEntityProperty subgroupProperty)
+    {
+        Material subgroupMaterial = subgroupProperty.getMaterial();
+        if (subgroupMaterial != null)
+        {
+            return new Double(subgroupMaterial.getId());
+        }
+        try
+        {
+            return new Double(subgroupProperty.tryGetAsString());
+        } catch (NumberFormatException ex)
+        {
+            return null;
+        }
+    }
+
+    private static IEntityProperty tryFindProperty(List<IEntityProperty> properties,
+            String propertyTypeCode)
+    {
+        for (IEntityProperty property : properties)
+        {
+            if (property.getPropertyType().getCode().equals(propertyTypeCode))
+            {
+                return property;
+            }
+        }
+        return null;
+    }
 }

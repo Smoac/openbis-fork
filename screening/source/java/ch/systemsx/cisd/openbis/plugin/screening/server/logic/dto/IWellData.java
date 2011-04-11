@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.WellReplicaSummaryCalculator;
 
 /**
@@ -33,8 +34,8 @@ public interface IWellData
     /** @return id which allows to group all wells which contain replicates */
     long getReplicaId();
 
-    /** @return id which allows to group all wells which contain replicates into subgroups */
-    Double tryGetSubgroup();
+    /** Well sample for which the data are provided. */
+    Sample getWell();
 
     /**
      * Material in the well which allowed to find replicates.<br>

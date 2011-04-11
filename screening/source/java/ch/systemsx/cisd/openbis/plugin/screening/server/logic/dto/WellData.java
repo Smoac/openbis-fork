@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto;
 import java.util.Arrays;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
  * The simplest implementation of {@Link IWellData}.
@@ -29,15 +30,15 @@ public class WellData implements IWellData
 {
     private final long replicaId;
 
-    private final Double subgroupOrNull;
+    private Sample well;
 
     private final float[] featureVector;
 
     private final Material material;
 
-    public WellData(long replicaId, Double subgroupOrNull, float[] featureVector, Material material)
+    public WellData(long replicaId, float[] featureVector, Sample well, Material material)
     {
-        this.subgroupOrNull = subgroupOrNull;
+        this.well = well;
         this.featureVector = featureVector;
         this.replicaId = replicaId;
         this.material = material;
@@ -48,9 +49,9 @@ public class WellData implements IWellData
         return replicaId;
     }
 
-    public Double tryGetSubgroup()
+    public Sample getWell()
     {
-        return subgroupOrNull;
+        return well;
     }
 
     public float[] getFeatureVector()
