@@ -46,13 +46,8 @@ public class HDF5DataSetBasedContent implements IContent
     {
         this.hdf5File = hdf5File;
         this.dataSetPath = dataSetPath;
-        if (dataSetPath.startsWith("/"))
-        {
-            this.name = hdf5File.getAbsolutePath() + dataSetPath;
-        } else
-        {
-            this.name = hdf5File.getAbsolutePath() + "/" + dataSetPath;
-        }
+        int index = dataSetPath.lastIndexOf('/');
+        this.name = (index < 0) ? dataSetPath : dataSetPath.substring(index + 1);
         final IHDF5Reader reader = HDF5FactoryProvider.get().openForReading(hdf5File);
         if (reader.exists(dataSetPath) && reader.isDataSet(dataSetPath))
         {
@@ -63,6 +58,7 @@ public class HDF5DataSetBasedContent implements IContent
             this.exists = false;
             this.size = 0L;
         }
+        reader.close();
     }
 
    public String tryGetName()
