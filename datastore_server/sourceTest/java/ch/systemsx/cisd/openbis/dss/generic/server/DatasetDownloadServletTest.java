@@ -152,9 +152,9 @@ public class DatasetDownloadServletTest
         response = context.mock(HttpServletResponse.class);
         dataSetService = context.mock(IEncapsulatedOpenBISService.class);
         shareIdManager = context.mock(IShareIdManager.class);
+        // test with HierarchicalContentFactory to actually access files
         hierarchicalContentProvider =
                 new HierarchicalContentProvider(null, null, new HierarchicalContentFactory());
-        // context.mock(IHierarchicalContentProvider.class); FIXME
         httpSession = context.mock(HttpSession.class);
         TEST_FOLDER.mkdirs();
         EXAMPLE_DATA_SET_FOLDER.mkdirs();
