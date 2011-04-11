@@ -141,13 +141,16 @@ class MaterialReplicaFeatureSummaryProvider extends
                     .withTitle(replicaColumnTitle).addDouble((double) featureValues[i]);
         }
 
-        MaterialReplicaSummaryAggregationType aggregationType =
-                subgroup.getSummaryAggregationType();
-        String aggreationColumnId = getAggreationColumnId(groupLabel, aggregationType);
-        String aggreationColumnTitle = getAggreationColumnTitle(groupLabel, aggregationType);
-        columnGroup.column(aggreationColumnId).withDataType(DataTypeCode.REAL)
-                .withTitle(aggreationColumnTitle)
-                .addDouble((double) subgroup.getAggregatedSummary());
+        if (false == DEFAULT_SUBGROUP.equals(groupId))
+        {
+            MaterialReplicaSummaryAggregationType aggregationType =
+                    subgroup.getSummaryAggregationType();
+            String aggreationColumnId = getAggreationColumnId(groupLabel, aggregationType);
+            String aggreationColumnTitle = getAggreationColumnTitle(groupLabel, aggregationType);
+            columnGroup.column(aggreationColumnId).withDataType(DataTypeCode.REAL)
+                    .withTitle(aggreationColumnTitle)
+                    .addDouble((double) subgroup.getAggregatedSummary());
+        }
         
     }
 
