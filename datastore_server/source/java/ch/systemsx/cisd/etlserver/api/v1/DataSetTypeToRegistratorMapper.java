@@ -158,13 +158,14 @@ class DataSetTypeToRegistratorMapper
                         firstThread, shareId, openBISService, mailClient, dataSetValidator, false,
                         false, false, firstThread.tryGetPreRegistrationScript(),
                         firstThread.tryGetPostRegistrationScript(),
-                        PutDataSetServerPluginHolder.class);
+                        firstThread.tryValidationScript(), PutDataSetServerPluginHolder.class);
             }
 
             return ETLDaemon.createTopLevelDataSetRegistrator(params.getProperties(),
                     defaultThread, shareId, openBISService, mailClient, dataSetValidator, false,
                     false, false, firstThread.tryGetPreRegistrationScript(),
-                    firstThread.tryGetPostRegistrationScript(), PutDataSetServerPluginHolder.class);
+                    firstThread.tryGetPostRegistrationScript(), firstThread.tryValidationScript(),
+                    PutDataSetServerPluginHolder.class);
         }
 
         public HashMap<String, ITopLevelDataSetRegistrator> getHandlerMap()

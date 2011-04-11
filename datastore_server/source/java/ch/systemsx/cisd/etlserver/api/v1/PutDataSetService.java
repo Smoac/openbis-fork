@@ -29,11 +29,13 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.etlserver.DataStrategyStore;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistrator;
 import ch.systemsx.cisd.etlserver.Parameters;
+import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.validation.DataSetValidator;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
@@ -190,6 +192,30 @@ public class PutDataSetService
 
             }
         }
+    }
+
+    /**
+     * Return the validation script for the new data set, or null if none if applicable.
+     */
+    public String getValidationScript(String dataSetTypeOrNull)
+    {
+        ITopLevelDataSetRegistrator registrator =
+                registratorMap.getRegistratorForType(dataSetTypeOrNull);
+        TopLevelDataSetRegistratorGlobalState globalState = registrator.getGlobalState();
+        String scriptPath = globalState.getValidationScriptOrNull();
+        if (scriptPath == null)
+        {
+            return null;
+        }
+
+        File scriptFile = new File(scriptPath);
+        if (false == scriptFile.exists())
+        {
+            operationLog.warn("Data set type [" + dataSetTypeOrNull
+                    + "] refers to a validation script [" + scriptPath + "] which does not exist.");
+            return null;
+        }
+        return FileUtilities.loadToString(scriptFile);
     }
 
     private void doInitialization()

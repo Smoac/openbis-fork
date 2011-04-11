@@ -136,7 +136,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
 
     public int getMinorVersion()
     {
-        return 1;
+        return 2;
     }
 
     /**
@@ -221,6 +221,6 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
     public String getValidationScript(String sessionToken, String dataSetTypeOrNull)
             throws IOExceptionUnchecked, IllegalArgumentException
     {
-        return null;
+        return putService.getValidationScript(dataSetTypeOrNull);
     }
 }

@@ -55,6 +55,12 @@ public final class ThreadParameters
     @Private
     static final String POST_REGISTRATION_SCRIPT_KEY = "post-registration-script";
 
+    /**
+     * A path to a script which should be invoked to validate the data set.
+     */
+    @Private
+    static final String VALIDATION_SCRIPT_KEY = "validation-script";
+
     @Private
     static final String GROUP_CODE_KEY = "group-code";
 
@@ -104,6 +110,8 @@ public final class ThreadParameters
 
     private final String postRegistrationScript;
 
+    private final String validationScript;
+
     private final boolean useIsFinishedMarkerFile;
 
     private final boolean deleteUnidentified;
@@ -138,6 +146,7 @@ public final class ThreadParameters
         this.groupCode = tryGetGroupCode(threadProperties);
         this.preRegistrationScript = tryGetPreRegistrationScript(threadProperties);
         this.postRegistrationScript = tryGetPostRegistartionScript(threadProperties);
+        this.validationScript = tryValidationScript(threadProperties);
         String completenessCondition =
                 PropertyUtils.getProperty(threadProperties, INCOMING_DATA_COMPLETENESS_CONDITION,
                         INCOMING_DATA_COMPLETENESS_CONDITION_MARKER_FILE);
@@ -218,6 +227,12 @@ public final class ThreadParameters
         return nullIfEmpty(PropertyUtils.getProperty(properties, POST_REGISTRATION_SCRIPT_KEY));
     }
 
+    @Private
+    static final String tryValidationScript(final Properties properties)
+    {
+        return nullIfEmpty(PropertyUtils.getProperty(properties, VALIDATION_SCRIPT_KEY));
+    }
+
     private static String nullIfEmpty(String value)
     {
         return StringUtils.defaultIfEmpty(value, null);
@@ -239,6 +254,11 @@ public final class ThreadParameters
     public final String tryGetPostRegistrationScript()
     {
         return postRegistrationScript;
+    }
+
+    public String tryValidationScript()
+    {
+        return validationScript;
     }
 
     public boolean useIsFinishedMarkerFile()

@@ -341,7 +341,7 @@ public final class ETLDaemon
             final IDataSetValidator dataSetValidator, final boolean notifySuccessfulRegistration,
             boolean useIsFinishedMarkerFile, boolean deleteUnidentified,
             String preRegistrationScriptOrNull, String postRegistrationScriptOrNull,
-            Class<?> defaultTopLevelDataSetRegistratorClass)
+            String validationScriptOrNull, Class<?> defaultTopLevelDataSetRegistratorClass)
     {
         final File storeRootDir = DssPropertyParametersUtil.getStoreRootDir(properties);
         migrateStoreRootDir(storeRootDir, openBISService.getHomeDatabaseInstance());
@@ -350,7 +350,8 @@ public final class ETLDaemon
                 new TopLevelDataSetRegistratorGlobalState(dssCode, shareId, storeRootDir,
                         openBISService, mailClient, dataSetValidator, notifySuccessfulRegistration,
                         threadParameters, useIsFinishedMarkerFile, deleteUnidentified,
-                        preRegistrationScriptOrNull, postRegistrationScriptOrNull);
+                        preRegistrationScriptOrNull, postRegistrationScriptOrNull,
+                        validationScriptOrNull);
 
         ITopLevelDataSetRegistrator registrator =
                 ClassUtils

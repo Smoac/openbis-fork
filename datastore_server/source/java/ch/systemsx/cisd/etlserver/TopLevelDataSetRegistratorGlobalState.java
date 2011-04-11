@@ -53,6 +53,8 @@ public class TopLevelDataSetRegistratorGlobalState
 
     private final String postRegistrationScriptOrNull;
 
+    private final String validationScriptOrNull;
+
     /**
      * Constructor that takes some values from the thread parameters.
      * 
@@ -74,7 +76,7 @@ public class TopLevelDataSetRegistratorGlobalState
                 notifySuccessfulRegistration, threadParameters, threadParameters
                         .useIsFinishedMarkerFile(), threadParameters.deleteUnidentified(),
                 threadParameters.tryGetPreRegistrationScript(), threadParameters
-                        .tryGetPostRegistrationScript());
+                        .tryGetPostRegistrationScript(), threadParameters.tryValidationScript());
 
     }
 
@@ -83,7 +85,7 @@ public class TopLevelDataSetRegistratorGlobalState
             IDataSetValidator dataSetValidator, boolean notifySuccessfulRegistration,
             ThreadParameters threadParameters, boolean useIsFinishedMarkerFile,
             boolean deleteUnidentified, String preRegistrationScriptOrNull,
-            String postRegistrationScriptOrNull)
+            String postRegistrationScriptOrNull, String validationScriptOrNull)
     {
         this.dssCode = dssCode;
         this.shareId = shareId;
@@ -97,6 +99,7 @@ public class TopLevelDataSetRegistratorGlobalState
         this.deleteUnidentified = deleteUnidentified;
         this.preRegistrationScriptOrNull = preRegistrationScriptOrNull;
         this.postRegistrationScriptOrNull = postRegistrationScriptOrNull;
+        this.validationScriptOrNull = validationScriptOrNull;
     }
 
     public String getDssCode()
@@ -157,5 +160,10 @@ public class TopLevelDataSetRegistratorGlobalState
     public String getPostRegistrationScript()
     {
         return postRegistrationScriptOrNull;
+    }
+
+    public String getValidationScriptOrNull()
+    {
+        return validationScriptOrNull;
     }
 }

@@ -37,6 +37,11 @@ public interface ITopLevelDataSetRegistrator extends IPathHandler, ISelfTestable
     public Lock getRegistrationLock();
 
     /**
+     * State information about the top-level data set registrator.
+     */
+    public TopLevelDataSetRegistratorGlobalState getGlobalState();
+
+    /**
      * Process a file, using the callerDataSetInformation as a guide for creating the data set and
      * notifying the delegate of activity.
      * 
@@ -47,4 +52,5 @@ public interface ITopLevelDataSetRegistrator extends IPathHandler, ISelfTestable
      */
     public void handle(File file, DataSetInformation callerDataSetInformation,
             ITopLevelDataSetRegistratorDelegate delegate);
+
 }

@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwner;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
@@ -80,6 +81,15 @@ public class DssComponentTest extends SystemTestCase
         NewDataSetDTO newDataset = createNewDataSetDTO(exampleDataSet);
         IDataSetDss dataSet = dss.putDataSet(newDataset, exampleDataSet);
         checkDataSet(dataSet);
+    }
+
+    @Test
+    public void testValidateDataSet() throws Exception
+    {
+        File exampleDataSet = new File(workingDirectory, "my-data");
+        NewDataSetDTO newDataset = createNewDataSetDTO(exampleDataSet);
+        List<ValidationError> errors = dss.validateDataSet(newDataset, exampleDataSet);
+        assertEquals(0, errors.size());
     }
 
     @Test(dependsOnMethods = "testPutDataSet")
