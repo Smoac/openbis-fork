@@ -45,6 +45,8 @@ import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.utils.PostRegistrationExecutor;
 import ch.systemsx.cisd.etlserver.utils.PreRegistrationExecutor;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationScriptRunner;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
@@ -89,6 +91,8 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
 
         private final DatabaseInstance homeDatabaseInstance;
 
+        private final ValidationScriptRunner validationScriptRunner;
+
         private OmniscientTopLevelDataSetRegistratorState(
                 TopLevelDataSetRegistratorGlobalState globalState,
                 IStorageProcessorTransactional storageProcessor, ReentrantLock registrationLock,
@@ -109,6 +113,9 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                     new MarkerFileUtility(operationLog, notificationLog, fileOperations,
                             storageProcessor);
             this.homeDatabaseInstance = globalState.getOpenBisService().getHomeDatabaseInstance();
+            this.validationScriptRunner =
+                    ValidationScriptRunner.createValidatorFromScriptPath(globalState
+                            .getValidationScriptOrNull());
         }
 
         public TopLevelDataSetRegistratorGlobalState getGlobalState()
@@ -154,6 +161,11 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         public DatabaseInstance getHomeDatabaseInstance()
         {
             return homeDatabaseInstance;
+        }
+
+        public ValidationScriptRunner getValidationScriptRunner()
+        {
+            return validationScriptRunner;
         }
     }
 
@@ -287,8 +299,16 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
 
         try
         {
-            handleDataSet(incomingDataSetFile, service);
-            service.commit();
+            List<ValidationError> validationErrors =
+                    state.validationScriptRunner.validate(incomingDataSetFile);
+            if (validationErrors.size() > 0)
+            {
+                handleValidationErrors(validationErrors, incomingDataSetFile, service);
+            } else
+            {
+                handleDataSet(incomingDataSetFile, service);
+                service.commit();
+            }
         } catch (Throwable ex)
         {
             operationLog.error("Could not process file " + incomingDataSetFile, ex);
@@ -296,6 +316,28 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         }
 
         return service;
+    }
+
+    /**
+     * Validation errors were found in the incoming data set file, display them. Subclasses may
+     * override.
+     */
+    protected void handleValidationErrors(List<ValidationError> validationErrors,
+            File incomingDataSetFile, DataSetRegistrationService<T> service)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Validation script [");
+        sb.append(getGlobalState().getValidationScriptOrNull());
+        sb.append("] found errors in incoming data set [");
+        sb.append(incomingDataSetFile);
+        sb.append("]:");
+        for (ValidationError error : validationErrors)
+        {
+            sb.append("\t");
+            sb.append(error.getErrorMessage());
+            sb.append("\n");
+        }
+        operationLog.error(sb.toString());
     }
 
     public boolean isStopped()

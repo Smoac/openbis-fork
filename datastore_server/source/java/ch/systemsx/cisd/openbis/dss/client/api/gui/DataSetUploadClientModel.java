@@ -457,6 +457,15 @@ public class DataSetUploadClientModel
                 }
             }
         }
+
+        // If we have passed local validation, run the server validation script
+        if (errors.size() < 1)
+        {
+            List<ValidationError> scriptDetectedErrors =
+                    dssComponent.validateDataSet(builder.asNewDataSetDTO(), builder.getFile());
+            errors.addAll(scriptDetectedErrors);
+        }
+
     }
 
     protected void validatePropertyType(PropertyType propertyType, String valueOrNull,

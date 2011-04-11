@@ -42,7 +42,16 @@ public class ValidationScriptRunner
      */
     public static ValidationScriptRunner createValidatorFromScriptPath(String scriptPath)
     {
-        String fileString = FileUtilities.loadToString(new File(scriptPath));
+        if (scriptPath == null)
+        {
+            return new NullValidationScriptRunner();
+        }
+        File scriptFile = new File(scriptPath);
+        if (false == scriptFile.exists())
+        {
+            return new NullValidationScriptRunner();
+        }
+        String fileString = FileUtilities.loadToString(scriptFile);
         String scriptString = getValidationScriptString(fileString);
         return new ValidationScriptRunner(scriptString);
     }
@@ -78,6 +87,19 @@ public class ValidationScriptRunner
         interpreter.exec(this.scriptString);
     }
 
+    /**
+     * Protected constructor for the null script runner.
+     * 
+     * @param scriptIsNull
+     */
+    protected ValidationScriptRunner(boolean scriptIsNull)
+    {
+        this.interpreter = null;
+        // Load the script
+        this.scriptString = null;
+
+    }
+
     @SuppressWarnings("unchecked")
     public List<ValidationError> validate(File dataSetFile)
     {
@@ -99,5 +121,20 @@ public class ValidationScriptRunner
         {
             return null;
         }
+    }
+}
+
+class NullValidationScriptRunner extends ValidationScriptRunner
+{
+    protected NullValidationScriptRunner()
+    {
+        super(true);
+    }
+
+    @Override
+    public List<ValidationError> validate(File dataSetFile)
+    {
+        ArrayList<ValidationError> errors = new ArrayList<ValidationError>();
+        return errors;
     }
 }

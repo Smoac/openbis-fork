@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.remoting.RemoteAccessException;
@@ -318,6 +319,8 @@ class AuthenticatedState extends AbstractDssComponentState
 
     private final IRpcServiceFactory dssServiceFactory;
 
+    private final HashMap<String, String> validationScriptCache = new HashMap<String, String>();
+
     AuthenticatedState(IGeneralInformationService generalOpenBisService,
             IRpcServiceFactory dssServiceFactory, String sessionToken)
     {
@@ -568,8 +571,18 @@ class AuthenticatedState extends AbstractDssComponentState
         {
             return new ArrayList<ValidationError>();
         }
-        String validationScript =
-                dssService.getValidationScript(sessionToken, newDataset.tryDataSetType());
+
+        String dataSetTypeOrNull = newDataset.tryDataSetType();
+        String validationScript;
+        // Check if the script is in the cache
+        if (validationScriptCache.containsKey(dataSetTypeOrNull))
+        {
+            validationScript = validationScriptCache.get(dataSetTypeOrNull);
+        } else
+        {
+            validationScript = dssService.getValidationScript(sessionToken, dataSetTypeOrNull);
+            validationScriptCache.put(dataSetTypeOrNull, validationScript);
+        }
         if (null == validationScript)
         {
             return new ArrayList<ValidationError>();
