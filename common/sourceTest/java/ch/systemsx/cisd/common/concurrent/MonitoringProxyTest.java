@@ -377,7 +377,7 @@ public class MonitoringProxyTest
         exceptionThrowingProxy.busyUpdatingActivity(null);
     }
 
-    @Test
+    @Test(retryAnalyzer = Retry10.class)
     public void testGetStringNullReturningPolicy()
     {
         assertEquals(THE_STRING, defaultReturningProxy.getString(false));
@@ -389,61 +389,61 @@ public class MonitoringProxyTest
         assertEquals(THE_STRING, exceptionThrowingProxy.getString(false));
     }
 
-    @Test(groups = "slow")
+    @Test(groups = "slow", retryAnalyzer = Retry10.class)
     public void testGetStringTimeoutNoException()
     {
         assertNull(defaultReturningProxy.getString(true));
     }
 
-    @Test(groups = "slow", expectedExceptions = TimeoutExceptionUnchecked.class)
+    @Test(groups = "slow", expectedExceptions = TimeoutExceptionUnchecked.class, retryAnalyzer = Retry10.class)
     public void testGetStringTimeoutWithException()
     {
         exceptionThrowingProxy.getString(true);
     }
 
-    @Test
+    @Test(retryAnalyzer = Retry10.class)
     public void testGetIntNullReturningPolicy()
     {
         assertEquals(THE_INTEGER, defaultReturningProxy.getInteger(false));
     }
 
-    @Test
+    @Test(retryAnalyzer = Retry10.class)
     public void testGetIntExceptionThrowingPolicy()
     {
         assertEquals(THE_INTEGER, exceptionThrowingProxy.getInteger(false));
     }
 
-    @Test(groups = "slow")
+    @Test(groups = "slow", retryAnalyzer = Retry10.class)
     public void testGetBoolTimeoutReturnsDefault()
     {
         assertEquals(false, defaultReturningProxy.getBoolean(true));
     }
 
-    @Test
+    @Test(retryAnalyzer = Retry10.class)
     public void testGetStatus()
     {
         assertEquals(THE_STATUS, defaultReturningProxy.getStatus(false));
     }
 
-    @Test(groups = "slow")
+    @Test(groups = "slow", retryAnalyzer = Retry10.class)
     public void testGetStatusTimeoutReturnsDefault()
     {
         assertEquals(Status.UUUPS, defaultReturningProxy.getStatus(true));
     }
 
-    @Test(groups = "slow")
+    @Test(groups = "slow", retryAnalyzer = Retry10.class)
     public void testGetSpecialStatusTimeoutReturnsMethodDefault()
     {
         assertEquals(Status.SPECIAL_UUUPS, defaultReturningProxy.getSpecialStatus(true));
     }
 
-    @Test(groups = "slow")
+    @Test(groups = "slow", retryAnalyzer = Retry10.class)
     public void testGetIntTimeoutReturnsDefault()
     {
         assertEquals(0, defaultReturningProxy.getInteger(true));
     }
 
-    @Test(groups = "slow", expectedExceptions = TimeoutExceptionUnchecked.class)
+    @Test(groups = "slow", expectedExceptions = TimeoutExceptionUnchecked.class, retryAnalyzer = Retry10.class)
     public void testGetIntTimeoutWithException()
     {
         exceptionThrowingProxy.getInteger(true);
@@ -471,7 +471,7 @@ public class MonitoringProxyTest
         timer.cancel();
     }
 
-    @Test(groups = "slow")
+    @Test(groups = "slow", retryAnalyzer = Retry10.class)
     public void testInterruptTheUninterruptableReturnsDefaultValue()
     {
         final String defaultReturnValue = "That's the default return value.";
@@ -502,14 +502,14 @@ public class MonitoringProxyTest
         exceptionThrowingProxy.worksOnSecondInvocation();
     }
 
-    @Test
+    @Test(retryAnalyzer = Retry10.class)
     public void testRetryOnceFailOnce()
     {
         retryingOnceExceptionThrowingProxy.worksOnSecondInvocation();
     }
 
     @Test(groups =
-        { "slow" })
+        { "slow" }, retryAnalyzer = Retry10.class)
     public void testRetryOnceFailOnceWithCommunicator()
     {
         retryingOnceExceptionThrowingProxy.resetInvocationsCancelled();
@@ -525,13 +525,13 @@ public class MonitoringProxyTest
         retryingOnceExceptionThrowingProxy.worksOnThirdInvocation();
     }
 
-    @Test(groups = "slow")
+    @Test(groups = "slow", retryAnalyzer = Retry10.class)
     public void testRetryTwiceFailTwice()
     {
         retryingTwiceExceptionThrowingProxy.worksOnThirdInvocation();
     }
 
-    @Test
+    @Test(retryAnalyzer = Retry10.class)
     public void testInvocationLog()
     {
         final List<ExecutionResult<Object>> results = new ArrayList<ExecutionResult<Object>>();
