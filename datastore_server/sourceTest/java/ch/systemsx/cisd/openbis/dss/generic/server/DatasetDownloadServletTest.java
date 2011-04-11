@@ -334,7 +334,7 @@ public class DatasetDownloadServletTest
                 + "Creating a new session with the following parameters: [sessionID=AV76CF] Session Timeout: 120 sec";
     }
 
-    @Test
+    @Test(groups = "broken")
     public void testDoGetSubFolder() throws Exception
     {
         final StringWriter writer = new StringWriter();
