@@ -143,10 +143,6 @@ class SimpleFileBasedHierarchicalContent implements IHierarchicalContent
         {
             assert root != null;
             assert file != null;
-            if (file.exists() == false)
-            {
-                throw new IllegalArgumentException(file.getAbsolutePath() + " doesn't exist");
-            }
             this.root = root;
             this.file = file;
         }

@@ -179,6 +179,7 @@ public class SimpleFileBasedHierarchicalContentTest extends AbstractFileSystemTe
     private static void checkFileNode(File expectedFile, final IHierarchicalContentNode fileNode)
             throws IOExceptionUnchecked, IOException
     {
+        assertTrue(fileNode.exists());
         assertFalse(fileNode.isDirectory());
         assertEquals(expectedFile, fileNode.getFile());
         assertEquals(expectedFile.getName(), fileNode.getName());
@@ -207,6 +208,7 @@ public class SimpleFileBasedHierarchicalContentTest extends AbstractFileSystemTe
     private static void checkFakeFileNode(String fakeFileName, String fakeFileExpectedPath,
             IHierarchicalContentNode fakeFileNode) throws IOExceptionUnchecked, IOException
     {
+        assertFalse(fakeFileNode.exists());
         assertFalse(fakeFileNode.isDirectory());
         assertEquals(fakeFileName, fakeFileNode.getName());
         assertEquals(0, fakeFileNode.getFileLength());
@@ -217,6 +219,7 @@ public class SimpleFileBasedHierarchicalContentTest extends AbstractFileSystemTe
 
     private static void checkDirNode(File expectedDir, final IHierarchicalContentNode dirNode)
     {
+        assertTrue(dirNode.exists());
         assertTrue(dirNode.isDirectory());
         assertEquals(expectedDir, dirNode.getFile());
         assertEquals(expectedDir.getName(), dirNode.getName());
