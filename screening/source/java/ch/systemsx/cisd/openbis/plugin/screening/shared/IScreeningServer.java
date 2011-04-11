@@ -196,8 +196,7 @@ public interface IScreeningServer extends IServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public ExperimentFeatureVectorSummary getExperimentFeatureVectorSummary(
-            String sessionToken,
+    public ExperimentFeatureVectorSummary getExperimentFeatureVectorSummary(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId);
 
     /**
