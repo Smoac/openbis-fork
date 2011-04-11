@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.File;
@@ -27,6 +26,8 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.io.IHierarchicalContent;
+import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
 
 /**
  * Utility class defining methods related to auto resolving data sets.
@@ -66,6 +67,34 @@ public class AutoResolveUtils
         }
     }
 
+    /**
+     * Returns the file nodes from root/path directory with path matching given pattern.
+     * <p>
+     * Recursive search is stopped after:
+     * <li>at least 2 files have been found
+     * <li>all directories have been checked
+     * </p>
+     * 
+     * @param root - the search will start from this directory
+     * @param path - narrows the search to this directory; relative to the root
+     * @param pattern - regular expression defining the files that will be accepted; if no pattern
+     *            is specified - the result will be empty
+     * @return empty list - if the pattern has not been specified or no files matched; 1 file - if
+     *         there exactly one file matched; 2 or more files (not necessarily all) - if more than
+     *         one file matched
+     */
+    public static List<IHierarchicalContentNode> findSomeMatchingFiles(IHierarchicalContent root,
+            String path, final String pattern)
+    {
+        if (StringUtils.isBlank(pattern))
+        {
+            return new ArrayList<IHierarchicalContentNode>();
+        } else
+        {
+            return root.listMatchingNodes(pattern);
+        }
+    }
+
     public static File tryGetTheOnlyMatchingFileOrDir(File root, String pattern)
     {
         if (root.isDirectory())
@@ -80,6 +109,34 @@ public class AutoResolveUtils
         } else if (root.isFile() && acceptFile(pattern, root))
         {
             return root;
+        } else
+        {
+            return null;
+        }
+    }
+
+    public static IHierarchicalContentNode tryGetTheOnlyMatchingFileOrDir(
+            IHierarchicalContent root, String pattern)
+    {
+        return tryGetTheOnlyMatchingFileOrDir(root.getRootNode(), pattern);
+    }
+
+    public static IHierarchicalContentNode tryGetTheOnlyMatchingFileOrDir(
+            IHierarchicalContentNode node, String pattern)
+    {
+        if (node.isDirectory())
+        {
+            if (continueAutoResolving(pattern, node))
+            {
+                return tryGetTheOnlyMatchingFileOrDir(node.getChildNodes().iterator().next(),
+                        pattern);
+            } else
+            {
+                return node;
+            }
+        } else if (!node.isDirectory() && acceptFile(pattern, node))
+        {
+            return node;
         } else
         {
             return null;
@@ -120,6 +177,21 @@ public class AutoResolveUtils
     }
 
     /**
+     * Accepts regular files matching pattern and nothing if pattern is empty.
+     */
+    @Private
+    static boolean acceptFile(final String pattern, IHierarchicalContentNode node)
+    {
+        if (StringUtils.isBlank(pattern) || node.isDirectory())
+        {
+            return false;
+        }
+        Pattern p = Pattern.compile(pattern);
+        Matcher m = p.matcher(node.getRelativePath());
+        return m.find();
+    }
+
+    /**
      * For given directory and main data set pattern decides if the auto resolving should stop or
      * continue.
      * <p>
@@ -133,8 +205,27 @@ public class AutoResolveUtils
         assert file != null;
         assert file.isDirectory();
         return file.listFiles().length == 1
-                && (file.listFiles()[0].isDirectory() || acceptFile(mainDataSetPattern, file
-                        .listFiles()[0]));
+                && (file.listFiles()[0].isDirectory() || acceptFile(mainDataSetPattern,
+                        file.listFiles()[0]));
+    }
+
+    /**
+     * For given directory node and main data set pattern decides if the auto resolving should stop
+     * or continue.
+     * <p>
+     * The resolving should continue if node has only one child and
+     * <li>it is a directory; or
+     * <li>it matches given pattern
+     * </p>
+     */
+    public static boolean continueAutoResolving(String mainDataSetPattern,
+            IHierarchicalContentNode file)
+    {
+        assert file != null;
+        assert file.isDirectory();
+        return file.getChildNodes().size() == 1
+                && (file.getChildNodes().iterator().next().isDirectory() || acceptFile(
+                        mainDataSetPattern, file.getChildNodes().iterator().next()));
     }
 
     /**
@@ -189,4 +280,22 @@ public class AutoResolveUtils
         return startingPoint;
     }
 
+    /**
+     * Returns the directory node defined by root and given relative path. If path is not defined or
+     * the result file does not exist or is not a directory, root is returned.
+     */
+    @Private
+    static IHierarchicalContentNode createStartingPoint(IHierarchicalContent root, String path)
+    {
+        IHierarchicalContentNode startingPoint = root.getRootNode();
+        if (StringUtils.isBlank(path) == false)
+        {
+            IHierarchicalContentNode tmp = root.getNode(path);
+            if (tmp.exists() && tmp.isDirectory())
+            {
+                startingPoint = tmp;
+            }
+        }
+        return startingPoint;
+    }
 }
