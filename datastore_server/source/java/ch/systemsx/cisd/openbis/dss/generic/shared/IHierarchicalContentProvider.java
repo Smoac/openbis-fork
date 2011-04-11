@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared;
 
+import java.io.File;
+
 import ch.systemsx.cisd.common.io.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 
@@ -31,5 +33,7 @@ public interface IHierarchicalContentProvider
     IHierarchicalContent asContent(String dataSetCode);
 
     IHierarchicalContent asContent(IDatasetLocation datasetLocation);
+
+    IHierarchicalContent asContent(File datasetDirectory);
 
 }

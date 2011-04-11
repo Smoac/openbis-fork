@@ -16,10 +16,12 @@
 
 package ch.systemsx.cisd.common.io;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 
 /**
  * Abstract {@link IHierarchicalContent} implementation with checks before calling methods specific
@@ -69,7 +71,7 @@ abstract class AbstractHierarchicalContentNode implements IHierarchicalContentNo
         return doGetChildNodes();
     }
 
-    public final long getSize() throws UnsupportedOperationException
+    public final long getFileLength() throws UnsupportedOperationException
     {
         failOnDirectory();
         return doGetSize();
@@ -85,6 +87,25 @@ abstract class AbstractHierarchicalContentNode implements IHierarchicalContentNo
     {
         failOnDirectory();
         return doGetInputStream();
+    }
+
+    public final String getParentRelativePath()
+    {
+        String relativePath = getRelativePath();
+        if (StringUtils.isBlank(relativePath))
+        {
+            return null;
+        } else
+        {
+            int lastIndexOf = relativePath.lastIndexOf(File.separator);
+            if (lastIndexOf > -1)
+            {
+                return relativePath.substring(0, lastIndexOf);
+            } else
+            {
+                return "";
+            }
+        }
     }
 
 }

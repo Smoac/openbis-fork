@@ -182,7 +182,7 @@ public class SimpleFileBasedHierarchicalContentTest extends AbstractFileSystemTe
         assertFalse(fileNode.isDirectory());
         assertEquals(expectedFile, fileNode.getFile());
         assertEquals(expectedFile.getName(), fileNode.getName());
-        assertEquals(expectedFile.length(), fileNode.getSize());
+        assertEquals(expectedFile.length(), fileNode.getFileLength());
 
         final String expectedFileData = expectedFile.getName() + " data";
         // check random access to file content
@@ -209,7 +209,7 @@ public class SimpleFileBasedHierarchicalContentTest extends AbstractFileSystemTe
     {
         assertFalse(fakeFileNode.isDirectory());
         assertEquals(fakeFileName, fakeFileNode.getName());
-        assertEquals(0, fakeFileNode.getSize());
+        assertEquals(0, fakeFileNode.getFileLength());
         assertEquals(fakeFileExpectedPath, fakeFileNode.getFile().toString());
         assertIOExceptionOnFileContentAccess(fakeFileNode);
         assertIOExceptionOnInputStreamAccess(fakeFileNode);
@@ -225,7 +225,7 @@ public class SimpleFileBasedHierarchicalContentTest extends AbstractFileSystemTe
             {
                 public void execute()
                 {
-                    dirNode.getSize();
+                    dirNode.getFileLength();
                 }
             });
         assertUnsupportedDirectoryOperationOnAction(new IDelegatedAction()

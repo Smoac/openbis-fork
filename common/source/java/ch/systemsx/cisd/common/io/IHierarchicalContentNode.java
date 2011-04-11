@@ -32,30 +32,64 @@ import ch.systemsx.cisd.base.io.IRandomAccessFile;
  */
 public interface IHierarchicalContentNode
 {
+    /** Returns name of this node/file. */
     String getName();
 
-    List<IHierarchicalContentNode> getChildNodes();
+    /** Returns relative path of this node or <code>null</code> for root node. */
+    String getRelativePath();
 
-    /** @throws UnsupportedOperationException if the backing store is not a file. */
-    File getFile() throws UnsupportedOperationException;
+    /** Returns relative path of this node's parent or <code>null</code> for root node. */
+    String getParentRelativePath();
 
     /**
-     * Returns a read only {@link IRandomAccessFile} with file content of the node.
-     * 
-     * @throws IOExceptionUnchecked if an I/O error occurs.
-     */
-    IRandomAccessFile getFileContent() throws IOExceptionUnchecked;
-
-    /** @throws IOExceptionUnchecked if an I/O error occurs. */
-    InputStream getInputStream() throws IOExceptionUnchecked;
-    
-    /**
-     * Returns <code>true</code> if this node refers to a directory.
+     * Returns <code>true</code> if this node is an abstraction of a directory, <code>false</code>
+     * otherwise.
      */
     boolean isDirectory();
 
     /**
-     * Returns the size (in bytes) of this node.
+     * List of child nodes of this node.
+     * <p>
+     * NOTE: Call {@link #isDirectory()} first to make sure this node is a directory.
+     * 
+     * @throws UnsupportedOperationException if the node is not an abstraction of a directory.
      */
-    long getSize();
+    List<IHierarchicalContentNode> getChildNodes() throws UnsupportedOperationException;
+
+    /**
+     * Returns a file abstracted by this node.
+     * 
+     * @throws UnsupportedOperationException if the backing store is not a normal file/directory.
+     */
+    File getFile() throws UnsupportedOperationException;
+
+    /**
+     * Returns the length (in bytes) of a file abstracted by this node.
+     * <p>
+     * NOTE: Call {@link #isDirectory()} first to make sure this node is NOT a directory.
+     * 
+     * @throws UnsupportedOperationException if the node is an abstraction of a directory.
+     */
+    long getFileLength() throws UnsupportedOperationException;
+
+    /**
+     * Returns a read only {@link IRandomAccessFile} with file content of the node. *
+     * <p>
+     * NOTE: Call {@link #isDirectory()} first to make sure this node is NOT a directory.
+     * 
+     * @throws UnsupportedOperationException if the node is an abstraction of a directory.
+     * @throws IOExceptionUnchecked if an I/O error occurs.
+     */
+    IRandomAccessFile getFileContent() throws UnsupportedOperationException, IOExceptionUnchecked;
+
+    /**
+     * Returns an {@link InputStream} with content of the node.
+     * <p>
+     * NOTE: Call {@link #isDirectory()} first to make sure this node is NOT a directory.
+     * 
+     * @throws UnsupportedOperationException if the node is an abstraction of a directory.
+     * @throws IOExceptionUnchecked if an I/O error occurs.
+     */
+    InputStream getInputStream() throws UnsupportedOperationException, IOExceptionUnchecked;
+
 }

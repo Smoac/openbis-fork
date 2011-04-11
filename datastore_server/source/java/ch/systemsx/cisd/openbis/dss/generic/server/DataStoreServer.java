@@ -138,7 +138,7 @@ public class DataStoreServer
         final IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
         final ApplicationContext applicationContext =
                 new ApplicationContext(openBISService, ServiceProvider.getShareIdManager(),
-                        configParameters);
+                        ServiceProvider.getHierarchicalContentProvider(), configParameters);
         DssSessionAuthorizationHolder.setAuthorizer(new DatasetSessionAuthorizer(configParameters
                 .getAuthCacheExpirationTimeMins(), configParameters
                 .getAuthCacheCleanupTimerPeriodMins()));

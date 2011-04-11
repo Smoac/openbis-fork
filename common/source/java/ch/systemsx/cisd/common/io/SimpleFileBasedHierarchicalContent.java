@@ -27,6 +27,7 @@ import java.util.List;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.base.io.RandomAccessFileImpl;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 /**
  * {@link IHierarchicalContent} implementation for normal {@link java.io.File}.
@@ -134,21 +135,26 @@ class SimpleFileBasedHierarchicalContent implements IHierarchicalContent
 
     static class SimpleFileBasedHierarchicalContentNode extends AbstractHierarchicalContentNode
     {
-        private final SimpleFileBasedHierarchicalContent parent;
+        private final SimpleFileBasedHierarchicalContent root;
 
         private final File file;
 
-        SimpleFileBasedHierarchicalContentNode(SimpleFileBasedHierarchicalContent parent, File file)
+        SimpleFileBasedHierarchicalContentNode(SimpleFileBasedHierarchicalContent root, File file)
         {
-            assert parent != null;
+            assert root != null;
             assert file != null;
-            this.parent = parent;
+            this.root = root;
             this.file = file;
         }
 
         public String getName()
         {
             return file.getName();
+        }
+
+        public String getRelativePath()
+        {
+            return FileUtilities.getRelativeFile(root.getRootNode().getFile(), file);
         }
 
         public boolean isDirectory()
@@ -176,7 +182,7 @@ class SimpleFileBasedHierarchicalContent implements IHierarchicalContent
             {
                 for (File aFile : files)
                 {
-                    result.add(new SimpleFileBasedHierarchicalContentNode(parent, aFile));
+                    result.add(new SimpleFileBasedHierarchicalContentNode(root, aFile));
                 }
             }
             return result;
@@ -207,8 +213,7 @@ class SimpleFileBasedHierarchicalContent implements IHierarchicalContent
         @Override
         public String toString()
         {
-            return "SimpleFileBasedHierarchicalContentNode [parent=" + parent + ", file=" + file
-                    + "]";
+            return "SimpleFileBasedHierarchicalContentNode [root=" + root + ", file=" + file + "]";
         }
 
         @Override
@@ -217,7 +222,7 @@ class SimpleFileBasedHierarchicalContent implements IHierarchicalContent
             final int prime = 31;
             int result = 1;
             result = prime * result + file.hashCode();
-            result = prime * result + parent.hashCode();
+            result = prime * result + root.hashCode();
             return result;
         }
 
@@ -242,7 +247,7 @@ class SimpleFileBasedHierarchicalContent implements IHierarchicalContent
             {
                 return false;
             }
-            if (!parent.equals(other.parent))
+            if (!root.equals(other.root))
             {
                 return false;
             }

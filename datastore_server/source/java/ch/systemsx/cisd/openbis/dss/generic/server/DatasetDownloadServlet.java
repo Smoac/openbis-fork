@@ -20,13 +20,12 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.GenericSharedConstan
 
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -41,9 +40,12 @@ import org.apache.commons.lang.StringUtils;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.io.IHierarchicalContent;
+import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.util.HttpRequestUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -79,18 +81,20 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
         }
     }
 
-    private static final Comparator<File> FILE_COMPARATOR = new Comparator<File>()
-        {
-            public int compare(File file1, File file2)
-            {
-                return createSortableName(file1).compareTo(createSortableName(file2));
-            }
+    private static final Comparator<IHierarchicalContentNode> NODE_COMPARATOR =
+            new Comparator<IHierarchicalContentNode>()
+                {
+                    public int compare(IHierarchicalContentNode node1,
+                            IHierarchicalContentNode node2)
+                    {
+                        return createSortableName(node1).compareTo(createSortableName(node1));
+                    }
 
-            private String createSortableName(File file)
-            {
-                return (file.isDirectory() ? "D" : "F") + file.getName().toUpperCase();
-            }
-        };
+                    private String createSortableName(IHierarchicalContentNode node)
+                    {
+                        return (node.isDirectory() ? "D" : "F") + node.getName().toUpperCase();
+                    }
+                };
 
     public DatasetDownloadServlet()
     {
@@ -226,10 +230,11 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
             String dataSetCode, HttpSession session)
     {
         File rootDir = createDataSetRootDirectory(dataSetCode, session);
+        IHierarchicalContent rootContent =
+                applicationContext.getHierarchicalContentProvider().asContent(rootDir);
         RenderingContext context =
-                new RenderingContext(rootDir, requestParams.getURLPrefix(),
+                new RenderingContext(rootDir, rootContent, requestParams.getURLPrefix(),
                         requestParams.getPathInfo(), requestParams.tryGetSessionId());
-
         return context;
     }
 
@@ -337,43 +342,46 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
             HttpSession session) throws IOException
     {
 
-        File file = renderingContext.getFile();
-        if (file.exists() == false)
-        {
-            throw new EnvironmentFailureException("File '" + file.getName() + "' does not exist.");
-        }
+        IHierarchicalContentNode node = renderingContext.getContentNode();
+        // TODO do we need exists?
+        // if (file.exists() == false)
+        // {
+        // throw new EnvironmentFailureException("File '" + file.getName() + "' does not exist.");
+        // }
+
         // If we want to browse a directory, we need a whole dataset metadata from openbis to
         // display them for the user. But if just a file is needed, then it's much faster to just
         // check the access rights in openbis.
         String sessionIdOrNull = requestParams.tryGetSessionId();
-        if (file.isDirectory())
+        if (node.isDirectory())
         {
             ExternalData dataSet = getDataSet(dataSetCode, sessionIdOrNull, session);
             if (requestParams.isAutoResolve())
             {
                 autoResolve(rendererFactory, response, dataSetCode, renderingContext,
-                        requestParams, session, file, dataSet, false);
+                        requestParams, session, node, dataSet, false);
             } else if (requestParams.isForceAutoResolve())
             {
                 autoResolve(rendererFactory, response, dataSetCode, renderingContext,
-                        requestParams, session, file, dataSet, true);
+                        requestParams, session, node, dataSet, true);
             } else
             {
-                createPage(rendererFactory, response, dataSet, renderingContext, file);
+                createPage(rendererFactory, response, dataSet, renderingContext, node);
             }
         } else
         {
             ensureDatasetAccessible(dataSetCode, session, sessionIdOrNull);
-            deliverFile(response, dataSetCode, file, requestParams.getDisplayMode());
+            deliverFile(response, dataSetCode, node, requestParams.getDisplayMode());
         }
     }
 
     private void autoResolve(IRendererFactory rendererFactory, HttpServletResponse response,
             String dataSetCode, RenderingContext renderingContext, RequestParams requestParams,
-            HttpSession session, File dir, ExternalData dataSet, boolean shouldForce)
-            throws IOException
+            HttpSession session, IHierarchicalContentNode dirNode, ExternalData dataSet,
+            boolean shouldForce) throws IOException
     {
-        assert dir.exists() && dir.isDirectory();
+        assert dirNode.isDirectory(); // exists?
+        // assert dir.exists() && dir.isDirectory();
         List<File> mainDataSets =
                 AutoResolveUtils.findSomeMatchingFiles(renderingContext.getRootDir(),
                         requestParams.tryGetMainDataSetPath(),
@@ -384,27 +392,23 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
                     FileUtilities.getRelativeFile(renderingContext.getRootDir(), new File(
                             mainDataSets.get(0).getPath()));
             RenderingContext newRenderingContext =
-                    new RenderingContext(renderingContext.getRootDir(),
-                            renderingContext.getUrlPrefix(), newRelativePath,
-                            renderingContext.getSessionIdOrNull());
+                    new RenderingContext(renderingContext, newRelativePath);
             autoResolveRedirect(response, newRenderingContext);
         } else if (AutoResolveUtils.continueAutoResolving(requestParams.tryGetMainDataSetPattern(),
-                dir))
+                dirNode.getFile()))
         {
-            assert dir.listFiles().length == 1;
-            String childName = dir.listFiles()[0].getName();
+            assert dirNode.getChildNodes().size() == 1;
+            String childName = dirNode.getChildNodes().get(0).getName();
             String oldRelativePathOrNull = renderingContext.getRelativePathOrNull();
             String pathPrefix =
                     StringUtils.isBlank(oldRelativePathOrNull) ? "" : (oldRelativePathOrNull + "/");
             String newRelativePath = pathPrefix + childName;
             RenderingContext newRenderingContext =
-                    new RenderingContext(renderingContext.getRootDir(),
-                            renderingContext.getUrlPrefix(), newRelativePath,
-                            renderingContext.getSessionIdOrNull());
+                    new RenderingContext(renderingContext, newRelativePath);
             autoResolveRedirect(response, newRenderingContext);
         } else
         {
-            createPage(rendererFactory, response, dataSet, renderingContext, dir);
+            createPage(rendererFactory, response, dataSet, renderingContext, dirNode);
         }
     }
 
@@ -426,12 +430,15 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
     }
 
     private void createPage(IRendererFactory rendererFactory, HttpServletResponse response,
-            ExternalData dataSet, RenderingContext renderingContext, File file) throws IOException
+            ExternalData dataSet, RenderingContext renderingContext,
+            IHierarchicalContentNode dirNode) throws IOException
     {
+        assert dirNode.isDirectory();
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info("For data set '" + dataSet.getCode() + "' show directory "
-                    + file.getAbsolutePath());
+            operationLog.info(String.format("For data set '%s' show directory %s",
+                    dataSet.getCode(),
+                    (dirNode.getRelativePath() == null) ? "(root)" : dirNode.getRelativePath()));
         }
         IDirectoryRenderer directoryRenderer =
                 rendererFactory.createDirectoryRenderer(renderingContext);
@@ -439,29 +446,29 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
         PrintWriter writer = null;
         try
         {
-            addNoCacheHeader(response);
+            HttpRequestUtils.setNoCacheHeaders(response);
             writer = response.getWriter();
             directoryRenderer.setWriter(writer);
-            directoryRenderer.printHeader(dataSet);
+            directoryRenderer.printHeader();
             String relativeParentPath = renderingContext.getRelativeParentPath();
             if (relativeParentPath != null)
             {
                 directoryRenderer.printLinkToParentDirectory(relativeParentPath);
             }
-            File[] children = file.listFiles();
-            Arrays.sort(children, FILE_COMPARATOR);
-            for (File child : children)
+            List<IHierarchicalContentNode> children = dirNode.getChildNodes();
+            Collections.sort(children, NODE_COMPARATOR);
+            for (IHierarchicalContentNode childNode : children)
             {
-                String name = child.getName();
-                File rootDir = renderingContext.getRootDir();
-                String relativePath = FileUtilities.getRelativeFile(rootDir, child);
+                String name = childNode.getName();
+                String relativePath = childNode.getRelativePath();
                 String normalizedRelativePath = relativePath.replace('\\', '/');
-                if (child.isDirectory())
+                if (childNode.isDirectory())
                 {
                     directoryRenderer.printDirectory(name, normalizedRelativePath);
                 } else
                 {
-                    directoryRenderer.printFile(name, normalizedRelativePath, child.length());
+                    directoryRenderer.printFile(name, normalizedRelativePath,
+                            childNode.getFileLength());
                 }
             }
             directoryRenderer.printFooter();
@@ -473,31 +480,29 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
         }
     }
 
-    private void addNoCacheHeader(HttpServletResponse response)
+    private void deliverFile(final HttpServletResponse response, String dataSetCode,
+            IHierarchicalContentNode fileNode, String displayMode) throws IOException,
+            FileNotFoundException
     {
-        response.addHeader("pragma", "no-cache");
-    }
+        assert fileNode.isDirectory() == false;
 
-    private void deliverFile(final HttpServletResponse response, String dataSetCode, File file,
-            String displayMode) throws IOException, FileNotFoundException
-    {
         String infoPostfix;
         ResponseContentStream responseStream;
         Size thumbnailSize = tryAsThumbnailDisplayMode(displayMode);
         if (thumbnailSize != null)
         {
-            BufferedImage image = createThumbnail(file, thumbnailSize);
+            BufferedImage image = createThumbnail(fileNode, thumbnailSize);
             infoPostfix = " as a thumbnail.";
-            responseStream = createResponseContentStream(image, file.getName());
+            responseStream = createResponseContentStream(image, fileNode.getName());
         } else
         {
             infoPostfix = ".";
-            responseStream = createResponseContentStream(file, displayMode);
+            responseStream = createResponseContentStream(fileNode, displayMode);
         }
         if (operationLog.isInfoEnabled())
         {
             operationLog.info("For data set '" + dataSetCode + "' deliver file "
-                    + file.getAbsolutePath() + " (" + responseStream.getSize() + " bytes)"
+                    + fileNode.getRelativePath() + " (" + responseStream.getSize() + " bytes)"
                     + infoPostfix);
         }
         writeResponseContent(responseStream, response);
@@ -513,13 +518,13 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
         return ResponseContentStream.createPNG(image, fileNameOrNull);
     }
 
-    private static ResponseContentStream createResponseContentStream(File file, String displayMode)
-            throws FileNotFoundException
+    private static ResponseContentStream createResponseContentStream(
+            IHierarchicalContentNode contentNode, String displayMode) throws FileNotFoundException
     {
-        String contentType = getMimeType(file, displayMode.equals(TEXT_MODE_DISPLAY));
+        String contentType = getMimeType(contentNode, displayMode.equals(TEXT_MODE_DISPLAY));
 
-        return ResponseContentStream.create(new FileInputStream(file), file.length(), contentType,
-                file.getName());
+        return ResponseContentStream.create(contentNode.getInputStream(),
+                contentNode.getFileLength(), contentType, contentNode.getName());
     }
 
     private ExternalData getDataSet(String dataSetCode, String sessionIdOrNull, HttpSession session)

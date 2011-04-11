@@ -20,15 +20,18 @@ import java.io.File;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.io.IHierarchicalContent;
+import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
 
 final class RenderingContext
 {
     private final File rootDir;
 
+    private final IHierarchicalContent rootContent;
+
     private final String relativePathOrNull;
 
-    private File file;
+    private final IHierarchicalContentNode fileNode;
 
     private final String urlPrefix;
 
@@ -36,22 +39,42 @@ final class RenderingContext
 
     private final String sessionIdOrNull;
 
-    RenderingContext(File rootDir, String urlPrefix, String relativePathOrNull, String sessionIdOrNull)
+    RenderingContext(File rootDir, IHierarchicalContent rootContent, String urlPrefix,
+            String relativePathOrNull, String sessionIdOrNull)
     {
         this.rootDir = rootDir;
+        this.rootContent = rootContent;
         this.relativePathOrNull = relativePathOrNull;
-        this.file = rootDir;
         this.urlPrefix = urlPrefix;
         this.sessionIdOrNull = sessionIdOrNull;
-        if (relativePathOrNull != null && relativePathOrNull.length() > 0)
+        if (relativePathOrNull.length() > 0)
         {
-            file = new File(rootDir, relativePathOrNull);
-            relativeParentPath = FileUtilities.getRelativeFile(rootDir, file.getParentFile());
+            fileNode = rootContent.getNode(relativePathOrNull);
+            relativeParentPath = fileNode.getParentRelativePath();
             if (relativeParentPath == null)
             {
                 relativeParentPath = "";
             }
+        } else
+        {
+            fileNode = rootContent.getRootNode();
         }
+    }
+
+    RenderingContext(RenderingContext oldContext, String newRelativePathOrNull)
+    {
+        this(oldContext.rootDir, oldContext.rootContent, oldContext.urlPrefix,
+                newRelativePathOrNull, oldContext.sessionIdOrNull);
+    }
+
+    public final IHierarchicalContentNode getRootNode()
+    {
+        return rootContent.getRootNode();
+    }
+
+    public final IHierarchicalContentNode getContentNode()
+    {
+        return rootContent.getNode(relativePathOrNull);
     }
 
     public final File getRootDir()
@@ -62,11 +85,6 @@ final class RenderingContext
     public final String getRelativePathOrNull()
     {
         return relativePathOrNull;
-    }
-
-    public final File getFile()
-    {
-        return file;
     }
 
     public final String getUrlPrefix()

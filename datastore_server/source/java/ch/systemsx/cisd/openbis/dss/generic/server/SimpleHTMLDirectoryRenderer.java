@@ -25,7 +25,6 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.utilities.Template;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 
 /**
  * An <code>IDirectoryRenderer</code> implementation which renders on simple HTML pages - without
@@ -79,7 +78,7 @@ final class SimpleHTMLDirectoryRenderer implements IDirectoryRenderer
         this.writer = writer;
     }
 
-    public void printHeader(final ExternalData dataSet)
+    public void printHeader()
     {
         final Template template = HEADER_TEMPLATE.createFreshCopy();
         if (StringUtils.isNotBlank(relativePathOrNull))

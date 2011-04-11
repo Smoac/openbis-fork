@@ -59,18 +59,19 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
     {
         // this is temporary implementation - it shouldn't access openBIS after LMS-2172 is done
         ExternalData dataSet = openbisService.tryGetDataSet(dataSetCode);
-        
+
         return asContent(dataSet);
     }
 
     public IHierarchicalContent asContent(IDatasetLocation datasetLocation)
     {
         // this is temporary implementation - it should access DB instead of filesystem
+        // FIXME locking
         File dataSetDirectory = directoryProvider.getDataSetDirectory(datasetLocation);
         return asContent(dataSetDirectory);
     }
 
-    private IHierarchicalContent asContent(File dataSetDirectory)
+    public IHierarchicalContent asContent(File dataSetDirectory)
     {
         return hierarchicalContentFactory.asHierarchicalContent(dataSetDirectory);
     }

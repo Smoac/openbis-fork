@@ -41,6 +41,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -258,14 +259,20 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
     }
 
     // @Protected
-    static String getMimeType(File f, boolean plainTextMode)
+    static String getMimeType(IHierarchicalContentNode fileNode, boolean plainTextMode)
+    {
+        return getMimeType(fileNode.getName(), plainTextMode);
+    }
+
+    // @Protected
+    static String getMimeType(String fileName, boolean plainTextMode)
     {
         if (plainTextMode)
         {
             return BINARY_CONTENT_TYPE;
         } else
         {
-            String extension = FilenameUtils.getExtension(f.getName());
+            String extension = FilenameUtils.getExtension(fileName);
             if (extension.length() == 0)
             {
                 return PLAIN_TEXT_CONTENT_TYPE;
@@ -274,14 +281,15 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
                 return CONTENT_TYPE_PNG;
             } else
             {
-                return MIMETYPES.getContentType(f.getName().toLowerCase());
+                return MIMETYPES.getContentType(fileName.toLowerCase());
             }
         }
     }
 
-    protected static final BufferedImage createThumbnail(File file, Size thumbnailSize)
+    protected static final BufferedImage createThumbnail(IHierarchicalContentNode fileNode,
+            Size thumbnailSize)
     {
-        BufferedImage image = ImageUtil.loadImage(file);
+        BufferedImage image = ImageUtil.loadImage(fileNode);
         return createThumbnail(image, thumbnailSize);
     }
 
@@ -330,8 +338,8 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
         IShareIdManager shareIdManager = applicationContext.getShareIdManager();
         shareIdManager.lock(dataSetCode);
         String shareId = shareIdManager.getShareId(dataSetCode);
-        return DatasetLocationUtil.getDatasetLocationPathCheckingIfExists(dataSetCode,
-                shareId, getDatabaseInstance(session), getStoreRootPath());
+        return DatasetLocationUtil.getDatasetLocationPathCheckingIfExists(dataSetCode, shareId,
+                getDatabaseInstance(session), getStoreRootPath());
     }
 
     protected final File getStoreRootPath()

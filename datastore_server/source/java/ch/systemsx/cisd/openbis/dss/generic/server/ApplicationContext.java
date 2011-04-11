@@ -17,27 +17,33 @@
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 
 /**
- *  Application context. It contains the object accessing the openBIS for retrieving the data set,
- *  configuration parameters, and the name of the application which will be a part of its URL. 
- *
+ * Application context. It contains the object accessing the openBIS for retrieving the data set,
+ * configuration parameters, and the name of the application which will be a part of its URL.
+ * 
  * @author Franz-Josef Elmer
  */
 class ApplicationContext
 {
     private final IEncapsulatedOpenBISService dataSetService;
-    
+
     private final IShareIdManager shareIdManager;
-    
+
     private final ConfigParameters configParameters;
 
-    ApplicationContext(IEncapsulatedOpenBISService service, IShareIdManager shareIdManager, ConfigParameters configParameters)
+    private final IHierarchicalContentProvider hierarchicalContentProvider;
+
+    ApplicationContext(IEncapsulatedOpenBISService service, IShareIdManager shareIdManager,
+            IHierarchicalContentProvider hierarchicalContentProvider,
+            ConfigParameters configParameters)
     {
         this.dataSetService = service;
         this.shareIdManager = shareIdManager;
         this.configParameters = configParameters;
+        this.hierarchicalContentProvider = hierarchicalContentProvider;
     }
 
     public final IEncapsulatedOpenBISService getDataSetService()
@@ -49,11 +55,15 @@ class ApplicationContext
     {
         return shareIdManager;
     }
-    
+
     public final ConfigParameters getConfigParameters()
     {
         return configParameters;
     }
 
-    
+    public IHierarchicalContentProvider getHierarchicalContentProvider()
+    {
+        return hierarchicalContentProvider;
+    }
+
 }
