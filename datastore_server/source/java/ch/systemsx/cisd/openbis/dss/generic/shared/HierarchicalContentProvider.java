@@ -46,7 +46,7 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
     }
 
     // for tests
-    HierarchicalContentProvider(IEncapsulatedOpenBISService openbisService,
+    public HierarchicalContentProvider(IEncapsulatedOpenBISService openbisService,
             IDataSetDirectoryProvider directoryProvider,
             IHierarchicalContentFactory hierarchicalContentFactory)
     {
