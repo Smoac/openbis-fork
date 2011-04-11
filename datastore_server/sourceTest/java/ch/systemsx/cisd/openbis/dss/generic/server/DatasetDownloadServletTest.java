@@ -227,8 +227,7 @@ public class DatasetDownloadServletTest
         String normalizedLogContent = getNormalizedLogContent();
         assertContains(getSessionCreationLogMessage() + OSUtilities.LINE_SEPARATOR + LOG_INFO
                 + "Data set '1234-1' obtained from openBIS server.", normalizedLogContent);
-        assertContains(OSUtilities.LINE_SEPARATOR + LOG_INFO
-                + "For data set '1234-1' show directory <wd>/1/db-uuid/0a/28/59/1234-1",
+        assertContains(LOG_INFO + "For data set '1234-1' show directory '(root)'",
                 normalizedLogContent);
 
         context.assertIsSatisfied();
@@ -371,8 +370,8 @@ public class DatasetDownloadServletTest
                         + OSUtilities.LINE_SEPARATOR
                         + "</table> </div> </body></html>"
                         + OSUtilities.LINE_SEPARATOR, writer.toString());
-        assertContains(LOG_INFO + "For data set '1234-1' show directory "
-                + EXAMPLE_DATA_SET_SUB_FOLDER_NAME, getNormalizedLogContent());
+        assertContains(LOG_INFO + "For data set '1234-1' show directory '"
+                + EXAMPLE_DATA_SET_SUB_FOLDER_NAME + "'", getNormalizedLogContent());
 
         context.assertIsSatisfied();
     }
@@ -415,10 +414,8 @@ public class DatasetDownloadServletTest
         String normalizedLogContent = getNormalizedLogContent();
         assertContains(getSessionCreationLogMessage() + OSUtilities.LINE_SEPARATOR + LOG_INFO
                 + "Check access to the data set '1234-1' at openBIS server.", normalizedLogContent);
-        assertContains(OSUtilities.LINE_SEPARATOR + LOG_INFO
-                + "For data set '1234-1' deliver file "
-                + "<wd>/1/db-uuid/0a/28/59/1234-1/read me @home.txt (12 bytes).",
-                normalizedLogContent);
+        assertContains(LOG_INFO + "For data set '1234-1' deliver file "
+                + "read me @home.txt (12 bytes).", normalizedLogContent);
 
         context.assertIsSatisfied();
     }
@@ -466,11 +463,9 @@ public class DatasetDownloadServletTest
         String normalizedLogContent = getNormalizedLogContent();
         assertContains(getSessionCreationLogMessage() + OSUtilities.LINE_SEPARATOR + LOG_INFO
                 + "Check access to the data set '1234-1' at openBIS server.", normalizedLogContent);
-        AssertionUtil
-                .assertContains(
-                        LOG_INFO
-                                + "For data set '1234-1' deliver file <wd>/1/db-uuid/0a/28/59/1234-1/read me @home.txt "
-                                + "(84 bytes) as a thumbnail.", normalizedLogContent);
+        AssertionUtil.assertContains(LOG_INFO
+                + "For data set '1234-1' deliver file 'read me @home.txt' "
+                + "(84 bytes) as a thumbnail.", normalizedLogContent);
 
         context.assertIsSatisfied();
     }
