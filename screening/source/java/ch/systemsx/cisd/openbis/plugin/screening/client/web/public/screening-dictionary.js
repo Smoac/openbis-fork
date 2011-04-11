@@ -87,6 +87,11 @@ EXPERIMENT_PLATE_MATERIAL_BROWSER_SECTION: "Library Index",
 EXPERIMENT_FEATURE_VECTOR_SUMMARY_SECTION: "Feature Vector Summary",
 experiment_feature_vector_summary_section_RANK: "Rank",
 
+material_replica_feature_summary_FEATURE: "Feature",
+material_replica_feature_summary_RANK: "Rank",
+material_replica_feature_summary_MEDIAN: "Median",
+material_replica_feature_summary_DEVIATION: "Deviation",
+
 EXACT_MATCH_ONLY: "Exact Matches Only",
 WELLS_SEARCH_SHOW_COMBINED_RESULTS: "Show all matching results combined",
 WELL_SEARCH_NO_RESULTS_IN_ANY_EXP_FOUND: "All assays have been searched and no results match the query. Please check the spelling.",

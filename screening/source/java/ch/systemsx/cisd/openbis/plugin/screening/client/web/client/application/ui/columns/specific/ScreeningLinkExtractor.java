@@ -72,6 +72,17 @@ public class ScreeningLinkExtractor extends LinkExtractor
     public final static String FEATURE_VECTOR_SUMMARY_EXPERIMENT_PERMID_PARAMETER_KEY =
             "experimentPermId";
 
+    public final static String MATERIAL_REPLICA_FEATURE_SUMMARY_ACTION =
+            "MATERIAL_REPLICA_FEATURE_SUMMARY";
+
+    public final static String MATERIAL_REPLICA_FEATURE_SUMMARY_EXPERIMENT_PERM_ID_KEY =
+            "experimentPermId";
+
+    public final static String MATERIAL_REPLICA_FEATURE_SUMMARY_MATERIAL_CODE_KEY = "materialCode";
+
+    public final static String MATERIAL_REPLICA_FEATURE_SUMMARY_MATERIAL_TYPE_CODE_KEY =
+            "materialTypeCode";
+
     public static final String createPlateMetadataBrowserLink(String platePermId)
     {
         URLMethodWithParameters url = new URLMethodWithParameters("");
@@ -85,6 +96,18 @@ public class ScreeningLinkExtractor extends LinkExtractor
         URLMethodWithParameters url = new URLMethodWithParameters("");
         url.addParameter(BasicConstant.LOCATOR_ACTION_PARAMETER, FEATURE_VECTOR_SUMMARY_ACTION);
         url.addParameter(FEATURE_VECTOR_SUMMARY_EXPERIMENT_PERMID_PARAMETER_KEY, experimentPermId);
+        return tryPrint(url);
+    }
+
+    public static final String createMaterialReplicaFeatureSummaryBrowserLink(
+            String experimentPermId, String materialCode, String materialTypeCode)
+    {
+        URLMethodWithParameters url = new URLMethodWithParameters("");
+        url.addParameter(BasicConstant.LOCATOR_ACTION_PARAMETER,
+                MATERIAL_REPLICA_FEATURE_SUMMARY_ACTION);
+        url.addParameter(MATERIAL_REPLICA_FEATURE_SUMMARY_EXPERIMENT_PERM_ID_KEY, experimentPermId);
+        url.addParameter(MATERIAL_REPLICA_FEATURE_SUMMARY_MATERIAL_CODE_KEY, materialCode);
+        url.addParameter(MATERIAL_REPLICA_FEATURE_SUMMARY_MATERIAL_TYPE_CODE_KEY, materialTypeCode);
         return tryPrint(url);
     }
 

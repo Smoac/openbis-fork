@@ -11,7 +11,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.u
 /**
  * Locator resolver for plate metadata browser.
  * 
- * @author Tomasz Pylak
+ * @author Kaloyan Enimanev
  */
 public class FeatureVectorSummaryResolver extends AbstractViewLocatorResolver
 {

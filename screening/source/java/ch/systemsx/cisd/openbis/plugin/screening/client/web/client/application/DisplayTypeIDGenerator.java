@@ -39,7 +39,9 @@ public enum DisplayTypeIDGenerator implements IDisplayTypeIDGenerator
 
     EXPERIMENT_WELL_MATERIALS_SECTION("experiment-well-materials-section"),
 
-    EXPERIMENT_FEATURE_VECTOR_SUMMARY_SECTION("experiment-feature-vector-summary-section");
+    EXPERIMENT_FEATURE_VECTOR_SUMMARY_SECTION("experiment-feature-vector-summary-section"),
+    
+    MATERIAL_REPLICA_FEATURE_SUMMARY_SECTION("material-replica-feature-summary-section");
 
     private final String genericNameOrPrefix;
 

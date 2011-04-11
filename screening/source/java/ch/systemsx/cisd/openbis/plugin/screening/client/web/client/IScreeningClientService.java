@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleCon
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialFeatureVectorSummary;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaFeatureSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
@@ -172,10 +173,17 @@ public interface IScreeningClientService extends IClientService
     public Vocabulary getPlateGeometryVocabulary() throws UserFailureException;
 
     /**
-     * Lists {@link MaterialFeatureVectorSummary} for a given experiment.
+     * Return the selected {@link MaterialFeatureVectorSummary}-s for a given experiment.
      */
     public TypedTableResultSet<MaterialFeatureVectorSummary> listExperimentFeatureVectorSummary(
             IResultSetConfig<String, TableModelRowWithObject<MaterialFeatureVectorSummary>> resultSetConfig,
             TechId experimentId) throws UserFailureException;
 
+    /**
+     * Return the selected {@link MaterialReplicaFeatureSummary}-s for a given experiment and
+     * material.
+     */
+    public TypedTableResultSet<MaterialReplicaFeatureSummary> listMaterialReplicaFeatureSummary(
+            IResultSetConfig<String, TableModelRowWithObject<MaterialReplicaFeatureSummary>> resultSetConfig,
+            TechId experimentId, TechId materialId) throws UserFailureException;
 }
