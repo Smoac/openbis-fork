@@ -17,45 +17,48 @@
 package ch.systemsx.cisd.openbis.dss.etl;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
-import ch.systemsx.cisd.common.io.ByteArrayBasedContent;
+import ch.systemsx.cisd.common.io.HDF5DataSetBasedContent;
 import ch.systemsx.cisd.common.io.IContent;
-import ch.systemsx.cisd.etlserver.hdf5.Hdf5Container;
-import ch.systemsx.cisd.hdf5.IHDF5SimpleReader;
 
 /**
+ * A content repository that is backed by an HDF5 container.
+ * 
  * @author Franz-Josef Elmer
  */
 public class Hdf5BasedContentRepository implements IContentRepository
 {
-    private final Hdf5Container hdf5Container;
+    private final File hdf5ContainerFile;
 
-    private IHDF5SimpleReader reader;
+    private final List<HDF5DataSetBasedContent> contentList;
 
     public Hdf5BasedContentRepository(File hdf5ContainerFile)
     {
-        this.hdf5Container = new Hdf5Container(hdf5ContainerFile);
+        this.hdf5ContainerFile = hdf5ContainerFile;
+        this.contentList = new ArrayList<HDF5DataSetBasedContent>();
     }
 
     public void open()
     {
-        reader = hdf5Container.createSimpleReader();
+        // That's a no-op.
     }
 
     public IContent getContent(String path)
     {
-        if (reader == null)
-        {
-            throw new IllegalStateException("open() method hasn't be invoked.");
-        }
-        byte[] content = reader.readAsByteArray(path);
-        int index = path.lastIndexOf('/');
-        return new ByteArrayBasedContent(content, index < 0 ? path : path.substring(index + 1));
+        final HDF5DataSetBasedContent content =
+                new HDF5DataSetBasedContent(hdf5ContainerFile, path);
+        contentList.add(content);
+        return content;
     }
 
     public void close()
     {
-        reader.close();
+        for (HDF5DataSetBasedContent content : contentList)
+        {
+            content.close();
+        }
     }
 
 }
