@@ -43,8 +43,8 @@ import ch.systemsx.cisd.common.maintenance.IDataStoreLockingMaintenanceTask;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.etlserver.ETLDaemon;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IncomingShareIdProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
@@ -135,7 +135,7 @@ public class SegmentedStoreShufflingTask implements IDataStoreLockingMaintenance
 
     public SegmentedStoreShufflingTask()
     {
-        this(ETLDaemon.getIdsOfIncomingShares(), ServiceProvider.getOpenBISService(),
+        this(IncomingShareIdProvider.getIdsOfIncomingShares(), ServiceProvider.getOpenBISService(),
                 new SimpleFreeSpaceProvider(), new DataSetMover(
                         ServiceProvider.getOpenBISService(), ServiceProvider.getShareIdManager()),
                 new Log4jSimpleLogger(operationLog));

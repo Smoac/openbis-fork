@@ -34,12 +34,12 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
-import ch.systemsx.cisd.etlserver.ETLDaemon;
 import ch.systemsx.cisd.etlserver.plugins.DataSetMover;
 import ch.systemsx.cisd.etlserver.plugins.IDataSetMover;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IncomingShareIdProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
@@ -91,8 +91,8 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
     
     public EagerShufflingTask(Properties properties, IEncapsulatedOpenBISService service)
     {
-        this(properties, ETLDaemon.getIdsOfIncomingShares(), service, ServiceProvider.getShareIdManager(),
-                new SimpleFreeSpaceProvider(), new DataSetMover(service,
+        this(properties, IncomingShareIdProvider.getIdsOfIncomingShares(), service, ServiceProvider
+                .getShareIdManager(), new SimpleFreeSpaceProvider(), new DataSetMover(service,
                 ServiceProvider.getShareIdManager()), ServiceProvider.getConfigProvider(),
                 new Log4jSimpleLogger(operationLog));
     }

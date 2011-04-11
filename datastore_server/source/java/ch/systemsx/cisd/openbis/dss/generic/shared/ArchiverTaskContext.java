@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+
 
 /**
  * Context for perfoming archiving/unarchiving.
@@ -25,6 +27,12 @@ package ch.systemsx.cisd.openbis.dss.generic.shared;
 public class ArchiverTaskContext
 {
     private final IDataSetDirectoryProvider directoryProvider;
+    private IUnarchivingPreparation unarchivingPreparation = new IUnarchivingPreparation()
+        {
+            public void prepareForUnarchiving(DatasetDescription dataSet)
+            {
+            }
+        };
 
     public ArchiverTaskContext(IDataSetDirectoryProvider directoryProvider)
     {
@@ -35,4 +43,20 @@ public class ArchiverTaskContext
     {
         return directoryProvider;
     }
+
+    public void setUnarchivingPreparation(IUnarchivingPreparation unarchivingPreparation)
+    {
+        if (unarchivingPreparation == null)
+        {
+            throw new IllegalArgumentException("Unspecified unarchiving preparation object.");
+        }
+        this.unarchivingPreparation = unarchivingPreparation;
+    }
+
+    public IUnarchivingPreparation getUnarchivingPreparation()
+    {
+        return unarchivingPreparation;
+    }
+    
+    
 }

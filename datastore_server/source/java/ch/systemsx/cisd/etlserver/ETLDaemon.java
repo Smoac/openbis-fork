@@ -19,11 +19,9 @@ package ch.systemsx.cisd.etlserver;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
-import java.util.Collections;
-import java.util.LinkedHashSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 import java.util.Timer;
 import java.util.concurrent.TimeUnit;
 
@@ -68,6 +66,7 @@ import ch.systemsx.cisd.etlserver.validation.DataSetValidator;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IncomingShareIdProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.QueueingDataSetStatusUpdaterService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetCodesWithStatus;
@@ -97,13 +96,6 @@ public final class ETLDaemon
 
     @Private
     static IExitHandler exitHandler = SystemExit.SYSTEM_EXIT;
-
-    private static final Set<String> incomingShares = new LinkedHashSet<String>();
-
-    public static Set<String> getIdsOfIncomingShares()
-    {
-        return Collections.unmodifiableSet(incomingShares);
-    }
 
     private static void printInitialLogMessage(final Parameters parameters)
     {
@@ -234,6 +226,7 @@ public final class ETLDaemon
         final IMailClient mailClient = new MailClient(mailProperties);
         File storeRootDir = DssPropertyParametersUtil.getStoreRootDir(parameters.getProperties());
         File[] shares = SegmentedStoreUtils.getShares(storeRootDir);
+        List<String> incomingShares = new ArrayList<String>();
         for (final ThreadParameters threadParameters : threads)
         {
             File incomingDataDirectory = threadParameters.getIncomingDataDirectory();
@@ -245,6 +238,7 @@ public final class ETLDaemon
                     highwaterMarkWatcher, mailClient, dataSetValidator,
                     notifySuccessfulRegistration);
         }
+        IncomingShareIdProvider.add(incomingShares);
         mailClient.sendTestEmail();
     }
 

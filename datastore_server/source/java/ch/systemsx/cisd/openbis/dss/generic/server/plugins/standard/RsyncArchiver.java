@@ -92,6 +92,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
         DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
         for (DatasetDescription dataset : datasets)
         {
+            context.getUnarchivingPreparation().prepareForUnarchiving(dataset);
             File originalData = getDatasetDirectory(context, dataset);
             Status status = doUnarchive(dataset, originalData);
             statuses.addResult(dataset.getDatasetCode(), status, Operation.UNARCHIVE);
