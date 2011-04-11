@@ -500,8 +500,8 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
         }
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info("For data set '" + dataSetCode + "' deliver file "
-                    + fileNode.getRelativePath() + " (" + responseStream.getSize() + " bytes)"
+            operationLog.info("For data set '" + dataSetCode + "' deliver file '"
+                    + fileNode.getRelativePath() + "' (" + responseStream.getSize() + " bytes)"
                     + infoPostfix);
         }
         writeResponseContent(responseStream, response);
