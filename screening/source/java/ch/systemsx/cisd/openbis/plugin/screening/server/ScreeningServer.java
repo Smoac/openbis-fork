@@ -19,10 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.server;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Random;
-import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -52,7 +49,6 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlug
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
@@ -73,6 +69,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningQue
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ExperimentFeatureVectorSummaryLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.FeatureVectorValuesLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.LogicalImageLoader;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.MaterialFeatureVectorSummaryLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.PlateContentLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ScreeningApiImpl;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.WellContentLoader;
@@ -98,7 +95,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEn
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialAllReplicasFeatureVectors;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaFeatureSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaFeatureSummaryResult;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaSubgroupFeatureSummary;
@@ -112,8 +108,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialSearchCriteria;
 
 /**
  * The concrete {@link IScreeningServer} implementation.
@@ -309,7 +303,93 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         settings.setAggregationType(MaterialReplicaSummaryAggregationType.MEDIAN);
         settings.setFeatureCodes(new ArrayList<String>());
         settings.setReplicaMatrialTypePatterns(ScreeningConstants.REPLICA_METERIAL_TYPE_PATTERN);
+        settings.setSubgroupPropertyTypeCodes("CONCENTRATION", "SIRNA");
         return settings;
+    }
+
+    public MaterialReplicaFeatureSummaryResult getFeatureVectorReplicaSummary(String sessionToken,
+            TechId experimentId, TechId materialId)
+    {
+        Session session = getSession(sessionToken);
+        // NOTE: we want the settings t be passed form the client in future
+        MaterialSummarySettings settings = createDefaultSettings();
+        MaterialAllReplicasFeatureVectors backendResult =
+                MaterialFeatureVectorSummaryLoader.tryLoadMaterialFeatureVectors(session,
+                        businessObjectFactory, getDAOFactory(), materialId, experimentId, settings);
+        return convert(backendResult);
+    }
+
+    private MaterialReplicaFeatureSummaryResult convert(
+            MaterialAllReplicasFeatureVectors backendResult)
+    {
+        List<String> subgroupLabels = new ArrayList<String>();
+        final List<MaterialReplicaSubgroupFeatureVector> backendSubgroups =
+                backendResult.getSubgroups();
+        for (MaterialReplicaSubgroupFeatureVector backendSubgroup : backendSubgroups)
+        {
+            subgroupLabels.add(backendSubgroup.getSubgroupLabel());
+        }
+
+        List<MaterialReplicaFeatureSummary> replicaRows =
+                new ArrayList<MaterialReplicaFeatureSummary>();
+        float[] featureVectorDeviatons =
+                backendResult.getGeneralSummary().getFeatureVectorDeviations();
+        float[] featureVectorSummaries =
+                backendResult.getGeneralSummary().getFeatureVectorSummary();
+        int[] featureVectorRanks = backendResult.getGeneralSummary().getFeatureVectorRanks();
+
+        final List<CodeAndLabel> featureDescriptions = backendResult.getFeatureDescriptions();
+
+        int numFeatures = featureDescriptions.size();
+        for (int i = 0; i < numFeatures; i++)
+        {
+            MaterialReplicaFeatureSummary replicaRow = new MaterialReplicaFeatureSummary();
+            replicaRows.add(replicaRow);
+
+            replicaRow.setFeatureVectorDeviation(featureVectorDeviatons[i]);
+            replicaRow.setFeatureVectorSummary(featureVectorSummaries[i]);
+            replicaRow.setFeatureVectorRank(featureVectorRanks[i]);
+            replicaRow.setFeatureDescription(featureDescriptions.get(i));
+
+            float[] defaultFeatureValues = extractFeatureValues(i, backendResult.getReplicas());
+            if (defaultFeatureValues != null)
+            {
+                MaterialReplicaSubgroupFeatureSummary defaultReplica =
+                        new MaterialReplicaSubgroupFeatureSummary(defaultFeatureValues, 0,
+                                MaterialReplicaSummaryAggregationType.MEDIAN);
+                replicaRow.setDefaultSubgroup(defaultReplica);
+            }
+
+            List<MaterialReplicaSubgroupFeatureSummary> subgroups =
+                    new ArrayList<MaterialReplicaSubgroupFeatureSummary>();
+            replicaRow.setReplicaSubgroups(subgroups);
+            for (int tmp = 0; tmp < backendSubgroups.size(); tmp++)
+            {
+                MaterialReplicaSubgroupFeatureVector backendGroup = backendSubgroups.get(tmp);
+                final float[] aggregatedSummaries = backendGroup.getAggregatedSummary();
+                float[] featureValues =
+                        extractFeatureValues(i, backendGroup.getSingleReplicaValues());
+                MaterialReplicaSubgroupFeatureSummary subgroup =
+                        new MaterialReplicaSubgroupFeatureSummary(featureValues,
+                                aggregatedSummaries[i], backendGroup.getSummaryAggregationType());
+                subgroups.add(subgroup);
+            }
+        }
+
+        return new MaterialReplicaFeatureSummaryResult(subgroupLabels, replicaRows);
+
+    }
+
+    private float[] extractFeatureValues(int i, List<MaterialSingleReplicaFeatureVector> replicas)
+    {
+        float[] result = new float[replicas.size()];
+        for (int pos = 0; pos < result.length; pos++)
+        {
+            float[] aggregatedValues = replicas.get(pos).getFeatueVectorSummary();
+            result[pos] = aggregatedValues[i];
+
+        }
+        return result;
     }
 
     // --------- IScreeningOpenbisServer - method signature should be changed with care
@@ -438,219 +518,4 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     {
         return MINOR_VERSION;
     }
-
-    // TODO KE: 2011-04-11 this is a mock implementation. Tomek/I will have to connect it to real
-    // backend ASAP. All data generation methods underneath must be removed in the final
-    // version of the code.
-    public MaterialReplicaFeatureSummaryResult getFeatureVectorReplicaSummary(String sessionToken,
-            TechId experimentId, TechId materialId)
-    {
-        MaterialAllReplicasFeatureVectors backendResult =
-                getFeatureVectorReplicaSummaryInternal(sessionToken);
-        return convert(backendResult);
-    }
-
-    private MaterialReplicaFeatureSummaryResult convert(
-            MaterialAllReplicasFeatureVectors backendResult)
-    {
-        List<String> subgroupLabels = new ArrayList<String>();
-        final List<MaterialReplicaSubgroupFeatureVector> backendSubgroups =
-                backendResult.getSubgroups();
-        for (MaterialReplicaSubgroupFeatureVector backendSubgroup : backendSubgroups)
-        {
-            subgroupLabels.add(backendSubgroup.getSubgroupLabel());
-        }
-        
-        List<MaterialReplicaFeatureSummary> replicaRows = new ArrayList<MaterialReplicaFeatureSummary>();
-        float[] featureVectorDeviatons =
-                backendResult.getGeneralSummary().getFeatureVectorDeviations();
-        float[] featureVectorSummaries =
-                backendResult.getGeneralSummary().getFeatureVectorSummary();
-        int[] featureVectorRanks = backendResult.getGeneralSummary().getFeatureVectorRanks();
-        
-        final List<CodeAndLabel> featureDescriptions = backendResult.getFeatureDescriptions();
-        
-        int numFeatures = featureDescriptions.size();
-        for (int i = 0; i < numFeatures; i++){
-            MaterialReplicaFeatureSummary replicaRow = new MaterialReplicaFeatureSummary();
-            replicaRows.add(replicaRow);
-            
-            replicaRow.setFeatureVectorDeviation(featureVectorDeviatons[i]);
-            replicaRow.setFeatureVectorSummary(featureVectorSummaries[i]);
-            replicaRow.setFeatureVectorRank(featureVectorRanks[i]);
-            replicaRow.setFeatureDescription(featureDescriptions.get(i));
-            
-            float[] defaultFeatureValues =
-                    extractFeatureValues(i, backendResult.getReplicas());
-            if (defaultFeatureValues != null)
-            {
-                MaterialReplicaSubgroupFeatureSummary defaultReplica =
-                        new MaterialReplicaSubgroupFeatureSummary(defaultFeatureValues, 0,
-                                MaterialReplicaSummaryAggregationType.MEDIAN);
-                replicaRow.setDefaultSubgroup(defaultReplica);
-            }
-
-            List<MaterialReplicaSubgroupFeatureSummary> subgroups =
-                    new ArrayList<MaterialReplicaSubgroupFeatureSummary>();
-            replicaRow.setReplicaSubgroups(subgroups);
-            for (int tmp = 0; tmp < backendSubgroups.size(); tmp++)
-            {
-                MaterialReplicaSubgroupFeatureVector backendGroup = backendSubgroups.get(tmp);
-                final float[] aggregatedSummaries = backendGroup.getAggregatedSummary();
-                float[] featureValues =
-                        extractFeatureValues(i, backendGroup.getSingleReplicaValues());
-                MaterialReplicaSubgroupFeatureSummary subgroup =
-                        new MaterialReplicaSubgroupFeatureSummary(featureValues,
-                                aggregatedSummaries[i], backendGroup.getSummaryAggregationType());
-                subgroups.add(subgroup);
-            }
-        }
-        
-        return new MaterialReplicaFeatureSummaryResult(subgroupLabels, replicaRows );
-
-    }
-
-    private float[] extractFeatureValues(int i, List<MaterialSingleReplicaFeatureVector> replicas)
-    {
-        float[] result = new float[replicas.size()];
-        for (int pos = 0; pos < result.length; pos++)
-        {
-            float[] aggregatedValues = replicas.get(pos).getFeatueVectorSummary();
-            result[pos] = aggregatedValues[i];
-
-        }
-        return result;
-    }
-
-    private List<CodeAndLabel> generateFeatureDescriptions(int numFeatureVectors)
-    {
-        List<CodeAndLabel> featureDescs = new ArrayList<CodeAndLabel>();
-        for (int i = 0; i < numFeatureVectors; i++)
-        {
-            CodeAndLabel codeAndLabel = generateCodesAndLabel("Label-" + i);
-            featureDescs.add(codeAndLabel);
-        }
-        return featureDescs;
-    }
-
-    private List<Material> getExistingMaterials(String sessionToken)
-    {
-        String[] materialCodes = new String[]
-            { "BACTERIUM-X", "BACTERIUM-Y", "747", "gfp", "scrum", "m1", "m2", "m5" };
-        List<MaterialType> materialTypes = commonServer.listMaterialTypes(sessionToken);
-        String[] materialTypeCodes = Code.extractCodesToArray(materialTypes);
-
-        WellSearchCriteria searchCriteria =
-                new WellSearchCriteria(ExperimentSearchCriteria.createAllExperiments(),
-                        MaterialSearchCriteria.createCodesCriteria(materialCodes,
-                                materialTypeCodes, false));
-
-        List<Material> existingMaterials = listMaterials(sessionToken, searchCriteria);
-        return existingMaterials;
-    }
-
-    private static int invokationCounter = 0;
-
-    private MaterialAllReplicasFeatureVectors getFeatureVectorReplicaSummaryInternal(
-            String sessionToken)
-    {
-        final int numFeatures = 10;
-        
-        List<CodeAndLabel> featureDescs = generateFeatureDescriptions(numFeatures);
-        List<Material> existingMaterials = getExistingMaterials(sessionToken);
-        List<MaterialSingleReplicaFeatureVector> replicas =
-                generateSingleReplicaVector(numFeatures);
-        List<MaterialReplicaSubgroupFeatureVector> subgroups = Collections.emptyList();
-        if (invokationCounter++ % 2 == 0)
-        {
-            // initialize subgroups
-            subgroups = generateReplicaSubgroups(numFeatures);
-
-        }
-        MaterialFeatureVectorSummary materialSummary =
-            new MaterialFeatureVectorSummary(randomMaterial(existingMaterials),
-                        generateFloats(numFeatures), generateFloats(numFeatures),
-                        generateInts(numFeatures));
-        MaterialAllReplicasFeatureVectors result =
-                new MaterialAllReplicasFeatureVectors(featureDescs, materialSummary, subgroups,
-                        replicas);
-
-        return result;
-    }
-
-    private List<MaterialReplicaSubgroupFeatureVector> generateReplicaSubgroups(int numFeatures)
-    {
-        int numGroups = new Random().nextInt(5) + 1;
-        List<MaterialReplicaSubgroupFeatureVector> result =
-                new ArrayList<MaterialReplicaSubgroupFeatureVector>();
-        for (int i = 0; i < numGroups; i++)
-        {
-            String groupLabel = Character.toString((char) ('A' + i));
-            MaterialReplicaSubgroupFeatureVector subgroup =
-                    new MaterialReplicaSubgroupFeatureVector(
-                            generateSingleReplicaVector(numFeatures), generateFloats(numFeatures),
-                            MaterialReplicaSummaryAggregationType.MEDIAN, groupLabel);
-            result.add(subgroup);
-
-        }
-        return result;
-    }
-
-    private List<MaterialSingleReplicaFeatureVector> generateSingleReplicaVector(int numFeatures)
-    {
-        int numCols = new Random().nextInt(3) + 1;
-        List<MaterialSingleReplicaFeatureVector> result =
-                new ArrayList<MaterialSingleReplicaFeatureVector>();
-        for (int i = 0; i < numCols; i++)
-        {
-            MaterialSingleReplicaFeatureVector singleReplica =
-                    new MaterialSingleReplicaFeatureVector(i, generateFloats(numFeatures));
-            result.add(singleReplica);
-        }
-
-        return result;
-    }
-
-    private Material randomMaterial(List<Material> existingMaterials)
-    {
-        int idx = new Random().nextInt(existingMaterials.size());
-        return existingMaterials.get(idx);
-    }
-
-    private CodeAndLabel generateCodesAndLabel(String label)
-    {
-        CodeAndLabel result = new CodeAndLabel(generateString(), label);
-        return result;
-    }
-
-    private float[] generateFloats(int len)
-    {
-        float[] result = new float[len];
-        for (int i = 0; i < len; i++)
-        {
-            result[i] = new Random().nextFloat() * 20;
-
-        }
-        return result;
-    }
-
-    private int[] generateInts(int len)
-    {
-        int[] result = new int[len];
-        for (int i = 0; i < len; i++)
-        {
-            result[i] = new Random().nextInt(100);
-
-        }
-        return result;
-    }
-
-    private String generateString()
-    {
-        int len = new Random().nextInt(8) + 5;
-        String str = UUID.randomUUID().toString().substring(0, len);
-        return str;
-    }
-
-
 }

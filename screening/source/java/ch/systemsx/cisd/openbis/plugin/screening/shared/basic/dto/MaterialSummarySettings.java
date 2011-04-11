@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
+import java.util.Arrays;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
@@ -32,7 +33,7 @@ public class MaterialSummarySettings implements ISerializable
 
     private String replicaMatrialTypePattern;
 
-    private String subgroupPropertyTypeCode;
+    private List<String> subgroupPropertyTypeCodes;
 
     private MaterialReplicaSummaryAggregationType aggregationType;
 
@@ -56,14 +57,14 @@ public class MaterialSummarySettings implements ISerializable
         this.replicaMatrialTypePattern = replicaMatrialTypePattern;
     }
 
-    public String getSubgroupPropertyTypeCode()
+    public List<String> getSubgroupPropertyTypeCodes()
     {
-        return subgroupPropertyTypeCode;
+        return subgroupPropertyTypeCodes;
     }
 
-    public void setSubgroupPropertyTypeCode(String subgroupPropertyTypeCode)
+    public void setSubgroupPropertyTypeCodes(String... subgroupPropertyTypeCodes)
     {
-        this.subgroupPropertyTypeCode = subgroupPropertyTypeCode;
+        this.subgroupPropertyTypeCodes = Arrays.asList(subgroupPropertyTypeCodes);
     }
 
     public MaterialReplicaSummaryAggregationType getAggregationType()

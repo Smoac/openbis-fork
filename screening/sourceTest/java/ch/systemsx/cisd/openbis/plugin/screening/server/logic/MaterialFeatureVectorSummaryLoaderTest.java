@@ -59,7 +59,7 @@ public class MaterialFeatureVectorSummaryLoaderTest extends AssertJUnit
     {
         MaterialSummarySettings settings = new MaterialSummarySettings();
         settings.setAggregationType(MaterialReplicaSummaryAggregationType.MEDIAN);
-        settings.setSubgroupPropertyTypeCode(SIRNA_PROPERTY_TYPE_CODE);
+        settings.setSubgroupPropertyTypeCodes(SIRNA_PROPERTY_TYPE_CODE);
         int replId = 0;
         List<IWellData> wellDataList = Arrays.asList(
         // repl. 1 group 1

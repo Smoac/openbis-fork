@@ -195,12 +195,12 @@ public class MaterialFeatureVectorSummaryLoader extends ExperimentFeatureVectorS
 
     private IEntityProperty tryFindSubgroupProperty(Sample well)
     {
-        String subgroupPropertyTypeCode = settings.getSubgroupPropertyTypeCode();
-        if (subgroupPropertyTypeCode == null)
+        List<String> subgroupPropertyTypeCodes = settings.getSubgroupPropertyTypeCodes();
+        if (subgroupPropertyTypeCodes == null)
         {
             return null;
         }
-        return tryFindProperty(well.getProperties(), subgroupPropertyTypeCode);
+        return tryFindProperty(well.getProperties(), subgroupPropertyTypeCodes);
     }
 
     private MaterialFeatureVectorSummary tryCalculateMaterialSummary(TechId materialId,
@@ -274,11 +274,11 @@ public class MaterialFeatureVectorSummaryLoader extends ExperimentFeatureVectorS
     }
 
     private static IEntityProperty tryFindProperty(List<IEntityProperty> properties,
-            String propertyTypeCode)
+            List<String> subgroupPropertyTypeCodes)
     {
         for (IEntityProperty property : properties)
         {
-            if (property.getPropertyType().getCode().equals(propertyTypeCode))
+            if (subgroupPropertyTypeCodes.contains(property.getPropertyType().getCode()))
             {
                 return property;
             }
