@@ -27,6 +27,13 @@ public class HierarchicalContentFactory implements IHierarchicalContentFactory
 {
     public IHierarchicalContent asHierarchicalContent(File file)
     {
-        return new SimpleFileBasedHierarchicalContent(file);
+        return new DefaultFileBasedHierarchicalContent(this, file);
     }
+
+    public IHierarchicalContentNode asHierarchicalContentNode(IHierarchicalContent rootContent,
+            File file)
+    {
+        return new DefaultFileBasedHierarchicalContentNode(this, rootContent, file);
+    }
+
 }

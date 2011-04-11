@@ -16,11 +16,17 @@
 
 package ch.systemsx.cisd.common.io;
 
+import java.io.File;
+
 /**
  * @author Chandrasekhar Ramakrishnan
  * @author Piotr Buczek
  */
 public interface IHierarchicalContentFactory
 {
-    public IHierarchicalContent asHierarchicalContent(java.io.File file);
+    public IHierarchicalContent asHierarchicalContent(File file);
+
+    public IHierarchicalContentNode asHierarchicalContentNode(IHierarchicalContent rootContent,
+            File file);
+
 }
