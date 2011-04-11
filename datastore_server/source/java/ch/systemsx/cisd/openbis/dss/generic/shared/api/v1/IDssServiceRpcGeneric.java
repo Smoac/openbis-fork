@@ -126,4 +126,19 @@ public interface IDssServiceRpcGeneric extends IRpcService
             @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class) String dataSetCode,
             String overrideStoreRootPathOrNull) throws IOExceptionUnchecked,
             IllegalArgumentException;
+
+    /**
+     * Get the validation script for the specified data set type.
+     * 
+     * @param sessionToken The session token
+     * @param dataSetTypeOrNull The data set type the script should validate, or null to request the
+     *            generic validation script.
+     * @return The string of the python (jython) script for the validation or null if there is no
+     *         applicable validation script.
+     * @throws IOExceptionUnchecked Thrown if an IOException occurs when accessing the script
+     * @throws IllegalArgumentException Thrown if the data set type or startPath are not valid
+     * @since 1.2
+     */
+    public String getValidationScript(String sessionToken, String dataSetTypeOrNull)
+            throws IOExceptionUnchecked, IllegalArgumentException;
 }

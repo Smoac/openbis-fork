@@ -43,6 +43,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataStoreApiUrlUtiliti
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationScriptRunner;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 
 /**
@@ -197,6 +199,12 @@ public class DssComponent implements IDssComponent
     {
         return state.putDataSet(newDataset, dataSetFile);
     }
+
+    public List<ValidationError> validateDataSet(NewDataSetDTO newDataset, File dataSetFile)
+            throws IllegalStateException, EnvironmentFailureException
+    {
+        return state.validateDataSet(newDataset, dataSetFile);
+    }
 }
 
 /**
@@ -227,6 +235,12 @@ abstract class AbstractDssComponentState implements IDssComponent
     }
 
     public IDataSetDss putDataSet(NewDataSetDTO newDataset, File dataSetFile)
+            throws IllegalStateException, EnvironmentFailureException
+    {
+        throw new IllegalStateException("Please log in");
+    }
+
+    public List<ValidationError> validateDataSet(NewDataSetDTO newDataset, File dataSetFile)
             throws IllegalStateException, EnvironmentFailureException
     {
         throw new IllegalStateException("Please log in");
@@ -355,14 +369,20 @@ class AuthenticatedState extends AbstractDssComponentState
     public IDataSetDss putDataSet(NewDataSetDTO newDataset, File dataSetFile)
             throws IllegalStateException, EnvironmentFailureException
     {
-        String url = service.getDefaultPutDataStoreBaseURL(sessionToken);
-        url = DataStoreApiUrlUtilities.getDataStoreUrlFromDownloadUrl(url);
-        IDssServiceRpcGeneric dssService = getDssServiceForUrl(url);
+        IDssServiceRpcGeneric dssService = getServiceForPutDataStore();
         ConcatenatedContentInputStream fileInputStream =
                 new ConcatenatedContentInputStream(true, getContentForFileInfos(
                         dataSetFile.getPath(), newDataset.getFileInfos()));
         String code = dssService.putDataSet(sessionToken, newDataset, fileInputStream);
         return new DataSetDss(code, dssService, this);
+    }
+
+    private IDssServiceRpcGeneric getServiceForPutDataStore()
+    {
+        String url = service.getDefaultPutDataStoreBaseURL(sessionToken);
+        url = DataStoreApiUrlUtilities.getDataStoreUrlFromDownloadUrl(url);
+        IDssServiceRpcGeneric dssService = getDssServiceForUrl(url);
+        return dssService;
     }
 
     private List<IContent> getContentForFileInfos(String filePath, List<FileInfoDssDTO> fileInfos)
@@ -536,4 +556,26 @@ class AuthenticatedState extends AbstractDssComponentState
         return sessionToken;
     }
 
+    @Override
+    public List<ValidationError> validateDataSet(NewDataSetDTO newDataset, File dataSetFile)
+            throws IllegalStateException, EnvironmentFailureException
+    {
+        IDssServiceRpcGeneric dssService = getServiceForPutDataStore();
+
+        // Validation script support was introduced in minor version 2. Skip validating if the
+        // server doesn't support it.
+        if (dssService.getMinorVersion() < 2)
+        {
+            return new ArrayList<ValidationError>();
+        }
+        String validationScript =
+                dssService.getValidationScript(sessionToken, newDataset.tryDataSetType());
+        if (null == validationScript)
+        {
+            return new ArrayList<ValidationError>();
+        }
+        ValidationScriptRunner runner =
+                ValidationScriptRunner.createValidatorFromScriptString(validationScript);
+        return runner.validate(dataSetFile);
+    }
 }

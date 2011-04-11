@@ -17,10 +17,12 @@
 package ch.systemsx.cisd.openbis.dss.client.api.v1;
 
 import java.io.File;
+import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
 
 /**
  * A component that manages a connection to openBIS and 1 or more data store servers.
@@ -77,6 +79,19 @@ public interface IDssComponent
      *             the server.
      */
     public IDataSetDss putDataSet(NewDataSetDTO newDataset, File dataSetFile)
+            throws IllegalStateException, EnvironmentFailureException;
+
+    /**
+     * Validate a data set.
+     * 
+     * @param newDataset The new data set that should be registered
+     * @param dataSetFile A file or folder containing the data
+     * @return A list of validation errors. The list is empty if there were no validation errors.
+     * @throws IllegalStateException Thrown if the user has not yet been authenticated.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
+     *             the server.
+     */
+    public List<ValidationError> validateDataSet(NewDataSetDTO newDataset, File dataSetFile)
             throws IllegalStateException, EnvironmentFailureException;
 
     /**

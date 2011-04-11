@@ -39,8 +39,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGenericInternal> implements
-        IDssServiceRpcGenericInternal
+public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGenericInternal>
+        implements IDssServiceRpcGenericInternal
 {
     private final PutDataSetService putService;
 
@@ -60,7 +60,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         putService = new PutDataSetService(openBISService, operationLog);
         operationLog.info("[rpc] Started DSS API V1 service.");
     }
-    
+
     /**
      * A constructor for testing.
      * 
@@ -216,5 +216,11 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
                 new File(overrideStoreRootPathOrNull, dataSetPath.substring(dataStoreRootPath
                         .length()));
         return usersPath.getPath();
+    }
+
+    public String getValidationScript(String sessionToken, String dataSetTypeOrNull)
+            throws IOExceptionUnchecked, IllegalArgumentException
+    {
+        return null;
     }
 }

@@ -28,8 +28,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DssServiceRpcGenericLogger extends AbstractServerLogger implements
@@ -98,9 +96,16 @@ public class DssServiceRpcGenericLogger extends AbstractServerLogger implements
     public void setStoreDirectory(File aFile)
     {
     }
-    
+
     public void setIncomingDirectory(File aFile)
     {
+    }
+
+    public String getValidationScript(String sessionToken, String dataSetTypeOrNull)
+            throws IOExceptionUnchecked, IllegalArgumentException
+    {
+        logAccess(sessionToken, "get_validation_script", "DATA_SET_TYPE(%s)", dataSetTypeOrNull);
+        return null;
     }
 
 }

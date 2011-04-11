@@ -30,19 +30,25 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationS
  */
 public class ValidationScriptRunnerTest extends AssertJUnit
 {
+
     private static final String SCRIPTS_FOLDER =
             "sourceTest/java/ch/systemsx/cisd/openbis/dss/generic/shared/api/v1/validation/";
 
     private static final String TEST_DATA_FOLDER = SCRIPTS_FOLDER;
 
+    public static final String BASIC_VALIDATION_SCRIPT = SCRIPTS_FOLDER
+            + "basic-validation-script.py";
+
+    public static final String VALID_DATA_SET = TEST_DATA_FOLDER + "/valid-data-set";
+
+    public static final String INVALID_DATA_SET = TEST_DATA_FOLDER + "/invalid-data-set";
+
     @Test
     public void testBasicValidationOnValidDataSet()
     {
         ValidationScriptRunner scriptRunner =
-                ValidationScriptRunner.getScriptFromPath(SCRIPTS_FOLDER
-                        + "basic-validation-script.py");
-        List<ValidationError> errors =
-                scriptRunner.validate(new File(TEST_DATA_FOLDER + "/valid-data-set"));
+                ValidationScriptRunner.createValidatorFromScriptPath(BASIC_VALIDATION_SCRIPT);
+        List<ValidationError> errors = scriptRunner.validate(new File(VALID_DATA_SET));
 
         assertTrue("The valid data set should have no errors", errors.isEmpty());
     }
@@ -51,10 +57,8 @@ public class ValidationScriptRunnerTest extends AssertJUnit
     public void testBasicValidationOnInvalidDataSet()
     {
         ValidationScriptRunner scriptRunner =
-                ValidationScriptRunner.getScriptFromPath(SCRIPTS_FOLDER
-                        + "basic-validation-script.py");
-        List<ValidationError> errors =
-                scriptRunner.validate(new File(TEST_DATA_FOLDER + "/invalid-data-set"));
+                ValidationScriptRunner.createValidatorFromScriptPath(BASIC_VALIDATION_SCRIPT);
+        List<ValidationError> errors = scriptRunner.validate(new File(INVALID_DATA_SET));
 
         assertEquals(1, errors.size());
         ValidationError error = errors.get(0);

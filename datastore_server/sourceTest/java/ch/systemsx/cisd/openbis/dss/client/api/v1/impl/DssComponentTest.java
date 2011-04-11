@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 import org.apache.commons.io.IOUtils;
@@ -47,6 +48,7 @@ import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDssServiceRpc;
@@ -64,6 +66,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTOBuilder;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationScriptRunnerTest;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
@@ -99,7 +104,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
 
     private IDssServiceRpcGeneric dssServiceV1_0;
 
-    private IDssServiceRpcGeneric dssServiceV1_1;
+    private IDssServiceRpcGeneric dssServiceV1_2;
 
     private IShareIdManager shareIdManager;
 
@@ -158,7 +163,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         ServiceProviderTestWrapper.restoreApplicationContext();
         // Clear the dss services
         dssServiceV1_0 = null;
-        dssServiceV1_1 = null;
+        dssServiceV1_2 = null;
     }
 
     @Test
@@ -272,6 +277,41 @@ public class DssComponentTest extends AbstractFileSystemTestCase
     }
 
     @Test
+    public void testGetValidationScript() throws IOException
+    {
+        setupExpectations(null, 1);
+
+        dssComponent.login("foo", "bar");
+        File dataSetFile = new File(ValidationScriptRunnerTest.INVALID_DATA_SET);
+        NewDataSetDTOBuilder builder = new NewDataSetDTOBuilder();
+        builder.setFile(dataSetFile);
+        List<ValidationError> result =
+                dssComponent.validateDataSet(builder.asNewDataSetDTO(), dataSetFile);
+
+        assertEquals(1, result.size());
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetValidationScriptEarlierVersion() throws IOException
+    {
+        setupExpectations(null, true, 1, true);
+
+        dssComponent.login("foo", "bar");
+        File dataSetFile = new File(ValidationScriptRunnerTest.INVALID_DATA_SET);
+        NewDataSetDTOBuilder builder = new NewDataSetDTOBuilder();
+        builder.setFile(dataSetFile);
+        List<ValidationError> result =
+                dssComponent.validateDataSet(builder.asNewDataSetDTO(), dataSetFile);
+
+        // Against an earlier version of the server, an invalid script will pass validation.
+        assertEquals(0, result.size());
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
     public void testUnsupportedInterface() throws IOException
     {
         setupExpectations("Some Server Interface", true, null, false, 1, false);
@@ -368,15 +408,15 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         final RpcServiceInterfaceVersionDTO ifaceVersionV1_0 =
                 new RpcServiceInterfaceVersionDTO(serviceName, "/rpc/v1", 1, 0);
 
-        final RpcServiceInterfaceVersionDTO ifaceVersionV1_1 =
-                new RpcServiceInterfaceVersionDTO(serviceName, "/rpc/v1", 1, 1);
+        final RpcServiceInterfaceVersionDTO ifaceVersionV1_2 =
+                new RpcServiceInterfaceVersionDTO(serviceName, "/rpc/v1", 1, 2);
 
         if (returnEarlierVersion)
         {
             iface.addVersion(ifaceVersionV1_0);
         } else
         {
-            iface.addVersion(ifaceVersionV1_1);
+            iface.addVersion(ifaceVersionV1_2);
         }
 
         ifaces.add(iface);
@@ -405,8 +445,8 @@ public class DssComponentTest extends AbstractFileSystemTestCase
                 getAdvisedDssService(new MockDssServiceRpcV1_0(null, shareIdManager, fileInfos,
                         new FileInputStream(randomDataFile)));
 
-        dssServiceV1_1 =
-                getAdvisedDssService(new MockDssServiceRpcV1_1(null, shareIdManager, fileInfos,
+        dssServiceV1_2 =
+                getAdvisedDssService(new MockDssServiceRpcV1_2(null, shareIdManager, fileInfos,
                         new FileInputStream(randomDataFile)));
 
         context.checking(new Expectations()
@@ -429,9 +469,13 @@ public class DssComponentTest extends AbstractFileSystemTestCase
                             IDssServiceRpcGeneric.class, DUMMY_DSS_URL, false);
                     will(returnValue(dssServiceV1_0));
 
-                    allowing(dssServiceFactory).getService(ifaceVersionV1_1,
+                    allowing(dssServiceFactory).getService(ifaceVersionV1_2,
                             IDssServiceRpcGeneric.class, DUMMY_DSS_URL, false);
-                    will(returnValue(dssServiceV1_1));
+                    will(returnValue(dssServiceV1_2));
+
+                    allowing(openBisService).getDefaultPutDataStoreBaseURL(
+                            session.getSessionToken());
+                    will(returnValue(DUMMY_DSS_DOWNLOAD_URL));
                 }
             });
     }
@@ -552,6 +596,12 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         {
             return null;
         }
+
+        public String getValidationScript(String sessionToken, String dataSetTypeOrNull)
+                throws IOExceptionUnchecked, IllegalArgumentException
+        {
+            throw new IllegalArgumentException("Unimplemented in v1.0");
+        }
     }
 
     private class MockDssServiceRpcV1_1 extends MockDssServiceRpcV1_0
@@ -584,6 +634,36 @@ public class DssComponentTest extends AbstractFileSystemTestCase
                     overrideStoreRootPathOrNull);
         }
 
+    }
+
+    private class MockDssServiceRpcV1_2 extends MockDssServiceRpcV1_1
+    {
+        /**
+         * @param openBISService
+         * @param shareIdManager
+         * @param fileInfos
+         * @param fileInputStream
+         */
+        public MockDssServiceRpcV1_2(IEncapsulatedOpenBISService openBISService,
+                IShareIdManager shareIdManager, FileInfoDssDTO[] fileInfos,
+                FileInputStream fileInputStream)
+        {
+            super(openBISService, shareIdManager, fileInfos, fileInputStream);
+        }
+
+        @Override
+        public int getMinorVersion()
+        {
+            return 2;
+        }
+
+        @Override
+        public String getValidationScript(String sessionToken, String dataSetTypeOrNull)
+                throws IOExceptionUnchecked, IllegalArgumentException
+        {
+            return FileUtilities.loadToString(new File(
+                    ValidationScriptRunnerTest.BASIC_VALIDATION_SCRIPT));
+        }
     }
 
 }

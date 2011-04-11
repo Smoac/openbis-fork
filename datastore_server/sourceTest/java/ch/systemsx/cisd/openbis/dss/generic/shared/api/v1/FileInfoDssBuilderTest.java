@@ -37,8 +37,8 @@ public class FileInfoDssBuilderTest extends AssertJUnit
         ArrayList<FileInfoDssDTO> list = new ArrayList<FileInfoDssDTO>();
         File requestedFile = new File(root);
         builder.appendFileInfosForFile(requestedFile, list, false);
-        // The 3 test files + .svn
-        assertEquals(4, list.size());
+        // The 3 test files + 1 sub dir + .svn
+        assertEquals(5, list.size());
     }
 
     @Test
@@ -50,8 +50,8 @@ public class FileInfoDssBuilderTest extends AssertJUnit
         ArrayList<FileInfoDssDTO> list = new ArrayList<FileInfoDssDTO>();
         File requestedFile = new File(root);
         builder.appendFileInfosForFile(requestedFile, list, false);
-        // The 3 test files + .svn
-        assertEquals(4, list.size());
+        // The 3 test files + 1 sub dir + .svn
+        assertEquals(5, list.size());
     }
 
     @Test

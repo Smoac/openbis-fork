@@ -29,8 +29,6 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.etlserver.validation.ValidationError;
-import ch.systemsx.cisd.etlserver.validation.ValidationScriptRunner;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssBuilder;
@@ -38,6 +36,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwner;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationScriptRunner;
 
 /**
  * Command that runs a validation script and returns the error messages if the data set is not
@@ -190,12 +190,19 @@ class CommandTestValid extends AbstractDssCommand<CommandTestValid.CommandTestVa
                     return ResultCode.INVALID_ARGS;
                 }
                 ValidationScriptRunner scriptRunner =
-                        new ValidationScriptRunner(arguments.getScriptPath());
+                        ValidationScriptRunner.createValidatorFromScriptPath(arguments.getScriptPath());
 
                 List<ValidationError> errors = scriptRunner.validate(arguments.getFile());
                 for (ValidationError error : errors)
                 {
-                    System.out.println(error.getErrorMessage());
+                    System.err.println("ERROR: " + error.getErrorMessage());
+                }
+                if (errors.size() > 0)
+                {
+                    return ResultCode.USER_ERROR;
+                } else
+                {
+                    System.out.println("OK: DataSet passed validation.");
                 }
             } catch (IOException e)
             {
@@ -325,6 +332,12 @@ class CommandTestValid extends AbstractDssCommand<CommandTestValid.CommandTestVa
                 public void logout()
                 {
 
+                }
+
+                public List<ValidationError> validateDataSet(NewDataSetDTO newDataset,
+                        File dataSetFile) throws IllegalStateException, EnvironmentFailureException
+                {
+                    return new ArrayList<ValidationError>();
                 }
 
             };

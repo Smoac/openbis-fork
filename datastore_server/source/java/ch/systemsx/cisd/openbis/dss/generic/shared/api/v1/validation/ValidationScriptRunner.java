@@ -37,11 +37,23 @@ public class ValidationScriptRunner
 
     // Factory methods
 
-    public static ValidationScriptRunner getScriptFromPath(String scriptPath)
+    /**
+     * Factory method for creating a ValidationScriptRunner given a path to a script.
+     */
+    public static ValidationScriptRunner createValidatorFromScriptPath(String scriptPath)
     {
         String fileString = FileUtilities.loadToString(new File(scriptPath));
         String scriptString = getValidationScriptString(fileString);
         return new ValidationScriptRunner(scriptString);
+    }
+
+    /**
+     * Factory method for creating a ValidationScriptRunner given the script as a string.
+     */
+    public static ValidationScriptRunner createValidatorFromScriptString(String scriptString)
+    {
+        String theScriptString = getValidationScriptString(scriptString);
+        return new ValidationScriptRunner(theScriptString);
     }
 
     private static String getValidationScriptString(String scriptString)
