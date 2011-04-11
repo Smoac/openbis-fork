@@ -27,6 +27,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import ch.systemsx.cisd.openbis.generic.shared.util.HttpRequestUtils;
+
 /**
  * A {@link Filter} implementing the a simple caching policy that
  * <ul>
@@ -44,8 +46,6 @@ public class CacheFilter implements Filter
 
     private static final int DAY_IN_SECONDS = 24 * 60 * 60;
 
-    private static final int DAY_IN_MILLIS = DAY_IN_SECONDS * 1000;
-
     private static final int SPRINT_IN_SECONDS = 14 * DAY_IN_SECONDS;
 
     private static final String NO_CACHE = ".nocache.";
@@ -60,7 +60,7 @@ public class CacheFilter implements Filter
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         if (requestURI.contains(NO_CACHE))
         {
-            setNoCacheHeaders(httpResponse);
+            HttpRequestUtils.setNoCacheHeaders(httpResponse);
         } else
         {
             httpResponse.addHeader("Cache-Control", "max-age="
@@ -68,15 +68,6 @@ public class CacheFilter implements Filter
         }
         filterChain.doFilter(request, response);
 
-    }
-
-    private void setNoCacheHeaders(HttpServletResponse httpResponse)
-    {
-        long now = System.currentTimeMillis();
-        httpResponse.setDateHeader("Date", now);
-        httpResponse.setDateHeader("Expires", now - DAY_IN_MILLIS);
-        httpResponse.setHeader("Pragma", "no-cache");
-        httpResponse.setHeader("Cache-control", "no-cache, no-store, must-revalidate");
     }
 
     private boolean isPictureOrCache(String requestURI)
