@@ -17,9 +17,12 @@
 package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.collections.CollectionUtils.ICollectionFilter;
 import ch.systemsx.cisd.common.collections.GroupByMap;
@@ -41,16 +44,15 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSingle
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSummarySettings;
 
 /**
- * {@See #tryLoadMaterialFeatureVectors}.
+ * Loads feature vectors (details and statistics) for the specified material in the specified
+ * experiment.
  * 
  * @author Tomasz Pylak
  */
 public class MaterialFeatureVectorSummaryLoader extends ExperimentFeatureVectorSummaryLoader
 {
-
     /**
-     * Loads feature vectors (details and statistics) for the specified material in the specified
-     * experiment.
+     * For comments {@See MaterialFeatureVectorSummaryLoader}.
      */
     public static MaterialAllReplicasFeatureVectors tryLoadMaterialFeatureVectors(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
@@ -60,7 +62,8 @@ public class MaterialFeatureVectorSummaryLoader extends ExperimentFeatureVectorS
                 settings).tryLoadMaterialFeatureVectors(materialId, experimentId);
     }
 
-    private MaterialFeatureVectorSummaryLoader(Session session,
+    @Private
+    MaterialFeatureVectorSummaryLoader(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
             MaterialSummarySettings settings)
     {
@@ -78,7 +81,8 @@ public class MaterialFeatureVectorSummaryLoader extends ExperimentFeatureVectorS
         return tryLoadMaterialFeatureVectors(materialId, wellDataCollection);
     }
 
-    private MaterialAllReplicasFeatureVectors tryLoadMaterialFeatureVectors(TechId materialId,
+    @Private
+    MaterialAllReplicasFeatureVectors tryLoadMaterialFeatureVectors(TechId materialId,
             WellDataCollection wellDataCollection)
     {
         MaterialFeatureVectorSummary materialGeneralSummary =
@@ -111,7 +115,8 @@ public class MaterialFeatureVectorSummaryLoader extends ExperimentFeatureVectorS
                 new ArrayList<MaterialReplicaSubgroupFeatureVector>();
         MaterialReplicaSummaryAggregationType aggregationType = settings.getAggregationType();
         int subgroupSequenceNumber = 1;
-        for (Double subgroupKey : subgroupMap.getKeys())
+        Collection<Double> sortedKeys = sortSubgroupKeys(subgroupMap.getKeys());
+        for (Double subgroupKey : sortedKeys)
         {
             if (subgroupKey != null)
             {
@@ -124,6 +129,13 @@ public class MaterialFeatureVectorSummaryLoader extends ExperimentFeatureVectorS
             }
         }
         return subgroups;
+    }
+
+    private static Collection<Double> sortSubgroupKeys(Set<Double> keys)
+    {
+        ArrayList<Double> sortedKeys = new ArrayList<Double>(keys);
+        Collections.sort(sortedKeys);
+        return sortedKeys;
     }
 
     private MaterialReplicaSubgroupFeatureVector createSubgroup(
