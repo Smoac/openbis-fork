@@ -159,33 +159,27 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
     }
 
     /**
-     * Recursively browses startingPoint looking for files accepted by the filter. Stops if more
-     * than one file has been already found.
+     * Recursively browses startingPoint looking for files accepted by the filter and adding them to
+     * <code>result</code> list.
      */
     private static void findFiles(File startingPoint, FileFilter filter, List<File> result)
     {
-        if (result.size() > 1)
+        File[] filteredFiles = startingPoint.listFiles(filter);
+        if (filteredFiles != null)
         {
-            return;
-        } else
-        {
-            File[] filteredFiles = startingPoint.listFiles(filter);
-            if (filteredFiles != null)
+            for (File f : filteredFiles)
             {
-                for (File f : filteredFiles)
-                {
-                    result.add(f);
-                }
+                result.add(f);
             }
-            File[] files = startingPoint.listFiles();
-            if (files != null)
+        }
+        File[] files = startingPoint.listFiles();
+        if (files != null)
+        {
+            for (File d : files)
             {
-                for (File d : files)
+                if (d.isDirectory())
                 {
-                    if (d.isDirectory())
-                    {
-                        findFiles(d, filter, result);
-                    }
+                    findFiles(d, filter, result);
                 }
             }
         }
