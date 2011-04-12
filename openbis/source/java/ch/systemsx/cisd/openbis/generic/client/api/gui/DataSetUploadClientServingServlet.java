@@ -48,7 +48,7 @@ public class DataSetUploadClientServingServlet extends AbstractWebStartClientSer
                     + "    <jar href='commons-codec.jar'/>\n"
                     + "    <jar href='commons-httpclient.jar'/>\n"
                     + "    <jar href='commons-io.jar'/>\n" + "    <jar href='commons-lang.jar'/>\n"
-                    + "    <jar href='commons-logging.jar'/>\n"
+                    + "    <jar href='commons-logging.jar'/>\n" + "    <jar href='jython.jar'/>\n"
                     + "    <jar href='dss_upload_gui.jar'/>\n" + "  </resources>\n"
                     + "  <application-desc main-class='${main-class}'>\n"
                     + "    <argument>${service-URL}</argument>\n"
