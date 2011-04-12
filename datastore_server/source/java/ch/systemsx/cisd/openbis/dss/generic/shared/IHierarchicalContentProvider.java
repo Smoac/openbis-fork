@@ -34,6 +34,7 @@ public interface IHierarchicalContentProvider
 
     IHierarchicalContent asContent(IDatasetLocation datasetLocation);
 
+    // the data set file is assumed to be locked
     IHierarchicalContent asContent(File datasetDirectory);
 
 }

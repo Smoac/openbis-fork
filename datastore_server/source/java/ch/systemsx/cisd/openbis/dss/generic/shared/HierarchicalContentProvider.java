@@ -21,6 +21,7 @@ import java.io.File;
 import ch.systemsx.cisd.common.io.HierarchicalContentFactory;
 import ch.systemsx.cisd.common.io.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.IHierarchicalContentFactory;
+import ch.systemsx.cisd.common.utilities.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 
@@ -66,14 +67,22 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
     public IHierarchicalContent asContent(IDatasetLocation datasetLocation)
     {
         // this is temporary implementation - it should access DB instead of filesystem
-        // FIXME locking
+        // IHierarchicalContent.close() should be called to unlock the dataset
+        directoryProvider.getShareIdManager().lock(datasetLocation.getDatasetCode());
         File dataSetDirectory = directoryProvider.getDataSetDirectory(datasetLocation);
+
         return asContent(dataSetDirectory);
     }
 
     public IHierarchicalContent asContent(File dataSetDirectory)
     {
-        return hierarchicalContentFactory.asHierarchicalContent(dataSetDirectory);
+        return hierarchicalContentFactory.asHierarchicalContent(dataSetDirectory,
+                IDelegatedAction.DO_NOTHING);
+    }
+
+    public IHierarchicalContent asContent(File dataSetDirectory, IDelegatedAction onCloseAction)
+    {
+        return hierarchicalContentFactory.asHierarchicalContent(dataSetDirectory, onCloseAction);
     }
 
 }
