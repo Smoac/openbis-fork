@@ -30,7 +30,8 @@ public class AssertionUtil
     public static void assertStarts(String expectedPrefix, String text)
     {
         String errorMsg =
-                String.format("String '%s' was expected to start with '%s'.", text, expectedPrefix);
+                String.format("String \n'%s'\nwas expected to start with \n'%s'.", text,
+                        expectedPrefix);
         assertTrue(errorMsg, text.startsWith(expectedPrefix));
     }
 
@@ -38,7 +39,8 @@ public class AssertionUtil
     public static void assertEnds(String expectedSuffix, String text)
     {
         String errorMsg =
-                String.format("String '%s' was expected to end with '%s'.", text, expectedSuffix);
+                String.format("String \n'%s'\nwas expected to end with \n'%s'.", text,
+                        expectedSuffix);
         assertTrue(errorMsg, text.endsWith(expectedSuffix));
     }
 
@@ -46,7 +48,7 @@ public class AssertionUtil
     public static void assertContains(String expectedSubstring, String text)
     {
         String errorMsg =
-                String.format("String '%s' was expected to be a substring of '%s'.",
+                String.format("String \n'%s'\nwas expected to be a substring of \n'%s'.",
                         expectedSubstring, text);
         assertTrue(errorMsg, text.contains(expectedSubstring));
     }
