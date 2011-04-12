@@ -56,9 +56,11 @@ public class WellContent extends WellImage implements ISerializable
     // ------------ Dataset Data -------------
 
     // dataset which contains feature vectors for this well, null if images have not been analyzed
+    // or the information has not been loaded
     private DatasetReference featureVectorDatasetOrNull;
 
-    // Feature vector values, null if images have not been analyzed.
+    // Feature vector values, null if images have not been analyzed or the information has not been
+    // loaded
     private NamedFeatureVector featureVectorOrNull;
 
     // GWT only
