@@ -571,7 +571,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                                     {
                                         assertTrue(item instanceof ListMaterialCriteria);
                                         MaterialType materialType =
-                                                ((ListMaterialCriteria) item).getMaterialType();
+                                                ((ListMaterialCriteria) item).tryGetMaterialType();
                                         assertEquals(materialTypePE.getCode(),
                                                 materialType.getCode());
                                         return true;

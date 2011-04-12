@@ -58,11 +58,11 @@ public interface IMaterialListingQuery extends TransactionQuery, IPropertyListin
      */
     @Select(sql = "select m.id, m.code, m.dbin_id, m.maty_id, "
             + "           m.registration_timestamp, m.modification_timestamp, m.pers_id_registerer "
-            + "      from materials m where m.dbin_id=?{1} and m.maty_id=?{2} and m.id = any(?{3})"
+            + "      from materials m where m.dbin_id=?{1} and m.id = any(?{2})"
             + "  order by m.code", parameterBindings =
-        { TypeMapper.class/* default */, TypeMapper.class/* default */, LongSetMapper.class }, fetchSize = FETCH_SIZE)
+        { TypeMapper.class/* default */, LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<MaterialRecord> getMaterialsForMaterialTypeWithIds(long dbInstanceId,
-            long materialTypeId, LongSet materialIds);
+            LongSet materialIds);
 
     //
     // Entity Properties

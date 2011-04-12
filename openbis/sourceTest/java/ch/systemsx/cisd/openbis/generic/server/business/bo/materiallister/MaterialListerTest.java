@@ -93,7 +93,7 @@ public class MaterialListerTest extends AbstractDAOTest
             { 22L, 34L });
         boolean withProperties = true;
         List<Material> materials =
-                lister.list(new ListMaterialCriteria(materialType, materialIds), withProperties);
+                lister.list(new ListMaterialCriteria(materialIds), withProperties);
         assertEqualsOrGreater(2, materials.size());
         assertMaterialsProperlyFetched(materials, materialType, withProperties == false);
     }
@@ -109,7 +109,7 @@ public class MaterialListerTest extends AbstractDAOTest
             assertNotNull(material.getRegistrationDate());
             assertNotNull(material.getModificationDate());
             assertEquals(databaseInstance, material.getDatabaseInstance());
-            assertEquals(expectedType, material.getMaterialType());
+            assertEquals(expectedType.getCode(), material.getMaterialType().getCode());
             assertEquals(emptyProperties, material.getProperties().isEmpty());
         }
     }

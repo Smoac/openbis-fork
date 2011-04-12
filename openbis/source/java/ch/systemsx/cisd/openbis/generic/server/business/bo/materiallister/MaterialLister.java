@@ -27,6 +27,7 @@ import java.util.List;
 import net.lemnik.eodsql.DataIterator;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityPropertiesEnricher;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesEnricher;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesHolderResolver;
@@ -104,18 +105,18 @@ public class MaterialLister extends AbstractLister implements IMaterialLister
 
     public List<Material> list(ListMaterialCriteria criteria, boolean withProperties)
     {
-        MaterialType materialType = criteria.getMaterialType();
-        Collection<Long> materialIdsOrNull = criteria.getMaterialIdsOrNull();
+        MaterialType materialTypeOrNull = criteria.tryGetMaterialType();
+        Collection<Long> materialIdsOrNull = criteria.tryGetMaterialIds();
         DataIterator<MaterialRecord> materials =
-                materialIdsOrNull != null ? getIteratorByTypeAndIds(materialType, materialIdsOrNull)
-                        : getIteratorByType(materialType);
-        return convertAndEnrich(materials, materialType, withProperties);
+                materialIdsOrNull != null ? getIteratorByIds(materialIdsOrNull)
+                        : getIteratorByType(materialTypeOrNull);
+        return convertAndEnrich(materials, materialTypeOrNull, withProperties);
     }
 
     private List<Material> convertAndEnrich(DataIterator<MaterialRecord> materials,
-            MaterialType materialType, boolean withProperties)
+            MaterialType materialTypeOrNull, boolean withProperties)
     {
-        final Long2ObjectMap<Material> materialMap = asMaterials(materials, materialType);
+        final Long2ObjectMap<Material> materialMap = asMaterials(materials, materialTypeOrNull);
         if (withProperties)
         {
             enrichWithProperties(materialMap);
@@ -125,14 +126,14 @@ public class MaterialLister extends AbstractLister implements IMaterialLister
 
     private DataIterator<MaterialRecord> getIteratorByType(MaterialType materialType)
     {
+        assert materialType != null;
         return query.getMaterialsForMaterialType(databaseInstanceId, materialType.getId());
     }
 
-    private DataIterator<MaterialRecord> getIteratorByTypeAndIds(MaterialType materialType,
-            Collection<Long> materialIds)
+    private DataIterator<MaterialRecord> getIteratorByIds(Collection<Long> materialIds)
     {
-        return query.getMaterialsForMaterialTypeWithIds(databaseInstanceId, materialType.getId(),
-                new LongOpenHashSet(materialIds));
+        return query.getMaterialsForMaterialTypeWithIds(databaseInstanceId, new LongOpenHashSet(
+                materialIds));
     }
 
     //
@@ -140,31 +141,41 @@ public class MaterialLister extends AbstractLister implements IMaterialLister
     //
 
     private Long2ObjectMap<Material> asMaterials(Iterable<MaterialRecord> materials,
-            MaterialType materialType)
+            MaterialType materialTypeOrNull)
     {
         List<MaterialRecord> materialRecords = asList(materials);
-        final Long2ObjectMap<Material> materialMap = createMaterials(materialRecords, materialType);
+        final Long2ObjectMap<Material> materialMap =
+                createMaterials(materialRecords, materialTypeOrNull);
         return materialMap;
     }
 
     private Long2ObjectMap<Material> createMaterials(Iterable<MaterialRecord> records,
-            MaterialType materialType)
+            MaterialType materialTypeOrNull)
     {
         Long2ObjectMap<Material> materials = new Long2ObjectOpenHashMap<Material>();
+        Long2ObjectMap<MaterialType> materialTypesOrNull = null;
+        if (materialTypeOrNull == null)
+        {
+            materialTypesOrNull = getMaterialTypes();
+        }
         for (MaterialRecord record : records)
         {
-            materials.put(record.id, createMaterial(record, materialType));
+            materials.put(record.id,
+                    createMaterial(record, materialTypeOrNull, materialTypesOrNull));
         }
         return materials;
     }
 
-    private Material createMaterial(MaterialRecord record, MaterialType materialType)
+    private Material createMaterial(MaterialRecord record, MaterialType materialTypeOrNull,
+            Long2ObjectMap<MaterialType> materialTypesOrNull)
     {
         Material material = new Material();
         material.setId(record.id);
         material.setCode(record.code);
 
-        assert record.maty_id == materialType.getId();
+        MaterialType materialType =
+                materialTypeOrNull != null ? materialTypeOrNull : materialTypesOrNull
+                        .get(record.maty_id);
         material.setMaterialType(materialType);
         assert record.dbin_id == databaseInstanceId;
         material.setDatabaseInstance(databaseInstance);
@@ -244,6 +255,21 @@ public class MaterialLister extends AbstractLister implements IMaterialLister
         {
             material.setProperties(new ArrayList<IEntityProperty>());
         }
+    }
+
+    private Long2ObjectMap<MaterialType> getMaterialTypes()
+    {
+        final CodeRecord[] typeCodes = query.getMaterialTypes();
+        final Long2ObjectOpenHashMap<MaterialType> materialTypeMap =
+                new Long2ObjectOpenHashMap<MaterialType>(typeCodes.length);
+        for (CodeRecord t : typeCodes)
+        {
+            final MaterialType type = new MaterialType();
+            type.setCode(t.code);
+            materialTypeMap.put(t.id, type);
+        }
+        materialTypeMap.trim();
+        return materialTypeMap;
     }
 
 }

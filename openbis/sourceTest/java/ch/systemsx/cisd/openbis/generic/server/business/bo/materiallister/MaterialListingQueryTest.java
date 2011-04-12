@@ -169,8 +169,7 @@ public class MaterialListingQueryTest extends AbstractDAOTest
         LongSet materialIds = new LongOpenHashSet(new long[]
             { 34L, 22L });
         Iterable<MaterialRecord> materials =
-                query.getMaterialsForMaterialTypeWithIds(dbInstanceId, BACTERIUM_MATERIAL_TYPE,
-                        materialIds);
+                query.getMaterialsForMaterialTypeWithIds(dbInstanceId, materialIds);
         Set<String> remainingBacteriumCodes = new HashSet<String>(Arrays.asList(new String[]
             { "BACTERIUM-X", "BACTERIUM1" }));
         for (MaterialRecord materialRecord : materials)

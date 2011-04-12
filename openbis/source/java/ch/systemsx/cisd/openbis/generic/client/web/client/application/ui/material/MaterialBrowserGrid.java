@@ -228,7 +228,7 @@ public class MaterialBrowserGrid extends
     {
         ColumnDefsAndConfigs<Material> schema =
                 getColumnsFactory().createColumnsSchema(viewContext,
-                        criteria.getListCriteria().getMaterialType());
+                        criteria.getListCriteria().tryGetMaterialType());
         schema.setGridCellRendererFor(CommonMaterialColDefKind.CODE.id(),
                 createInternalLinkCellRenderer());
         return schema;
@@ -249,15 +249,15 @@ public class MaterialBrowserGrid extends
     @Override
     protected EntityType tryToGetEntityType()
     {
-        return criteria == null ? null : criteria.getListCriteria().getMaterialType();
+        return criteria == null ? null : criteria.getListCriteria().tryGetMaterialType();
     }
 
     @Override
     protected boolean hasColumnsDefinitionChanged(ListMaterialDisplayCriteria newCriteria)
     {
-        EntityType newEntityType = newCriteria.getListCriteria().getMaterialType();
+        EntityType newEntityType = newCriteria.getListCriteria().tryGetMaterialType();
         EntityType prevEntityType =
-                (criteria == null ? null : criteria.getListCriteria().getMaterialType());
+                (criteria == null ? null : criteria.getListCriteria().tryGetMaterialType());
         return hasColumnsDefinitionChanged(newEntityType, prevEntityType);
     }
 

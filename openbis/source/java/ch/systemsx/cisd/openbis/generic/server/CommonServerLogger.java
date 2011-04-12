@@ -488,8 +488,8 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
             boolean withProperties)
     {
         logAccess(sessionToken, "list_materials", "TYPE(%s) IDS(%s) withProperties(%s)",
-                criteria.getMaterialType(), criteria.getMaterialIdsOrNull() == null ? "-"
-                        : abbreviate(criteria.getMaterialIdsOrNull()), withProperties);
+                criteria.tryGetMaterialType(), criteria.tryGetMaterialIds() == null ? "-"
+                        : abbreviate(criteria.tryGetMaterialIds()), withProperties);
         return null;
     }
 

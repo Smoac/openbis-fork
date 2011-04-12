@@ -29,7 +29,7 @@ public final class ListMaterialCriteria implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private MaterialType materialType;
+    private MaterialType materialTypeOrNull;
 
     private Collection<Long> materialIdsOrNull;
 
@@ -43,18 +43,25 @@ public final class ListMaterialCriteria implements ISerializable
         this(materialType, null);
     }
 
-    public ListMaterialCriteria(MaterialType materialType, Collection<Long> materialIdsOrNull)
+    public ListMaterialCriteria(Collection<Long> materialIds)
     {
-        this.materialType = materialType;
+        this(null, materialIds);
+    }
+
+    private ListMaterialCriteria(MaterialType materialTypeOrNull, Collection<Long> materialIdsOrNull)
+    {
+        assert materialIdsOrNull != null || materialTypeOrNull != null;
+        assert materialIdsOrNull == null || materialTypeOrNull == null;
+        this.materialTypeOrNull = materialTypeOrNull;
         this.materialIdsOrNull = materialIdsOrNull;
     }
 
-    public MaterialType getMaterialType()
+    public MaterialType tryGetMaterialType()
     {
-        return materialType;
+        return materialTypeOrNull;
     }
 
-    public Collection<Long> getMaterialIdsOrNull()
+    public Collection<Long> tryGetMaterialIds()
     {
         return materialIdsOrNull;
     }
