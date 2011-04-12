@@ -67,6 +67,11 @@ final class RenderingContext
                 newRelativePathOrNull, oldContext.sessionIdOrNull);
     }
 
+    public final IHierarchicalContent getRoot()
+    {
+        return rootContent;
+    }
+
     public final IHierarchicalContentNode getRootNode()
     {
         return rootContent.getRootNode();
