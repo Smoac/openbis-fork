@@ -26,8 +26,17 @@ import ch.systemsx.cisd.common.utilities.IDelegatedAction;
  */
 public interface IHierarchicalContentFactory
 {
+    /**
+     * Returns hierarchy based on given root file.
+     * 
+     * @param onCloseAction action that will be performed when returned hierarchy is closed
+     */
     public IHierarchicalContent asHierarchicalContent(File file, IDelegatedAction onCloseAction);
 
+    /**
+     * Returns content node for given file. Different implementations may be returned depending on
+     * e.g. file extension.
+     */
     public IHierarchicalContentNode asHierarchicalContentNode(IHierarchicalContent rootContent,
             File file);
 
