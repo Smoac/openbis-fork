@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.dss.client.api.cli;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -35,6 +37,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwner;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
 
 /**
  * @author Franz-Josef Elmer
@@ -88,20 +91,27 @@ public class CommandPutTest extends AbstractFileSystemTestCase
                     final NewDataSetDTO newDataSetDTO =
                             new NewDataSetDTO("MY_TYPE", owner, dataSetExample.getName(), Arrays
                                     .asList(info));
-                    one(dssComponent).putDataSet(with(new BaseMatcher<NewDataSetDTO>()
-                        {
+                    BaseMatcher<NewDataSetDTO> newDataSetDtoMatcher =
+                            new BaseMatcher<NewDataSetDTO>()
+                                {
 
-                            public boolean matches(Object item)
-                            {
-                                assertEquals(newDataSetDTO.toString(), item.toString());
-                                return true;
-                            }
+                                    public boolean matches(Object item)
+                                    {
+                                        assertEquals(newDataSetDTO.toString(), item.toString());
+                                        return true;
+                                    }
 
-                            public void describeTo(Description description)
-                            {
-                            }
-                        }), with(equal(dataSetExample)));
+                                    public void describeTo(Description description)
+                                    {
+                                    }
+                                };
+                    one(dssComponent).putDataSet(with(newDataSetDtoMatcher),
+                            with(equal(dataSetExample)));
                     will(returnValue(dataSet));
+
+                    one(dssComponent).validateDataSet(with(newDataSetDtoMatcher),
+                            with(equal(dataSetExample)));
+                    will(returnValue(new ArrayList<ValidationError>()));
 
                     one(dataSet).getCode();
                     will(returnValue("ds1"));
