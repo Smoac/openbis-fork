@@ -30,7 +30,6 @@ import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.common.io.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.IHierarchicalContentFactory;
 import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
-import ch.systemsx.cisd.etlserver.hdf5.Hdf5Container;
 import ch.systemsx.cisd.hdf5.IHDF5SimpleReader;
 
 /**
@@ -38,8 +37,7 @@ import ch.systemsx.cisd.hdf5.IHDF5SimpleReader;
  * 
  * @author Piotr Buczek
  */
-public class HDF5ContainerBasedHierarchicalContentNode extends
-        DefaultFileBasedHierarchicalContentNode // TODO make package protected
+class HDF5ContainerBasedHierarchicalContentNode extends DefaultFileBasedHierarchicalContentNode
 {
     private final Hdf5Container hdf5Container;
 

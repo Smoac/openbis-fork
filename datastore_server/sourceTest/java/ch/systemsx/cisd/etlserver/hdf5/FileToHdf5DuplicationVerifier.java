@@ -22,8 +22,9 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.testng.AssertJUnit;
 
-import ch.systemsx.cisd.etlserver.hdf5.Hdf5Container.IHdf5ReaderClient;
 import ch.systemsx.cisd.hdf5.IHDF5SimpleReader;
+import ch.systemsx.cisd.openbis.dss.generic.shared.content.Hdf5Container;
+import ch.systemsx.cisd.openbis.dss.generic.shared.content.Hdf5Container.IHdf5ReaderClient;
 
 /**
  * Helper class that verifies that a file structure is matched by the HDF5 structure.

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.hdf5;
+package ch.systemsx.cisd.openbis.dss.generic.shared.content;
 
 import java.util.BitSet;
 import java.util.Date;

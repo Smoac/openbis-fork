@@ -24,6 +24,7 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.AbstractStorageProcessor;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
+import ch.systemsx.cisd.openbis.dss.generic.shared.content.Hdf5Container;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
