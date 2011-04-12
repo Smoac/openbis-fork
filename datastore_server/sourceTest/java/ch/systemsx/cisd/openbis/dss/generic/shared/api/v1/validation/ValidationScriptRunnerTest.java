@@ -29,7 +29,7 @@ public class ValidationScriptRunnerTest extends AssertJUnit
 {
 
     private static final String SCRIPTS_FOLDER =
-            "sourceTest/java/ch/systemsx/cisd/openbis/dss/generic/shared/api/v1/validation/";
+            "../datastore_server/sourceTest/java/ch/systemsx/cisd/openbis/dss/generic/shared/api/v1/validation/";
 
     private static final String TEST_DATA_FOLDER = SCRIPTS_FOLDER;
 
