@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
@@ -37,22 +34,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.IPropertyValueRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermEntityProperty;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertiesPanelUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningModule;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
@@ -65,27 +52,27 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.u
 public class FeatureVectorSummaryViewer
 {
 
-    public static void openTab(final IViewContext<IScreeningClientServiceAsync> screeningViewContext,
+    public static void openTab(
+            final IViewContext<IScreeningClientServiceAsync> screeningViewContext,
             String experimentPermId)
     {
         screeningViewContext.getCommonService().getEntityInformationHolder(EntityKind.EXPERIMENT,
-                experimentPermId,
-                new ExperimentFoundCallback(screeningViewContext));
+                experimentPermId, new ExperimentFoundCallback(screeningViewContext));
     }
 
     private static class ExperimentFoundCallback extends
             AbstractAsyncCallback<IEntityInformationHolderWithPermId>
     {
-        ExperimentFoundCallback(IViewContext<IScreeningClientServiceAsync> screeningViewContext) {
+        ExperimentFoundCallback(IViewContext<IScreeningClientServiceAsync> screeningViewContext)
+        {
             super(screeningViewContext);
         }
-        
+
         @Override
         protected void process(IEntityInformationHolderWithPermId experiment)
         {
 
-            viewContext.getCommonService().getExperimentInfo(
-                    new TechId(experiment),
+            viewContext.getCommonService().getExperimentInfo(new TechId(experiment),
                     new AbstractAsyncCallback<Experiment>(viewContext)
                         {
 
@@ -102,46 +89,47 @@ public class FeatureVectorSummaryViewer
                         });
         }
     }
-    
-    
-    private static AbstractTabItemFactory createTabFactory(final IViewContext<IScreeningClientServiceAsync> viewContext,
+
+    private static AbstractTabItemFactory createTabFactory(
+            final IViewContext<IScreeningClientServiceAsync> viewContext,
             final Experiment experiment)
     {
         return new AbstractTabItemFactory()
-        {
-
-            @Override
-            public String getId()
             {
+
+                @Override
+                public String getId()
+                {
                     return ScreeningModule.ID
                             + ScreeningLinkExtractor.FEATURE_VECTOR_SUMMARY_ACTION
                             + experiment.getCode();
-            }
+                }
 
-            @Override
-            public ITabItem create()
-            {
+                @Override
+                public ITabItem create()
+                {
                     IDisposableComponent tabComponent = createViewer(viewContext, experiment);
-                return DefaultTabItem.create(getTabTitle(), tabComponent, viewContext);
-            }
+                    return DefaultTabItem.create(getTabTitle(), tabComponent, viewContext);
+                }
 
-            @Override
-            public String tryGetLink()
-            {
-                return ScreeningLinkExtractor.createFeatureVectorSummaryBrowserLink(experiment.getPermId());
-            }
+                @Override
+                public String tryGetLink()
+                {
+                    return ScreeningLinkExtractor.createFeatureVectorSummaryBrowserLink(experiment
+                            .getPermId());
+                }
 
-            @Override
-            public String getTabTitle()
-            {
+                @Override
+                public String getTabTitle()
+                {
                     return "Feature Vector Summary: " + experiment.getCode();
-            }
+                }
 
-            @Override
-            public HelpPageIdentifier getHelpPageIdentifier()
-            {
-                return null;
-            }
+                @Override
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return null;
+                }
 
             };
     }
@@ -158,7 +146,7 @@ public class FeatureVectorSummaryViewer
 
         final IDisposableComponent gridComponent =
                 FeatureVectorSummaryGrid.create(viewContext, experiment);
-        panel.add(gridComponent.getComponent(), new RowData(1, 1));
+        panel.add(gridComponent.getComponent(), new RowData(1, 700));
 
         return new IDisposableComponent()
             {
@@ -193,47 +181,15 @@ public class FeatureVectorSummaryViewer
         // NOTE: this should be refactored to an external CSS style
         String headingText = "Assay " + experiment.getCode();
         Html headingWidget = new Html(headingText);
-        headingWidget.setTagName("h2");
+        headingWidget.setTagName("h1");
         panel.add(headingWidget, new RowData(1, -1, headingTitleMargin()));
-
-        Widget experimentProperties =
-                createPropertiesSection(viewContext, experiment.getProperties());
-        panel.add(experimentProperties, new RowData(-1, -1, propertiesMargin()));
 
         return panel;
     }
 
-    private static Widget createPropertiesSection(
-            final IViewContext<IScreeningClientServiceAsync> viewContext,
-            List<IEntityProperty> properties)
-    {
-        // experiment properties
-        Map<String, Object> propertyMap = new LinkedHashMap<String, Object>();
-        PropertiesPanelUtils.addEntityProperties(viewContext, propertyMap, properties);
-
-        PropertyGrid propertyGrid = new PropertyGrid(viewContext, propertyMap.size());
-        // TODO KE: refactor this into an utility method
-        final IPropertyValueRenderer<IEntityProperty> renderer =
-                PropertyValueRenderers.createEntityPropertyPropertyValueRenderer(viewContext);
-        propertyGrid.registerPropertyValueRenderer(EntityProperty.class, renderer);
-        propertyGrid.registerPropertyValueRenderer(GenericEntityProperty.class, renderer);
-        propertyGrid.registerPropertyValueRenderer(VocabularyTermEntityProperty.class, renderer);
-        propertyGrid.registerPropertyValueRenderer(MaterialEntityProperty.class, renderer);
-        propertyGrid.registerPropertyValueRenderer(ManagedEntityProperty.class, renderer);
-
-        propertyGrid.setProperties(propertyMap);
-
-        return propertyGrid;
-    }
-
     private static Margins headingTitleMargin()
     {
-        return new Margins(20, 20, 20, 20);
-    }
-
-    private static Margins propertiesMargin()
-    {
-        return new Margins(0, 20, 20, 0);
+        return new Margins(0, 0, 20, 0);
     }
 
 }

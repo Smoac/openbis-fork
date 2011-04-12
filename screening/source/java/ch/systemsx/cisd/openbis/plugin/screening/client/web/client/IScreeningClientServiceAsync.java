@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client;
 
+import java.util.List;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
@@ -89,6 +91,12 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
             IResultSetConfig<String, TableModelRowWithObject<WellContent>> gridCriteria,
             WellSearchCriteria materialCriteria,
             AsyncCallback<TypedTableResultSet<WellContent>> callback);
+
+    /**
+     * @see IScreeningClientService#listWellImages(TechId, TechId)
+     */
+    public void listWellImages(TechId materialId, TechId experimentId,
+            AsyncCallback<List<WellContent>> callback);
 
     /**
      * @see IScreeningClientService#prepareExportPlateWells(TableExportCriteria)
@@ -184,7 +192,6 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
             IResultSetConfig<String, TableModelRowWithObject<MaterialReplicaFeatureSummary>> resultSetConfig,
             TechId experimentId, TechId materialId,
             AsyncCallback<TypedTableResultSet<MaterialReplicaFeatureSummary>> callback);
-
     /**
      * @see IScreeningClientService#prepareExportMaterialReplicaFeatureSummary(TableExportCriteria)
      */

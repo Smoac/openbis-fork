@@ -94,9 +94,14 @@ abstract class AbstractContentLoader
                 project.getCode(), project.getSpace().getCode());
     }
 
-    protected final FeatureVectorDatasetLoader createDatasetsRetriever(Set<PlateIdentifier> plates)
+    protected final HCSImageDatasetLoader createImageDatasetsRetriever(Set<PlateIdentifier> plates)
+    {
+        return new HCSImageDatasetLoader(session, businessObjectFactory, null, plates);
+    }
+
+    protected final FeatureVectorDatasetLoader createFeatureVectorDatasetsRetriever(
+            Set<PlateIdentifier> plates)
     {
         return new FeatureVectorDatasetLoader(session, businessObjectFactory, null, plates);
     }
-
 }

@@ -40,22 +40,17 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplic
 public class MaterialReplicaFeatureSummaryGrid extends
         TypedTableGrid<MaterialReplicaFeatureSummary>
 {
-
     private static final String ID = "material_replica_feature_summary";
 
     private static final String PREFIX = GenericConstants.ID_PREFIX + ID;
 
     public static final String BROWSER_ID = PREFIX + "_main";
 
-    public static final String GRID_ID = PREFIX + TypedTableGrid.GRID_POSTFIX;
-
     private final IViewContext<IScreeningClientServiceAsync> specificViewContext;
 
     private final TechId experimentId;
 
     private final TechId materialId;
-
-
 
     public static IDisposableComponent create(
             IViewContext<IScreeningClientServiceAsync> viewContext, TechId experimentId,
@@ -84,7 +79,6 @@ public class MaterialReplicaFeatureSummaryGrid extends
     {
         specificViewContext.getService().listMaterialReplicaFeatureSummary(resultSetConfig,
                 experimentId, materialId, callback);
-
     }
 
     @Override
@@ -92,9 +86,7 @@ public class MaterialReplicaFeatureSummaryGrid extends
             TableExportCriteria<TableModelRowWithObject<MaterialReplicaFeatureSummary>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
-        specificViewContext.getService().prepareExportMaterialReplicaFeatureSummary(
-
-        exportCriteria,
+        specificViewContext.getService().prepareExportMaterialReplicaFeatureSummary(exportCriteria,
                 callback);
     }
 
@@ -103,7 +95,7 @@ public class MaterialReplicaFeatureSummaryGrid extends
     {
         return ID + "_" + columnID.toUpperCase();
     }
-    
+
     public void dispose()
     {
         asDisposableWithoutToolbar().dispose();

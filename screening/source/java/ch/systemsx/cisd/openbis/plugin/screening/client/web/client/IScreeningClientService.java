@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client;
 
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
@@ -109,6 +111,15 @@ public interface IScreeningClientService extends IClientService
 
     public String prepareExportPlateWells(
             TableExportCriteria<TableModelRowWithObject<WellContent>> criteria)
+            throws UserFailureException;
+
+    /**
+     * Finds wells containing the specified material and belonging to the specified experiment.
+     * Loads wells metadata and single image dataset for each well. If there are many image datasets
+     * for the well, all but the first one are ignored. If there is no image dataset for the well,
+     * the whole well is ignored.
+     */
+    public List<WellContent> listWellImages(TechId materialId, TechId experimentId)
             throws UserFailureException;
 
     /**

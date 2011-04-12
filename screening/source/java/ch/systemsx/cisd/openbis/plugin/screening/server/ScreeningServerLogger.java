@@ -118,6 +118,14 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
+    public List<WellContent> listWellImages(String sessionToken, TechId materialId,
+            TechId experimentId)
+    {
+        logAccess(sessionToken, "listWellImages", "material(%s) experiment(%s)", materialId,
+                experimentId);
+        return null;
+    }
+
     public List<Material> listMaterials(String sessionToken, WellSearchCriteria materialCriteria)
     {
         logAccess(sessionToken, "listMaterials", "criteria(%s)", materialCriteria);

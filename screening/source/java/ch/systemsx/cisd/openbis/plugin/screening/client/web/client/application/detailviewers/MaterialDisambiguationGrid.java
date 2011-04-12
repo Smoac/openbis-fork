@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory;
@@ -220,28 +221,64 @@ public class MaterialDisambiguationGrid extends TypedTableGrid<Material>
 
         setHeader(viewContext.getMessage(Dict.MATERIAL_DISAMBIGUATION_GRID_EXPLANATION));
         linkToMaterialDetails();
+        setBorders(true);
+        setHeight(700);
     }
 
     private void linkToMaterialDetails()
     {
-        registerListenerAndLinkGenerator(MaterialGridColumnIDs.CODE,
+        ICellListenerAndLinkGenerator<Material> listenerLinkGenerator =
                 new ICellListenerAndLinkGenerator<Material>()
                     {
                         public String tryGetLink(Material material, ISerializableComparable value)
                         {
-                            ExperimentIdentifierSearchCriteria experimentCriteria =
-                                    convertExperimentCriteria(searchCriteria
-                                            .getExperimentCriteria());
-                            return ScreeningLinkExtractor.tryCreateMaterialDetailsLink(material,
-                                    experimentCriteria);
+                            ExperimentSearchCriteria experimentSearchCriteria =
+                                    searchCriteria.getExperimentCriteria();
+                            if (experimentSearchCriteria.tryGetExperiment() != null)
+                            {
+                                String experimentPermId =
+                                        experimentSearchCriteria.tryGetExperiment()
+                                                .getExperimentPermId();
+                                return createMaterialReplicaSummaryLink(material, experimentPermId);
+                            } else
+                            {
+                                return tryCreateMaterialDetailViewLink(material,
+                                        experimentSearchCriteria);
+                            }
                         }
 
                         public void handle(TableModelRowWithObject<Material> row,
                                 boolean specialKeyPressed)
                         {
-                            openImagingMaterialViewer(row.getObjectOrNull());
+                            Material material = row.getObjectOrNull();
+                            openImagingMaterialViewer(material);
                         }
-                    });
+                    };
+        registerListenerAndLinkGenerator(MaterialGridColumnIDs.SHOW_DETAILS, listenerLinkGenerator);
+        registerListenerAndLinkGenerator(MaterialGridColumnIDs.CODE, listenerLinkGenerator);
+    }
+
+    private void openMaterialReplicaSummary(Material material, String experimentPermId)
+    {
+        MaterialIdentifier materialIdentifier =
+                new MaterialIdentifier(material.getCode(), material.getMaterialType().getCode());
+        MaterialReplicaFeatureSummaryViewer.openTab(screeningViewContext, experimentPermId,
+                materialIdentifier);
+    }
+
+    private static String createMaterialReplicaSummaryLink(Material material,
+            String experimentPermId)
+    {
+        return ScreeningLinkExtractor.createMaterialReplicaSummaryLink(experimentPermId,
+                material.getCode(), material.getMaterialType().getCode());
+    }
+
+    private static String tryCreateMaterialDetailViewLink(Material material,
+            ExperimentSearchCriteria experimentSearchCriteria)
+    {
+        ExperimentIdentifierSearchCriteria experimentCriteria =
+                convertExperimentCriteria(experimentSearchCriteria);
+        return ScreeningLinkExtractor.tryCreateMaterialDetailsLink(material, experimentCriteria);
     }
 
     private static ExperimentIdentifierSearchCriteria convertExperimentCriteria(
@@ -259,8 +296,17 @@ public class MaterialDisambiguationGrid extends TypedTableGrid<Material>
 
     private void openImagingMaterialViewer(Material material)
     {
-        ClientPluginFactory.openImagingMaterialViewer(material,
-                searchCriteria.getExperimentCriteria(), screeningViewContext);
+        ExperimentSearchCriteria experimentSearchCriteria = searchCriteria.getExperimentCriteria();
+        if (experimentSearchCriteria.tryGetExperiment() != null)
+        {
+            String experimentPermId =
+                    experimentSearchCriteria.tryGetExperiment().getExperimentPermId();
+            openMaterialReplicaSummary(material, experimentPermId);
+        } else
+        {
+            ClientPluginFactory.openImagingMaterialViewer(material,
+                    searchCriteria.getExperimentCriteria(), screeningViewContext);
+        }
     }
 
     @Override

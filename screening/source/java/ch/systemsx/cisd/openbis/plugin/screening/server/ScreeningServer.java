@@ -209,6 +209,14 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                 materialCriteria);
     }
 
+    public List<WellContent> listWellImages(String sessionToken, TechId materialId,
+            TechId experimentId)
+    {
+        Session session = getSession(sessionToken);
+        return WellContentLoader.loadWithImages(session, businessObjectFactory, getDAOFactory(),
+                materialId, experimentId);
+    }
+
     public List<Material> listMaterials(String sessionToken, WellSearchCriteria materialCriteria)
     {
         Session session = getSession(sessionToken);
@@ -288,8 +296,8 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         {
             materialIds.add(id);
         }
-        return commonServer.listMaterials(sessionToken, new ListMaterialCriteria(materialType,
-                materialIds), true);
+        return commonServer
+                .listMaterials(sessionToken, new ListMaterialCriteria(materialIds), true);
     }
 
     public ExperimentFeatureVectorSummary getExperimentFeatureVectorSummary(String sessionToken,
@@ -321,7 +329,17 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         MaterialAllReplicasFeatureVectors backendResult =
                 MaterialFeatureVectorSummaryLoader.tryLoadMaterialFeatureVectors(session,
                         businessObjectFactory, getDAOFactory(), materialId, experimentId, settings);
+        if (backendResult == null)
+        {
+            return createEmptyMaterialReplicaFeatureSummaryResult();
+        }
         return convert(backendResult);
+    }
+
+    private static MaterialReplicaFeatureSummaryResult createEmptyMaterialReplicaFeatureSummaryResult()
+    {
+        return new MaterialReplicaFeatureSummaryResult(new ArrayList<String>(),
+                new ArrayList<MaterialReplicaFeatureSummary>());
     }
 
     private MaterialReplicaFeatureSummaryResult convert(

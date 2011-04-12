@@ -419,7 +419,7 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
     private WellFeatureCollection<FeatureVectorValues> tryLoadWellSingleFeatureVectors(
             Set<PlateIdentifier> plates, List<String> featureCodes)
     {
-        FeatureVectorDatasetLoader datasetsRetriever = createDatasetsRetriever(plates);
+        FeatureVectorDatasetLoader datasetsRetriever = createFeatureVectorDatasetsRetriever(plates);
         Collection<ExternalData> featureVectorDatasets =
                 datasetsRetriever.getFeatureVectorDatasets();
         if (featureVectorDatasets.isEmpty())
@@ -449,7 +449,7 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
     // runs, where each plate has at most one analysis dataset in each run. {@link
     // UniqueKeyViolationStrategy} could be set to {@link UniqueKeyViolationStrategy.ERROR} in
     // such a case.
-    private static List<DatasetReference> chooseSingleDatasetForPlate(
+    protected static List<DatasetReference> chooseSingleDatasetForPlate(
             Collection<ExternalData> datasets)
     {
         TableMap<String, ExternalData> plateToDatasetMap =

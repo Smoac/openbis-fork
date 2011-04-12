@@ -212,6 +212,12 @@ public final class ScreeningClientService extends AbstractClientService implemen
         return prepareExportEntities(criteria);
     }
 
+    public List<WellContent> listWellImages(TechId materialId, TechId experimentId)
+            throws UserFailureException
+    {
+        return server.listWellImages(getSessionToken(), materialId, experimentId);
+    }
+
     public TypedTableResultSet<Material> listMaterials(
             IResultSetConfig<String, TableModelRowWithObject<Material>> gridCriteria,
             WellSearchCriteria materialCriteria)
@@ -321,7 +327,7 @@ public final class ScreeningClientService extends AbstractClientService implemen
                             {
                                 return server.listExperimentMaterials(getSessionToken(),
                                         experimentId, displayCriteria.getListCriteria()
-                                                .getMaterialType());
+                                                .tryGetMaterialType());
                             }
                         });
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
@@ -349,7 +355,6 @@ public final class ScreeningClientService extends AbstractClientService implemen
                         materialId);
         return listEntities(provider, resultSetConfig);
     }
-
     public String prepareExportFeatureVectorSummary(
             TableExportCriteria<TableModelRowWithObject<MaterialFeatureVectorSummary>> criteria)
             throws UserFailureException

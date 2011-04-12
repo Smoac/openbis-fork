@@ -115,6 +115,17 @@ public interface IScreeningServer extends IServer
             @AuthorizationGuard(guardClass = WellSearchCriteriaPredicate.class) WellSearchCriteria materialCriteria);
 
     /**
+     * Finds wells containing the specified material and belonging to the specified experiment.
+     * Loads wells metadata and single image dataset for each well. If there are many image datasets
+     * for the well, all but the first one are ignored. If there is no image dataset for the well,
+     * the whole well is ignored.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public List<WellContent> listWellImages(String sessionToken, TechId materialId,
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId);
+
+    /**
      * @return materials with codes or properties matching to the query. If the experiment is
      *         specified, only materials inside well locations connected through the plate to this
      *         specified experiment(s) will be returned.

@@ -34,6 +34,8 @@ import org.apache.commons.lang.ArrayUtils;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.collections.GroupByMap;
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
+import ch.systemsx.cisd.common.collections.TableMap;
+import ch.systemsx.cisd.common.collections.TableMap.UniqueKeyViolationStrategy;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -45,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityReference;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialAttributeSearchFieldKind;
@@ -88,22 +91,22 @@ public class WellContentLoader extends AbstractContentLoader
      */
     public static List<WellContent> loadOnlyMetadata(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
-            TechId geneMaterialId, String experimentPermId)
+            TechId materialId, String experimentPermId)
     {
         WellContentLoader loader =
                 new WellContentLoader(session, businessObjectFactory, daoFactory);
-
-        return loader.loadLocations(geneMaterialId, experimentPermId);
+        long experimentId = loader.loadExperimentByPermId(experimentPermId).getId();
+        return loader.loadLocations(materialId, experimentId);
     }
 
     /** loads wells metadata, but no information about image or image analysis datasets */
     public static List<WellContent> loadOnlyMetadata(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
-            TechId geneMaterialId)
+            TechId materialId)
     {
         final WellContentLoader loader =
                 new WellContentLoader(session, businessObjectFactory, daoFactory);
-        return loader.loadLocations(geneMaterialId);
+        return loader.loadLocations(materialId);
     }
 
     /**
@@ -130,6 +133,91 @@ public class WellContentLoader extends AbstractContentLoader
     }
 
     /**
+     * Finds wells containing the specified material and belonging to the specified experiment.
+     * Loads wells metadata and single image dataset for each well. If there are many image datasets
+     * for the well, all but the first one are ignored. If there is no image dataset for the well,
+     * the whole well is ignored.
+     */
+    public static List<WellContent> loadWithImages(Session session,
+            IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
+            TechId materialId, TechId experimentId)
+    {
+        WellContentLoader loader =
+                new WellContentLoader(session, businessObjectFactory, daoFactory);
+        List<WellContent> locations = loader.loadLocations(materialId, experimentId.getId());
+        return loader.enrichWithSingleImageDatasets(locations);
+    }
+
+    private List<WellContent> enrichWithSingleImageDatasets(List<WellContent> locations)
+    {
+        HCSImageDatasetLoader datasetsRetriever =
+                createImageDatasetsRetriever(extractPlates(locations));
+        Collection<ExternalData> imageDatasets = datasetsRetriever.getImageDatasets();
+        if (imageDatasets.isEmpty())
+        {
+            return Collections.emptyList();
+        }
+        Map<Long, DatasetImagesReference> plateToDatasetReferenceMap =
+                createPlateToDatasetReferenceMap(imageDatasets);
+        return enrichWithSingleImageDatasets(locations, plateToDatasetReferenceMap);
+    }
+
+    /** Note: locations without a corresponding image dataset are removed */
+    private static List<WellContent> enrichWithSingleImageDatasets(List<WellContent> locations,
+            Map<Long, DatasetImagesReference> plateToDatasetReferenceMap)
+    {
+        List<WellContent> wellContentsWithImageDatasets = new ArrayList<WellContent>();
+        for (WellContent wellContent : locations)
+        {
+            Long plateId = wellContent.getPlate().getId();
+            DatasetImagesReference imageDatasetReference = plateToDatasetReferenceMap.get(plateId);
+            if (imageDatasetReference != null)
+            {
+                WellContent enrichedWellContent =
+                        wellContent.cloneWithDatasets(imageDatasetReference, null);
+                wellContentsWithImageDatasets.add(enrichedWellContent);
+            }
+        }
+        return wellContentsWithImageDatasets;
+    }
+
+    // TODO 2011-04-04, Tomasz Pylak: here if the plate has more than one dataset assigned, we
+    // take the first and ignore the rest. The clean solution would be to ensure somehow that each
+    // plate has at most one image dataset (can be possible only when there will be abstraction
+    // which groups raw/overview/thumbnail images into one dataset).
+    private Map<Long, DatasetImagesReference> createPlateToDatasetReferenceMap(
+            Collection<ExternalData> imageDatasets)
+    {
+        TableMap<Long, ExternalData> plateToDatasetMap =
+                new TableMap<Long/* plate id */, ExternalData>(imageDatasets,
+                        new IKeyExtractor<Long, ExternalData>()
+                            {
+                                public Long getKey(ExternalData externalData)
+                                {
+                                    return externalData.getSample().getId();
+                                }
+                            }, UniqueKeyViolationStrategy.KEEP_FIRST);
+
+        return createPlateToDatasetReferenceMap(plateToDatasetMap);
+    }
+
+    private Map<Long, DatasetImagesReference> createPlateToDatasetReferenceMap(
+            TableMap<Long, ExternalData> plateToDatasetMap)
+    {
+        Map<String, ImageDatasetParameters> imageParams = loadImagesReport(plateToDatasetMap);
+        Map<Long/* plate id */, DatasetImagesReference> plateToDatasetReferenceMap =
+                new HashMap<Long, DatasetImagesReference>();
+        for (Long plateId : plateToDatasetMap.keySet())
+        {
+            ExternalData imageDataset = plateToDatasetMap.getOrDie(plateId);
+            DatasetImagesReference imaageDatasetReference =
+                    createDatasetImagesReference(imageDataset, imageParams);
+            plateToDatasetReferenceMap.put(plateId, imaageDatasetReference);
+        }
+        return plateToDatasetReferenceMap;
+    }
+
+    /**
      * @return list of unique materials with codes or properties matching to the query. If the
      *         experiment is specified, only materials inside well locations connected through the
      *         plate to this specified experiment(s) will be returned.
@@ -138,11 +226,23 @@ public class WellContentLoader extends AbstractContentLoader
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
             WellSearchCriteria materialCriteria)
     {
-        List<WellContent> locations =
+        Iterable<WellContentQueryResult> locations =
                 new WellContentLoader(session, businessObjectFactory, daoFactory)
-                        .loadLocations(materialCriteria);
-        Set<Material> materials = extractMaterials(locations);
-        return new ArrayList<Material>(materials);
+                        .loadRawLocations(materialCriteria);
+        Collection<Long> materialIds = extractMaterialIds(locations);
+        return businessObjectFactory.createMaterialLister(session).list(
+                new ListMaterialCriteria(materialIds), true);
+    }
+
+    @SuppressWarnings("deprecation")
+    private static Collection<Long> extractMaterialIds(Iterable<WellContentQueryResult> locations)
+    {
+        List<Long> materialIds = new ArrayList<Long>();
+        for (WellContentQueryResult location : locations)
+        {
+            materialIds.add(location.material_content_id);
+        }
+        return materialIds;
     }
 
     private WellContentLoader(Session session,
@@ -181,7 +281,8 @@ public class WellContentLoader extends AbstractContentLoader
     {
         long start = System.currentTimeMillis();
 
-        FeatureVectorDatasetLoader datasetsRetriever = createDatasetsRetriever(locations);
+        FeatureVectorDatasetLoader datasetsRetriever =
+                createFeatureVectorDatasetsRetriever(locations);
         Collection<ExternalData> imageDatasets = datasetsRetriever.getImageDatasets();
         Collection<ExternalData> featureVectorDatasets =
                 datasetsRetriever.getFeatureVectorDatasets();
@@ -207,10 +308,11 @@ public class WellContentLoader extends AbstractContentLoader
                 plateToFeatureVectoreDatasetMap, imageParams);
     }
 
-    private FeatureVectorDatasetLoader createDatasetsRetriever(List<WellContent> locations)
+    private FeatureVectorDatasetLoader createFeatureVectorDatasetsRetriever(
+            List<WellContent> locations)
     {
         Set<PlateIdentifier> plates = extractPlates(locations);
-        return createDatasetsRetriever(plates);
+        return createFeatureVectorDatasetsRetriever(plates);
     }
 
     private static Collection<ExternalData> selectChildlessImageDatasets(
@@ -559,7 +661,7 @@ public class WellContentLoader extends AbstractContentLoader
 
     // TODO 2011-04-04, Tomasz Pylak: inefficient, rewrite to use single queryfor all datasets
     private Map<String/* dataset code */, ImageDatasetParameters> loadImagesReport(
-            Collection<ExternalData> imageDatasets)
+            Iterable<ExternalData> imageDatasets)
     {
         List<ImageDatasetParameters> imageParameters = new ArrayList<ImageDatasetParameters>();
         for (ExternalData dataSet : imageDatasets)
@@ -581,6 +683,12 @@ public class WellContentLoader extends AbstractContentLoader
     }
 
     private List<WellContent> loadLocations(WellSearchCriteria materialCriteria)
+    {
+        Iterable<WellContentQueryResult> locations = loadRawLocations(materialCriteria);
+        return convert(locations);
+    }
+
+    private Iterable<WellContentQueryResult> loadRawLocations(WellSearchCriteria materialCriteria)
     {
         Iterable<WellContentQueryResult> locations;
         MaterialSearchCriteria materialSearchCriteria =
@@ -630,10 +738,10 @@ public class WellContentLoader extends AbstractContentLoader
             throw new IllegalStateException("unhandled materia search criteria: "
                     + materialSearchCriteria);
         }
-
-        return convert(locations);
+        return locations;
     }
 
+    // NOET: this ignores material types, it has to be filtered later
     private long[] findMaterialIds(MaterialSearchCodesCriteria codesCriteria)
     {
         List<String> materialTypeCodes = Arrays.asList(codesCriteria.getMaterialTypeCodes());
@@ -696,10 +804,8 @@ public class WellContentLoader extends AbstractContentLoader
         return exp == null ? null : exp.getExperimentId().getId();
     }
 
-    private List<WellContent> loadLocations(TechId geneMaterialId, String experimentPermId)
+    private List<WellContent> loadLocations(TechId geneMaterialId, long experimentId)
     {
-        final long experimentId = loadExperimentByPermId(experimentPermId).getId();
-
         DataIterator<WellContentQueryResult> locations =
                 createDAO(daoFactory).getPlateLocationsForMaterialId(geneMaterialId.getId(),
                         experimentId);
@@ -724,16 +830,6 @@ public class WellContentLoader extends AbstractContentLoader
         materialLister.enrichWithProperties(containedMaterials);
 
         return wellContents;
-    }
-
-    private static Set<Material> extractMaterials(List<WellContent> locations)
-    {
-        Set<Material> materials = new HashSet<Material>();
-        for (WellContent location : locations)
-        {
-            materials.addAll(location.getMaterialContents());
-        }
-        return materials;
     }
 
     /**

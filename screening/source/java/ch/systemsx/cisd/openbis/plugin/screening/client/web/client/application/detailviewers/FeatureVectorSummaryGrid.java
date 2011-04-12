@@ -91,7 +91,7 @@ public class FeatureVectorSummaryGrid extends TypedTableGrid<MaterialFeatureVect
                     {
                         Material material = entity.getMaterial();
                         return ScreeningLinkExtractor
-                                .createMaterialReplicaFeatureSummaryBrowserLink(experiment
+                                .createMaterialReplicaSummaryLink(experiment
                                         .getPermId(), material.getCode(), material
                                         .getMaterialType().getCode());
                     }
