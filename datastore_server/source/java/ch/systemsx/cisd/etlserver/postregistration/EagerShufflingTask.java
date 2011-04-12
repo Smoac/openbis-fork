@@ -38,6 +38,7 @@ import ch.systemsx.cisd.etlserver.plugins.DataSetMover;
 import ch.systemsx.cisd.etlserver.plugins.IDataSetMover;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IShareFinder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IncomingShareIdProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;

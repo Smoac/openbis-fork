@@ -19,6 +19,7 @@ package ch.systemsx.cisd.etlserver.postregistration;
 import java.util.List;
 import java.util.Properties;
 
+import ch.systemsx.cisd.openbis.dss.generic.shared.IShareFinder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 

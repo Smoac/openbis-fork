@@ -23,7 +23,7 @@ import org.apache.commons.io.FileUtils;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.etlserver.postregistration.IShareFinder;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IShareFinder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 

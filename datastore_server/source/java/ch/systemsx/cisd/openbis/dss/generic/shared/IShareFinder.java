@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.postregistration;
+package ch.systemsx.cisd.openbis.dss.generic.shared;
 
 import java.util.List;
 import java.util.Properties;
