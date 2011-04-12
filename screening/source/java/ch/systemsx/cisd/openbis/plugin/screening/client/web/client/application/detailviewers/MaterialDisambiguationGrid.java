@@ -222,7 +222,7 @@ public class MaterialDisambiguationGrid extends TypedTableGrid<Material>
         setHeader(viewContext.getMessage(Dict.MATERIAL_DISAMBIGUATION_GRID_EXPLANATION));
         linkToMaterialDetails();
         setBorders(true);
-        setHeight(700);
+        setHeight(LayoutUtils.ONE_PAGE_GRID_HEIGHT_PX);
     }
 
     private void linkToMaterialDetails()

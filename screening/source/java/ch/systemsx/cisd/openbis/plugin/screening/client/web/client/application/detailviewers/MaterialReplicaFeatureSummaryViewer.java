@@ -277,8 +277,7 @@ public class MaterialReplicaFeatureSummaryViewer
         final IDisposableComponent gridComponent =
                 MaterialReplicaFeatureSummaryGrid.create(screeningViewContext, new TechId(
                         experiment), new TechId(material));
-        // TODO 2011-04-12, Tomasz Pylak: correct the height
-        panel.add(gridComponent.getComponent(), new RowData(1, 700));
+        panel.add(gridComponent.getComponent(), new RowData(1, LayoutUtils.ONE_PAGE_GRID_HEIGHT_PX));
 
         screeningViewContext.getService().listWellImages(new TechId(material.getId()),
                 new TechId(experiment.getId()), new ImagesFoundCallback(panel));
@@ -334,10 +333,6 @@ public class MaterialReplicaFeatureSummaryViewer
 
         Html headingWidget = createHeader(headingText);
         panel.add(headingWidget, new RowData(1, -1, new Margins(0, 0, 20, 0)));
-
-        // Widget experimentProperties =
-        // createPropertiesSection(viewContext, experiment.getProperties(), "Assay properties");
-        // panel.add(experimentProperties, new RowData(-1, -1, propertiesMargin()));
 
         return panel;
     }
@@ -407,54 +402,6 @@ public class MaterialReplicaFeatureSummaryViewer
         linkPanel.add(linkWidget);
         panel.add(linkPanel, new RowData(-1, -1, new Margins(0, 0, 20, 200)));
 
-        // Widget materialProperties =
-        // createPropertiesSection(viewContext, material.getProperties(), "Gene properties");
-        // panel.add(materialProperties, new RowData(-1, -1, propertiesMargin()));
-
         return panel;
     }
-
-    // private static Widget createPropertiesSection(
-    // final IViewContext<IScreeningClientServiceAsync> viewContext,
-    // List<IEntityProperty> properties, String sectionTitle)
-    // {
-    // LayoutContainer panel = new LayoutContainer();
-    // panel.setLayout(new RowLayout(Orientation.VERTICAL));
-    // Html panelTitle = new Html(sectionTitle);
-    // panelTitle.setTagName("h5");
-    // panel.add(panelTitle, new RowData(1, -1, propertiesTitleMargin()));
-    //
-    // // experiment properties
-    // Map<String, Object> propertyMap = new LinkedHashMap<String, Object>();
-    // PropertiesPanelUtils.addEntityProperties(viewContext, propertyMap, properties);
-    //
-    // PropertyGrid propertyGrid = new PropertyGrid(viewContext, propertyMap.size());
-    // final IPropertyValueRenderer<IEntityProperty> renderer =
-    // PropertyValueRenderers.createEntityPropertyPropertyValueRenderer(viewContext);
-    // propertyGrid.registerPropertyValueRenderer(EntityProperty.class, renderer);
-    // propertyGrid.registerPropertyValueRenderer(GenericEntityProperty.class, renderer);
-    // propertyGrid.registerPropertyValueRenderer(VocabularyTermEntityProperty.class, renderer);
-    // propertyGrid.registerPropertyValueRenderer(MaterialEntityProperty.class, renderer);
-    // propertyGrid.registerPropertyValueRenderer(ManagedEntityProperty.class, renderer);
-    //
-    // propertyGrid.setProperties(propertyMap);
-    // panel.add(propertyGrid);
-    //
-    // return panel;
-    // }
-
-    // private static Margins headingTitleMargin()
-    // {
-    // return new Margins(20, 20, 30, 20);
-    // }
-
-    // private static Margins propertiesTitleMargin()
-    // {
-    // return new Margins(0, 20, 10, 20);
-    // }
-
-    // private static Margins propertiesMargin()
-    // {
-    // return new Margins(0, 20, 20, 0);
-    // }
 }

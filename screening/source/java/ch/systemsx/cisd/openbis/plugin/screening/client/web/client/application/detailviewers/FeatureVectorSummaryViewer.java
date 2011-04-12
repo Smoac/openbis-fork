@@ -146,7 +146,7 @@ public class FeatureVectorSummaryViewer
 
         final IDisposableComponent gridComponent =
                 FeatureVectorSummaryGrid.create(viewContext, experiment);
-        panel.add(gridComponent.getComponent(), new RowData(1, 700));
+        panel.add(gridComponent.getComponent(), new RowData(1, LayoutUtils.ONE_PAGE_GRID_HEIGHT_PX));
 
         return new IDisposableComponent()
             {

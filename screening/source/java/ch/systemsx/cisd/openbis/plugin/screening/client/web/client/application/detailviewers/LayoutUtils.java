@@ -26,6 +26,8 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
  */
 public class LayoutUtils
 {
+    public static final int ONE_PAGE_GRID_HEIGHT_PX = 700;
+
     private static final int MARGIN_SIZE_PX = 10;
 
     /** @return layout data with big margin on all sides */
