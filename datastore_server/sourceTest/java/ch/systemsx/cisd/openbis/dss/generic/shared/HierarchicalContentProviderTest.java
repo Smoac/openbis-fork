@@ -120,6 +120,31 @@ public class HierarchicalContentProviderTest extends AssertJUnit
     }
 
     @Test
+    void testAsContentFromFakeDataSetCodeFails()
+    {
+        final String dataSetCode = "FAKE_DS_CODE";
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(openbisService).tryGetDataSet(dataSetCode);
+                    will(returnValue(null));
+                }
+            });
+
+        try
+        {
+            hierarchicalContentProvider.asContent(dataSetCode);
+            fail("expected IllegalArgumentException");
+        } catch (IllegalArgumentException ex)
+        {
+            assertEquals("Unknown data set " + dataSetCode, ex.getMessage());
+        }
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
     void testAsContentFromDataSetLocation()
     {
         final String code = "DS_CODE";
