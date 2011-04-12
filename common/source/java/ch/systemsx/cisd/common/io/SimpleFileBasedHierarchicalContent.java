@@ -85,6 +85,16 @@ class SimpleFileBasedHierarchicalContent implements IHierarchicalContent
         return nodes;
     }
 
+    public List<IHierarchicalContentNode> listMatchingNodes(String startingPath, String pattern)
+    {
+        return null;
+    }
+
+    public void close()
+    {
+        // do nothing
+    }
+
     //
     // Object
     //
@@ -173,7 +183,7 @@ class SimpleFileBasedHierarchicalContent implements IHierarchicalContent
         }
 
         @Override
-        public long doGetSize()
+        public long doGetFileLength()
         {
             return file.length();
         }

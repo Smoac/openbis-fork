@@ -29,4 +29,8 @@ public interface IHierarchicalContent
     IHierarchicalContentNode getNode(String relativePath);
 
     List<IHierarchicalContentNode> listMatchingNodes(String pattern);
+
+    List<IHierarchicalContentNode> listMatchingNodes(String startingPath, String pattern);
+
+    void close();
 }

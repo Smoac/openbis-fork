@@ -17,9 +17,12 @@
 package ch.systemsx.cisd.common.io;
 
 import java.io.File;
-import java.io.FilenameFilter;
+import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.List;
+
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.common.utilities.IDelegatedAction;
 
 /**
  * {@link IHierarchicalContent} implementation for normal {@link java.io.File}.
@@ -32,11 +35,14 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
 
     private final File root;
 
+    private final IDelegatedAction onCloseAction;
+
     DefaultFileBasedHierarchicalContent(HierarchicalContentFactory hierarchicalContentFactory,
-            File file)
+            File file, IDelegatedAction onCloseAction)
     {
         assert hierarchicalContentFactory != null;
         this.hierarchicalContentFactory = hierarchicalContentFactory;
+        this.onCloseAction = onCloseAction;
 
         if (file.exists() == false)
         {
@@ -57,7 +63,7 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
 
     public IHierarchicalContentNode getNode(String relativePath)
     {
-        return asNode(new File(root, relativePath));
+        return asNode(new File(root, relativePath)); // FIXME
     }
 
     private IHierarchicalContentNode asNode(File file)
@@ -67,20 +73,41 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
 
     public List<IHierarchicalContentNode> listMatchingNodes(final String pattern)
     {
-        File[] files = root.listFiles(new FilenameFilter()
-            {
-                public boolean accept(File dir, String name)
-                {
-                    return name.matches(pattern);
-                }
-            });
+        return listMatchingNodes("", pattern);
+    }
 
+    public List<IHierarchicalContentNode> listMatchingNodes(final String startingPath,
+            final String pattern)
+    {
+        // NOTE: this will not traverse files inside HDF5 container.
+        // It should be fixed in DB based implementation.
+        List<File> files = new ArrayList<File>();
+        FileFilter fileFilter = new FileFilter()
+            {
+                public boolean accept(File pathname)
+                {
+                    boolean matches = pathname.getName().matches(pattern);
+                    return matches;
+                }
+            };
+        if (StringUtils.isBlank(startingPath))
+        {
+            findFiles(root, fileFilter, files);
+        } else
+        {
+            findFiles(new File(root, startingPath), fileFilter, files);
+        }
         List<IHierarchicalContentNode> nodes = new ArrayList<IHierarchicalContentNode>();
         for (File file : files)
         {
             nodes.add(hierarchicalContentFactory.asHierarchicalContentNode(this, file));
         }
         return nodes;
+    }
+
+    public void close()
+    {
+        onCloseAction.execute();
     }
 
     //
@@ -131,4 +158,36 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
         return true;
     }
 
+    /**
+     * Recursively browses startingPoint looking for files accepted by the filter. Stops if more
+     * than one file has been already found.
+     */
+    private static void findFiles(File startingPoint, FileFilter filter, List<File> result)
+    {
+        if (result.size() > 1)
+        {
+            return;
+        } else
+        {
+            File[] filteredFiles = startingPoint.listFiles(filter);
+            if (filteredFiles != null)
+            {
+                for (File f : filteredFiles)
+                {
+                    result.add(f);
+                }
+            }
+            File[] files = startingPoint.listFiles();
+            if (files != null)
+            {
+                for (File d : files)
+                {
+                    if (d.isDirectory())
+                    {
+                        findFiles(d, filter, result);
+                    }
+                }
+            }
+        }
+    }
 }
