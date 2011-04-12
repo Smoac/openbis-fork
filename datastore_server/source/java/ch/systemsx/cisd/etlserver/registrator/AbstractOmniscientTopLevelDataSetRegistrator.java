@@ -299,8 +299,12 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
 
         try
         {
+            ValidationScriptRunner validationScriptRunner =
+                    ValidationScriptRunner.createValidatorFromScriptPath(getGlobalState()
+                            .getValidationScriptOrNull());
+
             List<ValidationError> validationErrors =
-                    state.validationScriptRunner.validate(incomingDataSetFile);
+                    validationScriptRunner.validate(incomingDataSetFile);
             if (validationErrors.size() > 0)
             {
                 handleValidationErrors(validationErrors, incomingDataSetFile, service);
