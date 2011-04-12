@@ -22,12 +22,10 @@ import java.util.List;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationScriptRunner;
-
 /**
  * @author Chandrasekhar Ramakrishnan
  */
+@Test(groups="broken")
 public class ValidationScriptRunnerTest extends AssertJUnit
 {
 
