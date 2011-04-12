@@ -20,11 +20,12 @@ import java.io.File;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.hdf5.Hdf5Container;
+import ch.systemsx.cisd.common.hdf5.HierarchicalStructureDuplicatorFileToHdf5;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.AbstractStorageProcessor;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
-import ch.systemsx.cisd.openbis.dss.generic.shared.content.Hdf5Container;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
@@ -116,7 +117,6 @@ public class Hdf5StorageProcessor extends AbstractStorageProcessor
 
             };
     }
-    
 
     /**
      * Given a directory in the store, return the HDF5 container file.

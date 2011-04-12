@@ -21,10 +21,11 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.hdf5.FileToHdf5DuplicationVerifier;
+import ch.systemsx.cisd.common.hdf5.Hdf5Container;
+import ch.systemsx.cisd.common.hdf5.Hdf5Container.IHdf5ReaderClient;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
 import ch.systemsx.cisd.hdf5.IHDF5SimpleReader;
-import ch.systemsx.cisd.openbis.dss.generic.shared.content.Hdf5Container;
-import ch.systemsx.cisd.openbis.dss.generic.shared.content.Hdf5Container.IHdf5ReaderClient;
 
 /**
  * Tests for {@link Hdf5StorageProcessor}.

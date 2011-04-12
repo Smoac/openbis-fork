@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.hdf5;
+package ch.systemsx.cisd.common.hdf5;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,16 +22,15 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.testng.AssertJUnit;
 
+import ch.systemsx.cisd.common.hdf5.Hdf5Container.IHdf5ReaderClient;
 import ch.systemsx.cisd.hdf5.IHDF5SimpleReader;
-import ch.systemsx.cisd.openbis.dss.generic.shared.content.Hdf5Container;
-import ch.systemsx.cisd.openbis.dss.generic.shared.content.Hdf5Container.IHdf5ReaderClient;
 
 /**
  * Helper class that verifies that a file structure is matched by the HDF5 structure.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-class FileToHdf5DuplicationVerifier extends AssertJUnit
+public class FileToHdf5DuplicationVerifier extends AssertJUnit
 {
 
     private final File sourceFolderOrFile;

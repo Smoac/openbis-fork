@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.hdf5;
+package ch.systemsx.cisd.common.hdf5;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +25,6 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.hdf5.IHDF5SimpleWriter;
-import ch.systemsx.cisd.openbis.dss.generic.shared.content.Hdf5Container;
 
 /**
  * Takes the hierarchical structure of a file and applies it to an HDF5 container.

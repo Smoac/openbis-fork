@@ -61,7 +61,7 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
 
     public IHierarchicalContentNode getNode(String relativePath)
     {
-        return asNode(new File(root, relativePath)); // FIXME
+        return asNode(new File(root, relativePath)); // FIXME traverse HDF5 container
     }
 
     private IHierarchicalContentNode asNode(File file)
@@ -162,6 +162,7 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
      */
     private static void findFiles(File startingPoint, FileFilter filter, List<File> result)
     {
+        // TODO 2011-04-12, Piotr Buczek: make HDF5 aware
         File[] filteredFiles = startingPoint.listFiles(filter);
         if (filteredFiles != null)
         {

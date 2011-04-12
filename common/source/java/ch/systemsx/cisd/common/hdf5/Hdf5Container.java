@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.shared.content;
+package ch.systemsx.cisd.common.hdf5;
 
 import java.io.File;
 

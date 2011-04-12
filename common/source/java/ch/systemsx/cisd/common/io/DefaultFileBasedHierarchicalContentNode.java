@@ -33,7 +33,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
  * 
  * @author Piotr Buczek
  */
-public class DefaultFileBasedHierarchicalContentNode extends AbstractHierarchicalContentNode
+class DefaultFileBasedHierarchicalContentNode extends AbstractHierarchicalContentNode
 {
     protected final IHierarchicalContent root;
 

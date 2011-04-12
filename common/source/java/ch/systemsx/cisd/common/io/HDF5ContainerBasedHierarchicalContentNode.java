@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.shared.content;
+package ch.systemsx.cisd.common.io;
 
 import java.io.File;
 import java.io.InputStream;
@@ -22,14 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
-import ch.systemsx.cisd.common.io.AbstractHierarchicalDirectoryContentNode;
-import ch.systemsx.cisd.common.io.AbstractHierarchicalFileContentNode;
-import ch.systemsx.cisd.common.io.ByteArrayBasedContent;
-import ch.systemsx.cisd.common.io.DefaultFileBasedHierarchicalContentNode;
-import ch.systemsx.cisd.common.io.IContent;
-import ch.systemsx.cisd.common.io.IHierarchicalContent;
-import ch.systemsx.cisd.common.io.IHierarchicalContentFactory;
-import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
+import ch.systemsx.cisd.common.hdf5.Hdf5Container;
 import ch.systemsx.cisd.hdf5.IHDF5SimpleReader;
 
 /**
@@ -258,12 +251,13 @@ class HDF5ContainerBasedHierarchicalContentNode extends DefaultFileBasedHierarch
         {
             if (contentOrNull == null)
             {
-                contentOrNull = extractFileContent(reader, relativePath);
+                contentOrNull = extractFileContent(file, relativePath);
             }
             return contentOrNull;
         }
     }
 
+    @SuppressWarnings("unused")
     private static IContent extractFileContent(IHDF5SimpleReader reader, String path)
     {
         byte[] content = reader.readAsByteArray(path);
@@ -271,4 +265,8 @@ class HDF5ContainerBasedHierarchicalContentNode extends DefaultFileBasedHierarch
         return new ByteArrayBasedContent(content, index < 0 ? path : path.substring(index + 1));
     }
 
+    private static IContent extractFileContent(File hdf5File, String dataSetPath)
+    {
+        return new HDF5DataSetBasedContent(hdf5File, dataSetPath);
+    }
 }

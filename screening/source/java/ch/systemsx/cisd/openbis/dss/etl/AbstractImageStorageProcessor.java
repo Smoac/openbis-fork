@@ -43,6 +43,8 @@ import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.filesystem.SoftLinkMaker;
+import ch.systemsx.cisd.common.hdf5.Hdf5Container;
+import ch.systemsx.cisd.common.hdf5.HierarchicalStructureDuplicatorFileToHdf5;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
@@ -53,7 +55,6 @@ import ch.systemsx.cisd.etlserver.AbstractStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.DispatcherStorageProcessor.IDispatchableStorageProcessor;
 import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
-import ch.systemsx.cisd.etlserver.hdf5.HierarchicalStructureDuplicatorFileToHdf5;
 import ch.systemsx.cisd.etlserver.utils.Unzipper;
 import ch.systemsx.cisd.openbis.dss.Constants;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
@@ -67,7 +68,6 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.OriginalDataStorageFormat;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ThumbnailsStorageFormat;
 import ch.systemsx.cisd.openbis.dss.etl.jython.JythonPlateDataSetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.content.Hdf5Container;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ChannelDescription;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
@@ -693,7 +693,8 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
         {
             IImageTransformerFactory imgTransformerFactory =
                     imageStorageConfiguraton.getImageTransformerFactory();
-            for (AcquiredSingleImage image : images) {
+            for (AcquiredSingleImage image : images)
+            {
                 image.setImageTransformerFactoryOrNull(imgTransformerFactory);
             }
         }

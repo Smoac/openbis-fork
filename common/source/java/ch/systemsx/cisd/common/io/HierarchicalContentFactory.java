@@ -35,6 +35,11 @@ public class HierarchicalContentFactory implements IHierarchicalContentFactory
     public IHierarchicalContentNode asHierarchicalContentNode(IHierarchicalContent rootContent,
             File file)
     {
+        // TODO 2011-04-12, Piotr Buczek: uncomment when HDF5 abstraction is fully implemented
+        // if (FilenameUtils.isExtension(file.getName(), Arrays.asList("h5", "h5ar")))
+        // {
+        // return new HDF5ContainerBasedHierarchicalContentNode(this, rootContent, file);
+        // }
         return new DefaultFileBasedHierarchicalContentNode(this, rootContent, file);
     }
 

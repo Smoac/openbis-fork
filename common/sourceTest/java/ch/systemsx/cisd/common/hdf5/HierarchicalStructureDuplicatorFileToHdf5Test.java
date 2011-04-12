@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.hdf5;
+package ch.systemsx.cisd.common.hdf5;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,9 +23,10 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.common.hdf5.Hdf5Container;
+import ch.systemsx.cisd.common.hdf5.Hdf5Container.IHdf5ReaderClient;
+import ch.systemsx.cisd.common.hdf5.HierarchicalStructureDuplicatorFileToHdf5;
 import ch.systemsx.cisd.hdf5.IHDF5SimpleReader;
-import ch.systemsx.cisd.openbis.dss.generic.shared.content.Hdf5Container;
-import ch.systemsx.cisd.openbis.dss.generic.shared.content.Hdf5Container.IHdf5ReaderClient;
 
 /**
  * @author Chandrasekhar Ramakrishnan

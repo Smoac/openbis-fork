@@ -32,6 +32,7 @@ import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.concurrent.ITaskExecutor;
 import ch.systemsx.cisd.common.concurrent.ParallelizedExecutor;
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.hdf5.Hdf5Container.IHdf5WriterClient;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
@@ -39,7 +40,6 @@ import ch.systemsx.cisd.common.process.ProcessIOStrategy;
 import ch.systemsx.cisd.common.process.ProcessResult;
 import ch.systemsx.cisd.hdf5.IHDF5SimpleWriter;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ThumbnailsStorageFormat;
-import ch.systemsx.cisd.openbis.dss.generic.shared.content.Hdf5Container.IHdf5WriterClient;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 
 /**

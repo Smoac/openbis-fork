@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.shared.content;
+package ch.systemsx.cisd.common.hdf5;
 
 import java.io.File;
 import java.util.Arrays;
@@ -38,9 +38,10 @@ public class HDF5AwareHierarchicalContentFactory extends HierarchicalContentFact
     public IHierarchicalContentNode asHierarchicalContentNode(IHierarchicalContent rootContent,
             File file)
     {
-        if (FilenameUtils.isExtension(file.getName(), Arrays.asList("h5", "h5r")))
+        if (FilenameUtils.isExtension(file.getName(), Arrays.asList("h5", "h5ar")))
         {
-            return new HDF5ContainerBasedHierarchicalContentNode(this, rootContent, file);
+            return null;
+            // return new HDF5ContainerBasedHierarchicalContentNode(this, rootContent, file);
         } else
         {
             return super.asHierarchicalContentNode(rootContent, file);
