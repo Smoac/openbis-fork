@@ -110,7 +110,10 @@ public class ValidationScriptRunner
         ArrayList<ValidationError> errors = new ArrayList<ValidationError>();
         PyFunction function = tryJythonFunction(FILE_VALIDATION_FUNCTION_NAME);
         PyObject result = function.__call__(Py.java2py(dataSetFile));
-        errors.addAll((Collection<? extends ValidationError>) result);
+        if (null != result)
+        {
+            errors.addAll((Collection<? extends ValidationError>) result);
+        }
 
         return errors;
     }
