@@ -25,7 +25,6 @@ import org.testng.annotations.Test;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-@Test(groups="broken")
 public class ValidationScriptRunnerTest extends AssertJUnit
 {
 

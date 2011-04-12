@@ -78,7 +78,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-@Test(groups = "broken")
 public class DssComponentTest extends AbstractFileSystemTestCase
 {
     private static final String DUMMY_DATA_SET_CODE = "DummyDataSetCode";
