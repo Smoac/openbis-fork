@@ -227,7 +227,7 @@
         <attribute name="Main-Class" value="ch.systemsx.cisd.openbis.dss.client.api.cli.DssClient" />
         <attribute name="Class-Path"
                    value="cisd-base.jar cisd-args4j.jar stream-supporting-httpinvoker.jar log4j.jar commons-lang.jar commons-io.jar commons-logging.jar 
- commons-codec.jar commons-httpclient.jar spring.jar jline.jar" />
+ commons-codec.jar commons-httpclient.jar spring.jar jline.jar jython.jar" />
         <attribute name="Version" value="${version.number}" />
         <attribute name="Build-Number"
                    value="${version.number} (r${revision.number},${clean.flag})" />
@@ -259,6 +259,7 @@
     <copy file="${lib}/commons-httpclient/commons-httpclient.jar" todir="${dist.dss_client.lib}" />
     <copy file="${lib}/spring/spring.jar" todir="${dist.dss_client.lib}" />
   	<copy file="${lib}/jline/jline.jar" todir="${dist.dss_client.lib}" />
+  	<copy file="${lib}/jython/standalone/jython.jar" todir="${dist.dss_client.lib}" />
     <property name="dist.file"
               value="${dist.client.file.prefix}${variant}-${version.number}-r${revision.number}.zip" />
     
@@ -293,7 +294,7 @@
         <attribute name="Main-Class" value="ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClient" />
         <attribute name="Class-Path"
                    value="cisd-base.jar cisd-args4j.jar stream-supporting-httpinvoker.jar log4j.jar commons-lang.jar commons-io.jar commons-logging.jar 
- commons-codec.jar commons-httpclient.jar spring.jar jline.jar" />
+ commons-codec.jar commons-httpclient.jar spring.jar jline.jar jython.jar" />
         <attribute name="Version" value="${version.number}" />
         <attribute name="Build-Number"
                    value="${version.number} (r${revision.number},${clean.flag})" />
@@ -360,6 +361,10 @@
 		<antcall target="copy-and-sign-jar">
 			<param name="dir" value="${lib}/spring/third-party" />
 			<param name="jar" value="stream-supporting-httpinvoker.jar" />
+		</antcall>
+		<antcall target="copy-and-sign-jar">
+			<param name="dir" value="${lib}/jython/standalone" />
+			<param name="jar" value="jython.jar" />
 		</antcall>
     <property name="dist.file"
               value="${dist.upload-gui.file.prefix}${variant}-${version.number}-r${revision.number}.zip" />
