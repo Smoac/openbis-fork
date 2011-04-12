@@ -81,6 +81,12 @@ public class ServiceProvider
     {
         return ((IEncapsulatedOpenBISService) getApplicationContext().getBean("openBIS-service"));
     }
+    
+    public static IDataSetPathInfoProvider getDataSetPathInfoProvider()
+    {
+        return ((IDataSetPathInfoProvider) getApplicationContext().getBean("data-set-path-infos-provider"));
+        
+    }
 
     public static IShareIdManager getShareIdManager()
     {
