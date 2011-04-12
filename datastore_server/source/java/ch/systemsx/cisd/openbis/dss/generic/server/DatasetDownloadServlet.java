@@ -381,20 +381,18 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
             boolean shouldForce) throws IOException
     {
         assert dirNode.exists() && dirNode.isDirectory();
-        List<File> mainDataSets =
-                AutoResolveUtils.findSomeMatchingFiles(renderingContext.getRootDir(),
+        List<IHierarchicalContentNode> mainDataSets =
+                AutoResolveUtils.findSomeMatchingFiles(renderingContext.getRoot(),
                         requestParams.tryGetMainDataSetPath(),
                         requestParams.tryGetMainDataSetPattern());
         if (mainDataSets.size() == 1 || (mainDataSets.size() > 1 && shouldForce))
         {
-            String newRelativePath =
-                    FileUtilities.getRelativeFile(renderingContext.getRootDir(), new File(
-                            mainDataSets.get(0).getPath()));
+            String newRelativePath = mainDataSets.get(0).getRelativePath();
             RenderingContext newRenderingContext =
                     new RenderingContext(renderingContext, newRelativePath);
             autoResolveRedirect(response, newRenderingContext);
         } else if (AutoResolveUtils.continueAutoResolving(requestParams.tryGetMainDataSetPattern(),
-                dirNode.getFile()))
+                dirNode))
         {
             assert dirNode.getChildNodes().size() == 1;
             String childName = dirNode.getChildNodes().get(0).getName();
