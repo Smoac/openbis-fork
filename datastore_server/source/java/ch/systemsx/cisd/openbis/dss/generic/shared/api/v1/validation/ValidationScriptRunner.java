@@ -61,6 +61,10 @@ public class ValidationScriptRunner
      */
     public static ValidationScriptRunner createValidatorFromScriptString(String scriptString)
     {
+        if (scriptString == null)
+        {
+            return new NullValidationScriptRunner();
+        }
         String theScriptString = getValidationScriptString(scriptString);
         return new ValidationScriptRunner(theScriptString);
     }
@@ -109,6 +113,11 @@ public class ValidationScriptRunner
         errors.addAll((Collection<? extends ValidationError>) result);
 
         return errors;
+    }
+
+    public String getScriptString()
+    {
+        return scriptString;
     }
 
     private PyFunction tryJythonFunction(String functionName)

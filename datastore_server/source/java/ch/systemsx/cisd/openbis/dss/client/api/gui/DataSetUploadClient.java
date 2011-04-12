@@ -27,6 +27,7 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Properties;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -44,6 +45,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+
+import org.python.core.PySystemState;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -69,8 +72,31 @@ public class DataSetUploadClient extends AbstractSwingGUI
     static
     {
         // Disable any logging output.
+        // System.setProperty("org.apache.commons.logging.Log",
+        // "org.apache.commons.logging.impl.NoOpLog");
+
+        // Provide some logging
         System.setProperty("org.apache.commons.logging.Log",
-                "org.apache.commons.logging.impl.NoOpLog");
+                "org.apache.commons.logging.impl.SimpleLog");
+        System.setProperty("org.apache.commons.logging.simplelog.showdatetime", "true");
+
+        // Properties baseProperties = System.getProperties();
+        // String path =
+        // PySystemState.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        // System.out.println(path);
+        // baseProperties.setProperty("python.home", path);
+        //
+        // PySystemState.initialize(baseProperties, null, new String[]
+        // { "" });
+
+        Properties baseProperties = System.getProperties();
+        String path = PySystemState.class.getResource("PySystemState.class").getPath();
+        path = path.substring(5, path.indexOf("!"));
+        System.out.println(path);
+        baseProperties.setProperty("python.home", path);
+
+        PySystemState.initialize(baseProperties, null, new String[]
+            { "" });
     }
 
     private static final String TITLE = "Data Set Uploader";

@@ -243,7 +243,7 @@ class CommandTestValid extends AbstractDssCommand<CommandTestValid.CommandTestVa
     @Override
     protected String getRequiredArgumentsString()
     {
-        return "<owner type> <owner> <path> <script>";
+        return "<owner type> <owner> <path> [<script>]";
     }
 
     /**

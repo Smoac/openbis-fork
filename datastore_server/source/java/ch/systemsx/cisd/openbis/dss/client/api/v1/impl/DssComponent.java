@@ -24,6 +24,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import org.python.core.Py;
+import org.python.core.PyException;
 import org.springframework.remoting.RemoteAccessException;
 import org.springframework.remoting.RemoteConnectFailureException;
 
@@ -319,7 +321,8 @@ class AuthenticatedState extends AbstractDssComponentState
 
     private final IRpcServiceFactory dssServiceFactory;
 
-    private final HashMap<String, String> validationScriptCache = new HashMap<String, String>();
+    private final HashMap<String, ValidationScriptRunner> validationScriptRunnerCache =
+            new HashMap<String, ValidationScriptRunner>();
 
     AuthenticatedState(IGeneralInformationService generalOpenBisService,
             IRpcServiceFactory dssServiceFactory, String sessionToken)
@@ -573,22 +576,50 @@ class AuthenticatedState extends AbstractDssComponentState
         }
 
         String dataSetTypeOrNull = newDataset.tryDataSetType();
-        String validationScript;
+        ValidationScriptRunner runner;
+
         // Check if the script is in the cache
-        if (validationScriptCache.containsKey(dataSetTypeOrNull))
+        if (validationScriptRunnerCache.containsKey(dataSetTypeOrNull))
         {
-            validationScript = validationScriptCache.get(dataSetTypeOrNull);
+            runner = validationScriptRunnerCache.get(dataSetTypeOrNull);
         } else
         {
-            validationScript = dssService.getValidationScript(sessionToken, dataSetTypeOrNull);
-            validationScriptCache.put(dataSetTypeOrNull, validationScript);
+
+            String validationScript =
+                    dssService.getValidationScript(sessionToken, dataSetTypeOrNull);
+            try
+            {
+                runner = ValidationScriptRunner.createValidatorFromScriptString(validationScript);
+                validationScriptRunnerCache.put(dataSetTypeOrNull, runner);
+            } catch (PyException ex)
+            {
+                System.err.println("Could not create validation script ");
+                System.err.println(validationScript);
+                System.err.println(ex);
+                ex.printStackTrace(System.err);
+                System.err.println(Py.getSystemState().modules);
+
+                return new ArrayList<ValidationError>();
+            } catch (Throwable ex)
+            {
+                System.err.println("Could not create validation script ");
+                System.err.println(validationScript);
+                System.err.println(ex);
+                ex.printStackTrace(System.err);
+
+                return new ArrayList<ValidationError>();
+            }
         }
-        if (null == validationScript)
+
+        try
         {
+            return runner.validate(dataSetFile);
+        } catch (Throwable ex)
+        {
+            System.err.println("Could not run validation script: ");
+            System.err.println(runner.getScriptString());
+            ex.printStackTrace(System.err);
             return new ArrayList<ValidationError>();
         }
-        ValidationScriptRunner runner =
-                ValidationScriptRunner.createValidatorFromScriptString(validationScript);
-        return runner.validate(dataSetFile);
     }
 }

@@ -199,6 +199,11 @@ public class PutDataSetService
      */
     public String getValidationScript(String dataSetTypeOrNull)
     {
+        if (false == isInitialized)
+        {
+            doInitialization();
+        }
+
         ITopLevelDataSetRegistrator registrator =
                 registratorMap.getRegistratorForType(dataSetTypeOrNull);
         TopLevelDataSetRegistratorGlobalState globalState = registrator.getGlobalState();
