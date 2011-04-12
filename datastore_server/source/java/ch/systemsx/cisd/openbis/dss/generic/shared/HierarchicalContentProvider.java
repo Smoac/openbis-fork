@@ -60,18 +60,28 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
     {
         // this is temporary implementation - it shouldn't access openBIS after LMS-2172 is done
         ExternalData dataSet = openbisService.tryGetDataSet(dataSetCode);
-
+        if (dataSet == null)
+        {
+            throw new IllegalArgumentException("Unknown data set " + dataSetCode);
+        }
         return asContent(dataSet);
     }
 
-    public IHierarchicalContent asContent(IDatasetLocation datasetLocation)
+    public IHierarchicalContent asContent(final IDatasetLocation datasetLocation)
     {
         // this is temporary implementation - it should access DB instead of filesystem
         // IHierarchicalContent.close() should be called to unlock the dataset
         directoryProvider.getShareIdManager().lock(datasetLocation.getDatasetCode());
         File dataSetDirectory = directoryProvider.getDataSetDirectory(datasetLocation);
-
-        return asContent(dataSetDirectory);
+        IDelegatedAction onCloseAction = new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    directoryProvider.getShareIdManager().releaseLock(
+                            datasetLocation.getDatasetCode());
+                }
+            };
+        return asContent(dataSetDirectory, onCloseAction);
     }
 
     public IHierarchicalContent asContent(File dataSetDirectory)

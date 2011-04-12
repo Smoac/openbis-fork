@@ -25,7 +25,7 @@ import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.common.utilities.IDelegatedAction;
 
 /**
- * {@link IHierarchicalContent} implementation for normal {@link java.io.File}.
+ * {@link IHierarchicalContent} implementation for normal {@link java.io.File} directory.
  * 
  * @author Piotr Buczek
  */
@@ -41,9 +41,6 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
             File file, IDelegatedAction onCloseAction)
     {
         assert hierarchicalContentFactory != null;
-        this.hierarchicalContentFactory = hierarchicalContentFactory;
-        this.onCloseAction = onCloseAction;
-
         if (file.exists() == false)
         {
             throw new IllegalArgumentException(file.getAbsolutePath() + " doesn't exist");
@@ -52,8 +49,9 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
         {
             throw new IllegalArgumentException(file.getAbsolutePath() + " is not a directory");
         }
+        this.hierarchicalContentFactory = hierarchicalContentFactory;
+        this.onCloseAction = onCloseAction;
         this.root = file;
-
     }
 
     public IHierarchicalContentNode getRootNode()
