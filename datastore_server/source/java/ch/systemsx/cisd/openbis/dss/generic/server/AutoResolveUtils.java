@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -91,7 +92,8 @@ public class AutoResolveUtils
             return new ArrayList<IHierarchicalContentNode>();
         } else
         {
-            return root.listMatchingNodes(pattern);
+
+            return root.listMatchingNodes(path, pattern);
         }
     }
 
@@ -219,13 +221,20 @@ public class AutoResolveUtils
      * </p>
      */
     public static boolean continueAutoResolving(String mainDataSetPattern,
-            IHierarchicalContentNode file)
+            IHierarchicalContentNode node)
     {
-        assert file != null;
-        assert file.isDirectory();
-        return file.getChildNodes().size() == 1
-                && (file.getChildNodes().iterator().next().isDirectory() || acceptFile(
-                        mainDataSetPattern, file.getChildNodes().iterator().next()));
+        assert node != null;
+        assert node.isDirectory();
+
+        Collection<IHierarchicalContentNode> children = node.getChildNodes();
+        if (children.size() == 1)
+        {
+            IHierarchicalContentNode onlyChild = children.iterator().next();
+            return onlyChild.isDirectory() || acceptFile(mainDataSetPattern, onlyChild);
+        } else
+        {
+            return false;
+        }
     }
 
     /**
