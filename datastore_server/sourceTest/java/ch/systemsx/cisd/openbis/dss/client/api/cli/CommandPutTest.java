@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.dss.client.api.cli;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
