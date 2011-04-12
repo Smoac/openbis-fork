@@ -23,9 +23,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
-import ch.systemsx.cisd.common.hdf5.Hdf5Container;
 import ch.systemsx.cisd.common.hdf5.Hdf5Container.IHdf5ReaderClient;
-import ch.systemsx.cisd.common.hdf5.HierarchicalStructureDuplicatorFileToHdf5;
 import ch.systemsx.cisd.hdf5.IHDF5SimpleReader;
 
 /**
@@ -125,7 +123,7 @@ public class HierarchicalStructureDuplicatorFileToHdf5Test extends AbstractFileS
 
     private File getTestData(String folderOrFile)
     {
-        return new File("sourceTest/java/ch/systemsx/cisd/etlserver/hdf5/", folderOrFile);
+        return new File("sourceTest/java/ch/systemsx/cisd/common/hdf5/", folderOrFile);
     }
 
     private void verifyDuplicate(final File sourceFolderOrFile)
