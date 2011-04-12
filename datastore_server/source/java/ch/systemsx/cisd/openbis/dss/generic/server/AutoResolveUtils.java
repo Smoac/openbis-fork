@@ -93,7 +93,8 @@ public class AutoResolveUtils
         } else
         {
 
-            return root.listMatchingNodes(path, pattern);
+            return root.listMatchingNodes(createStartingPoint(root, path).getRelativePath(),
+                    pattern);
         }
     }
 
