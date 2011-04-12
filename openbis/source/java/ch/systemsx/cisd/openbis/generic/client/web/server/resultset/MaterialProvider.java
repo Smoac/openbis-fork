@@ -23,6 +23,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MaterialGri
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MaterialGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
@@ -59,6 +60,7 @@ public class MaterialProvider extends AbstractTableModelProvider<Material>
 
     private void addStandardColumns(TypedTableModelBuilder<Material> builder)
     {
+        builder.addColumn(MaterialGridColumnIDs.SHOW_DETAILS);
         builder.addColumn(CODE);
         builder.addColumn(MATERIAL_TYPE);
         builder.addColumn(REGISTRATION_DATE).withDefaultWidth(300).hideByDefault();
@@ -68,6 +70,7 @@ public class MaterialProvider extends AbstractTableModelProvider<Material>
     private void addRow(TypedTableModelBuilder<Material> builder, Material material)
     {
         builder.addRow(material);
+        builder.column(MaterialGridColumnIDs.SHOW_DETAILS).addString("Show details");
         builder.column(CODE).addString(material.getCode());
         builder.column(MATERIAL_TYPE).addString(material.getEntityType().getCode());
         builder.column(REGISTRATION_DATE).addDate(material.getRegistrationDate());
