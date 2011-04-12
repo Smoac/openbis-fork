@@ -53,7 +53,8 @@ public interface IScreeningQuery extends BaseQuery
                     + "      exp.perm_id as exp_perm_id,"
                     + "      exp_type.code as exp_type_code,"
                     + "      projects.code as proj_code,"
-                    + "      spaces.code as space_code"
+                    + "      spaces.code as space_code,"
+                    + "      well_material.id as material_content_id"
                     + " from materials well_material "
                     + "      join sample_properties well_props on well_props.mate_prop_id = well_material.id"
                     + "      join samples well on  well_props.samp_id = well.id"
@@ -119,7 +120,6 @@ public interface IScreeningQuery extends BaseQuery
             + " where well_material_type.code=?{2} and pl.perm_id=?{1}", fetchSize = FETCH_SIZE)
     public DataIterator<WellContentQueryResult> getPlateMappingForMaterialType(String platePermId,
             String materialTypeCode);
-
 
     /**
      * @return the material to well plate mapping for the given <var>platePermId</var>. Consider all

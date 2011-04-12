@@ -61,6 +61,9 @@ public class WellContentQueryResult
     // a pointer to a material which was being searched for inside a well
     // NOTE: this information is filled just in few queries.
     @Deprecated
+    public long material_content_id;
+
+    @Deprecated
     public String material_content_code;
 
     @Deprecated
