@@ -33,16 +33,17 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
  * 
  * @author Piotr Buczek
  */
-class DefaultFileBasedHierarchicalContentNode extends AbstractHierarchicalContentNode
+public class DefaultFileBasedHierarchicalContentNode extends AbstractHierarchicalContentNode
 {
-    private final IHierarchicalContent root;
+    protected final IHierarchicalContent root;
 
-    private final File file;
+    protected final File file;
 
-    private final HierarchicalContentFactory hierarchicalContentFactory;
+    protected final IHierarchicalContentFactory hierarchicalContentFactory;
 
-    DefaultFileBasedHierarchicalContentNode(HierarchicalContentFactory hierarchicalContentFactory,
-            IHierarchicalContent root, File file)
+    protected DefaultFileBasedHierarchicalContentNode(
+            IHierarchicalContentFactory hierarchicalContentFactory, IHierarchicalContent root,
+            File file)
     {
         assert hierarchicalContentFactory != null;
         assert root != null;
@@ -93,7 +94,7 @@ class DefaultFileBasedHierarchicalContentNode extends AbstractHierarchicalConten
     }
 
     @Override
-    long doGetSize()
+    public long doGetFileLength()
     {
         return file.length();
     }

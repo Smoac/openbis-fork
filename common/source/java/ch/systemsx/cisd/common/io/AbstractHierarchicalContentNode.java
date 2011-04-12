@@ -29,7 +29,7 @@ import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
  * 
  * @author Piotr Buczek
  */
-abstract class AbstractHierarchicalContentNode implements IHierarchicalContentNode
+public abstract class AbstractHierarchicalContentNode implements IHierarchicalContentNode
 {
     static final String OPERATION_NOT_SUPPORTED_FOR_A_DIRECTORY =
             "Operation not supported for a directory";
@@ -38,16 +38,16 @@ abstract class AbstractHierarchicalContentNode implements IHierarchicalContentNo
             "Operation supported only for a directory";
 
     /** Returns list of child nodes of a node known to be a directory. */
-    abstract List<IHierarchicalContentNode> doGetChildNodes();
+    abstract protected List<IHierarchicalContentNode> doGetChildNodes();
 
     /** Returns size of a node known NOT to be a directory. */
-    abstract long doGetSize();
+    abstract protected long doGetFileLength();
 
     /** Returns {@link IRandomAccessFile} of a node known NOT to be a directory. */
-    abstract IRandomAccessFile doGetFileContent();
+    abstract protected IRandomAccessFile doGetFileContent();
 
     /** Returns {@link InputStream} of a node known NOT to be a directory. */
-    abstract InputStream doGetInputStream();
+    abstract protected InputStream doGetInputStream();
 
     private final void requireDirectory()
     {
@@ -74,7 +74,7 @@ abstract class AbstractHierarchicalContentNode implements IHierarchicalContentNo
     public final long getFileLength() throws UnsupportedOperationException
     {
         failOnDirectory();
-        return doGetSize();
+        return doGetFileLength();
     }
 
     public final IRandomAccessFile getFileContent()

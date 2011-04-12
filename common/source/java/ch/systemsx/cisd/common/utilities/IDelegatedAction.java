@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 ETH Zuerich, CISD
+ * Copyright 2009 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,23 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.io;
+package ch.systemsx.cisd.common.utilities;
 
-import java.io.File;
-
-import ch.systemsx.cisd.common.utilities.IDelegatedAction;
 
 /**
- * @author Chandrasekhar Ramakrishnan
- * @author Piotr Buczek
+ * Use this interface to delegate any kind of action to a different part of code without adding an
+ * explicit dependency.
+ * 
+ * @author Tomasz Pylak
  */
-public interface IHierarchicalContentFactory
+public interface IDelegatedAction
 {
-    public IHierarchicalContent asHierarchicalContent(File file, IDelegatedAction onCloseAction);
+    public static IDelegatedAction DO_NOTHING = new IDelegatedAction()
+        {
+            public void execute()
+            {
+            }
+        };
 
-    public IHierarchicalContentNode asHierarchicalContentNode(IHierarchicalContent rootContent,
-            File file);
-
+    void execute();
 }

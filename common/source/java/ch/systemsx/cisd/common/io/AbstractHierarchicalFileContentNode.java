@@ -16,19 +16,19 @@
 
 package ch.systemsx.cisd.common.io;
 
-import java.io.File;
-
-import ch.systemsx.cisd.common.utilities.IDelegatedAction;
+import java.util.List;
 
 /**
- * @author Chandrasekhar Ramakrishnan
+ * {@link AbstractHierarchicalDirectoryContentNode} extension for file nodes.
+ * 
  * @author Piotr Buczek
  */
-public interface IHierarchicalContentFactory
+public abstract class AbstractHierarchicalFileContentNode extends AbstractHierarchicalContentNode
 {
-    public IHierarchicalContent asHierarchicalContent(File file, IDelegatedAction onCloseAction);
-
-    public IHierarchicalContentNode asHierarchicalContentNode(IHierarchicalContent rootContent,
-            File file);
+    @Override
+    protected final List<IHierarchicalContentNode> doGetChildNodes()
+    {
+        throw new UnsupportedOperationException(OPERATION_SUPPORTED_ONLY_FOR_A_DIRECTORY);
+    }
 
 }

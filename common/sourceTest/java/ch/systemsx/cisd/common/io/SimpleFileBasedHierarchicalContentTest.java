@@ -31,6 +31,7 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.utilities.IDelegatedAction;
 
 /**
  * Tests for {@link SimpleFileBasedHierarchicalContent}
@@ -307,8 +308,4 @@ public class SimpleFileBasedHierarchicalContentTest extends AbstractFileSystemTe
         }
     }
 
-    private interface IDelegatedAction
-    {
-        void execute();
-    }
 }

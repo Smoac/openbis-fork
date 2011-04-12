@@ -18,6 +18,8 @@ package ch.systemsx.cisd.common.io;
 
 import java.io.File;
 
+import ch.systemsx.cisd.common.utilities.IDelegatedAction;
+
 /**
  * The default implementation of {@link IHierarchicalContentFactory}.
  * 
@@ -25,9 +27,9 @@ import java.io.File;
  */
 public class HierarchicalContentFactory implements IHierarchicalContentFactory
 {
-    public IHierarchicalContent asHierarchicalContent(File file)
+    public IHierarchicalContent asHierarchicalContent(File file, IDelegatedAction onCloseAction)
     {
-        return new DefaultFileBasedHierarchicalContent(this, file);
+        return new DefaultFileBasedHierarchicalContent(this, file, onCloseAction);
     }
 
     public IHierarchicalContentNode asHierarchicalContentNode(IHierarchicalContent rootContent,
