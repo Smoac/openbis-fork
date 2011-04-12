@@ -27,7 +27,6 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Properties;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -45,8 +44,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
-
-import org.python.core.PySystemState;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -80,6 +77,26 @@ public class DataSetUploadClient extends AbstractSwingGUI
                 "org.apache.commons.logging.impl.SimpleLog");
         System.setProperty("org.apache.commons.logging.simplelog.showdatetime", "true");
 
+        // Logging of paths as they appear to the class from within webstart.
+        //
+        // {
+        // URL url = PySystemState.class.getResource("PySystemState.class");
+        // String path = url.getFile();
+        // if (path.startsWith("file:"))
+        // {
+        // path = path.substring(5, path.indexOf("!"));
+        // }
+        // System.out.println("Resource path: " + path);
+        // }
+        // {
+        // String path =
+        // PySystemState.class.getProtectionDomain().getCodeSource().getLocation()
+        // .getPath();
+        // System.out.println("Code source path: " + path);
+        // }
+
+        // Attempt 1 to get the python modules seen -- fails
+        //
         // Properties baseProperties = System.getProperties();
         // String path =
         // PySystemState.class.getProtectionDomain().getCodeSource().getLocation().getPath();
@@ -89,14 +106,25 @@ public class DataSetUploadClient extends AbstractSwingGUI
         // PySystemState.initialize(baseProperties, null, new String[]
         // { "" });
 
-        Properties baseProperties = System.getProperties();
-        String path = PySystemState.class.getResource("PySystemState.class").getPath();
-        path = path.substring(5, path.indexOf("!"));
-        System.out.println(path);
-        baseProperties.setProperty("python.home", path);
+        // Attempt 2 to get the python modules seen -- fails
+        //
+        // Properties baseProperties = System.getProperties();
+        // String path = PySystemState.class.getResource("PySystemState.class").getPath();
+        // if (path.startsWith("file:"))
+        // {
+        // path = path.substring(5, path.indexOf("!"));
+        // }
+        // System.out.println(path);
+        // baseProperties.setProperty("python.home", path);
+        //
+        // PySystemState.initialize(baseProperties, null, new String[]
+        // { "" });
 
-        PySystemState.initialize(baseProperties, null, new String[]
-            { "" });
+        // Attempt 3 to get the python modules seen -- fails
+        //
+        // final PySystemState engineSys = new PySystemState();
+        // engineSys.path.append(Py.newString("__pyclasspath__/Lib"));
+        // Py.setSystemState(engineSys);
     }
 
     private static final String TITLE = "Data Set Uploader";
