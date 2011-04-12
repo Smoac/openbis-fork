@@ -17,6 +17,9 @@
 package ch.systemsx.cisd.cina.shared.constants;
 
 /**
+ * A note for understanding the constants: Collections were once called replicas, and the old name
+ * has not yet been removed everywere.
+ * 
  * @author Chandrasekhar Ramakrishnan
  */
 public class CinaConstants
@@ -32,6 +35,8 @@ public class CinaConstants
     public static final String GRID_PREP_SAMPLE_TYPE_CODE = "GRID_PREP";
 
     public final static String COLLECTION_SAMPLE_TYPE_CODE = "GRID_REPLICA";
+
+    public final static String COLLECTION_NAME_PROPERTY = "COLLECTION_NAME";
 
     public static final String DIMENSION_PREFIX = "Dimension";
 

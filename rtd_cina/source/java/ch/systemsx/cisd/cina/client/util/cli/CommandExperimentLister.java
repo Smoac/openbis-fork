@@ -17,8 +17,10 @@
 package ch.systemsx.cisd.cina.client.util.cli;
 
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.cina.client.util.v1.ICinaUtilities;
+import ch.systemsx.cisd.cina.shared.constants.CinaConstants;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.client.api.cli.GlobalArguments;
@@ -60,6 +62,8 @@ public class CommandExperimentLister extends
     private static class ExperimentListerExecutor extends
             AbstractExecutor<CommandExperimentListerArguments>
     {
+        private static final String FIELD_SEPARATOR = "\t";
+
         /**
          * @param command The parent command
          */
@@ -73,11 +77,44 @@ public class CommandExperimentLister extends
         {
             List<Experiment> results =
                     component.listVisibleExperiments(arguments.getExperimentTypeCode());
+            printHeader();
+            printResults(results);
+            return ResultCode.OK;
+        }
+
+        private void printHeader()
+        {
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("EXPERIMENT");
+            sb.append(FIELD_SEPARATOR);
+            sb.append("TYPE");
+            sb.append(FIELD_SEPARATOR);
+            sb.append(CinaConstants.DESCRIPTION_PROPERTY_CODE);
+
+            System.out.println(sb.toString());
+
+        }
+
+        private void printResults(List<Experiment> results)
+        {
             for (Experiment experiment : results)
             {
-                System.out.println(experiment.toString());
+                StringBuilder sb = new StringBuilder();
+                sb.append(experiment.getIdentifier());
+                sb.append(FIELD_SEPARATOR);
+                sb.append(experiment.getExperimentTypeCode());
+                sb.append(FIELD_SEPARATOR);
+                Map<String, String> properties = experiment.getProperties();
+                // Show the value of the creator email and the description properties
+                String propValue = properties.get(CinaConstants.DESCRIPTION_PROPERTY_CODE);
+                if (null != propValue)
+                {
+                    sb.append(propValue);
+                }
+
+                System.out.println(sb.toString());
             }
-            return ResultCode.OK;
         }
     }
 

@@ -102,6 +102,10 @@ public class CommandSampleLister extends
             sb.append(FIELD_SEPARATOR);
             sb.append("SAMPLE");
             sb.append(FIELD_SEPARATOR);
+            sb.append("TYPE");
+            sb.append(FIELD_SEPARATOR);
+            sb.append(CinaConstants.COLLECTION_NAME_PROPERTY);
+            sb.append(FIELD_SEPARATOR);
             sb.append(CinaConstants.CREATOR_EMAIL_PROPERTY_CODE);
             sb.append(FIELD_SEPARATOR);
             sb.append(CinaConstants.DESCRIPTION_PROPERTY_CODE);
@@ -123,9 +127,19 @@ public class CommandSampleLister extends
                 sb.append(FIELD_SEPARATOR);
                 sb.append(sample.getIdentifier());
                 sb.append(FIELD_SEPARATOR);
+                sb.append(sample.getSampleTypeCode());
+                sb.append(FIELD_SEPARATOR);
                 Map<String, String> properties = sample.getProperties();
-                // Show the value of the creator email and the description properties
-                String propValue = properties.get(CinaConstants.CREATOR_EMAIL_PROPERTY_CODE);
+
+                // Show the value of the collection name, creator email, and the description
+                // properties
+                String propValue = properties.get(CinaConstants.COLLECTION_NAME_PROPERTY);
+                if (null != propValue)
+                {
+                    sb.append(propValue);
+                }
+                sb.append(FIELD_SEPARATOR);
+                propValue = properties.get(CinaConstants.CREATOR_EMAIL_PROPERTY_CODE);
                 if (null != propValue)
                 {
                     sb.append(propValue);

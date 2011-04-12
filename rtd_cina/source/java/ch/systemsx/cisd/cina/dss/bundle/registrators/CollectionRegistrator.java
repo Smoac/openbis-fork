@@ -34,12 +34,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
- * Registers/Updates a replica, its metadata, the raw images and the annotated images.
+ * Registers/Updates a collection, its metadata, the raw images and the annotated images.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -125,6 +126,10 @@ public class CollectionRegistrator extends BundleDataSetHelper
         if (collectionSample == null)
         {
             // Sample doesn't exist, create it
+
+            // Add the collection name as metadata
+            addCollectionNamePoperty(properties);
+
             NewSample newSample =
                     NewSample.createWithParent(collectionSampleId.toString(),
                             globalState.getReplicaSampleType(), null, gridPrepSampleId.toString());
@@ -154,14 +159,39 @@ public class CollectionRegistrator extends BundleDataSetHelper
         assert collectionSample != null;
     }
 
+    private void addCollectionNamePoperty(ArrayList<IEntityProperty> properties)
+    {
+        // see if the collection name property is assigned
+        boolean isCollectionNameAssigned = false;
+        for (SampleTypePropertyType assignedPropertyType : globalState.getReplicaSampleType()
+                .getAssignedPropertyTypes())
+        {
+            if (CinaConstants.COLLECTION_NAME_PROPERTY.equals(assignedPropertyType
+                    .getPropertyType().getCode()))
+            {
+                isCollectionNameAssigned = true;
+                break;
+            }
+        }
+        if (false == isCollectionNameAssigned)
+        {
+            return;
+        }
+        String collectionName = collectionMetadataExtractor.getCollectionName();
+        EntityProperty collectionNameProperty =
+                createProperty(CinaConstants.COLLECTION_NAME_PROPERTY);
+        collectionNameProperty.setValue(collectionName);
+        properties.add(collectionNameProperty);
+    }
+
     private void registerRawImages()
     {
-        String replicaName = collectionMetadataExtractor.getFolder().getName();
-        File replicaOriginalImages =
-                new File(new File(dataSet, RAW_IMAGES_FOLDER_NAME), replicaName);
+        String collectionName = collectionMetadataExtractor.getCollectionName();
+        File collectionOriginalImages =
+                new File(new File(dataSet, RAW_IMAGES_FOLDER_NAME), collectionName);
         CollectionRawImagesRegistrator registrator =
                 new CollectionRawImagesRegistrator(globalState, collectionMetadataExtractor,
-                        collectionSample, collectionSampleId, replicaOriginalImages);
+                        collectionSample, collectionSampleId, collectionOriginalImages);
         List<DataSetInformation> registeredDataSetInfos = registrator.register();
         getDataSetInformation().addAll(registeredDataSetInfos);
     }

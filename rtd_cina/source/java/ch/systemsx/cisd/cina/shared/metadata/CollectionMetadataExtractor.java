@@ -152,6 +152,14 @@ public class CollectionMetadataExtractor implements IMetadataExtractor
         return metadataMap.get(REPLICA_SAMPLE_CREATOR_NAME);
     }
 
+    /**
+     * The name of this collection. This is determined by the name of the folder in the bundle.
+     */
+    public String getCollectionName()
+    {
+        return folder.getName();
+    }
+
     public File getFolder()
     {
         return folder;

@@ -24,9 +24,9 @@ package ch.systemsx.cisd.cina.shared.constants;
  * <li>BUNDLE_METADATA_FILE_NAME</li>
  * <li>METADATA_FOLDER_NAME
  * <ul>
- * <li>Replica Folder
+ * <li>Collection Folder
  * <ul>
- * <li>REPLICA_METADATA_FILE_NAME</li>
+ * <li>COLLECTION_METADATA_FILE_NAME</li>
  * <li>ANNOTATED_IMAGES_FOLDER_NAME
  * <ul>
  * <li>IMAGE_METADATA_FILE_NAME</li>
@@ -36,8 +36,13 @@ package ch.systemsx.cisd.cina.shared.constants;
  * </li>
  * </ul>
  * </li>
- * <li>RAW_IMAGES_FOLDER_NAME</li>
+ * <li>RAW_IMAGES_FOLDER_NAME
+ * <ul>
+ * <li>Collection Folder</li>
  * </ul>
+ * </ul>
+ * A note for understanding the constants: Collections were once called replicas, and the old name
+ * has not yet been removed everywere.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -55,7 +60,7 @@ public class BundleStructureConstants
 
     public static final String GRID_PREP_SAMPLE_CODE_KEY = "database id";
 
-    public static final String COLLECTION_METADATA_FILE_NAME = "ReplicaMetadata.xml";
+    public static final String COLLECTION_METADATA_FILE_NAME = "CollectionMetadata.xml";
 
     public static final String COLLECTION_SAMPLE_CODE_KEY = "database id";
 
