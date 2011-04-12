@@ -215,14 +215,14 @@ public class DatasetDownloadServletTest
                         + "<body><table> "
                         + OSUtilities.LINE_SEPARATOR
                         + "<tr><td class='td_file'>"
-                        + "<a href='/datastore_server/1234-1/%2B+s+%25+%21+%23+%40?mode=simpleHtml&sessionID=AV76CF'>"
-                        + "+ s % ! # @</td><td></td></tr>"
-                        + OSUtilities.LINE_SEPARATOR
-                        + "<tr><td class='td_file'>"
                         + "<a href='/datastore_server/1234-1/read+me+%40home.txt?mode=simpleHtml&sessionID=AV76CF'>"
                         + "read me @home.txt</td><td>12 bytes</td></tr>"
-                        + OSUtilities.LINE_SEPARATOR + "</table> </div> </body></html>"
-                        + OSUtilities.LINE_SEPARATOR + "", writer.toString());
+                        + OSUtilities.LINE_SEPARATOR
+                        + "<tr><td class='td_file'>"
+                        + "<a href='/datastore_server/1234-1/%2B+s+%25+%21+%23+%40?mode=simpleHtml&sessionID=AV76CF'>"
+                        + "+ s % ! # @</td><td></td></tr>" + OSUtilities.LINE_SEPARATOR
+                        + "</table> </div> </body></html>" + OSUtilities.LINE_SEPARATOR + "",
+                writer.toString());
 
         String normalizedLogContent = getNormalizedLogContent();
         assertContains(getSessionCreationLogMessage() + OSUtilities.LINE_SEPARATOR + LOG_INFO
