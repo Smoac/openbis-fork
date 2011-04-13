@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
-import java.lang.reflect.Method;
-
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.AssertJUnit;
@@ -196,7 +194,7 @@ public abstract class AbstractBOTest extends AssertJUnit
     }
 
     @AfterMethod
-    public void afterMethod(ITestResult result, Method m)
+    public void afterMethod(ITestResult result)
     {
         // verify mock expectations only when the test has not failed
         if (result.isSuccess())
@@ -207,7 +205,7 @@ public abstract class AbstractBOTest extends AssertJUnit
             } catch (Throwable t)
             {
                 // assert expectations were met, including the name of the failed method
-                throw new Error(m.getName() + "() : ", t);
+                throw new Error(result.getMethod().getMethodName() + "() : ", t);
             }
         }
     }
