@@ -344,8 +344,8 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
         IHierarchicalContentNode node = renderingContext.getContentNode();
         if (node.exists() == false)
         {
-            throw new EnvironmentFailureException("Resource '" + node.getName()
-                    + "' does not exist.");
+            throw new EnvironmentFailureException("Resource '" + node.getRelativePath()
+                    + "' does not exist in data set '" + dataSetCode + "'.");
         }
 
         // If we want to browse a directory, we need a whole dataset metadata from openbis to
@@ -434,7 +434,7 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
         {
             operationLog.info(String.format("For data set '%s' show directory '%s'",
                     dataSet.getCode(),
-                    (dirNode.getRelativePath() == null) ? "(root)" : dirNode.getRelativePath()));
+                    (dirNode.getRelativePath() == null) ? "/" : dirNode.getRelativePath()));
         }
         IDirectoryRenderer directoryRenderer =
                 rendererFactory.createDirectoryRenderer(renderingContext);

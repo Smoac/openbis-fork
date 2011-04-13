@@ -79,7 +79,7 @@ final class RenderingContext
 
     public final IHierarchicalContentNode getContentNode()
     {
-        return rootContent.getNode(relativePathOrNull);
+        return fileNode;
     }
 
     public final File getRootDir()
