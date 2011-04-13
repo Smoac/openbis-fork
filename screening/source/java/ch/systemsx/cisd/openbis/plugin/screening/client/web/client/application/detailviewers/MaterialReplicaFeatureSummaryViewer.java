@@ -69,7 +69,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImage;
  */
 public class MaterialReplicaFeatureSummaryViewer
 {
-    private static final int IMAGE_SIZE_PX = 400;
+    private static final int WELL_IMAGES_SIZE_PX = 400;
 
     public static void openTab(IViewContext<IScreeningClientServiceAsync> screeningViewContext,
             String experimentPermId, MaterialIdentifier materialIdentifier)
@@ -214,7 +214,6 @@ public class MaterialReplicaFeatureSummaryViewer
         }
     }
 
-    // TODO 2011-04-12, Tomasz Pylak: correct the height
     private Widget createImagesViewer(List<? extends WellImage> images)
     {
         if (images.isEmpty())
@@ -234,18 +233,20 @@ public class MaterialReplicaFeatureSummaryViewer
         LayoutContainer imagePanel = new LayoutContainer();
         imagePanel.setScrollMode(Scroll.AUTOY);
         imagePanel.setLayout(new RowLayout());
+        int imageSize = Math.min(100, WELL_IMAGES_SIZE_PX / images.size());
         for (WellImage wellImage : images)
         {
-            Widget imageViewer = createImageViewer(wellImage, channelChooser);
+            Widget imageViewer = createImageViewer(wellImage, channelChooser, imageSize);
             imagePanel.add(imageViewer);
         }
-        double imagePanelHeight =
-                Math.min(IMAGE_SIZE_PX * 2.5, images.size() * IMAGE_SIZE_PX + 100);
+        // TODO 2011-04-12, Tomasz Pylak: correct the height
+        double imagePanelHeight = Math.min(500, images.size() * imageSize + 150);
         panel.add(imagePanel, new RowData(1, imagePanelHeight));
         return panel;
     }
 
-    private Widget createImageViewer(final WellImage image, ChannelChooserPanel channelChooser)
+    private Widget createImageViewer(final WellImage image, ChannelChooserPanel channelChooser,
+            final int imageSize)
     {
         assert image.tryGetImageDataset() != null;
         final ISimpleChanneledViewerFactory viewerFactory = new ISimpleChanneledViewerFactory()
@@ -253,7 +254,7 @@ public class MaterialReplicaFeatureSummaryViewer
                 public Widget create(List<String> channels)
                 {
                     return WellContentDialog.createImageViewerForChannel(screeningViewContext,
-                            image, IMAGE_SIZE_PX, IMAGE_SIZE_PX, channels);
+                            image, imageSize, imageSize, channels);
                 }
             };
         ChannelWidgetWithListener widgetWithListener = new ChannelWidgetWithListener(viewerFactory);
@@ -277,7 +278,8 @@ public class MaterialReplicaFeatureSummaryViewer
         final IDisposableComponent gridComponent =
                 MaterialReplicaFeatureSummaryGrid.create(screeningViewContext, new TechId(
                         experiment), new TechId(material));
-        panel.add(gridComponent.getComponent(), new RowData(1, LayoutUtils.ONE_PAGE_GRID_HEIGHT_PX));
+        // TODO 2011-04-13, Tomasz Pylak: fix height
+        panel.add(gridComponent.getComponent(), new RowData(1, 400));
 
         screeningViewContext.getService().listWellImages(new TechId(material.getId()),
                 new TechId(experiment.getId()), new ImagesFoundCallback(panel));

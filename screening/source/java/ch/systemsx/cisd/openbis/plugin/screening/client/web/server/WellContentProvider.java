@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureValue;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.NamedFeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.WellSearchGridColumnIds;
 
 /**
  * @author Franz-Josef Elmer
@@ -53,8 +54,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCrit
 public class WellContentProvider extends AbstractTableModelProvider<WellContent>
 {
     static final String WELL_PROPERTY_ID_PREFIX = "WELL_PROPERTY-";
-
-    static final String MATERIAL_PROPERTY_GROUP = "MATERIAL_PROPERTY-";
 
     static final String WELL_CONTENT_FEATURE_VECTOR_GROUP = "WELL_CONTENT_FEATURE_VECTOR-";
 
@@ -132,8 +131,8 @@ public class WellContentProvider extends AbstractTableModelProvider<WellContent>
     private IColumnGroup getMaterialColumnGroup(TypedTableModelBuilder<WellContent> builder,
             IEntityProperty materialProperty)
     {
-        return builder.columnGroup(MATERIAL_PROPERTY_GROUP
-                + materialProperty.getPropertyType().getSimpleCode() + "-");
+        return builder.columnGroup(WellSearchGridColumnIds
+                .getWellMaterialColumnGroupPrefix(materialProperty));
     }
 
     /**
@@ -142,8 +141,8 @@ public class WellContentProvider extends AbstractTableModelProvider<WellContent>
     private IColumnGroup getMaterialPropsColumnGroup(TypedTableModelBuilder<WellContent> builder,
             IEntityProperty materialProperty)
     {
-        return builder.columnGroup(MATERIAL_PROPERTY_GROUP + "PROP-"
-                + materialProperty.getPropertyType().getSimpleCode() + "-");
+        return builder.columnGroup(WellSearchGridColumnIds
+                .getWellMaterialPropertyColumnGroupPrefix(materialProperty));
     }
 
     private void addRow(TypedTableModelBuilder<WellContent> builder, WellContent well,
@@ -272,7 +271,6 @@ public class WellContentProvider extends AbstractTableModelProvider<WellContent>
         return new ArrayList<IEntityProperty>(orderedMaterialProps.values());
     }
 
-    
     private void sortByMaterialCodes(List<WellContent> wells,
             final List<IEntityProperty> materialPropsOrder)
     {

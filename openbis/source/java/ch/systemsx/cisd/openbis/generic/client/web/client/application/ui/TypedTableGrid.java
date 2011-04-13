@@ -231,7 +231,7 @@ public abstract class TypedTableGrid<T extends ISerializable>
             for (TableModelColumnHeader header : headers)
             {
                 String id = header.getId();
-                if (listenerLinkGenerators.containsKey(id))
+                if (tryGetCellListenerAndLinkGenerator(id) != null)
                 {
                     definitions.setGridCellRendererFor(id, LinkRenderer.createLinkRenderer(true));
                 } else
@@ -322,20 +322,19 @@ public abstract class TypedTableGrid<T extends ISerializable>
                 for (final TableModelColumnHeader header : headers)
                 {
                     String title = header.getTitle();
+                    String columnId = header.getId();
                     if (title == null)
                     {
-                        title =
-                                viewContext.getMessage(translateColumnIdToDictionaryKey(header
-                                        .getId()));
+                        title = viewContext.getMessage(translateColumnIdToDictionaryKey(columnId));
                     }
                     // support for links in queries
                     ICellListenerAndLinkGenerator<T> linkGeneratorOrNull =
-                            listenerLinkGenerators.get(header.getId());
+                            tryGetCellListenerAndLinkGenerator(columnId);
                     final EntityKind entityKind = header.tryGetEntityKind();
                     if (linkGeneratorOrNull == null && entityKind != null)
                     {
                         linkGeneratorOrNull = new CellListenerAndLinkGenerator(entityKind, header);
-                        registerListenerAndLinkGenerator(header.getId(), linkGeneratorOrNull);
+                        registerListenerAndLinkGenerator(columnId, linkGeneratorOrNull);
                     }
                     //
                     TypedTableGridColumnDefinitionUI<T> definition =
@@ -351,6 +350,11 @@ public abstract class TypedTableGrid<T extends ISerializable>
             columnUIDefinitions = list;
         }
         return columnUIDefinitions;
+    }
+
+    protected ICellListenerAndLinkGenerator<T> tryGetCellListenerAndLinkGenerator(String columnId)
+    {
+        return listenerLinkGenerators.get(columnId);
     }
 
     /**

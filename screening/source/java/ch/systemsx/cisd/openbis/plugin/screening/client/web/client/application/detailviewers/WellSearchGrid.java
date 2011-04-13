@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
-import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.WellSearchGridColumnIds.WELL;
-
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -68,9 +66,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplayTypeIDGenerator;
@@ -78,6 +79,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
@@ -294,6 +296,87 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
             displayTypeId = displayTypeIdGenerator.createID(null);
         }
         return new DefaultChannelState(viewContext, displayTypeId);
+    }
+
+    @Override
+    protected ICellListenerAndLinkGenerator<WellContent> tryGetCellListenerAndLinkGenerator(
+            String columnId)
+    {
+        final String wellMaterialPropertyTypeCode =
+                WellSearchGridColumnIds.tryExtractWellMaterialPropertyCode(columnId);
+        if (wellMaterialPropertyTypeCode != null)
+        {
+            ICellListenerAndLinkGenerator<WellContent> listenerLinkGenerator =
+                    createMaterialLinkGenerator(wellMaterialPropertyTypeCode);
+            registerLinkClickListenerFor(columnId, listenerLinkGenerator);
+            return listenerLinkGenerator;
+        } else
+        {
+            return super.tryGetCellListenerAndLinkGenerator(columnId);
+        }
+    }
+
+    private ICellListenerAndLinkGenerator<WellContent> createMaterialLinkGenerator(
+            final String wellMaterialPropertyTypeCode)
+    {
+        return new ICellListenerAndLinkGenerator<WellContent>()
+            {
+                public String tryGetLink(WellContent wellContent, ISerializableComparable value)
+                {
+                    Material material = tryGetMaterial(wellContent, wellMaterialPropertyTypeCode);
+                    if (material == null)
+                    {
+                        return null;
+                    }
+                    return tryCreateMaterialDetailsLink(wellContent, material);
+                }
+
+                public void handle(TableModelRowWithObject<WellContent> row,
+                        boolean specialKeyPressed)
+                {
+                    WellContent wellContent = row.getObjectOrNull();
+                    if (wellContent == null)
+                    {
+                        return;
+                    }
+                    Material material = tryGetMaterial(wellContent, wellMaterialPropertyTypeCode);
+                    if (material == null)
+                    {
+                        return;
+                    }
+                    openImagingMaterialViewer(wellContent, material);
+                }
+
+            };
+    }
+
+    private static Material tryGetMaterial(WellContent entity, String wellMaterialPropertyTypeCode)
+    {
+        for (IEntityProperty wellMaterialProperty : entity.getMaterialTypeProperties())
+        {
+            if (wellMaterialProperty.getPropertyType().getCode()
+                    .equalsIgnoreCase(wellMaterialPropertyTypeCode))
+            {
+                return wellMaterialProperty.getMaterial();
+            }
+        }
+        return null;
+    }
+
+    private static String tryCreateMaterialDetailsLink(WellContent wellContent, Material material)
+    {
+        String experimentIdentifier = wellContent.getExperiment().getExperimentIdentifier();
+        return ScreeningLinkExtractor.tryCreateMaterialDetailsLink(material, experimentIdentifier);
+    }
+
+    private void openImagingMaterialViewer(WellContent wellContent, Material material)
+    {
+        ExperimentReference experiment = wellContent.getExperiment();
+        ExperimentSearchCriteria experimentCriteria =
+                ExperimentSearchCriteria.createExperiment(experiment.getId(),
+                        experiment.getPermId(), experiment.getExperimentIdentifier());
+
+        ClientPluginFactory.openImagingMaterialViewer(material, experimentCriteria, viewContext);
     }
 
     private void linkExperiment()
@@ -623,7 +706,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<WellContent>> resultSetConfig,
-            AsyncCallback<TypedTableResultSet<WellContent>> callback)
+            final AsyncCallback<TypedTableResultSet<WellContent>> callback)
     {
         assert experimentCriteriaOrNull != null : "experiment not specified";
 
@@ -643,7 +726,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
     @Override
     protected List<String> getColumnIdsOfFilters()
     {
-        return Arrays.asList(WELL);
+        return Arrays.asList(WellSearchGridColumnIds.PLATE, WellSearchGridColumnIds.WELL);
     }
 
 }

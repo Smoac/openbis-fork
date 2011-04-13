@@ -11,6 +11,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  * 
  * @author Tomasz Pylak
  */
+// TODO 2011-04-13, Tomasz Pylak: move to the server side
 public class MaterialAllReplicasFeatureVectors implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
