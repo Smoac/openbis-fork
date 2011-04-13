@@ -21,6 +21,7 @@ import java.lang.reflect.Method;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.AssertJUnit;
+import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
@@ -195,15 +196,19 @@ public abstract class AbstractBOTest extends AssertJUnit
     }
 
     @AfterMethod
-    public void afterMethod(Method m)
+    public void afterMethod(ITestResult result, Method m)
     {
-        try
+        // only run assertions if has not failed
+        if (result.isSuccess())
         {
-            context.assertIsSatisfied();
-        } catch (Throwable t)
-        {
-            // assert expectations were met, including the name of the failed method
-            throw new Error(m.getName() + "() : ", t);
+            try
+            {
+                context.assertIsSatisfied();
+            } catch (Throwable t)
+            {
+                // assert expectations were met, including the name of the failed method
+                throw new Error(m.getName() + "() : ", t);
+            }
         }
     }
 
