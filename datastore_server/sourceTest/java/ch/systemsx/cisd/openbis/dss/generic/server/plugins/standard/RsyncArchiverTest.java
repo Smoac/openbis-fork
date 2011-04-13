@@ -271,36 +271,6 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
     }
     
     @Test
-    public void testSuccessfulUnarchivingWithMockUnarchivingPreparation()
-    {
-        archiverTaskContext.setUnarchivingPreparation(unarchivingPreparation);
-        final DatasetDescription ds1 = new DatasetDescriptionBuilder("ds1").getDatasetDescription();
-        context.checking(new Expectations()
-            {
-                {
-                    one(unarchivingPreparation).prepareForUnarchiving(ds1);
-                    
-                    one(dataSetDirectoryProvider).getDataSetDirectory(ds1);
-                    File file = new File(store, LOCATION);
-                    will(returnValue(file));
-                    
-                    one(fileOperationsManager).retrieveFromDestination(file, ds1);
-                    will(returnValue(Status.OK));
-                    
-                    one(statusUpdater).update(Arrays.asList("ds1"), DataSetArchivingStatus.AVAILABLE, true);
-                    one(statusUpdater).update(Arrays.<String>asList(), DataSetArchivingStatus.ARCHIVED, true);
-                }
-            });
-        
-        ProcessingStatus status = archiver.unarchive(Arrays.asList(ds1), archiverTaskContext);
-
-        assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
-                + "Unarchiving of the following datasets has been requested: [Dataset 'ds1']",
-                logRecorder.getLogContent());
-        assertEquals("[]", status.getErrorStatuses().toString());
-    }
-    
-    @Test
     public void testSuccessfulUnarchivingWithRealUnarchivingPreparation()
     {
         properties.setProperty(SHARE_FINDER_KEY + ".class", ShareFinder.class.getName());
@@ -369,36 +339,43 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
     }
     
     @Test
-    public void testUnarchivingWithMixedSuccess()
+    public void testUnarchivingWithDefaultShareFinder()
     {
         final DatasetDescription ds1 = new DatasetDescriptionBuilder("ds1").getDatasetDescription();
         final DatasetDescription ds2 = new DatasetDescriptionBuilder("ds2").getDatasetDescription();
         context.checking(new Expectations()
             {
                 {
-                    one(dataSetDirectoryProvider).getDataSetDirectory(ds1);
-                    File file1 = new File(store, LOCATION);
-                    will(returnValue(file1));
+                    one(configProvider).getDataStoreCode();
+                    will(returnValue(DATA_STORE_CODE));
 
-                    one(dataSetDirectoryProvider).getDataSetDirectory(ds2);
-                    File file2 = new File(store, LOCATION);
-                    will(returnValue(file2));
+                    one(service).listDataSets();
+                    SimpleDataSetInformationDTO dataSet1 = new SimpleDataSetInformationDTO();
+                    dataSet1.setDataSetCode("ds1");
+                    dataSet1.setDataStoreCode(DATA_STORE_CODE);
+                    dataSet1.setDataSetShareId("1");
+                    dataSet1.setDataSetLocation(LOCATION);
+                    dataSet1.setDataSetSize(11L);
+                    SimpleDataSetInformationDTO dataSet2 = new SimpleDataSetInformationDTO();
+                    dataSet2.setDataSetCode("ds2");
+                    dataSet2.setDataStoreCode(DATA_STORE_CODE);
+                    dataSet2.setDataSetShareId("1");
+                    dataSet2.setDataSetLocation(LOCATION);
+                    dataSet2.setDataSetSize(22L);
+                    will(returnValue(Arrays.asList(dataSet1, dataSet2)));
 
-                    one(fileOperationsManager).retrieveFromDestination(file1, ds1);
-                    will(returnValue(Status.OK));
+                    one(shareIdManager).getShareId("ds1");
+                    will(returnValue("2"));
 
-                    one(fileOperationsManager).retrieveFromDestination(file2, ds2);
-                    will(returnValue(Status.createError("Unarchiving failed")));
-
-                    one(statusUpdater).update(Arrays.asList("ds1"),
+                    one(statusUpdater).update(Arrays.<String>asList(),
                             DataSetArchivingStatus.AVAILABLE, true);
-                    one(statusUpdater).update(Arrays.asList("ds2"), DataSetArchivingStatus.ARCHIVED,
+                    one(statusUpdater).update(Arrays.asList("ds1", "ds2"), DataSetArchivingStatus.ARCHIVED,
                             true);
                 }
             });
         
         ProcessingStatus status = archiver.unarchive(Arrays.asList(ds1, ds2), archiverTaskContext);
-        assertEquals("[ERROR: \"Unarchiving failed\"]", status.getErrorStatuses().toString());
+        assertEquals("[ERROR: \"Unarchiving failed: null\"]", status.getErrorStatuses().toString());
     }
     
 }
