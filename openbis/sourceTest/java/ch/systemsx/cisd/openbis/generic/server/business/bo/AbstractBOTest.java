@@ -198,7 +198,7 @@ public abstract class AbstractBOTest extends AssertJUnit
     @AfterMethod
     public void afterMethod(ITestResult result, Method m)
     {
-        // only run assertions if has not failed
+        // verify mock expectations only when the test has not failed
         if (result.isSuccess())
         {
             try
