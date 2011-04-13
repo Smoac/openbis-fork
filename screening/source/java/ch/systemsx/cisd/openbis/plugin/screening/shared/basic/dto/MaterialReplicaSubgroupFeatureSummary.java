@@ -26,9 +26,6 @@ public class MaterialReplicaSubgroupFeatureSummary implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    // TODO KE : do we need this at all ?
-    // private int[] replicaSequenceNumbers;
-
     private float[] featureValues;
 
     // e.g. average or median of all replica values in this subgroup
