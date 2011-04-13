@@ -286,8 +286,7 @@ public class DatasetDownloadServletTest
         DatasetDownloadServlet servlet = createServlet();
         servlet.doGet(request, response);
         String pageContent = writer.toString();
-        String snippet =
-                "Resource 'blabla' does not exist in data set '" + EXAMPLE_DATA_SET_CODE + "'.";
+        String snippet = "Resource 'blabla' does not exist.";
         assertEquals("Text snippet >" + snippet + "< not found in following page content: "
                 + pageContent, true, pageContent.indexOf(snippet) > 0);
         String logContent = logRecorder.getLogContent();
@@ -498,9 +497,8 @@ public class DatasetDownloadServletTest
         DatasetDownloadServlet servlet = createServlet();
         servlet.doGet(request, response);
         assertEquals("<html><body><h1>Error</h1>" + OSUtilities.LINE_SEPARATOR
-                + "Resource 'blabla' does not exist in data set '" + EXAMPLE_DATA_SET_CODE + "'."
-                + OSUtilities.LINE_SEPARATOR + "</body></html>" + OSUtilities.LINE_SEPARATOR,
-                writer.toString());
+                + "Resource 'blabla' does not exist." + OSUtilities.LINE_SEPARATOR
+                + "</body></html>" + OSUtilities.LINE_SEPARATOR, writer.toString());
         String logContent = getNormalizedLogContent();
         String[] logContentLines = logContent.split("\n");
         // Skip the first line which has information about session creation
