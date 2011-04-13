@@ -16,80 +16,19 @@
 
 package ch.systemsx.cisd.etlserver.postregistration;
 
-import java.util.List;
 import java.util.Properties;
 
-import ch.systemsx.cisd.openbis.dss.generic.shared.IShareFinder;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
-
 /**
- * Simple share finder tries to find the external share with maximum free space larger than the size
- * of the data set to be moved. If no such external share can be found it tries to find the incoming
- * share with maximum free space larger than the size of the data set to be moved and which is not
- * the share of the data set.
+ * The class is only here for backward compatibility with older configurations.
  * 
- * @author Franz-Josef Elmer
+ * @author Kaloyan Enimanev
  */
-public class SimpleShareFinder implements IShareFinder
+public class SimpleShareFinder extends
+        ch.systemsx.cisd.openbis.dss.generic.shared.SimpleShareFinder
 {
     public SimpleShareFinder(Properties properties)
     {
-        
-    }
-
-    public Share tryToFindShare(SimpleDataSetInformationDTO dataSet, List<Share> shares)
-    {
-        Long dataSetSize = dataSet.getDataSetSize();
-        String dataSetShareId = dataSet.getDataSetShareId();
-        long dataSetShareFreeSpace = 0;
-        boolean dataSetShareIncoming = false;
-        Share incomingShareWithMostFree = null;
-        long incomingMaxFreeSpace = dataSetSize;
-        Share extensionShareWithMostFree = null;
-        long extensionsMaxFreeSpace = dataSetSize;
-        for (Share share : shares)
-        {
-            long freeSpace = share.calculateFreeSpace();
-            String shareId = share.getShareId();
-            if (dataSetShareId.equals(shareId))
-            {
-                dataSetShareFreeSpace = freeSpace;
-                dataSetShareIncoming = share.isIncoming();
-                continue;
-            }
-            if (share.isIncoming())
-            {
-                if (freeSpace > incomingMaxFreeSpace)
-                {
-                    incomingMaxFreeSpace = freeSpace;
-                    incomingShareWithMostFree = share;
-                }
-            } else
-            {
-                if (freeSpace > extensionsMaxFreeSpace)
-                {
-                    extensionsMaxFreeSpace = freeSpace;
-                    extensionShareWithMostFree = share;
-                }
-            }
-        }
-        if (extensionShareWithMostFree != null)
-        {
-            if (dataSetShareIncoming
-                    || extensionsMaxFreeSpace - dataSetSize > dataSetShareFreeSpace)
-            {
-                return extensionShareWithMostFree;
-            }
-        } else if (incomingShareWithMostFree != null)
-        {
-            if (dataSetShareIncoming == false
-                    || incomingMaxFreeSpace - dataSetSize > dataSetShareFreeSpace)
-            {
-                return incomingShareWithMostFree;
-            }
-        }
-        return null;
+        super(properties);
     }
 
 }

@@ -29,6 +29,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
@@ -51,6 +52,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IncomingShareIdProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.QueueingDataSetStatusUpdaterService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.SimpleShareFinder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetCodesWithStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
@@ -277,23 +279,13 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
 
     private void setUpUnarchivingPreparation(ArchiverTaskContext context)
     {
-        Properties props =
-                PropertyParametersUtil.extractSingleSectionProperties(properties, SHARE_FINDER_KEY,
-                        false).getProperties();
-        if (props.isEmpty())
-        {
-            return;
-        }
-
         String dataStoreCode = ServiceProvider.getConfigProvider().getDataStoreCode();
         Set<String> incomingShares = IncomingShareIdProvider.getIdsOfIncomingShares();
         IFreeSpaceProvider freeSpaceProvider = new SimpleFreeSpaceProvider();
         List<Share> shares =
                 SegmentedStoreUtils.getDataSetsPerShare(storeRoot, dataStoreCode, incomingShares,
                         freeSpaceProvider, getService(), new Log4jSimpleLogger(operationLog));
-        IShareFinder shareFinder =
-                ClassUtils.create(IShareFinder.class, props.getProperty("class"), props);
-        context.setUnarchivingPreparation(new UnarchivingPreparation(shareFinder,
+        context.setUnarchivingPreparation(new UnarchivingPreparation(getShareFinder(),
                 getShareIdManager(), getService(), shares));
     }
 
@@ -535,6 +527,25 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         }
         return shareIdManager;
     }
+    
+    private IShareFinder getShareFinder()
+    {
+        Properties props =
+                PropertyParametersUtil.extractSingleSectionProperties(properties, SHARE_FINDER_KEY,
+                        false).getProperties();
+
+        String className = props.getProperty("class");
+        if (StringUtils.isEmpty(className))
+        {
+            // use simple share finder by default when no share finder is configured
+            className = SimpleShareFinder.class.getName();
+        }
+
+        IShareFinder shareFinder = ClassUtils.create(IShareFinder.class, className, props);
+
+        return shareFinder;
+    }
+    
     
     private IEncapsulatedOpenBISService getService()
     {
