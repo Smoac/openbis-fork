@@ -21,7 +21,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
@@ -83,7 +82,6 @@ class DefaultFileBasedHierarchicalContentNode extends AbstractHierarchicalConten
     public List<IHierarchicalContentNode> doGetChildNodes()
     {
         File[] files = file.listFiles();
-        Arrays.sort(files);
         List<IHierarchicalContentNode> result = new ArrayList<IHierarchicalContentNode>();
         if (files != null)
         {

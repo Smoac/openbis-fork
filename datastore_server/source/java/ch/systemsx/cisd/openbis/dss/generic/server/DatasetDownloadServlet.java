@@ -86,7 +86,7 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
                     public int compare(IHierarchicalContentNode node1,
                             IHierarchicalContentNode node2)
                     {
-                        return createSortableName(node1).compareTo(createSortableName(node1));
+                        return createSortableName(node1).compareTo(createSortableName(node2));
                     }
 
                     private String createSortableName(IHierarchicalContentNode node)
