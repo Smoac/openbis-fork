@@ -16,8 +16,11 @@
 
 package ch.systemsx.cisd.common.io;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import ch.systemsx.cisd.base.io.AdapterIInputStreamToInputStream;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
@@ -31,7 +34,7 @@ import ch.systemsx.cisd.hdf5.io.HDF5DataSetRandomAccessFile;
  * 
  * @author Bernd Rinn
  */
-public class HDF5DataSetBasedContent implements IContent
+public class HDF5DataSetBasedContent implements IContent, Closeable
 {
     private final File hdf5File;
 
@@ -42,6 +45,8 @@ public class HDF5DataSetBasedContent implements IContent
     private final boolean exists;
 
     private final long size;
+
+    private final List<HDF5DataSetRandomAccessFile> randomAccessFiles;
 
     public HDF5DataSetBasedContent(File hdf5File, String dataSetPath)
     {
@@ -59,6 +64,7 @@ public class HDF5DataSetBasedContent implements IContent
             this.size = 0L;
         }
         reader.close();
+        this.randomAccessFiles = new ArrayList<HDF5DataSetRandomAccessFile>();
     }
 
     public String tryGetName()
@@ -80,12 +86,21 @@ public class HDF5DataSetBasedContent implements IContent
     {
         final HDF5DataSetRandomAccessFile randomAccessFile =
                 HDF5DataSetRandomAccessFile.createForReading(hdf5File, dataSetPath);
+        randomAccessFiles.add(randomAccessFile);
         return randomAccessFile;
     }
 
     public InputStream getInputStream()
     {
         return new AdapterIInputStreamToInputStream(getReadOnlyRandomAccessFile());
+    }
+
+    public void close()
+    {
+        for (HDF5DataSetRandomAccessFile raFile : randomAccessFiles)
+        {
+            raFile.close();
+        }
     }
 
 }
