@@ -128,6 +128,21 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
     {
         operationLog.info("Archiving of the following datasets has been requested: "
                 + CollectionUtils.abbreviate(datasets, 10));
+
+        initializeDatasetSizesIfNeeded(datasets);
+
+        DatasetProcessingStatuses statuses = safeArchive(datasets, context, removeFromDataStore);
+
+        DataSetArchivingStatus successStatus = (removeFromDataStore) ? ARCHIVED : AVAILABLE;
+
+        asyncUpdateStatuses(statuses.getSuccessfulDatasetCodes(), successStatus, true);
+        asyncUpdateStatuses(statuses.getFailedDatasetCodes(), AVAILABLE, false);
+
+        return statuses.getProcessingStatus();
+    }
+
+    private void initializeDatasetSizesIfNeeded(List<DatasetDescription> datasets)
+    {
         for (DatasetDescription dataset : datasets)
         {
             if (dataset.getDataSetSize() == null)
@@ -140,15 +155,6 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
                 getService().updateShareIdAndSize(dataSetCode, shareId, size);
             }
         }
-
-        DatasetProcessingStatuses statuses = safeArchive(datasets, context, removeFromDataStore);
-
-        DataSetArchivingStatus successStatus = (removeFromDataStore) ? ARCHIVED : AVAILABLE;
-
-        asyncUpdateStatuses(statuses.getSuccessfulDatasetCodes(), successStatus, true);
-        asyncUpdateStatuses(statuses.getFailedDatasetCodes(), AVAILABLE, false);
-
-        return statuses.getProcessingStatus();
     }
 
     /**
