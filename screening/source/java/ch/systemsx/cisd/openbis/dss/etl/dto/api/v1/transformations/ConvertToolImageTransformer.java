@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.etl.biozentrum;
+package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations;
 
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
@@ -50,6 +50,9 @@ import ch.systemsx.cisd.imagereaders.ImageReaderFactory;
 
 /**
  * An {@link IImageTransformer} using the convert command line tool for transformations.
+ * <p>
+ * Warning: The serialized version of this class can be stored in the database for each image.
+ * Moving this class to a different package would make all the saved transformations invalid.
  * 
  * @author Kaloyan Enimanev
  */
@@ -113,7 +116,7 @@ public class ConvertToolImageTransformer implements IImageTransformer
         final ByteArrayOutputStream bos = new ByteArrayOutputStream();
         final List<String> errorLines = new ArrayList<String>();
         ProcessIOStrategy customIOStrategy = createCustomProcessIOStrategy(input, bos, errorLines);
-        
+
         ProcessResult result =
                 ProcessExecutionHelper.run(getCommandLine(), operationLog, machineLog,
                         ConcurrencyUtilities.NO_TIMEOUT, customIOStrategy, false);
@@ -137,9 +140,9 @@ public class ConvertToolImageTransformer implements IImageTransformer
     {
         return ProcessIOStrategy.createCustom(new IProcessIOHandler()
             {
-                
-                public void handle(AtomicBoolean processRunning, OutputStream stdin, InputStream stdout,
-                        InputStream stderr) throws IOException
+
+                public void handle(AtomicBoolean processRunning, OutputStream stdin,
+                        InputStream stdout, InputStream stderr) throws IOException
                 {
                     stdin.write(input);
                     stdin.flush();
