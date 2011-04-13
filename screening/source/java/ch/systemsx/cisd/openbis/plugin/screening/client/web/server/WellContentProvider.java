@@ -133,7 +133,7 @@ public class WellContentProvider extends AbstractTableModelProvider<WellContent>
             IEntityProperty materialProperty)
     {
         return builder.columnGroup(MATERIAL_PROPERTY_GROUP
-                + materialProperty.getPropertyType().getSimpleCode());
+                + materialProperty.getPropertyType().getSimpleCode() + "-");
     }
 
     /**
@@ -142,8 +142,8 @@ public class WellContentProvider extends AbstractTableModelProvider<WellContent>
     private IColumnGroup getMaterialPropsColumnGroup(TypedTableModelBuilder<WellContent> builder,
             IEntityProperty materialProperty)
     {
-        return builder.columnGroup(MATERIAL_PROPERTY_GROUP + "PROP"
-                + materialProperty.getPropertyType().getSimpleCode());
+        return builder.columnGroup(MATERIAL_PROPERTY_GROUP + "PROP-"
+                + materialProperty.getPropertyType().getSimpleCode() + "-");
     }
 
     private void addRow(TypedTableModelBuilder<WellContent> builder, WellContent well,
