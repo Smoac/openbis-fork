@@ -125,6 +125,15 @@ public class WellReplicaSummaryCalculatorTest extends AssertJUnit
                         1);
         assertEquals(1.0f, mad);
     }
+    
+    @Test
+    public void testCalculateMedianOneValue()
+    {
+        List<IWellData> wellDataList = Arrays.asList(
+                createWellData(1, 0, 1));
+        float median = WellReplicaSummaryCalculator.calculateMedian(wellDataList, 1);
+        assertEquals(1f, median);
+    }
 
     @Test
     public void testCalculateMedianForEvenNumberOfValues()
