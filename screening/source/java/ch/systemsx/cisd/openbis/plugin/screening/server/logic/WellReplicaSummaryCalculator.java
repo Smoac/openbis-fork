@@ -286,28 +286,33 @@ public class WellReplicaSummaryCalculator
     @Private
     static float calculateMedian(List<IWellData> replicaWells, int featureIx)
     {
-        sortBySelectedFeature(replicaWells, featureIx);
-        int firstIx = 0;
-        int lastIx = replicaWells.size() - 1;
-        while (firstIx <= lastIx && isNumerical(replicaWells, firstIx, featureIx) == false)
+        List<Float> featureValues = new ArrayList<Float>();
+        for (IWellData replicaWell : replicaWells)
         {
-            firstIx++;
+            float featureValue = getFeatureValue(replicaWell, featureIx);
+            if (isNumerical(featureValue))
+            {
+                featureValues.add(featureValue);
+            }
         }
-        while (lastIx >= firstIx && isNumerical(replicaWells, lastIx, featureIx) == false)
-        {
-            lastIx--;
-        }
-        if (lastIx < firstIx)
+        return calculateMedian(featureValues);
+    }
+    
+    private static float calculateMedian(List<Float> numbers)
+    {
+        if (numbers.isEmpty())
         {
             return Float.NaN;
         }
-        int medianIx = firstIx + ((lastIx - firstIx) / 2);
-        return getFeatureValue(replicaWells.get(medianIx), featureIx);
-    }
-
-    private static boolean isNumerical(List<IWellData> replicaWells, int replicaIx, int featureIx)
-    {
-        return isNumerical(getFeatureValue(replicaWells.get(replicaIx), featureIx));
+        Collections.sort(numbers);
+        int size = numbers.size();
+        int index = size / 2;
+        float median = numbers.get(index);
+        if (size % 2 == 0)
+        {
+            median = (median + numbers.get(index - 1)) / 2;
+        }
+        return median;
     }
 
     private static float getFeatureValue(IWellData wellData, int featureIx)
@@ -333,13 +338,7 @@ public class WellReplicaSummaryCalculator
                 absDeviations.add(absDev);
             }
         }
-        if (absDeviations.isEmpty())
-        {
-            return Float.NaN;
-        }
-        Collections.sort(absDeviations);
-        int medianIx = absDeviations.size() / 2;
-        return absDeviations.get(medianIx);
+        return calculateMedian(absDeviations);
     }
 
     private static boolean isNumerical(float value)
