@@ -30,7 +30,6 @@ import org.jmock.Mockery;
 import org.springframework.aop.TargetSource;
 import org.springframework.aop.framework.Advised;
 import org.springframework.beans.factory.BeanFactory;
-import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -176,7 +175,7 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
     }
     
     @AfterMethod
-    public void afterMethod(ITestResult testResult, Method method)
+    public void afterMethod(Method method)
     {
         System.out.println("======= Log content for " + method.getName()+"():");
         System.out.println(logRecorder.getLogContent());
@@ -184,16 +183,13 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
         logRecorder.reset();
         ServiceProviderTestWrapper.restoreApplicationContext();
         IncomingShareIdProviderTestWrapper.restoreOriginalShareIds();
-        if (testResult.isSuccess())
+        try
         {
-            try
-            {
-                context.assertIsSatisfied();
-            } catch (Throwable t)
-            {
-                // assert expectations were met, including the name of the failed method
-                throw new Error(method.getName() + "() : ", t);
-            }
+            context.assertIsSatisfied();
+        } catch (Throwable t)
+        {
+            // assert expectations were met, including the name of the failed method
+            throw new Error(method.getName() + "() : ", t);
         }
     }
     
