@@ -25,8 +25,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 
 /**
- *  Interface of a fluent API for building groups of columns in a {@link TypedTableModel}.
- *
+ * Interface of a fluent API for building groups of columns in a {@link TypedTableModel}.
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IColumnGroup
@@ -51,7 +51,7 @@ public interface IColumnGroup
     public void addColumnsForAssignedProperties(String idPrefix, EntityType entityType);
 
     /**
-     * Adds a column for all given property types using the groyp identifier as prefix.
+     * Adds a column for all given property types using the group identifier as prefix.
      */
     public void addColumnsForPropertyTypes(List<PropertyType> propertyTypes);
 
@@ -63,11 +63,12 @@ public interface IColumnGroup
     public void addColumnsForPropertyTypes(String idPrefix, List<PropertyType> propertyTypes);
 
     /**
-     * Adds all specified properties. The group name is used as a prefix which combined with the property
-     * type code to determine the column id. The property type label is used as column title.
+     * Adds all specified properties. The group name is used as a prefix which is combined with the
+     * property type code to determine the column id. The property type label is used as column
+     * title.
      */
     public void addProperties(Collection<IEntityProperty> properties);
-    
+
     /**
      * Adds all specified properties. The specified identifier prefix is combined with the property
      * type code to determine the column id. The property type label is used as column title.

@@ -148,7 +148,8 @@ public class TypedTableModelBuilder<T extends ISerializable>
 
         public void addColumnsForPropertyTypes(String idPrefix, List<PropertyType> propertyTypes)
         {
-            for (PropertyType propertyType : propertyTypes) {
+            for (PropertyType propertyType : propertyTypes)
+            {
                 addColumn(idPrefix, propertyType);
             }
         }
@@ -156,13 +157,19 @@ public class TypedTableModelBuilder<T extends ISerializable>
         private IColumn addColumn(String idPrefix, PropertyType propertyType)
         {
             String label = propertyType.getLabel();
+            String code = getColumnId(idPrefix, propertyType);
+            DataTypeCode dataType = propertyType.getDataType().getCode();
+            IColumn column = column(code).withTitle(label).withDataType(dataType);
+            return column;
+        }
+
+        private String getColumnId(String idPrefix, PropertyType propertyType)
+        {
             boolean internalNamespace = propertyType.isInternalNamespace();
             String code =
                     idPrefix + (internalNamespace ? "INTERN" : "USER") + "-"
                             + propertyType.getSimpleCode();
-            DataTypeCode dataType = propertyType.getDataType().getCode();
-            IColumn column = column(code).withTitle(label).withDataType(dataType);
-            return column;
+            return code;
         }
 
         public void addProperties(Collection<IEntityProperty> properties)
