@@ -80,6 +80,7 @@ public class ImageViewerLaunchServlet extends AbstractServlet
             + "    <jar href='commons-lang.jar'/>\n"
             + "    <jar href='commons-logging.jar'/>\n"
             + "    <jar href='ij.jar'/>\n"
+            + "    <jar href='jython.jar'/>\n"
             + "  </resources>\n"
             + "  <application-desc main-class='${main-class}'>\n"
             + "    <argument>${service-URL}</argument>\n"
