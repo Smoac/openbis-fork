@@ -19,8 +19,12 @@ package ch.systemsx.cisd.common.io;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
+
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.common.utilities.IDelegatedAction;
 
@@ -34,6 +38,8 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
     private final HierarchicalContentFactory hierarchicalContentFactory;
 
     private final File root;
+
+    private final IHierarchicalContentNode rootNode;
 
     private final IDelegatedAction onCloseAction;
 
@@ -52,21 +58,43 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
         this.hierarchicalContentFactory = hierarchicalContentFactory;
         this.onCloseAction = onCloseAction;
         this.root = file;
+        this.rootNode = asNode(root);
     }
 
     public IHierarchicalContentNode getRootNode()
     {
-        return asNode(root);
+        return rootNode;
     }
 
     public IHierarchicalContentNode getNode(String relativePath)
     {
-        return asNode(new File(root, relativePath)); // FIXME traverse HDF5 container
+        return asNode(new File(root, relativePath)); 
     }
 
-    private IHierarchicalContentNode asNode(File file)
+    private IHierarchicalContentNode asNode(File file) 
     {
-        return hierarchicalContentFactory.asHierarchicalContentNode(this, file);
+        if (file.exists())
+        {
+            return hierarchicalContentFactory.asHierarchicalContentNode(this, file);
+        }
+        // The file doesn't exist in file system but it could be inside a HDF5 container.
+        // Go up in file hierarchy until existing file is found.
+        File existingFile = file;
+        while (existingFile != null && existingFile.exists() == false)
+        {
+            existingFile = existingFile.getParentFile();
+        }
+        if (existingFile != null
+                && FilenameUtils.isExtension(existingFile.getName(), Arrays.asList("h5", "h5ar")))
+        {
+            HDF5ContainerBasedHierarchicalContentNode containerNode =
+                    new HDF5ContainerBasedHierarchicalContentNode(hierarchicalContentFactory, this,
+                            existingFile);
+            String relativePath = FileUtilities.getRelativeFile(existingFile, file);
+            return containerNode.getChildNode(relativePath);
+        }
+        throw new IllegalArgumentException("Resource '" + FileUtilities.getRelativeFile(root, file)
+                + "' doesn't exist");
     }
 
     public List<IHierarchicalContentNode> listMatchingNodes(final String pattern)

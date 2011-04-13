@@ -51,8 +51,8 @@ import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.base.unix.Unix;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.concurrent.IActivityObserver;
-import ch.systemsx.cisd.common.concurrent.RecordingActivityObserverSensor;
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IDescribingActivitySensor;
+import ch.systemsx.cisd.common.concurrent.RecordingActivityObserverSensor;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.FileExistsException;
@@ -1153,6 +1153,40 @@ public final class FileUtilities
         {
             return null;
         }
+    }
+
+    /**
+     * For given <var>relativePath</var> extracts the relative path of parent directory.
+     * <p>
+     * 
+     * @returns <code>null</code> if given path is empty or <code>null</code>, otherwise parent
+     *          directory path (empty string for current directory).
+     */
+    public final static String getParentRelativePath(String relativePath)
+    {
+        if (StringUtils.isBlank(relativePath))
+        {
+            return null;
+        } else
+        {
+            int lastIndexOf = relativePath.lastIndexOf(File.separator);
+            if (lastIndexOf > -1)
+            {
+                return relativePath.substring(0, lastIndexOf);
+            } else
+            {
+                return "";
+            }
+        }
+    }
+
+    /**
+     * For given <var>relativePath</var> extracts the name of the file.
+     */
+    public final static String getFileNameFromRelativePath(String relativePath)
+    {
+        int index = relativePath.lastIndexOf('/');
+        return (index < 0) ? relativePath : relativePath.substring(index + 1);
     }
 
     /**

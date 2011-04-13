@@ -24,6 +24,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.base.io.AdapterIInputStreamToInputStream;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.hdf5.HDF5FactoryProvider;
 import ch.systemsx.cisd.hdf5.IHDF5Reader;
 import ch.systemsx.cisd.hdf5.io.HDF5DataSetRandomAccessFile;
@@ -51,8 +52,7 @@ public class HDF5DataSetBasedContent implements IContent, Closeable
     {
         this.hdf5File = hdf5File;
         this.dataSetPath = dataSetPath;
-        int index = dataSetPath.lastIndexOf('/');
-        this.name = (index < 0) ? dataSetPath : dataSetPath.substring(index + 1);
+        this.name = FileUtilities.getFileNameFromRelativePath(dataSetPath);
         final IHDF5Reader reader = HDF5FactoryProvider.get().openForReading(hdf5File);
         if (reader.exists(dataSetPath) && reader.isDataSet(dataSetPath))
         {

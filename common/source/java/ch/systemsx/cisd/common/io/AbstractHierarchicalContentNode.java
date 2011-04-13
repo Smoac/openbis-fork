@@ -16,12 +16,11 @@
 
 package ch.systemsx.cisd.common.io;
 
-import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 /**
  * Abstract {@link IHierarchicalContent} implementation with checks before calling methods specific
@@ -91,21 +90,6 @@ public abstract class AbstractHierarchicalContentNode implements IHierarchicalCo
 
     public final String getParentRelativePath()
     {
-        String relativePath = getRelativePath();
-        if (StringUtils.isBlank(relativePath))
-        {
-            return null;
-        } else
-        {
-            int lastIndexOf = relativePath.lastIndexOf(File.separator);
-            if (lastIndexOf > -1)
-            {
-                return relativePath.substring(0, lastIndexOf);
-            } else
-            {
-                return "";
-            }
-        }
+        return FileUtilities.getParentRelativePath(getRelativePath());
     }
-
 }

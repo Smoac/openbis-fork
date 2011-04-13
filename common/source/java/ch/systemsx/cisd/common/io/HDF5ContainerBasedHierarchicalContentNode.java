@@ -22,11 +22,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.hdf5.Hdf5Container;
 import ch.systemsx.cisd.hdf5.IHDF5SimpleReader;
 
 /**
- * {@link IHierarchicalContent} implementation for an HDF5 container.
+ * {@link IHierarchicalContent} implementation for HDF5 container.
  * 
  * @author Piotr Buczek
  */
@@ -34,20 +35,17 @@ class HDF5ContainerBasedHierarchicalContentNode extends DefaultFileBasedHierarch
 {
     private final Hdf5Container hdf5Container;
 
-    private IHDF5SimpleReader reader;
-
     HDF5ContainerBasedHierarchicalContentNode(
             IHierarchicalContentFactory hierarchicalContentFactory, IHierarchicalContent root,
             File hdf5ContainerFile)
     {
         super(hierarchicalContentFactory, root, hdf5ContainerFile);
         this.hdf5Container = new Hdf5Container(hdf5ContainerFile);
-        this.reader = hdf5Container.createSimpleReader(); // TODO close
     }
 
-    public void close()
+    private IHDF5SimpleReader createReader()
     {
-        reader.close();
+        return hdf5Container.createSimpleReader();
     }
 
     //
@@ -62,20 +60,45 @@ class HDF5ContainerBasedHierarchicalContentNode extends DefaultFileBasedHierarch
     public List<IHierarchicalContentNode> doGetChildNodes()
     {
         // NOTE this is a slow implementation - improve it when information can be retrieved from DB
-        List<String> childPaths = reader.getGroupMembers("/");
-        List<IHierarchicalContentNode> result = new ArrayList<IHierarchicalContentNode>();
-        for (String childPath : childPaths)
+        IHDF5SimpleReader reader = createReader();
+        try
         {
-            System.err.println("child: " + childPath);
-            if (reader.isGroup(childPath))
+            List<String> childPaths = reader.getGroupMembers("/");
+            List<IHierarchicalContentNode> result = new ArrayList<IHierarchicalContentNode>();
+            for (String childPath : childPaths)
             {
-                result.add(new HDF5GroupNode(childPath, childPath));
-            } else
-            {
-                result.add(new HDF5FileNode(childPath, childPath));
+                result.add(getChildNode(reader, childPath));
             }
+            return result;
+        } finally
+        {
+            reader.close();
         }
-        return result;
+    }
+
+    /** @return child node with given path relative to this container */
+    public IHierarchicalContentNode getChildNode(String childPath)
+    {
+        IHDF5SimpleReader reader = createReader();
+        try
+        {
+            return getChildNode(reader, childPath);
+        } finally
+        {
+            reader.close();
+        }
+    }
+
+    private IHierarchicalContentNode getChildNode(IHDF5SimpleReader reader, String childPath)
+    {
+        String fileName = FileUtilities.getFileNameFromRelativePath(childPath);
+        if (reader.isGroup(childPath))
+        {
+            return new HDF5GroupNode(this, childPath, fileName);
+        } else
+        {
+            return new HDF5FileNode(this, childPath, fileName);
+        }
     }
 
     //
@@ -130,13 +153,16 @@ class HDF5ContainerBasedHierarchicalContentNode extends DefaultFileBasedHierarch
     class HDF5GroupNode extends AbstractHierarchicalDirectoryContentNode
     {
 
-        private final String relativePath;
+        private final String relativePath; // internal path in HDF5 container
 
         private final String groupName;
 
-        public HDF5GroupNode(String relativePath, String groupName)
+        private final HDF5ContainerBasedHierarchicalContentNode containerNode;
+
+        public HDF5GroupNode(HDF5ContainerBasedHierarchicalContentNode containerNode,
+                String relativePath, String groupName)
         {
-            System.err.println("[HDF5GroupNode] path:" + relativePath + ", group: " + groupName);
+            this.containerNode = containerNode;
             this.relativePath = relativePath;
             this.groupName = groupName;
         }
@@ -148,7 +174,7 @@ class HDF5ContainerBasedHierarchicalContentNode extends DefaultFileBasedHierarch
 
         public String getRelativePath()
         {
-            return relativePath;
+            return containerNode.getRelativePath() + File.separator + relativePath;
         }
 
         public boolean exists()
@@ -169,21 +195,34 @@ class HDF5ContainerBasedHierarchicalContentNode extends DefaultFileBasedHierarch
         @Override
         protected List<IHierarchicalContentNode> doGetChildNodes()
         {
-            System.err.println("traverse: " + getRelativePath());
-            List<IHierarchicalContentNode> result = new ArrayList<IHierarchicalContentNode>();
-            List<String> children = reader.getGroupMembers(relativePath);
-            for (String childName : children)
+            IHDF5SimpleReader reader = createReader();
+            try
             {
-                String newRelativePath = getRelativePath() + File.separator + childName;
-                if (reader.isGroup(newRelativePath))
+                List<IHierarchicalContentNode> result = new ArrayList<IHierarchicalContentNode>();
+                List<String> children = reader.getGroupMembers(relativePath);
+                for (String childName : children)
                 {
-                    result.add(new HDF5GroupNode(newRelativePath, childName));
-                } else
-                {
-                    result.add(new HDF5FileNode(newRelativePath, childName));
+                    String newRelativePath = relativePath + File.separator + childName;
+                    if (reader.isGroup(newRelativePath))
+                    {
+                        result.add(new HDF5GroupNode(containerNode, newRelativePath, childName));
+                    } else
+                    {
+                        result.add(new HDF5FileNode(containerNode, newRelativePath, childName));
+                    }
                 }
+                return result;
+            } finally
+            {
+                reader.close();
             }
-            return result;
+        }
+
+        @Override
+        public String toString()
+        {
+            return "HDF5GroupNode [containerPath=" + containerNode.getRelativePath()
+                    + ", relativePath=" + relativePath + ", groupName=" + groupName + "]";
         }
 
     }
@@ -191,15 +230,18 @@ class HDF5ContainerBasedHierarchicalContentNode extends DefaultFileBasedHierarch
     class HDF5FileNode extends AbstractHierarchicalFileContentNode
     {
 
-        private final String relativePath;
+        private final String relativePath; // internal path in HDF5 container
 
         private final String fileName;
 
         private IContent contentOrNull;
 
-        public HDF5FileNode(String relativePath, String fileName)
+        private final HDF5ContainerBasedHierarchicalContentNode containerNode;
+
+        public HDF5FileNode(HDF5ContainerBasedHierarchicalContentNode containerNode,
+                String relativePath, String fileName)
         {
-            System.err.println("[HDF5FileNode] path:" + relativePath + ", fileName: " + fileName);
+            this.containerNode = containerNode;
             this.relativePath = relativePath;
             this.fileName = fileName;
         }
@@ -211,12 +253,12 @@ class HDF5ContainerBasedHierarchicalContentNode extends DefaultFileBasedHierarch
 
         public String getRelativePath()
         {
-            return relativePath;
+            return containerNode.getRelativePath() + File.separator + relativePath;
         }
 
         public boolean exists()
         {
-            return true;
+            return true; // getContent().exists();
         }
 
         public boolean isDirectory()
@@ -232,7 +274,7 @@ class HDF5ContainerBasedHierarchicalContentNode extends DefaultFileBasedHierarch
         @Override
         protected long doGetFileLength()
         {
-            return reader.getDataSetInformation(relativePath).getSize();
+            return getContent().getSize();
         }
 
         @Override
@@ -255,14 +297,14 @@ class HDF5ContainerBasedHierarchicalContentNode extends DefaultFileBasedHierarch
             }
             return contentOrNull;
         }
-    }
 
-    @SuppressWarnings("unused")
-    private static IContent extractFileContent(IHDF5SimpleReader reader, String path)
-    {
-        byte[] content = reader.readAsByteArray(path);
-        int index = path.lastIndexOf('/');
-        return new ByteArrayBasedContent(content, index < 0 ? path : path.substring(index + 1));
+        @Override
+        public String toString()
+        {
+            return "HDF5FileNode [containerPath=" + containerNode.getRelativePath()
+                    + ", relativePath=" + relativePath + ", fileName=" + fileName + "]";
+        }
+
     }
 
     private static IContent extractFileContent(File hdf5File, String dataSetPath)
