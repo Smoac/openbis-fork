@@ -307,7 +307,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
                 statuses = doUnarchive(datasets, context);
             } catch (Throwable t)
             {
-                String errorMessage = "Unarchiving failed :" + t.getMessage();
+                String errorMessage = "Unarchiving failed: " + t.getMessage();
                 operationLog.error(errorMessage, t);
                 Status errorStatus = Status.createError(errorMessage);
                 statuses = createStatuses(errorStatus, datasets, Operation.UNARCHIVE);
