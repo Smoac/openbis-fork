@@ -17,6 +17,8 @@
         <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
         <property name="ignoreUnresolvablePlaceholders" value="true" />
     </bean>
+    
+    <bean id="data-set-path-infos-provider" class="ch.systemsx.cisd.openbis.dss.generic.server.DatabaseBasedDataSetPathInfoProvider"/>
 
   <bean id="plugin-tasks" class="ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProviders"
         factory-method="create" />

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,7 +78,7 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
         Long dataSetId = getDao().tryToGetDataSetId(dataSetCode);
         if (dataSetId == null)
         {
-            return null;
+            return Collections.emptyList();
         }
         List<DataSetFileRecord> dataSetFileRecords = getDao().listDataSetFiles(dataSetId);
         Map<Long, DataSetPathInfo> idToInfoMap = new HashMap<Long, DataSetPathInfo>();
