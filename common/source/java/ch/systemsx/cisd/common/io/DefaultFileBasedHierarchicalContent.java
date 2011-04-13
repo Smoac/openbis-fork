@@ -68,10 +68,10 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
 
     public IHierarchicalContentNode getNode(String relativePath)
     {
-        return asNode(new File(root, relativePath)); 
+        return asNode(new File(root, relativePath));
     }
 
-    private IHierarchicalContentNode asNode(File file) 
+    private IHierarchicalContentNode asNode(File file)
     {
         if (file.exists())
         {
@@ -94,7 +94,7 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
             return containerNode.getChildNode(relativePath);
         }
         throw new IllegalArgumentException("Resource '" + FileUtilities.getRelativeFile(root, file)
-                + "' doesn't exist");
+                + "' does not exist.");
     }
 
     public List<IHierarchicalContentNode> listMatchingNodes(final String pattern)
