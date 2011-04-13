@@ -334,7 +334,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         sb.append(getGlobalState().getValidationScriptOrNull());
         sb.append("] found errors in incoming data set [");
         sb.append(incomingDataSetFile);
-        sb.append("]:");
+        sb.append("]:\n");
         for (ValidationError error : validationErrors)
         {
             sb.append("\t");
