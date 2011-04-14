@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -63,7 +64,9 @@ public class DataSetUploadClientModel
     private final ArrayList<NewDataSetInfo> newDataSetInfos = new ArrayList<NewDataSetInfo>();
 
     // Track which files a user selected to make share the list of files in the selection combo box.
-    private final ArrayList<File> userSelectedFiles = new ArrayList<File>();
+    // The list is reverse-ordered according to selection made by user. There are no duplictes on
+    // the list.
+    private final LinkedList<File> userSelectedFiles = new LinkedList<File>();
 
     // Generic validator for property values.
     private final SimplePropertyValidator simplePropertyValidator = new SimplePropertyValidator();
@@ -375,7 +378,8 @@ public class DataSetUploadClientModel
 
     public void userDidSelectFile(File selectedFile)
     {
-        userSelectedFiles.add(selectedFile);
+        userSelectedFiles.remove(selectedFile);
+        userSelectedFiles.addFirst(selectedFile);
     }
 
     private DataSetType tryDataSetType(String dataSetTypeCode)
@@ -396,7 +400,7 @@ public class DataSetUploadClientModel
         return null;
     }
 
-    public ArrayList<File> getUserSelectedFiles()
+    public List<File> getUserSelectedFiles()
     {
         return userSelectedFiles;
     }

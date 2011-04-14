@@ -35,7 +35,6 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -53,8 +52,8 @@ import javax.swing.JTextField;
 
 import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClientModel.NewDataSetInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTOBuilder;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 
 /**
@@ -348,7 +347,6 @@ public class DataSetMetadataPanel extends JPanel
     {
         dataSetFileComboBox.removeAllItems();
         ArrayList<File> files = new ArrayList<File>(clientModel.getUserSelectedFiles());
-        Collections.sort(files);
         for (File file : files)
         {
             dataSetFileComboBox.addItem(file);
