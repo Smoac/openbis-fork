@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis;
+package ch.systemsx.cisd.openbis.plugin.screening;
 
 import java.util.Arrays;
 import java.util.List;
