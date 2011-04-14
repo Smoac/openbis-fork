@@ -27,5 +27,6 @@
 	<classpathentry kind="lib" path="/libraries/jaxb/jaxb-impl.jar" sourcepath="/libraries/jaxb/jaxb-impl.src.zip"/>
 	<classpathentry kind="lib" path="/libraries/jaxb/jsr173_1.0_api.jar"/>
 	<classpathentry kind="lib" path="/libraries/jhdf5/cisd-jhdf5-batteries_included_lin_win_mac.jar" sourcepath="/libraries/jhdf5/cisd-jhdf5-src.zip"/>
+	<classpathentry kind="lib" path="/libraries/classycle/classycle.jar" sourcepath="/libraries/classycle/src.zip"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
