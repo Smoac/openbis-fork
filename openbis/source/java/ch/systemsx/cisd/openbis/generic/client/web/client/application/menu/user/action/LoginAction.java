@@ -24,6 +24,7 @@ public final class LoginAction implements IDelegatedAction
     public void execute()
     {
         UrlBuilder urlBuilder = Window.Location.createUrlBuilder();
+        urlBuilder.removeParameter(BasicConstant.ANONYMOUS_KEY);
         urlBuilder.setParameter(BasicConstant.ANONYMOUS_KEY, "false");
         String url = urlBuilder.buildString();
         Window.Location.replace(url);
