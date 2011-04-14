@@ -38,10 +38,15 @@ public class HierarchicalContentFactory implements IHierarchicalContentFactory
     public IHierarchicalContentNode asHierarchicalContentNode(IHierarchicalContent rootContent,
             File file)
     {
-        if (FilenameUtils.isExtension(file.getName(), Arrays.asList("h5", "h5ar")))
+        if (isHDF5ContainerFile(file))
         {
             return new HDF5ContainerBasedHierarchicalContentNode(this, rootContent, file);
         }
         return new DefaultFileBasedHierarchicalContentNode(this, rootContent, file);
+    }
+
+    public static boolean isHDF5ContainerFile(File file)
+    {
+        return FilenameUtils.isExtension(file.getName(), Arrays.asList("h5", "h5ar"));
     }
 }

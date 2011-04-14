@@ -17,12 +17,9 @@
 package ch.systemsx.cisd.common.io;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-
-import org.apache.commons.io.FilenameUtils;
+import java.util.regex.Pattern;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
@@ -30,6 +27,8 @@ import ch.systemsx.cisd.common.utilities.IDelegatedAction;
 
 /**
  * {@link IHierarchicalContent} implementation for normal {@link java.io.File} directory.
+ * <p>
+ * NOTE: The directory can contain HDF5 containers inside and they will handled in a special way.
  * 
  * @author Piotr Buczek
  */
@@ -58,7 +57,7 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
         this.hierarchicalContentFactory = hierarchicalContentFactory;
         this.onCloseAction = onCloseAction;
         this.root = file;
-        this.rootNode = asNode(root);
+        this.rootNode = createFileNode(root);
     }
 
     public IHierarchicalContentNode getRootNode()
@@ -68,14 +67,20 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
 
     public IHierarchicalContentNode getNode(String relativePath)
     {
-        return asNode(new File(root, relativePath));
+        if (StringUtils.isBlank(relativePath))
+        {
+            return getRootNode();
+        } else
+        {
+            return asNode(new File(root, relativePath));
+        }
     }
 
     private IHierarchicalContentNode asNode(File file)
     {
         if (file.exists())
         {
-            return hierarchicalContentFactory.asHierarchicalContentNode(this, file);
+            return createFileNode(file);
         }
         // The file doesn't exist in file system but it could be inside a HDF5 container.
         // Go up in file hierarchy until existing file is found.
@@ -84,8 +89,7 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
         {
             existingFile = existingFile.getParentFile();
         }
-        if (existingFile != null
-                && FilenameUtils.isExtension(existingFile.getName(), Arrays.asList("h5", "h5ar")))
+        if (existingFile != null && HierarchicalContentFactory.isHDF5ContainerFile(existingFile))
         {
             HDF5ContainerBasedHierarchicalContentNode containerNode =
                     new HDF5ContainerBasedHierarchicalContentNode(hierarchicalContentFactory, this,
@@ -97,6 +101,11 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
                 + "' does not exist.");
     }
 
+    private IHierarchicalContentNode createFileNode(File file)
+    {
+        return hierarchicalContentFactory.asHierarchicalContentNode(this, file);
+    }
+
     public List<IHierarchicalContentNode> listMatchingNodes(final String pattern)
     {
         return listMatchingNodes("", pattern);
@@ -105,30 +114,11 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
     public List<IHierarchicalContentNode> listMatchingNodes(final String startingPath,
             final String pattern)
     {
-        // NOTE: this will not traverse files inside HDF5 container.
-        // It should be fixed in DB based implementation.
-        List<File> files = new ArrayList<File>();
-        FileFilter fileFilter = new FileFilter()
-            {
-                public boolean accept(File pathname)
-                {
-                    boolean matches = pathname.getName().matches(pattern);
-                    return matches;
-                }
-            };
-        if (StringUtils.isBlank(startingPath))
-        {
-            findFiles(root, fileFilter, files);
-        } else
-        {
-            findFiles(new File(root, startingPath), fileFilter, files);
-        }
-        List<IHierarchicalContentNode> nodes = new ArrayList<IHierarchicalContentNode>();
-        for (File file : files)
-        {
-            nodes.add(hierarchicalContentFactory.asHierarchicalContentNode(this, file));
-        }
-        return nodes;
+        List<IHierarchicalContentNode> result = new ArrayList<IHierarchicalContentNode>();
+        IHierarchicalContentNode startingNode = getNode(startingPath);
+        Pattern compiledPattern = Pattern.compile(pattern);
+        findMatchingNodes(startingNode, compiledPattern, result);
+        return result;
     }
 
     public void close()
@@ -185,28 +175,24 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
     }
 
     /**
-     * Recursively browses startingPoint looking for files accepted by the filter and adding them to
-     * <code>result</code> list.
+     * Recursively browses hierarchical content looking for nodes matching given
+     * <code>fileNamePattern</code> and adding them to <code>result</code> list.
      */
-    private static void findFiles(File startingPoint, FileFilter filter, List<File> result)
+    private static void findMatchingNodes(IHierarchicalContentNode dirNode,
+            Pattern fileNamePattern, List<IHierarchicalContentNode> result)
     {
-        // TODO 2011-04-12, Piotr Buczek: make HDF5 aware
-        File[] filteredFiles = startingPoint.listFiles(filter);
-        if (filteredFiles != null)
+        assert dirNode.isDirectory() : "expected a directory node, got: " + dirNode;
+        for (IHierarchicalContentNode childNode : dirNode.getChildNodes())
         {
-            for (File f : filteredFiles)
+            if (childNode.isDirectory())
             {
-                result.add(f);
-            }
-        }
-        File[] files = startingPoint.listFiles();
-        if (files != null)
-        {
-            for (File d : files)
+                findMatchingNodes(childNode, fileNamePattern, result);
+            } else
             {
-                if (d.isDirectory())
+                String fileName = childNode.getName();
+                if (fileNamePattern.matcher(fileName).matches())
                 {
-                    findFiles(d, filter, result);
+                    result.add(childNode);
                 }
             }
         }
