@@ -38,10 +38,12 @@ public class BasicFileFieldManager extends FileFieldManager<FileUploadField>
         return new FileUploadField()
             {
                 @Override
-                public void setReadOnly(boolean readOnly)
+                public void setEnabled(boolean enabled)
                 {
                     // WORKAROUND to keep the button enabled after field reset
-                    this.readOnly = readOnly;
+                    // and change of visibility
+                    super.setEnabled(enabled);
+                    super.setReadOnly(!enabled);
                 }
             };
     }
