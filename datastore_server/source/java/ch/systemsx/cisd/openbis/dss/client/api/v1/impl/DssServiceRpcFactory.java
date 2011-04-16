@@ -23,6 +23,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Collection;
 
+import org.apache.commons.lang.time.DateUtils;
+
 import ch.systemsx.cisd.common.api.IRpcService;
 import ch.systemsx.cisd.common.api.IRpcServiceFactory;
 import ch.systemsx.cisd.common.api.IRpcServiceNameServer;
@@ -43,9 +45,21 @@ import ch.systemsx.cisd.common.ssl.SslCertificateHelper;
 // but it is a bit difficult due to dependencies.
 public class DssServiceRpcFactory implements IRpcServiceFactory
 {
-    private static final int SERVER_TIMEOUT_MIN = 5;
+    private static final long DEFAULT_SERVER_TIMEOUT = 5 * DateUtils.MILLIS_PER_MINUTE;
 
     private static final String NAME_SERVER_SUFFIX = "/rmi-name-server";
+
+    private final long timeoutInMillis;
+
+    public DssServiceRpcFactory()
+    {
+        this(DEFAULT_SERVER_TIMEOUT);
+    }
+
+    public DssServiceRpcFactory(long timeoutInMillis)
+    {
+        this.timeoutInMillis = timeoutInMillis;
+    }
 
     public Collection<RpcServiceInterfaceDTO> getSupportedInterfaces(String serverURL,
             boolean getServerCertificateFromServer) throws IncompatibleAPIVersionsException
@@ -60,7 +74,7 @@ public class DssServiceRpcFactory implements IRpcServiceFactory
 
         IRpcServiceNameServer nameServer =
                 new ServiceProxyBuilder<IRpcServiceNameServer>(nameServerURL, clazz,
-                        SERVER_TIMEOUT_MIN, 1).getServiceInterface();
+                        timeoutInMillis, 1).getServiceInterface();
         return nameServer.getSupportedInterfaces();
     }
 
@@ -74,7 +88,7 @@ public class DssServiceRpcFactory implements IRpcServiceFactory
             new SslCertificateHelper(serviceURL, getKeystoreFile(), "dss").setUpKeyStore();
         }
 
-        return new ServiceProxyBuilder<T>(serviceURL, ifaceClazz, SERVER_TIMEOUT_MIN, 1)
+        return new ServiceProxyBuilder<T>(serviceURL, ifaceClazz, timeoutInMillis, 1)
                 .getServiceInterface();
     }
 
@@ -112,16 +126,16 @@ class ServiceProxyBuilder<T extends IRpcService>
 
     private final Class<?> clazz;
 
-    private final int serverTimeoutMin;
+    private final long serverTimeoutMillis;
 
     private final int apiClientVersion;
 
-    ServiceProxyBuilder(String serviceURL, Class<?> clazz, int serverTimeoutMin,
+    ServiceProxyBuilder(String serviceURL, Class<?> clazz, long serverTimeoutMillis,
             int apiClientVersion)
     {
         this.serviceURL = serviceURL;
         this.clazz = clazz;
-        this.serverTimeoutMin = serverTimeoutMin;
+        this.serverTimeoutMillis = serverTimeoutMillis;
         this.apiClientVersion = apiClientVersion;
     }
 
@@ -141,7 +155,7 @@ class ServiceProxyBuilder<T extends IRpcService>
     private T getRawServiceProxy()
     {
         return (T) HttpInvokerUtils.createStreamSupportingServiceStub(clazz, serviceURL,
-                serverTimeoutMin);
+                serverTimeoutMillis);
     }
 
     private T wrapProxyInServiceInvocationHandler(T service)

@@ -62,7 +62,7 @@ abstract class AbstractDssCommand<T extends GlobalArguments> extends AbstractCom
     {
         IDssComponent component =
                 DssComponentFactory.tryCreate(arguments.getUsername(), arguments.getPassword(),
-                        arguments.getServerBaseUrl());
+                        arguments.getServerBaseUrl(), args.getTimeoutInMillis());
         if (null == component)
         {
             System.out.println("Username / password is invalid");

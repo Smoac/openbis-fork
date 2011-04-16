@@ -29,6 +29,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import org.apache.commons.lang.WordUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.springframework.remoting.RemoteAccessException;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
@@ -367,6 +368,8 @@ class DssCommunicationState
 
     private final boolean logoutOnClose;
 
+    private static final long CONNECTION_TIMEOUT_MILLIS = 15 * DateUtils.MILLIS_PER_SECOND;
+
     private static IGeneralInformationService createGeneralInformationService(String openBISURL)
     {
         ServiceFinder generalInformationServiceFinder =
@@ -394,7 +397,9 @@ class DssCommunicationState
         {
             case 2:
                 String sessionToken = args[1];
-                dssComponent = DssComponentFactory.tryCreate(sessionToken, openBisUrl);
+                dssComponent =
+                        DssComponentFactory.tryCreate(sessionToken, openBisUrl,
+                                CONNECTION_TIMEOUT_MILLIS);
                 if (null == dssComponent)
                 {
                     throw new ConfigurationFailureException(
@@ -406,7 +411,9 @@ class DssCommunicationState
             default:
                 String userName = args[1];
                 String passwd = args[2];
-                dssComponent = DssComponentFactory.tryCreate(userName, passwd, openBisUrl);
+                dssComponent =
+                        DssComponentFactory.tryCreate(userName, passwd, openBisUrl,
+                                CONNECTION_TIMEOUT_MILLIS);
                 if (null == dssComponent)
                 {
                     throw new ConfigurationFailureException(

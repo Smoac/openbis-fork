@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.client.api.cli;
 
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 
@@ -126,6 +128,18 @@ public class AbstractClient
                             "Validation of SSL certificate failed [%s=%s] (configuration failure)",
                             property, StringUtils.defaultString(System.getProperty(property))));
                     exitCode = ResultCode.ENVIRONMENT_ERROR.getValue();
+                } else if (cause instanceof SocketTimeoutException)
+                {
+                    System.err.println(String.format(
+                            "Connection to server timed out (environment failure)",
+                            cause.getMessage()));
+                    exitCode = ResultCode.NO_CONNECTION_TO_SERVER.getValue();
+                } else if (cause instanceof SocketException)
+                {
+                    System.err.println(String.format(
+                            "Connection to server timed out (environment failure)",
+                            cause.getMessage()));
+                    exitCode = ResultCode.NO_CONNECTION_TO_SERVER.getValue();
                 } else
                 {
                     ex.printStackTrace();

@@ -31,10 +31,12 @@ public class DssComponentFactory
      * @param user The user name
      * @param password The user's password
      * @param openBISUrl The URL to openBIS
+     * @param timeoutInMillis network timeout when connecting to remote services
      */
-    public static IDssComponent tryCreate(String user, String password, String openBISUrl)
+    public static IDssComponent tryCreate(String user, String password, String openBISUrl,
+            long timeoutInMillis)
     {
-        return DssComponent.tryCreate(user, password, openBISUrl);
+        return DssComponent.tryCreate(user, password, openBISUrl, timeoutInMillis);
     }
 
     /**
@@ -43,9 +45,11 @@ public class DssComponentFactory
      * 
      * @param sessionToken The session token provided by authentication
      * @param openBISUrl The URL to openBIS
+     * @param timeoutInMillis network timeout when connecting to remote services
      */
-    public static IDssComponent tryCreate(String sessionToken, String openBISUrl)
+    public static IDssComponent tryCreate(String sessionToken, String openBISUrl,
+            long timeoutInMillis)
     {
-        return DssComponent.tryCreate(sessionToken, openBISUrl);
+        return DssComponent.tryCreate(sessionToken, openBISUrl, timeoutInMillis);
     }
 }

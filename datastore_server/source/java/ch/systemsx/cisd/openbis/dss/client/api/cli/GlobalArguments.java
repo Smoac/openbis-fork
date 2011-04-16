@@ -20,9 +20,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
-
 import jline.ConsoleReader;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateUtils;
 
 import ch.systemsx.cisd.args4j.Argument;
 import ch.systemsx.cisd.args4j.Option;
@@ -46,6 +47,9 @@ public class GlobalArguments
 
     @Option(name = "s", longName = "server-base-url", usage = "URL for openBIS Server (required)")
     protected String serverBaseUrl = "";
+
+    @Option(name = "i", longName = "timeout", usage = "Timeout in seconds")
+    protected long timeout = 15L; // default timeout of 15 seconds
 
     @Option(name = "h", longName = "help", skipForExample = true)
     protected boolean isHelp = false;
@@ -96,6 +100,11 @@ public class GlobalArguments
     public List<String> getArguments()
     {
         return arguments;
+    }
+
+    public long getTimeoutInMillis()
+    {
+        return timeout * DateUtils.MILLIS_PER_SECOND;
     }
 
     /**

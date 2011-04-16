@@ -73,10 +73,12 @@ public class DssComponent implements IDssComponent
      * @param user The user name
      * @param password The user's password
      * @param openBISUrl The URL to openBIS
+     * @param timeoutInMillis network timeout when connecting to remote services
      */
-    public static DssComponent tryCreate(String user, String password, String openBISUrl)
+    public static DssComponent tryCreate(String user, String password, String openBISUrl,
+            long timeoutInMillis)
     {
-        DssComponent component = new DssComponent(openBISUrl, null);
+        DssComponent component = new DssComponent(openBISUrl, null, timeoutInMillis);
         try
         {
             component.login(user, password);
@@ -94,10 +96,12 @@ public class DssComponent implements IDssComponent
      * 
      * @param sessionToken The session token provided by authentication
      * @param openBISUrl The URL to openBIS
+     * @param timeoutInMillis network timeout when connecting to remote services
      */
-    public static DssComponent tryCreate(String sessionToken, String openBISUrl)
+    public static DssComponent tryCreate(String sessionToken, String openBISUrl,
+            long timeoutInMillis)
     {
-        DssComponent component = new DssComponent(openBISUrl, sessionToken);
+        DssComponent component = new DssComponent(openBISUrl, sessionToken, timeoutInMillis);
         try
         {
             component.checkSession();
@@ -109,13 +113,14 @@ public class DssComponent implements IDssComponent
         return component;
     }
 
-    private static IGeneralInformationService createGeneralInformationService(String openBISURL)
+    private static IGeneralInformationService createGeneralInformationService(String openBISURL,
+            long timeoutInMillis)
     {
         ServiceFinder generalInformationServiceFinder =
                 new ServiceFinder("openbis", IGeneralInformationService.SERVICE_URL);
         IGeneralInformationService service =
                 generalInformationServiceFinder.createService(IGeneralInformationService.class,
-                        openBISURL);
+                        openBISURL, timeoutInMillis);
         return service;
     }
 
@@ -128,10 +133,12 @@ public class DssComponent implements IDssComponent
      * @param openBISURL The url to connect to openBIS
      * @param sessionTokenOrNull A session token; If null is passed in, then login needs to be
      *            called.
+     * @param timeoutInMillis a timeout for network operations
      */
-    private DssComponent(String openBISURL, String sessionTokenOrNull)
+    private DssComponent(String openBISURL, String sessionTokenOrNull, long timeoutInMillis)
     {
-        this(createGeneralInformationService(openBISURL), new DssServiceRpcFactory(),
+        this(createGeneralInformationService(openBISURL, timeoutInMillis),
+                new DssServiceRpcFactory(timeoutInMillis),
                 sessionTokenOrNull);
     }
 
