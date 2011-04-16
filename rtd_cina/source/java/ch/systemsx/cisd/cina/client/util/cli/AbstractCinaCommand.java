@@ -55,7 +55,8 @@ abstract class AbstractCinaCommand<T extends GlobalArguments> extends AbstractCo
     {
         ICinaUtilities component =
                 CinaUtilitiesFacadeFactory.tryCreate(arguments.getUsername(),
-                        arguments.getPassword(), arguments.getServerBaseUrl());
+                        arguments.getPassword(), arguments.getServerBaseUrl(),
+                        arguments.getTimeoutInMillis());
         if (null == component)
         {
             System.out.println("Username / password is invalid");

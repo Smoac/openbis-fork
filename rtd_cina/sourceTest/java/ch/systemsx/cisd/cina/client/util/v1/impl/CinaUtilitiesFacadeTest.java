@@ -92,7 +92,7 @@ public class CinaUtilitiesFacadeTest extends AssertJUnit
                 }
             });
         CinaUtilitiesFacade facade = createFacade(service, openbisService);
-        facade.login(USER_ID, PASSWORD);
+        facade.login(USER_ID, PASSWORD, 1);
         assertEquals(facade.getSessionToken(), SESSION_TOKEN);
         List<Sample> result = facade.searchForSamples(searchCriteria);
         assertEquals(0, result.size());
@@ -126,7 +126,7 @@ public class CinaUtilitiesFacadeTest extends AssertJUnit
                 }
             });
         CinaUtilitiesFacade facade = createFacade(service, openbisService);
-        facade.login(USER_ID, PASSWORD);
+        facade.login(USER_ID, PASSWORD, 0);
         assertEquals(facade.getSessionToken(), SESSION_TOKEN);
         String result = facade.generateSampleCode(sampleTypeCode);
         assertEquals("STC-1", result);
@@ -169,7 +169,7 @@ public class CinaUtilitiesFacadeTest extends AssertJUnit
                 }
             });
         CinaUtilitiesFacade facade = createFacade(service, openbisService);
-        facade.login(USER_ID, PASSWORD);
+        facade.login(USER_ID, PASSWORD, 0);
         assertEquals(facade.getSessionToken(), SESSION_TOKEN);
         List<Experiment> result = facade.listVisibleExperiments("EXP-TYPE");
         assertEquals(0, result.size());
@@ -194,7 +194,7 @@ public class CinaUtilitiesFacadeTest extends AssertJUnit
             IETLLIMSService openbisService, String userId, String password)
     {
         CinaUtilitiesFacade facade = new CinaUtilitiesFacade(service, openbisService, null, null);
-        facade.login(userId, password);
+        facade.login(userId, password, 0);
         return facade;
     }
 

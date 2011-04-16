@@ -21,6 +21,8 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.GenericSharedConstan
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.time.DateUtils;
+
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 
@@ -39,7 +41,7 @@ public class DataStoreServiceFactory implements IDataStoreServiceFactory
         if (service == null)
         {
             service = HttpInvokerUtils.createServiceStub(IDataStoreService.class, serverURL + "/"
-                    + DATA_STORE_SERVER_SERVICE_NAME, 5);
+                            + DATA_STORE_SERVER_SERVICE_NAME, 5 * DateUtils.MILLIS_PER_MINUTE);
             services.put(serverURL, service);
         }
         return service;

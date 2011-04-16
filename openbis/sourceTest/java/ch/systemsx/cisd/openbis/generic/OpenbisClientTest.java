@@ -8,6 +8,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang.time.DateUtils;
 
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
@@ -64,6 +65,8 @@ public class OpenbisClientTest
     // TrackingServiceServer
     private static final String TRACKING_SERVICE_PATH = SERVER_URL + "/rmi-tracking";
 
+    private static final long SERVER_TIMEOUT = 5 * DateUtils.MILLIS_PER_MINUTE;
+
     public static void main(String[] args)
     {
         testCommonServerService(COMMON_SERVICE_PATH);
@@ -75,7 +78,7 @@ public class OpenbisClientTest
     {
         System.out.println("TEST CommonServerService: " + serviceURL);
         ICommonServer commonServer =
-                HttpInvokerUtils.createServiceStub(ICommonServer.class, serviceURL, 5);
+                HttpInvokerUtils.createServiceStub(ICommonServer.class, serviceURL, SERVER_TIMEOUT);
         SessionContextDTO session = commonServer.tryToAuthenticate(USER_ID, USER_PASSWORD);
 
         List<Person> persons = commonServer.listPersons(session.getSessionToken());
@@ -89,7 +92,8 @@ public class OpenbisClientTest
     {
         System.out.println("\nTEST GenericServerService: " + serviceURL);
         IGenericServer genericServer =
-                HttpInvokerUtils.createServiceStub(IGenericServer.class, serviceURL, 5);
+                HttpInvokerUtils
+                        .createServiceStub(IGenericServer.class, serviceURL, SERVER_TIMEOUT);
         SessionContextDTO session = genericServer.tryToAuthenticate(USER_ID, USER_PASSWORD);
 
         SampleParentWithDerived sampleInfo =
@@ -101,7 +105,8 @@ public class OpenbisClientTest
     {
         System.out.println("\nTEST TrackingServerService: " + serviceURL);
         ITrackingServer trackingServer =
-                HttpInvokerUtils.createServiceStub(ITrackingServer.class, serviceURL, 5);
+                HttpInvokerUtils.createServiceStub(ITrackingServer.class, serviceURL,
+                        SERVER_TIMEOUT);
         SessionContextDTO session = trackingServer.tryToAuthenticate(USER_ID, USER_PASSWORD);
 
         final String sampleTypeCode = "CELL_PLATE";

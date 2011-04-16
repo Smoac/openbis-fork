@@ -54,12 +54,13 @@ public class CinaUtilitiesFacade implements ICinaUtilities
      * @param password The user's password
      * @param openBISUrl The URL to openBIS
      */
-    public static CinaUtilitiesFacade tryCreate(String user, String password, String openBISUrl)
+    public static CinaUtilitiesFacade tryCreate(String user, String password, String openBISUrl,
+            long timeoutInMillis)
     {
-        CinaUtilitiesFacade component = new CinaUtilitiesFacade(openBISUrl, null);
+        CinaUtilitiesFacade component = tryCreate(null, openBISUrl, timeoutInMillis);
         try
         {
-            component.login(user, password);
+            component.login(user, password, timeoutInMillis);
         } catch (AuthorizationFailureException e)
         {
             // User name / Password is incorrect.
@@ -75,32 +76,48 @@ public class CinaUtilitiesFacade implements ICinaUtilities
      * @param sessionToken The session token provided by authentication
      * @param openBISUrl The URL to openBIS
      */
-    public static CinaUtilitiesFacade tryCreate(String sessionToken, String openBISUrl)
+    public static CinaUtilitiesFacade tryCreate(String sessionToken, String openBISUrl,
+            long timeoutInMillis)
     {
-        CinaUtilitiesFacade component = new CinaUtilitiesFacade(openBISUrl, sessionToken);
-        return component;
+        IGeneralInformationService generalInfoService =
+                createGeneralInformationService(openBISUrl, timeoutInMillis);
+        IETLLIMSService openbisService = createOpenBisService(openBISUrl, timeoutInMillis);
+        IDssComponent dssComponent =
+                createDssComponent(openbisService, generalInfoService, sessionToken,
+                        timeoutInMillis);
+        return new CinaUtilitiesFacade(generalInfoService, openbisService, dssComponent,
+                sessionToken);
     }
 
-    private static IGeneralInformationService createGeneralInformationService(String openBISURL)
+    private static IGeneralInformationService createGeneralInformationService(String openBISURL,
+            long timeoutInMillis)
     {
         ServiceFinder generalInformationServiceFinder =
                 new ServiceFinder("openbis", IGeneralInformationService.SERVICE_URL);
         IGeneralInformationService service =
                 generalInformationServiceFinder.createService(IGeneralInformationService.class,
-                        openBISURL);
+                        openBISURL, timeoutInMillis);
         return service;
     }
 
-    private static IETLLIMSService createOpenBisService(String openBISURL)
+    private static IETLLIMSService createOpenBisService(String openBISURL, long timeoutInMillis)
     {
-        return new OpenBisServiceFactory(openBISURL, ResourceNames.ETL_SERVICE_URL).createService();
+        return new OpenBisServiceFactory(openBISURL, ResourceNames.ETL_SERVICE_URL)
+                .createService(timeoutInMillis);
     }
 
+    /**
+     * Create a DSS component that connects to the openBIS instance specified by the URL.
+     * <p>
+     * The DSS component needs to connect to openBIS to find out which DSS manages a given data set.
+     * Once it has a connection to openBIS, it can figure out how to connect to DSS servers itself.
+     */
     private static IDssComponent createDssComponent(IETLLIMSService openbisService,
-            IGeneralInformationService generalInformationService, String sessionTokenOrNull)
+            IGeneralInformationService generalInformationService, String sessionTokenOrNull,
+            long timeoutInMillis)
     {
         return new DssComponent(generalInformationService,
-                new DssServiceRpcFactory(), sessionTokenOrNull);
+                new DssServiceRpcFactory(timeoutInMillis), sessionTokenOrNull);
     }
 
     /** The interface for accessing the remote services. */
@@ -111,39 +128,6 @@ public class CinaUtilitiesFacade implements ICinaUtilities
 
     /** The current state of the facade */
     private AbstractCinaFacadeState state;
-
-    /**
-     * Create a DSS component that connects to the openBIS instance specified by the URL.
-     * <p>
-     * The DSS component needs to connect to openBIS to find out which DSS manages a given data set.
-     * Once it has a connection to openBIS, it can figure out how to connect to DSS servers itself.
-     * 
-     * @param openBISURL The url to connect to openBIS
-     * @param sessionTokenOrNull A session token; If null is passed in, then login needs to be
-     *            called.
-     */
-    private CinaUtilitiesFacade(String openBISURL, String sessionTokenOrNull)
-    {
-        this(createGeneralInformationService(openBISURL), createOpenBisService(openBISURL),
-                sessionTokenOrNull);
-    }
-
-    /**
-     * Internal constructor, also used for testing.
-     * 
-     * @param generalInformationService A proxy to the openBIS application server's general
-     *            information service
-     * @param openbisService A proxy to the openBIS application server's ETLLIMS Service
-     * @param sessionTokenOrNull A session token, if the user has already logged in, or null
-     *            otherwise.
-     */
-    private CinaUtilitiesFacade(IGeneralInformationService generalInformationService,
-            IETLLIMSService openbisService, String sessionTokenOrNull)
-
-    {
-        this(generalInformationService, openbisService, createDssComponent(openbisService,
-                generalInformationService, sessionTokenOrNull), sessionTokenOrNull);
-    }
 
     /**
      * Internal constructor, also used for testing.
@@ -197,7 +181,8 @@ public class CinaUtilitiesFacade implements ICinaUtilities
      * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
      *             the server.
      */
-    void login(String user, String password) throws AuthorizationFailureException,
+    void login(String user, String password, long timeoutInMillis)
+            throws AuthorizationFailureException,
             EnvironmentFailureException
     {
         // login and transition to the authenticated state
@@ -205,7 +190,7 @@ public class CinaUtilitiesFacade implements ICinaUtilities
         state =
                 new AuthenticatedState(generalInformationService, openbisService,
                         createDssComponent(openbisService, generalInformationService,
-                                state.getSessionToken()), state.getSessionToken());
+                                state.getSessionToken(), timeoutInMillis), state.getSessionToken());
     }
 
     public void logout()

@@ -61,15 +61,35 @@ public class OpenBisServiceFactory
      */
     public IETLLIMSService createService()
     {
-        ServiceFinder serviceFinder = new ServiceFinder("openbis", urlServiceSuffix);
-        return serviceFinder.createService(IETLLIMSService.class, initialServerUrl,
-                new IServicePinger<IETLLIMSService>()
-                    {
-                        public void ping(IETLLIMSService service)
-                        {
-                            service.getVersion();
+        return createServiceFinder().createService(IETLLIMSService.class, initialServerUrl,
+                createServicePinger());
+    }
+
+    /**
+     * Create a IETLLIMSService by trying several possible locations for the service until one that
+     * works is found. If the service cannot be found, a proxy to the constructor-provided serverUrl
+     * will be returned.
+     */
+    public IETLLIMSService createService(long timeoutInMillis)
+    {
+        return createServiceFinder().createService(IETLLIMSService.class, initialServerUrl,
+                createServicePinger(), timeoutInMillis);
+    }
+
+    private ServiceFinder createServiceFinder()
+    {
+        return new ServiceFinder("openbis", urlServiceSuffix);
+    }
+
+    private IServicePinger<IETLLIMSService> createServicePinger()
+    {
+        return new IServicePinger<IETLLIMSService>()
+            {
+                public void ping(IETLLIMSService service)
+                {
+                    service.getVersion();
                 }
-            });
+            };
     }
 
 }

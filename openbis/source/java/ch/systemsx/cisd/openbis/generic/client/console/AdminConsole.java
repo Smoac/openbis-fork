@@ -24,6 +24,8 @@ import java.util.Map;
 
 import jline.ConsoleReader;
 
+import org.apache.commons.lang.time.DateUtils;
+
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
@@ -59,8 +61,8 @@ public class AdminConsole
             password = getConsoleReader().readLine("Password: ", Character.valueOf('*'));
         }
         ICommonServer service =
-                HttpInvokerUtils
-                        .createServiceStub(ICommonServer.class, serverURL + SERVICE_PATH, 5);
+                HttpInvokerUtils.createServiceStub(ICommonServer.class, serverURL + SERVICE_PATH,
+                        5 * DateUtils.MILLIS_PER_MINUTE);
 
         SessionContextDTO session = service.tryToAuthenticate(userID, password);
         if (session == null)

@@ -18,6 +18,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.lang.time.DateUtils;
+
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.api.MinimalMinorVersion;
 import ch.systemsx.cisd.common.api.client.ServiceFinder;
@@ -77,7 +79,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
 
     private static final String OPENBIS_SCREENING_API = "/rmi-screening-api-v" + MAJOR_VERSION_AS;
 
-    static final int SERVER_TIMEOUT_MIN = 5;
+    static final long SERVER_TIMEOUT_MILLIS = 5 * DateUtils.MILLIS_PER_MINUTE;
 
     private static final IDssServiceFactory DSS_SERVICE_FACTORY = new IDssServiceFactory()
         {
@@ -132,7 +134,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         {
             return null;
         }
-        final IDssComponent dssComponent = DssComponentFactory.tryCreate(sessionToken, serverUrl);
+        final IDssComponent dssComponent =
+                DssComponentFactory.tryCreate(sessionToken, serverUrl, SERVER_TIMEOUT_MILLIS);
         return new ScreeningOpenbisServiceFacade(sessionToken, openbisServer, minorVersion,
                 DSS_SERVICE_FACTORY, dssComponent, generalInformationService);
     }
@@ -150,7 +153,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         final IGeneralInformationService generalInformationService =
                 createGeneralInformationService(serverUrl);
         final int minorVersion = openbisServer.getMinorVersion();
-        final IDssComponent dssComponent = DssComponentFactory.tryCreate(sessionToken, serverUrl);
+        final IDssComponent dssComponent =
+                DssComponentFactory.tryCreate(sessionToken, serverUrl, SERVER_TIMEOUT_MILLIS);
         return new ScreeningOpenbisServiceFacade(sessionToken, openbisServer, minorVersion,
                 DSS_SERVICE_FACTORY, dssComponent, generalInformationService);
     }

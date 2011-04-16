@@ -31,10 +31,12 @@ public class CinaUtilitiesFacadeFactory
      * @param user The user name
      * @param password The user's password
      * @param openBISUrl The URL to openBIS
+     * @param timeoutInMillis timeout in milliseconds. Specify 0 for no timeout.
      */
-    public static ICinaUtilities tryCreate(String user, String password, String openBISUrl)
+    public static ICinaUtilities tryCreate(String user, String password, String openBISUrl,
+            long timeoutInMillis)
     {
-        return CinaUtilitiesFacade.tryCreate(user, password, openBISUrl);
+        return CinaUtilitiesFacade.tryCreate(user, password, openBISUrl, timeoutInMillis);
     }
 
     /**
@@ -43,9 +45,11 @@ public class CinaUtilitiesFacadeFactory
      * 
      * @param sessionToken The session token provided by authentication
      * @param openBISUrl The URL to openBIS
+     * @param timeoutInMillis timeout in milliseconds. Specify 0 for no timeout.
      */
-    public static ICinaUtilities tryCreate(String sessionToken, String openBISUrl)
+    public static ICinaUtilities tryCreate(String sessionToken, String openBISUrl,
+            long timeoutInMillis)
     {
-        return CinaUtilitiesFacade.tryCreate(sessionToken, openBISUrl);
+        return CinaUtilitiesFacade.tryCreate(sessionToken, openBISUrl, timeoutInMillis);
     }
 }

@@ -53,7 +53,7 @@ class DssServiceRpcScreeningHolder
     {
         return HttpInvokerUtils.createStreamSupportingServiceStub(IDssServiceRpcScreening.class,
                 serverUrl + ScreeningOpenbisServiceFacade.DSS_SCREENING_API,
-                ScreeningOpenbisServiceFacade.SERVER_TIMEOUT_MIN);
+                ScreeningOpenbisServiceFacade.SERVER_TIMEOUT_MILLIS);
     }
 
     public IDssServiceRpcScreening getService()
