@@ -27,6 +27,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -171,7 +172,8 @@ public class DssComponentTest extends SystemTestCase
 
     private IDssComponent createDssComponent(String userName)
     {
-        return DssComponentFactory.tryCreate(userName, "a", OPENBIS_URL);
+        return DssComponentFactory.tryCreate(userName, "a", OPENBIS_URL,
+                5 * DateUtils.MILLIS_PER_MINUTE);
     }
 
     private NewDataSetDTO createNewDataSetDTO(File exampleDataSet) throws IOException
