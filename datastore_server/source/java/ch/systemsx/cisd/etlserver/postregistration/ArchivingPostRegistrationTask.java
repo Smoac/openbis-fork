@@ -25,13 +25,16 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogLevel;
+import ch.systemsx.cisd.etlserver.plugins.AutoArchiverTask;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IArchiverPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -48,6 +51,8 @@ public class ArchivingPostRegistrationTask extends AbstractPostRegistrationTask
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             ArchivingPostRegistrationTask.class);
 
+    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
+            ArchivingPostRegistrationTask.class);
 
     public ArchivingPostRegistrationTask(Properties properties, IEncapsulatedOpenBISService service)
     {
@@ -108,9 +113,35 @@ public class ArchivingPostRegistrationTask extends AbstractPostRegistrationTask
             if (statusUpdated)
             {
                 List<DatasetDescription> dataSetAsList = Collections.singletonList(dataSet);
-                archiver.archive(dataSetAsList, createArchiverContext(), false);
+                ProcessingStatus processingStatus =
+                        archiver.archive(dataSetAsList, createArchiverContext(), false);
+                if (false == processingStatus.getErrorStatuses().isEmpty())
+                {
+                    notifyAdministrator(processingStatus);
+                }
                 service.compareAndSetDataSetStatus(dataSetCode, BACKUP_PENDING, AVAILABLE, true);
             }
+        }
+
+        private void notifyAdministrator(ProcessingStatus processingStatus)
+        {
+            StringBuilder message = new StringBuilder();
+            String failedMessage =
+                    String.format("Eager archiving of dataset '%s' has failed. \n", dataSetCode);
+            message.append(failedMessage);
+            for (Status status : processingStatus.getErrorStatuses()) {
+                if (status.tryGetErrorMessage() != null)
+                {
+                    message.append("Error encountered : " + status.tryGetErrorMessage());
+                    message.append("\n");
+                }
+            }
+            String footer =
+                    String.format("If you wish to archive the dataset in the future, "
+                            + "you can configure an '%s'.", AutoArchiverTask.class.getSimpleName());
+            message.append(footer);
+            
+            notificationLog.error(message);
         }
 
         public ICleanupTask createCleanupTask()

@@ -361,7 +361,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
 
     public IDataSetDirectoryProvider getDataSetDirectoryProvider()
     {
-        return new DataSetDirectoryProvider(storeRoot, shareIdManager);
+        return new DataSetDirectoryProvider(storeRoot, getShareIdManager());
     }
 
     private void scheduleTask(String sessionToken, String description,
