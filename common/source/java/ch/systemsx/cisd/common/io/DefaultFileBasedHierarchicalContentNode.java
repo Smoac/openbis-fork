@@ -58,7 +58,8 @@ class DefaultFileBasedHierarchicalContentNode extends AbstractHierarchicalConten
         return file.getName();
     }
 
-    public String getRelativePath()
+    @Override
+    public String doGetRelativePath()
     {
         return FileUtilities.getRelativeFile(root.getRootNode().getFile(), file);
     }

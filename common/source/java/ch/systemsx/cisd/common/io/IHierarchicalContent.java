@@ -29,12 +29,15 @@ public interface IHierarchicalContent
     /** Returns root node. */
     IHierarchicalContentNode getRootNode();
 
-    /** Returns node with specified relative path starting from root node. */
+    /**
+     * Returns node with specified <var>relativePath</var> starting from root node. If the path is
+     * <code>null<code> or an empty string then the root node is returned.
+     */
     IHierarchicalContentNode getNode(String relativePath);
 
     /**
      * Returns list of all file nodes in this hierarchy with names matching given
-     * <code>pattern</code>.
+     * <var>pattern</var>.
      * <p>
      * NOTE: this operation may be expensive for huge hierarchies
      */

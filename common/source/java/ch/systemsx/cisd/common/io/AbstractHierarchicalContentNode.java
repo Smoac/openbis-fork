@@ -36,6 +36,9 @@ public abstract class AbstractHierarchicalContentNode implements IHierarchicalCo
     static final String OPERATION_SUPPORTED_ONLY_FOR_A_DIRECTORY =
             "Operation supported only for a directory";
 
+    /** Returns relative path of this node or <code>null</code> for root node. */
+    abstract protected String doGetRelativePath();
+
     /** Returns list of child nodes of a node known to be a directory. */
     abstract protected List<IHierarchicalContentNode> doGetChildNodes();
 
@@ -47,6 +50,17 @@ public abstract class AbstractHierarchicalContentNode implements IHierarchicalCo
 
     /** Returns {@link InputStream} of a node known NOT to be a directory. */
     abstract protected InputStream doGetInputStream();
+
+    private String relativePath; // lazily initialized and cached
+
+    public final String getRelativePath()
+    {
+        if (relativePath == null)
+        {
+            relativePath = doGetRelativePath();
+        }
+        return relativePath;
+    }
 
     private final void requireDirectory()
     {

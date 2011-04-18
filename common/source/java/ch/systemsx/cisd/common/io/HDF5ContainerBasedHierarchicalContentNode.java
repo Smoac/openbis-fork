@@ -172,7 +172,8 @@ class HDF5ContainerBasedHierarchicalContentNode extends DefaultFileBasedHierarch
             return groupName;
         }
 
-        public String getRelativePath()
+        @Override
+        public String doGetRelativePath()
         {
             return containerNode.getRelativePath() + File.separator + relativePath;
         }
@@ -251,14 +252,15 @@ class HDF5ContainerBasedHierarchicalContentNode extends DefaultFileBasedHierarch
             return fileName;
         }
 
-        public String getRelativePath()
+        @Override
+        public String doGetRelativePath()
         {
             return containerNode.getRelativePath() + File.separator + relativePath;
         }
 
         public boolean exists()
         {
-            return true; // getContent().exists();
+            return getContent().exists();
         }
 
         public boolean isDirectory()

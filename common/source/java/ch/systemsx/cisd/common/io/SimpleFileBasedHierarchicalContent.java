@@ -162,7 +162,8 @@ class SimpleFileBasedHierarchicalContent implements IHierarchicalContent
             return file.getName();
         }
 
-        public String getRelativePath()
+        @Override
+        public String doGetRelativePath()
         {
             return FileUtilities.getRelativeFile(root.getRootNode().getFile(), file);
         }

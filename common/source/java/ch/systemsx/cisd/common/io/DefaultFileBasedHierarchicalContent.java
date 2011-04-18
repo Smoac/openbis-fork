@@ -34,15 +34,15 @@ import ch.systemsx.cisd.common.utilities.IDelegatedAction;
  */
 class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
 {
-    private final HierarchicalContentFactory hierarchicalContentFactory;
+    private final IHierarchicalContentFactory hierarchicalContentFactory;
 
     private final File root;
 
-    private final IHierarchicalContentNode rootNode;
-
     private final IDelegatedAction onCloseAction;
 
-    DefaultFileBasedHierarchicalContent(HierarchicalContentFactory hierarchicalContentFactory,
+    private IHierarchicalContentNode rootNode;
+
+    DefaultFileBasedHierarchicalContent(IHierarchicalContentFactory hierarchicalContentFactory,
             File file, IDelegatedAction onCloseAction)
     {
         assert hierarchicalContentFactory != null;
@@ -57,11 +57,14 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
         this.hierarchicalContentFactory = hierarchicalContentFactory;
         this.onCloseAction = onCloseAction;
         this.root = file;
-        this.rootNode = createFileNode(root);
     }
 
     public IHierarchicalContentNode getRootNode()
     {
+        if (rootNode == null)
+        {
+            rootNode = createFileNode(root);
+        }
         return rootNode;
     }
 
@@ -89,7 +92,7 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
         {
             existingFile = existingFile.getParentFile();
         }
-        if (existingFile != null && HierarchicalContentFactory.isHDF5ContainerFile(existingFile))
+        if (existingFile != null && FileUtilities.isHDF5ContainerFile(existingFile))
         {
             HDF5ContainerBasedHierarchicalContentNode containerNode =
                     new HDF5ContainerBasedHierarchicalContentNode(hierarchicalContentFactory, this,

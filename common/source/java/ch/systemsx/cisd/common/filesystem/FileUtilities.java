@@ -1190,6 +1190,17 @@ public final class FileUtilities
     }
 
     /**
+     * For given <var>file</var> returns true if it is an HDF5 container/archive based on filename
+     * extension.
+     * 
+     * @returns <code>true</code> if and only if <var>file</var> has 'h5' or 'h5ar' as extension
+     */
+    public final static boolean isHDF5ContainerFile(File file)
+    {
+        return FilenameUtils.isExtension(file.getName().toLowerCase(), Arrays.asList("h5", "h5ar"));
+    }
+
+    /**
      * Lists all resources in a given directory.
      * 
      * @param directory the directory to list

@@ -17,10 +17,8 @@
 package ch.systemsx.cisd.common.io;
 
 import java.io.File;
-import java.util.Arrays;
 
-import org.apache.commons.io.FilenameUtils;
-
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.IDelegatedAction;
 
 /**
@@ -38,15 +36,11 @@ public class HierarchicalContentFactory implements IHierarchicalContentFactory
     public IHierarchicalContentNode asHierarchicalContentNode(IHierarchicalContent rootContent,
             File file)
     {
-        if (isHDF5ContainerFile(file))
+        if (FileUtilities.isHDF5ContainerFile(file))
         {
             return new HDF5ContainerBasedHierarchicalContentNode(this, rootContent, file);
         }
         return new DefaultFileBasedHierarchicalContentNode(this, rootContent, file);
     }
 
-    public static boolean isHDF5ContainerFile(File file)
-    {
-        return FilenameUtils.isExtension(file.getName(), Arrays.asList("h5", "h5ar"));
-    }
 }
