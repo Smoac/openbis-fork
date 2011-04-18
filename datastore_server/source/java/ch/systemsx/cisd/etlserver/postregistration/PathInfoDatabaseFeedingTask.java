@@ -17,19 +17,20 @@
 package ch.systemsx.cisd.etlserver.postregistration;
 
 import java.io.File;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Properties;
 
-import javax.sql.DataSource;
+import net.lemnik.eodsql.QueryTool;
 
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.io.HierarchicalContentFactory;
+import ch.systemsx.cisd.common.io.IHierarchicalContentFactory;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.path.DatabaseBasedDataSetPathsInfoFeeder;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
+import ch.systemsx.cisd.etlserver.path.IPathsInfoDAO;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
@@ -46,24 +47,29 @@ public class PathInfoDatabaseFeedingTask extends AbstractPostRegistrationTask
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             PathInfoDatabaseFeedingTask.class);
     
-    private final IShareIdManager shareIdManager;
-    private final IConfigProvider configProvider;
-    private final DataSource dataSource;
+    private final IDataSetDirectoryProvider directoryProvider;
+
+    private final IPathsInfoDAO dao;
+
+    private final IHierarchicalContentFactory hierarchicalContentFactory;
 
     public PathInfoDatabaseFeedingTask(Properties properties, IEncapsulatedOpenBISService service)
     {
-        this(properties, service, ServiceProvider.getShareIdManager(), ServiceProvider
-                .getConfigProvider(), PathInfoDataSourceProvider.getDataSource());
+        this(properties, service, ServiceProvider.getDataStoreService()
+                .getDataSetDirectoryProvider(), QueryTool.getQuery(
+                PathInfoDataSourceProvider.getDataSource(), IPathsInfoDAO.class),
+                new HierarchicalContentFactory());
     }
     
     @Private
     PathInfoDatabaseFeedingTask(Properties properties, IEncapsulatedOpenBISService service,
-            IShareIdManager shareIdManager, IConfigProvider configProvider, DataSource dataSource)
+            IDataSetDirectoryProvider directoryProvider, IPathsInfoDAO dao,
+            IHierarchicalContentFactory hierarchicalContentFactory)
     {
         super(properties, service);
-        this.shareIdManager = shareIdManager;
-        this.configProvider = configProvider;
-        this.dataSource = dataSource;
+        this.directoryProvider = directoryProvider;
+        this.dao = dao;
+        this.hierarchicalContentFactory = hierarchicalContentFactory;
     }
 
     public boolean requiresDataStoreLock()
@@ -98,11 +104,9 @@ public class PathInfoDatabaseFeedingTask extends AbstractPostRegistrationTask
                 operationLog.error("Data set " + dataSetCode + " unknown by openBIS.");
                 return;
             }
-            String location = dataSet.getLocation();
+            IShareIdManager shareIdManager = directoryProvider.getShareIdManager();
             shareIdManager.lock(dataSetCode);
-            File share =
-                    new File(configProvider.getStoreRoot(), shareIdManager.getShareId(dataSetCode));
-            File dataSetRoot = new File(share, location);
+            File dataSetRoot = directoryProvider.getDataSetDirectory(dataSet);
             if (dataSetRoot.exists() == false)
             {
                 operationLog.error("Root directory of data set " + dataSetCode
@@ -111,55 +115,28 @@ public class PathInfoDatabaseFeedingTask extends AbstractPostRegistrationTask
                 return;
             }
 
-            Connection connection = null;
             try
             {
-                connection = dataSource.getConnection();
                 DatabaseBasedDataSetPathsInfoFeeder feeder =
-                        new DatabaseBasedDataSetPathsInfoFeeder(connection);
-                feeder.addPaths(dataSetCode, location, dataSetRoot);
-                connection.commit();
+                        new DatabaseBasedDataSetPathsInfoFeeder(dao, hierarchicalContentFactory);
+                feeder.addPaths(dataSetCode, dataSet.getLocation(), dataSetRoot);
+                dao.commit();
                 operationLog.info("Successfully added paths inside data set " + dataSetCode
                         + " to database.");
-            } catch (SQLException ex)
+            } catch (Exception ex)
             {
-                handleException(ex, connection);
+                handleException(ex);
             } finally
             {
-                closeConnection(connection);
                 shareIdManager.releaseLocks();
             }
         }
 
-        private void handleException(SQLException ex, Connection connection)
+        private void handleException(Exception ex)
         {
             operationLog.error("Couldn't feed database with path infos of data set " + dataSetCode,
                     ex);
-            if (connection != null)
-            {
-                try
-                {
-                    connection.rollback();
-                } catch (SQLException ex1)
-                {
-                    operationLog.error("Couldn't rollback path info feeding for data set "
-                            + dataSetCode, ex1);
-                }
-            }
-        }
-
-        private void closeConnection(Connection connection)
-        {
-            if (connection != null)
-            {
-                try
-                {
-                    connection.close();
-                } catch (SQLException ex)
-                {
-                    operationLog.error("Couldn't close connection", ex);
-                }
-            }
+            dao.rollback();
         }
         
     }

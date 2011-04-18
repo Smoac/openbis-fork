@@ -43,7 +43,7 @@ public class DatabaseBasedDataSetPathsInfoFeeder implements IDataSetPathsInfoFee
         this(QueryTool.getQuery(connection, IPathsInfoDAO.class), new HierarchicalContentFactory());
     }
     
-    DatabaseBasedDataSetPathsInfoFeeder(IPathsInfoDAO dao,
+    public DatabaseBasedDataSetPathsInfoFeeder(IPathsInfoDAO dao,
             IHierarchicalContentFactory hierarchicalContentFactory)
     {
         this.dao = dao;
