@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.postregistration;
+package ch.systemsx.cisd.etlserver.path;
 
 import static ch.systemsx.cisd.common.utilities.IDelegatedAction.DO_NOTHING;
 
@@ -34,6 +34,7 @@ import ch.systemsx.cisd.common.io.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.IHierarchicalContentFactory;
 import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
 import ch.systemsx.cisd.etlserver.path.IPathsInfoDAO;
+import ch.systemsx.cisd.etlserver.path.PathInfoDatabaseFeedingTask;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.postregistration;
+package ch.systemsx.cisd.etlserver.path;
 
 import java.io.File;
 import java.util.Properties;
@@ -28,8 +28,10 @@ import ch.systemsx.cisd.common.io.HierarchicalContentFactory;
 import ch.systemsx.cisd.common.io.IHierarchicalContentFactory;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.etlserver.path.DatabaseBasedDataSetPathsInfoFeeder;
-import ch.systemsx.cisd.etlserver.path.IPathsInfoDAO;
+import ch.systemsx.cisd.etlserver.postregistration.AbstractPostRegistrationTask;
+import ch.systemsx.cisd.etlserver.postregistration.ICleanupTask;
+import ch.systemsx.cisd.etlserver.postregistration.IPostRegistrationTaskExecutor;
+import ch.systemsx.cisd.etlserver.postregistration.NoCleanupTask;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
