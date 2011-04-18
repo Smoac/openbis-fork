@@ -16,13 +16,12 @@
 
 package ch.systemsx.cisd.common.io;
 
-
 /**
  * A filter for abstract {@link IHierarchicalContentNode}.
  * 
  * @author Piotr Buczek
  */
-interface IHierarchicalContentNodeFilter
+public interface IHierarchicalContentNodeFilter
 {
     /**
      * Tests whether or not the specified abstract node should be included in a node list.
