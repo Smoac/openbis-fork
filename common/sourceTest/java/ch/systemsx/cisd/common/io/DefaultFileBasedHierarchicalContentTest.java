@@ -326,7 +326,7 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
     }
 
     @Test
-    public void testListMatchingNodesFromRoot()
+    public void testListMatchingNodesWithRelativePathPattern()
     {
         final DefaultFileBasedHierarchicalContent rootContent = createContent(rootDir);
 
@@ -343,65 +343,82 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
         assertEquals(0, rootContent.listMatchingNodes(".*non-mathching-pattern.*").size());
 
         // matches in 1 level
-        List<IHierarchicalContentNode> matchingNodes1 = rootContent.listMatchingNodes("^file.*");
+        List<IHierarchicalContentNode> matchingNodes1 = rootContent.listMatchingNodes("file.?");
         assertEquals(2, matchingNodes1.size());
         assertEquals(file1, matchingNodes1.get(0).getFile());
         assertEquals(file2, matchingNodes1.get(1).getFile());
 
-        // matches in 2 levels
+        // matches only in 2 level
         List<IHierarchicalContentNode> matchingNodes2 =
-                rootContent.listMatchingNodes(".*[fF]ile.*");
-        assertEquals(6, matchingNodes2.size());
-        checkNodeMatchesFile(matchingNodes2.get(0), file1);
-        checkNodeMatchesFile(matchingNodes2.get(1), file2);
-        checkNodeMatchesFile(matchingNodes2.get(2), subFile1);
-        checkNodeMatchesFile(matchingNodes2.get(3), subFile2);
-        checkNodeMatchesFile(matchingNodes2.get(4), subFile3);
-        checkNodeMatchesFile(matchingNodes2.get(5), subSubFile);
+                rootContent.listMatchingNodes("subDir/subFile.?");
+        assertEquals(3, matchingNodes2.size());
+        checkNodeMatchesFile(matchingNodes2.get(0), subFile1);
+        checkNodeMatchesFile(matchingNodes2.get(1), subFile2);
+        checkNodeMatchesFile(matchingNodes2.get(2), subFile3);
+
+        // matches in 3 levels
+        List<IHierarchicalContentNode> matchingNodes3 =
+                rootContent.listMatchingNodes(".*[fF]ile.?");
+        assertEquals(6, matchingNodes3.size());
+        checkNodeMatchesFile(matchingNodes3.get(0), file1);
+        checkNodeMatchesFile(matchingNodes3.get(1), file2);
+        checkNodeMatchesFile(matchingNodes3.get(2), subFile1);
+        checkNodeMatchesFile(matchingNodes3.get(3), subFile2);
+        checkNodeMatchesFile(matchingNodes3.get(4), subFile3);
+        checkNodeMatchesFile(matchingNodes3.get(5), subSubFile);
+
+        // matches in levels > 1
+        List<IHierarchicalContentNode> matchingSubDirFiles =
+                rootContent.listMatchingNodes("subDir/.*");
+        assertEquals(4, matchingSubDirFiles.size());
+        checkNodeMatchesFile(matchingSubDirFiles.get(0), subFile1);
+        checkNodeMatchesFile(matchingSubDirFiles.get(1), subFile2);
+        checkNodeMatchesFile(matchingSubDirFiles.get(2), subFile3);
+        checkNodeMatchesFile(matchingSubDirFiles.get(3), subSubFile);
 
         context.assertIsSatisfied();
     }
 
-    @Test(groups = "broken")
-    public void testListMatchingNodesFromRootWithHDF5Container() throws IOExceptionUnchecked,
-            UnsupportedOperationException, IOException
-    {
-        // create HDF5 container with subDir contents
-        final File subContainerDir = new File(rootDir, "subDir.h5");
-        createHDF5Container(subContainerDir, subDir);
-
-        final DefaultFileBasedHierarchicalContent rootContent = createContent(rootDir);
-
-        context.checking(new Expectations()
-            {
-                {
-                    // root node should be created only once even though we access it many times
-                    one(hierarchicalContentFactory).asHierarchicalContentNode(rootContent, rootDir);
-                    will(returnValue(createDummyFileBasedRootNode(rootDir)));
-                }
-            });
-
-        // matches in 2 levels and container
-        List<IHierarchicalContentNode> matchingNodes = rootContent.listMatchingNodes(".*[fF]ile.*");
-        assertEquals(10, matchingNodes.size());
-        // normal files
-        checkNodeMatchesFile(matchingNodes.get(0), file1);
-        checkNodeMatchesFile(matchingNodes.get(1), file2);
-        checkNodeMatchesFile(matchingNodes.get(2), subFile1);
-        checkNodeMatchesFile(matchingNodes.get(3), subFile2);
-        checkNodeMatchesFile(matchingNodes.get(4), subFile3);
-        checkNodeMatchesFile(matchingNodes.get(5), subSubFile);
-        // container
-        checkHDF5ContainerFileNodeMatchesFile(matchingNodes.get(6), subFile1);
-        checkHDF5ContainerFileNodeMatchesFile(matchingNodes.get(7), subFile2);
-        checkHDF5ContainerFileNodeMatchesFile(matchingNodes.get(8), subFile2);
-        checkHDF5ContainerFileNodeMatchesFile(matchingNodes.get(9), subSubFile);
-
-        context.assertIsSatisfied();
-    }
+    // @Test(groups = "broken")
+    // public void testListMatchingNodesFromRootWithHDF5Container() throws IOExceptionUnchecked,
+    // UnsupportedOperationException, IOException
+    // {
+    // // create HDF5 container with subDir contents
+    // final File subContainerDir = new File(rootDir, "subDir.h5");
+    // createHDF5Container(subContainerDir, subDir);
+    //
+    // final DefaultFileBasedHierarchicalContent rootContent = createContent(rootDir);
+    //
+    // context.checking(new Expectations()
+    // {
+    // {
+    // // root node should be created only once even though we access it many times
+    // one(hierarchicalContentFactory).asHierarchicalContentNode(rootContent, rootDir);
+    // will(returnValue(createDummyFileBasedRootNode(rootDir)));
+    // }
+    // });
+    //
+    // // matches in 2 levels and container
+    // List<IHierarchicalContentNode> matchingNodes = rootContent.listMatchingNodes(".*[fF]ile.*");
+    // assertEquals(10, matchingNodes.size());
+    // // normal files
+    // checkNodeMatchesFile(matchingNodes.get(0), file1);
+    // checkNodeMatchesFile(matchingNodes.get(1), file2);
+    // checkNodeMatchesFile(matchingNodes.get(2), subFile1);
+    // checkNodeMatchesFile(matchingNodes.get(3), subFile2);
+    // checkNodeMatchesFile(matchingNodes.get(4), subFile3);
+    // checkNodeMatchesFile(matchingNodes.get(5), subSubFile);
+    // // container
+    // checkHDF5ContainerFileNodeMatchesFile(matchingNodes.get(6), subFile1);
+    // checkHDF5ContainerFileNodeMatchesFile(matchingNodes.get(7), subFile2);
+    // checkHDF5ContainerFileNodeMatchesFile(matchingNodes.get(8), subFile2);
+    // checkHDF5ContainerFileNodeMatchesFile(matchingNodes.get(9), subSubFile);
+    //
+    // context.assertIsSatisfied();
+    // }
 
     @Test
-    public void testListMatchingNodesWithStartingPoint()
+    public void testListMatchingNodesWithStartingPath()
     {
         final DefaultFileBasedHierarchicalContent rootContent = createContent(rootDir);
 
@@ -425,7 +442,7 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
     }
 
     @Test
-    public void testListMatchingNodesWithStartingPointInsideHDF5Container()
+    public void testListMatchingNodesWithStartingPathInsideHDF5Container()
             throws IOExceptionUnchecked, UnsupportedOperationException, IOException
     {
         // create HDF5 container with subDir contents
@@ -455,7 +472,7 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
     }
 
     @Test
-    public void testListMatchingNodesWithFakeStartingPointFails()
+    public void testListMatchingNodesWithFakeStartingPathFails()
     {
         final DefaultFileBasedHierarchicalContent rootContent = createContent(rootDir);
 
