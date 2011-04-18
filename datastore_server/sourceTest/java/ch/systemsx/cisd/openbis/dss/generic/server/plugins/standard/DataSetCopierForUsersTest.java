@@ -174,7 +174,8 @@ public class DataSetCopierForUsersTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(pathFactory).create(rsyncExecutableDummy, sshExecutableDummy);
+                    one(pathFactory).create(rsyncExecutableDummy, sshExecutableDummy,
+                            DataSetCopier.SSH_TIMEOUT_MILLIS);
                     will(returnValue(copier));
 
                     one(sshFactory).create(sshExecutableDummy, null);

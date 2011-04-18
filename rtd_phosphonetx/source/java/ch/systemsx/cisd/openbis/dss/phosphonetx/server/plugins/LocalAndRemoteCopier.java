@@ -101,7 +101,9 @@ class LocalAndRemoteCopier implements Serializable, IPostRegistrationDatasetHand
         {
             File sshExecutable = null; // don't use ssh locally
             File rsyncExecutable = Copier.getExecutable(properties, DataSetCopier.RSYNC_EXEC);
-            IPathCopier copier = pathCopierFactory.create(rsyncExecutable, sshExecutable);
+            IPathCopier copier =
+                    pathCopierFactory.create(rsyncExecutable, sshExecutable,
+                            DataSetCopier.SSH_TIMEOUT_MILLIS);
             copier.check();
             String rsyncModule = hostAwareFile.tryGetRsyncModule();
             String rsyncPasswordFile =
@@ -115,7 +117,9 @@ class LocalAndRemoteCopier implements Serializable, IPostRegistrationDatasetHand
             File sshExecutable = Copier.getExecutable(properties, DataSetCopier.SSH_EXEC);
             File rsyncExecutable = Copier.getExecutable(properties, DataSetCopier.RSYNC_EXEC);
             File gfindExecutable = Copier.getExecutable(properties, DataSetCopier.GFIND_EXEC);
-            IPathCopier copier = pathCopierFactory.create(rsyncExecutable, sshExecutable);
+            IPathCopier copier =
+                    pathCopierFactory.create(rsyncExecutable, sshExecutable,
+                            DataSetCopier.SSH_TIMEOUT_MILLIS);
             copier.check();
             String rsyncModule = hostAwareFile.tryGetRsyncModule();
             String rsyncPasswordFile =
@@ -126,7 +130,8 @@ class LocalAndRemoteCopier implements Serializable, IPostRegistrationDatasetHand
                     sshCommandExecutorFactory.create(sshExecutable, hostOrNull);
             executor =
                     new RemoteDataSetFileOperationsExecutor(sshCommandExecutor, copier,
-                            gfindExecutable, hostOrNull, rsyncModule, rsyncPasswordFile);
+                            gfindExecutable, hostOrNull, rsyncModule, rsyncPasswordFile,
+                            DataSetCopier.SSH_TIMEOUT_MILLIS);
         }
     }
 

@@ -36,7 +36,6 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.ProcessResult;
 import ch.systemsx.cisd.common.utilities.StringUtilities;
 import ch.systemsx.cisd.openbis.dss.generic.server.LocalDataSetFileOperationsExcecutor.FolderFileSizesReportGenerator;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DataSetCopier;
 
 public final class RemoteDataSetFileOperationsExecutor implements IDataSetFileOperationsExecutor
 {
@@ -56,9 +55,11 @@ public final class RemoteDataSetFileOperationsExecutor implements IDataSetFileOp
 
     private final File gfindExecutable;
 
+    private final long timeoutInMillis;
+
     public RemoteDataSetFileOperationsExecutor(ISshCommandExecutor executor, IPathCopier copier,
             File gfindExecutable, String host, String rsyncModuleNameOrNull,
-            String rsyncPasswordFileOrNull)
+            String rsyncPasswordFileOrNull, long timeoutInMillis)
     {
         this.executor = executor;
         this.copier = copier;
@@ -66,18 +67,18 @@ public final class RemoteDataSetFileOperationsExecutor implements IDataSetFileOp
         this.rsyncModuleNameOrNull = rsyncModuleNameOrNull;
         this.rsyncPasswordFileOrNull = rsyncPasswordFileOrNull;
         this.gfindExecutable = gfindExecutable;
+        this.timeoutInMillis = timeoutInMillis;
     }
 
     public BooleanStatus exists(File file)
     {
-        return executor.exists(file.getPath(), DataSetCopier.SSH_TIMEOUT_MILLIS);
+        return executor.exists(file.getPath(), timeoutInMillis);
     }
 
     public void deleteFolder(File folder)
     {
         ProcessResult result =
-                executor.executeCommandRemotely("rm -rf " + folder.getPath(),
-                        DataSetCopier.SSH_TIMEOUT_MILLIS);
+                executor.executeCommandRemotely("rm -rf " + folder.getPath(), timeoutInMillis);
         if (result.isOK() == false)
         {
             operationLog.error("Remote deletion of '" + folder + "' failed with exit value: "
@@ -97,8 +98,7 @@ public final class RemoteDataSetFileOperationsExecutor implements IDataSetFileOp
     public void createFolder(File folder)
     {
         ProcessResult result =
-                executor.executeCommandRemotely("mkdir -p " + folder.getPath(),
-                        DataSetCopier.SSH_TIMEOUT_MILLIS);
+                executor.executeCommandRemotely("mkdir -p " + folder.getPath(), timeoutInMillis);
         if (result.isOK() == false)
         {
             operationLog.error("Remote creation of '" + folder + "' failed with exit value: "
@@ -148,8 +148,7 @@ public final class RemoteDataSetFileOperationsExecutor implements IDataSetFileOp
     {
         ProcessResult result =
                 executor.executeCommandRemotely(
-                        "mv " + oldFile.getPath() + " " + newFile.getPath(),
-                        DataSetCopier.SSH_TIMEOUT_MILLIS);
+                        "mv " + oldFile.getPath() + " " + newFile.getPath(), timeoutInMillis);
         if (result.isOK() == false)
         {
             operationLog.error("Remote move of '" + oldFile + "' to '" + newFile
@@ -169,8 +168,7 @@ public final class RemoteDataSetFileOperationsExecutor implements IDataSetFileOp
     public void createMarkerFile(File markerFile)
     {
         ProcessResult result =
-                executor.executeCommandRemotely("touch " + markerFile.getPath(),
-                        DataSetCopier.SSH_TIMEOUT_MILLIS);
+                executor.executeCommandRemotely("touch " + markerFile.getPath(), timeoutInMillis);
         if (result.isOK() == false)
         {
             operationLog.error("Creation of marker file '" + markerFile
@@ -195,7 +193,7 @@ public final class RemoteDataSetFileOperationsExecutor implements IDataSetFileOp
             return BooleanStatus.createFalse("Data set location '" + dataSet + "' doesn't exist");
         }
         BooleanStatus existsStatus =
-                executor.exists(destination.getPath(), DataSetCopier.SSH_TIMEOUT_MILLIS);
+ executor.exists(destination.getPath(), timeoutInMillis);
         if (false == existsStatus.isSuccess())
         {
             return existsStatus;
@@ -206,7 +204,7 @@ public final class RemoteDataSetFileOperationsExecutor implements IDataSetFileOp
                 FolderFileSizesReportGenerator.extractSizesByPaths(storeFiles, dataSet);
         String cmd = createListFilesWithFileSizeCmd(destination.getPath(), gfindExecutable);
         ProcessResult result =
-                executor.executeCommandRemotely(cmd, DataSetCopier.SSH_TIMEOUT_MILLIS);
+ executor.executeCommandRemotely(cmd, timeoutInMillis);
 
         if (result.isOK() == false)
         {

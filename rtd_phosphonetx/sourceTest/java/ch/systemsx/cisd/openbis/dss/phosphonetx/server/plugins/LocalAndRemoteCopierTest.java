@@ -198,7 +198,7 @@ public class LocalAndRemoteCopierTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(copierFactory).create(rsyncExec, sshExec);
+                    one(copierFactory).create(rsyncExec, sshExec, DataSetCopier.SSH_TIMEOUT_MILLIS);
                     will(returnValue(copier));
 
                     one(copier).check();

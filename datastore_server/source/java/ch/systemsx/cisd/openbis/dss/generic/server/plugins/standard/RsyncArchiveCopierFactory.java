@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 import java.io.File;
 import java.io.Serializable;
 
+import org.apache.commons.lang.time.DateUtils;
+
 import ch.systemsx.cisd.common.filesystem.IPathCopier;
 import ch.systemsx.cisd.common.filesystem.rsync.RsyncCopier;
 
@@ -37,9 +39,15 @@ public final class RsyncArchiveCopierFactory implements Serializable, IPathCopie
 {
     private static final long serialVersionUID = 1L;
 
-    public IPathCopier create(File rsyncExecutable, File sshExecutableOrNull)
+    public IPathCopier create(File rsyncExecutable, File sshExecutableOrNull, long timeoutInMillis)
     {
         return new RsyncCopier(rsyncExecutable, sshExecutableOrNull, "--archive", "--delete",
-                "--inplace", "--checksum");
+                "--inplace", "--checksum", getTimeoutParameter(timeoutInMillis));
+    }
+
+    private String getTimeoutParameter(long timeoutInMillis)
+    {
+        long timeoutInSeconds = timeoutInMillis / DateUtils.MILLIS_PER_SECOND;
+        return "--timeout=" + timeoutInSeconds;
     }
 }

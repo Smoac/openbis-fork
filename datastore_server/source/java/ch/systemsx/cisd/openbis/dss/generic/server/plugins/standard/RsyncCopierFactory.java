@@ -26,7 +26,7 @@ public final class RsyncCopierFactory implements Serializable, IPathCopierFactor
 {
     private static final long serialVersionUID = 1L;
 
-    public IPathCopier create(File rsyncExecutable, File sshExecutableOrNull)
+    public IPathCopier create(File rsyncExecutable, File sshExecutableOrNull, long timeoutInMillis)
     {
         return new RsyncCopier(rsyncExecutable, sshExecutableOrNull, false, false);
     }

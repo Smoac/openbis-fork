@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 import java.io.File;
 import java.util.Properties;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
@@ -56,6 +57,9 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
     static final String DESTINATION_KEY = "destination";
 
     @Private
+    static final String TIMEOUT_KEY = "timeout";
+
+    @Private
     static final String RSYNC_PASSWORD_FILE_KEY = "rsync-password-file";
 
     @Private
@@ -74,11 +78,13 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
     static final String GFIND_EXEC = "find";
 
     @Private
-    static final long SSH_TIMEOUT_MILLIS = 15 * 1000; // 15s
+    static final long DEFAULT_TIMEOUT_SECONDS = 15;
 
     private final IDataSetFileOperationsExecutor executor;
 
     private final File destination;
+
+    private final long timeoutInMillis;
 
     public DataSetFileOperationsManager(Properties properties,
             IPathCopierFactory pathCopierFactory,
@@ -89,12 +95,16 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
         String hostOrNull = hostAwareFile.tryGetHost();
 
         this.destination = hostAwareFile.getFile();
+        long timeoutInSeconds =
+                PropertyUtils.getLong(properties, TIMEOUT_KEY, DEFAULT_TIMEOUT_SECONDS);
+        this.timeoutInMillis = timeoutInSeconds * DateUtils.MILLIS_PER_SECOND;
 
         if (hostOrNull == null)
         {
             File sshExecutable = null; // don't use ssh locally
             File rsyncExecutable = Copier.getExecutable(properties, RSYNC_EXEC);
-            IPathCopier copier = pathCopierFactory.create(rsyncExecutable, sshExecutable);
+            IPathCopier copier =
+                    pathCopierFactory.create(rsyncExecutable, sshExecutable, timeoutInMillis);
             copier.check();
             String rsyncModule = hostAwareFile.tryGetRsyncModule();
             String rsyncPasswordFile = properties.getProperty(RSYNC_PASSWORD_FILE_KEY);
@@ -107,17 +117,20 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
             File sshExecutable = Copier.getExecutable(properties, SSH_EXEC);
             File rsyncExecutable = Copier.getExecutable(properties, RSYNC_EXEC);
             File gfindExecutable = Copier.getExecutable(properties, GFIND_EXEC);
-            IPathCopier copier = pathCopierFactory.create(rsyncExecutable, sshExecutable);
+            
+            IPathCopier copier =
+                    pathCopierFactory.create(rsyncExecutable, sshExecutable, timeoutInMillis);
             copier.check();
             String rsyncModule = hostAwareFile.tryGetRsyncModule();
             String rsyncPasswordFile = properties.getProperty(RSYNC_PASSWORD_FILE_KEY);
             FileUtilities.checkPathCopier(copier, hostOrNull, null, rsyncModule, rsyncPasswordFile,
-                    SSH_TIMEOUT_MILLIS);
+                    timeoutInMillis);
             ISshCommandExecutor sshCommandExecutor =
                     sshCommandExecutorFactory.create(sshExecutable, hostOrNull);
             this.executor =
                     new RemoteDataSetFileOperationsExecutor(sshCommandExecutor, copier,
-                            gfindExecutable, hostOrNull, rsyncModule, rsyncPasswordFile);
+                            gfindExecutable, hostOrNull, rsyncModule, rsyncPasswordFile,
+                            timeoutInMillis);
 
         }
     }

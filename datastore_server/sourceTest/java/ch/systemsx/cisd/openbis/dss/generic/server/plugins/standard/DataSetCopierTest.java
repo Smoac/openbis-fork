@@ -655,7 +655,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
             {
                 {
                     exactly(numberOfExpectedCreations).of(pathFactory).create(rsyncExecutableDummy,
-                            sshExecutableDummy);
+                            sshExecutableDummy, DataSetCopier.SSH_TIMEOUT_MILLIS);
                     will(returnValue(copier));
 
                     exactly(numberOfExpectedCreations).of(sshFactory).create(sshExecutableDummy,

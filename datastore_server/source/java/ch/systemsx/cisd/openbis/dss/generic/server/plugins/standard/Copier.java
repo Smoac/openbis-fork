@@ -88,7 +88,9 @@ public class Copier implements Serializable, IPostRegistrationDatasetHandler
         ISshCommandExecutor sshCommandExecutor =
                 sshCommandExecutorFactory.create(sshExecutable, host);
         String rsyncModule = hostAwareFile.tryGetRsyncModule();
-        IPathCopier copier = pathCopierFactory.create(rsyncExecutable, sshExecutable);
+        IPathCopier copier =
+                pathCopierFactory.create(rsyncExecutable, sshExecutable,
+                        DataSetCopier.SSH_TIMEOUT_MILLIS);
         copier.check();
         if (host != null)
         {

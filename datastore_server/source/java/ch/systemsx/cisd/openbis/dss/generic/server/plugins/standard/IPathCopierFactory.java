@@ -22,5 +22,5 @@ import ch.systemsx.cisd.common.filesystem.IPathCopier;
 
 public interface IPathCopierFactory
 {
-    IPathCopier create(File rsyncExecutable, File sshExecutableOrNull);
+    IPathCopier create(File rsyncExecutable, File sshExecutableOrNull, long timeoutInMillis);
 }

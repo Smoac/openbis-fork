@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.AfterMethod;
@@ -64,7 +65,8 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
                 output, null, null, null);
     }
 
-    private static final long SSH_TIMEOUT_MILLIS = DataSetFileOperationsManager.SSH_TIMEOUT_MILLIS;
+    private static final long DEFAULT_TIMEOUT_MILLIS =
+            DataSetFileOperationsManager.DEFAULT_TIMEOUT_SECONDS * DateUtils.MILLIS_PER_SECOND;
 
     private static final String LOCATION_1 = "l1";
 
@@ -136,6 +138,8 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
 
     private File gfindExec;
 
+    private long timeoutInSeconds;
+
     @BeforeClass
     public void init()
     {
@@ -189,6 +193,8 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
         sshExec.createNewFile();
         gfindExec = new File(workingDirectory, "my-gfind");
         gfindExec.createNewFile();
+
+        timeoutInSeconds = 5;
     }
 
     private DatasetDescription createDataSetDescription(String dataSetCode, String location,
@@ -518,12 +524,12 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
                      * ds1: directory doesn't exist in archive -> create and copy
                      */
                     one(sshExecutor).exists(ds1ArchivedLocationFile.getParentFile().getPath(),
-                            SSH_TIMEOUT_MILLIS);
+                            timeoutMillis());
                     will(returnValue(BooleanStatus.createFalse()));
 
                     one(sshExecutor).executeCommandRemotely(
                             "mkdir -p " + ds1ArchivedLocationFile.getParentFile().getPath(),
-                            SSH_TIMEOUT_MILLIS);
+                            timeoutMillis());
                     will(returnValue(OK_RESULT));
 
                     one(copier).copyToRemote(ds1Location, ds1ArchivedLocationFile.getParentFile(),
@@ -534,9 +540,9 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
                      * ds2: directory exists in archive -> just copy
                      */
                     one(sshExecutor).exists(ds2ArchivedLocationFile.getParentFile().getPath(),
-                            SSH_TIMEOUT_MILLIS);
+                            timeoutMillis());
                     will(returnValue(BooleanStatus.createTrue()));
-                    one(sshExecutor).exists(ds2ArchivedLocationFile.getPath(), SSH_TIMEOUT_MILLIS);
+                    one(sshExecutor).exists(ds2ArchivedLocationFile.getPath(), timeoutMillis());
                     will(returnValue(BooleanStatus.createTrue()));
 
                     one(copier).copyToRemote(ds2Location, ds2ArchivedLocationFile.getParentFile(),
@@ -563,12 +569,12 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
             {
                 {
                     one(sshExecutor).exists(ds1ArchivedLocationFile.getParentFile().getPath(),
-                            SSH_TIMEOUT_MILLIS);
+                            timeoutMillis());
                     will(returnValue(BooleanStatus.createFalse()));
 
                     one(sshExecutor).executeCommandRemotely(
                             "mkdir -p " + ds1ArchivedLocationFile.getParentFile().getPath(),
-                            SSH_TIMEOUT_MILLIS);
+                            timeoutMillis());
                     will(returnValue(OK_RESULT));
 
                     one(copier).copyToRemote(ds1Location, ds1ArchivedLocationFile.getParentFile(),
@@ -592,7 +598,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(sshExecutor).exists(ds1ArchivedLocationFile.getPath(), SSH_TIMEOUT_MILLIS);
+                    one(sshExecutor).exists(ds1ArchivedLocationFile.getPath(), timeoutMillis());
                     will(returnValue(BooleanStatus.createTrue()));
                     one(copier).copyFromRemote(ds1ArchivedLocationFile, HOST,
                             ds1Location.getParentFile(), null, null);
@@ -617,13 +623,13 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
                     /*
                      * ds1: destination doesn't exist
                      */
-                    one(sshExecutor).exists(ds1ArchivedLocationFile.getPath(), SSH_TIMEOUT_MILLIS);
+                    one(sshExecutor).exists(ds1ArchivedLocationFile.getPath(), timeoutMillis());
                     will(returnValue(BooleanStatus.createFalse()));
 
                     /*
                      * ds2: copy failed
                      */
-                    one(sshExecutor).exists(ds2ArchivedLocationFile.getPath(), SSH_TIMEOUT_MILLIS);
+                    one(sshExecutor).exists(ds2ArchivedLocationFile.getPath(), timeoutMillis());
                     will(returnValue(BooleanStatus.createTrue()));
                     one(copier).copyFromRemote(ds2ArchivedLocationFile, HOST,
                             ds2Location.getParentFile(), null, null);
@@ -653,13 +659,13 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
                     /*
                      * ds1: error
                      */
-                    one(sshExecutor).exists(ds1ArchivedLocationFile.getPath(), SSH_TIMEOUT_MILLIS);
+                    one(sshExecutor).exists(ds1ArchivedLocationFile.getPath(), timeoutMillis());
                     will(returnValue(BooleanStatus.createError(DUMMY_ERROR_MESSAGE)));
 
                     /*
                      * ds2: not present - directory doesn't exist
                      */
-                    one(sshExecutor).exists(ds2ArchivedLocationFile.getPath(), SSH_TIMEOUT_MILLIS);
+                    one(sshExecutor).exists(ds2ArchivedLocationFile.getPath(), timeoutMillis());
                     will(returnValue(BooleanStatus.createFalse()));
                 }
             });
@@ -684,12 +690,12 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
                     /*
                      * ds1: directory is present but content is WRONG
                      */
-                    one(sshExecutor).exists(ds1ArchivedLocationFile.getPath(), SSH_TIMEOUT_MILLIS);
+                    one(sshExecutor).exists(ds1ArchivedLocationFile.getPath(), timeoutMillis());
                     will(returnValue(BooleanStatus.createTrue()));
 
                     one(sshExecutor).executeCommandRemotely(
                             gfindExec.getPath() + " " + ds1ArchivedLocationFile.getPath()
-                                    + " -type f -printf \"%p\\t%s\\n\"", SSH_TIMEOUT_MILLIS);
+                                    + " -type f -printf \"%p\\t%s\\n\"", timeoutMillis());
                     String filePath1 =
                             ds1ArchivedLocationFile.getPath() + File.separator
                                     + "original/data1_2.txt";
@@ -702,11 +708,11 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
                     /*
                      * ds2: directory is present and content is OK
                      */
-                    one(sshExecutor).exists(ds2ArchivedLocationFile.getPath(), SSH_TIMEOUT_MILLIS);
+                    one(sshExecutor).exists(ds2ArchivedLocationFile.getPath(), timeoutMillis());
                     will(returnValue(BooleanStatus.createTrue()));
                     one(sshExecutor).executeCommandRemotely(
                             gfindExec.getPath() + " " + ds2ArchivedLocationFile.getPath()
-                                    + " -type f -printf \"%p\\t%s\\n\"", SSH_TIMEOUT_MILLIS);
+                                    + " -type f -printf \"%p\\t%s\\n\"", timeoutMillis());
                     String filePath2 =
                             ds2ArchivedLocationFile.getPath() + File.separator
                                     + "original/data2.txt";
@@ -738,18 +744,18 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
                     /*
                      * ds1: checking existance fails
                      */
-                    one(sshExecutor).exists(ds1ArchivedLocationFile.getPath(), SSH_TIMEOUT_MILLIS);
+                    one(sshExecutor).exists(ds1ArchivedLocationFile.getPath(), timeoutMillis());
                     will(returnValue(BooleanStatus.createError(DUMMY_ERROR_MESSAGE)));
 
                     /*
                      * ds2: listing fails
                      */
-                    one(sshExecutor).exists(ds2ArchivedLocationFile.getPath(), SSH_TIMEOUT_MILLIS);
+                    one(sshExecutor).exists(ds2ArchivedLocationFile.getPath(), timeoutMillis());
                     will(returnValue(BooleanStatus.createTrue()));
 
                     one(sshExecutor).executeCommandRemotely(
                             gfindExec.getPath() + " " + ds2ArchivedLocationFile.getPath()
-                                    + " -type f -printf \"%p\\t%s\\n\"", SSH_TIMEOUT_MILLIS);
+                                    + " -type f -printf \"%p\\t%s\\n\"", timeoutMillis());
                     will(returnValue(ERROR_RESULT));
                 }
             });
@@ -774,16 +780,16 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
                     /*
                      * ds1: directory exists in archive -> delete from directory
                      */
-                    one(sshExecutor).exists(ds1ArchivedLocationFile.getPath(), SSH_TIMEOUT_MILLIS);
+                    one(sshExecutor).exists(ds1ArchivedLocationFile.getPath(), timeoutMillis());
                     will(returnValue(BooleanStatus.createTrue()));
                     one(sshExecutor).executeCommandRemotely(
-                            "rm -rf " + ds1ArchivedLocationFile.getPath(), SSH_TIMEOUT_MILLIS);
+                            "rm -rf " + ds1ArchivedLocationFile.getPath(), timeoutMillis());
                     will(returnValue(OK_RESULT));
 
                     /*
                      * ds2: directory doesn't exist in archive -> nothing to do
                      */
-                    one(sshExecutor).exists(ds2ArchivedLocationFile.getPath(), SSH_TIMEOUT_MILLIS);
+                    one(sshExecutor).exists(ds2ArchivedLocationFile.getPath(), timeoutMillis());
                     will(returnValue(BooleanStatus.createFalse()));
                 }
             });
@@ -808,16 +814,16 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
                     /*
                      * ds1: fail to delete
                      */
-                    one(sshExecutor).exists(ds1ArchivedLocationFile.getPath(), SSH_TIMEOUT_MILLIS);
+                    one(sshExecutor).exists(ds1ArchivedLocationFile.getPath(), timeoutMillis());
                     will(returnValue(BooleanStatus.createTrue()));
                     one(sshExecutor).executeCommandRemotely(
-                            "rm -rf " + ds1ArchivedLocationFile.getPath(), SSH_TIMEOUT_MILLIS);
+                            "rm -rf " + ds1ArchivedLocationFile.getPath(), timeoutMillis());
                     will(returnValue(ERROR_RESULT));
 
                     /*
                      * ds2: fail to check existence
                      */
-                    one(sshExecutor).exists(ds2ArchivedLocationFile.getPath(), SSH_TIMEOUT_MILLIS);
+                    one(sshExecutor).exists(ds2ArchivedLocationFile.getPath(), timeoutMillis());
                     will(returnValue(BooleanStatus.createError(DUMMY_ERROR_MESSAGE)));
                 }
             });
@@ -873,7 +879,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(copierFactory).create(rsyncExec, null);
+                    one(copierFactory).create(rsyncExec, null, DEFAULT_TIMEOUT_MILLIS);
                     will(returnValue(copier));
 
                     one(copier).check();
@@ -887,7 +893,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(copierFactory).create(rsyncExec, sshExec);
+                    one(copierFactory).create(rsyncExec, sshExec, timeoutMillis());
                     will(returnValue(copier));
 
                     one(sshFactory).create(sshExec, hostOrNull);
@@ -900,11 +906,11 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
                         {
                             one(copier).checkRsyncConnectionViaRsyncServer(hostOrNull,
                                     rsyncModuleOrNull, rsyncModuleOrNull + "-password",
-                                    SSH_TIMEOUT_MILLIS);
+                                    timeoutMillis());
                         } else
                         {
                             one(copier).checkRsyncConnectionViaSsh(hostOrNull, null,
-                                    SSH_TIMEOUT_MILLIS);
+                                    timeoutMillis());
                         }
                         will(returnValue(checkingResult));
                     }
@@ -927,6 +933,8 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
                 sshExec.getPath());
         properties.setProperty(DataSetFileOperationsManager.GFIND_EXEC + "-executable",
                 gfindExec.getPath());
+        properties.setProperty(DataSetFileOperationsManager.TIMEOUT_KEY,
+                String.valueOf(timeoutInSeconds));
         return properties;
     }
 
@@ -944,6 +952,8 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
                 sshExec.getPath());
         properties.setProperty(DataSetFileOperationsManager.GFIND_EXEC + "-executable",
                 gfindExec.getPath());
+        properties.setProperty(DataSetFileOperationsManager.TIMEOUT_KEY,
+                String.valueOf(timeoutInSeconds));
         return properties;
     }
 
@@ -1046,6 +1056,11 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
         result.setDatasetCode(dsd.getDatasetCode());
         result.setDataSetLocation(dsd.getDataSetLocation());
         return result;
+    }
+
+    private long timeoutMillis()
+    {
+        return timeoutInSeconds * DateUtils.MILLIS_PER_SECOND;
     }
 
 }
