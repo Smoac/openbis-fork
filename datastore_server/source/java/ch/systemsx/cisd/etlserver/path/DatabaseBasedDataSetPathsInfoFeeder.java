@@ -17,12 +17,8 @@
 package ch.systemsx.cisd.etlserver.path;
 
 import java.io.File;
-import java.sql.Connection;
 import java.util.List;
 
-import net.lemnik.eodsql.QueryTool;
-
-import ch.systemsx.cisd.common.io.HierarchicalContentFactory;
 import ch.systemsx.cisd.common.io.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.IHierarchicalContentFactory;
 import ch.systemsx.cisd.common.utilities.IDelegatedAction;
@@ -38,11 +34,6 @@ public class DatabaseBasedDataSetPathsInfoFeeder implements IDataSetPathsInfoFee
     private final IPathsInfoDAO dao;
     private final IHierarchicalContentFactory hierarchicalContentFactory;
 
-    public DatabaseBasedDataSetPathsInfoFeeder(Connection connection)
-    {
-        this(QueryTool.getQuery(connection, IPathsInfoDAO.class), new HierarchicalContentFactory());
-    }
-    
     public DatabaseBasedDataSetPathsInfoFeeder(IPathsInfoDAO dao,
             IHierarchicalContentFactory hierarchicalContentFactory)
     {
