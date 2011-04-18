@@ -128,15 +128,23 @@ public class ServiceProvider
 
     public static IDataStoreServiceInternal getDataStoreService()
     {
-        Advised advised = (Advised) getApplicationContext().getBean("data-store-service");
-        try
+        Object bean = getApplicationContext().getBean("data-store-service");
+        IDataStoreServiceInternal result = null;
+        if (bean instanceof Advised)
         {
-            return (IDataStoreServiceInternal) advised.getTargetSource().getTarget();
-        } catch (Exception ex)
+            Advised advised = (Advised) getApplicationContext().getBean("data-store-service");
+            try
+            {
+                result = (IDataStoreServiceInternal) advised.getTargetSource().getTarget();
+            } catch (Exception ex)
+            {
+                operationLog.error("Cannot get IDataSetDeleter instance :" + ex.getMessage(), ex);
+            }
+        } else
         {
-            operationLog.error("Cannot get IDataSetDeleter instance :" + ex.getMessage(), ex);
-            return null;
+            result = (IDataStoreServiceInternal) bean;
         }
+        return result;
     }
 
     private ServiceProvider()
