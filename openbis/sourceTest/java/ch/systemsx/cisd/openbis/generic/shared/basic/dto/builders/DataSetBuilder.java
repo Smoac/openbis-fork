@@ -60,6 +60,12 @@ public class DataSetBuilder
         return this;
     }
     
+    public DataSetBuilder location(String location)
+    {
+        dataSet.setLocation(location);
+        return this;
+    }
+    
     public DataSetBuilder experiment(Experiment experiment)
     {
         dataSet.setExperiment(experiment);
