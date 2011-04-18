@@ -36,6 +36,7 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.hdf5.Hdf5Container;
 import ch.systemsx.cisd.common.hdf5.HierarchicalStructureDuplicatorFileToHdf5;
+import ch.systemsx.cisd.common.utilities.HierarchicalContentUtils;
 import ch.systemsx.cisd.common.utilities.IDelegatedAction;
 
 /**
@@ -325,7 +326,7 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
         context.assertIsSatisfied();
     }
 
-    @Test(groups = "broken")
+    @Test
     public void testListMatchingNodesWithRelativePathPattern()
     {
         final DefaultFileBasedHierarchicalContent rootContent = createContent(rootDir);
@@ -345,6 +346,7 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
         // matches in 1 level
         List<IHierarchicalContentNode> matchingNodes1 = rootContent.listMatchingNodes("file.?");
         assertEquals(2, matchingNodes1.size());
+        sortNodes(matchingNodes1);
         assertEquals(file1, matchingNodes1.get(0).getFile());
         assertEquals(file2, matchingNodes1.get(1).getFile());
 
@@ -352,6 +354,7 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
         List<IHierarchicalContentNode> matchingNodes2 =
                 rootContent.listMatchingNodes("subDir/subFile.?");
         assertEquals(3, matchingNodes2.size());
+        sortNodes(matchingNodes2);
         checkNodeMatchesFile(matchingNodes2.get(0), subFile1);
         checkNodeMatchesFile(matchingNodes2.get(1), subFile2);
         checkNodeMatchesFile(matchingNodes2.get(2), subFile3);
@@ -360,6 +363,7 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
         List<IHierarchicalContentNode> matchingNodes3 =
                 rootContent.listMatchingNodes(".*[fF]ile.?");
         assertEquals(6, matchingNodes3.size());
+        sortNodes(matchingNodes3);
         checkNodeMatchesFile(matchingNodes3.get(0), file1);
         checkNodeMatchesFile(matchingNodes3.get(1), file2);
         checkNodeMatchesFile(matchingNodes3.get(2), subFile1);
@@ -371,6 +375,7 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
         List<IHierarchicalContentNode> matchingSubDirFiles =
                 rootContent.listMatchingNodes("subDir/.*");
         assertEquals(4, matchingSubDirFiles.size());
+        sortNodes(matchingSubDirFiles);
         checkNodeMatchesFile(matchingSubDirFiles.get(0), subFile1);
         checkNodeMatchesFile(matchingSubDirFiles.get(1), subFile2);
         checkNodeMatchesFile(matchingSubDirFiles.get(2), subFile3);
@@ -379,7 +384,7 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
         context.assertIsSatisfied();
     }
 
-    @Test(groups = "broken")
+    @Test
     public void testListMatchingNodesWithStartingPath()
     {
         final DefaultFileBasedHierarchicalContent rootContent = createContent(rootDir);
@@ -395,6 +400,7 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
         List<IHierarchicalContentNode> matchingNodes =
                 rootContent.listMatchingNodes("subDir", ".*[fF]ile.*");
         assertEquals(4, matchingNodes.size());
+        sortNodes(matchingNodes);
         checkNodeMatchesFile(matchingNodes.get(0), subFile1);
         checkNodeMatchesFile(matchingNodes.get(1), subFile2);
         checkNodeMatchesFile(matchingNodes.get(2), subFile3);
@@ -456,6 +462,11 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
     private static void checkNodeMatchesFile(IHierarchicalContentNode node, File expectedFile)
     {
         assertEquals(expectedFile, node.getFile());
+    }
+
+    private static void sortNodes(List<IHierarchicalContentNode> nodes)
+    {
+        HierarchicalContentUtils.sortNodes(nodes);
     }
 
     private static void checkHDF5ContainerFileNodeMatchesFile(IHierarchicalContentNode fileNode,

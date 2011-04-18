@@ -25,8 +25,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -41,6 +39,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
+import ch.systemsx.cisd.common.utilities.HierarchicalContentUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -79,21 +78,6 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
             DOWNLOAD_URL = downloadUrl;
         }
     }
-
-    private static final Comparator<IHierarchicalContentNode> NODE_COMPARATOR =
-            new Comparator<IHierarchicalContentNode>()
-                {
-                    public int compare(IHierarchicalContentNode node1,
-                            IHierarchicalContentNode node2)
-                    {
-                        return createSortableName(node1).compareTo(createSortableName(node2));
-                    }
-
-                    private String createSortableName(IHierarchicalContentNode node)
-                    {
-                        return (node.isDirectory() ? "D" : "F") + node.getName().toUpperCase();
-                    }
-                };
 
     public DatasetDownloadServlet()
     {
@@ -452,7 +436,7 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
                 directoryRenderer.printLinkToParentDirectory(relativeParentPath);
             }
             List<IHierarchicalContentNode> children = dirNode.getChildNodes();
-            Collections.sort(children, NODE_COMPARATOR);
+            HierarchicalContentUtils.sortNodes(children);
             for (IHierarchicalContentNode childNode : children)
             {
                 String name = childNode.getName();
