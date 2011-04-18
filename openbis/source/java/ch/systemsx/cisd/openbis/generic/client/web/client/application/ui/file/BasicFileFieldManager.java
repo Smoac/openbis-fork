@@ -43,7 +43,7 @@ public class BasicFileFieldManager extends FileFieldManager<FileUploadField>
                     // WORKAROUND to keep the button enabled after field reset
                     // and change of visibility
                     super.setEnabled(enabled);
-                    super.setReadOnly(!enabled);
+                    setReadOnly(!enabled);
                 }
             };
     }
