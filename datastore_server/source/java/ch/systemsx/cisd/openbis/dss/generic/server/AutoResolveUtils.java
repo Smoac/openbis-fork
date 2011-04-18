@@ -92,10 +92,16 @@ public class AutoResolveUtils
             return new ArrayList<IHierarchicalContentNode>();
         } else
         {
+            IHierarchicalContentNode startingPoint = createStartingPoint(root, path);
 
-            return root.listMatchingNodes(createStartingPoint(root, path).getRelativePath(),
-                    pattern);
+            if (startingPoint.equals(root.getRootNode()))
+            {
+                return root.listMatchingNodes(pattern);
+            } else
+                return root.listMatchingNodes(createStartingPoint(root, path).getRelativePath()
+                        + File.separator + pattern);
         }
+
     }
 
     public static File tryGetTheOnlyMatchingFileOrDir(File root, String pattern)

@@ -132,7 +132,7 @@ public class AutoResolveUtilsTest extends AssertJUnit
                     will(returnValue(MOCK_EXAMPLE_FOLDER_2));
                     allowing(MOCK_TEST_FOLDER).getNode("f1/f2/f3/e.txt");
                     will(returnValue(MOCK_EXAMPLE_FILE_TXT));
-                    allowing(MOCK_TEST_FOLDER).listMatchingNodes("", ".*");
+                    allowing(MOCK_TEST_FOLDER).listMatchingNodes(".*");
                     List<IHierarchicalContentNode> matchingNodes =
                             new ArrayList<IHierarchicalContentNode>();
                     matchingNodes.add(MOCK_EXAMPLE_FILE_TXT);
@@ -141,14 +141,15 @@ public class AutoResolveUtilsTest extends AssertJUnit
                     matchingNodes.add(MOCK_EXAMPLE_FILE_6B);
                     will(returnValue(matchingNodes));
 
-                    allowing(MOCK_TEST_FOLDER).listMatchingNodes("", ".*\\.abc");
+                    allowing(MOCK_TEST_FOLDER).listMatchingNodes(".*\\.abc");
                     List<IHierarchicalContentNode> matchingNodesAbc =
                             new ArrayList<IHierarchicalContentNode>();
                     matchingNodesAbc.add(MOCK_EXAMPLE_FILE_ABC);
                     will(returnValue(matchingNodesAbc));
                     allowing(MOCK_TEST_FOLDER).getNode("f4");
                     will(returnValue(MOCK_EXAMPLE_FOLDER_4));
-                    allowing(MOCK_TEST_FOLDER).listMatchingNodes("f4", ".*\\.abc");
+                    allowing(MOCK_TEST_FOLDER)
+                            .listMatchingNodes("f4" + File.separator + ".*\\.abc");
                     will(returnValue(matchingNodesAbc));
 
                     /* MOCK_TEST_FOLDER_NODE */
