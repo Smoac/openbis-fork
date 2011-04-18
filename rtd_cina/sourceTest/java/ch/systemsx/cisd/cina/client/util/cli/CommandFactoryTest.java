@@ -75,7 +75,7 @@ public class CommandFactoryTest extends AssertJUnit
                         + "Commands:\n" + " listsamps\n" + " gencode\n" + " listexps\n"
                         + " getreplica\n" + " getbundle\n" + " listprefs\n" + " ls\n" + " get\n"
                         + " put\n" + " testvalid\n" + "\n" + "Options:\n"
-                        + " [-i,--timeout] N           : Timeout in seconds\n"
+                        + " [-T,--timeout] N           : Timeout in seconds\n"
                         + " [-p,--password] VAL        : User login password\n"
                         + " [-s,--server-base-url] VAL : URL for openBIS Server (required)\n"
                         + " [-u,--username] VAL        : User login name\n";

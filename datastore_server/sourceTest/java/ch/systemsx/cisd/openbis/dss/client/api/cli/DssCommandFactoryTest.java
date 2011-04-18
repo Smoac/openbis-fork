@@ -79,7 +79,7 @@ public class DssCommandFactoryTest extends AssertJUnit
         String helpText =
                 "usage: dss_client.sh COMMAND [options...] <command arguments>\n" + "\n"
                         + "Commands:\n" + " ls\n" + " get\n" + " put\n" + " testvalid\n" + "\n"
-                        + "Options:\n" + " [-i,--timeout] N           : Timeout in seconds\n"
+                        + "Options:\n" + " [-T,--timeout] N           : Timeout in seconds\n"
                         + " [-p,--password] VAL        : User login password\n"
                         + " [-s,--server-base-url] VAL : URL for openBIS Server (required)\n"
                         + " [-u,--username] VAL        : User login name\n";

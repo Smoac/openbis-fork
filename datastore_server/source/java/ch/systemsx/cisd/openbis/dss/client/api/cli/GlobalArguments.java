@@ -48,7 +48,7 @@ public class GlobalArguments
     @Option(name = "s", longName = "server-base-url", usage = "URL for openBIS Server (required)")
     protected String serverBaseUrl = "";
 
-    @Option(name = "i", longName = "timeout", usage = "Timeout in seconds")
+    @Option(name = "T", longName = "timeout", usage = "Timeout in seconds")
     protected long timeout = 15L; // default timeout of 15 seconds
 
     @Option(name = "h", longName = "help", skipForExample = true)
