@@ -37,7 +37,7 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.IDataSetFileOperationsExecutor;
 import ch.systemsx.cisd.openbis.dss.generic.server.LocalDataSetFileOperationsExcecutor;
 import ch.systemsx.cisd.openbis.dss.generic.server.RemoteDataSetFileOperationsExecutor;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -176,18 +176,18 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
      * Deletes specified datases's data from the destination specified in constructor. The path at
      * the destination is defined by original location of the data set.
      */
-    public Status deleteFromDestination(DeletedDataSet dataset)
+    public Status deleteFromDestination(DatasetLocation dataset)
     {
         try
         {
-            File destinationFolder = new File(destination, dataset.getLocation());
+            File destinationFolder = new File(destination, dataset.getDataSetLocation());
             BooleanStatus destinationExists = destinationExists(destinationFolder);
             if (destinationExists.isSuccess())
             {
                 executor.deleteFolder(destinationFolder);
             } else
             {
-                operationLog.info("Data of data set '" + dataset.getIdentifier()
+                operationLog.info("Data of data set '" + dataset.getDatasetCode()
                         + "' don't exist in the destination '" + destinationFolder.getPath()
                         + "'. There is nothing to delete.");
             }

@@ -61,8 +61,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.DatasetDescriptionBuilder;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Friend(toClasses = {AbstractArchiverProcessingPlugin.class, RsyncArchiver.class})

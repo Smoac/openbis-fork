@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSourceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -248,12 +248,12 @@ public class MLArchiverTask extends AbstractArchiverProcessingPlugin
     }
 
     @Override
-    protected DatasetProcessingStatuses doDeleteFromArchive(List<DeletedDataSet> datasets)
+    protected DatasetProcessingStatuses doDeleteFromArchive(List<DatasetLocation> datasets)
     {
         DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
-        for (DeletedDataSet dataset : datasets)
+        for (DatasetLocation dataset : datasets)
         {
-            statuses.addResult(dataset.getIdentifier(), Status.OK, Operation.DELETE_FROM_ARCHIVE);
+            statuses.addResult(dataset.getDatasetCode(), Status.OK, Operation.DELETE_FROM_ARCHIVE);
         }
         return statuses;
     }

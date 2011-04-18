@@ -20,7 +20,7 @@ import java.io.File;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -47,7 +47,7 @@ public interface IDataSetFileOperationsManager
      * Deletes specified datases's data from the destination specified in constructor. The path at
      * the destination is defined by original location of the data set.
      */
-    public abstract Status deleteFromDestination(DeletedDataSet dataset);
+    public abstract Status deleteFromDestination(DatasetLocation dataset);
 
     /**
      * Checks if specified dataset's data are present in the destination specified in constructor.

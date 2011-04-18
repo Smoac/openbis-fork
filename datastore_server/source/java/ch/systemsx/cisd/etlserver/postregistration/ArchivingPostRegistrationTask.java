@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IArchiverPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
@@ -165,12 +165,14 @@ public class ArchivingPostRegistrationTask extends AbstractPostRegistrationTask
             DatasetDescription dataSet = tryGetDatasetDescription(dataSetCode, openBISService);
             if (archiver != null && dataSet != null)
             {
-                // TODO KE: the API here is not optimal. refactor this on Tuesday.
-                DeletedDataSet deletedDataset =
-                        new DeletedDataSet(dataSetCode, dataSet.getDataSetLocation(), 0);
-                List<DeletedDataSet> dataSetAsList = Collections.singletonList(deletedDataset);
+                DatasetLocation dataset = new DatasetLocation();
+                dataset.setDatasetCode(dataSetCode);
+                dataset.setDataSetLocation(dataSet.getDataSetLocation());
+
+                List<DatasetLocation> dataSetAsList = Collections.singletonList(dataset);
                 archiver.deleteFromArchive(dataSetAsList);
-                logger.log(LogLevel.INFO, "Data set " + dataSetCode + " deleted from archive.");
+                logger.log(LogLevel.INFO, "Successfully cleaned up leftovers from incomplete "
+                        + "archiving of dataset '" + dataSetCode + "'.");
             }
         }
     }

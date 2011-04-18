@@ -27,6 +27,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IArchiverPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 
 /**
@@ -53,20 +54,21 @@ public class DeleteFromArchiveMaintenanceTask extends
     }
 
     @Override
-    protected void execute(List<DeletedDataSet> datasets)
+    protected void execute(List<DeletedDataSet> list)
     {
-        List<DeletedDataSet> datasetsToBeArchived = datasets;
+        List<DeletedDataSet> datasets = list;
         if (lastSeenEventIdFile.exists() == false)
         {
-            datasetsToBeArchived = filterOldStyleHistoryEvents(datasets);
+            datasets = filterOldStyleHistoryEvents(list);
         }
 
         IArchiverPlugin archiverPlugin = ServiceProvider.getDataStoreService().getArchiverPlugin();
-        archiverPlugin.deleteFromArchive(datasetsToBeArchived);
+        List<DatasetLocation> datasetLocations = toDataSetLocations(datasets);
+        archiverPlugin.deleteFromArchive(datasetLocations);
 
         String logMessage =
-                String.format("Deleted %s dataset from archive: '%s'", datasetsToBeArchived.size(),
-                        CollectionUtils.abbreviate(datasetsToBeArchived, 10));
+                String.format("Deleted %s dataset from archive: '%s'", datasets.size(),
+                        CollectionUtils.abbreviate(datasets, 10));
         operationLog.info(logMessage);
 
     }
@@ -131,4 +133,21 @@ public class DeleteFromArchiveMaintenanceTask extends
         return result;
     }
 
+    private List<DatasetLocation> toDataSetLocations(List<DeletedDataSet> datasets)
+    {
+        ArrayList<DatasetLocation> result = new ArrayList<DatasetLocation>(datasets.size());
+        for (DeletedDataSet deletedDS : datasets)
+        {
+            result.add(toDataSetLocations(deletedDS));
+        }
+        return result;
+    }
+
+    private DatasetLocation toDataSetLocations(DeletedDataSet deletedDS)
+    {
+        DatasetLocation dsLocation = new DatasetLocation();
+        dsLocation.setDatasetCode(deletedDS.getIdentifier());
+        dsLocation.setDataSetLocation(deletedDS.getLocation());
+        return dsLocation;
+    }
 }

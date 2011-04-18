@@ -40,7 +40,7 @@ import ch.systemsx.cisd.common.filesystem.IPathCopier;
 import ch.systemsx.cisd.common.filesystem.ssh.ISshCommandExecutor;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.process.ProcessResult;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -481,7 +481,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
         /*
          * delete from archive
          */
-        DeletedDataSet deletedDs1 = deletedDataset(ds1);
+        DatasetLocation deletedDs1 = datasetLocation(ds1);
         Status statusDelete = dataSetCopier.deleteFromDestination(deletedDs1);
         assertSuccessful(statusDelete);
         assertDs1NotInArchive();
@@ -787,8 +787,8 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(BooleanStatus.createFalse()));
                 }
             });
-        Status status1 = dataSetCopier.deleteFromDestination(deletedDataset(ds1));
-        Status status2 = dataSetCopier.deleteFromDestination(deletedDataset(ds2));
+        Status status1 = dataSetCopier.deleteFromDestination(datasetLocation(ds1));
+        Status status2 = dataSetCopier.deleteFromDestination(datasetLocation(ds2));
         assertSuccessful(status1);
         assertSuccessful(status2);
 
@@ -821,8 +821,8 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(BooleanStatus.createError(DUMMY_ERROR_MESSAGE)));
                 }
             });
-        Status status1 = dataSetCopier.deleteFromDestination(deletedDataset(ds1));
-        Status status2 = dataSetCopier.deleteFromDestination(deletedDataset(ds2));
+        Status status1 = dataSetCopier.deleteFromDestination(datasetLocation(ds1));
+        Status status2 = dataSetCopier.deleteFromDestination(datasetLocation(ds2));
         assertError(status1, "couldn't delete");
         assertError(status2, "couldn't check existence");
 
@@ -1040,9 +1040,12 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
         }
     }
 
-    private DeletedDataSet deletedDataset(DatasetDescription dsd)
+    private DatasetLocation datasetLocation(DatasetDescription dsd)
     {
-        return new DeletedDataSet(dsd.getDatasetCode(), dsd.getDataSetLocation(), 0);
+        DatasetLocation result = new DatasetLocation();
+        result.setDatasetCode(dsd.getDatasetCode());
+        result.setDataSetLocation(dsd.getDataSetLocation());
+        return result;
     }
 
 }

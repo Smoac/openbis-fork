@@ -28,7 +28,7 @@ import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractArchiverProcessingPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -71,7 +71,7 @@ public class DemoArchiver extends AbstractArchiverProcessingPlugin
     }
 
     @Override
-    public DatasetProcessingStatuses doDeleteFromArchive(List<DeletedDataSet> dataSets)
+    public DatasetProcessingStatuses doDeleteFromArchive(List<DatasetLocation> dataSets)
     {
         List<String> datasetCodes = Code.extractCodes(dataSets);
         archiveContents.addAll(datasetCodes);

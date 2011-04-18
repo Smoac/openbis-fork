@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
@@ -23,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  * 
  * @author Piotr Buczek
  */
-public class DatasetLocation implements IDatasetLocation, ISerializable
+public class DatasetLocation implements IDatasetLocation, ISerializable, ICodeHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -55,6 +56,11 @@ public class DatasetLocation implements IDatasetLocation, ISerializable
     public String toString()
     {
         return "Dataset[" + datasetCode + "], location[" + dataSetLocation + "]";
+    }
+
+    public String getCode()
+    {
+        return getDatasetCode();
     }
 
 }

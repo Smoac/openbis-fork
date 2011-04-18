@@ -57,7 +57,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetCodesWithStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SimpleDataSetHelper;
@@ -116,7 +116,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
      * deletes data sets from archive. At the time when this method is invoked the data sets do not
      * exist in the openBIS database.
      */
-    abstract protected DatasetProcessingStatuses doDeleteFromArchive(List<DeletedDataSet> datasets);
+    abstract protected DatasetProcessingStatuses doDeleteFromArchive(List<DatasetLocation> datasets);
     
     /**
      * @return <code>true</code> if the dataset is present in the archive, <code>false</code>
@@ -316,7 +316,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         return statuses;
     }
 
-    public ProcessingStatus deleteFromArchive(List<DeletedDataSet> datasets)
+    public ProcessingStatus deleteFromArchive(List<DatasetLocation> datasets)
     {
         DatasetProcessingStatuses status = doDeleteFromArchive(datasets);
         return status != null ? status.getProcessingStatus() : null;
