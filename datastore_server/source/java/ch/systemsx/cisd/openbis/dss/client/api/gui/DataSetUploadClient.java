@@ -26,7 +26,12 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.net.JarURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.jar.JarFile;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -44,6 +49,11 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+
+import org.python.core.Py;
+import org.python.core.PySystemState;
+import org.python.core.SyspathArchive;
+import org.python.core.SyspathArchiveHack;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -76,55 +86,94 @@ public class DataSetUploadClient extends AbstractSwingGUI
         System.setProperty("org.apache.commons.logging.Log",
                 "org.apache.commons.logging.impl.SimpleLog");
         System.setProperty("org.apache.commons.logging.simplelog.showdatetime", "true");
+    }
 
-        // Logging of paths as they appear to the class from within webstart.
-        //
-        // {
-        // URL url = PySystemState.class.getResource("PySystemState.class");
-        // String path = url.getFile();
-        // if (path.startsWith("file:"))
-        // {
-        // path = path.substring(5, path.indexOf("!"));
-        // }
-        // System.out.println("Resource path: " + path);
-        // }
-        // {
-        // String path =
-        // PySystemState.class.getProtectionDomain().getCodeSource().getLocation()
-        // .getPath();
-        // System.out.println("Code source path: " + path);
-        // }
+    /**
+     * Initializes Jython in way which makes it's modules available in Web Start. It silently
+     * ignores all the errors, it's better to have client working without validation, than having it
+     * not working at all.
+     */
+    private static void initializeJythonWebStartWorkaround()
+    {
+        // initialize Jython
+        PySystemState.initialize();
 
-        // Attempt 1 to get the python modules seen -- fails
-        //
-        // Properties baseProperties = System.getProperties();
-        // String path =
-        // PySystemState.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-        // System.out.println(path);
-        // baseProperties.setProperty("python.home", path);
-        //
-        // PySystemState.initialize(baseProperties, null, new String[]
-        // { "" });
+        // Look up module and add its containing jar file to sys.path
+        String moduleName = "Lib/string.py";
+        JarFile jarFile = findJarContaining(moduleName);
+        if (jarFile == null)
+        {
+            // Shouldn't happen
+            // but in case it happened, shouldn't we log something?
+        } else
+        {
+            // The jar file names don't necessarily end with '.jar' in webstart environment. So
+            // adding the jar file path to sys.path won't work. Adding a SyspathArchive forces the
+            // runtime to recognize the file as a jar But the SyspathArchive itself wants a .jar so
+            // we use SyspathArchiveHack.
+            try
+            {
+                SyspathArchive archive =
+                        new SyspathArchiveHack(jarFile, getName(jarFile.getName()));
+                Py.getSystemState().path.append(archive);
+            } catch (IOException e)
+            {
+                // Again it shouldn't happen
+                // but in case it happened, shouldn't we log something?
+                // for now we just ignore it
+            }
+        }
+    }
 
-        // Attempt 2 to get the python modules seen -- fails
-        //
-        // Properties baseProperties = System.getProperties();
-        // String path = PySystemState.class.getResource("PySystemState.class").getPath();
-        // if (path.startsWith("file:"))
-        // {
-        // path = path.substring(5, path.indexOf("!"));
-        // }
-        // System.out.println(path);
-        // baseProperties.setProperty("python.home", path);
-        //
-        // PySystemState.initialize(baseProperties, null, new String[]
-        // { "" });
+    /**
+     * If missing .zip or .jar extension, appends .jar to the pathname. It is necessary to have it
+     * working in Web Start.
+     */
+    private static String getName(String name)
+    {
+        if (name.toLowerCase().endsWith(".jar") || name.toLowerCase().endsWith(".zip"))
+        {
+            return name;
+        } else
+        {
+            return name + ".jar";
+        }
+    }
 
-        // Attempt 3 to get the python modules seen -- fails
-        //
-        // final PySystemState engineSys = new PySystemState();
-        // engineSys.path.append(Py.newString("__pyclasspath__/Lib"));
-        // Py.setSystemState(engineSys);
+    /**
+     * Find the jar file containing a .py file and return its path. This has to work when running
+     * from Java Web Start. So use the class loader to find a URL to the jar file and munge that to
+     * get the path.
+     */
+    private static JarFile findJarContaining(String item)
+    {
+        String trailer = item;
+
+        URL url = DataSetUploadClient.class.getClassLoader().getResource(item);
+
+        // We should get something like
+        // "jar:file:/C:/Documents and Settings/kejohnson/.javaws/cache/http/Dlocalhost/P80/DMdemo/DMlib/RMmyjython.jar!/__run__.py"
+        if (url == null)
+        {
+            return null;
+        }
+
+        String path = url.toString();
+        URL jarUrl;
+        try
+        {
+            jarUrl = new URL(path.substring(0, path.length() - trailer.length()));
+            JarURLConnection jarConnection = (JarURLConnection) jarUrl.openConnection();
+            return jarConnection.getJarFile();
+        } catch (MalformedURLException ex)
+        {
+            // ignore
+        } catch (IOException ex)
+        {
+            // ignore
+        }
+
+        return null;
     }
 
     private static final String TITLE = "Data Set Uploader";
@@ -139,6 +188,7 @@ public class DataSetUploadClient extends AbstractSwingGUI
 
         try
         {
+            initializeJythonWebStartWorkaround();
             DssCommunicationState commState = new DssCommunicationState(args);
 
             DataSetUploadClient newMe = new DataSetUploadClient(commState, SYSTEM_TIME_PROVIDER);
