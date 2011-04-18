@@ -152,7 +152,7 @@ public class HierarchicalContentProviderTest extends AssertJUnit
         final IDatasetLocation dataSetLocation = new IDatasetLocation()
             {
 
-                public String getDatasetCode()
+                public String getDataSetCode()
                 {
                     return code;
                 }

@@ -61,7 +61,7 @@ public class ProcessingStatus
 
     public void addDatasetStatus(DatasetDescription dataset, Status status)
     {
-        addDatasetStatus(dataset.getDatasetCode(), status);
+        addDatasetStatus(dataset.getDataSetCode(), status);
     }
 
     public Status tryGetStatusByDataset(String datasetCode)

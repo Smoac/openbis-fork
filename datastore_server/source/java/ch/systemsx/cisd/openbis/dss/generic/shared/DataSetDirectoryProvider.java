@@ -47,7 +47,7 @@ public class DataSetDirectoryProvider implements IDataSetDirectoryProvider
     {
         String location = dataSet.getDataSetLocation();
         location = location.replace("\\", File.separator);
-        File share = new File(storeRoot, shareIdManager.getShareId(dataSet.getDatasetCode()));
+        File share = new File(storeRoot, shareIdManager.getShareId(dataSet.getDataSetCode()));
         return new File(share, location);
     }
 

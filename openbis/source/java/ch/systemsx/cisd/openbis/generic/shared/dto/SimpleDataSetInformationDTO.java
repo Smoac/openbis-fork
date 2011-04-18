@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 import java.io.Serializable;
 import java.util.Collection;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
@@ -26,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  * 
  * @author Izabela Adamczyk
  */
-public class SimpleDataSetInformationDTO implements Serializable
+public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocation
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
     

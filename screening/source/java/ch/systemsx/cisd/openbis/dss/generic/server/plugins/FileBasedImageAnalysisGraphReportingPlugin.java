@@ -88,7 +88,7 @@ public class FileBasedImageAnalysisGraphReportingPlugin extends AbstractDataMerg
             {
                 throw UserFailureException.fromTemplate(
                         "Found multiple candidate files in the dataset %s ", dataset
-                                .getDatasetCode());
+                                .getDataSetCode());
             }
             builder.addRow(createRow(dataset, matchingFiles.get(0)));
         }
@@ -116,7 +116,7 @@ public class FileBasedImageAnalysisGraphReportingPlugin extends AbstractDataMerg
         List<ISerializableComparable> row = new ArrayList<ISerializableComparable>();
 
         // The data set and sample code
-        row.add(SimpleTableModelBuilder.asText(dataset.getDatasetCode()));
+        row.add(SimpleTableModelBuilder.asText(dataset.getDataSetCode()));
         row.add(SimpleTableModelBuilder.asText(dataset.getSampleCode()));
 
         for (String graphTypeCode : getGraphTypeCodes())
@@ -126,7 +126,7 @@ public class FileBasedImageAnalysisGraphReportingPlugin extends AbstractDataMerg
                     new GeneratedImageTableCell(graphServletPath, getImageWidth(),
                             getImageHeight(), getThumbnailWidth(), getThumbnailHeight());
             imageCell.addParameter(AbstractTabularDataGraphServlet.DATASET_CODE_PARAM, dataset
-                    .getDatasetCode());
+                    .getDataSetCode());
             imageCell.addParameter(AbstractTabularDataGraphServlet.FILE_PATH_PARAM, file
                     .getAbsolutePath());
             imageCell.addParameter(AbstractTabularDataGraphServlet.GRAPH_TYPE_CODE, graphTypeCode);

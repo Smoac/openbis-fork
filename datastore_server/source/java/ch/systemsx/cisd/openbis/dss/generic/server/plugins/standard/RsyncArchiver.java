@@ -69,7 +69,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
         {
             File originalData = getDatasetDirectory(context, dataset);
             Status status = doArchive(dataset, originalData);
-            statuses.addResult(dataset.getDatasetCode(), status, Operation.ARCHIVE);
+            statuses.addResult(dataset.getDataSetCode(), status, Operation.ARCHIVE);
         }
 
         return statuses;
@@ -85,7 +85,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
             context.getUnarchivingPreparation().prepareForUnarchiving(dataset);
             File originalData = getDatasetDirectory(context, dataset);
             Status status = doUnarchive(dataset, originalData);
-            statuses.addResult(dataset.getDatasetCode(), status, Operation.UNARCHIVE);
+            statuses.addResult(dataset.getDataSetCode(), status, Operation.UNARCHIVE);
         }
 
         return statuses;
@@ -98,7 +98,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
         for (DatasetLocation dataset : datasets)
         {
             Status status = doDeleteFromArchive(dataset);
-            statuses.addResult(dataset.getDatasetCode(), status, Operation.DELETE_FROM_ARCHIVE);
+            statuses.addResult(dataset.getDataSetCode(), status, Operation.DELETE_FROM_ARCHIVE);
         }
 
         return statuses;

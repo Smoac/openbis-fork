@@ -23,6 +23,7 @@ import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.IProteomicsDataService;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.DataStoreServerProcessingPluginInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.MsInjectionDataInfo;
@@ -83,6 +84,13 @@ class ProteomicsDataServiceLogger extends AbstractServerLogger implements IProte
             String experimentTypeCode)
     {
         logAccess(sessionToken, "list_search_experiments", "EXPERIMENT_TYPE(%s)", experimentTypeCode);
+        return null;
+    }
+
+    public List<DataSet> listDataSetsByExperiment(String sessionToken, String userID,
+            long experimentID)
+    {
+        logAccess(sessionToken, "list_data_sets_by_experiment", "EXPERIMENT_ID(%s)", experimentID);
         return null;
     }
 

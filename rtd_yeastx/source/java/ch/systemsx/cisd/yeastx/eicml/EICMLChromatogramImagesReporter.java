@@ -134,10 +134,10 @@ public class EICMLChromatogramImagesReporter extends AbstractEICMLDatastoreRepor
         List<DatasetRun> runs = new ArrayList<DatasetRun>();
         for (DatasetDescription dataset : datasets)
         {
-            EICMSRunDTO run = query.getMSRunByDatasetPermId(dataset.getDatasetCode());
+            EICMSRunDTO run = query.getMSRunByDatasetPermId(dataset.getDataSetCode());
             if (run != null)
             {
-                runs.add(new DatasetRun(dataset.getDatasetCode(), run));
+                runs.add(new DatasetRun(dataset.getDataSetCode(), run));
             }
         }
         return runs;

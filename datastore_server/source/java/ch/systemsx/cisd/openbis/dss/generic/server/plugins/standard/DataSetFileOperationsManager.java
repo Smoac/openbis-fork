@@ -147,12 +147,12 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
             if (createFolderIfNotExists(destinationFolder.getParentFile())
                     || destinationExists(destinationFolder).isSuccess() == false)
             {
-                operationLog.info("Copy dataset '" + dataset.getDatasetCode() + "' from '"
+                operationLog.info("Copy dataset '" + dataset.getDataSetCode() + "' from '"
                         + originalData.getPath() + "' to '" + destinationFolder.getParentFile());
                 executor.copyDataSetToDestination(originalData, destinationFolder.getParentFile());
             } else
             {
-                operationLog.info("Update dataset '" + dataset.getDatasetCode() + "' from '"
+                operationLog.info("Update dataset '" + dataset.getDataSetCode() + "' from '"
                         + originalData.getPath() + "' to '" + destinationFolder.getParentFile());
                 executor.syncDataSetWithDestination(originalData, destinationFolder.getParentFile());
             }
@@ -174,7 +174,7 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
             File destinationFolder = new File(destination, dataset.getDataSetLocation());
             checkDestinationExists(destinationFolder);
             File folder = originalData.getParentFile();
-            operationLog.info("Retrieve data set '" + dataset.getDatasetCode() + "' from '"
+            operationLog.info("Retrieve data set '" + dataset.getDataSetCode() + "' from '"
                     + destinationFolder.getPath() + "' to '" + folder);
             folder.mkdirs();
             executor.retrieveDataSetFromDestination(folder, destinationFolder);
@@ -200,7 +200,7 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
                 executor.deleteFolder(destinationFolder);
             } else
             {
-                operationLog.info("Data of data set '" + dataset.getDatasetCode()
+                operationLog.info("Data of data set '" + dataset.getDataSetCode()
                         + "' don't exist in the destination '" + destinationFolder.getPath()
                         + "'. There is nothing to delete.");
             }

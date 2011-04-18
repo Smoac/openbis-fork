@@ -133,7 +133,7 @@ abstract public class AbstractSpotImagesTransformerProcessingPlugin extends Abst
     private GroupByMap<Long, ImgImageEnrichedDTO> fetchImages(DatasetDescription dataset)
     {
         List<ImgImageEnrichedDTO> allImages =
-                query.listHCSImages(dataset.getDatasetCode(), channelCode);
+                query.listHCSImages(dataset.getDataSetCode(), channelCode);
         GroupByMap<Long, ImgImageEnrichedDTO> imagesBySpot =
                 GroupByMap.create(allImages, new IKeyExtractor<Long, ImgImageEnrichedDTO>()
                     {
@@ -147,13 +147,13 @@ abstract public class AbstractSpotImagesTransformerProcessingPlugin extends Abst
             operationLog
                     .warn(String
                             .format("Dataset %s has no images for channel '%s' to process! Have you specified the correct channel code?",
-                                    dataset.getDatasetCode(), channelCode));
+                                    dataset.getDataSetCode(), channelCode));
         } else
         {
             operationLog
                     .info(String
                             .format("Dataset %s has %d images (devided between %d spots) for channel '%s' to process.",
-                                    dataset.getDatasetCode(), allImages.size(), imagesBySpot
+                                    dataset.getDataSetCode(), allImages.size(), imagesBySpot
                                             .getKeys().size(), channelCode));
         }
         return imagesBySpot;

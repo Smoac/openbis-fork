@@ -169,7 +169,7 @@ public class DataSetToSOFT implements IProcessingPluginTask
         {
             try
             {
-                String dataSetCode = datasetDescription.getDatasetCode();
+                String dataSetCode = datasetDescription.getDataSetCode();
                 if (operationLog.isInfoEnabled())
                 {
                     operationLog.info("Create SOFT file for data set " + dataSetCode);

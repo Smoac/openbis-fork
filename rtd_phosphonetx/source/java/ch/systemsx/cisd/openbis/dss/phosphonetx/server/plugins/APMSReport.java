@@ -264,7 +264,7 @@ public class APMSReport extends AbstractTableModelReportingPlugin implements IPr
                             + '/' + datasetDescription.getExperimentCode();
             Template template = E_MAIL_CONTENT_TEMPLATE.createFreshCopy();
             template.bind("experiment-identifier", experimentIdentifier);
-            template.bind("data-set", datasetDescription.getDatasetCode());
+            template.bind("data-set", datasetDescription.getDataSetCode());
             ByteArrayDataSource dataSource =
                     new ByteArrayDataSource(writer.toString(), "text/plain");
             context.getMailClient().sendEmailMessageWithAttachment("Protein APMS Report",

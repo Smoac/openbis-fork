@@ -148,7 +148,7 @@ abstract public class AbstractFileTableReportingPlugin extends AbstractTableMode
         {
             lines.add(reader.getValues());
         }
-        return new DatasetFileLines(file, dataset.getDatasetCode(), lines, ignoreTrailingEmptyCells);
+        return new DatasetFileLines(file, dataset.getDataSetCode(), lines, ignoreTrailingEmptyCells);
     }
 
     protected TableModel createTableModel(DatasetFileLines lines)

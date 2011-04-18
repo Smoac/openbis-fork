@@ -92,7 +92,7 @@ public class DemoReportingPlugin extends AbstractTableModelReportingPlugin
     private void describeUnknown(SimpleTableModelBuilder builder, DatasetDescription dataset,
             File file)
     {
-        String datasetCode = dataset.getDatasetCode();
+        String datasetCode = dataset.getDataSetCode();
         ISerializableComparable image = createImageCell(dataset, file);
         List<ISerializableComparable> row =
                 Arrays.<ISerializableComparable> asList(new StringTableCell(datasetCode), image,
@@ -105,7 +105,7 @@ public class DemoReportingPlugin extends AbstractTableModelReportingPlugin
     {
         if (ImageUtil.isImageFile(file))
         {
-            String code = dataset.getDatasetCode();
+            String code = dataset.getDataSetCode();
             String location = dataset.getDataSetLocation();
             return new ImageTableCell(code, location, file.getPath(), 100, 60);
         }
@@ -118,7 +118,7 @@ public class DemoReportingPlugin extends AbstractTableModelReportingPlugin
         ISerializableComparable image = createImageCell(dataset, file);
         List<ISerializableComparable> row =
                 Arrays.<ISerializableComparable> asList(
-                        new StringTableCell(dataset.getDatasetCode()), image, new StringTableCell(
+                        new StringTableCell(dataset.getDataSetCode()), image, new StringTableCell(
                                 file.getName()), new DateTableCell(new Date(file.lastModified())),
                         new DoubleTableCell(getSize(file)));
         builder.addRow(row);

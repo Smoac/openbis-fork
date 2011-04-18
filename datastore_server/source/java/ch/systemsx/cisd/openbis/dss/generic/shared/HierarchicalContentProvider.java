@@ -71,14 +71,14 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
     {
         // this is temporary implementation - it should access DB instead of filesystem
         // IHierarchicalContent.close() should be called to unlock the dataset
-        directoryProvider.getShareIdManager().lock(datasetLocation.getDatasetCode());
+        directoryProvider.getShareIdManager().lock(datasetLocation.getDataSetCode());
         File dataSetDirectory = directoryProvider.getDataSetDirectory(datasetLocation);
         IDelegatedAction onCloseAction = new IDelegatedAction()
             {
                 public void execute()
                 {
                     directoryProvider.getShareIdManager().releaseLock(
-                            datasetLocation.getDatasetCode());
+                            datasetLocation.getDataSetCode());
                 }
             };
         return asContent(dataSetDirectory, onCloseAction);

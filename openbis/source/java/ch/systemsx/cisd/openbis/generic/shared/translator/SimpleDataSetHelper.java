@@ -80,7 +80,7 @@ public class SimpleDataSetHelper
     {
         SimpleDataSetInformationDTO result = new SimpleDataSetInformationDTO();
         result.setDatabaseInstanceCode(datasetDescription.getDatabaseInstanceCode());
-        result.setDataSetCode(datasetDescription.getDatasetCode());
+        result.setDataSetCode(datasetDescription.getDataSetCode());
         result.setDataSetLocation(datasetDescription.getDataSetLocation());
         result.setDataSetSize(datasetDescription.getDataSetSize());
         result.setDataSetType(datasetDescription.getDatasetTypeCode());

@@ -349,7 +349,7 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
         return getLocation();
     }
 
-    public String getDatasetCode()
+    public String getDataSetCode()
     {
         return getCode();
     }

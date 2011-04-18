@@ -20,7 +20,7 @@ import static ch.systemsx.cisd.common.utilities.IDelegatedAction.DO_NOTHING;
 
 import java.io.File;
 import java.lang.reflect.Method;
-import java.util.Properties;
+import java.util.Arrays;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -33,13 +33,13 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.io.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.IHierarchicalContentFactory;
 import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
-import ch.systemsx.cisd.etlserver.path.IPathsInfoDAO;
-import ch.systemsx.cisd.etlserver.path.PathInfoDatabaseFeedingTask;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 
 /**
@@ -73,7 +73,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(directoryProvider).getShareIdManager();
+                    allowing(directoryProvider).getShareIdManager();
                     will(returnValue(shareIdManager));
                 }
             });
@@ -81,8 +81,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
         contentFactory = context.mock(IHierarchicalContentFactory.class);
         content = context.mock(IHierarchicalContent.class);
         node = context.mock(IHierarchicalContentNode.class);
-        Properties properties = new Properties();
-        task = new PathInfoDatabaseFeedingTask(properties, service, directoryProvider, dao, contentFactory);
+        task = new PathInfoDatabaseFeedingTask(service, directoryProvider, dao, contentFactory);
         dataSetFolder = new File(workingDirectory, "ds1");
         dataSetFolder.mkdirs();
     }
@@ -101,7 +100,64 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
     }
     
     @Test
-    public void testHappyCase()
+    public void testAsMaintenanceTask()
+    {
+        final SimpleDataSetInformationDTO ds1 = new SimpleDataSetInformationDTO();
+        ds1.setDataSetCode("ds1");
+        ds1.setDataSetLocation("abc1");
+        final SimpleDataSetInformationDTO ds2 = new SimpleDataSetInformationDTO();
+        ds2.setDataSetCode("ds2");
+        ds2.setDataSetLocation("abc2");
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).listDataSets();
+                    will(returnValue(Arrays.asList(ds1, ds2)));
+                }
+            });
+        prepareHappyCase(ds1);
+        prepareFailing(ds2);
+        
+        task.execute();
+    }
+    
+    @Test
+    public void testPostRegistrationHappyCase()
+    {
+        final ExternalData dataSet =
+                new DataSetBuilder().code(DATA_SET_CODE).location("abc").getDataSet();
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).tryGetDataSet(DATA_SET_CODE);
+                    will(returnValue(dataSet));
+
+                }
+            });
+        prepareHappyCase(dataSet);
+
+        task.createExecutor(DATA_SET_CODE).execute();
+    }
+
+    @Test
+    public void testPostRegistrationFailingCase()
+    {
+        final ExternalData dataSet =
+                new DataSetBuilder().code(DATA_SET_CODE).location("abc").getDataSet();
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).tryGetDataSet(DATA_SET_CODE);
+                    will(returnValue(dataSet));
+                }
+            });
+        prepareFailing(dataSet);
+
+        task.createExecutor(DATA_SET_CODE).execute();
+   }
+    
+    @Test
+    public void testNonExistingDataSetFolder()
     {
         context.checking(new Expectations()
             {
@@ -114,9 +170,26 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
                     one(shareIdManager).lock(DATA_SET_CODE);
 
                     one(directoryProvider).getDataSetDirectory(dataSet);
+                    will(returnValue(new File(workingDirectory, "blabla")));
+
+                    one(shareIdManager).releaseLocks();
+                }
+            });
+        
+        task.createExecutor(DATA_SET_CODE).execute();
+    }
+    
+    private void prepareHappyCase(final IDatasetLocation dataSet)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(shareIdManager).lock(dataSet.getDataSetCode());
+
+                    one(directoryProvider).getDataSetDirectory(dataSet);
                     will(returnValue(dataSetFolder));
 
-                    one(dao).createDataSet(DATA_SET_CODE, "abc");
+                    one(dao).createDataSet(dataSet.getDataSetCode(), dataSet.getDataSetLocation());
                     will(returnValue(101L));
 
                     one(contentFactory).asHierarchicalContent(dataSetFolder, DO_NOTHING);
@@ -144,27 +217,19 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
                     one(shareIdManager).releaseLocks();
                 }
             });
-
-        task.createExecutor(DATA_SET_CODE).execute();
     }
 
-    @Test
-    public void testFailingCase()
+    private void prepareFailing(final IDatasetLocation dataSet)
     {
         context.checking(new Expectations()
             {
                 {
-                    one(service).tryGetDataSet(DATA_SET_CODE);
-                    ExternalData dataSet =
-                            new DataSetBuilder().code(DATA_SET_CODE).location("abc").getDataSet();
-                    will(returnValue(dataSet));
-
-                    one(shareIdManager).lock(DATA_SET_CODE);
+                    one(shareIdManager).lock(dataSet.getDataSetCode());
 
                     one(directoryProvider).getDataSetDirectory(dataSet);
                     will(returnValue(dataSetFolder));
 
-                    one(dao).createDataSet(DATA_SET_CODE, "abc");
+                    one(dao).createDataSet(dataSet.getDataSetCode(), dataSet.getDataSetLocation());
                     will(returnValue(101L));
 
                     one(contentFactory).asHierarchicalContent(dataSetFolder, DO_NOTHING);
@@ -174,30 +239,5 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
                     one(shareIdManager).releaseLocks();
                 }
             });
-
-        task.createExecutor(DATA_SET_CODE).execute();
-   }
-    
-    @Test
-    public void testNonExistingDataSetFolder()
-    {
-        context.checking(new Expectations()
-            {
-                {
-                    one(service).tryGetDataSet(DATA_SET_CODE);
-                    ExternalData dataSet =
-                            new DataSetBuilder().code(DATA_SET_CODE).location("abc").getDataSet();
-                    will(returnValue(dataSet));
-
-                    one(shareIdManager).lock(DATA_SET_CODE);
-
-                    one(directoryProvider).getDataSetDirectory(dataSet);
-                    will(returnValue(new File(workingDirectory, "blabla")));
-
-                    one(shareIdManager).releaseLocks();
-                }
-            });
-        
-        task.createExecutor(DATA_SET_CODE).execute();
     }
 }

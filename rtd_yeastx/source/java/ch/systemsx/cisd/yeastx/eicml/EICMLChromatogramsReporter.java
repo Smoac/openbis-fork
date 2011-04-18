@@ -64,7 +64,7 @@ public class EICMLChromatogramsReporter extends AbstractEICMLDatastoreReportingP
         List<EICMSRunDTO> runs = new ArrayList<EICMSRunDTO>();
         for (DatasetDescription dataset : datasets)
         {
-            EICMSRunDTO run = query.getMSRunByDatasetPermId(dataset.getDatasetCode());
+            EICMSRunDTO run = query.getMSRunByDatasetPermId(dataset.getDataSetCode());
             if (run != null)
             {
                 runs.add(run);

@@ -71,8 +71,8 @@ public class MergedRowDataReportingPlugin extends AbstractDataMergingReportingPl
                             "All Data Set files should have the same headers, "
                                     + "but file header of '%s': \n\t '%s' "
                                     + "is different than file header of '%s': \n\t '%s'.",
-                            firstDataset.getDatasetCode(), StringUtils.join(titles, "\t"), dataset
-                                    .getDatasetCode(), StringUtils.join(lines.getHeaderLabels(),
+                            firstDataset.getDataSetCode(), StringUtils.join(titles, "\t"), dataset
+                                    .getDataSetCode(), StringUtils.join(lines.getHeaderLabels(),
                                     "\t"));
                 }
                 addDataRows(builder, dataset, lines, false);

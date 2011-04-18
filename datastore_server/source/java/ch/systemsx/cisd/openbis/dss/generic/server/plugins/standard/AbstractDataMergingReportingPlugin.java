@@ -89,7 +89,7 @@ public abstract class AbstractDataMergingReportingPlugin extends AbstractFileTab
     protected static void addDataRows(SimpleTableModelBuilder builder, DatasetDescription dataset,
             DatasetFileLines lines, boolean addFileNameColumn)
     {
-        String datasetCode = dataset.getDatasetCode();
+        String datasetCode = dataset.getDataSetCode();
         String fileNameOrNull = addFileNameColumn ? lines.getFile().getName() : null;
         for (String[] dataTokens : lines.getDataLines())
         {
@@ -128,7 +128,7 @@ public abstract class AbstractDataMergingReportingPlugin extends AbstractFileTab
             throw UserFailureException
                     .fromTemplate(
                             "Directory with Data Set '%s' data ('%s') should contain exactly 1 file with data but %s files were found.",
-                            dataset.getDatasetCode(), dir.getAbsolutePath(), datasetFilesToMerge
+                            dataset.getDataSetCode(), dir.getAbsolutePath(), datasetFilesToMerge
                                     .size());
         } else
         {

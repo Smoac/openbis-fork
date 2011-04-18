@@ -24,6 +24,7 @@ import ch.systemsx.cisd.common.api.IRpcService;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.api.v1.IProteomicsDataApiFacade;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.DataStoreServerProcessingPluginInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.MsInjectionDataInfo;
@@ -111,6 +112,13 @@ public interface IProteomicsDataService extends IRpcService
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<Experiment> listExperiments(String sessionToken, String userID, String experimentTypeCode);
+    
+    /**
+     * Returns all data sets of specified experiment which the specified user is allowed to read.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
+    public List<DataSet> listDataSetsByExperiment(String sessionToken, String userID, long experimentID);
     
     /**
      * Processes the data sets of specified experiments of type <tt>MS_SEARCH</tt> by the DSS

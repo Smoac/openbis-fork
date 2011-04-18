@@ -212,7 +212,7 @@ public class DataSetCopierForUsersTest extends AbstractFileSystemTestCase
         List<String> codes = new ArrayList<String>();
         for (DatasetDescription dataset : datasets)
         {
-            codes.add(dataset.getDatasetCode());
+            codes.add(dataset.getDataSetCode());
         }
         return codes;
     }

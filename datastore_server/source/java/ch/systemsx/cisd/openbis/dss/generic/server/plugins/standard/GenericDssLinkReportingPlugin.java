@@ -83,7 +83,7 @@ public class GenericDssLinkReportingPlugin extends AbstractDssLinkReportingPlugi
         LinkModel linkModel = new LinkModel();
         linkModel.setSchemeAndDomain(downloadUrl);
         linkModel.setPath(GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME + "/"
-                + dataSet.getDatasetCode());
+                + dataSet.getDataSetCode());
 
         ArrayList<LinkModel.LinkParameter> parameters = new ArrayList<LinkModel.LinkParameter>();
         parameters.add(new LinkModel.LinkParameter(FORCE_AUTO_RESOLVE, Boolean.TRUE.toString()));

@@ -63,7 +63,7 @@ public abstract class AbstractDssLinkReportingPlugin extends AbstractDatastorePl
         {
             IRowBuilder rowBuilder = builder.addRow();
             LinkModel linkModel = createLink(dataSet);
-            String text = dataSet.getDatasetCode();
+            String text = dataSet.getDataSetCode();
 
             rowBuilder.setCell(DATA_SET_HEADER, new DssLinkTableCell(text, linkModel));
         }

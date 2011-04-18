@@ -237,7 +237,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         IShareIdManager manager = getShareIdManager();
         for (DatasetDescription dataSet : dataSets)
         {
-            String datasetCode = dataSet.getDatasetCode();
+            String datasetCode = dataSet.getDataSetCode();
             String location = dataSet.getDataSetLocation();
             manager.lock(datasetCode);
             try
@@ -304,7 +304,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         IShareIdManager manager = getShareIdManager();
         for (DatasetDescription dataSet : datasets)
         {
-            manager.lock(dataSet.getDatasetCode());
+            manager.lock(dataSet.getDataSetCode());
         }
         try
         {

@@ -52,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.ExperimentLoader;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.ISampleLoader;
@@ -166,6 +167,15 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
                 daoFactory.getExperimentDAO().listExperimentsWithProperties(type, null);
         return ExperimentTranslator.translate(experiments, "",
                 ExperimentTranslator.LoadableFields.PROPERTIES);
+    }
+
+    public List<ExternalData> listDataSetsByExperiment(String sessionToken, TechId experimentID)
+    {
+        final Session session = getSession(sessionToken);
+
+        IExternalDataTable dataSetTable = commonBoFactory.createExternalDataTable(session);
+        dataSetTable.loadByExperimentTechId(experimentID);
+        return ExternalDataTranslator.translate(dataSetTable.getExternalData(), "", "");
     }
 
     public void processProteinResultDataSets(String sessionToken, String dataSetProcessingKey,

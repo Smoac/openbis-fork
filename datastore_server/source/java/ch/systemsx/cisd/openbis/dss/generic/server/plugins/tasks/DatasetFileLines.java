@@ -43,7 +43,7 @@ public class DatasetFileLines implements ITabularData
 
     public DatasetFileLines(File file, DatasetDescription dataset, List<String[]> lines)
     {
-        this(file, dataset.getDatasetCode(), lines);
+        this(file, dataset.getDataSetCode(), lines);
     }
 
     public DatasetFileLines(File file, String datasetCode, List<String[]> lines)

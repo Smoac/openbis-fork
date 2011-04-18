@@ -107,7 +107,7 @@ public class ImageAnalysisGraphReportingPlugin extends AbstractDataMergingReport
         List<ISerializableComparable> row = new ArrayList<ISerializableComparable>();
 
         // The data set and sample code
-        row.add(SimpleTableModelBuilder.asText(dataset.getDatasetCode()));
+        row.add(SimpleTableModelBuilder.asText(dataset.getDataSetCode()));
         row.add(SimpleTableModelBuilder.asText(dataset.getSampleCode()));
 
         for (String graphTypeCode : getGraphTypeCodes())
@@ -117,7 +117,7 @@ public class ImageAnalysisGraphReportingPlugin extends AbstractDataMergingReport
                     new GeneratedImageTableCell(graphServletPath, getImageWidth(),
                             getImageHeight(), getThumbnailWidth(), getThumbnailHeight());
             imageCell.addParameter(AbstractTabularDataGraphServlet.DATASET_CODE_PARAM, dataset
-                    .getDatasetCode());
+                    .getDataSetCode());
             imageCell.addParameter(AbstractTabularDataGraphServlet.GRAPH_TYPE_CODE, graphTypeCode);
 
             row.add(imageCell);

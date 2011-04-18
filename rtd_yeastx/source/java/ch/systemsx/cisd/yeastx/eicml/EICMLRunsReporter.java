@@ -51,7 +51,7 @@ public class EICMLRunsReporter extends AbstractEICMLDatastoreReportingPlugin
         addReportHeaders(builder);
         for (DatasetDescription dataset : datasets)
         {
-            EICMSRunDTO run = query.getMSRunByDatasetPermId(dataset.getDatasetCode());
+            EICMSRunDTO run = query.getMSRunByDatasetPermId(dataset.getDataSetCode());
             if (run != null)
             {
                 builder.addRow(createRow(run, dataset));
@@ -64,7 +64,7 @@ public class EICMLRunsReporter extends AbstractEICMLDatastoreReportingPlugin
             DatasetDescription dataset)
     {
         List<ISerializableComparable> row = new ArrayList<ISerializableComparable>();
-        row.add(asText(dataset.getDatasetCode()));
+        row.add(asText(dataset.getDataSetCode()));
         row.add(asText(run.getRawDataFilePath()));
         row.add(asText(run.getRawDataFileName()));
         row.add(asText(run.getInstrumentType()));

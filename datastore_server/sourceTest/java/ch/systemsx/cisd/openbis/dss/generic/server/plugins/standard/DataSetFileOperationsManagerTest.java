@@ -1053,7 +1053,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
     private DatasetLocation datasetLocation(DatasetDescription dsd)
     {
         DatasetLocation result = new DatasetLocation();
-        result.setDatasetCode(dsd.getDatasetCode());
+        result.setDatasetCode(dsd.getDataSetCode());
         result.setDataSetLocation(dsd.getDataSetLocation());
         return result;
     }

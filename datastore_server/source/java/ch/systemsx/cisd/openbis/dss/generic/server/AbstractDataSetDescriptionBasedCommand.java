@@ -43,7 +43,7 @@ abstract class AbstractDataSetDescriptionBasedCommand implements IDataSetCommand
         List<String> result = new ArrayList<String>();
         for (DatasetDescription dataSet : dataSets)
         {
-            result.add(dataSet.getDatasetCode());
+            result.add(dataSet.getDataSetCode());
         }
         return result;
     }

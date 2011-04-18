@@ -149,7 +149,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         {
             if (dataset.getDataSetSize() == null)
             {
-                String dataSetCode = dataset.getDatasetCode();
+                String dataSetCode = dataset.getDataSetCode();
                 String shareId = getShareIdManager().getShareId(dataSetCode);
                 File shareFolder = new File(storeRoot, shareId);
                 String dataSetLocation = dataset.getDataSetLocation();
@@ -222,13 +222,13 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         DatasetProcessingStatuses result = new DatasetProcessingStatuses();
         for (DatasetDescription dataset : groupedDatasets.getPresentInArchive())
         {
-            String dataSetCode = dataset.getDatasetCode();
+            String dataSetCode = dataset.getDataSetCode();
             Status status = getStatusForDataset(statuses, dataSetCode, Status.OK);
             result.addResult(dataSetCode, status, Operation.ARCHIVE);
         }
         for (DatasetDescription dataset : groupedDatasets.getNotPresentAsList())
         {
-            String dataSetCode = dataset.getDatasetCode();
+            String dataSetCode = dataset.getDataSetCode();
             BooleanStatus booleanStatus = groupedDatasets.getNotPresentInArchiveStatus(dataset);
             String errorMessage =
                     (booleanStatus.tryGetMessage() != null) ? booleanStatus.tryGetMessage() : "";
@@ -382,7 +382,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         {
             for (DatasetDescription dataset : datasets)
             {
-                addResult(dataset.getDatasetCode(), status, operation.getDescription());
+                addResult(dataset.getDataSetCode(), status, operation.getDescription());
             }
         }
 
@@ -441,7 +441,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
         for (DatasetDescription dataset : datasets)
         {
-            statuses.addResult(dataset.getDatasetCode(), status, operationDescription);
+            statuses.addResult(dataset.getDataSetCode(), status, operationDescription);
         }
         return statuses;
     }
@@ -581,7 +581,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         public void prepareForUnarchiving(DatasetDescription dataSet)
         {
             SimpleDataSetInformationDTO translatedDataSet = SimpleDataSetHelper.translate(dataSet);
-            String dataSetCode = dataSet.getDatasetCode();
+            String dataSetCode = dataSet.getDataSetCode();
             String shareId = shareIdManager.getShareId(dataSetCode);
             translatedDataSet.setDataSetShareId(shareId);
             Share share = shareFinder.tryToFindShare(translatedDataSet, shares);

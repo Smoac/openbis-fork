@@ -42,7 +42,7 @@ public class DatasetLocation implements IDatasetLocation, ISerializable, ICodeHo
         this.dataSetLocation = dataSetLocation;
     }
 
-    public String getDatasetCode()
+    public String getDataSetCode()
     {
         return datasetCode;
     }
@@ -60,7 +60,7 @@ public class DatasetLocation implements IDatasetLocation, ISerializable, ICodeHo
 
     public String getCode()
     {
-        return getDatasetCode();
+        return getDataSetCode();
     }
 
 }

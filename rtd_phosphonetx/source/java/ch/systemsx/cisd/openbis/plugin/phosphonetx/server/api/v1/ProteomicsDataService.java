@@ -36,6 +36,7 @@ import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -276,6 +277,33 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
         e.setRegistrationDate(experiment.getRegistrationDate());
         e.setProperties(translate(experiment.getProperties()));
         return e;
+    }
+
+    public List<DataSet> listDataSetsByExperiment(String sessionToken, String userID,
+            long experimentID)
+    {
+        checkSession(sessionToken);
+        SessionContextDTO session = login(userID);
+        try
+        {
+            List<DataSet> result = new ArrayList<DataSet>();
+            List<ExternalData> dataSets =
+                    service.listDataSetsByExperiment(session.getSessionToken(), new TechId(
+                            experimentID));
+            for (ExternalData dataSet : dataSets)
+            {
+                DataSet ds = new DataSet();
+                ds.setId(dataSet.getId());
+                ds.setCode(dataSet.getCode());
+                ds.setType(dataSet.getDataSetType().getCode());
+                ds.setProperties(translate(dataSet.getProperties()));
+                result.add(ds);
+            }
+            return result;
+        } finally
+        {
+            service.logout(session.getSessionToken());
+        }
     }
 
     public void processSearchData(String sessionToken, String userID, String dataSetProcessingKey,

@@ -68,7 +68,7 @@ public class DatasetDescription implements Serializable, IDatasetLocation
         {
             for (DatasetDescription description : dataSets)
             {
-                result.add(description.getDatasetCode());
+                result.add(description.getDataSetCode());
             }
         }
         return result;
@@ -109,7 +109,7 @@ public class DatasetDescription implements Serializable, IDatasetLocation
         return instanceCode;
     }
 
-    public String getDatasetCode()
+    public String getDataSetCode()
     {
         return datasetCode;
     }

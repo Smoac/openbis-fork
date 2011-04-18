@@ -66,7 +66,7 @@ public class DemoArchiver extends AbstractArchiverProcessingPlugin
     public BooleanStatus isDataSetPresentInArchive(DatasetDescription dataset,
             ArchiverTaskContext context)
     {
-        boolean present = archiveContents.contains(dataset.getDatasetCode());
+        boolean present = archiveContents.contains(dataset.getDataSetCode());
         return BooleanStatus.createFromBoolean(present);
     }
 

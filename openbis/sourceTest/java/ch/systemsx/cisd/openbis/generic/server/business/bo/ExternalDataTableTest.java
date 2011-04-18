@@ -729,7 +729,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
                     assertEquals(dataSets.length, list.size());
                     for (int i = 0; i < list.size(); i++)
                     {
-                        assertEquals("data set " + i, dataSets[i].getCode(), list.get(i).getDatasetCode());
+                        assertEquals("data set " + i, dataSets[i].getCode(), list.get(i).getDataSetCode());
                     }
                     return true;
                 }

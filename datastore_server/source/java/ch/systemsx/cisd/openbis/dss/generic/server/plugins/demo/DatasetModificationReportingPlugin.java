@@ -53,7 +53,7 @@ public class DatasetModificationReportingPlugin extends AbstractTableModelReport
         for (DatasetDescription dataset : datasets)
         {
             File file = getDataSubDir(context.getDirectoryProvider(), dataset);
-            String datasetCode = dataset.getDatasetCode();
+            String datasetCode = dataset.getDataSetCode();
             List<ISerializableComparable> row =
                     Arrays.<ISerializableComparable> asList(new StringTableCell(datasetCode),
                             new StringTableCell(new Date(file.lastModified()).toString()));

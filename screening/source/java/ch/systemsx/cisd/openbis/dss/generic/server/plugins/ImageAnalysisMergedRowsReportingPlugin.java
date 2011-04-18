@@ -155,7 +155,7 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractTableModelRe
         List<String> datasetCodes = new ArrayList<String>();
         for (DatasetDescription datasetDescription : datasets)
         {
-            datasetCodes.add(datasetDescription.getDatasetCode());
+            datasetCodes.add(datasetDescription.getDataSetCode());
         }
         return datasetCodes;
     }

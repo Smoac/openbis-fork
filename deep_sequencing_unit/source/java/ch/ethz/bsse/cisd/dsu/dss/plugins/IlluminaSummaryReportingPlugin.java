@@ -196,7 +196,7 @@ public class IlluminaSummaryReportingPlugin extends AbstractTableModelReportingP
         {
             throw new EnvironmentFailureException(String.format(
                     "Couldn't get sample %s for dataset %s.", dataset.getSampleCode(),
-                    dataset.getDatasetCode()));
+                    dataset.getDataSetCode()));
         }
         return sampleOrNull;
     }

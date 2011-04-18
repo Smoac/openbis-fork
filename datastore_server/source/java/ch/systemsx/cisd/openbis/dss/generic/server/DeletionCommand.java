@@ -69,7 +69,7 @@ class DeletionCommand extends AbstractDataSetDescriptionBasedCommand
                         {
                             File dataSetDirectory =
                                     dataSetDirectoryProvider.getDataSetDirectory(dataSet);
-                            SegmentedStoreUtils.deleteDataSet(dataSet.getDatasetCode(),
+                            SegmentedStoreUtils.deleteDataSet(dataSet.getDataSetCode(),
                                     dataSetDirectory, shareIdManager, logger);
                         } catch (Throwable ex)
                         {
@@ -92,7 +92,7 @@ class DeletionCommand extends AbstractDataSetDescriptionBasedCommand
         b.append("Delete data sets: ");
         for (DatasetDescription dataset : dataSets)
         {
-            b.append(dataset.getDatasetCode());
+            b.append(dataset.getDataSetCode());
             b.append(',');
         }
         b.setLength(b.length() - 1);

@@ -60,7 +60,7 @@ public class TimeSeriesPropertiesReportingPlugin extends AbstractTableModelRepor
             {
                 row.add(new StringTableCell(""));
             }
-            addTableCellValue(row, headers, "CODE", dataset.getDatasetCode());
+            addTableCellValue(row, headers, "CODE", dataset.getDataSetCode());
             File file = getDataSubDir(context.getDirectoryProvider(), dataset);
             List<NewProperty> properies = HeaderUtils.extractHeaderProps(file, true, false, true);
             for (NewProperty p : properies)

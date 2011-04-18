@@ -112,7 +112,7 @@ public class ImageAnalysisMergedRowsReportingPluginTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(dao).listDatasetsByPermId(ds1.getDatasetCode(), ds2.getDatasetCode());
+                    one(dao).listDatasetsByPermId(ds1.getDataSetCode(), ds2.getDataSetCode());
                     will(returnValue(Arrays.asList(createDataSet(1), createDataSet(2))));
 
                     one(dao).listFeatureDefsByDataSetIds(1, 2);

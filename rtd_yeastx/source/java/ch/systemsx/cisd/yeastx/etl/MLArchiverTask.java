@@ -90,7 +90,7 @@ public class MLArchiverTask extends AbstractArchiverProcessingPlugin
     {
         try
         {
-            dao.deleteDataSet(dataset.getDatasetCode());
+            dao.deleteDataSet(dataset.getDataSetCode());
             dao.commit();
         } catch (Exception ex)
         {
@@ -120,7 +120,7 @@ public class MLArchiverTask extends AbstractArchiverProcessingPlugin
             }
             Experiment experiment = getOrFetchExperiment(dataset, sample);
             File dataFile = getDataFile(dataset, directoryProvider);
-            databaseUploader.upload(dataFile, sample, experiment, dataset.getDatasetCode());
+            databaseUploader.upload(dataFile, sample, experiment, dataset.getDataSetCode());
             databaseUploader.commit();
         } catch (Exception ex)
         {
@@ -202,7 +202,7 @@ public class MLArchiverTask extends AbstractArchiverProcessingPlugin
         for (DatasetDescription dataset : datasets)
         {
             Status status = uploadToYeastXDatabase(dataset, context.getDirectoryProvider(), databaseUploader);
-            statuses.addResult(dataset.getDatasetCode(), status, operationName);
+            statuses.addResult(dataset.getDataSetCode(), status, operationName);
             counter++;
             if (counter % 100 == 0)
             {
@@ -253,7 +253,7 @@ public class MLArchiverTask extends AbstractArchiverProcessingPlugin
         DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
         for (DatasetLocation dataset : datasets)
         {
-            statuses.addResult(dataset.getDatasetCode(), Status.OK, Operation.DELETE_FROM_ARCHIVE);
+            statuses.addResult(dataset.getDataSetCode(), Status.OK, Operation.DELETE_FROM_ARCHIVE);
         }
         return statuses;
     }
