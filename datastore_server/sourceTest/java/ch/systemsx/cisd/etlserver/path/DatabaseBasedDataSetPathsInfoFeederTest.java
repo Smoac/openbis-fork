@@ -27,6 +27,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.io.HierarchicalContentFactory;
 import ch.systemsx.cisd.etlserver.IDataSetPathsInfoFeeder;
 
 /**
@@ -45,7 +46,7 @@ public class DatabaseBasedDataSetPathsInfoFeederTest extends AbstractFileSystemT
     {
         context = new Mockery();
         dao = context.mock(IPathsInfoDAO.class);
-        feeder = new DatabaseBasedDataSetPathsInfoFeeder(dao);
+        feeder = new DatabaseBasedDataSetPathsInfoFeeder(dao, new HierarchicalContentFactory());
     }
     
     @AfterMethod
@@ -64,7 +65,7 @@ public class DatabaseBasedDataSetPathsInfoFeederTest extends AbstractFileSystemT
     @Test
     public void test()
     {
-        File dir = new File(workingDirectory, "dir");
+        final File dir = new File(workingDirectory, "dir");
         dir.mkdirs();
         FileUtilities.writeToFile(new File(dir, "hello.txt"), "hello world");
         FileUtilities.writeToFile(new File(dir, "read.me"), "nothing to read");
@@ -76,19 +77,19 @@ public class DatabaseBasedDataSetPathsInfoFeederTest extends AbstractFileSystemT
                     one(dao).createDataSet("ds-1", "a/b/c/");
                     will(returnValue(42L));
                     
-                    one(dao).createDataSetFile(42L, null, "dir", 1, 26, true);
+                    one(dao).createDataSetFile(42L, null, "dir", "dir", 26, true);
                     will(returnValue(101L));
                     
-                    one(dao).createDataSetFile(42L, 101L, "dir/hello.txt", 2, 11, false);
+                    one(dao).createDataSetFile(42L, 101L, "dir/hello.txt", "hello.txt", 11, false);
                     will(returnValue(102L));
                     
-                    one(dao).createDataSetFile(42L, 101L, "dir/read.me", 2, 15, false);
+                    one(dao).createDataSetFile(42L, 101L, "dir/read.me", "read.me", 15, false);
                     will(returnValue(103L));
                     
-                    one(dao).createDataSetFile(42L, 101L, "dir/dir", 2, 0, true);
+                    one(dao).createDataSetFile(42L, 101L, "dir/dir", "dir", 0, true);
                     will(returnValue(104L));
                     
-                    one(dao).createDataSetFile(42L, null, "read.me", 1, 12, false);
+                    one(dao).createDataSetFile(42L, null, "read.me", "read.me", 12, false);
                     will(returnValue(105L));
                 }
             });

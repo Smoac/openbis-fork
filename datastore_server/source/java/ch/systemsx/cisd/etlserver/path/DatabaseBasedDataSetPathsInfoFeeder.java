@@ -22,6 +22,10 @@ import java.util.List;
 
 import net.lemnik.eodsql.QueryTool;
 
+import ch.systemsx.cisd.common.io.HierarchicalContentFactory;
+import ch.systemsx.cisd.common.io.IHierarchicalContent;
+import ch.systemsx.cisd.common.io.IHierarchicalContentFactory;
+import ch.systemsx.cisd.common.utilities.IDelegatedAction;
 import ch.systemsx.cisd.etlserver.IDataSetPathsInfoFeeder;
 
 /**
@@ -32,43 +36,52 @@ import ch.systemsx.cisd.etlserver.IDataSetPathsInfoFeeder;
 public class DatabaseBasedDataSetPathsInfoFeeder implements IDataSetPathsInfoFeeder
 {
     private final IPathsInfoDAO dao;
+    private final IHierarchicalContentFactory hierarchicalContentFactory;
 
     public DatabaseBasedDataSetPathsInfoFeeder(Connection connection)
     {
-        this(QueryTool.getQuery(connection, IPathsInfoDAO.class));
+        this(QueryTool.getQuery(connection, IPathsInfoDAO.class), new HierarchicalContentFactory());
     }
     
-    DatabaseBasedDataSetPathsInfoFeeder(IPathsInfoDAO dao)
+    DatabaseBasedDataSetPathsInfoFeeder(IPathsInfoDAO dao,
+            IHierarchicalContentFactory hierarchicalContentFactory)
     {
         this.dao = dao;
+        this.hierarchicalContentFactory = hierarchicalContentFactory;
     }
 
     public long addPaths(String dataSetCode, String location, File dataSetRoot)
     {
         long dataSetId = dao.createDataSet(dataSetCode, location);
-        PathInfo root = PathInfo.createPathInfo(dataSetRoot);
+        IHierarchicalContent content =
+                hierarchicalContentFactory.asHierarchicalContent(dataSetRoot,
+                        IDelegatedAction.DO_NOTHING);
+        PathInfo root =
+                PathInfo.createPathInfo(hierarchicalContentFactory.asHierarchicalContentNode(
+                        content, dataSetRoot));
         List<PathInfo> children = root.getChildren();
         for (PathInfo child : children)
         {
-            addPaths(dataSetId, null, "", 1, child);
+            addPaths(dataSetId, null, "", child);
         }
         return root.getSizeInBytes();
     }
 
-    private void addPaths(long dataSetId, Long parentId, String pathPrefix, int treeDepth,
+    private void addPaths(long dataSetId, Long parentId, String pathPrefix, 
             PathInfo pathInfo)
     {
         boolean directory = pathInfo.isDirectory();
-        String relativePath = pathPrefix + pathInfo.getFileName();
+        String fileName = pathInfo.getFileName();
+        String relativePath = pathPrefix + fileName;
         long id =
-                dao.createDataSetFile(dataSetId, parentId, relativePath, treeDepth,
+                dao.createDataSetFile(dataSetId, parentId, relativePath, fileName,
                         pathInfo.getSizeInBytes(), directory);
         if (directory)
         {
             List<PathInfo> children = pathInfo.getChildren();
             for (PathInfo child : children)
             {
-                addPaths(dataSetId, id, relativePath + "/", treeDepth + 1, child);
+                addPaths(dataSetId, id, relativePath + "/", child);
             }
         }
     }

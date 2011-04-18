@@ -16,14 +16,15 @@
 
 package ch.systemsx.cisd.etlserver.path;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
+
 /**
- * Immutable class with informations about a path in a file system.
+ * Immutable class with path informations about a {@link IHierarchicalContentNode} and its descendants.
  * 
  *
  * @author Franz-Josef Elmer
@@ -32,21 +33,18 @@ final class PathInfo
 {
     private static final List<PathInfo> NO_CHILDREN = Collections.emptyList();
     
-    /**
-     * Creates path info for specified file and recursively of all its children.
-     */
-    static PathInfo createPathInfo(File file)
+    static PathInfo createPathInfo(IHierarchicalContentNode node)
     {
-        if (file.exists() == false)
+        if (node.exists() == false)
         {
-            throw new IllegalArgumentException("File does not exist: " + file);
+            throw new IllegalArgumentException("File does not exist: " + node.getRelativePath());
         }
         PathInfo pathInfo = new PathInfo();
-        pathInfo.fileName = file.getName();
-        pathInfo.directory = file.isDirectory();
+        pathInfo.fileName = node.getName();
+        pathInfo.directory = node.isDirectory();
         if (pathInfo.directory)
         {
-            pathInfo.children = createPathInfos(file);
+            pathInfo.children = createPathInfos(node);
             long sum = 0;
             for (PathInfo childInfo : pathInfo.children)
             {
@@ -56,20 +54,20 @@ final class PathInfo
             pathInfo.sizeInBytes = sum;
         } else
         {
-            pathInfo.sizeInBytes = file.length();
+            pathInfo.sizeInBytes = node.getFileLength();
         }
         return pathInfo;
     }
-
-    private static List<PathInfo> createPathInfos(File file)
+    
+    private static List<PathInfo> createPathInfos(IHierarchicalContentNode node)
     {
-        if (file.isDirectory() == false)
+        if (node.isDirectory() == false)
         {
-            throw new IllegalArgumentException("Not a folder: " + file);
+            throw new IllegalArgumentException("Not a folder: " + node.getRelativePath());
         }
-        File[] files = file.listFiles();
         List<PathInfo> childInfos = new ArrayList<PathInfo>();
-        for (File child : files)
+        List<IHierarchicalContentNode> childNodes = node.getChildNodes();
+        for (IHierarchicalContentNode child : childNodes)
         {
             childInfos.add(createPathInfo(child));
         }

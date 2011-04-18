@@ -48,6 +48,8 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
         
         public String relative_path;
         
+        public String file_name;
+        
         public long size_in_bytes;
         
         public boolean is_directory;
@@ -87,6 +89,7 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
         for (DataSetFileRecord dataSetFileRecord : dataSetFileRecords)
         {
             DataSetPathInfo dataSetPathInfo = new DataSetPathInfo();
+            dataSetPathInfo.setFileName(dataSetFileRecord.file_name);
             dataSetPathInfo.setRelativePath(dataSetFileRecord.relative_path);
             dataSetPathInfo.setDirectory(dataSetFileRecord.is_directory);
             dataSetPathInfo.setSizeInBytes(dataSetFileRecord.size_in_bytes);

@@ -23,6 +23,10 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.io.HierarchicalContentFactory;
+import ch.systemsx.cisd.common.io.IHierarchicalContent;
+import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
+import ch.systemsx.cisd.common.utilities.IDelegatedAction;
 
 /**
  * 
@@ -31,18 +35,6 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
  */
 public class PathInfoTest extends AbstractFileSystemTestCase
 {
-    @Test
-    public void testSingleFile()
-    {
-        File file = new File(workingDirectory, "hello.txt");
-        FileUtilities.writeToFile(file, "hello world");
-        
-        PathInfo pathInfo = PathInfo.createPathInfo(file);
-        
-        assertEquals(null, pathInfo.getParent());
-        check("hello.txt", false, 11, 0, pathInfo);
-    }
-    
     @Test
     public void test()
     {
@@ -57,7 +49,7 @@ public class PathInfoTest extends AbstractFileSystemTestCase
         new File(d3, "d4").mkdirs();
         FileUtilities.writeToFile(new File(d3, "read.me"), "nothing to read");
         
-        PathInfo root = PathInfo.createPathInfo(workingDirectory);
+        PathInfo root = PathInfo.createPathInfo(create(workingDirectory));
         
         assertEquals(null, root.getParent());
         List<PathInfo> children = root.getChildren();
@@ -94,5 +86,13 @@ public class PathInfoTest extends AbstractFileSystemTestCase
         {
             // ignored
         }
+    }
+    
+    private IHierarchicalContentNode create(File file)
+    {
+        HierarchicalContentFactory factory = new HierarchicalContentFactory();
+        IHierarchicalContent content =
+                factory.asHierarchicalContent(file, IDelegatedAction.DO_NOTHING);
+        return factory.asHierarchicalContentNode(content, file);
     }
 }

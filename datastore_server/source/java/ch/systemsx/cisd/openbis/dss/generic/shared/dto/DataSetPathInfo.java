@@ -26,6 +26,8 @@ import java.util.List;
  */
 public class DataSetPathInfo
 {
+    private String fileName;
+    
     private String relativePath;
     
     private boolean directory;
@@ -35,6 +37,16 @@ public class DataSetPathInfo
     private DataSetPathInfo parent;
     
     private List<DataSetPathInfo> children = new ArrayList<DataSetPathInfo>();
+
+    public void setFileName(String fileName)
+    {
+        this.fileName = fileName;
+    }
+
+    public String getFileName()
+    {
+        return fileName;
+    }
 
     public void setRelativePath(String relativePath)
     {
