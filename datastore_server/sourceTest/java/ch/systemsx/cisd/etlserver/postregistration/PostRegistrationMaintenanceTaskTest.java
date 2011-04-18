@@ -16,9 +16,9 @@
 
 package ch.systemsx.cisd.etlserver.postregistration;
 
-import static ch.systemsx.cisd.etlserver.postregistration.TaskExecutor.CLEANUP_TASKS_FOLDER_PROPERTY;
 import static ch.systemsx.cisd.etlserver.postregistration.PostRegistrationMaintenanceTask.LAST_SEEN_DATA_SET_FILE_PROPERTY;
 import static ch.systemsx.cisd.etlserver.postregistration.PostRegistrationMaintenanceTask.POST_REGISTRATION_TASKS_PROPERTY;
+import static ch.systemsx.cisd.etlserver.postregistration.TaskExecutor.CLEANUP_TASKS_FOLDER_PROPERTY;
 
 import java.io.File;
 import java.io.IOException;
@@ -213,8 +213,6 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
         maintenanceTask.setUp("post-registration", properties);
         maintenanceTask.execute();
         
-        assertEquals("INFO  OPERATION.PostRegistrationMaintenanceTask - Perform 0 clean up task.",
-                logRecorder.getLogContent());
         assertEquals(42, criteriaMatcher.recordedObject().getLastSeenDataSetId());
         assertEquals("42", FileUtilities.loadExactToString(lastSeenDataSetFile).trim());
         assertEquals(0, cleanupInvocations.size());
@@ -326,8 +324,7 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
         assertEquals(false, maintenanceTask.requiresDataStoreLock());
         maintenanceTask.execute();
 
-        assertEquals("INFO  OPERATION.PostRegistrationMaintenanceTask - Perform 0 clean up task.\n"
-                + "INFO  OPERATION.PostRegistrationMaintenanceTask - "
+        assertEquals("INFO  OPERATION.PostRegistrationMaintenanceTask - "
                 + "Post registration of 1. of 2 data sets: ds-1\n"
                 + "INFO  OPERATION.PostRegistrationMaintenanceTask - "
                 + "Post registration of 2. of 2 data sets: ds-2", logRecorder.getLogContent());
@@ -391,8 +388,7 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
         assertEquals(false, maintenanceTask.requiresDataStoreLock());
         maintenanceTask.execute();
         
-        assertEquals("INFO  OPERATION.PostRegistrationMaintenanceTask - Perform 0 clean up task.\n"
-                + "INFO  OPERATION.PostRegistrationMaintenanceTask -"
+        assertEquals("INFO  OPERATION.PostRegistrationMaintenanceTask -"
                 + " Post registration of 1. of 1 data sets: ds-1", logRecorder.getLogContent());
         assertEquals(0, criteriaMatcher.recordedObject().getLastSeenDataSetId());
         assertEquals("1", FileUtilities.loadExactToString(lastSeenDataSetFile).trim());
