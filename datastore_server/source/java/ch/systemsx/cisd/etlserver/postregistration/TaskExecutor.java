@@ -136,7 +136,7 @@ public class TaskExecutor
     {
         Log4jSimpleLogger logger = new Log4jSimpleLogger(operationLog);
         File[] files = cleanupTasksFolder.listFiles(FILTER);
-        if (files != null)
+        if (files != null && files.length > 0)
         {
             operationLog.info("Perform " + files.length + " clean up task.");
             for (File file : files)
