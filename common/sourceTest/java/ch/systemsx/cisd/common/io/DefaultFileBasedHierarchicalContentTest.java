@@ -408,7 +408,6 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
         context.checking(new Expectations()
             {
                 {
-                    // root node should be created only once even though we access it many times
                     one(hierarchicalContentFactory).asHierarchicalContentNode(rootContent, subDir);
                     will(returnValue(createDummyFileBasedNode(rootDir, subDir)));
                 }
@@ -434,6 +433,15 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
         createHDF5Container(subContainerDir, subDir);
 
         final DefaultFileBasedHierarchicalContent rootContent = createContent(rootDir);
+
+        context.checking(new Expectations()
+            {
+                {
+                    // root node should be created only once even though we access it many times
+                    one(hierarchicalContentFactory).asHierarchicalContentNode(rootContent, rootDir);
+                    will(returnValue(createDummyFileBasedRootNode(rootDir)));
+                }
+            });
 
         final String relativePath = FileUtilities.getRelativeFile(rootDir, subSubDir);
         final String containerRelativePath =

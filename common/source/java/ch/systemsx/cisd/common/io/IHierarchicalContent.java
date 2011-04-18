@@ -36,19 +36,22 @@ public interface IHierarchicalContent
     IHierarchicalContentNode getNode(String relativePath);
 
     /**
-     * Returns list of all file nodes in this hierarchy with names matching given
-     * <var>pattern</var>.
+     * Returns list of all file nodes in this hierarchy with relative paths matching given
+     * <var>relativePathPattern</var>.
      * <p>
-     * NOTE: this operation may be expensive for huge hierarchies
+     * NOTE: this operation may be expensive for huge hierarchies. If prefix of relative path is
+     * constant use {@link #listMatchingNodes(String, String)} instead with pattern for filename.
      */
-    List<IHierarchicalContentNode> listMatchingNodes(String pattern);
+    List<IHierarchicalContentNode> listMatchingNodes(String relativePathPattern);
 
     /**
-     * Like {@link #listMatchingNodes(String)} but search starts from specified relative path.
-     * <p>
-     * NOTE: this operation may be expensive for huge hierarchies
+     * Returns list of all file nodes in this hierarchy starting from <var>startingPath</var> with
+     * file names matching given <var>fileNamePattern</var>.
+     * 
+     * @param startingPath Relative path from which the search should start. Use empty string to
+     *            start in root.
      */
-    List<IHierarchicalContentNode> listMatchingNodes(String startingPath, String pattern);
+    List<IHierarchicalContentNode> listMatchingNodes(String startingPath, String fileNamePattern);
 
     /** Cleans resources acquired to access this hierarchical content. */
     void close();
