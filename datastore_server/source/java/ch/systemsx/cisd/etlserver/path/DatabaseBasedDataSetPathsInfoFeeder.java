@@ -59,11 +59,7 @@ public class DatabaseBasedDataSetPathsInfoFeeder implements IDataSetPathsInfoFee
         PathInfo root =
                 PathInfo.createPathInfo(hierarchicalContentFactory.asHierarchicalContentNode(
                         content, dataSetRoot));
-        List<PathInfo> children = root.getChildren();
-        for (PathInfo child : children)
-        {
-            addPaths(dataSetId, null, "", child);
-        }
+        addPaths(dataSetId, null, "", root);
         return root.getSizeInBytes();
     }
 

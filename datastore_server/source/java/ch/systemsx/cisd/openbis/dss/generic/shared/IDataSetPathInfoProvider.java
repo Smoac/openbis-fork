@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared;
 
-import java.util.List;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
 
@@ -28,5 +27,5 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
  */
 public interface IDataSetPathInfoProvider
 {
-    public List<DataSetPathInfo> listDataSetRootPathInfos(String dataSetCode);
+    public DataSetPathInfo tryGetDataSetRootPathInfo(String dataSetCode);
 }

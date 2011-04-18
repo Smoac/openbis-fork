@@ -79,9 +79,9 @@ public class DatabaseBasedDataSetPathInfoProviderTest extends AssertJUnit
                 }
             });
 
-        List<DataSetPathInfo> infos = pathInfoProvider.listDataSetRootPathInfos("ds-1");
+        DataSetPathInfo info = pathInfoProvider.tryGetDataSetRootPathInfo("ds-1");
 
-        assertEquals(0, infos.size());
+        assertEquals(null, info);
     }
 
     @Test
@@ -98,21 +98,20 @@ public class DatabaseBasedDataSetPathInfoProviderTest extends AssertJUnit
                 }
             });
 
-        List<DataSetPathInfo> infos = pathInfoProvider.listDataSetRootPathInfos("ds-1");
+        DataSetPathInfo info = pathInfoProvider.tryGetDataSetRootPathInfo("ds-1");
 
-        assertEquals(0, infos.size());
+        assertEquals(null, info);
     }
     
     @Test
     public void testListDataSetRootPathInfoWithTwoResults()
     {
-        final DataSetFileRecord r1 = record(1, 2L, "dir/text.txt", 23, false);
-        final DataSetFileRecord r2 = record(2, null, "dir", 53, true);
-        final DataSetFileRecord r3 = record(3, 2L, "dir/dir", 30, true);
-        final DataSetFileRecord r4 = record(4, 3L, "dir/dir/hello", 3, false);
-        final DataSetFileRecord r5 = record(5, 3L, "dir/dir/hi", 27, false);
-        final DataSetFileRecord r6 = record(6, null, "dir2", 0, true);
-        final DataSetFileRecord r7 = record(7, null, "read.me", 23, false);
+        final DataSetFileRecord r1 = record(1, 2L, "dir/text.txt", "text.txt", 23, false);
+        final DataSetFileRecord r2 = record(2, null, "dir", "dir", 53, true);
+        final DataSetFileRecord r3 = record(3, 2L, "dir/dir", "dir", 30, true);
+        final DataSetFileRecord r4 = record(4, 3L, "dir/dir/hello", "hello", 3, false);
+        final DataSetFileRecord r5 = record(5, 3L, "dir/dir/hi", "hi", 27, false);
+        final DataSetFileRecord r6 = record(6, 2L, "dir/dir2", "dir2", 0, true);
         context.checking(new Expectations()
             {
                 {
@@ -120,26 +119,25 @@ public class DatabaseBasedDataSetPathInfoProviderTest extends AssertJUnit
                     will(returnValue(DATA_SET_ID));
 
                     one(dao).listDataSetFiles(DATA_SET_ID);
-                    will(returnValue(Arrays.asList(r1, r2, r3, r4, r5, r6, r7)));
+                    will(returnValue(Arrays.asList(r1, r2, r3, r4, r5, r6)));
                 }
             });
         
-        List<DataSetPathInfo> infos = pathInfoProvider.listDataSetRootPathInfos("ds-1");
+        DataSetPathInfo info = pathInfoProvider.tryGetDataSetRootPathInfo("ds-1");
         
-        check("dir", true, 53, infos.get(0));
-        check("dir/text.txt", false, 23, infos.get(0).getChildren().get(0));
-        check("dir/dir", true, 30, infos.get(0).getChildren().get(1));
-        check("dir/dir/hello", false, 3, infos.get(0).getChildren().get(1).getChildren().get(0));
-        check("dir/dir/hi", false, 27, infos.get(0).getChildren().get(1).getChildren().get(01));
-        check("dir2", true, 0, infos.get(1));
-        check("read.me", false, 23, infos.get(2));
-        assertEquals(3, infos.size());
+        check("dir", "dir", true, 53, info);
+        check("dir/text.txt", "text.txt", false, 23, info.getChildren().get(0));
+        check("dir/dir", "dir", true, 30, info.getChildren().get(1));
+        check("dir/dir/hello", "hello", false, 3, info.getChildren().get(1).getChildren().get(0));
+        check("dir/dir/hi", "hi", false, 27, info.getChildren().get(1).getChildren().get(1));
+        check("dir/dir2", "dir2", true, 0, info.getChildren().get(2));
     }
-    
-    private void check(String expectedRelativePath, boolean expectingDirectory, long expectedSize,
-            DataSetPathInfo info)
+
+    private void check(String expectedRelativePath, String expectedFileName,
+            boolean expectingDirectory, long expectedSize, DataSetPathInfo info)
     {
         assertEquals(expectedRelativePath, info.getRelativePath());
+        assertEquals(expectedFileName, info.getFileName());
         assertEquals(expectingDirectory, info.isDirectory());
         assertEquals(expectedSize, info.getSizeInBytes());
         List<DataSetPathInfo> children = info.getChildren();
@@ -150,15 +148,16 @@ public class DatabaseBasedDataSetPathInfoProviderTest extends AssertJUnit
     }
 
     private DatabaseBasedDataSetPathInfoProvider.DataSetFileRecord record(long id, Long parentId,
-            String relativePath, long size, boolean directory)
+            String relativePath, String fileName, long size, boolean directory)
     {
         DatabaseBasedDataSetPathInfoProvider.DataSetFileRecord record =
                 new DatabaseBasedDataSetPathInfoProvider.DataSetFileRecord();
         record.id = id;
         record.parent_id = parentId;
+        record.file_name = fileName;
         record.relative_path = relativePath;
         record.size_in_bytes = size;
         record.is_directory = directory;
-       return record;
+        return record;
     }
 }
