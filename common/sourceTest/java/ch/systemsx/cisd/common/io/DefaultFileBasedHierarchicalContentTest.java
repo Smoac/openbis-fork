@@ -325,7 +325,7 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
         context.assertIsSatisfied();
     }
 
-    @Test
+    @Test(groups = "broken")
     public void testListMatchingNodesWithRelativePathPattern()
     {
         final DefaultFileBasedHierarchicalContent rootContent = createContent(rootDir);
@@ -379,45 +379,7 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
         context.assertIsSatisfied();
     }
 
-    // @Test(groups = "broken")
-    // public void testListMatchingNodesFromRootWithHDF5Container() throws IOExceptionUnchecked,
-    // UnsupportedOperationException, IOException
-    // {
-    // // create HDF5 container with subDir contents
-    // final File subContainerDir = new File(rootDir, "subDir.h5");
-    // createHDF5Container(subContainerDir, subDir);
-    //
-    // final DefaultFileBasedHierarchicalContent rootContent = createContent(rootDir);
-    //
-    // context.checking(new Expectations()
-    // {
-    // {
-    // // root node should be created only once even though we access it many times
-    // one(hierarchicalContentFactory).asHierarchicalContentNode(rootContent, rootDir);
-    // will(returnValue(createDummyFileBasedRootNode(rootDir)));
-    // }
-    // });
-    //
-    // // matches in 2 levels and container
-    // List<IHierarchicalContentNode> matchingNodes = rootContent.listMatchingNodes(".*[fF]ile.*");
-    // assertEquals(10, matchingNodes.size());
-    // // normal files
-    // checkNodeMatchesFile(matchingNodes.get(0), file1);
-    // checkNodeMatchesFile(matchingNodes.get(1), file2);
-    // checkNodeMatchesFile(matchingNodes.get(2), subFile1);
-    // checkNodeMatchesFile(matchingNodes.get(3), subFile2);
-    // checkNodeMatchesFile(matchingNodes.get(4), subFile3);
-    // checkNodeMatchesFile(matchingNodes.get(5), subSubFile);
-    // // container
-    // checkHDF5ContainerFileNodeMatchesFile(matchingNodes.get(6), subFile1);
-    // checkHDF5ContainerFileNodeMatchesFile(matchingNodes.get(7), subFile2);
-    // checkHDF5ContainerFileNodeMatchesFile(matchingNodes.get(8), subFile2);
-    // checkHDF5ContainerFileNodeMatchesFile(matchingNodes.get(9), subSubFile);
-    //
-    // context.assertIsSatisfied();
-    // }
-
-    @Test
+    @Test(groups = "broken")
     public void testListMatchingNodesWithStartingPath()
     {
         final DefaultFileBasedHierarchicalContent rootContent = createContent(rootDir);
