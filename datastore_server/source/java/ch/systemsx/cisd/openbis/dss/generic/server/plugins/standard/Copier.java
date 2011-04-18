@@ -34,6 +34,7 @@ import ch.systemsx.cisd.common.filesystem.ssh.ISshCommandExecutor;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.process.ProcessResult;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IPostRegistrationDatasetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -57,6 +58,8 @@ public class Copier implements Serializable, IPostRegistrationDatasetHandler
 
     private final ISshCommandExecutorFactory sshCommandExecutorFactory;
 
+    private final boolean renameToDataSetCode;
+
     public Copier(Properties properties, IPathCopierFactory pathCopierFactory,
             ISshCommandExecutorFactory sshCommandExecutorFactory)
     {
@@ -66,6 +69,7 @@ public class Copier implements Serializable, IPostRegistrationDatasetHandler
         rsyncExecutable = getExecutable(properties, DataSetCopier.RSYNC_EXEC);
         sshExecutable = getExecutable(properties, DataSetCopier.SSH_EXEC);
         hostFile = PropertyUtils.getMandatoryProperty(properties, DataSetCopier.DESTINATION_KEY);
+        renameToDataSetCode = PropertyUtils.getBoolean(properties, "rename-to-dataset-code", false);
     }
 
     protected String transformHostFile(String originalHostFile,
@@ -110,14 +114,28 @@ public class Copier implements Serializable, IPostRegistrationDatasetHandler
         }
         Status status =
                 copier.copyToRemote(originalData, destination, host, rsyncModule, rsyncPasswordFile);
+        String dataSetCode = dataSetInformation.getDataSetCode();
         if (status.isError())
         {
-            operationLog.error("Could not copy data set " + dataSetInformation.getDataSetCode()
+            operationLog.error("Could not copy data set " + dataSetCode
                     + " to destination folder '" + destination + "'"
                     + (host != null ? " on host '" + host + "'" : "")
                     + (rsyncModule != null ? " for rsync module '" + rsyncModule + "'" : "") + ": "
                     + status.tryGetErrorMessage());
             return Status.createError(DataSetCopier.COPYING_FAILED_MSG);
+        }
+        if (renameToDataSetCode)
+        {
+            String newFile = new File(destination, dataSetCode).getPath();
+            ProcessResult result =
+                    sshCommandExecutor.executeCommandRemotely("mv " + destinationFile.getPath()
+                            + " " + newFile, DataSetCopier.SSH_TIMEOUT_MILLIS);
+            if (result.isOK() == false)
+            {
+                operationLog.error("Remote move of '" + destinationFile.getPath() + "' to '"
+                        + newFile + "' failed with exit value: " + result.getExitValue());
+                return Status.createError("couldn't move");
+            }
         }
         return status;
     }
