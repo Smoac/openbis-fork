@@ -110,7 +110,7 @@ public class SimpleShareFinderTest extends AssertJUnit
     private Share share(String shareId, final long freeSpace, boolean incoming)
     {
         final File file = new File(shareId);
-        Share share = new Share(file, new IFreeSpaceProvider()
+        Share share = new Share(file, 0, new IFreeSpaceProvider()
             {
 
                 public long freeSpaceKb(HostAwareFile path) throws IOException

@@ -169,7 +169,7 @@ public class SimpleShufflingTest extends AbstractFileSystemTestCase
     @Test
     public void test()
     {
-        final Share share1 = new Share(new File(store, "1"), spaceProvider);
+        final Share share1 = new Share(new File(store, "1"), 0, spaceProvider);
         final SimpleDataSetInformationDTO ds1 = dataSet("ds1", "1", 2000);
         share1.addDataSet(ds1);
         final SimpleDataSetInformationDTO ds2 = dataSet("ds2", "1", ONE_MB);
@@ -180,18 +180,18 @@ public class SimpleShufflingTest extends AbstractFileSystemTestCase
         spaceProvider.addFreeSpaceExpectationFor(share1, 100l);
         spaceProvider.addFreeSpaceExpectationFor(share1, 100l);
         spaceProvider.addFreeSpaceExpectationFor(share1, 100l);
-        final Share share2 = new Share(new File(store, "2"), spaceProvider);
+        final Share share2 = new Share(new File(store, "2"), 0, spaceProvider);
         final SimpleDataSetInformationDTO ds4 = dataSet("ds4", "2", 2 * ONE_MB);
         share2.addDataSet(ds4);
         spaceProvider.addFreeSpaceExpectationFor(share2, 500l);
         spaceProvider.addFreeSpaceExpectationFor(share2, 500l);
         spaceProvider.addFreeSpaceExpectationFor(share2, 500l);
         spaceProvider.addFreeSpaceExpectationFor(share2, 500l);
-        final Share share3 = new Share(new File(store, "3"), spaceProvider);
+        final Share share3 = new Share(new File(store, "3"), 0, spaceProvider);
         spaceProvider.addFreeSpaceExpectationFor(share3, 4 * 1024l);
         spaceProvider.addFreeSpaceExpectationFor(share3, 3 * 1024l);
         spaceProvider.addFreeSpaceExpectationFor(share3, 2 * 1024l);
-        final Share share4 = new Share(new File(store, "4"), spaceProvider);
+        final Share share4 = new Share(new File(store, "4"), 0, spaceProvider);
         spaceProvider.addFreeSpaceExpectationFor(share4, 3 * 1024l);
         spaceProvider.addFreeSpaceExpectationFor(share4, 4 * 1024l);
         spaceProvider.addFreeSpaceExpectationFor(share4, 1024l);

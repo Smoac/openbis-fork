@@ -54,6 +54,8 @@ public final class Share
 
     private final String shareId;
 
+    private final int speed;
+    
     private final List<SimpleDataSetInformationDTO> dataSets =
             new ArrayList<SimpleDataSetInformationDTO>();
     
@@ -61,9 +63,10 @@ public final class Share
 
     private long size;
 
-    public Share(File share, IFreeSpaceProvider freeSpaceProvider)
+    public Share(File share, int speed, IFreeSpaceProvider freeSpaceProvider)
     {
         this.share = share;
+        this.speed = speed;
         this.freeSpaceProvider = freeSpaceProvider;
         shareId = share.getName();
     }
@@ -74,6 +77,14 @@ public final class Share
     public String getShareId()
     {
         return shareId;
+    }
+
+    /**
+     * Returns the speed of this share.  
+     */
+    public int getSpeed()
+    {
+        return speed;
     }
 
     public void setIncoming(boolean incoming)
