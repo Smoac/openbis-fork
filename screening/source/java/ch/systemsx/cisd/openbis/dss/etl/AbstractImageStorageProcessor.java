@@ -122,7 +122,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
             DataSetInformation dataSetInformation, ImageFileExtractionResult extractedImages);
 
     /**
-     * Additional imgae validation (e.g. are there all images that were expected?). Prints warnings
+     * Additional image validation (e.g. are there all images that were expected?). Prints warnings
      * to the log, does not throw exceptions.
      */
     abstract protected void validateImages(DataSetInformation dataSetInformation,
@@ -288,16 +288,23 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
                     extractionResultWithConfig.getImageStorageConfiguraton();
 
             File imagesInStoreFolder = moveToStore(incomingDataSetDirectory, rootDirectory);
+            this.storedDataDirectory = rootDirectory;
+            try
+            {
+                // NOTE: plateImages will be changed by reference
+                processImages(rootDirectory, plateImages, imagesInStoreFolder,
+                        imageStorageConfiguraton);
 
-            // NOTE: plateImages will be changed by reference
-            processImages(rootDirectory, plateImages, imagesInStoreFolder, imageStorageConfiguraton);
+                shouldDeleteOriginalDataOnCommit =
+                        imageStorageConfiguraton.getOriginalDataStorageFormat().isHdf5();
 
-            shouldDeleteOriginalDataOnCommit =
-                    imageStorageConfiguraton.getOriginalDataStorageFormat().isHdf5();
-
-            dbTransaction = createQuery();
-            storeInDatabase(dbTransaction, dataSetInformation, extractionResult);
-
+                dbTransaction = createQuery();
+                storeInDatabase(dbTransaction, dataSetInformation, extractionResult);
+            } catch (RuntimeException ex)
+            {
+                moveFilesBackFromStore();
+                throw ex;
+            }
             return rootDirectory;
         }
 
@@ -316,7 +323,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
         @Override
         protected UnstoreDataAction executeRollback(Throwable exception)
         {
-            unstoreFiles();
+            moveFilesBackFromStore();
             if (dbTransaction != null)
             {
                 rollbackDatabaseChanges();
@@ -363,7 +370,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
             return originalDataFile;
         }
 
-        private final void unstoreFiles()
+        private final void moveFilesBackFromStore()
         {
             checkParameters(incomingDataSetDirectory, storedDataDirectory);
 
@@ -695,7 +702,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
                     imageStorageConfiguraton.getImageTransformerFactory();
             for (AcquiredSingleImage image : images)
             {
-                image.setImageTransformerFactoryOrNull(imgTransformerFactory);
+                image.setImageTransformerFactory(imgTransformerFactory);
             }
         }
     }
