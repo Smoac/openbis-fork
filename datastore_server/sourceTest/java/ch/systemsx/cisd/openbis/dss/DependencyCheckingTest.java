@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd;
+package ch.systemsx.cisd.openbis.dss;
 
 /**
  * 
