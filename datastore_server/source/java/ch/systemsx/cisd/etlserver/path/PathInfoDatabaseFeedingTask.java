@@ -25,7 +25,7 @@ import net.lemnik.eodsql.QueryTool;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.io.HierarchicalContentFactory;
+import ch.systemsx.cisd.common.io.DefaultFileBasedHierarchicalContentFactory;
 import ch.systemsx.cisd.common.io.IHierarchicalContentFactory;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -45,36 +45,36 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
  * Maintenance and post registration task which feeds pathinfo database with all data set paths.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegistrationTask
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             PathInfoDatabaseFeedingTask.class);
-    
+
     private static IPathsInfoDAO createDAO()
     {
         return QueryTool.getQuery(PathInfoDataSourceProvider.getDataSource(), IPathsInfoDAO.class);
     }
-    
+
     private static IDataSetDirectoryProvider getDirectoryProvider()
     {
         return ServiceProvider.getDataStoreService().getDataSetDirectoryProvider();
     }
-    
-    private static HierarchicalContentFactory createContentFactory()
+
+    private static IHierarchicalContentFactory createContentFactory()
     {
-        return new HierarchicalContentFactory();
+        return new DefaultFileBasedHierarchicalContentFactory();
     }
-    
+
     private IEncapsulatedOpenBISService service;
-    
+
     private IDataSetDirectoryProvider directoryProvider;
 
     private IPathsInfoDAO dao;
 
-    private IHierarchicalContentFactory hierarchicalContentFactory;
+    private IHierarchicalContentFactory hierarchicalContentFactory; // filesystem based
 
     public PathInfoDatabaseFeedingTask()
     {
@@ -100,7 +100,6 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
     {
         return false;
     }
-    
 
     public void setUp(String pluginName, Properties properties)
     {
@@ -140,7 +139,7 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
                 }
             };
     }
-        
+
     private void feedPathInfoDatabase(IDatasetLocation dataSet)
     {
         IShareIdManager shareIdManager = directoryProvider.getShareIdManager();
@@ -149,8 +148,8 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
         File dataSetRoot = directoryProvider.getDataSetDirectory(dataSet);
         if (dataSetRoot.exists() == false)
         {
-            operationLog.error("Root directory of data set " + dataSetCode
-                    + " does not exists: " + dataSetRoot);
+            operationLog.error("Root directory of data set " + dataSetCode + " does not exists: "
+                    + dataSetRoot);
             shareIdManager.releaseLocks();
             return;
         }
@@ -178,9 +177,8 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
 
     private void handleException(Exception ex, String dataSet)
     {
-        operationLog.error("Couldn't feed database with path infos of data set " + dataSet,
-                ex);
+        operationLog.error("Couldn't feed database with path infos of data set " + dataSet, ex);
         dao.rollback();
     }
-    
+
 }
