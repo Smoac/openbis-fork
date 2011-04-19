@@ -21,17 +21,17 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
 
 /**
- * Provides informations about paths in data sets.
+ * Provides information about paths of single data set.
  * 
- * @author Franz-Josef Elmer
+ * @author Piotr Buczek
  */
-public interface IDataSetPathInfoProvider
+public interface ISingleDataSetPathInfoProvider
 {
-    public List<DataSetPathInfo> listPathInfosByRegularExpression(String dataSetCode,
-            String regularExpression);
+    DataSetPathInfo getRootPathInfo();
 
-    public DataSetPathInfo tryGetFullDataSetRootPathInfo(String dataSetCode);
+    DataSetPathInfo tryGetPathInfoByRelativePath(String relativePath);
 
-    public ISingleDataSetPathInfoProvider tryGetSingleDataSetPathInfoProvider(String dataSetCode);
+    List<DataSetPathInfo> listMatchingPathInfos(String relativePathPattern);
 
+    List<DataSetPathInfo> listMatchingPathInfos(String startingPath, String fileNamePattern);
 }

@@ -28,6 +28,7 @@ import net.lemnik.eodsql.Select;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetPathInfoProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PathInfoDataSourceProvider;
 
@@ -56,21 +57,36 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
     @Private
     static interface IPathInfoDAO extends BaseQuery
     {
-        @Select("select id from data_sets where code = ?{1}")
+        static String SELECT_DATA_SET_FILES =
+                "SELECT id, parent_id, relative_path, file_name, size_in_bytes, is_directory FROM data_set_files ";
+
+        @Select("SELECT id FROM data_sets WHERE code = ?{1}")
         public Long tryToGetDataSetId(String dataSetCode);
 
-        @Select("select id, parent_id, relative_path, file_name, size_in_bytes, is_directory from data_set_files where dase_id = ?{1}")
+        @Select(SELECT_DATA_SET_FILES + "WHERE dase_id = ?{1}")
         public List<DataSetFileRecord> listDataSetFiles(long dataSetId);
-        
-        @Select("select id, parent_id, relative_path, file_name, size_in_bytes, is_directory from data_set_files where dase_id = ?{1} and relative_path ~ ?{2}")
-        public List<DataSetFileRecord> listDataSetFilesByRegularExpression(long dataSetId, String regex);
+
+        @Select(SELECT_DATA_SET_FILES + "WHERE dase_id = ?{1} AND parent_id is null")
+        public DataSetFileRecord getDataSetRootFile(long dataSetId);
+
+        @Select(SELECT_DATA_SET_FILES + "WHERE dase_id = ?{1} AND relative_path = ?{2}")
+        public DataSetFileRecord tryToGetRelativeDataSetFile(long dataSetId, String relativePath);
+
+        @Select(SELECT_DATA_SET_FILES + "WHERE dase_id = ?{1} AND relative_path ~ ?{2}")
+        public List<DataSetFileRecord> listDataSetFilesByRelativePathRegex(long dataSetId,
+                String relativePathRegex);
+
+        @Select(SELECT_DATA_SET_FILES
+                + "WHERE dase_id = ?{1} AND relative_path like '?{2}' AND file_name ~ ?{3}")
+        public List<DataSetFileRecord> listDataSetFilesByFilenameRegex(long dataSetId,
+                String startingPath, String filenameRegex);
     }
 
     private static interface ILoader
     {
         List<DataSetFileRecord> listDataSetFiles(long dataSetId);
     }
-    
+
     private IPathInfoDAO dao;
 
     public DatabaseBasedDataSetPathInfoProvider()
@@ -90,13 +106,13 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
             {
                 public List<DataSetFileRecord> listDataSetFiles(long dataSetId)
                 {
-                    return getDao().listDataSetFilesByRegularExpression(dataSetId,
+                    return getDao().listDataSetFilesByRelativePathRegex(dataSetId,
                             "^" + regularExpression + "$");
                 }
             }).getInfos();
     }
 
-    public DataSetPathInfo tryGetDataSetRootPathInfo(String dataSetCode)
+    public DataSetPathInfo tryGetFullDataSetRootPathInfo(String dataSetCode)
     {
         return new Loader(dataSetCode, new ILoader()
             {
@@ -106,10 +122,79 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
                 }
             }).getRoot();
     }
-    
+
+    public ISingleDataSetPathInfoProvider tryGetSingleDataSetPathInfoProvider(String dataSetCode)
+    {
+        final Long dataSetId = getDao().tryToGetDataSetId(dataSetCode);
+        if (dataSetId != null)
+        {
+            return new ISingleDataSetPathInfoProvider()
+                {
+                    public DataSetPathInfo getRootPathInfo()
+                    {
+                        DataSetFileRecord record = getDao().getDataSetRootFile(dataSetId);
+                        return asPathInfo(record);
+                    }
+
+                    public DataSetPathInfo tryGetPathInfoByRelativePath(String relativePath)
+                    {
+                        DataSetFileRecord record =
+                                getDao().tryToGetRelativeDataSetFile(dataSetId, relativePath);
+                        if (record != null)
+                        {
+                            return asPathInfo(record);
+                        } else
+                        {
+                            return null;
+                        }
+                    }
+
+                    public List<DataSetPathInfo> listMatchingPathInfos(String relativePathPattern)
+                    {
+                        List<DataSetFileRecord> records =
+                                getDao().listDataSetFilesByRelativePathRegex(dataSetId,
+                                        prepareDBStyleRegex(relativePathPattern));
+                        return asPathInfos(records);
+                    }
+
+                    public List<DataSetPathInfo> listMatchingPathInfos(String startingPath,
+                            String fileNamePattern)
+                    {
+                        List<DataSetFileRecord> records =
+                                getDao().listDataSetFilesByFilenameRegex(dataSetId, startingPath,
+                                        prepareDBStyleRegex(fileNamePattern));
+                        return asPathInfos(records);
+                    }
+
+                    private DataSetPathInfo asPathInfo(DataSetFileRecord record)
+                    {
+                        DataSetPathInfo result = new DataSetPathInfo();
+                        result.setFileName(record.file_name);
+                        result.setRelativePath(record.relative_path);
+                        result.setDirectory(record.is_directory);
+                        result.setSizeInBytes(record.size_in_bytes);
+                        return result;
+                    }
+
+                    private List<DataSetPathInfo> asPathInfos(List<DataSetFileRecord> records)
+                    {
+                        List<DataSetPathInfo> results = new ArrayList<DataSetPathInfo>();
+                        for (DataSetFileRecord record : records)
+                        {
+                            results.add(asPathInfo(record));
+                        }
+                        return results;
+                    }
+
+                };
+        }
+        return null;
+    }
+
     private final class Loader
     {
         private Map<Long, DataSetPathInfo> idToInfoMap = new HashMap<Long, DataSetPathInfo>();
+
         private DataSetPathInfo root;
 
         Loader(String dataSetCode, ILoader loader)
@@ -169,7 +254,7 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
         {
             return root;
         }
-        
+
         List<DataSetPathInfo> getInfos()
         {
             return new ArrayList<DataSetPathInfo>(idToInfoMap.values());
@@ -187,15 +272,10 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
         return dao;
     }
 
-    public static boolean isDataSourceDefined()
+    // java style patterns match the whole text, db style patterns match any fragment
+    private static String prepareDBStyleRegex(String pattern)
     {
-        try
-        {
-            PathInfoDataSourceProvider.getDataSource();
-            return true;
-        } catch (IllegalArgumentException ex)
-        {
-            return false;
-        }
+        return "^" + pattern + "$";
     }
+
 }

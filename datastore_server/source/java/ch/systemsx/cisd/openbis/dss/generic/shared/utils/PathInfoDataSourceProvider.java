@@ -22,7 +22,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 
 /**
  * Helper method for providing data source to pathinfo database.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class PathInfoDataSourceProvider
@@ -33,4 +33,17 @@ public class PathInfoDataSourceProvider
     {
         return ServiceProvider.getDataSourceProvider().getDataSource(DATA_SOURCE_NAME);
     }
+
+    public static boolean isDataSourceDefined()
+    {
+        try
+        {
+            PathInfoDataSourceProvider.getDataSource();
+            return true;
+        } catch (IllegalArgumentException ex)
+        {
+            return false;
+        }
+    }
+
 }

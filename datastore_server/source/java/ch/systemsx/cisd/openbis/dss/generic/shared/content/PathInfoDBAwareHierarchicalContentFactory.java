@@ -11,9 +11,10 @@ import ch.systemsx.cisd.common.io.IHierarchicalContentFactory;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.IDelegatedAction;
-import ch.systemsx.cisd.openbis.dss.generic.server.DatabaseBasedDataSetPathInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetPathInfoProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PathInfoDataSourceProvider;
 
 /**
  * The implementation of {@link IHierarchicalContentFactory} that aware of Path Info DB.
@@ -27,13 +28,18 @@ public class PathInfoDBAwareHierarchicalContentFactory extends
     private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             PathInfoDBAwareHierarchicalContentFactory.class);
 
+    /**
+     * Returns implementation of {@link IHierarchicalContentFactory} based on configuration of Path
+     * Info DB. If the DB is not configured than file system based implementation will be used.
+     * Otherwise the implementation will use the DB to retrieve file metadata.
+     */
     public static IHierarchicalContentFactory create()
     {
-        if (DatabaseBasedDataSetPathInfoProvider.isDataSourceDefined())
+        if (PathInfoDataSourceProvider.isDataSourceDefined())
         {
             operationLog.info("Path Info DB is properly configured");
             return new PathInfoDBAwareHierarchicalContentFactory(
-                    new DatabaseBasedDataSetPathInfoProvider());
+                    ServiceProvider.getDataSetPathInfoProvider());
         } else
         {
             operationLog.info("Path Info DB was NOT configured. "
@@ -54,11 +60,13 @@ public class PathInfoDBAwareHierarchicalContentFactory extends
     public IHierarchicalContent asHierarchicalContent(File file, IDelegatedAction onCloseAction)
     {
         final String dataSetCode = file.getName();
-        DataSetPathInfo rootPathInfo = pathInfoProvider.tryGetDataSetRootPathInfo(dataSetCode);
-        if (rootPathInfo != null) // exists in DB
+        ISingleDataSetPathInfoProvider dataSetPathInfoProvider =
+                pathInfoProvider.tryGetSingleDataSetPathInfoProvider(dataSetCode);
+        if (dataSetPathInfoProvider != null) // data set exists in DB
         {
             operationLog.debug("Data set " + dataSetCode + " was found in Path Info DB.");
-            return new SimplePathInfoBasedHierarchicalContent(rootPathInfo, file, onCloseAction);
+            return new PathInfoProviderBasedHierarchicalContent(dataSetPathInfoProvider, file,
+                    onCloseAction);
         } else
         {
             operationLog.info("Data set " + dataSetCode + " was NOT found in Path Info DB. "

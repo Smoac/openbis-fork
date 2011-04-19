@@ -101,7 +101,7 @@ public class PathInfoDatabaseTest extends SystemTestCase
         stopWatch.reset();
         stopWatch.start();
         final Pattern pattern = Pattern.compile(regex);
-        DataSetPathInfo root = ServiceProvider.getDataSetPathInfoProvider().tryGetDataSetRootPathInfo("ds-1");
+        DataSetPathInfo root = ServiceProvider.getDataSetPathInfoProvider().tryGetFullDataSetRootPathInfo("ds-1");
         System.out.println(stopWatch.getTime() + " msec for reading db");
         results.clear();
         search(results, root, pattern);
