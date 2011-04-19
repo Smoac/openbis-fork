@@ -191,15 +191,8 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
     public void testGetRootNode()
     {
         final DefaultFileBasedHierarchicalContent rootContent = createContent(rootDir);
+        prepareCreateRootNode(rootContent);
 
-        context.checking(new Expectations()
-            {
-                {
-                    // root node should be created only once even though we access it twice
-                    one(hierarchicalContentFactory).asHierarchicalContentNode(rootContent, rootDir);
-                    will(returnValue(createDummyFileBasedRootNode(rootDir)));
-                }
-            });
         IHierarchicalContentNode root1 = rootContent.getRootNode();
         assertSame(rootDir, root1.getFile());
         IHierarchicalContentNode root2 = rootContent.getRootNode();
@@ -212,15 +205,8 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
     public void testGetNodeWithBlankPath()
     {
         final DefaultFileBasedHierarchicalContent rootContent = createContent(rootDir);
+        prepareCreateRootNode(rootContent);
 
-        context.checking(new Expectations()
-            {
-                {
-                    // root node should be created only once even though we access it twice
-                    one(hierarchicalContentFactory).asHierarchicalContentNode(rootContent, rootDir);
-                    will(returnValue(createDummyFileBasedRootNode(rootDir)));
-                }
-            });
         IHierarchicalContentNode rootNode = rootContent.getRootNode();
         IHierarchicalContentNode nullNode = rootContent.getNode(null);
         IHierarchicalContentNode emptyNode = rootContent.getNode("");
@@ -272,16 +258,7 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
         createHDF5Container(subContainerDir, subDir);
 
         final DefaultFileBasedHierarchicalContent rootContent = createContent(rootDir);
-
-        // access to root dir is needed to get relative path of a file inside container
-        context.checking(new Expectations()
-            {
-                {
-                    // root node should be created only once even though we access it many times
-                    one(hierarchicalContentFactory).asHierarchicalContentNode(rootContent, rootDir);
-                    will(returnValue(createDummyFileBasedRootNode(rootDir)));
-                }
-            });
+        prepareCreateRootNode(rootContent);
 
         final List<File> subDirFiles = Arrays.asList(subFile1, subFile2, subFile3, subSubFile);
         for (File subDirFile : subDirFiles)
@@ -330,15 +307,7 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
     public void testListMatchingNodesWithRelativePathPattern()
     {
         final DefaultFileBasedHierarchicalContent rootContent = createContent(rootDir);
-
-        context.checking(new Expectations()
-            {
-                {
-                    // root node should be created only once even though we access it many times
-                    one(hierarchicalContentFactory).asHierarchicalContentNode(rootContent, rootDir);
-                    will(returnValue(createDummyFileBasedRootNode(rootDir)));
-                }
-            });
+        prepareCreateRootNode(rootContent);
 
         // nothing matches
         assertEquals(0, rootContent.listMatchingNodes(".*non-mathching-pattern.*").size());
@@ -388,14 +357,7 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
     public void testListMatchingNodesWithStartingPath()
     {
         final DefaultFileBasedHierarchicalContent rootContent = createContent(rootDir);
-
-        context.checking(new Expectations()
-            {
-                {
-                    one(hierarchicalContentFactory).asHierarchicalContentNode(rootContent, subDir);
-                    will(returnValue(createDummyFileBasedNode(rootDir, subDir)));
-                }
-            });
+        prepareCreateNode(rootContent, subDir);
 
         List<IHierarchicalContentNode> matchingNodes =
                 rootContent.listMatchingNodes("subDir", ".*[fF]ile.*");
@@ -418,15 +380,6 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
         createHDF5Container(subContainerDir, subDir);
 
         final DefaultFileBasedHierarchicalContent rootContent = createContent(rootDir);
-
-        context.checking(new Expectations()
-            {
-                {
-                    // root node should be created only once even though we access it many times
-                    one(hierarchicalContentFactory).asHierarchicalContentNode(rootContent, rootDir);
-                    will(returnValue(createDummyFileBasedRootNode(rootDir)));
-                }
-            });
 
         final String relativePath = FileUtilities.getRelativeFile(rootDir, subSubDir);
         final String containerRelativePath =
@@ -455,6 +408,31 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
         }
 
         context.assertIsSatisfied();
+    }
+
+    private void prepareCreateNode(final DefaultFileBasedHierarchicalContent rootContent,
+            final File file)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    // root node should be created only once even though we access it many times
+                    one(hierarchicalContentFactory).asHierarchicalContentNode(rootContent, file);
+                    will(returnValue(createDummyFileBasedNode(rootDir, file)));
+                }
+            });
+    }
+
+    private void prepareCreateRootNode(final DefaultFileBasedHierarchicalContent rootContent)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    // root node should be created only once even though we access it many times
+                    one(hierarchicalContentFactory).asHierarchicalContentNode(rootContent, rootDir);
+                    will(returnValue(createDummyFileBasedRootNode(rootDir)));
+                }
+            });
     }
 
     private static String METHOD_NOT_IMPLEMENTED = "method not implemented in dummy node";
