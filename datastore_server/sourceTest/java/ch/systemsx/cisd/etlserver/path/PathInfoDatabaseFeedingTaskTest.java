@@ -154,7 +154,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
         prepareFailing(dataSet);
 
         task.createExecutor(DATA_SET_CODE).execute();
-   }
+    }
     
     @Test
     public void testNonExistingDataSetFolder()
@@ -179,6 +179,32 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
         task.createExecutor(DATA_SET_CODE).execute();
     }
     
+    @Test
+    public void testAlreadyExistingDataSetInDatabaser()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).tryGetDataSet(DATA_SET_CODE);
+                    ExternalData dataSet =
+                            new DataSetBuilder().code(DATA_SET_CODE).location("abc").getDataSet();
+                    will(returnValue(dataSet));
+
+                    one(shareIdManager).lock(DATA_SET_CODE);
+
+                    one(directoryProvider).getDataSetDirectory(dataSet);
+                    will(returnValue(dataSetFolder));
+
+                    one(dao).tryGetDataSetId(dataSet.getDataSetCode());
+                    will(returnValue(42L));
+
+                    one(shareIdManager).releaseLocks();
+                }
+            });
+
+        task.createExecutor(DATA_SET_CODE).execute();
+    }
+    
     private void prepareHappyCase(final IDatasetLocation dataSet)
     {
         context.checking(new Expectations()
@@ -188,6 +214,9 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
 
                     one(directoryProvider).getDataSetDirectory(dataSet);
                     will(returnValue(dataSetFolder));
+
+                    one(dao).tryGetDataSetId(dataSet.getDataSetCode());
+                    will(returnValue(null));
 
                     one(dao).createDataSet(dataSet.getDataSetCode(), dataSet.getDataSetLocation());
                     will(returnValue(101L));
@@ -210,7 +239,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
                     one(node).isDirectory();
                     will(returnValue(false));
 
-                    one(dao).createDataSetFile(101L, null, "ds1-root", "ds1-root", 12345L, false);
+                    one(dao).createDataSetFile(101L, null, "", "ds1-root", 12345L, false);
                     will(returnValue(102L));
 
                     one(dao).commit();
@@ -228,6 +257,9 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
 
                     one(directoryProvider).getDataSetDirectory(dataSet);
                     will(returnValue(dataSetFolder));
+                    
+                    one(dao).tryGetDataSetId(dataSet.getDataSetCode());
+                    will(returnValue(null));
 
                     one(dao).createDataSet(dataSet.getDataSetCode(), dataSet.getDataSetLocation());
                     will(returnValue(101L));
