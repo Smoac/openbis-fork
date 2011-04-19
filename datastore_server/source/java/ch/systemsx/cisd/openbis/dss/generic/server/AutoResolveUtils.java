@@ -99,16 +99,17 @@ public class AutoResolveUtils
             return new ArrayList<IHierarchicalContentNode>();
         } else
         {
-            IHierarchicalContentNode startingPoint = createStartingPoint(root, path);
-
-            if (startingPoint.equals(root.getRootNode()))
+            String prefix = "";
+            if (!StringUtils.isBlank(path))
             {
-                return root.listMatchingNodes(pattern);
-            } else
-                return root.listMatchingNodes(createStartingPoint(root, path).getRelativePath()
-                        + File.separator + pattern);
+                prefix = path;
+                if (!path.endsWith(File.separator))
+                {
+                    prefix += File.separator;
+                }
+            }
+            return root.listMatchingNodes(prefix + pattern);
         }
-
     }
 
     public static File tryGetTheOnlyMatchingFileOrDir(File root, String pattern)
@@ -298,31 +299,6 @@ public class AutoResolveUtils
             if (tmp.exists() && tmp.isDirectory())
             {
                 startingPoint = tmp;
-            }
-        }
-        return startingPoint;
-    }
-
-    /**
-     * Returns the directory node defined by root and given relative path. If path is not defined or
-     * the result file does not exist or is not a directory, root is returned.
-     */
-    @Private
-    static IHierarchicalContentNode createStartingPoint(IHierarchicalContent root, String path)
-    {
-        IHierarchicalContentNode startingPoint = root.getRootNode();
-        if (StringUtils.isBlank(path) == false)
-        {
-            try
-            {
-                IHierarchicalContentNode tmp = root.getNode(path);
-                if (tmp.exists() && tmp.isDirectory())
-                {
-                    startingPoint = tmp;
-                }
-            } catch (IllegalArgumentException e)
-            {
-                operationLog.info("Cannot get node for path '" + path + "': ", e);
             }
         }
         return startingPoint;

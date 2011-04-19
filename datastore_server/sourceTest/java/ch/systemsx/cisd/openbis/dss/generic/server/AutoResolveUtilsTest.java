@@ -129,8 +129,6 @@ public class AutoResolveUtilsTest extends AssertJUnit
                             context.mock(IHierarchicalContentNode.class, "NON_EXISTING");
                     allowing(nonExisting).exists();
                     will(returnValue(false));
-                    allowing(MOCK_TEST_FOLDER).getNode("nonexistent/no/no");
-                    will(throwException(new IllegalArgumentException("not exists")));
                     allowing(MOCK_TEST_FOLDER).getNode("f1/f2");
                     will(returnValue(MOCK_EXAMPLE_FOLDER_2));
                     allowing(MOCK_TEST_FOLDER).getNode("/f1/f2");
@@ -147,6 +145,9 @@ public class AutoResolveUtilsTest extends AssertJUnit
                     matchingNodes.add(MOCK_EXAMPLE_FILE_6A);
                     matchingNodes.add(MOCK_EXAMPLE_FILE_6B);
                     will(returnValue(matchingNodes));
+
+                    allowing(MOCK_TEST_FOLDER).listMatchingNodes("nonexistent/no/no/.*");
+                    will(returnValue(new ArrayList<IHierarchicalContentNode>()));
 
                     allowing(MOCK_TEST_FOLDER).listMatchingNodes(".*\\.abc");
                     List<IHierarchicalContentNode> matchingNodesAbc =
@@ -376,28 +377,6 @@ public class AutoResolveUtilsTest extends AssertJUnit
         // path is a file
         assertEquals(TEST_FOLDER,
                 AutoResolveUtils.createStartingPoint(TEST_FOLDER, "f1/f2/f3/e.txt"));
-
-        /* IHierarchicalContent abstraction */
-
-        // empty path
-        assertEquals(MOCK_TEST_FOLDER.getRootNode(),
-                AutoResolveUtils.createStartingPoint(MOCK_TEST_FOLDER, ""));
-        assertEquals(MOCK_TEST_FOLDER.getRootNode(),
-                AutoResolveUtils.createStartingPoint(MOCK_TEST_FOLDER, null));
-        // nonexistent path
-        assertEquals(MOCK_TEST_FOLDER.getRootNode(),
-                AutoResolveUtils.createStartingPoint(MOCK_TEST_FOLDER, "nonexistent/no/no"));
-        // correct path
-        assertEquals(MOCK_EXAMPLE_FOLDER_2,
-                AutoResolveUtils.createStartingPoint(MOCK_TEST_FOLDER, "f1/f2"));
-        assertEquals(MOCK_EXAMPLE_FOLDER_2,
-                AutoResolveUtils.createStartingPoint(MOCK_TEST_FOLDER, "/f1/f2"));
-        assertEquals(MOCK_EXAMPLE_FOLDER_2,
-                AutoResolveUtils.createStartingPoint(MOCK_TEST_FOLDER, "/f1/f2/"));
-        // path is a file
-        assertEquals(MOCK_TEST_FOLDER.getRootNode(),
-                AutoResolveUtils.createStartingPoint(MOCK_TEST_FOLDER, "f1/f2/f3/e.txt"));
-
     }
 
     @Test
@@ -432,7 +411,7 @@ public class AutoResolveUtilsTest extends AssertJUnit
 
         // nonexistent path, all files matches
         assertTrue(AutoResolveUtils.findSomeMatchingFiles(MOCK_TEST_FOLDER, "nonexistent/no/no",
-                ".*").size() > 1);
+                ".*").isEmpty());
         // no path specified, many files, only one matches pattern
         assertEquals(1, AutoResolveUtils.findSomeMatchingFiles(MOCK_TEST_FOLDER, null, ".*\\.abc")
                 .size());
