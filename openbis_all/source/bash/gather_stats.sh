@@ -5,7 +5,7 @@
  
 SERVERS=" openbis@sprint-openbis.ethz.ch
           openbis@cisd-openbis.ethz.ch
-          openbis@imsb-us-openbis.ethz.ch
+          openbis@obis.ethz.ch
           openbis@openbis-phosphonetx.ethz.ch
           openbis@openbis-liverx.ethz.ch
           openbis@agronomics.ethz.ch
@@ -13,6 +13,9 @@ SERVERS=" openbis@sprint-openbis.ethz.ch
           openbis@openbis-scu.ethz.ch
           openbis@openbis-test.ethz.ch
           openbis@basysbio.ethz.ch
+          openbis@openbis-cina.ethz.ch
+		  openbis@limb.ethz.ch
+		  openbis@newchipdb.ethz.ch
           openbis@bs-plasmids.ethz.ch"
 
 SQL="WITH RECURSIVE data_set_parents(id, parent_ids, cycle) AS (
@@ -35,9 +38,10 @@ JAVA_INIT_HEAP_SIZE="echo -n JAVA_INIT_HEAP_SIZE: ;cat ~openbis/sprint/openBIS-s
 JAVA_VERSION="java -version"
 PSQL_VERSION="psql --version | grep PostgreSQL"
 OPENBIS_VERSION="ls -1d ~openbis/sprint-* | cut -d - -f2"
+NEW_OPENBIS_VERSION="cat ~openbis/sprint/openBIS-server/jetty/webapps/openbis/WEB-INF/classes/BUILD* | cut -f 1 -d :"
 
 #STATEMENTS="$JAVA_MAX_HEAP_SIZE; $JAVA_INIT_HEAP_SIZE; $PSQL_VERSION; $JAVA_VERSION"
-STATEMENTS="$OPENBIS_VERSION"
+STATEMENTS="$NEW_OPENBIS_VERSION"
 
 if [ -n "${1}" ]
 then
@@ -50,6 +54,6 @@ echo ====================================
 for j in $SERVERS; 
   do
     echo $j:  
-    ssh $j $STATEMENTS
+    ssh -Y $j $STATEMENTS
     echo -e "\n"
 done
