@@ -43,6 +43,8 @@ public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocati
     
     private String dataSetType;
 
+    private int speedHint;
+    
     private String sampleCode;
 
     private String groupCode;
@@ -52,7 +54,7 @@ public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocati
     private String projectCode;
 
     private String databaseInstanceCode;
-
+    
     private Collection<String> parentDataSetCodes;
 
     public void setDataStoreCode(String dataStoreCode)
@@ -113,6 +115,16 @@ public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocati
     public void setDataSetLocation(String dataSetLocation)
     {
         this.dataSetLocation = dataSetLocation;
+    }
+
+    public int getSpeedHint()
+    {
+        return speedHint;
+    }
+
+    public void setSpeedHint(int speedHint)
+    {
+        this.speedHint = speedHint;
     }
 
     /** NOTE: may be NULL! */

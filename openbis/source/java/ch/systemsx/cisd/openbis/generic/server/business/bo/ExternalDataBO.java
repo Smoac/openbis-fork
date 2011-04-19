@@ -206,6 +206,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         externalData.setShareId(data.getShareId());
         externalData.setLocation(location);
         externalData.setSize(data.getSize());
+        externalData.setSpeedHint(data.getSpeedHint());
         externalData.setStorageFormatVocabularyTerm(tryToFindStorageFormatTerm(data
                 .getStorageFormat()));
         externalData.setLocatorType(getLocatorTypeDAO().tryToFindLocatorTypeByCode(

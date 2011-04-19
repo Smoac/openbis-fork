@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
+import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
@@ -67,6 +68,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
 public final class ExternalDataDAOTest extends AbstractDAOTest
 {
 
+    private static final int SPEED_HINT = (Constants.MIN_SPEED_HINT + Constants.DEFAULT_SPEED_HINT) / 2;
+
     private final String PARENT_CODE = "20081105092158673-1";
 
     private final String CHILD_CODE = "20081105092159188-3";
@@ -93,6 +96,7 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         ExternalDataPE externalData = createExternalData(dataSetCode, sample);
         externalData.setShareId("42");
         externalData.setSize(4711L);
+        externalData.setSpeedHint(SPEED_HINT);
         externalDataDAO.createDataSet(externalData);
 
         ExternalDataPE dataSet =
@@ -100,6 +104,7 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         assertDataEqual(externalData, dataSet);
         assertEquals("42", dataSet.getShareId());
         assertEquals(4711L, dataSet.getSize().longValue());
+        assertEquals(SPEED_HINT, dataSet.getSpeedHint());
     }
 
     @Test
@@ -113,6 +118,7 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         ExternalDataPE dataSet =
                 (ExternalDataPE) externalDataDAO.tryToFindDataSetByCode(dataSetCode);
         assertDataEqual(externalData, dataSet);
+        assertEquals(Constants.DEFAULT_SPEED_HINT, dataSet.getSpeedHint());
     }
 
     private ExternalDataPE createExternalData(String dataSetCode, SamplePE sampleOrNull)

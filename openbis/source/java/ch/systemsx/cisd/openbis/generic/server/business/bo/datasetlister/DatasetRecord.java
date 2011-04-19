@@ -50,4 +50,6 @@ public class DatasetRecord extends CodeRecord
     public String is_complete; // maps to BooleanOrUnknown
 
     public String status;
+    
+    public Integer speed_hint;
 }

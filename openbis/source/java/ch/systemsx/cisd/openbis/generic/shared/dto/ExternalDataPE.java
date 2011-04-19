@@ -34,6 +34,7 @@ import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
+import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.Location;
@@ -78,6 +79,8 @@ public final class ExternalDataPE extends DataPE
     private DataSetArchivingStatus status = DataSetArchivingStatus.AVAILABLE;
 
     private boolean isPresentInArchive;
+    
+    private int speedHint = Constants.DEFAULT_SPEED_HINT;
 
     /**
      * Returns the id of the locator type of the location of this external data, or
@@ -218,6 +221,17 @@ public final class ExternalDataPE extends DataPE
     public void setPresentInArchive(boolean isPresentInArchive)
     {
         this.isPresentInArchive = isPresentInArchive;
+    }
+
+    @Column(name = ColumnNames.SPEED_HINT)
+    public int getSpeedHint()
+    {
+        return speedHint;
+    }
+
+    public void setSpeedHint(Integer speedHint)
+    {
+        this.speedHint = speedHint == null ? Constants.DEFAULT_SPEED_HINT : speedHint;
     }
 
 }

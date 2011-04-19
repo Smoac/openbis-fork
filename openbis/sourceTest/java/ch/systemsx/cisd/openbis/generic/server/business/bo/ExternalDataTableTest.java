@@ -234,6 +234,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
     {
         final ExternalDataPE d1 = createDataSet("d1", dss1);
         final ExternalDataPE d2 = createDataSet("d2", dss2);
+        d2.setSpeedHint(13);
         context.checking(new Expectations()
             {
                 {
@@ -730,6 +731,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
                     for (int i = 0; i < list.size(); i++)
                     {
                         assertEquals("data set " + i, dataSets[i].getCode(), list.get(i).getDataSetCode());
+                        assertEquals("data set " + i, dataSets[i].getSpeedHint(), list.get(i).getSpeedHint());
                     }
                     return true;
                 }

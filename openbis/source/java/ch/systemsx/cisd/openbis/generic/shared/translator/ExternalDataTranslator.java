@@ -62,6 +62,7 @@ public class ExternalDataTranslator
         DatasetDescription description = new DatasetDescription();
         description.setDatasetCode(data.getCode());
         description.setDataSetLocation(data.getLocation());
+        description.setSpeedHint(data.getSpeedHint());
         description.setDataSetSize(data.getSize());
         DataSetType dataSetType = data.getDataSetType();
         if (dataSetType != null)
@@ -138,6 +139,7 @@ public class ExternalDataTranslator
         externalData.setCode(externalDataPE.getCode());
         externalData.setComplete(BooleanOrUnknown.tryToResolve(externalDataPE.getComplete()));
         externalData.setStatus(externalDataPE.getStatus());
+        externalData.setSpeedHint(externalDataPE.getSpeedHint());
         externalData.setDataProducerCode(externalDataPE.getDataProducerCode());
         externalData.setDataSetType(DataSetTypeTranslator.translate(
                 externalDataPE.getDataSetType(), new HashMap<PropertyTypePE, PropertyType>()));

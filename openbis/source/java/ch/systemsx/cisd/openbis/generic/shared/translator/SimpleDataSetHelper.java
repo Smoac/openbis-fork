@@ -53,6 +53,7 @@ public class SimpleDataSetHelper
         SimpleDataSetInformationDTO result = new SimpleDataSetInformationDTO();
         result.setDataStoreCode(data.getDataStore().getCode());
         result.setDataSetCode(data.getCode());
+        result.setSpeedHint(data.getSpeedHint());
         result.setDataSetShareId(data.getShareId());
         result.setDataSetLocation(data.getLocation());
         result.setDataSetSize(data.getSize());
@@ -81,6 +82,7 @@ public class SimpleDataSetHelper
         SimpleDataSetInformationDTO result = new SimpleDataSetInformationDTO();
         result.setDatabaseInstanceCode(datasetDescription.getDatabaseInstanceCode());
         result.setDataSetCode(datasetDescription.getDataSetCode());
+        result.setSpeedHint(datasetDescription.getSpeedHint());
         result.setDataSetLocation(datasetDescription.getDataSetLocation());
         result.setDataSetSize(datasetDescription.getDataSetSize());
         result.setDataSetType(datasetDescription.getDatasetTypeCode());

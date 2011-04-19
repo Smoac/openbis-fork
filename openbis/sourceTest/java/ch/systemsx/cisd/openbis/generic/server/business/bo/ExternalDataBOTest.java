@@ -34,6 +34,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
+import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -73,6 +74,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
 // TODO 2009-09-10, Piotr Buczek: write tests with many parents and cycle check
 public class ExternalDataBOTest extends AbstractBOTest
 {
+    private static final int SPEED_HINT = (Constants.DEFAULT_SPEED_HINT + Constants.MAX_SPEED_HINT) / 2;
+
     private static final TechId TECH_ID = new TechId(42l);
 
     private static final DatabaseInstanceIdentifier DATABASE_INSTANCE_IDENTIFIER =
@@ -159,6 +162,7 @@ public class ExternalDataBOTest extends AbstractBOTest
         assertEquals(StorageFormat.PROPRIETARY, externalData.getStorageFormat());
         assertSame(vocabularyTerm, externalData.getStorageFormatVocabularyTerm());
         assertEquals(null, externalData.getRegistrator());
+        assertEquals(SPEED_HINT, externalData.getSpeedHint());
         context.assertIsSatisfied();
     }
 
@@ -739,6 +743,7 @@ public class ExternalDataBOTest extends AbstractBOTest
         data.setLocatorType(LOCATOR_TYPE);
         data.setLocation(LOCATION);
         data.setDataStoreCode(DATA_STORE_CODE);
+        data.setSpeedHint(SPEED_HINT);
         return data;
     }
 

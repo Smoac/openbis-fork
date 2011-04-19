@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropert
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.AbstractLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
@@ -547,6 +548,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         dataset.setDataStore(dataStores.get(record.dast_id));
         dataset.setDerived(record.is_derived);
         dataset.setStatus(DataSetArchivingStatus.valueOf(record.status));
+        dataset.setSpeedHint(record.speed_hint == null ? Constants.DEFAULT_SPEED_HINT : record.speed_hint);
 
         dataset.setFileFormatType(fileFormatTypes.get(record.ffty_id));
         dataset.setLocation(record.location);

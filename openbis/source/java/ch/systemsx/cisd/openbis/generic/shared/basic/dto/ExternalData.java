@@ -81,6 +81,8 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
     private String permlink;
 
     private DataSetArchivingStatus status;
+    
+    private int speedHint;
 
     public String getPermlink()
     {
@@ -170,6 +172,16 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
     public void setStatus(DataSetArchivingStatus status)
     {
         this.status = status;
+    }
+
+    public int getSpeedHint()
+    {
+        return speedHint;
+    }
+
+    public void setSpeedHint(int speedHint)
+    {
+        this.speedHint = speedHint;
     }
 
     public final Boolean getComplete()

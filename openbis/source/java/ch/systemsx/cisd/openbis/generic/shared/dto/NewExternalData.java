@@ -49,6 +49,8 @@ public final class NewExternalData implements Serializable
     private String location;
     
     private Long size;
+    
+    private int speedHint;
 
     private StorageFormat storageFormat;
 
@@ -126,6 +128,16 @@ public final class NewExternalData implements Serializable
     public void setSize(Long size)
     {
         this.size = size;
+    }
+
+    public int getSpeedHint()
+    {
+        return speedHint;
+    }
+
+    public void setSpeedHint(int speedHint)
+    {
+        this.speedHint = speedHint;
     }
 
     /** Returns <code>locator</code>. */

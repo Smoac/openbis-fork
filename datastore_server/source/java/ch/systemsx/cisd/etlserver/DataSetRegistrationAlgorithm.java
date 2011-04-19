@@ -455,6 +455,7 @@ public class DataSetRegistrationAlgorithm
         data.setUserEMail(dataSetInformation.tryGetUploadingUserEmail());
         data.setExtractableData(dataSetInformation.getExtractableData());
         data.setShareId(dataSetInformation.getShareId());
+        data.setSpeedHint(dataSetInformation.getSpeedHint());
         data.setLocatorType(getTypeExtractor().getLocatorType(incomingDataSetFile));
         data.setDataSetType(getTypeExtractor().getDataSetType(incomingDataSetFile));
         data.setFileFormatType(getTypeExtractor().getFileFormatType(incomingDataSetFile));

@@ -535,6 +535,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         description.setDatasetCode(dataSet.getCode());
         description.setDataSetLocation(dataSet.getLocation());
         description.setDataSetSize(dataSet.getSize());
+        description.setSpeedHint(dataSet.getSpeedHint());
         SamplePE sample = dataSet.tryGetSample();
         if (sample != null)
         {

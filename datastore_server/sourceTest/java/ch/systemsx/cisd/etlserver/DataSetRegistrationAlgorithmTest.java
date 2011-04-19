@@ -42,7 +42,6 @@ import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm.IDataSetInApplica
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm.IRollbackDelegate;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
-import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -63,6 +62,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  */
 public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
 {
+    private static final int SPEED_HINT =
+            (ch.systemsx.cisd.openbis.generic.shared.Constants.DEFAULT_SPEED_HINT 
+                    + ch.systemsx.cisd.openbis.generic.shared.Constants.MAX_SPEED_HINT) / 2;
 
     private static final String DATA_STORE_CODE = "data-store";
 
@@ -141,7 +143,8 @@ public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
         exceptionMatcher = new RecordingMatcher<Throwable>();
 
         dataSetInformation = new DataSetInformation();
-        dataSetInformation.setShareId(Constants.DEFAULT_SHARE_ID);
+        dataSetInformation.setShareId(ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID);
+        dataSetInformation.setSpeedHint(SPEED_HINT);
     }
 
     @Test
@@ -159,13 +162,14 @@ public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
         setUpDataStoreStrategyExpectations(DataStoreStrategyKey.IDENTIFIED);
         setUpPreAndPostRegistrationExpectations();
         setUpLockExpectations();
-        setUpDataSetRegistratorExpectations();
+        RecordingMatcher<NewExternalData> matcher = setUpDataSetRegistratorExpectations();
         setUpCleanAfterwardsExpectations();
 
         createAlgorithmAndState(false, false);
 
         new DataSetRegistrationAlgorithmRunner(registrationAlgorithm).runAlgorithm();
 
+        assertEquals(SPEED_HINT, matcher.recordedObject().getSpeedHint());
         context.assertIsSatisfied();
     }
 
@@ -419,15 +423,17 @@ public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
             });
     }
 
-    private void setUpDataSetRegistratorExpectations() throws Throwable
+    private RecordingMatcher<NewExternalData> setUpDataSetRegistratorExpectations() throws Throwable
     {
+        final RecordingMatcher<NewExternalData> recordingMatcher = new RecordingMatcher<NewExternalData>();
         context.checking(new Expectations()
             {
                 {
                     one(appServerRegistrator).registerDataSetInApplicationServer(
-                            with(any(NewExternalData.class)));
+                            with(recordingMatcher));
                 }
             });
+        return recordingMatcher;
     }
 
     private void setUpMailClientExpectation()

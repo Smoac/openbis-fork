@@ -53,6 +53,8 @@ public class DataSetInformation implements Serializable
     private IEntityProperty[] topSampleProperties = IEntityProperty.EMPTY_ARRAY;
 
     private DataSetType dataSetType;
+    
+    private int speedHint = ch.systemsx.cisd.openbis.generic.shared.Constants.DEFAULT_SPEED_HINT;
 
     private String shareId;
 
@@ -106,6 +108,16 @@ public class DataSetInformation implements Serializable
     public void setShareId(String shareId)
     {
         this.shareId = shareId;
+    }
+
+    public int getSpeedHint()
+    {
+        return speedHint;
+    }
+
+    public void setSpeedHint(int speedHint)
+    {
+        this.speedHint = speedHint;
     }
 
     public String tryGetUploadingUserEmail()

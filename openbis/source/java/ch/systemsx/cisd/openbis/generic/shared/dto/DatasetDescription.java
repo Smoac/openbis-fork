@@ -38,6 +38,8 @@ public class DatasetDescription implements Serializable, IDatasetLocation
     private String dataSetLocation;
 
     private Long dataSetSize;
+    
+    private int speedHint;
 
     private String sampleCode;
 
@@ -117,6 +119,16 @@ public class DatasetDescription implements Serializable, IDatasetLocation
     public void setDatasetCode(String datasetCode)
     {
         this.datasetCode = datasetCode;
+    }
+
+    public int getSpeedHint()
+    {
+        return speedHint;
+    }
+
+    public void setSpeedHint(int speedHint)
+    {
+        this.speedHint = speedHint;
     }
 
     /**

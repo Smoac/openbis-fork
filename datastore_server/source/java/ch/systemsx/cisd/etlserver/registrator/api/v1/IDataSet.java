@@ -18,6 +18,7 @@ package ch.systemsx.cisd.etlserver.registrator.api.v1;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 
 /**
@@ -101,6 +102,17 @@ public interface IDataSet
      * Set the data set type.
      */
     public void setDataSetType(String dataSetTypeCode);
+    
+    /**
+     * Returns the speed hint. If it hasn't been set by {@link #setSpeedHint(int)} the default
+     * value {@link Constants#DEFAULT_SPEED_HINT} will be returned.
+     */
+    public int getSpeedHint();
+    
+    /**
+     * Sets the speed hint for the data set. 
+     */
+    public void setSpeedHint(int speedHint);
 
     /**
      * Get the value for a property.

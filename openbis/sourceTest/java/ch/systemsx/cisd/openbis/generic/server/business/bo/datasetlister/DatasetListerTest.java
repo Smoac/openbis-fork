@@ -40,6 +40,7 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityDAO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityListingQueryTest;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
+import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -186,10 +187,12 @@ public class DatasetListerTest extends AbstractDAOTest
         assertEquals("20081105092158673-1", dataSets.get(0).getCode());
         assertEquals("xxx/yyy/zzz", dataSets.get(0).getLocation());
         assertEquals(4711L, dataSets.get(0).getSize().longValue());
+        assertEquals(42, dataSets.get(0).getSpeedHint());
         assertEquals(4L, dataSets.get(1).getId().longValue());
         assertEquals("20081105092159188-3", dataSets.get(1).getCode());
         assertEquals("analysis/result", dataSets.get(1).getLocation());
         assertEquals(null, dataSets.get(1).getSize());
+        assertEquals(Constants.DEFAULT_SPEED_HINT, dataSets.get(1).getSpeedHint());
         assertEquals(2, dataSets.size());
     }
     

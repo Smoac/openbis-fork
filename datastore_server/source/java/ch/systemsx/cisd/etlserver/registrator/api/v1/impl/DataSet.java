@@ -144,6 +144,16 @@ public class DataSet<T extends DataSetInformation> implements IDataSet
         registrationDetails.setMeasuredData(measuredData);
     }
 
+    public int getSpeedHint()
+    {
+        return registrationDetails.getDataSetInformation().getSpeedHint();
+    }
+
+    public void setSpeedHint(int speedHint)
+    {
+        registrationDetails.getDataSetInformation().setSpeedHint(speedHint);
+    }
+
     public String getDataSetType()
     {
         return registrationDetails.getDataSetType().getCode();
