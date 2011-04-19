@@ -59,10 +59,10 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
         @Select("select id from data_sets where code = ?{1}")
         public Long tryToGetDataSetId(String dataSetCode);
         
-        @Select("select id, parent_id, relative_path, size_in_bytes, is_directory from data_set_files where dase_id = ?{1}")
+        @Select("select id, parent_id, relative_path, file_name, size_in_bytes, is_directory from data_set_files where dase_id = ?{1}")
         public List<DataSetFileRecord> listDataSetFiles(long dataSetId);
         
-        @Select("select id, parent_id, relative_path, size_in_bytes, is_directory from data_set_files where dase_id = ?{1} and relative_path ~ ?{2}")
+        @Select("select id, parent_id, relative_path, file_name, size_in_bytes, is_directory from data_set_files where dase_id = ?{1} and relative_path ~ ?{2}")
         public List<DataSetFileRecord> listDataSetFilesByRegularExpression(long dataSetId, String regex);
     }
     
