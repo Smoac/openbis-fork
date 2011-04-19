@@ -79,7 +79,7 @@ CREATE TABLE DATA_SETS (
   IMAGE_LIBRARY_NAME NAME,
   -- Which reader in the library should be used? Vald only if the library name is specified.
   -- If not specified, the reader will be detected automatically (it can be slower).
-  IMAGE_READER_NAME NAME,
+  IMAGE_LIBRARY_READER_NAME NAME,
   ---- END image dataset specific fields
   
   CONT_ID TECH_ID,
