@@ -24,11 +24,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.io.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DataSetFileOperationsManager;
 
 /**
  * Utility class defining methods related to auto resolving data sets.
@@ -37,6 +41,9 @@ import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
  */
 public class AutoResolveUtils
 {
+
+    private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            DataSetFileOperationsManager.class);
 
     /**
      * Returns the files from root/path directory with canonical path matching given pattern.
@@ -306,10 +313,16 @@ public class AutoResolveUtils
         IHierarchicalContentNode startingPoint = root.getRootNode();
         if (StringUtils.isBlank(path) == false)
         {
-            IHierarchicalContentNode tmp = root.getNode(path);
-            if (tmp.exists() && tmp.isDirectory())
+            try
             {
-                startingPoint = tmp;
+                IHierarchicalContentNode tmp = root.getNode(path);
+                if (tmp.exists() && tmp.isDirectory())
+                {
+                    startingPoint = tmp;
+                }
+            } catch (IllegalArgumentException e)
+            {
+                operationLog.info("Cannot get node for path '" + path + "': ", e);
             }
         }
         return startingPoint;

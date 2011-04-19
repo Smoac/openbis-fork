@@ -24,6 +24,7 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.AssertJUnit;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -31,6 +32,7 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.io.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
+import ch.systemsx.cisd.common.logging.LogInitializer;
 
 /**
  * Test cases for {@link AutoResolveUtils}.
@@ -40,6 +42,11 @@ import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
 @Friend(toClasses = AutoResolveUtils.class)
 public class AutoResolveUtilsTest extends AssertJUnit
 {
+    @BeforeClass
+    public void init()
+    {
+        LogInitializer.init();
+    }
 
     private Mockery context = new Mockery();
 
@@ -123,7 +130,7 @@ public class AutoResolveUtilsTest extends AssertJUnit
                     allowing(nonExisting).exists();
                     will(returnValue(false));
                     allowing(MOCK_TEST_FOLDER).getNode("nonexistent/no/no");
-                    will(returnValue(nonExisting));
+                    will(throwException(new IllegalArgumentException("not exists")));
                     allowing(MOCK_TEST_FOLDER).getNode("f1/f2");
                     will(returnValue(MOCK_EXAMPLE_FOLDER_2));
                     allowing(MOCK_TEST_FOLDER).getNode("/f1/f2");
