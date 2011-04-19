@@ -49,8 +49,8 @@ public class AcquiredSingleImage extends AbstractHashable
     private IImageTransformerFactory imageTransformerFactoryOrNull;
 
     public AcquiredSingleImage(Location wellLocationOrNull, Location tileLocation,
-            String channelCode, Float timePointOrNull, Float depthOrNull, Integer seriesNumberOrNull,
-            RelativeImageReference imageFilePath)
+            String channelCode, Float timePointOrNull, Float depthOrNull,
+            Integer seriesNumberOrNull, RelativeImageReference imageFilePath)
     {
         this.wellLocationOrNull = wellLocationOrNull;
         this.tileLocation = tileLocation;
@@ -132,13 +132,12 @@ public class AcquiredSingleImage extends AbstractHashable
         this.seriesNumberOrNull = seriesNumber;
     }
 
-    public IImageTransformerFactory getImageTransformerFactoryOrNull()
+    public IImageTransformerFactory tryGetImageTransformerFactory()
     {
         return imageTransformerFactoryOrNull;
     }
 
-    public void setImageTransformerFactoryOrNull(
-            IImageTransformerFactory imageTransformerFactoryOrNull)
+    public void setImageTransformerFactory(IImageTransformerFactory imageTransformerFactoryOrNull)
     {
         this.imageTransformerFactoryOrNull = imageTransformerFactoryOrNull;
     }

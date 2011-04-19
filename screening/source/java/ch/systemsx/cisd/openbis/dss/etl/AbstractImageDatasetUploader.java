@@ -147,7 +147,7 @@ abstract class AbstractImageDatasetUploader
     private static AcquiredImageInStack makeAcquiredImageInStack(AcquiredSingleImage image)
     {
         return new AcquiredImageInStack(image.getChannelCode(), image.getImageReference(),
-                image.getThumbnailFilePathOrNull(), image.getImageTransformerFactoryOrNull());
+                image.getThumbnailFilePathOrNull(), image.tryGetImageTransformerFactory());
     }
 
     private ImgChannelStackDTO makeStackDtoWithouId(AcquiredSingleImage image,
