@@ -20,10 +20,8 @@ import static ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParam
 import static ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil.SERVICE_PROPERTIES_FILE;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
@@ -36,7 +34,6 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.GenericWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.testng.AssertJUnit;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -63,9 +60,10 @@ public abstract class SystemTestCase extends AssertJUnit
 
     SystemTestCase()
     {
-        workingDirectory = new File(UNIT_TEST_ROOT_DIRECTORY, getClass().getName());
+        workingDirectory = new File(UNIT_TEST_ROOT_DIRECTORY, "SystemTests");
         workingDirectory.mkdirs();
         workingDirectory.deleteOnExit();
+        rootDir = new File(workingDirectory, "dss-root");
     }
 
     @BeforeSuite
@@ -98,7 +96,6 @@ public abstract class SystemTestCase extends AssertJUnit
         sch.addServlet(new ServletHolder(dispatcherServlet), "/*");
         server.start();
         
-        rootDir = new File(workingDirectory, "dss-root");
         List<String> serviceProperties =
                 FileUtilities.loadToStringList(new File(SERVICE_PROPERTIES_FILE));
         for (String property : serviceProperties)
@@ -124,11 +121,4 @@ public abstract class SystemTestCase extends AssertJUnit
         ETLDaemon.runForTesting(new String[0]);
     }
     
-    @BeforeClass
-    public void beforeClass() throws IOException
-    {
-        FileUtils.deleteDirectory(workingDirectory);
-        workingDirectory.mkdir();
-        assertTrue(workingDirectory.isDirectory() && workingDirectory.listFiles().length == 0);
-    }
 }
