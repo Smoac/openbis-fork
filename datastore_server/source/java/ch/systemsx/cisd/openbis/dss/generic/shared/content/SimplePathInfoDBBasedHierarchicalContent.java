@@ -17,12 +17,16 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared.content;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
+import ch.systemsx.cisd.base.io.RandomAccessFileImpl;
 import ch.systemsx.cisd.common.io.AbstractHierarchicalContentNode;
 import ch.systemsx.cisd.common.io.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
@@ -68,7 +72,7 @@ class SimplePathInfoBasedHierarchicalContent implements IHierarchicalContent
     {
         if (rootNode == null)
         {
-            rootNode = new SimplePathInfoNode(rootPathInfo);
+            rootNode = new SimplePathInfoNode(root, rootPathInfo);
         }
         return rootNode;
     }
@@ -87,7 +91,7 @@ class SimplePathInfoBasedHierarchicalContent implements IHierarchicalContent
     private IHierarchicalContentNode createNode(String relativePath)
     {
         DataSetPathInfo pathInfo = findPathInfo(rootPathInfo, relativePath);
-        return new SimplePathInfoNode(pathInfo);
+        return new SimplePathInfoNode(root, pathInfo);
     }
 
     /**
@@ -123,7 +127,7 @@ class SimplePathInfoBasedHierarchicalContent implements IHierarchicalContent
         throw new IllegalArgumentException("Resource '" + relativePath + "' does not exist.");
     }
 
-    // TODO remove repetition
+    // TODO 2011-04-19, Piotr Buczek: remove repetition
     public List<IHierarchicalContentNode> listMatchingNodes(final String relativePathPattern)
     {
         final IHierarchicalContentNode startingNode = getRootNode();
@@ -241,8 +245,11 @@ class SimplePathInfoBasedHierarchicalContent implements IHierarchicalContent
 
         private final DataSetPathInfo pathInfo;
 
-        SimplePathInfoNode(DataSetPathInfo pathInfo)
+        private final File root;
+
+        SimplePathInfoNode(File root, DataSetPathInfo pathInfo)
         {
+            this.root = root;
             this.pathInfo = pathInfo;
         }
 
@@ -273,7 +280,7 @@ class SimplePathInfoBasedHierarchicalContent implements IHierarchicalContent
             List<IHierarchicalContentNode> result = new ArrayList<IHierarchicalContentNode>();
             for (DataSetPathInfo child : pathInfo.getChildren())
             {
-                result.add(new SimplePathInfoNode(child));
+                result.add(new SimplePathInfoNode(root, child));
             }
             return result;
         }
@@ -284,23 +291,35 @@ class SimplePathInfoBasedHierarchicalContent implements IHierarchicalContent
             return pathInfo.getSizeInBytes();
         }
 
-        // TODO
+        // TODO 2011-04-19, Piotr Buczek: use abstraction to get file content
 
         public File getFile() throws UnsupportedOperationException
         {
-            throw null;
+            if (StringUtils.isBlank(getRelativePath()))
+            {
+                return root;
+            } else
+            {
+                return new File(root, getRelativePath());
+            }
         }
 
         @Override
         protected IRandomAccessFile doGetFileContent()
         {
-            return null;
+            return new RandomAccessFileImpl(getFile(), "r");
         }
 
         @Override
         protected InputStream doGetInputStream()
         {
-            return null;
+            try
+            {
+                return new FileInputStream(getFile());
+            } catch (FileNotFoundException ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            }
         }
 
     }

@@ -31,7 +31,7 @@ public class PathInfoDBAwareHierarchicalContentFactory extends
     {
         if (DatabaseBasedDataSetPathInfoProvider.isDataSourceDefined())
         {
-            operationLog.debug("Path Info DB is properly configured");
+            operationLog.info("Path Info DB is properly configured");
             return new PathInfoDBAwareHierarchicalContentFactory(
                     new DatabaseBasedDataSetPathInfoProvider());
         } else
@@ -57,7 +57,7 @@ public class PathInfoDBAwareHierarchicalContentFactory extends
         DataSetPathInfo rootPathInfo = pathInfoProvider.tryGetDataSetRootPathInfo(dataSetCode);
         if (rootPathInfo != null) // exists in DB
         {
-            operationLog.info("Data set " + dataSetCode + " was found in Path Info DB.");
+            operationLog.debug("Data set " + dataSetCode + " was found in Path Info DB.");
             return new SimplePathInfoBasedHierarchicalContent(rootPathInfo, file, onCloseAction);
         } else
         {
