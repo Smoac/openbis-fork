@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.jmock.Expectations;
@@ -131,6 +133,36 @@ public class DatabaseBasedDataSetPathInfoProviderTest extends AssertJUnit
         check("dir/dir/hello", "hello", false, 3, info.getChildren().get(1).getChildren().get(0));
         check("dir/dir/hi", "hi", false, 27, info.getChildren().get(1).getChildren().get(1));
         check("dir/dir2", "dir2", true, 0, info.getChildren().get(2));
+    }
+    
+    @Test
+    public void testListPathInfosByRegularExpression()
+    {
+        final String regex = "blabla";
+        final DataSetFileRecord r1 = record(1, 2L, "dir/text.txt", "text.txt", 23, false);
+        final DataSetFileRecord r2 = record(2, null, "dir", "dir", 53, true);
+        context.checking(new Expectations()
+            {
+                {
+                    one(dao).tryToGetDataSetId("ds-1");
+                    will(returnValue(DATA_SET_ID));
+
+                    one(dao).listDataSetFilesByRegularExpression(DATA_SET_ID, "^" + regex + "$");
+                    will(returnValue(Arrays.asList(r1, r2)));
+                }
+            });
+        
+        List<DataSetPathInfo> list = pathInfoProvider.listPathInfosByRegularExpression("ds-1", regex);
+        Collections.sort(list, new Comparator<DataSetPathInfo>()
+            {
+                public int compare(DataSetPathInfo i1, DataSetPathInfo i2)
+                {
+                    return i1.getRelativePath().compareTo(i2.getRelativePath());
+                }
+            });
+        check("dir", "dir", true, 53, list.get(0));
+        check("dir/text.txt", "text.txt", false, 23, list.get(1));
+        assertEquals(2, list.size());
     }
 
     private void check(String expectedRelativePath, String expectedFileName,
