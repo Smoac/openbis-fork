@@ -12,6 +12,8 @@ import java.util.zip.ZipFile;
  */
 public class SyspathArchiveHack extends SyspathArchive
 {
+    private static final long serialVersionUID = 694744188445154734L;
+
     private ZipFile zipfileToo;
 
     public SyspathArchiveHack(ZipFile zipFile, String archiveName) throws IOException
