@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.io.HierarchicalContentFactory;
+import ch.systemsx.cisd.common.io.DefaultFileBasedHierarchicalContentFactory;
 import ch.systemsx.cisd.etlserver.IDataSetPathsInfoFeeder;
 
 /**
@@ -48,7 +48,7 @@ public class DatabaseBasedDataSetPathsInfoFeederTest extends AbstractFileSystemT
     {
         context = new Mockery();
         dao = context.mock(IPathsInfoDAO.class);
-        feeder = new DatabaseBasedDataSetPathsInfoFeeder(dao, new HierarchicalContentFactory());
+        feeder = new DatabaseBasedDataSetPathsInfoFeeder(dao, new DefaultFileBasedHierarchicalContentFactory());
     }
     
     @AfterMethod

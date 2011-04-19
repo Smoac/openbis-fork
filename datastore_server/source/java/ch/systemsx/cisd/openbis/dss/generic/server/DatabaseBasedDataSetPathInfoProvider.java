@@ -32,52 +32,53 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PathInfoDataSourceProvider;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoProvider
 {
-    @Private public static final class DataSetFileRecord
+    @Private
+    public static final class DataSetFileRecord
     {
         // Attribute names as defined in database schema
         public long id;
-        
+
         public Long parent_id;
-        
+
         public String relative_path;
-        
+
         public String file_name;
-        
+
         public long size_in_bytes;
-        
+
         public boolean is_directory;
     }
-    
-    @Private static interface IPathInfoDAO extends BaseQuery
+
+    @Private
+    static interface IPathInfoDAO extends BaseQuery
     {
         @Select("select id from data_sets where code = ?{1}")
         public Long tryToGetDataSetId(String dataSetCode);
-        
+
         @Select("select id, parent_id, relative_path, file_name, size_in_bytes, is_directory from data_set_files where dase_id = ?{1}")
         public List<DataSetFileRecord> listDataSetFiles(long dataSetId);
         
         @Select("select id, parent_id, relative_path, file_name, size_in_bytes, is_directory from data_set_files where dase_id = ?{1} and relative_path ~ ?{2}")
         public List<DataSetFileRecord> listDataSetFilesByRegularExpression(long dataSetId, String regex);
     }
-    
+
     private static interface ILoader
     {
         List<DataSetFileRecord> listDataSetFiles(long dataSetId);
     }
     
     private IPathInfoDAO dao;
-    
+
     public DatabaseBasedDataSetPathInfoProvider()
     {
     }
-    
-    @Private DatabaseBasedDataSetPathInfoProvider(IPathInfoDAO dao)
+
+    @Private
+    DatabaseBasedDataSetPathInfoProvider(IPathInfoDAO dao)
     {
         this.dao = dao;
     }
@@ -174,14 +175,27 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
             return new ArrayList<DataSetPathInfo>(idToInfoMap.values());
         }
     }
-    
+
     private IPathInfoDAO getDao()
     {
         if (dao == null)
         {
-            dao = QueryTool.getQuery(PathInfoDataSourceProvider.getDataSource(), IPathInfoDAO.class);
+            dao =
+                    QueryTool.getQuery(PathInfoDataSourceProvider.getDataSource(),
+                            IPathInfoDAO.class);
         }
         return dao;
     }
 
+    public static boolean isDataSourceDefined()
+    {
+        try
+        {
+            PathInfoDataSourceProvider.getDataSource();
+            return true;
+        } catch (IllegalArgumentException ex)
+        {
+            return false;
+        }
+    }
 }

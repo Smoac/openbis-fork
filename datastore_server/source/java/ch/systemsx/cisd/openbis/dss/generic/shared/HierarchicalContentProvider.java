@@ -18,10 +18,11 @@ package ch.systemsx.cisd.openbis.dss.generic.shared;
 
 import java.io.File;
 
-import ch.systemsx.cisd.common.io.HierarchicalContentFactory;
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.io.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.IHierarchicalContentFactory;
 import ch.systemsx.cisd.common.utilities.IDelegatedAction;
+import ch.systemsx.cisd.openbis.dss.generic.shared.content.PathInfoDBAwareHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 
@@ -33,20 +34,27 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 public class HierarchicalContentProvider implements IHierarchicalContentProvider
 {
 
+    private final IEncapsulatedOpenBISService openbisService;
+
     private final IDataSetDirectoryProvider directoryProvider;
 
-    private final IHierarchicalContentFactory hierarchicalContentFactory;
-
-    private final IEncapsulatedOpenBISService openbisService;
+    private IHierarchicalContentFactory hierarchicalContentFactory;
 
     public HierarchicalContentProvider(IEncapsulatedOpenBISService openbisService,
             IShareIdManager shareIdManager, IConfigProvider configProvider)
     {
         this(openbisService, new DataSetDirectoryProvider(configProvider.getStoreRoot(),
-                shareIdManager), new HierarchicalContentFactory());
+                shareIdManager));
     }
 
-    // for tests
+    private HierarchicalContentProvider(IEncapsulatedOpenBISService openbisService,
+            IDataSetDirectoryProvider directoryProvider)
+    {
+        this.openbisService = openbisService;
+        this.directoryProvider = directoryProvider;
+    }
+
+    @Private
     public HierarchicalContentProvider(IEncapsulatedOpenBISService openbisService,
             IDataSetDirectoryProvider directoryProvider,
             IHierarchicalContentFactory hierarchicalContentFactory)
@@ -86,13 +94,23 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
 
     public IHierarchicalContent asContent(File dataSetDirectory)
     {
-        return hierarchicalContentFactory.asHierarchicalContent(dataSetDirectory,
+        return getHierarchicalContentFactory().asHierarchicalContent(dataSetDirectory,
                 IDelegatedAction.DO_NOTHING);
     }
 
     public IHierarchicalContent asContent(File dataSetDirectory, IDelegatedAction onCloseAction)
     {
-        return hierarchicalContentFactory.asHierarchicalContent(dataSetDirectory, onCloseAction);
+        return getHierarchicalContentFactory().asHierarchicalContent(dataSetDirectory,
+                onCloseAction);
+    }
+
+    private IHierarchicalContentFactory getHierarchicalContentFactory()
+    {
+        if (hierarchicalContentFactory == null)
+        {
+            hierarchicalContentFactory = PathInfoDBAwareHierarchicalContentFactory.create();
+        }
+        return hierarchicalContentFactory;
     }
 
 }

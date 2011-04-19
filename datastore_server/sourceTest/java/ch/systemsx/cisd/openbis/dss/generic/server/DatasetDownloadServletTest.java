@@ -51,7 +51,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.io.HierarchicalContentFactory;
+import ch.systemsx.cisd.common.io.DefaultFileBasedHierarchicalContentFactory;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.HierarchicalContentProvider;
@@ -154,7 +154,8 @@ public class DatasetDownloadServletTest
         shareIdManager = context.mock(IShareIdManager.class);
         // test with HierarchicalContentFactory to actually access files
         hierarchicalContentProvider =
-                new HierarchicalContentProvider(null, null, new HierarchicalContentFactory());
+                new HierarchicalContentProvider(null, null,
+                        new DefaultFileBasedHierarchicalContentFactory());
         httpSession = context.mock(HttpSession.class);
         TEST_FOLDER.mkdirs();
         EXAMPLE_DATA_SET_FOLDER.mkdirs();
@@ -216,14 +217,13 @@ public class DatasetDownloadServletTest
                         + OSUtilities.LINE_SEPARATOR
                         + "<tr><td class='td_file'>"
                         + "<a href='/datastore_server/1234-1/%2B+s+%25+%21+%23+%40?mode=simpleHtml&sessionID=AV76CF'>"
-                        + "+ s % ! # @</td><td></td></tr>" 
+                        + "+ s % ! # @</td><td></td></tr>"
                         + OSUtilities.LINE_SEPARATOR
                         + "<tr><td class='td_file'>"
                         + "<a href='/datastore_server/1234-1/read+me+%40home.txt?mode=simpleHtml&sessionID=AV76CF'>"
                         + "read me @home.txt</td><td>12 bytes</td></tr>"
-                        + OSUtilities.LINE_SEPARATOR
-                        + "</table> </div> </body></html>" + OSUtilities.LINE_SEPARATOR + "",
-                writer.toString());
+                        + OSUtilities.LINE_SEPARATOR + "</table> </div> </body></html>"
+                        + OSUtilities.LINE_SEPARATOR + "", writer.toString());
 
         String normalizedLogContent = getNormalizedLogContent();
         assertContains(getSessionCreationLogMessage() + OSUtilities.LINE_SEPARATOR + LOG_INFO

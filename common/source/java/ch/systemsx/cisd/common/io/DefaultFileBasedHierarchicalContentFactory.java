@@ -22,11 +22,12 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.IDelegatedAction;
 
 /**
- * The default implementation of {@link IHierarchicalContentFactory}.
+ * The default implementation of {@link IHierarchicalContentFactory} using file system as source of
+ * information.
  * 
  * @author Piotr Buczek
  */
-public class HierarchicalContentFactory implements IHierarchicalContentFactory
+public class DefaultFileBasedHierarchicalContentFactory implements IHierarchicalContentFactory
 {
     public IHierarchicalContent asHierarchicalContent(File file, IDelegatedAction onCloseAction)
     {

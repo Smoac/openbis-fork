@@ -24,11 +24,11 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 
 /**
- * Tests for {@link HierarchicalContentFactory}
+ * Tests for {@link DefaultFileBasedHierarchicalContentFactory}
  * 
  * @author Piotr Buczek
  */
-public class HierarchicalContentFactoryTest extends AbstractFileSystemTestCase
+public class DefaultFileBasedHierarchicalContentFactoryTest extends AbstractFileSystemTestCase
 {
 
     private File rootDir;
@@ -38,7 +38,7 @@ public class HierarchicalContentFactoryTest extends AbstractFileSystemTestCase
     @BeforeMethod
     public void beforeMethod() throws Exception
     {
-        factory = new HierarchicalContentFactory();
+        factory = new DefaultFileBasedHierarchicalContentFactory();
 
         rootDir = new File(workingDirectory, "rootDir");
         rootDir.mkdirs();
