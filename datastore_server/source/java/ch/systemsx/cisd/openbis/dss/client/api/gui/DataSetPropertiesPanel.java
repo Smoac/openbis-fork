@@ -358,12 +358,12 @@ public class DataSetPropertiesPanel extends JPanel
         {
             return;
         }
-        UiUtilities.displayError(label, component, error);
+        UiUtilities.displayError(label, component, null, error);
     }
 
     private void clearError(JLabel label, JComponent component)
     {
-        UiUtilities.clearError(label, component);
+        UiUtilities.clearError(label, component, null);
         component.setToolTipText(label.getToolTipText());
     }
 

@@ -21,8 +21,10 @@ import static ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClient.BU
 import static ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClient.LABEL_WIDTH;
 
 import java.awt.CardLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -40,6 +42,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.AbstractButton;
+import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -48,7 +51,10 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
 
 import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClientModel.NewDataSetInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
@@ -92,6 +98,10 @@ public class DataSetMetadataPanel extends JPanel
     private final HashMap<String, DataSetPropertiesPanel> propertiesPanels =
             new HashMap<String, DataSetPropertiesPanel>();
 
+    private final JTextArea validationErrors = new JTextArea("Błędy");
+
+    private final JScrollPane validationErrorsPane = new JScrollPane(validationErrors);
+
     private NewDataSetInfo newDataSetInfo;
 
     public DataSetMetadataPanel(DataSetUploadClientModel clientModel, JFrame mainWindow)
@@ -120,6 +130,16 @@ public class DataSetMetadataPanel extends JPanel
         dataSetFileComboBox = new JComboBox(initialOptions);
         dataSetFileButton = new JButton("Browse...");
         dataSetFileLabel = new JLabel("File:", JLabel.TRAILING);
+
+        validationErrors.setEditable(false);
+        validationErrors.setBackground(getBackground());
+        validationErrors.setFont(new Font(getFont().getName(), Font.BOLD, getFont().getSize()));
+        validationErrors.setForeground(Color.RED);
+        validationErrors.setLineWrap(true);
+        validationErrors.setWrapStyleWord(true);
+        validationErrorsPane.setBorder(BorderFactory.createEmptyBorder());
+        validationErrorsPane
+                .setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
         createGui();
     }
@@ -329,6 +349,7 @@ public class DataSetMetadataPanel extends JPanel
 
         createDataSetTypePanel();
         addRow(4, dataSetTypePanel);
+        addRow(5, validationErrorsPane);
     }
 
     private void setDataSetType(String dataSetType)
@@ -455,7 +476,7 @@ public class DataSetMetadataPanel extends JPanel
         c.gridy = rowy;
         c.gridwidth = GridBagConstraints.REMAINDER;
         c.weightx = 0;
-        c.weighty = 0;
+        c.weighty = 1;
         c.insets = new Insets((rowy > 0) ? 5 : 0, 0, 0, 5);
         add(comp, c);
     }
@@ -504,8 +525,8 @@ public class DataSetMetadataPanel extends JPanel
     public void syncErrors()
     {
         // Clear all errors first
-        clearError(ownerIdLabel, ownerIdText);
-        clearError(dataSetFileLabel, dataSetFileComboBox);
+        clearError(ownerIdLabel, ownerIdText, null);
+        clearError(dataSetFileLabel, dataSetFileComboBox, validationErrors);
 
         List<ValidationError> errors = newDataSetInfo.getValidationErrors();
         for (ValidationError error : errors)
@@ -513,7 +534,7 @@ public class DataSetMetadataPanel extends JPanel
             switch (error.getTarget())
             {
                 case DATA_SET_OWNER:
-                    displayError(ownerIdLabel, ownerIdText, error);
+                    displayError(ownerIdLabel, ownerIdText, null, error);
                     break;
 
                 case DATA_SET_TYPE:
@@ -521,7 +542,7 @@ public class DataSetMetadataPanel extends JPanel
                     break;
 
                 case DATA_SET_FILE:
-                    displayError(dataSetFileLabel, dataSetFileComboBox, error);
+                    displayError(dataSetFileLabel, dataSetFileComboBox, validationErrors, error);
                     break;
 
                 case DATA_SET_PROPERTY:
@@ -536,19 +557,20 @@ public class DataSetMetadataPanel extends JPanel
         }
     }
 
-    private void displayError(JLabel label, JComponent component, ValidationError error)
+    private void displayError(JLabel label, JComponent component, JTextArea errorAreaOrNull,
+            ValidationError error)
     {
         // Not all errors are applicable to this panel
         if (null == label || null == component)
         {
             return;
         }
-        UiUtilities.displayError(label, component, error);
+        UiUtilities.displayError(label, component, errorAreaOrNull, error);
     }
 
-    private void clearError(JLabel label, JComponent component)
+    private void clearError(JLabel label, JComponent component, JTextArea errorAreaOrNull)
     {
-        UiUtilities.clearError(label, component);
+        UiUtilities.clearError(label, component, errorAreaOrNull);
         component.setToolTipText(label.getToolTipText());
     }
 

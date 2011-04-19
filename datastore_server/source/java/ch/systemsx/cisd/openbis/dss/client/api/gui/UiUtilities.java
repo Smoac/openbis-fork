@@ -20,6 +20,7 @@ import java.awt.Color;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JTextArea;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
 
@@ -29,16 +30,27 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationE
 public class UiUtilities
 {
 
-    public static void displayError(JLabel label, JComponent component, ValidationError error)
+    public static void displayError(JLabel label, JComponent component, JTextArea errorAreaOrNull,
+            ValidationError error)
     {
         component.setToolTipText(error.getErrorMessage());
         label.setForeground(Color.RED);
+        if (errorAreaOrNull != null)
+        {
+            errorAreaOrNull.setText("File validation error: " + error.getErrorMessage());
+            errorAreaOrNull.setToolTipText(error.getErrorMessage());
+        }
     }
 
-    public static void clearError(JLabel label, JComponent component)
+    public static void clearError(JLabel label, JComponent component, JTextArea errorAreaOrNull)
     {
         component.setToolTipText(null);
         label.setForeground(Color.BLACK);
+        if (errorAreaOrNull != null)
+        {
+            errorAreaOrNull.setText(null);
+            errorAreaOrNull.setToolTipText(null);
+        }
     }
 
 }

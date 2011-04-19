@@ -270,7 +270,7 @@ public class DataSetUploadClient extends AbstractSwingGUI
         spacer.setPreferredSize(new Dimension(15, 15));
         window.add(spacer, BorderLayout.SOUTH);
         window.pack();
-        window.setBounds(20, 40, 600, 400);
+        window.setBounds(20, 40, 600, 450);
         window.setLocationByPlatform(true);
         window.setVisible(true);
 
