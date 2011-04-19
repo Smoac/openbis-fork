@@ -136,7 +136,7 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
             {
                 public boolean accept(IHierarchicalContentNode node)
                 {
-                    return compiledPattern.matcher(node.getRelativePath()).matches();
+                    return compiledPattern.matcher(node.getName()).matches();
                 }
             };
 
