@@ -26,6 +26,9 @@ import net.lemnik.eodsql.TransactionQuery;
  */
 public interface IPathsInfoDAO extends TransactionQuery
 {
+    @Select("select id from data_sets where code = ?{1}")
+    public Long tryGetDataSetId(String code);
+    
     @Select("insert into data_sets (code, location) values (?{1}, ?{2}) returning id")
     public long createDataSet(String code, String location);
     

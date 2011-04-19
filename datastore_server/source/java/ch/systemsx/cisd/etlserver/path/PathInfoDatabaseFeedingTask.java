@@ -159,10 +159,14 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
         {
             DatabaseBasedDataSetPathsInfoFeeder feeder =
                     new DatabaseBasedDataSetPathsInfoFeeder(dao, hierarchicalContentFactory);
-            feeder.addPaths(dataSetCode, dataSet.getDataSetLocation(), dataSetRoot);
+            Long id = dao.tryGetDataSetId(dataSetCode);
+            if (id != null)
+            {
+                feeder.addPaths(dataSetCode, dataSet.getDataSetLocation(), dataSetRoot);
+            }
             dao.commit();
-            operationLog.info("Successfully added paths inside data set " + dataSetCode
-                    + " to database.");
+            operationLog.info("Paths inside data set " + dataSetCode
+                    + " successfully added to database.");
         } catch (Exception ex)
         {
             handleException(ex, dataSetCode);

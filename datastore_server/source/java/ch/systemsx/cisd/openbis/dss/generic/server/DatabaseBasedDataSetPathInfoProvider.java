@@ -61,6 +61,14 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
         
         @Select("select id, parent_id, relative_path, size_in_bytes, is_directory from data_set_files where dase_id = ?{1}")
         public List<DataSetFileRecord> listDataSetFiles(long dataSetId);
+        
+        @Select("select id, parent_id, relative_path, size_in_bytes, is_directory from data_set_files where dase_id = ?{1} and relative_path ~ ?{2}")
+        public List<DataSetFileRecord> listDataSetFilesByRegularExpression(long dataSetId, String regex);
+    }
+    
+    private static interface ILoader
+    {
+        List<DataSetFileRecord> listDataSetFiles(long dataSetId);
     }
     
     private IPathInfoDAO dao;
@@ -74,52 +82,97 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
         this.dao = dao;
     }
 
+    public List<DataSetPathInfo> listPathInfosByRegularExpression(String dataSetCode,
+            final String regularExpression)
+    {
+        return new Loader(dataSetCode, new ILoader()
+            {
+                public List<DataSetFileRecord> listDataSetFiles(long dataSetId)
+                {
+                    return getDao().listDataSetFilesByRegularExpression(dataSetId,
+                            "^" + regularExpression + "$");
+                }
+            }).getInfos();
+    }
+
     public DataSetPathInfo tryGetDataSetRootPathInfo(String dataSetCode)
     {
-        DataSetPathInfo result = null;
-        Long dataSetId = getDao().tryToGetDataSetId(dataSetCode);
-        if (dataSetId != null)
-        {
-            List<DataSetFileRecord> dataSetFileRecords = getDao().listDataSetFiles(dataSetId);
-            Map<Long, DataSetPathInfo> idToInfoMap = new HashMap<Long, DataSetPathInfo>();
-            Map<Long, List<DataSetPathInfo>> parentChildrenMap =
-                    new HashMap<Long, List<DataSetPathInfo>>();
-            for (DataSetFileRecord dataSetFileRecord : dataSetFileRecords)
+        return new Loader(dataSetCode, new ILoader()
             {
-                DataSetPathInfo dataSetPathInfo = new DataSetPathInfo();
-                dataSetPathInfo.setFileName(dataSetFileRecord.file_name);
-                dataSetPathInfo.setRelativePath(dataSetFileRecord.relative_path);
-                dataSetPathInfo.setDirectory(dataSetFileRecord.is_directory);
-                dataSetPathInfo.setSizeInBytes(dataSetFileRecord.size_in_bytes);
-                idToInfoMap.put(dataSetFileRecord.id, dataSetPathInfo);
-                Long parentId = dataSetFileRecord.parent_id;
-                if (parentId == null)
+                public List<DataSetFileRecord> listDataSetFiles(long dataSetId)
                 {
-                    result = dataSetPathInfo;
-                } else
-                {
-                    List<DataSetPathInfo> children = parentChildrenMap.get(parentId);
-                    if (children == null)
-                    {
-                        children = new ArrayList<DataSetPathInfo>();
-                        parentChildrenMap.put(parentId, children);
-                    }
-                    children.add(dataSetPathInfo);
+                    return getDao().listDataSetFiles(dataSetId);
                 }
+            }).getRoot();
+    }
+    
+    private final class Loader
+    {
+        private Map<Long, DataSetPathInfo> idToInfoMap = new HashMap<Long, DataSetPathInfo>();
+        private DataSetPathInfo root;
+
+        Loader(String dataSetCode, ILoader loader)
+        {
+            Long dataSetId = getDao().tryToGetDataSetId(dataSetCode);
+            if (dataSetId != null)
+            {
+                List<DataSetFileRecord> dataSetFileRecords = loader.listDataSetFiles(dataSetId);
+                Map<Long, List<DataSetPathInfo>> parentChildrenMap =
+                        new HashMap<Long, List<DataSetPathInfo>>();
+                for (DataSetFileRecord dataSetFileRecord : dataSetFileRecords)
+                {
+                    DataSetPathInfo dataSetPathInfo = new DataSetPathInfo();
+                    dataSetPathInfo.setFileName(dataSetFileRecord.file_name);
+                    dataSetPathInfo.setRelativePath(dataSetFileRecord.relative_path);
+                    dataSetPathInfo.setDirectory(dataSetFileRecord.is_directory);
+                    dataSetPathInfo.setSizeInBytes(dataSetFileRecord.size_in_bytes);
+                    idToInfoMap.put(dataSetFileRecord.id, dataSetPathInfo);
+                    Long parentId = dataSetFileRecord.parent_id;
+                    if (parentId == null)
+                    {
+                        root = dataSetPathInfo;
+                    } else
+                    {
+                        List<DataSetPathInfo> children = parentChildrenMap.get(parentId);
+                        if (children == null)
+                        {
+                            children = new ArrayList<DataSetPathInfo>();
+                            parentChildrenMap.put(parentId, children);
+                        }
+                        children.add(dataSetPathInfo);
+                    }
+                }
+                linkParentsWithChildren(parentChildrenMap);
             }
+        }
+
+        private void linkParentsWithChildren(Map<Long, List<DataSetPathInfo>> parentChildrenMap)
+        {
             for (Entry<Long, List<DataSetPathInfo>> entry : parentChildrenMap.entrySet())
             {
                 Long parentId = entry.getKey();
                 DataSetPathInfo parent = idToInfoMap.get(parentId);
-                List<DataSetPathInfo> children = entry.getValue();
-                for (DataSetPathInfo child : children)
+                if (parent != null)
                 {
-                    parent.addChild(child);
-                    child.setParent(parent);
+                    List<DataSetPathInfo> children = entry.getValue();
+                    for (DataSetPathInfo child : children)
+                    {
+                        parent.addChild(child);
+                        child.setParent(parent);
+                    }
                 }
             }
         }
-        return result;
+
+        DataSetPathInfo getRoot()
+        {
+            return root;
+        }
+        
+        List<DataSetPathInfo> getInfos()
+        {
+            return new ArrayList<DataSetPathInfo>(idToInfoMap.values());
+        }
     }
     
     private IPathInfoDAO getDao()

@@ -79,22 +79,22 @@ public class DatabaseBasedDataSetPathsInfoFeederTest extends AbstractFileSystemT
                     one(dao).createDataSet("ds-1", "a/b/c/");
                     will(returnValue(42L));
                     
-                    one(dao).createDataSetFile(42L, null, ROOT_PATH, ROOT_PATH, 38, true);
+                    one(dao).createDataSetFile(42L, null, "", ROOT_PATH, 38, true);
                     will(returnValue(100L));
                     
-                    one(dao).createDataSetFile(42L, 100L, ROOT_PATH + "/dir", "dir", 26, true);
+                    one(dao).createDataSetFile(42L, 100L, "dir", "dir", 26, true);
                     will(returnValue(101L));
                     
-                    one(dao).createDataSetFile(42L, 101L, ROOT_PATH + "/dir/hello.txt", "hello.txt", 11, false);
+                    one(dao).createDataSetFile(42L, 101L, "dir/hello.txt", "hello.txt", 11, false);
                     will(returnValue(102L));
                     
-                    one(dao).createDataSetFile(42L, 101L, ROOT_PATH + "/dir/read.me", "read.me", 15, false);
+                    one(dao).createDataSetFile(42L, 101L, "dir/read.me", "read.me", 15, false);
                     will(returnValue(103L));
                     
-                    one(dao).createDataSetFile(42L, 101L, ROOT_PATH + "/dir/dir", "dir", 0, true);
+                    one(dao).createDataSetFile(42L, 101L, "dir/dir", "dir", 0, true);
                     will(returnValue(104L));
                     
-                    one(dao).createDataSetFile(42L, 100L, ROOT_PATH + "/read.me", "read.me", 12, false);
+                    one(dao).createDataSetFile(42L, 100L, "read.me", "read.me", 12, false);
                     will(returnValue(105L));
                 }
             });

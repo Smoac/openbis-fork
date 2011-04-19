@@ -59,16 +59,20 @@ public class DatabaseBasedDataSetPathsInfoFeeder implements IDataSetPathsInfoFee
     {
         boolean directory = pathInfo.isDirectory();
         String fileName = pathInfo.getFileName();
-        String relativePath = pathPrefix + fileName;
+        String relativePath = parentId == null ? "" : pathPrefix + fileName;
         long id =
                 dao.createDataSetFile(dataSetId, parentId, relativePath, fileName,
                         pathInfo.getSizeInBytes(), directory);
+        if (relativePath.length() > 0)
+        {
+            relativePath += '/';
+        }
         if (directory)
         {
             List<PathInfo> children = pathInfo.getChildren();
             for (PathInfo child : children)
             {
-                addPaths(dataSetId, id, relativePath + "/", child);
+                addPaths(dataSetId, id, relativePath, child);
             }
         }
     }
