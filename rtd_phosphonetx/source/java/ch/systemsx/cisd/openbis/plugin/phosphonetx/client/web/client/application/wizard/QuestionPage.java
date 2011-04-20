@@ -42,7 +42,7 @@ public class QuestionPage extends WizardPage<MsInjectionSampleAnnotationModel>
     {
         super(viewContext, MsInjectionAnnotationWizardState.CHOOSE_OR_CREATE_QUESTION, model);
         setLeftContentByDictionary();
-        addToRightContent(new Label("What do you want to annotate your samples?"), new RowData(1,
+        addToRightContent(new Label("How do you want to annotate your samples?"), new RowData(1,
                 -1, new Margins(10)));
         radioGroup = new RadioGroup();
         radioGroup.setFieldLabel("choose");

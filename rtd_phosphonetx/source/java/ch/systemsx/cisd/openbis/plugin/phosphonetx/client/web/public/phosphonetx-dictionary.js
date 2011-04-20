@@ -56,7 +56,8 @@ var phosphonetx = {
         + "An <tt>MS_INJECTION</tt> sample is linked to a biological sample where "
         + "the biological sample is the parent and the <tt>MS_INJECTION</tt> sample is the child. "
         + "The biological sample has all annotations (called properties in openBIS). "
-        + "They define the scientific context of proteins found. "
+        + "They define the scientific context of proteins found and have to be created "
+        + "by the user before the MS_INJECTION sample can be linked to it. "
         + "<p>This wizard helps you adding these important annotations to openBIS.",
   openbis_parentless_ms_injection_sample_main_IDENTIFIER: "MS_INJECTION Sample",
   openbis_parentless_ms_injection_sample_main_REGISTRATION_DATE: "Registration Date",
