@@ -33,6 +33,7 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.dss.generic.server.DatabaseBasedDataSetPathInfoProvider.DataSetFileRecord;
 import ch.systemsx.cisd.openbis.dss.generic.server.DatabaseBasedDataSetPathInfoProvider.IPathInfoDAO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetPathInfoProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
 
 /**
@@ -105,9 +106,32 @@ public class DatabaseBasedDataSetPathInfoProviderTest extends AssertJUnit
         assertEquals(null, info);
     }
 
+    @Test
+    public void testTryGetSingleDataSetPathInfoProvider()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(dao).tryToGetDataSetId("ds-existent");
+                    will(returnValue(DATA_SET_ID));
+
+                    one(dao).tryToGetDataSetId("ds-non-existent");
+                    will(returnValue(null));
+                }
+            });
+
+        ISingleDataSetPathInfoProvider nullInfoProvider =
+                pathInfoProvider.tryGetSingleDataSetPathInfoProvider("ds-non-existent");
+        assertNull(nullInfoProvider);
+
+        ISingleDataSetPathInfoProvider infoProvider =
+                pathInfoProvider.tryGetSingleDataSetPathInfoProvider("ds-existent");
+        assertNotNull(infoProvider);
+    }
+
     @SuppressWarnings("deprecation")
     @Test
-    public void testListDataSetRootPathInfoWithTwoResults()
+    public void testGetFullDataSetRootPathInfoWithTwoChildren()
     {
         final DataSetFileRecord r1 = record(1, 2L, "dir/text.txt", "text.txt", 23, false);
         final DataSetFileRecord r2 = record(2, null, "dir", "dir", 53, true);
@@ -137,7 +161,7 @@ public class DatabaseBasedDataSetPathInfoProviderTest extends AssertJUnit
     }
 
     @Test
-    public void testPathInfosByRelativePathRegex()
+    public void testListPathInfosByRelativePathRegex()
     {
         final String regex = "blabla";
         final DataSetFileRecord r1 = record(1, 2L, "dir/text.txt", "text.txt", 23, false);
@@ -155,16 +179,176 @@ public class DatabaseBasedDataSetPathInfoProviderTest extends AssertJUnit
 
         List<DataSetPathInfo> list =
                 pathInfoProvider.listPathInfosByRegularExpression("ds-1", regex);
-        Collections.sort(list, new Comparator<DataSetPathInfo>()
-            {
-                public int compare(DataSetPathInfo i1, DataSetPathInfo i2)
-                {
-                    return i1.getRelativePath().compareTo(i2.getRelativePath());
-                }
-            });
+        sort(list);
         check("dir", "dir", true, 53, list.get(0));
         check("dir/text.txt", "text.txt", false, 23, list.get(1));
         assertEquals(2, list.size());
+    }
+
+    //
+    // SingleDataSetPathInfoProvider
+    //
+
+    @Test
+    void testGetRootPathInfo()
+    {
+        ISingleDataSetPathInfoProvider provider = createSingleDataSetPathInfoProvider();
+
+        final DataSetFileRecord r = record(1, null, "dir", "dir", 53, true);
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(dao).getDataSetRootFile(DATA_SET_ID);
+                    will(returnValue(r));
+                }
+            });
+
+        DataSetPathInfo pathInfo = provider.getRootPathInfo();
+        check(r, pathInfo);
+    }
+
+    @Test
+    void testGetRootPathInfoFailWhenNotFound()
+    {
+        ISingleDataSetPathInfoProvider provider = createSingleDataSetPathInfoProvider();
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(dao).getDataSetRootFile(DATA_SET_ID);
+                    will(returnValue(null));
+                }
+            });
+
+        try
+        {
+            provider.getRootPathInfo();
+            fail("IllegalStateException expected");
+        } catch (IllegalStateException ex)
+        {
+            assertEquals("root path wasn't found", ex.getMessage());
+        }
+    }
+
+    @Test
+    void testTryGetPathInfoByRelativePath()
+    {
+        ISingleDataSetPathInfoProvider provider = createSingleDataSetPathInfoProvider();
+
+        final String realPath = "existing/relative/path";
+        final String fakePath = "fake/relative/path";
+        final DataSetFileRecord r = record(2L, 1L, realPath, "path", 53, true);
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(dao).tryToGetRelativeDataSetFile(DATA_SET_ID, realPath);
+                    will(returnValue(r));
+
+                    one(dao).tryToGetRelativeDataSetFile(DATA_SET_ID, fakePath);
+                    will(returnValue(null));
+                }
+            });
+
+        DataSetPathInfo realPathInfo = provider.tryGetPathInfoByRelativePath(realPath);
+        check(r, realPathInfo);
+        DataSetPathInfo fakePathInfo = provider.tryGetPathInfoByRelativePath(fakePath);
+        assertNull(fakePathInfo);
+    }
+
+    @Test
+    void testListChildrenPathInfos()
+    {
+        ISingleDataSetPathInfoProvider provider = createSingleDataSetPathInfoProvider();
+
+        // NOTE: data in records are not significant
+        final DataSetFileRecord rp = record(2L, 1L, "dir", "dir", 50, true);
+        final DataSetFileRecord rc1 = record(3L, 2L, "dir/child_dir", "child_dir", 20, true);
+        final DataSetFileRecord rc2 = record(4L, 2L, "dir/child_file", "child_file", 30, false);
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(dao).listChildrenByParentId(DATA_SET_ID, rp.id);
+                    will(returnValue(Arrays.asList(rc1, rc2)));
+                }
+            });
+
+        DataSetPathInfo parentInfo = new DataSetPathInfo();
+        parentInfo.setId(rp.id);
+
+        List<DataSetPathInfo> list = provider.listChildrenPathInfos(parentInfo);
+        sort(list);
+        check(rc1, list.get(0));
+        check(rc2, list.get(1));
+    }
+
+    @Test
+    void testListMatchingPathInfosWithRelativePathPattern()
+    {
+        ISingleDataSetPathInfoProvider provider = createSingleDataSetPathInfoProvider();
+
+        final String regex = "dir/child.*";
+
+        // NOTE: data in records are not significant
+        final DataSetFileRecord rc1 = record(3L, 2L, "dir/child_dir", "child_dir", 20, true);
+        final DataSetFileRecord rc2 = record(4L, 2L, "dir/child_file", "child_file", 30, false);
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(dao).listDataSetFilesByRelativePathRegex(DATA_SET_ID, "^" + regex + "$");
+                    will(returnValue(Arrays.asList(rc1, rc2)));
+                }
+            });
+
+        List<DataSetPathInfo> list = provider.listMatchingPathInfos(regex);
+        sort(list);
+        check(rc1, list.get(0));
+        check(rc2, list.get(1));
+    }
+
+    @Test
+    void testListMatchingPathInfosWithFileNamePattern()
+    {
+        ISingleDataSetPathInfoProvider provider = createSingleDataSetPathInfoProvider();
+
+        final String startingPath = "dir";
+        final String regex = "child.*";
+
+        // NOTE: data in records are not significant
+        final DataSetFileRecord rc1 = record(3L, 2L, "dir/child_dir", "child_dir", 20, true);
+        final DataSetFileRecord rc2 = record(4L, 2L, "dir/child_file", "child_file", 30, false);
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(dao).listDataSetFilesByFilenameRegex(DATA_SET_ID, startingPath,
+                            "^" + regex + "$");
+                    will(returnValue(Arrays.asList(rc1, rc2)));
+                }
+            });
+
+        List<DataSetPathInfo> list = provider.listMatchingPathInfos(startingPath, regex);
+        sort(list);
+        check(rc1, list.get(0));
+        check(rc2, list.get(1));
+    }
+
+    private ISingleDataSetPathInfoProvider createSingleDataSetPathInfoProvider()
+    {
+        return new DatabaseBasedDataSetPathInfoProvider.SingleDataSetPathInfoProvider(DATA_SET_ID,
+                dao);
+    }
+
+    private void check(DataSetFileRecord expectedFileRecord, DataSetPathInfo info)
+    {
+        assertEquals(expectedFileRecord.id, info.getId());
+        assertEquals(expectedFileRecord.relative_path, info.getRelativePath());
+        assertEquals(expectedFileRecord.file_name, info.getFileName());
+        assertEquals(expectedFileRecord.is_directory, info.isDirectory());
+        assertEquals(expectedFileRecord.size_in_bytes, info.getSizeInBytes());
     }
 
     @SuppressWarnings("deprecation")
@@ -195,4 +379,16 @@ public class DatabaseBasedDataSetPathInfoProviderTest extends AssertJUnit
         record.is_directory = directory;
         return record;
     }
+
+    private static void sort(List<DataSetPathInfo> list)
+    {
+        Collections.sort(list, new Comparator<DataSetPathInfo>()
+            {
+                public int compare(DataSetPathInfo i1, DataSetPathInfo i2)
+                {
+                    return i1.getRelativePath().compareTo(i2.getRelativePath());
+                }
+            });
+    }
+
 }

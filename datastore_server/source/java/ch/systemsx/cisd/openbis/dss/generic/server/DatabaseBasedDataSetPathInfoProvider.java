@@ -136,11 +136,10 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
         return null;
     }
 
-    private final class SingleDataSetPathInfoProvider implements ISingleDataSetPathInfoProvider
+    static class SingleDataSetPathInfoProvider implements ISingleDataSetPathInfoProvider
     {
         private final Long dataSetId;
 
-        @SuppressWarnings("hiding")
         private final IPathInfoDAO dao;
 
         public SingleDataSetPathInfoProvider(Long dataSetId, IPathInfoDAO dao)
@@ -152,7 +151,13 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
         public DataSetPathInfo getRootPathInfo()
         {
             DataSetFileRecord record = dao.getDataSetRootFile(dataSetId);
-            return asPathInfo(record);
+            if (record != null)
+            {
+                return asPathInfo(record);
+            } else
+            {
+                throw new IllegalStateException("root path wasn't found");
+            }
         }
 
         public DataSetPathInfo tryGetPathInfoByRelativePath(String relativePath)
@@ -210,6 +215,7 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
             }
             return results;
         }
+
     }
 
     private final class Loader
