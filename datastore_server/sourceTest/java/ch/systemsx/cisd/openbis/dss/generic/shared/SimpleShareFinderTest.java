@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
  */
 public class SimpleShareFinderTest extends AssertJUnit
 {
-    private static final class MockSpeedChecker implements AbstractShareFinder.ISpeedChecker
+    private static final class MockSpeedChecker implements ISpeedChecker
     {
         private final boolean[] checkingResults;
         

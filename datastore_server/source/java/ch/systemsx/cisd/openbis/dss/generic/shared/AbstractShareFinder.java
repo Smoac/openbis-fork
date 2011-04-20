@@ -30,44 +30,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 public abstract class AbstractShareFinder implements IShareFinder
 {
     /**
-     * Returns <code>true</code> if speed of specified share and speed hint of specified data set
-     * are allowed. 
-     *
-     * @author Franz-Josef Elmer
-     */
-    public static interface ISpeedChecker
-    {
-        boolean check(SimpleDataSetInformationDTO dataSet, Share share);
-    }
-    
-    private enum SpeedChecker implements ISpeedChecker
-    {
-        MATCHING_CHECKER()
-        {
-            public boolean check(SimpleDataSetInformationDTO dataSet, Share share)
-            {
-                return Math.abs(dataSet.getSpeedHint()) == share.getSpeed();
-            }
-        },
-        RESPECTUNG_SPEED_HINT_CHECKER()
-        {
-            public boolean check(SimpleDataSetInformationDTO dataSet, Share share)
-            {
-                int speedHint = dataSet.getSpeedHint();
-                int speed = share.getSpeed();
-                return speedHint < 0 ? speed < Math.abs(speedHint) : speed > speedHint;
-            }
-        },
-        IGNORING_SPEED_HINT_CHECKER()
-        {
-            public boolean check(SimpleDataSetInformationDTO dataSet, Share share)
-            {
-                return true;
-            }
-        }
-    }
-
-    /**
      * Tries to find a share fulfilling speed hint contract.
      */
     public Share tryToFindShare(SimpleDataSetInformationDTO dataSet, List<Share> shares)

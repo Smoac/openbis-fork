@@ -36,7 +36,7 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.filesystem.HostAwareFile;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.AbstractShareFinder;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ISpeedChecker;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
@@ -50,7 +50,7 @@ public class SimpleShufflingShareFinderTest extends AssertJUnit
 {
     private static final String DATA_SET_CODE = "ds-1";
 
-    private static final class MockSpeedChecker implements AbstractShareFinder.ISpeedChecker
+    private static final class MockSpeedChecker implements ISpeedChecker
     {
         private final boolean[] checkingResults;
         
