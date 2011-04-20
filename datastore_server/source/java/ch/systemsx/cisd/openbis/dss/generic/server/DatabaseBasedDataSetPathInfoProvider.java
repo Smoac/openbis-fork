@@ -72,6 +72,9 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
         @Select(SELECT_DATA_SET_FILES + "WHERE dase_id = ?{1} AND relative_path = ?{2}")
         public DataSetFileRecord tryToGetRelativeDataSetFile(long dataSetId, String relativePath);
 
+        @Select(SELECT_DATA_SET_FILES + "WHERE dase_id = ?{1} AND parent_id = ?{2}")
+        public List<DataSetFileRecord> listChildrenByParentId(long dataSetId, long parentId);
+
         @Select(SELECT_DATA_SET_FILES + "WHERE dase_id = ?{1} AND relative_path ~ ?{2}")
         public List<DataSetFileRecord> listDataSetFilesByRelativePathRegex(long dataSetId,
                 String relativePathRegex);
@@ -149,6 +152,13 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
                         }
                     }
 
+                    public List<DataSetPathInfo> listChildrenPathInfos(DataSetPathInfo parent)
+                    {
+                        List<DataSetFileRecord> records =
+                                getDao().listChildrenByParentId(dataSetId, parent.getId());
+                        return asPathInfos(records);
+                    }
+
                     public List<DataSetPathInfo> listMatchingPathInfos(String relativePathPattern)
                     {
                         List<DataSetFileRecord> records =
@@ -169,6 +179,7 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
                     private DataSetPathInfo asPathInfo(DataSetFileRecord record)
                     {
                         DataSetPathInfo result = new DataSetPathInfo();
+                        result.setId(record.id);
                         result.setFileName(record.file_name);
                         result.setRelativePath(record.relative_path);
                         result.setDirectory(record.is_directory);
@@ -232,6 +243,7 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
             }
         }
 
+        @SuppressWarnings("deprecation")
         private void linkParentsWithChildren(Map<Long, List<DataSetPathInfo>> parentChildrenMap)
         {
             for (Entry<Long, List<DataSetPathInfo>> entry : parentChildrenMap.entrySet())

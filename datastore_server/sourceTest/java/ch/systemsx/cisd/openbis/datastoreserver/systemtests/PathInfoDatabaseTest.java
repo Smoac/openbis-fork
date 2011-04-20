@@ -48,12 +48,12 @@ public class PathInfoDatabaseTest extends SystemTestCase
     {
         DataSource dataSource = PathInfoDataSourceProvider.getDataSource();
         cleanUpDatabase(dataSource);
-        
+
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         int n = feedDataBase(dataSource);
         System.out.println(stopWatch.getTime() + " msec for creating " + n + " entries");
-        
+
         stopWatch.reset();
         List<String> paths = new ArrayList<String>();
         Connection connection = null;
@@ -62,16 +62,18 @@ public class PathInfoDatabaseTest extends SystemTestCase
         {
             connection = dataSource.getConnection();
             stopWatch.start();
-            PreparedStatement s = connection.prepareStatement("select * from data_set_files " +
-            		"where relative_path ~ ?");
-            System.out.println(stopWatch.getTime() + " msec for preparing SQL statement "+stopWatch);
+            PreparedStatement s =
+                    connection.prepareStatement("select * from data_set_files "
+                            + "where relative_path ~ ?");
+            System.out.println(stopWatch.getTime() + " msec for preparing SQL statement "
+                    + stopWatch);
             s.setString(1, regex);
             ResultSet rs = s.executeQuery();
             while (rs.next())
             {
                 paths.add(rs.getString("relative_path"));
             }
-            System.out.println(stopWatch.getTime()+" msec for PostgreSQL regex search");
+            System.out.println(stopWatch.getTime() + " msec for PostgreSQL regex search");
             Collections.sort(paths);
             assertEquals("[file-2-4/file-9-81/file-5-25/file-6-36-xyz.xml, "
                     + "file-2-4/file-9-81/file-7-49/file-6-36-xyz.xml, "
@@ -81,11 +83,12 @@ public class PathInfoDatabaseTest extends SystemTestCase
         {
             close(connection);
         }
-        
+
         stopWatch.reset();
         stopWatch.start();
         List<DataSetPathInfo> results =
-                ServiceProvider.getDataSetPathInfoProvider().listPathInfosByRegularExpression("ds-1", regex);
+                ServiceProvider.getDataSetPathInfoProvider().listPathInfosByRegularExpression(
+                        "ds-1", regex);
         System.out.println(stopWatch.getTime() + " msec for reading db with regex");
         paths.clear();
         for (DataSetPathInfo info : results)
@@ -97,11 +100,12 @@ public class PathInfoDatabaseTest extends SystemTestCase
                 + "file-2-4/file-9-81/file-7-49/file-6-36-xyz.xml, "
                 + "file-3-9/file-9-81/file-5-25/file-6-36-xyz.xml, "
                 + "file-3-9/file-9-81/file-7-49/file-6-36-xyz.xml]", paths.toString());
-        
+
         stopWatch.reset();
         stopWatch.start();
         final Pattern pattern = Pattern.compile(regex);
-        DataSetPathInfo root = ServiceProvider.getDataSetPathInfoProvider().tryGetFullDataSetRootPathInfo("ds-1");
+        DataSetPathInfo root =
+                ServiceProvider.getDataSetPathInfoProvider().tryGetFullDataSetRootPathInfo("ds-1");
         System.out.println(stopWatch.getTime() + " msec for reading db");
         results.clear();
         search(results, root, pattern);
@@ -164,13 +168,14 @@ public class PathInfoDatabaseTest extends SystemTestCase
         {
             results.add(info);
         }
+        @SuppressWarnings("deprecation")
         List<DataSetPathInfo> children = info.getChildren();
         for (DataSetPathInfo child : children)
         {
             search(results, child, pattern);
         }
     }
-    
+
     private void cleanUpDatabase(DataSource dataSource) throws SQLException
     {
         Connection connection = null;
@@ -197,5 +202,5 @@ public class PathInfoDatabaseTest extends SystemTestCase
             }
         }
     }
-    
+
 }

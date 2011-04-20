@@ -93,7 +93,7 @@ class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
 
     private IHierarchicalContentNode asNode(DataSetPathInfo pathInfo)
     {
-        return new PathInfoNode(root, pathInfo);
+        return new PathInfoNode(pathInfo, root, dataSetPathInfoProvider);
     }
 
     private DataSetPathInfo findPathInfo(String relativePath) throws IllegalArgumentException
@@ -194,10 +194,14 @@ class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
 
         private final File root;
 
-        PathInfoNode(File root, DataSetPathInfo pathInfo)
+        private final ISingleDataSetPathInfoProvider dataSetPathInfoProvider;
+
+        PathInfoNode(DataSetPathInfo pathInfo, File root,
+                ISingleDataSetPathInfoProvider dataSetPathInfoProvider)
         {
-            this.root = root;
             this.pathInfo = pathInfo;
+            this.root = root;
+            this.dataSetPathInfoProvider = dataSetPathInfoProvider;
         }
 
         public String getName()
@@ -224,10 +228,12 @@ class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
         @Override
         protected List<IHierarchicalContentNode> doGetChildNodes()
         {
+            List<DataSetPathInfo> pathInfos =
+                    dataSetPathInfoProvider.listChildrenPathInfos(pathInfo);
             List<IHierarchicalContentNode> result = new ArrayList<IHierarchicalContentNode>();
-            for (DataSetPathInfo child : pathInfo.getChildren())
+            for (DataSetPathInfo child : pathInfos)
             {
-                result.add(new PathInfoNode(root, child));
+                result.add(new PathInfoNode(child, root, dataSetPathInfoProvider));
             }
             return result;
         }

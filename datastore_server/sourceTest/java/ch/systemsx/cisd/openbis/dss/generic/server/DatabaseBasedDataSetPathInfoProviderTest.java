@@ -105,6 +105,7 @@ public class DatabaseBasedDataSetPathInfoProviderTest extends AssertJUnit
         assertEquals(null, info);
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testListDataSetRootPathInfoWithTwoResults()
     {
@@ -173,6 +174,7 @@ public class DatabaseBasedDataSetPathInfoProviderTest extends AssertJUnit
         assertEquals(expectedFileName, info.getFileName());
         assertEquals(expectingDirectory, info.isDirectory());
         assertEquals(expectedSize, info.getSizeInBytes());
+        @SuppressWarnings("deprecation")
         List<DataSetPathInfo> children = info.getChildren();
         for (DataSetPathInfo child : children)
         {

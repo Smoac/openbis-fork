@@ -20,23 +20,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DataSetPathInfo
 {
+    private long id;
+
     private String fileName;
-    
+
     private String relativePath;
-    
+
     private boolean directory;
-    
+
     private long sizeInBytes;
-    
+
     private DataSetPathInfo parent;
-    
+
     private List<DataSetPathInfo> children = new ArrayList<DataSetPathInfo>();
+
+    public long getId()
+    {
+        return id;
+    }
+
+    public void setId(long id)
+    {
+        this.id = id;
+    }
 
     public void setFileName(String fileName)
     {
@@ -77,25 +87,27 @@ public class DataSetPathInfo
     {
         this.parent = parent;
     }
-    
+
     public void setDirectory(boolean directory)
     {
         this.directory = directory;
     }
-    
+
     public boolean isDirectory()
     {
         return directory;
     }
 
+    @Deprecated
     public List<DataSetPathInfo> getChildren()
     {
         return children;
     }
 
+    @Deprecated
     public void addChild(DataSetPathInfo child)
     {
         children.add(child);
     }
-    
+
 }
