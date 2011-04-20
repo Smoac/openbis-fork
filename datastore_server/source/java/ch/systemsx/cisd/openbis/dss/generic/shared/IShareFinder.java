@@ -34,7 +34,8 @@ public interface IShareFinder
      * Tries to find a share from the specified shares to whom the specified data set can be moved.
      * Implementations should choose a share with speed matching the absolute value of the speed
      * hint of specified data set. If such a share couldn't be found a share with higher/lower speed
-     * should be chosen if speed hint is positive/negative.
+     * should be chosen if speed hint is positive/negative. In worst case speed hint is completely
+     * ignored.
      * 
      * @param dataSet with known size, old share ID and speed hint.
      * @param shares All shares. Share instances know their speed and whether they are incoming or

@@ -114,10 +114,8 @@ public interface IDataSet
      * absolute value less than or equal {@link Constants#MAX_SPEED}.
      * <p>
      * A positive value means that the data set should be stored in a storage with speed &gt;=
-     * <code>speedHint</code>.
-     * <p>
-     * A negative value means that the data set should be stored in a storage with speed &lt;=
-     * <code>abs(speedHint)</code>.
+     * <code>speedHint</code>. A negative value means that the data set should be stored in a
+     * storage with speed &lt;= <code>abs(speedHint)</code>. The speed hint might be ignored.
      */
     public void setSpeedHint(int speedHint);
 

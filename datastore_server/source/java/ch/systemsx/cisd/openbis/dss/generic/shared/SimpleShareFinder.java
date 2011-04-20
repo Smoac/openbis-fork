@@ -30,14 +30,16 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
  * 
  * @author Franz-Josef Elmer
  */
-public class SimpleShareFinder implements IShareFinder
+public class SimpleShareFinder extends AbstractShareFinder
 {
     public SimpleShareFinder(Properties properties)
     {
         
     }
 
-    public Share tryToFindShare(SimpleDataSetInformationDTO dataSet, List<Share> shares)
+    @Override
+    protected Share tryToFindShare(SimpleDataSetInformationDTO dataSet, List<Share> shares,
+            ISpeedChecker speedChecker)
     {
         Long dataSetSize = dataSet.getDataSetSize();
         String dataSetShareId = dataSet.getDataSetShareId();
@@ -49,6 +51,10 @@ public class SimpleShareFinder implements IShareFinder
         long extensionsMaxFreeSpace = dataSetSize;
         for (Share share : shares)
         {
+            if (speedChecker.check(dataSet, share) == false)
+            {
+                continue;
+            }
             long freeSpace = share.calculateFreeSpace();
             String shareId = share.getShareId();
             if (dataSetShareId.equals(shareId))

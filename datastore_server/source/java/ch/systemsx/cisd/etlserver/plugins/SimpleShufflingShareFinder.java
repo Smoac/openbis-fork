@@ -23,7 +23,7 @@ import org.apache.commons.io.FileUtils;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IShareFinder;
+import ch.systemsx.cisd.openbis.dss.generic.shared.AbstractShareFinder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
  *
  * @author Franz-Josef Elmer
  */
-public class SimpleShufflingShareFinder implements IShareFinder
+public class SimpleShufflingShareFinder extends AbstractShareFinder
 {
     @Private
     public static final String MINIMUM_FREE_SPACE_KEY = "minimum-free-space-in-MB";
@@ -46,12 +46,18 @@ public class SimpleShufflingShareFinder implements IShareFinder
 
     }
     
-    public Share tryToFindShare(SimpleDataSetInformationDTO dataSet, List<Share> shares)
+    @Override
+    protected Share tryToFindShare(SimpleDataSetInformationDTO dataSet, List<Share> shares,
+            ISpeedChecker speedChecker)
     {
         Share shareWithMostFree = null;
         long maxFreeSpace = 0;
         for (Share share : shares)
         {
+            if (speedChecker.check(dataSet, share) == false)
+            {
+                continue;
+            }
             long freeSpace = share.calculateFreeSpace();
             if (freeSpace > maxFreeSpace)
             {
