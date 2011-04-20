@@ -68,7 +68,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
 public final class ExternalDataDAOTest extends AbstractDAOTest
 {
 
-    private static final int SPEED_HINT = (Constants.MIN_SPEED_HINT + Constants.DEFAULT_SPEED_HINT) / 2;
+    private static final int SPEED_HINT = Constants.DEFAULT_SPEED_HINT / 4;
 
     private final String PARENT_CODE = "20081105092158673-1";
 

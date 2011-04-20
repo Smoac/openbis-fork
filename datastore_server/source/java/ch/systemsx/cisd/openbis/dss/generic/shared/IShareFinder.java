@@ -32,9 +32,13 @@ public interface IShareFinder
 {
     /**
      * Tries to find a share from the specified shares to whom the specified data set can be moved.
+     * Implementations should choose a share with speed matching the absolute value of the speed
+     * hint of specified data set. If such a share couldn't be found a share with higher/lower speed
+     * should be chosen if speed hint is positive/negative.
      * 
-     * @param dataSet with known size and old share ID.
-     * @param shares All shares. Share instances know whether they are incoming or external.
+     * @param dataSet with known size, old share ID and speed hint.
+     * @param shares All shares. Share instances know their speed and whether they are incoming or
+     *            external.
      * @return <code>null</code> if no share could be found.
      */
     public Share tryToFindShare(SimpleDataSetInformationDTO dataSet, List<Share> shares);

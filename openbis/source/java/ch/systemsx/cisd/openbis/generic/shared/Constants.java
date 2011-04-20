@@ -25,7 +25,6 @@ public class Constants
 {
     public static final String USER_PARAMETER = "user";
     
-    public static final int MIN_SPEED_HINT = 0;
-    public static final int MAX_SPEED_HINT = 100;
-    public static final int DEFAULT_SPEED_HINT = (MIN_SPEED_HINT + MAX_SPEED_HINT) / 2;
+    public static final int MAX_SPEED = 100;
+    public static final int DEFAULT_SPEED_HINT = - MAX_SPEED / 2;
 }

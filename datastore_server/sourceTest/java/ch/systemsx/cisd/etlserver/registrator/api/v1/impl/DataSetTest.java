@@ -43,7 +43,17 @@ public class DataSetTest extends AssertJUnit
         IDataSet dataSet = new DataSet<DataSetInformation>(registrationDetails, new File("."));
         
         assertEquals(Constants.DEFAULT_SPEED_HINT, dataSet.getSpeedHint());
-        dataSet.setSpeedHint(Constants.MIN_SPEED_HINT);
-        assertEquals(Constants.MIN_SPEED_HINT, dataSet.getSpeedHint());
+
+        dataSet.setSpeedHint(Constants.MAX_SPEED * 2);
+        assertEquals(Constants.MAX_SPEED, dataSet.getSpeedHint());
+        
+        dataSet.setSpeedHint(-Constants.MAX_SPEED * 2);
+        assertEquals(-Constants.MAX_SPEED, dataSet.getSpeedHint());
+        
+        dataSet.setSpeedHint(Constants.MAX_SPEED / 3);
+        assertEquals(Constants.MAX_SPEED / 3, dataSet.getSpeedHint());
+        
+        dataSet.setSpeedHint(-Constants.MAX_SPEED / 3);
+        assertEquals(-Constants.MAX_SPEED / 3, dataSet.getSpeedHint());
     }
 }

@@ -96,6 +96,19 @@ public final class SampleIdentifierTest
         SampleIdentifier id2 = new SampleIdentifierFactory("DB:/SPACE/SAMP").createIdentifier();
         assertEquals(id1, id2);
     }
+    
+    @Test
+    public void testEquals2()
+    {
+        SampleIdentifier identifier1 =
+                new SampleIdentifierFactory("/SPACE/SAMP").createIdentifier();
+        assertEquals("/SPACE/SAMP", identifier1.toString());
+
+        SampleIdentifier identifier2 =
+                new SampleIdentifier(new SpaceIdentifier(DatabaseInstanceIdentifier.HOME_INSTANCE,
+                        "SPACE"), "SAMP");
+        assertEquals(identifier1, identifier2);
+    }
 
     private static SampleIdentifier[] revert(SampleIdentifier[] expectedOrder)
     {

@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SpeedUtils;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -117,7 +118,7 @@ public class DataSetInformation implements Serializable
 
     public void setSpeedHint(int speedHint)
     {
-        this.speedHint = speedHint;
+        this.speedHint = SpeedUtils.trimSpeedHint(speedHint);
     }
 
     public String tryGetUploadingUserEmail()

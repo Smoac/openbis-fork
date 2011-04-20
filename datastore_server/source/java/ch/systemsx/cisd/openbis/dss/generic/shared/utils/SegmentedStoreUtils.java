@@ -234,7 +234,7 @@ public class SegmentedStoreUtils
                 String value = FileUtilities.loadToString(speedFile).trim();
                 try
                 {
-                    speed = Integer.parseInt(value);
+                    speed = SpeedUtils.trim(Integer.parseInt(value));
                 } catch (NumberFormatException ex)
                 {
                     log.log(LogLevel.WARN, "Speed file " + speedFile

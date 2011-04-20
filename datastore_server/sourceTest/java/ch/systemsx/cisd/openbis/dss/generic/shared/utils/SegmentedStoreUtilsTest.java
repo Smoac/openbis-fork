@@ -103,7 +103,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         final File ds1File = new File(store, "1/uuid/01/02/03/ds-1");
         ds1File.mkdirs();
         FileUtilities.writeToFile(new File(ds1File, "read.me"), "nice work!");
-        FileUtilities.writeToFile(new File(store, "1/" + SegmentedStoreUtils.SPEED_FILE), "  43  \n");
+        FileUtilities.writeToFile(new File(store, "1/" + SegmentedStoreUtils.SPEED_FILE), "  143  \n");
         final SimpleDataSetInformationDTO ds1 = dataSet(ds1File, DATA_STORE_CODE, null);
         File ds2File = new File(store, "1/uuid/01/02/04/ds-2");
         ds2File.mkdirs();
@@ -158,7 +158,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         assertEquals(12345L * 1024, freeSpace);
         assertEquals(new File(store, "1").toString(), share1.getShare().toString());
         assertEquals("1", share1.getShareId());
-        assertEquals(43, share1.getSpeed());
+        assertEquals(100, share1.getSpeed());
         assertSame(ds4, share1.getDataSetsOrderedBySize().get(0));
         assertEquals(42L, share1.getDataSetsOrderedBySize().get(0).getDataSetSize().longValue());
         assertSame(ds1, share1.getDataSetsOrderedBySize().get(1));

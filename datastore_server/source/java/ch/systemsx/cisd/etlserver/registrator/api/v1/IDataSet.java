@@ -108,9 +108,16 @@ public interface IDataSet
      * value {@link Constants#DEFAULT_SPEED_HINT} will be returned.
      */
     public int getSpeedHint();
-    
+
     /**
-     * Sets the speed hint for the data set. 
+     * Sets the speed hint for the data set. The speed hint is a negative or positive number with an
+     * absolute value less than or equal {@link Constants#MAX_SPEED}.
+     * <p>
+     * A positive value means that the data set should be stored in a storage with speed &gt;=
+     * <code>speedHint</code>.
+     * <p>
+     * A negative value means that the data set should be stored in a storage with speed &lt;=
+     * <code>abs(speedHint)</code>.
      */
     public void setSpeedHint(int speedHint);
 
