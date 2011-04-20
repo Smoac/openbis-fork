@@ -131,75 +131,85 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
         final Long dataSetId = getDao().tryToGetDataSetId(dataSetCode);
         if (dataSetId != null)
         {
-            return new ISingleDataSetPathInfoProvider()
-                {
-                    public DataSetPathInfo getRootPathInfo()
-                    {
-                        DataSetFileRecord record = getDao().getDataSetRootFile(dataSetId);
-                        return asPathInfo(record);
-                    }
-
-                    public DataSetPathInfo tryGetPathInfoByRelativePath(String relativePath)
-                    {
-                        DataSetFileRecord record =
-                                getDao().tryToGetRelativeDataSetFile(dataSetId, relativePath);
-                        if (record != null)
-                        {
-                            return asPathInfo(record);
-                        } else
-                        {
-                            return null;
-                        }
-                    }
-
-                    public List<DataSetPathInfo> listChildrenPathInfos(DataSetPathInfo parent)
-                    {
-                        List<DataSetFileRecord> records =
-                                getDao().listChildrenByParentId(dataSetId, parent.getId());
-                        return asPathInfos(records);
-                    }
-
-                    public List<DataSetPathInfo> listMatchingPathInfos(String relativePathPattern)
-                    {
-                        List<DataSetFileRecord> records =
-                                getDao().listDataSetFilesByRelativePathRegex(dataSetId,
-                                        prepareDBStyleRegex(relativePathPattern));
-                        return asPathInfos(records);
-                    }
-
-                    public List<DataSetPathInfo> listMatchingPathInfos(String startingPath,
-                            String fileNamePattern)
-                    {
-                        List<DataSetFileRecord> records =
-                                getDao().listDataSetFilesByFilenameRegex(dataSetId, startingPath,
-                                        prepareDBStyleRegex(fileNamePattern));
-                        return asPathInfos(records);
-                    }
-
-                    private DataSetPathInfo asPathInfo(DataSetFileRecord record)
-                    {
-                        DataSetPathInfo result = new DataSetPathInfo();
-                        result.setId(record.id);
-                        result.setFileName(record.file_name);
-                        result.setRelativePath(record.relative_path);
-                        result.setDirectory(record.is_directory);
-                        result.setSizeInBytes(record.size_in_bytes);
-                        return result;
-                    }
-
-                    private List<DataSetPathInfo> asPathInfos(List<DataSetFileRecord> records)
-                    {
-                        List<DataSetPathInfo> results = new ArrayList<DataSetPathInfo>();
-                        for (DataSetFileRecord record : records)
-                        {
-                            results.add(asPathInfo(record));
-                        }
-                        return results;
-                    }
-
-                };
+            return new SingleDataSetPathInfoProvider(dataSetId, getDao());
         }
         return null;
+    }
+
+    private final class SingleDataSetPathInfoProvider implements ISingleDataSetPathInfoProvider
+    {
+        private final Long dataSetId;
+
+        @SuppressWarnings("hiding")
+        private final IPathInfoDAO dao;
+
+        public SingleDataSetPathInfoProvider(Long dataSetId, IPathInfoDAO dao)
+        {
+            this.dataSetId = dataSetId;
+            this.dao = dao;
+        }
+
+        public DataSetPathInfo getRootPathInfo()
+        {
+            DataSetFileRecord record = dao.getDataSetRootFile(dataSetId);
+            return asPathInfo(record);
+        }
+
+        public DataSetPathInfo tryGetPathInfoByRelativePath(String relativePath)
+        {
+            DataSetFileRecord record = dao.tryToGetRelativeDataSetFile(dataSetId, relativePath);
+            if (record != null)
+            {
+                return asPathInfo(record);
+            } else
+            {
+                return null;
+            }
+        }
+
+        public List<DataSetPathInfo> listChildrenPathInfos(DataSetPathInfo parent)
+        {
+            List<DataSetFileRecord> records = dao.listChildrenByParentId(dataSetId, parent.getId());
+            return asPathInfos(records);
+        }
+
+        public List<DataSetPathInfo> listMatchingPathInfos(String relativePathPattern)
+        {
+            List<DataSetFileRecord> records =
+                    dao.listDataSetFilesByRelativePathRegex(dataSetId,
+                            prepareDBStyleRegex(relativePathPattern));
+            return asPathInfos(records);
+        }
+
+        public List<DataSetPathInfo> listMatchingPathInfos(String startingPath,
+                String fileNamePattern)
+        {
+            List<DataSetFileRecord> records =
+                    dao.listDataSetFilesByFilenameRegex(dataSetId, startingPath,
+                            prepareDBStyleRegex(fileNamePattern));
+            return asPathInfos(records);
+        }
+
+        private DataSetPathInfo asPathInfo(DataSetFileRecord record)
+        {
+            DataSetPathInfo result = new DataSetPathInfo();
+            result.setId(record.id);
+            result.setFileName(record.file_name);
+            result.setRelativePath(record.relative_path);
+            result.setDirectory(record.is_directory);
+            result.setSizeInBytes(record.size_in_bytes);
+            return result;
+        }
+
+        private List<DataSetPathInfo> asPathInfos(List<DataSetFileRecord> records)
+        {
+            List<DataSetPathInfo> results = new ArrayList<DataSetPathInfo>();
+            for (DataSetFileRecord record : records)
+            {
+                results.add(asPathInfo(record));
+            }
+            return results;
+        }
     }
 
     private final class Loader
