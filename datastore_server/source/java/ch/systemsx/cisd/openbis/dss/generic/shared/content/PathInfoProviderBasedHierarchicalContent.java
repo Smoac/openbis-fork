@@ -255,21 +255,21 @@ class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
         @Override
         protected IRandomAccessFile doGetFileContent()
         {
-            return getFileContentProvider().getReadOnlyRandomAccessFile();
+            return getContentProvider().getReadOnlyRandomAccessFile();
         }
 
         @Override
         protected InputStream doGetInputStream()
         {
-            return getFileContentProvider().getInputStream();
+            return getContentProvider().getInputStream();
         }
 
-        private IFileContentProvider getFileContentProvider()
+        private IFileContentProvider getContentProvider()
         {
             if (fileContentProviderOrNull == null)
             {
                 File file = doGetFile();
-                fileContentProviderOrNull = getContent(file);
+                fileContentProviderOrNull = getFileContentProvider(file);
             }
             return fileContentProviderOrNull;
         }
@@ -290,7 +290,7 @@ class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
         }
     }
 
-    private IFileContentProvider getContent(File file)
+    private IFileContentProvider getFileContentProvider(File file)
     {
         if (file.exists())
         {
