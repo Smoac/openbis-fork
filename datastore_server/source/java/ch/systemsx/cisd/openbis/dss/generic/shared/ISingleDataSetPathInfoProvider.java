@@ -27,13 +27,21 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
  */
 public interface ISingleDataSetPathInfoProvider
 {
+    /** @return information about path of the data set root directory */
     DataSetPathInfo getRootPathInfo();
 
+    /**
+     * @return information about path of data set file with given <var>relativePath</var>, or
+     *         </code>null<code> if such a path doesn't exist
+     */
     DataSetPathInfo tryGetPathInfoByRelativePath(String relativePath);
 
+    /** @return list of paths that are children of given path (may be empty) */
     List<DataSetPathInfo> listChildrenPathInfos(DataSetPathInfo parent);
 
+    /** @return list of paths that match given pattern for relative path */
     List<DataSetPathInfo> listMatchingPathInfos(String relativePathPattern);
 
+    /** @return list of paths that start with given path and have file name matching given pattern */
     List<DataSetPathInfo> listMatchingPathInfos(String startingPath, String fileNamePattern);
 }
