@@ -31,15 +31,15 @@ import ch.systemsx.cisd.hdf5.IHDF5SimpleReader;
  * 
  * @author Piotr Buczek
  */
-class HDF5ContainerBasedHierarchicalContentNode extends DefaultFileBasedHierarchicalContentNode
+public class HDF5ContainerBasedHierarchicalContentNode extends
+        DefaultFileBasedHierarchicalContentNode
 {
     private final Hdf5Container hdf5Container;
 
-    HDF5ContainerBasedHierarchicalContentNode(
-            IHierarchicalContentFactory hierarchicalContentFactory, IHierarchicalContent root,
+    public HDF5ContainerBasedHierarchicalContentNode(IHierarchicalContent root,
             File hdf5ContainerFile)
     {
-        super(hierarchicalContentFactory, root, hdf5ContainerFile);
+        super(root, hdf5ContainerFile);
         this.hdf5Container = new Hdf5Container(hdf5ContainerFile);
     }
 
@@ -59,7 +59,6 @@ class HDF5ContainerBasedHierarchicalContentNode extends DefaultFileBasedHierarch
     @Override
     public List<IHierarchicalContentNode> doGetChildNodes()
     {
-        // NOTE this is a slow implementation - improve it when information can be retrieved from DB
         IHDF5SimpleReader reader = createReader();
         try
         {

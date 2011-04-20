@@ -95,8 +95,7 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
         if (existingFile != null && FileUtilities.isHDF5ContainerFile(existingFile))
         {
             HDF5ContainerBasedHierarchicalContentNode containerNode =
-                    new HDF5ContainerBasedHierarchicalContentNode(hierarchicalContentFactory, this,
-                            existingFile);
+                    new HDF5ContainerBasedHierarchicalContentNode(this, existingFile);
             String relativePath = FileUtilities.getRelativeFile(existingFile, file);
             return containerNode.getChildNode(relativePath);
         }

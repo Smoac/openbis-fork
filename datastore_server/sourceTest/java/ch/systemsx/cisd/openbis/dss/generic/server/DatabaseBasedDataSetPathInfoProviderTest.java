@@ -167,6 +167,7 @@ public class DatabaseBasedDataSetPathInfoProviderTest extends AssertJUnit
         assertEquals(2, list.size());
     }
 
+    @SuppressWarnings("deprecation")
     private void check(String expectedRelativePath, String expectedFileName,
             boolean expectingDirectory, long expectedSize, DataSetPathInfo info)
     {
@@ -174,7 +175,6 @@ public class DatabaseBasedDataSetPathInfoProviderTest extends AssertJUnit
         assertEquals(expectedFileName, info.getFileName());
         assertEquals(expectingDirectory, info.isDirectory());
         assertEquals(expectedSize, info.getSizeInBytes());
-        @SuppressWarnings("deprecation")
         List<DataSetPathInfo> children = info.getChildren();
         for (DataSetPathInfo child : children)
         {

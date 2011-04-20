@@ -26,7 +26,9 @@ import java.util.List;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.base.io.RandomAccessFileImpl;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.io.AbstractHierarchicalContentNode;
+import ch.systemsx.cisd.common.io.HDF5ContainerBasedHierarchicalContentNode;
 import ch.systemsx.cisd.common.io.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
@@ -93,7 +95,7 @@ class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
 
     private IHierarchicalContentNode asNode(DataSetPathInfo pathInfo)
     {
-        return new PathInfoNode(pathInfo, root, dataSetPathInfoProvider);
+        return new PathInfoNode(pathInfo);
     }
 
     private DataSetPathInfo findPathInfo(String relativePath) throws IllegalArgumentException
@@ -187,21 +189,15 @@ class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
         return true;
     }
 
-    static class PathInfoNode extends AbstractHierarchicalContentNode
+    class PathInfoNode extends AbstractHierarchicalContentNode
     {
-
         private final DataSetPathInfo pathInfo;
 
-        private final File root;
+        private IFileContentProvider fileContentProviderOrNull;
 
-        private final ISingleDataSetPathInfoProvider dataSetPathInfoProvider;
-
-        PathInfoNode(DataSetPathInfo pathInfo, File root,
-                ISingleDataSetPathInfoProvider dataSetPathInfoProvider)
+        PathInfoNode(DataSetPathInfo pathInfo)
         {
             this.pathInfo = pathInfo;
-            this.root = root;
-            this.dataSetPathInfoProvider = dataSetPathInfoProvider;
         }
 
         public String getName()
@@ -233,7 +229,7 @@ class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
             List<IHierarchicalContentNode> result = new ArrayList<IHierarchicalContentNode>();
             for (DataSetPathInfo child : pathInfos)
             {
-                result.add(new PathInfoNode(child, root, dataSetPathInfoProvider));
+                result.add(asNode(child));
             }
             return result;
         }
@@ -244,9 +240,45 @@ class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
             return pathInfo.getSizeInBytes();
         }
 
-        // TODO 2011-04-19, Piotr Buczek: use abstraction to get file content
-
         public File getFile() throws UnsupportedOperationException
+        {
+            File result = doGetFile();
+            if (result.exists())
+            {
+                return result;
+            } else
+            {
+                throw new UnsupportedOperationException("This is not a normal file/directory node.");
+            }
+        }
+
+        @Override
+        protected IRandomAccessFile doGetFileContent()
+        {
+            return getFileContentProvider().getReadOnlyRandomAccessFile();
+        }
+
+        @Override
+        protected InputStream doGetInputStream()
+        {
+            return getFileContentProvider().getInputStream();
+        }
+
+        private IFileContentProvider getFileContentProvider()
+        {
+            if (fileContentProviderOrNull == null)
+            {
+                File file = doGetFile();
+                fileContentProviderOrNull = getContent(file);
+            }
+            return fileContentProviderOrNull;
+        }
+
+        /**
+         * Returns a file object with given node's relative path. The file doesn't have to exist on
+         * the file system.
+         */
+        private File doGetFile()
         {
             if (StringUtils.isBlank(getRelativePath()))
             {
@@ -256,25 +288,82 @@ class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
                 return new File(root, getRelativePath());
             }
         }
+    }
 
-        @Override
-        protected IRandomAccessFile doGetFileContent()
+    private IFileContentProvider getContent(File file)
+    {
+        if (file.exists())
         {
-            return new RandomAccessFileImpl(getFile(), "r");
+            return asFileContentProvider(file);
         }
 
-        @Override
-        protected InputStream doGetInputStream()
+        // The file doesn't exist in file system but it could be inside a HDF5 container.
+        // Go up in file hierarchy until existing file is found.
+        File existingFile = file;
+        while (existingFile != null && existingFile.exists() == false)
         {
-            try
-            {
-                return new FileInputStream(getFile());
-            } catch (FileNotFoundException ex)
-            {
-                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-            }
+            existingFile = existingFile.getParentFile();
         }
+        if (existingFile != null && FileUtilities.isHDF5ContainerFile(existingFile))
+        {
+            HDF5ContainerBasedHierarchicalContentNode containerNode =
+                    new HDF5ContainerBasedHierarchicalContentNode(this, existingFile);
+            String relativePath = FileUtilities.getRelativeFile(existingFile, file);
+            IHierarchicalContentNode node = containerNode.getChildNode(relativePath);
+            return asFileContentProvider(node);
+        }
+        throw new IllegalArgumentException("Resource '" + FileUtilities.getRelativeFile(root, file)
+                + "' does not exist.");
+    }
 
+    private interface IFileContentProvider
+    {
+        public IRandomAccessFile getReadOnlyRandomAccessFile();
+
+        public InputStream getInputStream();
+    }
+
+    private static IFileContentProvider asFileContentProvider(final File existingFile)
+    {
+        assert existingFile.exists();
+        return new IFileContentProvider()
+            {
+
+                public IRandomAccessFile getReadOnlyRandomAccessFile()
+                {
+                    return new RandomAccessFileImpl(existingFile, "r");
+                }
+
+                public InputStream getInputStream()
+                {
+                    try
+                    {
+                        return new FileInputStream(existingFile);
+                    } catch (FileNotFoundException ex)
+                    {
+                        throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+                    }
+                }
+
+            };
+    }
+
+    private static IFileContentProvider asFileContentProvider(final IHierarchicalContentNode node)
+    {
+        return new IFileContentProvider()
+            {
+
+                public IRandomAccessFile getReadOnlyRandomAccessFile()
+                {
+                    return node.getFileContent();
+                }
+
+                public InputStream getInputStream()
+                {
+                    return node.getInputStream();
+                }
+
+            };
     }
 
 }

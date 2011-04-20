@@ -39,16 +39,20 @@ class DefaultFileBasedHierarchicalContentNode extends AbstractHierarchicalConten
 
     protected final File file;
 
-    protected final IHierarchicalContentFactory hierarchicalContentFactory;
+    private final IHierarchicalContentFactory hierarchicalContentFactoryOrNull;
+
+    protected DefaultFileBasedHierarchicalContentNode(IHierarchicalContent root, File file)
+    {
+        this(null, root, file);
+    }
 
     protected DefaultFileBasedHierarchicalContentNode(
-            IHierarchicalContentFactory hierarchicalContentFactory, IHierarchicalContent root,
-            File file)
+            IHierarchicalContentFactory hierarchicalContentFactoryOrNull,
+            IHierarchicalContent root, File file)
     {
-        assert hierarchicalContentFactory != null;
         assert root != null;
         assert file != null;
-        this.hierarchicalContentFactory = hierarchicalContentFactory;
+        this.hierarchicalContentFactoryOrNull = hierarchicalContentFactoryOrNull;
         this.root = root;
         this.file = file;
     }
@@ -82,13 +86,16 @@ class DefaultFileBasedHierarchicalContentNode extends AbstractHierarchicalConten
     @Override
     public List<IHierarchicalContentNode> doGetChildNodes()
     {
+        // if factory is not defined the method should be overriden
+        assert hierarchicalContentFactoryOrNull != null;
+
         File[] files = file.listFiles();
         List<IHierarchicalContentNode> result = new ArrayList<IHierarchicalContentNode>();
         if (files != null)
         {
             for (File aFile : files)
             {
-                result.add(hierarchicalContentFactory.asHierarchicalContentNode(root, aFile));
+                result.add(hierarchicalContentFactoryOrNull.asHierarchicalContentNode(root, aFile));
             }
         }
         return result;

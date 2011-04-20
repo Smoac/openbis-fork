@@ -31,6 +31,8 @@ public interface ISingleDataSetPathInfoProvider
 
     DataSetPathInfo tryGetPathInfoByRelativePath(String relativePath);
 
+    // DataSetPathInfo getParentPathInfo(DataSetPathInfo child);
+
     List<DataSetPathInfo> listChildrenPathInfos(DataSetPathInfo parent);
 
     List<DataSetPathInfo> listMatchingPathInfos(String relativePathPattern);

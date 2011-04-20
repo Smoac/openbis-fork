@@ -78,6 +78,7 @@ public class DataSetPathInfo
         this.sizeInBytes = sizeInBytes;
     }
 
+    @Deprecated
     public DataSetPathInfo getParent()
     {
         return parent;

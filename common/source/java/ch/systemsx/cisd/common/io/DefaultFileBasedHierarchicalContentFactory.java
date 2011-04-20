@@ -39,7 +39,7 @@ public class DefaultFileBasedHierarchicalContentFactory implements IHierarchical
     {
         if (FileUtilities.isHDF5ContainerFile(file))
         {
-            return new HDF5ContainerBasedHierarchicalContentNode(this, rootContent, file);
+            return new HDF5ContainerBasedHierarchicalContentNode(rootContent, file);
         }
         return new DefaultFileBasedHierarchicalContentNode(this, rootContent, file);
     }
