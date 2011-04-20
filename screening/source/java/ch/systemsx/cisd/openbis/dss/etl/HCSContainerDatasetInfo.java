@@ -148,7 +148,7 @@ public class HCSContainerDatasetInfo
         return plateDimension;
     }
 
-    static PlateDimension getPlateGeometry(final DataSetInformation dataSetInformation)
+    public static PlateDimension getPlateGeometry(final DataSetInformation dataSetInformation)
     {
         IEntityProperty[] sampleProperties = dataSetInformation.getProperties();
         if ((sampleProperties == null || sampleProperties.length == 0)

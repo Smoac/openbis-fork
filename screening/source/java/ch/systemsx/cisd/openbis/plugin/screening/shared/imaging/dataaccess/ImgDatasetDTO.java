@@ -26,12 +26,6 @@ public class ImgDatasetDTO extends AbstractImageTransformerFactoryHolder
     @ResultColumn("PERM_ID")
     private String permId;
 
-    @ResultColumn("FIELDS_WIDTH")
-    private Integer fieldNumberOfColumnsOrNull;
-
-    @ResultColumn("FIELDS_HEIGHT")
-    private Integer fieldNumberOfRowsOrNull;
-
     @ResultColumn("CONT_ID")
     private Long containerId;
 
@@ -40,20 +34,47 @@ public class ImgDatasetDTO extends AbstractImageTransformerFactoryHolder
     @ResultColumn("IS_MULTIDIMENSIONAL")
     private boolean isMultidimensional;
 
+    @ResultColumn("FIELDS_WIDTH")
+    private Integer fieldNumberOfColumnsOrNull;
+
+    @ResultColumn("FIELDS_HEIGHT")
+    private Integer fieldNumberOfRowsOrNull;
+
+    @ResultColumn("IMAGE_LIBRARY_NAME")
+    private String imageLibraryNameOrNull;
+
+    @ResultColumn("IMAGE_LIBRARY_READER_NAME")
+    private String imageLibraryReaderNameOrNull;
+
     @SuppressWarnings("unused")
     private ImgDatasetDTO()
     {
         // All Data-Object classes must have a default constructor.
     }
 
-    public ImgDatasetDTO(String permId, Integer fieldNumberOfRowsOrNull,
-            Integer fieldNumberOfColumnsOrNull, Long containerId, boolean isMultidimensional)
+    // feature vector dataset
+    public ImgDatasetDTO(String permId, Long containerId)
     {
+        this(permId, 0, 0, containerId, false, null, null);
+    }
+
+    public ImgDatasetDTO(String permId, Integer fieldNumberOfRowsOrNull,
+            Integer fieldNumberOfColumnsOrNull, Long containerId, boolean isMultidimensional,
+            String imageLibraryNameOrNull, String imageLibraryReaderNameOrNull)
+    {
+        if (imageLibraryNameOrNull == null || imageLibraryReaderNameOrNull == null)
+        {
+            assert imageLibraryNameOrNull == null : "cannot specify image library without the reader name";
+            assert imageLibraryReaderNameOrNull == null : "cannot specify image reader without the library name";
+        }
         this.permId = permId;
+        this.containerId = containerId;
+
+        this.isMultidimensional = isMultidimensional;
         this.fieldNumberOfColumnsOrNull = fieldNumberOfColumnsOrNull;
         this.fieldNumberOfRowsOrNull = fieldNumberOfRowsOrNull;
-        this.containerId = containerId;
-        this.isMultidimensional = isMultidimensional;
+        this.imageLibraryNameOrNull = imageLibraryNameOrNull;
+        this.imageLibraryReaderNameOrNull = imageLibraryReaderNameOrNull;
     }
 
     public String getPermId()
@@ -105,5 +126,25 @@ public class ImgDatasetDTO extends AbstractImageTransformerFactoryHolder
     public void setMultidimensional(boolean isMultidimensional)
     {
         this.isMultidimensional = isMultidimensional;
+    }
+
+    public String getImageLibraryName()
+    {
+        return imageLibraryNameOrNull;
+    }
+
+    public void setImageLibraryName(String imageLibraryName)
+    {
+        this.imageLibraryNameOrNull = imageLibraryName;
+    }
+
+    public String getImageReaderName()
+    {
+        return imageLibraryReaderNameOrNull;
+    }
+
+    public void setImageReaderName(String imageReaderName)
+    {
+        this.imageLibraryReaderNameOrNull = imageReaderName;
     }
 }

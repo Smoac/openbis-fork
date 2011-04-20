@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.etl;
 import java.awt.image.BufferedImage;
 
 import ch.systemsx.cisd.common.io.IContent;
+import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageTransfomationFactories;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
@@ -33,25 +34,28 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.Color
 public class AbsoluteImageReference extends AbstractImageReference
 {
     private final IContent content;
-    
+
     private final String uniqueId;
 
     private final RequestedImageSize imageSize;
 
     private final ImageTransfomationFactories imageTransfomationFactories;
 
+    private final ImageLibraryInfo imageLibraryOrNull;
+
     private BufferedImage image;
-    
+
     // This is an artificial value which helps to keep coloring channels constant. Starts with 0.
     // Unique for a given experiment or dataset (if channels are per dataset).
     private int channelIndex;
 
     /**
-     * @param content the content before choosing the color component and the page
+     * @param content is the original content before choosing the color component and the page
      */
     public AbsoluteImageReference(IContent content, String uniqueId, Integer pageOrNull,
             ColorComponent colorComponentOrNull, RequestedImageSize imageSize, int channelIndex,
-            ImageTransfomationFactories imageTransfomationFactories)
+            ImageTransfomationFactories imageTransfomationFactories,
+            ImageLibraryInfo imageLibraryOrNull)
     {
         super(pageOrNull, colorComponentOrNull);
         assert imageSize != null : "image size is null";
@@ -62,6 +66,7 @@ public class AbsoluteImageReference extends AbstractImageReference
         this.imageSize = imageSize;
         this.channelIndex = channelIndex;
         this.imageTransfomationFactories = imageTransfomationFactories;
+        this.imageLibraryOrNull = imageLibraryOrNull;
     }
 
     /**
@@ -73,18 +78,44 @@ public class AbsoluteImageReference extends AbstractImageReference
         return uniqueId;
     }
 
-    public IContent getContent()
+    /**
+     * @return unchanged image content if the image does not have to be extracted from the original
+     *         content. This method is provided to allow the fastest possible access to original
+     *         images.
+     */
+    public IContent tryGetRawContent()
     {
-        return content;
+        if (tryGetColorComponent() == null && tryGetPage() == null
+                && getRequestedSize().isThumbnailRequired() == false)
+        {
+            return content;
+        } else
+        {
+            return null;
+        }
     }
-    
+
     public BufferedImage getImage()
     {
         if (image == null)
         {
-            image = ImageUtil.loadImage(content, tryGetPage());
+            image = loadImage(content, tryGetPage(), imageLibraryOrNull);
         }
         return image;
+    }
+
+    static BufferedImage loadImage(IContent content, Integer pageOrNull,
+            ImageLibraryInfo imageLibraryOrNull)
+    {
+        String imageLibraryNameOrNull = null;
+        String imageLibraryReaderNameOrNull = null;
+        if (imageLibraryOrNull != null)
+        {
+            imageLibraryNameOrNull = imageLibraryOrNull.getName();
+            imageLibraryReaderNameOrNull = imageLibraryOrNull.getReaderName();
+        }
+        return ImageUtil.loadImage(content, pageOrNull, imageLibraryNameOrNull,
+                imageLibraryReaderNameOrNull);
     }
 
     public RequestedImageSize getRequestedSize()
@@ -106,7 +137,7 @@ public class AbsoluteImageReference extends AbstractImageReference
     {
         ColorComponent colorComponent = null;
         return new AbsoluteImageReference(content, uniqueId, tryGetPage(), colorComponent,
-                imageSize, channelIndex, imageTransfomationFactories);
+                imageSize, channelIndex, imageTransfomationFactories, imageLibraryOrNull);
 
     }
 }

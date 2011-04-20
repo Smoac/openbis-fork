@@ -123,7 +123,9 @@ public class ThumbnailsStorageFormat extends AbstractHashable
 
     /**
      * if true ImageMagic 'convert' utility should be installed and will be used to generate
-     * thumbnails.
+     * thumbnails. <br>
+     * Note: if image library has been specified to handle the images, it will be ignored for
+     * thumbnails generation if convert is supposed to be used.
      */
     public void setGenerateWithImageMagic(boolean generateWithImageMagic)
     {

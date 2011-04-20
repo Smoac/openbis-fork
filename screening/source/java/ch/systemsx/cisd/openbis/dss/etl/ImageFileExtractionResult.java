@@ -19,6 +19,7 @@ import java.io.File;
 import java.util.List;
 
 import ch.systemsx.cisd.bds.hcs.Geometry;
+import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
 
 /**
@@ -41,15 +42,18 @@ public final class ImageFileExtractionResult
 
     private final Boolean storeChannelsOnExperimentLevelOrNull;
 
+    private final ImageLibraryInfo imageLibraryOrNull;
+
     public ImageFileExtractionResult(List<AcquiredSingleImage> images, List<File> invalidFiles,
             List<Channel> channels, Geometry tileGeometry,
-            Boolean storeChannelsOnExperimentLevelOrNull)
+            Boolean storeChannelsOnExperimentLevelOrNull, ImageLibraryInfo imageLibraryOrNull)
     {
         this.images = images;
         this.invalidFiles = invalidFiles;
         this.channels = channels;
         this.tileGeometry = tileGeometry;
         this.storeChannelsOnExperimentLevelOrNull = storeChannelsOnExperimentLevelOrNull;
+        this.imageLibraryOrNull = imageLibraryOrNull;
     }
 
     public List<AcquiredSingleImage> getImages()
@@ -75,5 +79,10 @@ public final class ImageFileExtractionResult
     public Boolean tryStoreChannelsOnExperimentLevel()
     {
         return storeChannelsOnExperimentLevelOrNull;
+    }
+
+    public ImageLibraryInfo tryGetImageLibrary()
+    {
+        return imageLibraryOrNull;
     }
 }

@@ -30,8 +30,11 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.openbis.dss.etl.ImagingDatabaseHelper.ImagingChannelsMap;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.dss.etl.dto.ImageDatasetInfo;
+import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgAcquiredImageDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelStackDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDTO;
 
 /**
@@ -255,12 +258,36 @@ abstract class AbstractImageDatasetUploader
 
     private ImgImageDTO mkImageWithIdDTO(RelativeImageReference imageReferenceOrNull)
     {
-        
+
         ImgImageDTO dto =
                 new ImgImageDTO(dao.createImageId(), imageReferenceOrNull.getRelativeImagePath(),
                         imageReferenceOrNull.tryGetPage(),
                         imageReferenceOrNull.tryGetColorComponent());
         return dto;
+    }
+
+    protected final long createDataset(String datasetPermId, ImageDatasetInfo imageDatasetInfo,
+            Long containerIdOrNull)
+    {
+        ImgDatasetDTO dataset =
+                createDatasetDTO(datasetPermId, imageDatasetInfo, containerIdOrNull);
+        return dao.addDataset(dataset);
+    }
+
+    private static ImgDatasetDTO createDatasetDTO(String datasetPermId,
+            ImageDatasetInfo imageDatasetInfo, Long containerIdOrNull)
+    {
+        ImageLibraryInfo imageLibrary = imageDatasetInfo.tryGetImageLibrary();
+        String imageLibraryName = null;
+        String imageReaderName = null;
+        if (imageLibrary != null)
+        {
+            imageLibraryName = imageLibrary.getName();
+            imageReaderName = imageLibrary.getReaderName();
+        }
+        return new ImgDatasetDTO(datasetPermId, imageDatasetInfo.getTileRows(),
+                imageDatasetInfo.getTileColumns(), containerIdOrNull,
+                imageDatasetInfo.hasImageSeries(), imageLibraryName, imageReaderName);
     }
 
     @Private

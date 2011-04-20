@@ -77,9 +77,12 @@ public interface IImagingQueryDAO extends TransactionQuery, IImagingReadonlyQuer
             + "(?{1.permId}, ?{1.numberOfColumns}, ?{1.numberOfRows}, ?{1.experimentId}) returning ID")
     public long addContainer(ImgContainerDTO container);
 
-    @Select("insert into DATA_SETS (PERM_ID, FIELDS_WIDTH, FIELDS_HEIGHT, CONT_ID, IS_MULTIDIMENSIONAL) values "
-            + "(?{1.permId}, ?{1.fieldNumberOfColumns}, "
-            + "?{1.fieldNumberOfRows}, ?{1.containerId}, ?{1.isMultidimensional}) returning ID")
+    @Select("insert into DATA_SETS (PERM_ID, FIELDS_WIDTH, FIELDS_HEIGHT, "
+            + "CONT_ID, IS_MULTIDIMENSIONAL,                              "
+            + "IMAGE_LIBRARY_NAME, IMAGE_LIBRARY_READER_NAME)                     "
+            + "values(?{1.permId}, ?{1.fieldNumberOfColumns}, ?{1.fieldNumberOfRows}, "
+            + "?{1.containerId}, ?{1.isMultidimensional}, "
+            + "?{1.imageLibraryName}, ?{1.imageReaderName}) returning ID")
     public long addDataset(ImgDatasetDTO dataset);
 
     @Select("insert into SPOTS (X, Y, CONT_ID) values "

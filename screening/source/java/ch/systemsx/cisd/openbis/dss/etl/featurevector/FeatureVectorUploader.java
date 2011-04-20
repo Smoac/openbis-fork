@@ -56,9 +56,7 @@ public class FeatureVectorUploader
 
     private long createFeatureVectorDataset(long contId)
     {
-        boolean isMultidimensional = false;
-        ImgDatasetDTO dataset =
-                new ImgDatasetDTO(info.getDatasetPermId(), 0, 0, contId, isMultidimensional);
+        ImgDatasetDTO dataset = new ImgDatasetDTO(info.getDatasetPermId(), contId);
         return dao.addDataset(dataset);
     }
 

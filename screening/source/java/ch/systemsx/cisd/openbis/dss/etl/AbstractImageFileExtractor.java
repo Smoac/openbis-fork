@@ -244,7 +244,7 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
         }
         return new ImageFileExtractionResult(acquiredImages,
                 Collections.unmodifiableList(invalidFiles), getAllChannels(acquiredImages),
-                tileGeometry, null);
+                tileGeometry, null, null);
 
     }
 

@@ -39,6 +39,8 @@ import ch.systemsx.cisd.etlserver.IHCSImageFileAccepter;
 import ch.systemsx.cisd.etlserver.IHCSImageFileExtractor;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageCheckList.FullLocation;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.dss.etl.dto.ImageDatasetInfo;
+import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -157,7 +159,7 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
                     List<Channel> channels = convert(originalResult.getChannels());
                     return new ImageFileExtractionResult(accepter.getImages(),
                             asRelativePaths(originalResult.getInvalidFiles()), channels,
-                            tileGeometry, true);
+                            tileGeometry, true, null);
                 }
 
                 private List<Channel> convert(Set<ch.systemsx.cisd.bds.hcs.Channel> channels)
@@ -337,19 +339,23 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
         }
         HCSImageDatasetInfo info =
                 createImageDatasetInfo(experiment, dataSetInformation, images,
-                        extractedImages.getTileGeometry(), storeChannelsOnExperimentLevel);
+                        extractedImages.getTileGeometry(), extractedImages.tryGetImageLibrary(),
+                        storeChannelsOnExperimentLevel);
 
         HCSImageDatasetUploader.upload(dao, info, images, extractedImages.getChannels());
     }
 
     private HCSImageDatasetInfo createImageDatasetInfo(Experiment experiment,
             DataSetInformation dataSetInformation, List<AcquiredSingleImage> acquiredImages,
-            Geometry tileGeometry, boolean storeChannelsOnExperimentLevel)
+            Geometry tileGeometry, ImageLibraryInfo imageLibraryInfoOrNull,
+            boolean storeChannelsOnExperimentLevel)
     {
         HCSContainerDatasetInfo info =
                 HCSContainerDatasetInfo.createScreeningDatasetInfo(dataSetInformation);
         boolean hasImageSeries = hasImageSeries(acquiredImages);
-        return new HCSImageDatasetInfo(info, storeChannelsOnExperimentLevel,
-                tileGeometry.getRows(), tileGeometry.getColumns(), hasImageSeries);
+        ImageDatasetInfo imageDatasetInfo =
+                new ImageDatasetInfo(tileGeometry.getRows(), tileGeometry.getColumns(),
+                        hasImageSeries, imageLibraryInfoOrNull);
+        return new HCSImageDatasetInfo(info, imageDatasetInfo, storeChannelsOnExperimentLevel);
     }
 }

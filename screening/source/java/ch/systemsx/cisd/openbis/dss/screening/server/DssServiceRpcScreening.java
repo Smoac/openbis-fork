@@ -55,7 +55,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -227,25 +226,24 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     private static Size getImageSize(IImageDatasetIdentifier dataset,
             IImagingDatasetLoader imageAccessor, boolean thumbnailsRequired)
     {
-        IContent imageFile = getAnyImagePath(imageAccessor, dataset, thumbnailsRequired);
-        BufferedImage image = ImageUtil.loadImage(imageFile);
+        BufferedImage image = getAnyImage(imageAccessor, dataset, thumbnailsRequired);
         Size imageSize = new Size(image.getWidth(), image.getHeight());
         return imageSize;
     }
 
-    private static IContent getAnyImagePath(IImagingDatasetLoader imageAccessor,
+    private static BufferedImage getAnyImage(IImagingDatasetLoader imageAccessor,
             IImageDatasetIdentifier dataset, boolean thumbnailsRequired)
     {
         if (imageAccessor.getImageParameters().tryGetRowsNum() == null)
         {
-            return getAnyMicroscopyImagePath(imageAccessor, dataset, thumbnailsRequired);
+            return getAnyMicroscopyImage(imageAccessor, dataset, thumbnailsRequired);
         } else
         {
-            return getAnyHCSImagePath(imageAccessor, dataset, thumbnailsRequired);
+            return getAnyHCSImage(imageAccessor, dataset, thumbnailsRequired);
         }
     }
 
-    private static IContent getAnyMicroscopyImagePath(IImagingDatasetLoader imageAccessor,
+    private static BufferedImage getAnyMicroscopyImage(IImagingDatasetLoader imageAccessor,
             IImageDatasetIdentifier dataset, boolean thumbnailsRequired)
     {
         ImageDatasetParameters params = imageAccessor.getImageParameters();
@@ -256,7 +254,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                     imageAccessor.tryGetRepresentativeImage(channelCode, null, originalOrThumbnail);
             if (image != null)
             {
-                return image.getContent();
+                return image.getImage();
             }
         }
         throw new IllegalStateException("Cannot find any image in a dataset: " + dataset);
@@ -270,7 +268,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                 .createOriginal();
     }
 
-    private static IContent getAnyHCSImagePath(IImagingDatasetLoader imageAccessor,
+    private static BufferedImage getAnyHCSImage(IImagingDatasetLoader imageAccessor,
             IImageDatasetIdentifier dataset, boolean thumbnailsRequired)
     {
         ImageDatasetParameters params = imageAccessor.getImageParameters();
@@ -286,7 +284,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                                     row), originalOrThumbnail);
                     if (image != null)
                     {
-                        return image.getContent();
+                        return image.getImage();
                     }
                 }
             }

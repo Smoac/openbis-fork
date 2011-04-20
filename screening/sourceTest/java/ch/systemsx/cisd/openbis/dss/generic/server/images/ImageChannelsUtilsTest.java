@@ -46,7 +46,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.DatasetAcquiredIma
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtilTest;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 
 /**
@@ -217,7 +217,7 @@ public class ImageChannelsUtilsTest extends AssertJUnit
             RequestedImageSize imageSize)
     {
         return new AbsoluteImageReference(image(fileName), "id42", null, null, imageSize, 0,
-                new ImageTransfomationFactories());
+                new ImageTransfomationFactories(), null);
     }
 
     private ImageChannelsUtils createImageChannelsUtils(Size thumbnailSizeOrNull)
@@ -251,7 +251,7 @@ public class ImageChannelsUtilsTest extends AssertJUnit
 
     private String getImageContentDescription(IContent image)
     {
-        BufferedImage bufferedImage = ImageUtil.loadImage(image);
+        BufferedImage bufferedImage = ImageUtilTest.loadImage(image);
         return getImageContentDescription(bufferedImage);
     }
 

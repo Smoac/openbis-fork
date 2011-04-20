@@ -20,6 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations.ConvertToolImageTransformerFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
@@ -115,6 +116,8 @@ abstract public class SimpleImageDataConfig
 
     private String convertTransformationCliArgumentsOrNull;
 
+    private ImageLibraryInfo imageLibraryInfoOrNull;
+
     // --- getters & setters ----------------------------------------------
 
     public ImageStorageConfiguraton getImageStorageConfiguration()
@@ -142,6 +145,7 @@ abstract public class SimpleImageDataConfig
             imageStorageConfiguraton.setImageTransformerFactory(convertTransformerFactory);
 
         }
+        imageStorageConfiguraton.setImageLibrary(imageLibraryInfoOrNull);
         return imageStorageConfiguraton;
     }
 
@@ -184,6 +188,13 @@ abstract public class SimpleImageDataConfig
     {
         return originalDataStorageFormat;
     }
+
+    public String tryGetConvertTransformationCliArguments()
+    {
+        return convertTransformationCliArgumentsOrNull;
+    }
+
+    // ----- Setters -------------------------
 
     /**
      * Sets the existing plate to which the dataset should belong.
@@ -267,6 +278,25 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
+     * Sets parameters for the 'convert' command line tool, which will be used to apply an image
+     * transformation before persisting the images in the data store.
+     */
+    public void setConvertTransformationCliArguments(String convertTransformationCliArguments)
+    {
+        this.convertTransformationCliArgumentsOrNull = convertTransformationCliArguments;
+    }
+
+    /**
+     * Which image library and reader should be used to read the image?
+     */
+    public void setImageLibrary(String imageLibraryName, String readerName)
+    {
+        this.imageLibraryInfoOrNull = new ImageLibraryInfo(imageLibraryName, readerName);
+    }
+
+    // --- predefined image dataset types
+
+    /**
      * Sets dataset type to the one which should be used for storing raw images. Marks the dataset
      * as a "measured" one.
      */
@@ -331,20 +361,6 @@ abstract public class SimpleImageDataConfig
     public boolean isMeasuredData()
     {
         return isMeasured;
-    }
-
-    public String getConvertTransformationCliArguments()
-    {
-        return convertTransformationCliArgumentsOrNull;
-    }
-
-    /**
-     * Sets parameters for the 'convert' command line tool, which will be used to apply an image
-     * transformation before persisting the images in the data store.
-     */
-    public void setConvertTransformationCliArguments(String convertTransformationCliArguments)
-    {
-        this.convertTransformationCliArgumentsOrNull = convertTransformationCliArguments;
     }
 
 }

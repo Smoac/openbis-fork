@@ -365,8 +365,11 @@ public class ImagingQueryDAOTest extends AbstractDBTest
     {
         final Integer fieldsWidth = 1;
         final Integer fieldsHeight = 2;
+        String libraryName = "BIOFORMATS";
+        String libraryReader = "TIFF-READER";
         final ImgDatasetDTO dataset =
-                new ImgDatasetDTO(permId, fieldsHeight, fieldsWidth, containerIdOrNull, false);
+                new ImgDatasetDTO(permId, fieldsHeight, fieldsWidth, containerIdOrNull, false,
+                        libraryName, libraryReader);
         final long datasetId = dao.addDataset(dataset);
 
         final ImgDatasetDTO loadedDataset = dao.tryGetDatasetByPermId(permId);
@@ -375,6 +378,8 @@ public class ImagingQueryDAOTest extends AbstractDBTest
         assertEquals(fieldsWidth, loadedDataset.getFieldNumberOfColumns());
         assertEquals(fieldsHeight, loadedDataset.getFieldNumberOfRows());
         assertEquals(containerIdOrNull, loadedDataset.getContainerId());
+        assertEquals(libraryName, loadedDataset.getImageLibraryName());
+        assertEquals(libraryReader, loadedDataset.getImageReaderName());
 
         // test listDatasetsByPermId
         final List<ImgDatasetDTO> datasets = dao.listDatasetsByPermId(new String[]

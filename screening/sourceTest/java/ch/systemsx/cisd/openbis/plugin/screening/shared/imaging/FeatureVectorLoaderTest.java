@@ -247,8 +247,7 @@ public class FeatureVectorLoaderTest extends AssertJUnit
                         long id = dataSetIDs[i];
                         permIDs[i] = "ds" + id;
 
-                        ImgDatasetDTO dataSet =
-                                new ImgDatasetDTO(permIDs[i], null, null, getContainerId(id), false);
+                        ImgDatasetDTO dataSet = new ImgDatasetDTO(permIDs[i], getContainerId(id));
                         dataSet.setId(id);
                         dataSets.add(dataSet);
                     }

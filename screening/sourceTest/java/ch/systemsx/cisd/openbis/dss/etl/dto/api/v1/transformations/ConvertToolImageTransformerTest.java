@@ -23,7 +23,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.image.IImageTransformer;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtilTest;
 
 /**
  * @author Kaloyan Enimanev
@@ -69,7 +69,7 @@ public class ConvertToolImageTransformerTest extends AssertJUnit
     private BufferedImage readImage(String image)
     {
         File imageFile = new File(IMAGE_FOLDER, image);
-        return ImageUtil.loadImage(imageFile);
+        return ImageUtilTest.loadImage(imageFile);
     }
 
 }

@@ -63,7 +63,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.DssSessionAuthorizationHolder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtilTest;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -332,13 +332,13 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                             ImageChannelStackReference.createHCSFromLocations(new Location(3, 1),
                                     new Location(1, 1)), thumbnailSize);
                     will(returnValue(new AbsoluteImageReference(image("img1.jpg"), "img1", null,
-                            null, thumbnailSize, 0, new ImageTransfomationFactories())));
+                            null, thumbnailSize, 0, new ImageTransfomationFactories(), null)));
                     one(imageLoader).tryGetImage(
                             channel,
                             ImageChannelStackReference.createHCSFromLocations(new Location(3, 1),
                                     new Location(2, 1)), thumbnailSize);
                     will(returnValue(new AbsoluteImageReference(image("img1.gif"), "img1", null,
-                            null, thumbnailSize, 0, new ImageTransfomationFactories())));
+                            null, thumbnailSize, 0, new ImageTransfomationFactories(), null)));
                 }
             });
 
@@ -366,8 +366,8 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         imagesWriter.writeNextBlock(outputStream);
-        return ImageUtil
-                .loadImage(new ByteArrayBasedContent(outputStream.toByteArray(), "UNKNOWN"));
+        return ImageUtilTest.loadImage(new ByteArrayBasedContent(outputStream.toByteArray(),
+                "UNKNOWN"));
     }
 
     @Test
@@ -470,7 +470,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
             {
                 {
                     one(service).checkSpacePowerUserAuthorization(SESSION_TOKEN);
-                    
+
                     long datasetId = 123;
                     ImgDatasetDTO dataset = createDataset(datasetId);
                     dataset.setPermId(DATASET_CODE);
@@ -500,7 +500,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
 
     private ImgDatasetDTO createDataset(long datasetId)
     {
-        ImgDatasetDTO dataset = new ImgDatasetDTO(null, null, null, null, false);
+        ImgDatasetDTO dataset = new ImgDatasetDTO(null, null);
         dataset.setId(datasetId);
         return dataset;
     }
@@ -676,8 +676,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                         long id = dataSetIDs[i];
                         permIDs[i] = "ds" + id;
 
-                        ImgDatasetDTO dataSet =
-                                new ImgDatasetDTO(permIDs[i], null, null, getContainerId(id), false);
+                        ImgDatasetDTO dataSet = new ImgDatasetDTO(permIDs[i], getContainerId(id));
                         dataSet.setId(id);
                         dataSets.add(dataSet);
                     }

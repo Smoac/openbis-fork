@@ -27,6 +27,7 @@ import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.IContentRepository;
 import ch.systemsx.cisd.openbis.dss.etl.IImagingDatasetLoader;
+import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageTransfomationFactories;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference.HCSChannelStackByLocationReference;
@@ -38,6 +39,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.Color
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDTO;
 
 /**
@@ -77,46 +79,72 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
         }
 
         long datasetId = getDataset().getId();
-        boolean thumbnailPrefered = imageSize.isThumbnailRequired();
-        ImgImageDTO imageDTO =
-                tryGetImageDTO(channelStackReference, thumbnailPrefered, channel.getId(), datasetId);
+        long chosenChannelId = channel.getId();
+        ImgImageDTO imageDTO = null;
+        if (imageSize.isThumbnailRequired())
+        {
+            imageDTO = tryGetThumbnail(chosenChannelId, channelStackReference, datasetId);
+        }
+        boolean thumbnailFetched = (imageDTO != null);
+        if (imageDTO == null)
+        {
+            // get the image content from the original image
+            imageDTO = tryGetOriginalImage(chosenChannelId, channelStackReference, datasetId);
+        }
         if (imageDTO == null)
         {
             return null;
         }
-        AbsoluteImageReference imgRef = createAbsoluteImageReference(imageDTO, channel, imageSize);
-        if (thumbnailPrefered)
+        AbsoluteImageReference imgRef =
+                createAbsoluteImageReference(imageDTO, channel, imageSize, thumbnailFetched);
+        if (thumbnailFetched && isThumbnailsTooSmall(imageSize, imgRef.getImage()))
         {
-            Size requestedThumbnailSize = imageSize.tryGetThumbnailSize();
-            BufferedImage image = imgRef.getImage();
-            double width = 1.5 * image.getWidth();
-            double height = 1.5 * image.getHeight();
-            if (requestedThumbnailSize.getWidth() > width || requestedThumbnailSize.getHeight() > height)
+            imageDTO = tryGetOriginalImage(channel.getId(), channelStackReference, datasetId);
+            if (imageDTO != null)
             {
-                imageDTO = tryGetImageDTO(channelStackReference, false, channel.getId(), datasetId);
-                if (imageDTO != null)
-                {
-                    imgRef = createAbsoluteImageReference(imageDTO, channel, imageSize);
-                }
+                thumbnailFetched = false;
+                imgRef =
+                        createAbsoluteImageReference(imageDTO, channel, imageSize, thumbnailFetched);
             }
         }
 
         return imgRef;
     }
 
+    private boolean isThumbnailsTooSmall(RequestedImageSize imageSize, BufferedImage image)
+    {
+        Size requestedThumbnailSize = imageSize.tryGetThumbnailSize();
+        double width = 1.5 * image.getWidth();
+        double height = 1.5 * image.getHeight();
+        boolean thumbnailTooSmall =
+                requestedThumbnailSize.getWidth() > width
+                        || requestedThumbnailSize.getHeight() > height;
+        return thumbnailTooSmall;
+    }
+
     private AbsoluteImageReference createAbsoluteImageReference(ImgImageDTO imageDTO,
-            ImgChannelDTO channel, RequestedImageSize imageSize)
+            ImgChannelDTO channel, RequestedImageSize imageSize, boolean useNativeImageLibrary)
     {
         String path = imageDTO.getFilePath();
         IContent content = contentRepository.getContent(path);
         ColorComponent colorComponent = imageDTO.getColorComponent();
+        ImageTransfomationFactories imageTransfomationFactories =
+                createImageTransfomationFactories(imageDTO, channel);
+        int channelIndex = getChannelIndex(channel);
+        ImageLibraryInfo imageLibrary = tryGetImageLibrary(dataset, useNativeImageLibrary);
+        return new AbsoluteImageReference(content, path, imageDTO.getPage(), colorComponent,
+                imageSize, channelIndex, imageTransfomationFactories, imageLibrary);
+    }
+
+    private ImageTransfomationFactories createImageTransfomationFactories(ImgImageDTO imageDTO,
+            ImgChannelDTO channel)
+    {
         ImageTransfomationFactories imageTransfomationFactories = new ImageTransfomationFactories();
         imageTransfomationFactories
                 .setForMergedChannels(tryGetImageTransformerFactoryForMergedChannels());
         imageTransfomationFactories.setForChannel(channel.tryGetImageTransformerFactory());
         imageTransfomationFactories.setForImage(imageDTO.tryGetImageTransformerFactory());
-        return new AbsoluteImageReference(content, path, imageDTO.getPage(), colorComponent,
-                imageSize, getChannelIndex(channel), imageTransfomationFactories);
+        return imageTransfomationFactories;
     }
 
     private IImageTransformerFactory tryGetImageTransformerFactoryForMergedChannels()
@@ -184,28 +212,7 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
         assert tileLocation.getY() <= getDataset().getFieldNumberOfRows();
     }
 
-    private ImgImageDTO tryGetImageDTO(ImageChannelStackReference channelStackReference,
-            boolean thumbnailPrefered, Long chosenChannelId, long datasetId)
-    {
-        if (thumbnailPrefered)
-        {
-            ImgImageDTO thumbnailDTO =
-                    tryGetThumbnail(chosenChannelId, channelStackReference, datasetId);
-            if (thumbnailDTO != null)
-            {
-                return thumbnailDTO;
-            } else
-            {
-                return tryGetImage(chosenChannelId, channelStackReference, datasetId);
-            }
-        } else
-        {
-            // get the image content from the original image
-            return tryGetImage(chosenChannelId, channelStackReference, datasetId);
-        }
-    }
-
-    private ImgImageDTO tryGetImage(long channelId,
+    private ImgImageDTO tryGetOriginalImage(long channelId,
             ImageChannelStackReference channelStackReference, long datasetId)
     {
         HCSChannelStackByLocationReference hcsRef = channelStackReference.tryGetHCSChannelStack();
@@ -296,7 +303,9 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
         {
             return null;
         }
-        return createAbsoluteImageReference(imageDTO, channel, imageSize);
+        // TODO 2011-04-20, Tomasz Pylak: native library should be used only for thumbnails
+        boolean useNativeImageLibrary = false;
+        return createAbsoluteImageReference(imageDTO, channel, imageSize, useNativeImageLibrary);
     }
 
     public IContent tryGetThumbnail(String channelCode,
@@ -324,5 +333,22 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
         final String path = thumbnailDTO.getFilePath();
         final IContent content = contentRepository.getContent(path);
         return content;
+    }
+
+    private static ImageLibraryInfo tryGetImageLibrary(ImgDatasetDTO dataset, boolean isThumbnail)
+    {
+        if (isThumbnail)
+        {
+            // we do not use special libraries for thumbnails, they are always in the PNG format
+            return null;
+        }
+        String imageLibraryName = dataset.getImageLibraryName();
+        if (imageLibraryName != null)
+        {
+            return new ImageLibraryInfo(imageLibraryName, dataset.getImageReaderName());
+        } else
+        {
+            return null;
+        }
     }
 }

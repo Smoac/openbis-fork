@@ -33,12 +33,14 @@ import ch.systemsx.cisd.common.concurrent.ITaskExecutor;
 import ch.systemsx.cisd.common.concurrent.ParallelizedExecutor;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.hdf5.Hdf5Container.IHdf5WriterClient;
+import ch.systemsx.cisd.common.io.FileBasedContent;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.process.ProcessIOStrategy;
 import ch.systemsx.cisd.common.process.ProcessResult;
 import ch.systemsx.cisd.hdf5.IHDF5SimpleWriter;
+import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ThumbnailsStorageFormat;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 
@@ -62,17 +64,20 @@ class Hdf5ThumbnailGenerator implements IHdf5WriterClient
 
     private final ThumbnailsStorageFormat thumbnailsStorageFormat;
 
+    private final ImageLibraryInfo imageLibraryOrNull;
+
     private final String relativeThumbnailFilePath;
 
     private final Logger operationLog;
 
     Hdf5ThumbnailGenerator(List<AcquiredSingleImage> plateImages, File imagesInStoreFolder,
-            ThumbnailsStorageFormat thumbnailsStorageFormat, String relativeThumbnailFilePath,
-            Logger operationLog)
+            ThumbnailsStorageFormat thumbnailsStorageFormat, ImageLibraryInfo imageLibraryOrNull,
+            String relativeThumbnailFilePath, Logger operationLog)
     {
         this.plateImages = plateImages;
         this.imagesInStoreFolder = imagesInStoreFolder;
         this.thumbnailsStorageFormat = thumbnailsStorageFormat;
+        this.imageLibraryOrNull = imageLibraryOrNull;
         this.relativeThumbnailFilePath = relativeThumbnailFilePath;
         this.operationLog = operationLog;
     }
@@ -126,7 +131,7 @@ class Hdf5ThumbnailGenerator implements IHdf5WriterClient
             byteArray = generateThumbnailWithImageMagic(img);
         } else
         {
-            byteArray = generateThumbnailWithImageIO(img, bufferOutputStream);
+            byteArray = generateThumbnailInternally(img, bufferOutputStream);
         }
         return byteArray;
     }
@@ -153,16 +158,24 @@ class Hdf5ThumbnailGenerator implements IHdf5WriterClient
         }
     }
 
-    private byte[] generateThumbnailWithImageIO(File imageFile,
+    private byte[] generateThumbnailInternally(File imageFile,
             ByteArrayOutputStream bufferOutputStream) throws IOException
     {
-        BufferedImage image = ImageUtil.loadImage(imageFile);
+        BufferedImage image = loadImage(imageFile);
         BufferedImage thumbnail =
                 ImageUtil.rescale(image, thumbnailsStorageFormat.getMaxWidth(),
                         thumbnailsStorageFormat.getMaxHeight(), false,
                         thumbnailsStorageFormat.isHighQuality());
         ImageIO.write(thumbnail, "png", bufferOutputStream);
         return bufferOutputStream.toByteArray();
+    }
+
+    private BufferedImage loadImage(File imageFile)
+    {
+        // NOTE 2011-04-20, Tomasz Pylak: support paged tiffs when generating thumbnails
+        Integer page = null;
+        return AbsoluteImageReference.loadImage(new FileBasedContent(imageFile), page,
+                imageLibraryOrNull);
     }
 
     private Status createStatus(String thumbnailPath, IOException ex)

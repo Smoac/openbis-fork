@@ -23,7 +23,6 @@ import ch.systemsx.cisd.openbis.dss.etl.ImagingDatabaseHelper.ExperimentWithChan
 import ch.systemsx.cisd.openbis.dss.etl.ImagingDatabaseHelper.ImagingChannelsMap;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgSpotDTO;
 
 /**
@@ -176,11 +175,8 @@ public class HCSImageDatasetUploader extends AbstractImageDatasetUploader
         }
     }
 
-    private long createDataset(long contId, HCSImageDatasetInfo info)
+    private long createDataset(long containerId, HCSImageDatasetInfo info)
     {
-        ImgDatasetDTO dataset =
-                new ImgDatasetDTO(info.getDatasetPermId(), info.getTileRows(),
-                        info.getTileColumns(), contId, info.hasImageSeries());
-        return dao.addDataset(dataset);
+        return createDataset(info.getDatasetPermId(), info.getImageDatasetInfo(), containerId);
     }
 }

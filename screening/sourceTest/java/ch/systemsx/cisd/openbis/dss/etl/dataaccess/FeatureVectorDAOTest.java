@@ -78,10 +78,7 @@ public class FeatureVectorDAOTest extends AbstractDBTest
                 new ImgContainerDTO(CONTAINER_PERM_ID, spotHeight, spotWidth, experimentId);
         final Long containerId = imagingDao.addContainer(container);
 
-        final Integer fieldsWidth = 1;
-        final Integer fieldsHeight = 2;
-        final ImgDatasetDTO ds =
-                new ImgDatasetDTO(DS_PERM_ID, fieldsHeight, fieldsWidth, containerId, false);
+        final ImgDatasetDTO ds = new ImgDatasetDTO(DS_PERM_ID, containerId);
         final long datasetId = imagingDao.addDataset(ds);
 
         ds.setId(datasetId);

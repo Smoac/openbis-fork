@@ -21,7 +21,6 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.dss.etl.ImagingDatabaseHelper.ImagingChannelsMap;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
 
 /**
  * Uploads microscopy imagaes (no spots, no container) into imaging database.
@@ -63,9 +62,6 @@ public class MicroscopyImageDatasetUploader extends AbstractImageDatasetUploader
 
     private long createMicroscopyDataset(MicroscopyImageDatasetInfo dataset)
     {
-        ImgDatasetDTO datasetDTO =
-                new ImgDatasetDTO(dataset.getDatasetPermId(), dataset.getTileRows(),
-                        dataset.getTileColumns(), null, dataset.hasImageSeries());
-        return dao.addDataset(datasetDTO);
+        return createDataset(dataset.getDatasetPermId(), dataset.getImageDatasetInfo(), null);
     }
 }

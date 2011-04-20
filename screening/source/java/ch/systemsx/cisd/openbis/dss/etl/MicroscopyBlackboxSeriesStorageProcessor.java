@@ -27,6 +27,8 @@ import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.dss.etl.dto.ImageDatasetInfo;
+import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageFileInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -90,7 +92,7 @@ public class MicroscopyBlackboxSeriesStorageProcessor extends AbstractImageStora
         setSeriesNumber(images);
         MicroscopyImageDatasetInfo dataset =
                 createMicroscopyImageDatasetInfo(dataSetInformation, images,
-                        extractedImages.getTileGeometry());
+                        extractedImages.getTileGeometry(), extractedImages.tryGetImageLibrary());
 
         MicroscopyImageDatasetUploader.upload(dao, dataset, images, extractedImages.getChannels());
     }
@@ -123,11 +125,13 @@ public class MicroscopyBlackboxSeriesStorageProcessor extends AbstractImageStora
 
     private MicroscopyImageDatasetInfo createMicroscopyImageDatasetInfo(
             DataSetInformation dataSetInformation, List<AcquiredSingleImage> images,
-            Geometry tileGeometry)
+            Geometry tileGeometry, ImageLibraryInfo imageLibraryInfoOrNull)
     {
         boolean hasImageSeries = hasImageSeries(images);
-        return new MicroscopyImageDatasetInfo(dataSetInformation.getDataSetCode(),
-                tileGeometry.getRows(), tileGeometry.getColumns(), hasImageSeries);
+        ImageDatasetInfo imageDatasetInfo =
+                new ImageDatasetInfo(tileGeometry.getRows(), tileGeometry.getColumns(),
+                        hasImageSeries, imageLibraryInfoOrNull);
+        return new MicroscopyImageDatasetInfo(dataSetInformation.getDataSetCode(), imageDatasetInfo);
     }
 
     @Override

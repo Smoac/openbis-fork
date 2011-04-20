@@ -161,7 +161,7 @@ public class ImageAnalysisMergedRowsReportingPluginTest extends AssertJUnit
 
     private ImgDatasetDTO createDataSet(long id)
     {
-        ImgDatasetDTO datasetDTO = new ImgDatasetDTO("ds" + id, null, null, 100 + id, false);
+        ImgDatasetDTO datasetDTO = new ImgDatasetDTO("ds" + id, 100 + id);
         datasetDTO.setId(id);
         return datasetDTO;
     }

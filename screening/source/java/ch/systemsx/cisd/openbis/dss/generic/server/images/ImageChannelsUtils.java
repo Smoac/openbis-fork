@@ -371,12 +371,7 @@ public class ImageChannelsUtils
         if (imageContents.size() == 1 && convertToPng == false)
         {
             AbsoluteImageReference imageReference = imageContents.get(0);
-            if (imageReference.tryGetColorComponent() == null
-                    && imageReference.tryGetPage() == null
-                    && imageReference.getRequestedSize().isThumbnailRequired() == false)
-            {
-                return imageReference.getContent();
-            }
+            return imageReference.tryGetRawContent();
         }
         return null;
     }

@@ -58,6 +58,7 @@ import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.etlserver.utils.Unzipper;
 import ch.systemsx.cisd.openbis.dss.Constants;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageSeriesPoint;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ChannelColorComponent;
@@ -543,11 +544,13 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
         if (thumbnailsStorageFormatOrNull != null)
         {
             Hdf5Container container = new Hdf5Container(thumbnailsFile);
-            container
-                    .runWriterClient(thumbnailsStorageFormatOrNull.isStoreCompressed(),
-                            new Hdf5ThumbnailGenerator(plateImages, imagesInStoreFolder,
-                                    thumbnailsStorageFormatOrNull, relativeThumbnailFilePath,
-                                    operationLog));
+            ImageLibraryInfo imageLibrary = imageStorageConfiguraton.tryGetImageLibrary();
+            Hdf5ThumbnailGenerator thumbnailsGenerator =
+                    new Hdf5ThumbnailGenerator(plateImages, imagesInStoreFolder,
+                            thumbnailsStorageFormatOrNull, imageLibrary, relativeThumbnailFilePath,
+                            operationLog);
+            container.runWriterClient(thumbnailsStorageFormatOrNull.isStoreCompressed(),
+                    thumbnailsGenerator);
         }
     }
 
@@ -652,7 +655,8 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
 
         ImageFileExtractionResult extractionResult =
                 new ImageFileExtractionResult(images, invalidFiles, imageDataSetInfo.getChannels(),
-                        tileGeometry, imageStorageConfiguraton.getStoreChannelsOnExperimentLevel());
+                        tileGeometry, imageStorageConfiguraton.getStoreChannelsOnExperimentLevel(),
+                        imageStorageConfiguraton.tryGetImageLibrary());
         return new ImageFileExtractionWithConfig(extractionResult, imageStorageConfiguraton);
     }
 

@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.etl;
 
+import ch.systemsx.cisd.openbis.dss.etl.dto.ImageDatasetInfo;
+
 /**
  * Info about one microscopy image dataset.
  * 
@@ -25,37 +27,21 @@ public class MicroscopyImageDatasetInfo
 {
     private final String datasetPermId;
 
-    private final int tileRows, tileColumns;
+    private final ImageDatasetInfo imageDatasetInfo;
 
-    // has any well timepoints or depth stack images?
-    private final boolean hasImageSeries;
-
-    public MicroscopyImageDatasetInfo(String datasetPermId, int tileRows, int tileColumns,
-            boolean hasImageSeries)
+    public MicroscopyImageDatasetInfo(String datasetPermId, ImageDatasetInfo imageDatasetInfo)
     {
         this.datasetPermId = datasetPermId;
-        this.tileRows = tileRows;
-        this.tileColumns = tileColumns;
-        this.hasImageSeries = hasImageSeries;
-    }
-
-    public int getTileRows()
-    {
-        return tileRows;
-    }
-
-    public int getTileColumns()
-    {
-        return tileColumns;
-    }
-
-    public boolean hasImageSeries()
-    {
-        return hasImageSeries;
+        this.imageDatasetInfo = imageDatasetInfo;
     }
 
     public String getDatasetPermId()
     {
         return datasetPermId;
+    }
+
+    public ImageDatasetInfo getImageDatasetInfo()
+    {
+        return imageDatasetInfo;
     }
 }

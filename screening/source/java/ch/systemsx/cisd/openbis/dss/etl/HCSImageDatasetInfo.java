@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.etl;
 
+import ch.systemsx.cisd.openbis.dss.etl.dto.ImageDatasetInfo;
+
 /**
  * Describes one HCS image dataset from imaging database.
  * 
@@ -25,14 +27,10 @@ public class HCSImageDatasetInfo extends HCSContainerDatasetInfo
 {
     private final boolean storeChannelsOnExperimentLevel;
 
-    private final int tileRows, tileColumns;
+    private final ImageDatasetInfo imageDatasetInfo;
 
-    // has any well timepoints or depth stack images?
-    private final boolean hasImageSeries;
-
-    public HCSImageDatasetInfo(HCSContainerDatasetInfo info,
-            boolean storeChannelsOnExperimentLevel, int tileRows, int tileColumns,
-            boolean hasImageSeries)
+    public HCSImageDatasetInfo(HCSContainerDatasetInfo info, ImageDatasetInfo imageDatasetInfo,
+            boolean storeChannelsOnExperimentLevel)
     {
         super.setContainerRows(info.getContainerRows());
         super.setContainerColumns(info.getContainerColumns());
@@ -40,28 +38,17 @@ public class HCSImageDatasetInfo extends HCSContainerDatasetInfo
         super.setDatasetPermId(info.getDatasetPermId());
         super.setExperimentPermId(info.getExperimentPermId());
         this.storeChannelsOnExperimentLevel = storeChannelsOnExperimentLevel;
-        this.tileRows = tileRows;
-        this.tileColumns = tileColumns;
-        this.hasImageSeries = hasImageSeries;
-    }
-
-    public int getTileRows()
-    {
-        return tileRows;
-    }
-
-    public int getTileColumns()
-    {
-        return tileColumns;
-    }
-
-    public boolean hasImageSeries()
-    {
-        return hasImageSeries;
+        this.imageDatasetInfo = imageDatasetInfo;
     }
 
     public boolean isStoreChannelsOnExperimentLevel()
     {
         return storeChannelsOnExperimentLevel;
     }
+
+    public ImageDatasetInfo getImageDatasetInfo()
+    {
+        return imageDatasetInfo;
+    }
+
 }

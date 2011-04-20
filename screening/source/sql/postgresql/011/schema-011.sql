@@ -77,8 +77,8 @@ CREATE TABLE DATA_SETS (
   -- Which image library should be used to read the image? 
   -- If not specified, some heuristics are used, but it is slower and does not try with all the available libraries. 
   IMAGE_LIBRARY_NAME NAME,
-  -- Which reader in the library should be used? Vald only if the library name is specified.
-  -- If not specified, the reader will be detected automatically (it can be slower).
+  -- Which reader in the library should be used? Valid only if the library name is specified.
+  -- Should be specified when library name is specified.
   IMAGE_LIBRARY_READER_NAME NAME,
   ---- END image dataset specific fields
   
