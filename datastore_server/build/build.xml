@@ -143,6 +143,12 @@
     <copy todir="${dist.datastore_server.lib}/${dss_upload_gui}" >
     	<fileset 	dir="${dist.dss_upload_gui.lib}" />
     </copy>
+    <copy file="${lib}/poi/poi-3.7-20101029.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/poi/poi-ooxml-3.7-20101029.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/poi/poi-ooxml-schemas-3.7-20101029.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/poi/ooxml-lib/dom4j-1.6.1.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/poi/ooxml-lib/geronimo-stax-api_1.0_spec-1.0.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/poi/ooxml-lib/xmlbeans-2.3.0.jar" todir="${dist.datastore_server.lib}" />
   	
   	<!-- The dss_upload_gui folder is no longer needed; clean it up here (not in the task that makes the zip) -->
   	<delete dir="${dist.dss_upload_gui}" />
@@ -227,7 +233,7 @@
         <attribute name="Main-Class" value="ch.systemsx.cisd.openbis.dss.client.api.cli.DssClient" />
         <attribute name="Class-Path"
                    value="cisd-base.jar cisd-args4j.jar stream-supporting-httpinvoker.jar log4j.jar commons-lang.jar commons-io.jar commons-logging.jar 
- commons-codec.jar commons-httpclient.jar spring.jar jline.jar jython.jar" />
+ commons-codec.jar commons-httpclient.jar spring.jar jline.jar jython.jar poi-3.7-20101029.jar poi-ooxml-3.7-20101029.jar poi-ooxml-schemas-3.7-20101029.jar dom4j-1.6.1.jar geronimo-stax-api_1.0_spec-1.0.jar xmlbeans-2.3.0.jar" />
         <attribute name="Version" value="${version.number}" />
         <attribute name="Build-Number"
                    value="${version.number} (r${revision.number},${clean.flag})" />
@@ -245,7 +251,7 @@
 			<param name="variant" value="${variant}" />
 		</antcall>
 	</target>
-  
+
   <target name="make-dist-client" depends="dss-client-jar">
     <copy file="${dss-client-jar.file}" todir="${dist.dss_client.lib}" />
     <copy file="${lib}/cisd-base/cisd-base.jar" todir="${dist.dss_client.lib}" />
@@ -260,6 +266,12 @@
     <copy file="${lib}/spring/spring.jar" todir="${dist.dss_client.lib}" />
   	<copy file="${lib}/jline/jline.jar" todir="${dist.dss_client.lib}" />
   	<copy file="${lib}/jython/standalone/jython.jar" todir="${dist.dss_client.lib}" />
+    <copy file="${lib}/poi/poi-3.7-20101029.jar" todir="${dist.dss_client.lib}" />
+    <copy file="${lib}/poi/poi-ooxml-3.7-20101029.jar" todir="${dist.dss_client.lib}" />
+    <copy file="${lib}/poi/poi-ooxml-schemas-3.7-20101029.jar" todir="${dist.dss_client.lib}" />
+    <copy file="${lib}/poi/ooxml-lib/dom4j-1.6.1.jar" todir="${dist.dss_client.lib}" />
+    <copy file="${lib}/poi/ooxml-lib/geronimo-stax-api_1.0_spec-1.0.jar" todir="${dist.dss_client.lib}" />
+    <copy file="${lib}/poi/ooxml-lib/xmlbeans-2.3.0.jar" todir="${dist.dss_client.lib}" />
     <property name="dist.file"
               value="${dist.client.file.prefix}${variant}-${version.number}-r${revision.number}.zip" />
     
@@ -295,7 +307,7 @@
         <attribute name="Main-Class" value="ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClient" />
         <attribute name="Class-Path"
                    value="cisd-base.jar cisd-args4j.jar stream-supporting-httpinvoker.jar log4j.jar commons-lang.jar commons-io.jar commons-logging.jar 
- commons-codec.jar commons-httpclient.jar spring.jar jline.jar jython.jar" />
+ commons-codec.jar commons-httpclient.jar spring.jar jline.jar jython.jar poi-3.7-20101029.jar poi-ooxml-3.7-20101029.jar poi-ooxml-schemas-3.7-20101029.jar dom4j-1.6.1.jar geronimo-stax-api_1.0_spec-1.0.jar xmlbeans-2.3.0.jar" />
         <attribute name="Version" value="${version.number}" />
         <attribute name="Build-Number"
                    value="${version.number} (r${revision.number},${clean.flag})" />
@@ -366,6 +378,30 @@
 		<antcall target="copy-and-sign-jar">
 			<param name="dir" value="${lib}/jython/standalone" />
 			<param name="jar" value="jython.jar" />
+		</antcall>
+		<antcall target="copy-and-sign-jar">
+			<param name="dir" value="${lib}/poi" />
+			<param name="jar" value="poi-3.7-20101029.jar" />
+		</antcall>
+		<antcall target="copy-and-sign-jar">
+			<param name="dir" value="${lib}/poi" />
+			<param name="jar" value="poi-ooxml-3.7-20101029.jar" />
+		</antcall>
+		<antcall target="copy-and-sign-jar">
+			<param name="dir" value="${lib}/poi" />
+			<param name="jar" value="poi-ooxml-schemas-3.7-20101029.jar" />
+		</antcall>
+		<antcall target="copy-and-sign-jar">
+			<param name="dir" value="${lib}/poi/ooxml-lib" />
+			<param name="jar" value="dom4j-1.6.1.jar" />
+		</antcall>
+		<antcall target="copy-and-sign-jar">
+			<param name="dir" value="${lib}/poi/ooxml-lib" />
+			<param name="jar" value="geronimo-stax-api_1.0_spec-1.0.jar" />
+		</antcall>
+		<antcall target="copy-and-sign-jar">
+			<param name="dir" value="${lib}/poi/ooxml-lib" />
+			<param name="jar" value="xmlbeans-2.3.0.jar" />
 		</antcall>
     <property name="dist.file"
               value="${dist.upload-gui.file.prefix}${variant}-${version.number}-r${revision.number}.zip" />
