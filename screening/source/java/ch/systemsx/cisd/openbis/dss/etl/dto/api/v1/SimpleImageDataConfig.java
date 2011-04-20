@@ -287,7 +287,29 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
-     * Which image library and reader should be used to read the image?
+     * Which image library and reader should be used to read the image? <br>
+     * Available libraries [readers]:<br>
+     * - IJ: [tiff]<br>
+     * - ImageIO: [jpg, bmp, jpeg, wbmp, png, gif]<br>
+     * - JAI: [pnm, jpeg, fpx, gif, tiff, wbmp, png, bmp]<br>
+     * - BioFormats: [ZipReader, APNGReader, JPEGReader, PGMReader, FitsReader, PCXReader,
+     * GIFReader, BMPReader, IPLabReader, IvisionReader, DeltavisionReader, MRCReader, GatanReader,
+     * GatanDM2Reader, ImarisReader, OpenlabRawReader, OMEXMLReader, LIFReader, AVIReader,
+     * PictReader, SDTReader, EPSReader, SlidebookReader, AliconaReader, MNGReader, KhorosReader,
+     * VisitechReader, LIMReader, PSDReader, InCellReader, L2DReader, FEIReader, NAFReader,
+     * MINCReader, QTReader, MRWReader, TillVisionReader, ARFReader, CellomicsReader, LiFlimReader,
+     * TargaReader, OxfordInstrumentsReader, VGSAMReader, HISReader, WATOPReader, SeikoReader,
+     * TopometrixReader, UBMReader, QuesantReader, BioRadGelReader, RHKReader,
+     * MolecularImagingReader, CellWorxReader, Ecat7Reader, VarianFDFReader, AIMReader, FakeReader,
+     * JEOLReader, NiftiReader, AnalyzeReader, APLReader, NRRDReader, ICSReader, PerkinElmerReader,
+     * AmiraReader, ScanrReader, BDReader, UnisokuReader, PDSReader, BioRadReader, FV1000Reader,
+     * ZeissZVIReader, IPWReader, ND2Reader, JPEG2000Reader, PCIReader, ImarisHDFReader,
+     * ZeissLSMReader, SEQReader, GelReader, ImarisTiffReader, FlexReader, SVSReader, ImaconReader,
+     * LEOReader, JPKReader, MIASReader, TCSReader, LeicaReader, NikonReader, FluoviewReader,
+     * PrairieReader, MetamorphReader, MicromanagerReader, ImprovisionTiffReader,
+     * MetamorphTiffReader, NikonTiffReader, OMETiffReader, PhotoshopTiffReader, FEITiffReader,
+     * SimplePCITiffReader, NikonElementsTiffReader, TiffDelegateReader, TextReader, BurleighReader,
+     * OpenlabReader, DicomReader, SMCameraReader, SBIGReader]
      */
     public void setImageLibrary(String imageLibraryName, String readerName)
     {
