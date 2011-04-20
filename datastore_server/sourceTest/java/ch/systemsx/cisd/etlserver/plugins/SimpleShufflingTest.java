@@ -50,6 +50,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
+import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
@@ -180,6 +181,7 @@ public class SimpleShufflingTest extends AbstractFileSystemTestCase
         spaceProvider.addFreeSpaceExpectationFor(share1, 100l);
         spaceProvider.addFreeSpaceExpectationFor(share1, 100l);
         spaceProvider.addFreeSpaceExpectationFor(share1, 100l);
+        spaceProvider.addFreeSpaceExpectationFor(share1, 100l);
         final Share share2 = new Share(new File(store, "2"), 0, spaceProvider);
         final SimpleDataSetInformationDTO ds4 = dataSet("ds4", "2", 2 * ONE_MB);
         share2.addDataSet(ds4);
@@ -187,12 +189,15 @@ public class SimpleShufflingTest extends AbstractFileSystemTestCase
         spaceProvider.addFreeSpaceExpectationFor(share2, 500l);
         spaceProvider.addFreeSpaceExpectationFor(share2, 500l);
         spaceProvider.addFreeSpaceExpectationFor(share2, 500l);
+        spaceProvider.addFreeSpaceExpectationFor(share2, 500l);
         final Share share3 = new Share(new File(store, "3"), 0, spaceProvider);
         spaceProvider.addFreeSpaceExpectationFor(share3, 4 * 1024l);
-        spaceProvider.addFreeSpaceExpectationFor(share3, 3 * 1024l);
-        spaceProvider.addFreeSpaceExpectationFor(share3, 2 * 1024l);
+        spaceProvider.addFreeSpaceExpectationFor(share3, 1 * 1024l);
+        spaceProvider.addFreeSpaceExpectationFor(share3, 1 * 1024l);
+        spaceProvider.addFreeSpaceExpectationFor(share3, 1 * 1024l);
         final Share share4 = new Share(new File(store, "4"), 0, spaceProvider);
-        spaceProvider.addFreeSpaceExpectationFor(share4, 3 * 1024l);
+        spaceProvider.addFreeSpaceExpectationFor(share4, 4 * 1024l);
+        spaceProvider.addFreeSpaceExpectationFor(share4, 4 * 1024l);
         spaceProvider.addFreeSpaceExpectationFor(share4, 4 * 1024l);
         spaceProvider.addFreeSpaceExpectationFor(share4, 1024l);
         context.checking(new Expectations()
@@ -240,6 +245,7 @@ public class SimpleShufflingTest extends AbstractFileSystemTestCase
         dataSet.setDataSetLocation(STORE_PATH + code);
         dataSet.setDataSetSize(size);
         dataSet.setDataStoreCode(DSS_CODE);
+        dataSet.setSpeedHint(Constants.DEFAULT_SPEED_HINT);
         return dataSet;
     }
 }
