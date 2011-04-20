@@ -123,7 +123,7 @@ public class ImageReaderFactory
                 return library;
             }
         }
-        throw new IllegalArgumentException("Unvalid library name '" + libraryName + "'");
+        return null;
     }
 
     /**

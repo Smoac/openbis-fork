@@ -83,10 +83,10 @@ public class ImageReaderFactoryTest extends AbstractImageReaderFactoryTest
 
     }
 
-    @Test(expectedExceptions = IllegalArgumentException.class)
-    public void testGetInvalidLibrary()
+    public void testGetReaderFromInvalidLibrary()
     {
-        ImageReaderFactory.tryGetReaderForFile("invalid_library", null);
+        IImageReader reader = ImageReaderFactory.tryGetReaderForFile("invalid_library", null);
+        assertNull(reader);
     }
 
     @Test(expectedExceptions = IOExceptionUnchecked.class)
