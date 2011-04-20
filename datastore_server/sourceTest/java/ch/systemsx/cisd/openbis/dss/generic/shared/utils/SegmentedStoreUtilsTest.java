@@ -170,7 +170,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         assertSame(ds3, shares.get(1).getDataSetsOrderedBySize().get(0));
         assertEquals(123456789L, shares.get(1).getDataSetsOrderedBySize().get(0).getDataSetSize().longValue());
         assertEquals(1, shares.get(1).getDataSetsOrderedBySize().size());
-        assertEquals(Constants.DEFAULT_SPEED_HINT, shares.get(1).getSpeed());
+        assertEquals(Math.abs(Constants.DEFAULT_SPEED_HINT), shares.get(1).getSpeed());
         assertEquals(123456789L, shares.get(1).getTotalSizeOfDataSets());
         assertEquals(2, shares.size());
     }

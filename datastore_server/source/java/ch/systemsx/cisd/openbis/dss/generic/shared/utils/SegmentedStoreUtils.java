@@ -60,7 +60,7 @@ public class SegmentedStoreUtils
 
     private static final Pattern SHARE_ID_PATTERN = Pattern.compile("[0-9]+");
     
-    @Private static final String SPEED_FILE = ".speed";
+    @Private static final String SPEED_FILE = "speed";
     
     private static final Comparator<Share> SHARE_COMPARATOR = new Comparator<Share>()
         {
@@ -227,7 +227,7 @@ public class SegmentedStoreUtils
         Map<String, Share> shares = new HashMap<String, Share>();
         for (File file : getShares(storeRoot))
         {
-            int speed = Constants.DEFAULT_SPEED_HINT;
+            int speed = Math.abs(Constants.DEFAULT_SPEED_HINT);
             File speedFile = new File(file, SPEED_FILE);
             if (speedFile.isFile())
             {
