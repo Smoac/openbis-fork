@@ -55,6 +55,9 @@
 				<include name="**/*.xsd" />
 				<include name="${build.info.filename}" />
 			</fileset>
+			<fileset dir="source">
+				<include name="**/*.sql" />
+			</fileset>	
 			<fileset dir="${nativeroot}">
 				<include name="**/unix.so" />
 			</fileset>
