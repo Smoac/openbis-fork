@@ -61,8 +61,6 @@ public class ImageReaderFactory
     /**
      * Returns an {@link IImageReader} for specified library name and reader name. Can return
      * <code>null</code> if no matching reader is found.
-     * 
-     * @throws IllegalArgumentException if libraryName does not specify a valid library name.
      */
     public static IImageReader tryGetReader(String libraryName, String readerName)
     {
@@ -78,8 +76,6 @@ public class ImageReaderFactory
      * The behavior of this method may vary across libraries. For example, some image libraries can
      * use the suffix of <var>fileName</var> to find the right reader, while others might attempt to
      * open the file and apply heuristics on its content to determine the appropriate reader.
-     * 
-     * @throws IllegalArgumentException if libraryName does not specify a valid library name.
      */
     public static IImageReader tryGetReaderForFile(String libraryName, String fileName)
     {
@@ -98,7 +94,6 @@ public class ImageReaderFactory
      * use the suffix of <var>fileName</var> to find the right reader, while others might attempt to
      * open the file and apply heuristics on its content to determine the appropriate reader.
      * 
-     * @throws IllegalArgumentException if libraryName does not specify a valid library name.
      */
     public static IImageReader tryGetReaderForFile(String fileName)
     {
