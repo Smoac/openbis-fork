@@ -35,7 +35,7 @@ public abstract class AbstractShareFinder implements IShareFinder
      *
      * @author Franz-Josef Elmer
      */
-    protected static interface ISpeedChecker
+    public static interface ISpeedChecker
     {
         boolean check(SimpleDataSetInformationDTO dataSet, Share share);
     }
