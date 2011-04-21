@@ -256,8 +256,11 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
             throwModifiedEntityException("Sample");
         }
         updateProperties(updates.getProperties());
-        updateGroup(sample, updates.getSampleIdentifier(), null);
-        updateExperiment(sample, updates.getExperimentIdentifierOrNull(), null);
+        updateSpace(sample, updates.getSampleIdentifier(), null);
+        if (updates.isUpdateExperimentLink())
+        {
+            updateExperiment(sample, updates.getExperimentIdentifierOrNull(), null);
+        }
         setContainer(updates.getSampleIdentifier(), sample, updates.getContainerIdentifierOrNull());
         for (NewAttachment attachment : updates.getAttachments())
         {

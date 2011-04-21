@@ -40,6 +40,8 @@ public class SampleUpdatesDTO extends BasicSampleUpdates
     private SampleIdentifier sampleIdentifier;
 
     private Collection<NewAttachment> attachments;
+    
+    private boolean updateExperimentLink = true;
 
     public SampleUpdatesDTO(TechId sampleId, List<IEntityProperty> properties,
             ExperimentIdentifier experimentIdentifierOrNull, Collection<NewAttachment> attachments,
@@ -70,6 +72,16 @@ public class SampleUpdatesDTO extends BasicSampleUpdates
     public void setExperimentIdentifierOrNull(ExperimentIdentifier experimentIdentifierOrNull)
     {
         this.experimentIdentifierOrNull = experimentIdentifierOrNull;
+    }
+
+    public boolean isUpdateExperimentLink()
+    {
+        return updateExperimentLink;
+    }
+
+    public void setUpdateExperimentLink(boolean updateExperimentLink)
+    {
+        this.updateExperimentLink = updateExperimentLink;
     }
 
     public Collection<NewAttachment> getAttachments()

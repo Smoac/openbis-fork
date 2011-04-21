@@ -243,7 +243,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         // TODO 2010-10-09, Piotr Buczek: don't check business rules if value wasn't changed
         if (details.isExperimentUpdateRequested())
         {
-            updateGroup(sample, updates.getSampleIdentifier(), sampleOwnerCache);
+            updateSpace(sample, updates.getSampleIdentifier(), sampleOwnerCache);
             updateExperiment(sample, updates.getExperimentIdentifierOrNull(), experimentCache);
             checkExperimentBusinessRules(getExternalDataDAO(), sample);
         }

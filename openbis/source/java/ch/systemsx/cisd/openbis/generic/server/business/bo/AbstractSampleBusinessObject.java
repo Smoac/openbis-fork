@@ -414,16 +414,16 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         return (onlyNewSamples == false) && SampleUtils.hasDatasets(externalDataDAO, sample);
     }
 
-    protected void updateGroup(SamplePE sample, SampleIdentifier sampleOwnerIdentifier,
+    protected void updateSpace(SamplePE sample, SampleIdentifier sampleOwnerIdentifier,
             Map<SampleOwnerIdentifier, SampleOwner> sampleOwnerCacheOrNull)
     {
         if (sampleOwnerIdentifier != null)
         {
             final SampleOwner sampleOwner =
                     getSampleOwner(sampleOwnerCacheOrNull, sampleOwnerIdentifier);
-            SpacePE group = sampleOwner.tryGetSpace();
+            SpacePE space = sampleOwner.tryGetSpace();
             sample.setDatabaseInstance(sampleOwner.tryGetDatabaseInstance());
-            sample.setSpace(group);
+            sample.setSpace(space);
         }
     }
 
