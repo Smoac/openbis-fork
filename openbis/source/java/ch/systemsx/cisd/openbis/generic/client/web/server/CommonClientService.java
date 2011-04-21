@@ -68,6 +68,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.InvalidSessi
 import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.ITableDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AuthorizationGroupProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DataSetTypeProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.EntityTypeProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.FileFormatTypesProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
@@ -76,6 +78,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.PersonsProvi
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ProjectsProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.RoleAssignmentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.SampleProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.SampleTypeProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ScriptProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.SpacesProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.TableDataProviderFactory;
@@ -469,22 +472,26 @@ public final class CommonClientService extends AbstractClientService implements
         return prepareExportEntities(criteria);
     }
 
-    public String prepareExportMaterialTypes(final TableExportCriteria<MaterialType> criteria)
+    public String prepareExportMaterialTypes(
+            final TableExportCriteria<TableModelRowWithObject<MaterialType>> criteria)
     {
         return prepareExportEntities(criteria);
     }
 
-    public String prepareExportExperimentTypes(final TableExportCriteria<ExperimentType> criteria)
+    public String prepareExportExperimentTypes(
+            final TableExportCriteria<TableModelRowWithObject<ExperimentType>> criteria)
     {
         return prepareExportEntities(criteria);
     }
 
-    public String prepareExportSampleTypes(final TableExportCriteria<SampleType> criteria)
+    public String prepareExportSampleTypes(
+            final TableExportCriteria<TableModelRowWithObject<SampleType>> criteria)
     {
         return prepareExportEntities(criteria);
     }
 
-    public String prepareExportDataSetTypes(final TableExportCriteria<DataSetType> criteria)
+    public String prepareExportDataSetTypes(
+            final TableExportCriteria<TableModelRowWithObject<DataSetType>> criteria)
     {
         return prepareExportEntities(criteria);
     }
@@ -758,62 +765,46 @@ public final class CommonClientService extends AbstractClientService implements
         return listEntities(vocabularyTermsProvider, criteria);
     }
 
-    public ResultSet<MaterialType> listMaterialTypes(
-            DefaultResultSetConfig<String, MaterialType> criteria)
+    public TypedTableResultSet<MaterialType> listMaterialTypes(
+            DefaultResultSetConfig<String, TableModelRowWithObject<MaterialType>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(criteria,
-                new AbstractOriginalDataProviderWithoutHeaders<MaterialType>()
+        return listEntities(new EntityTypeProvider<MaterialType>(commonServer, getSessionToken())
+                {
+                    @Override
+                    protected List<MaterialType> listTypes()
                     {
-                        @Override
-                        public List<MaterialType> getFullOriginalData() throws UserFailureException
-                        {
-                            return listMaterialTypes();
-                        }
-                    });
+                        return commonServer.listMaterialTypes(sessionToken);
+                    }
+                }, criteria);
     }
 
-    public ResultSet<SampleType> listSampleTypes(DefaultResultSetConfig<String, SampleType> criteria)
+    public TypedTableResultSet<SampleType> listSampleTypes(
+            DefaultResultSetConfig<String, TableModelRowWithObject<SampleType>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(criteria, new AbstractOriginalDataProviderWithoutHeaders<SampleType>()
+        return listEntities(new SampleTypeProvider(commonServer, getSessionToken()), criteria);
+    }
+
+    public TypedTableResultSet<ExperimentType> listExperimentTypes(
+            DefaultResultSetConfig<String, TableModelRowWithObject<ExperimentType>> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return listEntities(new EntityTypeProvider<ExperimentType>(commonServer, getSessionToken())
             {
                 @Override
-                public List<SampleType> getFullOriginalData() throws UserFailureException
+                protected List<ExperimentType> listTypes()
                 {
-                    return listSampleTypes();
+                    return commonServer.listExperimentTypes(sessionToken);
                 }
-            });
+            }, criteria);
     }
 
-    public ResultSet<ExperimentType> listExperimentTypes(
-            DefaultResultSetConfig<String, ExperimentType> criteria)
+    public TypedTableResultSet<DataSetType> listDataSetTypes(
+            DefaultResultSetConfig<String, TableModelRowWithObject<DataSetType>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(criteria,
-                new AbstractOriginalDataProviderWithoutHeaders<ExperimentType>()
-                    {
-                        @Override
-                        public List<ExperimentType> getFullOriginalData()
-                                throws UserFailureException
-                        {
-                            return listExperimentTypes();
-                        }
-                    });
-    }
-
-    public ResultSet<DataSetType> listDataSetTypes(
-            DefaultResultSetConfig<String, DataSetType> criteria)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
-    {
-        return listEntities(criteria, new AbstractOriginalDataProviderWithoutHeaders<DataSetType>()
-            {
-                @Override
-                public List<DataSetType> getFullOriginalData() throws UserFailureException
-                {
-                    return listDataSetTypes();
-                }
-            });
+        return listEntities(new DataSetTypeProvider(commonServer, getSessionToken()), criteria);
     }
 
     public TypedTableResultSet<FileFormatType> listFileTypes(

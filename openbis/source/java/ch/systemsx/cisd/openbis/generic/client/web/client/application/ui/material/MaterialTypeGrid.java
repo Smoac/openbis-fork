@@ -22,15 +22,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.material.MaterialTypeColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AbstractEntityTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * Grid displaying material types.
@@ -41,7 +41,7 @@ public class MaterialTypeGrid extends AbstractEntityTypeGrid<MaterialType>
 {
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "material-type-browser";
 
-    public static final String GRID_ID = BROWSER_ID + "_grid";
+    public static final String GRID_ID = BROWSER_ID + TypedTableGrid.GRID_POSTFIX;
 
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
@@ -56,14 +56,16 @@ public class MaterialTypeGrid extends AbstractEntityTypeGrid<MaterialType>
     }
 
     @Override
-    protected void listEntities(DefaultResultSetConfig<String, MaterialType> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<MaterialType>> callback)
+    protected void listTableRows(
+            DefaultResultSetConfig<String, TableModelRowWithObject<MaterialType>> resultSetConfig,
+            AsyncCallback<TypedTableResultSet<MaterialType>> callback)
     {
         viewContext.getService().listMaterialTypes(resultSetConfig, callback);
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<MaterialType> exportCriteria,
+    protected void prepareExportEntities(
+            TableExportCriteria<TableModelRowWithObject<MaterialType>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportMaterialTypes(exportCriteria, callback);
@@ -85,11 +87,5 @@ public class MaterialTypeGrid extends AbstractEntityTypeGrid<MaterialType>
     protected MaterialType createNewEntityType()
     {
         return new MaterialType();
-    }
-
-    @Override
-    protected IColumnDefinitionKind<MaterialType>[] getStaticColumnsDefinition()
-    {
-        return MaterialTypeColDefKind.values();
     }
 }

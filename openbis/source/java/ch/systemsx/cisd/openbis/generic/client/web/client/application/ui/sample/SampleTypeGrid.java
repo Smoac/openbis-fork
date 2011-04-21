@@ -26,8 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.SampleTypeColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AbstractEntityTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AddTypeDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
@@ -38,10 +37,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DialogWithOnlineHelpUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * Grid displaying sample types.
@@ -53,7 +53,7 @@ public class SampleTypeGrid extends AbstractEntityTypeGrid<SampleType>
 {
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "sample-type-browser";
 
-    public static final String GRID_ID = BROWSER_ID + "_grid";
+    public static final String GRID_ID = BROWSER_ID + TypedTableGrid.GRID_POSTFIX;
 
     private static final Boolean DEFAULT_LISTABLE_VALUE = true;
 
@@ -80,14 +80,16 @@ public class SampleTypeGrid extends AbstractEntityTypeGrid<SampleType>
     }
 
     @Override
-    protected void listEntities(DefaultResultSetConfig<String, SampleType> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<SampleType>> callback)
+    protected void listTableRows(
+            DefaultResultSetConfig<String, TableModelRowWithObject<SampleType>> resultSetConfig,
+            AsyncCallback<TypedTableResultSet<SampleType>> callback)
     {
         viewContext.getService().listSampleTypes(resultSetConfig, callback);
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<SampleType> exportCriteria,
+    protected void prepareExportEntities(
+            TableExportCriteria<TableModelRowWithObject<SampleType>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportSampleTypes(exportCriteria, callback);
@@ -109,12 +111,6 @@ public class SampleTypeGrid extends AbstractEntityTypeGrid<SampleType>
     protected SampleType createNewEntityType()
     {
         return new SampleType();
-    }
-
-    @Override
-    protected IColumnDefinitionKind<SampleType>[] getStaticColumnsDefinition()
-    {
-        return SampleTypeColDefKind.values();
     }
 
     @Override

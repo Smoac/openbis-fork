@@ -378,43 +378,48 @@ public interface ICommonClientService extends IClientService
             TableExportCriteria<TableModelRowWithObject<VocabularyTermWithStats>> criteria)
             throws UserFailureException;
 
-    public ResultSet<MaterialType> listMaterialTypes(
-            DefaultResultSetConfig<String, MaterialType> criteria)
+    public TypedTableResultSet<MaterialType> listMaterialTypes(
+            DefaultResultSetConfig<String, TableModelRowWithObject<MaterialType>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for MaterialType.
      */
-    public String prepareExportMaterialTypes(final TableExportCriteria<MaterialType> criteria)
+    public String prepareExportMaterialTypes(
+            final TableExportCriteria<TableModelRowWithObject<MaterialType>> criteria)
             throws UserFailureException;
 
-    public ResultSet<SampleType> listSampleTypes(DefaultResultSetConfig<String, SampleType> criteria)
+    public TypedTableResultSet<SampleType> listSampleTypes(
+            DefaultResultSetConfig<String, TableModelRowWithObject<SampleType>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for SampleType.
      */
-    public String prepareExportSampleTypes(final TableExportCriteria<SampleType> criteria)
+    public String prepareExportSampleTypes(
+            final TableExportCriteria<TableModelRowWithObject<SampleType>> criteria)
             throws UserFailureException;
 
-    public ResultSet<ExperimentType> listExperimentTypes(
-            DefaultResultSetConfig<String, ExperimentType> criteria)
+    public TypedTableResultSet<ExperimentType> listExperimentTypes(
+            DefaultResultSetConfig<String, TableModelRowWithObject<ExperimentType>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for ExperimentType.
      */
-    public String prepareExportExperimentTypes(final TableExportCriteria<ExperimentType> criteria)
+    public String prepareExportExperimentTypes(
+            final TableExportCriteria<TableModelRowWithObject<ExperimentType>> criteria)
             throws UserFailureException;
 
-    public ResultSet<DataSetType> listDataSetTypes(
-            DefaultResultSetConfig<String, DataSetType> criteria)
+    public TypedTableResultSet<DataSetType> listDataSetTypes(
+            DefaultResultSetConfig<String, TableModelRowWithObject<DataSetType>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for DataSetType.
      */
-    public String prepareExportDataSetTypes(final TableExportCriteria<DataSetType> criteria)
+    public String prepareExportDataSetTypes(
+            final TableExportCriteria<TableModelRowWithObject<DataSetType>> criteria)
             throws UserFailureException;
 
     public TypedTableResultSet<FileFormatType> listFileTypes(

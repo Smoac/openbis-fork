@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -32,28 +33,26 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.EntityTypeColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.TextToolItem;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityTypeGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * Abstract grid displaying entity types.
  * 
  * @author Tomasz Pylak
  */
-abstract public class AbstractEntityTypeGrid<T extends EntityType> extends
-        AbstractSimpleBrowserGrid<T>
+abstract public class AbstractEntityTypeGrid<T extends EntityType> extends TypedTableGrid<T>
 {
     protected IDelegatedAction postRegistrationCallback;
 
@@ -64,7 +63,7 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends
     protected AbstractEntityTypeGrid(IViewContext<ICommonClientServiceAsync> viewContext,
             String browserId, String gridId)
     {
-        super(viewContext, browserId, gridId, DisplayTypeIDGenerator.TYPE_BROWSER_GRID);
+        super(viewContext, browserId, true, DisplayTypeIDGenerator.TYPE_BROWSER_GRID);
 
         postRegistrationCallback = createRefreshGridAction();
         extendBottomToolbar();
@@ -94,13 +93,13 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends
 
         Button editButton =
                 createSelectedItemButton(viewContext.getMessage(Dict.EDIT_TYPE_BUTTON),
-                        new ISelectedEntityInvoker<BaseEntityModel<T>>()
+                        new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<T>>>()
                             {
 
-                                public void invoke(BaseEntityModel<T> selectedItem,
+                                public void invoke(BaseEntityModel<TableModelRowWithObject<T>> selectedItem,
                                         boolean keyPressed)
                                 {
-                                    T entityType = selectedItem.getBaseObject();
+                                    T entityType = selectedItem.getBaseObject().getObjectOrNull();
                                     createEditEntityTypeDialog(entityKind, entityType).show();
                                 }
 
@@ -126,15 +125,15 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends
                 @Override
                 public void componentSelected(ButtonEvent ce)
                 {
-                    List<BaseEntityModel<T>> types = getSelectedItems();
+                    List<BaseEntityModel<TableModelRowWithObject<T>>> types = getSelectedItems();
                     if (types.isEmpty())
                     {
                         return;
                     }
                     final List<String> selectedTypeCodes = new ArrayList<String>();
-                    for (BaseEntityModel<T> model : types)
+                    for (BaseEntityModel<TableModelRowWithObject<T>> model : types)
                     {
-                        EntityType term = model.getBaseObject();
+                        EntityType term = model.getBaseObject().getObjectOrNull();
                         selectedTypeCodes.add(term.getCode());
                     }
                     ConfirmationDialog confirmationDialog =
@@ -219,22 +218,27 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends
     }
 
     @Override
-    protected ColumnDefsAndConfigs<T> createColumnsDefinition()
+    protected String translateColumnIdToDictionaryKey(String columnID)
     {
-        ColumnDefsAndConfigs<T> schema = super.createColumnsDefinition();
-        schema.setGridCellRendererFor(EntityTypeColDefKind.DESCRIPTION.id(),
+        return columnID.toLowerCase();
+    }
+
+    @Override
+    protected ColumnDefsAndConfigs<TableModelRowWithObject<T>> createColumnsDefinition()
+    {
+        ColumnDefsAndConfigs<TableModelRowWithObject<T>> schema = super.createColumnsDefinition();
+        schema.setGridCellRendererFor(EntityTypeGridColumnIDs.DESCRIPTION,
                 createMultilineStringCellRenderer());
         return schema;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    protected List<IColumnDefinition<T>> getInitialFilters()
+    protected List<String> getColumnIdsOfFilters()
     {
-        return asColumnFilters((new IColumnDefinitionKind[]
-            { EntityTypeColDefKind.CODE }));
+        return Arrays.asList(EntityTypeGridColumnIDs.CODE);
     }
-
+    
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         // grid is refreshed manually when a new type is added, so there can be no auto-refresh

@@ -26,8 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.DataSetTypeColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AbstractEntityTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AddTypeDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
@@ -37,10 +36,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DialogWithOnlineHelpUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * Grid displaying data set types.
@@ -52,7 +52,7 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
 {
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "data-set-type-browser";
 
-    public static final String GRID_ID = BROWSER_ID + "_grid";
+    public static final String GRID_ID = BROWSER_ID + TypedTableGrid.GRID_POSTFIX;
 
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
@@ -67,14 +67,16 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
     }
 
     @Override
-    protected void listEntities(DefaultResultSetConfig<String, DataSetType> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<DataSetType>> callback)
+    protected void listTableRows(
+            DefaultResultSetConfig<String, TableModelRowWithObject<DataSetType>> resultSetConfig,
+            AsyncCallback<TypedTableResultSet<DataSetType>> callback)
     {
         viewContext.getService().listDataSetTypes(resultSetConfig, callback);
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<DataSetType> exportCriteria,
+    protected void prepareExportEntities(
+            TableExportCriteria<TableModelRowWithObject<DataSetType>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportDataSetTypes(exportCriteria, callback);
@@ -96,12 +98,6 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
     protected DataSetType createNewEntityType()
     {
         return new DataSetType();
-    }
-
-    @Override
-    protected IColumnDefinitionKind<DataSetType>[] getStaticColumnsDefinition()
-    {
-        return DataSetTypeColDefKind.values();
     }
 
     @Override
