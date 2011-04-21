@@ -23,7 +23,6 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -100,11 +99,15 @@ public class AttachmentUploadTest extends SystemTestCase
     private void checkUploadedAttachment(TechId holderID, AttachmentHolderKind holderKind,
             AttachmentWithContent attachmentWithContent)
     {
-        ResultSet<AttachmentVersions> attachmentVersions =
-                commonClientService.listAttachmentVersions(holderID, holderKind,
-                        new DefaultResultSetConfig<String, AttachmentVersions>());
+        TypedTableResultSet<AttachmentVersions> attachmentVersions =
+                commonClientService
+                        .listAttachmentVersions(
+                                holderID,
+                                holderKind,
+                                new DefaultResultSetConfig<String, TableModelRowWithObject<AttachmentVersions>>());
         List<Attachment> attachments =
-                attachmentVersions.getList().get(0).getOriginalObject().getVersions();
+                attachmentVersions.getResultSet().getList().get(0).getOriginalObject()
+                        .getObjectOrNull().getVersions();
 
         Attachment attachment = attachments.get(0);
         assertEquals(FILE_NAME, attachment.getFileName());

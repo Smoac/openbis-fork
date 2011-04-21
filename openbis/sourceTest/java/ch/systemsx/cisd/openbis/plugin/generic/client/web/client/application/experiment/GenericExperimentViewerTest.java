@@ -28,13 +28,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.CheckTabNotExists;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.AttachmentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.columns.DataSetRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ListExperiments;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ShowExperiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.GridTestUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
@@ -166,8 +166,8 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
                 createSectionId(DisplayTypeIDGenerator.ATTACHMENT_SECTION));
         final CheckTableCommand attachmentsTable =
                 checkExperiment.createAttachmentsTableCheck().expectedSize(1);
-        attachmentsTable.expectedRow(new Row().withCell(AttachmentColDefKind.FILE_NAME.id(),
-                "exampleExperiments.txt").withCell(AttachmentColDefKind.VERSION.id(),
+        attachmentsTable.expectedRow(new Row().withCell(AttachmentGridColumnIDs.FILE_NAME,
+                "exampleExperiments.txt").withCell(AttachmentGridColumnIDs.VERSION,
                 versionCellText(4)));
         remoteConsole.prepare(attachmentsTable);
 
@@ -228,11 +228,11 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
                 createSectionId(DisplayTypeIDGenerator.ATTACHMENT_SECTION));
         final CheckTableCommand attachmentsTable =
                 checkExperiment.createAttachmentsTableCheck().expectedSize(2);
-        attachmentsTable.expectedRow(new Row().withCell(AttachmentColDefKind.FILE_NAME.id(),
-                "exampleExperiments.txt").withCell(AttachmentColDefKind.VERSION.id(),
+        attachmentsTable.expectedRow(new Row().withCell(AttachmentGridColumnIDs.FILE_NAME,
+                "exampleExperiments.txt").withCell(AttachmentGridColumnIDs.VERSION,
                 versionCellText(1)));
-        attachmentsTable.expectedRow(new Row().withCell(AttachmentColDefKind.FILE_NAME.id(),
-                "cellPlates.txt").withCell(AttachmentColDefKind.VERSION.id(), versionCellText(1)));
+        attachmentsTable.expectedRow(new Row().withCell(AttachmentGridColumnIDs.FILE_NAME,
+                "cellPlates.txt").withCell(AttachmentGridColumnIDs.VERSION, versionCellText(1)));
         remoteConsole.prepare(attachmentsTable);
 
         launchTest();

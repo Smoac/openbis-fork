@@ -367,7 +367,8 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
     /** @see ICommonClientService#prepareExportAttachmentVersions(TableExportCriteria) */
-    public void prepareExportAttachmentVersions(TableExportCriteria<AttachmentVersions> criteria,
+    public void prepareExportAttachmentVersions(
+            TableExportCriteria<TableModelRowWithObject<AttachmentVersions>> criteria,
             AsyncCallback<String> callback)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
@@ -579,8 +580,8 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      *      DefaultResultSetConfig)
      */
     public void listAttachmentVersions(TechId holderId, AttachmentHolderKind holderKind,
-            DefaultResultSetConfig<String, AttachmentVersions> criteria,
-            AsyncCallback<ResultSet<AttachmentVersions>> asyncCallback);
+            DefaultResultSetConfig<String, TableModelRowWithObject<AttachmentVersions>> criteria,
+            AsyncCallback<TypedTableResultSet<AttachmentVersions>> asyncCallback);
 
     /** @see ICommonClientService#listDataSetTypes() */
     public void listDataSetTypes(AsyncCallback<List<DataSetType>> callback);

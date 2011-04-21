@@ -437,7 +437,8 @@ public interface ICommonClientService extends IClientService
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for AttachmentVersions.
      */
-    public String prepareExportAttachmentVersions(TableExportCriteria<AttachmentVersions> criteria)
+    public String prepareExportAttachmentVersions(
+            TableExportCriteria<TableModelRowWithObject<AttachmentVersions>> criteria)
             throws UserFailureException;
 
     /**
@@ -671,9 +672,9 @@ public interface ICommonClientService extends IClientService
      * Returns a list of all attachments which belong to the specified holder grouped in
      * {@link AttachmentVersions}.
      */
-    public ResultSet<AttachmentVersions> listAttachmentVersions(TechId holderId,
+    public TypedTableResultSet<AttachmentVersions> listAttachmentVersions(TechId holderId,
             AttachmentHolderKind holderKind,
-            DefaultResultSetConfig<String, AttachmentVersions> criteria)
+            DefaultResultSetConfig<String, TableModelRowWithObject<AttachmentVersions>> criteria)
             throws UserFailureException;
 
     /**

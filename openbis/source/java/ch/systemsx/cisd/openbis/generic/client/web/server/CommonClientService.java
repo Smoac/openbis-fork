@@ -22,10 +22,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpSession;
@@ -66,6 +64,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReferenc
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.InvalidSessionException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.ITableDataProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AttachmentVersionsProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AuthorizationGroupProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DataSetTypeProvider;
@@ -501,7 +500,8 @@ public final class CommonClientService extends AbstractClientService implements
         return prepareExportEntities(criteria);
     }
 
-    public String prepareExportAttachmentVersions(TableExportCriteria<AttachmentVersions> criteria)
+    public String prepareExportAttachmentVersions(
+            TableExportCriteria<TableModelRowWithObject<AttachmentVersions>> criteria)
     {
         return prepareExportEntities(criteria);
     }
@@ -1699,75 +1699,14 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public ResultSet<AttachmentVersions> listAttachmentVersions(final TechId holderId,
+    public TypedTableResultSet<AttachmentVersions> listAttachmentVersions(
+            final TechId holderId,
             final AttachmentHolderKind holderKind,
-            final DefaultResultSetConfig<String, AttachmentVersions> criteria)
+            final DefaultResultSetConfig<String, TableModelRowWithObject<AttachmentVersions>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(criteria,
-                new AbstractOriginalDataProviderWithoutHeaders<AttachmentVersions>()
-                    {
-                        @Override
-                        public List<AttachmentVersions> getFullOriginalData()
-                                throws UserFailureException
-                        {
-                            return listAttachmentVersions(holderId, holderKind);
-                        }
-                    });
-    }
-
-    private List<AttachmentVersions> listAttachmentVersions(TechId holderId,
-            AttachmentHolderKind holderKind)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
-    {
-        List<Attachment> attachments = listAttachments(holderId, holderKind);
-        List<AttachmentVersions> result = convert(attachments);
-        return result;
-    }
-
-    private List<Attachment> listAttachments(TechId holderId, AttachmentHolderKind holderKind)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
-    {
-        final String sessionToken = getSessionToken();
-        try
-        {
-            List<Attachment> attachments = null;
-            switch (holderKind)
-            {
-                case EXPERIMENT:
-                    attachments = commonServer.listExperimentAttachments(sessionToken, holderId);
-                    break;
-                case SAMPLE:
-                    attachments = commonServer.listSampleAttachments(sessionToken, holderId);
-                    break;
-                case PROJECT:
-                    attachments = commonServer.listProjectAttachments(sessionToken, holderId);
-                    break;
-            }
-            return attachments;
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
-    }
-
-    private List<AttachmentVersions> convert(final List<Attachment> attachments)
-    {
-        Map<String, List<Attachment>> map = new HashMap<String, List<Attachment>>();
-        for (Attachment a : attachments)
-        {
-            if (false == map.containsKey(a.getFileName()))
-            {
-                map.put(a.getFileName(), new ArrayList<Attachment>());
-            }
-            map.get(a.getFileName()).add(a);
-        }
-        final List<AttachmentVersions> result = new ArrayList<AttachmentVersions>(map.size());
-        for (List<Attachment> versions : map.values())
-        {
-            result.add(new AttachmentVersions(versions));
-        }
-        return result;
+        return listEntities(new AttachmentVersionsProvider(commonServer, getSessionToken(),
+                holderId, holderKind), criteria);
     }
 
     public LastModificationState getLastModificationState()

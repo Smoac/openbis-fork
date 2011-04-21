@@ -21,8 +21,8 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.attachment.AttachmentBrowser;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.AttachmentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.GridTestUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -54,7 +54,7 @@ public class DownloadAttachment extends AbstractDefaultTestCommand
         final Widget widget = GWTTestUtil.getWidgetWithID(attachmentGridId);
         final Grid<BaseEntityModel<AttachmentVersions>> table =
                 (Grid<BaseEntityModel<AttachmentVersions>>) widget;
-        GridTestUtils.fireSelectRow(table, AttachmentColDefKind.FILE_NAME.id(), fileName);
+        GridTestUtils.fireSelectRow(table, AttachmentGridColumnIDs.FILE_NAME, fileName);
         String downloadButtonId =
                 AttachmentBrowser.createBrowserId(experimentId, AttachmentHolderKind.EXPERIMENT)
                         + AttachmentBrowser.DOWNLOAD_BUTTON_ID_SUFFIX;

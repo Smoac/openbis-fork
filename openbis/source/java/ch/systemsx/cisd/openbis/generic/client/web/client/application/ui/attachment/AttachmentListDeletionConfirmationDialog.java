@@ -29,9 +29,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.shared.basic.IAttachmentHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentVersions;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 public final class AttachmentListDeletionConfirmationDialog extends
-        AbstractDataListDeletionConfirmationDialog<AttachmentVersions>
+        AbstractDataListDeletionConfirmationDialog<TableModelRowWithObject<AttachmentVersions>>
 {
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
@@ -40,8 +41,8 @@ public final class AttachmentListDeletionConfirmationDialog extends
 
     public AttachmentListDeletionConfirmationDialog(
             IViewContext<ICommonClientServiceAsync> viewContext,
-            List<AttachmentVersions> attachments, AbstractAsyncCallback<Void> callback,
-            IAttachmentHolder attachmentHolder)
+            List<TableModelRowWithObject<AttachmentVersions>> attachments,
+            AbstractAsyncCallback<Void> callback, IAttachmentHolder attachmentHolder)
     {
         super(viewContext, attachments, callback);
         this.viewContext = viewContext;
@@ -62,12 +63,13 @@ public final class AttachmentListDeletionConfirmationDialog extends
         return messageProvider.getMessage(Dict.ATTACHMENT);
     }
 
-    private List<String> getAttachmentFileNames(List<AttachmentVersions> attachmentVersions)
+    private List<String> getAttachmentFileNames(
+            List<TableModelRowWithObject<AttachmentVersions>> attachmentVersions)
     {
         List<String> fileNames = new ArrayList<String>();
-        for (AttachmentVersions attachmentVersion : attachmentVersions)
+        for (TableModelRowWithObject<AttachmentVersions> attachmentVersion : attachmentVersions)
         {
-            fileNames.add(attachmentVersion.getCurrent().getFileName());
+            fileNames.add(attachmentVersion.getObjectOrNull().getCurrent().getFileName());
         }
         return fileNames;
     }
