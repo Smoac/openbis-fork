@@ -394,7 +394,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
     }
 
     @Test(dependsOnMethods = "testLocalCopyToDestination", groups = "slow")
-    public void testLocalPresentInDestination()
+    public void testLocalSynchronizedWithDestination()
     {
         Properties properties = createLocalDestinationProperties();
         IDataSetFileOperationsManager dataSetCopier =
@@ -457,6 +457,64 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
                     + "'original/data1_1.txt' - different file sizes; store: 14, destination: 28\n"
                     + "'original/data1_2.txt' - exists in store but is missing in destination\n"
                     + "'original/fake.txt' - exists in destination but is missing in store\n");
+        } catch (IOException ex)
+        {
+            fail(ex.getMessage());
+        }
+
+        context.assertIsSatisfied();
+    }
+
+    @Test(dependsOnMethods = "testLocalCopyToDestination", groups = "slow")
+    public void testLocalPresentInDestination()
+    {
+        Properties properties = createLocalDestinationProperties();
+        IDataSetFileOperationsManager dataSetCopier =
+                new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
+        prepareForCheckingLastModifiedDate();
+
+        // check that data set is not yet in archive
+        assertDs1NotInArchive();
+
+        /*
+         * before copying - doesn't exist
+         */
+        BooleanStatus boolStatus = dataSetCopier.isPresentInDestination(ds1);
+        assertFalse(boolStatus);
+
+        /*
+         * copy to archive
+         */
+        Status status = dataSetCopier.copyToDestination(ds1Location, ds1);
+        assertSuccessful(status);
+        assertDs1InArchive();
+
+        /*
+         * after copying - exists
+         */
+        boolStatus = dataSetCopier.isPresentInDestination(ds1);
+        assertTrue(boolStatus);
+
+        /*
+         * modify destination - presence still works
+         */
+        FileUtilities.writeToFile(ds1ArchivedDataFile1, DATA1_1 + DATA1_2);
+        boolStatus = dataSetCopier.isPresentInDestination(ds1);
+        assertTrue(boolStatus);
+
+        // delete second file from destination
+        FileUtilities.delete(ds1ArchivedDataFile2);
+        boolStatus = dataSetCopier.isPresentInDestination(ds1);
+        assertTrue(boolStatus);
+
+        // create fake file in destination
+        try
+        {
+            File newFile =
+                    new File(ds1ArchivedLocationFile, ORIGINAL + File.separator + "fake.txt");
+            newFile.createNewFile();
+            boolStatus = dataSetCopier.isPresentInDestination(ds1);
+            assertTrue(boolStatus);
         } catch (IOException ex)
         {
             fail(ex.getMessage());
@@ -647,7 +705,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testRemoteViaSshIsPresentInDestinationSimpleCheck()
+    public void testRemoteViaSshIsSynchronizedWithDestinationSimpleCheck()
     {
         Properties properties = createRemoteViaSshDestinationProperties();
         prepareRemoteCreateAndCheckCopier(HOST, null, true);
@@ -678,7 +736,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testRemoteViaSshIsPresentInDestinationAdvancedCheck()
+    public void testRemoteViaSshIsSynchronizedWithDestinationAdvancedCheck()
     {
         Properties properties = createRemoteViaSshDestinationProperties();
         prepareRemoteCreateAndCheckCopier(HOST, null, true);
@@ -732,7 +790,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testRemoteViaSshIsPresentInDestinationWithErrors()
+    public void testRemoteViaSshIsSynchronizedWithDestinationWithErrors()
     {
         Properties properties = createRemoteViaSshDestinationProperties();
         prepareRemoteCreateAndCheckCopier(HOST, null, true);
@@ -763,6 +821,60 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
         assertError(status1, DUMMY_ERROR_MESSAGE);
         BooleanStatus status2 = dataSetCopier.isSynchronizedWithDestination(ds2Location, ds2);
         assertError(status2, "listing files failed");
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testRemoteViaSshIsPresentInDestinationSimpleCheck()
+    {
+        Properties properties = createRemoteViaSshDestinationProperties();
+        prepareRemoteCreateAndCheckCopier(HOST, null, true);
+        IDataSetFileOperationsManager dataSetCopier =
+                new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
+        context.checking(new Expectations()
+            {
+                {
+                    /*
+                     * ds1: present - directory exists
+                     */
+                    one(sshExecutor).exists(ds1ArchivedLocationFile.getPath(), timeoutMillis());
+                    will(returnValue(BooleanStatus.createTrue()));
+
+                    /*
+                     * ds2: not present - directory doesn't exist
+                     */
+                    one(sshExecutor).exists(ds2ArchivedLocationFile.getPath(), timeoutMillis());
+                    will(returnValue(BooleanStatus.createFalse()));
+                }
+            });
+        BooleanStatus status1 = dataSetCopier.isPresentInDestination(ds1);
+        BooleanStatus status2 = dataSetCopier.isPresentInDestination(ds2);
+        assertTrue(status1);
+        assertFalse(status2);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testRemoteViaSshIsPresentInDestinationWithErrors()
+    {
+        Properties properties = createRemoteViaSshDestinationProperties();
+        prepareRemoteCreateAndCheckCopier(HOST, null, true);
+        IDataSetFileOperationsManager dataSetCopier =
+                new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
+        context.checking(new Expectations()
+            {
+                {
+                    /*
+                     * ds1: checking existance fails
+                     */
+                    one(sshExecutor).exists(ds1ArchivedLocationFile.getPath(), timeoutMillis());
+                    will(returnValue(BooleanStatus.createError(DUMMY_ERROR_MESSAGE)));
+                }
+            });
+        BooleanStatus status1 = dataSetCopier.isPresentInDestination(ds1);
+        assertError(status1, DUMMY_ERROR_MESSAGE);
 
         context.assertIsSatisfied();
     }
@@ -1062,5 +1174,4 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
     {
         return timeoutInSeconds * DateUtils.MILLIS_PER_SECOND;
     }
-
 }
