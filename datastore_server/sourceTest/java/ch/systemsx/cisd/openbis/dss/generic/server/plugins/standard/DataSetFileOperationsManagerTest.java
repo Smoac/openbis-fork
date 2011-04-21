@@ -407,7 +407,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
         /*
          * before copying - doesn't exist
          */
-        BooleanStatus boolStatus = dataSetCopier.isPresentInDestination(ds1Location, ds1);
+        BooleanStatus boolStatus = dataSetCopier.isSynchronizedWithDestination(ds1Location, ds1);
         assertFalse(boolStatus);
 
         /*
@@ -420,7 +420,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
         /*
          * after copying - exists
          */
-        boolStatus = dataSetCopier.isPresentInDestination(ds1Location, ds1);
+        boolStatus = dataSetCopier.isSynchronizedWithDestination(ds1Location, ds1);
         assertTrue(boolStatus);
 
         /*
@@ -428,20 +428,20 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
          */
         // increased size of one file - only one should be reported
         FileUtilities.writeToFile(ds1ArchivedDataFile1, DATA1_1 + DATA1_2);
-        boolStatus = dataSetCopier.isPresentInDestination(ds1Location, ds1);
+        boolStatus = dataSetCopier.isSynchronizedWithDestination(ds1Location, ds1);
         assertFalse(boolStatus, "Inconsistencies:\n"
                 + "'original/data1_1.txt' - different file sizes; store: 14, destination: 28\n");
 
         // decrease size of second file - both should be reported
         FileUtilities.writeToFile(ds1ArchivedDataFile2, DATA1_2.substring(0, DATA1_2.length() - 1));
-        boolStatus = dataSetCopier.isPresentInDestination(ds1Location, ds1);
+        boolStatus = dataSetCopier.isSynchronizedWithDestination(ds1Location, ds1);
         assertFalse(boolStatus, "Inconsistencies:\n"
                 + "'original/data1_1.txt' - different file sizes; store: 14, destination: 28\n"
                 + "'original/data1_2.txt' - different file sizes; store: 14, destination: 13\n");
 
         // delete second file from destination
         FileUtilities.delete(ds1ArchivedDataFile2);
-        boolStatus = dataSetCopier.isPresentInDestination(ds1Location, ds1);
+        boolStatus = dataSetCopier.isSynchronizedWithDestination(ds1Location, ds1);
         assertFalse(boolStatus, "Inconsistencies:\n"
                 + "'original/data1_1.txt' - different file sizes; store: 14, destination: 28\n"
                 + "'original/data1_2.txt' - exists in store but is missing in destination\n");
@@ -452,7 +452,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
             File newFile =
                     new File(ds1ArchivedLocationFile, ORIGINAL + File.separator + "fake.txt");
             newFile.createNewFile();
-            boolStatus = dataSetCopier.isPresentInDestination(ds1Location, ds1);
+            boolStatus = dataSetCopier.isSynchronizedWithDestination(ds1Location, ds1);
             assertFalse(boolStatus, "Inconsistencies:\n"
                     + "'original/data1_1.txt' - different file sizes; store: 14, destination: 28\n"
                     + "'original/data1_2.txt' - exists in store but is missing in destination\n"
@@ -669,8 +669,8 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(BooleanStatus.createFalse()));
                 }
             });
-        BooleanStatus status1 = dataSetCopier.isPresentInDestination(ds1Location, ds1);
-        BooleanStatus status2 = dataSetCopier.isPresentInDestination(ds2Location, ds2);
+        BooleanStatus status1 = dataSetCopier.isSynchronizedWithDestination(ds1Location, ds1);
+        BooleanStatus status2 = dataSetCopier.isSynchronizedWithDestination(ds2Location, ds2);
         assertError(status1, DUMMY_ERROR_MESSAGE);
         assertFalse(status2);
 
@@ -719,13 +719,13 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(createOkResultWithOutput(Arrays.asList(filePath2 + "\t12"))));
                 }
             });
-        BooleanStatus status1 = dataSetCopier.isPresentInDestination(ds1Location, ds1);
+        BooleanStatus status1 = dataSetCopier.isSynchronizedWithDestination(ds1Location, ds1);
         assertFalse(status1, "Inconsistencies:\n"
                 + "'original/data1_1.txt' - exists in store but is missing in destination\n"
                 + "'original/data1_2.txt' - different file sizes; store: 14, destination: 4\n"
                 + "'original/fake.txt' - exists in destination but is missing in store\n");
 
-        BooleanStatus status2 = dataSetCopier.isPresentInDestination(ds2Location, ds2);
+        BooleanStatus status2 = dataSetCopier.isSynchronizedWithDestination(ds2Location, ds2);
         assertTrue(status2);
 
         context.assertIsSatisfied();
@@ -759,9 +759,9 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(ERROR_RESULT));
                 }
             });
-        BooleanStatus status1 = dataSetCopier.isPresentInDestination(ds1Location, ds1);
+        BooleanStatus status1 = dataSetCopier.isSynchronizedWithDestination(ds1Location, ds1);
         assertError(status1, DUMMY_ERROR_MESSAGE);
-        BooleanStatus status2 = dataSetCopier.isPresentInDestination(ds2Location, ds2);
+        BooleanStatus status2 = dataSetCopier.isSynchronizedWithDestination(ds2Location, ds2);
         assertError(status2, "listing files failed");
 
         context.assertIsSatisfied();

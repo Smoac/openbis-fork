@@ -208,7 +208,7 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
                     File file = new File(share1, LOCATION);
                     will(returnValue(file));
 
-                    one(fileOperationsManager).isPresentInDestination(file, ds1);
+                    one(fileOperationsManager).isSynchronizedWithDestination(file, ds1);
                     will(returnValue(BooleanStatus.createTrue()));
 
                     one(dataStoreService).getDataSetDeleter();
@@ -244,13 +244,13 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
                     File file = new File(share1, LOCATION);
                     will(returnValue(file));
 
-                    one(fileOperationsManager).isPresentInDestination(file, ds1);
+                    one(fileOperationsManager).isSynchronizedWithDestination(file, ds1);
                     will(returnValue(BooleanStatus.createFalse()));
                     
                     one(fileOperationsManager).copyToDestination(file, ds1);
                     will(returnValue(Status.OK));
                     
-                    one(fileOperationsManager).isPresentInDestination(file, ds1);
+                    one(fileOperationsManager).isSynchronizedWithDestination(file, ds1);
                     will(returnValue(BooleanStatus.createTrue()));
 
                     one(statusUpdater).update(Arrays.asList("ds1"),
