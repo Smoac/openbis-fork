@@ -74,17 +74,23 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
 
     private static final long serialVersionUID = 1L;
 
-    @Private public static final String SHARE_FINDER_KEY = "share-finder";
-    
+    @Private
+    public static final String SHARE_FINDER_KEY = "share-finder";
+
+    private static final String SYNCHRONIZE_ARCHIVE = "synchronize-archive";
+
     private final IStatusChecker archivePrerequisiteOrNull;
 
     private final IStatusChecker unarchivePrerequisiteOrNull;
-    
+
+    private final boolean synchronizeArchive;
+
     private transient IShareIdManager shareIdManager;
-    
+
     private transient IEncapsulatedOpenBISService service;
-    
-    @Private transient IDataSetStatusUpdater statusUpdater;
+
+    @Private
+    transient IDataSetStatusUpdater statusUpdater;
 
     public AbstractArchiverProcessingPlugin(Properties properties, File storeRoot,
             IStatusChecker archivePrerequisiteOrNull, IStatusChecker unarchivePrerequisiteOrNull)
@@ -92,8 +98,13 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         super(properties, storeRoot);
         this.archivePrerequisiteOrNull = archivePrerequisiteOrNull;
         this.unarchivePrerequisiteOrNull = unarchivePrerequisiteOrNull;
+
+        properties.getProperty(SYNCHRONIZE_ARCHIVE, Boolean.TRUE.toString());
+        this.synchronizeArchive =
+                Boolean.parseBoolean(properties.getProperty(SYNCHRONIZE_ARCHIVE,
+                        Boolean.TRUE.toString()));
     }
-    
+
     /**
      * NOTE: this method is not allowed to throw exception as this will leave data sets in the
      * openBIS database with an inconsistent status.
@@ -103,11 +114,9 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
 
     /**
      * NOTE: this method is not allowed to throw exception as this will leave data sets in the
-     * openBIS database with an inconsistent status.
-     * 
-     * Implementations of this method should invoke
-     * <code>context.getUnarchivingPreparation().prepareForUnarchiving()</code> for each
-     * data set before doing the actual unarchiving.
+     * openBIS database with an inconsistent status. Implementations of this method should invoke
+     * <code>context.getUnarchivingPreparation().prepareForUnarchiving()</code> for each data set
+     * before doing the actual unarchiving.
      */
     abstract protected DatasetProcessingStatuses doUnarchive(List<DatasetDescription> datasets,
             ArchiverTaskContext context);
@@ -117,13 +126,19 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
      * exist in the openBIS database.
      */
     abstract protected DatasetProcessingStatuses doDeleteFromArchive(List<DatasetLocation> datasets);
-    
+
+    /**
+     * @return <code>true</code> if the dataset is present and synchronized with the archive,
+     *         <code>false</code> otherwise.
+     */
+    abstract protected BooleanStatus isDataSetSynchronizedWithArchive(DatasetDescription dataset,
+            ArchiverTaskContext context);
+
     /**
      * @return <code>true</code> if the dataset is present in the archive, <code>false</code>
      *         otherwise.
      */
-    abstract protected BooleanStatus isDataSetPresentInArchive(DatasetDescription dataset,
-            ArchiverTaskContext context);
+    abstract protected BooleanStatus isDataSetPresentInArchive(DatasetDescription dataset);
 
     public ProcessingStatus archive(List<DatasetDescription> datasets,
             final ArchiverTaskContext context, boolean removeFromDataStore)
@@ -194,16 +209,18 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
             final ArchiverTaskContext context, boolean removeFromDataStore)
     {
 
-        GroupedDatasets groupedDatasets = groupByPresenceInArchive(datasets, context);
+        GroupedDatasets groupedDatasets =
+                groupByPresenceInArchive(datasets, context, synchronizeArchive);
+
         List<DatasetDescription> notPresentInArchive = groupedDatasets.getNotPresentAsList();
         DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
-        if (notPresentInArchive.isEmpty() == false)
+        if (!notPresentInArchive.isEmpty())
         {
             // copy data sets in the archive
             statuses = doArchive(notPresentInArchive, context);
 
             // paranoid check to make sure everything really got archived
-            groupedDatasets = groupByPresenceInArchive(datasets, context);
+            groupedDatasets = groupByPresenceInArchive(datasets, context, true);
         }
 
         if (removeFromDataStore)
@@ -211,7 +228,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
             // only remove the when we are sure we have got a backup in the archive
             removeFromDataStore(groupedDatasets.getPresentInArchive(), context);
         }
-        
+
         // merge the archiver statuses with the paranoid check results
         return mergeArchiveStatuses(statuses, groupedDatasets);
     }
@@ -263,7 +280,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         IDataSetDeleter dataSetDeleter = ServiceProvider.getDataStoreService().getDataSetDeleter();
         dataSetDeleter.scheduleDeletionOfDataSets(datasets);
     }
-    
+
     public ProcessingStatus unarchive(List<DatasetDescription> datasets, ArchiverTaskContext context)
     {
         operationLog.info("Unarchiving of the following datasets has been requested: "
@@ -499,26 +516,30 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         }
     }
 
-    protected GroupedDatasets groupByPresenceInArchive(List<DatasetDescription> datasets,
-            ArchiverTaskContext context)
+    private GroupedDatasets groupByPresenceInArchive(List<DatasetDescription> datasets,
+            ArchiverTaskContext context, boolean checkIfSynchronized)
     {
         List<DatasetDescription> present = new ArrayList<DatasetDescription>();
-        Map<DatasetDescription, BooleanStatus> notPresent = new HashMap<DatasetDescription, BooleanStatus>();
-        
-        for (DatasetDescription dataset : datasets) 
+        Map<DatasetDescription, BooleanStatus> notPresent =
+                new HashMap<DatasetDescription, BooleanStatus>();
+
+        for (DatasetDescription dataset : datasets)
         {
-            BooleanStatus presentStatus = isDataSetPresentInArchive(dataset, context);
+            BooleanStatus presentStatus =
+                    checkIfSynchronized ? isDataSetSynchronizedWithArchive(dataset, context)
+                            : isDataSetPresentInArchive(dataset);
             if (presentStatus.isSuccess())
             {
                 present.add(dataset);
-            } else {
+            } else
+            {
                 notPresent.put(dataset, presentStatus);
             }
         }
-        
+
         return new GroupedDatasets(present, notPresent);
     }
-    
+
     private IShareIdManager getShareIdManager()
     {
         if (shareIdManager == null)
@@ -527,7 +548,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         }
         return shareIdManager;
     }
-    
+
     private IShareFinder getShareFinder()
     {
         Properties props =
@@ -545,8 +566,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
 
         return shareFinder;
     }
-    
-    
+
     private IEncapsulatedOpenBISService getService()
     {
         if (service == null)

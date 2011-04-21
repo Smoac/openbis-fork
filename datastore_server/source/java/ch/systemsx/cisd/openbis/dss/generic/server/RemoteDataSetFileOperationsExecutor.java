@@ -192,8 +192,7 @@ public final class RemoteDataSetFileOperationsExecutor implements IDataSetFileOp
         {
             return BooleanStatus.createFalse("Data set location '" + dataSet + "' doesn't exist");
         }
-        BooleanStatus existsStatus =
- executor.exists(destination.getPath(), timeoutInMillis);
+        BooleanStatus existsStatus = executor.exists(destination.getPath(), timeoutInMillis);
         if (false == existsStatus.isSuccess())
         {
             return existsStatus;
@@ -203,8 +202,7 @@ public final class RemoteDataSetFileOperationsExecutor implements IDataSetFileOp
         Map<String, Long> dataSetFileSizesByPaths =
                 FolderFileSizesReportGenerator.extractSizesByPaths(storeFiles, dataSet);
         String cmd = createListFilesWithFileSizeCmd(destination.getPath(), gfindExecutable);
-        ProcessResult result =
- executor.executeCommandRemotely(cmd, timeoutInMillis);
+        ProcessResult result = executor.executeCommandRemotely(cmd, timeoutInMillis);
 
         if (result.isOK() == false)
         {

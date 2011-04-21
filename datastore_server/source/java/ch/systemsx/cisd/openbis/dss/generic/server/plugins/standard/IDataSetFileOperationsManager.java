@@ -24,8 +24,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IDataSetFileOperationsManager
@@ -50,10 +48,15 @@ public interface IDataSetFileOperationsManager
     public abstract Status deleteFromDestination(DatasetLocation dataset);
 
     /**
+     * Checks if specified dataset's data are present and synchronized in the destination specified
+     * in constructor. The path at the destination is defined by original location of the data set.
+     */
+    public abstract BooleanStatus isSynchronizedWithDestination(File originalData,
+            DatasetDescription dataset);
+
+    /**
      * Checks if specified dataset's data are present in the destination specified in constructor.
      * The path at the destination is defined by original location of the data set.
      */
-    public abstract BooleanStatus isPresentInDestination(File originalData,
-            DatasetDescription dataset);
-
+    public abstract BooleanStatus isPresentInDestination(DatasetDescription dataset);
 }

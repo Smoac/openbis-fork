@@ -105,11 +105,17 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
     }
 
     @Override
-    protected BooleanStatus isDataSetPresentInArchive(DatasetDescription dataset,
+    protected BooleanStatus isDataSetSynchronizedWithArchive(DatasetDescription dataset,
             ArchiverTaskContext context)
     {
         File originalData = getDatasetDirectory(context, dataset);
-        return fileOperationsManager.isPresentInDestination(originalData, dataset);
+        return fileOperationsManager.isSynchronizedWithDestination(originalData, dataset);
+    }
+
+    @Override
+    protected BooleanStatus isDataSetPresentInArchive(DatasetDescription dataset)
+    {
+        return fileOperationsManager.isPresentInDestination(dataset);
     }
 
     private Status doArchive(DatasetDescription dataset, File originalData)
@@ -131,4 +137,5 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
     {
         return context.getDirectoryProvider().getDataSetDirectory(dataset);
     }
+
 }

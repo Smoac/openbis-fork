@@ -63,8 +63,15 @@ public class DemoArchiver extends AbstractArchiverProcessingPlugin
     }
 
     @Override
-    public BooleanStatus isDataSetPresentInArchive(DatasetDescription dataset,
+    public BooleanStatus isDataSetSynchronizedWithArchive(DatasetDescription dataset,
             ArchiverTaskContext context)
+    {
+        boolean present = archiveContents.contains(dataset.getDataSetCode());
+        return BooleanStatus.createFromBoolean(present);
+    }
+
+    @Override
+    protected BooleanStatus isDataSetPresentInArchive(DatasetDescription dataset)
     {
         boolean present = archiveContents.contains(dataset.getDataSetCode());
         return BooleanStatus.createFromBoolean(present);
@@ -83,5 +90,4 @@ public class DemoArchiver extends AbstractArchiverProcessingPlugin
         }
         return statuses;
     }
-
 }

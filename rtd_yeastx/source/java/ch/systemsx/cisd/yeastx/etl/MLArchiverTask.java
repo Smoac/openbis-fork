@@ -213,13 +213,20 @@ public class MLArchiverTask extends AbstractArchiverProcessingPlugin
     }
 
     @Override
-    public BooleanStatus isDataSetPresentInArchive(DatasetDescription dataset,
+    public BooleanStatus isDataSetSynchronizedWithArchive(DatasetDescription dataset,
             ArchiverTaskContext context)
     {
         // data is always present, since there is no archive
         return BooleanStatus.createTrue();
     }
 
+    @Override
+    protected BooleanStatus isDataSetPresentInArchive(DatasetDescription dataset)
+    {
+        // data is always present, since there is no archive
+        return BooleanStatus.createTrue();
+    }
+    
     @Override
     protected void removeFromDataStore(List<DatasetDescription> datasets,
             ArchiverTaskContext context)

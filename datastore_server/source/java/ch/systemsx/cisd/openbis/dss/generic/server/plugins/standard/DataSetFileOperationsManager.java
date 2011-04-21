@@ -117,7 +117,7 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
             File sshExecutable = Copier.getExecutable(properties, SSH_EXEC);
             File rsyncExecutable = Copier.getExecutable(properties, RSYNC_EXEC);
             File gfindExecutable = Copier.getExecutable(properties, GFIND_EXEC);
-            
+
             IPathCopier copier =
                     pathCopierFactory.create(rsyncExecutable, sshExecutable, timeoutInMillis);
             copier.check();
@@ -212,10 +212,10 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
     }
 
     /**
-     * Checks if specified dataset's data are present in the destination specified in constructor.
-     * The path at the destination is defined by original location of the data set.
+     * Checks if specified dataset's data are present and synchronized in the destination specified
+     * in constructor. The path at the destination is defined by original location of the data set.
      */
-    public BooleanStatus isPresentInDestination(File originalData, DatasetDescription dataset)
+    public BooleanStatus isSynchronizedWithDestination(File originalData, DatasetDescription dataset)
     {
         try
         {
@@ -231,7 +231,28 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
         {
             return BooleanStatus.createError(ex.getStatus().tryGetErrorMessage());
         }
+    }
 
+    /**
+     * Checks if specified dataset's data are present in the destination specified in constructor.
+     * The path at the destination is defined by original location of the data set.
+     */
+    public BooleanStatus isPresentInDestination(DatasetDescription dataset)
+    {
+        try
+        {
+            File destinationFolder = new File(destination, dataset.getDataSetLocation());
+            BooleanStatus resultStatus = executor.exists(destinationFolder);
+            String message = resultStatus.tryGetMessage();
+            if (message != null) // if there is a message something went wrong
+            {
+                operationLog.error(message);
+            }
+            return resultStatus;
+        } catch (ExceptionWithStatus ex)
+        {
+            return BooleanStatus.createError(ex.getStatus().tryGetErrorMessage());
+        }
     }
 
     private void checkDestinationExists(File destinationFolder)
@@ -266,5 +287,4 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
         }
         return destinationExists;
     }
-
 }
