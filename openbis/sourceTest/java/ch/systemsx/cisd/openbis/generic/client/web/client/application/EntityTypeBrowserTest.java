@@ -17,11 +17,11 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.EntityTypeColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityTypeGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 import ch.systemsx.cisd.openbis.generic.shared.basic.Row;
@@ -64,7 +64,7 @@ public class EntityTypeBrowserTest extends AbstractGWTTestCase
 
     private void checkGridRows(CheckTableCommand table, String expectedCode, int expectedRowsNum)
     {
-        table.expectedRow(new Row().withCell(EntityTypeColDefKind.CODE.id(), expectedCode));
+        table.expectedRow(new Row().withCell(EntityTypeGridColumnIDs.CODE, expectedCode));
         remoteConsole.prepare(table.expectedSize(expectedRowsNum));
 
         launchTest();

@@ -43,7 +43,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.EntityTypeColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PropertyTypeAssignmentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.PropertyFieldFactory;
@@ -455,7 +454,7 @@ public class PropertyTypeAssignmentGrid extends
     protected ColumnDefsAndConfigs<EntityTypePropertyType<?>> createColumnsDefinition()
     {
         ColumnDefsAndConfigs<EntityTypePropertyType<?>> schema = super.createColumnsDefinition();
-        schema.setGridCellRendererFor(EntityTypeColDefKind.DESCRIPTION.id(),
+        schema.setGridCellRendererFor(PropertyTypeAssignmentColDefKind.DESCRIPTION.id(),
                 createMultilineStringCellRenderer());
         return schema;
     }
