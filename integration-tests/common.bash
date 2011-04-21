@@ -368,7 +368,7 @@ function prepare {
 
 function unpack { # from ZIPS to BUILD
     local file_pattern=$1
-    unzip -d $WORK $INSTALL/$file_pattern*.zip
+    unzip -q -d $WORK $INSTALL/$file_pattern*.zip
 }
 
 function remove_unpacked {
@@ -402,7 +402,7 @@ function restore_database {
     psql_cmd=`run_psql`
     $psql_cmd -U postgres -c "drop database if exists $db_name"
     $psql_cmd -U postgres -c "create database $db_name with owner $USER template = template0 encoding = 'UNICODE'"
-    $psql_cmd -U $USER -d $db_name -f $db_file_path
+    $psql_cmd -q -U $USER -d $db_name -f $db_file_path
 }
 
 #
@@ -420,7 +420,7 @@ function install_openbis_server {
         rm -fr $openbis_server_dir
 				copy_templates $openbis_server_name
     
-        unzip -d $openbis_server_dir $INSTALL/openBIS*.zip
+        unzip -q -d $openbis_server_dir $INSTALL/openBIS*.zip
 				$openbis_server_dir/openBIS-server/install.sh $PWD/$openbis_server_dir $openbis_server_dir/service.properties $openbis_server_dir/openbis.conf
         startup_openbis_server $openbis_server_dir
 				wait_for_server
