@@ -62,7 +62,6 @@
 	<classpathentry kind="lib" path="/libraries/cisd-image_readers/cisd-image_readers-jai.jar"/>
 	<classpathentry kind="lib" path="/libraries/cisd-image_readers/cisd-image_readers.jar"/>
 	<classpathentry kind="lib" path="/libraries/cisd-image_readers/cisd-image_readers-imagej.jar"/>
-	<classpathentry kind="lib" path="/libraries/ftpserver/ftplet-api.jar"/>
 	<classpathentry kind="lib" path="/libraries/ftpserver/ftpserver-core.jar"/>
 	<classpathentry kind="lib" path="/libraries/mina/mina-core.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
