@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.client.api.v1.impl;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -606,16 +607,14 @@ class AuthenticatedState extends AbstractDssComponentState
                 System.err.println(ex);
                 ex.printStackTrace(System.err);
                 System.err.println(Py.getSystemState().modules);
-
-                return new ArrayList<ValidationError>();
+                return createValidationError("Script error", ex);
             } catch (Throwable ex)
             {
                 System.err.println("Could not create validation script ");
                 System.err.println(validationScript);
                 System.err.println(ex);
                 ex.printStackTrace(System.err);
-
-                return new ArrayList<ValidationError>();
+                return createValidationError("Script error", ex);
             }
         }
 
@@ -627,7 +626,12 @@ class AuthenticatedState extends AbstractDssComponentState
             System.err.println("Could not run validation script: ");
             System.err.println(runner.getScriptString());
             ex.printStackTrace(System.err);
-            return new ArrayList<ValidationError>();
+            return createValidationError("Script execution error", ex);
         }
+    }
+    
+    private List<ValidationError> createValidationError(String messagePrefix, Throwable throwable)
+    {
+        return Arrays.asList(ValidationError.createFileValidationError(messagePrefix + ": " + throwable));
     }
 }
