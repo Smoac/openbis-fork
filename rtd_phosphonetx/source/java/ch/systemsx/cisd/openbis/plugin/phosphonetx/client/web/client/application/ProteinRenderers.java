@@ -131,7 +131,7 @@ public final class ProteinRenderers
     
     /** Produces an HTML code with all occurrences properly marked */
     public static String markOccurrencesWithHtml(String proteinSequence, List<Peptide> peptides,
-            int lineLength, int blockLength)
+            int blockLength)
     {
         List<Symbol> symbols = createSymbols(proteinSequence, peptides);
         StringBuilder builder = new StringBuilder();
@@ -140,10 +140,7 @@ public final class ProteinRenderers
         {
             if (i > 0)
             {
-                if (i % lineLength == 0)
-                {
-                    builder.append("<br>");
-                } else if (i % blockLength == 0)
+                if (i % blockLength == 0)
                 {
                     builder.append(" ");
                 }

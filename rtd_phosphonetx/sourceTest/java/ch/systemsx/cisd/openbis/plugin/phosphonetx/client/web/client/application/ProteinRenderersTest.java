@@ -53,10 +53,10 @@ public class ProteinRenderersTest extends AssertJUnit
         String i1 = ProteinRenderers.renderAminoAcidSymbol('i', 9, -2.75);
         String i2 = ProteinRenderers.renderAminoAcidSymbol('i', 15, -2.75);
         assertEquals(
-                "abc<font color='red'>d" + e + " fgh" + i1 + "j<br>k</font>lmn<font color='red'>"
-                        + i2 + " jko</font>pq<br>rstu",
+                "abc<font color='red'>d" + e + " fgh" + i1 + "j k</font>lmn<font color='red'>"
+                        + i2 + " jko</font>pq rstu",
                 ProteinRenderers.markOccurrencesWithHtml("abcdefghijklmnijkopqrstu",
-                        Arrays.asList(p1, p2, p3, p4), 10, 5));
+                        Arrays.asList(p1, p2, p3, p4), 5));
     }
     
     private Peptide peptide(String description)

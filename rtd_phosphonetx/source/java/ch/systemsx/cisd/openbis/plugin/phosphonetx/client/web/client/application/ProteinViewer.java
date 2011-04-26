@@ -72,8 +72,6 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinInfo;
 public class ProteinViewer extends AbstractViewerWithVerticalSplit<IEntityInformationHolder>
         implements IDatabaseModificationObserver
 {
-    private static final int AMINOACIDS_IN_SEQUENCE_PER_LINE = 90;
-
     private static final int AMINOACIDS_IN_ONE_BLOCK = 10;
 
     private static final String PREFIX = "protein-viewer_";
@@ -336,7 +334,7 @@ public class ProteinViewer extends AbstractViewerWithVerticalSplit<IEntityInform
     {
         String markedSequence =
                 ProteinRenderers.markOccurrencesWithHtml(sequence, peptides,
-                        AMINOACIDS_IN_SEQUENCE_PER_LINE, AMINOACIDS_IN_ONE_BLOCK);
+                        AMINOACIDS_IN_ONE_BLOCK);
         // the letters should have fixed width
         return ProteinRenderers.getFixedWidthHTMLString(markedSequence);
     }
