@@ -40,6 +40,7 @@ import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IArchiverPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDeleter;
@@ -98,11 +99,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         super(properties, storeRoot);
         this.archivePrerequisiteOrNull = archivePrerequisiteOrNull;
         this.unarchivePrerequisiteOrNull = unarchivePrerequisiteOrNull;
-
-        properties.getProperty(SYNCHRONIZE_ARCHIVE, Boolean.TRUE.toString());
-        this.synchronizeArchive =
-                Boolean.parseBoolean(properties.getProperty(SYNCHRONIZE_ARCHIVE,
-                        Boolean.TRUE.toString()));
+        this.synchronizeArchive = PropertyUtils.getBoolean(properties, SYNCHRONIZE_ARCHIVE, true);
     }
 
     /**
