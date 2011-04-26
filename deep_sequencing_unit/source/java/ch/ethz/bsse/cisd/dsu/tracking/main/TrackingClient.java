@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.time.DateUtils;
 
 import ch.ethz.bsse.cisd.dsu.tracking.email.EntityTrackingEmailGenerator;
 import ch.ethz.bsse.cisd.dsu.tracking.email.IEntityTrackingEmailGenerator;
@@ -84,7 +85,8 @@ public class TrackingClient
     private static ITrackingServer createOpenBISTrackingServer(Parameters params)
     {
         String serviceURL = params.getOpenbisServerURL() + OPENBIS_RMI_TRACKING;
-        return HttpInvokerUtils.createServiceStub(ITrackingServer.class, serviceURL, 5);
+        return HttpInvokerUtils.createServiceStub(ITrackingServer.class, serviceURL,
+                5 * DateUtils.MILLIS_PER_MINUTE);
     }
 
     private static SessionContextDTO authentificateInOpenBIS(Parameters params,
