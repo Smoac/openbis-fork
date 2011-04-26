@@ -203,6 +203,12 @@ public class ImageUtil
         return loadImage(content, 0);
     }
 
+    public static BufferedImage loadImage(IContent content, Integer pageOrNull,
+            String imageLibraryNameOrNull, String imageLibraryReaderNameOrNull)
+    {
+        return loadImage(content, pageOrNull);
+    }
+
     /**
      * Loads the specified <var>page</var> from the image from the tiven </var>inputStream</var>.
      * Supported images formats are GIF, JPG, PNG, and TIFF. The input stream will be closed after

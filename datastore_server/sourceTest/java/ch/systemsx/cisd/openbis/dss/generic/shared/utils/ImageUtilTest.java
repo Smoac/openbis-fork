@@ -164,4 +164,14 @@ public class ImageUtilTest extends AssertJUnit
         assertEquals(expectedWith, image.getWidth());
         assertEquals(expectedHeight, image.getHeight());
     }
+
+    public static BufferedImage loadImage(File content)
+    {
+        return ImageUtil.loadImage(content);
+    }
+    
+    public static BufferedImage loadImage(IContent content)
+    {
+        return ImageUtil.loadImage(content);
+    }
 }
