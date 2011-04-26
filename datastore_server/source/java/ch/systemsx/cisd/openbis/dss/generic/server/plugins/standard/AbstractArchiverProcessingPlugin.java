@@ -214,7 +214,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
 
         List<DatasetDescription> notPresentInArchive = groupedDatasets.getNotPresentAsList();
         DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
-        if (!notPresentInArchive.isEmpty())
+        if (notPresentInArchive.isEmpty() == false)
         {
             // copy data sets in the archive
             statuses = doArchive(notPresentInArchive, context);
