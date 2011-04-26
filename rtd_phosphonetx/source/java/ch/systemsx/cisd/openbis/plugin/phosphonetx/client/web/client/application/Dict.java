@@ -53,6 +53,8 @@ public class Dict
     
 
     // Protein Viewer
+    public static final String PROTEIN_DETAILS_WAITING_MESSAGE = "loading_protein_details_waiting_message";
+
     public static final String PROTEINS_SECTION = "proteins_section";
 
     public static final String PRIMARY_PROTEIN = "primary_protein";

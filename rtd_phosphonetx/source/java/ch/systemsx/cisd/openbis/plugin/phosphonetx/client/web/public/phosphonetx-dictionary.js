@@ -18,6 +18,7 @@ var phosphonetx = {
   false_discovery_rate: "FDR",
   
   // Protein in experiment viewer
+  loading_protein_details_waiting_message: "Loading details for protein {0}",
   proteins_section: "Proteins",
   protein_in_experiment_tab_label: "{0} in {1}",
   experiment_label: "Experiment",

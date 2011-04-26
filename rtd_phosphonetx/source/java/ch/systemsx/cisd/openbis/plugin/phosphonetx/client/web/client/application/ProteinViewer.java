@@ -35,6 +35,7 @@ import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AsyncCallbackWithProgressBar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableTabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -94,7 +95,7 @@ public class ProteinViewer extends AbstractViewerWithVerticalSplit<IEntityInform
                 public ITabItem create()
                 {
                     ProteinViewer viewer =
-                            new ProteinViewer(viewContext, experiment, proteinInfo.getId());
+                            new ProteinViewer(viewContext, experiment, proteinInfo);
                     DatabaseModificationAwareComponent c =
                             new DatabaseModificationAwareComponent(viewer, viewer);
                     return DefaultTabItem.create(getTabTitle(), c, viewContext, false);
@@ -143,17 +144,20 @@ public class ProteinViewer extends AbstractViewerWithVerticalSplit<IEntityInform
 
     private final Experiment experimentOrNull;
 
+    private final ProteinInfo proteinInfo;
+    
     private final TechId proteinReferenceID;
 
     private ProteinSamplesSection proteinSamplesSection;
 
     private ProteinViewer(IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
-            Experiment experiment, TechId proteinReferenceID)
+            Experiment experiment, ProteinInfo proteinInfo)
     {
-        super(viewContext, "", createWidgetID(experiment, proteinReferenceID), false);
+        super(viewContext, "", createWidgetID(experiment, proteinInfo.getId()), false);
         this.viewContext = viewContext;
         this.experimentOrNull = experiment;
-        this.proteinReferenceID = proteinReferenceID;
+        this.proteinInfo = proteinInfo;
+        this.proteinReferenceID = proteinInfo.getId();
         reloadAllData();
     }
 
@@ -162,8 +166,13 @@ public class ProteinViewer extends AbstractViewerWithVerticalSplit<IEntityInform
     {
         if (experimentOrNull != null)
         {
+            ProteinByExperimentCallback callback =
+                    new ProteinByExperimentCallback(viewContext, this);
+            String message =
+                    viewContext.getMessage(Dict.PROTEIN_DETAILS_WAITING_MESSAGE,
+                            proteinInfo.getAccessionNumber());
             viewContext.getService().getProteinByExperiment(new TechId(experimentOrNull.getId()),
-                    proteinReferenceID, new ProteinByExperimentCallback(viewContext, this));
+                    proteinReferenceID, AsyncCallbackWithProgressBar.decorate(callback, message));
         }
     }
 
