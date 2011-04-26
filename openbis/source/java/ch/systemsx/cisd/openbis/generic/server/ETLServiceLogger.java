@@ -463,4 +463,16 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
         return null;
     }
 
+    public List<Experiment> listExperiments(String sessionToken, ProjectIdentifier projectIdentifier)
+    {
+        logAccess(sessionToken, "listExperiments", "%s", projectIdentifier);
+        return null;
+    }
+
+    public List<Project> listProjects(String sessionToken)
+    {
+        logAccess(sessionToken, "listProjects");
+        return null;
+    }
+
 }

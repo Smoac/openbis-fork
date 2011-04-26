@@ -60,8 +60,14 @@ public class ServiceProvider
     {
         if (create && applicationContext == null)
         {
-            applicationContext = new ClassPathXmlApplicationContext(new String[]
-                { "dssApplicationContext.xml" }, true);
+            synchronized (ServiceProvider.class)
+            {
+                if (applicationContext == null)
+                {
+                    applicationContext = new ClassPathXmlApplicationContext(new String[]
+                        { "dssApplicationContext.xml" }, true);
+                }
+            }
         }
         return applicationContext;
     }

@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
@@ -62,6 +63,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -526,6 +528,26 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         final Session session = getSession(sessionToken);
         final IDatasetLister datasetLister = createDatasetLister(session);
         return datasetLister.listByDatasetCode(dataSetCodes);
+    }
+
+    public List<Project> listProjects(String sessionToken)
+    {
+        checkSession(sessionToken);
+        final List<ProjectPE> projects = getDAOFactory().getProjectDAO().listProjects();
+        Collections.sort(projects);
+        return ProjectTranslator.translate(projects);
+    }
+
+    public List<Experiment> listExperiments(String sessionToken, ProjectIdentifier projectIdentifier)
+    {
+        final Session session = getSession(sessionToken);
+        final IExperimentTable experimentTable =
+                businessObjectFactory.createExperimentTable(session);
+        experimentTable.load(EntityType.ALL_TYPES_CODE, projectIdentifier);
+        final List<ExperimentPE> experiments = experimentTable.getExperiments();
+        Collections.sort(experiments);
+        return ExperimentTranslator.translate(experiments, session.getBaseIndexURL(),
+                ExperimentTranslator.LoadableFields.PROPERTIES);
     }
 
     public IEntityProperty[] tryToGetPropertiesOfTopSampleRegisteredFor(String sessionToken,

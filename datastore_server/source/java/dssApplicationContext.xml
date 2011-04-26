@@ -18,6 +18,10 @@
         <property name="ignoreUnresolvablePlaceholders" value="true" />
     </bean>
     
+    <bean id="configProperties" factory-bean="propertyConfigurer"   
+        factory-method="getResolvedProps">
+    </bean>
+    
     <bean id="data-set-path-infos-provider" class="ch.systemsx.cisd.openbis.dss.generic.server.DatabaseBasedDataSetPathInfoProvider"/>
 
   <bean id="plugin-tasks" class="ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProviders"
@@ -142,5 +146,23 @@
     -->
 
     <bean class="ch.systemsx.cisd.common.spring.LogAdvisor" />
+  
+    <!-- 
+        // FTP server
+     -->
+    
+    <!-- Adapts the openBIS users for the FTP server -->
+    <bean id="adapted-ftp-user-manager" class="ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpUserManager">
+        <constructor-arg ref="etl-lims-service"/>
+    </bean>
+
+    <!-- 
+        Optionally starts an FTP server.
+    -->
+    <bean id="ftp-server" class="ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpServer" destroy-method="stop">
+        <constructor-arg ref="etl-lims-service"/>
+        <constructor-arg ref="adapted-ftp-user-manager"/>
+        <constructor-arg ref="configProperties" />
+    </bean>
     
 </beans>

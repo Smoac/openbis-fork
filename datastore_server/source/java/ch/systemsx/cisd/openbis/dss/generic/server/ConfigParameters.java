@@ -35,7 +35,7 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
  * 
  * @author Franz-Josef Elmer
  */
-final class ConfigParameters
+public final class ConfigParameters
 {
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
@@ -68,11 +68,11 @@ final class ConfigParameters
 
     private static final int DEFAULT_AUTH_CACHE_CLEANUP_TIMER_PERIOD_MINS = 3 * 60;
 
-    static final String KEYSTORE_PATH_KEY = KEYSTORE + "path";
+    public static final String KEYSTORE_PATH_KEY = KEYSTORE + "path";
 
-    static final String KEYSTORE_PASSWORD_KEY = KEYSTORE + "password";
+    public static final String KEYSTORE_PASSWORD_KEY = KEYSTORE + "password";
 
-    static final String KEYSTORE_KEY_PASSWORD_KEY = KEYSTORE + "key-password";
+    public static final String KEYSTORE_KEY_PASSWORD_KEY = KEYSTORE + "key-password";
 
     static final String PLUGIN_SERVICES_LIST_KEY = "plugin-services";
 
@@ -124,7 +124,7 @@ final class ConfigParameters
 
     private final String webstartJarPath;
 
-    public static final class PluginServlet
+    static final class PluginServlet
     {
         private final String servletClass;
 
@@ -169,7 +169,7 @@ final class ConfigParameters
      * 
      * @throws ConfigurationFailureException if a property is missed or has an invalid value.
      */
-    public ConfigParameters(final Properties properties)
+    ConfigParameters(final Properties properties)
     {
         this.properties = properties;
         storePath = new File(PropertyUtils.getMandatoryProperty(properties, STOREROOT_DIR_KEY));
