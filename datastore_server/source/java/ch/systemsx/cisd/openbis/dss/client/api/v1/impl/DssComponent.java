@@ -364,14 +364,15 @@ class AuthenticatedState extends AbstractDssComponentState
             EnvironmentFailureException, RemoteAccessException
     {
         // Contact openBIS to find out which DSS server manages the data set
-        String url =
-                getDataStoreUrlFromDataStore(service.tryGetDataStoreBaseURL(getSessionToken(),
-                        dataSetCode));
-        if (null == url)
+        String dataStoreBaseURL = service.tryGetDataStoreBaseURL(getSessionToken(),
+                dataSetCode);
+        if (null == dataStoreBaseURL)
         {
             throw new IllegalArgumentException("Could not retrieve data set with code "
                     + dataSetCode);
         }
+        String url =
+            getDataStoreUrlFromDataStore(dataStoreBaseURL);
 
         IDssServiceRpcGeneric dssService = getDssServiceForUrl(url);
         // Return a proxy to the data set
