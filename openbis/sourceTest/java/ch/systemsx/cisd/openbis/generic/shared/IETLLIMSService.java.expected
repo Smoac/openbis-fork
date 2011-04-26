@@ -389,7 +389,8 @@ public interface IETLLIMSService extends IServer, ISessionProvider
             throws UserFailureException;
 
     /**
-     * Creates and returns a unique code for a new data set.
+     * Creates and returns a unique code for a new data set. TODO KE: 2011-04-19 remove this method.
+     * It is equivalent to "createPermId()"
      */
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
@@ -459,6 +460,24 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public List<ExternalData> listDataSets(String sessionToken, String dataStoreCode, TrackingDataSetCriteria criteria);
+
+    /**
+     * List all experiments for a given project identifier.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(value =
+        { RoleWithHierarchy.SPACE_OBSERVER })
+    public List<Experiment> listExperiments(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = ExistingSpaceIdentifierPredicate.class) ProjectIdentifier projectIdentifier);
+
+    /**
+     * List all projects that the user can see.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(value =
+        { RoleWithHierarchy.SPACE_OBSERVER })
+    public List<Project> listProjects(String sessionToken);
     
     /**
      * Adds specified properties of given data set. Properties defined before will not be updated.
@@ -656,5 +675,4 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     public Project tryGetProject(
             String sessionToken,
             @AuthorizationGuard(guardClass = ExistingSpaceIdentifierPredicate.class) ProjectIdentifier projectIdentifier);
-
 }
