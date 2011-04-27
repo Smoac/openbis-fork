@@ -85,6 +85,8 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver, I
         String fileName = StringUtils.EMPTY;
 
         String evaluatedTemplate;
+
+        IHierarchicalContentNode contentNode;
     }
 
     public TemplateBasedDataSetResourceResolver(FtpServerConfig ftpServerConfig)
@@ -107,20 +109,20 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver, I
         IETLLIMSService service = resolverContext.getService();
         String sessionToken = resolverContext.getSessionToken();
 
-        EvaluatedDataSetPath dataSetAndFileName =
+        EvaluatedDataSetPath evaluationResult =
                 extractDataSetAndFileName(path, service, sessionToken);
-        if (dataSetAndFileName == null)
+        if (evaluationResult == null)
         {
             return null;
         }
         
         String nestedSubPath = extractNestedSubPath(path);
         String relativePath =
-                dataSetAndFileName.fileName + FtpConstants.FILE_SEPARATOR + nestedSubPath;
+                evaluationResult.fileName + FtpConstants.FILE_SEPARATOR + nestedSubPath;
 
         IHierarchicalContentProvider provider = ServiceProvider.getHierarchicalContentProvider();
         IHierarchicalContent content =
-                provider.asContent(dataSetAndFileName.dataSet.getDataSetCode());
+                provider.asContent(evaluationResult.dataSet.getDataSetCode());
         IHierarchicalContentNode contentNode = content.getNode(relativePath);
         return new HierarchicalContentToFtpFileAdapter(path, contentNode);
     }
@@ -187,16 +189,21 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver, I
         return experimentId;
     }
 
-    public List<String> listExperimentChildrenPaths(Experiment experiment, FtpPathResolverContext context)
+    public List<FtpFile> listExperimentChildrenPaths(Experiment experiment, String parentPath,
+            FtpPathResolverContext context)
     {
         IETLLIMSService service = context.getService();
         String sessionToken = context.getSessionToken();
 
         List<ExternalData> dataSets = service.listDataSetsByExperimentID(sessionToken, new TechId(experiment));
-        List<String> result = new ArrayList<String>();
-        for (EvaluatedDataSetPath evaluatedPath : evaluateDataSetPaths(dataSets))
+        List<FtpFile> result = new ArrayList<FtpFile>();
+        for (EvaluatedDataSetPath evaluationResult : evaluateDataSetPaths(dataSets))
         {
-            result.add(evaluatedPath.evaluatedTemplate);
+            String childPath =
+                    parentPath + FtpConstants.FILE_SEPARATOR + evaluationResult.evaluatedTemplate;
+            FtpFile childFtpFile =
+                    new HierarchicalContentToFtpFileAdapter(childPath, evaluationResult.contentNode);
+            result.add(childFtpFile);
         }
         return result;
     }
@@ -225,6 +232,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver, I
                 evaluatedPath.fileName = fileNode.getRelativePath();
                 evaluatedPath.evaluatedTemplate =
                         evaluateTemplate(dataSet, fileNode.getName(), disambiguationVar);
+                    evaluatedPath.contentNode = fileNode;
                 result.add(evaluatedPath);
             }
         }

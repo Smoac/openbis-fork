@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver;
 
 import java.util.List;
 
+import org.apache.ftpserver.ftplet.FtpFile;
+
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 
@@ -26,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
  */
 public interface IExperimentChildrenLister
 {
-    List<String> listExperimentChildrenPaths(Experiment experiment, FtpPathResolverContext context);
+    List<FtpFile> listExperimentChildrenPaths(Experiment experiment, String parentPath,
+            FtpPathResolverContext context);
 
 }

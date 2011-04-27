@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -63,24 +62,13 @@ public class ExperimentFolderResolver implements IFtpPathResolver
 
                 public List<FtpFile> listFiles()
                 {
-                    List<FtpFile> result = new ArrayList<FtpFile>();
-
-                    for (String childName : listChildrenNames(path, resolverContext))
-                    {
-                        String childPath = path + FtpConstants.FILE_SEPARATOR + childName;
-                        FtpFile childFile =
-                                resolverContext.getResolverRegistry().tryResolve(childPath,
-                                        resolverContext);
-                        result.add(childFile);
-                    }
-
-                    return result;
+                    return listChildrenNames(path, resolverContext);
                 }
 
             };
     }
 
-    private List<String> listChildrenNames(String expIdentifier, FtpPathResolverContext context)
+    private List<FtpFile> listChildrenNames(String expIdentifier, FtpPathResolverContext context)
     {
         IETLLIMSService service = context.getService();
         String sessionToken = context.getSessionToken();
@@ -94,7 +82,7 @@ public class ExperimentFolderResolver implements IFtpPathResolver
             return Collections.emptyList();
         } else
         {
-            return childLister.listExperimentChildrenPaths(exp, context);
+            return childLister.listExperimentChildrenPaths(exp, expIdentifier, context);
         }
     }
 }
