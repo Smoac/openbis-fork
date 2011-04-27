@@ -52,7 +52,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  * 
  * @author Kaloyan Enimanev
  */
-public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver, IExperimentChildrenLister
+public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
+        IExperimentChildrenLister
 {
     private static final String DATA_SET_CODE_VARNAME = "dataSetCode";
 
@@ -115,10 +116,13 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver, I
         {
             return null;
         }
-        
+
         String nestedSubPath = extractNestedSubPath(path);
-        String relativePath =
-                evaluationResult.fileName + FtpConstants.FILE_SEPARATOR + nestedSubPath;
+        String relativePath = evaluationResult.fileName;
+        if (false == StringUtils.isBlank(nestedSubPath))
+        {
+            relativePath += FtpConstants.FILE_SEPARATOR + nestedSubPath;
+        }
 
         IHierarchicalContentProvider provider = ServiceProvider.getHierarchicalContentProvider();
         IHierarchicalContent content =
@@ -140,7 +144,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver, I
         List<ExternalData> dataSets =
                 service.listDataSetsByExperimentID(sessionToken, new TechId(experiment));
         String pathWithEndSlash = path + FtpConstants.FILE_SEPARATOR;
-        
+
         for (EvaluatedDataSetPath evaluatedPath : evaluateDataSetPaths(dataSets))
         {
             String fullEvaluatedPath =
@@ -164,9 +168,11 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver, I
     private String extractNestedSubPath(String path)
     {
         String[] levels = StringUtils.split(path, FtpConstants.FILE_SEPARATOR);
-        if (levels.length > 4) {
+        if (levels.length > 4)
+        {
             return StringUtils.join(levels, FtpConstants.FILE_SEPARATOR, 4, levels.length);
-        } else {
+        } else
+        {
             return StringUtils.EMPTY;
         }
     }
@@ -195,8 +201,9 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver, I
         IETLLIMSService service = context.getService();
         String sessionToken = context.getSessionToken();
 
-        List<ExternalData> dataSets = service.listDataSetsByExperimentID(sessionToken, new TechId(experiment));
         List<FtpFile> result = new ArrayList<FtpFile>();
+        List<ExternalData> dataSets =
+                service.listDataSetsByExperimentID(sessionToken, new TechId(experiment));
         for (EvaluatedDataSetPath evaluationResult : evaluateDataSetPaths(dataSets))
         {
             String childPath =
@@ -212,7 +219,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver, I
     {
         List<EvaluatedDataSetPath> result = new ArrayList<EvaluatedDataSetPath>();
         sortDataSetsById(dataSets);
-        
+
         for (int disambiguation = 0; disambiguation < dataSets.size(); disambiguation++)
         {
             ExternalData dataSet = dataSets.get(disambiguation);
@@ -232,11 +239,11 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver, I
                 evaluatedPath.fileName = fileNode.getRelativePath();
                 evaluatedPath.evaluatedTemplate =
                         evaluateTemplate(dataSet, fileNode.getName(), disambiguationVar);
-                    evaluatedPath.contentNode = fileNode;
+                evaluatedPath.contentNode = fileNode;
                 result.add(evaluatedPath);
             }
         }
-        
+
         return result;
     }
 
@@ -302,8 +309,6 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver, I
         properties.put(templatePropName, template);
         return properties.getProperty(templatePropName);
     }
-
-    
 
     private String extractDateValue(Date dataSetDate)
     {
