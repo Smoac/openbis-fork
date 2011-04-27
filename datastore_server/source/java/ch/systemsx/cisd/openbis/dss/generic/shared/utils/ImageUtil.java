@@ -34,6 +34,7 @@ import java.util.Set;
 
 import org.apache.commons.io.FilenameUtils;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.io.FileBasedContent;
@@ -192,24 +193,6 @@ public class ImageUtil
     }
 
     /**
-     * Loads an image from specified input stream. Supported images formats are GIF, JPG, PNG, and
-     * TIFF. The input stream will be closed after loading.
-     * 
-     * @throws IllegalArgumentException if the input stream doesn't start with a magic number
-     *             identifying supported image format.
-     */
-    public static BufferedImage loadImage(IContent content)
-    {
-        return loadImage(content, 0);
-    }
-
-    public static BufferedImage loadImage(IContent content, Integer pageOrNull,
-            String imageLibraryNameOrNull, String imageLibraryReaderNameOrNull)
-    {
-        return loadImage(content, pageOrNull);
-    }
-
-    /**
      * Loads the specified <var>page</var> from the image from the tiven </var>inputStream</var>.
      * Supported images formats are GIF, JPG, PNG, and TIFF. The input stream will be closed after
      * loading. Note that only for TIFF files a <var>page</var> other than 0 (or null which is
@@ -218,12 +201,30 @@ public class ImageUtil
      * @throws IllegalArgumentException if the input stream doesn't start with a magic number
      *             identifying supported image format.
      */
-    public static BufferedImage loadImage(IContent content, Integer pageOrNull)
+    public static BufferedImage loadImage(IContent content, Integer pageOrNull,
+            String imageLibraryNameOrNull, String imageLibraryReaderNameOrNull)
+    {
+        assert (imageLibraryReaderNameOrNull == null || imageLibraryNameOrNull != null) : "if image reader "
+                + "is specified then library name should be specified as well";
+        if (imageLibraryNameOrNull != null && imageLibraryReaderNameOrNull != null)
+        {
+            IImageReader reader =
+                    ImageReaderFactory.tryGetReader(imageLibraryNameOrNull,
+                            imageLibraryReaderNameOrNull);
+            if (reader != null)
+            {
+                return reader.readImage(content.getReadOnlyRandomAccessFile(), null);
+            }
+        }
+        return loadImageGuessingLibrary(content, pageOrNull);
+    }
+
+    private static BufferedImage loadImageGuessingLibrary(IContent content, Integer pageOrNull)
     {
         int page = getPageNumber(pageOrNull);
         IRandomAccessFile handle = content.getReadOnlyRandomAccessFile();
         String fileType = DataTypeUtil.tryToFigureOutFileTypeOf(handle);
-        return loadImage(handle, fileType, page);
+        return loadImageGuessingLibrary(handle, fileType, page);
     }
 
     private static int getPageNumber(Integer pageOrNull)
@@ -239,7 +240,8 @@ public class ImageUtil
      * @throws IllegalArgumentException if the input stream doesn't start with a magic number
      *             identifying supported image format.
      */
-    private static BufferedImage loadImage(IRandomAccessFile handle, String fileType, int page)
+    private static BufferedImage loadImageGuessingLibrary(IRandomAccessFile handle,
+            String fileType, int page)
     {
         try
         {
@@ -265,18 +267,25 @@ public class ImageUtil
     }
 
     /**
-     * Loads an image from specified file. Supported file formats are GIF, JPG, PNG, and TIFF.
-     * 
-     * @throws IllegalArgumentException if either the file does not exist or it isn't a valid image
-     *             file.
+     * Only for tests
      */
-    public static BufferedImage loadImage(File file)
+    @Private
+    static BufferedImage loadImage(File file)
     {
         if (file.exists() == false)
         {
             throw new IllegalArgumentException("File does not exist: " + file.getAbsolutePath());
         }
         return loadImage(new FileBasedContent(file));
+    }
+
+    /**
+     * Only for tests.
+     */
+    @Private
+    static BufferedImage loadImage(IContent content)
+    {
+        return loadImage(content, 0, null, null);
     }
 
     /**

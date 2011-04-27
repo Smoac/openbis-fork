@@ -24,6 +24,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.io.ByteBufferRandomAccessFile;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.common.io.FileBasedContent;
@@ -34,12 +35,13 @@ import ch.systemsx.cisd.imagereaders.ImageReadersTestHelper;
 /**
  * @author Franz-Josef Elmer
  */
+@Friend(toClasses = ImageUtil.class)
 public class ImageUtilTest extends AssertJUnit
 {
     private static class MockIContent implements IContent
     {
         final MockRandomAccessFile is = new MockRandomAccessFile();
-        
+
         public String tryGetName()
         {
             throw new UnsupportedOperationException();
@@ -64,9 +66,9 @@ public class ImageUtilTest extends AssertJUnit
         {
             throw new UnsupportedOperationException();
         }
-        
+
     }
-    
+
     private static class MockRandomAccessFile extends ByteBufferRandomAccessFile
     {
         public MockRandomAccessFile()
@@ -75,14 +77,14 @@ public class ImageUtilTest extends AssertJUnit
         }
 
         boolean closeInvoked;
-        
+
         @Override
         public void close()
         {
             closeInvoked = true;
         }
     }
-    
+
     private File dir;
 
     @BeforeMethod
@@ -93,28 +95,28 @@ public class ImageUtilTest extends AssertJUnit
                 ImageReaderConstants.JAI_LIBRARY, ImageReaderConstants.IMAGEJ_LIBRARY);
 
     }
-    
+
     @Test
     public void testGifImage()
     {
         assertImageSize(805, 1023, loadImageByFile("gif-example.gif"));
         assertImageSize(805, 1023, loadImageByInputStream("gif-example.gif"));
     }
-    
+
     @Test
     public void testJpegImage()
     {
         assertImageSize(805, 1023, loadImageByFile("jpeg-example.jpg"));
         assertImageSize(805, 1023, loadImageByInputStream("jpeg-example.jpg"));
     }
-    
+
     @Test
     public void testPngImage()
     {
         assertImageSize(805, 1023, loadImageByFile("png-example.png"));
         assertImageSize(805, 1023, loadImageByInputStream("png-example.png"));
     }
-    
+
     @Test(groups = "slow")
     public void testTiffImage()
     {
@@ -129,7 +131,7 @@ public class ImageUtilTest extends AssertJUnit
         assertImageSize(79, 100, ImageUtil.createThumbnail(image, 200, 100));
         assertImageSize(100, 127, ImageUtil.createThumbnail(image, 100, 200));
     }
-    
+
     @Test
     public void testInputStreamAutomaticallyClosed()
     {
@@ -140,9 +142,10 @@ public class ImageUtilTest extends AssertJUnit
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ex)
         {
-            assertEquals("File type of an image input stream couldn't be determined.", ex.getMessage());
+            assertEquals("File type of an image input stream couldn't be determined.",
+                    ex.getMessage());
         }
-        
+
         assertEquals(true, content.is.closeInvoked);
     }
 
@@ -158,20 +161,21 @@ public class ImageUtilTest extends AssertJUnit
         File file = new File(dir, fileName);
         return ImageUtil.loadImage(new FileBasedContent(file));
     }
-    
+
     private void assertImageSize(int expectedWith, int expectedHeight, BufferedImage image)
     {
         assertEquals(expectedWith, image.getWidth());
         assertEquals(expectedHeight, image.getHeight());
     }
 
-    public static BufferedImage loadImage(File content)
+    public static BufferedImage loadImage(File imageFile)
     {
-        return ImageUtil.loadImage(content);
+        return loadImage(new FileBasedContent(imageFile));
     }
-    
+
     public static BufferedImage loadImage(IContent content)
     {
         return ImageUtil.loadImage(content);
     }
+
 }
