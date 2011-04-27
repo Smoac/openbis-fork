@@ -219,7 +219,12 @@ class CommandPut extends AbstractDssCommand<CommandPut.CommandPutArguments>
             String path = file.getCanonicalPath();
             if (false == file.isDirectory())
             {
-                path = file.getParentFile().getCanonicalPath();
+                File parentFile = file.getParentFile();
+                if (parentFile == null)
+                {
+                    parentFile = new File(".");
+                }
+                path = parentFile.getCanonicalPath();
             }
 
             FileInfoDssBuilder builder = new FileInfoDssBuilder(path, path);
