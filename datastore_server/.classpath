@@ -3,7 +3,7 @@
 	<classpathentry kind="src" path="source/java"/>
 	<classpathentry kind="src" path="sourceTest/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/libraries/jython/standalone/jython.jar"/>
+	<classpathentry kind="lib" path="/libraries/jython/standalone/jython.jar" sourcepath="/Users/gpawel/Downloads/jython_installer-2.2.1.jar"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/common"/>
 	<classpathentry kind="lib" path="/libraries/log4j/log4j.jar" sourcepath="/libraries/log4j/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/commons-lang/commons-lang.jar" sourcepath="/libraries/commons-lang/src.zip"/>
@@ -62,6 +62,12 @@
 	<classpathentry kind="lib" path="/libraries/cisd-image_readers/cisd-image_readers-jai.jar"/>
 	<classpathentry kind="lib" path="/libraries/cisd-image_readers/cisd-image_readers.jar"/>
 	<classpathentry kind="lib" path="/libraries/cisd-image_readers/cisd-image_readers-imagej.jar"/>
+	<classpathentry kind="lib" path="/libraries/poi/poi-3.7-20101029.jar"/>
+	<classpathentry kind="lib" path="/libraries/poi/poi-ooxml-3.7-20101029.jar"/>
+	<classpathentry kind="lib" path="/libraries/poi/poi-ooxml-schemas-3.7-20101029.jar"/>
+	<classpathentry kind="lib" path="/libraries/poi/ooxml-lib/dom4j-1.6.1.jar"/>
+	<classpathentry kind="lib" path="/libraries/poi/ooxml-lib/geronimo-stax-api_1.0_spec-1.0.jar"/>
+	<classpathentry kind="lib" path="/libraries/poi/ooxml-lib/xmlbeans-2.3.0.jar"/>
 	<classpathentry kind="lib" path="/libraries/ftpserver/ftpserver-core.jar"/>
 	<classpathentry kind="lib" path="/libraries/mina/mina-core.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
