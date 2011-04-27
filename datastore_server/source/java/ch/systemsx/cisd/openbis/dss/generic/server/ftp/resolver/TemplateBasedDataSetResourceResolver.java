@@ -75,6 +75,8 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver, I
      */
     private final String template;
 
+    private final Map<String /* dataset type */, String /* subpath */> fileListSubPaths;
+
     private static class DataSetAndFileName
     {
         ExternalData dataSet;
@@ -87,6 +89,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver, I
     public TemplateBasedDataSetResourceResolver(FtpServerConfig ftpServerConfig)
     {
         this.template = ftpServerConfig.getDataSetDisplayTemplate();
+        this.fileListSubPaths = ftpServerConfig.getFileListSubPaths();
     }
 
     /**
@@ -117,9 +120,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver, I
         IHierarchicalContentProvider provider = ServiceProvider.getHierarchicalContentProvider();
         IHierarchicalContent content =
                 provider.asContent(dataSetAndFileName.dataSet.getDataSetCode());
-        IHierarchicalContentNode contentNode =
-                StringUtils.isBlank(relativePath) ? content.getRootNode() : content
-                        .getNode(relativePath);
+        IHierarchicalContentNode contentNode = content.getNode(relativePath);
         return new HierarchicalContentToFtpFileAdapter(path, contentNode);
     }
 
@@ -212,12 +213,14 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver, I
         
         IHierarchicalContentProvider provider = ServiceProvider.getHierarchicalContentProvider();
         IHierarchicalContent content = provider.asContent(dataSet.getCode());
-        IHierarchicalContentNode rootNode = content.getRootNode();
+        String dataSetType = dataSet.getDataSetType().getCode();
+        String fileListSubPathOrNull = fileListSubPaths.get(dataSetType);
+        IHierarchicalContentNode rootNode = content.getNode(fileListSubPathOrNull);
 
-        for (String fileName : extractFileNames(rootNode))
+        for (IHierarchicalContentNode fileNode : extractFileNames(rootNode))
         {
-            String path = evaluateTemplate(dataSet, fileName);
-            result.put(fileName, path);
+            String path = evaluateTemplate(dataSet, fileNode.getName());
+            result.put(fileNode.getRelativePath(), path);
         }
         
         return result;
@@ -226,23 +229,18 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver, I
     /**
      * @return all values to be used when evaluating the template "${fileName}" variable.
      */
-    private List<String> extractFileNames(IHierarchicalContentNode rootNode)
+    private List<IHierarchicalContentNode> extractFileNames(IHierarchicalContentNode rootNode)
     {
         if (rootNode.isDirectory())
         {
-            List<String> childrenFileNames = new ArrayList<String>();
-            for (IHierarchicalContentNode child : rootNode.getChildNodes())
-            {
-                childrenFileNames.add(child.getName());
-            }
-            return childrenFileNames;
+            return rootNode.getChildNodes();
         } else
         {
-            return Collections.singletonList(StringUtils.EMPTY);
+            return Collections.emptyList();
         }
     }
 
-    public String evaluateTemplate(ExternalData dataSet,
+    private String evaluateTemplate(ExternalData dataSet,
             String fileName)
     {
         ExtendedProperties properties = new ExtendedProperties();
@@ -257,6 +255,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver, I
         return properties.getProperty(templatePropName);
     }
 
+    
 
     private String extractDateValue(Date dataSetDate)
     {

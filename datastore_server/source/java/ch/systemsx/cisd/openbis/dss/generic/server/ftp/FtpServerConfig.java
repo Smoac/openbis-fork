@@ -17,8 +17,12 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.ftp;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
+import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.ConfigParameters;
 
@@ -38,6 +42,8 @@ public class FtpServerConfig
     private final static String MAX_THREADS_KEY = PREFIX + "maxThreads";
 
     private final static String DATASET_DISPLAY_TEMPLATE_KEY = PREFIX + "dataset.display.template";
+
+    private final static String DATASET_FILELIST_SUBPATH_KEY = PREFIX + "dataset.filelist.subpath.";
 
     private static final int DEFAULT_PORT = 2121;
 
@@ -63,6 +69,9 @@ public class FtpServerConfig
 
     private int maxThreads;
 
+    private Map<String /* dataset type */, String /* path */> fileListSubPaths =
+            new HashMap<String, String>();
+
     public FtpServerConfig(Properties props) {
         this.startServer = PropertyUtils.getBoolean(props, ENABLE_KEY, false);
         if (startServer)
@@ -82,6 +91,16 @@ public class FtpServerConfig
         maxThreads = PropertyUtils.getPosInt(props, MAX_THREADS_KEY, DEFAULT_MAX_THREADS);
         dataSetDisplayTemplate =
                 PropertyUtils.getProperty(props, DATASET_DISPLAY_TEMPLATE_KEY, DEFAULT_DATASET_TEMPLATE);
+
+        ExtendedProperties fileListSubPathProps =
+                ExtendedProperties.getSubset(props, DATASET_FILELIST_SUBPATH_KEY, true);
+        for (Object key : fileListSubPathProps.keySet())
+        {
+            String dataSetType = key.toString();
+            String subPath = fileListSubPathProps.getProperty(dataSetType);
+            fileListSubPaths.put(dataSetType, subPath);
+
+        }
     }
 
     private void initializeSSLProperties(Properties props)
@@ -134,6 +153,11 @@ public class FtpServerConfig
     public String getDataSetDisplayTemplate()
     {
         return dataSetDisplayTemplate;
+    }
+
+    public Map<String, String> getFileListSubPaths()
+    {
+        return Collections.unmodifiableMap(fileListSubPaths);
     }
 
 }
