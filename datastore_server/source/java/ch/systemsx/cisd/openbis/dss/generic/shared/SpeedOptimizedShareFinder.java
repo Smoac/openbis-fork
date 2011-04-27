@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
  * A share finder which first searches for the extension share with most free space which matches
- * speed. If nothing found it does the same also for all extension shares but speed needs not to
+ * speed. If nothing is found it does the same also for all extension shares but speed needs not to
  * match but speed hint needs to be respected. If this isn't working {@link SimpleShareFinder} is
  * used ignoring speed hint.
  * 
@@ -41,13 +41,13 @@ public class SpeedOptimizedShareFinder implements IShareFinder
 
     public Share tryToFindShare(SimpleDataSetInformationDTO dataSet, List<Share> shares)
     {
-        Share share = tryToFindeExtensionShare(dataSet, shares, SpeedChecker.MATCHING_CHECKER);
+        Share share = tryToFindExtensionShare(dataSet, shares, SpeedChecker.MATCHING_CHECKER);
         if (share != null)
         {
             return share;
         }
         share =
-                tryToFindeExtensionShare(dataSet, shares,
+                tryToFindExtensionShare(dataSet, shares,
                         SpeedChecker.RESPECTUNG_SPEED_HINT_CHECKER);
         if (share != null)
         {
@@ -57,7 +57,7 @@ public class SpeedOptimizedShareFinder implements IShareFinder
                 SpeedChecker.IGNORING_SPEED_HINT_CHECKER);
     }
 
-    private Share tryToFindeExtensionShare(SimpleDataSetInformationDTO dataSet, List<Share> shares,
+    private Share tryToFindExtensionShare(SimpleDataSetInformationDTO dataSet, List<Share> shares,
             ISpeedChecker speedChecker)
     {
         Share result = null;
