@@ -87,6 +87,8 @@ class PutDataSetTopLevelDataSetHandler
     private final File temporaryIncomingDir;
 
     private final File dataSetDir;
+    
+    private final File dataSet;
 
     PutDataSetTopLevelDataSetHandler(PutDataSetService service,
             ITopLevelDataSetRegistrator registrator, String sessionToken, NewDataSetDTO newDataSet,
@@ -98,7 +100,23 @@ class PutDataSetTopLevelDataSetHandler
         this.newDataSet = newDataSet;
         this.inputStream = inputStream;
         this.temporaryIncomingDir = service.createTemporaryIncomingDir();
-        this.dataSetDir = new File(temporaryIncomingDir, newDataSet.getDataSetFolderName());
+        String dataSetFolderName = newDataSet.getDataSetFolderName();
+        // TODO, 2011-04-27, FJE: It would be better to allow null value for
+        // newDataSet.getDataSetFolderName()
+        // in order to distinguish a file data set from a folder data set. But this is a change
+        // in API which is small but non-backward compatible.
+        boolean dataSetIsASingleFile =
+                NewDataSetDTO.DEFAULT_DATA_SET_FOLDER_NAME.equals(dataSetFolderName)
+                        && newDataSet.getFileInfos().size() == 1;
+        if (dataSetIsASingleFile)
+        {
+            dataSetDir = temporaryIncomingDir;
+            dataSet = new File(temporaryIncomingDir, newDataSet.getFileInfos().get(0).getPathInDataSet());
+        } else
+        {
+            this.dataSetDir = new File(temporaryIncomingDir, dataSetFolderName);
+            dataSet = dataSetDir;
+        }
         if (dataSetDir.exists())
         {
             deleteDataSetDir();
@@ -106,7 +124,7 @@ class PutDataSetTopLevelDataSetHandler
         if (false == this.dataSetDir.mkdir())
         {
             throw new EnvironmentFailureException("Could not create directory for data set "
-                    + newDataSet.getDataSetFolderName());
+                    + dataSet.getName());
         }
 
     }
@@ -130,7 +148,7 @@ class PutDataSetTopLevelDataSetHandler
         try
         {
             DataSetRegistratorDelegate delegate = new DataSetRegistratorDelegate();
-            registrator.handle(dataSetDir, getCallerDataSetInformation(), delegate);
+            registrator.handle(dataSet, getCallerDataSetInformation(), delegate);
             return delegate.registeredDataSets;
         } finally
         {
@@ -153,8 +171,7 @@ class PutDataSetTopLevelDataSetHandler
 
     public DataSetOwner getDataSetOwner()
     {
-        DataSetOwner owner = newDataSet.getDataSetOwner();
-        return owner;
+        return newDataSet.getDataSetOwner();
     }
 
     public DataSetInformation getCallerDataSetInformation()

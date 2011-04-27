@@ -37,7 +37,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
  */
 public class NewDataSetDTO implements Serializable
 {
-    private static String DEFAULT_DATA_SET_FOLDER_NAME = "original";
+    public static String DEFAULT_DATA_SET_FOLDER_NAME = "original";
 
     /**
      * The different types of owners of data sets; there are two: experiment and sample.
