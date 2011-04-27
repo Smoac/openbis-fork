@@ -106,6 +106,7 @@ public class ConversionUtils
         data.setUserEMail(dataSetInformation.tryGetUploadingUserEmail());
         data.setExtractableData(dataSetInformation.getExtractableData());
         data.setDataSetType(registrationDetails.getDataSetType());
+        data.setSpeedHint(dataSetInformation.getSpeedHint());
         data.setFileFormatType(registrationDetails.getFileFormatType());
         data.setMeasured(registrationDetails.isMeasuredData());
         data.setDataStoreCode(dataStoreCode);
