@@ -207,23 +207,23 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
     {
 
         GroupedDatasets groupedDatasets =
-                groupByPresenceInArchive(datasets, context, synchronizeArchive);
+                groupByArchiveDifferencies(datasets, context, synchronizeArchive);
 
-        List<DatasetDescription> notPresentInArchive = groupedDatasets.getNotPresentAsList();
+        List<DatasetDescription> toBeArchived = groupedDatasets.getDifferenciesAsList();
         DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
-        if (notPresentInArchive.isEmpty() == false)
+        if (toBeArchived.isEmpty() == false)
         {
             // copy data sets in the archive
-            statuses = doArchive(notPresentInArchive, context);
+            statuses = doArchive(toBeArchived, context);
 
             // paranoid check to make sure everything really got archived
-            groupedDatasets = groupByPresenceInArchive(datasets, context, true);
+            groupedDatasets = groupByArchiveDifferencies(datasets, context, true);
         }
 
         if (removeFromDataStore)
         {
             // only remove the when we are sure we have got a backup in the archive
-            removeFromDataStore(groupedDatasets.getPresentInArchive(), context);
+            removeFromDataStore(groupedDatasets.getUpToDateInArchive(), context);
         }
 
         // merge the archiver statuses with the paranoid check results
@@ -234,16 +234,16 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
             GroupedDatasets groupedDatasets)
     {
         DatasetProcessingStatuses result = new DatasetProcessingStatuses();
-        for (DatasetDescription dataset : groupedDatasets.getPresentInArchive())
+        for (DatasetDescription dataset : groupedDatasets.getUpToDateInArchive())
         {
             String dataSetCode = dataset.getDataSetCode();
             Status status = getStatusForDataset(statuses, dataSetCode, Status.OK);
             result.addResult(dataSetCode, status, Operation.ARCHIVE);
         }
-        for (DatasetDescription dataset : groupedDatasets.getNotPresentAsList())
+        for (DatasetDescription dataset : groupedDatasets.getDifferenciesAsList())
         {
             String dataSetCode = dataset.getDataSetCode();
-            BooleanStatus booleanStatus = groupedDatasets.getNotPresentInArchiveStatus(dataset);
+            BooleanStatus booleanStatus = groupedDatasets.getDifferencyArchiveStatus(dataset);
             String errorMessage =
                     (booleanStatus.tryGetMessage() != null) ? booleanStatus.tryGetMessage() : "";
             Status status =
@@ -480,61 +480,61 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
 
     protected static class GroupedDatasets
     {
-        private List<DatasetDescription> presentInArchive;
+        private List<DatasetDescription> upToDateInArchive;
 
-        private Map<DatasetDescription, BooleanStatus> notPresentInArchive;
+        private Map<DatasetDescription, BooleanStatus> differentInArchive;
 
-        GroupedDatasets(List<DatasetDescription> presentInArchive,
-                Map<DatasetDescription, BooleanStatus> notPresentInArchive)
+        GroupedDatasets(List<DatasetDescription> upToDateInArchive,
+                Map<DatasetDescription, BooleanStatus> differentInArchive)
         {
-            this.presentInArchive = presentInArchive;
-            this.notPresentInArchive = notPresentInArchive;
+            this.upToDateInArchive = upToDateInArchive;
+            this.differentInArchive = differentInArchive;
         }
 
-        public List<DatasetDescription> getPresentInArchive()
+        public List<DatasetDescription> getUpToDateInArchive()
         {
-            return presentInArchive;
+            return upToDateInArchive;
         }
 
-        public Map<DatasetDescription, BooleanStatus> getNotPresentInArchive()
+        public Map<DatasetDescription, BooleanStatus> getDifferentInArchive()
         {
-            return notPresentInArchive;
+            return differentInArchive;
         }
 
-        public List<DatasetDescription> getNotPresentAsList()
+        public List<DatasetDescription> getDifferenciesAsList()
         {
 
-            return new ArrayList<DatasetDescription>(notPresentInArchive.keySet());
+            return new ArrayList<DatasetDescription>(differentInArchive.keySet());
         }
 
-        public BooleanStatus getNotPresentInArchiveStatus(DatasetDescription description)
+        public BooleanStatus getDifferencyArchiveStatus(DatasetDescription description)
         {
-            return notPresentInArchive.get(description);
+            return differentInArchive.get(description);
         }
     }
 
-    private GroupedDatasets groupByPresenceInArchive(List<DatasetDescription> datasets,
+    private GroupedDatasets groupByArchiveDifferencies(List<DatasetDescription> datasets,
             ArchiverTaskContext context, boolean checkIfSynchronized)
     {
-        List<DatasetDescription> present = new ArrayList<DatasetDescription>();
-        Map<DatasetDescription, BooleanStatus> notPresent =
+        List<DatasetDescription> upToDateInArchive = new ArrayList<DatasetDescription>();
+        Map<DatasetDescription, BooleanStatus> differentInArchive =
                 new HashMap<DatasetDescription, BooleanStatus>();
 
         for (DatasetDescription dataset : datasets)
         {
-            BooleanStatus presentStatus =
+            BooleanStatus upToDateStatus =
                     checkIfSynchronized ? isDataSetSynchronizedWithArchive(dataset, context)
                             : isDataSetPresentInArchive(dataset);
-            if (presentStatus.isSuccess())
+            if (upToDateStatus.isSuccess())
             {
-                present.add(dataset);
+                upToDateInArchive.add(dataset);
             } else
             {
-                notPresent.put(dataset, presentStatus);
+                differentInArchive.put(dataset, upToDateStatus);
             }
         }
 
-        return new GroupedDatasets(present, notPresent);
+        return new GroupedDatasets(upToDateInArchive, differentInArchive);
     }
 
     private IShareIdManager getShareIdManager()
