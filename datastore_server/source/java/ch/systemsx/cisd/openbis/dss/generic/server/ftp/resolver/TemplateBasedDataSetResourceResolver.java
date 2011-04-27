@@ -18,11 +18,10 @@ package ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
@@ -50,8 +49,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  * <p>
  * Subpaths are resolved as a relative paths starting from the root of a dataset.
  * <p>
- * TODO KE: add disambiguation checks - append an uniqueness factor to (?another variable) to the
- * path if no "dataSetCode" variable is used in the template
  * 
  * @author Kaloyan Enimanev
  */
@@ -65,6 +62,8 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver, I
 
     private static final String FILE_NAME_VARNAME = "fileName";
 
+    private static final String DISAMBIGUATION_VARNAME = "disambiguation";
+
     private static final String DATA_SET_DATE_FORMAT = "yyyy-MM-dd-HH-mm";
 
     /**
@@ -77,13 +76,15 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver, I
 
     private final Map<String /* dataset type */, String /* subpath */> fileListSubPaths;
 
-    private static class DataSetAndFileName
+    private static class EvaluatedDataSetPath
     {
         ExternalData dataSet;
 
         // will only be filled when the ${fileName} variable
         // is used in the template
         String fileName = StringUtils.EMPTY;
+
+        String evaluatedTemplate;
     }
 
     public TemplateBasedDataSetResourceResolver(FtpServerConfig ftpServerConfig)
@@ -106,7 +107,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver, I
         IETLLIMSService service = resolverContext.getService();
         String sessionToken = resolverContext.getSessionToken();
 
-        DataSetAndFileName dataSetAndFileName =
+        EvaluatedDataSetPath dataSetAndFileName =
                 extractDataSetAndFileName(path, service, sessionToken);
         if (dataSetAndFileName == null)
         {
@@ -124,7 +125,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver, I
         return new HierarchicalContentToFtpFileAdapter(path, contentNode);
     }
 
-    private DataSetAndFileName extractDataSetAndFileName(String path, IETLLIMSService service,
+    private EvaluatedDataSetPath extractDataSetAndFileName(String path, IETLLIMSService service,
             String sessionToken)
     {
         String experimentId = extractExperimentIdentifier(path);
@@ -137,24 +138,19 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver, I
         List<ExternalData> dataSets =
                 service.listDataSetsByExperimentID(sessionToken, new TechId(experiment));
         String pathWithEndSlash = path + FtpConstants.FILE_SEPARATOR;
-        for (ExternalData dataSet : dataSets)
+        
+        for (EvaluatedDataSetPath evaluatedPath : evaluateDataSetPaths(dataSets))
         {
-            Map<String /* fileName */, String /* evaluated */> evaluatedPaths =
-                    getEvaluatedDataSetPaths(dataSet);
-            for (Entry<String, String> entry : evaluatedPaths.entrySet())
+            String fullEvaluatedPath =
+                    experimentId + FtpConstants.FILE_SEPARATOR + evaluatedPath.evaluatedTemplate
+                            + FtpConstants.FILE_SEPARATOR;
+            if (pathWithEndSlash.startsWith(fullEvaluatedPath))
             {
-                String fullEvaluatedPath =
-                        experimentId + FtpConstants.FILE_SEPARATOR + entry.getValue()
-                                + FtpConstants.FILE_SEPARATOR;
-                if (pathWithEndSlash.startsWith(fullEvaluatedPath))
-                {
-                    DataSetAndFileName result = new DataSetAndFileName();
-                    result.dataSet = dataSet;
-                    result.fileName = entry.getKey();
-                    return result;
-                }
+                EvaluatedDataSetPath result = new EvaluatedDataSetPath();
+                result.dataSet = evaluatedPath.dataSet;
+                result.fileName = evaluatedPath.fileName;
+                return result;
             }
-
         }
 
         return null;
@@ -198,32 +194,76 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver, I
 
         List<ExternalData> dataSets = service.listDataSetsByExperimentID(sessionToken, new TechId(experiment));
         List<String> result = new ArrayList<String>();
-        for (ExternalData dataSet : dataSets)
+        for (EvaluatedDataSetPath evaluatedPath : evaluateDataSetPaths(dataSets))
         {
-            Map<String, String> pathsForDataSet = getEvaluatedDataSetPaths(dataSet);
-            result.addAll(pathsForDataSet.values());
+            result.add(evaluatedPath.evaluatedTemplate);
         }
         return result;
     }
 
-    private Map<String /* fileName */, String /* evaluated template */> getEvaluatedDataSetPaths(
-            ExternalData dataSet)
+    private List<EvaluatedDataSetPath> evaluateDataSetPaths(List<ExternalData> dataSets)
     {
-        Map<String, String> result = new HashMap<String, String>();
+        List<EvaluatedDataSetPath> result = new ArrayList<EvaluatedDataSetPath>();
+        sortDataSetsById(dataSets);
         
-        IHierarchicalContentProvider provider = ServiceProvider.getHierarchicalContentProvider();
-        IHierarchicalContent content = provider.asContent(dataSet.getCode());
-        String dataSetType = dataSet.getDataSetType().getCode();
-        String fileListSubPathOrNull = fileListSubPaths.get(dataSetType);
-        IHierarchicalContentNode rootNode = content.getNode(fileListSubPathOrNull);
-
-        for (IHierarchicalContentNode fileNode : extractFileNames(rootNode))
+        for (int disambiguation = 0; disambiguation < dataSets.size(); disambiguation++)
         {
-            String path = evaluateTemplate(dataSet, fileNode.getName());
-            result.put(fileNode.getRelativePath(), path);
+            ExternalData dataSet = dataSets.get(disambiguation);
+
+            IHierarchicalContentProvider provider =
+                    ServiceProvider.getHierarchicalContentProvider();
+            IHierarchicalContent content = provider.asContent(dataSet.getCode());
+            String dataSetType = dataSet.getDataSetType().getCode();
+            String fileListSubPathOrNull = fileListSubPaths.get(dataSetType);
+            IHierarchicalContentNode rootNode = content.getNode(fileListSubPathOrNull);
+            String disambiguationVar = computeDisambiguation(disambiguation);
+
+            for (IHierarchicalContentNode fileNode : extractFileNames(rootNode))
+            {
+                EvaluatedDataSetPath evaluatedPath = new EvaluatedDataSetPath();
+                evaluatedPath.dataSet = dataSet;
+                evaluatedPath.fileName = fileNode.getRelativePath();
+                evaluatedPath.evaluatedTemplate =
+                        evaluateTemplate(dataSet, fileNode.getName(), disambiguationVar);
+                result.add(evaluatedPath);
+            }
         }
         
         return result;
+    }
+
+    private void sortDataSetsById(List<ExternalData> dataSets)
+    {
+        Collections.sort(dataSets, new Comparator<ExternalData>()
+            {
+                public int compare(ExternalData o1, ExternalData o2)
+                {
+                    long id1 = o1.getId();
+                    long id2 = o2.getId();
+                    // do not return directly "id1 - id2" to avoid overflow
+                    if (id1 > id2)
+                    {
+                        return 1;
+                    } else if (id1 < id2)
+                    {
+                        return -1;
+                    } else
+                    {
+                        return 0;
+                    }
+                }
+
+            });
+    }
+
+    /**
+     * Given a zero-based disambiguation index, produces the values for
+     * {@value #DISAMBIGUATION_VARNAME}.
+     */
+    private String computeDisambiguation(int disambiguationIdx)
+    {
+        int number = 10 + disambiguationIdx;
+        return Integer.toString(number, 36).toUpperCase();
     }
 
     /**
@@ -240,8 +280,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver, I
         }
     }
 
-    private String evaluateTemplate(ExternalData dataSet,
-            String fileName)
+    private String evaluateTemplate(ExternalData dataSet, String fileName, String disambiguation)
     {
         ExtendedProperties properties = new ExtendedProperties();
         properties.put(DATA_SET_CODE_VARNAME, dataSet.getCode());
@@ -249,6 +288,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver, I
         String dataSetDate = extractDateValue(dataSet.getRegistrationDate());
         properties.put(DATA_SET_DATE_VARNAME, dataSetDate);
         properties.put(FILE_NAME_VARNAME, fileName);
+        properties.put(DISAMBIGUATION_VARNAME, disambiguation);
 
         String templatePropName = "template";
         properties.put(templatePropName, template);
@@ -261,6 +301,5 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver, I
     {
         return DateFormatUtils.format(dataSetDate, DATA_SET_DATE_FORMAT);
     }
-
 
 }
