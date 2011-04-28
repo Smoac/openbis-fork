@@ -30,10 +30,10 @@ public class AttachmentDownloadHelper
 {
     public static void download(String fileName, int version, IAttachmentHolder holder)
     {
-        WindowUtils.openWindow(createURL(version, fileName, holder));
+        WindowUtils.openWindow(createURL(fileName, version, holder));
     }
 
-    private final static String createURL(final int version, final String fileName,
+    public final static String createURL(final String fileName, final int version,
             final IAttachmentHolder attachmentHolder)
     {
         URLMethodWithParameters methodWithParameters =

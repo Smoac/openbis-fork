@@ -212,7 +212,10 @@ public class AttachmentBrowser extends TypedTableGrid<AttachmentVersions>
                         public String tryGetLink(AttachmentVersions entity,
                                 ISerializableComparable comparableValue)
                         {
-                            return null;
+                            Attachment current = entity.getCurrent();
+                            final String fileName = current.getFileName();
+                            final int version = current.getVersion();
+                            return AttachmentDownloadHelper.createURL(fileName, version, attachmentHolder);
                         }
                     });
     }
@@ -238,7 +241,8 @@ public class AttachmentBrowser extends TypedTableGrid<AttachmentVersions>
                         public String tryGetLink(AttachmentVersions entity,
                                 ISerializableComparable comparableValue)
                         {
-                            return null;
+                            String linkText = viewContext.getMessage(Dict.SHOW_ALL_VERSIONS);
+                            return LinkRenderer.renderAsLinkWithAnchor(linkText);
                         }
                     });
     }
@@ -455,15 +459,12 @@ public class AttachmentBrowser extends TypedTableGrid<AttachmentVersions>
                 .toLowerCase();
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     protected BaseEntityModel<TableModelRowWithObject<AttachmentVersions>> createModel(
             GridRowModel<TableModelRowWithObject<AttachmentVersions>> entity)
     {
         BaseEntityModel<TableModelRowWithObject<AttachmentVersions>> model =
                 super.createModel(entity);
-        // TODO 2011-01-11, Piotr Buczek: get rid of this - extend createColumnDefinitions()
-        model.renderAsLinkWithAnchor(AttachmentGridColumnIDs.FILE_NAME);
         renderVersionAsLink(model);
         return model;
     }
@@ -473,8 +474,7 @@ public class AttachmentBrowser extends TypedTableGrid<AttachmentVersions>
         String versionId = AttachmentGridColumnIDs.VERSION;
         String originalValue = model.get(versionId);
         String linkText = viewContext.getMessage(Dict.SHOW_ALL_VERSIONS);
-        String link = LinkRenderer.renderAsLinkWithAnchor(linkText);
-        model.set(versionId, originalValue + " (" + link + ")");
+        model.set(versionId, originalValue + " (" + linkText + ")");
     }
 
     @Override
