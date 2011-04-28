@@ -14,6 +14,7 @@ export CINA=bs-openbis01.ethz.ch
 export PLASMIDS=bs-openbis02.ethz.ch
 export LIMB=bs-openbis03.ethz.ch
 export CHIPDB=bs-openbis09.ethz.ch
+export BASYNTHEC=bs-openbis10.ethz.ch
 
 
 # Different types of server specific zips we distinguish
@@ -36,6 +37,7 @@ for i in $ZIPS; do
          echo $SCU; scp -p $i $SCU:~openbis
          echo $LIMB; scp -p $i $LIMB:~openbis
          echo $CHIPDB; scp -p $i $CHIPDB:~openbis
+		 echo $BASYNTHEC; scp -p $i $BASYNTHEC:~openbis
  
 done
 
