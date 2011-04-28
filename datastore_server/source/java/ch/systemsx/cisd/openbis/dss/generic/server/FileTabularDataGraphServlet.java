@@ -21,7 +21,7 @@ import java.io.IOException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ITabularData;
-import ch.systemsx.cisd.utils.CsvFileReaderHelper;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CsvFileReaderHelper;
 
 /**
  * @author Chandrasekhar Ramakrishnan

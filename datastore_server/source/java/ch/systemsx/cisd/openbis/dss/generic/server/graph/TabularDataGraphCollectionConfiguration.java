@@ -30,12 +30,11 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.openbis.dss.generic.server.TabularDataGraphServlet;
 import ch.systemsx.cisd.openbis.dss.generic.server.graph.TabularDataGraphConfiguration.GraphType;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ITabularData;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CsvFileReaderHelper.ICsvFileReaderConfiguration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
-import ch.systemsx.cisd.utils.CsvFileReaderHelper.ICsvFileReaderConfiguration;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -183,10 +182,10 @@ public class TabularDataGraphCollectionConfiguration implements ICsvFileReaderCo
                 // specified.
                 CodeAndLabel xAxis =
                         getCodeAndLabelWithDefault(props, X_AXIS_KEY,
-                                TabularDataGraphServlet.WELL_ROW_COLUMN);
+                                "Row");
                 CodeAndLabel yAxis =
                         getCodeAndLabelWithDefault(props, Y_AXIS_KEY,
-                                TabularDataGraphServlet.WELL_COLUMN_COLUMN);
+                                "Column");
                 CodeAndLabel zAxis = getCodeAndLabel(props, COLUMN_KEY);
                 if (xAxis.equals(yAxis))
                 {

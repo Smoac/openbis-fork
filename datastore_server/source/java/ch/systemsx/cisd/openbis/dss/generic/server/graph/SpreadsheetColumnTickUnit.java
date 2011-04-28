@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.graph;
 
 import org.jfree.chart.axis.NumberTickUnit;
 
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.PlateUtils;
+import ch.systemsx.cisd.common.geometry.ConversionUtils;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -62,6 +62,6 @@ public class SpreadsheetColumnTickUnit extends NumberTickUnit
         {
             return "";
         }
-        return PlateUtils.translateRowNumberIntoLetterCode((int) value);
+        return ConversionUtils.translateRowNumberIntoLetterCode((int) value);
     }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.utils;
+package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 
 import java.io.File;
 import java.io.FileInputStream;

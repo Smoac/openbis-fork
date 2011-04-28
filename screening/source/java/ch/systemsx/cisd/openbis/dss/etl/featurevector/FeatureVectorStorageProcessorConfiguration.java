@@ -23,7 +23,7 @@ import java.util.Set;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.utils.CsvFileReaderHelper.ICsvFileReaderConfiguration;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CsvFileReaderHelper.ICsvFileReaderConfiguration;
 
 class FeatureVectorStorageProcessorConfiguration implements
         ICsvFileReaderConfiguration
