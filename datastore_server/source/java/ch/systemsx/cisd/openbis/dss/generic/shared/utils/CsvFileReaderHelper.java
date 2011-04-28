@@ -26,7 +26,6 @@ import java.util.List;
 import com.csvreader.CsvReader;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
 
 /**
  * @author Piotr Buczek
