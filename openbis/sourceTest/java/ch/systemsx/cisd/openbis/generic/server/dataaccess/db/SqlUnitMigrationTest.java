@@ -157,6 +157,15 @@ public final class SqlUnitMigrationTest
             return "MyDataSource[" + driver + ", " + url + ", " + owner + "]";
         }
 
+        public boolean isWrapperFor(Class<?> arg0) throws SQLException
+        {
+            return false;
+        }
+
+        public <T> T unwrap(Class<T> arg0) throws SQLException
+        {
+            return null;
+        }
     }
 
     private static final IDataSourceFactory DATA_SOURCE_FACTORY = new IDataSourceFactory()
