@@ -282,8 +282,8 @@ public class DatabaseInstanceImporterTest extends AbstractFileSystemTestCase
         } catch (UserFailureException e)
         {
             assertEquals("There is already a database instance with code 'CISD'. "
-                    + "Please, choose another code with the command line option '-d'.", e
-                    .getMessage());
+                    + "Please, choose another code with the command line option '-d'.",
+                    e.getMessage());
         }
 
         context.assertIsSatisfied();
@@ -365,7 +365,7 @@ public class DatabaseInstanceImporterTest extends AbstractFileSystemTestCase
         } catch (UserFailureException ex)
         {
             assertEquals(
-                    "Current database does not have tables [PROPERTY_TYPES, PROPERTY_VALUES, DATABASE_INSTANCES]\n"
+                    "Current database does not have tables [DATABASE_INSTANCES, PROPERTY_TYPES, PROPERTY_VALUES]\n"
                             + " which exist in the database to be imported.", ex.getMessage());
         }
 
@@ -386,8 +386,8 @@ public class DatabaseInstanceImporterTest extends AbstractFileSystemTestCase
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            assertEquals("Can not find table 'database_instances' in current-database", ex
-                    .getMessage());
+            assertEquals("Can not find table 'database_instances' in current-database",
+                    ex.getMessage());
         }
 
         context.assertIsSatisfied();

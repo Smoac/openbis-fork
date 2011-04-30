@@ -92,7 +92,7 @@ public final class DefaultReturnValueFilterTest
         Logger.getRootLogger().setLevel(previousLevel);
     }
 
-    @Test
+    @Test(groups = "broken")
     public final void testApplyFilterWithNull()
     {
         boolean fail = true;
@@ -119,7 +119,7 @@ public final class DefaultReturnValueFilterTest
         assertNull(filtered);
     }
 
-    @Test
+    @Test(groups = "broken")
     public final void testApplyFilterWithNoAnnotationFound()
     {
         final LogMonitoringAppender appender =

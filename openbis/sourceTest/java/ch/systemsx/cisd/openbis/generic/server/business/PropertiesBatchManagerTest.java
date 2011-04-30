@@ -73,8 +73,8 @@ public class PropertiesBatchManagerTest extends AssertJUnit
         new PropertiesBatchManager().manageProperties(builder.getExperimentTypePE(),
                 Arrays.asList(e1, e2), null);
 
-        assertProperties("UN-MANAGED:hello, MANAGED-NO-SUBCOLUMNS:hi", e1);
-        assertProperties("MANAGED-NO-SUBCOLUMNS-BUT-UPDATE:hi alpha, MANAGED_SUBCOLUMNS:ab12", e2);
+        assertProperties("MANAGED-NO-SUBCOLUMNS:hi, UN-MANAGED:hello", e1);
+        assertProperties("MANAGED_SUBCOLUMNS:ab12, MANAGED-NO-SUBCOLUMNS-BUT-UPDATE:hi alpha", e2);
     }
 
     @Test
