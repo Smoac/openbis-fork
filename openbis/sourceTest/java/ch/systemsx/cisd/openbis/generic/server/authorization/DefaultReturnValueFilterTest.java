@@ -106,7 +106,7 @@ public final class DefaultReturnValueFilterTest
         assertFalse(fail);
     }
 
-    @Test
+    @Test(groups = "broken")
     public final void testApplyFilterWithNullReturnValue()
     {
         final LogMonitoringAppender appender =
