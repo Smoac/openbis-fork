@@ -28,7 +28,7 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.general.Dataset;
 import org.jfree.data.statistics.HistogramDataset;
 
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ITabularData;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ITabularData;
 
 /**
  * @author Chandrasekhar Ramakrishnan

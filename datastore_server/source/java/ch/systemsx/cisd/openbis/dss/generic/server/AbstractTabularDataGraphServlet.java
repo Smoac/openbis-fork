@@ -29,7 +29,7 @@ import javax.servlet.http.HttpSession;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.server.graph.ITabularDataGraph;
 import ch.systemsx.cisd.openbis.dss.generic.server.graph.TabularDataGraphCollectionConfiguration;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ITabularData;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ITabularData;
 
 /**
  * @author Chandrasekhar Ramakrishnan

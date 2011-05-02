@@ -29,7 +29,7 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ITabularData;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ITabularData;
 
 /**
  * @author Chandrasekhar Ramakrishnan

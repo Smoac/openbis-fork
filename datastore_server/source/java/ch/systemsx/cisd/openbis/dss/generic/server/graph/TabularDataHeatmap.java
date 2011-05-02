@@ -40,7 +40,7 @@ import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.RectangleInsets;
 
 import ch.systemsx.cisd.bds.hcs.Location;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ITabularData;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ITabularData;
 
 /**
  * @author Chandrasekhar Ramakrishnan

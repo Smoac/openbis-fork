@@ -23,7 +23,6 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ITabularData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**

@@ -33,7 +33,7 @@ import org.jfree.chart.title.TextTitle;
 import org.jfree.data.general.Dataset;
 import org.jfree.data.xy.DefaultXYDataset;
 
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ITabularData;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ITabularData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 
 /**

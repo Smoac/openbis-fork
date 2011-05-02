@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks;
+package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 
 import java.util.List;
 

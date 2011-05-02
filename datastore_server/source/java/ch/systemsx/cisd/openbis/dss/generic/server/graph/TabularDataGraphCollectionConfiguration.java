@@ -31,8 +31,8 @@ import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.graph.TabularDataGraphConfiguration.GraphType;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ITabularData;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ITabularData;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CsvFileReaderHelper.ICsvFileReaderConfiguration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 
