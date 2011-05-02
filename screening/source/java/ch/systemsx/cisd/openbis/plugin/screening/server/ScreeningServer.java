@@ -94,13 +94,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorV
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialAllReplicasFeatureVectors;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaFeatureSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaFeatureSummaryResult;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaSubgroupFeatureSummary;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaSubgroupFeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaSummaryAggregationType;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSingleReplicaFeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSummarySettings;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
@@ -324,95 +319,10 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
             TechId experimentId, TechId materialId)
     {
         Session session = getSession(sessionToken);
-        // NOTE: we want the settings t be passed form the client in future
+        // NOTE: we want the settings to be passed form the client in future
         MaterialSummarySettings settings = createDefaultSettings();
-        MaterialAllReplicasFeatureVectors backendResult =
-                MaterialFeatureVectorSummaryLoader.tryLoadMaterialFeatureVectors(session,
-                        businessObjectFactory, getDAOFactory(), materialId, experimentId, settings);
-        if (backendResult == null)
-        {
-            return createEmptyMaterialReplicaFeatureSummaryResult();
-        }
-        return convert(backendResult);
-    }
-
-    private static MaterialReplicaFeatureSummaryResult createEmptyMaterialReplicaFeatureSummaryResult()
-    {
-        return new MaterialReplicaFeatureSummaryResult(new ArrayList<String>(),
-                new ArrayList<MaterialReplicaFeatureSummary>());
-    }
-
-    private MaterialReplicaFeatureSummaryResult convert(
-            MaterialAllReplicasFeatureVectors backendResult)
-    {
-        List<String> subgroupLabels = new ArrayList<String>();
-        final List<MaterialReplicaSubgroupFeatureVector> backendSubgroups =
-                backendResult.getSubgroups();
-        for (MaterialReplicaSubgroupFeatureVector backendSubgroup : backendSubgroups)
-        {
-            subgroupLabels.add(backendSubgroup.getSubgroupLabel());
-        }
-
-        List<MaterialReplicaFeatureSummary> replicaRows =
-                new ArrayList<MaterialReplicaFeatureSummary>();
-        float[] featureVectorDeviatons =
-                backendResult.getGeneralSummary().getFeatureVectorDeviations();
-        float[] featureVectorSummaries =
-                backendResult.getGeneralSummary().getFeatureVectorSummary();
-        int[] featureVectorRanks = backendResult.getGeneralSummary().getFeatureVectorRanks();
-
-        final List<CodeAndLabel> featureDescriptions = backendResult.getFeatureDescriptions();
-
-        int numFeatures = featureDescriptions.size();
-        for (int i = 0; i < numFeatures; i++)
-        {
-            MaterialReplicaFeatureSummary replicaRow = new MaterialReplicaFeatureSummary();
-            replicaRows.add(replicaRow);
-
-            replicaRow.setFeatureVectorDeviation(featureVectorDeviatons[i]);
-            replicaRow.setFeatureVectorSummary(featureVectorSummaries[i]);
-            replicaRow.setFeatureVectorRank(featureVectorRanks[i]);
-            replicaRow.setFeatureDescription(featureDescriptions.get(i));
-
-            float[] defaultFeatureValues = extractFeatureValues(i, backendResult.getReplicas());
-            if (defaultFeatureValues != null)
-            {
-                MaterialReplicaSubgroupFeatureSummary defaultReplica =
-                        new MaterialReplicaSubgroupFeatureSummary(defaultFeatureValues, 0,
-                                MaterialReplicaSummaryAggregationType.MEDIAN);
-                replicaRow.setDefaultSubgroup(defaultReplica);
-            }
-
-            List<MaterialReplicaSubgroupFeatureSummary> subgroups =
-                    new ArrayList<MaterialReplicaSubgroupFeatureSummary>();
-            replicaRow.setReplicaSubgroups(subgroups);
-            for (int tmp = 0; tmp < backendSubgroups.size(); tmp++)
-            {
-                MaterialReplicaSubgroupFeatureVector backendGroup = backendSubgroups.get(tmp);
-                final float[] aggregatedSummaries = backendGroup.getAggregatedSummary();
-                float[] featureValues =
-                        extractFeatureValues(i, backendGroup.getSingleReplicaValues());
-                MaterialReplicaSubgroupFeatureSummary subgroup =
-                        new MaterialReplicaSubgroupFeatureSummary(featureValues,
-                                aggregatedSummaries[i], backendGroup.getSummaryAggregationType());
-                subgroups.add(subgroup);
-            }
-        }
-
-        return new MaterialReplicaFeatureSummaryResult(subgroupLabels, replicaRows);
-
-    }
-
-    private float[] extractFeatureValues(int i, List<MaterialSingleReplicaFeatureVector> replicas)
-    {
-        float[] result = new float[replicas.size()];
-        for (int pos = 0; pos < result.length; pos++)
-        {
-            float[] aggregatedValues = replicas.get(pos).getFeatueVectorSummary();
-            result[pos] = aggregatedValues[i];
-
-        }
-        return result;
+        return MaterialFeatureVectorSummaryLoader.loadMaterialFeatureVectors(session,
+                businessObjectFactory, getDAOFactory(), materialId, experimentId, settings);
     }
 
     // --------- IScreeningOpenbisServer - method signature should be changed with care

@@ -29,18 +29,22 @@ import ch.systemsx.cisd.common.collections.GroupByMap;
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.IWellData;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialAllReplicasFeatureVectors;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialReplicaSubgroupFeatureVector;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialSingleReplicaFeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.WellDataCollection;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialAllReplicasFeatureVectors;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialFeatureVectorSummary;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaSubgroupFeatureVector;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaFeatureSummary;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaFeatureSummaryResult;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaSubgroupFeatureSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaSummaryAggregationType;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSingleReplicaFeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSummarySettings;
 
 /**
@@ -54,13 +58,101 @@ public class MaterialFeatureVectorSummaryLoader extends ExperimentFeatureVectorS
     /**
      * For comments {@See MaterialFeatureVectorSummaryLoader}.
      */
-    public static MaterialAllReplicasFeatureVectors tryLoadMaterialFeatureVectors(Session session,
+    public static MaterialReplicaFeatureSummaryResult loadMaterialFeatureVectors(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
             TechId materialId, TechId experimentId, MaterialSummarySettings settings)
     {
-        return new MaterialFeatureVectorSummaryLoader(session, businessObjectFactory, daoFactory,
-                settings).tryLoadMaterialFeatureVectors(materialId, experimentId);
+        MaterialAllReplicasFeatureVectors result =
+                new MaterialFeatureVectorSummaryLoader(session, businessObjectFactory, daoFactory,
+                        settings).tryLoadMaterialFeatureVectors(materialId, experimentId);
+        if (result == null)
+        {
+            return createEmptyMaterialReplicaFeatureSummaryResult();
+        }
+        return convert(result);
     }
+
+    private static MaterialReplicaFeatureSummaryResult createEmptyMaterialReplicaFeatureSummaryResult()
+    {
+        return new MaterialReplicaFeatureSummaryResult(new ArrayList<String>(),
+                new ArrayList<MaterialReplicaFeatureSummary>());
+    }
+
+    private static MaterialReplicaFeatureSummaryResult convert(
+            MaterialAllReplicasFeatureVectors backendResult)
+    {
+        List<String> subgroupLabels = new ArrayList<String>();
+        final List<MaterialReplicaSubgroupFeatureVector> backendSubgroups =
+                backendResult.getSubgroups();
+        for (MaterialReplicaSubgroupFeatureVector backendSubgroup : backendSubgroups)
+        {
+            subgroupLabels.add(backendSubgroup.getSubgroupLabel());
+        }
+
+        List<MaterialReplicaFeatureSummary> replicaRows =
+                new ArrayList<MaterialReplicaFeatureSummary>();
+        float[] featureVectorDeviatons =
+                backendResult.getGeneralSummary().getFeatureVectorDeviations();
+        float[] featureVectorSummaries =
+                backendResult.getGeneralSummary().getFeatureVectorSummary();
+        int[] featureVectorRanks = backendResult.getGeneralSummary().getFeatureVectorRanks();
+
+        final List<CodeAndLabel> featureDescriptions = backendResult.getFeatureDescriptions();
+
+        int numFeatures = featureDescriptions.size();
+        for (int i = 0; i < numFeatures; i++)
+        {
+            MaterialReplicaFeatureSummary replicaRow = new MaterialReplicaFeatureSummary();
+            replicaRows.add(replicaRow);
+
+            replicaRow.setFeatureVectorDeviation(featureVectorDeviatons[i]);
+            replicaRow.setFeatureVectorSummary(featureVectorSummaries[i]);
+            replicaRow.setFeatureVectorRank(featureVectorRanks[i]);
+            replicaRow.setFeatureDescription(featureDescriptions.get(i));
+
+            float[] defaultFeatureValues = extractFeatureValues(i, backendResult.getReplicas());
+            if (defaultFeatureValues != null)
+            {
+                MaterialReplicaSubgroupFeatureSummary defaultReplica =
+                        new MaterialReplicaSubgroupFeatureSummary(defaultFeatureValues, 0,
+                                MaterialReplicaSummaryAggregationType.MEDIAN);
+                replicaRow.setDefaultSubgroup(defaultReplica);
+            }
+
+            List<MaterialReplicaSubgroupFeatureSummary> subgroups =
+                    new ArrayList<MaterialReplicaSubgroupFeatureSummary>();
+            replicaRow.setReplicaSubgroups(subgroups);
+            for (int tmp = 0; tmp < backendSubgroups.size(); tmp++)
+            {
+                MaterialReplicaSubgroupFeatureVector backendGroup = backendSubgroups.get(tmp);
+                final float[] aggregatedSummaries = backendGroup.getAggregatedSummary();
+                float[] featureValues =
+                        extractFeatureValues(i, backendGroup.getSingleReplicaValues());
+                MaterialReplicaSubgroupFeatureSummary subgroup =
+                        new MaterialReplicaSubgroupFeatureSummary(featureValues,
+                                aggregatedSummaries[i], backendGroup.getSummaryAggregationType());
+                subgroups.add(subgroup);
+            }
+        }
+
+        return new MaterialReplicaFeatureSummaryResult(subgroupLabels, replicaRows);
+
+    }
+
+    private static float[] extractFeatureValues(int i,
+            List<MaterialSingleReplicaFeatureVector> replicas)
+    {
+        float[] result = new float[replicas.size()];
+        for (int pos = 0; pos < result.length; pos++)
+        {
+            float[] aggregatedValues = replicas.get(pos).getFeatueVectorSummary();
+            result[pos] = aggregatedValues[i];
+
+        }
+        return result;
+    }
+
+    // ----------------------
 
     @Private
     MaterialFeatureVectorSummaryLoader(Session session,

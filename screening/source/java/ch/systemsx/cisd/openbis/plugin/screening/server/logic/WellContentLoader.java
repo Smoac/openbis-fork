@@ -158,7 +158,7 @@ public class WellContentLoader extends AbstractContentLoader
             return Collections.emptyList();
         }
         Map<Long, DatasetImagesReference> plateToDatasetReferenceMap =
-                createPlateToDatasetReferenceMap(imageDatasets);
+                createPlateToSingleDatasetReferenceMap(imageDatasets);
         return enrichWithSingleImageDatasets(locations, plateToDatasetReferenceMap);
     }
 
@@ -185,7 +185,7 @@ public class WellContentLoader extends AbstractContentLoader
     // take the first and ignore the rest. The clean solution would be to ensure somehow that each
     // plate has at most one image dataset (can be possible only when there will be abstraction
     // which groups raw/overview/thumbnail images into one dataset).
-    private Map<Long, DatasetImagesReference> createPlateToDatasetReferenceMap(
+    private Map<Long, DatasetImagesReference> createPlateToSingleDatasetReferenceMap(
             Collection<ExternalData> imageDatasets)
     {
         TableMap<Long, ExternalData> plateToDatasetMap =
@@ -198,10 +198,10 @@ public class WellContentLoader extends AbstractContentLoader
                                 }
                             }, UniqueKeyViolationStrategy.KEEP_FIRST);
 
-        return createPlateToDatasetReferenceMap(plateToDatasetMap);
+        return asDatasetImagesReferenceMap(plateToDatasetMap);
     }
 
-    private Map<Long, DatasetImagesReference> createPlateToDatasetReferenceMap(
+    private Map<Long, DatasetImagesReference> asDatasetImagesReferenceMap(
             TableMap<Long, ExternalData> plateToDatasetMap)
     {
         Map<String, ImageDatasetParameters> imageParams = loadImagesReport(plateToDatasetMap);

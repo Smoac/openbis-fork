@@ -1,17 +1,17 @@
-package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
+package ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto;
 
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialFeatureVectorSummary;
 
 /**
  * Feature vectors (details and summaries) for one material.
  * 
  * @author Tomasz Pylak
  */
-// TODO 2011-04-13, Tomasz Pylak: move to the server side
 public class MaterialAllReplicasFeatureVectors implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
@@ -21,9 +21,6 @@ public class MaterialAllReplicasFeatureVectors implements ISerializable
 
     private MaterialFeatureVectorSummary generalSummary;
 
-    // DISPLAY NOTE: All the columns should be sorted by <subgroupName> and inside each subgroup
-    // they should be sorted by <replicaSequenceNumber>.
-    // It can be assumed that the data in this DTO are provided in a way which ensure this order.
     // NOTE: Can be empty.
     private List<MaterialReplicaSubgroupFeatureVector> subgroups;
 

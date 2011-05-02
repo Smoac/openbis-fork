@@ -50,7 +50,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorV
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialAllReplicasFeatureVectors;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaFeatureSummaryResult;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
@@ -210,7 +209,8 @@ public interface IScreeningServer extends IServer
             List<NewSamplesWithTypes> newSamplesWithType);
 
     /**
-     * Returns a {@link ExperimentFeatureVectorSummary} for the given experiment.
+     * Returns aggregated feature vectors with their rankings in the specified experiment for all
+     * materials.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
@@ -218,8 +218,8 @@ public interface IScreeningServer extends IServer
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId);
 
     /**
-     * Returns a {@link MaterialAllReplicasFeatureVectors} for the given experiment and material
-     * ids.
+     * Returns a feature vector summary (with details for each replica) for the given experiment and
+     * material.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)

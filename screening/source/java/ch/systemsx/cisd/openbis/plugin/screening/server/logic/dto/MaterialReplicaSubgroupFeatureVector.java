@@ -1,9 +1,10 @@
-package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
+package ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto;
 
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaSummaryAggregationType;
 
 /**
  * Feature vector summary for the subgroup of well replicas together with detailed feature vectors
@@ -15,18 +16,13 @@ public class MaterialReplicaSubgroupFeatureVector implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    // DISPLAY NOTE: The header of each column should be:
-    // <subgroupName> repl. <replicaSequenceNumber>
-    // e.g. SIRNA XYZ repl. 2
     private List<MaterialSingleReplicaFeatureVector> singleReplicaValues;
 
     // e.g. average or median of all replica values in this supgroup
-    // DISPLAY NOTE: this is e.g. the "median" column for each subgroup of 3 replicas for the same
-    // SIRNA in the prototype
+    // This is the aggregation of a subgroup of replicas for e.g. the same SIRNA
     private float[] aggregatedSummary;
 
-    // DISPLAY NOTE: this decides about the header of the subgroup summary (aggregatedSummaryfield).
-    // For now only "Median", but "Average" will be added in future.
+    // aggregation type of the subgroup summary
     private MaterialReplicaSummaryAggregationType summaryAggregationType;
 
     private String subgroupLabel;
@@ -39,8 +35,8 @@ public class MaterialReplicaSubgroupFeatureVector implements ISerializable
 
     public MaterialReplicaSubgroupFeatureVector(
             List<MaterialSingleReplicaFeatureVector> singleReplicaValues,
-            float[] aggregatedSummary, MaterialReplicaSummaryAggregationType summaryAggregationType,
-            String subgroupLabel)
+            float[] aggregatedSummary,
+            MaterialReplicaSummaryAggregationType summaryAggregationType, String subgroupLabel)
     {
         this.singleReplicaValues = singleReplicaValues;
         this.aggregatedSummary = aggregatedSummary;
