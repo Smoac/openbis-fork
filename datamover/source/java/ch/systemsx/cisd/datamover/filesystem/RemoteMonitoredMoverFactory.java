@@ -40,15 +40,18 @@ public final class RemoteMonitoredMoverFactory
      * @param sourceDirectory The directory to move paths from
      * @param destinationDirectory The directory to move paths to.
      * @param parameters The timing parameters used for monitoring and reporting stall situations.
+     * @param notifyLogOnDeletionFailure If <code>true</code>, a failure to delete the item after
+     *            successful copying will trigger a notification log.
      * @throws ConfigurationFailureException If the store copier is local and doesn't pass the
      *             self-test.
      */
     public static final IStoreMover create(final IFileStore sourceDirectory,
-            final IFileStore destinationDirectory, final ITimingParameters parameters)
-            throws ConfigurationFailureException
+            final IFileStore destinationDirectory, final ITimingParameters parameters,
+            final boolean notifyLogOnDeletionFailure) throws ConfigurationFailureException
     {
         final IStoreCopier copier = sourceDirectory.getCopier(destinationDirectory);
         FileStoreSelfTestables.addSelfTestable(copier);
-        return new RemotePathMover(sourceDirectory, destinationDirectory, copier, parameters);
+        return new RemotePathMover(sourceDirectory, destinationDirectory, copier, parameters,
+                notifyLogOnDeletionFailure);
     }
 }

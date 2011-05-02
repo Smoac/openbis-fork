@@ -161,7 +161,7 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
     private IStoreMover createRemotePathMover(final IFileStore sourceStore,
             final IFileStore destinationStore)
     {
-        return RemoteMonitoredMoverFactory.create(sourceStore, destinationStore, parameters);
+        return RemoteMonitoredMoverFactory.create(sourceStore, destinationStore, parameters, false);
     }
 
     public TimerTask createRecoverableTimerTask()
@@ -259,12 +259,12 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
             return false;
         } else if (moveStatus == MoveStatus.COPY_OK_DELETION_FAILED)
         {
-            notifyLog
-                    .error(String
-                            .format("File or directory '%s' was successfully copied "
-                                    + "to the buffer directory but couldn't be deleted for an unknown reason. "
-                                    + "An administrator needs to fix this issue and delete this file or directory manually.",
-                                    sourceItem));
+            notifyLog.error(String.format(
+                    "Path '%s' was successfully copied from incoming store '%s' to "
+                            + "the buffer directory '%s' but couldn't be deleted in "
+                            + "incoming for an unknown reason. "
+                            + "An administrator needs to delete this path manually.", sourceItem,
+                    incomingStore.toString(), copyInProgressStore.toString()));
         }
         // 2. Move to final directory, delete marker
         final File finalFile =

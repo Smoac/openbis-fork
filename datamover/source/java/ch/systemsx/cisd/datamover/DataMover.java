@@ -291,7 +291,7 @@ public final class DataMover
     {
         final IStoreHandler moveHandler =
                 new StoreHandlerToMoverAdapter(RemoteMonitoredMoverFactory.create(source,
-                        destination, parameters));
+                        destination, parameters, true));
         final String transferFinishedExecutable = parameters.getTransferFinishedExecutable();
         if (transferFinishedExecutable == null)
         {

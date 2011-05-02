@@ -76,14 +76,14 @@ public final class RemotePathMover implements IStoreMover
 
     private static final String TERMINATING_COPIER_LOG_TEMPLATE = "Terminating copier %s: %s.";
 
-    private static final Logger machineLog =
-            LogFactory.getLogger(LogCategory.MACHINE, RemotePathMover.class);
+    private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE,
+            RemotePathMover.class);
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, RemotePathMover.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            RemotePathMover.class);
 
-    private static final Logger notificationLog =
-            LogFactory.getLogger(LogCategory.NOTIFY, RemotePathMover.class);
+    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
+            RemotePathMover.class);
 
     private static final ConditionalNotificationLogger conditionalLogger =
             new ConditionalNotificationLogger(machineLog, notificationLog, 3);
@@ -100,6 +100,8 @@ public final class RemotePathMover implements IStoreMover
 
     private final int maximalNumberOfRetries;
 
+    private final boolean notifyLogOnDeletionFailure;
+
     private boolean stopped;
 
     /**
@@ -110,11 +112,13 @@ public final class RemotePathMover implements IStoreMover
      * @param copier Copies items from source to destination
      * @param timingParameters The timing parameters used for monitoring and reporting stall
      *            situations.
+     * @param notifyLogOnDeletionFailure If <code>true</code>, a failure to delete the item after
+     *            successful copying will trigger a notification log.
      * @throws ConfigurationFailureException If the destination directory is not fully accessible.
      */
     public RemotePathMover(final IFileStore sourceDirectory, final IFileStore destinationDirectory,
-            final IStoreCopier copier, final ITimingParameters timingParameters)
-            throws ConfigurationFailureException
+            final IStoreCopier copier, final ITimingParameters timingParameters,
+            final boolean notifyLogOnDeletionFailure) throws ConfigurationFailureException
     {
         assert sourceDirectory != null;
         assert destinationDirectory != null;
@@ -128,6 +132,7 @@ public final class RemotePathMover implements IStoreMover
         this.intervallToWaitAfterFailure = timingParameters.getIntervalToWaitAfterFailure();
         this.maximalNumberOfRetries = timingParameters.getMaximalNumberOfRetries();
         this.inactivityPeriodMillis = timingParameters.getInactivityPeriodMillis();
+        this.notifyLogOnDeletionFailure = notifyLogOnDeletionFailure;
         this.stopped = false;
 
         assert intervallToWaitAfterFailure >= 0;
@@ -142,8 +147,7 @@ public final class RemotePathMover implements IStoreMover
     private final Status copyAndMonitor(final StoreItem item)
     {
         final InactivityMonitor monitor =
-                new InactivityMonitor(
-                        new RemoteStoreCopyActivitySensor(destinationStore, item),
+                new InactivityMonitor(new RemoteStoreCopyActivitySensor(destinationStore, item),
                         new IInactivityObserver()
                             {
                                 public void update(long inactiveSinceMillis,
@@ -202,8 +206,11 @@ public final class RemotePathMover implements IStoreMover
 
         if (Status.OK.equals(removalStatus) == false)
         {
-            notificationLog.error(String.format(REMOVING_LOCAL_PATH_FAILED_TEMPLATE,
-                    getSrcPath(sourceItem), removalStatus));
+            if (notifyLogOnDeletionFailure)
+            {
+                notificationLog.error(String.format(REMOVING_LOCAL_PATH_FAILED_TEMPLATE,
+                        getSrcPath(sourceItem), removalStatus));
+            }
             return false;
         } else if (operationLog.isInfoEnabled())
         {
@@ -243,8 +250,8 @@ public final class RemotePathMover implements IStoreMover
             final Status status = getDeletionMarkerStore().delete(markerOrNull);
             if (status.equals(Status.OK) == false)
             {
-                machineLog.error(String.format("Cannot remove marker file '%s'", getPath(
-                        destinationStore, markerOrNull)));
+                machineLog.error(String.format("Cannot remove marker file '%s'",
+                        getPath(destinationStore, markerOrNull)));
             }
         }
     }
@@ -376,7 +383,8 @@ public final class RemotePathMover implements IStoreMover
                     operationLog.info(String.format(FINISH_COPYING_PATH_TEMPLATE, getSrcPath(item),
                             destinationStore, (endTime - startTime) / 1000.0));
                 }
-                return removeAndMark(item) ? MoveStatus.MOVE_OK : MoveStatus.COPY_OK_DELETION_FAILED;
+                return removeAndMark(item) ? MoveStatus.MOVE_OK
+                        : MoveStatus.COPY_OK_DELETION_FAILED;
             } else
             {
                 operationLog.warn(String.format(COPYING_PATH_TO_REMOTE_FAILED, getSrcPath(item),
