@@ -488,16 +488,17 @@ class LogicalImageSeriesGrid
             matrix = new ArrayList<List<ImageSeriesPoint>>();
             
             Set<Integer> depthMapSizes = new HashSet<Integer>();
+            int depthLevelCount = 0;
             for (Map<Float, ImageSeriesPoint> depthMap : values)
             {
                 matrix.add(new ArrayList<ImageSeriesPoint>(depthMap.values()));
+                depthLevelCount = Math.max(depthLevelCount, depthMap.size());
                 depthMapSizes.add(depthMap.size());
             }
-            int depthMapSizesSize = depthMapSizes.size();
-            numberOfDepthLevels = depthMapSizesSize == 0 ? 0 : depthMapSizes.iterator().next();
+            numberOfDepthLevels = depthLevelCount;
             matrixViewPossible =
                     seriesNumberPresent == false && timepointOrDepthNotPresent == false
-                            && depthMapSizesSize == 1;
+                            && depthMapSizes.size() == 1;
         }
         
         public ImageSeriesPoint get(int timeIndex, int depthIndex)
