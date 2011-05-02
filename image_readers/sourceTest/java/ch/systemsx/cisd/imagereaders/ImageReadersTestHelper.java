@@ -25,6 +25,10 @@ import java.util.Map;
 import org.apache.commons.io.FileUtils;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.imagereaders.bioformats.BioFormatsReaderLibrary;
+import ch.systemsx.cisd.imagereaders.ij.ImageJReaderLibrary;
+import ch.systemsx.cisd.imagereaders.imageio.ImageIOReaderLibrary;
+import ch.systemsx.cisd.imagereaders.jai.JAIReaderLibrary;
 
 /**
  * A class that facilitates unit testing with JDK 1.5.
@@ -36,13 +40,14 @@ public class ImageReadersTestHelper
 
     private static final String SERVICES_FILE_TEMPLATE =
             "./resource/manifest/%s/META-INF/services/" + IImageReaderLibrary.class.getName();
-    
+
     // NOTE : we *cannot* put real classes/instances here, because we do not know if all
     // libraries jar files will be on the classpath.
     private static final Map<String/* library name */, String /* library classname */> librariesByName =
             new HashMap<String, String>();
-    
-    static {
+
+    static
+    {
         librariesByName.put(ImageReaderConstants.IMAGEIO_LIBRARY,
                 "ch.systemsx.cisd.imagereaders.imageio.ImageIOReaderLibrary");
         librariesByName.put(ImageReaderConstants.IMAGEJ_LIBRARY,
@@ -82,7 +87,7 @@ public class ImageReadersTestHelper
 
         ImageReaderFactory.setLibraries(libs);
     }
-    
+
     private static IImageReaderLibrary getLibraryFromMap(String library) throws Exception
     {
         String libClassName = librariesByName.get(library);
@@ -92,7 +97,7 @@ public class ImageReadersTestHelper
         }
         return (IImageReaderLibrary) Class.forName(libClassName).newInstance();
     }
-    
+
     private static IImageReaderLibrary getLibraryFromManifest(String library) throws Exception
     {
         String libClassName = readLibraryClassName(library);
@@ -113,14 +118,27 @@ public class ImageReadersTestHelper
         if (StringUtils.isBlank(fileContent))
         {
             String error =
-                String.format("Cannot read class name for library '%s' from '%s'", library,
-                        servicesFileName);
+                    String.format("Cannot read class name for library '%s' from '%s'", library,
+                            servicesFileName);
             throw new IllegalArgumentException(error);
 
         }
 
         String className = fileContent.trim();
         return className;
+    }
+
+    public static void main(String[] args)
+    {
+        printReaders(new ImageJReaderLibrary());
+        printReaders(new ImageIOReaderLibrary());
+        printReaders(new JAIReaderLibrary());
+        printReaders(new BioFormatsReaderLibrary());
+    }
+
+    private static void printReaders(IImageReaderLibrary library)
+    {
+        System.out.println(library.getName() + ": " + library.getReaderNames());
     }
 
 }
