@@ -115,7 +115,7 @@ public class AbsoluteImageReference extends AbstractImageReference
             imageLibraryReaderNameOrNull = imageLibraryOrNull.getReaderName();
         }
         return ImageUtil.loadImage(content, pageOrNull, imageLibraryNameOrNull,
-                imageLibraryReaderNameOrNull);
+                imageLibraryReaderNameOrNull, null);
     }
 
     public RequestedImageSize getRequestedSize()

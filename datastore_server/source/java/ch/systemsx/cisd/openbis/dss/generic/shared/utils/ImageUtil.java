@@ -43,6 +43,7 @@ import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
 import ch.systemsx.cisd.common.utilities.DataTypeUtil;
 import ch.systemsx.cisd.imagereaders.IImageReader;
+import ch.systemsx.cisd.imagereaders.IReadParams;
 import ch.systemsx.cisd.imagereaders.ImageReaderConstants;
 import ch.systemsx.cisd.imagereaders.ImageReaderFactory;
 import ch.systemsx.cisd.imagereaders.TiffReadParams;
@@ -202,7 +203,7 @@ public class ImageUtil
      *             identifying supported image format.
      */
     public static BufferedImage loadImage(IContent content, Integer pageOrNull,
-            String imageLibraryNameOrNull, String imageLibraryReaderNameOrNull)
+            String imageLibraryNameOrNull, String imageLibraryReaderNameOrNull, IReadParams params)
     {
         assert (imageLibraryReaderNameOrNull == null || imageLibraryNameOrNull != null) : "if image reader "
                 + "is specified then library name should be specified as well";
@@ -213,7 +214,7 @@ public class ImageUtil
                             imageLibraryReaderNameOrNull);
             if (reader != null)
             {
-                return reader.readImage(content.getReadOnlyRandomAccessFile(), null);
+                return reader.readImage(content.getReadOnlyRandomAccessFile(), params);
             }
         }
         return loadImageGuessingLibrary(content, pageOrNull);
@@ -285,7 +286,7 @@ public class ImageUtil
     @Private
     static BufferedImage loadImage(IContent content)
     {
-        return loadImage(content, 0, null, null);
+        return loadImage(content, 0, null, null, null);
     }
 
     /**

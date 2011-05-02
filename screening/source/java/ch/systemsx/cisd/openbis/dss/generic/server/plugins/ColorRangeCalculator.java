@@ -18,12 +18,15 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import ch.systemsx.cisd.common.io.FileBasedContent;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
+import ch.systemsx.cisd.imagereaders.IImageReader;
+import ch.systemsx.cisd.imagereaders.ImageReaderConstants;
+import ch.systemsx.cisd.imagereaders.ImageReaderFactory;
+import ch.systemsx.cisd.imagereaders.TiffReadParams;
 
 /**
  * Helper methods and standalone program to calculate the range of brightness of a collection of
@@ -122,21 +125,55 @@ public class ColorRangeCalculator
         return new ImagePixelsRange(minColor, maxColor);
     }
 
-    public static ImagePixelsRange calculatePixelsRange(List<File> imageFiles)
+    public static ImagePixelsRange calculatePixelsRange(List<File> imageFiles) throws IOException
     {
         Collection<ImagePixelsRange> ranges =
                 new ArrayList<ColorRangeCalculator.ImagePixelsRange>();
         for (File imageFile : imageFiles)
         {
-            BufferedImage image =
-                    ImageUtil.loadImage(new FileBasedContent(imageFile), null, null, null);
+            BufferedImage image = loadImage(imageFile);
             ImagePixelsRange range = calculatePixelsRange(image, 0, Integer.MAX_VALUE);
             ranges.add(range);
         }
         return calculateOverlapRange(ranges);
     }
 
-    public static void main(String[] args)
+    private static BufferedImage tryRead(String libraryName, File file)
+    {
+        IImageReader reader =
+                ImageReaderFactory.tryGetImageReaderForFile(libraryName, file.getPath());
+        TiffReadParams params = new TiffReadParams();
+        params.setAllow16BitGrayscaleModel(true);
+        if (reader != null)
+        {
+            // System.err.println("Used reader: " + reader.getName());
+            return reader.readImage(file, params);
+        } else
+        {
+            return null;
+        }
+    }
+
+    private static BufferedImage loadImage(File file) throws IOException
+    {
+        String[] libraries =
+                new String[]
+                    { ImageReaderConstants.JAI_LIBRARY, ImageReaderConstants.IMAGEIO_LIBRARY,
+                            ImageReaderConstants.IMAGEJ_LIBRARY,
+                            ImageReaderConstants.BIOFORMATS_LIBRARY };
+        for (String libraryName : libraries)
+        {
+            BufferedImage image = tryRead(libraryName, file);
+            if (image != null)
+            {
+                // System.err.println("Used library: " + libraryName);
+                return image;
+            }
+        }
+        throw new IOException("Cannot read image " + file.getPath());
+    }
+
+    public static void main(String[] args) throws IOException
     {
         if (args.length == 0)
         {
