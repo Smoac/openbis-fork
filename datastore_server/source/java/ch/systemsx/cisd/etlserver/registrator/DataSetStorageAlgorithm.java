@@ -173,7 +173,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         // state, there is nothing to do.
         if (state instanceof PreparedState)
         {
-            return;
+            state = new StoredState<T>((PreparedState<T>) state);
         }
 
         StoredState<T> storedState = (StoredState<T>) state;
