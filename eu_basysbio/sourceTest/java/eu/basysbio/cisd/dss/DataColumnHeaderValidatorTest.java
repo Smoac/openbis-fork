@@ -34,8 +34,6 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.etlserver.validation.Result;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DataColumnHeaderValidatorTest extends AssertJUnit
@@ -54,21 +52,21 @@ public class DataColumnHeaderValidatorTest extends AssertJUnit
         properties.setProperty("c." + TYPE_KEY, TYPE_INTEGER);
         validator = new DataColumnHeaderValidator(properties);
     }
-    
+
     @Test
     public void testUnrestricted()
     {
         Result result = new DataColumnHeaderValidator(new Properties()).validateHeader("blabla");
-        
+
         assertEquals(true, result.isValid());
     }
-    
+
     @Test
     public void testMissingElementValidatorDefinition()
     {
         Properties properties = new Properties();
         properties.setProperty(ELEMENTS_KEY, "a, b");
-        
+
         try
         {
             new DataColumnHeaderValidator(properties);
@@ -79,14 +77,14 @@ public class DataColumnHeaderValidatorTest extends AssertJUnit
                     + "' for element 'a' of data column header validator.", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testUnknownValidatorType()
     {
         Properties properties = new Properties();
         properties.setProperty(ELEMENTS_KEY, "a");
         properties.setProperty("a." + TYPE_KEY, "blabla");
-        
+
         try
         {
             new DataColumnHeaderValidator(properties);
@@ -97,14 +95,14 @@ public class DataColumnHeaderValidatorTest extends AssertJUnit
                     + "for element 'a' of data column header validator.", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testMissingTermsOfVocabularyValidatorDefinition()
     {
         Properties properties = new Properties();
         properties.setProperty(ELEMENTS_KEY, "a");
         properties.setProperty("a." + TYPE_KEY, TYPE_VOCABULARY);
-        
+
         try
         {
             new DataColumnHeaderValidator(properties);
@@ -116,7 +114,7 @@ public class DataColumnHeaderValidatorTest extends AssertJUnit
                     + "' not found in properties '[" + TYPE_KEY + "]'", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testDuplicatedTermsOfVocabularyValidatorDefinition()
     {
@@ -124,7 +122,7 @@ public class DataColumnHeaderValidatorTest extends AssertJUnit
         properties.setProperty(ELEMENTS_KEY, "a");
         properties.setProperty("a." + TYPE_KEY, TYPE_VOCABULARY);
         properties.setProperty("a." + TERMS_KEY, "alpha, alpha");
-        
+
         try
         {
             new DataColumnHeaderValidator(properties);
@@ -136,14 +134,14 @@ public class DataColumnHeaderValidatorTest extends AssertJUnit
                     + "' property.", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testMissingPatternOfStringValidatorDefinition()
     {
         Properties properties = new Properties();
         properties.setProperty(ELEMENTS_KEY, "a");
         properties.setProperty("a." + TYPE_KEY, TYPE_STRING);
-        
+
         try
         {
             new DataColumnHeaderValidator(properties);
@@ -155,7 +153,7 @@ public class DataColumnHeaderValidatorTest extends AssertJUnit
                     + "' not found in properties '[" + TYPE_KEY + "]'", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testInvalidPatternOfStringValidatorDefinition()
     {
@@ -163,7 +161,7 @@ public class DataColumnHeaderValidatorTest extends AssertJUnit
         properties.setProperty(ELEMENTS_KEY, "a");
         properties.setProperty("a." + TYPE_KEY, TYPE_STRING);
         properties.setProperty("a." + PATTERN_KEY, "[?");
-        
+
         try
         {
             new DataColumnHeaderValidator(properties);
@@ -171,11 +169,11 @@ public class DataColumnHeaderValidatorTest extends AssertJUnit
         } catch (ConfigurationFailureException ex)
         {
             assertEquals("Error in validator definition for element 'a' "
-                    + "of data column header validator: Invalid regular expression: [?", ex
-                    .getMessage());
+                    + "of data column header validator: Invalid regular expression: [?",
+                    ex.getMessage());
         }
     }
-    
+
     @Test
     public void testValidHeaders()
     {
@@ -183,36 +181,42 @@ public class DataColumnHeaderValidatorTest extends AssertJUnit
         assertEquals(Result.OK, validator.validateHeader("a4711::gamma::0"));
         assertEquals(Result.OK, validator.validateHeader("a0::alpha::+42::additional element"));
     }
-    
+
     @Test
     public void testNotEnoughHeaders()
     {
         assertInvalid("3 elements separated by '::' expected instead of only 2.", "a42::beta");
     }
-    
+
     @Test
     public void testInvalidVocabularyTypeHeaderElement()
     {
-        assertInvalid("Element 'Beta' is invalid: It is not a term from the following vocabulary: "
-                + "[gamma, beta, alpha]", "a42::Beta::12");
+        String regexp =
+                "Element 'Beta' is invalid: It is not a term from the following vocabulary: "
+                        + "\\[(gamma|beta|alpha), (gamma|beta|alpha), (gamma|beta|alpha)\\]";
+        String message = validator.validateHeader("a42::Beta::12").toString();
+
+        assertTrue("Error message does not match given expresstion, expected: '" + regexp
+                + "', was: '" + message + "'.", message.matches(regexp));
     }
-    
+
     @Test
     public void testInvalidStringTypeHeaderElement()
     {
-        assertInvalid("Element 'A42' is invalid: It does not match the following regular expression: "
-                + "a[0-9]+", "A42::beta::12");
+        assertInvalid(
+                "Element 'A42' is invalid: It does not match the following regular expression: "
+                        + "a[0-9]+", "A42::beta::12");
     }
-    
+
     @Test
     public void testInvalidIntegerTypeHeaderElement()
     {
         assertInvalid("Element '1.2' is invalid: It is not an integer number.", "a42::beta::1.2");
     }
-    
+
     private void assertInvalid(String expectedFailure, String header)
     {
         assertEquals(expectedFailure, validator.validateHeader(header).toString());
     }
-    
+
 }
