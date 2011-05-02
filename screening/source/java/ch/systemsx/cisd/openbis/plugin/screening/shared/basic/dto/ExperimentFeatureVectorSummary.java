@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
- * Aggregated feature vectors with its rankings in one experiment for all material.
+ * Aggregated feature vectors with their rankings in one experiment for all materials.
  * 
  * @author Tomasz Pylak
  */
