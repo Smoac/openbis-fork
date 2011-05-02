@@ -491,7 +491,12 @@ public final class ETLDaemon
         return new IDirectoryScanningHandler()
             {
 
-                public void beforeHandle()
+                public void init(IScannedStore scannedStore)
+                {
+                    // do nothing
+                }
+
+                public void beforeHandle(IScannedStore scannedStore)
                 {
                     // do nothing
                 }
