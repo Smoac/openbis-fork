@@ -36,6 +36,7 @@ import ch.systemsx.cisd.common.concurrent.IActivityObserver;
 import ch.systemsx.cisd.common.concurrent.MonitoringProxy;
 import ch.systemsx.cisd.common.concurrent.RecordingActivityObserverSensor;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
+import ch.systemsx.cisd.common.test.Retry10;
 
 /**
  * Test cases for {@link FileOperations}.
@@ -154,7 +155,7 @@ public class FileOperationsTest extends AbstractFileSystemTestCase
         is.read(); // times out
     }
 
-    @Test(groups = "slow")
+    @Test(groups = "slow", retryAnalyzer = Retry10.class)
     public void testTimeoutOnInputStream() throws IOException
     {
         final IFileOperations ops = create(TimingParameters.createNoRetries(50L), 20L);
