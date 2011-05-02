@@ -35,8 +35,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialFeatur
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaSummaryAggregationType;
 
 /**
- * Calculates summaries and ranks for each group of well replicas. Usually a replica is
- * determined by the material in the well, e.g. gene or compound.
+ * Calculates summaries and ranks for each group of well replicas. Usually a replica is determined
+ * by the material in the well, e.g. gene or compound.
  * 
  * @author Tomasz Pylak
  */
@@ -297,7 +297,7 @@ public class WellReplicaSummaryCalculator
         }
         return calculateMedian(featureValues);
     }
-    
+
     private static float calculateMedian(List<Float> numbers)
     {
         if (numbers.isEmpty())
