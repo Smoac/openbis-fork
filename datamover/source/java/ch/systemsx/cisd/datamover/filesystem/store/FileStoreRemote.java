@@ -19,6 +19,7 @@ package ch.systemsx.cisd.datamover.filesystem.store;
 import java.io.File;
 import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -474,6 +475,15 @@ public class FileStoreRemote extends AbstractFileStore
     public final String getLocationDescription(final StoreItem item)
     {
         return getHost() + ":" + getChildFile(item).getPath();
+    }
+
+    public StoreItem asStoreItem(String locationDescription)
+    {
+        final int beginIndex = locationDescription.indexOf(':');
+        final String path =
+                (beginIndex < 0) ? locationDescription : locationDescription
+                        .substring(beginIndex + 1);
+        return new StoreItem(FilenameUtils.getName(path));
     }
 
     private String getHost()

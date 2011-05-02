@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 
@@ -183,6 +184,11 @@ public class FileStoreLocal extends AbstractFileStore implements IExtendedFileSt
     public final String getLocationDescription(final StoreItem item)
     {
         return getChildFile(item).getPath();
+    }
+
+    public StoreItem asStoreItem(String locationDescription)
+    {
+        return new StoreItem(FilenameUtils.getName(locationDescription));
     }
 
     public final StoreItem[] tryListSortByLastModified(final ISimpleLogger loggerOrNull)

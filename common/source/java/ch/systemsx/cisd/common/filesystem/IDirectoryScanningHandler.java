@@ -95,9 +95,14 @@ public interface IDirectoryScanningHandler
     }
 
     /**
+     * Run once before the handler is used.
+     */
+    public void init(IScannedStore scannedStore);
+    
+    /**
      * Is performed just before handling all the items contained in the store.
      */
-    public void beforeHandle();
+    public void beforeHandle(IScannedStore scannedStore);
 
     /**
      * Whether given <code>storeItem</code> found in given <var>scannedStore</var> should be

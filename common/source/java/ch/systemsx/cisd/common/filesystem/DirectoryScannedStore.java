@@ -20,6 +20,7 @@ import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.filesystem.DirectoryScanningTimerTask.IScannedStore;
@@ -52,6 +53,11 @@ public final class DirectoryScannedStore implements IScannedStore
     public final String getLocationDescription(final StoreItem item)
     {
         return StoreItem.asFile(directory, item).getPath();
+    }
+
+    public StoreItem asStoreItem(String locationDescription)
+    {
+        return new StoreItem(FilenameUtils.getName(locationDescription));
     }
 
     public final boolean existsOrError(final StoreItem item)

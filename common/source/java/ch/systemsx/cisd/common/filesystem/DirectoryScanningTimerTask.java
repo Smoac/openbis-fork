@@ -230,6 +230,7 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
         {
             didSomeWork = false;
             int numberOfItemsProcessedInLastRound;
+            directoryScanningHandler.init(sourceDirectory);
             do
             {
                 numberOfItemsProcessedInLastRound = 0;
@@ -258,7 +259,7 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
                     break;
                 }
                 final int numberOfItems = storeItemsOrNull.length;
-                directoryScanningHandler.beforeHandle();
+                directoryScanningHandler.beforeHandle(sourceDirectory);
                 if (operationLog.isTraceEnabled())
                 {
                     operationLog.trace("beforeHandle() completed.");
@@ -447,6 +448,12 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
          * assumed that the result is the path which could be used in java.io.File constructor.
          */
         String getLocationDescription(StoreItem item);
+
+        /**
+         * Constructs a {@link StoreItem} from a location description as created by
+         * {@link #getLocationDescription(StoreItem)}.
+         */
+        StoreItem asStoreItem(String locationDescription);
     }
 
 }

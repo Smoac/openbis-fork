@@ -84,6 +84,11 @@ public final class FileStoreRemoteMounted extends AbstractFileStore
         return localImpl.getLocationDescription(item);
     }
 
+    public StoreItem asStoreItem(String locationDescription)
+    {
+        return localImpl.asStoreItem(locationDescription);
+    }
+
     public final Status delete(final StoreItem item)
     {
         try

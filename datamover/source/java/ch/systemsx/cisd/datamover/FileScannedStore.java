@@ -22,9 +22,9 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
+import ch.systemsx.cisd.common.filesystem.DirectoryScanningTimerTask.IScannedStore;
 import ch.systemsx.cisd.common.filesystem.IStoreItemFilter;
 import ch.systemsx.cisd.common.filesystem.StoreItem;
-import ch.systemsx.cisd.common.filesystem.DirectoryScanningTimerTask.IScannedStore;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
@@ -70,6 +70,11 @@ final class FileScannedStore implements IScannedStore
     public final String getLocationDescription(final StoreItem item)
     {
         return fileStore.getLocationDescription(item);
+    }
+
+    public StoreItem asStoreItem(String locationDescription)
+    {
+        return fileStore.asStoreItem(locationDescription);
     }
 
     public StoreItem[] tryListSorted(ISimpleLogger loggerOrNull)

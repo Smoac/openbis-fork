@@ -103,6 +103,12 @@ public interface IFileStore extends ISelfTestable, ILastModificationChecker
     public String getLocationDescription(StoreItem item);
 
     /**
+     * Constructs a {@link StoreItem} from a location description as created by
+     * {@link #getLocationDescription(StoreItem)}.
+     */
+    StoreItem asStoreItem(String locationDescription);
+
+    /**
      * Returns this file store as an extended file store if possible.
      * 
      * @return <code>null</code> if this file store can not be returned as an extended file store.

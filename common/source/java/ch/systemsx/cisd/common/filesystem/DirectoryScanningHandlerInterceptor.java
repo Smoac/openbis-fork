@@ -40,9 +40,14 @@ public class DirectoryScanningHandlerInterceptor implements IDirectoryScanningHa
     // IDirectoryScanningHandler
     //
 
-    public void beforeHandle()
+    public void init(IScannedStore scannedStore)
     {
-        directoryScanningHandler.beforeHandle();
+        directoryScanningHandler.init(scannedStore);
+    }
+
+    public void beforeHandle(IScannedStore scannedStore)
+    {
+        directoryScanningHandler.beforeHandle(scannedStore);
     }
 
     public HandleInstruction mayHandle(final IScannedStore scannedStore, final StoreItem storeItem)
