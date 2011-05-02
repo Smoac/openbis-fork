@@ -155,7 +155,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         final CheckExperiment checkExperiment = new CheckExperiment();
         checkExperiment.property("Experiment").asString(EXP1_ID);
         checkExperiment.property("PermID").matchingPattern(
-                ".*<a href=\".*permId=" + EXP1_PERM_ID + ".*>" + EXP1_PERM_ID + "</a>.*");
+                ".*<a .* href=\".*permId=" + EXP1_PERM_ID + ".*>" + EXP1_PERM_ID + "</a>.*");
         checkExperiment.property("Experiment Type").asCode(SIRNA_HCS);
         checkExperiment.property("Registrator").asPerson(DOE_JOHN);
         checkExperiment.property("Description").asProperty(A_SIMPLE_EXPERIMENT);
@@ -180,7 +180,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         final CheckExperiment checkExperiment = new CheckExperiment();
         checkExperiment.property("Experiment").asString(EXP_X_ID);
         checkExperiment.property("PermID").matchingPattern(
-                ".*<a href=\".*permId=" + EXP_X_PERM_ID + ".*>" + EXP_X_PERM_ID + "</a>.*");
+                ".*<a .* href=\".*permId=" + EXP_X_PERM_ID + ".*>" + EXP_X_PERM_ID + "</a>.*");
         checkExperiment.property("Experiment Type").asCode(SIRNA_HCS);
         checkExperiment.property("Registrator").asPerson(DOE_JOHN);
         checkExperiment.property("Invalidation").by(new IValueAssertion<Invalidation>()
@@ -203,7 +203,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         final CheckExperiment checkExperiment = new CheckExperiment();
         checkExperiment.property("Experiment").asString(EXP_TEST_1_ID);
         checkExperiment.property("PermID").matchingPattern(
-                ".*<a href=\".*permId=" + EXP_TEST_1_PERM_ID + ".*>" + EXP_TEST_1_PERM_ID
+                ".*<a .* href=\".*permId=" + EXP_TEST_1_PERM_ID + ".*>" + EXP_TEST_1_PERM_ID
                         + "</a>.*");
         checkExperiment.property("Experiment Type").asCode(COMPOUND_HCS);
         remoteConsole.prepare(checkExperiment);
