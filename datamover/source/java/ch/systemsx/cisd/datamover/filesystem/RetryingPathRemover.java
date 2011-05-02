@@ -55,8 +55,8 @@ final class RetryingPathRemover implements IPathRemover
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, RetryingPathRemover.class);
 
-    private static final Logger notificationLog =
-            LogFactory.getLogger(LogCategory.NOTIFY, RetryingPathRemover.class);
+    private static final Logger machineLog =
+            LogFactory.getLogger(LogCategory.MACHINE, RetryingPathRemover.class);
 
     private final static ExecutorService executor =
             new NamingThreadPoolExecutor("Deletion Thread").daemonize();
@@ -117,7 +117,7 @@ final class RetryingPathRemover implements IPathRemover
 
         if (deletionOK == false)
         {
-            notificationLog.error(String.format("Removing path '%s' failed, giving up.", path));
+            machineLog.error(String.format("Removing path '%s' failed, giving up.", path));
             return STATUS_FAILED_DELETION;
         } else
         {
