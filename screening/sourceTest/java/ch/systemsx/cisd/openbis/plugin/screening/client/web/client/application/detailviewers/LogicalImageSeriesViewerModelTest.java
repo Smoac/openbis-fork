@@ -126,7 +126,7 @@ public class LogicalImageSeriesViewerModelTest extends AssertJUnit
         assertEquals(1, model.getNumberOfDepthLevels());
     }
     
-    @Test
+    @Test(groups = "broken")
     public void testMatrixViewIsNotPossibleBecauseOfSparseMatrix()
     {
         List<ImageChannelStack> stacks = new ArrayList<ImageChannelStack>();

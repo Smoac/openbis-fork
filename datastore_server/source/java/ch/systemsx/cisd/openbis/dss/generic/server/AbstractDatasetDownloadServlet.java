@@ -92,6 +92,11 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
 
     protected ApplicationContext applicationContext;
 
+    static
+    {
+        MIMETYPES.addMimeTypes("application/pdf pdf");
+    }
+
     public AbstractDatasetDownloadServlet()
     {
     }
