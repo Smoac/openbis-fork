@@ -38,6 +38,7 @@ import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.utilities.CompoundTriggerable;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.TriggeringTimerTask;
+import ch.systemsx.cisd.datamover.common.StoreHandlerToMoverAdapter;
 import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
 import ch.systemsx.cisd.datamover.filesystem.RemoteMonitoredMoverFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
@@ -56,7 +57,7 @@ public final class DataMover
 {
 
     static final String STARTED_TRANSFER = "STARTED_TRANSFER";
-    
+
     static final String FINISHED_TRANSFER = "FINISHED_TRANSFER";
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
@@ -289,7 +290,8 @@ public final class DataMover
             final IFileStore destination)
     {
         final IStoreHandler moveHandler =
-                RemoteMonitoredMoverFactory.create(source, destination, parameters);
+                new StoreHandlerToMoverAdapter(RemoteMonitoredMoverFactory.create(source,
+                        destination, parameters));
         final String transferFinishedExecutable = parameters.getTransferFinishedExecutable();
         if (transferFinishedExecutable == null)
         {
@@ -341,8 +343,8 @@ public final class DataMover
      *            item name will be logged before item handling
      * @param prefixAfterOrNull if not <code>null</code> a message with this prefix and handled item
      *            name will be logged after item handling
-     * @param prefixAfterFailureOnlyOrNull if not <code>null</code> a message with this prefix and handled item
-     *            name will be logged after item handling, if the handling failed
+     * @param prefixAfterFailureOnlyOrNull if not <code>null</code> a message with this prefix and
+     *            handled item name will be logged after item handling, if the handling failed
      */
     public final static IStoreHandler wrapHandleWithLogging(final IStoreHandler originalHandler,
             final String prefixBeforeOrNull, final String prefixAfterOrNull,

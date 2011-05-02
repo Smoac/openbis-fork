@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.datamover.filesystem;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.common.filesystem.IStoreHandler;
+import ch.systemsx.cisd.datamover.common.IStoreMover;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
 import ch.systemsx.cisd.datamover.filesystem.remote.RemotePathMover;
@@ -43,7 +43,7 @@ public final class RemoteMonitoredMoverFactory
      * @throws ConfigurationFailureException If the store copier is local and doesn't pass the
      *             self-test.
      */
-    public static final IStoreHandler create(final IFileStore sourceDirectory,
+    public static final IStoreMover create(final IFileStore sourceDirectory,
             final IFileStore destinationDirectory, final ITimingParameters parameters)
             throws ConfigurationFailureException
     {

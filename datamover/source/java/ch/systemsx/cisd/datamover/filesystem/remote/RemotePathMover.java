@@ -25,12 +25,12 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
-import ch.systemsx.cisd.common.filesystem.IStoreHandler;
 import ch.systemsx.cisd.common.filesystem.StoreItem;
 import ch.systemsx.cisd.common.logging.ConditionalNotificationLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogLevel;
+import ch.systemsx.cisd.datamover.common.IStoreMover;
 import ch.systemsx.cisd.datamover.common.MarkerFile;
 import ch.systemsx.cisd.datamover.filesystem.intf.IExtendedFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
@@ -43,7 +43,7 @@ import ch.systemsx.cisd.datamover.intf.ITimingParameters;
  * 
  * @author Bernd Rinn
  */
-public final class RemotePathMover implements IStoreHandler
+public final class RemotePathMover implements IStoreMover
 {
 
     private static final String START_COPYING_PATH_TEMPLATE = "Start copying path '%s' to '%s'.";
@@ -329,7 +329,7 @@ public final class RemotePathMover implements IStoreHandler
     // IStoreHandler
     //
 
-    public final boolean handle(final StoreItem item)
+    public final MoveStatus move(final StoreItem item)
     {
         if (isDeletionInProgress(item))
         {
@@ -340,7 +340,7 @@ public final class RemotePathMover implements IStoreHandler
                 operationLog.info(String.format("Detected recovery situation: '%s' has been "
                         + "interrupted in deletion phase, finishing up.", getSrcPath(item)));
             }
-            return removeAndMark(item);
+            return removeAndMark(item) ? MoveStatus.MOVE_OK : MoveStatus.COPY_OK_DELETION_FAILED;
         }
         int tryCount = 0;
         do
@@ -364,7 +364,7 @@ public final class RemotePathMover implements IStoreHandler
             }
             if (checkTargetAvailableAgain() == false)
             {
-                return true;
+                return MoveStatus.COPY_FAILED;
             }
             final long startTime = System.currentTimeMillis();
             final Status copyStatus = copyAndMonitor(item);
@@ -376,7 +376,7 @@ public final class RemotePathMover implements IStoreHandler
                     operationLog.info(String.format(FINISH_COPYING_PATH_TEMPLATE, getSrcPath(item),
                             destinationStore, (endTime - startTime) / 1000.0));
                 }
-                return removeAndMark(item);
+                return removeAndMark(item) ? MoveStatus.MOVE_OK : MoveStatus.COPY_OK_DELETION_FAILED;
             } else
             {
                 operationLog.warn(String.format(COPYING_PATH_TO_REMOTE_FAILED, getSrcPath(item),
@@ -410,7 +410,7 @@ public final class RemotePathMover implements IStoreHandler
             notificationLog.error(String.format(MOVING_PATH_TO_REMOTE_FAILED_TEMPLATE,
                     getSrcPath(item), destinationStore));
         }
-        return false;
+        return MoveStatus.COPY_FAILED;
     }
 
     public boolean isStopped()

@@ -38,6 +38,8 @@ import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
+import ch.systemsx.cisd.datamover.common.IStoreMover;
+import ch.systemsx.cisd.datamover.common.IStoreMover.MoveStatus;
 import ch.systemsx.cisd.datamover.common.MarkerFile;
 import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
 import ch.systemsx.cisd.datamover.filesystem.RemoteMonitoredMoverFactory;
@@ -67,6 +69,9 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             IncomingProcessor.class);
 
+    private static final Logger notifyLog = LogFactory.getLogger(LogCategory.NOTIFY,
+            IncomingProcessor.class);
+
     private static final ISimpleLogger simpleOperationLog = new Log4jSimpleLogger(operationLog);
 
     private final Parameters parameters;
@@ -89,7 +94,7 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
 
     private final String successorMarkerFileName;
 
-    private final IStoreHandler remotePathMover;
+    private final IStoreMover remotePathMover;
 
     public static final DataMoverProcess createMovingProcess(final Parameters parameters,
             final String markerFile, final String errorMarkerFile,
@@ -153,7 +158,7 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
                 timeProvider, DatamoverConstants.IGNORED_ERROR_COUNT_BEFORE_NOTIFICATION);
     }
 
-    private IStoreHandler createRemotePathMover(final IFileStore sourceStore,
+    private IStoreMover createRemotePathMover(final IFileStore sourceStore,
             final IFileStore destinationStore)
     {
         return RemoteMonitoredMoverFactory.create(sourceStore, destinationStore, parameters);
@@ -239,11 +244,11 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
     private boolean moveFromRemoteIncoming(final StoreItem sourceItem)
     {
         // 1. move from incoming: copy, delete, create copy-finished-marker
-        final boolean succeeded = moveFromRemoteToLocal(sourceItem);
+        final MoveStatus moveStatus = moveFromRemoteToLocal(sourceItem);
         final File copiedFile = new File(bufferDirs.getCopyInProgressDir(), sourceItem.getName());
 
         final File markerFile = MarkerFile.createCopyFinishedMarker(copiedFile);
-        if (succeeded == false || copiedFile.exists() == false)
+        if (moveStatus == MoveStatus.COPY_FAILED || copiedFile.exists() == false)
         {
             // undo copying and remove marker as are unable to delete it from the source
             if (copiedFile.exists())
@@ -252,6 +257,14 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
             }
             markerFile.delete();
             return false;
+        } else if (moveStatus == MoveStatus.COPY_OK_DELETION_FAILED)
+        {
+            notifyLog
+                    .error(String
+                            .format("File or directory '%s' was successfully copied "
+                                    + "to the buffer directory but couldn't be deleted for an unknown reason. "
+                                    + "An administrator needs to fix this issue and delete this file or directory manually.",
+                                    sourceItem));
         }
         // 2. Move to final directory, delete marker
         final File finalFile =
@@ -284,9 +297,9 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
         }
     }
 
-    private boolean moveFromRemoteToLocal(final StoreItem sourceItem)
+    private MoveStatus moveFromRemoteToLocal(final StoreItem sourceItem)
     {
-        return remotePathMover.handle(sourceItem);
+        return remotePathMover.move(sourceItem);
     }
 
     private File tryMoveLocal(final File sourceFile, final File destinationDir,
