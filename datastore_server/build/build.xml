@@ -38,7 +38,7 @@
 			<param name="test.suite" value="tests.xml" />
 		</antcall>
 	</target>
-
+	
 	<target name="dss-jar" depends="compile">
 		<mkdir dir="${dist.datastore_server.lib}" />
 		<delete dir="tmp/test"/><!-- remove this directory in order to get a clean clean-flag -->
@@ -49,15 +49,20 @@
 				<include name="**/unix.so" />
 			</fileset>
 		</copy>
+		<jar destfile="${dist}/sql.jar">
+			<fileset dir="source">
+				<include name="**/*.sql" />
+			</fileset>	
+		</jar>
 		<recursive-jar destfile="${dss-jar.file}">
 			<fileset dir="${classes}">
 				<include name="**/*.class" />
 				<include name="**/*.xsd" />
 				<include name="${build.info.filename}" />
 			</fileset>
-			<fileset dir="source">
+			<zipfileset prefix="datastore_server/" src="${dist}/sql.jar">
 				<include name="**/*.sql" />
-			</fileset>	
+			</zipfileset>	
 			<fileset dir="${nativeroot}">
 				<include name="**/unix.so" />
 			</fileset>
@@ -67,6 +72,7 @@
 				           value="${version.number} (r${revision.number},${clean.flag})" />
 			</manifest>
 		</recursive-jar>
+	  <delete file="${dist}/sql.jar"/>
 		<jar update="true" destfile="${dss-jar.file}">
 			<fileset dir="../datastore_server/${sources}">
 				<include name="**/*.xml" />
