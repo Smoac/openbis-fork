@@ -65,9 +65,8 @@ public class QueueingPathRemoverServiceTest
     public void setUp()
     {
         LogInitializer.init();
-//        queueFile.deleteOnExit();
+        queueFile.deleteOnExit();
         workingDirectory.mkdirs();
-//        workingDirectory.deleteOnExit();
         QueueingPathRemoverService.start(queueFile);
     }
 
