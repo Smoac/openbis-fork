@@ -125,10 +125,10 @@ function assert_correct_content_of_plate_3VCP1_in_store {
     echo ==== assert correct content of plate 3VCP1 in store ====
     
     local raw_data_dir=`find_dataset_dir ".*-3VCP1$"`
-    local raw_data_set=$raw_data_dir
+    local raw_data_set=$raw_data_dir/original/microX_200801011213_3VCP1
     
     echo == check original data
-    assert_dir_exists $original_data_set
+    assert_dir_exists $raw_data_set
     assert_same_content $TEST_DATA/3VCP1 $raw_data_set
     
 }
