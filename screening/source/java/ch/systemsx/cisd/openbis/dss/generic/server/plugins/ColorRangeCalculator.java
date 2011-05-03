@@ -129,33 +129,39 @@ public class ColorRangeCalculator
     {
         Collection<ImagePixelsRange> ranges =
                 new ArrayList<ColorRangeCalculator.ImagePixelsRange>();
+        IImageReader reader = tryFindReader(imageFiles.get(0));
+        if (reader == null)
+        {
+            throw new IOException("Cannot find a proper reader for the images");
+        }
+
         for (File imageFile : imageFiles)
         {
-            BufferedImage image = loadImage(imageFile);
+            BufferedImage image = loadImage(reader, imageFile);
             ImagePixelsRange range = calculatePixelsRange(image, 0, Integer.MAX_VALUE);
             ranges.add(range);
         }
         return calculateOverlapRange(ranges);
     }
 
-    private static BufferedImage tryRead(String libraryName, File file)
+    private static BufferedImage loadImage(IImageReader reader, File file) throws IOException
     {
-        IImageReader reader =
-                ImageReaderFactory.tryGetImageReaderForFile(libraryName, file.getPath());
+        if (file.isFile() == false)
+        {
+            throw new IOException("File does not exist: " + file.getPath());
+        }
+
         TiffReadParams params = new TiffReadParams();
         params.setAllow16BitGrayscaleModel(true);
-        if (reader != null)
-        {
-            // System.err.println("Used reader: " + reader.getName());
-            return reader.readImage(file, params);
-        } else
-        {
-            return null;
-        }
+        return reader.readImage(file, params);
     }
 
-    private static BufferedImage loadImage(File file) throws IOException
+    private static IImageReader tryFindReader(File file) throws IOException
     {
+        if (file.isFile() == false)
+        {
+            throw new IOException("File does not exist: " + file.getPath());
+        }
         String[] libraries =
                 new String[]
                     { ImageReaderConstants.JAI_LIBRARY, ImageReaderConstants.IMAGEIO_LIBRARY,
@@ -163,16 +169,19 @@ public class ColorRangeCalculator
                             ImageReaderConstants.BIOFORMATS_LIBRARY };
         for (String libraryName : libraries)
         {
-            BufferedImage image = tryRead(libraryName, file);
-            if (image != null)
+            IImageReader reader =
+                    ImageReaderFactory.tryGetImageReaderForFile(libraryName, file.getPath());
+            if (reader != null)
             {
-                // System.err.println("Used library: " + libraryName);
-                return image;
+                // System.err
+                // .println("Used library: " + libraryName + ", reader: " + reader.getName());
+                return reader;
             }
         }
-        throw new IOException("Cannot read image " + file.getPath());
+        return null;
     }
 
+    /** Can be useful to rescale colors of the whole well or plate. */
     public static void main(String[] args) throws IOException
     {
         if (args.length == 0)
@@ -183,15 +192,11 @@ public class ColorRangeCalculator
         List<File> imageFiles = new ArrayList<File>();
         for (int i = 0; i < args.length; i++)
         {
-            File imageFile = new File(args[i]);
-            if (imageFile.isFile() == false)
-            {
-                System.err.println("File does not exist: " + imageFile.getPath());
-                System.exit(1);
-            }
-            imageFiles.add(imageFile);
+            imageFiles.add(new File(args[i]));
         }
+
         ImagePixelsRange range = calculatePixelsRange(imageFiles);
+
         System.out.println(range.getMin() + " " + range.getMax());
     }
 }
