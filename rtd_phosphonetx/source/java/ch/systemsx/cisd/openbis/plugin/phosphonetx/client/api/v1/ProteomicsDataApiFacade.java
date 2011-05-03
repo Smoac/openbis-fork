@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.IProteomicsDataService;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.DataStoreServerProcessingPluginInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.MsInjectionDataInfo;
@@ -118,6 +119,11 @@ class ProteomicsDataApiFacade implements IProteomicsDataApiFacade
             String userID, String experimentTypeCode)
     {
         return service.listExperiments(sessionToken, userID, experimentTypeCode);
+    }
+
+    public List<DataSet> listDataSetsByExperiment(String userID, long experimentID)
+    {
+        return service.listDataSetsByExperiment(sessionToken, userID, experimentID);
     }
 
     @SuppressWarnings("deprecation")

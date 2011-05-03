@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.api.v1;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.DataStoreServerProcessingPluginInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.MsInjectionDataInfo;
@@ -77,6 +78,11 @@ public interface IProteomicsDataApiFacade
      * Returns all experiments of specified type which the specified user is allowed to read.
      */
     public List<Experiment> listExperiments(String sessionToken, String userID, String experimentTypeCode);
+    
+    /**
+     * Returns all data sets of specified experiment which the specified user is allowed to read.
+     */
+    public List<DataSet> listDataSetsByExperiment(String userID, long experimentID);
     
     /**
      * Processes the data sets of specified experiments of type <tt>MS_SEARCH</tt> by the DSS
