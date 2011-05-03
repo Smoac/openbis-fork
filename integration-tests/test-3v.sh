@@ -127,75 +127,10 @@ function assert_correct_content_of_plate_3VCP1_in_store {
     local raw_data_dir=`find_dataset_dir ".*-3VCP1$"`
     local raw_data_set=$raw_data_dir
     
-    echo == check data structure version
-    assert_equals_as_in_file 1 $raw_data_set/version/major
-    assert_equals_as_in_file 1 $raw_data_set/version/minor
-    
-    echo == check annotations
-    local annotations_dir="$raw_data_set/annotations"
-    assert_dir_exists "$annotations_dir"
-    assert_equals_as_in_file 460 $annotations_dir/channel1/wavelength
-    assert_equals_as_in_file 530 $annotations_dir/channel2/wavelength
-    
     echo == check original data
-    local original_data_set=$raw_data_set/data/original/microX_200801011213_3VCP1
     assert_dir_exists $original_data_set
-    assert_same_content $TEST_DATA/3VCP1 $original_data_set
+    assert_same_content $TEST_DATA/3VCP1 $raw_data_set
     
-    echo == check standard data
-    local standard_dir=$raw_data_set/data/standard
-    assert_dir_exists $standard_dir
-    assert_same_inode $original_data_set/TIFF/blabla_3VCP1_K13_8_w460.tif \
-                      $standard_dir/channel1/row11/column13/row1_column2.tiff
-    assert_same_inode $original_data_set/TIFF/blabla_3VCP1_M03_2_w530.tif \
-                      $standard_dir/channel2/row13/column3/row3_column2.tiff
-                        
-    echo == check metadata
-    local metadata_dir=$raw_data_set/metadata
-    assert_dir_exists $metadata_dir
-    # Data set
-    assert_equals_as_in_file microX-3VCP1 $metadata_dir/data_set/code
-    assert_equals_as_in_file TRUE $metadata_dir/data_set/is_measured
-    assert_equals_as_in_file FALSE $metadata_dir/data_set/is_complete
-    assert_equals_as_in_file HCS_IMAGE $metadata_dir/data_set/data_set_type
-    assert_equals_as_in_file microX $metadata_dir/data_set/producer_code
-    # Sample
-    assert_equals_as_in_file 3VCP1 $metadata_dir/sample/code
-    assert_equals_as_in_file CELL_PLATE $metadata_dir/sample/type_code
-    assert_equals_as_in_file 'Screening Plate' $metadata_dir/sample/type_description
-    assert_equals_as_in_file CISD $metadata_dir/sample/space_code
-    assert_equals_as_in_file CISD $metadata_dir/sample/instance_code
-	assert_file_exists $metadata_dir/sample/instance_uuid
-    # Experiment identifier
-    assert_equals_as_in_file CISD $metadata_dir/experiment_identifier/instance_code
-    assert_equals_as_in_file CISD $metadata_dir/experiment_identifier/space_code
-    assert_equals_as_in_file NEMO $metadata_dir/experiment_identifier/project_code
-    assert_equals_as_in_file EXP1 $metadata_dir/experiment_identifier/experiment_code
-    assert_file_exists $metadata_dir/experiment_identifier/instance_uuid
-    # Experiment registration
-    assert_file_exists $metadata_dir/experiment_registration_timestamp
-    assert_file_exists $metadata_dir/experiment_registrator/email
-    assert_file_exists $metadata_dir/experiment_registrator/first_name
-    assert_file_exists $metadata_dir/experiment_registrator/last_name
-    # Format
-    assert_equals_as_in_file HCS_IMAGE $metadata_dir/format/code
-    assert_equals_as_in_file 1 $metadata_dir/format/version/major
-    assert_equals_as_in_file 0 $metadata_dir/format/version/minor
-    assert_pattern_present $metadata_dir/md5sum/original 1 ".* microX_200801011213_3VCP1/log.txt"
-    assert_pattern_present $metadata_dir/md5sum/original 1 ".* microX_200801011213_3VCP1/TIFF/blabla_3VCP1_K13_8_w460.tif"
-    assert_pattern_present $metadata_dir/md5sum/original 1 ".* microX_200801011213_3VCP1/TIFF/blabla_3VCP1_M03_2_w530.tif"
-    assert_pattern_present $metadata_dir/md5sum/original 1 ".* microX_200801011213_3VCP1/TIFF/readme-not.txt"
-    assert_file_exists $metadata_dir/standard_original_mapping
-    
-    echo == check format parameters
-    local parameters_dir=$metadata_dir/parameters
-    assert_dir_exists $parameters_dir
-    assert_equals_as_in_file TRUE $parameters_dir/contains_original_data
-    assert_equals_as_in_file 2 $parameters_dir/number_of_channels
-    assert_equals_as_in_file 24 $parameters_dir/plate_geometry/columns
-    assert_equals_as_in_file 16 $parameters_dir/plate_geometry/rows
-    assert_equals_as_in_file 3 $parameters_dir/well_geometry/columns
-    assert_equals_as_in_file 3 $parameters_dir/well_geometry/rows
 }
 
 function assert_correct_content_of_invalid_plate_in_store {
