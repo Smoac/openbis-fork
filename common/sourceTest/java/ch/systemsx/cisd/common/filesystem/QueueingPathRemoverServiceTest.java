@@ -42,7 +42,7 @@ import ch.systemsx.cisd.common.test.Retry10;
 public class QueueingPathRemoverServiceTest
 {
 
-    private static final long WAIT_MILLIS = 120L;
+    private static final long WAIT_MILLIS = 300L;
 
     private static final long DELAY_MILLIS = 1L;
 
@@ -65,9 +65,9 @@ public class QueueingPathRemoverServiceTest
     public void setUp()
     {
         LogInitializer.init();
-        queueFile.deleteOnExit();
+//        queueFile.deleteOnExit();
         workingDirectory.mkdirs();
-        workingDirectory.deleteOnExit();
+//        workingDirectory.deleteOnExit();
         QueueingPathRemoverService.start(queueFile);
     }
 
