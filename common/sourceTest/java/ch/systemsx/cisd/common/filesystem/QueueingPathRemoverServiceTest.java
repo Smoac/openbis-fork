@@ -26,8 +26,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
@@ -61,7 +61,7 @@ public class QueueingPathRemoverServiceTest
             }
         };
 
-    @BeforeTest
+    @BeforeClass
     public void setUp()
     {
         LogInitializer.init();
