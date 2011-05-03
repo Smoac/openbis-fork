@@ -178,11 +178,11 @@ function assert_correct_content {
     assert_equals_as_in_file "hello world" $file
     # result set columns are
     # id;experiment_code;data_store_code;code;is_placeholder;data_id_parent;is_complete;data_producer_code;production_timestamp
-    assert_correct_dataset_content_in_database 2 "2;EXP1;DSS1;MICROX-3VCP1;f;;F;microX;2008-01-01.*"
+    assert_correct_dataset_content_in_database 2 "2;EXP1;DSS1;MICROX-3VCP1;f;;U;microX;2008-01-01.*"
     assert_correct_dataset_content_in_database 3 "3;EXP1;DSS1;20[0-9]*-22;f;;U;;"
     assert_correct_dataset_content_in_database 4 "4;EXP1;DSS1;20[0-9]*-23;f;;U;;"
     assert_correct_dataset_content_in_database 5 "5;EXP1;DSS1;20[0-9]*-24;f;;U;;"   
-    assert_correct_dataset_content_in_database 6 "6;EXP1;DSS1;MICROX-3VCP3;f;;F;microX;2008-01-01.*"
+    assert_correct_dataset_content_in_database 6 "6;EXP1;DSS1;MICROX-3VCP3;f;;U;microX;2008-01-01.*"
     assert_correct_dataset_content_in_database 7 "7;EXP1;DSS1;20[0-9]*-26;f;;U;;"
     assert_correct_dataset_content_in_database 8 ".*8;EXP1;DSS2;20[0-9]*-27;f;2;U;;.*"
     assert_correct_dataset_content_in_database 8 ".*8;EXP1;DSS2;20[0-9]*-27;f;6;U;;.*"
