@@ -49,8 +49,8 @@
 				<include name="**/unix.so" />
 			</fileset>
 		</copy>
-		<jar destfile="${dist}/sql.jar">
-			<fileset dir="source">
+		<jar destfile="${dist}/dss-sql.jar">
+			<fileset dir="../datastore_server/source">
 				<include name="**/*.sql" />
 			</fileset>	
 		</jar>
@@ -60,7 +60,7 @@
 				<include name="**/*.xsd" />
 				<include name="${build.info.filename}" />
 			</fileset>
-			<zipfileset prefix="datastore_server/" src="${dist}/sql.jar">
+			<zipfileset prefix="datastore_server/" src="${dist}/dss-sql.jar">
 				<include name="**/*.sql" />
 			</zipfileset>	
 			<fileset dir="${nativeroot}">
@@ -72,7 +72,7 @@
 				           value="${version.number} (r${revision.number},${clean.flag})" />
 			</manifest>
 		</recursive-jar>
-	  <delete file="${dist}/sql.jar"/>
+	  <delete file="${dist}/dss-sql.jar"/>
 		<jar update="true" destfile="${dss-jar.file}">
 			<fileset dir="../datastore_server/${sources}">
 				<include name="**/*.xml" />
