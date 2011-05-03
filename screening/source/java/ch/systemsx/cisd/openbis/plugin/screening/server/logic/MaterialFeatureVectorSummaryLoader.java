@@ -184,7 +184,7 @@ public class MaterialFeatureVectorSummaryLoader extends ExperimentFeatureVectorS
             return null;
         }
         List<IWellData> materialWellDataList =
-                filterMaterialWells(wellDataCollection.getWellDataList(), materialId);
+                filterWellsByMaterial(wellDataCollection.getWellDataList(), materialId);
         GroupByMap<Double, IWellData> subgroupMap = groupBySubgroup(materialWellDataList);
 
         List<MaterialReplicaSubgroupFeatureVector> subgroups = Collections.emptyList();
@@ -324,7 +324,7 @@ public class MaterialFeatureVectorSummaryLoader extends ExperimentFeatureVectorS
         return subgroupMap.getKeys().size() == 1 && subgroupMap.getKeys().contains(null);
     }
 
-    private static List<IWellData> filterMaterialWells(List<IWellData> wellDataList,
+    private static List<IWellData> filterWellsByMaterial(List<IWellData> wellDataList,
             final TechId materialId)
     {
         return CollectionUtils.filter(wellDataList, new ICollectionFilter<IWellData>()

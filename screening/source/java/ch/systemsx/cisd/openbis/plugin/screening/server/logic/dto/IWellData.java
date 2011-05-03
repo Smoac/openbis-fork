@@ -38,9 +38,9 @@ public interface IWellData
     Sample getWell();
 
     /**
-     * Material in the well which allowed to find replicates.<br>
+     * Material in the well which allowed to find replicates (e.g. gene or compound).<br>
      * Note: if the replicaId is the same for two wellData then the returned material is also the
-     * same
+     * same.
      */
     Material getMaterial();
 
