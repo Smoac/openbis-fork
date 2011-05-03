@@ -348,13 +348,13 @@ final class ExternalDataDAO extends AbstractGenericEntityWithPropertiesDAO<Exter
                     // NOTE: 'VERSIONED' makes modification time modified too
                     return session
                             .createQuery(
-                                    "UPDATE VERSIONED " + TABLE_NAME
+                                    "UPDATE VERSIONED "
+                                            + TABLE_NAME
                                             + " SET status = :status, presentInArchive = :presentInArchive"
                                             + " WHERE code IN (:codes) ")
                             .setParameter("status", status)
                             .setParameter("presentInArchive", presentInArchive)
-                            .setParameterList("codes", dataSetCodes)
-                            .executeUpdate();
+                            .setParameterList("codes", dataSetCodes).executeUpdate();
                 }
             });
         hibernateTemplate.flush();
@@ -377,7 +377,18 @@ final class ExternalDataDAO extends AbstractGenericEntityWithPropertiesDAO<Exter
 
         dataset.setCode(CodeConverter.tryToDatabase(dataset.getCode()));
         final HibernateTemplate template = getHibernateTemplate();
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format("ADD BEFORE SAVE: data set id '%d'.",
+                    HibernateUtils.getId(dataset)));
+        }
         template.save(dataset);
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format("ADD BEFORE FLUSH: data set id '%d'.",
+                    HibernateUtils.getId(dataset)));
+        }
+
         template.flush();
 
         if (dataset instanceof ExternalDataPE)
