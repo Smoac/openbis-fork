@@ -74,13 +74,17 @@ public class QueueingPathRemoverServiceTest
     @BeforeMethod
     public void cleanUp() throws IOException
     {
-        for (File f : workingDirectory.listFiles(SHREDDER_FILTER))
+        File[] files = workingDirectory.listFiles(SHREDDER_FILTER);
+        if (files != null)
         {
-            for (int i = 0; f.exists() && i < 3; i++)
+            for (File f : files)
             {
-                FileUtilities.deleteRecursively(f);
+                for (int i = 0; f.exists() && i < 3; i++)
+                {
+                    FileUtilities.deleteRecursively(f);
+                }
+                assertFalse(f.exists());
             }
-            assertFalse(f.exists());
         }
     }
 
