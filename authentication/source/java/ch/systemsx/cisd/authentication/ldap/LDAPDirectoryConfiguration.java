@@ -37,6 +37,9 @@ import org.apache.commons.lang.StringUtils;
 public final class LDAPDirectoryConfiguration
 {
 
+    static final String DEFAULT_QUERY_TEMPLATE = "(&(objectClass=organizationalPerson)(objectCategory=person)"
+                        + "(objectClass=user)(%s))";
+
     private String userIdAttributeName = "uid";
 
     private String lastNameAttributeName = "sn";
@@ -58,8 +61,7 @@ public final class LDAPDirectoryConfiguration
     private String referral = "follow";
 
     private String queryTemplate =
-            "(&(objectClass=organizationalPerson)(objectCategory=person)"
-                    + "(objectClass=user)(%s))";
+            DEFAULT_QUERY_TEMPLATE;
 
     private String securityPrincipalDistinguishedName;
 
@@ -77,7 +79,7 @@ public final class LDAPDirectoryConfiguration
 
     public void setUserIdAttributeName(String userIdAttributeName)
     {
-        if (StringUtils.isNotBlank(userIdAttributeName))
+        if (isResolved(userIdAttributeName))
         {
             this.userIdAttributeName = userIdAttributeName;
         }
@@ -93,7 +95,7 @@ public final class LDAPDirectoryConfiguration
 
     public void setLastNameAttributeName(String lastNameAttributeName)
     {
-        if (StringUtils.isNotBlank(lastNameAttributeName))
+        if (isResolved(lastNameAttributeName))
         {
             this.lastNameAttributeName = lastNameAttributeName;
         }
@@ -109,7 +111,7 @@ public final class LDAPDirectoryConfiguration
 
     public void setFirstNameAttributeName(String firstNameAttributeName)
     {
-        if (StringUtils.isNotBlank(firstNameAttributeName))
+        if (isResolved(firstNameAttributeName))
         {
             this.firstNameAttributeName = firstNameAttributeName;
         }
@@ -125,7 +127,7 @@ public final class LDAPDirectoryConfiguration
 
     public void setEmailAttributeName(String emailAttributeName)
     {
-        if (StringUtils.isNotBlank(emailAttributeName))
+        if (isResolved(emailAttributeName))
         {
             this.emailAttributeName = emailAttributeName;
         }
@@ -141,7 +143,7 @@ public final class LDAPDirectoryConfiguration
      */
     public void setEmailAliasesAttributeName(String emailAliasesAttributeName)
     {
-        if (StringUtils.isNotBlank(emailAliasesAttributeName))
+        if (isResolved(emailAliasesAttributeName))
         {
             this.emailAliasesAttributeName = emailAliasesAttributeName;
         }
@@ -159,7 +161,7 @@ public final class LDAPDirectoryConfiguration
      */
     public void setQueryEmailForAliases(String queryEmailForAliases)
     {
-        if (StringUtils.isNotBlank(queryEmailForAliases))
+        if (isResolved(queryEmailForAliases))
         {
             this.queryEmailForAliases = queryEmailForAliases;
         }
@@ -177,7 +179,7 @@ public final class LDAPDirectoryConfiguration
      */
     public void setEmailAttributePrefix(String emailAttributePrefix)
     {
-        if (StringUtils.isNotBlank(emailAttributePrefix))
+        if (isResolved(emailAttributePrefix))
         {
             this.emailAttributePrefix = emailAttributePrefix;
         }
@@ -200,7 +202,7 @@ public final class LDAPDirectoryConfiguration
      */
     public void setSecurityProtocol(String securityProtocol)
     {
-        if (StringUtils.isNotBlank(securityProtocol))
+        if (isResolved(securityProtocol))
         {
             this.securityProtocol = securityProtocol;
         }
@@ -258,7 +260,7 @@ public final class LDAPDirectoryConfiguration
      */
     public void setSecurityAuthenticationMethod(String securityAuthenticationMethod)
     {
-        if (StringUtils.isNotBlank(securityAuthenticationMethod))
+        if (isResolved(securityAuthenticationMethod))
         {
             this.securityAuthenticationMethod = securityAuthenticationMethod;
         }
@@ -279,7 +281,7 @@ public final class LDAPDirectoryConfiguration
      */
     public void setReferral(String referral)
     {
-        if (StringUtils.isNotBlank(referral))
+        if (isResolved(referral))
         {
             this.referral = referral;
         }
@@ -300,7 +302,7 @@ public final class LDAPDirectoryConfiguration
      */
     public void setQueryTemplate(String queryTemplate)
     {
-        if (StringUtils.isNotBlank(queryTemplate))
+        if (isResolved(queryTemplate))
         {
             this.queryTemplate = queryTemplate;
         }
@@ -321,4 +323,9 @@ public final class LDAPDirectoryConfiguration
         this.serverUrl = ldapUrl;
     }
 
+    private static boolean isResolved(String name)
+    {
+        return StringUtils.isNotBlank(name) && name.startsWith("${") == false;
+    }
+    
 }
