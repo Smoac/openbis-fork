@@ -47,7 +47,7 @@ public class FtpServerConfig
 
     private static final int DEFAULT_PORT = 2121;
 
-    private static final boolean DEFAULT_USE_SSL = false;
+    private static final boolean DEFAULT_USE_SSL = true;
 
     private static final int DEFAULT_MAX_THREADS = 25;
 
