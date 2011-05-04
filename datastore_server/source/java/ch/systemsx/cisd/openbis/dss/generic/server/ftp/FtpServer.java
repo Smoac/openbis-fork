@@ -63,6 +63,7 @@ public class FtpServer implements FileSystemFactory
 
         if (config.isStartServer())
         {
+            config.logStartupInfo();
             start();
         }
     }
@@ -80,6 +81,7 @@ public class FtpServer implements FileSystemFactory
             sslConfigFactory.setKeystorePassword(config.getKeyStorePassword());
             sslConfigFactory.setKeyPassword(config.getKeyPassword());
             factory.setSslConfiguration(sslConfigFactory.createSslConfiguration());
+            factory.setImplicitSsl(true);
         }
         serverFactory.addListener("default", factory.createListener());
 

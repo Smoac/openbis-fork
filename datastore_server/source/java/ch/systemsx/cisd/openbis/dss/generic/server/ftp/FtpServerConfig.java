@@ -20,8 +20,13 @@ import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
+
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.ConfigParameters;
@@ -31,6 +36,9 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ConfigParameters;
  */
 public class FtpServerConfig
 {
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            FtpServerConfig.class);
+
     private final static String PREFIX = "ftp.server.";
 
     private final static String ENABLE_KEY = PREFIX + "enable";
@@ -158,6 +166,24 @@ public class FtpServerConfig
     public Map<String, String> getFileListSubPaths()
     {
         return Collections.unmodifiableMap(fileListSubPaths);
+    }
+
+    /**
+     * information being logged on FTP server startup.
+     */
+    public void logStartupInfo()
+    {
+        operationLog.info("Ftp Server port: " + port);
+        operationLog.info("Ftp Server using SSL: " + useSSL);
+        operationLog.info("Ftp Server data set display template : " + dataSetDisplayTemplate);
+        for (Entry<String, String> subpathEntry : fileListSubPaths.entrySet())
+        {
+            String message =
+                    String.format("Ftp Server subpath configuration for data "
+                            + "set type '%s' : '%s'", subpathEntry.getKey(),
+                            subpathEntry.getValue());
+            operationLog.info(message);
+        }
     }
 
 }
