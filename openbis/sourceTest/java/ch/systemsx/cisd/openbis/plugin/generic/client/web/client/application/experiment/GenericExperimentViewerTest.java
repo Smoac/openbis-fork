@@ -168,7 +168,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
                 checkExperiment.createAttachmentsTableCheck().expectedSize(1);
         attachmentsTable.expectedRow(new Row().withCell(AttachmentGridColumnIDs.FILE_NAME,
                 "exampleExperiments.txt").withCell(AttachmentGridColumnIDs.VERSION,
-                versionCellText(4)));
+                versionCellTextWithoutAnchor(4)));
         remoteConsole.prepare(attachmentsTable);
 
         launchTest();
@@ -305,6 +305,11 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ShowExperiment(experimentCode));
     }
 
+    private final static String versionCellTextWithoutAnchor(int version)
+    {
+        return version + " (show all versions)";
+    }
+    
     private final static String versionCellText(int version)
     {
         return version + " (<a href=\"#\">show all versions</a>)";
