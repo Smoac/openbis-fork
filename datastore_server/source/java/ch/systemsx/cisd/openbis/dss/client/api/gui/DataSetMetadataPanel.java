@@ -38,8 +38,8 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
@@ -91,7 +91,7 @@ public class DataSetMetadataPanel extends JPanel
 
     private static final long serialVersionUID = 1L;
 
-    private final BlockingDeque<Boolean> validationQueue = new LinkedBlockingDeque<Boolean>();
+    private final BlockingQueue<Boolean> validationQueue = new LinkedBlockingQueue<Boolean>();
 
     private final JFrame mainWindow;
 

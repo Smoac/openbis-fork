@@ -112,15 +112,15 @@ public class ErrorsPanel extends JPanel implements HyperlinkListener
         for (ValidationError error : errors)
         {
             sb.append(
-                    "<center><div style='align: center' ><a href='http://openbis.ch/"
-                            + (counter++)
-                            + "' style='color: black; text-decoration: none; font-style: normal; vertical-align: middle' ><img border='0' hspace='10' src='")
-                    .append(WRONG_ICON_URL).append("' />")
+                    "<center><div><a href='http://openbis.ch/" + (counter++)
+                            + "' ><img border='0' hspace='10' src='").append(WRONG_ICON_URL)
+                    .append("' ></img><font color='black'>")
                     .append(truncateErrorMessage(error.getErrorMessage()))
-                    .append(" [...]</a></div></center>");
+                    .append(" [...]</font></a></div></center>");
         }
 
         errorsArea.setText(sb.toString());
+        System.out.println(errorsArea.getText());
     }
 
     private String truncateErrorMessage(String errorMessage)
