@@ -46,11 +46,15 @@ function generate_test_data {
     copy_test_data 3VCP1 $DIR
     sleep 30
     
+    # drop an identifyable invalid data set (wrong image name, missing plate)
+    copy_test_data 3VCP3 $DIR
+    sleep 30
+    
     # drop an unidentifyable data set
     copy_test_data UnknownPlate $DIR
     sleep 30
     
-    # drop 3VCP3
+    # drop 3VCP1 again but this time it is a valid data set
     copy_test_data 3VCP3 $DATA
     mv $DATA/3VCP3/TIFF/blabla_3VCP1_K13_8_w460.tif  $DATA/3VCP3/TIFF/blabla_3VCP3_K13_8_w460.tif
     echo image for well M03 > $DATA/3VCP3/TIFF/blabla_3VCP3_M03_2_w350.tif
@@ -177,11 +181,11 @@ function assert_correct_content {
     assert_correct_dataset_content_in_database 2 "2;EXP1;DSS1;MICROX-3VCP1;f;;U;microX;2008-01-01.*"
     assert_correct_dataset_content_in_database 3 "3;EXP1;DSS1;20[0-9]*-22;f;;U;;"
     assert_correct_dataset_content_in_database 4 "4;EXP1;DSS1;20[0-9]*-23;f;;U;;"
-    assert_correct_dataset_content_in_database 5 "5;EXP1;DSS1;20[0-9]*-24;f;;U;;"   
-    assert_correct_dataset_content_in_database 6 "6;EXP1;DSS1;MICROX-3VCP3;f;;U;microX;2008-01-01.*"
+    assert_correct_dataset_content_in_database 5 "5;EXP1;DSS1;MICROX-3VCP3;f;;U;microX;2008-01-01.*"
+    assert_correct_dataset_content_in_database 6 "6;EXP1;DSS1;20[0-9]*-24;f;;U;;"   
     assert_correct_dataset_content_in_database 7 "7;EXP1;DSS1;20[0-9]*-26;f;;U;;"
     assert_correct_dataset_content_in_database 8 ".*8;EXP1;DSS2;20[0-9]*-27;f;2;U;;.*"
-    assert_correct_dataset_content_in_database 8 ".*8;EXP1;DSS2;20[0-9]*-27;f;6;U;;.*"
+    assert_correct_dataset_content_in_database 8 ".*8;EXP1;DSS2;20[0-9]*-27;f;5;U;;.*"
     assert_equals "Content of file in drop box1" "hello world" "`cat $DATA/drop-box1/nemo.exp1_MICROX-3VCP1.MICROX-3VCP3*-27.txt`"
     assert_equals "Content of file in drop box2" "hello world" "`cat $DATA/drop-box2/nemo.exp1_MICROX-3VCP1.MICROX-3VCP3*-27.txt`"
 }
