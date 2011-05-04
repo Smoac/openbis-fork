@@ -235,9 +235,24 @@ public interface IScreeningApiServer extends IRpcService
      * 
      * @since 1.3
      */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @MinimalMinorVersion(3)
     public Sample getWellSample(
             String sessionToken,
             @AuthorizationGuard(guardClass = WellIdentifierPredicate.class) WellIdentifier wellIdentifier);
+    
+    /**
+     * For a given <var>plateIdentifier</var>, return the corresponding {@link Sample}.
+     * 
+     * @since 1.7
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @MinimalMinorVersion(7)
+    public Sample getPlateSample(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = PlateIdentifierPredicate.class) PlateIdentifier plateIdentifier);
 
     /**
      * For a given list of <var>plates</var>, return the mapping of plate wells to materials

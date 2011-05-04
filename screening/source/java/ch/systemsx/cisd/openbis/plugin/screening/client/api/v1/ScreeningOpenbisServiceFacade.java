@@ -376,10 +376,30 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     public List<IDataSetDss> getDataSets(WellIdentifier wellIdentifier)
             throws IllegalStateException, EnvironmentFailureException
     {
-        checkASMinimalMinorVersion("listPlateWells", PlateIdentifier.class);
+        checkASMinimalMinorVersion("getDataSets", WellIdentifier.class);
         final Sample wellSample = getWellSample(wellIdentifier);
+        return getDataSets(wellSample);
+    }
+
+    /**
+     * Get proxies to the data sets owned by specified plate.
+     * 
+     * @throws IllegalStateException Thrown if the user has not yet been authenticated.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
+     *             the server.
+     */
+    public List<IDataSetDss> getDataSets(PlateIdentifier plateIdentifier)
+            throws IllegalStateException, EnvironmentFailureException
+    {
+        checkASMinimalMinorVersion("getDataSets", PlateIdentifier.class);
+        Sample sample = openbisScreeningServer.getPlateSample(sessionToken, plateIdentifier);
+        return getDataSets(sample);
+    }
+
+    private List<IDataSetDss> getDataSets(final Sample sample)
+    {
         final List<DataSet> dataSets =
-                generalInformationService.listDataSetsForSample(sessionToken, wellSample, true);
+                generalInformationService.listDataSetsForSample(sessionToken, sample, true);
         final List<IDataSetDss> result = new ArrayList<IDataSetDss>();
         for (DataSet dataSet : dataSets)
         {
@@ -389,7 +409,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     }
 
     /**
-     * Upload a new data set to the DSS.
+     * Upload a new data set to the DSS for a well.
      * 
      * @param wellIdentifier Identifier of a well that should become owner of the new data set
      * @param dataSetFile A file or folder containing the data
@@ -406,9 +426,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             EnvironmentFailureException, IOException
     {
         final Sample wellSample = getWellSample(wellIdentifier);
-        final NewDataSetDTO newDataSet =
-                createNewDataSet(wellSample.getIdentifier(), dataSetFile, dataSetMetadataOrNull);
-        return dssComponent.putDataSet(newDataSet, dataSetFile);
+        return createDataSetDss(wellSample, dataSetMetadataOrNull, dataSetFile);
     }
 
     private Sample getWellSample(WellIdentifier wellIdentifier)
@@ -416,18 +434,41 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return openbisScreeningServer.getWellSample(sessionToken, wellIdentifier);
     }
 
-    private NewDataSetDTO createNewDataSet(String wellSampleIdentifier, File dataSetFile,
-            NewDataSetMetadataDTO dataSetMetadataOrNull) throws IOException
+    /**
+     * Upload a new data set to the DSS for a plate.
+     * 
+     * @param plateIdentifier Identifier of a plate that should become owner of the new data set
+     * @param dataSetFile A file or folder containing the data
+     * @param dataSetMetadataOrNull The optional metadata overriding server defaults for the new
+     *            data set
+     * @return A proxy to the newly added data set
+     * @throws IllegalStateException Thrown if the user has not yet been authenticated.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
+     *             the server.
+     * @throws IOException when accessing the data set file or folder fails
+     */
+    public IDataSetDss putDataSet(PlateIdentifier plateIdentifier, File dataSetFile,
+            NewDataSetMetadataDTO dataSetMetadataOrNull) throws IllegalStateException,
+            EnvironmentFailureException, IOException
+    {
+        Sample sample = openbisScreeningServer.getPlateSample(sessionToken, plateIdentifier);
+        return createDataSetDss(sample, dataSetMetadataOrNull, dataSetFile);
+    }
+
+    private IDataSetDss createDataSetDss(Sample sample,
+            NewDataSetMetadataDTO dataSetMetadataOrNull, File dataSetFile) throws IOException
     {
         final NewDataSetMetadataDTO dataSetMetadata =
                 (dataSetMetadataOrNull == null) ? new NewDataSetMetadataDTO() : null;
         final DataSetOwner dataSetOwner =
-                new DataSetOwner(DataSetOwnerType.SAMPLE, wellSampleIdentifier);
+                new DataSetOwner(DataSetOwnerType.SAMPLE, sample.getIdentifier());
         final String dataSetFolderNameOrNull = null;
         final List<FileInfoDssDTO> fileInfos = getFileInfosForPath(dataSetFile);
-        return new NewDataSetDTO(dataSetMetadata, dataSetOwner, dataSetFolderNameOrNull, fileInfos);
+        final NewDataSetDTO newDataSet =
+                new NewDataSetDTO(dataSetMetadata, dataSetOwner, dataSetFolderNameOrNull, fileInfos);
+        return dssComponent.putDataSet(newDataSet, dataSetFile);
     }
-
+    
     private List<FileInfoDssDTO> getFileInfosForPath(File file) throws IOException
     {
         ArrayList<FileInfoDssDTO> fileInfos = new ArrayList<FileInfoDssDTO>();

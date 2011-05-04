@@ -414,16 +414,23 @@ public class ScreeningApiImpl
 
     private TechId getSampleTechId(PlateIdentifier plateIdentifier)
     {
+        return TechId.create(getSample(plateIdentifier));
+    }
+
+    private Sample getSample(PlateIdentifier plateIdentifier)
+    {
+        Sample sample;
         if (plateIdentifier.getPermId() != null)
         {
-            return TechId.create(loadSampleByPermId(plateIdentifier.getPermId()));
+            sample = loadSampleByPermId(plateIdentifier.getPermId());
         } else
         {
             SampleIdentifier sampleIdentifier = createSampleIdentifier(plateIdentifier);
             ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
             sampleBO.loadBySampleIdentifier(sampleIdentifier);
-            return TechId.create(sampleBO.getSample());
+            sample = SampleTranslator.translate(sampleBO.getSample(), "", true);
         }
+        return sample;
     }
 
     public ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample getWellSample(
@@ -431,6 +438,12 @@ public class ScreeningApiImpl
     {
         Sample sample = loadSampleByPermId(wellIdentifier.getPermId());
         return Translator.translate(sample);
+    }
+    
+    public ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample getPlateSample(
+            PlateIdentifier plateIdentifier)
+    {
+        return Translator.translate(getSample(plateIdentifier));
     }
 
     private Sample loadSampleByPermId(String permId)

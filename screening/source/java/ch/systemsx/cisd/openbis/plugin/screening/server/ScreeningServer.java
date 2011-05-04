@@ -116,7 +116,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     /**
      * The minor version of this service.
      */
-    public static final int MINOR_VERSION = 6;
+    public static final int MINOR_VERSION = 7;
 
     private static ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 10, 360,
             TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
@@ -375,6 +375,11 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     public Sample getWellSample(String sessionToken, WellIdentifier wellIdentifier)
     {
         return createScreeningApiImpl(sessionToken).getWellSample(wellIdentifier);
+    }
+
+    public Sample getPlateSample(String sessionToken, PlateIdentifier plateIdentifier)
+    {
+        return createScreeningApiImpl(sessionToken).getPlateSample(plateIdentifier);
     }
 
     public List<Plate> listPlates(String sessionToken)

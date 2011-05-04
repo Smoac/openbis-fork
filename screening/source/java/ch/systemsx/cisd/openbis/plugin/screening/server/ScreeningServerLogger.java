@@ -265,6 +265,12 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
+    public Sample getPlateSample(String sessionToken, PlateIdentifier plateIdentifier)
+    {
+        logAccess(sessionToken, "getPlateSample", "%s", plateIdentifier);
+        return null;
+    }
+
     public List<Plate> listPlates(String sessionToken)
     {
         logAccess(sessionToken, "listPlates");
