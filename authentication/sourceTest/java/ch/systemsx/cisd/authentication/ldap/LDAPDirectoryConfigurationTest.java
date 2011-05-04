@@ -38,4 +38,12 @@ public class LDAPDirectoryConfigurationTest
         assertEquals(LDAPDirectoryConfiguration.DEFAULT_QUERY_TEMPLATE, config.getQueryTemplate());
     }
 
+    @Test
+    public void testLDAPDirectoryConfigurationResolvedVariableQueryTemplate()
+    {
+        final LDAPDirectoryConfiguration config = new LDAPDirectoryConfiguration();
+        final String bsseQueryTemplate = "(&(objectClass=bssePosixAccount)(%s))";
+        config.setQueryTemplate(bsseQueryTemplate);
+        assertEquals(bsseQueryTemplate, config.getQueryTemplate());
+    }
 }
