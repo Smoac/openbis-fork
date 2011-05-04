@@ -207,15 +207,13 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
         assert dirNode.isDirectory() : "expected a directory node, got: " + dirNode;
         for (IHierarchicalContentNode childNode : dirNode.getChildNodes())
         {
+            if (filter.accept(childNode))
+            {
+                result.add(childNode);
+            }
             if (childNode.isDirectory())
             {
                 findMatchingNodes(childNode, filter, result);
-            } else
-            {
-                if (filter.accept(childNode))
-                {
-                    result.add(childNode);
-                }
             }
         }
     }

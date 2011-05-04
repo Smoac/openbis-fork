@@ -343,12 +343,13 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
         // matches in levels > 1
         List<IHierarchicalContentNode> matchingSubDirFiles =
                 rootContent.listMatchingNodes("subDir/.*");
-        assertEquals(4, matchingSubDirFiles.size());
+        assertEquals(5, matchingSubDirFiles.size());
         sortNodes(matchingSubDirFiles);
-        checkNodeMatchesFile(matchingSubDirFiles.get(0), subFile1);
-        checkNodeMatchesFile(matchingSubDirFiles.get(1), subFile2);
-        checkNodeMatchesFile(matchingSubDirFiles.get(2), subFile3);
-        checkNodeMatchesFile(matchingSubDirFiles.get(3), subSubFile);
+        checkNodeMatchesFile(matchingSubDirFiles.get(0), subSubDir);
+        checkNodeMatchesFile(matchingSubDirFiles.get(1), subFile1);
+        checkNodeMatchesFile(matchingSubDirFiles.get(2), subFile2);
+        checkNodeMatchesFile(matchingSubDirFiles.get(3), subFile3);
+        checkNodeMatchesFile(matchingSubDirFiles.get(4), subSubFile);
 
         context.assertIsSatisfied();
     }
