@@ -52,6 +52,12 @@ public class SampleTypePEBuilder extends AbstractEntityTypePEBuilder
         return new EntityTypePropertyTypePEBuilder(etpt, propertyType);
     }
     
+    public SampleTypePEBuilder id(long id)
+    {
+        sampleType.setId(id);
+        return this;
+    }
+    
     public SampleTypePEBuilder code(String code)
     {
         sampleType.setCode(code);
