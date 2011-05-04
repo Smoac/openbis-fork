@@ -111,7 +111,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      * @param experimentIdentifier an identifier which uniquely identifies the experiment.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public Experiment tryToGetExperiment(
             String sessionToken,
             @AuthorizationGuard(guardClass = ExistingSpaceIdentifierPredicate.class) ExperimentIdentifier experimentIdentifier)
@@ -183,7 +183,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      * @return a sorted list of {@link ExternalData}.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<ExternalData> listDataSetsByExperimentID(
             final String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) final TechId experimentID)
