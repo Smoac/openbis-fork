@@ -1,0 +1,41 @@
+<userInput>
+  <panel order="0">
+    <createForPack name="openBIS Server" />
+    
+    <field type="title" txt="Configure openBIS PostgreSQL DB" bold="true" size="2" />
+    
+    <field type="text" variable="DB.HOST">
+      <spec txt="Hostname" size="20" set="localhost" />
+    </field>
+    
+    <field type="text" variable="DB.PORT">
+      <spec txt="Port" size="20" set="5432" />
+    </field>
+    
+    <field type="text" variable="DB.USERNAME">
+      <spec txt="Username" size="20" set="$USER_NAME"/>
+    </field>
+    
+    <field type="password" variable="DB.PASSWORD">
+      <spec>
+          <pwd txt="Password" size="20" set=""/>
+      </spec>
+    </field>
+    
+    <field type="text" variable="DB.KIND">
+      <spec txt="DB Name Suffix" size="20" set="screening" />
+    </field>
+    <field type="staticText" align="left" txt=" e.g. 'demo' will result in connecting to 'openbis_demo'" />
+    
+  </panel>
+  
+  <panel order="1">
+    <createForPack name="Datastore Server" />
+    <field type="title" txt="DataStore Server Configuration" bold="true" size="2" />
+    <field type="dir" align="left" variable="DSS.ROOT-DIR">
+      <spec txt="Data folder" size="30" set="$INSTALL_PATH/data" mustExist="false" create="true" />
+    </field>
+    <field type="staticText" align="left" txt="This directory will be used to store raw data." />
+  </panel>
+  
+</userInput>

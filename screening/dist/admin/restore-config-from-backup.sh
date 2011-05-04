@@ -16,6 +16,8 @@ fi
 source $BASE/common-functions.sh
 ROOT=$BASE/../servers
 
+echo "Restorting configuration backup from $CONF to $ROOT ..."
+
 # -- AS
 cp $CONF/service.properties $ROOT/openBIS-server/jetty/webapps/openbis/WEB-INF/classes/
 cp $CONF/log.xml $ROOT/openBIS-server/jetty/etc/ 

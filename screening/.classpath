@@ -50,5 +50,6 @@
 	<classpathentry kind="lib" path="/libraries/cisd-image_readers/cisd-image_readers-bioformats.jar"/>
 	<classpathentry kind="lib" path="/libraries/cisd-image_readers/cisd-image_readers.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/libraries/izpack/standalone-compiler.jar"/>
 	<classpathentry kind="output" path="targets/www/WEB-INF/classes"/>
 </classpath>

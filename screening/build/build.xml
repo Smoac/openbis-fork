@@ -13,26 +13,65 @@
   <property name="dist.screening-api.jar" value="${dist.screening-api.lib}/openbis_screening_api.jar" />
   <property name="dist.screening-api-batteries-included.jar" value="${dist.screening-api.lib}/openbis_screening_api-batteries_included.jar" />
   <property name="dist.screening-api.src" value="${dist.screening-api}/openbis_screening_api_source.zip" />
-	<property name="dist.screening-api.javadoc" value="${dist.screening-api}/doc" />
+  <property name="dist.screening-api.javadoc" value="${dist.screening-api}/doc" />
   <property name="dist.screening-api.javadoc.zip" value="${dist.screening-api}/openbis_screening_api_javadoc.zip" />
-
-	<property name="classes.screening" value="../screening/targets/ant/classes" />
-	<property name="classes.openbis" value="../openbis/targets/ant/classes" />
-	<property name="classes.common-server" value="../server-common/targets/ant/classes" />
+	
+  <property name="classes.screening" value="../screening/targets/ant/classes" />
+  <property name="classes.openbis" value="../openbis/targets/ant/classes" />
+  <property name="classes.common-server" value="../server-common/targets/ant/classes" />
   <property name="classes.common" value="../common/targets/ant/classes" />
 	
+  <!-- absolute path referenced from IzPack Ant task -->
+  <property name="installer.basedir" value="${basedir}/dist/installer" />
+  <!-- relative path referenced from within the installer compilation --> 
+  <property name="installer.resourcedir" value="../../dist/installer" />
+  <property name="installer.jar.file" value="${basedir}/${dist}/installer.jar" />
+	
+  <taskdef name="izpack" classpath="${lib}/izpack/standalone-compiler.jar"
+	         classname="com.izforge.izpack.ant.IzPackTask"/>
+	
   <target name="compile" depends="build-common.compile, clean" />
+	
+	
 
   <!--
         // Task for creating distributions
-        -->
+  -->
 	
   <target name="dist" depends="openbis.make-dist, make-full-dss-dist, dss-plugin-jar, datastore_server.make-plugin-dist, screening-api">
   	<zip update="true" destfile="${server.dist.file}">
   		<zipfileset file="${jars.to.be.signed.zip}"/>
   	</zip>
   	<delete file="${jars.to.be.signed.zip}"/>
- 	</target>
+  </target>
+	
+	<target name="create-installer">
+		
+		<!-- make the "admin" directory available to the installer as "bin" -->
+		<copy todir="${classes.screening}/bin">
+		    <fileset dir="${installer.basedir}/../admin">
+		      <include name="**/*"/>
+		      <exclude name="svn-update.sh"/>
+		    </fileset>
+		</copy>
+		
+		<izpack input="${installer.basedir}/install.xml"
+		        output="${installer.jar.file}"
+			      inheritAll="true"
+		        installerType="standard"
+		        basedir="${basedir}/${dist}"/>
+		
+    <jar update="true" destfile="${installer.jar.file}">
+    	<fileset dir="${classes.screening}">
+    		<include name="ch/systemsx/cisd/openbis/installer/izpack/**/*"/>
+    	</fileset>
+    	<zipfileset src="${lib}/postgresql/postgresql.jar">
+    		<exclude name="META_INF/*"/>
+    		<include name="**/*"/>
+    	</zipfileset>
+    </jar>
+
+	</target>
   
   <target name="dss-plugin-jar" depends="compile">
 		<mkdir dir="${dist}/data" />
