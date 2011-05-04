@@ -315,6 +315,11 @@
       	<include name="org/python/core/SyspathArchiveHack.class" />
         <include name="${build.info.filename}" />
       </fileset>
+      <fileset dir="resource">
+        <include name="wait.gif" />
+        <include name="wrong.png" />
+        <include name="ok.png" />
+      </fileset>
       <manifest>
         <attribute name="Main-Class" value="ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClient" />
         <attribute name="Class-Path"

@@ -21,10 +21,8 @@ import static ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClient.BU
 import static ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClient.LABEL_WIDTH;
 
 import java.awt.CardLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -40,9 +38,10 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import javax.swing.AbstractButton;
-import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -51,10 +50,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.ScrollPaneConstants;
 
 import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClientModel.NewDataSetInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
@@ -67,9 +63,35 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
  */
 public class DataSetMetadataPanel extends JPanel
 {
+    private class AsynchronousValidator implements Runnable
+    {
+        public void run()
+        {
+            while (true)
+            {
+                try
+                {
+                    if (validationQueue.take() != null)
+                    {
+                        // empty the queue
+                        validationQueue.clear();
+
+                        // perform the validation
+                        validateAndNotifyObserversOfChanges();
+                    }
+                } catch (Throwable t)
+                {
+                    // ignore the error, thread cannot die
+                }
+            }
+        }
+    }
+
     private static final String EMPTY_FILE_SELECTION = "";
 
     private static final long serialVersionUID = 1L;
+
+    private final BlockingDeque<Boolean> validationQueue = new LinkedBlockingDeque<Boolean>();
 
     private final JFrame mainWindow;
 
@@ -98,15 +120,16 @@ public class DataSetMetadataPanel extends JPanel
     private final HashMap<String, DataSetPropertiesPanel> propertiesPanels =
             new HashMap<String, DataSetPropertiesPanel>();
 
-    private final JTextArea validationErrors = new JTextArea("Błędy");
-
-    private final JScrollPane validationErrorsPane = new JScrollPane(validationErrors);
+    private final ErrorsPanel validationErrors;
 
     private NewDataSetInfo newDataSetInfo;
 
     public DataSetMetadataPanel(DataSetUploadClientModel clientModel, JFrame mainWindow)
     {
         super();
+
+        new Thread(new AsynchronousValidator()).start();
+
         setLayout(new GridBagLayout());
 
         // Initialize internal state
@@ -131,15 +154,7 @@ public class DataSetMetadataPanel extends JPanel
         dataSetFileButton = new JButton("Browse...");
         dataSetFileLabel = new JLabel("File:", JLabel.TRAILING);
 
-        validationErrors.setEditable(false);
-        validationErrors.setBackground(getBackground());
-        validationErrors.setFont(new Font(getFont().getName(), Font.BOLD, getFont().getSize()));
-        validationErrors.setForeground(Color.RED);
-        validationErrors.setLineWrap(true);
-        validationErrors.setWrapStyleWord(true);
-        validationErrorsPane.setBorder(BorderFactory.createEmptyBorder());
-        validationErrorsPane
-                .setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        validationErrors = new ErrorsPanel(mainWindow);
 
         createGui();
     }
@@ -241,15 +256,18 @@ public class DataSetMetadataPanel extends JPanel
                     }
 
                     Object selectedItem = e.getItem();
-                    if (null == selectedItem || EMPTY_FILE_SELECTION == selectedItem)
+                    if (selectedItem != newDataSetInfo.getNewDataSetBuilder().getFile())
                     {
-                        newDataSetInfo.getNewDataSetBuilder().setFile(null);
-                    } else
-                    {
-                        newDataSetInfo.getNewDataSetBuilder().setFile((File) selectedItem);
-                    }
+                        if (null == selectedItem || EMPTY_FILE_SELECTION == selectedItem)
+                        {
+                            newDataSetInfo.getNewDataSetBuilder().setFile(null);
+                        } else
+                        {
+                            newDataSetInfo.getNewDataSetBuilder().setFile((File) selectedItem);
+                        }
 
-                    validateAndNotifyObserversOfChanges();
+                        validationQueue.add(Boolean.TRUE);
+                    }
                 }
 
             });
@@ -273,7 +291,7 @@ public class DataSetMetadataPanel extends JPanel
                         clientModel.userDidSelectFile(newDirOrNull);
                         updateFileComboBoxList();
                         updateFileLabel();
-                        validateAndNotifyObserversOfChanges();
+                        validationQueue.add(Boolean.TRUE);
                     }
                 }
 
@@ -349,7 +367,8 @@ public class DataSetMetadataPanel extends JPanel
 
         createDataSetTypePanel();
         addRow(4, dataSetTypePanel);
-        addRow(5, validationErrorsPane);
+
+        addRow(5, validationErrors);
     }
 
     private void setDataSetType(String dataSetType)
@@ -493,8 +512,10 @@ public class DataSetMetadataPanel extends JPanel
 
     private void validateAndNotifyObserversOfChanges()
     {
+        validationErrors.waitCard();
         clientModel.validateNewDataSetInfoAndNotifyObservers(newDataSetInfo);
         syncErrors();
+        validationErrors.showResult();
     }
 
     private void setOwnerType(DataSetOwnerType type)
@@ -505,9 +526,11 @@ public class DataSetMetadataPanel extends JPanel
         }
 
         NewDataSetDTOBuilder builder = newDataSetInfo.getNewDataSetBuilder();
-        builder.setDataSetOwnerType(type);
-
-        validateAndNotifyObserversOfChanges();
+        if (builder.getDataSetOwnerType() != type)
+        {
+            builder.setDataSetOwnerType(type);
+            validationQueue.add(Boolean.TRUE);
+        }
     }
 
     protected void setOwnerId(String text)
@@ -518,11 +541,15 @@ public class DataSetMetadataPanel extends JPanel
         }
 
         NewDataSetDTOBuilder builder = newDataSetInfo.getNewDataSetBuilder();
-        builder.setDataSetOwnerIdentifier(text);
-        validateAndNotifyObserversOfChanges();
+
+        if (false == text.equals(builder.getDataSetOwnerIdentifier()))
+        {
+            builder.setDataSetOwnerIdentifier(text);
+            validationQueue.add(Boolean.TRUE);
+        }
     }
 
-    public void syncErrors()
+    public synchronized void syncErrors()
     {
         // Clear all errors first
         clearError(ownerIdLabel, ownerIdText, null);
@@ -557,7 +584,7 @@ public class DataSetMetadataPanel extends JPanel
         }
     }
 
-    private void displayError(JLabel label, JComponent component, JTextArea errorAreaOrNull,
+    private void displayError(JLabel label, JComponent component, ErrorsPanel errorAreaOrNull,
             ValidationError error)
     {
         // Not all errors are applicable to this panel
@@ -568,7 +595,7 @@ public class DataSetMetadataPanel extends JPanel
         UiUtilities.displayError(label, component, errorAreaOrNull, error);
     }
 
-    private void clearError(JLabel label, JComponent component, JTextArea errorAreaOrNull)
+    private void clearError(JLabel label, JComponent component, ErrorsPanel errorAreaOrNull)
     {
         UiUtilities.clearError(label, component, errorAreaOrNull);
         component.setToolTipText(label.getToolTipText());

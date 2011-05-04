@@ -417,7 +417,7 @@ public class DataSetUploadClientModel
     /**
      * Validate a new data set info and update the validation errors.
      */
-    public final void validateNewDataSetInfo(NewDataSetInfo newDataSetInfo)
+    private final void validateNewDataSetInfo(NewDataSetInfo newDataSetInfo)
     {
         ArrayList<ValidationError> errors = new ArrayList<ValidationError>();
         validateNewDataSetInfo(newDataSetInfo, errors);
