@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwn
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SpaceIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ProjectValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.SampleValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
@@ -469,7 +470,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
         { RoleWithHierarchy.SPACE_OBSERVER })
     public List<Experiment> listExperiments(
             String sessionToken,
-            @AuthorizationGuard(guardClass = ExistingSpaceIdentifierPredicate.class) ProjectIdentifier projectIdentifier);
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) ProjectIdentifier projectIdentifier);
 
     /**
      * List all projects that the user can see.
@@ -477,6 +478,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @Transactional(readOnly = true)
     @RolesAllowed(value =
         { RoleWithHierarchy.SPACE_OBSERVER })
+    @ReturnValueFilter(validatorClass = ProjectValidator.class)
     public List<Project> listProjects(String sessionToken);
     
     /**
