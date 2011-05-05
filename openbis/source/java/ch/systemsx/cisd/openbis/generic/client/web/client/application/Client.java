@@ -68,11 +68,17 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
  */
 public class Client implements EntryPoint, ValueChangeHandler<String>
 {
-    /** name of the URL parameter which decides if looging is switched on or off */
+    /** name of the URL parameter which decides if logging is switched on or off */
     private static final String LOGGING_PARAM = "log";
 
-    /** value of the URL parameter {@link #LOGGING_PARAM} which switches looging off */
+    /** value of the URL parameter {@link #LOGGING_PARAM} which switches logging on */
     private static final String LOGGING_ON = "true";
+
+    /** name of the URL parameter which decides if debugging is switched on or off */
+    private static final String DEBUGGING_PARAM = "debug";
+
+    /** value of the URL parameter {@link #DEBUGGING_PARAM} which switches debugging on */
+    private static final String DEBUGGING_ON = "true";
 
     private IViewContext<ICommonClientServiceAsync> viewContext;
 
@@ -112,7 +118,7 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
 
         CommonViewContext commonContext =
                 new CommonViewContext(service, imageBundle, pageController, isLoggingEnabled(),
-                        getPageTitle());
+                        isDebuggingEnabled(), getPageTitle());
         commonContext.setClientPluginFactoryProvider(createPluginFactoryProvider(commonContext));
         initializeLocatorHandlerRegistry(commonContext.getLocatorResolverRegistry(), commonContext);
         return commonContext;
@@ -132,6 +138,12 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
     {
         return GWTUtils.getParamString() != null
                 && GWTUtils.getParamString().contains(LOGGING_PARAM + "=" + LOGGING_ON);
+    }
+
+    private boolean isDebuggingEnabled()
+    {
+        return GWTUtils.getParamString() != null
+                && GWTUtils.getParamString().contains(DEBUGGING_PARAM + "=" + DEBUGGING_ON);
     }
 
     /**

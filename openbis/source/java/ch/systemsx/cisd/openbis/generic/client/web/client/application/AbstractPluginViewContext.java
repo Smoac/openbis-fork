@@ -129,6 +129,11 @@ public abstract class AbstractPluginViewContext<T extends IClientServiceAsync> i
         return commonViewContext.getImageBundle();
     }
 
+    public boolean isDebuggingEnabled()
+    {
+        return commonViewContext.isDebuggingEnabled();
+    }
+
     // -------- IProfilingTable delegate
 
     /** @see IProfilingTable#log */

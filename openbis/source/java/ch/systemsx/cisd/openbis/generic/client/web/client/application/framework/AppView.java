@@ -17,9 +17,11 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.View;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
@@ -115,7 +117,16 @@ final class AppView extends View
 
     private final void createSouth()
     {
-        if (getViewMode() != ViewMode.EMBEDDED)
+        if (viewContext.isDebuggingEnabled())
+        {
+            final BorderLayoutData data = new BorderLayoutData(LayoutRegion.SOUTH, 200);
+            data.setSplit(true);
+            final ContentPanel panel = new ContentPanel();
+            panel.setScrollMode(Scroll.AUTO);
+            panel.setHeaderVisible(false);
+            panel.add(DebugPanelManager.createDebugPanel());
+            viewport.add(panel, data);
+        } else if (getViewMode() != ViewMode.EMBEDDED)
         {
             final Footer footer = new Footer(viewContext);
             final BorderLayoutData data = new BorderLayoutData(LayoutRegion.SOUTH, 20);

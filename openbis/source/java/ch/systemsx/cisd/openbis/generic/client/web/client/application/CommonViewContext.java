@@ -96,13 +96,16 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
 
     private final IProfilingTable profilingTable;
 
+    private final boolean isDebuggingEnabled;
+
     CommonViewContext(final ICommonClientServiceAsync service,
             final IGenericImageBundle imageBundle, final IPageController pageController,
-            boolean isLoggingEnabled, String basicPageTitle)
+            boolean isLoggingEnabled, boolean isDebuggingEnabled, String basicPageTitle)
     {
         this.service = service;
         this.imageBundle = imageBundle;
         this.pageController = pageController;
+        this.isDebuggingEnabled = isDebuggingEnabled;
         this.profilingTable = ProfilingTable.create(isLoggingEnabled);
         messageProvider = new CompositeMessageProvider();
         messageProvider.add(new DictonaryBasedMessageProvider(TECHNOLOGY_NAME));
@@ -253,6 +256,11 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
     public boolean isLoggingEnabled()
     {
         return profilingTable.isLoggingEnabled();
+    }
+
+    public boolean isDebuggingEnabled()
+    {
+        return isDebuggingEnabled;
     }
 
     public boolean isSimpleOrEmbeddedMode()
