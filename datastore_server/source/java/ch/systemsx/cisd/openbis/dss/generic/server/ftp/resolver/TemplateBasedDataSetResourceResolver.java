@@ -404,7 +404,10 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
         properties.put(DATA_SET_TYPE_VARNAME, dataSet.getDataSetType().getCode());
         String dataSetDate = extractDateValue(dataSet.getRegistrationDate());
         properties.put(DATA_SET_DATE_VARNAME, dataSetDate);
-        properties.put(FILE_NAME_VARNAME, fileName);
+        if (fileName != null)
+        {
+            properties.put(FILE_NAME_VARNAME, fileName);
+        }
         properties.put(DISAMBIGUATION_VARNAME, disambiguation);
 
         properties.put(TEMPLATE, template);

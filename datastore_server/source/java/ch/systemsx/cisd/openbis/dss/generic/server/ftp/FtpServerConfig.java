@@ -41,19 +41,19 @@ public class FtpServerConfig
 
     private final static String PREFIX = "ftp.server.";
 
-    private final static String ENABLE_KEY = PREFIX + "enable";
+    final static String ENABLE_KEY = PREFIX + "enable";
 
-    private final static String PORT_KEY = PREFIX + "port";
+    final static String PORT_KEY = PREFIX + "port";
 
-    private final static String USE_SSL_KEY = PREFIX + "use-ssl";
+    final static String USE_SSL_KEY = PREFIX + "use-ssl";
 
-    private final static String MAX_THREADS_KEY = PREFIX + "maxThreads";
+    final static String MAX_THREADS_KEY = PREFIX + "maxThreads";
 
-    private final static String DATASET_DISPLAY_TEMPLATE_KEY = PREFIX + "dataset.display.template";
+    final static String DATASET_DISPLAY_TEMPLATE_KEY = PREFIX + "dataset.display.template";
 
-    private final static String DATASET_FILELIST_SUBPATH_KEY = PREFIX + "dataset.filelist.subpath.";
+    final static String DATASET_FILELIST_SUBPATH_KEY = PREFIX + "dataset.filelist.subpath.";
 
-    private final static String DATASET_FILELIST_FILTER_KEY = PREFIX + "dataset.filelist.filter.";
+    final static String DATASET_FILELIST_FILTER_KEY = PREFIX + "dataset.filelist.filter.";
 
     private static final int DEFAULT_PORT = 2121;
 
