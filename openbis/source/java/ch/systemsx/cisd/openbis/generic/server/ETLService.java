@@ -505,11 +505,12 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
     public List<ExternalData> listDataSetsByExperimentID(String sessionToken, TechId experimentID)
             throws UserFailureException
     {
-        final Session session = getSession(sessionToken);
-
-        IExternalDataTable dataSetTable = businessObjectFactory.createExternalDataTable(session);
-        dataSetTable.loadByExperimentTechId(experimentID);
-        return ExternalDataTranslator.translate(dataSetTable.getExternalData(), "", "");
+        Session session = getSession(sessionToken);
+        IDatasetLister datasetLister = createDatasetLister(session);
+        List<TechId> experimentTechIDs = Collections.singletonList(experimentID);
+        List<ExternalData> datasets = datasetLister.listByExperimentTechIds(experimentTechIDs);
+        Collections.sort(datasets);
+        return datasets;
     }
 
     public List<ExternalData> listDataSetsBySampleID(final String sessionToken,
