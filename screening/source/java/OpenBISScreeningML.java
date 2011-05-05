@@ -17,7 +17,6 @@
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -26,9 +25,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
+import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
 import ch.systemsx.cisd.openbis.generic.client.cli.Login;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.IScreeningOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade.IImageOutputStreamProvider;
@@ -81,6 +84,57 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
  */
 public class OpenBISScreeningML
 {
+    private static interface ITileNumberIterable extends Iterable<Integer>
+    {
+        public void setMaximumNumberOfTiles(int numberOfTiles);
+        public int getMaximumNumberOfTiles();
+    }
+    
+    private static final class ImageReferenceAndFile
+    {
+        private final PlateImageReference imageReference;
+        private final File imageFile;
+        private BufferedOutputStream outputStream;
+
+        ImageReferenceAndFile(PlateImageReference imageReference, File imageFile)
+        {
+            this.imageReference = imageReference;
+            this.imageFile = imageFile;
+        }
+
+        public PlateImageReference getImageReference()
+        {
+            return imageReference;
+        }
+
+        public File getImageFile()
+        {
+            return imageFile;
+        }
+        
+        public OutputStream open() throws IOException
+        {
+            if (outputStream == null)
+            {
+                outputStream = new BufferedOutputStream(new FileOutputStream(imageFile));
+            }
+            return outputStream;
+        }
+        
+        public void close() throws IOException
+        {
+            if (outputStream != null)
+            {
+                outputStream.close();
+            }
+            outputStream = null;
+        }
+    }
+    
+    private static File temporarySessionDir;
+    
+    private static Map<PlateImageReference, File> loadedImages;
+
     private static IScreeningOpenbisServiceFacade openbis = null;
 
     private static List<ExperimentIdentifier> experiments = null;
@@ -112,12 +166,14 @@ public class OpenBISScreeningML
     /**
      * The required version ("major.minor") of the screening API on the openBIS application server.
      */
-    public static final String REQUIRES_OPENBIS_AS_API = "1.2";
+    public static final String REQUIRES_OPENBIS_AS_API = "1.7";
 
     /**
      * The required version ("major.minor") of the screening API on the openBIS datastore server.
      */
     public static final String REQUIRES_OPENBIS_DSS_API = "1.1";
+
+    private static File dataSetsDir;
 
     //
     // Authentication methods
@@ -148,6 +204,18 @@ public class OpenBISScreeningML
 
     private static void init()
     {
+        File tempDir = new File(System.getProperty("java.io.tmpdir"));
+        dataSetsDir = new File(tempDir, "openbis_datasets");
+        if (dataSetsDir.isDirectory() == false && dataSetsDir.mkdirs() == false)
+        {
+            throw new RuntimeException("Couldn't create a data set directory.");
+        }
+        temporarySessionDir = new File(tempDir, "openbis_" + System.currentTimeMillis() / 1000 + "_temp_dir");
+        if (temporarySessionDir.mkdirs() == false)
+        {
+            throw new RuntimeException("Couldn't create a temporary directory.");
+        }
+        loadedImages = new HashMap<PlateImageReference, File>();
         experiments = openbis.listExperiments();
         experimentCodeToExperimentMap.clear();
         for (ExperimentIdentifier e : experiments)
@@ -278,7 +346,7 @@ public class OpenBISScreeningML
         }
         return result;
     }
-
+    
     /**
      * Lists the plates of <var>experiment</var>.
      * <p>
@@ -440,14 +508,118 @@ public class OpenBISScreeningML
     {
         return openbis.listAvailableFeatureNames(Arrays.asList(featureDatasets.get(0)));
     }
+    
+    //
+    // Data Sets
+    //
 
+    /**
+     * Loads data sets for specified plate code. For each data set the path to the root of the data
+     * set is returned. If it is possible the path points directly into the data set store. No data
+     * is copied. Otherwise the data is retrieved from the data store server.
+     * <p>
+     * Matlab example:
+     * 
+     * <pre>
+     * % Load all data sets of plate P005 in space SPACE
+     * dsinfo = loadDataSets('/SPACE/P005')
+     * % Get the data set codes
+     * dsinfo(:,1)
+     * % Get root path of first data set (assuming there is at least one)
+     * dsginfo(1,2)
+     * </pre>
+     * 
+     * @param augmentedPlateCode The augmented plate code.
+     * @return Each row contains information about one data set:
+     *         <p>
+     *         <code>{ data set code, data set root path  }</code>
+     */
+    public static Object[][] loadDataSets(String augmentedPlateCode)  {
+        checkLoggedIn();
+        Plate plateIdentifier = getPlate(augmentedPlateCode);
+
+        List<IDataSetDss> dataSets = openbis.getDataSets(plateIdentifier);
+        Object[][] result = new Object[dataSets.size()][];
+        try
+        {
+            for (int i = 0; i < dataSets.size(); i++)
+            {
+                IDataSetDss dataSet = dataSets.get(i);
+                File file = new File(dataSetsDir, dataSet.getCode());
+                if (file.exists() == false)
+                {
+                    file = dataSet.getLinkOrCopyOfContents(null, dataSetsDir);
+                }
+                result[i] = new Object[] {dataSet.getCode(), file.getPath()};
+            }
+            return result;
+        } catch (Exception ex)
+        {
+            throw new RuntimeException("Loading data sets for plate '" + augmentedPlateCode
+                    + "' failed: " + ex, ex);
+        }
+    }
+
+    /**
+     * Uploads specified data set for specified plate. The data set code will be returned.
+     * <p>
+     * Matlab example:
+     * 
+     * <pre>
+     * % Upload data set /path/to/my-data-set with properties DESCRIPTION and NUMBER for 
+     * % plate P005 in space SPACE
+     * properties = {'DESCRIPTION' 'hello example'; 'NUMBER' 3.14}
+     * datasetcode = uploadDataSet('/SPACE/P005', '/path/to/my-data-set', 'HCS_IMAGE', properties)
+     * </pre>
+     * 
+     * @param augmentedPlateCode The augmented plate code.
+     * @param dataSetFilePath Path to the data set file/folder to be uploaded.
+     * @param dataSetType Data set type.
+     * @param dataSetProperties A two dimensional array where the first column contains the property
+     *            codes and the second column the corresponding property values.
+     */
+    public static Object uploadDataSet(String augmentedPlateCode, String dataSetFilePath,
+            String dataSetType, Object[][] dataSetProperties)
+    {
+        checkLoggedIn();
+        Plate plateIdentifier = getPlate(augmentedPlateCode);
+        File dataSetFile = new File(dataSetFilePath);
+        if (dataSetFile.exists() == false)
+        {
+            throw new RuntimeException("Unknown data set file path '" + dataSetFilePath + "'.");
+        }
+        try
+        {
+            HashMap<String, String> map = new HashMap<String, String>();
+            for (Object[] objects : dataSetProperties)
+            {
+                if (objects.length == 2)
+                {
+                    map.put(objects[0].toString(), objects[1].toString());
+                }
+            }
+            IDataSetDss dataSet =
+                    openbis.putDataSet(plateIdentifier, dataSetFile, new NewDataSetMetadataDTO(
+                            dataSetType, map));
+            return dataSet.getCode();
+        } catch (Exception ex)
+        {
+            throw new RuntimeException("Couldn't upload data set for plate '" + augmentedPlateCode
+                    + "'.", ex);
+        }
+    }
+
+    public static Object testProperties(Properties properties)
+    {
+        return properties.toString();
+    }
     //
     // Images
     //
 
     /**
-     * Loads the TIFF images for the given well location and all channels and stores them in
-     * temporary files. The temporary files will be removed automatically when the Java Virtual
+     * Loads the TIFF images for the given well location, all tiles and all channels and stores them
+     * in temporary files. The temporary files will be removed automatically when the Java Virtual
      * Machine exits.
      * <p>
      * Matlab example:
@@ -481,9 +653,45 @@ public class OpenBISScreeningML
     }
 
     /**
-     * Loads the TIFF images for the given well location and list of channels and stores them in
-     * temporary files. The temporary files will be removed automatically when the Java Virtual
-     * Machine exits.
+     * Loads the TIFF images for the given well location, tile number, and all channels and stores
+     * them in temporary files. The temporary files will be removed automatically when the Java
+     * Virtual Machine exits.
+     * <p>
+     * Matlab example:
+     * 
+     * <pre>
+     * % Load the images for all channels of well B10 and tile 3 of plate P005 in space SPACE
+     * imginfo = OpenBISScreeningML.loadImages('/SPACE/P005', 2, 10, 3)
+     * % Get the plate-well descriptions of all locations
+     * imginfo(2,:,3)
+     * % Show the third image (assuming there are at least three images)
+     * imtool(imginfo(1,3))
+     * </pre>
+     * 
+     * @param plate The augmented plate code
+     * @param row The row in the plate to get the images for
+     * @param col The column in the plate to get the images for
+     * @param tile The tile number. Starts with 0. 
+     * @return <code>{ names of TIFF files, image annotation }</code>
+     *         <p>
+     *         Each of <code>names of TIFF files</code> and <code>image annotation</code> is a
+     *         vector of length of the number of images.
+     *         <p>
+     *         <code>image annotation</code> contains
+     *         <code>{ channel name, tile number, plate well description, 
+     *         plate augmented code, plate perm id, plate space code, plate code, row, column, 
+     *         experiment augmented code, experiment perm id, experiment space code, 
+     *         experiment project code, experiment code, data set code }</code>
+     */
+    public static Object[][][] loadImages(String plate, int row, int col, int tile)
+    {
+        return loadImages(plate, row, col, tile, (String[]) null);
+    }
+
+    /**
+     * Loads the TIFF images for the given well location, list of channels, and all tiles and stores
+     * them in temporary files. The temporary files will be removed automatically when the Java
+     * Virtual Machine exits.
      * <p>
      * Matlab example:
      * 
@@ -513,12 +721,127 @@ public class OpenBISScreeningML
      */
     public static Object[][][] loadImages(String plate, int row, int col, String[] channels)
     {
+        return loadImages(plate, row, col, channels, new ITileNumberIterable()
+            {
+                private int maximumNumberOfTiles;
+
+                public void setMaximumNumberOfTiles(int numberOfTiles)
+                {
+                    this.maximumNumberOfTiles = numberOfTiles;
+                }
+
+                public int getMaximumNumberOfTiles()
+                {
+                    return maximumNumberOfTiles;
+                }
+
+                public Iterator<Integer> iterator()
+                {
+                    return new Iterator<Integer>()
+                        {
+                            private int index;
+                            
+                            public boolean hasNext()
+                            {
+                                return index < maximumNumberOfTiles;
+                            }
+
+                            public Integer next()
+                            {
+                                return index++;
+                            }
+
+                            public void remove()
+                            {
+                                throw new UnsupportedOperationException();
+                            }
+                        };
+                }
+            });
+    }
+
+    /**
+     * Loads the TIFF images for the given well location, tile number, and list of channels and
+     * stores them in temporary files. The temporary files will be removed automatically when the
+     * Java Virtual Machine exits.
+     * <p>
+     * Matlab example:
+     * 
+     * <pre>
+     * % Load the images for channel DAPI of well H10 and tile 3 of plate P005 in space SPACE
+     * imginfo=OpenBISScreeningML.loadImages('/SPACE/P005', 8, 10, 3, 'DAPI')
+     * % Get the channel names of all locations
+     * imginfo(2,:,1)
+     * % Show the second image (assuming there are at least two images)
+     * imtool(imginfo(1,2))
+     * </pre>
+     * 
+     * @param plate The augmented plate code
+     * @param row The row in the plate to get the images for
+     * @param col The column in the plate to get the images for
+     * @param tile The tile number. Starts with 0. 
+     * @param channels The names of the channels to get the images for
+     * @return <code>{ names of TIFF files, image annotation }</code>
+     *         <p>
+     *         Each of <code>names of TIFF files</code> and <code>image annotation</code> is a
+     *         vector of length of the number of images.
+     *         <p>
+     *         <code>image annotation</code> contains
+     *         <code>{ channel name, tile number, plate well description, 
+     *         plate augmented code, plate perm id, plate space code, plate code, row, column, 
+     *         experiment augmented code, experiment perm id, experiment space code, 
+     *         experiment project code, experiment code, data set code }</code>
+     */
+    public static Object[][][] loadImages(String plate, int row, int col, final int tile,
+            String[] channels)
+    {
+        return loadImages(plate, row, col, channels, new ITileNumberIterable()
+            {
+                public void setMaximumNumberOfTiles(int numberOfTiles)
+                {
+                    if (tile >= numberOfTiles)
+                    {
+                        throw new IllegalArgumentException("Tile number " + tile
+                                + " is not less than number of tiles " + numberOfTiles + ".");
+                    }
+                }
+
+                public int getMaximumNumberOfTiles()
+                {
+                    return 1;
+                }
+
+                public Iterator<Integer> iterator()
+                {
+                    return new Iterator<Integer>()
+                        {
+                            private boolean delivered;
+
+                            public boolean hasNext()
+                            {
+                                return delivered == false;
+                            }
+
+                            public Integer next()
+                            {
+                                delivered = true;
+                                return tile;
+                            }
+
+                            public void remove()
+                            {
+                                throw new UnsupportedOperationException();
+                            }
+                        };
+                }
+            });
+    }
+    
+    public static Object[][][] loadImages(String plate, int row, int col, String[] channels,
+            ITileNumberIterable tileNumberIterable)
+    {
         checkLoggedIn();
-        final Plate plateId = plateCodeToPlateMap.get(plate);
-        if (plateId == null)
-        {
-            throw new RuntimeException("No plate with that code found.");
-        }
+        final Plate plateId = getPlate(plate);
         final List<ImageDatasetReference> imageDatasets =
                 openbis.listRawImageDatasets(Arrays.asList(plateId));
         final List<ImageDatasetMetadata> meta = openbis.listImageMetadata(imageDatasets);
@@ -535,32 +858,25 @@ public class OpenBISScreeningML
         {
             imageChannels = Arrays.asList(channels);
         }
-        final List<PlateImageReference> imageReferences =
-            new ArrayList<PlateImageReference>(imageDatasets.size());
-        final List<File> imageFiles =
-                new ArrayList<File>(imageDatasets.size() * imageChannels.size()
-                        * meta.get(0).getNumberOfTiles());
+        final List<ImageReferenceAndFile> imageReferencesAndFiles =
+            new ArrayList<ImageReferenceAndFile>(imageDatasets.size());
         final Object[][][] result = new Object[2][][];
-        result[0] =
-                new Object[imageDatasets.size() * imageChannels.size()
-                        * meta.get(0).getNumberOfTiles()][1];
-        result[1] =
-                new Object[imageDatasets.size() * imageChannels.size()
-                        * meta.get(0).getNumberOfTiles()][15];
+        tileNumberIterable.setMaximumNumberOfTiles(meta.get(0).getNumberOfTiles());
+        int numberOfTiles = tileNumberIterable.getMaximumNumberOfTiles();
+        result[0] = new Object[imageDatasets.size() * imageChannels.size() * numberOfTiles][1];
+        result[1] = new Object[imageDatasets.size() * imageChannels.size() * numberOfTiles][15];
         int dsIdx = 0;
         int resultIdx = 0;
         for (ImageDatasetReference ds : imageDatasets)
         {
-            final ImageDatasetMetadata m = meta.get(dsIdx);
             for (String channel : imageChannels)
             {
-                for (int tile = 0; tile < m.getNumberOfTiles(); ++tile)
+                for (Integer tile : tileNumberIterable)
                 {
                     final PlateImageReference ref =
                             new PlateImageReference(row, col, tile, channel, ds);
-                    imageReferences.add(ref);
                     final File imageFile = createImageFileName(plateId, ref);
-                    imageFiles.add(imageFile);
+                    imageReferencesAndFiles.add(new ImageReferenceAndFile(ref, imageFile));
                     result[0][resultIdx][0] = imageFile.getPath();
                     final Object[] annotations =
                             new Object[]
@@ -583,26 +899,36 @@ public class OpenBISScreeningML
         }
         try
         {
-            loadImages(imageReferences, imageFiles);
+            loadImages(imageReferencesAndFiles);
         } catch (IOException ex)
         {
             throw new RuntimeException(ex);
         }
         return result;
     }
-
+    
     /**
      * Saves images for a given list of image references (given by data set code, well position,
-     * channel and tile) in the specified files.<br>
-     * The number of image references has to be the same as the number of files.
+     * channel and tile) and files.
      * 
      * @throws IOException when reading images from the server or writing them to the files fails
      */
-    private static void loadImages(List<PlateImageReference> imageReferences,
-            List<File> imageOutputFiles) throws IOException
+    private static void loadImages(List<ImageReferenceAndFile> imageReferencesAndFiles)
+            throws IOException
     {
-        final Map<PlateImageReference, OutputStream> imageRefToFileMap =
-                createImageToFileMap(imageReferences, imageOutputFiles);
+        List<PlateImageReference> imageReferences = new ArrayList<PlateImageReference>();
+        final Map<PlateImageReference, ImageReferenceAndFile> imageRefToFileMap =
+                new HashMap<PlateImageReference, ImageReferenceAndFile>();
+        for (ImageReferenceAndFile imageReferenceAndFile : imageReferencesAndFiles)
+        {
+            PlateImageReference imageReference = imageReferenceAndFile.getImageReference();
+            File file = loadedImages.get(imageReference);
+            if (file == null)
+            {
+                imageReferences.add(imageReference);
+                imageRefToFileMap.put(imageReference, imageReferenceAndFile);
+            }
+        }
         try
         {
             openbis.loadImages(imageReferences, new IImageOutputStreamProvider()
@@ -610,57 +936,35 @@ public class OpenBISScreeningML
                     public OutputStream getOutputStream(PlateImageReference imageReference)
                             throws IOException
                     {
-                        return imageRefToFileMap.get(imageReference);
+                        return imageRefToFileMap.get(imageReference).open();
                     }
                 }, false);
         } finally
         {
-            closeOutputStreams(imageRefToFileMap.values());
+            Collection<ImageReferenceAndFile> values = imageRefToFileMap.values();
+            for (ImageReferenceAndFile imageReferenceAndFile : values)
+            {
+                imageReferenceAndFile.close();
+                PlateImageReference imageReference = imageReferenceAndFile.getImageReference();
+                loadedImages.put(imageReference, imageReferenceAndFile.getImageFile());
+            }
         }
     }
-
-    private static void closeOutputStreams(Collection<OutputStream> streams) throws IOException
-    {
-        for (OutputStream stream : streams)
-        {
-            stream.close();
-        }
-    }
-
-    private static Map<PlateImageReference, OutputStream> createImageToFileMap(
-            List<PlateImageReference> imageReferences, List<File> imageOutputFiles)
-            throws FileNotFoundException
-    {
-        assert imageReferences.size() == imageOutputFiles.size() : "there should be one file specified for each image reference";
-        final Map<PlateImageReference, OutputStream> map =
-                new HashMap<PlateImageReference, OutputStream>();
-        for (int i = 0; i < imageReferences.size(); i++)
-        {
-            OutputStream out =
-                    new BufferedOutputStream(new FileOutputStream(imageOutputFiles.get(i)));
-            map.put(imageReferences.get(i), out);
-        }
-        return map;
-    }
-
+    
     private static File createImageFileName(Plate plate, PlateImageReference image)
     {
-        try
-        {
-            final WellPosition well = image.getWellPosition();
-            final File f =
-                    File.createTempFile("img_", "_" + plate.getPlateCode() + "_"
-                            + image.getDatasetCode() + "_row" + well.getWellRow() + "_col"
-                            + well.getWellColumn() + "_" + image.getChannel() + "_tile"
-                            + image.getTile() + ".png");
-            f.deleteOnExit();
-            return f;
-        } catch (IOException ex)
-        {
-            throw new RuntimeException(ex);
-        }
+        final WellPosition well = image.getWellPosition();
+        File imageDir = new File(temporarySessionDir, "images");
+        imageDir.mkdirs();
+        final File f =
+                new File(imageDir, "img_" + plate.getPlateCode() + "_"
+                        + image.getDatasetCode() + "_row" + well.getWellRow() + "_col"
+                        + well.getWellColumn() + "_" + image.getChannel() + "_tile"
+                        + image.getTile() + ".tiff");
+        f.deleteOnExit();
+        return f;
     }
-
+    
     //
     // Feature matrix
     //
@@ -1129,6 +1433,16 @@ public class OpenBISScreeningML
             result.add(PlateIdentifier.createFromAugmentedCode(plateCode));
         }
         return result;
+    }
+
+    private static Plate getPlate(String augmentedPlateCode)
+    {
+        Plate plateIdentifier = plateCodeToPlateMap.get(augmentedPlateCode);
+        if (plateIdentifier == null)
+        {
+            throw new RuntimeException("No plate with that code '" + augmentedPlateCode + "' found.");
+        }
+        return plateIdentifier;
     }
 
     private static void arraycopy(double[] src, Object[] dest)

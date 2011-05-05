@@ -376,7 +376,6 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     public List<IDataSetDss> getDataSets(WellIdentifier wellIdentifier)
             throws IllegalStateException, EnvironmentFailureException
     {
-        checkASMinimalMinorVersion("getDataSets", WellIdentifier.class);
         final Sample wellSample = getWellSample(wellIdentifier);
         return getDataSets(wellSample);
     }
@@ -391,7 +390,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     public List<IDataSetDss> getDataSets(PlateIdentifier plateIdentifier)
             throws IllegalStateException, EnvironmentFailureException
     {
-        checkASMinimalMinorVersion("getDataSets", PlateIdentifier.class);
+        checkASMinimalMinorVersion("getPlateSample", PlateIdentifier.class);
         Sample sample = openbisScreeningServer.getPlateSample(sessionToken, plateIdentifier);
         return getDataSets(sample);
     }
@@ -431,6 +430,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
 
     private Sample getWellSample(WellIdentifier wellIdentifier)
     {
+        checkASMinimalMinorVersion("getWellSample", WellIdentifier.class);
         return openbisScreeningServer.getWellSample(sessionToken, wellIdentifier);
     }
 
@@ -459,7 +459,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             NewDataSetMetadataDTO dataSetMetadataOrNull, File dataSetFile) throws IOException
     {
         final NewDataSetMetadataDTO dataSetMetadata =
-                (dataSetMetadataOrNull == null) ? new NewDataSetMetadataDTO() : null;
+                (dataSetMetadataOrNull == null) ? new NewDataSetMetadataDTO() : dataSetMetadataOrNull;
         final DataSetOwner dataSetOwner =
                 new DataSetOwner(DataSetOwnerType.SAMPLE, sample.getIdentifier());
         final String dataSetFolderNameOrNull = null;
