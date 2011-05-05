@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -298,7 +297,6 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
     private List<EvaluatedDataSetPath> evaluateDataSetPaths(List<ExternalData> dataSets)
     {
         List<EvaluatedDataSetPath> result = new ArrayList<EvaluatedDataSetPath>();
-        sortDataSetsById(dataSets);
 
         for (int disambiguationIdx = 0; disambiguationIdx < dataSets.size(); disambiguationIdx++)
         {
@@ -372,30 +370,6 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
             }
         }
         return content.getRootNode();
-    }
-
-    private void sortDataSetsById(List<ExternalData> dataSets)
-    {
-        Collections.sort(dataSets, new Comparator<ExternalData>()
-            {
-                public int compare(ExternalData o1, ExternalData o2)
-                {
-                    long id1 = o1.getId();
-                    long id2 = o2.getId();
-                    // do not return directly "id1 - id2" to avoid overflow
-                    if (id1 > id2)
-                    {
-                        return 1;
-                    } else if (id1 < id2)
-                    {
-                        return -1;
-                    } else
-                    {
-                        return 0;
-                    }
-                }
-
-            });
     }
 
     /**
