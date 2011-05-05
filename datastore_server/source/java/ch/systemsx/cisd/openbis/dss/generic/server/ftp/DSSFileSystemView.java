@@ -19,8 +19,11 @@ package ch.systemsx.cisd.openbis.dss.generic.server.ftp;
 import org.apache.ftpserver.ftplet.FileSystemView;
 import org.apache.ftpserver.ftplet.FtpException;
 import org.apache.ftpserver.ftplet.FtpFile;
+import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 
 /**
@@ -31,6 +34,9 @@ import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
  */
 public class DSSFileSystemView implements FileSystemView
 {
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            DSSFileSystemView.class);
+
     private final String sessionToken;
 
     private final IETLLIMSService service;
@@ -73,9 +79,19 @@ public class DSSFileSystemView implements FileSystemView
             return workingDirectory;
         }
 
-        FtpPathResolverContext context =
-                new FtpPathResolverContext(sessionToken, service, pathResolverRegistry);
-        return pathResolverRegistry.tryResolve(normalizedPath, context);
+        try
+        {
+            FtpPathResolverContext context =
+                    new FtpPathResolverContext(sessionToken, service, pathResolverRegistry);
+            return pathResolverRegistry.tryResolve(normalizedPath, context);
+        } catch (RuntimeException rex)
+        {
+            String message =
+                    String.format("Error while resolving FTP path '%s' : '%s", path,
+                            rex.getMessage());
+            operationLog.error(message);
+            return null;
+        }
     }
 
     private String normalizePath(String path) throws FtpException

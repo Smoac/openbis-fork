@@ -24,10 +24,23 @@ package ch.systemsx.cisd.common.io;
 public interface IHierarchicalContentNodeFilter
 {
     /**
+     * a filter accepting all nodes.
+     */
+    public static final IHierarchicalContentNodeFilter MATCH_ALL =
+            new IHierarchicalContentNodeFilter()
+                {
+                    public boolean accept(IHierarchicalContentNode node)
+                    {
+                        return true;
+                    }
+                };
+
+    /**
      * Tests whether or not the specified abstract node should be included in a node list.
      * 
      * @param node The abstract node to be tested
      * @return <code>true</code> if and only if <code>node</code> should be included
      */
     boolean accept(IHierarchicalContentNode node);
+
 }

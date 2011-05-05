@@ -52,8 +52,8 @@ public class ProjectFolderResolver implements IFtpPathResolver
     {
         return new AbstractFtpFolder(path)
             {
-
-                public List<FtpFile> listFiles()
+                @Override
+                public List<FtpFile> unsafeListFiles()
                 {
                     List<Experiment> experiments = listExperiments(path, resolverContext);
                     List<FtpFile> result = new ArrayList<FtpFile>();

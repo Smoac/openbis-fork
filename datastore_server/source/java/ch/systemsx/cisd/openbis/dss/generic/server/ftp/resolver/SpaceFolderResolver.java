@@ -48,8 +48,8 @@ public class SpaceFolderResolver implements IFtpPathResolver
     {
         return new AbstractFtpFolder(path)
             {
-
-                public List<FtpFile> listFiles()
+                @Override
+                public List<FtpFile> unsafeListFiles()
                 {
                     List<Project> projects = listProjects(resolverContext);
 

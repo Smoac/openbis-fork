@@ -20,15 +20,22 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.ftpserver.ftplet.FtpFile;
+import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.io.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
+import ch.systemsx.cisd.common.io.IHierarchicalContentNodeFilter;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpConstants;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
@@ -67,15 +74,26 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
 
     private static final String DATA_SET_DATE_FORMAT = "yyyy-MM-dd-HH-mm";
 
-    /**
-     * a template, that can contain special variables.
-     * 
-     * @see #evaluateTemplate(ExternalData, String) to find out what variables are understood and
-     *      interpreted.
-     */
-    private final String template;
+    private static final String TEMPLATE = "template";
 
-    private final Map<String /* dataset type */, String /* subpath */> fileListSubPaths;
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            TemplateBasedDataSetResourceResolver.class);
+
+    /**
+     * helper class holding the configuration properties for a data set type.
+     */
+    private static class DataSetTypeConfig
+    {
+        /**
+         * a regex specifying the root of the listable hierarchy within a data set.
+         */
+        String fileListSubPath = StringUtils.EMPTY;
+
+        /**
+         * a filter to be applied to files within a certain data set type.
+         */
+        IHierarchicalContentNodeFilter fileFilter = IHierarchicalContentNodeFilter.MATCH_ALL;
+    }
 
     private static class EvaluatedDataSetPath
     {
@@ -90,10 +108,53 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
         IHierarchicalContentNode contentNode;
     }
 
+    /**
+     * a template, that can contain special variables.
+     * 
+     * @see #evaluateTemplate(ExternalData, String) to find out what variables are understood and
+     *      interpreted.
+     */
+    private final String template;
+
+    private final Map<String /* dataset type */, DataSetTypeConfig> dataSetTypeConfigs;
+
+    private final DataSetTypeConfig defaultDSTypeConfig;
+
     public TemplateBasedDataSetResourceResolver(FtpServerConfig ftpServerConfig)
     {
         this.template = ftpServerConfig.getDataSetDisplayTemplate();
-        this.fileListSubPaths = ftpServerConfig.getFileListSubPaths();
+        this.dataSetTypeConfigs = initializeDataSetTypeConfigs(ftpServerConfig);
+        this.defaultDSTypeConfig = new DataSetTypeConfig();
+
+    }
+
+    private Map<String, DataSetTypeConfig> initializeDataSetTypeConfigs(
+            FtpServerConfig ftpServerConfig)
+    {
+        Map<String, DataSetTypeConfig> result = new HashMap<String, DataSetTypeConfig>();
+        Map<String, String> fileListSubPaths = ftpServerConfig.getFileListSubPaths();
+        Map<String, String> fileListFilters = ftpServerConfig.getFileListFilters();
+
+        for (Entry<String, String> subPathEntry : fileListSubPaths.entrySet())
+        {
+            DataSetTypeConfig dsConfig = new DataSetTypeConfig();
+            dsConfig.fileListSubPath = subPathEntry.getValue();
+            result.put(subPathEntry.getKey(), dsConfig);
+        }
+
+        for (Entry<String, String> filterEntry : fileListFilters.entrySet())
+        {
+            String dataSetType = filterEntry.getKey();
+            String fileFilterPattern = filterEntry.getValue();
+            DataSetTypeConfig dsConfig = result.get(dataSetType);
+            if (dsConfig == null)
+            {
+                dsConfig = new DataSetTypeConfig();
+            }
+            dsConfig.fileFilter = createFilter(fileFilterPattern);
+            result.put(dataSetType, dsConfig);
+        }
+        return result;
     }
 
     /**
@@ -111,7 +172,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
         String sessionToken = resolverContext.getSessionToken();
 
         EvaluatedDataSetPath evaluationResult =
-                extractDataSetAndFileName(path, service, sessionToken);
+                tryExtractDataSetAndFileName(path, service, sessionToken);
         if (evaluationResult == null)
         {
             return null;
@@ -124,18 +185,25 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
             relativePath += FtpConstants.FILE_SEPARATOR + nestedSubPath;
         }
 
+        IHierarchicalContentNodeFilter fileFilter = getFileFilter(evaluationResult.dataSet);
         IHierarchicalContentProvider provider = ServiceProvider.getHierarchicalContentProvider();
         IHierarchicalContent content =
                 provider.asContent(evaluationResult.dataSet.getDataSetCode());
         IHierarchicalContentNode contentNode = content.getNode(relativePath);
-        return new HierarchicalContentToFtpFileAdapter(path, contentNode);
+        if (fileFilter.accept(contentNode))
+        {
+            return new HierarchicalContentToFtpFileAdapter(path, contentNode, fileFilter);
+        } else
+        {
+            return null;
+        }
     }
 
-    private EvaluatedDataSetPath extractDataSetAndFileName(String path, IETLLIMSService service,
+    private EvaluatedDataSetPath tryExtractDataSetAndFileName(String path, IETLLIMSService service,
             String sessionToken)
     {
         String experimentId = extractExperimentIdentifier(path);
-        Experiment experiment = extractExperiment(experimentId, service, sessionToken);
+        Experiment experiment = tryExtractExperiment(experimentId, service, sessionToken);
         if (experiment == null)
         {
             // cannot resolve an existing experiment from the specified path
@@ -152,10 +220,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
                             + FtpConstants.FILE_SEPARATOR;
             if (pathWithEndSlash.startsWith(fullEvaluatedPath))
             {
-                EvaluatedDataSetPath result = new EvaluatedDataSetPath();
-                result.dataSet = evaluatedPath.dataSet;
-                result.fileName = evaluatedPath.fileName;
-                return result;
+                return evaluatedPath;
             }
         }
 
@@ -177,13 +242,22 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
         }
     }
 
-    private Experiment extractExperiment(String experimentId, IETLLIMSService service,
+    private Experiment tryExtractExperiment(String experimentId, IETLLIMSService service,
             String sessionToken)
     {
         ExperimentIdentifier experimentIdentifier =
                 new ExperimentIdentifierFactory(experimentId).createIdentifier();
 
-        return service.tryToGetExperiment(sessionToken, experimentIdentifier);
+        Experiment result = null;
+        try
+        {
+            result = service.tryToGetExperiment(sessionToken, experimentIdentifier);
+        } catch (Throwable t)
+        {
+            operationLog.warn("Failed to get experiment with identifier :" + experimentId, t);
+        }
+
+        return result;
     }
 
     private String extractExperimentIdentifier(String path)
@@ -206,11 +280,17 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
                 service.listDataSetsByExperimentID(sessionToken, new TechId(experiment));
         for (EvaluatedDataSetPath evaluationResult : evaluateDataSetPaths(dataSets))
         {
-            String childPath =
-                    parentPath + FtpConstants.FILE_SEPARATOR + evaluationResult.evaluatedTemplate;
-            FtpFile childFtpFile =
-                    new HierarchicalContentToFtpFileAdapter(childPath, evaluationResult.contentNode);
-            result.add(childFtpFile);
+            IHierarchicalContentNodeFilter fileFilter = getFileFilter(evaluationResult.dataSet);
+            if (fileFilter.accept(evaluationResult.contentNode))
+            {
+                String childPath =
+                        parentPath + FtpConstants.FILE_SEPARATOR
+                                + evaluationResult.evaluatedTemplate;
+                FtpFile childFtpFile =
+                        new HierarchicalContentToFtpFileAdapter(childPath,
+                                evaluationResult.contentNode, fileFilter);
+                result.add(childFtpFile);
+            }
         }
         return result;
     }
@@ -220,31 +300,78 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
         List<EvaluatedDataSetPath> result = new ArrayList<EvaluatedDataSetPath>();
         sortDataSetsById(dataSets);
 
-        for (int disambiguation = 0; disambiguation < dataSets.size(); disambiguation++)
+        for (int disambiguationIdx = 0; disambiguationIdx < dataSets.size(); disambiguationIdx++)
         {
-            ExternalData dataSet = dataSets.get(disambiguation);
-
-            IHierarchicalContentProvider provider =
-                    ServiceProvider.getHierarchicalContentProvider();
-            IHierarchicalContent content = provider.asContent(dataSet.getCode());
-            String dataSetType = dataSet.getDataSetType().getCode();
-            String fileListSubPathOrNull = fileListSubPaths.get(dataSetType);
-            IHierarchicalContentNode rootNode = content.getNode(fileListSubPathOrNull);
-            String disambiguationVar = computeDisambiguation(disambiguation);
-
-            for (IHierarchicalContentNode fileNode : extractFileNames(rootNode))
+            ExternalData dataSet = dataSets.get(disambiguationIdx);
+            try
             {
-                EvaluatedDataSetPath evaluatedPath = new EvaluatedDataSetPath();
-                evaluatedPath.dataSet = dataSet;
-                evaluatedPath.fileName = fileNode.getRelativePath();
-                evaluatedPath.evaluatedTemplate =
-                        evaluateTemplate(dataSet, fileNode.getName(), disambiguationVar);
-                evaluatedPath.contentNode = fileNode;
-                result.add(evaluatedPath);
+                List<EvaluatedDataSetPath> paths = evaluateDataSetPaths(dataSet, disambiguationIdx);
+                result.addAll(paths);
+            } catch (Throwable t)
+            {
+                operationLog.warn("Failed to evaluate data set paths for dataset "
+                        + dataSet.getCode() + ": " + t.getMessage());
             }
         }
 
         return result;
+    }
+
+    private List<EvaluatedDataSetPath> evaluateDataSetPaths(ExternalData dataSet,
+            int disambiguationIndex)
+    {
+        List<EvaluatedDataSetPath> result = new ArrayList<EvaluatedDataSetPath>();
+
+        IHierarchicalContentNode rootNode = getDataSetFileListRoot(dataSet);
+        String disambiguationVar = computeDisambiguation(disambiguationIndex);
+
+        for (IHierarchicalContentNode fileNode : getFileNamesRequiredByTemplate(rootNode))
+        {
+            EvaluatedDataSetPath evaluatedPath = new EvaluatedDataSetPath();
+            evaluatedPath.dataSet = dataSet;
+            evaluatedPath.fileName = fileNode.getRelativePath();
+            evaluatedPath.evaluatedTemplate =
+                    evaluateTemplate(dataSet, fileNode.getName(), disambiguationVar);
+            evaluatedPath.contentNode = fileNode;
+            result.add(evaluatedPath);
+        }
+
+        return result;
+    }
+
+    private IHierarchicalContentNode getDataSetFileListRoot(ExternalData dataSet)
+    {
+        IHierarchicalContentProvider provider = ServiceProvider.getHierarchicalContentProvider();
+        IHierarchicalContent content = provider.asContent(dataSet.getCode());
+        String fileListSubPathOrNull = getFileListSubPath(dataSet);
+
+        if (false == StringUtils.isBlank(fileListSubPathOrNull))
+        {
+            List<IHierarchicalContentNode> matchingNodes =
+                    content.listMatchingNodes(fileListSubPathOrNull);
+            if (false == matchingNodes.isEmpty())
+            {
+                if (matchingNodes.size() == 1)
+                {
+                    return matchingNodes.get(0);
+                } else
+                {
+                    String message =
+                            String.format("Multiple nodes in dataset '%s' match "
+                                    + "pattern '%s'. Will use data set root for file listing.",
+                                    dataSet.getCode(), fileListSubPathOrNull);
+                    operationLog.warn(message);
+                }
+            } else
+            {
+                String message =
+                        String.format("No nodes in dataset '%s' match "
+                                + "pattern '%s'. Will use data set root for file listings.",
+                                dataSet.getCode(), fileListSubPathOrNull);
+                operationLog.warn(message);
+            }
+        }
+        return content.getRootNode();
     }
 
     private void sortDataSetsById(List<ExternalData> dataSets)
@@ -284,15 +411,16 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
     /**
      * @return all values to be used when evaluating the template "${fileName}" variable.
      */
-    private List<IHierarchicalContentNode> extractFileNames(IHierarchicalContentNode rootNode)
+    private List<IHierarchicalContentNode> getFileNamesRequiredByTemplate(IHierarchicalContentNode rootNode)
     {
-        if (rootNode.isDirectory())
+        if (isVariablePresentInTemplate(FILE_NAME_VARNAME))
         {
-            return rootNode.getChildNodes();
-        } else
-        {
-            return Collections.emptyList();
+            if (rootNode.isDirectory())
+            {
+                return rootNode.getChildNodes();
+            }
         }
+        return Collections.singletonList(rootNode);
     }
 
     private String evaluateTemplate(ExternalData dataSet, String fileName, String disambiguation)
@@ -305,14 +433,72 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
         properties.put(FILE_NAME_VARNAME, fileName);
         properties.put(DISAMBIGUATION_VARNAME, disambiguation);
 
-        String templatePropName = "template";
-        properties.put(templatePropName, template);
-        return properties.getProperty(templatePropName);
+        properties.put(TEMPLATE, template);
+        return properties.getProperty(TEMPLATE);
     }
 
+    /**
+     * formats a date as it will appear when a {@link #DATA_SET_DATE_VARNAME} is replaced.
+     */
     private String extractDateValue(Date dataSetDate)
     {
         return DateFormatUtils.format(dataSetDate, DATA_SET_DATE_FORMAT);
+    }
+
+    /**
+     * @return true if the specified variable is present in the template.
+     */
+    private boolean isVariablePresentInTemplate(String variableName)
+    {
+        ExtendedProperties properties = new ExtendedProperties();
+        // try to replace the variable with something different
+        properties.put(variableName, variableName + variableName);
+
+        properties.put(TEMPLATE, template);
+        String evaluatedTemplate = properties.getProperty(TEMPLATE);
+        return false == evaluatedTemplate.equals(template);
+    }
+
+    private IHierarchicalContentNodeFilter createFilter(final String fileFilterPattern)
+    {
+        return new IHierarchicalContentNodeFilter()
+            {
+                private final Pattern compiledPattern = Pattern.compile(fileFilterPattern);
+
+                public boolean accept(IHierarchicalContentNode node)
+                {
+                    if (node.isDirectory())
+                    {
+                        // no filtering for directories
+                        return true;
+                    }
+
+                    return compiledPattern.matcher(node.getName()).matches();
+                }
+            };
+    }
+
+    private DataSetTypeConfig getDataSetTypeConfig(ExternalData dataSet)
+    {
+        String dataSetType = dataSet.getDataSetType().getCode();
+        DataSetTypeConfig dsConfig = dataSetTypeConfigs.get(dataSetType);
+        if (dsConfig != null)
+        {
+            return dsConfig;
+        } else
+        {
+            return defaultDSTypeConfig;
+        }
+    }
+
+    private IHierarchicalContentNodeFilter getFileFilter(ExternalData dataSet)
+    {
+        return getDataSetTypeConfig(dataSet).fileFilter;
+    }
+
+    private String getFileListSubPath(ExternalData dataSet)
+    {
+        return getDataSetTypeConfig(dataSet).fileListSubPath;
     }
 
 }

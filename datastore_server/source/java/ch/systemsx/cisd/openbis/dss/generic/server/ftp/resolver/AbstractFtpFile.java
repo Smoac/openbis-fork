@@ -19,9 +19,14 @@ package ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.ftpserver.ftplet.FtpFile;
+import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpConstants;
 
 /**
@@ -31,12 +36,38 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpConstants;
  */
 public abstract class AbstractFtpFile implements FtpFile
 {
+
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            AbstractFtpFile.class);
+
     protected final String absolutePath;
 
     public AbstractFtpFile(String absolutePath)
     {
         this.absolutePath = absolutePath;
     }
+
+    /**
+     * Base implementation of the {@link #listFiles()} method that makes sure no unchecked
+     * exceptions are being propagated to the surrounding Apache FTP classes. Apache FTP swallows
+     * exceptions without logging and thereby hinders error analysis.
+     */
+    public final List<FtpFile> listFiles()
+    {
+        try
+        {
+            return unsafeListFiles();
+        } catch (RuntimeException rex)
+        {
+            operationLog.error("Error while listing files for FTP :" + rex.getMessage(), rex);
+            return Collections.emptyList();
+        }
+    }
+
+    /**
+     * implementers are free of unchecked exception handling.
+     */
+    public abstract List<FtpFile> unsafeListFiles() throws RuntimeException;
 
     public boolean doesExist()
     {

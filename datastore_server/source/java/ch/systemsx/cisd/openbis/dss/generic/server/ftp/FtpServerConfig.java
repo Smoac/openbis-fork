@@ -53,6 +53,8 @@ public class FtpServerConfig
 
     private final static String DATASET_FILELIST_SUBPATH_KEY = PREFIX + "dataset.filelist.subpath.";
 
+    private final static String DATASET_FILELIST_FILTER_KEY = PREFIX + "dataset.filelist.filter.";
+
     private static final int DEFAULT_PORT = 2121;
 
     private static final boolean DEFAULT_USE_SSL = true;
@@ -78,6 +80,9 @@ public class FtpServerConfig
     private int maxThreads;
 
     private Map<String /* dataset type */, String /* path */> fileListSubPaths =
+            new HashMap<String, String>();
+
+    private Map<String /* dataset type */, String /* filter pattern */> fileListFilters =
             new HashMap<String, String>();
 
     public FtpServerConfig(Properties props) {
@@ -109,6 +114,16 @@ public class FtpServerConfig
             fileListSubPaths.put(dataSetType, subPath);
 
         }
+
+        ExtendedProperties fileListFilterProps =
+                ExtendedProperties.getSubset(props, DATASET_FILELIST_FILTER_KEY, true);
+        for (Object key : fileListFilterProps.keySet())
+        {
+            String dataSetType = key.toString();
+            String filter = fileListFilterProps.getProperty(dataSetType);
+            fileListFilters.put(dataSetType, filter);
+        }
+
     }
 
     private void initializeSSLProperties(Properties props)
@@ -168,6 +183,11 @@ public class FtpServerConfig
         return Collections.unmodifiableMap(fileListSubPaths);
     }
 
+    public Map<String, String> getFileListFilters()
+    {
+        return Collections.unmodifiableMap(fileListFilters);
+    }
+
     /**
      * information being logged on FTP server startup.
      */
@@ -176,6 +196,7 @@ public class FtpServerConfig
         operationLog.info("Ftp Server port: " + port);
         operationLog.info("Ftp Server using SSL: " + useSSL);
         operationLog.info("Ftp Server data set display template : " + dataSetDisplayTemplate);
+
         for (Entry<String, String> subpathEntry : fileListSubPaths.entrySet())
         {
             String message =
@@ -184,6 +205,14 @@ public class FtpServerConfig
                             subpathEntry.getValue());
             operationLog.info(message);
         }
+        for (Entry<String, String> filterEntry : fileListFilters.entrySet())
+        {
+            String message =
+                    String.format("Ftp Server file filter configuration for data "
+                            + "set type '%s' : '%s'", filterEntry.getKey(), filterEntry.getValue());
+            operationLog.info(message);
+        }
     }
+
 
 }

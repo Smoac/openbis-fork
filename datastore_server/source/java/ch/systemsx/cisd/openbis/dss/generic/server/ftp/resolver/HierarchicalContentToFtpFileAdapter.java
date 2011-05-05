@@ -24,6 +24,7 @@ import java.util.List;
 import org.apache.ftpserver.ftplet.FtpFile;
 
 import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
+import ch.systemsx.cisd.common.io.IHierarchicalContentNodeFilter;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpConstants;
 
 /**
@@ -37,10 +38,14 @@ public class HierarchicalContentToFtpFileAdapter extends AbstractFtpFile
 {
     private final IHierarchicalContentNode contentNode;
 
-    public HierarchicalContentToFtpFileAdapter(String path, IHierarchicalContentNode contentNode)
+    private final IHierarchicalContentNodeFilter childrenFilter;
+
+    public HierarchicalContentToFtpFileAdapter(String path, IHierarchicalContentNode contentNode,
+            IHierarchicalContentNodeFilter childrenFilter)
     {
         super(path);
         this.contentNode = contentNode;
+        this.childrenFilter = childrenFilter;
     }
 
     public InputStream createInputStream(long offset) throws IOException
@@ -84,19 +89,26 @@ public class HierarchicalContentToFtpFileAdapter extends AbstractFtpFile
         return isDirectory() == false;
     }
 
-    public List<org.apache.ftpserver.ftplet.FtpFile> listFiles()
+    @Override
+    public List<org.apache.ftpserver.ftplet.FtpFile> unsafeListFiles()
     {
         if (isDirectory())
         {
             List<IHierarchicalContentNode> children = contentNode.getChildNodes();
             List<org.apache.ftpserver.ftplet.FtpFile> result =
                     new ArrayList<org.apache.ftpserver.ftplet.FtpFile>();
+
             for (IHierarchicalContentNode childNode : children)
             {
-                String childPath = absolutePath + FtpConstants.FILE_SEPARATOR + childNode.getName();
-                HierarchicalContentToFtpFileAdapter childFile =
-                        new HierarchicalContentToFtpFileAdapter(childPath, childNode);
-                result.add(childFile);
+                if (childrenFilter.accept(childNode))
+                {
+                    String childPath =
+                            absolutePath + FtpConstants.FILE_SEPARATOR + childNode.getName();
+                    HierarchicalContentToFtpFileAdapter childFile =
+                            new HierarchicalContentToFtpFileAdapter(childPath, childNode,
+                                    childrenFilter);
+                    result.add(childFile);
+                }
             }
             return result;
 
