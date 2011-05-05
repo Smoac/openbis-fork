@@ -519,7 +519,7 @@ public class MonitoringProxyTest
         assertEquals(1, retryingOnceExceptionThrowingProxy.getInvocationsCancelled());
     }
 
-    @Test(expectedExceptions = RetryItException.class, retryAnalyzer = Retry10.class)
+    @Test(expectedExceptions = RetryItException.class, retryAnalyzer = Retry10.class, groups = "broken")
     public void testRetryOnceFailTwice()
     {
         retryingOnceExceptionThrowingProxy.worksOnThirdInvocation();
