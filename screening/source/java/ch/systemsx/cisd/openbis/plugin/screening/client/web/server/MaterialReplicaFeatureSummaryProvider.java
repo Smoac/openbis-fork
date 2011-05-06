@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaFeatureSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaFeatureSummaryResult;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaSubgroupFeatureSummary;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialBiologicalReplicateFeatureSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaSummaryAggregationType;
 
 /**
@@ -68,14 +68,14 @@ class MaterialReplicaFeatureSummaryProvider extends
         TypedTableModelBuilder<MaterialReplicaFeatureSummary> builder =
                 new TypedTableModelBuilder<MaterialReplicaFeatureSummary>();
         MaterialReplicaFeatureSummaryResult replicaResult =
-                server.getFeatureVectorReplicaSummary(sessionToken, experimentId, materialId);
+                server.getMaterialFeatureVectorSummary(sessionToken, experimentId, materialId);
 
         builder.addColumn(FEATURE);
         builder.addColumn(MEDIAN).withDataType(DataTypeCode.REAL);
         builder.addColumn(DEVIATION).withDataType(DataTypeCode.REAL);
         builder.addColumn(RANK).withDataType(DataTypeCode.INTEGER);
 
-        List<MaterialReplicaFeatureSummary> rows = replicaResult.getReplicaSummaries();
+        List<MaterialReplicaFeatureSummary> rows = replicaResult.getFeatureSummaries();
         List<String> subgroupLabels = replicaResult.getSubgroupLabels();
         if (rows.isEmpty())
         {
@@ -88,7 +88,7 @@ class MaterialReplicaFeatureSummaryProvider extends
             builder.columnGroup(subgroup);
         }
 
-        if (rows.get(0).getDefaultSubgroup() != null)
+        if (rows.get(0).getTechnicalReplicates() != null)
         {
             builder.columnGroup(DEFAULT_SUBGROUP);
         }
@@ -111,24 +111,24 @@ class MaterialReplicaFeatureSummaryProvider extends
         builder.column(DEVIATION).addDouble(row.getFeatureVectorDeviation());
         builder.column(RANK).addInteger((long) row.getFeatureVectorRank());
 
-        MaterialReplicaSubgroupFeatureSummary defaultSubgroup = row.getDefaultSubgroup();
+        MaterialBiologicalReplicateFeatureSummary defaultSubgroup = row.getTechnicalReplicates();
         if (defaultSubgroup != null)
         {
             addSubgroup(builder, DEFAULT_SUBGROUP, "", defaultSubgroup);
         }
 
         int numSubgroups = subgroupLabels.size();
-        List<MaterialReplicaSubgroupFeatureSummary> subgroups = row.getReplicaSubgroups();
+        List<MaterialBiologicalReplicateFeatureSummary> subgroups = row.getBiologicalRelicates();
         for (int i = 0; i < numSubgroups; i++)
         {
             String subgroupLabel = subgroupLabels.get(i);
-            MaterialReplicaSubgroupFeatureSummary subgroup = subgroups.get(i);
+            MaterialBiologicalReplicateFeatureSummary subgroup = subgroups.get(i);
             addSubgroup(builder, subgroupLabel, subgroupLabel, subgroup);
         }
     }
 
     private void addSubgroup(TypedTableModelBuilder<MaterialReplicaFeatureSummary> builder,
-            String groupId, String groupLabel, MaterialReplicaSubgroupFeatureSummary subgroup)
+            String groupId, String groupLabel, MaterialBiologicalReplicateFeatureSummary subgroup)
     {
         IColumnGroup columnGroup = builder.columnGroup(groupId);
 

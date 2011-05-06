@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.IWellData;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialAllReplicasFeatureVectors;
-import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialReplicaSubgroupFeatureVector;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialBiologicalReplicateFeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.WellData;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.WellDataCollection;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialFeatureVectorSummary;
@@ -59,7 +59,7 @@ public class MaterialFeatureVectorSummaryLoaderTest extends AssertJUnit
     {
         MaterialSummarySettings settings = new MaterialSummarySettings();
         settings.setAggregationType(MaterialReplicaSummaryAggregationType.MEDIAN);
-        settings.setSubgroupPropertyTypeCodes(SIRNA_PROPERTY_TYPE_CODE);
+        settings.setBiologicalReplicatePropertyTypeCodes(SIRNA_PROPERTY_TYPE_CODE);
         int replId = 0;
         List<IWellData> wellDataList = Arrays.asList(
         // repl. 1 group 1
@@ -95,7 +95,7 @@ public class MaterialFeatureVectorSummaryLoaderTest extends AssertJUnit
 
         assertEquals(featuresDesc, featureVectors.getFeatureDescriptions());
         int groupId = 1;
-        for (MaterialReplicaSubgroupFeatureVector subgroup : featureVectors.getSubgroups())
+        for (MaterialBiologicalReplicateFeatureVector subgroup : featureVectors.getSubgroups())
         {
             switch (groupId)
             {
@@ -103,13 +103,13 @@ public class MaterialFeatureVectorSummaryLoaderTest extends AssertJUnit
                     assertArraysEqual(new float[]
                         { 20, 200 }, subgroup.getAggregatedSummary());
                     assertEquals("siRNA 1", subgroup.getSubgroupLabel());
-                    assertEquals(3, subgroup.getSingleReplicaValues().size());
+                    assertEquals(3, subgroup.getTechnicalReplicatesValues().size());
                     break;
                 case 2:
                     assertArraysEqual(new float[]
                         { 200, 2000 }, subgroup.getAggregatedSummary());
                     assertEquals("siRNA 2", subgroup.getSubgroupLabel());
-                    assertEquals(3, subgroup.getSingleReplicaValues().size());
+                    assertEquals(3, subgroup.getTechnicalReplicatesValues().size());
                     break;
                 default:
                     fail("unexpected subgroup " + groupId);

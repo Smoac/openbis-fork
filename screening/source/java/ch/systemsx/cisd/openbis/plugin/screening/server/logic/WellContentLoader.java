@@ -65,10 +65,12 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReferen
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSummarySettings;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.NamedFeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellFeatureVectorReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReplicaImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialSearchCodesCriteria;
@@ -138,28 +140,59 @@ public class WellContentLoader extends AbstractContentLoader
      * for the well, all but the first one are ignored. If there is no image dataset for the well,
      * the whole well is ignored.
      */
-    public static List<WellContent> loadWithImages(Session session,
+    public static List<WellReplicaImage> loadWithImages(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
-            TechId materialId, TechId experimentId)
+            TechId materialId, TechId experimentId, MaterialSummarySettings settings)
     {
         WellContentLoader loader =
                 new WellContentLoader(session, businessObjectFactory, daoFactory);
         List<WellContent> locations = loader.loadLocations(materialId, experimentId.getId());
-        return loader.enrichWithSingleImageDatasets(locations);
+        locations = loader.enrichWithSingleImageDatasets(locations);
+        return annotateWithReplicaLabels(locations, settings);
+    }
+
+    private static List<WellReplicaImage> annotateWithReplicaLabels(
+            List<WellContent> wellsWithImages, MaterialSummarySettings settings)
+    {
+        ReplicateSequenceProvider replicaSequences =
+                new ReplicateSequenceProvider(wellsWithImages,
+                        settings.getBiologicalReplicatePropertyTypeCodes());
+        List<WellReplicaImage> wellReplicaImages = new ArrayList<WellReplicaImage>();
+        for (WellContent wellContent : wellsWithImages)
+        {
+            wellReplicaImages.add(annotateWithReplicaLabels(wellContent, replicaSequences));
+        }
+        return wellReplicaImages;
+    }
+
+    private static WellReplicaImage annotateWithReplicaLabels(WellContent wellContent,
+            ReplicateSequenceProvider replicaSequences)
+    {
+        int technicalReplicaSequenceNumber =
+                replicaSequences.getTechnicalReplicateSequenceNum(wellContent);
+        String biologicalReplicateLabel = replicaSequences.getBiologicalReplicateLabel(wellContent);
+        return new WellReplicaImage(wellContent, technicalReplicaSequenceNumber,
+                biologicalReplicateLabel);
     }
 
     private List<WellContent> enrichWithSingleImageDatasets(List<WellContent> locations)
     {
-        HCSImageDatasetLoader datasetsRetriever =
-                createImageDatasetsRetriever(extractPlates(locations));
+        Set<PlateIdentifier> plateIdentifiers = extractPlates(locations);
+        Map<Long, DatasetImagesReference> plateToDatasetReferenceMap =
+                loadPlateToSingleImageDatasetMap(plateIdentifiers);
+        return enrichWithSingleImageDatasets(locations, plateToDatasetReferenceMap);
+    }
+
+    private Map<Long, DatasetImagesReference> loadPlateToSingleImageDatasetMap(
+            Set<PlateIdentifier> plateIdentifiers)
+    {
+        HCSImageDatasetLoader datasetsRetriever = createImageDatasetsRetriever(plateIdentifiers);
         Collection<ExternalData> imageDatasets = datasetsRetriever.getImageDatasets();
         if (imageDatasets.isEmpty())
         {
-            return Collections.emptyList();
+            return new HashMap<Long, DatasetImagesReference>();
         }
-        Map<Long, DatasetImagesReference> plateToDatasetReferenceMap =
-                createPlateToSingleDatasetReferenceMap(imageDatasets);
-        return enrichWithSingleImageDatasets(locations, plateToDatasetReferenceMap);
+        return createPlateToSingleDatasetReferenceMap(imageDatasets);
     }
 
     /** Note: locations without a corresponding image dataset are removed */

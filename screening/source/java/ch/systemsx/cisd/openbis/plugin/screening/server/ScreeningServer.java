@@ -102,6 +102,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReplicaImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 
 /**
@@ -204,12 +205,12 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                 materialCriteria);
     }
 
-    public List<WellContent> listWellImages(String sessionToken, TechId materialId,
+    public List<WellReplicaImage> listWellImages(String sessionToken, TechId materialId,
             TechId experimentId)
     {
         Session session = getSession(sessionToken);
         return WellContentLoader.loadWithImages(session, businessObjectFactory, getDAOFactory(),
-                materialId, experimentId);
+                materialId, experimentId, createDefaultSettings());
     }
 
     public List<Material> listMaterials(String sessionToken, WellSearchCriteria materialCriteria)
@@ -311,11 +312,11 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         settings.setAggregationType(MaterialReplicaSummaryAggregationType.MEDIAN);
         settings.setFeatureCodes(new ArrayList<String>());
         settings.setReplicaMatrialTypePatterns(ScreeningConstants.REPLICA_METERIAL_TYPE_PATTERN);
-        settings.setSubgroupPropertyTypeCodes("CONCENTRATION", "SIRNA");
+        settings.setBiologicalReplicatePropertyTypeCodes("CONCENTRATION", "SIRNA");
         return settings;
     }
 
-    public MaterialReplicaFeatureSummaryResult getFeatureVectorReplicaSummary(String sessionToken,
+    public MaterialReplicaFeatureSummaryResult getMaterialFeatureVectorSummary(String sessionToken,
             TechId experimentId, TechId materialId)
     {
         Session session = getSession(sessionToken);

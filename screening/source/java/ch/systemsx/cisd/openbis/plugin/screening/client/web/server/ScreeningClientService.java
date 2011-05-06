@@ -67,6 +67,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReplicaImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 
 /**
@@ -212,7 +213,7 @@ public final class ScreeningClientService extends AbstractClientService implemen
         return prepareExportEntities(criteria);
     }
 
-    public List<WellContent> listWellImages(TechId materialId, TechId experimentId)
+    public List<WellReplicaImage> listWellImages(TechId materialId, TechId experimentId)
             throws UserFailureException
     {
         return server.listWellImages(getSessionToken(), materialId, experimentId);
@@ -355,6 +356,7 @@ public final class ScreeningClientService extends AbstractClientService implemen
                         materialId);
         return listEntities(provider, resultSetConfig);
     }
+
     public String prepareExportFeatureVectorSummary(
             TableExportCriteria<TableModelRowWithObject<MaterialFeatureVectorSummary>> criteria)
             throws UserFailureException

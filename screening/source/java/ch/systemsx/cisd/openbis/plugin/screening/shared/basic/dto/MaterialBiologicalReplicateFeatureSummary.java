@@ -22,10 +22,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 /**
  * @author Kaloyan Enimanev
  */
-public class MaterialReplicaSubgroupFeatureSummary implements ISerializable
+public class MaterialBiologicalReplicateFeatureSummary implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
+    // i-th element is the value for (i+1) technical replicate
     private float[] featureValues;
 
     // e.g. average or median of all replica values in this subgroup
@@ -39,11 +40,11 @@ public class MaterialReplicaSubgroupFeatureSummary implements ISerializable
 
     // GWT only
     @SuppressWarnings("unused")
-    private MaterialReplicaSubgroupFeatureSummary()
+    private MaterialBiologicalReplicateFeatureSummary()
     {
     }
 
-    public MaterialReplicaSubgroupFeatureSummary(float[] featureValues, float aggregatedSummary,
+    public MaterialBiologicalReplicateFeatureSummary(float[] featureValues, float aggregatedSummary,
             MaterialReplicaSummaryAggregationType summaryAggregationType)
     {
         this.featureValues = featureValues;

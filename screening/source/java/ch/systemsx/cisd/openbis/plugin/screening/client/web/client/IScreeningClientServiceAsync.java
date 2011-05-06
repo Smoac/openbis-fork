@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReplicaImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 
 /**
@@ -96,7 +97,7 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
      * @see IScreeningClientService#listWellImages(TechId, TechId)
      */
     public void listWellImages(TechId materialId, TechId experimentId,
-            AsyncCallback<List<WellContent>> callback);
+            AsyncCallback<List<WellReplicaImage>> callback);
 
     /**
      * @see IScreeningClientService#prepareExportPlateWells(TableExportCriteria)
@@ -192,6 +193,7 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
             IResultSetConfig<String, TableModelRowWithObject<MaterialReplicaFeatureSummary>> resultSetConfig,
             TechId experimentId, TechId materialId,
             AsyncCallback<TypedTableResultSet<MaterialReplicaFeatureSummary>> callback);
+
     /**
      * @see IScreeningClientService#prepareExportMaterialReplicaFeatureSummary(TableExportCriteria)
      */

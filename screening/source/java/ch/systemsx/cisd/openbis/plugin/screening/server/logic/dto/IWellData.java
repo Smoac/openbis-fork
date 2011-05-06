@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.WellReplicaSummaryCalculator;
@@ -26,7 +27,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.server.logic.WellReplicaSummary
  * 
  * @author Tomasz Pylak
  */
-public interface IWellData
+public interface IWellData extends IEntityPropertiesHolder
 {
     /** @return feature vector for the well */
     float[] getFeatureVector();

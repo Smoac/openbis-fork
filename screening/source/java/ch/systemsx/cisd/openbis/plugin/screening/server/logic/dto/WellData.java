@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto;
 
 import java.util.Arrays;
+import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
@@ -68,6 +70,16 @@ public class WellData implements IWellData
     public String toString()
     {
         return "repl " + replicaId + ": " + Arrays.toString(featureVector);
+    }
+
+    public List<IEntityProperty> getProperties()
+    {
+        return well.getProperties();
+    }
+
+    public Long getId()
+    {
+        return well.getId();
     }
 
 }

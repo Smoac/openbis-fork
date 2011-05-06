@@ -23,6 +23,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
+ * Info about feature vectors of all wells for one material in one experiment.
+ * 
  * @author Kaloyan Enimanev
  */
 public class MaterialReplicaFeatureSummaryResult implements ISerializable
@@ -46,7 +48,8 @@ public class MaterialReplicaFeatureSummaryResult implements ISerializable
         return subgroupLabels;
     }
 
-    public List<MaterialReplicaFeatureSummary> getReplicaSummaries()
+    /** Can be empty if there are no analysis results. */
+    public List<MaterialReplicaFeatureSummary> getFeatureSummaries()
     {
         return replicaSummaries;
     }

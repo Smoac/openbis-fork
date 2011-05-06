@@ -12,11 +12,11 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplic
  * 
  * @author Tomasz Pylak
  */
-public class MaterialReplicaSubgroupFeatureVector implements ISerializable
+public class MaterialBiologicalReplicateFeatureVector implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private List<MaterialSingleReplicaFeatureVector> singleReplicaValues;
+    private List<MaterialTechnicalReplicateFeatureVector> technicalReplicatesValues;
 
     // e.g. average or median of all replica values in this supgroup
     // This is the aggregation of a subgroup of replicas for e.g. the same SIRNA
@@ -29,24 +29,24 @@ public class MaterialReplicaSubgroupFeatureVector implements ISerializable
 
     // GWT only
     @SuppressWarnings("unused")
-    private MaterialReplicaSubgroupFeatureVector()
+    private MaterialBiologicalReplicateFeatureVector()
     {
     }
 
-    public MaterialReplicaSubgroupFeatureVector(
-            List<MaterialSingleReplicaFeatureVector> singleReplicaValues,
+    public MaterialBiologicalReplicateFeatureVector(
+            List<MaterialTechnicalReplicateFeatureVector> singleReplicaValues,
             float[] aggregatedSummary,
             MaterialReplicaSummaryAggregationType summaryAggregationType, String subgroupLabel)
     {
-        this.singleReplicaValues = singleReplicaValues;
+        this.technicalReplicatesValues = singleReplicaValues;
         this.aggregatedSummary = aggregatedSummary;
         this.summaryAggregationType = summaryAggregationType;
         this.subgroupLabel = subgroupLabel;
     }
 
-    public List<MaterialSingleReplicaFeatureVector> getSingleReplicaValues()
+    public List<MaterialTechnicalReplicateFeatureVector> getTechnicalReplicatesValues()
     {
-        return singleReplicaValues;
+        return technicalReplicatesValues;
     }
 
     public float[] getAggregatedSummary()

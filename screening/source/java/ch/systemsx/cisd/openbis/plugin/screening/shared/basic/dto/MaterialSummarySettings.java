@@ -33,7 +33,7 @@ public class MaterialSummarySettings implements ISerializable
 
     private String replicaMatrialTypePattern;
 
-    private List<String> subgroupPropertyTypeCodes;
+    private List<String> biologicalReplicatePropertyTypeCodes;
 
     private MaterialReplicaSummaryAggregationType aggregationType;
 
@@ -57,14 +57,16 @@ public class MaterialSummarySettings implements ISerializable
         this.replicaMatrialTypePattern = replicaMatrialTypePattern;
     }
 
-    public List<String> getSubgroupPropertyTypeCodes()
+    public List<String> getBiologicalReplicatePropertyTypeCodes()
     {
-        return subgroupPropertyTypeCodes;
+        return biologicalReplicatePropertyTypeCodes;
     }
 
-    public void setSubgroupPropertyTypeCodes(String... subgroupPropertyTypeCodes)
+    public void setBiologicalReplicatePropertyTypeCodes(
+            String... biologicalReplicatePropertyTypeCodes)
     {
-        this.subgroupPropertyTypeCodes = Arrays.asList(subgroupPropertyTypeCodes);
+        this.biologicalReplicatePropertyTypeCodes =
+                Arrays.asList(biologicalReplicatePropertyTypeCodes);
     }
 
     public MaterialReplicaSummaryAggregationType getAggregationType()

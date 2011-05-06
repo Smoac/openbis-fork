@@ -17,10 +17,8 @@
 package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
@@ -30,26 +28,25 @@ import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.IWellData;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialAllReplicasFeatureVectors;
-import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialReplicaSubgroupFeatureVector;
-import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialSingleReplicaFeatureVector;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialBiologicalReplicateFeatureVector;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialTechnicalReplicateFeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.WellDataCollection;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialBiologicalReplicateFeatureSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaFeatureSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaFeatureSummaryResult;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaSubgroupFeatureSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaSummaryAggregationType;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSummarySettings;
 
 /**
- * Loads feature vectors (details and statistics) for the specified material in the specified
- * experiment.
+ * For the specified material in the specified experiment loads feature vectors (details and
+ * statistics).<br>
+ * Considers only one dataset of a particular type per plate.
  * 
  * @author Tomasz Pylak
  */
@@ -62,35 +59,27 @@ public class MaterialFeatureVectorSummaryLoader extends ExperimentFeatureVectorS
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
             TechId materialId, TechId experimentId, MaterialSummarySettings settings)
     {
-        MaterialAllReplicasFeatureVectors result =
+        MaterialAllReplicasFeatureVectors resultOrNull =
                 new MaterialFeatureVectorSummaryLoader(session, businessObjectFactory, daoFactory,
                         settings).tryLoadMaterialFeatureVectors(materialId, experimentId);
-        if (result == null)
-        {
-            return createEmptyMaterialReplicaFeatureSummaryResult();
-        }
-        return convert(result);
+
+        List<MaterialReplicaFeatureSummary> replicaRows = convertToFeatureRows(resultOrNull);
+        List<String> subgroupLabels = tryGetSubgroupLabels(resultOrNull);
+        return new MaterialReplicaFeatureSummaryResult(subgroupLabels, replicaRows);
     }
 
-    private static MaterialReplicaFeatureSummaryResult createEmptyMaterialReplicaFeatureSummaryResult()
-    {
-        return new MaterialReplicaFeatureSummaryResult(new ArrayList<String>(),
-                new ArrayList<MaterialReplicaFeatureSummary>());
-    }
-
-    private static MaterialReplicaFeatureSummaryResult convert(
+    private static List<MaterialReplicaFeatureSummary> convertToFeatureRows(
             MaterialAllReplicasFeatureVectors backendResult)
     {
-        List<String> subgroupLabels = new ArrayList<String>();
-        final List<MaterialReplicaSubgroupFeatureVector> backendSubgroups =
-                backendResult.getSubgroups();
-        for (MaterialReplicaSubgroupFeatureVector backendSubgroup : backendSubgroups)
-        {
-            subgroupLabels.add(backendSubgroup.getSubgroupLabel());
-        }
-
         List<MaterialReplicaFeatureSummary> replicaRows =
                 new ArrayList<MaterialReplicaFeatureSummary>();
+        if (backendResult == null)
+        {
+            return replicaRows;
+        }
+        final List<MaterialBiologicalReplicateFeatureVector> backendSubgroups =
+                backendResult.getSubgroups();
+
         float[] featureVectorDeviatons =
                 backendResult.getGeneralSummary().getFeatureVectorDeviations();
         float[] featureVectorSummaries =
@@ -113,41 +102,54 @@ public class MaterialFeatureVectorSummaryLoader extends ExperimentFeatureVectorS
             float[] defaultFeatureValues = extractFeatureValues(i, backendResult.getReplicas());
             if (defaultFeatureValues != null)
             {
-                MaterialReplicaSubgroupFeatureSummary defaultReplica =
-                        new MaterialReplicaSubgroupFeatureSummary(defaultFeatureValues, 0,
+                MaterialBiologicalReplicateFeatureSummary defaultReplica =
+                        new MaterialBiologicalReplicateFeatureSummary(defaultFeatureValues, 0,
                                 MaterialReplicaSummaryAggregationType.MEDIAN);
-                replicaRow.setDefaultSubgroup(defaultReplica);
+                replicaRow.setTechnicalReplicates(defaultReplica);
             }
 
-            List<MaterialReplicaSubgroupFeatureSummary> subgroups =
-                    new ArrayList<MaterialReplicaSubgroupFeatureSummary>();
-            replicaRow.setReplicaSubgroups(subgroups);
+            List<MaterialBiologicalReplicateFeatureSummary> subgroups =
+                    new ArrayList<MaterialBiologicalReplicateFeatureSummary>();
+            replicaRow.setBiologicalRelicates(subgroups);
             for (int tmp = 0; tmp < backendSubgroups.size(); tmp++)
             {
-                MaterialReplicaSubgroupFeatureVector backendGroup = backendSubgroups.get(tmp);
+                MaterialBiologicalReplicateFeatureVector backendGroup = backendSubgroups.get(tmp);
                 final float[] aggregatedSummaries = backendGroup.getAggregatedSummary();
                 float[] featureValues =
-                        extractFeatureValues(i, backendGroup.getSingleReplicaValues());
-                MaterialReplicaSubgroupFeatureSummary subgroup =
-                        new MaterialReplicaSubgroupFeatureSummary(featureValues,
+                        extractFeatureValues(i, backendGroup.getTechnicalReplicatesValues());
+                MaterialBiologicalReplicateFeatureSummary subgroup =
+                        new MaterialBiologicalReplicateFeatureSummary(featureValues,
                                 aggregatedSummaries[i], backendGroup.getSummaryAggregationType());
                 subgroups.add(subgroup);
             }
         }
+        return replicaRows;
+    }
 
-        return new MaterialReplicaFeatureSummaryResult(subgroupLabels, replicaRows);
-
+    private static List<String> tryGetSubgroupLabels(
+            MaterialAllReplicasFeatureVectors backendResultOrNull)
+    {
+        List<String> subgroupLabels = new ArrayList<String>();
+        if (backendResultOrNull == null)
+        {
+            return subgroupLabels;
+        }
+        for (MaterialBiologicalReplicateFeatureVector backendSubgroup : backendResultOrNull
+                .getSubgroups())
+        {
+            subgroupLabels.add(backendSubgroup.getSubgroupLabel());
+        }
+        return subgroupLabels;
     }
 
     private static float[] extractFeatureValues(int i,
-            List<MaterialSingleReplicaFeatureVector> replicas)
+            List<MaterialTechnicalReplicateFeatureVector> replicas)
     {
         float[] result = new float[replicas.size()];
         for (int pos = 0; pos < result.length; pos++)
         {
-            float[] aggregatedValues = replicas.get(pos).getFeatueVectorSummary();
+            float[] aggregatedValues = replicas.get(pos).getFeatueVector();
             result[pos] = aggregatedValues[i];
-
         }
         return result;
     }
@@ -165,163 +167,110 @@ public class MaterialFeatureVectorSummaryLoader extends ExperimentFeatureVectorS
     private MaterialAllReplicasFeatureVectors tryLoadMaterialFeatureVectors(TechId materialId,
             TechId experimentId)
     {
-        WellDataCollection wellDataCollection = tryLoadWellData(experimentId);
-        if (wellDataCollection == null)
+        WellDataCollection experimentWells = tryLoadWellData(experimentId);
+        if (experimentWells == null)
         {
             return null;
         }
-        return tryLoadMaterialFeatureVectors(materialId, wellDataCollection);
+        return tryLoadMaterialFeatureVectors(materialId, experimentWells);
     }
 
     @Private
     MaterialAllReplicasFeatureVectors tryLoadMaterialFeatureVectors(TechId materialId,
-            WellDataCollection wellDataCollection)
+            WellDataCollection experimentWells)
     {
         MaterialFeatureVectorSummary materialGeneralSummary =
-                tryCalculateMaterialSummary(materialId, wellDataCollection);
+                tryCalculateMaterialSummary(materialId, experimentWells);
         if (materialGeneralSummary == null)
         {
             return null;
         }
-        List<IWellData> materialWellDataList =
-                filterWellsByMaterial(wellDataCollection.getWellDataList(), materialId);
-        GroupByMap<Double, IWellData> subgroupMap = groupBySubgroup(materialWellDataList);
+        List<IWellData> materialWells =
+                filterWellsByMaterial(experimentWells.getWellDataList(), materialId);
+        ReplicateSequenceProvider replicaSequences =
+                new ReplicateSequenceProvider(materialWells,
+                        settings.getBiologicalReplicatePropertyTypeCodes());
 
-        List<MaterialReplicaSubgroupFeatureVector> subgroups = Collections.emptyList();
-        List<MaterialSingleReplicaFeatureVector> replicas = Collections.emptyList();
-        if (hasNoSubgroups(subgroupMap))
+        List<MaterialBiologicalReplicateFeatureVector> subgroups = Collections.emptyList();
+        List<MaterialTechnicalReplicateFeatureVector> replicas = Collections.emptyList();
+        if (replicaSequences.hasNoBiologicalReplicates())
         {
-            replicas = createReplicas(materialWellDataList);
+            replicas = createTechnicalReplicas(materialWells, replicaSequences);
         } else
         {
-            subgroups = createSubgroups(subgroupMap);
+            subgroups = createBiologicalReplicates(materialWells, replicaSequences);
         }
-        return new MaterialAllReplicasFeatureVectors(wellDataCollection.getFeatureDescriptions(),
+        return new MaterialAllReplicasFeatureVectors(experimentWells.getFeatureDescriptions(),
                 materialGeneralSummary, subgroups, replicas);
     }
 
-    private List<MaterialReplicaSubgroupFeatureVector> createSubgroups(
-            GroupByMap<Double, IWellData> subgroupMap)
+    private List<MaterialBiologicalReplicateFeatureVector> createBiologicalReplicates(
+            List<IWellData> materialWells, ReplicateSequenceProvider replicaSequences)
     {
-        List<MaterialReplicaSubgroupFeatureVector> subgroups =
-                new ArrayList<MaterialReplicaSubgroupFeatureVector>();
+        GroupByMap<Integer, IWellData> biologicalReplicateMap =
+                groupByBiologicalReplicate(materialWells, replicaSequences);
+
+        List<MaterialBiologicalReplicateFeatureVector> subgroups =
+                new ArrayList<MaterialBiologicalReplicateFeatureVector>();
         MaterialReplicaSummaryAggregationType aggregationType = settings.getAggregationType();
-        int subgroupSequenceNumber = 1;
-        Collection<Double> sortedKeys = sortSubgroupKeys(subgroupMap.getKeys());
-        for (Double subgroupKey : sortedKeys)
+        for (Integer biologicalReplicateSeq : replicaSequences.getBiologicalReplicateKeys())
         {
-            if (subgroupKey != null)
-            {
-                List<IWellData> subgroupWellDataList = subgroupMap.getOrDie(subgroupKey);
-                MaterialReplicaSubgroupFeatureVector subgroup =
-                        createSubgroup(subgroupWellDataList, subgroupSequenceNumber,
-                                aggregationType);
-                subgroups.add(subgroup);
-                subgroupSequenceNumber++;
-            }
+            List<IWellData> technicalReplicateWells =
+                    biologicalReplicateMap.getOrDie(biologicalReplicateSeq);
+            MaterialBiologicalReplicateFeatureVector subgroup =
+                    createBiologicalReplicate(technicalReplicateWells, replicaSequences,
+                            aggregationType);
+            subgroups.add(subgroup);
         }
         return subgroups;
     }
 
-    private static Collection<Double> sortSubgroupKeys(Set<Double> keys)
-    {
-        ArrayList<Double> sortedKeys = new ArrayList<Double>(keys);
-        Collections.sort(sortedKeys);
-        return sortedKeys;
-    }
-
-    private MaterialReplicaSubgroupFeatureVector createSubgroup(
-            List<IWellData> subgroupWellDataList, int subgroupSequenceNumber,
+    private MaterialBiologicalReplicateFeatureVector createBiologicalReplicate(
+            List<IWellData> technicalReplicateWells, ReplicateSequenceProvider replicaSequences,
             MaterialReplicaSummaryAggregationType aggregationType)
     {
         float[] aggregatedSummary =
-                WellReplicaSummaryCalculator.calculateSummaryFeatureVector(subgroupWellDataList,
+                WellReplicaSummaryCalculator.calculateSummaryFeatureVector(technicalReplicateWells,
                         aggregationType);
-        List<MaterialSingleReplicaFeatureVector> replicas = createReplicas(subgroupWellDataList);
-        String subgroupLabel = getSubgroupLabel(subgroupWellDataList, subgroupSequenceNumber);
-        return new MaterialReplicaSubgroupFeatureVector(replicas, aggregatedSummary,
+        List<MaterialTechnicalReplicateFeatureVector> replicas =
+                createTechnicalReplicas(technicalReplicateWells, replicaSequences);
+        String subgroupLabel = getSubgroupLabel(technicalReplicateWells, replicaSequences);
+        return new MaterialBiologicalReplicateFeatureVector(replicas, aggregatedSummary,
                 aggregationType, subgroupLabel);
     }
 
-    private String getSubgroupLabel(List<IWellData> subgroupWellDataList, int subgroupSequenceNumber)
+    private String getSubgroupLabel(List<IWellData> subgroupWellDataList,
+            ReplicateSequenceProvider replicaSequences)
     {
         assert subgroupWellDataList.size() > 0 : "empty subgroup";
+        // all wells belong to the same subgroup, so it does not matter which one we take
         Sample well = subgroupWellDataList.get(0).getWell();
-        IEntityProperty subgroupProperty = tryFindSubgroupProperty(well);
-        assert subgroupProperty != null : "cannot fnd the subgroup property";
 
-        String propertyLabel = subgroupProperty.getPropertyType().getLabel();
-        Material subgroupMaterial = subgroupProperty.getMaterial();
-        if (subgroupMaterial != null)
-        {
-            return propertyLabel + " " + subgroupSequenceNumber;
-        } else
-        {
-            return propertyLabel + " " + subgroupProperty.tryGetAsString();
-        }
-    }
-
-    /**
-     * A subgroup can be e.g. oligo or compound concentration.
-     */
-    private GroupByMap<Double, IWellData> groupBySubgroup(List<IWellData> materialWellDataList)
-    {
-        return GroupByMap.create(materialWellDataList, new IKeyExtractor<Double, IWellData>()
-            {
-                public Double getKey(IWellData wellData)
-                {
-                    return tryFindSubgroup(wellData.getWell());
-                }
-            });
-    }
-
-    private Double tryFindSubgroup(Sample well)
-    {
-        IEntityProperty subgroupProperty = tryFindSubgroupProperty(well);
-        if (subgroupProperty == null)
-        {
-            return null;
-        }
-        return tryExtractSubgroupValue(subgroupProperty);
-    }
-
-    private IEntityProperty tryFindSubgroupProperty(Sample well)
-    {
-        List<String> subgroupPropertyTypeCodes = settings.getSubgroupPropertyTypeCodes();
-        if (subgroupPropertyTypeCodes == null)
-        {
-            return null;
-        }
-        return tryFindProperty(well.getProperties(), subgroupPropertyTypeCodes);
+        return replicaSequences.getBiologicalReplicateLabel(well);
     }
 
     private MaterialFeatureVectorSummary tryCalculateMaterialSummary(TechId materialId,
-            WellDataCollection wellDataCollection)
+            WellDataCollection experimentWellDataList)
     {
         List<MaterialFeatureVectorSummary> featureSummaries =
-                calculateReplicasFeatureVectorSummaries(wellDataCollection);
+                calculateReplicasFeatureVectorSummaries(experimentWellDataList);
         return tryFindMaterialSummary(materialId, featureSummaries);
     }
 
-    private static List<MaterialSingleReplicaFeatureVector> createReplicas(
-            List<IWellData> materialWellDataList)
+    private static List<MaterialTechnicalReplicateFeatureVector> createTechnicalReplicas(
+            List<IWellData> materialWellDataList, ReplicateSequenceProvider replicaSequences)
     {
-        List<MaterialSingleReplicaFeatureVector> replicas =
-                new ArrayList<MaterialSingleReplicaFeatureVector>();
-        int replicaSequenceNumber = 1;
+        List<MaterialTechnicalReplicateFeatureVector> replicas =
+                new ArrayList<MaterialTechnicalReplicateFeatureVector>();
         for (IWellData wellData : materialWellDataList)
         {
-            MaterialSingleReplicaFeatureVector featureVector =
-                    new MaterialSingleReplicaFeatureVector(replicaSequenceNumber++,
+            int replicaSequenceNumber = replicaSequences.getTechnicalReplicateSequenceNum(wellData);
+            MaterialTechnicalReplicateFeatureVector featureVector =
+                    new MaterialTechnicalReplicateFeatureVector(replicaSequenceNumber,
                             wellData.getFeatureVector());
             replicas.add(featureVector);
         }
         return replicas;
-    }
-
-    private static boolean hasNoSubgroups(GroupByMap<Double, IWellData> subgroupMap)
-    {
-        return subgroupMap.getKeys().size() == 1 && subgroupMap.getKeys().contains(null);
     }
 
     private static List<IWellData> filterWellsByMaterial(List<IWellData> wellDataList,
@@ -336,6 +285,21 @@ public class MaterialFeatureVectorSummaryLoader extends ExperimentFeatureVectorS
             });
     }
 
+    /**
+     * A subgroup can be e.g. oligo or compound concentration.
+     */
+    private GroupByMap<Integer, IWellData> groupByBiologicalReplicate(
+            List<IWellData> materialWellDataList, final ReplicateSequenceProvider replicaSequences)
+    {
+        return GroupByMap.create(materialWellDataList, new IKeyExtractor<Integer, IWellData>()
+            {
+                public Integer getKey(IWellData wellData)
+                {
+                    return replicaSequences.tryGetBiologicalReplicateSequenceNum(wellData.getWell());
+                }
+            });
+    }
+
     private static MaterialFeatureVectorSummary tryFindMaterialSummary(TechId materialId,
             List<MaterialFeatureVectorSummary> featureSummaries)
     {
@@ -344,35 +308,6 @@ public class MaterialFeatureVectorSummaryLoader extends ExperimentFeatureVectorS
             if (summary.getMaterial().getId().equals(materialId.getId()))
             {
                 return summary;
-            }
-        }
-        return null;
-    }
-
-    private static Double tryExtractSubgroupValue(IEntityProperty subgroupProperty)
-    {
-        Material subgroupMaterial = subgroupProperty.getMaterial();
-        if (subgroupMaterial != null)
-        {
-            return new Double(subgroupMaterial.getId());
-        }
-        try
-        {
-            return new Double(subgroupProperty.tryGetAsString());
-        } catch (NumberFormatException ex)
-        {
-            return null;
-        }
-    }
-
-    private static IEntityProperty tryFindProperty(List<IEntityProperty> properties,
-            List<String> subgroupPropertyTypeCodes)
-    {
-        for (IEntityProperty property : properties)
-        {
-            if (subgroupPropertyTypeCodes.contains(property.getPropertyType().getCode()))
-            {
-                return property;
             }
         }
         return null;

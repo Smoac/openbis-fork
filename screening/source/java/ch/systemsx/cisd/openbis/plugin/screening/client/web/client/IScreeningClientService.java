@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReplicaImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 
 /**
@@ -119,7 +120,7 @@ public interface IScreeningClientService extends IClientService
      * for the well, all but the first one are ignored. If there is no image dataset for the well,
      * the whole well is ignored.
      */
-    public List<WellContent> listWellImages(TechId materialId, TechId experimentId)
+    public List<WellReplicaImage> listWellImages(TechId materialId, TechId experimentId)
             throws UserFailureException;
 
     /**

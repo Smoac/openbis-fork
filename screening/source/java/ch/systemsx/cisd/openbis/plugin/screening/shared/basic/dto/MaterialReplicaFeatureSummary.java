@@ -40,9 +40,10 @@ public class MaterialReplicaFeatureSummary implements ISerializable
     // DISPLAY NOTE: The header of each column should be:
     // <subgroupName> repl. <replicaSequenceNumber>
     // e.g. SIRNA XYZ repl. 2
-    private List<MaterialReplicaSubgroupFeatureSummary> replicaSubgroups;
+    private List<MaterialBiologicalReplicateFeatureSummary> biologicalRelicates;
 
-    private MaterialReplicaSubgroupFeatureSummary defaultSubgroup;
+    // technical replicates which do not belong to any biological replicate
+    private MaterialBiologicalReplicateFeatureSummary technicalReplicates;
 
     public CodeAndLabel getFeatureDescription()
     {
@@ -84,24 +85,25 @@ public class MaterialReplicaFeatureSummary implements ISerializable
         this.featureVectorRank = featureVectorRank;
     }
 
-    public List<MaterialReplicaSubgroupFeatureSummary> getReplicaSubgroups()
+    public List<MaterialBiologicalReplicateFeatureSummary> getBiologicalRelicates()
     {
-        return replicaSubgroups;
+        return biologicalRelicates;
     }
 
-    public void setReplicaSubgroups(List<MaterialReplicaSubgroupFeatureSummary> replicaSubgroups)
+    public void setBiologicalRelicates(
+            List<MaterialBiologicalReplicateFeatureSummary> replicaSubgroups)
     {
-        this.replicaSubgroups = replicaSubgroups;
+        this.biologicalRelicates = replicaSubgroups;
     }
 
-    public MaterialReplicaSubgroupFeatureSummary getDefaultSubgroup()
+    public MaterialBiologicalReplicateFeatureSummary getTechnicalReplicates()
     {
-        return defaultSubgroup;
+        return technicalReplicates;
     }
 
-    public void setDefaultSubgroup(MaterialReplicaSubgroupFeatureSummary defaultReplica)
+    public void setTechnicalReplicates(MaterialBiologicalReplicateFeatureSummary defaultReplica)
     {
-        this.defaultSubgroup = defaultReplica;
+        this.technicalReplicates = defaultReplica;
     }
 
 }

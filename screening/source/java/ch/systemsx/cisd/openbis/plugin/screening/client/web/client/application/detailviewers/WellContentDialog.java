@@ -136,7 +136,7 @@ public class WellContentDialog extends Dialog
      */
     public static Widget createImageViewerForChannel(
             final IViewContext<IScreeningClientServiceAsync> viewContext,
-            final WellImage wellImage, int imageWidthPx, int imageHeightPx, List<String> channels)
+            final WellImage wellImage, int imageSizePx, List<String> channels)
     {
         final ImageDatasetEnrichedReference imageDataset = tryGetImageDataset(wellImage);
         if (imageDataset == null)
@@ -162,8 +162,8 @@ public class WellContentDialog extends Dialog
         LogicalImageChannelsReference channelReferences =
                 LogicalImageChannelsReference.createWithoutOverlays(wellImages, channels);
         LayoutContainer staticTilesGrid =
-                LogicalImageViewer.createTilesGrid(channelReferences, sessionId, imageWidthPx,
-                        imageHeightPx, createImageLinks);
+                LogicalImageViewer.createTilesGrid(channelReferences, sessionId, imageSizePx,
+                        createImageLinks);
 
         if (imageParameters.isMultidimensional())
         {

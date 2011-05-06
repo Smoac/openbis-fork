@@ -24,34 +24,35 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  * 
  * @author Tomasz Pylak
  */
-public class MaterialSingleReplicaFeatureVector implements ISerializable
+public class MaterialTechnicalReplicateFeatureVector implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private int replicaSequenceNumber;
+    private int technicalReplicateSequenceNumber;
 
-    private float[] featueVectorSummary;
+    private float[] featueVector;
 
     // GWT only
     @SuppressWarnings("unused")
-    private MaterialSingleReplicaFeatureVector()
+    private MaterialTechnicalReplicateFeatureVector()
     {
     }
 
-    public MaterialSingleReplicaFeatureVector(int replicaSequenceNumber, float[] featueVectorSummary)
+    public MaterialTechnicalReplicateFeatureVector(int technicalReplicateSequenceNumber,
+            float[] featueVector)
     {
-        this.replicaSequenceNumber = replicaSequenceNumber;
-        this.featueVectorSummary = featueVectorSummary;
+        this.technicalReplicateSequenceNumber = technicalReplicateSequenceNumber;
+        this.featueVector = featueVector;
     }
 
-    public int getReplicaSequenceNumber()
+    public int getTechnicalReplicateSequenceNumber()
     {
-        return replicaSequenceNumber;
+        return technicalReplicateSequenceNumber;
     }
 
-    public float[] getFeatueVectorSummary()
+    public float[] getFeatueVector()
     {
-        return featueVectorSummary;
+        return featueVector;
     }
 
 }

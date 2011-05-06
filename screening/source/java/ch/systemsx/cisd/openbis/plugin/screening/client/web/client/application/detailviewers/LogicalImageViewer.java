@@ -59,9 +59,7 @@ public class LogicalImageViewer
 {
     private static final String NO_IMAGES_AVAILABLE_MSG = "No images available";
 
-    private static final int ONE_IMAGE_WIDTH_PX = 200;
-
-    private static final int ONE_IMAGE_HEIGHT_PX = 120;
+    private static final int ONE_IMAGE_SIZE_PX = 120;
 
     private static final int CHANNEL_SPLITER_AND_LABEL_HEIGHT_PX = 120;
 
@@ -161,7 +159,8 @@ public class LogicalImageViewer
 
     private int getSeriesImageWidgetHeight()
     {
-        return CHANNEL_SPLITER_AND_LABEL_HEIGHT_PX + getImageHeight(logicalImageReference)
+        return CHANNEL_SPLITER_AND_LABEL_HEIGHT_PX
+                + getImageHeight(ONE_IMAGE_SIZE_PX, logicalImageReference)
                 * logicalImageReference.getTileRowsNum();
     }
 
@@ -176,8 +175,8 @@ public class LogicalImageViewer
                     String sessionId = getSessionId(viewContext);
                     setAdjustColorsButtonState(adjustColorsButton,
                             channelReferences.getChannelCodes());
-                    int imageWidth = getImageWidth(logicalImageReference);
-                    int imageHeight = getImageHeight(logicalImageReference);
+                    int imageWidth = getImageWidth(ONE_IMAGE_SIZE_PX, logicalImageReference);
+                    int imageHeight = getImageHeight(ONE_IMAGE_SIZE_PX, logicalImageReference);
                     return LogicalImageSeriesGrid.create(sessionId, channelStackImages,
                             channelReferences, imageWidth, imageHeight);
                 }
@@ -288,7 +287,7 @@ public class LogicalImageViewer
                     setAdjustColorsButtonState(adjustColorsButton,
                             channelReferences.getChannelCodes());
                     String sessionId = getSessionId(viewContext);
-                    return createTilesGrid(channelReferences, sessionId);
+                    return createTilesGrid(channelReferences, sessionId, ONE_IMAGE_SIZE_PX, true);
                 }
 
             };
@@ -340,17 +339,18 @@ public class LogicalImageViewer
         return "true".equals(viewContext.getPropertyOrNull("image-viewer-enabled"));
     }
 
-    private static LayoutContainer createTilesGrid(LogicalImageChannelsReference channelReferences,
-            String sessionId)
-    {
-        LogicalImageReference images = channelReferences.getBasicImage();
-        return createTilesGrid(channelReferences, sessionId, getImageWidth(images),
-                getImageHeight(images), true);
-    }
-
     /** Creates a widget with a representative image of the specified logical image. */
     public static LayoutContainer createTilesGrid(LogicalImageChannelsReference channelReferences,
-            String sessionId, int imageWidth, int imageHeight, boolean createImageLinks)
+            String sessionId, int imageSizePx, boolean createImageLinks)
+    {
+        LogicalImageReference images = channelReferences.getBasicImage();
+        return createTilesGrid(channelReferences, sessionId, getImageWidth(imageSizePx, images),
+                getImageHeight(imageSizePx, images), createImageLinks);
+    }
+
+    private static LayoutContainer createTilesGrid(LogicalImageChannelsReference channelReferences,
+            String sessionId, int logicalImageWidth, int logicalImageHeight,
+            boolean createImageLinks)
     {
         LogicalImageReference images = channelReferences.getBasicImage();
         LayoutContainer container = new LayoutContainer(new TableLayout(images.getTileColsNum()));
@@ -359,7 +359,7 @@ public class LogicalImageViewer
             for (int col = 1; col <= images.getTileColsNum(); col++)
             {
                 ImageUrlUtils.addImageUrlWidget(container, sessionId, channelReferences, row, col,
-                        imageWidth, imageHeight, createImageLinks);
+                        logicalImageWidth, logicalImageHeight, createImageLinks);
             }
         }
         return container;
@@ -389,16 +389,16 @@ public class LogicalImageViewer
         return viewContext.getModel().getSessionContext().getSessionID();
     }
 
-    private static int getImageHeight(LogicalImageReference images)
+    private static int getImageHeight(int imageSizePx, LogicalImageReference images)
     {
         float imageSizeMultiplyFactor = getImageSizeMultiplyFactor(images);
-        return (int) (ONE_IMAGE_HEIGHT_PX * imageSizeMultiplyFactor);
+        return (int) (imageSizePx * imageSizeMultiplyFactor);
     }
 
-    private static int getImageWidth(LogicalImageReference images)
+    private static int getImageWidth(int imageSizePx, LogicalImageReference images)
     {
         float imageSizeMultiplyFactor = getImageSizeMultiplyFactor(images);
-        return (int) (ONE_IMAGE_WIDTH_PX * imageSizeMultiplyFactor);
+        return (int) (imageSizePx * imageSizeMultiplyFactor);
     }
 
     private static float getImageSizeMultiplyFactor(LogicalImageReference images)

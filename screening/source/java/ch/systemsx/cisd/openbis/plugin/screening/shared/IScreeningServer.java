@@ -55,6 +55,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReplicaImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 
 /**
@@ -121,7 +122,7 @@ public interface IScreeningServer extends IServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public List<WellContent> listWellImages(String sessionToken, TechId materialId,
+    public List<WellReplicaImage> listWellImages(String sessionToken, TechId materialId,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId);
 
     /**
@@ -223,7 +224,7 @@ public interface IScreeningServer extends IServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public MaterialReplicaFeatureSummaryResult getFeatureVectorReplicaSummary(String sessionToken,
+    public MaterialReplicaFeatureSummaryResult getMaterialFeatureVectorSummary(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId,
             TechId materialId);
 }

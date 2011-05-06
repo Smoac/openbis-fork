@@ -16,7 +16,12 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
@@ -30,6 +35,7 @@ import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
+import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Widget;
@@ -58,8 +64,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImage;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReplicaImage;
 
 /**
  * A viewer that comprises several UI elements to produce a holistic UI for material replica feature
@@ -69,7 +75,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImage;
  */
 public class MaterialReplicaFeatureSummaryViewer
 {
-    private static final int WELL_IMAGES_SIZE_PX = 400;
+    private static final int ONE_IMAGE_SIZE_PX = 80;
 
     public static void openTab(IViewContext<IScreeningClientServiceAsync> screeningViewContext,
             String experimentPermId, MaterialIdentifier materialIdentifier)
@@ -196,7 +202,7 @@ public class MaterialReplicaFeatureSummaryViewer
             };
     }
 
-    private class ImagesFoundCallback extends AbstractAsyncCallback<List<WellContent>>
+    private class ImagesFoundCallback extends AbstractAsyncCallback<List<WellReplicaImage>>
     {
         private final LayoutContainer panel;
 
@@ -207,14 +213,14 @@ public class MaterialReplicaFeatureSummaryViewer
         }
 
         @Override
-        protected void process(List<WellContent> images)
+        protected void process(List<WellReplicaImage> images)
         {
-            panel.add(createImagesViewer(images));
+            panel.add(createImagePanel(images));
             panel.layout();
         }
     }
 
-    private Widget createImagesViewer(List<? extends WellImage> images)
+    private Widget createImagePanel(List<WellReplicaImage> images)
     {
         if (images.isEmpty())
         {
@@ -226,27 +232,161 @@ public class MaterialReplicaFeatureSummaryViewer
         ChannelChooserPanel channelChooser = new ChannelChooserPanel(defaultChannelState);
         LayoutContainer panel = new LayoutContainer();
         panel.setLayout(new RowLayout());
-        Html headingWidget = createHeader("<br><br><hr>" + "Images" + "<br><br>");
-        panel.add(headingWidget, new RowData(1, -1));
+        panel.add(new Html("<br>"), new RowData(1, -1));
         panel.add(channelChooser);
 
-        LayoutContainer imagePanel = new LayoutContainer();
-        imagePanel.setScrollMode(Scroll.AUTOY);
-        imagePanel.setLayout(new RowLayout());
-        int imageSize = Math.min(100, WELL_IMAGES_SIZE_PX / images.size());
-        for (WellImage wellImage : images)
+        Map<String, List<WellReplicaImage>> labelToReplicasMap = createSortedImageMap(images);
+        String orphanGroupKey = null;
+        List<WellReplicaImage> orphanTechnicalReplicates = labelToReplicasMap.get(orphanGroupKey);
+        if (orphanTechnicalReplicates != null)
         {
-            Widget imageViewer = createImageViewer(wellImage, channelChooser, imageSize);
-            imagePanel.add(imageViewer);
+            panel.add(createOrphanTechnicalReplicatesPanel(orphanTechnicalReplicates,
+                    channelChooser));
+            labelToReplicasMap.remove(orphanGroupKey);
         }
-        // TODO 2011-04-12, Tomasz Pylak: correct the height
-        double imagePanelHeight = Math.min(500, images.size() * imageSize + 150);
-        panel.add(imagePanel, new RowData(1, imagePanelHeight));
+        panel.add(createBiologicalReplicatesImagesPanel(labelToReplicasMap, channelChooser));
+        if (screeningViewContext.isSimpleOrEmbeddedMode() == false)
+        {
+            // WORKAROUND: in normal mode the height of menu and tab is not taken into account,
+            // so we add empty space to make
+            Text box = new Text();
+            box.setHeight(100);
+            panel.add(box);
+        }
         return panel;
     }
 
-    private Widget createImageViewer(final WellImage image, ChannelChooserPanel channelChooser,
-            final int imageSize)
+    private Widget createOrphanTechnicalReplicatesPanel(
+            List<WellReplicaImage> orphanTechnicalReplicates, ChannelChooserPanel channelChooser)
+    {
+        LayoutContainer imagePanel = new LayoutContainer();
+        for (WellReplicaImage image : orphanTechnicalReplicates)
+        {
+            LayoutContainer imageWithLabel = new LayoutContainer();
+            imageWithLabel.setLayout(new RowLayout());
+
+            Widget label =
+                    createTechnicalReplicateLabel(image.getTechnicalReplicateSequenceNumber());
+            imageWithLabel.add(label);
+
+            Widget imageViewer = createImageViewer(image.getWellImage(), channelChooser);
+            imageWithLabel.add(imageViewer);
+
+            imagePanel.add(imageWithLabel);
+        }
+        return imagePanel;
+    }
+
+    private LayoutContainer createBiologicalReplicatesImagesPanel(
+            Map<String, List<WellReplicaImage>> labelToReplicasMap,
+            ChannelChooserPanel channelChooser)
+    {
+        int maxReplicaNumber = calcMaxReplicaNumber(labelToReplicasMap);
+        LayoutContainer imagePanel = new LayoutContainer();
+        TableLayout layout = new TableLayout(maxReplicaNumber + 1);
+        layout.setBorder(1);
+        imagePanel.setLayout(layout);
+
+        addImageTableHeader(maxReplicaNumber, imagePanel);
+        List<String> sortedLabels = sortCopy(labelToReplicasMap.keySet());
+        for (String label : sortedLabels)
+        {
+            List<WellReplicaImage> sortedTechnicalReplicates = labelToReplicasMap.get(label);
+
+            imagePanel.add(new Text(label));
+            for (int i = 0; i < maxReplicaNumber; i++)
+            {
+                if (i < sortedTechnicalReplicates.size())
+                {
+                    WellImage wellImage = sortedTechnicalReplicates.get(i).getWellImage();
+                    Widget imageViewer = createImageViewer(wellImage, channelChooser);
+                    imagePanel.add(imageViewer);
+                } else
+                {
+                    imagePanel.add(createEmptyBox());
+                }
+            }
+        }
+        return imagePanel;
+    }
+
+    private static List<String> sortCopy(Set<String> values)
+    {
+        List<String> sorted = new ArrayList<String>(values);
+        Collections.sort(sorted);
+        return sorted;
+    }
+
+    private void addImageTableHeader(int maxReplicaNumber, LayoutContainer imagePanel)
+    {
+        for (int i = 0; i <= maxReplicaNumber; i++)
+        {
+            if (i == 0)
+            {
+                imagePanel.add(createEmptyBox());
+            } else
+            {
+                imagePanel.add(createTechnicalReplicateLabel(i));
+            }
+        }
+    }
+
+    private Widget createTechnicalReplicateLabel(int technicalReplicateSequence)
+    {
+        return new Text("repl. " + technicalReplicateSequence);
+    }
+
+    private Widget createEmptyBox()
+    {
+        return new Text();
+    }
+
+    private static int calcMaxReplicaNumber(Map<String, List<WellReplicaImage>> labelToReplicasMap)
+    {
+        int max = 0;
+        for (List<WellReplicaImage> technicalReplicates : labelToReplicasMap.values())
+        {
+            max = Math.max(max, technicalReplicates.size());
+        }
+        return max;
+    }
+
+    private static Map<String/* label */, List<WellReplicaImage>> createSortedImageMap(
+            List<WellReplicaImage> images)
+    {
+        Map<String, List<WellReplicaImage>> map = new HashMap<String, List<WellReplicaImage>>();
+        for (WellReplicaImage image : images)
+        {
+            String label = image.tryGetBiologicalReplicateLabel();
+            List<WellReplicaImage> technicalReplicas = map.get(label);
+            if (technicalReplicas == null)
+            {
+                technicalReplicas = new ArrayList<WellReplicaImage>();
+            }
+            technicalReplicas.add(image);
+            map.put(label, technicalReplicas);
+        }
+        sortTechnicalReplicas(map);
+        return map;
+    }
+
+    private static void sortTechnicalReplicas(Map<String, List<WellReplicaImage>> map)
+    {
+        for (List<WellReplicaImage> technicalReplicas : map.values())
+        {
+            Collections.sort(technicalReplicas, new Comparator<WellReplicaImage>()
+                {
+                    public int compare(WellReplicaImage arg1, WellReplicaImage arg2)
+                    {
+                        Integer s1 = arg1.getTechnicalReplicateSequenceNumber();
+                        Integer s2 = arg2.getTechnicalReplicateSequenceNumber();
+                        return s1.compareTo(s2);
+                    }
+                });
+        }
+    }
+
+    private Widget createImageViewer(final WellImage image, ChannelChooserPanel channelChooser)
     {
         assert image.tryGetImageDataset() != null;
         final ISimpleChanneledViewerFactory viewerFactory = new ISimpleChanneledViewerFactory()
@@ -254,7 +394,7 @@ public class MaterialReplicaFeatureSummaryViewer
                 public Widget create(List<String> channels)
                 {
                     return WellContentDialog.createImageViewerForChannel(screeningViewContext,
-                            image, imageSize, imageSize, channels);
+                            image, ONE_IMAGE_SIZE_PX, channels);
                 }
             };
         ChannelWidgetWithListener widgetWithListener = new ChannelWidgetWithListener(viewerFactory);
@@ -271,6 +411,7 @@ public class MaterialReplicaFeatureSummaryViewer
     {
         final LayoutContainer panel = new Viewport();
         panel.setLayout(new RowLayout(Orientation.VERTICAL));
+        panel.setScrollMode(Scroll.AUTOY);
 
         final Widget northPanel = createNorth(screeningViewContext, experiment, material);
         panel.add(northPanel);
@@ -278,8 +419,8 @@ public class MaterialReplicaFeatureSummaryViewer
         final IDisposableComponent gridComponent =
                 MaterialReplicaFeatureSummaryGrid.create(screeningViewContext, new TechId(
                         experiment), new TechId(material));
-        // TODO 2011-04-13, Tomasz Pylak: fix height
-        panel.add(gridComponent.getComponent(), new RowData(1, 400));
+        // NOTE: if the width is 100% then the vertical scrollbar of the grid is not visible
+        panel.add(gridComponent.getComponent(), new RowData(0.97, 400));
 
         screeningViewContext.getService().listWellImages(new TechId(material.getId()),
                 new TechId(experiment.getId()), new ImagesFoundCallback(panel));
@@ -339,6 +480,14 @@ public class MaterialReplicaFeatureSummaryViewer
         return panel;
     }
 
+    private static Html createHeader(String headingText)
+    {
+        Html headingWidget = new Html(headingText);
+        // NOTE: this should be refactored to an external CSS style
+        headingWidget.setTagName("h1");
+        return headingWidget;
+    }
+
     private static String getMaterialType(Material material)
     {
         String materialTypeCode = material.getMaterialType().getCode();
@@ -350,14 +499,6 @@ public class MaterialReplicaFeatureSummaryViewer
     private static String formatAsTitle(String text)
     {
         return ("" + text.charAt(0)).toUpperCase() + text.substring(1).toLowerCase();
-    }
-
-    private static Html createHeader(String headingText)
-    {
-        Html headingWidget = new Html(headingText);
-        // NOTE: this should be refactored to an external CSS style
-        headingWidget.setTagName("h1");
-        return headingWidget;
     }
 
     private static String getMaterialName(Material material)
@@ -393,9 +534,8 @@ public class MaterialReplicaFeatureSummaryViewer
             {
                 public void onClick(ClickEvent event)
                 {
-                    // TODO KE: ugly, ugly, ugly !!! We bind ourselves with
+                    // TODO KE: We bind ourselves with
                     // the implementation of the other view instead of relying on the browser
-                    // report a refactoring JIRA
                     FeatureVectorSummaryViewer.openTab(viewContext, experiment.getPermId());
                 }
             }, linkUrl);

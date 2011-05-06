@@ -104,9 +104,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
 
     private static final String CHOOSE_ONE_EXPERIMENT_TEXT = "Choose one experiment...";
 
-    private static final int IMAGE_WIDTH_PX = 200;
-
-    private static final int IMAGE_HEIGHT_PX = 120;
+    private static final int IMAGE_SIZE_PX = 80;
 
     // by experiment perm id
     public static void openTab(
@@ -679,8 +677,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
                                     public Widget create(List<String> channels)
                                     {
                                         return WellContentDialog.createImageViewerForChannel(
-                                                viewContext, entity, IMAGE_WIDTH_PX,
-                                                IMAGE_HEIGHT_PX, channels);
+                                                viewContext, entity, IMAGE_SIZE_PX, channels);
                                     }
                                 };
                     ChannelWidgetWithListener widgetWithListener =

@@ -62,6 +62,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReplicaImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 
 /**
@@ -118,7 +119,7 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
-    public List<WellContent> listWellImages(String sessionToken, TechId materialId,
+    public List<WellReplicaImage> listWellImages(String sessionToken, TechId materialId,
             TechId experimentId)
     {
         logAccess(sessionToken, "listWellImages", "material(%s) experiment(%s)", materialId,
@@ -352,7 +353,7 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
-    public MaterialReplicaFeatureSummaryResult getFeatureVectorReplicaSummary(String sessionToken,
+    public MaterialReplicaFeatureSummaryResult getMaterialFeatureVectorSummary(String sessionToken,
             TechId experimentId, TechId materialId)
     {
         logAccess(sessionToken, "getFeatureVectorReplicaSummary",
