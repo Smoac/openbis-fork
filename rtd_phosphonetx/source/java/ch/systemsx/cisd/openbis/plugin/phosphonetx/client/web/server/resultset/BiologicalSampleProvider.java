@@ -20,7 +20,6 @@ import static ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.
 import static ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.BiologicalSampleGridColumnIDs.REGISTRATION_DATE;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AbstractCommonTableModelProvider;
@@ -28,7 +27,6 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
@@ -63,9 +61,7 @@ public class BiologicalSampleProvider extends AbstractCommonTableModelProvider<S
         registratorCriterion.setField(DetailedSearchField.createRegistratorField());
         registratorCriterion.setValue(userName);
         criteria.setCriteria(Arrays.asList(typeCriterion, registratorCriterion));
-        List<Sample> samples =
-                commonServer.searchForSamples(sessionToken, criteria,
-                        Collections.<DetailedSearchSubCriteria> emptyList());
+        List<Sample> samples = commonServer.searchForSamples(sessionToken, criteria);
         TypedTableModelBuilder<Sample> builder = new TypedTableModelBuilder<Sample>();
         builder.addColumn(IDENTIFIER);
         builder.addColumn(REGISTRATION_DATE);
