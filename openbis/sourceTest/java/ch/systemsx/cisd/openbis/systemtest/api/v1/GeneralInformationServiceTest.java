@@ -175,6 +175,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
     {
         // Search for Samples with only parent's code limiting the results
         SearchCriteria sc = new SearchCriteria();
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "*"));
         SearchCriteria pc = new SearchCriteria();
         pc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "MP002-1"));
         sc.addSubCriteria(SearchSubCriteria.createSampleParentCriteria(pc));
@@ -187,6 +188,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
     {
         // Search for Samples with only child's code limiting the results
         SearchCriteria sc = new SearchCriteria();
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "*"));
         SearchCriteria cc = new SearchCriteria();
         cc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "3VCP*"));
         sc.addSubCriteria(SearchSubCriteria.createSampleChildCriteria(cc));
