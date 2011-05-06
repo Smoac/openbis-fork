@@ -42,7 +42,7 @@ public class GroupByMap<K, E>
     }
 
     /** Creates a map for the specified rows with a given key extractor. */
-    public static <K, E> GroupByMap<K, E> create(final Iterable<E> rows,
+    public static <K, E> GroupByMap<K, E> create(final Iterable<? extends E> rows,
             final IKeyExtractor<K, E> extractor)
     {
         GroupByMap<K, E> table = new GroupByMap<K, E>(extractor);
