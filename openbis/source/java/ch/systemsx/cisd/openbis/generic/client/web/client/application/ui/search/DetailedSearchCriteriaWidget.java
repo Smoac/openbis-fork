@@ -162,8 +162,6 @@ abstract public class DetailedSearchCriteriaWidget extends VerticalPanel
     public String getCriteriaDescription()
     {
         StringBuffer sb = new StringBuffer();
-        sb.append(getConnection().getLabel());
-        sb.append(": ");
         boolean first = true;
         for (DetailedSearchCriterionWidget cw : criteriaWidgets)
         {

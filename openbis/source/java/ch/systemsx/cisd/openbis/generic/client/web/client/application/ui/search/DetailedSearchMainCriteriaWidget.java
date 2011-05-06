@@ -57,6 +57,12 @@ public class DetailedSearchMainCriteriaWidget extends DetailedSearchCriteriaWidg
     }
 
     @Override
+    public String getCriteriaDescription()
+    {
+        return matchRadios.getSelectedLabel() + ": " + super.getCriteriaDescription();
+    }
+
+    @Override
     protected SearchCriteriaConnection getConnection()
     {
         return matchRadios.getSelected();

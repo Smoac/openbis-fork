@@ -112,7 +112,7 @@ public class DetailedSearchCriteria implements ISerializable
         {
             if (sb.length() > 0)
             {
-                sb.append(",\n");
+                sb.append(", ");
             }
             sb.append("[" + subCriteria.toString() + "]");
         }

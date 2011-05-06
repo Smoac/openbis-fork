@@ -220,7 +220,7 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
         assertEquals(1, result.size());
         Sample resultSample = result.get(0);
         assertEquals("/space/code", resultSample.getIdentifier());
-        assertEquals("ATTRIBUTE CODE: a code AND PROPERTY MY_PROPERTY2: a property value,\n"
+        assertEquals("ATTRIBUTE CODE: a code AND PROPERTY MY_PROPERTY2: a property value, "
                 // check experiment subcriteria
                 + "[EXPERIMENT: ATTRIBUTE CODE: a code AND ATTRIBUTE PROJECT: a project AND "
                 + "PROPERTY EXP_PROPERTY: exp property value]" + " (with wildcards)",
@@ -239,7 +239,7 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
         assertEquals(1, result.size());
         Sample resultSample = result.get(0);
         assertEquals("/space/code", resultSample.getIdentifier());
-        assertEquals("ATTRIBUTE CODE: a code AND PROPERTY MY_PROPERTY2: a property value,\n"
+        assertEquals("ATTRIBUTE CODE: a code AND PROPERTY MY_PROPERTY2: a property value, "
                 // check parent subcriteria
                 + "[SAMPLE_PARENT: ATTRIBUTE CODE: parent code AND "
                 + "PROPERTY PARENT_PROPERTY: parent property value]" + " (with wildcards)",
@@ -258,7 +258,7 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
         assertEquals(1, result.size());
         Sample resultSample = result.get(0);
         assertEquals("/space/code", resultSample.getIdentifier());
-        assertEquals("ATTRIBUTE CODE: a code AND PROPERTY MY_PROPERTY2: a property value,\n"
+        assertEquals("ATTRIBUTE CODE: a code AND PROPERTY MY_PROPERTY2: a property value, "
                 // check parent subcriteria
                 + "[SAMPLE_CHILD: ATTRIBUTE CODE: child code AND "
                 + "PROPERTY CHILD_PROPERTY: child property value]" + " (with wildcards)",
@@ -278,7 +278,7 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
         assertEquals(1, result.size());
         Sample resultSample = result.get(0);
         assertEquals("/space/code", resultSample.getIdentifier());
-        assertEquals("ATTRIBUTE CODE: a code AND PROPERTY MY_PROPERTY2: a property value,\n"
+        assertEquals("ATTRIBUTE CODE: a code AND PROPERTY MY_PROPERTY2: a property value, "
                 // check container subcriteria
                 + "[SAMPLE_CONTAINER: ATTRIBUTE CODE: container code AND "
                 + "PROPERTY CONTAINER_PROPERTY: container property value]" + " (with wildcards)",
