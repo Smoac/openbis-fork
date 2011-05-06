@@ -1,5 +1,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -12,8 +14,7 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
-import com.extjs.gxt.ui.client.widget.layout.FitData;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.google.gwt.event.dom.client.KeyCodes;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -22,7 +23,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetSearchHitGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DialogWithOnlineHelpUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AssociatedEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
@@ -36,13 +39,16 @@ public class DetailedSearchWindow extends Dialog
 {
     public static final String SEARCH_BUTTON_ID = DataSetSearchHitGrid.BROWSER_ID + "search_button";
 
-    private static final int MARGIN = 5;
+    // private static final int MARGIN = 5;
 
     private static final int HEIGHT = 400;
 
     private static final int WIDTH = 550;
 
     private DetailedSearchCriteriaWidget criteriaWidget;
+
+    private List<DetailedSearchSubCriteriaWidget> subCriteriaWidgets =
+            new ArrayList<DetailedSearchSubCriteriaWidget>();
 
     private DetailedSearchToolbar updateListener;
 
@@ -52,10 +58,18 @@ public class DetailedSearchWindow extends Dialog
         setSize(WIDTH, HEIGHT);
         setModal(true);
         setScrollMode(Scroll.AUTOY);
-        setLayout(new FitLayout());
+        setLayout(new FillLayout());
         setResizable(false);
-        add(criteriaWidget = new DetailedSearchCriteriaWidget(viewContext, entityKind),
-                new FitData(MARGIN));
+        add(criteriaWidget = new DetailedSearchMainCriteriaWidget(viewContext, entityKind));
+        for (AssociatedEntityKind association : getAssociatedEntityKinds(entityKind))
+        {
+            DetailedSearchSubCriteriaWidget subCriteriaWidget =
+                    new DetailedSearchSubCriteriaWidget(viewContext, association);
+            subCriteriaWidgets.add(subCriteriaWidget);
+            add(subCriteriaWidget);
+        }
+        // new FitData(MARGIN));
+        // new FitData(MARGIN));
         addEnterListener();
         final ButtonBar bar = getButtonBar();
         bar.removeAll();
@@ -75,6 +89,10 @@ public class DetailedSearchWindow extends Dialog
                         public void componentSelected(ButtonEvent ce)
                         {
                             criteriaWidget.reset();
+                            for (DetailedSearchCriteriaWidget widget : subCriteriaWidgets)
+                            {
+                                widget.reset();
+                            }
                         }
                     }));
         final Button searchButton =
@@ -114,6 +132,7 @@ public class DetailedSearchWindow extends Dialog
                 }
 
             });
+        // TODO improve
     }
 
     @Override
@@ -125,12 +144,46 @@ public class DetailedSearchWindow extends Dialog
 
     public DetailedSearchCriteria tryGetCriteria()
     {
-        return criteriaWidget.tryGetCriteria();
+        final DetailedSearchCriteria mainCriteria = criteriaWidget.extractCriteria();
+        for (DetailedSearchSubCriteriaWidget subCriteriaWidget : subCriteriaWidgets)
+        {
+            if (subCriteriaWidget.isCriteriaFilled())
+            {
+                final DetailedSearchSubCriteria subCriteria =
+                        subCriteriaWidget.extractSubCriteria();
+                mainCriteria.addSubCriteria(subCriteria);
+            }
+        }
+
+        if (mainCriteria.isEmpty())
+        {
+            return null;
+        } else
+        {
+            return mainCriteria;
+        }
     }
 
     public String getCriteriaDescription()
     {
-        return criteriaWidget.getCriteriaDescription();
+        StringBuilder sb = new StringBuilder();
+        if (criteriaWidget.isCriteriaFilled())
+        {
+            sb.append(criteriaWidget.getCriteriaDescription());
+        }
+        for (DetailedSearchCriteriaWidget subCriteriaWidget : subCriteriaWidgets)
+        {
+            if (subCriteriaWidget.isCriteriaFilled())
+            {
+                sb.append(", ");
+                sb.append(subCriteriaWidget.getCriteriaDescription());
+            }
+        }
+        if (criteriaWidget.isCriteriaFilled() == false)
+        {
+            sb.delete(0, 2);
+        }
+        return sb.toString();
     }
 
     public void setUpdateListener(DetailedSearchToolbar toolbar)
@@ -169,8 +222,22 @@ public class DetailedSearchWindow extends Dialog
     {
         hide();
         List<PropertyType> availablePropertyTypes = criteriaWidget.getAvailablePropertyTypes();
-        DetailedSearchCriteria criteria = criteriaWidget.tryGetCriteria();
-        String criteriaDescription = criteriaWidget.getCriteriaDescription();
+        DetailedSearchCriteria criteria = tryGetCriteria();
+        String criteriaDescription = getCriteriaDescription();
         updateListener.updateSearchResults(criteria, criteriaDescription, availablePropertyTypes);
+    }
+
+    private static List<AssociatedEntityKind> getAssociatedEntityKinds(final EntityKind sourceEntity)
+    {
+        // TODO 2011-05-06, Piotr Buczek: use
+        // AssociatedEntityKind.getAssociatedEntityKinds(sourceEntity)
+        // after extending data set search
+        if (sourceEntity == EntityKind.SAMPLE)
+        {
+            return AssociatedEntityKind.getAssociatedEntityKinds(sourceEntity);
+        } else
+        {
+            return Collections.emptyList();
+        }
     }
 }

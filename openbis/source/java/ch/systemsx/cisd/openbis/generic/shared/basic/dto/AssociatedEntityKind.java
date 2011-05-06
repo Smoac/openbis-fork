@@ -16,6 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
@@ -26,24 +31,29 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  */
 public enum AssociatedEntityKind implements ISerializable
 {
-    SAMPLE("Sample", EntityKind.SAMPLE),
+    SAMPLE("Sample", EntityKind.SAMPLE, EnumSet.of(EntityKind.DATA_SET)),
 
-    EXPERIMENT("Experiment", EntityKind.EXPERIMENT),
+    EXPERIMENT("Experiment", EntityKind.EXPERIMENT, EnumSet.of(EntityKind.SAMPLE,
+            EntityKind.DATA_SET)),
 
-    SAMPLE_CONTAINER("Container", EntityKind.SAMPLE),
+    SAMPLE_CONTAINER("Container", EntityKind.SAMPLE, EnumSet.of(EntityKind.SAMPLE)),
 
-    SAMPLE_PARENT("Parent", EntityKind.SAMPLE),
+    SAMPLE_PARENT("Parent", EntityKind.SAMPLE, EnumSet.of(EntityKind.SAMPLE)),
 
-    SAMPLE_CHILD("Child", EntityKind.SAMPLE);
+    SAMPLE_CHILD("Child", EntityKind.SAMPLE, EnumSet.of(EntityKind.SAMPLE));
 
     private final String description;
 
     private final EntityKind entityKind;
 
-    private AssociatedEntityKind(final String description, final EntityKind entityKind)
+    private final Set<EntityKind> sourceEntityKinds;
+
+    private AssociatedEntityKind(final String description, final EntityKind entityKind,
+            final Set<EntityKind> sourceEntityKinds)
     {
         this.description = description;
         this.entityKind = entityKind;
+        this.sourceEntityKinds = sourceEntityKinds;
     }
 
     public final String getDescription()
@@ -54,6 +64,19 @@ public enum AssociatedEntityKind implements ISerializable
     public final EntityKind getEntityKind()
     {
         return entityKind;
+    }
+
+    public static List<AssociatedEntityKind> getAssociatedEntityKinds(EntityKind sourceEntity)
+    {
+        List<AssociatedEntityKind> result = new ArrayList<AssociatedEntityKind>();
+        for (AssociatedEntityKind associatedEntityKind : values())
+        {
+            if (associatedEntityKind.sourceEntityKinds.contains(sourceEntity))
+            {
+                result.add(associatedEntityKind);
+            }
+        }
+        return result;
     }
 
 }

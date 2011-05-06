@@ -578,6 +578,14 @@ public interface ICommonServer extends IServer
             List<DetailedSearchSubCriteria> subCriterias);
 
     /**
+     * Performs an <i>Hibernate Search</i> based on given parameters.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @ReturnValueFilter(validatorClass = SampleValidator.class)
+    public List<Sample> searchForSamples(String sessionToken, DetailedSearchCriteria criteria);
+
+    /**
      * Returns all data sets related to specified entities.
      */
     @Transactional(readOnly = true)

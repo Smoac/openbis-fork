@@ -57,4 +57,9 @@ public class DetailedSearchSubCriteria implements ISerializable
         return sb.toString();
     }
 
+    // GWT only
+    @SuppressWarnings("unused")
+    private DetailedSearchSubCriteria()
+    {
+    }
 }

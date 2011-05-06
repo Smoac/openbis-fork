@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
@@ -36,6 +37,9 @@ public class DetailedSearchCriteria implements ISerializable
 
     private boolean useWildcardSearchMode;
 
+    private List<DetailedSearchSubCriteria> subCriterias =
+            new ArrayList<DetailedSearchSubCriteria>();
+
     public DetailedSearchCriteria()
     {
     }
@@ -48,6 +52,21 @@ public class DetailedSearchCriteria implements ISerializable
     public void setCriteria(List<DetailedSearchCriterion> criteria)
     {
         this.criteria = criteria;
+    }
+
+    public List<DetailedSearchSubCriteria> getSubCriterias()
+    {
+        return subCriterias;
+    }
+
+    public void setSubCriterias(List<DetailedSearchSubCriteria> subCriterias)
+    {
+        this.subCriterias = subCriterias;
+    }
+
+    public void addSubCriteria(DetailedSearchSubCriteria subCriteria)
+    {
+        subCriterias.add(subCriteria);
     }
 
     public SearchCriteriaConnection getConnection()
@@ -72,7 +91,7 @@ public class DetailedSearchCriteria implements ISerializable
 
     public boolean isEmpty()
     {
-        return criteria == null || criteria.isEmpty();
+        return (criteria == null || criteria.isEmpty()) && subCriterias.isEmpty();
     }
 
     @Override
@@ -89,6 +108,14 @@ public class DetailedSearchCriteria implements ISerializable
                 }
                 sb.append(element);
             }
+        }
+        for (DetailedSearchSubCriteria subCriteria : subCriterias)
+        {
+            if (sb.length() > 0)
+            {
+                sb.append(", ");
+            }
+            sb.append(subCriteria.getTargetEntityKind() + ": " + subCriteria.toString());
         }
         sb.append(" (" + (isUseWildcardSearchMode() ? "with" : "without") + " wildcards)");
         return sb.toString();

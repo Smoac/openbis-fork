@@ -34,7 +34,6 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridC
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.SPACE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.SUBCODE;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -44,7 +43,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayC
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -204,8 +202,7 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
             case BROWSE:
                 return commonServer.listSamples(sessionToken, criteria.getBrowseCriteria());
             case SEARCH:
-                return commonServer.searchForSamples(sessionToken, criteria.getSearchCriteria(),
-                        Collections.<DetailedSearchSubCriteria> emptyList());
+                return commonServer.searchForSamples(sessionToken, criteria.getSearchCriteria());
         }
         return null; // not possible
     }

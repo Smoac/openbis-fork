@@ -21,28 +21,27 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.event.KeyboardEvents;
 import com.extjs.gxt.ui.client.widget.VerticalPanel;
+import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
 
 /**
- * Widget for {@link DetailedSearchCriteria} management.
+ * Abstract widget for management of detailed search criteria (main criteria or sub criteria).
  * 
  * @author Izabela Adamczyk
  * @author Piotr Buczek
  */
-public class DetailedSearchCriteriaWidget extends VerticalPanel
+abstract public class DetailedSearchCriteriaWidget extends VerticalPanel
 {
     public static final String FIRST_ID_SUFFIX = "_first";
 
     private final List<DetailedSearchCriterionWidget> criteriaWidgets;
-
-    private final MatchCriteriaRadio matchRadios;
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
@@ -55,11 +54,23 @@ public class DetailedSearchCriteriaWidget extends VerticalPanel
         this.entityKind = entityKind;
         setLayoutOnChange(true);
         criteriaWidgets = new ArrayList<DetailedSearchCriterionWidget>();
-        add(matchRadios =
-                new MatchCriteriaRadio(viewContext.getMessage(Dict.MATCH_ALL), viewContext
-                        .getMessage(Dict.MATCH_ANY)));
+    }
+
+    protected abstract SearchCriteriaConnection getConnection();
+
+    protected abstract void setConnection(SearchCriteriaConnection connection);
+
+    protected void addInitialWidgets()
+    {
         addCriterion(new DetailedSearchCriterionWidget(viewContext, this, FIRST_ID_SUFFIX,
                 this.entityKind));
+    }
+
+    @Override
+    protected void onRender(Element parent, int pos)
+    {
+        super.onRender(parent, pos);
+        addInitialWidgets();
     }
 
     private void enableRemovalIfOneExists(final boolean enable)
@@ -126,11 +137,10 @@ public class DetailedSearchCriteriaWidget extends VerticalPanel
 
     /**
      * @return <b>search criteria</b> extracted from criteria widgets and "match" radio buttons<br>
-     *         <b>null</b> if no criteria were selected
+     *         <b>NOTE:</b> criterion list of resulting criteria may be empty
      */
-    public DetailedSearchCriteria tryGetCriteria()
+    public DetailedSearchCriteria extractCriteria()
     {
-
         List<DetailedSearchCriterion> criteria = new ArrayList<DetailedSearchCriterion>();
         for (DetailedSearchCriterionWidget cw : criteriaWidgets)
         {
@@ -140,24 +150,19 @@ public class DetailedSearchCriteriaWidget extends VerticalPanel
                 criteria.add(value);
             }
         }
-        if (criteria.size() > 0)
-        {
-            final DetailedSearchCriteria result = new DetailedSearchCriteria();
-            result.setUseWildcardSearchMode(viewContext.getDisplaySettingsManager()
-                    .isUseWildcardSearchMode());
-            result.setConnection(matchRadios.getSelected());
-            result.setCriteria(criteria);
-            return result;
-        }
-        return null;
-
+        final DetailedSearchCriteria result = new DetailedSearchCriteria();
+        result.setUseWildcardSearchMode(viewContext.getDisplaySettingsManager()
+                .isUseWildcardSearchMode());
+        result.setConnection(getConnection());
+        result.setCriteria(criteria);
+        return result;
     }
 
     /** description of the search criteria for the user */
     public String getCriteriaDescription()
     {
         StringBuffer sb = new StringBuffer();
-        sb.append(matchRadios.getSelectedLabel());
+        sb.append(getConnection().getLabel());
         sb.append(": ");
         boolean first = true;
         for (DetailedSearchCriterionWidget cw : criteriaWidgets)
@@ -178,13 +183,25 @@ public class DetailedSearchCriteriaWidget extends VerticalPanel
         return sb.toString();
     }
 
+    public boolean isCriteriaFilled()
+    {
+        for (DetailedSearchCriterionWidget cw : criteriaWidgets)
+        {
+            DetailedSearchCriterion value = cw.tryGetValue();
+            if (value != null)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Resets "match criteria" radio buttons to initial values, removes unnecessary criteria widgets
      * and resets the remaining ones.
      */
     public void reset()
     {
-        matchRadios.reset();
         List<DetailedSearchCriterionWidget> list =
                 new ArrayList<DetailedSearchCriterionWidget>(criteriaWidgets);
         for (DetailedSearchCriterionWidget cw : list)
@@ -220,7 +237,7 @@ public class DetailedSearchCriteriaWidget extends VerticalPanel
             addCriterion(widget);
         }
 
-        matchRadios.setValue(searchCriteria.getConnection());
+        setConnection(searchCriteria.getConnection());
     }
 
     void onEnterKey()
