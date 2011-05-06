@@ -68,7 +68,7 @@ public class MatchCriteriaRadio extends HorizontalPanel
 
     public void reset()
     {
-        orRadio.setValue(true);
+        andRadio.setValue(true);
     }
 
     public void setValue(SearchCriteriaConnection connection)
