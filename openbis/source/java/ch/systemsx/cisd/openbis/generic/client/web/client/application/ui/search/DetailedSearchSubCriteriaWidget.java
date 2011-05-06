@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search;
 
-import com.extjs.gxt.ui.client.widget.Label;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AssociatedEntityKind;
@@ -44,10 +42,9 @@ public class DetailedSearchSubCriteriaWidget extends DetailedSearchCriteriaWidge
     }
 
     @Override
-    protected void addInitialWidgets()
+    protected String getCriteriaLabel()
     {
-        add(new Label(association.getDescription()));
-        super.addInitialWidgets();
+        return association.getDescription();
     }
 
     @Override

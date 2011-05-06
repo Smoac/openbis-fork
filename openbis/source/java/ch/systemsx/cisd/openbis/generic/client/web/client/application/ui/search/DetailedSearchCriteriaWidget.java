@@ -56,6 +56,8 @@ abstract public class DetailedSearchCriteriaWidget extends VerticalPanel
         criteriaWidgets = new ArrayList<DetailedSearchCriterionWidget>();
     }
 
+    protected abstract String getCriteriaLabel();
+
     protected abstract SearchCriteriaConnection getConnection();
 
     protected abstract void setConnection(SearchCriteriaConnection connection);

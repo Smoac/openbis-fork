@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.Style.HideMode;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
@@ -11,10 +12,16 @@ import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.KeyboardEvents;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.util.Margins;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.TabItem;
+import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
+import com.extjs.gxt.ui.client.widget.layout.FitData;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.event.dom.client.KeyCodes;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -39,37 +46,39 @@ public class DetailedSearchWindow extends Dialog
 {
     public static final String SEARCH_BUTTON_ID = DataSetSearchHitGrid.BROWSER_ID + "search_button";
 
-    // private static final int MARGIN = 5;
+    private static final Margins MARGINS = new Margins(5, 10, 5, 10);
 
     private static final int HEIGHT = 400;
 
     private static final int WIDTH = 550;
 
-    private DetailedSearchCriteriaWidget criteriaWidget;
+    private final DetailedSearchCriteriaWidget criteriaWidget;
 
-    private List<DetailedSearchSubCriteriaWidget> subCriteriaWidgets =
+    private final List<DetailedSearchSubCriteriaWidget> subCriteriaWidgets =
             new ArrayList<DetailedSearchSubCriteriaWidget>();
 
     private DetailedSearchToolbar updateListener;
+
+    private final TabPanel tabPanel;
 
     public DetailedSearchWindow(final IViewContext<ICommonClientServiceAsync> viewContext,
             final EntityKind entityKind)
     {
         setSize(WIDTH, HEIGHT);
         setModal(true);
-        setScrollMode(Scroll.AUTOY);
+        setHeading("Sample Search Criteria");
         setLayout(new FillLayout());
         setResizable(false);
-        add(criteriaWidget = new DetailedSearchMainCriteriaWidget(viewContext, entityKind));
+        criteriaWidget = new DetailedSearchMainCriteriaWidget(viewContext, entityKind);
+        add(createMainCriteriaPanel());
+        add(tabPanel = new TabPanel());
         for (AssociatedEntityKind association : getAssociatedEntityKinds(entityKind))
         {
             DetailedSearchSubCriteriaWidget subCriteriaWidget =
                     new DetailedSearchSubCriteriaWidget(viewContext, association);
             subCriteriaWidgets.add(subCriteriaWidget);
-            add(subCriteriaWidget);
+            addSearchWidgetTab(subCriteriaWidget);
         }
-        // new FitData(MARGIN));
-        // new FitData(MARGIN));
         addEnterListener();
         final ButtonBar bar = getButtonBar();
         bar.removeAll();
@@ -88,8 +97,7 @@ public class DetailedSearchWindow extends Dialog
                         @Override
                         public void componentSelected(ButtonEvent ce)
                         {
-                            criteriaWidget.reset();
-                            for (DetailedSearchCriteriaWidget widget : subCriteriaWidgets)
+                            for (DetailedSearchCriteriaWidget widget : getAllWidgets())
                             {
                                 widget.reset();
                             }
@@ -113,26 +121,59 @@ public class DetailedSearchWindow extends Dialog
                 createHelpPageIdentifier(entityKind));
     }
 
+    private ContentPanel createMainCriteriaPanel()
+    {
+        final ContentPanel mainPanel = new ContentPanel();
+        mainPanel.setHeaderVisible(false);
+        mainPanel.setLayout(new FitLayout());
+        mainPanel.setScrollMode(Scroll.AUTOY);
+        mainPanel.add(criteriaWidget, new FitData(MARGINS));
+        return mainPanel;
+    }
+
+    private void addSearchWidgetTab(final DetailedSearchSubCriteriaWidget searchWidget)
+    {
+        final TabItem tab = new TabItem();
+        tab.setClosable(false);
+        tab.setLayout(new FitLayout());
+        tab.setScrollMode(Scroll.AUTOY);
+        tab.setText(searchWidget.getCriteriaLabel());
+        tab.add(searchWidget, new FitData(MARGINS));
+        tab.setHideMode(HideMode.OFFSETS);
+        tabPanel.add(tab);
+    }
+
+    /** @return list containing main widget and all sub criteria widgets */
+    private List<DetailedSearchCriteriaWidget> getAllWidgets()
+    {
+        List<DetailedSearchCriteriaWidget> result =
+                new ArrayList<DetailedSearchCriteriaWidget>(subCriteriaWidgets);
+        result.add(criteriaWidget);
+        return result;
+    }
+
     private void addEnterListener()
     {
-        criteriaWidget.addListener(KeyboardEvents.Enter, new Listener<ComponentEvent>()
-            {
-                public void handleEvent(ComponentEvent ce)
+        for (DetailedSearchCriteriaWidget widget : getAllWidgets())
+        {
+            widget.addListener(KeyboardEvents.Enter, new Listener<ComponentEvent>()
                 {
-                    EventType type = ce.getType();
-                    switch (type.getEventCode())
+                    public void handleEvent(ComponentEvent ce)
                     {
-                        case KeyCodes.KEY_ENTER:
-                            onSearch();
-                            break;
-                        default:
-                            break;
+                        EventType type = ce.getType();
+                        switch (type.getEventCode())
+                        {
+                            case KeyCodes.KEY_ENTER:
+                                onSearch();
+                                break;
+                            default:
+                                break;
+                        }
+
                     }
 
-                }
-
-            });
-        // TODO improve
+                });
+        }
     }
 
     @Override
@@ -229,9 +270,8 @@ public class DetailedSearchWindow extends Dialog
 
     private static List<AssociatedEntityKind> getAssociatedEntityKinds(final EntityKind sourceEntity)
     {
-        // TODO 2011-05-06, Piotr Buczek: use
-        // AssociatedEntityKind.getAssociatedEntityKinds(sourceEntity)
-        // after extending data set search
+        // TODO 2011-05-06, Piotr Buczek: after extending data set search use the following
+        // return AssociatedEntityKind.getAssociatedEntityKinds(sourceEntity)
         if (sourceEntity == EntityKind.SAMPLE)
         {
             return AssociatedEntityKind.getAssociatedEntityKinds(sourceEntity);

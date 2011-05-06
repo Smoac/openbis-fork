@@ -43,6 +43,12 @@ public class DetailedSearchMainCriteriaWidget extends DetailedSearchCriteriaWidg
     }
 
     @Override
+    protected String getCriteriaLabel()
+    {
+        return "Main Criteria";
+    }
+
+    @Override
     protected void addInitialWidgets()
     {
         add(matchRadios);
