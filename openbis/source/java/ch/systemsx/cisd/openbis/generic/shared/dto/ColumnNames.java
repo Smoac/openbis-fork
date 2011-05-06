@@ -48,6 +48,10 @@ public final class ColumnNames
 
     public static final String DATA_PARENT_COLUMN = "data_id_parent";
 
+    public static final String DATA_VIRTUAL_PARENT_COLUMN = "virt_parent_id";
+
+    public static final String DATA_VIRTUAL_ORDER_COLUMN = "virt_order";
+
     public static final String DATA_PRODUCER_CODE_COLUMN = "data_producer_code";
 
     public static final String DATA_SET_TYPE_COLUMN = "dsty_id";
@@ -123,6 +127,8 @@ public final class ColumnNames
     public static final String IS_DATA_ACQUSITION = "is_data_acquisition";
 
     public static final String IS_DERIVED = "is_derived";
+
+    public static final String IS_VIRTUAL = "is_virtual";
 
     public static final String IS_PUBLIC = "is_public";
 

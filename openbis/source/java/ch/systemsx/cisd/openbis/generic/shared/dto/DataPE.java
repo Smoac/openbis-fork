@@ -16,8 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -93,6 +95,8 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
 
     private boolean isDerived;
 
+    private boolean isVirtual;
+
     private PersonPE registrator;
 
     /** Registration date of the database instance. */
@@ -113,6 +117,15 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     private Set<DataPE> parents = new HashSet<DataPE>();
 
     private Set<DataPE> children = new HashSet<DataPE>();
+
+    private DataPE virtualParent = null;
+
+    private List<DataPE> virtualChildren = new ArrayList<DataPE>();
+
+    /**
+     * the index of this {@link DataPE} within its virtual parent.
+     */
+    private int virtualOrder;
 
     private DataStorePE dataStore;
 
@@ -179,6 +192,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         return isDerived;
     }
 
+
     /**
      * Set to <code>true</code> if this data set is data set is derived from a sample (otherwise it
      * is measured from a sample).
@@ -186,6 +200,34 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     public void setDerived(boolean isDerived)
     {
         this.isDerived = isDerived;
+    }
+
+    /**
+     * Returns <code>true</code> if this data set is data set is virtual data set.
+     */
+    @Column(name = ColumnNames.IS_VIRTUAL)
+    public boolean isVirtual()
+    {
+        return isVirtual;
+    }
+
+    /**
+     * Set to <code>true</code> if this data set is virtual data set.
+     */
+    public void setVirtual(boolean isVirtual)
+    {
+        this.isVirtual = isVirtual;
+    }
+
+    @Column(name = ColumnNames.DATA_VIRTUAL_ORDER_COLUMN)
+    public int getVirtualOrder()
+    {
+        return virtualOrder;
+    }
+
+    public void setVirtualOrder(Integer virtualOrder)
+    {
+        this.virtualOrder = (virtualOrder != null) ? virtualOrder : 0;
     }
 
     /**
@@ -394,6 +436,32 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     private void removeChild(final DataPE child)
     {
         this.children.remove(child);
+    }
+
+    @SuppressWarnings("unused")
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = DataPE.class)
+    @JoinColumn(name = ColumnNames.DATA_VIRTUAL_PARENT_COLUMN)
+    private DataPE getVirtualParentInternal()
+    {
+        return virtualParent;
+    }
+
+    @SuppressWarnings("unused")
+    private void setVirtualParentInternal(final DataPE virtualParent)
+    {
+        this.virtualParent = virtualParent;
+    }
+
+    
+    @OneToMany(mappedBy = "virtualParentInternal", fetch = FetchType.LAZY)
+    public List<DataPE> getVirtualChildren()
+    {
+        return virtualChildren;
+    }
+
+    public void setVirtualChildren(List<DataPE> virtualChildren)
+    {
+        this.virtualChildren = virtualChildren;
     }
 
     //

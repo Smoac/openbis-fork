@@ -314,6 +314,8 @@ ALTER TABLE ONLY data
     ADD CONSTRAINT data_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
 ALTER TABLE ONLY data
     ADD CONSTRAINT data_samp_fk FOREIGN KEY (samp_id) REFERENCES samples(id);
+ALTER TABLE ONLY data
+    ADD CONSTRAINT data_virt_parent_fk FOREIGN KEY (virt_parent_id) REFERENCES data(id);
 ALTER TABLE ONLY data_set_properties
     ADD CONSTRAINT dspr_cvte_fk FOREIGN KEY (cvte_id) REFERENCES controlled_vocabulary_terms(id);
 ALTER TABLE ONLY data_set_properties

@@ -379,7 +379,10 @@ CREATE TABLE data (
     dast_id tech_id NOT NULL,
     is_derived boolean_char NOT NULL,
     samp_id tech_id,
-    pers_id_registerer tech_id
+    pers_id_registerer tech_id,
+    is_virtual boolean_char DEFAULT false,
+    virt_order integer,
+    virt_parent_id tech_id DEFAULT NULL::bigint
 );
 CREATE SEQUENCE data_id_seq
     START WITH 1
