@@ -47,13 +47,11 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchableEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
@@ -235,20 +233,10 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         checkSession(sessionToken);
 
         DetailedSearchCriteria detailedSearchCriteria =
-                SearchCriteriaToDetailedSearchCriteriaTranslator.convertToDetailedSearchCriteria(
+                SearchCriteriaToDetailedSearchCriteriaTranslator.convert(
                         SearchableEntityKind.SAMPLE, searchCriteria);
-        List<DetailedSearchSubCriteria> detailedSearchSubCriterias =
-                new ArrayList<DetailedSearchSubCriteria>();
-        for (SearchSubCriteria subCriteria : searchCriteria.getSubCriterias())
-        {
-            DetailedSearchSubCriteria detailedSearchSubCriteria =
-                    SearchCriteriaToDetailedSearchCriteriaTranslator
-                            .convertToDetailedSearchSubCriteria(subCriteria);
-            detailedSearchSubCriterias.add(detailedSearchSubCriteria);
-        }
         List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample> privateSamples =
-                commonServer.searchForSamples(sessionToken, detailedSearchCriteria,
-                        detailedSearchSubCriterias);
+                commonServer.searchForSamples(sessionToken, detailedSearchCriteria);
         ArrayList<Sample> samples = new ArrayList<Sample>();
         for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample privateSample : privateSamples)
         {

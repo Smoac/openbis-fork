@@ -105,53 +105,6 @@ public class DetailedSearchManager
         return sampleLister.list(new ListOrSearchSampleCriteria(filteredSampleIds));
     }
 
-    public List<Sample> searchForSamples(DetailedSearchCriteria criteria,
-            List<DetailedSearchSubCriteria> subCriterias) throws DataAccessException
-    {
-        final DetailedSearchCriteria parentCriteria = new DetailedSearchCriteria();
-        final DetailedSearchCriteria childCriteria = new DetailedSearchCriteria();
-        final List<DetailedSearchSubCriteria> otherSubCriterias =
-                new ArrayList<DetailedSearchSubCriteria>();
-        groupSampleSubCriteria(subCriterias, parentCriteria, childCriteria, otherSubCriterias);
-
-        final List<Long> mainSampleIds = findSampleIds(criteria, otherSubCriterias);
-
-        final Set<Long> filteredSampleIds = new HashSet<Long>();
-        if (false == parentCriteria.isEmpty())
-        {
-            final List<Long> parentSampleIds =
-                    findSampleIds(parentCriteria,
-                            Collections.<DetailedSearchSubCriteria> emptyList());
-            if (mainSampleIds.size() > parentSampleIds.size())
-            {
-                listParentsChildrenAndFilterChildren(mainSampleIds, parentSampleIds,
-                        filteredSampleIds);
-            } else
-            {
-                listChildrensParentsAndFilterChildren(mainSampleIds, parentSampleIds,
-                        filteredSampleIds);
-            }
-        } else if (false == childCriteria.isEmpty())
-        {
-            final List<Long> childSampleIds =
-                    findSampleIds(childCriteria,
-                            Collections.<DetailedSearchSubCriteria> emptyList());
-            if (mainSampleIds.size() > childSampleIds.size())
-            {
-                listChildrensParentsAndFilterParents(childSampleIds, mainSampleIds,
-                        filteredSampleIds);
-            } else
-            {
-                listParentsChildrenAndFilterParents(childSampleIds, mainSampleIds,
-                        filteredSampleIds);
-            }
-        } else
-        {
-            filteredSampleIds.addAll(mainSampleIds);
-        }
-        return sampleLister.list(new ListOrSearchSampleCriteria(filteredSampleIds));
-    }
-
     private void listChildrensParentsAndFilterChildren(final List<Long> allChildrenIds,
             final List<Long> allParentIds, final Set<Long> filteredChildrenIds)
     {

@@ -94,8 +94,7 @@ public class DetailedSearchCriteria implements ISerializable
         return (criteria == null || criteria.isEmpty()) && subCriterias.isEmpty();
     }
 
-    @Override
-    public String toString()
+    String toString(boolean withWildcardInfo)
     {
         final StringBuilder sb = new StringBuilder();
         if (criteria != null)
@@ -113,11 +112,20 @@ public class DetailedSearchCriteria implements ISerializable
         {
             if (sb.length() > 0)
             {
-                sb.append(", ");
+                sb.append(",\n");
             }
-            sb.append(subCriteria.getTargetEntityKind() + ": " + subCriteria.toString());
+            sb.append("[" + subCriteria.toString() + "]");
         }
-        sb.append(" (" + (isUseWildcardSearchMode() ? "with" : "without") + " wildcards)");
+        if (withWildcardInfo)
+        {
+            sb.append(" (" + (isUseWildcardSearchMode() ? "with" : "without") + " wildcards)");
+        }
         return sb.toString();
+    }
+
+    @Override
+    public String toString()
+    {
+        return toString(true);
     }
 }

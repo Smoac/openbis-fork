@@ -167,20 +167,29 @@ class SearchCriteriaToDetailedSearchCriteriaTranslator
 
     }
 
-    public static DetailedSearchCriteria convertToDetailedSearchCriteria(
-            SearchableEntityKind entityKind, SearchCriteria criteria)
+    public static DetailedSearchCriteria convert(SearchableEntityKind entityKind,
+            SearchCriteria criteria)
     {
-        return new SearchCriteriaToDetailedSearchCriteriaTranslator(criteria, entityKind)
-                .convertToDetailedSearchCriteria();
+        DetailedSearchCriteria mainCriteria =
+                new SearchCriteriaToDetailedSearchCriteriaTranslator(criteria, entityKind)
+                        .convertToDetailedSearchCriteria();
+        for (SearchSubCriteria subCriteria : criteria.getSubCriterias())
+        {
+            DetailedSearchSubCriteria detailedSearchSubCriteria =
+                    SearchCriteriaToDetailedSearchCriteriaTranslator
+                            .convertToDetailedSearchSubCriteria(subCriteria);
+            mainCriteria.addSubCriteria(detailedSearchSubCriteria);
+        }
+        return mainCriteria;
     }
 
-    public static DetailedSearchSubCriteria convertToDetailedSearchSubCriteria(
+    // exposed for tests
+    static DetailedSearchSubCriteria convertToDetailedSearchSubCriteria(
             SearchSubCriteria subCriteria)
     {
         final SearchCriteria criteria = subCriteria.getCriteria();
         final SearchableEntityKind targetEntityKind = subCriteria.getTargetEntityKind();
-        final DetailedSearchCriteria detailedSearchCriteria =
-                convertToDetailedSearchCriteria(targetEntityKind, criteria);
+        final DetailedSearchCriteria detailedSearchCriteria = convert(targetEntityKind, criteria);
         return new DetailedSearchSubCriteria(convertToAssociatedEntityKind(targetEntityKind),
                 detailedSearchCriteria);
     }

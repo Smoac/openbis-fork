@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -28,7 +27,6 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria2;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
@@ -128,8 +126,7 @@ public class SampleProviderTest extends AbstractProviderTest
         context.checking(new Expectations()
             {
                 {
-                    one(server).searchForSamples(SESSION_TOKEN, criteria,
-                            Collections.<DetailedSearchSubCriteria> emptyList());
+                    one(server).searchForSamples(SESSION_TOKEN, criteria);
                     will(returnValue(Arrays.asList(s1.getSample(), s2.getSample())));
                 }
             });

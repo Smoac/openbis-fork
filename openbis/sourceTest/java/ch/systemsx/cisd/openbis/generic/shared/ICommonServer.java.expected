@@ -64,7 +64,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DynamicPropertyEvaluationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -567,15 +566,6 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public ExternalData getDataSetInfo(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class) TechId datasetId);
-
-    /**
-     * Performs an <i>Hibernate Search</i> based on given parameters.
-     */
-    @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    @ReturnValueFilter(validatorClass = SampleValidator.class)
-    public List<Sample> searchForSamples(String sessionToken, DetailedSearchCriteria criteria,
-            List<DetailedSearchSubCriteria> subCriterias);
 
     /**
      * Performs an <i>Hibernate Search</i> based on given parameters.

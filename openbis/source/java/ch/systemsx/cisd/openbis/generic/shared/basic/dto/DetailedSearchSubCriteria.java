@@ -53,7 +53,7 @@ public class DetailedSearchSubCriteria implements ISerializable
     {
         final StringBuilder sb = new StringBuilder();
         sb.append(targetEntityKind + ": ");
-        sb.append(criteria);
+        sb.append(criteria.toString(false));
         return sb.toString();
     }
 

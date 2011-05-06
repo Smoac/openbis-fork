@@ -99,7 +99,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescrip
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchAssociationCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DynamicPropertyEvaluationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -478,22 +477,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             final ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
             final IHibernateSearchDAO searchDAO = getDAOFactory().getHibernateSearchDAO();
             return new DetailedSearchManager(searchDAO, sampleLister).searchForSamples(criteria);
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
-        }
-    }
-
-    public List<Sample> searchForSamples(String sessionToken, DetailedSearchCriteria criteria,
-            List<DetailedSearchSubCriteria> subCriterias)
-    {
-        final Session session = getSession(sessionToken);
-        try
-        {
-            final ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
-            final IHibernateSearchDAO searchDAO = getDAOFactory().getHibernateSearchDAO();
-            return new DetailedSearchManager(searchDAO, sampleLister).searchForSamples(criteria,
-                    subCriterias);
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);

@@ -145,7 +145,7 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslatorTest extends Assert
     }
 
     private static String EXPECTED_BASIC_QUERY_SUFFIX = "ATTRIBUTE CODE: a code AND "
-            + "PROPERTY MY_PROPERTY: a property value " + "(with wildcards)";
+            + "PROPERTY MY_PROPERTY: a property value";
 
     private void testConvertToDetailedSearchSubCriteria(AssociatedEntityKind expectedEntityKind,
             SearchSubCriteria subCriteria)

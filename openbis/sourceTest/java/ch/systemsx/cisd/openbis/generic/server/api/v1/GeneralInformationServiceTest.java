@@ -47,7 +47,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRo
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -197,21 +196,15 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
     public void testSearchForSamples()
     {
         prepareGetSession();
-        final RecordingMatcher<DetailedSearchCriteria> detailedSearchCriteriaMatcher =
-                RecordingMatcher.create();
-        final RecordingMatcher<List<DetailedSearchSubCriteria>> detailedSearchSubCriteriaMatcher =
-                RecordingMatcher.create();
-        prepareSearchForSamples(detailedSearchCriteriaMatcher, detailedSearchSubCriteriaMatcher);
+        final RecordingMatcher<DetailedSearchCriteria> criteriaMatcher = RecordingMatcher.create();
+        prepareSearchForSamples(criteriaMatcher);
         List<Sample> result =
                 service.searchForSamples(SESSION_TOKEN, createSearchCriteriaForSample());
         assertEquals(1, result.size());
         Sample resultSample = result.get(0);
         assertEquals("/space/code", resultSample.getIdentifier());
-        assertEquals("ATTRIBUTE CODE: a code AND "
-                + "PROPERTY MY_PROPERTY2: a property value (with wildcards)",
-                detailedSearchCriteriaMatcher.recordedObject().toString());
-        // no subcriteria
-        assertEquals("[]", detailedSearchSubCriteriaMatcher.recordedObject().toString());
+        assertEquals("ATTRIBUTE CODE: a code AND PROPERTY MY_PROPERTY2: a property value"
+                + " (with wildcards)", criteriaMatcher.recordedObject().toString());
         context.assertIsSatisfied();
     }
 
@@ -219,24 +212,19 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
     public void testSearchForSamplesWithExperiment()
     {
         prepareGetSession();
-        final RecordingMatcher<DetailedSearchCriteria> detailedSearchCriteriaMatcher =
-                RecordingMatcher.create();
-        final RecordingMatcher<List<DetailedSearchSubCriteria>> detailedSearchSubCriteriaMatcher =
-                RecordingMatcher.create();
-        prepareSearchForSamples(detailedSearchCriteriaMatcher, detailedSearchSubCriteriaMatcher);
+        final RecordingMatcher<DetailedSearchCriteria> criteriaMatcher = RecordingMatcher.create();
+        prepareSearchForSamples(criteriaMatcher);
         List<Sample> result =
                 service.searchForSamples(SESSION_TOKEN,
                         createSearchCriteriaForSampleWithExperiment());
         assertEquals(1, result.size());
         Sample resultSample = result.get(0);
         assertEquals("/space/code", resultSample.getIdentifier());
-        assertEquals("ATTRIBUTE CODE: a code AND "
-                + "PROPERTY MY_PROPERTY2: a property value (with wildcards)",
-                detailedSearchCriteriaMatcher.recordedObject().toString());
-        // check experiment subcriteria
-        assertEquals("[EXPERIMENT: ATTRIBUTE CODE: a code AND ATTRIBUTE PROJECT: a project AND "
-                + "PROPERTY EXP_PROPERTY: exp property value (with wildcards)]",
-                detailedSearchSubCriteriaMatcher.recordedObject().toString());
+        assertEquals("ATTRIBUTE CODE: a code AND PROPERTY MY_PROPERTY2: a property value,\n"
+                // check experiment subcriteria
+                + "[EXPERIMENT: ATTRIBUTE CODE: a code AND ATTRIBUTE PROJECT: a project AND "
+                + "PROPERTY EXP_PROPERTY: exp property value]" + " (with wildcards)",
+                criteriaMatcher.recordedObject().toString());
         context.assertIsSatisfied();
     }
 
@@ -244,23 +232,18 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
     public void testSearchForSamplesWithParent()
     {
         prepareGetSession();
-        final RecordingMatcher<DetailedSearchCriteria> detailedSearchCriteriaMatcher =
-                RecordingMatcher.create();
-        final RecordingMatcher<List<DetailedSearchSubCriteria>> detailedSearchSubCriteriaMatcher =
-                RecordingMatcher.create();
-        prepareSearchForSamples(detailedSearchCriteriaMatcher, detailedSearchSubCriteriaMatcher);
+        final RecordingMatcher<DetailedSearchCriteria> criteriaMatcher = RecordingMatcher.create();
+        prepareSearchForSamples(criteriaMatcher);
         List<Sample> result =
                 service.searchForSamples(SESSION_TOKEN, createSearchCriteriaForSampleWithParent());
         assertEquals(1, result.size());
         Sample resultSample = result.get(0);
         assertEquals("/space/code", resultSample.getIdentifier());
-        assertEquals("ATTRIBUTE CODE: a code AND "
-                + "PROPERTY MY_PROPERTY2: a property value (with wildcards)",
-                detailedSearchCriteriaMatcher.recordedObject().toString());
-        // check parent subcriteria
-        assertEquals("[SAMPLE_PARENT: ATTRIBUTE CODE: parent code AND "
-                + "PROPERTY PARENT_PROPERTY: parent property value (with wildcards)]",
-                detailedSearchSubCriteriaMatcher.recordedObject().toString());
+        assertEquals("ATTRIBUTE CODE: a code AND PROPERTY MY_PROPERTY2: a property value,\n"
+                // check parent subcriteria
+                + "[SAMPLE_PARENT: ATTRIBUTE CODE: parent code AND "
+                + "PROPERTY PARENT_PROPERTY: parent property value]" + " (with wildcards)",
+                criteriaMatcher.recordedObject().toString());
         context.assertIsSatisfied();
     }
 
@@ -268,23 +251,18 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
     public void testSearchForSamplesWithChild()
     {
         prepareGetSession();
-        final RecordingMatcher<DetailedSearchCriteria> detailedSearchCriteriaMatcher =
-                RecordingMatcher.create();
-        final RecordingMatcher<List<DetailedSearchSubCriteria>> detailedSearchSubCriteriaMatcher =
-                RecordingMatcher.create();
-        prepareSearchForSamples(detailedSearchCriteriaMatcher, detailedSearchSubCriteriaMatcher);
+        final RecordingMatcher<DetailedSearchCriteria> criteriaMatcher = RecordingMatcher.create();
+        prepareSearchForSamples(criteriaMatcher);
         List<Sample> result =
                 service.searchForSamples(SESSION_TOKEN, createSearchCriteriaForSampleWithChild());
         assertEquals(1, result.size());
         Sample resultSample = result.get(0);
         assertEquals("/space/code", resultSample.getIdentifier());
-        assertEquals("ATTRIBUTE CODE: a code AND "
-                + "PROPERTY MY_PROPERTY2: a property value (with wildcards)",
-                detailedSearchCriteriaMatcher.recordedObject().toString());
-        // check parent subcriteria
-        assertEquals("[SAMPLE_CHILD: ATTRIBUTE CODE: child code AND "
-                + "PROPERTY CHILD_PROPERTY: child property value (with wildcards)]",
-                detailedSearchSubCriteriaMatcher.recordedObject().toString());
+        assertEquals("ATTRIBUTE CODE: a code AND PROPERTY MY_PROPERTY2: a property value,\n"
+                // check parent subcriteria
+                + "[SAMPLE_CHILD: ATTRIBUTE CODE: child code AND "
+                + "PROPERTY CHILD_PROPERTY: child property value]" + " (with wildcards)",
+                criteriaMatcher.recordedObject().toString());
         context.assertIsSatisfied();
     }
 
@@ -292,37 +270,29 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
     public void testSearchForSamplesWithContainer()
     {
         prepareGetSession();
-        final RecordingMatcher<DetailedSearchCriteria> detailedSearchCriteriaMatcher =
-                RecordingMatcher.create();
-        final RecordingMatcher<List<DetailedSearchSubCriteria>> detailedSearchSubCriteriaMatcher =
-                RecordingMatcher.create();
-        prepareSearchForSamples(detailedSearchCriteriaMatcher, detailedSearchSubCriteriaMatcher);
+        final RecordingMatcher<DetailedSearchCriteria> criteriaMatcher = RecordingMatcher.create();
+        prepareSearchForSamples(criteriaMatcher);
         List<Sample> result =
                 service.searchForSamples(SESSION_TOKEN,
                         createSearchCriteriaForSampleWithContainer());
         assertEquals(1, result.size());
         Sample resultSample = result.get(0);
         assertEquals("/space/code", resultSample.getIdentifier());
-        assertEquals("ATTRIBUTE CODE: a code AND "
-                + "PROPERTY MY_PROPERTY2: a property value (with wildcards)",
-                detailedSearchCriteriaMatcher.recordedObject().toString());
-        // check container subcriteria
-        assertEquals("[SAMPLE_CONTAINER: ATTRIBUTE CODE: container code AND "
-                + "PROPERTY CONTAINER_PROPERTY: container property value (with wildcards)]",
-                detailedSearchSubCriteriaMatcher.recordedObject().toString());
+        assertEquals("ATTRIBUTE CODE: a code AND PROPERTY MY_PROPERTY2: a property value,\n"
+                // check container subcriteria
+                + "[SAMPLE_CONTAINER: ATTRIBUTE CODE: container code AND "
+                + "PROPERTY CONTAINER_PROPERTY: container property value]" + " (with wildcards)",
+                criteriaMatcher.recordedObject().toString());
         context.assertIsSatisfied();
     }
 
     private void prepareSearchForSamples(
-            final RecordingMatcher<DetailedSearchCriteria> detailedSearchCriteriaMatcher,
-            final RecordingMatcher<List<DetailedSearchSubCriteria>> detailedSearchSubCriteriaMatcher)
+            final RecordingMatcher<DetailedSearchCriteria> criteriaMatcher)
     {
         context.checking(new Expectations()
             {
                 {
-                    one(commonServer).searchForSamples(with(SESSION_TOKEN),
-                            with(detailedSearchCriteriaMatcher),
-                            with(detailedSearchSubCriteriaMatcher));
+                    one(commonServer).searchForSamples(with(SESSION_TOKEN), with(criteriaMatcher));
                     SampleBuilder sample =
                             new SampleBuilder("/space/code")
                                     .id(1L)
