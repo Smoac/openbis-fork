@@ -44,6 +44,8 @@ public class VocabularyTerm extends CodeWithRegistration<Vocabulary> implements
 
     private Long ordinal;
 
+    private Boolean isOfficial;
+
     public VocabularyTerm()
     {
     }
@@ -118,5 +120,15 @@ public class VocabularyTerm extends CodeWithRegistration<Vocabulary> implements
     public void setOrdinal(Long ordinal)
     {
         this.ordinal = ordinal;
+    }
+
+    public Boolean isOfficial()
+    {
+        return isOfficial;
+    }
+
+    public void setOfficial(Boolean isOfficial)
+    {
+        this.isOfficial = isOfficial;
     }
 }

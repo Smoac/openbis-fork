@@ -51,6 +51,7 @@ public final class VocabularyDAOTest extends AbstractDAOTest
         vocabularyTermPE.setRegistrator(getSystemPerson());
         vocabularyTermPE.setCode(code);
         vocabularyTermPE.setOrdinal(new Long(ordinal));
+        vocabularyTermPE.setOfficial(true);
         return vocabularyTermPE;
     }
 

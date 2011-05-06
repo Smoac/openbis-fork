@@ -36,6 +36,7 @@ public final class UpdatedVocabularyTerm extends VocabularyTerm
         setId(vocabularyTerm.getId());
         setLabel(vocabularyTerm.getLabel());
         setOrdinal(vocabularyTerm.getOrdinal());
+        setOfficial(vocabularyTerm.isOfficial());
         this.batchUpdateDetails = batchUpdateDetails;
     }
 

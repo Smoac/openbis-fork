@@ -25,6 +25,8 @@ public class VocabularyTermGridIDs extends CommonGridIDs
 
     public static final String URL = "URL";
 
+    public static final String IS_OFFICIAL = "IS_OFFICIAL";
+
     public static final String TERM_TOTAL_USAGE = "TERM_TOTAL_USAGE";
 
     public static final String TERM_FOR_SAMPLES_USAGE = "TERM_FOR_SAMPLES_USAGE";
@@ -34,5 +36,4 @@ public class VocabularyTermGridIDs extends CommonGridIDs
     public static final String TERM_FOR_EXPERIMENTS_USAGE = "TERM_FOR_EXPERIMENTS_USAGE";
 
     public static final String TERM_FOR_MATERIALS_USAGE = "TERM_FOR_MATERIALS_USAGE";
-
 }

@@ -85,7 +85,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTranslator;
  * 
  * @author Christian Ribeaud
  */
-@Friend(toClasses=CommonClientService.class)
+@Friend(toClasses = CommonClientService.class)
 public final class CommonClientServiceTest extends AbstractClientServiceTest
 {
     private static final String DATA_STORE_BASE_URL = "baseURL";
@@ -143,6 +143,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         final VocabularyTermPE vocabularyTermPE = new VocabularyTermPE();
         vocabularyTermPE.setCode(code);
         vocabularyTermPE.setRegistrator(ManagerTestTool.EXAMPLE_PERSON);
+        vocabularyTermPE.setOfficial(true);
         return vocabularyTermPE;
     }
 
@@ -160,7 +161,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         commonClientService.setCifexURL(CIFEX_URL);
         commonClientService.setCifexRecipient(CIFEX_RECIPIENT);
         commonClientService.webClientConfigurationProvider =
-            new WebClientConfigurationProvider(new Properties());
+                new WebClientConfigurationProvider(new Properties());
 
     }
 

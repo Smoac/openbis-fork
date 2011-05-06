@@ -48,13 +48,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermBatchUpda
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -105,7 +105,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         Long currentTermOrdinal = 1L;
         for (final VocabularyTerm term : vocabulary.getTerms())
         {
-            addTerm(term, currentTermOrdinal++);
+            addTerm(term, currentTermOrdinal++, term.isOfficial());
         }
     }
 
@@ -124,7 +124,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         Long currentTermOrdinal = previousTermOrdinal + 1;
         for (String code : newTermCodes)
         {
-            addTerm(code, currentTermOrdinal++);
+            addTerm(code, currentTermOrdinal++, true);
         }
     }
 
@@ -135,7 +135,8 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
                 .increaseVocabularyTermOrdinals(vocabularyPE, startOrdinal, increment);
     }
 
-    private void addTerm(String code, String description, String label, Long ordinal)
+    private void addTerm(String code, String description, String label, Long ordinal,
+            Boolean isOfficial)
     {
         final VocabularyTermPE vocabularyTermPE = new VocabularyTermPE();
         vocabularyTermPE.setCode(code);
@@ -143,17 +144,18 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         vocabularyTermPE.setLabel(label);
         vocabularyTermPE.setRegistrator(findRegistrator());
         vocabularyTermPE.setOrdinal(ordinal);
+        vocabularyTermPE.setOfficial(isOfficial);
         vocabularyPE.addTerm(vocabularyTermPE);
     }
 
-    private void addTerm(String code, Long ordinal)
+    private void addTerm(String code, Long ordinal, Boolean isOfficial)
     {
-        addTerm(code, null, null, ordinal);
+        addTerm(code, null, null, ordinal, isOfficial);
     }
 
-    private void addTerm(VocabularyTerm term, Long ordinal)
+    private void addTerm(VocabularyTerm term, Long ordinal, Boolean isOfficial)
     {
-        addTerm(term.getCode(), term.getDescription(), term.getLabel(), ordinal);
+        addTerm(term.getCode(), term.getDescription(), term.getLabel(), ordinal, isOfficial);
     }
 
     public void delete(List<VocabularyTerm> termsToBeDeleted,
@@ -437,7 +439,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
     {
         for (VocabularyTerm newTerm : newTermsMap.values())
         {
-            addTerm(newTerm, newTerm.getOrdinal());
+            addTerm(newTerm, newTerm.getOrdinal(), newTerm.isOfficial());
         }
     }
 

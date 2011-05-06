@@ -126,6 +126,8 @@ public final class ColumnNames
 
     public static final String IS_PUBLIC = "is_public";
 
+    public static final String IS_OFFICIAL = "is_official";
+
     public static final String IS_INTERNAL_NAMESPACE = "is_internal_namespace";
 
     public static final String IS_LISTABLE = "IS_LISTABLE";
@@ -157,11 +159,11 @@ public final class ColumnNames
     public final static String LAST_NAME_COLUMN = "last_name";
 
     public static final String LOCATION_COLUMN = "location";
-    
+
     public static final String SHARE_ID_COLUMN = "share_id";
 
     public static final String SIZE_COLUMN = "size";
-    
+
     public static final String LOCATOR_TYPE_COLUMN = "loty_id";
 
     public static final String MATERIAL_BATCH_COLUMN = "maba_id";
@@ -269,7 +271,7 @@ public final class ColumnNames
     public static final String SCRIPT_TYPE = "script_type";
 
     public static final String PRESENT_IN_ARCHIVE = "present_in_archive";
-    
+
     public static final String SPEED_HINT = "speed_hint";
 
     private ColumnNames()

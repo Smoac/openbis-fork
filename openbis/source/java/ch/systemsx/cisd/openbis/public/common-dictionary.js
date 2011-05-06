@@ -40,6 +40,7 @@ var common = {
   table_operations: "Table:",
   entity_operations: "Entity:",
   url: "URL",
+  is_official: "Is Official?",
   reason: "Reason",
   delete_confirmation_message_with_reason: "You are deleting {0}(s).<br><br>Please enter a reason or cancel deletion.",
   delete_progress_message: "Deleting {0}(s)...",
@@ -554,6 +555,7 @@ var common = {
  delete_vocabulary_terms_confirmation_message_no_replacements: "Do you want to delete the {0} selected terms?",
  delete_vocabulary_terms_confirmation_message_for_replacements: "{0} terms will be deleted.\n\nThe terms below are used. They have to be replaced by one of the remaining terms.",
  edit_vocabulary_term_button: "Edit Term",
+ make_official_vocabulary_term_button: "Make Official",
  
  //
  // Person Browser

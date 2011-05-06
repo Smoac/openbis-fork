@@ -72,6 +72,8 @@ public class VocabularyTermPE extends HibernateAbstractRegistrationHolder implem
 
     private Long ordinal;
 
+    private Boolean isOfficial;
+
     private VocabularyPE vocabulary;
 
     public VocabularyTermPE()
@@ -127,10 +129,20 @@ public class VocabularyTermPE extends HibernateAbstractRegistrationHolder implem
         this.ordinal = ordinal;
     }
 
+    @Column(name = ColumnNames.IS_OFFICIAL)
+    public Boolean isOfficial()
+    {
+        return isOfficial;
+    }
+
+    public void setOfficial(Boolean isOfficial)
+    {
+        this.isOfficial = isOfficial;
+    }
+
     public void setId(final long id)
     {
         this.id = id;
-
     }
 
     @SequenceGenerator(name = SequenceNames.CONTROLLED_VOCABULARY_TERM_SEQUENCE, sequenceName = SequenceNames.CONTROLLED_VOCABULARY_TERM_SEQUENCE, allocationSize = 1)
