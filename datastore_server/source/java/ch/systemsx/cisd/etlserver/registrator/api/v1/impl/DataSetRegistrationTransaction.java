@@ -289,9 +289,9 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     }
 
     /**
-     * Commit the transaction
+     * Commit the transaction. Does not throw exceptions if the commit fails on some datasets!
      * 
-     * @return true if any datasets has been commited
+     * @return true if any datasets have been commited, false otherwise.
      */
     public boolean commit()
     {
