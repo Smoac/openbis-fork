@@ -26,7 +26,6 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AsyncCallbackWithProgressBar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
@@ -37,7 +36,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListenerAndLinkGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MaterialGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -76,9 +74,6 @@ public class MaterialDisambiguationGrid extends TypedTableGrid<Material>
         final AbstractTabItemFactory disambiguationTabFactory =
                 createDisambiguationTab(viewContext, searchCriteria, grid);
 
-        final IDelegatedAction hideAction =
-                AsyncCallbackWithProgressBar.createProgressBar(viewContext
-                        .getMessage(Dict.LOAD_IN_PROGRESS));
         grid.refresh(new IDataRefreshCallback()
             {
                 private boolean firstCall = true;
@@ -90,7 +85,6 @@ public class MaterialDisambiguationGrid extends TypedTableGrid<Material>
                         return;
                     }
                     firstCall = false;
-                    hideAction.execute();
                     if (grid.getRowNumber() == 0)
                     {
                         AbstractTabItemFactory tabFactory =
