@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -62,8 +64,10 @@ public class TemplateBasedDataSetResourceResolverTest extends AssertJUnit
 
     private static final String DS_TYPE1 = "DS_TYPE1";
 
-    // private static final String TEMPLATE_WITH_FILENAMES =
-    // "DS-${dataSetType}-${fileName}-${disambiguation}";
+    private static final String DS_TYPE2 = "DS_TYPE2";
+
+    private static final String TEMPLATE_WITH_FILENAMES =
+            "DS-${dataSetType}-${fileName}-${disambiguation}";
 
 
     private TrackingMockery context;
@@ -106,9 +110,16 @@ public class TemplateBasedDataSetResourceResolverTest extends AssertJUnit
     }
 
     @AfterMethod(alwaysRun = true)
-    public void tearDown()
+    public void tearDown(Method m)
     {
         ServiceProviderTestWrapper.restoreApplicationContext();
+        try
+        {
+            context.assertIsSatisfied();
+        } catch (Throwable t)
+        {
+            throw new Error(m.getName() + "() : ", t);
+        }
     }
 
     @Test
@@ -148,7 +159,7 @@ public class TemplateBasedDataSetResourceResolverTest extends AssertJUnit
     }
 
     @Test
-    public void testResolveSimpleTemplateRecursive()
+    public void testResolveNestedFilesWithSimpleTemplate()
     {
         FtpServerConfig config =
                 new FtpServerConfigBuilder().withTemplate(SIMPLE_TEMPLATE).getConfig();
@@ -183,15 +194,71 @@ public class TemplateBasedDataSetResourceResolverTest extends AssertJUnit
         assertNotNull(ftpFile);
         assertEquals("fileName.txt", ftpFile.getName());
         assertTrue(ftpFile.isFile());
+    }
+
+    @Test
+    public void testFileFilters()
+    {
+        String filterPattern = "[^.]*\\.txt";
+        FtpServerConfig config =
+                new FtpServerConfigBuilder().withTemplate(TEMPLATE_WITH_FILENAMES)
+                        .withFileListFilter(DS_TYPE1, filterPattern).getConfig();
+        resolver = new TemplateBasedDataSetResourceResolver(config);
+
+        final String dataSetCode = "dataSetCode";
+        final String dataSetCode2 = "dataSetCode2";
+
+        List<ExternalData> dataSets =
+                Arrays.asList(createDataSet(dataSetCode, DS_TYPE1),
+                        createDataSet(dataSetCode2, DS_TYPE2));
+
+        prepareExperimentListExpectations(dataSets);
+
+        context.checking(new Expectations()
+            {
+                {
+                    IHierarchicalContentNode rootNode = getHierarchicalRootNodeMock(dataSetCode);
+                    allowing(rootNode).isDirectory();
+                    will(returnValue(true));
+
+                    allowing(rootNode).getChildNodes();
+                    List<IHierarchicalContentNode> children =
+                            createFileNodeMocks("file.exe", "file.txt", "file");
+                    will(returnValue(children));
+
+                    IHierarchicalContentNode rootNode2 = getHierarchicalRootNodeMock(dataSetCode2);
+                    allowing(rootNode2).isDirectory();
+                    will(returnValue(true));
+
+                    allowing(rootNode2).getChildNodes();
+                    List<IHierarchicalContentNode> children2 =
+                            createFileNodeMocks("file.jar", "file.sh");
+                    will(returnValue(children2));
+                }
+            });
+
+        List<FtpFile> files =
+                resolver.listExperimentChildrenPaths(experiment, EXP_ID, resolverContext);
+
+        assertNotNull(files);
+        assertEquals(3, files.size());
+
+        assertTrue(files.get(0).isFile());
+        assertEquals("DS-DS_TYPE1-file.txt-A", files.get(0).getName());
+        assertTrue(files.get(1).isFile());
+        assertEquals("DS-DS_TYPE2-file.jar-B", files.get(1).getName());
+        assertTrue(files.get(2).isFile());
+        assertEquals("DS-DS_TYPE2-file.sh-B", files.get(2).getName());
 
     }
+
 
     private void prepareExperimentListExpectations(final List<ExternalData> dataSets)
     {
         context.checking(new Expectations()
             {
                 {
-                    allowing(service).listDataSetsByExperimentID(SESSION_TOKEN,
+                    one(service).listDataSetsByExperimentID(SESSION_TOKEN,
                             new TechId(experiment));
                     will(returnValue(dataSets));
 
@@ -213,7 +280,7 @@ public class TemplateBasedDataSetResourceResolverTest extends AssertJUnit
                         will(returnValue(StringUtils.EMPTY));
 
                         allowing(rootNode).getName();
-                        will(returnValue(null));
+                        will(returnValue(StringUtils.EMPTY));
                     }
                 }
             });
@@ -256,4 +323,30 @@ public class TemplateBasedDataSetResourceResolverTest extends AssertJUnit
         return result;
     }
 
+    private List<IHierarchicalContentNode> createFileNodeMocks(final String... fileNames)
+    {
+        final List<IHierarchicalContentNode> result = new ArrayList<IHierarchicalContentNode>();
+
+        context.checking(new Expectations()
+            {
+                {
+                    for (String fileName : fileNames)
+                    {
+                        IHierarchicalContentNode mockNode =
+                                context.mock(IHierarchicalContentNode.class, fileName);
+                        result.add(mockNode);
+
+                        allowing(mockNode).getName();
+                        will(returnValue(fileName));
+
+                        allowing(mockNode).isDirectory();
+                        will(returnValue(false));
+
+                        allowing(mockNode).getRelativePath();
+                        will(returnValue(fileName));
+                    }
+                }
+            });
+        return result;
+    }
 }
