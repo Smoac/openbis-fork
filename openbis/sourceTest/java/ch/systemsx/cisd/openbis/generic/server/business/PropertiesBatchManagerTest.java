@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.server.business;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
@@ -155,18 +157,20 @@ public class PropertiesBatchManagerTest extends AssertJUnit
 
     private void assertProperties(String expectedProperties, IPropertiesBean propertiesBean)
     {
-        StringBuilder builder = new StringBuilder();
+        Set<String> expected = new HashSet<String>();
+        for (String prop : expectedProperties.split(","))
+        {
+            expected.add(prop.trim());
+        }
+
+        Set<String> actual = new HashSet<String>();
         IEntityProperty[] properties = propertiesBean.getProperties();
         for (IEntityProperty property : properties)
         {
-            if (builder.length() > 0)
-            {
-                builder.append(", ");
-            }
-            builder.append(property.getPropertyType().getCode()).append(':');
-            builder.append(property.getValue());
+            String propString = property.getPropertyType().getCode() + ":" + property.getValue();
+            actual.add(propString);
         }
-        assertEquals(expectedProperties, builder.toString());
+        assertEquals(expected, actual);
     }
 
     private void addProperties(IPropertiesBean propertiesBean, PropertyBuilder... builders)
