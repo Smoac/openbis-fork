@@ -21,15 +21,19 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.fail;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.utilities.ToStringComparator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SampleBrowserTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -68,8 +72,12 @@ public class SampleBrowsingTest extends GenericSystemTestCase
         ResultSetWithEntityTypes<Sample> samples =
                 commonClientService.listSamples(new ListSampleDisplayCriteria(listCriteria));
         assertEquals(41, samples.getResultSet().getTotalLength());
-        assertEquals("[REINFECT_PLATE, MASTER_PLATE, DILUTION_PLATE, CELL_PLATE, CONTROL_LAYOUT]",
-                samples.getAvailableEntityTypes().toString());
+
+        List<BasicEntityType> availableEntityTypes = new ArrayList<BasicEntityType>();
+        availableEntityTypes.addAll(samples.getAvailableEntityTypes());
+        Collections.sort(availableEntityTypes, new ToStringComparator());
+        assertEquals("[CELL_PLATE, CONTROL_LAYOUT, DILUTION_PLATE, MASTER_PLATE, REINFECT_PLATE]",
+                availableEntityTypes.toString());
 
         GridRowModels<Sample> list = samples.getResultSet().getList();
 

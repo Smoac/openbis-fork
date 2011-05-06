@@ -20,7 +20,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -364,9 +367,19 @@ public class DatabaseInstanceImporterTest extends AbstractFileSystemTestCase
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            assertEquals(
-                    "Current database does not have tables [DATABASE_INSTANCES, PROPERTY_TYPES, PROPERTY_VALUES]\n"
-                            + " which exist in the database to be imported.", ex.getMessage());
+            String errMessagePattern =
+                    "Current database does not have tables \\[(.*)]\n"
+                            + " which exist in the database to be imported.";
+
+            Pattern pattern = Pattern.compile(errMessagePattern);
+            Matcher matcher = pattern.matcher(ex.getMessage());
+            assertTrue(matcher.matches());
+
+            String[] tableNames = matcher.group(1).split(", ");
+            List<String> tableNamesList = Arrays.asList(tableNames);
+            Collections.sort(tableNamesList);
+            assertEquals("[DATABASE_INSTANCES, PROPERTY_TYPES, PROPERTY_VALUES]",
+                    tableNamesList.toString());
         }
 
         context.assertIsSatisfied();
