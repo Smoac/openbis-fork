@@ -168,6 +168,7 @@ var common = {
   show_related_datasets_radio_label: "Related entities",
   more_results_found_message: "More search results were found, but are not shown. Consider making the search more specific.",
   more_results_found_title: "More results found",
+  search_criteria_dialog_title: "{0} Search Criteria",
   
   //
   // Sample Browser

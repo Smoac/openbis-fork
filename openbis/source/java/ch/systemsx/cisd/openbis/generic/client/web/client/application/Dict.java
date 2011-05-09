@@ -214,6 +214,8 @@ public abstract class Dict
 
     public static final String TOO_GENERIC = "too_generic";
 
+    public static final String SEARCH_CRITERIA_DIALOG_TITLE = "search_criteria_dialog_title";
+
     //
     // Sample Browser
     //

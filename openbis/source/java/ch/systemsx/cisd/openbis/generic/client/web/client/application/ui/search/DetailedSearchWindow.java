@@ -64,20 +64,26 @@ public class DetailedSearchWindow extends Dialog
     public DetailedSearchWindow(final IViewContext<ICommonClientServiceAsync> viewContext,
             final EntityKind entityKind)
     {
+        setPosition(300, 100);
         setSize(WIDTH, HEIGHT);
         setModal(true);
-        setHeading("Sample Search Criteria");
+        setHeading(viewContext.getMessage(Dict.SEARCH_CRITERIA_DIALOG_TITLE,
+                entityKind.getDescription()));
         setLayout(new FillLayout());
         setResizable(false);
         criteriaWidget = new DetailedSearchMainCriteriaWidget(viewContext, entityKind);
         add(createMainCriteriaPanel());
-        add(tabPanel = new TabPanel());
+        tabPanel = new TabPanel();
         for (AssociatedEntityKind association : getAssociatedEntityKinds(entityKind))
         {
             DetailedSearchSubCriteriaWidget subCriteriaWidget =
                     new DetailedSearchSubCriteriaWidget(viewContext, association);
             subCriteriaWidgets.add(subCriteriaWidget);
             addSearchWidgetTab(subCriteriaWidget);
+        }
+        if (subCriteriaWidgets.isEmpty() == false)
+        {
+            add(tabPanel);
         }
         addEnterListener();
         final ButtonBar bar = getButtonBar();

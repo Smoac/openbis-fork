@@ -203,7 +203,7 @@ public class DetailedSearchManager
         {
             associations.add(findAssociatedEntities(subCriteria));
         }
-        if (subCriterias.isEmpty() && criteria.isEmpty())
+        if (subCriterias.isEmpty() && criteria.getCriteria().isEmpty())
         {
             // if no criteria were provided find all samples
             criteria.getCriteria().add(
