@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
@@ -176,6 +177,7 @@ public class FeatureVectorSummaryViewer
 
         LayoutContainer panel = new LayoutContainer();
         panel.setLayout(new RowLayout());
+        panel.setScrollMode(Scroll.AUTO);
 
         Widget headingWidget = PropertiesUtil.createHeaderTitle(headingText);
         panel.add(headingWidget, PropertiesUtil.createHeaderTitleLayoutData());
@@ -185,7 +187,7 @@ public class FeatureVectorSummaryViewer
         int propsHeight = PropertiesUtil.addProperties(experiment, propertiesPanel, null);
         panel.add(propertiesPanel, new RowData(1, -1));
 
-        int headersHeight = 15;
+        int headersHeight = 25;
         int totalHeight = propsHeight + headersHeight;
         parentPanel.add(panel,
                 new RowData(-1, totalHeight, PropertiesUtil.createHeaderInfoMargin()));
