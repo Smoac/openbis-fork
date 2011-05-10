@@ -28,6 +28,7 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -66,31 +67,31 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  * @author Franz-Josef Elmer
  */
 @Friend(toClasses = DataPE.class)
-public class ExternalDataBO extends AbstractExternalDataBusinessObject implements IExternalDataBO
+public class DataBO extends AbstractExternalDataBusinessObject implements IDataBO
 {
-    private ExternalDataPE externalData;
+    private DataPE data;
 
-    public ExternalDataBO(IDAOFactory daoFactory, Session session)
+    public DataBO(IDAOFactory daoFactory, Session session)
     {
         super(daoFactory, session);
     }
 
-    public ExternalDataBO(IDAOFactory daoFactory, Session exampleSession,
+    public DataBO(IDAOFactory daoFactory, Session exampleSession,
             IEntityPropertiesConverter propertiesConverter)
     {
         super(daoFactory, exampleSession, propertiesConverter);
     }
 
-    public ExternalDataPE tryExternalData()
+    public DataPE tryGetData()
     {
-        return externalData;
+        return data;
     }
 
-    public ExternalDataPE getExternalData()
+    public DataPE getData()
     {
         // TODO 2010-04-12, CR: This should throw an exception if the external data is null
         // -- will that cause problems with clients?
-        return externalData;
+        return data;
     }
 
     public void loadByCode(String dataSetCode)
@@ -100,7 +101,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
 
     private void loadByCode(String dataSetCode, boolean withPropertyTypes, boolean lockForUpdate)
     {
-        externalData =
+        data =
                 getExternalDataDAO().tryToFindFullDataSetByCode(dataSetCode, withPropertyTypes,
                         lockForUpdate);
     }
@@ -113,8 +114,8 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
     {
         String[] connections =
             { PROPERTY_TYPES, DATA_SET_TYPE };
-        externalData = getExternalDataDAO().tryGetByTechId(datasetId, connections);
-        if (externalData == null)
+        data = getExternalDataDAO().tryGetByTechId(datasetId, connections);
+        if (data == null)
         {
             throw new UserFailureException(String.format("Data set with ID '%s' does not exist.",
                     datasetId));
@@ -123,119 +124,123 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
 
     public void enrichWithParentsAndExperiment()
     {
-        if (externalData != null)
+        if (data != null)
         {
-            enrichWithParentsAndExperiment(externalData);
+            enrichWithParentsAndExperiment(data);
         }
     }
 
     public void enrichWithChildren()
     {
-        if (externalData != null)
+        if (data != null)
         {
-            enrichWithChildren(externalData);
+            enrichWithChildren(data);
         }
     }
 
     public final void enrichWithProperties()
     {
-        if (externalData != null)
+        if (data != null)
         {
-            HibernateUtils.initialize(externalData.getProperties());
+            HibernateUtils.initialize(data.getProperties());
         }
     }
 
-    public void enrichWithContainedDatas()
+    public void enrichWithContainedDataSets()
     {
-        if (externalData != null && externalData.getDataSetType().isContainerType())
+        if (data != null && data.isContainer())
         {
-            HibernateUtils.initialize(externalData.getContainedDataSets());
+            HibernateUtils.initialize(data.getContainedDataSets());
         }
     }
 
-    public void define(NewExternalData data, SamplePE sample, SourceType sourceType)
+    public void define(NewExternalData newData, SamplePE sample, SourceType sourceType)
     {
         assert sample != null : "Undefined sample.";
 
-        final DataStorePE dataStore = define(data, sourceType);
+        final DataStorePE dataStore = define(newData, sourceType);
         final ExperimentPE experiment = sample.getExperiment();
 
-        externalData.setSample(sample);
-        externalData.setExperiment(experiment);
+        data.setSample(sample);
+        data.setExperiment(experiment);
 
-        setParentDataSets(dataStore, experiment, data);
+        setParentDataSets(dataStore, experiment, newData);
     }
 
-    public void define(NewExternalData data, ExperimentPE experiment, SourceType sourceType)
+    public void define(NewExternalData newData, ExperimentPE experiment, SourceType sourceType)
     {
         assert experiment != null : "Undefined experiment.";
 
-        final DataStorePE dataStore = define(data, sourceType);
+        final DataStorePE dataStore = define(newData, sourceType);
 
-        externalData.setExperiment(experiment);
-        setParentDataSets(dataStore, experiment, data);
+        data.setExperiment(experiment);
+        setParentDataSets(dataStore, experiment, newData);
     }
 
     private void setParentDataSets(DataStorePE dataStore, ExperimentPE experiment,
-            NewExternalData data)
+            NewExternalData newData)
     {
-        final List<String> parentDataSetCodes = data.getParentDataSetCodes();
+        final List<String> parentDataSetCodes = newData.getParentDataSetCodes();
         if (parentDataSetCodes != null)
         {
             for (String parentCode : parentDataSetCodes)
             {
                 final DataPE parent = getOrCreateParentData(parentCode, dataStore, experiment);
-                externalData.addParent(parent);
+                data.addParent(parent);
             }
         }
     }
 
-    private DataStorePE define(NewExternalData data, SourceType sourceType)
+    private DataStorePE define(NewExternalData newData, SourceType sourceType)
     {
-        assert data != null : "Undefined data.";
-        final DataSetType dataSetType = data.getDataSetType();
+        assert newData != null : "Undefined data.";
+        final DataSetType dataSetType = newData.getDataSetType();
         assert dataSetType != null : "Undefined data set type.";
-        final FileFormatType fileFormatType = data.getFileFormatType();
+        final FileFormatType fileFormatType = newData.getFileFormatType();
         assert fileFormatType != null : "Undefined file format type.";
-        final String location = data.getLocation();
+        final String location = newData.getLocation();
         assert location != null : "Undefined location.";
-        final LocatorType locatorType = data.getLocatorType();
+        final LocatorType locatorType = newData.getLocatorType();
         assert locatorType != null : "Undefined location type.";
         assert sourceType != null : "Undefined source type.";
 
-        externalData = new ExternalDataPE();
+        final ExternalDataPE externalData = new ExternalDataPE();
 
-        externalData.setDataProducerCode(data.getDataProducerCode());
-        externalData.setProductionDate(data.getProductionDate());
-        externalData.setCode(data.getCode());
+        externalData.setDataProducerCode(newData.getDataProducerCode());
+        externalData.setProductionDate(newData.getProductionDate());
+        externalData.setCode(newData.getCode());
         externalData.setDataSetType(getDataSetType(dataSetType));
         externalData.setFileFormatType(getFileFomatType(fileFormatType));
-        externalData.setComplete(data.getComplete());
-        externalData.setShareId(data.getShareId());
+        externalData.setComplete(newData.getComplete());
+        externalData.setShareId(newData.getShareId());
         externalData.setLocation(location);
-        externalData.setSize(data.getSize());
-        externalData.setSpeedHint(data.getSpeedHint());
-        externalData.setStorageFormatVocabularyTerm(tryToFindStorageFormatTerm(data
+        externalData.setSize(newData.getSize());
+        externalData.setSpeedHint(newData.getSpeedHint());
+        externalData.setStorageFormatVocabularyTerm(tryToFindStorageFormatTerm(newData
                 .getStorageFormat()));
         externalData.setLocatorType(getLocatorTypeDAO().tryToFindLocatorTypeByCode(
                 locatorType.getCode()));
-        externalData.setRegistrator(tryToGetRegistrator(data));
-        DataStorePE dataStore = getDataStoreDAO().tryToFindDataStoreByCode(data.getDataStoreCode());
+        externalData.setRegistrator(tryToGetRegistrator(newData));
+        DataStorePE dataStore =
+                getDataStoreDAO().tryToFindDataStoreByCode(newData.getDataStoreCode());
         externalData.setDataStore(dataStore);
         defineDataSetProperties(externalData,
-                convertToDataSetProperties(data.getDataSetProperties()));
+                convertToDataSetProperties(newData.getDataSetProperties()));
         externalData.setDerived(sourceType == SourceType.DERIVED);
+
+        data = externalData;
+
         return dataStore;
     }
 
-    private PersonPE tryToGetRegistrator(NewExternalData data)
+    private PersonPE tryToGetRegistrator(NewExternalData newData)
     {
-        String userId = data.getUserId();
+        String userId = newData.getUserId();
         if (userId != null)
         {
             return getPersonDAO().tryFindPersonByUserId(userId);
         }
-        String userEMail = data.getUserEMail();
+        String userEMail = newData.getUserEMail();
         if (userEMail == null)
         {
             return null;
@@ -316,57 +321,57 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
 
     public void save() throws UserFailureException
     {
-        assert externalData != null : "Undefined external data.";
-        IExternalDataDAO externalDataDAO = getExternalDataDAO();
-        String dataCode = externalData.getCode();
-        DataPE data = externalDataDAO.tryToFindDataSetByCode(dataCode);
-        if (data == null)
+        assert data != null : "Undefined external data.";
+        IDataDAO dataDAO = getDataDAO();
+        String dataCode = data.getCode();
+        DataPE placeholder = dataDAO.tryToFindDataSetByCode(dataCode);
+        if (placeholder == null)
         {
-            externalDataDAO.createDataSet(externalData);
+            dataDAO.createDataSet(placeholder);
         } else
         {
-            if (data.isPlaceholder() == false)
+            if (placeholder.isPlaceholder() == false)
             {
                 throw new UserFailureException("Already existing data set for code '" + dataCode
-                        + "' can not be updated by data set " + externalData);
+                        + "' can not be updated by data set " + placeholder);
             }
             // NOTE: If new data set is created and there was no placeholder
             // cycles will not be created because only connections to parents are added
             // and we assume that there were no cycles before. On the other hand placeholders
             // have at least one child so cycles need to be checked when they are updated.
-            validateRelationshipGraph(externalData.getParents());
+            validateRelationshipGraph(data.getParents());
 
-            externalData.setPlaceholder(false);
-            externalData.setId(HibernateUtils.getId(data));
-            externalData.setRegistrationDate(new Date());
-            externalData.setModificationDate(data.getModificationDate());
+            data.setPlaceholder(false);
+            data.setId(HibernateUtils.getId(placeholder));
+            data.setRegistrationDate(new Date());
+            data.setModificationDate(placeholder.getModificationDate());
 
-            externalDataDAO.updateDataSet(externalData);
+            dataDAO.updateDataSet(data);
         }
-        entityPropertiesConverter.checkMandatoryProperties(externalData.getProperties(),
-                externalData.getDataSetType());
+        entityPropertiesConverter.checkMandatoryProperties(data.getProperties(),
+                data.getDataSetType());
     }
 
     public void addPropertiesToDataSet(String dataSetCode, List<NewProperty> properties)
     {
         loadByCode(dataSetCode);
         updatePropertiesPreservingExisting(properties);
-        entityPropertiesConverter.checkMandatoryProperties(externalData.getProperties(),
-                externalData.getDataSetType());
+        entityPropertiesConverter.checkMandatoryProperties(data.getProperties(),
+                data.getDataSetType());
         validateAndSave();
     }
 
     private void updatePropertiesPreservingExisting(List<NewProperty> properties)
     {
-        final Set<DataSetPropertyPE> existingProperties = externalData.getProperties();
+        final Set<DataSetPropertyPE> existingProperties = data.getProperties();
         Set<String> propertyUpdatesCodes =
                 extractPropertyCodesToUpdate(properties, existingProperties);
         List<NewProperty> propertyUpdates =
                 extractNewPropertiesToUpdate(properties, propertyUpdatesCodes);
-        final DataSetTypePE type = externalData.getDataSetType();
+        final DataSetTypePE type = data.getDataSetType();
         final PersonPE registrator = findRegistrator();
-        externalData.setProperties(entityPropertiesConverter.updateProperties(existingProperties,
-                type, Arrays.asList(convertToDataSetProperties(propertyUpdates)), registrator,
+        data.setProperties(entityPropertiesConverter.updateProperties(existingProperties, type,
+                Arrays.asList(convertToDataSetProperties(propertyUpdates)), registrator,
                 propertyUpdatesCodes));
     }
 
@@ -402,7 +407,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
     public void update(DataSetUpdatesDTO updates)
     {
         loadDataByTechId(updates.getDatasetId());
-        if (updates.getVersion().equals(externalData.getModificationDate()) == false)
+        if (updates.getVersion().equals(data.getModificationDate()) == false)
         {
             throwModifiedEntityException("Data set");
         }
@@ -415,19 +420,19 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         {
             updateExperiment(updates.getExperimentIdentifierOrNull());
             // remove connection with sample
-            externalData.setSample(null);
+            data.setSample(null);
         }
         updateParents(updates.getModifiedParentDatasetCodesOrNull());
         updateFileFormatType(updates.getFileFormatTypeCode());
-        updateProperties(externalData, updates.getProperties());
-        entityPropertiesConverter.checkMandatoryProperties(externalData.getProperties(),
-                externalData.getDataSetType());
+        updateProperties(data, updates.getProperties());
+        entityPropertiesConverter.checkMandatoryProperties(data.getProperties(),
+                data.getDataSetType());
         validateAndSave();
     }
 
     private void validateAndSave()
     {
-        getExternalDataDAO().validateAndSaveUpdatedEntity(externalData);
+        getDataDAO().validateAndSaveUpdatedEntity(data);
     }
 
     private void updateParents(String[] modifiedParentDatasetCodesOrNull)
@@ -437,15 +442,15 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
             return; // parents were not changed
         } else
         {
-            final Set<DataPE> currentParents = externalData.getParents();
+            final Set<DataPE> currentParents = data.getParents();
             final Set<String> currentParentCodes = extractCodes(currentParents);
             final Set<String> newCodes = asSet(modifiedParentDatasetCodesOrNull);
             newCodes.removeAll(currentParentCodes);
 
             // quick check for direct cycle
-            if (newCodes.contains(externalData.getCode()))
+            if (newCodes.contains(data.getCode()))
             {
-                throw new UserFailureException("Data set '" + externalData.getCode()
+                throw new UserFailureException("Data set '" + data.getCode()
                         + "' can not be its own parent.");
             }
 
@@ -487,7 +492,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
 
     private void validateRelationshipGraph(DataPE parentToAdd)
     {
-        final TechId updatedDataSetId = TechId.create(externalData);
+        final TechId updatedDataSetId = TechId.create(data);
         final Set<TechId> visited = new HashSet<TechId>();
         Set<TechId> toVisit = new HashSet<TechId>();
         toVisit.add(TechId.create(parentToAdd));
@@ -498,7 +503,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
                 throw UserFailureException.fromTemplate(
                         "Data Set '%s' is an ancestor of Data Set '%s' "
                                 + "and cannot be at the same time set as its child.",
-                        externalData.getCode(), parentToAdd.getCode());
+                        data.getCode(), parentToAdd.getCode());
             } else
             {
                 final Set<TechId> nextToVisit = findParentIds(toVisit);
@@ -532,7 +537,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
     {
         for (DataPE parent : parentsToAdd)
         {
-            externalData.addParent(parent);
+            data.addParent(parent);
         }
     }
 
@@ -540,7 +545,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
     {
         for (DataPE parent : parentsToRemove)
         {
-            externalData.removeParent(parent);
+            data.removeParent(parent);
         }
     }
 
@@ -592,7 +597,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
     {
         assert sampleIdentifierOrNull != null;
         SamplePE newSample = getSampleByIdentifier(sampleIdentifierOrNull);
-        SamplePE previousSampleOrNull = externalData.tryGetSample();
+        SamplePE previousSampleOrNull = data.tryGetSample();
         if (newSample.equals(previousSampleOrNull))
         {
             return; // nothing to change
@@ -608,18 +613,18 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
                     "the new sample is not connected to any experiment");
         }
         // move dataset to the experiment if needed
-        if (experiment.equals(externalData.getExperiment()) == false)
+        if (experiment.equals(data.getExperiment()) == false)
         {
-            externalData.setExperiment(experiment);
+            data.setExperiment(experiment);
         }
-        externalData.setSample(newSample);
+        data.setSample(newSample);
     }
 
     private void updateExperiment(ExperimentIdentifier experimentIdentifierOrNull)
     {
         assert experimentIdentifierOrNull != null;
         ExperimentPE experiment = getExperimentByIdentifier(experimentIdentifierOrNull);
-        externalData.setExperiment(experiment);
+        data.setExperiment(experiment);
     }
 
     private ExperimentPE getExperimentByIdentifier(final ExperimentIdentifier identifier)
@@ -640,15 +645,19 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
 
     private void updateFileFormatType(String fileFormatTypeCode)
     {
-        FileFormatTypePE fileFormatTypeOrNull =
-                getFileFormatTypeDAO().tryToFindFileFormatTypeByCode(fileFormatTypeCode);
-        if (fileFormatTypeOrNull == null)
+        if (data.isExternalData())
         {
-            throw new UserFailureException(String.format("File type '%s' does not exist.",
-                    fileFormatTypeCode));
-        } else
-        {
-            externalData.setFileFormatType(fileFormatTypeOrNull);
+            ExternalDataPE externalData = data.tryAsExternalData();
+            FileFormatTypePE fileFormatTypeOrNull =
+                    getFileFormatTypeDAO().tryToFindFileFormatTypeByCode(fileFormatTypeCode);
+            if (fileFormatTypeOrNull == null)
+            {
+                throw new UserFailureException(String.format("File type '%s' does not exist.",
+                        fileFormatTypeCode));
+            } else
+            {
+                externalData.setFileFormatType(fileFormatTypeOrNull);
+            }
         }
     }
 
@@ -656,19 +665,19 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
     {
         return UserFailureException.fromTemplate(
                 "The dataset '%s' cannot be connected to the sample '%s'" + " because %s.",
-                externalData.getCode(), sample.getIdentifier(), reason);
+                data.getCode(), sample.getIdentifier(), reason);
     }
 
-    private final void defineDataSetProperties(final ExternalDataPE data,
+    private final void defineDataSetProperties(final DataPE dataSet,
             final IEntityProperty[] newProperties)
     {
-        final String dataSetTypeCode = data.getDataSetType().getCode();
+        final String dataSetTypeCode = dataSet.getDataSetType().getCode();
         final List<DataSetPropertyPE> properties =
                 entityPropertiesConverter.convertProperties(newProperties, dataSetTypeCode,
                         findRegistrator());
         for (final DataSetPropertyPE property : properties)
         {
-            data.addProperty(property);
+            dataSet.addProperty(property);
         }
     }
 
@@ -701,21 +710,26 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
     public boolean compareAndSetDataSetStatus(DataSetArchivingStatus oldStatus,
             DataSetArchivingStatus newStatus, boolean newPresentInArchive)
     {
-        if (externalData == null || externalData.getStatus() != oldStatus)
+        if (data == null || data.isExternalData() == false)
         {
             return false;
         }
-        updateStatuses(Arrays.asList(externalData.getCode()), newStatus, newPresentInArchive);
+        final ExternalDataPE externalData = data.tryAsExternalData();
+        if (externalData.getStatus() != oldStatus)
+        {
+            return false;
+        }
+        updateStatuses(Arrays.asList(data.getCode()), newStatus, newPresentInArchive);
         return true;
     }
 
     public void updateManagedProperty(IManagedProperty managedProperty)
     {
-        final Set<DataSetPropertyPE> existingProperties = externalData.getProperties();
-        final DataSetTypePE type = externalData.getDataSetType();
+        final Set<DataSetPropertyPE> existingProperties = data.getProperties();
+        final DataSetTypePE type = data.getDataSetType();
         final PersonPE registrator = findRegistrator();
-        externalData.setProperties(entityPropertiesConverter.updateManagedProperty(
-                existingProperties, type, managedProperty, registrator));
+        data.setProperties(entityPropertiesConverter.updateManagedProperty(existingProperties,
+                type, managedProperty, registrator));
     }
 
 }

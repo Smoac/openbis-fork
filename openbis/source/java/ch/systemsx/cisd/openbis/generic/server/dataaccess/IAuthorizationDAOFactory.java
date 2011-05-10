@@ -57,6 +57,8 @@ public interface IAuthorizationDAOFactory
 
     public IRoleAssignmentDAO getRoleAssignmentDAO();
 
+    public IDataDAO getDataDAO();
+
     public IExternalDataDAO getExternalDataDAO();
 
     public IExperimentDAO getExperimentDAO();

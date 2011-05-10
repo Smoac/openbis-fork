@@ -39,6 +39,7 @@ import org.testng.annotations.BeforeMethod;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -47,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Code;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
@@ -255,6 +257,16 @@ public abstract class AbstractDAOWithoutContextTest extends
         space.setRegistrator(getSystemPerson());
         daoFactory.getSpaceDAO().createSpace(space);
         return space;
+    }
+
+    protected DataPE findData(String code)
+    {
+        final IDataDAO dataDAO = daoFactory.getDataDAO();
+        DataPE data = dataDAO.tryToFindFullDataSetByCode(code, true, false);
+
+        assertNotNull(data);
+
+        return data;
     }
 
     protected ExternalDataPE findExternalData(String code)

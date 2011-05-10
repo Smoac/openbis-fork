@@ -22,9 +22,9 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -32,19 +32,31 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 /**
  * @author Franz-Josef Elmer
  */
-public interface IExternalDataBO extends IEntityBusinessObject
+public interface IDataBO extends IEntityBusinessObject
 {
     /**
-     * Returns the external data item which has been created by
+     * Returns the data item which has been created by
      * {@link #define(NewExternalData, SamplePE, SourceType)} or null.
      */
-    public ExternalDataPE tryExternalData();
+    public DataPE tryGetData();
 
     /**
-     * Returns the external data item which has been created by
+     * Returns the data item which has been created by
      * {@link #define(NewExternalData, SamplePE, SourceType)}.
      */
-    public ExternalDataPE getExternalData();
+    public DataPE getData();
+
+    // /**
+    // * Returns the external data item which has been created by
+    // * {@link #define(NewExternalData, SamplePE, SourceType)} or null.
+    // */
+    // public ExternalDataPE tryGetExternalData();
+    //
+    // /**
+    // * Returns the external data item which has been created by
+    // * {@link #define(NewExternalData, SamplePE, SourceType)}.
+    // */
+    // public ExternalDataPE getExternalData();
 
     /**
      * Defines a new external data item directly connected to a sample.
@@ -52,7 +64,7 @@ public interface IExternalDataBO extends IEntityBusinessObject
      * After invocation of this method {@link IExperimentBO#save()} should be invoked to store the
      * new external data item in the Data Access Layer.
      */
-    public void define(NewExternalData externalData, SamplePE sample, SourceType sourceType);
+    public void define(NewExternalData data, SamplePE sample, SourceType sourceType);
 
     /**
      * Defines a new external data item not directly connected to a sample but with mandatory
@@ -77,7 +89,7 @@ public interface IExternalDataBO extends IEntityBusinessObject
             boolean newPresentInArchive) throws UserFailureException;
 
     /**
-     * Set the status for the loaded dataset to the given new status value if the current status
+     * Set the status for the loaded data set to the given new status value if the current status
      * equals an expected value.
      * 
      * @return true if the update is successful, false if the current status is different than
@@ -93,27 +105,27 @@ public interface IExternalDataBO extends IEntityBusinessObject
     public void addPropertiesToDataSet(String dataSetCode, List<NewProperty> properties);
 
     /**
-     * Loads the external data item with specified code.
+     * Loads the data set item with specified code.
      */
     public void loadByCode(String dataSetCode);
 
     /**
-     * Enrich external data with parents and experiment.
+     * Enrich data set with parents and experiment.
      */
     public void enrichWithParentsAndExperiment();
 
     /**
-     * Enrich external data with children and experiment.
+     * Enrich data set with children and experiment.
      */
     public void enrichWithChildren();
 
     /**
-     * Enrich external data with virtual children.
+     * Enrich data set with virtual children.
      */
-    public void enrichWithContainedDatas();
+    public void enrichWithContainedDataSets();
 
     /**
-     * Enrich external data with properties.
+     * Enrich data set with properties.
      */
     public void enrichWithProperties();
 

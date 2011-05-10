@@ -21,9 +21,9 @@ import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -50,34 +50,34 @@ public abstract class AbstractExternalDataBusinessObject extends
         this.entityPropertiesConverter = entityPropertiesConverter;
     }
 
-    protected void enrichWithParentsAndExperiment(ExternalDataPE externalDataPE)
+    protected void enrichWithParentsAndExperiment(DataPE dataPE)
     {
-        HibernateUtils.initialize(externalDataPE.getParents());
-        HibernateUtils.initialize(externalDataPE.getExperiment());
+        HibernateUtils.initialize(dataPE.getParents());
+        HibernateUtils.initialize(dataPE.getExperiment());
     }
 
-    protected void enrichWithChildren(ExternalDataPE externalDataPE)
+    protected void enrichWithChildren(DataPE dataPE)
     {
-        HibernateUtils.initialize(externalDataPE.getChildren());
+        HibernateUtils.initialize(dataPE.getChildren());
     }
 
-    protected void updateBatchProperties(ExternalDataPE externalData,
-            List<IEntityProperty> newProperties, Set<String> set)
+    protected void updateBatchProperties(DataPE data, List<IEntityProperty> newProperties,
+            Set<String> set)
     {
-        final Set<DataSetPropertyPE> existingProperties = externalData.getProperties();
-        final DataSetTypePE type = externalData.getDataSetType();
+        final Set<DataSetPropertyPE> existingProperties = data.getProperties();
+        final DataSetTypePE type = data.getDataSetType();
         final PersonPE registrator = findRegistrator();
-        externalData.setProperties(entityPropertiesConverter.updateProperties(existingProperties,
-                type, newProperties, registrator, set));
+        data.setProperties(entityPropertiesConverter.updateProperties(existingProperties, type,
+                newProperties, registrator, set));
     }
 
-    protected void updateProperties(ExternalDataPE externalData, List<IEntityProperty> newProperties)
+    protected void updateProperties(DataPE data, List<IEntityProperty> newProperties)
     {
-        final Set<DataSetPropertyPE> existingProperties = externalData.getProperties();
-        final DataSetTypePE type = externalData.getDataSetType();
+        final Set<DataSetPropertyPE> existingProperties = data.getProperties();
+        final DataSetTypePE type = data.getDataSetType();
         final PersonPE registrator = findRegistrator();
-        externalData.setProperties(entityPropertiesConverter.updateProperties(existingProperties,
-                type, newProperties, registrator));
+        data.setProperties(entityPropertiesConverter.updateProperties(existingProperties, type,
+                newProperties, registrator));
     }
 
 }

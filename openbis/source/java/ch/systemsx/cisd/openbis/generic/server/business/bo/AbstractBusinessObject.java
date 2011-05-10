@@ -23,6 +23,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationGroupDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
@@ -201,6 +202,11 @@ abstract class AbstractBusinessObject implements IDAOFactory
     public final ISampleTypeDAO getSampleTypeDAO()
     {
         return daoFactory.getSampleTypeDAO();
+    }
+
+    public final IDataDAO getDataDAO()
+    {
+        return daoFactory.getDataDAO();
     }
 
     public final IExternalDataDAO getExternalDataDAO()

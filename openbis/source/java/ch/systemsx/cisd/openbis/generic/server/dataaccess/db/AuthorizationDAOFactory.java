@@ -28,19 +28,20 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGridCustomColumnDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGridCustomFilterDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IQueryDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRelationshipTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -64,6 +65,8 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
     private final ISpaceDAO groupDAO;
 
     private final IPersonDAO personDAO;
+
+    private final IDataDAO dataDAO;
 
     private final IExternalDataDAO externalDataDAO;
 
@@ -98,6 +101,7 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
         personDAO = new PersonDAO(sessionFactory, homeDatabaseInstance);
         groupDAO = new SpaceDAO(sessionFactory, homeDatabaseInstance);
         roleAssignmentDAO = new RoleAssignmentDAO(sessionFactory, homeDatabaseInstance);
+        dataDAO = new DataDAO(persistencyResources, homeDatabaseInstance);
         externalDataDAO = new ExternalDataDAO(persistencyResources, homeDatabaseInstance);
         experimentDAO = new ExperimentDAO(persistencyResources, homeDatabaseInstance);
         projectDAO = new ProjectDAO(sessionFactory, homeDatabaseInstance);
@@ -200,6 +204,11 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
     public final IRoleAssignmentDAO getRoleAssignmentDAO()
     {
         return roleAssignmentDAO;
+    }
+
+    public final IDataDAO getDataDAO()
+    {
+        return dataDAO;
     }
 
     public final IExternalDataDAO getExternalDataDAO()

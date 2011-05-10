@@ -868,6 +868,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         datasetBO.loadDataByTechId(datasetId);
         datasetBO.enrichWithParentsAndExperiment();
         datasetBO.enrichWithChildren();
+        datasetBO.enrichWithContainedDatas();
         datasetBO.enrichWithProperties();
         final ExternalDataPE dataset = datasetBO.getExternalData();
         return ExternalDataTranslator.translate(dataset, session.getBaseIndexURL(), false);
