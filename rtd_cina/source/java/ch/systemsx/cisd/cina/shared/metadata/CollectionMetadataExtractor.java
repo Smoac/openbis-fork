@@ -95,7 +95,7 @@ public class CollectionMetadataExtractor implements IMetadataExtractor
                 continue;
             }
 
-            processCollectionFolder(collectionFolder);
+            processCollectionItem(collectionFolder);
         }
     }
 
@@ -168,20 +168,6 @@ public class CollectionMetadataExtractor implements IMetadataExtractor
     private void checkPrepared()
     {
         assert lvdata != null;
-    }
-
-    private void processCollectionFolder(File file)
-    {
-        File[] collectionItems = file.listFiles();
-        for (File collectionItem : collectionItems)
-        {
-            if (false == collectionItem.isDirectory())
-            {
-                continue;
-            }
-
-            processCollectionItem(collectionItem);
-        }
     }
 
     private void processCollectionItem(File file)

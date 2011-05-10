@@ -34,7 +34,7 @@ public class ImageMetadataExtractorTest extends AssertJUnit
         HashMap<String, String> parentMetadata = new HashMap<String, String>();
         File folder =
                 new File(
-                        "sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/Annotations/ReplicTest/DM3/Test.dm3");
+                        "sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/Annotations/ReplicTest/Test.dm3");
         ImageMetadataExtractor metadata = new ImageMetadataExtractor(parentMetadata, folder);
         metadata.prepare();
         Map<String, String> metadataMap = metadata.getMetadataMap();
@@ -58,5 +58,8 @@ public class ImageMetadataExtractorTest extends AssertJUnit
         assertEquals("1522.0", metadataMap.get("min"));
         assertEquals("4.294920448E9", metadataMap.get("max"));
         assertEquals("0", metadataMap.get("rating"));
+
+        File representation = metadata.getLargeImageRepresentation();
+        assertTrue(representation.exists());
     }
 }
