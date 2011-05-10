@@ -56,19 +56,23 @@ public class WebClientConfigurationProvider
     private static final String DEFAULT_VIEW_MODE = "default-view-mode";
 
     private static final ViewMode DEFAULT_VIEW_MODE_VALUE = ViewMode.NORMAL;
-    
+
     private static final String DEFAULT_ANONYMOUS_LOGIN = "default-anonymous-login";
 
     private static final String MAX_VISIBLE_COLUMNS = "max-visible-columns";
-    
+
     private static final int DEFAULT_MAX_VISIBLE_COLUMNS = 50;
 
     private static final String MAX_ENTITY_VISITS = "max-entity-visits";
-    
+
     private static final int DEFAULT_MAX_ENTITY_VISITS = 20;
-    
+
     private static final String DATA_SET_TYPES_WITH_IMAGE_OVERVIEW =
             "data-set-types-with-image-overview";
+
+    private static final String ALLOW_ADDING_UNOFFICIAL_TERMS = "allow-adding-unofficial-terms";
+
+    private static final boolean DEFAULT_ALLOW_ADDING_UNOFFICIAL_TERMS = false;
 
     static final String TECHNOLOGIES = "technologies";
 
@@ -96,6 +100,7 @@ public class WebClientConfigurationProvider
         webClientConfiguration.setDefaultViewMode(DEFAULT_VIEW_MODE_VALUE);
         webClientConfiguration.setMaxVisibleColumns(DEFAULT_MAX_VISIBLE_COLUMNS);
         webClientConfiguration.setMaxEntityVisits(DEFAULT_MAX_ENTITY_VISITS);
+        webClientConfiguration.setAllowAddingUnofficielTerms(DEFAULT_ALLOW_ADDING_UNOFFICIAL_TERMS);
     }
 
     private void init(Properties properties)
@@ -103,6 +108,8 @@ public class WebClientConfigurationProvider
         webClientConfiguration.setDefaultViewMode(extractDefaultViewMode(properties));
         webClientConfiguration.setDefaultAnonymousLogin(extractDefaultAnonymousLogin(properties));
         webClientConfiguration.setMaxVisibleColumns(extractMaxVisibleColumns(properties));
+        webClientConfiguration
+                .setAllowAddingUnofficielTerms(extractAllowAddingUnofficialTerms(properties));
         webClientConfiguration.setMaxEntityVisits(PropertyUtils.getInt(properties,
                 MAX_ENTITY_VISITS, DEFAULT_MAX_ENTITY_VISITS));
         webClientConfiguration
@@ -206,6 +213,11 @@ public class WebClientConfigurationProvider
     private int extractMaxVisibleColumns(Properties properties)
     {
         return PropertyUtils.getInt(properties, MAX_VISIBLE_COLUMNS, DEFAULT_MAX_VISIBLE_COLUMNS);
+    }
+
+    private boolean extractAllowAddingUnofficialTerms(Properties properties)
+    {
+        return PropertyUtils.getBoolean(properties, ALLOW_ADDING_UNOFFICIAL_TERMS, false);
     }
 
     public WebClientConfiguration getWebClientConfiguration()

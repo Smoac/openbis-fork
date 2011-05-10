@@ -46,12 +46,14 @@ public class WebClientConfiguration implements ISerializable
     private Set<String> dataSetTypePatternsWithImageOverview = new HashSet<String>();
 
     private ViewMode defaultViewMode;
-    
+
     private boolean defaultAnonymousLogin;
 
     private int maxVisibleColumns;
-    
+
     private int maxEntityVisits;
+
+    private boolean allowAddingUnofficielTerms;
 
     public String getPropertyOrNull(String technology, String key)
     {
@@ -124,8 +126,17 @@ public class WebClientConfiguration implements ISerializable
         this.maxEntityVisits = maxEntityVisits;
     }
 
+    public void setAllowAddingUnofficielTerms(boolean allowAddingUnofficialTerms)
+    {
+        this.allowAddingUnofficielTerms = allowAddingUnofficialTerms;
+    }
+
+    public boolean getAllowAddingUnofficialTerms()
+    {
+        return allowAddingUnofficielTerms;
+    }
+
     public WebClientConfiguration()
     {
     }
-
 }

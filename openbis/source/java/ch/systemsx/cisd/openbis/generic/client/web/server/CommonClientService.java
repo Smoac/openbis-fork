@@ -770,13 +770,13 @@ public final class CommonClientService extends AbstractClientService implements
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return listEntities(new EntityTypeProvider<MaterialType>(commonServer, getSessionToken())
+            {
+                @Override
+                protected List<MaterialType> listTypes()
                 {
-                    @Override
-                    protected List<MaterialType> listTypes()
-                    {
-                        return commonServer.listMaterialTypes(sessionToken);
-                    }
-                }, criteria);
+                    return commonServer.listMaterialTypes(sessionToken);
+                }
+            }, criteria);
     }
 
     public TypedTableResultSet<SampleType> listSampleTypes(
@@ -1277,6 +1277,26 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    public void addUnofficialVocabularyTerms(TechId vocabularyId, List<String> vocabularyTerms,
+            Long previousTermOrdinal)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        assert vocabularyId != null : "Unspecified vocabulary id.";
+
+        if (vocabularyTerms != null && vocabularyTerms.isEmpty() == false)
+        {
+            try
+            {
+                final String sessionToken = getSessionToken();
+                commonServer.addUnofficialVocabularyTerms(sessionToken, vocabularyId,
+                        vocabularyTerms, previousTermOrdinal);
+            } catch (final UserFailureException e)
+            {
+                throw UserFailureExceptionTranslator.translate(e);
+            }
+        }
+    }
+
     public void deleteVocabularyTerms(TechId vocabularyId, List<VocabularyTerm> termsToBeDeleted,
             List<VocabularyTermReplacement> termsToBeReplaced)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -1290,6 +1310,22 @@ public final class CommonClientService extends AbstractClientService implements
             final String sessionToken = getSessionToken();
             commonServer.deleteVocabularyTerms(sessionToken, vocabularyId, termsToBeDeleted,
                     termsToBeReplaced);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public void makeVocabularyTermsOfficial(TechId vocabularyId,
+            List<VocabularyTerm> termsToBeOfficial)
+    {
+        assert vocabularyId != null : "Unspecified vocabulary id.";
+        assert termsToBeOfficial != null : "Unspecified term to be official.";
+
+        try
+        {
+            final String sessionToken = getSessionToken();
+            commonServer.makeVocabularyTermsOfficial(sessionToken, vocabularyId, termsToBeOfficial);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -2638,5 +2674,4 @@ public final class CommonClientService extends AbstractClientService implements
             throw UserFailureExceptionTranslator.translate(e);
         }
     }
-
 }

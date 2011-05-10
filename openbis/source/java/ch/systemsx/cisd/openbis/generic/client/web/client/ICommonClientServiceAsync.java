@@ -324,12 +324,14 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<String> callback);
 
     /** @see ICommonClientService#listSampleTypes(DefaultResultSetConfig) */
-    public void listSampleTypes(DefaultResultSetConfig<String, TableModelRowWithObject<SampleType>> criteria,
+    public void listSampleTypes(
+            DefaultResultSetConfig<String, TableModelRowWithObject<SampleType>> criteria,
             final AsyncCallback<TypedTableResultSet<SampleType>> asyncCallback)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
     /** @see ICommonClientService#prepareExportSampleTypes(TableExportCriteria) */
-    public void prepareExportSampleTypes(final TableExportCriteria<TableModelRowWithObject<SampleType>> criteria,
+    public void prepareExportSampleTypes(
+            final TableExportCriteria<TableModelRowWithObject<SampleType>> criteria,
             AsyncCallback<String> callback);
 
     /** @see ICommonClientService#listExperimentTypes(DefaultResultSetConfig) */
@@ -455,6 +457,10 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void addVocabularyTerms(TechId vocabularyId, List<String> vocabularyTerms,
             Long previousTermOrdinal, AsyncCallback<Void> callback);
 
+    /** @see ICommonClientService#addUnofficialVocabularyTerms(TechId, List, Long) */
+    public void addUnofficialVocabularyTerms(TechId vocabularyId, List<String> vocabularyTerms,
+            Long previousTermOrdinal, AsyncCallback<Void> callback);
+
     /** @see ICommonClientService#updateVocabularyTerm(IVocabularyTermUpdates) */
     public void updateVocabularyTerm(final IVocabularyTermUpdates updates,
             final AsyncCallback<Void> asyncCallback);
@@ -466,6 +472,10 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /** @see ICommonClientService#deleteVocabularyTerms(TechId, List, List) */
     public void deleteVocabularyTerms(TechId vocabularyId, List<VocabularyTerm> termsToBeDeleted,
             List<VocabularyTermReplacement> termsToBeReplaced, AsyncCallback<Void> callback);
+
+    /** @see ICommonClientService#makeVocabularyTermsOfficial(TechId, List) */
+    public void makeVocabularyTermsOfficial(TechId vocabularyId,
+            List<VocabularyTerm> termsToBeOfficial, AsyncCallback<Void> callback);
 
     /** @see ICommonClientService#listVocabularyTerms(Vocabulary) */
     public void listVocabularyTerms(Vocabulary vocabulary,
@@ -887,5 +897,4 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      */
     public void evaluate(DynamicPropertyEvaluationInfo dynamicPropertyEvaluationInfo,
             AsyncCallback<String> callback);
-
 }

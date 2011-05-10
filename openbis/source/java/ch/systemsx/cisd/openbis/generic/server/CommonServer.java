@@ -800,6 +800,20 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         vocabularyBO.save();
     }
 
+    public void addUnofficialVocabularyTerms(String sessionToken, TechId vocabularyId,
+            List<String> vocabularyTerms, Long previousTermOrdinal)
+    {
+        assert sessionToken != null : "Unspecified session token";
+        assert vocabularyId != null : "Unspecified vocabulary id";
+        assert previousTermOrdinal != null : "Unspecified previous term ordinal";
+
+        final Session session = getSession(sessionToken);
+        final IVocabularyBO vocabularyBO = businessObjectFactory.createVocabularyBO(session);
+        vocabularyBO.loadDataByTechId(vocabularyId);
+        vocabularyBO.addNewUnofficialTerms(vocabularyTerms, previousTermOrdinal);
+        vocabularyBO.save();
+    }
+
     public final void updateVocabularyTerm(final String sessionToken,
             final IVocabularyTermUpdates updates)
     {
@@ -823,6 +837,18 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         vocabularyBO.loadDataByTechId(vocabularyId);
         vocabularyBO.delete(termsToBeDeleted, termsToBeReplaced);
         vocabularyBO.save();
+    }
+
+    public void makeVocabularyTermsOfficial(String sessionToken, TechId vocabularyId,
+            List<VocabularyTerm> termsToBeOfficial)
+    {
+        assert sessionToken != null : "Unspecified session token";
+        assert vocabularyId != null : "Unspecified vocabulary id";
+
+        final Session session = getSession(sessionToken);
+        final IVocabularyTermBO vocabularyTermBO =
+                businessObjectFactory.createVocabularyTermBO(session);
+        vocabularyTermBO.makeOfficial(termsToBeOfficial);
     }
 
     public void registerProject(String sessionToken, ProjectIdentifier projectIdentifier,
@@ -2417,4 +2443,5 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
         return dataStores.get(0).getDownloadUrl();
     }
+
 }

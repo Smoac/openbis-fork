@@ -171,7 +171,8 @@ public interface ICommonClientService extends IClientService
     /**
      * Returns a list of all persons which belong to the current database instance.
      */
-    public TypedTableResultSet<Person> listPersons(ListPersonsCriteria criteria) throws UserFailureException;
+    public TypedTableResultSet<Person> listPersons(ListPersonsCriteria criteria)
+            throws UserFailureException;
 
     /**
      * Returns a list of persons registered in given database instance.
@@ -181,7 +182,8 @@ public interface ICommonClientService extends IClientService
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for persons.
      */
-    public String prepareExportPersons(final TableExportCriteria<TableModelRowWithObject<Person>> criteria)
+    public String prepareExportPersons(
+            final TableExportCriteria<TableModelRowWithObject<Person>> criteria)
             throws UserFailureException;
 
     /**
@@ -542,6 +544,13 @@ public interface ICommonClientService extends IClientService
             Long previousTermOrdinal) throws UserFailureException;
 
     /**
+     * Adds specified unofficial terms to the specified vocabulary after specified ordinal (first
+     * shift all terms with bigger ordinal).
+     */
+    public void addUnofficialVocabularyTerms(TechId vocabularyId, List<String> vocabularyTerms,
+            Long previousTermOrdinal) throws UserFailureException;
+
+    /**
      * Updates vocabulary term.
      */
     public void updateVocabularyTerm(final IVocabularyTermUpdates updates)
@@ -552,6 +561,12 @@ public interface ICommonClientService extends IClientService
      */
     public void deleteVocabularyTerms(TechId vocabularyId, List<VocabularyTerm> termsToBeDeleted,
             List<VocabularyTermReplacement> termsToBeReplaced) throws UserFailureException;
+
+    /**
+     * Makes given terms official
+     */
+    public void makeVocabularyTermsOfficial(TechId vocabularyId,
+            List<VocabularyTerm> termsToBeOfficial);
 
     /** Lists terms of a specified vocabulary */
     public List<VocabularyTerm> listVocabularyTerms(Vocabulary vocabulary)

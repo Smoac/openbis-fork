@@ -529,6 +529,15 @@ public interface ICommonServer extends IServer
             List<String> vocabularyTerms, Long previousTermOrdinal);
 
     /**
+     * Adds new unofficial terms to a vocabulary starting from specified ordinal + 1.
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY_TERM)
+    public void addUnofficialVocabularyTerms(String sessionToken, TechId vocabularyId,
+            List<String> vocabularyTerms, Long previousTermOrdinal);
+
+    /**
      * Updates a vocabulary term.
      */
     @Transactional
@@ -544,6 +553,15 @@ public interface ICommonServer extends IServer
     @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY_TERM)
     public void deleteVocabularyTerms(String sessionToken, TechId vocabularyId,
             List<VocabularyTerm> termsToBeDeleted, List<VocabularyTermReplacement> termsToBeReplaced);
+
+    /**
+     * Makes given vocabulary terms official.
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY_TERM)
+    public void makeVocabularyTermsOfficial(String sessionToken, TechId vocabularyId,
+            List<VocabularyTerm> termsToBeOfficial);
 
     /**
      * Registers new project.

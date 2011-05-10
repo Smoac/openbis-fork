@@ -47,6 +47,7 @@ public class VocabularyTermTranslator
         result.setDescription(vt.getDescription());
         result.setOrdinal(vt.getOrdinal());
         result.setUrl(vt.getUrl());
+        result.setOfficial(vt.isOfficial());
         result.setRegistrationDate(vt.getRegistrationDate());
         result.setRegistrator(PersonTranslator.translate(vt.getRegistrator()));
 

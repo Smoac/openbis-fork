@@ -420,6 +420,14 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 vocabularyId, abbreviate(vocabularyTerms), Long.toString(previousTermOrdinal));
     }
 
+    public void addUnofficialVocabularyTerms(String sessionToken, TechId vocabularyId,
+            List<String> vocabularyTerms, Long previousTermOrdinal)
+    {
+        logTracking(sessionToken, "add_unofficial_vocabulary_terms",
+                "ID(%s) TERMS(%s) PREVIOUS_ORDINAL(%s)", vocabularyId, abbreviate(vocabularyTerms),
+                Long.toString(previousTermOrdinal));
+    }
+
     public void updateVocabularyTerm(String sessionToken, IVocabularyTermUpdates updates)
     {
         logTracking(sessionToken, "update_vocabulary_term", "VOCABULARY_TERM(%s)", updates);
@@ -431,6 +439,13 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         logTracking(sessionToken, "delete_vocabulary_terms",
                 "VOCABULARY_ID(%s) DELETED(%s) REPLACEMENTS(%s)", vocabularyId,
                 abbreviate(termsToBeDeleted), abbreviate(termsToBeReplaced));
+    }
+
+    public void makeVocabularyTermsOfficial(String sessionToken, TechId vocabularyId,
+            List<VocabularyTerm> termsToBeOfficial)
+    {
+        logTracking(sessionToken, "make_vocabulary_terms_official",
+                "VOCABULARY_ID(%s) OFFICIAL(%s)", vocabularyId, abbreviate(termsToBeOfficial));
     }
 
     public void registerProject(String sessionToken, ProjectIdentifier projectIdentifier,

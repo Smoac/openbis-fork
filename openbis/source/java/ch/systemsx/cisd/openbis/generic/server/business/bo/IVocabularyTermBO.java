@@ -16,7 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 
 /**
@@ -36,4 +39,8 @@ public interface IVocabularyTermBO
      */
     public void update(IVocabularyTermUpdates updates);
 
+    /**
+     * Makes vocabulary terms official
+     */
+    public void makeOfficial(List<VocabularyTerm> termsToBeOfficial);
 }

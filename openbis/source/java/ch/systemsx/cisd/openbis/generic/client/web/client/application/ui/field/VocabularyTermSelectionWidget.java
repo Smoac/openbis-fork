@@ -17,20 +17,36 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.Label;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.VocabularyTermModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField.CodeFieldKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
  * @author Izabela Adamczyk
@@ -38,6 +54,54 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 public class VocabularyTermSelectionWidget extends
         DropDownList<VocabularyTermModel, VocabularyTerm>
 {
+
+    private class UnofficialTermRegistrationDialog extends AbstractRegistrationDialog
+    {
+        private final IViewContext<ICommonClientServiceAsync> viewContext;
+
+        private final String code;
+
+        private final Vocabulary vocabulary;
+
+        public UnofficialTermRegistrationDialog(
+                IViewContext<ICommonClientServiceAsync> viewContext, String code)
+        {
+            super(viewContext, viewContext
+                    .getMessage(Dict.ADD_UNOFFICIAL_VOCABULARY_TERM_DIALOG_TITLE),
+                    createRefreshAction(code));
+
+            this.viewContext = viewContext;
+            this.code = code;
+            this.vocabulary = vocabularyOrNull;
+
+            addField(new Label(viewContext.getMessage(
+                    Dict.ADD_UNOFFICIAL_VOCABULARY_TERM_DIALOG_MESSAGE, code, vocabulary.getCode())));
+        }
+
+        @Override
+        protected void register(AsyncCallback<Void> registrationCallback)
+        {
+            ICommonClientServiceAsync service = viewContext.getService();
+
+            service.addUnofficialVocabularyTerms(TechId.create(vocabulary), Arrays.asList(code),
+                    getMaxOrdinal(), registrationCallback);
+            hide();
+        }
+
+        private long getMaxOrdinal()
+        {
+            long result = 0l;
+
+            for (VocabularyTermModel term : VocabularyTermSelectionWidget.this.store.getModels())
+            {
+                if (term.getTerm().getOrdinal() > result)
+                {
+                    result = term.getTerm().getOrdinal();
+                }
+            }
+            return result;
+        }
+    }
 
     private static final String CHOOSE_MSG = "Choose...";
 
@@ -50,6 +114,8 @@ public class VocabularyTermSelectionWidget extends
     private Vocabulary vocabularyOrNull;
 
     private String initialTermCodeOrNull;
+
+    private String typedValue = null;
 
     /**
      * Allows to choose one of the specified vocabulary's terms, is able to refresh the available
@@ -73,7 +139,7 @@ public class VocabularyTermSelectionWidget extends
     }
 
     protected VocabularyTermSelectionWidget(String idSuffix, String label, boolean mandatory,
-            Vocabulary vocabularyOrNull, IViewContext<?> viewContextOrNull,
+            Vocabulary vocabularyOrNull, final IViewContext<?> viewContextOrNull,
             List<VocabularyTerm> termsOrNull, String initialTermCodeOrNull)
     {
         super(idSuffix, ModelDataPropertyNames.CODE_WITH_LABEL, label, CHOOSE_MSG, EMPTY_MSG,
@@ -87,8 +153,72 @@ public class VocabularyTermSelectionWidget extends
         {
             setTerms(termsOrNull);
         }
-        setTemplate(GWTUtils.getTooltipTemplate(ModelDataPropertyNames.CODE_WITH_LABEL,
+
+        setLazyRender(false);
+        setTemplate(GWTUtils.getTooltipTemplate(VocabularyTermModel.DISPLAY_FIELD,
                 ModelDataPropertyNames.TOOLTIP));
+
+        if (viewContextOrNull != null
+                && viewContextOrNull.getModel().getApplicationInfo().getWebClientConfiguration()
+                        .getAllowAddingUnofficialTerms())
+        {
+            this.addListener(Events.Blur, new Listener<BaseEvent>()
+                {
+                    public void handleEvent(BaseEvent be)
+                    {
+                        if (VocabularyTermSelectionWidget.this.vocabularyOrNull != null
+                                && VocabularyTermSelectionWidget.this.viewContextOrNull
+                                        .getService() instanceof ICommonClientServiceAsync
+                                && getSelection().size() != 1
+                                && (false == StringUtils.isBlank(VocabularyTermSelectionWidget.this
+                                        .getRawValue())))
+                        {
+                            final String code = getRawValue().toUpperCase();
+                            if (!code.matches(CodeFieldKind.CODE_WITH_COLON.getPattern()))
+                            {
+                                Dialog d = new Dialog()
+                                    {
+                                        @Override
+                                        protected void onButtonPressed(Button button)
+                                        {
+                                            super.onButtonPressed(button);
+                                            VocabularyTermSelectionWidget.this.focus();
+                                        }
+                                    };
+                                d.setHeading(viewContextOrNull.getMessage(Dict.MESSAGEBOX_ERROR));
+                                d.addText(viewContextOrNull.getMessage(Dict.INVALID_CODE_MESSAGE,
+                                        CodeFieldKind.CODE_WITH_COLON.getAllowedCharacters()));
+                                d.setSize(400, 200);
+                                d.setHideOnButtonClick(true);
+                                d.setButtons(Dialog.OK);
+                                d.show();
+                            } else
+                            {
+                                @SuppressWarnings("unchecked")
+                                UnofficialTermRegistrationDialog d =
+                                        new UnofficialTermRegistrationDialog(
+                                                (IViewContext<ICommonClientServiceAsync>) viewContextOrNull,
+                                                code);
+                                d.show();
+                            }
+                        }
+                    }
+                });
+        }
+    }
+
+    private IDelegatedAction createRefreshAction(final String _typedValue)
+    {
+        return new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    VocabularyTermSelectionWidget.this.typedValue = _typedValue;
+                    refreshStore();
+                    clearInvalid();
+                    focus();
+                }
+            };
     }
 
     public void setVocabulary(Vocabulary vocabulary)
@@ -130,7 +260,17 @@ public class VocabularyTermSelectionWidget extends
 
     public void selectInitialValue()
     {
-        if (initialTermCodeOrNull != null)
+        if (typedValue != null)
+        {
+            try
+            {
+                trySelectByCode(typedValue);
+                updateOriginalValue();
+            } finally
+            {
+                typedValue = null;
+            }
+        } else if (initialTermCodeOrNull != null)
         {
             trySelectByCode(initialTermCodeOrNull);
             updateOriginalValue();

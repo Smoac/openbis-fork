@@ -109,7 +109,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         }
     }
 
-    public void addNewTerms(List<String> newTermCodes, Long previousTermOrdinal)
+    private void addNewTerms(List<String> newTermCodes, Long previousTermOrdinal, boolean isOfficial)
     {
         assert vocabularyPE != null : UNSPECIFIED_VOCABULARY;
         assert previousTermOrdinal != null : "Unspecified previous term ordinal";
@@ -124,8 +124,18 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         Long currentTermOrdinal = previousTermOrdinal + 1;
         for (String code : newTermCodes)
         {
-            addTerm(code, currentTermOrdinal++, true);
+            addTerm(code, currentTermOrdinal++, isOfficial);
         }
+    }
+
+    public void addNewTerms(List<String> newTermCodes, Long previousTermOrdinal)
+    {
+        addNewTerms(newTermCodes, previousTermOrdinal, true);
+    }
+
+    public void addNewUnofficialTerms(List<String> newTermCodes, Long previousTermOrdinal)
+    {
+        addNewTerms(newTermCodes, previousTermOrdinal, false);
     }
 
     /** shift terms in vocabulary by specified increment starting from term with specified ordinal */
@@ -463,5 +473,4 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         }
         return list;
     }
-
 }

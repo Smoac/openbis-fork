@@ -205,6 +205,21 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
                             });
         addButton(deleteButton);
 
+        if (getWebClientConfiguration().getAllowAddingUnofficialTerms())
+        {
+            Button makeOfficialButton =
+                    new Button(viewContext.getMessage(Dict.MAKE_OFFICIAL_VOCABULARY_TERM_BUTTON),
+                            new SelectionListener<ButtonEvent>()
+                                {
+                                    @Override
+                                    public void componentSelected(ButtonEvent ce)
+                                    {
+                                        makeOfficial();
+                                    }
+                                });
+            addButton(makeOfficialButton);
+        }
+
         if (vocabulary.isManagedInternally())
         {
             String tooltip = viewContext.getMessage(Dict.TOOLTIP_VOCABULARY_MANAGED_INTERNALLY);
@@ -655,6 +670,54 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
             }
             askForReplacements(termsToBeDeleted, termsToBeReplaced, termsForReplacement);
         }
+    }
+
+    private void makeOfficial()
+    {
+        List<BaseEntityModel<TableModelRowWithObject<VocabularyTermWithStats>>> terms =
+                getSelectedItems();
+        if (terms.isEmpty())
+        {
+            return;
+        }
+
+        Set<String> selectedTerms = new HashSet<String>();
+        final List<VocabularyTerm> termsToBeOfficial = new ArrayList<VocabularyTerm>();
+        for (BaseEntityModel<TableModelRowWithObject<VocabularyTermWithStats>> model : terms)
+        {
+            VocabularyTerm term = model.getBaseObject().getObjectOrNull().getTerm();
+            selectedTerms.add(term.getCode());
+            termsToBeOfficial.add(term);
+        }
+
+        String title =
+                viewContext.getMessage(Dict.MAKE_OFFICIAL_VOCABULARY_TERMS_CONFIRMATION_TITLE);
+        int size = termsToBeOfficial.size();
+        String message;
+        if (size == 1)
+        {
+            message =
+                    viewContext
+                            .getMessage(Dict.MAKE_OFFICIAL_VOCABULARY_TERMS_CONFIRMATION_MESSAGE_SINGULAR);
+        } else
+        {
+            message =
+                    viewContext.getMessage(
+                            Dict.MAKE_OFFICIAL_VOCABULARY_TERMS_CONFIRMATION_MESSAGE, size);
+        }
+        ConfirmationDialog confirmationDialog = new ConfirmationDialog(title, message)
+            {
+                @Override
+                protected void onYes()
+                {
+                    RefreshCallback callback = new RefreshCallback(viewContext);
+                    viewContext.getService().makeVocabularyTermsOfficial(TechId.create(vocabulary),
+                            termsToBeOfficial, callback);
+
+                }
+            };
+        confirmationDialog.show();
+
     }
 
     private List<VocabularyTerm> getTerms()

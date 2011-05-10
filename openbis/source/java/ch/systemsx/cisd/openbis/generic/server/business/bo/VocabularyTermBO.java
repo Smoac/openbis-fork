@@ -16,12 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.List;
+
 import org.springframework.dao.DataRetrievalFailureException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 
@@ -84,5 +87,22 @@ public final class VocabularyTermBO extends AbstractBusinessObject implements IV
         {
             throw new UserFailureException(exception.getMessage());
         }
+    }
+
+    public void makeOfficial(List<VocabularyTerm> termsToBeOfficial)
+    {
+        for (VocabularyTerm term : termsToBeOfficial)
+        {
+            makeOfficial(term);
+        }
+    }
+
+    private void makeOfficial(VocabularyTerm term)
+    {
+        loadDataByTechId(TechId.create(term));
+
+        vocabularyTermPE.setOfficial(true);
+
+        validateAndSave();
     }
 }

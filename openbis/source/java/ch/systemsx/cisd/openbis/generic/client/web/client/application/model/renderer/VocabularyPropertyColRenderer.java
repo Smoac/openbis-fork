@@ -65,7 +65,16 @@ public class VocabularyPropertyColRenderer<T extends IEntityPropertiesHolder> ex
         {
             result = ExternalHyperlink.createAnchorString(result, url);
         }
-        result = MultilineHTML.wrapUpInDivWithTooltip(result, description);
+
+        if (term.isOfficial() == null || term.isOfficial())
+        {
+            result = MultilineHTML.wrapUpInDivWithTooltip(result, description);
+        } else
+        {
+            result =
+                    MultilineHTML.wrapUpInDivWithTooltip(result, description,
+                            "color: grey; font-style:italic");
+        }
 
         return result;
     }

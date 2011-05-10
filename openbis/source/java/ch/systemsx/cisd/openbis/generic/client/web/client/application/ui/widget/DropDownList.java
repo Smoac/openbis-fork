@@ -144,7 +144,6 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
             };
         ListStore<M> newStore = new ListStore<M>()
             {
-
                 @Override
                 public void filter(String property, String beginsWith)
                 {

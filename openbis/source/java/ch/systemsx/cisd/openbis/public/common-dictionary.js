@@ -52,9 +52,11 @@ var common = {
   main_data_set_pattern: "Main Data Set Pattern",
   main_data_set_pattern_tooltip: "If there is just one data set with path matching chosen 'main data set' pattern, it will be automatically displayed.\nA Regular Expression is expected. Example: '.*\.jpg'",
   main_data_set_pattern_example: "for example: .*\.jpg",
-	auto_resolve_label: "Smart View",
-	data_report_label: "Report:",
-	explore_label: "Explore:",
+  auto_resolve_label: "Smart View",
+  data_report_label: "Report:",
+  explore_label: "Explore:",
+  add_unofficial_vocabulary_term_dialog_title: "Add unofficial term",
+  add_unofficial_vocabulary_term_dialog_message: "Do you want to add new unofficial term '{0}' to dictionary '{1}'?",
 	  
   //
   // Field
@@ -169,7 +171,7 @@ var common = {
   more_results_found_message: "More search results were found, but are not shown. Consider making the search more specific.",
   more_results_found_title: "More results found",
   search_criteria_dialog_title: "{0} Search Criteria",
-  
+
   //
   // Sample Browser
   //
@@ -558,7 +560,10 @@ var common = {
  delete_vocabulary_terms_confirmation_message_for_replacements: "{0} terms will be deleted.\n\nThe terms below are used. They have to be replaced by one of the remaining terms.",
  edit_vocabulary_term_button: "Edit Term",
  make_official_vocabulary_term_button: "Make Official",
- 
+ make_official_vocabulary_terms_confirmation_title: "Making Vocabulary Terms Official",
+ make_official_vocabulary_terms_confirmation_message_singular: "Do you want to make the selected term official?",
+ make_official_vocabulary_terms_confirmation_message: "Do you want to make the {0} selected terms official?",
+
  //
  // Person Browser
  //

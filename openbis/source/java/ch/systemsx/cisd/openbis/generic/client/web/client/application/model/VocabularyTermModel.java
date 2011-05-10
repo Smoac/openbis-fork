@@ -21,6 +21,8 @@ import java.util.Collections;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer.VocabularyPropertyColRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
@@ -35,15 +37,32 @@ public class VocabularyTermModel extends SimplifiedBaseModel implements
 {
     private static final String ORDINAL = "ordinal";
 
+    private static final String IS_OFFICIAL = "is_official";
+
+    public static final String DISPLAY_FIELD = "display_field";
+
     private static final long serialVersionUID = 1L;
 
     public VocabularyTermModel(VocabularyTerm term)
     {
         set(ModelDataPropertyNames.CODE, term.getCode());
         set(ORDINAL, term.getOrdinal());
+        set(IS_OFFICIAL, term.isOfficial());
         set(ModelDataPropertyNames.CODE_WITH_LABEL, term.getCodeOrLabel());
+        set(DISPLAY_FIELD, generateDisplatField(term));
         set(ModelDataPropertyNames.TOOLTIP, VocabularyPropertyColRenderer.renderAsTooltip(term));
         set(ModelDataPropertyNames.OBJECT, term);
+    }
+
+    public String generateDisplatField(VocabularyTerm term)
+    {
+        final Element span = DOM.createSpan();
+        if (false == term.isOfficial())
+        {
+            span.setAttribute("style", "color: grey; font-style:italic");
+        }
+        span.setInnerHTML(term.getCodeOrLabel());
+        return DOM.toString(span);
     }
 
     public static final List<VocabularyTermModel> convert(List<VocabularyTerm> terms)
@@ -65,10 +84,15 @@ public class VocabularyTermModel extends SimplifiedBaseModel implements
     //
     // Comparable
     //
-
     public int compareTo(VocabularyTermModel o)
     {
-        return getValueToCompare().compareTo(o.getValueToCompare());
+        if (isOfficial() == o.isOfficial())
+        {
+            return getValueToCompare().compareTo(o.getValueToCompare());
+        } else
+        {
+            return isOfficial() ? -1 : 1;
+        }
     }
 
     /** @return value that will be used to compare Vocabulary Terms and display them in order */
@@ -77,4 +101,8 @@ public class VocabularyTermModel extends SimplifiedBaseModel implements
         return get(ORDINAL);
     }
 
+    private Boolean isOfficial()
+    {
+        return get(IS_OFFICIAL);
+    }
 }

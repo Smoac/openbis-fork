@@ -721,6 +721,18 @@ public abstract class Dict
 
     public static final String EDIT_VOCABULARY_TERM_BUTTON = "edit_vocabulary_term_button";
 
+    public static final String MAKE_OFFICIAL_VOCABULARY_TERM_BUTTON =
+            "make_official_vocabulary_term_button";
+
+    public static final String MAKE_OFFICIAL_VOCABULARY_TERMS_CONFIRMATION_TITLE =
+            "make_official_vocabulary_terms_confirmation_title";
+
+    public static final String MAKE_OFFICIAL_VOCABULARY_TERMS_CONFIRMATION_MESSAGE_SINGULAR =
+            "make_official_vocabulary_terms_confirmation_message_singular";
+
+    public static final String MAKE_OFFICIAL_VOCABULARY_TERMS_CONFIRMATION_MESSAGE =
+            "make_official_vocabulary_terms_confirmation_message";
+
     //
     // Group Browser
     //
@@ -1073,6 +1085,12 @@ public abstract class Dict
     public static final String MORE_RESULTS_FOUND_MESSAGE = "more_results_found_message";
 
     public static final String MORE_RESULTS_FOUND_TITLE = "more_results_found_title";
+
+    public static final String ADD_UNOFFICIAL_VOCABULARY_TERM_DIALOG_TITLE =
+            "add_unofficial_vocabulary_term_dialog_title";
+
+    public static final String ADD_UNOFFICIAL_VOCABULARY_TERM_DIALOG_MESSAGE =
+            "add_unofficial_vocabulary_term_dialog_message";
 
     // Material Viewer
 
