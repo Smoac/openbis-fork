@@ -240,6 +240,8 @@ public abstract class Dict
 
     public static final String GROUPS = "groups";
 
+    public static final String CONTAINER_DATA_SET = "container_dataset";
+
     public static final String PROJECT = "project";
 
     public static final String EXPERIMENT = "experiment";

@@ -123,6 +123,8 @@ public class DataSetPropertiesPanel extends ContentPanel
         properties.put(messageProvider.getMessage(Dict.REGISTRATOR), dataset.getRegistrator());
         properties.put(messageProvider.getMessage(Dict.REGISTRATION_DATE),
                 dataset.getRegistrationDate());
+        properties.put(messageProvider.getMessage(Dict.CONTAINER_DATA_SET),
+                dataset.tryGetContainer());
         properties.put(messageProvider.getMessage(Dict.PROJECT), dataset.getExperiment()
                 .getProject());
         properties.put(messageProvider.getMessage(Dict.EXPERIMENT), dataset.getExperiment());
