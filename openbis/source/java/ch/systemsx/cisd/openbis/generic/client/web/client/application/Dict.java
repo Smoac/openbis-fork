@@ -296,6 +296,12 @@ public abstract class Dict
     public static final String PERFORM_ARCHIVING_ON_SELECTED_OR_ALL_DATASETS_MSG_TEMPLATE =
             "perform_archiving_on_selected_or_all_datasets_msg_template";
 
+    public static final String PERFORM_ARCHIVING_ON_ALL_DATASETS_CONNECTED_TO_EXPERIMENTS_MSG_TEMPLATE =
+            "perform_archiving_on_all_datasets_connected_to_experiments_msg_template";
+
+    public static final String PERFORM_ARCHIVING_ON_SELECTED_OR_ALL_DATASETS_CONNECTED_TO_EXPERIMENTS_MSG_TEMPLATE =
+            "perform_archiving_on_selected_or_all_datasets_connected_to_experiments_msg_template";
+
     //
     // Entity Type Browser
     //

@@ -209,6 +209,8 @@ var common = {
   project_selector_code_column: "Space / Project",
   project_selector_details_link_label: "(info)",
   project_selector_details_link_tooltip: "Click on the link to see project details.",
+  perform_archiving_on_all_datasets_connected_to_experiments_msg_template: "{0} {1} will be performed on those data sets connected to the experiments from the table that are '{2}' (see their status) after you click on a Run button.",
+  perform_archiving_on_selected_or_all_datasets_connected_to_experiments_msg_template: "Select between performing {0} only on the data sets of the selected experiments ({1}) or on all data sets connected to an experiment from the table and click on a Run button. Note that only data sets that are '{2}' (see their status) will be processed.",
   
   
   //

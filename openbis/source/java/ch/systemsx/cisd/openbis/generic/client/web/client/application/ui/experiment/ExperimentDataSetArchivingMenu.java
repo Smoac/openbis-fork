@@ -291,12 +291,14 @@ public class ExperimentDataSetArchivingMenu extends TextToolItem
             if (size == 0)
             {
                 final String msgIntroduction = viewContext.getMessage(Dict.NO_DATASETS_SELECTED);
-                String dictKey = Dict.PERFORM_ARCHIVING_ON_ALL_DATASETS_MSG_TEMPLATE;
+                String dictKey =
+                        Dict.PERFORM_ARCHIVING_ON_ALL_DATASETS_CONNECTED_TO_EXPERIMENTS_MSG_TEMPLATE;
                 return viewContext.getMessage(dictKey, msgIntroduction, computationName,
                         requiredStatusName);
             } else
             {
-                String dictKey = Dict.PERFORM_ARCHIVING_ON_SELECTED_OR_ALL_DATASETS_MSG_TEMPLATE;
+                String dictKey =
+                        Dict.PERFORM_ARCHIVING_ON_SELECTED_OR_ALL_DATASETS_CONNECTED_TO_EXPERIMENTS_MSG_TEMPLATE;
                 return viewContext.getMessage(dictKey, computationName, size, requiredStatusName);
             }
         }

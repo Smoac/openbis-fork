@@ -54,7 +54,7 @@ public class SelectedOrAllExperimentsRadioProvider
     public final RadioGroup createComputationDataSetsRadio()
     {
         final RadioGroup result = new RadioGroup();
-        result.setFieldLabel("Data Sets");
+        result.setFieldLabel("Experiments");
         result.setSelectionRequired(true);
         result.setOrientation(Orientation.HORIZONTAL);
         computeOnAllRadio = createRadio("all");
