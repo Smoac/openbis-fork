@@ -47,6 +47,9 @@ public interface IDatasetLister
     /** @return datasets that are parents of a dataset with the specified id */
     List<ExternalData> listByChildTechId(TechId childDatasetId);
 
+    /** @return datasets that are components of a dataset with the specified id */
+    List<ExternalData> listByContainerTechId(TechId containerDatasetId);
+
     /** @return all datasets that are children of any specified dataset id */
     List<ExternalData> listByParentTechIds(Collection<Long> parentDatasetIds);
 
@@ -61,22 +64,22 @@ public interface IDatasetLister
      * IDs from the argument. A value of the map contains at least one element.
      */
     Map<Long, Set<Long>> listChildrenIds(Collection<Long> dataSetIDs);
-    
+
     /**
-     * Returns a map with all data sets of specified samples. The sample arguments are the
-     * key into the returned map. The returned data sets contains all derived data sets (children,
-     * grand children, etc.).
+     * Returns a map with all data sets of specified samples. The sample arguments are the key into
+     * the returned map. The returned data sets contains all derived data sets (children, grand
+     * children, etc.).
      */
     Map<Sample, List<ExternalData>> listAllDataSetsFor(List<Sample> samples);
 
-    /** 
-     * Lists all data sets with specified codes. Unenriched data sets will be returned. 
+    /**
+     * Lists all data sets with specified codes. Unenriched data sets will be returned.
      */
     List<ExternalData> listByDatasetCode(Collection<String> datasetCodes);
 
     /** @return datasets with given ids */
     List<ExternalData> listByDatasetIds(Collection<Long> datasetIds);
-    
+
     /** @return datasets specified by given criteria */
     List<ExternalData> listByTrackingCriteria(TrackingDataSetCriteria criteria);
 

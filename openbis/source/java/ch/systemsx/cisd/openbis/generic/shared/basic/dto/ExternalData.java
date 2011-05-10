@@ -88,7 +88,7 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
     /**
      * @return true if this is a container data set.
      */
-    public boolean isContainerDataSet()
+    public boolean isContainer()
     {
         return dataSetType != null && dataSetType.isContainerType();
     }

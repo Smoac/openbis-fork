@@ -202,9 +202,9 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyE
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AuthorizationGroupTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataStoreServiceTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
@@ -523,6 +523,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         List<ExternalData> datasets = null;
         switch (role)
         {
+            case CONTAINER:
+                datasets = datasetLister.listByContainerTechId(datasetId);
+                break;
             case CHILD:
                 datasets = datasetLister.listByChildTechId(datasetId);
                 break;

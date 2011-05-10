@@ -180,6 +180,12 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
         final TabContent dataSection = new DataViewSection(viewContext, dataset);
         container.addSection(dataSection);
 
+        if (dataset.isContainer())
+        {
+            final TabContent containedSection = new DataSetContainedSection(viewContext, dataset);
+            container.addSection(containedSection);
+        }
+
         // parents
         final TabContent parentsSection = new DataSetParentsSection(viewContext, dataset);
         container.addSection(parentsSection);

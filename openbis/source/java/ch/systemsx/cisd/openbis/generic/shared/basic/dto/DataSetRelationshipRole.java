@@ -23,5 +23,5 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  */
 public enum DataSetRelationshipRole implements ISerializable
 {
-    PARENT, CHILD;
+    CONTAINER, PARENT, CHILD;
 }

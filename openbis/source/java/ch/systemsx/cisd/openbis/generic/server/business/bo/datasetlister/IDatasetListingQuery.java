@@ -150,6 +150,12 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
     public DataIterator<DatasetRecord> getParentDatasetsForChild(long childDatasetId);
 
     /**
+     * Returns the datasets that are contained in a dataset with given id.
+     */
+    @Select(sql = SELECT_ALL + " WHERE data.ctnr_id=?{1}", fetchSize = FETCH_SIZE)
+    public DataIterator<DatasetRecord> getContainedDatasetsForContainer(long containerDatasetId);
+
+    /**
      * Returns the datasets for the given <var>datasetId</var>.
      */
     @Select(SELECT_ALL + " where data.id=?{1}")

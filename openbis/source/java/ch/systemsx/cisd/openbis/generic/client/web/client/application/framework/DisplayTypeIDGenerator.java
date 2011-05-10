@@ -94,6 +94,8 @@ public enum DisplayTypeIDGenerator implements IDisplayTypeIDGenerator
 
     DATA_SET_CHILDREN_SECTION("data-set-children-section"),
 
+    DATA_SET_CONTAINED_SECTION("data-set-contained-section"),
+
     DATA_SET_DATA_SECTION("data-set-data-section"),
 
     MODULE_SECTION("module-section"),

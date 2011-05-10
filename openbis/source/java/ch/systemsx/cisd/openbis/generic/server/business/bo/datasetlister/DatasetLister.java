@@ -318,6 +318,11 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         return enrichDatasets(query.getParentDatasetsForChild(childDatasetId.getId()));
     }
 
+    public List<ExternalData> listByContainerTechId(TechId containerDatasetId)
+    {
+        return enrichDatasets(query.getContainedDatasetsForContainer(containerDatasetId.getId()));
+    }
+
     public List<ExternalData> listByParentTechIds(Collection<Long> parentDatasetIds)
     {
         List<ExternalData> result = new ArrayList<ExternalData>();
@@ -581,7 +586,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         LongSet containerIDs = new LongOpenHashSet();
         for (ExternalData dataSet : datasetMap.values())
         {
-            if (dataSet.isContainerDataSet())
+            if (dataSet.isContainer())
             {
                 containerIDs.add(dataSet.getId());
             }
