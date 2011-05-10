@@ -49,6 +49,7 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
+import org.hibernate.annotations.OrderBy;
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
@@ -116,7 +117,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
 
     private Set<DataPE> children = new HashSet<DataPE>();
 
-    private DataPE containerParent = null;
+    private DataPE container = null;
 
     private List<DataPE> containedDataSets = new ArrayList<DataPE>();
 
@@ -421,26 +422,40 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
 
     @SuppressWarnings("unused")
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = DataPE.class)
-    @JoinColumn(name = ColumnNames.DATA_CONTAINER_PARENT_COLUMN)
-    private DataPE getContainerParentInternal()
+    @JoinColumn(name = ColumnNames.DATA_CONTAINER_COLUMN)
+    private DataPE getContainerInternal()
     {
-        return containerParent;
+        return container;
     }
 
-    @SuppressWarnings("unused")
-    private void setContainerParentInternal(final DataPE containerParent)
+    private void setContainerInternal(final DataPE container)
     {
-        this.containerParent = containerParent;
+        this.container = container;
     }
 
-    
-    @OneToMany(mappedBy = "containerParentInternal", fetch = FetchType.LAZY)
-    public List<DataPE> getContainedDatas()
+    public void addComponent(final DataPE component)
+    {
+        assert component != null;
+        this.containedDataSets.add(component);
+        component.setContainerInternal(component);
+    }
+
+    /** removes connection with specified parent */
+    public void removeVirtualComponent(final DataPE component)
+    {
+        assert component != null;
+        this.containedDataSets.remove(component);
+        component.setContainerInternal(null);
+    }
+
+    @OneToMany(mappedBy = "virtualParentInternal", fetch = FetchType.LAZY)
+    @OrderBy(clause = ColumnNames.DATA_CONTAINER_ORDER_COLUMN)
+    public List<DataPE> getContainedDataSets()
     {
         return containedDataSets;
     }
 
-    public void setContainedDatas(List<DataPE> containedDataSets)
+    public void setContainedDataSets(List<DataPE> containedDataSets)
     {
         this.containedDataSets = containedDataSets;
     }
@@ -597,13 +612,28 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         return code;
     }
 
+    @Transient
     /**
      * @return <code>true</code> if this is a container data set.
      */
-    @Transient
-    public boolean isContainerDataSet()
+    public boolean isContainer()
     {
-        return dataSetType != null && dataSetType.isContainerType();
+        return dataSetType != null && getDataSetType().isContainerType();
+    }
+
+    @Transient
+    /**
+     * @return <code>true</code> if this is a data set with external data.
+     */
+    public boolean isExternalData()
+    {
+        return isPlaceholder() == false && isContainer() == false;
+    }
+
+    @Transient
+    public ExternalDataPE tryAsExternalData()
+    {
+        return (this instanceof ExternalDataPE) ? (ExternalDataPE) this : null;
     }
 
 }

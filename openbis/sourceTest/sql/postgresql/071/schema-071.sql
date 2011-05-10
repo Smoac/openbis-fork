@@ -381,7 +381,7 @@ CREATE TABLE data (
     samp_id tech_id,
     pers_id_registerer tech_id,
     ctnr_order integer,
-    ctnr_parent_id tech_id DEFAULT NULL::bigint
+    ctnr_id tech_id DEFAULT NULL::bigint
 );
 CREATE SEQUENCE data_id_seq
     START WITH 1

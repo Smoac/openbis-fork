@@ -48,7 +48,7 @@ public final class ColumnNames
 
     public static final String DATA_PARENT_COLUMN = "data_id_parent";
 
-    public static final String DATA_CONTAINER_PARENT_COLUMN = "ctnr_parent_id";
+    public static final String DATA_CONTAINER_COLUMN = "ctnr_id";
 
     public static final String DATA_CONTAINER_ORDER_COLUMN = "ctnr_order";
 

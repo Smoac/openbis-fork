@@ -305,7 +305,7 @@ ALTER TABLE ONLY controlled_vocabulary_terms
 ALTER TABLE ONLY data_stores
     ADD CONSTRAINT dast_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
 ALTER TABLE ONLY data
-    ADD CONSTRAINT data_ctnr_parent_fk FOREIGN KEY (ctnr_parent_id) REFERENCES data(id);
+    ADD CONSTRAINT data_ctnr_fk FOREIGN KEY (ctnr_id) REFERENCES data(id);
 ALTER TABLE ONLY data
     ADD CONSTRAINT data_dast_fk FOREIGN KEY (dast_id) REFERENCES data_stores(id);
 ALTER TABLE ONLY data

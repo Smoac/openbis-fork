@@ -37,7 +37,7 @@ public class DatasetRecord extends CodeRecord
 
     public Integer ctnr_order;
 
-    public Long ctnr_parent_id;
+    public Long ctnr_id;
 
     // ---- from external_data table
     // ---- can be NULL in case of container(virtual) data sets

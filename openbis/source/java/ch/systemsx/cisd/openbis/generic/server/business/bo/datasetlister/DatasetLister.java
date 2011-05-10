@@ -610,7 +610,8 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
             }
         }
 
-        if (false == notYetLoadedChilren.isEmpty()) {
+        if (false == notYetLoadedChilren.isEmpty())
+        {
             Long2ObjectMap<ExternalData> childrenSecondPass =
                     createPrimaryDatasets(asList(query.getDatasets(notYetLoadedChilren)));
             fullContextMap.putAll(childrenSecondPass);
@@ -697,10 +698,10 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         dataSet.setRegistrator(getOrCreateRegistrator(record.pers_id_registerer));
         dataSet.setDataSetProperties(new ArrayList<IEntityProperty>());
 
-        if (record.ctnr_parent_id != null)
+        if (record.ctnr_id != null)
         {
             ContainerDataSet container = new ContainerDataSet();
-            container.setId(record.ctnr_parent_id);
+            container.setId(record.ctnr_id);
             dataSet.setContainer(container);
         }
 

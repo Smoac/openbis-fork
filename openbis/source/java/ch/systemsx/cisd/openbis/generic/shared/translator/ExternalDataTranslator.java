@@ -141,7 +141,7 @@ public class ExternalDataTranslator
             boolean loadSampleProperties, final LoadableFields... withExperimentFields)
     {
         ExternalData externalData = null;
-        if (externalDataPE.isContainerDataSet())
+        if (externalDataPE.isContainer())
         {
             externalData = translateContainerDataSetProperties(externalDataPE);
         } else
@@ -297,9 +297,9 @@ public class ExternalDataTranslator
             ContainerDataSet containerDataSet)
     {
         List<ExternalData> containedDataSets = new ArrayList<ExternalData>();
-        if (HibernateUtils.isInitialized(externalDataPE.getContainedDatas()))
+        if (HibernateUtils.isInitialized(externalDataPE.getContainedDataSets()))
         {
-            for (DataPE childPE : externalDataPE.getContainedDatas())
+            for (DataPE childPE : externalDataPE.getContainedDataSets())
             {
                 containedDataSets.add(translateBasicProperties(childPE));
             }
