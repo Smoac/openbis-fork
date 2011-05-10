@@ -38,8 +38,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
  * Reporting plugin that returns a table in which each column contains a graph. The number and
  * format of the graphs can be configured in a properties file.
  * <p>
- * This plugin reads data from a file. The {@link ImageAnalysisGraphReportingPlugin} reads
- * from the imaging db.
+ * This plugin reads data from a file. The ImageAnalysisGraphReportingPlugin (in the screening
+ * project) reads from the imaging db.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -72,7 +72,8 @@ public class FileBasedImageAnalysisGraphReportingPlugin extends AbstractDataMerg
                 TabularDataGraphCollectionConfiguration.getConfiguration(propertiesFilePath);
     }
 
-    public TableModel createReport(List<DatasetDescription> datasets, DataSetProcessingContext context)
+    public TableModel createReport(List<DatasetDescription> datasets,
+            DataSetProcessingContext context)
     {
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
         addHeaders(builder);
@@ -87,8 +88,8 @@ public class FileBasedImageAnalysisGraphReportingPlugin extends AbstractDataMerg
             if (matchingFiles.size() > 1)
             {
                 throw UserFailureException.fromTemplate(
-                        "Found multiple candidate files in the dataset %s ", dataset
-                                .getDataSetCode());
+                        "Found multiple candidate files in the dataset %s ",
+                        dataset.getDataSetCode());
             }
             builder.addRow(createRow(dataset, matchingFiles.get(0)));
         }
@@ -125,10 +126,10 @@ public class FileBasedImageAnalysisGraphReportingPlugin extends AbstractDataMerg
             GeneratedImageTableCell imageCell =
                     new GeneratedImageTableCell(graphServletPath, getImageWidth(),
                             getImageHeight(), getThumbnailWidth(), getThumbnailHeight());
-            imageCell.addParameter(AbstractTabularDataGraphServlet.DATASET_CODE_PARAM, dataset
-                    .getDataSetCode());
-            imageCell.addParameter(AbstractTabularDataGraphServlet.FILE_PATH_PARAM, file
-                    .getAbsolutePath());
+            imageCell.addParameter(AbstractTabularDataGraphServlet.DATASET_CODE_PARAM,
+                    dataset.getDataSetCode());
+            imageCell.addParameter(AbstractTabularDataGraphServlet.FILE_PATH_PARAM,
+                    file.getAbsolutePath());
             imageCell.addParameter(AbstractTabularDataGraphServlet.GRAPH_TYPE_CODE, graphTypeCode);
 
             row.add(imageCell);
