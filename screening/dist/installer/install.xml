@@ -2,7 +2,7 @@
 <installation version="1.0">
   <info>
     <appname>openBIS</appname>
-    <appversion>S106</appversion>
+    <appversion>@{version.number}</appversion>
     <url>http://www.cisd.ethz.ch/software/openBIS</url>
   </info>
 
