@@ -419,7 +419,12 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         this.children.remove(child);
     }
 
-    @SuppressWarnings("unused")
+    @Transient
+    public DataPE getContainer()
+    {
+        return getContainerInternal();
+    }
+
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = DataPE.class)
     @JoinColumn(name = ColumnNames.DATA_CONTAINER_COLUMN)
     private DataPE getContainerInternal()

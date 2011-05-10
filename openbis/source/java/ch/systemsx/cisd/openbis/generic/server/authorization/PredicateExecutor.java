@@ -43,7 +43,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetAccessPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomColumnPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PermId;
@@ -379,7 +378,7 @@ public final class PredicateExecutor
             switch (kind)
             {
                 case DATASET:
-                    ExternalDataPE dataset = daoFactory.getExternalDataDAO().getByTechId(techId);
+                    DataPE dataset = daoFactory.getDataDAO().getByTechId(techId);
                     return dataset.getExperiment().getProject().getSpace();
                 case EXPERIMENT:
                     ExperimentPE experiment = daoFactory.getExperimentDAO().getByTechId(techId);

@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTr
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IAttachmentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IAuthorizationGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
@@ -138,11 +139,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PersonAdapter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
@@ -157,6 +158,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IPerson;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
@@ -202,6 +204,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AuthorizationGroupTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataStoreServiceTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
@@ -890,14 +893,14 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     public ExternalData getDataSetInfo(final String sessionToken, final TechId datasetId)
     {
         final Session session = getSession(sessionToken);
-        final IExternalDataBO datasetBO = businessObjectFactory.createExternalDataBO(session);
+        final IDataBO datasetBO = businessObjectFactory.createDataBO(session);
         datasetBO.loadDataByTechId(datasetId);
         datasetBO.enrichWithParentsAndExperiment();
         datasetBO.enrichWithChildren();
-        datasetBO.enrichWithContainedDatas();
+        datasetBO.enrichWithContainedDataSets();
         datasetBO.enrichWithProperties();
-        final ExternalDataPE dataset = datasetBO.getExternalData();
-        return ExternalDataTranslator.translate(dataset, session.getBaseIndexURL(), false);
+        final DataPE dataset = datasetBO.getData();
+        return DataSetTranslator.translate(dataset, session.getBaseIndexURL(), false);
     }
 
     public List<ExternalData> listRelatedDataSets(String sessionToken,

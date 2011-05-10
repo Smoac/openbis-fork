@@ -20,6 +20,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory
 import ch.systemsx.cisd.openbis.generic.server.business.bo.AbstractBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.AttachmentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.AuthorizationGroupBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.DataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityTypePropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ExperimentBO;
@@ -32,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.GroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IAttachmentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IAuthorizationGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
@@ -129,6 +131,11 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     public final ISampleBO createSampleBO(final Session session)
     {
         return new SampleBO(getDaoFactory(), session);
+    }
+
+    public IDataBO createDataBO(Session session)
+    {
+        return new DataBO(getDaoFactory(), session);
     }
 
     public IExternalDataBO createExternalDataBO(Session session)

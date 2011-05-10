@@ -29,7 +29,6 @@ import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
@@ -102,7 +101,7 @@ public class DataBO extends AbstractExternalDataBusinessObject implements IDataB
     private void loadByCode(String dataSetCode, boolean withPropertyTypes, boolean lockForUpdate)
     {
         data =
-                getExternalDataDAO().tryToFindFullDataSetByCode(dataSetCode, withPropertyTypes,
+                getDataDAO().tryToFindFullDataSetByCode(dataSetCode, withPropertyTypes,
                         lockForUpdate);
     }
 
@@ -114,7 +113,7 @@ public class DataBO extends AbstractExternalDataBusinessObject implements IDataB
     {
         String[] connections =
             { PROPERTY_TYPES, DATA_SET_TYPE };
-        data = getExternalDataDAO().tryGetByTechId(datasetId, connections);
+        data = getDataDAO().tryGetByTechId(datasetId, connections);
         if (data == null)
         {
             throw new UserFailureException(String.format("Data set with ID '%s' does not exist.",
@@ -303,7 +302,7 @@ public class DataBO extends AbstractExternalDataBusinessObject implements IDataB
     {
         assert parentDataSetCode != null : "Unspecified parent data set code.";
 
-        final IExternalDataDAO dataDAO = getExternalDataDAO();
+        final IDataDAO dataDAO = getDataDAO();
         DataPE parent = dataDAO.tryToFindDataSetByCode(parentDataSetCode);
         if (parent == null)
         {
@@ -516,7 +515,7 @@ public class DataBO extends AbstractExternalDataBusinessObject implements IDataB
 
     private Set<TechId> findParentIds(Set<TechId> dataSetIds)
     {
-        return getExternalDataDAO().findParentIds(dataSetIds);
+        return getDataDAO().findParentIds(dataSetIds);
     }
 
     private Collection<DataPE> filterDataSets(Collection<DataPE> dataSets,
@@ -551,7 +550,7 @@ public class DataBO extends AbstractExternalDataBusinessObject implements IDataB
 
     private List<DataPE> findDataSetsByCodes(Set<String> codes)
     {
-        final IExternalDataDAO dao = getExternalDataDAO();
+        final IDataDAO dao = getDataDAO();
         final List<DataPE> dataSets = new ArrayList<DataPE>();
         final List<String> missingDataSetCodes = new ArrayList<String>();
         for (String code : codes)

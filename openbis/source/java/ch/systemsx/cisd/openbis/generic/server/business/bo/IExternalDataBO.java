@@ -110,7 +110,7 @@ public interface IExternalDataBO extends IEntityBusinessObject
     /**
      * Enrich external data with virtual children.
      */
-    public void enrichWithContainedDatas();
+    public void enrichWithContainedDataSets();
 
     /**
      * Enrich external data with properties.

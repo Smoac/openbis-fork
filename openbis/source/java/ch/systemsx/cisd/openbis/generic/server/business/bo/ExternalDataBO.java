@@ -145,9 +145,9 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         }
     }
 
-    public void enrichWithContainedDatas()
+    public void enrichWithContainedDataSets()
     {
-        if (externalData != null && externalData.getDataSetType().isContainerType())
+        if (externalData != null && externalData.isContainer())
         {
             HibernateUtils.initialize(externalData.getContainedDataSets());
         }
