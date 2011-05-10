@@ -24,6 +24,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ArchivingResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedCriteriaOrSelectedEntityHolder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
@@ -748,6 +749,18 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<ArchivingResult> callback);
 
     /**
+     * @see ICommonClientService#archiveDatasets(DisplayedCriteriaOrSelectedEntityHolder)
+     */
+    public void archiveDatasets(DisplayedCriteriaOrSelectedEntityHolder<Experiment> criteria,
+            AsyncCallback<ArchivingResult> callback);
+
+    /**
+     * @see ICommonClientService#unarchiveDatasets(DisplayedCriteriaOrSelectedEntityHolder)
+     */
+    public void unarchiveDatasets(DisplayedCriteriaOrSelectedEntityHolder<Experiment> criteria,
+            AsyncCallback<ArchivingResult> callback);
+
+    /**
      * @see ICommonClientService#deleteAuthorizationGroups(List, String)
      */
     public void deleteAuthorizationGroups(List<TechId> createList, String reason,
@@ -879,6 +892,18 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      * @see ICommonClientService#unlockDatasets(DisplayedOrSelectedDatasetCriteria)
      */
     public void unlockDatasets(DisplayedOrSelectedDatasetCriteria criteria,
+            AsyncCallback<ArchivingResult> callback);
+
+    /**
+     * @see ICommonClientService#lockDatasets(DisplayedCriteriaOrSelectedEntityHolder)
+     */
+    public void lockDatasets(DisplayedCriteriaOrSelectedEntityHolder<Experiment> criteria,
+            AsyncCallback<ArchivingResult> callback);
+
+    /**
+     * @see ICommonClientService#unlockDatasets(DisplayedCriteriaOrSelectedEntityHolder)
+     */
+    public void unlockDatasets(DisplayedCriteriaOrSelectedEntityHolder<Experiment> criteria,
             AsyncCallback<ArchivingResult> callback);
 
     /**

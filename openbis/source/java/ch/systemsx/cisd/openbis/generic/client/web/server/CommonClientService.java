@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ArchivingResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedCriteriaOrSelectedEntityHolder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
@@ -2152,6 +2153,40 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     private List<String> extractDatasetCodes(
+            DisplayedCriteriaOrSelectedEntityHolder<Experiment> experimentCriteria)
+    {
+        // Get the referenced experiments
+        List<Experiment> experiments = getReferencedExperiments(experimentCriteria);
+        if (null == experiments)
+        {
+            return new ArrayList<String>();
+        }
+
+        DataSetRelatedEntities dataSetRelatedExperiments = new DataSetRelatedEntities(experiments);
+        List<ExternalData> relatedDataSets =
+                commonServer.listRelatedDataSets(getSessionToken(), dataSetRelatedExperiments);
+        return Code.extractCodes(relatedDataSets);
+
+    }
+
+    private List<Experiment> getReferencedExperiments(
+            DisplayedCriteriaOrSelectedEntityHolder<Experiment> experimentCriteria)
+    {
+        if (experimentCriteria.hasSelectedItems())
+        {
+            return experimentCriteria.tryGetSelectedItems();
+        } else
+        {
+            TableExportCriteria<Experiment> displayedItemsCriteria =
+                    experimentCriteria.tryGetDisplayedItems();
+            assert displayedItemsCriteria != null : "displayedItemsCriteria is null";
+            List<Experiment> experiments =
+                    fetchCachedEntities(displayedItemsCriteria).extractOriginalObjects();
+            return experiments;
+        }
+    }
+
+    private List<String> extractDatasetCodes(
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria)
     {
         return extractDatasetCodes(displayedOrSelectedDatasetCriteria, null);
@@ -2674,4 +2709,65 @@ public final class CommonClientService extends AbstractClientService implements
             throw UserFailureExceptionTranslator.translate(e);
         }
     }
+    public ArchivingResult archiveDatasets(
+            DisplayedCriteriaOrSelectedEntityHolder<Experiment> criteria)
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            List<String> datasetCodes = extractDatasetCodes(criteria);
+            int result = commonServer.archiveDatasets(sessionToken, datasetCodes, true);
+            return new ArchivingResult(datasetCodes.size(), result);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public ArchivingResult unarchiveDatasets(
+            DisplayedCriteriaOrSelectedEntityHolder<Experiment> criteria)
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            List<String> datasetCodes = extractDatasetCodes(criteria);
+            int result = commonServer.unarchiveDatasets(sessionToken, datasetCodes);
+            return new ArchivingResult(datasetCodes.size(), result);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public ArchivingResult lockDatasets(DisplayedCriteriaOrSelectedEntityHolder<Experiment> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            List<String> datasetCodes = extractDatasetCodes(criteria);
+            int result = commonServer.lockDatasets(sessionToken, datasetCodes);
+            return new ArchivingResult(datasetCodes.size(), result);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public ArchivingResult unlockDatasets(
+            DisplayedCriteriaOrSelectedEntityHolder<Experiment> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            List<String> datasetCodes = extractDatasetCodes(criteria);
+            int result = commonServer.unlockDatasets(sessionToken, datasetCodes);
+            return new ArchivingResult(datasetCodes.size(), result);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
 }

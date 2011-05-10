@@ -22,6 +22,7 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ArchivingResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedCriteriaOrSelectedEntityHolder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
@@ -852,6 +853,20 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
+     * Schedules archiving of the datasets connected to the specified experiments.
+     */
+    public ArchivingResult archiveDatasets(
+            DisplayedCriteriaOrSelectedEntityHolder<Experiment> criteria)
+            throws UserFailureException;
+
+    /**
+     * Schedules unarchiving of the datasets connected to the specified experiments.
+     */
+    public ArchivingResult unarchiveDatasets(
+            DisplayedCriteriaOrSelectedEntityHolder<Experiment> criteria)
+            throws UserFailureException;
+
+    /**
      * Deletes selected authorization groups.
      */
     public void deleteAuthorizationGroups(List<TechId> createList, String reason)
@@ -990,6 +1005,19 @@ public interface ICommonClientService extends IClientService
      * Unlocks the specified datasets.
      */
     public ArchivingResult unlockDatasets(DisplayedOrSelectedDatasetCriteria criteria)
+            throws UserFailureException;
+
+    /**
+     * Locks the datasets connected to the specified experiments.
+     */
+    public ArchivingResult lockDatasets(DisplayedCriteriaOrSelectedEntityHolder<Experiment> criteria)
+            throws UserFailureException;
+
+    /**
+     * Unlocks the datasets connected to the specified experiments.
+     */
+    public ArchivingResult unlockDatasets(
+            DisplayedCriteriaOrSelectedEntityHolder<Experiment> criteria)
             throws UserFailureException;
 
     /**

@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Display
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.experiment.CommonExperimentColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentDataSetArchivingMenu.SelectedAndDisplayedItems;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
@@ -49,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IC
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.TextToolItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -213,9 +215,34 @@ public class ExperimentBrowserGrid extends
             });
         changeButtonTitleOnSelectedItems(deleteButton, deleteAllTitle, deleteTitle);
         addButton(deleteButton);
+
+        if (viewContext.getModel().getApplicationInfo().isArchivingConfigured()
+                && viewContext.isSimpleOrEmbeddedMode() == false)
+        {
+            addButton(createArchivingMenu());
+        }
+
         allowMultipleSelection(); // we allow deletion of multiple samples
 
         addEntityOperationsSeparator();
+    }
+
+    private final TextToolItem createArchivingMenu()
+    {
+        return new ExperimentDataSetArchivingMenu(viewContext,
+                getSelectedAndDisplayedItemsAction(), createRefreshGridAction());
+    }
+
+    private final IDelegatedActionWithResult<SelectedAndDisplayedItems> getSelectedAndDisplayedItemsAction()
+    {
+        return new IDelegatedActionWithResult<SelectedAndDisplayedItems>()
+            {
+                public SelectedAndDisplayedItems execute()
+                {
+                    return new SelectedAndDisplayedItems(getSelectedBaseObjects(),
+                            createTableExportCriteria(), getTotalCount());
+                }
+            };
     }
 
     private void openExperimentRegistrationTab()
