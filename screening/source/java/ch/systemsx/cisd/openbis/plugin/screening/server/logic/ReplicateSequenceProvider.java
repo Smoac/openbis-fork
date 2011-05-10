@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import ch.systemsx.cisd.common.collections.GroupByMap;
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
@@ -46,14 +45,15 @@ class ReplicateSequenceProvider
     public ReplicateSequenceProvider(List<? extends IEntityPropertiesHolder> replicaWells,
             List<String> biologicalReplicatePropertyTypeCodesOrNull)
     {
-        this.biologicalReplicatePropertyTypeCodesOrNull = biologicalReplicatePropertyTypeCodesOrNull;
+        this.biologicalReplicatePropertyTypeCodesOrNull =
+                biologicalReplicatePropertyTypeCodesOrNull;
         this.biologicalReplicateSeqMap = new LinkedHashMap<Double, Integer>();
         this.technicalReplicateSeqMap = new LinkedHashMap<Long, Integer>();
 
         GroupByMap<Double, IEntityPropertiesHolder> biologicalReplicates =
                 groupByBiologicalReplicate(replicaWells);
         int biologicalReplicateSeq = 1;
-        for (Double biologicalReplicateKey : createSortedCopy(biologicalReplicates.getKeys()))
+        for (Double biologicalReplicateKey : biologicalReplicates.getKeys())
         {
             if (biologicalReplicateKey != null)
             {
@@ -70,7 +70,8 @@ class ReplicateSequenceProvider
         }
     }
 
-    public Collection<Integer> getBiologicalReplicateKeys()
+    /** @return sequences of biological replicas, all keys are not null. */
+    public Collection<Integer> getBiologicalReplicateSequences()
     {
         return createSortedCopy(biologicalReplicateSeqMap.values());
     }
@@ -87,8 +88,14 @@ class ReplicateSequenceProvider
             });
     }
 
+    /** @return true if this well has information about which biological replicate it is. */
+    public boolean isBiologicalReplicate(IEntityPropertiesHolder well)
+    {
+        return tryFindSubgroup(well) != null;
+    }
+
     /** Subgroup sequence, the same for all technical replicates of one biological replicate. */
-    public Integer tryGetBiologicalReplicateSequenceNum(IEntityPropertiesHolder well)
+    public Integer tryGetBiologicalReplicateSequence(IEntityPropertiesHolder well)
     {
         Double subgroupKey = tryFindSubgroup(well);
         if (subgroupKey == null)
@@ -103,7 +110,7 @@ class ReplicateSequenceProvider
     /**
      * Technical Replicate Sequence (unique in one biological replicate)
      */
-    public int getTechnicalReplicateSequenceNum(IEntityPropertiesHolder well)
+    public int getTechnicalReplicateSequence(IEntityPropertiesHolder well)
     {
         return technicalReplicateSeqMap.get(well.getId());
     }
@@ -115,15 +122,13 @@ class ReplicateSequenceProvider
         return sortedKeys;
     }
 
-    public boolean hasNoBiologicalReplicates()
+    public String tryGetBiologicalReplicateLabel(IEntityPropertiesHolder well)
     {
-        Set<Double> keys = biologicalReplicateSeqMap.keySet();
-        return keys.size() == 1 && keys.contains(null);
-    }
-
-    public String getBiologicalReplicateLabel(IEntityPropertiesHolder well)
-    {
-        int biologicalReplicateSeq = tryGetBiologicalReplicateSequenceNum(well);
+        Integer biologicalReplicateSeq = tryGetBiologicalReplicateSequence(well);
+        if (biologicalReplicateSeq == null)
+        {
+            return null;
+        }
         IEntityProperty subgroupProperty = tryFindSubgroupProperty(well);
         assert subgroupProperty != null : "cannot fnd the subgroup property";
         boolean isMaterialProperty = (subgroupProperty.getMaterial() != null);

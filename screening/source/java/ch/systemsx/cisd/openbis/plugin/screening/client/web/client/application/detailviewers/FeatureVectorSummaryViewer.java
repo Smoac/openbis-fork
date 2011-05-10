@@ -18,10 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.Style.Orientation;
-import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
@@ -49,6 +46,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.u
  * 
  * @author Kaloyan Enimanev
  */
+// TODO 2011-05-05, Tomasz Pylak: rename to ExperimentAnalysisSummaryViewer
 public class FeatureVectorSummaryViewer
 {
 
@@ -115,14 +113,14 @@ public class FeatureVectorSummaryViewer
                 @Override
                 public String tryGetLink()
                 {
-                    return ScreeningLinkExtractor.createFeatureVectorSummaryBrowserLink(experiment
-                            .getPermId());
+                    return ScreeningLinkExtractor
+                            .createExperimentAnalysisSummaryBrowserLink(experiment.getPermId());
                 }
 
                 @Override
                 public String getTabTitle()
                 {
-                    return "Feature Vector Summary: " + experiment.getCode();
+                    return "Analysis Summary " + experiment.getCode();
                 }
 
                 @Override
@@ -139,14 +137,13 @@ public class FeatureVectorSummaryViewer
     {
 
         final LayoutContainer panel = new LayoutContainer();
-        panel.setLayout(new RowLayout(Orientation.VERTICAL));
+        panel.setLayout(new RowLayout());
 
-        Widget northPanel = createNorth(viewContext, experiment);
-        panel.add(northPanel);
+        addHeader(panel, viewContext, experiment);
 
         final IDisposableComponent gridComponent =
                 FeatureVectorSummaryGrid.create(viewContext, experiment);
-        panel.add(gridComponent.getComponent());
+        panel.add(gridComponent.getComponent(), new RowData(-1, 1));
 
         return new IDisposableComponent()
             {
@@ -172,24 +169,26 @@ public class FeatureVectorSummaryViewer
             };
     }
 
-    private static Widget createNorth(IViewContext<IScreeningClientServiceAsync> viewContext,
-            Experiment experiment)
+    private static void addHeader(LayoutContainer parentPanel,
+            IViewContext<IScreeningClientServiceAsync> viewContext, Experiment experiment)
     {
-        LayoutContainer panel = new LayoutContainer();
-        panel.setLayout(new RowLayout(Orientation.VERTICAL));
-
-        // NOTE: this should be refactored to an external CSS style
         String headingText = "Assay " + experiment.getCode();
-        Html headingWidget = new Html(headingText);
-        headingWidget.setTagName("h1");
-        panel.add(headingWidget, new RowData(1, -1, headingTitleMargin()));
 
-        return panel;
-    }
+        LayoutContainer panel = new LayoutContainer();
+        panel.setLayout(new RowLayout());
 
-    private static Margins headingTitleMargin()
-    {
-        return new Margins(0, 0, 20, 0);
+        Widget headingWidget = PropertiesUtil.createHeaderTitle(headingText);
+        panel.add(headingWidget, PropertiesUtil.createHeaderTitleLayoutData());
+
+        LayoutContainer propertiesPanel = new LayoutContainer();
+        propertiesPanel.setLayout(new RowLayout());
+        int propsHeight = PropertiesUtil.addProperties(experiment, propertiesPanel, null);
+        panel.add(propertiesPanel, new RowData(1, -1));
+
+        int headersHeight = 15;
+        int totalHeight = propsHeight + headersHeight;
+        parentPanel.add(panel,
+                new RowData(-1, totalHeight, PropertiesUtil.createHeaderInfoMargin()));
     }
 
 }

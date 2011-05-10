@@ -26,13 +26,12 @@ import java.util.Set;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.Viewport;
+import com.extjs.gxt.ui.client.widget.layout.ColumnLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
@@ -54,7 +53,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
@@ -75,6 +73,14 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReplicaIma
  */
 public class MaterialReplicaFeatureSummaryViewer
 {
+    private static final String LOADING_IMAGES_DICT_MSG = "Loading images...";
+
+    private static final String REPLICATE_ABBREV_DICT_MSG = "repl.";
+
+    private static final String NO_IMAGES_AVAILABLE_DICT_MSG = "No images available.";
+
+    private static final String MATERIAL_ID_DICT_MSG = "Id";
+
     private static final int ONE_IMAGE_SIZE_PX = 80;
 
     public static void openTab(IViewContext<IScreeningClientServiceAsync> screeningViewContext,
@@ -88,7 +94,7 @@ public class MaterialReplicaFeatureSummaryViewer
 
     private final IViewContext<IScreeningClientServiceAsync> screeningViewContext;
 
-    public MaterialReplicaFeatureSummaryViewer(
+    private MaterialReplicaFeatureSummaryViewer(
             IViewContext<IScreeningClientServiceAsync> screeningViewContext)
     {
         this.screeningViewContext = screeningViewContext;
@@ -118,7 +124,6 @@ public class MaterialReplicaFeatureSummaryViewer
             screeningViewContext.getCommonService().getExperimentInfo(new TechId(experiment),
                     new AbstractAsyncCallback<Experiment>(screeningViewContext)
                         {
-
                             @Override
                             protected void process(Experiment result)
                             {
@@ -147,7 +152,6 @@ public class MaterialReplicaFeatureSummaryViewer
             screeningViewContext.getService().getMaterialInfo(new TechId(material),
                     new AbstractAsyncCallback<Material>(screeningViewContext)
                         {
-
                             @Override
                             protected void process(Material result)
                             {
@@ -204,19 +208,20 @@ public class MaterialReplicaFeatureSummaryViewer
 
     private class ImagesFoundCallback extends AbstractAsyncCallback<List<WellReplicaImage>>
     {
-        private final LayoutContainer panel;
+        private final LayoutContainer imagesPanel;
 
-        ImagesFoundCallback(LayoutContainer panel)
+        ImagesFoundCallback(LayoutContainer imagesPanel)
         {
             super(screeningViewContext);
-            this.panel = panel;
+            this.imagesPanel = imagesPanel;
         }
 
         @Override
         protected void process(List<WellReplicaImage> images)
         {
-            panel.add(createImagePanel(images));
-            panel.layout();
+            imagesPanel.removeAll();
+            imagesPanel.add(createImagePanel(images));
+            imagesPanel.layout();
         }
     }
 
@@ -224,7 +229,7 @@ public class MaterialReplicaFeatureSummaryViewer
     {
         if (images.isEmpty())
         {
-            return new Text("No images available.");
+            return new Text(NO_IMAGES_AVAILABLE_DICT_MSG);
         }
         String displayTypeId = ScreeningDisplayTypeIDGenerator.EXPERIMENT_CHANNEL.createID(null);
         final IDefaultChannelState defaultChannelState =
@@ -245,15 +250,20 @@ public class MaterialReplicaFeatureSummaryViewer
             labelToReplicasMap.remove(orphanGroupKey);
         }
         panel.add(createBiologicalReplicatesImagesPanel(labelToReplicasMap, channelChooser));
+        ensureAllImagesVisible(panel);
+        return panel;
+    }
+
+    // WORKAROUND: in normal mode the height of menu and tab is not taken into account,
+    // so we add empty space to make
+    private void ensureAllImagesVisible(LayoutContainer panel)
+    {
         if (screeningViewContext.isSimpleOrEmbeddedMode() == false)
         {
-            // WORKAROUND: in normal mode the height of menu and tab is not taken into account,
-            // so we add empty space to make
             Text box = new Text();
             box.setHeight(100);
             panel.add(box);
         }
-        return panel;
     }
 
     private Widget createOrphanTechnicalReplicatesPanel(
@@ -333,7 +343,7 @@ public class MaterialReplicaFeatureSummaryViewer
 
     private Widget createTechnicalReplicateLabel(int technicalReplicateSequence)
     {
-        return new Text("repl. " + technicalReplicateSequence);
+        return new Text(REPLICATE_ABBREV_DICT_MSG + " " + technicalReplicateSequence);
     }
 
     private Widget createEmptyBox()
@@ -413,8 +423,8 @@ public class MaterialReplicaFeatureSummaryViewer
         panel.setLayout(new RowLayout(Orientation.VERTICAL));
         panel.setScrollMode(Scroll.AUTOY);
 
-        final Widget northPanel = createNorth(screeningViewContext, experiment, material);
-        panel.add(northPanel);
+        Widget materialInfo = createMaterialInfo(screeningViewContext, experiment, material);
+        panel.add(materialInfo, new RowData(-1, -1, PropertiesUtil.createHeaderInfoMargin()));
 
         final IDisposableComponent gridComponent =
                 MaterialReplicaFeatureSummaryGrid.create(screeningViewContext, new TechId(
@@ -422,8 +432,11 @@ public class MaterialReplicaFeatureSummaryViewer
         // NOTE: if the width is 100% then the vertical scrollbar of the grid is not visible
         panel.add(gridComponent.getComponent(), new RowData(0.97, 400));
 
+        LayoutContainer imagesPanel = new LayoutContainer();
+        imagesPanel.add(new Text(LOADING_IMAGES_DICT_MSG));
+        panel.add(imagesPanel);
         screeningViewContext.getService().listWellImages(new TechId(material.getId()),
-                new TechId(experiment.getId()), new ImagesFoundCallback(panel));
+                new TechId(experiment.getId()), new ImagesFoundCallback(imagesPanel));
 
         return new IDisposableComponent()
             {
@@ -449,43 +462,45 @@ public class MaterialReplicaFeatureSummaryViewer
             };
     }
 
-    private static Widget createNorth(IViewContext<IScreeningClientServiceAsync> viewContext,
-            Experiment experiment, Material material)
-    {
-        HorizontalPanel panel = new HorizontalPanel();
-
-        Widget left = createNorthLeft(viewContext, experiment, material);
-        panel.add(left);
-
-        Widget right = createNorthRight(viewContext, experiment, material);
-        panel.add(right);
-
-        return panel;
-    }
-
-    private static Widget createNorthLeft(
+    private static Widget createMaterialInfo(
             final IViewContext<IScreeningClientServiceAsync> viewContext,
             final Experiment experiment, final Material material)
     {
         LayoutContainer panel = new LayoutContainer();
-        panel.setLayout(new RowLayout(Orientation.VERTICAL));
+        panel.setLayout(new RowLayout());
 
-        String headingText =
-                getMaterialType(material) + " " + getMaterialName(material) + " in assay "
-                        + experiment.getCode();
+        Widget headerWidget = createHeaderWithLinks(viewContext, experiment, material);
+        panel.add(headerWidget, PropertiesUtil.createHeaderTitleLayoutData());
 
-        Html headingWidget = createHeader(headingText);
-        panel.add(headingWidget, new RowData(1, -1, new Margins(0, 0, 20, 0)));
+        LayoutContainer materialPropertiesPanel = createMaterialPropertiesPanel(material);
+        panel.add(materialPropertiesPanel);
 
         return panel;
     }
 
-    private static Html createHeader(String headingText)
+    private static Widget createHeaderWithLinks(
+            final IViewContext<IScreeningClientServiceAsync> viewContext,
+            final Experiment experiment, final Material material)
     {
-        Html headingWidget = new Html(headingText);
-        // NOTE: this should be refactored to an external CSS style
-        headingWidget.setTagName("h1");
-        return headingWidget;
+        Widget headingWidget = createHeaderTitle(experiment, material);
+        Text emptyBox = new Text();
+        emptyBox.setWidth(200);
+        Widget assayAnalysisSummaryLink =
+                createAssayAnalysisSummaryLink(viewContext, experiment, material);
+        LayoutContainer headerPanel = new LayoutContainer();
+        headerPanel.setLayout(new ColumnLayout());
+        headerPanel.add(headingWidget);
+        headerPanel.add(emptyBox);
+        headerPanel.add(assayAnalysisSummaryLink);
+        return headerPanel;
+    }
+
+    private static Html createHeaderTitle(final Experiment experiment, final Material material)
+    {
+        String headingText =
+                getMaterialType(material) + " " + getMaterialName(material) + " in assay "
+                        + experiment.getCode();
+        return PropertiesUtil.createHeaderTitle(headingText);
     }
 
     private static String getMaterialType(Material material)
@@ -506,29 +521,24 @@ public class MaterialReplicaFeatureSummaryViewer
         if (material.getEntityType().getCode()
                 .equalsIgnoreCase(ScreeningConstants.GENE_PLUGIN_TYPE_CODE))
         {
-            for (IEntityProperty property : material.getProperties())
+            String geneSymbol =
+                    PropertiesUtil.tryFindProperty(material, ScreeningConstants.GENE_SYMBOLS);
+            if (geneSymbol != null)
             {
-                if (property.getPropertyType().getCode()
-                        .equalsIgnoreCase(ScreeningConstants.GENE_SYMBOLS))
-                {
-                    return property.tryGetAsString();
-                }
+                return geneSymbol;
             }
         }
         return material.getCode();
     }
 
-    private static Widget createNorthRight(
+    private static Widget createAssayAnalysisSummaryLink(
             final IViewContext<IScreeningClientServiceAsync> viewContext,
             final Experiment experiment, final Material material)
     {
-        LayoutContainer panel = new LayoutContainer();
-        panel.setLayout(new RowLayout(Orientation.VERTICAL));
-
         // add link to feature vector summary for the experiment
         String linkUrl =
-                ScreeningLinkExtractor
-                        .createFeatureVectorSummaryBrowserLink(experiment.getPermId());
+                ScreeningLinkExtractor.createExperimentAnalysisSummaryBrowserLink(experiment
+                        .getPermId());
         String linkText = "Show assay " + experiment.getCode() + " summary";
         Widget linkWidget = LinkRenderer.getLinkWidget(linkText, new ClickHandler()
             {
@@ -539,11 +549,17 @@ public class MaterialReplicaFeatureSummaryViewer
                     FeatureVectorSummaryViewer.openTab(viewContext, experiment.getPermId());
                 }
             }, linkUrl);
+        return linkWidget;
+    }
 
-        HorizontalPanel linkPanel = new HorizontalPanel();
-        linkPanel.add(linkWidget);
-        panel.add(linkPanel, new RowData(-1, -1, new Margins(0, 0, 20, 200)));
-
-        return panel;
+    private static LayoutContainer createMaterialPropertiesPanel(final Material material)
+    {
+        LayoutContainer propertiesPanel = new LayoutContainer();
+        propertiesPanel.setLayout(new RowLayout());
+        Map<String, String> additionalProperties = new HashMap<String, String>();
+        additionalProperties.put(MATERIAL_ID_DICT_MSG, material.getCode());
+        PropertiesUtil.addProperties(material, propertiesPanel, additionalProperties,
+                ScreeningConstants.GENE_SYMBOLS);
+        return propertiesPanel;
     }
 }

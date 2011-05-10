@@ -88,7 +88,7 @@ class MaterialReplicaFeatureSummaryProvider extends
             builder.columnGroup(subgroup);
         }
 
-        if (rows.get(0).getTechnicalReplicates() != null)
+        if (rows.get(0).getDirectTechnicalReplicates() != null)
         {
             builder.columnGroup(DEFAULT_SUBGROUP);
         }
@@ -111,7 +111,8 @@ class MaterialReplicaFeatureSummaryProvider extends
         builder.column(DEVIATION).addDouble(row.getFeatureVectorDeviation());
         builder.column(RANK).addInteger((long) row.getFeatureVectorRank());
 
-        MaterialBiologicalReplicateFeatureSummary defaultSubgroup = row.getTechnicalReplicates();
+        MaterialBiologicalReplicateFeatureSummary defaultSubgroup =
+                row.getDirectTechnicalReplicates();
         if (defaultSubgroup != null)
         {
             addSubgroup(builder, DEFAULT_SUBGROUP, "", defaultSubgroup);
@@ -141,7 +142,9 @@ class MaterialReplicaFeatureSummaryProvider extends
                     .withTitle(replicaColumnTitle).addDouble((double) featureValues[i]);
         }
 
-        if (false == DEFAULT_SUBGROUP.equals(groupId))
+        // aggregates should be shown only for biological replicates which have more than one
+        // technical replicate
+        if (false == DEFAULT_SUBGROUP.equals(groupId) && featureValues.length > 1)
         {
             MaterialReplicaSummaryAggregationType aggregationType =
                     subgroup.getSummaryAggregationType();

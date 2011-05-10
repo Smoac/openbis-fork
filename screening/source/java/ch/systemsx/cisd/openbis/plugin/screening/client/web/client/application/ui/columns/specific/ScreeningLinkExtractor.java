@@ -88,7 +88,7 @@ public class ScreeningLinkExtractor extends LinkExtractor
         return tryPrint(url);
     }
 
-    public static final String createFeatureVectorSummaryBrowserLink(String experimentPermId)
+    public static final String createExperimentAnalysisSummaryBrowserLink(String experimentPermId)
     {
         URLMethodWithParameters url = new URLMethodWithParameters("");
         url.addParameter(BasicConstant.LOCATOR_ACTION_PARAMETER, FEATURE_VECTOR_SUMMARY_ACTION);

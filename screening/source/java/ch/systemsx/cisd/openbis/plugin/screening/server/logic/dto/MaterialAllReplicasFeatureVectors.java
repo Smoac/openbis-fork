@@ -22,10 +22,10 @@ public class MaterialAllReplicasFeatureVectors implements ISerializable
     private MaterialFeatureVectorSummary generalSummary;
 
     // NOTE: Can be empty.
-    private List<MaterialBiologicalReplicateFeatureVector> subgroups;
+    private List<MaterialBiologicalReplicateFeatureVector> biologicalReplicates;
 
     // NOTE: Can be empty. Used for replicas which have no subgroups
-    private List<MaterialTechnicalReplicateFeatureVector> replicas;
+    private List<MaterialTechnicalReplicateFeatureVector> directTechnicalReplicates;
 
     // GWT only
     @SuppressWarnings("unused")
@@ -40,8 +40,8 @@ public class MaterialAllReplicasFeatureVectors implements ISerializable
     {
         this.featureDescriptions = featureDescriptions;
         this.generalSummary = generalSummary;
-        this.subgroups = subgroups;
-        this.replicas = replicas;
+        this.biologicalReplicates = subgroups;
+        this.directTechnicalReplicates = replicas;
     }
 
     public List<CodeAndLabel> getFeatureDescriptions()
@@ -54,14 +54,14 @@ public class MaterialAllReplicasFeatureVectors implements ISerializable
         return generalSummary;
     }
 
-    public List<MaterialBiologicalReplicateFeatureVector> getSubgroups()
+    public List<MaterialBiologicalReplicateFeatureVector> getBiologicalReplicates()
     {
-        return subgroups;
+        return biologicalReplicates;
     }
 
-    public List<MaterialTechnicalReplicateFeatureVector> getReplicas()
+    public List<MaterialTechnicalReplicateFeatureVector> getDirectTechnicalReplicates()
     {
-        return replicas;
+        return directTechnicalReplicates;
     }
 
 }

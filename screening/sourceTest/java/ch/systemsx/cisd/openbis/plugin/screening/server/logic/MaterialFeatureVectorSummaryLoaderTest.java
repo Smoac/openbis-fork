@@ -95,7 +95,7 @@ public class MaterialFeatureVectorSummaryLoaderTest extends AssertJUnit
 
         assertEquals(featuresDesc, featureVectors.getFeatureDescriptions());
         int groupId = 1;
-        for (MaterialBiologicalReplicateFeatureVector subgroup : featureVectors.getSubgroups())
+        for (MaterialBiologicalReplicateFeatureVector subgroup : featureVectors.getBiologicalReplicates())
         {
             switch (groupId)
             {

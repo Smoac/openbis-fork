@@ -169,8 +169,9 @@ public class WellContentLoader extends AbstractContentLoader
             ReplicateSequenceProvider replicaSequences)
     {
         int technicalReplicaSequenceNumber =
-                replicaSequences.getTechnicalReplicateSequenceNum(wellContent);
-        String biologicalReplicateLabel = replicaSequences.getBiologicalReplicateLabel(wellContent);
+                replicaSequences.getTechnicalReplicateSequence(wellContent);
+        String biologicalReplicateLabel =
+                replicaSequences.tryGetBiologicalReplicateLabel(wellContent);
         return new WellReplicaImage(wellContent, technicalReplicaSequenceNumber,
                 biologicalReplicateLabel);
     }

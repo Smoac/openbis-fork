@@ -96,12 +96,13 @@ public class MaterialReplicaFeatureSummary implements ISerializable
         this.biologicalRelicates = replicaSubgroups;
     }
 
-    public MaterialBiologicalReplicateFeatureSummary getTechnicalReplicates()
+    public MaterialBiologicalReplicateFeatureSummary getDirectTechnicalReplicates()
     {
         return technicalReplicates;
     }
 
-    public void setTechnicalReplicates(MaterialBiologicalReplicateFeatureSummary defaultReplica)
+    public void setDirectTechnicalReplicates(
+            MaterialBiologicalReplicateFeatureSummary defaultReplica)
     {
         this.technicalReplicates = defaultReplica;
     }
