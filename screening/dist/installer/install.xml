@@ -27,7 +27,7 @@
   <resources>
     <!-- res id="LicencePanel.licence" src="Licence.txt"/ -->
     <res id="TargetPanel.dir" src="@{installer.resourcedir}/default-install-dir.txt" />
-    <res id="Heading.image" src="@{installer.resourcedir}/openbis_logo_229x100.png"/>
+    <res id="Heading.image" src="@{installer.resourcedir}/openBIS_logo_229x100.png"/>
     <res id="userInputSpec.xml" src="@{installer.resourcedir}/userInputSpec.xml" />
     <res id="ProcessPanel.Spec.xml" src="@{installer.resourcedir}/backup-installation.xml"/>
   </resources>
