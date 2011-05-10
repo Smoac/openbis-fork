@@ -17,28 +17,43 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.api.v1;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.testng.AssertJUnit;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
+import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.io.ByteArrayBasedContent;
 import ch.systemsx.cisd.common.io.ConcatenatedContentInputStream;
 import ch.systemsx.cisd.common.io.IContent;
+import ch.systemsx.cisd.common.test.RecordingMatcher;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
 import ch.systemsx.cisd.openbis.dss.screening.server.DssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade.IImageOutputStreamProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.server.ScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
@@ -54,15 +69,17 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialTypeIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 
 /**
  * @author Franz-Josef Elmer
  */
 @Friend(toClasses = DssServiceRpcScreeningHolder.class)
-public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
+public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCase
 {
     private static final class MockPlateImageHandler implements IPlateImageHandler
     {
@@ -121,6 +138,8 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
 
     private IGeneralInformationChangingService generalInformationChangingService;
 
+    private IDataSetDss ds1Proxy;
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -129,6 +148,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
         generalInformationService = context.mock(IGeneralInformationService.class);
         generalInformationChangingService = context.mock(IGeneralInformationChangingService.class);
         dssComponent = context.mock(IDssComponent.class);
+        ds1Proxy = context.mock(IDataSetDss.class);
         dssServiceFactory = context.mock(IDssServiceFactory.class);
         i1id = new ImageDatasetReference(DATA_SET1, URL1, null, null, null, null, null, null);
         i2id = new ImageDatasetReference(DATA_SET2, URL2, null, null, null, null, null, null);
@@ -444,5 +464,218 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
                 transformerFactory);
 
         context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testGetWellProperties()
+    {
+        final WellIdentifier wellIdentifier = new WellIdentifier(null, null, null);
+        context.checking(new Expectations()
+            {
+                {
+                    one(screeningService).getWellSample(SESSION_TOKEN, wellIdentifier);
+                    SampleInitializer initializer = sampleInitializer();
+                    initializer.putProperty("a", "alpha");
+                    will(returnValue(new Sample(initializer)));
+                }
+            });
+        
+        Map<String, String> wellProperties = facade.getWellProperties(wellIdentifier);
+        
+        assertEquals("{a=alpha}", wellProperties.toString());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testUpdateWellProperties()
+    {
+        final WellIdentifier wellIdentifier = new WellIdentifier(null, null, null);
+        final Map<String, String> properties = new HashMap<String, String>();
+        context.checking(new Expectations()
+            {
+                {
+                    one(screeningService).getWellSample(SESSION_TOKEN, wellIdentifier);
+                    will(returnValue(new Sample(sampleInitializer())));
+                    
+                    one(generalInformationChangingService).updateSampleProperties(SESSION_TOKEN, 42L, properties);
+                }
+            });
+
+        facade.updateWellProperties(wellIdentifier, properties);
+        
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testGetDataSetsOfAWell()
+    {
+        final WellIdentifier wellIdentifier = new WellIdentifier(null, null, null);
+        context.checking(new Expectations()
+            {
+                {
+                    one(screeningService).getWellSample(SESSION_TOKEN, wellIdentifier);
+                    Sample sample = new Sample(sampleInitializer());
+                    will(returnValue(sample));
+                    
+                    one(generalInformationService).listDataSetsForSample(SESSION_TOKEN, sample, true);
+                    DataSetInitializer initializer1 = dataSetInitializer(DATA_SET1);
+                    will(returnValue(Arrays.asList(new DataSet(initializer1))));
+                    
+                    one(dssComponent).getDataSet(DATA_SET1);
+                    will(returnValue(ds1Proxy));
+                }
+            });
+        
+        List<IDataSetDss> dataSets = facade.getDataSets(wellIdentifier);
+        
+        assertSame(ds1Proxy, dataSets.get(0));
+        assertEquals(1, dataSets.size());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testGetDataSetsOfAPlate()
+    {
+        final PlateIdentifier plateIdentifier = new PlateIdentifier("P1", "S", "s-1");
+        context.checking(new Expectations()
+            {
+                {
+                    one(screeningService).getPlateSample(SESSION_TOKEN, plateIdentifier);
+                    Sample sample = new Sample(sampleInitializer());
+                    will(returnValue(sample));
+
+                    one(generalInformationService).listDataSetsForSample(SESSION_TOKEN, sample,
+                            true);
+                    DataSetInitializer initializer1 = dataSetInitializer(DATA_SET1);
+                    will(returnValue(Arrays.asList(new DataSet(initializer1))));
+
+                    one(dssComponent).getDataSet(DATA_SET1);
+                    will(returnValue(ds1Proxy));
+                }
+            });
+
+        List<IDataSetDss> dataSets = facade.getDataSets(plateIdentifier);
+        
+        assertSame(ds1Proxy, dataSets.get(0));
+        assertEquals(1, dataSets.size());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testPutDataSetForWell() throws IOException
+    {
+        final WellIdentifier wellIdentifier = new WellIdentifier(null, null, null);
+        final File dataSetRoot = new File(workingDirectory, DATA_SET1);
+        dataSetRoot.mkdirs();
+        FileUtilities.writeToFile(new File(dataSetRoot, "readme"), "nothing to read");
+        File dir = new File(dataSetRoot, "dir");
+        dir.mkdir();
+        FileUtilities.writeToFile(new File(dir, "hello.txt"), "hello world");
+        final RecordingMatcher<NewDataSetDTO> dataSetMatcher = new RecordingMatcher<NewDataSetDTO>();
+        context.checking(new Expectations()
+            {
+                {
+                    one(screeningService).getWellSample(SESSION_TOKEN, wellIdentifier);
+                    Sample sample = new Sample(sampleInitializer());
+                    will(returnValue(sample));
+                    
+                    one(dssComponent).putDataSet(with(dataSetMatcher), with(dataSetRoot));
+                    will(returnValue(ds1Proxy));
+                }
+            });
+        NewDataSetMetadataDTO metaData = new NewDataSetMetadataDTO();
+        metaData.setDataSetTypeOrNull("my-type");
+        HashMap<String, String> props = new HashMap<String, String>();
+        props.put("a", "b");
+        metaData.setProperties(props);
+        
+        IDataSetDss dataSet = facade.putDataSet(wellIdentifier, dataSetRoot, metaData);
+
+        assertSame(ds1Proxy, dataSet);
+        assertEquals("MY-TYPE", dataSetMatcher.recordedObject().tryDataSetType());
+        assertEquals(NewDataSetDTO.DEFAULT_DATA_SET_FOLDER_NAME, dataSetMatcher.recordedObject()
+                .getDataSetFolderName());
+        assertEquals(DataSetOwnerType.SAMPLE, dataSetMatcher.recordedObject().getDataSetOwner().getType());
+        assertEquals("/S/abc", dataSetMatcher.recordedObject().getDataSetOwner().getIdentifier());
+        assertEquals("{a=b}", dataSetMatcher.recordedObject().getProperties().toString());
+        List<FileInfoDssDTO> fileInfos = dataSetMatcher.recordedObject().getFileInfos();
+        List<String> paths = new ArrayList<String>();
+        for (FileInfoDssDTO fileInfo : fileInfos)
+        {
+            paths.add(fileInfo.getPathInDataSet());
+        }
+        Collections.sort(paths);
+        assertEquals("[/dir, /dir/hello.txt, /readme]", paths.toString());
+        context.assertIsSatisfied();
+    }
+
+    
+    @Test
+    public void testPutDataSetForPlate() throws IOException
+    {
+        final PlateIdentifier plateIdentifier = new PlateIdentifier("P1", "S", "s-1");
+        final File dataSetRoot = new File(workingDirectory, DATA_SET1);
+        dataSetRoot.mkdirs();
+        FileUtilities.writeToFile(new File(dataSetRoot, "readme"), "nothing to read");
+        File dir = new File(dataSetRoot, "dir");
+        dir.mkdir();
+        FileUtilities.writeToFile(new File(dir, "hello.txt"), "hello world");
+        final RecordingMatcher<NewDataSetDTO> dataSetMatcher = new RecordingMatcher<NewDataSetDTO>();
+        context.checking(new Expectations()
+        {
+            {
+                one(screeningService).getPlateSample(SESSION_TOKEN, plateIdentifier);
+                Sample sample = new Sample(sampleInitializer());
+                will(returnValue(sample));
+                
+                one(dssComponent).putDataSet(with(dataSetMatcher), with(dataSetRoot));
+                will(returnValue(ds1Proxy));
+            }
+        });
+        NewDataSetMetadataDTO metaData = new NewDataSetMetadataDTO();
+        metaData.setDataSetTypeOrNull("my-type");
+        HashMap<String, String> props = new HashMap<String, String>();
+        props.put("a", "b");
+        metaData.setProperties(props);
+        
+        IDataSetDss dataSet = facade.putDataSet(plateIdentifier, dataSetRoot, metaData);
+        
+        assertSame(ds1Proxy, dataSet);
+        assertEquals("MY-TYPE", dataSetMatcher.recordedObject().tryDataSetType());
+        assertEquals(NewDataSetDTO.DEFAULT_DATA_SET_FOLDER_NAME, dataSetMatcher.recordedObject()
+                .getDataSetFolderName());
+        assertEquals(DataSetOwnerType.SAMPLE, dataSetMatcher.recordedObject().getDataSetOwner().getType());
+        assertEquals("/S/abc", dataSetMatcher.recordedObject().getDataSetOwner().getIdentifier());
+        assertEquals("{a=b}", dataSetMatcher.recordedObject().getProperties().toString());
+        List<FileInfoDssDTO> fileInfos = dataSetMatcher.recordedObject().getFileInfos();
+        List<String> paths = new ArrayList<String>();
+        for (FileInfoDssDTO fileInfo : fileInfos)
+        {
+            paths.add(fileInfo.getPathInDataSet());
+        }
+        Collections.sort(paths);
+        assertEquals("[/dir, /dir/hello.txt, /readme]", paths.toString());
+        context.assertIsSatisfied();
+    }
+    
+    private SampleInitializer sampleInitializer()
+    {
+        SampleInitializer initializer = new SampleInitializer();
+        initializer.setId(42L);
+        initializer.setCode("abc");
+        initializer.setIdentifier("/S/abc");
+        initializer.setPermId("s-1");
+        initializer.setSampleTypeId(1L);
+        initializer.setSampleTypeCode("my-type");
+        return initializer;
+    }
+
+    private DataSetInitializer dataSetInitializer(String code)
+    {
+        DataSetInitializer initializer = new DataSetInitializer();
+        initializer.setDataSetTypeCode("my-data-set");
+        initializer.setExperimentIdentifier("/S/P/E");
+        initializer.setCode(code);
+        return initializer;
     }
 }
