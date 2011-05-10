@@ -48,6 +48,7 @@ import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.common.utilities.TokenGenerator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -409,8 +410,11 @@ class UploadingCommand implements IDataSetCommand
         {
             outputStream = new FileOutputStream(zipFile);
             zipOutputStream = new ZipOutputStream(outputStream);
-            for (ExternalData dataSet : dataSets)
+            for (ExternalData externalData : dataSets)
             {
+                DataSet dataSet = externalData.tryGetAsDataSet();
+                assert dataSet != null : "container datasets are currently not supported by DSS client";
+
                 DatasetDescription dataSetDescription =
                         ExternalDataTranslator.translateToDescription(dataSet);
                 File dataSetFile = dataSetDirectoryProvider.getDataSetDirectory(dataSetDescription);
@@ -462,7 +466,7 @@ class UploadingCommand implements IDataSetCommand
         }
     }
 
-    private String createMetaData(ExternalData dataSet)
+    private String createMetaData(DataSet dataSet)
     {
         MetaDataBuilder builder = new MetaDataBuilder();
         builder.dataSet("code", dataSet.getCode());

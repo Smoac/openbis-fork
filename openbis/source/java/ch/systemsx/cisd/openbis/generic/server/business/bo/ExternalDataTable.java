@@ -309,6 +309,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         assertDatasetsAreAvailable(externalData);
         Map<DataStorePE, List<ExternalDataPE>> map = groupDataSetsByDataStores();
         assertDataSetsAreKnown(map);
+        assertNoContainerDataSets(map);
         uploadContext.setUserEMail(session.getPrincipal().getEmail());
         uploadContext.setSessionUserID(session.getUserName());
         if (StringUtils.isBlank(uploadContext.getComment()))
@@ -383,6 +384,28 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
                     "The following data sets are unknown by any registered Data Store Server. "
                             + "May be the responsible Data Store Server is not running.\n"
                             + unknownDataSets);
+        }
+    }
+
+    private void assertNoContainerDataSets(Map<DataStorePE, List<ExternalDataPE>> map)
+    {
+        Set<String> containerDataSets = new LinkedHashSet<String>();
+        for (Map.Entry<DataStorePE, List<ExternalDataPE>> entry : map.entrySet())
+        {
+            for (ExternalDataPE dataSet : entry.getValue())
+            {
+                if (dataSet.isContainerDataSet())
+                {
+                    containerDataSets.add(dataSet.getCode());
+                }
+            }
+        }
+
+        if (false == containerDataSets.isEmpty())
+        {
+            throw new UserFailureException(
+                    "The following data sets are container data sets and cannot be uploaded to CIFEX. "
+                            + containerDataSets);
         }
     }
 
