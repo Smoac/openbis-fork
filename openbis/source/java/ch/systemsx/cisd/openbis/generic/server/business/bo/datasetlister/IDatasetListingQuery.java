@@ -88,9 +88,9 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
      */
     @Select(sql = SELECT_ALL
             + " WHERE data.id > ?{2} AND data.samp_id IN (SELECT id FROM samples s WHERE s.saty_id=?{1})", fetchSize = FETCH_SIZE)
-        public DataIterator<DatasetRecord> getNewDataSetsForSampleType(long sampleTypeId,
-                long lastSeenDatasetId);
-    
+    public DataIterator<DatasetRecord> getNewDataSetsForSampleType(long sampleTypeId,
+            long lastSeenDatasetId);
+
     /**
      * Returns datasets from store with given id that have status equal 'AVAILABLE' and were
      * modified before given date.
@@ -188,8 +188,7 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
     @Select(sql = SELECT_ALL + " where data.code = any(?{1})", parameterBindings =
         { StringArrayMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getDatasets(String[] datasetCodes);
-    
-    
+
     /**
      * Returns the children dataset ids of the specified datasets.
      */
@@ -197,9 +196,10 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<Long> getDatasetChildrenIds(LongSet sampleId);
 
-    @Select(sql = "select id from data where ctnr_parent_id = any(?{1})", parameterBindings =
+    @Select(sql = "select id from data where ctnr_id = any(?{1})", parameterBindings =
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<Long> getContainedDataSetIds(LongSet containerIDs);
+
     //
     // Entity Properties
     //
@@ -245,6 +245,5 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(
             LongSet entityIds);
-
 
 }
