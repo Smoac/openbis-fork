@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
@@ -40,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ListSampl
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ProjectUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SpaceIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExpressionValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExternalDataValidator;
@@ -98,6 +100,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -112,6 +116,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
@@ -801,6 +806,28 @@ public interface ICommonServer extends IServer
      */
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public LastModificationState getLastModificationState(String sessionToken);
+
+    /**
+     * For given {@link TechId} returns the {@link Sample} and its derived (child) samples.
+     * 
+     * @return never <code>null</code>.
+     * @throws UserFailureException if given <var>sessionToken</var> is invalid or whether sample
+     *             uniquely identified by given <var>sampleId</var> does not exist.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public SampleParentWithDerived getSampleInfo(final String sessionToken,
+            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) final TechId sampleId)
+            throws UserFailureException;
+    
+    /**
+     * Saves changed sample.
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
+    public SampleUpdateResult updateSample(String sessionToken,
+            @AuthorizationGuard(guardClass = SampleUpdatesPredicate.class) SampleUpdatesDTO updates);
 
     /**
      * For given {@link ExperimentIdentifier} returns the corresponding {@link Experiment}.

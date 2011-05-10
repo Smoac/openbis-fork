@@ -29,6 +29,7 @@ import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -41,10 +42,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
-import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
 /**
- * 
  *
  * @author Franz-Josef Elmer
  */
@@ -53,8 +52,8 @@ public class GeneralInformationChangingService extends
         AbstractServer<IGeneralInformationChangingService> implements
         IGeneralInformationChangingService
 {
-    @Resource(name = ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames.GENERIC_PLUGIN_SERVER)
-    private IGenericServer genericServer;
+    @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
+    private ICommonServer server;
 
     // Default constructor needed by Spring
     public GeneralInformationChangingService()
@@ -62,10 +61,10 @@ public class GeneralInformationChangingService extends
     }
 
     GeneralInformationChangingService(ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
-            IPropertiesBatchManager propertiesBatchManager, IGenericServer genericServer)
+            IPropertiesBatchManager propertiesBatchManager, ICommonServer server)
     {
         super(sessionManager, daoFactory, propertiesBatchManager);
-        this.genericServer = genericServer;
+        this.server = server;
     }
 
     public IGeneralInformationChangingService createLogger(IInvocationLoggerContext context)
@@ -77,7 +76,7 @@ public class GeneralInformationChangingService extends
             Map<String, String> properties)
     {
         TechId id = new TechId(sampleID);
-        Sample sample = genericServer.getSampleInfo(sessionToken, id).getParent();
+        Sample sample = server.getSampleInfo(sessionToken, id).getParent();
         for (Entry<String, String> entry : properties.entrySet())
         {
             EntityHelper.createOrUpdateProperty(sample, entry.getKey(), entry.getValue());
@@ -93,7 +92,7 @@ public class GeneralInformationChangingService extends
                 new SampleUpdatesDTO(id, sample.getProperties(), experimentIdentifier,
                         Collections.<NewAttachment> emptySet(), sample.getModificationDate(),
                         sampleIdentifier, containerIdentifier, null);
-        genericServer.updateSample(sessionToken, updates);
+        server.updateSample(sessionToken, updates);
     }
 
     public int getMajorVersion()

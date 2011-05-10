@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.plugin.generic.server;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -54,7 +53,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IdentifierExtractor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
@@ -187,17 +185,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     public final SampleParentWithDerived getSampleInfo(final String sessionToken,
             final TechId sampleId)
     {
-        assert sessionToken != null : "Unspecified session token.";
-        assert sampleId != null : "Unspecified sample techId.";
-
-        final Session session = getSession(sessionToken);
-        final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
-        sampleBO.loadDataByTechId(sampleId);
-        sampleBO.enrichWithAttachments();
-        sampleBO.enrichWithPropertyTypes();
-        final SamplePE sample = sampleBO.getSample();
-        return SampleTranslator.translate(getSampleTypeSlaveServerPlugin(sample.getSampleType())
-                .getSampleInfo(session, sample), session.getBaseIndexURL());
+        return commonServer.getSampleInfo(sessionToken, sampleId);
     }
 
     public final void registerSample(final String sessionToken, final NewSample newSample,
@@ -727,17 +715,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
 
     public SampleUpdateResult updateSample(String sessionToken, SampleUpdatesDTO updates)
     {
-        final Session session = getSession(sessionToken);
-        final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
-        sampleBO.update(updates);
-        sampleBO.save();
-        SampleUpdateResult result = new SampleUpdateResult();
-        SamplePE sample = sampleBO.getSample();
-        result.setModificationDate(sample.getModificationDate());
-        List<String> parents = IdentifierExtractor.extract(sample.getParents());
-        Collections.sort(parents);
-        result.setParents(parents);
-        return result;
+        return commonServer.updateSample(sessionToken, updates);
     }
 
     public DataSetUpdateResult updateDataSet(String sessionToken, DataSetUpdatesDTO updates)

@@ -83,6 +83,7 @@ import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IdentifierExtractor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
@@ -137,6 +138,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PersonAdapter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -177,7 +180,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -208,6 +213,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ProjectTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.PropertyTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.RoleAssignmentTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ScriptTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.TypeTranslator;
@@ -1383,6 +1389,37 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     {
         checkSession(sessionToken);
         return lastModificationState;
+    }
+
+    public final SampleParentWithDerived getSampleInfo(final String sessionToken,
+            final TechId sampleId)
+    {
+        assert sessionToken != null : "Unspecified session token.";
+        assert sampleId != null : "Unspecified sample techId.";
+
+        final Session session = getSession(sessionToken);
+        final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
+        sampleBO.loadDataByTechId(sampleId);
+        sampleBO.enrichWithAttachments();
+        sampleBO.enrichWithPropertyTypes();
+        final SamplePE sample = sampleBO.getSample();
+        return SampleTranslator.translate(getSampleTypeSlaveServerPlugin(sample.getSampleType())
+                .getSampleInfo(session, sample), session.getBaseIndexURL());
+    }
+
+    public SampleUpdateResult updateSample(String sessionToken, SampleUpdatesDTO updates)
+    {
+        final Session session = getSession(sessionToken);
+        final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
+        sampleBO.update(updates);
+        sampleBO.save();
+        SampleUpdateResult result = new SampleUpdateResult();
+        SamplePE sample = sampleBO.getSample();
+        result.setModificationDate(sample.getModificationDate());
+        List<String> parents = IdentifierExtractor.extract(sample.getParents());
+        Collections.sort(parents);
+        result.setParents(parents);
+        return result;
     }
 
     public Experiment getExperimentInfo(final String sessionToken,

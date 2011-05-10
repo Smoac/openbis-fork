@@ -75,6 +75,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -93,6 +95,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleParentWithDerivedDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
@@ -654,6 +657,22 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     public LastModificationState getLastModificationState(String sessionToken)
     {
+        return null;
+    }
+
+    public final SampleParentWithDerived getSampleInfo(final String sessionToken,
+            final TechId sampleId)
+    {
+        logAccess(sessionToken, "get_sample_info", "ID(%s)", sampleId);
+        return null;
+    }
+
+    public SampleUpdateResult updateSample(String sessionToken, SampleUpdatesDTO updates)
+    {
+        logTracking(sessionToken, "edit_sample",
+                "SAMPLE(%s), CHANGE_TO_EXPERIMENT(%s) ATTACHMENTS(%s)",
+                updates.getSampleIdOrNull(), updates.getExperimentIdentifierOrNull(), updates
+                        .getAttachments().size());
         return null;
     }
 
