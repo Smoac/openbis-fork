@@ -375,7 +375,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
 
     public Sample getWellSample(String sessionToken, WellIdentifier wellIdentifier)
     {
-        return createScreeningApiImpl(sessionToken).getWellSample(wellIdentifier);
+        return createScreeningApiImpl(sessionToken).getWellSample(wellIdentifier, true);
     }
 
     public Sample getPlateSample(String sessionToken, PlateIdentifier plateIdentifier)

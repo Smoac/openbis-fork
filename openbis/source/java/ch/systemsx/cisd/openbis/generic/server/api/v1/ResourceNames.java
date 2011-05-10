@@ -24,5 +24,6 @@ package ch.systemsx.cisd.openbis.generic.server.api.v1;
 public class ResourceNames
 {
     public final static String GENERAL_INFORMATION_SERVICE_SERVER = "general-information-api-server-v1";
+    public final static String GENERAL_INFORMATION_CHANGING_SERVICE_SERVER = "general-information-changing-api-server-v1";
 
 }

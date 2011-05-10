@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.api.v1;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -149,6 +150,16 @@ public interface IScreeningOpenbisServiceFacade
      * For the given <var>plateIdentifier</var> find all wells that are connected to it.
      */
     public List<WellIdentifier> listPlateWells(PlateIdentifier plateIdentifier);
+    
+    /**
+     * Returns all properties of specified well as a map.
+     */
+    public Map<String, String> getWellProperties(WellIdentifier wellIdentifier);
+    
+    /**
+     * Updates properties of specified well.
+     */
+    public void updateWellProperties(WellIdentifier wellIdentifier, Map<String, String> properties);
 
     /**
      * Get proxies to the data sets owned by specified well.
@@ -555,5 +566,5 @@ public interface IScreeningOpenbisServiceFacade
     public List<PlateWellMaterialMapping> listPlateMaterialMapping(
             List<? extends PlateIdentifier> plates,
             MaterialTypeIdentifier materialTypeIdentifierOrNull);
-
+    
 }

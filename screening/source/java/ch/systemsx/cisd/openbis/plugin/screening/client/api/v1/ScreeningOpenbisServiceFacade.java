@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetO
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
@@ -92,6 +93,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     private final IScreeningApiServer openbisScreeningServer;
 
     private final IGeneralInformationService generalInformationService;
+    
+    private final IGeneralInformationChangingService generalInformationChangingService;
 
     private final IDssComponent dssComponent;
 
@@ -126,18 +129,12 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             String serverUrl)
     {
         final IScreeningApiServer openbisServer = createScreeningOpenbisServer(serverUrl);
-        final IGeneralInformationService generalInformationService =
-                createGeneralInformationService(serverUrl);
-        final int minorVersion = openbisServer.getMinorVersion();
         final String sessionToken = openbisServer.tryLoginScreening(userId, userPassword);
         if (sessionToken == null)
         {
             return null;
         }
-        final IDssComponent dssComponent =
-                DssComponentFactory.tryCreate(sessionToken, serverUrl, SERVER_TIMEOUT_MILLIS);
-        return new ScreeningOpenbisServiceFacade(sessionToken, openbisServer, minorVersion,
-                DSS_SERVICE_FACTORY, dssComponent, generalInformationService);
+        return tryCreate(sessionToken, serverUrl, openbisServer);
     }
 
     /**
@@ -149,14 +146,22 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
      */
     public static IScreeningOpenbisServiceFacade tryCreate(String sessionToken, String serverUrl)
     {
-        final IScreeningApiServer openbisServer = createScreeningOpenbisServer(serverUrl);
+        return tryCreate(sessionToken, serverUrl, createScreeningOpenbisServer(serverUrl));
+    }
+
+    private static IScreeningOpenbisServiceFacade tryCreate(String sessionToken, String serverUrl,
+            final IScreeningApiServer openbisServer)
+    {
         final IGeneralInformationService generalInformationService =
                 createGeneralInformationService(serverUrl);
+        IGeneralInformationChangingService generalInformationChangingService =
+                createGeneralInformationChangingService(serverUrl);
         final int minorVersion = openbisServer.getMinorVersion();
         final IDssComponent dssComponent =
                 DssComponentFactory.tryCreate(sessionToken, serverUrl, SERVER_TIMEOUT_MILLIS);
         return new ScreeningOpenbisServiceFacade(sessionToken, openbisServer, minorVersion,
-                DSS_SERVICE_FACTORY, dssComponent, generalInformationService);
+                DSS_SERVICE_FACTORY, dssComponent, generalInformationService,
+                generalInformationChangingService);
     }
 
     private static IScreeningApiServer createScreeningOpenbisServer(String serverUrl)
@@ -175,12 +180,25 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return service;
     }
 
+    private static IGeneralInformationChangingService createGeneralInformationChangingService(
+            String serverUrl)
+    {
+        ServiceFinder generalInformationServiceFinder =
+                new ServiceFinder("openbis", IGeneralInformationChangingService.SERVICE_URL);
+        IGeneralInformationChangingService service =
+                generalInformationServiceFinder.createService(
+                        IGeneralInformationChangingService.class, serverUrl);
+        return service;
+    }
+    
     ScreeningOpenbisServiceFacade(String sessionToken, IScreeningApiServer screeningServer,
             int minorVersion, final IDssServiceFactory dssServiceFactory,
-            IDssComponent dssComponent, IGeneralInformationService generalInformationService)
+            IDssComponent dssComponent, IGeneralInformationService generalInformationService,
+            IGeneralInformationChangingService generalInformationChangingService)
     {
         this.openbisScreeningServer = screeningServer;
         this.generalInformationService = generalInformationService;
+        this.generalInformationChangingService = generalInformationChangingService;
         this.dssComponent = dssComponent;
         this.sessionToken = sessionToken;
         this.minorVersionApplicationServer = minorVersion;
@@ -364,6 +382,19 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     {
         checkASMinimalMinorVersion("listPlateWells", PlateIdentifier.class);
         return openbisScreeningServer.listPlateWells(sessionToken, plateIdentifier);
+    }
+    
+    public Map<String, String> getWellProperties(WellIdentifier wellIdentifier)
+    {
+        Sample wellSample = openbisScreeningServer.getWellSample(sessionToken, wellIdentifier);
+        Map<String, String> properties = wellSample.getProperties();
+        return properties;
+    }
+
+    public void updateWellProperties(WellIdentifier wellIdentifier, Map<String, String> properties)
+    {
+        Sample wellSample = openbisScreeningServer.getWellSample(sessionToken, wellIdentifier);
+        generalInformationChangingService.updateSampleProperties(sessionToken, wellSample.getId(), properties);
     }
 
     /**

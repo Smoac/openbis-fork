@@ -231,7 +231,7 @@ public interface IScreeningApiServer extends IRpcService
             @AuthorizationGuard(guardClass = PlateIdentifierPredicate.class) PlateIdentifier plateIdentifier);
 
     /**
-     * For a given <var>wellIdentifier</var>, return the corresponding {@link Sample}.
+     * For a given <var>wellIdentifier</var>, return the corresponding {@link Sample} including properties.
      * 
      * @since 1.3
      */

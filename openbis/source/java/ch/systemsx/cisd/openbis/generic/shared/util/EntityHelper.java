@@ -121,20 +121,25 @@ public class EntityHelper
     }
 
     /**
-     * Tries to set the value for a given property in an {@link IEntityPropertiesHolder} instance.
-     * Creates a new property if no property for the specified code is found.
+     * Creates a property with specified code and value. An already existing property with same
+     * code will be removed.
      */
     public static void createOrUpdateProperty(IEntityPropertiesHolder holder, String propertyCode,
             String propertyValue)
     {
-        IEntityProperty property = tryFindProperty(holder.getProperties(), propertyCode);
-
-        if (property == null)
+        IEntityProperty newProperty = createNewProperty(propertyCode, propertyValue);
+        List<IEntityProperty> properties = holder.getProperties();
+        for (int i = 0; i < properties.size(); i++)
         {
-            property = createNewProperty(propertyCode);
-            holder.getProperties().add(property);
+            IEntityProperty property = properties.get(i);
+            PropertyType propertyType = property.getPropertyType();
+            if (propertyType.getCode().equalsIgnoreCase(propertyCode))
+            {
+                properties.set(i, newProperty);
+                return;
+            }
         }
-        property.setValue(propertyValue);
+        properties.add(newProperty);
     }
 
     public static IEntityProperty createNewProperty(String propertyCode, String propertyValue)

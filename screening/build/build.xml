@@ -373,6 +373,79 @@
     </zip>
   	
   </target>
+	
+	<target name="screening-api-eclipse">
+    <mkdir dir="${dist.screening-api.lib}" />
+    <recursive-jar destfile="${dist.screening-api.jar}">
+      <fileset dir="${targets}/www/WEB-INF/classes">
+        <include name="OpenBISScreeningML*.class" />
+        <include name="ch/systemsx/cisd/common/api/**/*.class" />
+        <exclude name="ch/systemsx/cisd/common/api/server/**/*.class" />
+      	<include name="ch/systemsx/cisd/openbis/dss/client/api/v1/**/*.class" />
+      	<include name="ch/systemsx/cisd/openbis/dss/generic/shared/api/v1/**/*.class" />
+      	<include name="ch/systemsx/cisd/openbis/dss/generic/shared/api/authorization/**/*.class" />
+      	<include name="ch/systemsx/cisd/openbis/dss/screening/shared/api/**/*.class" />
+      	<include name="ch/systemsx/cisd/openbis/generic/shared/basic/**/*.class" />
+      	<include name="ch/systemsx/cisd/openbis/generic/shared/api/**/*.class" />
+      	<include name="ch/systemsx/cisd/openbis/generic/shared/authorization/annotation/**/*.class" />
+      	<include name="ch/systemsx/cisd/openbis/plugin/screening/shared/api/**/*.class" />
+       	<include name="ch/systemsx/cisd/openbis/plugin/screening/client/api/**/*.class" />
+       	<include name="ch/systemsx/cisd/openbis/plugin/screening/client/cli/**/*.class" />
+      </fileset>
+    	<manifest>
+      	<attribute name="Main-Class" value="ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningClientApiTest" />
+        <attribute name="Class-Path" value="spring-ext.jar" />
+        <attribute name="Version" value="${version.number}" />
+        <attribute name="Build-Number"
+                   value="${version.number} (r${revision.number},${clean.flag})" />
+      </manifest>
+    </recursive-jar>
+  	<jar update="true" destfile="${dist.screening-api.jar}">
+  		<fileset dir="../openbis/targets/www/WEB-INF/classes">
+  		     	<include name="ch/systemsx/cisd/openbis/generic/client/cli/Login*.class" />
+			     	<include name="ch/systemsx/cisd/openbis/generic/shared/api/v1/**/*.class" />
+  		</fileset> 
+  		<fileset dir="../datastore_server/targets/classes">
+      	<include name="ch/systemsx/cisd/openbis/dss/client/api/v1/**/*.class" />
+      	<include name="ch/systemsx/cisd/openbis/dss/generic/shared/api/v1/**/*.class" />
+      	<include name="ch/systemsx/cisd/openbis/dss/generic/shared/api/authorization/**/*.class" />
+  		</fileset> 
+  		<fileset dir="../server-common/targets/classes">
+  		     	<include name="ch/systemsx/cisd/common/spring/HttpInvokerUtils.class" />
+			     	<include name="ch/systemsx/cisd/common/api/client/**/*.class" />
+  		</fileset> 
+      <fileset dir="../common/targets/classes">
+            <include name="ch/systemsx/cisd/common/exceptions/**/*.class" />
+		        <include name="ch/systemsx/cisd/common/api/*.class" />
+            <include name="ch/systemsx/cisd/common/io/ConcatenatedFileOutputStreamWriter.class" />
+            <include name="ch/systemsx/cisd/common/io/ConcatenatedContentInputStream.class" />
+            <include name="ch/systemsx/cisd/common/io/FileBasedContent.class" />
+            <include name="ch/systemsx/cisd/common/io/IContent.class" />
+      </fileset> 
+    </jar>
+		<zip update="true" destfile="${dist.screening-api.jar}">
+	    <zipfileset src="${lib}/gwt2.0/gwt-user.jar">
+	      <include name="com/google/gwt/user/client/rpc/IsSerializable.class" />
+	      <include name="com/google/gwt/user/client/rpc/SerializableException.class" />
+	    </zipfileset>
+	  </zip>
+    <recursive-jar destfile="${dist.screening-api.lib}/spring-ext.jar">
+      <zipfileset src="${lib}/spring/spring.jar" />
+      <zipfileset src="${lib}/spring/third-party/stream-supporting-httpinvoker.jar" />
+      <zipfileset src="${lib}/commons-logging/commons-logging.jar" />
+      <zipfileset src="${lib}/commons-httpclient/commons-httpclient.jar" />
+      <zipfileset src="${lib}/commons-codec/commons-codec.jar" />
+      <zipfileset src="${lib}/log4j/log4j.jar" />     
+      <zipfileset src="${lib}/jline/jline.jar" />     
+      <zipfileset src="${lib}/cisd-args4j/cisd-args4j.jar" />     
+      <zipfileset src="${lib}/cisd-base/cisd-base.jar" />     
+      <zipfileset src="${lib}/jython/standalone/jython.jar" />     
+  	</recursive-jar>
+  	<recursive-jar destfile="${dist.screening-api-batteries-included.jar}">
+      <zipfileset src="${dist.screening-api.lib}/spring-ext.jar" />
+      <zipfileset src="${dist.screening-api.jar}" />
+  	</recursive-jar>
+	</target>
 
   <!-- 
   		To test the API you can use

@@ -28,7 +28,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
@@ -49,6 +48,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 
 /**
@@ -84,6 +84,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
  */
 public class OpenBISScreeningML
 {
+
+    static final String DATASETS_FOLDER = "openbis_datasets";
+
     private static interface ITileNumberIterable extends Iterable<Integer>
     {
         public void setMaximumNumberOfTiles(int numberOfTiles);
@@ -175,6 +178,15 @@ public class OpenBISScreeningML
 
     private static File dataSetsDir;
 
+    /**
+     * Root temporary directory for data sets and images. By default <code>java.io.tmpdir</code> is
+     * used.
+     */
+    static File tempDir = new File(System.getProperty("java.io.tmpdir"));
+
+    static final String TEMP_DIR_PREFIX = "openbis_";
+    static final String TEMP_DIR_POSTFIX = "_temp_dir";
+
     //
     // Authentication methods
     //
@@ -194,23 +206,23 @@ public class OpenBISScreeningML
      */
     public static void login(String user, String password, String url)
     {
-        openbis = ScreeningOpenbisServiceFacadeFactory.tryCreate(user, password, url);
-        if (openbis == null)
+        IScreeningOpenbisServiceFacade facade = ScreeningOpenbisServiceFacadeFactory.tryCreate(user, password, url);
+        if (facade == null)
         {
             throw new RuntimeException("Login failed.");
         }
-        init();
+        init(facade);
     }
 
-    private static void init()
+    public static void init(IScreeningOpenbisServiceFacade openBisFacade)
     {
-        File tempDir = new File(System.getProperty("java.io.tmpdir"));
-        dataSetsDir = new File(tempDir, "openbis_datasets");
+        openbis = openBisFacade;
+        dataSetsDir = new File(tempDir, DATASETS_FOLDER);
         if (dataSetsDir.isDirectory() == false && dataSetsDir.mkdirs() == false)
         {
             throw new RuntimeException("Couldn't create a data set directory.");
         }
-        temporarySessionDir = new File(tempDir, "openbis_" + System.currentTimeMillis() / 1000 + "_temp_dir");
+        temporarySessionDir = new File(tempDir, TEMP_DIR_PREFIX + System.currentTimeMillis() / 1000 + TEMP_DIR_POSTFIX);
         if (temporarySessionDir.mkdirs() == false)
         {
             throw new RuntimeException("Couldn't create a temporary directory.");
@@ -260,7 +272,21 @@ public class OpenBISScreeningML
         {
             Login.OPENBIS_TOKEN_FILE.delete();
         }
+        delete(temporarySessionDir);
         openbis = null;
+    }
+    
+    private static void delete(File file)
+    {
+        if (file.isDirectory())
+        {
+            File[] files = file.listFiles();
+            for (File child : files)
+            {
+                delete(child);
+            }
+        }
+        file.delete();
     }
 
     //
@@ -330,21 +356,7 @@ public class OpenBISScreeningML
     public static Object[][] listPlates()
     {
         checkLoggedIn();
-        final Object[][] result = new Object[plates.size()][9];
-        for (int i = 0; i < plates.size(); ++i)
-        {
-            final Object[] annotations =
-                    new Object[]
-                        { plates.get(i).getAugmentedCode(), plates.get(i).getPermId(),
-                                plates.get(i).tryGetSpaceCode(), plates.get(i).getPlateCode(),
-                                plates.get(i).getExperimentIdentifier().getAugmentedCode(),
-                                plates.get(i).getExperimentIdentifier().getPermId(),
-                                plates.get(i).getExperimentIdentifier().getSpaceCode(),
-                                plates.get(i).getExperimentIdentifier().getProjectCode(),
-                                plates.get(i).getExperimentIdentifier().getExperimentCode(), };
-            System.arraycopy(annotations, 0, result[i], 0, annotations.length);
-        }
-        return result;
+        return listPlates(plates);
     }
     
     /**
@@ -378,26 +390,109 @@ public class OpenBISScreeningML
         {
             throw new RuntimeException("No experiment with that code found.");
         }
-        final Object[][] result = new Object[experimentPlates.size()][9];
-        for (int i = 0; i < experimentPlates.size(); ++i)
+        return listPlates(experimentPlates);
+    }
+
+    private static Object[][] listPlates(final List<Plate> list)
+    {
+        final Object[][] result = new Object[list.size()][9];
+        for (int i = 0; i < list.size(); ++i)
         {
             final Object[] annotations =
                     new Object[]
                         {
-                                experimentPlates.get(i).getAugmentedCode(),
+                                list.get(i).getAugmentedCode(),
                                 plates.get(i).getPermId(),
-                                experimentPlates.get(i).tryGetSpaceCode(),
+                                list.get(i).tryGetSpaceCode(),
                                 plates.get(i).getPlateCode(),
-                                experimentPlates.get(i).getExperimentIdentifier()
+                                list.get(i).getExperimentIdentifier()
                                         .getAugmentedCode(),
-                                experimentPlates.get(i).getExperimentIdentifier().getPermId(),
-                                experimentPlates.get(i).getExperimentIdentifier().getSpaceCode(),
-                                experimentPlates.get(i).getExperimentIdentifier().getProjectCode(),
-                                experimentPlates.get(i).getExperimentIdentifier()
+                                list.get(i).getExperimentIdentifier().getPermId(),
+                                list.get(i).getExperimentIdentifier().getSpaceCode(),
+                                list.get(i).getExperimentIdentifier().getProjectCode(),
+                                list.get(i).getExperimentIdentifier()
                                         .getExperimentCode(), };
             System.arraycopy(annotations, 0, result[i], 0, annotations.length);
         }
         return result;
+    }
+    
+    /**
+     * Returns the properties of specified well for specified plate.
+     * <p>
+     * Matlab example:
+     * 
+     * <pre>
+     * % Get properties for well A03 of plate P005 in space SPACE
+     * properties = OpenBISScreeningML.getWellProperties('/SPACE/P005', 1, 3, properties)
+     * % Get property type code of first property
+     * properties(1,1)
+     * % Get property value of first property
+     * properties(1,2)
+     * </pre>
+     * 
+     * @param augmentedPlateCode The augmented plate code
+     * @param row The row in the plate to get the well properties for
+     * @param column The column in the plate to get the well properties for
+     * @return A two dimensional array where the first column contains the property
+     *            codes and the second column the corresponding property values.
+     */
+    public static Object[][] getWellProperties(String augmentedPlateCode, int row,
+            int column)
+    {
+        checkLoggedIn();
+        WellPosition wellPosition = new WellPosition(row, column);
+        WellIdentifier wellIdentifier = getWell(augmentedPlateCode, wellPosition);
+        List<Map.Entry<String, String>> list =
+                new ArrayList<Map.Entry<String, String>>(openbis.getWellProperties(wellIdentifier)
+                        .entrySet());
+        Object[][] result = new Object[list.size()][2];
+        for (int i = 0; i < list.size(); i++)
+        {
+            result[i] = new Object[] {list.get(i).getKey(), list.get(i).getValue()};
+        }
+        return result;
+    }
+    
+    /**
+     * Updates properties of specified well for specified plate.
+     * <p>
+     * Matlab example:
+     * 
+     * <pre>
+     * % Updates properties DESCRIPTION and NUMBER for well A03 of plate P005 in space SPACE
+     * properties = {'DESCRIPTION' 'hello example'; 'NUMBER' 3.14}
+     * OpenBISScreeningML.updateWellProperties('/SPACE/P005', 1, 3, properties)
+     * </pre>
+     * 
+     * @param augmentedPlateCode The augmented plate code
+     * @param row The row in the plate to get the well properties for
+     * @param column The column in the plate to get the well properties for
+     * @param properties A two dimensional array where the first column contains the property
+     *            codes and the second column the corresponding property values.
+     */
+    public static void updateWellProperties(String augmentedPlateCode, int row,
+            int column, Object[][] properties)
+    {
+        checkLoggedIn();
+        WellPosition wellPosition = new WellPosition(row, column);
+        WellIdentifier wellIdentifier = getWell(augmentedPlateCode, wellPosition);
+        openbis.updateWellProperties(wellIdentifier, createMap(properties));
+    }
+    
+    private static WellIdentifier getWell(String augmentedPlateCode, WellPosition wellPosition)
+    {
+        Plate plate = getPlate(augmentedPlateCode);
+        List<WellIdentifier> wells = openbis.listPlateWells(plate);
+        for (WellIdentifier wellIdentifier : wells)
+        {
+            if (wellIdentifier.getWellPosition().equals(wellPosition))
+            {
+                return wellIdentifier;
+            }
+        }
+        throw new RuntimeException("Plate '" + augmentedPlateCode + "' has now well at "
+                + wellPosition + ".");
     }
 
     /**
@@ -522,7 +617,7 @@ public class OpenBISScreeningML
      * 
      * <pre>
      * % Load all data sets of plate P005 in space SPACE
-     * dsinfo = loadDataSets('/SPACE/P005')
+     * dsinfo = OpenBISScreeningML.loadDataSets('/SPACE/P005')
      * % Get the data set codes
      * dsinfo(:,1)
      * % Get root path of first data set (assuming there is at least one)
@@ -545,12 +640,13 @@ public class OpenBISScreeningML
             for (int i = 0; i < dataSets.size(); i++)
             {
                 IDataSetDss dataSet = dataSets.get(i);
-                File file = new File(dataSetsDir, dataSet.getCode());
+                String code = dataSet.getCode();
+                File file = new File(dataSetsDir, code);
                 if (file.exists() == false)
                 {
                     file = dataSet.getLinkOrCopyOfContents(null, dataSetsDir);
                 }
-                result[i] = new Object[] {dataSet.getCode(), file.getPath()};
+                result[i] = new Object[] {code, file.getPath()};
             }
             return result;
         } catch (Exception ex)
@@ -569,7 +665,7 @@ public class OpenBISScreeningML
      * % Upload data set /path/to/my-data-set with properties DESCRIPTION and NUMBER for 
      * % plate P005 in space SPACE
      * properties = {'DESCRIPTION' 'hello example'; 'NUMBER' 3.14}
-     * datasetcode = uploadDataSet('/SPACE/P005', '/path/to/my-data-set', 'HCS_IMAGE', properties)
+     * datasetcode = OpenBISScreeningML.uploadDataSet('/SPACE/P005', '/path/to/my-data-set', 'HCS_IMAGE', properties)
      * </pre>
      * 
      * @param augmentedPlateCode The augmented plate code.
@@ -590,14 +686,7 @@ public class OpenBISScreeningML
         }
         try
         {
-            HashMap<String, String> map = new HashMap<String, String>();
-            for (Object[] objects : dataSetProperties)
-            {
-                if (objects.length == 2)
-                {
-                    map.put(objects[0].toString(), objects[1].toString());
-                }
-            }
+            Map<String, String> map = createMap(dataSetProperties);
             IDataSetDss dataSet =
                     openbis.putDataSet(plateIdentifier, dataSetFile, new NewDataSetMetadataDTO(
                             dataSetType, map));
@@ -609,10 +698,20 @@ public class OpenBISScreeningML
         }
     }
 
-    public static Object testProperties(Properties properties)
+    private static Map<String, String> createMap(Object[][] properties)
     {
-        return properties.toString();
+        Map<String, String> map = new HashMap<String, String>();
+        for (Object[] objects : properties)
+        {
+            if (objects.length == 2)
+            {
+                Object value = objects[1];
+                map.put(objects[0].toString(), value == null ? null : value.toString());
+            }
+        }
+        return map;
     }
+    
     //
     // Images
     //
@@ -1502,12 +1601,12 @@ public class OpenBISScreeningML
                     final String serverUrl = br.readLine();
                     br.close();
                     br = null;
-                    openbis = ScreeningOpenbisServiceFacadeFactory.tryCreate(token, serverUrl);
-                    if (openbis == null)
+                    IScreeningOpenbisServiceFacade facade = ScreeningOpenbisServiceFacadeFactory.tryCreate(token, serverUrl);
+                    if (facade == null)
                     {
                         throw new RuntimeException("Login failed.");
                     }
-                    init();
+                    init(facade);
                 } catch (IOException ex)
                 {
                     if (openbis == null)

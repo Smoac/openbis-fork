@@ -9,5 +9,8 @@
       <package name="ch.systemsx.cisd.openbis.plugin.screening.*" />
       <package name="ch.systemsx.cisd.openbis.dss.*" />
    </packages>
+   <classes>
+     <class name="OpenBISScreeningMLTest"/>
+   </classes>
  </test>
 </suite>

@@ -73,7 +73,7 @@ public class Translator
         List<IEntityProperty> properties = privateSample.getProperties();
         for (IEntityProperty prop : properties)
         {
-            initializer.putProperty(prop.getPropertyType().getCode(), prop.getValue());
+            initializer.putProperty(prop.getPropertyType().getCode(), prop.tryGetAsString());
         }
 
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experimentOrNull =

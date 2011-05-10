@@ -422,7 +422,7 @@ public class ScreeningApiImpl
         Sample sample;
         if (plateIdentifier.getPermId() != null)
         {
-            sample = loadSampleByPermId(plateIdentifier.getPermId());
+            sample = loadSampleByPermId(plateIdentifier.getPermId(), false);
         } else
         {
             SampleIdentifier sampleIdentifier = createSampleIdentifier(plateIdentifier);
@@ -434,9 +434,9 @@ public class ScreeningApiImpl
     }
 
     public ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample getWellSample(
-            WellIdentifier wellIdentifier)
+            WellIdentifier wellIdentifier, boolean enrichWithProperties)
     {
-        Sample sample = loadSampleByPermId(wellIdentifier.getPermId());
+        Sample sample = loadSampleByPermId(wellIdentifier.getPermId(), enrichWithProperties);
         return Translator.translate(sample);
     }
     
@@ -446,10 +446,14 @@ public class ScreeningApiImpl
         return Translator.translate(getSample(plateIdentifier));
     }
 
-    private Sample loadSampleByPermId(String permId)
+    private Sample loadSampleByPermId(String permId, boolean enrichWithProperties)
     {
         ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.loadBySamplePermId(permId);
+        if (enrichWithProperties)
+        {
+            sampleBO.enrichWithProperties();
+        }
         SamplePE samplePE = sampleBO.getSample();
         return translate(samplePE);
     }

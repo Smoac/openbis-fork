@@ -37,6 +37,7 @@ import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.screening.server.DssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade.IImageOutputStreamProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.server.ScreeningServer;
@@ -118,12 +119,15 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
 
     private IImageTransformerFactory transformerFactory;
 
+    private IGeneralInformationChangingService generalInformationChangingService;
+
     @BeforeMethod
     public void beforeMethod()
     {
         context = new Mockery();
         screeningService = context.mock(IScreeningApiServer.class);
         generalInformationService = context.mock(IGeneralInformationService.class);
+        generalInformationChangingService = context.mock(IGeneralInformationChangingService.class);
         dssComponent = context.mock(IDssComponent.class);
         dssServiceFactory = context.mock(IDssServiceFactory.class);
         i1id = new ImageDatasetReference(DATA_SET1, URL1, null, null, null, null, null, null);
@@ -170,7 +174,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
         facade =
                 new ScreeningOpenbisServiceFacade(SESSION_TOKEN, screeningService,
                         ScreeningServer.MINOR_VERSION, dssServiceFactory, dssComponent,
-                        generalInformationService);
+                        generalInformationService, generalInformationChangingService);
     }
 
     @AfterMethod

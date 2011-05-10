@@ -413,7 +413,8 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         final Set<T> set = new HashSet<T>();
         for (T newProperty : convertedProperties)
         {
-            T existingProperty = tryFind(oldProperties, newProperty);
+            PropertyTypePE propertyType = newProperty.getEntityTypePropertyType().getPropertyType();
+            T existingProperty = tryFind(oldProperties, propertyType);
             if (existingProperty != null)
             {
                 existingProperty.setUntypedValue(newProperty.getValue(),
@@ -478,12 +479,12 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         return set;
     }
 
-    private static <T extends EntityPropertyPE> T tryFind(Collection<T> oldProperties, T p)
+    private static <T extends EntityPropertyPE> T tryFind(Collection<T> oldProperties, PropertyTypePE propertyType)
     {
         for (T oldProperty : oldProperties)
         {
             if (oldProperty.getEntityTypePropertyType().getPropertyType()
-                    .equals(p.getEntityTypePropertyType().getPropertyType()))
+                    .equals(propertyType))
             {
                 return oldProperty;
             }
