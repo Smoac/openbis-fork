@@ -141,7 +141,7 @@ public class ImageChannelsUtils
         boolean mergeAllChannels = utils.isMergeAllChannels(imagesReference);
         List<AbsoluteImageReference> imageContents =
                 utils.fetchImageContents(imagesReference, mergeAllChannels, true);
-        return calculateSingleImages(imageContents);
+        return calculateSingleImages(imageContents, true, mergeAllChannels);
     }
 
     private static RequestedImageSize getSize(BufferedImage img, boolean highQuality)
@@ -412,14 +412,15 @@ public class ImageChannelsUtils
     }
 
     /**
-     * @param allChannelsMerged sometimes we can have a single image which contain all channels
-     *            merged. In this case a different transformation will be applied to it.
+     * @param useMergedChannelsTransformation sometimes we can have a single image which contain all
+     *            channels merged. In this case a different transformation will be applied to it.
      */
     private static BufferedImage calculateAndTransformSingleImage(
-            AbsoluteImageReference imageReference, boolean transform, boolean allChannelsMerged)
+            AbsoluteImageReference imageReference, boolean transform,
+            boolean useMergedChannelsTransformation)
     {
         BufferedImage image = calculateSingleImage(imageReference);
-        return transform(image, imageReference, transform, allChannelsMerged);
+        return transform(image, imageReference, transform, useMergedChannelsTransformation);
     }
 
     private static BufferedImage calculateSingleImage(AbsoluteImageReference imageReference)
@@ -477,7 +478,10 @@ public class ImageChannelsUtils
                     allChannelsMerged);
         } else
         {
-            List<ImageWithReference> images = calculateSingleImages(imageReferences);
+            // We do not transform single images here.
+            // The 'merged channels' transformation will be applied later.
+            List<ImageWithReference> images =
+                    calculateSingleImages(imageReferences, false, allChannelsMerged);
             BufferedImage mergedImage = mergeImages(images);
             // NOTE: even if we are not merging all the channels but just few of them we use the
             // merged-channel transformation
@@ -537,13 +541,25 @@ public class ImageChannelsUtils
         }
     }
 
+    /** @param useMergedChannelsTransformation used only if transformEachImage is true */
     private static List<ImageWithReference> calculateSingleImages(
-            List<AbsoluteImageReference> imageReferences)
+            List<AbsoluteImageReference> imageReferences, boolean transformEachImage,
+            boolean useMergedChannelsTransformation)
     {
         List<ImageWithReference> images = new ArrayList<ImageWithReference>();
         for (AbsoluteImageReference imageRef : imageReferences)
         {
-            BufferedImage image = calculateSingleImage(imageRef);
+            BufferedImage image;
+            if (transformEachImage)
+            {
+                image =
+                        calculateAndTransformSingleImage(imageRef, true,
+                                useMergedChannelsTransformation);
+            } else
+            {
+                image = calculateSingleImage(imageRef);
+
+            }
             images.add(new ImageWithReference(image, imageRef));
         }
         return images;
