@@ -42,7 +42,9 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
+import ch.systemsx.cisd.openbis.generic.client.cli.Login;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.IScreeningOpenbisServiceFacade;
+import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.IScreeningOpenbisServiceFacadeFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade.IImageOutputStreamProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
@@ -80,12 +82,15 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
     private IDataSetDss ds1;
     
     private IDataSetDss ds2;
+
+    private IScreeningOpenbisServiceFacadeFactory facadeFactory;
     
     @BeforeMethod
     public void beforeMethod()
     {
         context = new Mockery();
         openbis = context.mock(IScreeningOpenbisServiceFacade.class);
+        facadeFactory = context.mock(IScreeningOpenbisServiceFacadeFactory.class);
         ds1 = context.mock(IDataSetDss.class, "ds1");
         ds2 = context.mock(IDataSetDss.class, "ds2");
         FileUtilities.deleteRecursively(workingDirectory);
@@ -96,6 +101,9 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
+                    one(facadeFactory).tryToCreate("user", "password", "url");
+                    will(returnValue(openbis));
+                    
                     one(openbis).listExperiments();
                     will(returnValue(Arrays.asList(eId1, eId2)));
                     
@@ -105,7 +113,8 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
                     will(returnValue(Arrays.asList(p1, p2)));
                 }
             });
-        OpenBISScreeningML.init(openbis);
+        OpenBISScreeningML.facadeFactory = facadeFactory;
+        OpenBISScreeningML.login("user", "password", "url");
         tempDir = OpenBISScreeningML.tempDir.listFiles(FILTER_TEMP_DIR)[0];
     }
     
@@ -132,6 +141,84 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
         OpenBISScreeningML.logout();
         
         assertEquals(false, tempDir.exists());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testCheckLoggedInFailsBecauseOfMissingSessionTokenFile()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(openbis).logout();
+                }
+            });
+        OpenBISScreeningML.logout();
+        
+        try
+        {
+            OpenBISScreeningML.listExperiments();
+            fail("RuntimeException expected");
+        } catch (RuntimeException ex)
+        {
+            assertEquals("Not logged in.", ex.getMessage());
+        }
+        
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testCheckLoggedInFailsBecauseOfInvalidSession()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(openbis).logout();
+                    one(facadeFactory).tryToCreate("session-token-1", "url");
+                    will(returnValue(null));
+                }
+            });
+        OpenBISScreeningML.logout();
+        Login.OPENBIS_USER_FILE.getParentFile().mkdirs();
+        FileUtilities.writeToFile(Login.OPENBIS_TOKEN_FILE, "session-token-1");
+        FileUtilities.writeToFile(Login.OPENBIS_SERVER_URL_FILE, "url");
+        
+        try
+        {
+            OpenBISScreeningML.listExperiments();
+            fail("RuntimeException expected");
+        } catch (RuntimeException ex)
+        {
+            assertEquals("Login failed.", ex.getMessage());
+        }
+        
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testCheckLoggedInSucceed()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    exactly(2).of(openbis).logout();
+                    
+                    one(facadeFactory).tryToCreate("session-token-1", "url");
+                    will(returnValue(openbis));
+                    
+                    one(openbis).listExperiments();
+                    one(openbis).listPlates();
+                }
+            });
+        OpenBISScreeningML.logout();
+        Login.OPENBIS_USER_FILE.getParentFile().mkdirs();
+        FileUtilities.writeToFile(Login.OPENBIS_TOKEN_FILE, "session-token-1");
+        FileUtilities.writeToFile(Login.OPENBIS_SERVER_URL_FILE, "url");
+        
+        OpenBISScreeningML.listExperiments();
+        OpenBISScreeningML.logout();
+        
+        assertEquals(false, Login.OPENBIS_TOKEN_FILE.exists());
         context.assertIsSatisfied();
     }
     

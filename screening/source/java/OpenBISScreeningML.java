@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
 import ch.systemsx.cisd.openbis.generic.client.cli.Login;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.IScreeningOpenbisServiceFacade;
+import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.IScreeningOpenbisServiceFacadeFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade.IImageOutputStreamProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacadeFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
@@ -84,9 +85,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
  */
 public class OpenBISScreeningML
 {
-
-    static final String DATASETS_FOLDER = "openbis_datasets";
-
     private static interface ITileNumberIterable extends Iterable<Integer>
     {
         public void setMaximumNumberOfTiles(int numberOfTiles);
@@ -134,9 +132,14 @@ public class OpenBISScreeningML
         }
     }
     
+    static final String DATASETS_FOLDER = "openbis_datasets";
+    
     private static File temporarySessionDir;
     
     private static Map<PlateImageReference, File> loadedImages;
+    
+    static IScreeningOpenbisServiceFacadeFactory facadeFactory =
+            ScreeningOpenbisServiceFacadeFactory.INSTANCE;
 
     private static IScreeningOpenbisServiceFacade openbis = null;
 
@@ -206,7 +209,7 @@ public class OpenBISScreeningML
      */
     public static void login(String user, String password, String url)
     {
-        IScreeningOpenbisServiceFacade facade = ScreeningOpenbisServiceFacadeFactory.tryCreate(user, password, url);
+        IScreeningOpenbisServiceFacade facade = facadeFactory.tryToCreate(user, password, url);
         if (facade == null)
         {
             throw new RuntimeException("Login failed.");
@@ -214,7 +217,7 @@ public class OpenBISScreeningML
         init(facade);
     }
 
-    public static void init(IScreeningOpenbisServiceFacade openBisFacade)
+    private static void init(IScreeningOpenbisServiceFacade openBisFacade)
     {
         openbis = openBisFacade;
         dataSetsDir = new File(tempDir, DATASETS_FOLDER);
@@ -1601,7 +1604,7 @@ public class OpenBISScreeningML
                     final String serverUrl = br.readLine();
                     br.close();
                     br = null;
-                    IScreeningOpenbisServiceFacade facade = ScreeningOpenbisServiceFacadeFactory.tryCreate(token, serverUrl);
+                    IScreeningOpenbisServiceFacade facade = facadeFactory.tryToCreate(token, serverUrl);
                     if (facade == null)
                     {
                         throw new RuntimeException("Login failed.");

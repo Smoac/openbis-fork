@@ -58,7 +58,8 @@ public class LoadImagesScreeningClientApiTest
 
         print(String.format("Connecting to the server '%s' as a user '%s.", serverUrl, userId));
         IScreeningOpenbisServiceFacade facade =
-                ScreeningOpenbisServiceFacadeFactory.tryCreate(userId, userPassword, serverUrl);
+                ScreeningOpenbisServiceFacadeFactory.INSTANCE.tryToCreate(userId, userPassword,
+                        serverUrl);
         if (facade == null)
         {
             System.err.println("Authentication failed: check the user name and password.");

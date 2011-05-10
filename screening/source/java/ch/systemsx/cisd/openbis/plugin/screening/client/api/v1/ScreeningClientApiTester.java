@@ -170,7 +170,9 @@ public class ScreeningClientApiTester
             setVisible(true);
             if (args.length == 3)
             {
-                facade = ScreeningOpenbisServiceFacadeFactory.tryCreate(args[0], args[1], args[2]);
+                facade =
+                        ScreeningOpenbisServiceFacadeFactory.INSTANCE.tryToCreate(args[0], args[1],
+                                args[2]);
             } else
             {
                 Form form = new Form(this, "Connection to openBIS");
@@ -181,7 +183,9 @@ public class ScreeningClientApiTester
                 form.addField("User ID", user);
                 form.addField("Password", password);
                 form.showForm();
-                facade = ScreeningOpenbisServiceFacadeFactory.tryCreate(user.getText(), user.getText(), url.getText());
+                facade =
+                        ScreeningOpenbisServiceFacadeFactory.INSTANCE.tryToCreate(user.getText(),
+                                user.getText(), url.getText());
                 if (facade == null)
                 {
                     throw new RuntimeException("Couldn't connect openBIS.");

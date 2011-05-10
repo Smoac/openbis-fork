@@ -65,7 +65,8 @@ public class ImageViewer
         try
         {
             IScreeningOpenbisServiceFacade facade =
-                    ScreeningOpenbisServiceFacadeFactory.tryCreate(sessionToken, serviceURL);
+                    ScreeningOpenbisServiceFacadeFactory.INSTANCE.tryToCreate(sessionToken,
+                            serviceURL);
             List<IDatasetIdentifier> dsIdentifiers =
                     facade.getDatasetIdentifiers(new ArrayList<String>(dataSets.keySet()));
             for (IDatasetIdentifier identifier : dsIdentifiers)

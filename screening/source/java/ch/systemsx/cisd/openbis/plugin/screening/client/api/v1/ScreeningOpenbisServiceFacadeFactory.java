@@ -17,32 +17,28 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.api.v1;
 
 
+
 /**
+ * Default implementation of {@link IScreeningOpenbisServiceFacadeFactory}.
+ * 
  * @author Chandrasekhar Ramakrishnan
+ * @author Franze-Josef Elmer
  */
-public class ScreeningOpenbisServiceFacadeFactory
+public class ScreeningOpenbisServiceFacadeFactory implements IScreeningOpenbisServiceFacadeFactory
 {
-    /**
-     * Creates a service facade which communicates with the openBIS server at the specified URL.
-     * Authenticates the user.
-     * 
-     * @return null if the user could not be authenticated.
-     */
-    public static IScreeningOpenbisServiceFacade tryCreate(String userId, String userPassword,
+    public static final IScreeningOpenbisServiceFacadeFactory INSTANCE =
+            new ScreeningOpenbisServiceFacadeFactory();
+
+    public IScreeningOpenbisServiceFacade tryToCreate(String userId, String userPassword,
             String serverUrl)
     {
         return ScreeningOpenbisServiceFacade.tryCreate(userId, userPassword, serverUrl);
     }
 
-    /**
-     * Creates a service facade which communicates with the openBIS server at the specified URL for
-     * an authenticated user.
-     * 
-     * @param sessionToken The session token for the authenticated user
-     * @param serverUrl The URL for the openBIS application server
-     */
-    public static IScreeningOpenbisServiceFacade tryCreate(String sessionToken, String serverUrl)
+    public IScreeningOpenbisServiceFacade tryToCreate(String sessionToken, String serverUrl)
     {
         return ScreeningOpenbisServiceFacade.tryCreate(sessionToken, serverUrl);
     }
+    
+    
 }
