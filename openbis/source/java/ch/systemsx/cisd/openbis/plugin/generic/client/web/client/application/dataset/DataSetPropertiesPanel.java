@@ -126,7 +126,7 @@ public class DataSetPropertiesPanel extends ContentPanel
         properties.put(messageProvider.getMessage(Dict.REGISTRATOR), dataset.getRegistrator());
         properties.put(messageProvider.getMessage(Dict.REGISTRATION_DATE),
                 dataset.getRegistrationDate());
-        DataSet containerOrNull = dataset.tryGetAsDataSet();
+        ContainerDataSet containerOrNull = dataset.tryGetContainer();
         if (containerOrNull != null)
         {
             properties.put(messageProvider.getMessage(Dict.CONTAINER_DATA_SET), containerOrNull);
@@ -164,5 +164,4 @@ public class DataSetPropertiesPanel extends ContentPanel
         PropertiesPanelUtils.addEntityProperties(viewContext, properties, dataset.getProperties());
         return properties;
     }
-
 }
