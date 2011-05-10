@@ -96,7 +96,7 @@
   <packs>
     <pack name="openBIS Server" required="yes" loose="yes">
       <description>The openBIS application server</description>
-      <file src="openBIS-server-screening-SNAPSHOT-r21158.zip" targetdir="$INSTALL_PATH/servers" unpack="true" />
+      <file src="@{server.dist.file}" targetdir="$INSTALL_PATH/servers" unpack="true" />
       <parsable targetfile="$INSTALL_OPENBIS_PATH/service.properties" />
       <!-- run post installation script for the openBIS server -->
       <executable targetfile="$INSTALL_OPENBIS_PATH/install.sh" stage="postinstall">
@@ -109,7 +109,7 @@
 
     <pack name="Datastore Server" required="yes" loose="yes">
       <description>The data store server managing raw data</description>
-      <file src="datastore_server-screening-SNAPSHOT-r21158.zip" targetdir="$INSTALL_PATH/servers" unpack="true" />
+      <file src="@{dss.dist.file}" targetdir="$INSTALL_PATH/servers" unpack="true" />
       <parsable targetfile="$INSTALL_DSS_PATH/etc/service.properties" />
       
       <!-- create a log folder and store folder -->
@@ -124,7 +124,7 @@
 
     <pack name="Administration Scripts" required="yes" loose="yes">
       <description>Scripts to facilitate openBIS administration</description>
-      <file src="../ant/classes/bin" targetdir="$INSTALL_PATH" />
+      <file src="@{installer.admin.scripts.dir}" targetdir="$INSTALL_PATH" />
 
       <!--  set all *.sh files executable -->      
       <executable targetfile="/usr/bin/find" stage="postinstall" keep="true">
@@ -154,7 +154,7 @@
     <pack name="HCS Jython dropboxes" required="yes" loose="yes">
       <description>A set of minimal Jython dropboxes for importing HCS data into openBIS</description>
       <file src="@{installer.resourcedir}/dropboxes" targetdir="$DSS.ROOT-DIR" />
-      <file src="@{installer.resourcedir}/incoming-sample" targetdir="$DSS.ROOT-DIR" />
+      <file src="@{installer.resourcedir}/incoming-simple" targetdir="$DSS.ROOT-DIR" />
     </pack>
     
   </packs>

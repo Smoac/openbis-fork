@@ -24,8 +24,7 @@
   <!-- absolute path referenced from IzPack Ant task -->
   <property name="installer.basedir" value="${basedir}/dist/installer" />
   <!-- relative path referenced from within the installer compilation --> 
-  <property name="installer.resourcedir" value="../../dist/installer" />
-  <property name="installer.jar.file" value="${basedir}/${dist}/installer.jar" />
+  <property name="installer.resourcedir" value="dist/installer" />
 	
   <taskdef name="izpack" classpath="${lib}/izpack/standalone-compiler.jar"
 	         classname="com.izforge.izpack.ant.IzPackTask"/>
@@ -38,14 +37,21 @@
         // Task for creating distributions
   -->
 	
-  <target name="dist" depends="openbis.make-dist, make-full-dss-dist, dss-plugin-jar, datastore_server.make-plugin-dist, screening-api">
+  <target name="dist" depends="create-installer, screening-api"/>
+	
+	<target name="create-installer" depends="openbis.make-dist, make-full-dss-dist, dss-plugin-jar, datastore_server.make-plugin-dist">
+		<!-- KE: there is no easy way to get the ${dss.dist.file} property as we 
+		     refer to the DSS build via "antcall"-s and they do not have return values --> 
+		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
+    <property name="dss.dist.file"
+              value="${dist.file.prefix}${variant}-${version.number}-r${revision.number}.zip" />
+    <property name="installer.jar.file"
+              value="${basedir}/${dist}/openBIS-installer-${variant}-${version.number}-r${revision.number}.zip" />
+		
   	<zip update="true" destfile="${server.dist.file}">
   		<zipfileset file="${jars.to.be.signed.zip}"/>
   	</zip>
   	<delete file="${jars.to.be.signed.zip}"/>
-  </target>
-	
-	<target name="create-installer">
 		
 		<!-- make the "admin" directory available to the installer as "bin" -->
 		<copy todir="${classes.screening}/bin">
@@ -57,12 +63,13 @@
 		
 		<!-- this suffix will be used by the installer to check if there are database connections -->
 	  <property name="installer.database.kind" value="screening" />
-		
+	  <property name="installer.admin.scripts.dir" value="${classes.screening}/bin" />
+				
 		<izpack input="${installer.basedir}/install.xml"
 		        output="${installer.jar.file}"
 			      inheritAll="true"
 		        installerType="standard"
-		        basedir="${basedir}/${dist}"/>
+		        basedir="${basedir}"/>
 		
     <jar update="true" destfile="${installer.jar.file}">
     	<fileset dir="${classes.screening}">
@@ -75,7 +82,7 @@
     </jar>
 
 	</target>
-  
+	
   <target name="dss-plugin-jar" depends="compile">
 		<mkdir dir="${dist}/data" />
 		<mkdir dir="${dist}/etc" />
