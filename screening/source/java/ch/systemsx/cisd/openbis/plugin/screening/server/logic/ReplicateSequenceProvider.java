@@ -19,9 +19,12 @@ package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.collections.comparators.NullComparator;
 
 import ch.systemsx.cisd.common.collections.GroupByMap;
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
@@ -53,7 +56,9 @@ class ReplicateSequenceProvider
         GroupByMap<Double, IEntityPropertiesHolder> biologicalReplicates =
                 groupByBiologicalReplicate(replicaWells);
         int biologicalReplicateSeq = 1;
-        for (Double biologicalReplicateKey : biologicalReplicates.getKeys())
+        // NOTE: by sorting the keys we ensure that the replicate sequence will be always the same
+        // for a fixes set of replicas.
+        for (Double biologicalReplicateKey : createSortedCopy(biologicalReplicates.getKeys()))
         {
             if (biologicalReplicateKey != null)
             {
@@ -118,7 +123,13 @@ class ReplicateSequenceProvider
     private static <T extends Comparable<T>> Collection<T> createSortedCopy(Collection<T> keys)
     {
         ArrayList<T> sortedKeys = new ArrayList<T>(keys);
-        Collections.sort(sortedKeys);
+        Collections.sort(sortedKeys, new NullComparator<T>(new Comparator<T>()
+            {
+                public int compare(T o1, T o2)
+                {
+                    return o1.compareTo(o2);
+                }
+            }));
         return sortedKeys;
     }
 
