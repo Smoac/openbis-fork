@@ -169,11 +169,20 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
      */
     public void rollbackStorageProcessor(Throwable throwable)
     {
-        // Rollback may be called on in the stored state or in the prepared state. In the prepared
-        // state, there is nothing to do.
+        // Rollback may be called on in the stored state or in the prepared state.
         if (state instanceof PreparedState)
         {
-            state = new StoredState<T>((PreparedState<T>) state);
+            PreparedState<T> preparedState = (PreparedState<T>) state;
+            if (preparedState.wasStoreDataAttempted())
+            {
+                // If a storeData() was attempted and failed, then we need to move to the stored
+                // state in order to rollback
+                state = new StoredState<T>((PreparedState<T>) state);
+            } else
+            {
+                // If no storeData() was invoked, there is nothing to do
+                return;
+            }
         }
 
         StoredState<T> storedState = (StoredState<T>) state;
@@ -362,10 +371,9 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
             watch.start();
 
             transaction = storageProcessor.createTransaction();
-            transaction.storeData(
-                            storageAlgorithm.getDataSetInformation(),
-                            storageAlgorithm.getRegistrationDetails(), getMailClient(),
-                            incomingDataSetFile, baseDirectoryHolder.getBaseDirectory());
+            transaction.storeData(storageAlgorithm.getDataSetInformation(),
+                    storageAlgorithm.getRegistrationDetails(), getMailClient(),
+                    incomingDataSetFile, baseDirectoryHolder.getBaseDirectory());
             if (getOperationLog().isInfoEnabled())
             {
                 getOperationLog().info(
@@ -406,6 +414,11 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
             }
             return "experiment '" + dataSetInformation.getExperimentIdentifier() + "'";
         }
+
+        private boolean wasStoreDataAttempted()
+        {
+            return transaction != null;
+        }
     }
 
     private static class StoredState<T extends DataSetInformation> extends
@@ -416,7 +429,6 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         protected final IStorageProcessorTransaction transaction;
 
         protected final File markerFile;
-
 
         public StoredState(PreparedState<T> oldState)
         {
