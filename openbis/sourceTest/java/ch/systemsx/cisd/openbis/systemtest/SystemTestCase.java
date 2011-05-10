@@ -16,7 +16,11 @@
 
 package ch.systemsx.cisd.openbis.systemtest;
 
+import static org.testng.AssertJUnit.assertEquals;
+
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
@@ -181,6 +185,19 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
         AssertJUnit.fail("No row with code " + code + " found in " + codes);
         return null;
     }
+    
+    protected void assertProperties(String expectedProperties, IEntityPropertiesHolder propertiesHolder)
+    {
+        List<IEntityProperty> properties = new ArrayList<IEntityProperty>(propertiesHolder.getProperties());
+        Collections.sort(properties, new Comparator<IEntityProperty>()
+            {
+                public int compare(IEntityProperty p1, IEntityProperty p2)
+                {
+                    return p1.getPropertyType().getCode().compareTo(p2.getPropertyType().getCode());
+                }
+            });
+        assertEquals(expectedProperties, properties.toString());
+    }
 
     protected void assertProperty(IEntityPropertiesHolder propertiesHolder, String key, String value)
     {
@@ -191,7 +208,7 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
             String code = property.getPropertyType().getCode();
             if (code.equals(key))
             {
-                AssertJUnit.assertEquals("Property " + key, value, property.tryGetAsString());
+                assertEquals("Property " + key, value, property.tryGetAsString());
                 return;
             }
             propertyCodes.add(code);

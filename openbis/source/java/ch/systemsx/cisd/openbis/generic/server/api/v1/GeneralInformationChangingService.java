@@ -75,6 +75,8 @@ public class GeneralInformationChangingService extends
     public void updateSampleProperties(String sessionToken, long sampleID,
             Map<String, String> properties)
     {
+        checkSession(sessionToken);
+        
         TechId id = new TechId(sampleID);
         Sample sample = server.getSampleInfo(sessionToken, id).getParent();
         for (Entry<String, String> entry : properties.entrySet())

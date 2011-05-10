@@ -123,6 +123,12 @@ public class SampleBuilder
         return this;
     }
     
+    public SampleBuilder modificationDate(Date date)
+    {
+        sample.setModificationDate(date);
+        return this;
+    }
+    
     public SampleBuilder experiment(Experiment experiment)
     {
         sample.setExperiment(experiment);
