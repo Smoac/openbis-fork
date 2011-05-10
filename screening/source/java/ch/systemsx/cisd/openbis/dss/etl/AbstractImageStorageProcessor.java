@@ -290,22 +290,15 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
 
             File imagesInStoreFolder = moveToStore(incomingDataSetDirectory, rootDirectory);
             this.storedDataDirectory = rootDirectory;
-            try
-            {
-                // NOTE: plateImages will be changed by reference
-                processImages(rootDirectory, plateImages, imagesInStoreFolder,
-                        imageStorageConfiguraton);
+            // NOTE: plateImages will be changed by reference
+            processImages(rootDirectory, plateImages, imagesInStoreFolder, imageStorageConfiguraton);
 
-                shouldDeleteOriginalDataOnCommit =
-                        imageStorageConfiguraton.getOriginalDataStorageFormat().isHdf5();
+            shouldDeleteOriginalDataOnCommit =
+                    imageStorageConfiguraton.getOriginalDataStorageFormat().isHdf5();
 
-                dbTransaction = createQuery();
-                storeInDatabase(dbTransaction, dataSetInformation, extractionResult);
-            } catch (RuntimeException ex)
-            {
-                moveFilesBackFromStore();
-                throw ex;
-            }
+            dbTransaction = createQuery();
+            storeInDatabase(dbTransaction, dataSetInformation, extractionResult);
+
             return rootDirectory;
         }
 
@@ -373,6 +366,11 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
 
         private final void moveFilesBackFromStore()
         {
+            if (storedDataDirectory == null)
+            {
+                // nothing has been stored yet
+                return;
+            }
             checkParameters(incomingDataSetDirectory, storedDataDirectory);
 
             final File originalDataFile = tryGetProprietaryData();
