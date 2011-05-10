@@ -21,7 +21,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwner;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
@@ -57,10 +57,11 @@ public interface IDataSetHandlerRpc extends IDataSetHandler
     public SessionContextDTO getSessionContext();
 
     /**
-     * Get the file for an external data from the data store.
-     * @param shareId 
+     * Get the file for a data set from the data store.
+     * 
+     * @param shareId
      */
-    public File getFileForExternalData(ExternalData data, String shareId);
+    public File getFileForDataSet(DataSet data, String shareId);
 
     /**
      * Get the owner information provided by the caller.

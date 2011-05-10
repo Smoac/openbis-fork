@@ -95,8 +95,6 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
 
     private boolean isDerived;
 
-    private boolean isVirtual;
-
     private PersonPE registrator;
 
     /** Registration date of the database instance. */
@@ -118,14 +116,14 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
 
     private Set<DataPE> children = new HashSet<DataPE>();
 
-    private DataPE virtualParent = null;
+    private DataPE containerParent = null;
 
-    private List<DataPE> virtualChildren = new ArrayList<DataPE>();
+    private List<DataPE> containedDataSets = new ArrayList<DataPE>();
 
     /**
      * the index of this {@link DataPE} within its virtual parent.
      */
-    private int virtualOrder;
+    private int orderInContainer;
 
     private DataStorePE dataStore;
 
@@ -202,32 +200,15 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         this.isDerived = isDerived;
     }
 
-    /**
-     * Returns <code>true</code> if this data set is data set is virtual data set.
-     */
-    @Column(name = ColumnNames.IS_VIRTUAL)
-    public boolean isVirtual()
+    @Column(name = ColumnNames.DATA_CONTAINER_ORDER_COLUMN)
+    public int getOrderInContainer()
     {
-        return isVirtual;
+        return orderInContainer;
     }
 
-    /**
-     * Set to <code>true</code> if this data set is virtual data set.
-     */
-    public void setVirtual(boolean isVirtual)
+    public void setOrderInContainer(Integer orderInContainer)
     {
-        this.isVirtual = isVirtual;
-    }
-
-    @Column(name = ColumnNames.DATA_VIRTUAL_ORDER_COLUMN)
-    public int getVirtualOrder()
-    {
-        return virtualOrder;
-    }
-
-    public void setVirtualOrder(Integer virtualOrder)
-    {
-        this.virtualOrder = (virtualOrder != null) ? virtualOrder : 0;
+        this.orderInContainer = (orderInContainer != null) ? orderInContainer : 0;
     }
 
     /**
@@ -440,28 +421,28 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
 
     @SuppressWarnings("unused")
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = DataPE.class)
-    @JoinColumn(name = ColumnNames.DATA_VIRTUAL_PARENT_COLUMN)
-    private DataPE getVirtualParentInternal()
+    @JoinColumn(name = ColumnNames.DATA_CONTAINER_PARENT_COLUMN)
+    private DataPE getContainerParentInternal()
     {
-        return virtualParent;
+        return containerParent;
     }
 
     @SuppressWarnings("unused")
-    private void setVirtualParentInternal(final DataPE virtualParent)
+    private void setContainerParentInternal(final DataPE containerParent)
     {
-        this.virtualParent = virtualParent;
+        this.containerParent = containerParent;
     }
 
     
-    @OneToMany(mappedBy = "virtualParentInternal", fetch = FetchType.LAZY)
-    public List<DataPE> getVirtualChildren()
+    @OneToMany(mappedBy = "containerParentInternal", fetch = FetchType.LAZY)
+    public List<DataPE> getContainedDatas()
     {
-        return virtualChildren;
+        return containedDataSets;
     }
 
-    public void setVirtualChildren(List<DataPE> virtualChildren)
+    public void setContainedDatas(List<DataPE> containedDataSets)
     {
-        this.virtualChildren = virtualChildren;
+        this.containedDataSets = containedDataSets;
     }
 
     //
@@ -614,6 +595,15 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     public String getPermId()
     {
         return code;
+    }
+
+    /**
+     * @return <code>true</code> if this is a container data set.
+     */
+    @Transient
+    public boolean isContainerDataSet()
+    {
+        return dataSetType != null && dataSetType.isContainerType();
     }
 
 }

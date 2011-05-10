@@ -22,6 +22,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleDateRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
@@ -198,40 +199,40 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
             }
         }),
 
-    IS_COMPLETE(new AbstractColumnDefinitionKind<ExternalData>(Dict.IS_COMPLETE, true)
+    IS_COMPLETE(new AbstractDataSetColumnDefinitionKind(Dict.IS_COMPLETE, true)
         {
             @Override
-            public String tryGetValue(ExternalData entity)
+            public String tryGetValue(DataSet dataSet)
             {
-                Boolean complete = entity.getComplete();
+                Boolean complete = dataSet.getComplete();
                 return complete == null ? "?" : SimpleYesNoRenderer.render(complete);
             }
         }),
 
-    LOCATION(new AbstractColumnDefinitionKind<ExternalData>(Dict.LOCATION, true)
+    LOCATION(new AbstractDataSetColumnDefinitionKind(Dict.LOCATION, true)
         {
             @Override
-            public String tryGetValue(ExternalData entity)
+            public String tryGetValue(DataSet dataSet)
             {
-                return entity.getLocation();
+                return dataSet.getLocation();
             }
         }),
 
-    STATUS(new AbstractColumnDefinitionKind<ExternalData>(Dict.ARCHIVING_STATUS, 200, true)
+    STATUS(new AbstractDataSetColumnDefinitionKind(Dict.ARCHIVING_STATUS, 200, true)
         {
             @Override
-            public String tryGetValue(ExternalData entity)
+            public String tryGetValue(DataSet entity)
             {
                 return entity.getStatus().getDescription();
             }
         }),
 
-    FILE_FORMAT_TYPE(new AbstractColumnDefinitionKind<ExternalData>(Dict.FILE_FORMAT_TYPE, true)
+    FILE_FORMAT_TYPE(new AbstractDataSetColumnDefinitionKind(Dict.FILE_FORMAT_TYPE, true)
         {
             @Override
-            public String tryGetValue(ExternalData entity)
+            public String tryGetValue(DataSet dataSet)
             {
-                FileFormatType fileFormatType = entity.getFileFormatType();
+                FileFormatType fileFormatType = dataSet.getFileFormatType();
                 return fileFormatType == null ? null : fileFormatType.getCode();
             }
         }),
@@ -290,6 +291,36 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
                 return ""; // link doesn't make sense here as session id is needed
             }
         });
+
+    private abstract static class AbstractDataSetColumnDefinitionKind extends
+            AbstractColumnDefinitionKind<ExternalData>
+    {
+        public AbstractDataSetColumnDefinitionKind(String headerMsgKey, boolean isHidden)
+        {
+            super(headerMsgKey, isHidden);
+        }
+
+        public AbstractDataSetColumnDefinitionKind(String headerMsgKey, int width, boolean isHidden)
+        {
+            super(headerMsgKey, width, isHidden);
+        }
+
+        @Override
+        public String tryGetValue(ExternalData entity)
+        {
+            DataSet dataSet = entity.tryGetAsDataSet();
+            if (dataSet != null)
+            {
+                return tryGetValue(dataSet);
+            } else
+            {
+                return null;
+            }
+        }
+
+        abstract String tryGetValue(DataSet dataSet);
+
+    }
 
     private final AbstractColumnDefinitionKind<ExternalData> columnDefinitionKind;
 

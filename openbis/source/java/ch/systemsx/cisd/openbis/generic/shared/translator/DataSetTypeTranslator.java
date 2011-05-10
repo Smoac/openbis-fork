@@ -55,6 +55,7 @@ public class DataSetTypeTranslator
                         entityTypeOrNull.getDataSetTypePropertyTypes(), result, cacheOrNull)));
         result.setMainDataSetPath(entityTypeOrNull.getMainDataSetPath());
         result.setMainDataSetPattern(entityTypeOrNull.getMainDataSetPattern());
+        result.setContainerType(entityTypeOrNull.isContainerType());
         return result;
     }
 

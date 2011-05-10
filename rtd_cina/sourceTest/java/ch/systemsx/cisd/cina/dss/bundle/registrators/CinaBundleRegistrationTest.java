@@ -33,11 +33,11 @@ import ch.systemsx.cisd.cina.shared.constants.CinaConstants;
 import ch.systemsx.cisd.etlserver.IDataSetHandlerRpc;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -102,7 +102,7 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
 
     protected IDataSetHandlerRpc delegator;
 
-    private ExternalData externalData;
+    private DataSet dataSet;
 
     private DataSetTypeWithVocabularyTerms rawImagesDataSetTypeWithTerms;
 
@@ -168,8 +168,8 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
         imageDataSetTypeWithTerms = new DataSetTypeWithVocabularyTerms();
         imageDataSetTypeWithTerms.setDataSetType(dataSetType);
 
-        externalData = new ExternalData();
-        externalData.setCode("1");
+        dataSet = new DataSet();
+        dataSet.setCode("1");
 
         // set up the expectations
         context.checking(new Expectations()
@@ -337,8 +337,8 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
         dataSetInformation.setInstanceCode(DB_CODE);
         dataSetInformation.setShareId("42");
 
-        externalData = new ExternalData();
-        externalData.setCode(METADATA_DATA_SET_CODE);
+        dataSet = new DataSet();
+        dataSet.setCode(METADATA_DATA_SET_CODE);
 
         final File dataSetFile = new File(path);
         final File dm3CollectionFile = new File(dataSetFile, "DM3");
@@ -375,9 +375,9 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
 
                     // Retrieve the registered data set from openBIS
                     one(openbisService).tryGetDataSet(SESSION_TOKEN, METADATA_DATA_SET_CODE);
-                    will(returnValue(externalData));
+                    will(returnValue(dataSet));
                     // Retrieve the registered data set from the store
-                    one(delegator).getFileForExternalData(externalData, "42");
+                    one(delegator).getFileForDataSet(dataSet, "42");
                     will(returnValue(dataSetFile.getParentFile()));
 
                     // Register the images data set

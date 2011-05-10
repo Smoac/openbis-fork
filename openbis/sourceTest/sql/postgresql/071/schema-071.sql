@@ -380,9 +380,8 @@ CREATE TABLE data (
     is_derived boolean_char NOT NULL,
     samp_id tech_id,
     pers_id_registerer tech_id,
-    is_virtual boolean_char DEFAULT false,
-    virt_order integer,
-    virt_parent_id tech_id DEFAULT NULL::bigint
+    ctnr_order integer,
+    ctnr_parent_id tech_id DEFAULT NULL::bigint
 );
 CREATE SEQUENCE data_id_seq
     START WITH 1
@@ -447,7 +446,8 @@ CREATE TABLE data_set_types (
     dbin_id tech_id NOT NULL,
     modification_timestamp time_stamp DEFAULT now(),
     main_ds_pattern character varying(300),
-    main_ds_path character varying(1000)
+    main_ds_path character varying(1000),
+    is_container boolean_char DEFAULT false
 );
 CREATE SEQUENCE data_store_id_seq
     START WITH 1

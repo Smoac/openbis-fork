@@ -26,6 +26,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
@@ -57,14 +58,16 @@ public class ExternalDataTranslatorTest extends AssertJUnit
     {
         ExternalDataPE externalDataPE = new ExternalDataPE();
         externalDataPE.setDataStore(createStore());
-        ExternalData externalData =
+        ExternalData data =
                 ExternalDataTranslator.translate(externalDataPE, BASE_INDEX_URL);
 
-        assertEquals(null, externalData.getCode());
-        assertEquals(null, externalData.getExperiment());
-        assertEquals(null, externalData.getProductionDate());
-        assertEquals(null, externalData.getComplete());
-        assertEquals(0, externalData.getParents().size());
+        DataSet translated = data.tryGetAsDataSet();
+
+        assertEquals(null, translated.getCode());
+        assertEquals(null, translated.getExperiment());
+        assertEquals(null, translated.getProductionDate());
+        assertEquals(null, translated.getComplete());
+        assertEquals(0, translated.getParents().size());
     }
 
     @Test
@@ -121,34 +124,36 @@ public class ExternalDataTranslatorTest extends AssertJUnit
         samplePE.setInvalidation(invalidationPE);
         externalDataPE.setSampleAcquiredFrom(samplePE);
 
-        ExternalData externalData =
+        ExternalData data =
                 ExternalDataTranslator.translate(externalDataPE, BASE_INDEX_URL);
 
-        assertEquals(DOWNLOAD_URL, externalData.getDataStore().getHostUrl());
-        assertEquals(DOWNLOAD_URL + "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME, externalData
+        DataSet translated = data.tryGetAsDataSet();
+
+        assertEquals(DOWNLOAD_URL, translated.getDataStore().getHostUrl());
+        assertEquals(DOWNLOAD_URL + "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME, translated
                 .getDataStore().getDownloadUrl());
-        assertEquals("code", externalData.getCode());
-        assertEquals(Boolean.FALSE, externalData.getComplete());
-        assertEquals("dataProducerCode", externalData.getDataProducerCode());
-        assertEquals("dataSetTypeCode", externalData.getDataSetType().getCode());
-        assertEquals("dataSetTypeDescription", externalData.getDataSetType().getDescription());
-        assertEquals("fileFormatTypeCode", externalData.getFileFormatType().getCode());
-        assertEquals("fileFormatTypeDescription", externalData.getFileFormatType().getDescription());
-        assertEquals("location", externalData.getLocation());
-        assertEquals(4711L, externalData.getSize().longValue());
-        assertEquals("locatorTypeCode", externalData.getLocatorType().getCode());
-        assertEquals("locatorTypeDescription", externalData.getLocatorType().getDescription());
-        assertEquals(0, externalData.getParents().size());
-        assertEquals("my-experiment", externalData.getExperiment().getCode());
-        assertEquals(1, externalData.getProductionDate().getTime());
-        assertEquals(2, externalData.getRegistrationDate().getTime());
-        assertEquals("sample", externalData.getSampleIdentifier());
-        assertEquals("sampleTypeCode", externalData.getSampleType().getCode());
-        assertEquals("sampleTypeDescription", externalData.getSampleType().getDescription());
-        assertEquals(false, externalData.isDerived());
-        assertEquals("reason", externalData.getInvalidation().getReason());
-        assertEquals(3, externalData.getInvalidation().getRegistrationDate().getTime());
-        assertEquals("user", externalData.getInvalidation().getRegistrator().getUserId());
+        assertEquals("code", translated.getCode());
+        assertEquals(Boolean.FALSE, translated.getComplete());
+        assertEquals("dataProducerCode", translated.getDataProducerCode());
+        assertEquals("dataSetTypeCode", translated.getDataSetType().getCode());
+        assertEquals("dataSetTypeDescription", translated.getDataSetType().getDescription());
+        assertEquals("fileFormatTypeCode", translated.getFileFormatType().getCode());
+        assertEquals("fileFormatTypeDescription", translated.getFileFormatType().getDescription());
+        assertEquals("location", translated.getLocation());
+        assertEquals(4711L, translated.getSize().longValue());
+        assertEquals("locatorTypeCode", translated.getLocatorType().getCode());
+        assertEquals("locatorTypeDescription", translated.getLocatorType().getDescription());
+        assertEquals(0, translated.getParents().size());
+        assertEquals("my-experiment", translated.getExperiment().getCode());
+        assertEquals(1, translated.getProductionDate().getTime());
+        assertEquals(2, translated.getRegistrationDate().getTime());
+        assertEquals("sample", translated.getSampleIdentifier());
+        assertEquals("sampleTypeCode", translated.getSampleType().getCode());
+        assertEquals("sampleTypeDescription", translated.getSampleType().getDescription());
+        assertEquals(false, translated.isDerived());
+        assertEquals("reason", translated.getInvalidation().getReason());
+        assertEquals(3, translated.getInvalidation().getRegistrationDate().getTime());
+        assertEquals("user", translated.getInvalidation().getRegistrator().getUserId());
     }
 
     @Test

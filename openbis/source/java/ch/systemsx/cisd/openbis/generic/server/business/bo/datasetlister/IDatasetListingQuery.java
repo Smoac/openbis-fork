@@ -50,40 +50,44 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
 {
     public static final int FETCH_SIZE = 1000;
 
+    public final static String SELECT_ALL =
+            "select * from data left outer join external_data on data.id = external_data.data_id ";
+
+    public final static String SELECT_ALL_EXTERNAL_DATAS =
+            "select * from data join external_data on data.id = external_data.data_id ";
+
     /**
      * Returns the datasets for the given experiment id.
      */
-    @Select(sql = "select * from data join external_data on data.id = external_data.data_id"
-            + " where data.expe_id = any(?{1})", parameterBindings =
+    @Select(sql = SELECT_ALL + " WHERE data.expe_id = any(?{1})", parameterBindings =
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getDatasetsForExperiment(LongSet experimentIds);
 
     /**
      * Returns the directly connected datasets for the given sample id.
      */
-    @Select(sql = "select * from data join external_data on data.id = external_data.data_id where data.samp_id=?{1}", fetchSize = FETCH_SIZE)
+    @Select(sql = SELECT_ALL + " WHERE data.samp_id=?{1}", fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getDatasetsForSample(long sampleId);
 
     /**
      * Returns the directly connected datasets for the given sample ids.
      */
-    @Select(sql = "select * from data join external_data on data.id = external_data.data_id where data.samp_id = any(?{1})", parameterBindings =
+    @Select(sql = SELECT_ALL + " WHERE data.samp_id = any(?{1})", parameterBindings =
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getDatasetsForSamples(LongSet sampleIds);
 
     /**
      * Returns data sets that are newer than the data set of specified id.
      */
-    @Select(sql = "SELECT * FROM data JOIN external_data ON data.id = external_data.data_id"
-            + "    WHERE data.id > ?{1}", fetchSize = FETCH_SIZE)
+    @Select(sql = SELECT_ALL + " WHERE data.id > ?{1}", fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getNewDataSets(long lastSeenDatasetId);
 
     /**
      * Returns datasets that are newer than dataset with given id (<var>lastSeenDatasetId</var>) and
      * are directly connected with samples of sample type with given <var>sampleTypeId</var>.
      */
-    @Select(sql = "SELECT * FROM data JOIN external_data ON data.id = external_data.data_id"
-        + "    WHERE data.id > ?{2} AND data.samp_id IN (SELECT id FROM samples s WHERE s.saty_id=?{1})", fetchSize = FETCH_SIZE)
+    @Select(sql = SELECT_ALL
+            + " WHERE data.id > ?{2} AND data.samp_id IN (SELECT id FROM samples s WHERE s.saty_id=?{1})", fetchSize = FETCH_SIZE)
         public DataIterator<DatasetRecord> getNewDataSetsForSampleType(long sampleTypeId,
                 long lastSeenDatasetId);
     
@@ -91,21 +95,21 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
      * Returns datasets from store with given id that have status equal 'AVAILABLE' and were
      * modified before given date.
      */
-    @Select(sql = "SELECT * FROM data JOIN external_data ON data.id = external_data.data_id"
+    @Select(sql = SELECT_ALL_EXTERNAL_DATAS
             + "    WHERE data.dast_id = ?{1} AND external_data.status = 'AVAILABLE' "
             + "    AND data.registration_timestamp < ?{2} AND external_data.present_in_archive=?{3}", fetchSize = FETCH_SIZE)
-    public DataIterator<DatasetRecord> getAvailableDataSetsRegisteredBefore(long dataStoreId,
+    public DataIterator<DatasetRecord> getAvailableExtDatasRegisteredBefore(long dataStoreId,
             Date lastModificationDate, boolean presentInArchive);
 
     /**
-     * Like {@link #getAvailableDataSetsRegisteredBefore(long, Date, boolean)} with additional
+     * Like {@link #getAvailableExtDatasRegisteredBefore(long, Date, boolean)} with additional
      * condition for data set type id.
      */
-    @Select(sql = "SELECT * FROM data JOIN external_data ON data.id = external_data.data_id"
+    @Select(sql = SELECT_ALL_EXTERNAL_DATAS
             + "    WHERE data.dast_id = ?{1} AND external_data.status = 'AVAILABLE' "
             + "    AND data.registration_timestamp < ?{2} AND external_data.present_in_archive=?{3} "
             + "    AND data.dsty_id = ?{4}", fetchSize = FETCH_SIZE)
-    public DataIterator<DatasetRecord> getAvailableDataSetsRegisteredBeforeWithDataSetType(
+    public DataIterator<DatasetRecord> getAvailableExtDatasRegisteredBeforeWithDataSetType(
             long dataStoreId, Date lastModificationDate, boolean presentInArchive,
             long dataSetTypeId);
 
@@ -133,7 +137,7 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
     /**
      * Returns all datasets that are children of any specified dataset id.
      */
-    @Select(sql = "SELECT * FROM data JOIN external_data ON data.id = external_data.data_id"
+    @Select(sql = SELECT_ALL
             + "    WHERE data.id IN (SELECT data_id_child FROM data_set_relationships r WHERE r.data_id_parent = any(?{1}))", parameterBindings =
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getChildDatasetsForParents(LongSet parentDatasetIds);
@@ -141,25 +145,25 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
     /**
      * Returns the datasets that are parents of a dataset with given id.
      */
-    @Select(sql = "SELECT * FROM data JOIN external_data ON data.id = external_data.data_id"
-            + "    WHERE data.id IN (SELECT data_id_parent FROM data_set_relationships r WHERE r.data_id_child=?{1})", fetchSize = FETCH_SIZE)
+    @Select(sql = SELECT_ALL
+            + " WHERE data.id IN (SELECT data_id_parent FROM data_set_relationships r WHERE r.data_id_child=?{1})", fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getParentDatasetsForChild(long childDatasetId);
 
     /**
      * Returns the datasets for the given <var>datasetId</var>.
      */
-    @Select("select * from data d join external_data e on d.id = e.data_id" + " where d.id=?{1}")
+    @Select(SELECT_ALL + " where data.id=?{1}")
     public DatasetRecord getDataset(long datasetId);
 
     /**
      * Returns all datasets in the database.
      */
-    @Select(sql = "select * from data d join external_data e on d.id = e.data_id"
-            + "     where (select dbin_id from data_set_types t where t.id = d.dsty_id) = ?{1}", fetchSize = FETCH_SIZE)
+    @Select(sql = SELECT_ALL
+            + " where (select dbin_id from data_set_types t where t.id = data.dsty_id) = ?{1}", fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getDatasets(long dbInstanceId);
 
-    @Select(sql = "select id, code from data_set_types where dbin_id=?{1}")
-    public CodeRecord[] getDatasetTypes(long databaseInstanceId);
+    @Select(sql = "select id, code, is_container from data_set_types where dbin_id=?{1}")
+    public DataSetTypeRecord[] getDatasetTypes(long databaseInstanceId);
 
     @Select(sql = "select id, code, download_url from data_stores where dbin_id=?{1}")
     public DataStoreRecord[] getDataStores(long databaseInstanceId);
@@ -177,11 +181,11 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
     /**
      * Returns the datasets for the given <var>entityIds</var>.
      */
-    @Select(sql = "select * from data join external_data on data.id = external_data.data_id where data.id = any(?{1})", parameterBindings =
+    @Select(sql = SELECT_ALL + " where data.id = any(?{1})", parameterBindings =
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getDatasets(LongSet entityIds);
 
-    @Select(sql = "select * from data join external_data on data.id = external_data.data_id where data.code = any(?{1})", parameterBindings =
+    @Select(sql = SELECT_ALL + " where data.code = any(?{1})", parameterBindings =
         { StringArrayMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getDatasets(String[] datasetCodes);
     
@@ -193,6 +197,9 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<Long> getDatasetChildrenIds(LongSet sampleId);
 
+    @Select(sql = "select id from data where ctnr_parent_id = any(?{1})", parameterBindings =
+        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<Long> getContainedDataSetIds(LongSet containerIDs);
     //
     // Entity Properties
     //

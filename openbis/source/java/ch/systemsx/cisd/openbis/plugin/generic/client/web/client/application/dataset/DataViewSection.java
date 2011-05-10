@@ -263,7 +263,7 @@ public class DataViewSection extends TabContent
             this.dataset = dataset;
             this.hideFileView = hideFileView;
             this.hideSmartView = hideSmartView;
-            if (dataset.getStatus().isAvailable())
+            if (dataset.isAvailable())
             {
                 addPostRefreshCallback(createDefaultServiceSelectionAction());
             } else

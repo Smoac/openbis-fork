@@ -59,9 +59,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwner;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
@@ -231,10 +231,10 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
         return getOpenBisService().tryGetSession(sessionToken);
     }
 
-    public File getFileForExternalData(ExternalData externalData, String shareId)
+    public File getFileForDataSet(DataSet dataSet, String shareId)
     {
         File share = new File(service.getStoreRootDirectory(), shareId);
-        File dataSetFile = new File(share, externalData.getLocation());
+        File dataSetFile = new File(share, dataSet.getLocation());
         return DefaultStorageProcessor.getOriginalDirectory(dataSetFile);
     }
 

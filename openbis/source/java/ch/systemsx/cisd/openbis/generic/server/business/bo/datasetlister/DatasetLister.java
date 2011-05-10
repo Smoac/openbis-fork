@@ -49,11 +49,14 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropert
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.AbstractLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.util.KeyExtractorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
@@ -317,8 +320,13 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
 
     public List<ExternalData> listByParentTechIds(Collection<Long> parentDatasetIds)
     {
-        return enrichDatasets(query
-                .getChildDatasetsForParents(new LongOpenHashSet(parentDatasetIds)));
+        List<ExternalData> result = new ArrayList<ExternalData>();
+        // non-virtual
+        result.addAll(enrichDatasets(query.getChildDatasetsForParents(new LongOpenHashSet(
+                parentDatasetIds))));
+        // TODO KE: implement virtual data set enriching
+        // result.addAll(enrichVirtual());
+        return result;
     }
 
     public List<ExternalData> listByDatasetIds(Collection<Long> datasetIds)
@@ -330,6 +338,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     {
         String[] codes = datasetCodes.toArray(new String[datasetCodes.size()]);
         DataIterator<DatasetRecord> datasets = query.getDatasets(codes);
+        loadSmallConnectedTables();
         return asList(createPrimaryDatasets(asList(datasets)));
     }
 
@@ -366,12 +375,12 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         final boolean presentInArchive = criteria.isPresentInArchive();
         if (dataSetTypeCodeOrNull == null)
         {
-            return enrichDatasets(query.getAvailableDataSetsRegisteredBefore(dataStoreId,
+            return enrichDatasets(query.getAvailableExtDatasRegisteredBefore(dataStoreId,
                     lastRegistrationDate, presentInArchive));
         } else
         {
             Long dataSetTypeId = extractDataSetTypeId(dataSetTypeCodeOrNull);
-            return enrichDatasets(query.getAvailableDataSetsRegisteredBeforeWithDataSetType(
+            return enrichDatasets(query.getAvailableExtDatasRegisteredBeforeWithDataSetType(
                     dataStoreId, lastRegistrationDate, presentInArchive, dataSetTypeId));
         }
     }
@@ -414,6 +423,8 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         filterDatasetsWithNullExperiments(datasetMap);
         enrichWithProperties(datasetMap);
         enrichWithSamples(datasetMap);
+        enrichWithContainerParents(datasetMap);
+        enrichWithContainedDataSets(datasetMap);
         return asList(datasetMap);
     }
 
@@ -522,6 +533,103 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
             });
     }
 
+    private void enrichWithContainerParents(Long2ObjectMap<ExternalData> datasetMap)
+    {
+
+        Set<Long> containersNotLoaded = new HashSet<Long>();
+        for (ExternalData dataSet : datasetMap.values())
+        {
+            ContainerDataSet containerOrNull = dataSet.tryGetContainer();
+            Long containerId = (containerOrNull != null) ? containerOrNull.getId() : null;
+            if (containerId != null)
+            {
+                ContainerDataSet loadedContainer = (ContainerDataSet) datasetMap.get(containerId);
+                if (loadedContainer != null)
+                {
+                    dataSet.setContainer(loadedContainer);
+                } else
+                {
+                    containersNotLoaded.add(containerId);
+                }
+            }
+        }
+
+        if (false == containersNotLoaded.isEmpty())
+        {
+            // load the unavailable container data sets with an additional query
+            List<ExternalData> containersSecondPass = listByDatasetIds(containersNotLoaded);
+            TableMap<Long, ExternalData> secondPassMap =
+                    new TableMap<Long, ExternalData>(containersSecondPass,
+                            KeyExtractorFactory.<ExternalData> createIdKeyExtractor());
+            for (ExternalData dataSet : datasetMap.values())
+            {
+                ContainerDataSet containerOrNull = dataSet.tryGetContainer();
+                Long containerId = (containerOrNull != null) ? containerOrNull.getId() : null;
+                ContainerDataSet newlyLoaded = (ContainerDataSet) secondPassMap.tryGet(containerId);
+                if (newlyLoaded != null)
+                {
+                    dataSet.setContainer(newlyLoaded);
+                }
+            }
+        }
+    }
+
+    private void enrichWithContainedDataSets(Long2ObjectMap<ExternalData> datasetMap)
+    {
+        Long2ObjectMap<ExternalData> fullContextMap =
+                new Long2ObjectOpenHashMap<ExternalData>(datasetMap);
+        LongSet containerIDs = new LongOpenHashSet();
+        for (ExternalData dataSet : datasetMap.values())
+        {
+            if (dataSet.isContainerDataSet())
+            {
+                containerIDs.add(dataSet.getId());
+            }
+            ContainerDataSet containerOrNull = dataSet.tryGetContainer();
+            Long containerId = (containerOrNull != null) ? containerOrNull.getId() : null;
+            if (containerId != null && false == fullContextMap.containsKey(containerId))
+            {
+                containerIDs.add(containerId);
+                fullContextMap.put(containerId, containerOrNull);
+            }
+        }
+
+        if (containerIDs.isEmpty())
+        {
+            return;
+        }
+
+        List<Long> containedDataSetIDs = asList(query.getContainedDataSetIds(containerIDs));
+        LongSet notYetLoadedChilren = new LongOpenHashSet();
+
+        for (Long containedDataSetID : containedDataSetIDs)
+        {
+            if (false == fullContextMap.containsKey(containedDataSetID))
+            {
+                notYetLoadedChilren.add(containedDataSetID);
+            }
+        }
+
+        if (false == notYetLoadedChilren.isEmpty()) {
+            Long2ObjectMap<ExternalData> childrenSecondPass =
+                    createPrimaryDatasets(asList(query.getDatasets(notYetLoadedChilren)));
+            fullContextMap.putAll(childrenSecondPass);
+        }
+
+        for (Long id : containedDataSetIDs)
+        {
+            ExternalData contained = fullContextMap.get(id);
+            Long containerId = contained.tryGetContainer().getId();
+            ContainerDataSet container = fullContextMap.get(containerId).tryGetAsContainerDataSet();
+            // set container to the child
+            contained.setContainer(container);
+            // add the child to the container
+            List<ExternalData> containedDataSets = container.getContainedDataSets();
+            containedDataSets.add(contained);
+            container.setContainedDataSets(containedDataSets);
+        }
+    }
+
     private static <T> List<T> asList(Long2ObjectMap<T> items)
     {
         List<T> result = new ArrayList<T>();
@@ -534,43 +642,78 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         Long2ObjectMap<ExternalData> datasets = new Long2ObjectOpenHashMap<ExternalData>();
         for (DatasetRecord record : records)
         {
-            datasets.put(record.id, createPrimaryDataset(record));
+            DataSetType dsType = dataSetTypes.get(record.dsty_id);
+            if (record.is_placeholder)
+            {
+                // placeholder data sets are filtered out
+            } else if (dsType.isContainerType())
+            {
+                datasets.put(record.id, convertToContainerDataSet(record));
+            } else
+            {
+                datasets.put(record.id, convertToDataSet(record));
+            }
         }
         return datasets;
     }
 
-    private ExternalData createPrimaryDataset(DatasetRecord record)
+    private DataSet convertToDataSet(DatasetRecord record)
     {
-        ExternalData dataset = createBasicDataset(record);
-        dataset.setId(record.id);
-        dataset.setComplete(resolve(record.is_complete));
-        dataset.setDataProducerCode(record.data_producer_code);
-        dataset.setDataStore(dataStores.get(record.dast_id));
-        dataset.setDerived(record.is_derived);
-        dataset.setStatus(DataSetArchivingStatus.valueOf(record.status));
-        dataset.setSpeedHint(record.speed_hint == null ? Constants.DEFAULT_SPEED_HINT : record.speed_hint);
+        DataSet dataSet = new DataSet();
+        convertStandardProperties(dataSet, record);
 
-        dataset.setFileFormatType(fileFormatTypes.get(record.ffty_id));
-        dataset.setLocation(record.location);
-        dataset.setSize(record.size);
-        dataset.setLocatorType(locatorTypes.get(record.loty_id));
-        dataset.setProductionDate(record.production_timestamp);
-        dataset.setRegistrationDate(record.registration_timestamp);
-        dataset.setRegistrator(getOrCreateRegistrator(record.pers_id_registerer));
-        dataset.setDataSetProperties(new ArrayList<IEntityProperty>());
+        dataSet.setComplete(resolve(record.is_complete));
+        dataSet.setStatus(DataSetArchivingStatus.valueOf(record.status));
+        dataSet.setSpeedHint(record.speed_hint == null ? Constants.DEFAULT_SPEED_HINT
+                : record.speed_hint);
+        dataSet.setFileFormatType(fileFormatTypes.get(record.ffty_id));
+        dataSet.setLocation(record.location);
+        dataSet.setSize(record.size);
+        dataSet.setLocatorType(locatorTypes.get(record.loty_id));
+        return dataSet;
+    }
+
+    private ContainerDataSet convertToContainerDataSet(DatasetRecord record)
+    {
+        ContainerDataSet containerDataSet = new ContainerDataSet();
+        convertStandardProperties(containerDataSet, record);
+        return containerDataSet;
+    }
+
+    private void convertStandardProperties(ExternalData dataSet, DatasetRecord record)
+    {
+        dataSet.setCode(record.code);
+        dataSet.setDataSetType(dataSetTypes.get(record.dsty_id));
+        dataSet.setId(record.id);
+        dataSet.setPermlink(PermlinkUtilities.createPermlinkURL(baseIndexURL, EntityKind.DATA_SET,
+                record.code));
+        dataSet.setId(record.id);
+        dataSet.setDataProducerCode(record.data_producer_code);
+        dataSet.setDataStore(dataStores.get(record.dast_id));
+        dataSet.setDerived(record.is_derived);
+        dataSet.setOrderInContainer(record.ctnr_order);
+        dataSet.setProductionDate(record.production_timestamp);
+        dataSet.setRegistrationDate(record.registration_timestamp);
+        dataSet.setRegistrator(getOrCreateRegistrator(record.pers_id_registerer));
+        dataSet.setDataSetProperties(new ArrayList<IEntityProperty>());
+
+        if (record.ctnr_parent_id != null)
+        {
+            ContainerDataSet container = new ContainerDataSet();
+            container.setId(record.ctnr_parent_id);
+            dataSet.setContainer(container);
+        }
 
         if (record.samp_id != null)
         {
             Sample sample = new Sample();
             sample.setId(record.samp_id);
-            dataset.setSample(sample);
+            dataSet.setSample(sample);
         }
 
         Experiment experiment = new Experiment();
         experiment.setId(record.expe_id);
-        dataset.setExperiment(experiment);
-
-        return dataset;
+        dataSet.setExperiment(experiment);
     }
 
     private Boolean resolve(String booleanRepresentative)
@@ -582,21 +725,10 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         return BooleanOrUnknown.tryToResolve(BooleanOrUnknown.valueOf(booleanRepresentative));
     }
 
-    private ExternalData createBasicDataset(DatasetRecord record)
-    {
-        ExternalData dataset = new ExternalData();
-        dataset.setCode(record.code);
-        dataset.setDataSetType(dataSetTypes.get(record.dsty_id));
-        dataset.setId(record.id);
-        dataset.setPermlink(PermlinkUtilities.createPermlinkURL(baseIndexURL, EntityKind.DATA_SET,
-                record.code));
-        return dataset;
-    }
-
     private void loadSmallConnectedTables()
     {
         dataSetTypes.clear();
-        for (CodeRecord code : query.getDatasetTypes(databaseInstanceId))
+        for (DataSetTypeRecord code : query.getDatasetTypes(databaseInstanceId))
         {
             dataSetTypes.put(code.id, createDataSetType(code));
         }
@@ -649,11 +781,12 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         return result;
     }
 
-    private DataSetType createDataSetType(CodeRecord codeRecord)
+    private DataSetType createDataSetType(DataSetTypeRecord record)
     {
         DataSetType result = new DataSetType();
-        setCode(result, codeRecord);
+        setCode(result, record);
         result.setDatabaseInstance(databaseInstance);
+        result.setContainerType(record.is_container);
         return result;
     }
 

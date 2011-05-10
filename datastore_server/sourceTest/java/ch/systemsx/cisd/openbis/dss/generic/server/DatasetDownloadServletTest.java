@@ -59,6 +59,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -778,7 +779,7 @@ public class DatasetDownloadServletTest
             });
     }
 
-    private ExternalData createExternalData()
+    private DataSet createExternalData()
     {
         Space space = new Space();
         space.setCode(SPACE_CODE);
@@ -788,7 +789,7 @@ public class DatasetDownloadServletTest
         Experiment experiment = new Experiment();
         experiment.setCode(EXPERIMENT_CODE);
         experiment.setProject(project);
-        final ExternalData externalData = new ExternalData();
+        final DataSet externalData = new DataSet();
         externalData.setExperiment(experiment);
         externalData.setCode(EXAMPLE_DATA_SET_CODE);
         LocatorType locatorType = new LocatorType();

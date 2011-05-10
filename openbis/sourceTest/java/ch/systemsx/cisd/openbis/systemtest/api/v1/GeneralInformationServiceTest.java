@@ -32,6 +32,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.utilities.ToStringComparator;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
@@ -326,10 +327,10 @@ public class GeneralInformationServiceTest extends SystemTestCase
     public void testListDataSetTypes()
     {
         List<DataSetType> dataSetTypes = generalInformationService.listDataSetTypes(sessionToken);
-        assertEquals(3, dataSetTypes.size());
+        assertEquals(4, dataSetTypes.size());
 
-        DataSetType dataSetType;
-        dataSetType = dataSetTypes.get(0);
+        Collections.sort(dataSetTypes, new ToStringComparator());
+        DataSetType dataSetType = dataSetTypes.get(1);
         assertEquals("HCS_IMAGE", dataSetType.getCode());
 
         List<PropertyTypeGroup> propertyTypeGroups = dataSetType.getPropertyTypeGroups();

@@ -43,6 +43,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
@@ -183,16 +185,19 @@ public class DatasetListerTest extends AbstractDAOTest
                     return (int) (o1.getId() - o2.getId());
                 }
             });
-        assertEquals(2L, dataSets.get(0).getId().longValue());
-        assertEquals("20081105092158673-1", dataSets.get(0).getCode());
-        assertEquals("xxx/yyy/zzz", dataSets.get(0).getLocation());
-        assertEquals(4711L, dataSets.get(0).getSize().longValue());
-        assertEquals(42, dataSets.get(0).getSpeedHint());
-        assertEquals(4L, dataSets.get(1).getId().longValue());
-        assertEquals("20081105092159188-3", dataSets.get(1).getCode());
-        assertEquals("analysis/result", dataSets.get(1).getLocation());
-        assertEquals(null, dataSets.get(1).getSize());
-        assertEquals(Constants.DEFAULT_SPEED_HINT, dataSets.get(1).getSpeedHint());
+        DataSet dataSet0 = dataSets.get(0).tryGetAsDataSet();
+        assertEquals(2L, dataSet0.getId().longValue());
+        assertEquals("20081105092158673-1", dataSet0.getCode());
+        assertEquals("xxx/yyy/zzz", dataSet0.getLocation());
+        assertEquals(4711L, dataSet0.getSize().longValue());
+        assertEquals(42, dataSet0.getSpeedHint());
+
+        DataSet dataSet1 = dataSets.get(1).tryGetAsDataSet();
+        assertEquals(4L, dataSet1.getId().longValue());
+        assertEquals("20081105092159188-3", dataSet1.getCode());
+        assertEquals("analysis/result", dataSet1.getLocation());
+        assertEquals(null, dataSet1.getSize());
+        assertEquals(Constants.DEFAULT_SPEED_HINT, dataSet1.getSpeedHint());
         assertEquals(2, dataSets.size());
     }
     
@@ -210,7 +215,7 @@ public class DatasetListerTest extends AbstractDAOTest
         assertEquals("20081105092259900-0", dataSets.get(0).getCode());
         assertEquals("STANDARD", dataSets.get(0).getDataStore().getCode());
         assertEquals(0, dataSets.get(0).getProperties().size());
-        assertEquals(3, dataSets.size());
+        assertEquals(6, dataSets.size());
     }
 
     @Test
@@ -230,6 +235,53 @@ public class DatasetListerTest extends AbstractDAOTest
         assertEquals("no comment", dataSets.get(0).getProperties().get(0).tryGetOriginalValue());
         assertEquals(1, dataSets.get(0).getProperties().size());
         assertEquals(1, dataSets.size());
+    }
+
+    @Test
+    public void testListByDataSetIdsWithContainerDataSet()
+    {
+        final Long containerId = 13L;
+        final Long containedId = 15L;
+        List<ExternalData> datasets =
+                lister.listByDatasetIds(Arrays.asList(containerId, containedId));
+        assertEquals(2, datasets.size());
+        ContainerDataSet containerDataSet = datasets.get(0).tryGetAsContainerDataSet();
+        assertNotNull(containerDataSet);
+        assertEquals(2, containerDataSet.getContainedDataSets().size());
+
+        DataSet dataset1 = datasets.get(1).tryGetAsDataSet();
+        assertNotNull(dataset1);
+        assertEquals(2, (int) dataset1.getOrderInContainer());
+        assertEquals(dataset1.tryGetContainer(), containerDataSet);
+    }
+
+    @Test
+    public void testContainerParentPopulated()
+    {
+        final Long containedId = 15L;
+        List<ExternalData> datasets = lister.listByDatasetIds(Arrays.asList(containedId));
+        assertEquals(1, datasets.size());
+        DataSet dataset = datasets.get(0).tryGetAsDataSet();
+        assertNotNull(dataset);
+
+        ContainerDataSet parent = dataset.tryGetContainer();
+        assertNotNull(parent);
+        assertEquals("20110509092359990-10", parent.getCode());
+    }
+
+    @Test
+    public void testContainedDataSetzPopulated()
+    {
+        final Long containerId = 13L;
+        List<ExternalData> datasets = lister.listByDatasetIds(Arrays.asList(containerId));
+        assertEquals(1, datasets.size());
+        ContainerDataSet containerDataSet = datasets.get(0).tryGetAsContainerDataSet();
+        assertNotNull(containerDataSet);
+
+        List<ExternalData> containedDataSets = containerDataSet.getContainedDataSets();
+        assertEquals(2, containedDataSets.size());
+        assertEquals("20110509092359990-11", containedDataSets.get(0).getCode());
+        assertEquals("20110509092359990-12", containedDataSets.get(1).getCode());
     }
 
     private void assertSameDataSetsForSameCode(Map<String, ExternalData> dataSetsByCode,

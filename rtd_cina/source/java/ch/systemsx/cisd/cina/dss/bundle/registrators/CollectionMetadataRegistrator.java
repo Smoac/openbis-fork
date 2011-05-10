@@ -23,6 +23,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.cina.shared.metadata.CollectionMetadataExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
@@ -103,8 +104,13 @@ public class CollectionMetadataRegistrator extends BundleDataSetHelper
         ExternalData metadataExternalData =
                 getOpenbisService().tryGetDataSet(getSessionContext().getSessionToken(),
                         registeredDataSetInformation.getDataSetCode());
+        DataSet metadataDataSet = metadataExternalData.tryGetAsDataSet();
+
+        assert metadataDataSet != null : "Data set not found";
+        assert metadataDataSet != null : "";
+
         String shareId = registeredDataSetInformation.getShareId();
-        File containerFile = getDelegator().getFileForExternalData(metadataExternalData, shareId);
+        File containerFile = getDelegator().getFileForDataSet(metadataDataSet, shareId);
         metadataDataSetFile = new File(containerFile, dataSetFileName);
     }
 }

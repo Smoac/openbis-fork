@@ -305,6 +305,8 @@ ALTER TABLE ONLY controlled_vocabulary_terms
 ALTER TABLE ONLY data_stores
     ADD CONSTRAINT dast_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
 ALTER TABLE ONLY data
+    ADD CONSTRAINT data_ctnr_parent_fk FOREIGN KEY (ctnr_parent_id) REFERENCES data(id);
+ALTER TABLE ONLY data
     ADD CONSTRAINT data_dast_fk FOREIGN KEY (dast_id) REFERENCES data_stores(id);
 ALTER TABLE ONLY data
     ADD CONSTRAINT data_dsty_fk FOREIGN KEY (dsty_id) REFERENCES data_set_types(id);
@@ -314,8 +316,6 @@ ALTER TABLE ONLY data
     ADD CONSTRAINT data_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
 ALTER TABLE ONLY data
     ADD CONSTRAINT data_samp_fk FOREIGN KEY (samp_id) REFERENCES samples(id);
-ALTER TABLE ONLY data
-    ADD CONSTRAINT data_virt_parent_fk FOREIGN KEY (virt_parent_id) REFERENCES data(id);
 ALTER TABLE ONLY data_set_properties
     ADD CONSTRAINT dspr_cvte_fk FOREIGN KEY (cvte_id) REFERENCES controlled_vocabulary_terms(id);
 ALTER TABLE ONLY data_set_properties

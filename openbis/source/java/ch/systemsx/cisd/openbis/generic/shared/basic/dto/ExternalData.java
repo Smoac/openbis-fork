@@ -38,8 +38,6 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
 
     private boolean derived;
 
-    private Boolean complete;
-
     private Long id;
 
     private Invalidation invalidation;
@@ -56,13 +54,8 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
 
     private Collection<ExternalData> parents;
 
+    // TODO KE: 2011-05-06 Implement a logic in ContainerDataSets to calculate the size
     private Long size;
-
-    private String location;
-
-    private FileFormatType fileFormatType;
-
-    private LocatorType locatorType;
 
     private Sample sample;
 
@@ -80,9 +73,51 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
 
     private String permlink;
 
-    private DataSetArchivingStatus status;
-    
-    private int speedHint;
+    private Integer orderInContainer;
+
+    private ContainerDataSet containerOrNull;
+
+    /**
+     * @return true if the data set is available for viewing/editing.
+     */
+    public boolean isAvailable()
+    {
+        return true;
+    }
+
+    /**
+     * @return true if this is a container data set.
+     */
+    public boolean isContainerDataSet()
+    {
+        return dataSetType != null && dataSetType.isContainerType();
+    }
+
+    /**
+     * Tries to cast the current object to {@link DataSet}. Will return non-null values for plain
+     * non-container data sets.
+     */
+    public DataSet tryGetAsDataSet()
+    {
+        if (this instanceof DataSet)
+        {
+            return (DataSet) this;
+        }
+        return null;
+    }
+
+    /**
+     * Tries to cast the current object to {@link ContainerDataSet}. Returns null if the data set is
+     * not a container data set.
+     */
+    public ContainerDataSet tryGetAsContainerDataSet()
+    {
+        if (this instanceof ContainerDataSet)
+        {
+            return (ContainerDataSet) this;
+        }
+        return null;
+    }
 
     public String getPermlink()
     {
@@ -164,34 +199,37 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
         this.derived = derived;
     }
 
+    @Deprecated
     public DataSetArchivingStatus getStatus()
     {
-        return status;
+        return null;
     }
 
+    @Deprecated
     public void setStatus(DataSetArchivingStatus status)
     {
-        this.status = status;
     }
 
+    @Deprecated
     public int getSpeedHint()
     {
-        return speedHint;
+        return 0;
     }
 
+    @Deprecated
     public void setSpeedHint(int speedHint)
     {
-        this.speedHint = speedHint;
     }
 
-    public final Boolean getComplete()
+    @Deprecated
+    public Boolean getComplete()
     {
-        return complete;
+        return null;
     }
 
-    public final void setComplete(Boolean complete)
+    @Deprecated
+    public void setComplete(Boolean complete)
     {
-        this.complete = complete;
     }
 
     public final DataSetType getDataSetType()
@@ -254,34 +292,37 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
         this.size = size;
     }
 
-    public final String getLocation()
+    @Deprecated
+    public String getLocation()
     {
-        return location;
+        return null;
     }
 
-    public final void setLocation(final String location)
+    @Deprecated
+    public void setLocation(final String location)
     {
-        this.location = location;
     }
 
-    public final FileFormatType getFileFormatType()
+    @Deprecated
+    public FileFormatType getFileFormatType()
     {
-        return fileFormatType;
+        return null;
     }
 
-    public final void setFileFormatType(final FileFormatType fileFormatType)
+    @Deprecated
+    public void setFileFormatType(final FileFormatType fileFormatType)
     {
-        this.fileFormatType = fileFormatType;
     }
 
-    public final LocatorType getLocatorType()
+    @Deprecated
+    public LocatorType getLocatorType()
     {
-        return locatorType;
+        return null;
     }
 
-    public final void setLocatorType(final LocatorType locatorType)
+    @Deprecated
+    public void setLocatorType(final LocatorType locatorType)
     {
-        this.locatorType = locatorType;
     }
 
     public final Invalidation getInvalidation()
@@ -352,6 +393,29 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
     public String getPermId()
     {
         return getCode();
+    }
+
+    /**
+     * @return the "parent" container of this data set or null.
+     */
+    public ContainerDataSet tryGetContainer()
+    {
+        return containerOrNull;
+    }
+
+    public void setContainer(ContainerDataSet containerOrNull)
+    {
+        this.containerOrNull = containerOrNull;
+    }
+
+    public Integer getOrderInContainer()
+    {
+        return orderInContainer;
+    }
+
+    public void setOrderInContainer(Integer orderInContainer)
+    {
+        this.orderInContainer = orderInContainer;
     }
 
     // IDatasetLocation

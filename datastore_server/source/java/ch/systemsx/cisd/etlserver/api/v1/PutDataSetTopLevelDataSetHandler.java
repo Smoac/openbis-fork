@@ -33,7 +33,6 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.ConcatenatedFileOutputStreamWriter;
-import ch.systemsx.cisd.etlserver.DefaultStorageProcessor;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistrator;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -42,7 +41,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwner;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -160,13 +158,6 @@ class PutDataSetTopLevelDataSetHandler
     public SessionContextDTO getSessionContext()
     {
         return getOpenBisService().tryGetSession(sessionToken);
-    }
-
-    public File getFileForExternalData(ExternalData externalData, String shareId)
-    {
-        File share = new File(service.getStoreRootDirectory(), shareId);
-        File dataSetFile = new File(share, externalData.getLocation());
-        return DefaultStorageProcessor.getOriginalDirectory(dataSetFile);
     }
 
     public DataSetOwner getDataSetOwner()

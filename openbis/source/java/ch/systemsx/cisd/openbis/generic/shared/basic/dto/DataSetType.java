@@ -33,6 +33,8 @@ public class DataSetType extends EntityType
 
     private String mainDataSetPath;
 
+    private boolean isContainerType;
+
     public void setMainDataSetPattern(String mainDataSetPattern)
     {
         this.mainDataSetPattern = mainDataSetPattern;
@@ -71,5 +73,15 @@ public class DataSetType extends EntityType
     public String getMainDataSetPattern()
     {
         return mainDataSetPattern;
+    }
+
+    public boolean isContainerType()
+    {
+        return isContainerType;
+    }
+
+    public void setContainerType(boolean isContainerType)
+    {
+        this.isContainerType = isContainerType;
     }
 }

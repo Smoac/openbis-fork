@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayC
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
@@ -196,9 +197,9 @@ public class SampleDetailsTest extends GenericSystemTestCase
         assertEquals(DEFAULT_DATA_SET_TYPE, directlyConnectedResults.getAvailableEntityTypes()
                 .iterator().next().getCode());
         assertEquals(1, directlyConnectedResults.getResultSet().getTotalLength());
-        final ExternalData directlyConnectedDataSet =
+        final DataSet directlyConnectedDataSet =
                 getDataSet(directlyConnectedResults.getResultSet().getList(),
-                        DIRECTLY_CONNECTED_DATA_SET_CODE);
+                        DIRECTLY_CONNECTED_DATA_SET_CODE).tryGetAsDataSet();
         checkDataSet(directlyConnectedDataSet, DIRECTLY_CONNECTED_DATA_SET_CODE,
                 CELL_PLATE_EXAMPLE_ID, CELL_PLATE_EXAMPLE_EXPERIMENT_ID, "TIFF", "xxx/yyy/zzz");
 
@@ -214,17 +215,17 @@ public class SampleDetailsTest extends GenericSystemTestCase
                 .iterator().next().getCode());
         assertEquals(6, indirectlyConnectedResults.getResultSet().getTotalLength());
 
-        final ExternalData directlyConnectedDataSet2 =
+        DataSet directlyConnectedDataSet2 =
                 getDataSet(directlyConnectedResults.getResultSet().getList(),
-                        DIRECTLY_CONNECTED_DATA_SET_CODE);
+                        DIRECTLY_CONNECTED_DATA_SET_CODE).tryGetAsDataSet();
         checkDataSet(directlyConnectedDataSet2, directlyConnectedDataSet.getCode(),
                 directlyConnectedDataSet.getSample().getIdentifier(), directlyConnectedDataSet
                         .getExperiment().getIdentifier(), directlyConnectedDataSet
                         .getFileFormatType().getCode(), directlyConnectedDataSet.getLocation());
 
-        final ExternalData indirectlyConnectedDataSet =
+        DataSet indirectlyConnectedDataSet =
                 getDataSet(indirectlyConnectedResults.getResultSet().getList(),
-                        INDIRECTLY_CONNECTED_DATA_SET_CODE);
+                        INDIRECTLY_CONNECTED_DATA_SET_CODE).tryGetAsDataSet();
         checkDataSet(indirectlyConnectedDataSet, INDIRECTLY_CONNECTED_DATA_SET_CODE, null,
                 CELL_PLATE_EXAMPLE_EXPERIMENT_ID, "3VPROPRIETARY", "analysis/result");
         // TODO 2010-09-21, Piotr Buczek: check datasets connected to a different experiment
@@ -319,7 +320,7 @@ public class SampleDetailsTest extends GenericSystemTestCase
         return null; // satisfy compiler
     }
 
-    private static void checkDataSet(ExternalData dataSet, String expectedCode,
+    private static void checkDataSet(DataSet dataSet, String expectedCode,
             String expectedSampleIdentifierOrNull, String expectedExperimentIdentifier,
             String expectedFileFormatType, String expectedLocation)
     {

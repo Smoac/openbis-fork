@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.propert
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ExternalHyperlink;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
@@ -113,16 +114,7 @@ public class DataSetPropertiesPanel extends ContentPanel
         properties.put(messageProvider.getMessage(Dict.DATA_SET_TYPE), datasetType);
 
         properties.put(messageProvider.getMessage(Dict.SOURCE_TYPE), dataset.getSourceType());
-        properties.put(messageProvider.getMessage(Dict.LOCATION), dataset.getLocation());
-        if (viewContext.getModel().getApplicationInfo().isArchivingConfigured())
-        {
-            properties.put(messageProvider.getMessage(Dict.ARCHIVING_STATUS), dataset.getStatus()
-                    .getDescription());
-        }
-        properties.put(messageProvider.getMessage(Dict.DATA_STORE), dataset.getDataStore());
-        properties.put(messageProvider.getMessage(Dict.IS_COMPLETE), dataset.getComplete());
-        properties.put(messageProvider.getMessage(Dict.FILE_FORMAT_TYPE), dataset
-                .getFileFormatType().getCode());
+
         properties.put(messageProvider.getMessage(Dict.DATA_PRODUCER_CODE),
                 dataset.getDataProducerCode());
         properties.put(messageProvider.getMessage(Dict.PRODUCTION_DATE),
@@ -134,6 +126,25 @@ public class DataSetPropertiesPanel extends ContentPanel
         properties.put(messageProvider.getMessage(Dict.PROJECT), dataset.getExperiment()
                 .getProject());
         properties.put(messageProvider.getMessage(Dict.EXPERIMENT), dataset.getExperiment());
+
+        DataSet concreteDataSet = dataset.tryGetAsDataSet();
+        if (concreteDataSet != null)
+        {
+            properties
+                    .put(messageProvider.getMessage(Dict.LOCATION), concreteDataSet.getLocation());
+            if (viewContext.getModel().getApplicationInfo().isArchivingConfigured())
+            {
+                properties.put(messageProvider.getMessage(Dict.ARCHIVING_STATUS), concreteDataSet
+                        .getStatus().getDescription());
+            }
+            properties.put(messageProvider.getMessage(Dict.DATA_STORE),
+                    concreteDataSet.getDataStore());
+            properties.put(messageProvider.getMessage(Dict.IS_COMPLETE),
+                    concreteDataSet.getComplete());
+            properties.put(messageProvider.getMessage(Dict.FILE_FORMAT_TYPE), concreteDataSet
+                    .getFileFormatType().getCode());
+        }
+
         if (sample != null)
         {
             properties.put(messageProvider.getMessage(Dict.SAMPLE), sample);

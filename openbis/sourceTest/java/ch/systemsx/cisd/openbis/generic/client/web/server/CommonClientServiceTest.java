@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
@@ -530,7 +531,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
                 commonClientService.listExperimentDataSets(experimentId, resultSetConfig);
         List<ExternalData> list = resultSet.getResultSet().getList().extractOriginalObjects();
         assertEquals(1, list.size());
-        ExternalData data = list.get(0);
+        DataSet data = list.get(0).tryGetAsDataSet();
         // assertEquals(code, data.getCode());
         assertEquals(DATA_STORE_BASE_URL, data.getDataStore().getHostUrl());
         assertEquals(DATA_STORE_BASE_URL + "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME, data

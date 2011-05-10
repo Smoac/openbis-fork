@@ -25,6 +25,8 @@ import java.util.List;
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -61,8 +63,14 @@ public class ExternalDataTranslator
     {
         DatasetDescription description = new DatasetDescription();
         description.setDatasetCode(data.getCode());
-        description.setDataSetLocation(data.getLocation());
-        description.setSpeedHint(data.getSpeedHint());
+
+        DataSet dataSet = data.tryGetAsDataSet();
+        if (dataSet != null)
+        {
+            // TODO KE: 2011-05-06 make sure this other classes handle NULL correctly
+            description.setDataSetLocation(dataSet.getLocation());
+            description.setSpeedHint(dataSet.getSpeedHint());
+        }
         description.setDataSetSize(data.getSize());
         DataSetType dataSetType = data.getDataSetType();
         if (dataSetType != null)
@@ -132,29 +140,30 @@ public class ExternalDataTranslator
     public static ExternalData translate(ExternalDataPE externalDataPE, String baseIndexURL,
             boolean loadSampleProperties, final LoadableFields... withExperimentFields)
     {
+        ExternalData externalData = null;
+        if (externalDataPE.isContainerDataSet())
+        {
+            externalData = translateContainerDataSetProperties(externalDataPE);
+        } else
+        {
+            externalData = translateDataSetProperties(externalDataPE);
+        }
+
         SamplePE sampleOrNull = externalDataPE.tryGetSample();
         ExperimentPE experiment = externalDataPE.getExperiment();
-        ExternalData externalData = new ExternalData();
         externalData.setId(HibernateUtils.getId(externalDataPE));
         externalData.setCode(externalDataPE.getCode());
-        externalData.setComplete(BooleanOrUnknown.tryToResolve(externalDataPE.getComplete()));
-        externalData.setStatus(externalDataPE.getStatus());
-        externalData.setSpeedHint(externalDataPE.getSpeedHint());
         externalData.setDataProducerCode(externalDataPE.getDataProducerCode());
         externalData.setDataSetType(DataSetTypeTranslator.translate(
                 externalDataPE.getDataSetType(), new HashMap<PropertyTypePE, PropertyType>()));
         externalData.setDerived(externalDataPE.isDerived());
-        externalData
-                .setFileFormatType(TypeTranslator.translate(externalDataPE.getFileFormatType()));
         externalData.setInvalidation(tryToGetInvalidation(sampleOrNull, experiment));
-        externalData.setLocation(externalDataPE.getLocation());
         externalData.setSize(externalDataPE.getSize());
-        externalData.setLocatorType(TypeTranslator.translate(externalDataPE.getLocatorType()));
         final Collection<ExternalData> parents = new HashSet<ExternalData>();
         externalData.setParents(parents);
         for (DataPE parentPE : externalDataPE.getParents())
         {
-            parents.add(fillExternalData(new ExternalData(), parentPE));
+            parents.add(translateBasicProperties(parentPE));
         }
         setChildren(externalDataPE, externalData);
         externalData.setProductionDate(externalDataPE.getProductionDate());
@@ -169,7 +178,27 @@ public class ExternalDataTranslator
         setProperties(externalDataPE, externalData);
         externalData.setExperiment(ExperimentTranslator.translate(experiment, baseIndexURL,
                 withExperimentFields));
+
         return externalData;
+    }
+
+    private static ExternalData translateContainerDataSetProperties(ExternalDataPE externalDataPE)
+    {
+        ContainerDataSet containerDataSet = new ContainerDataSet();
+        setContainedDataSets(externalDataPE, containerDataSet);
+        return containerDataSet;
+    }
+
+    private static ExternalData translateDataSetProperties(ExternalDataPE externalDataPE)
+    {
+        DataSet dataSet = new DataSet();
+        dataSet.setComplete(BooleanOrUnknown.tryToResolve(externalDataPE.getComplete()));
+        dataSet.setStatus(externalDataPE.getStatus());
+        dataSet.setSpeedHint(externalDataPE.getSpeedHint());
+        dataSet.setFileFormatType(TypeTranslator.translate(externalDataPE.getFileFormatType()));
+        dataSet.setLocation(externalDataPE.getLocation());
+        dataSet.setLocatorType(TypeTranslator.translate(externalDataPE.getLocatorType()));
+        return dataSet;
     }
 
     private static void setProperties(ExternalDataPE externalDataPE, ExternalData externalData)
@@ -258,22 +287,37 @@ public class ExternalDataTranslator
         {
             for (DataPE childPE : externalDataPE.getChildren())
             {
-                children.add(fillExternalData(new ExternalData(), childPE));
+                children.add(translateBasicProperties(childPE));
             }
         }
         externalData.setChildren(children);
     }
 
+    private static void setContainedDataSets(DataPE externalDataPE,
+            ContainerDataSet containerDataSet)
+    {
+        List<ExternalData> containedDataSets = new ArrayList<ExternalData>();
+        if (HibernateUtils.isInitialized(externalDataPE.getContainedDatas()))
+        {
+            for (DataPE childPE : externalDataPE.getContainedDatas())
+            {
+                containedDataSets.add(translateBasicProperties(childPE));
+            }
+        }
+        containerDataSet.setContainedDataSets(containedDataSets);
+    }
+
     /**
-     * Fills <var>externalData</var> from <var>data</vra> with all data needed by
+     * Creates an <var>externalData</var> from <var>dataPE</vra> an fills it with all data needed by
      * {@link IEntityInformationHolder}.
      */
-    private static ExternalData fillExternalData(ExternalData externalData, DataPE dataPE)
+    private static ExternalData translateBasicProperties(DataPE dataPE)
     {
-        externalData.setId(HibernateUtils.getId(dataPE));
-        externalData.setCode(dataPE.getCode());
-        externalData.setDataSetType(DataSetTypeTranslator.translate(dataPE.getDataSetType(),
+        ExternalData result = new ExternalData();
+        result.setId(HibernateUtils.getId(dataPE));
+        result.setCode(dataPE.getCode());
+        result.setDataSetType(DataSetTypeTranslator.translate(dataPE.getDataSetType(),
                 new HashMap<PropertyTypePE, PropertyType>()));
-        return externalData;
+        return result;
     }
 }

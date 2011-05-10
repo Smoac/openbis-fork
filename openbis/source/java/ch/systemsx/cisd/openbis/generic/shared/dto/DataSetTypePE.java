@@ -59,6 +59,8 @@ public class DataSetTypePE extends EntityTypePE
 
     private String mainDataSetPattern;
 
+    private boolean isContainerType;
+
     @SequenceGenerator(name = SequenceNames.DATA_SET_TYPE_SEQUENCE, sequenceName = SequenceNames.DATA_SET_TYPE_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.DATA_SET_TYPE_SEQUENCE)
@@ -138,5 +140,22 @@ public class DataSetTypePE extends EntityTypePE
     public EntityKind getEntityKind()
     {
         return EntityKind.DATA_SET;
+    }
+
+    /**
+     * Returns <code>true</code> if this data set is data set is a container data set.
+     */
+    @Column(name = ColumnNames.IS_CONTAINER)
+    public boolean isContainerType()
+    {
+        return isContainerType;
+    }
+
+    /**
+     * Set to <code>true</code> if this data set is a container data set.
+     */
+    public void setContainerType(boolean isContainerType)
+    {
+        this.isContainerType = isContainerType;
     }
 }

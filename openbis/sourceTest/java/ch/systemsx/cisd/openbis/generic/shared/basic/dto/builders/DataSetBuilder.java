@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -34,11 +35,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
  */
 public class DataSetBuilder
 {
-    private final ExternalData dataSet;
+    private final DataSet dataSet;
     
     public DataSetBuilder()
     {
-        dataSet = new ExternalData();
+        dataSet = new DataSet();
         dataSet.setDataSetProperties(new ArrayList<IEntityProperty>());
     }
     
