@@ -427,7 +427,7 @@ public class OpenBISScreeningML
      * 
      * <pre>
      * % Get properties for well A03 of plate P005 in space SPACE
-     * properties = OpenBISScreeningML.getWellProperties('/SPACE/P005', 1, 3, properties)
+     * properties = OpenBISScreeningML.getWellProperties('/SPACE/P005', 1, 3)
      * % Get property type code of first property
      * properties(1,1)
      * % Get property value of first property
@@ -939,7 +939,7 @@ public class OpenBISScreeningML
             });
     }
     
-    public static Object[][][] loadImages(String plate, int row, int col, String[] channels,
+    private static Object[][][] loadImages(String plate, int row, int col, String[] channels,
             ITileNumberIterable tileNumberIterable)
     {
         checkLoggedIn();
