@@ -55,6 +55,9 @@
 		    </fileset>
 		</copy>
 		
+		<!-- this suffix will be used by the installer to check if there are database connections -->
+	  <property name="installer.database.kind" value="screening" />
+		
 		<izpack input="${installer.basedir}/install.xml"
 		        output="${installer.jar.file}"
 			      inheritAll="true"

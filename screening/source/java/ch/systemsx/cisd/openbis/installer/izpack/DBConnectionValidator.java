@@ -60,12 +60,20 @@ public class DBConnectionValidator implements DataValidator
         String port = data.getVariable("DB.PORT");
         String username = data.getVariable("DB.USERNAME");
         String password = data.getVariable("DB.PASSWORD");
-        String dbname = "openbis_" + data.getVariable("DB.KIND");
+        String adminUsername = data.getVariable("DB.ADMIN.USERNAME");
+        String adminPassword = data.getVariable("DB.ADMIN.PASSWORD");
+        String dbname = data.getVariable("DB.NAME");
 
         String connectionString = "jdbc:postgresql://" + hostname + ":" + port + "/" + dbname;
 
-        boolean ok = testConnectionOK(connectionString, username, password);
-        return ok ? Status.OK : Status.ERROR;
+        if (testConnectionOK(connectionString, username, password))
+        {
+            if (testConnectionOK(connectionString, adminUsername, adminPassword))
+            {
+                return Status.OK;
+            }
+        }
+        return Status.ERROR;
     }
 
     private boolean testConnectionOK(String connectionString,

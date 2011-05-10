@@ -22,11 +22,16 @@
       </spec>
     </field>
     
-    <field type="text" variable="DB.KIND">
-      <spec txt="DB Name Suffix" size="20" set="screening" />
+    <field type="text" variable="DB.ADMIN.USERNAME">
+      <spec txt="Admin Username" size="20" set="postgres"/>
     </field>
-    <field type="staticText" align="left" txt=" e.g. 'demo' will result in connecting to 'openbis_demo'" />
     
+    <field type="password" variable="DB.ADMIN.PASSWORD">
+      <spec>
+          <pwd txt="Password" size="20" set=""/>
+      </spec>
+    </field>
+    <field type="staticText" align="left" txt="(NOTE: Password fileds could be left empty if IDENT authentication is used)" />
   </panel>
   
   <panel order="1">

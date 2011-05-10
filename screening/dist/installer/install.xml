@@ -37,6 +37,7 @@
     <variable name="ShowCreateDirectoryMessage"  value="no" />
     <variable name="data.validation.error.title"  value="Error" />
     <variable name="installer.reversetitle"  value="$APP_NAME installation" />
+    <variable name="DB.NAME"  value="openbis_@{installer.database.kind}" />
   </variables>
 
   <dynamicvariables>
@@ -95,7 +96,7 @@
   <packs>
     <pack name="openBIS Server" required="yes" loose="yes">
       <description>The openBIS application server</description>
-      <file src="openBIS-server-screening-SNAPSHOT-r21061.zip" targetdir="$INSTALL_PATH/servers" unpack="true" />
+      <file src="openBIS-server-screening-SNAPSHOT-r21158.zip" targetdir="$INSTALL_PATH/servers" unpack="true" />
       <parsable targetfile="$INSTALL_OPENBIS_PATH/service.properties" />
       <!-- run post installation script for the openBIS server -->
       <executable targetfile="$INSTALL_OPENBIS_PATH/install.sh" stage="postinstall">
@@ -108,8 +109,17 @@
 
     <pack name="Datastore Server" required="yes" loose="yes">
       <description>The data store server managing raw data</description>
-      <file src="datastore_server-screening-SNAPSHOT-r21061.zip" targetdir="$INSTALL_PATH/servers" unpack="true" />
+      <file src="datastore_server-screening-SNAPSHOT-r21158.zip" targetdir="$INSTALL_PATH/servers" unpack="true" />
       <parsable targetfile="$INSTALL_DSS_PATH/etc/service.properties" />
+      
+      <!-- create a log folder and store folder -->
+      <executable targetfile="/bin/mkdir" stage="postinstall" keep="true">
+        <args>
+          <arg value="-p" />
+          <arg value="$INSTALL_DSS_PATH/log" />
+          <arg value="$DSS.ROOT-DIR/store" />
+        </args>
+      </executable>
     </pack>
 
     <pack name="Administration Scripts" required="yes" loose="yes">
@@ -140,6 +150,13 @@
         </args>
       </executable>
     </pack>
+    
+    <pack name="HCS Jython dropboxes" required="yes" loose="yes">
+      <description>A set of minimal Jython dropboxes for importing HCS data into openBIS</description>
+      <file src="@{installer.resourcedir}/dropboxes" targetdir="$DSS.ROOT-DIR" />
+      <file src="@{installer.resourcedir}/incoming-sample" targetdir="$DSS.ROOT-DIR" />
+    </pack>
+    
   </packs>
 
 </installation>
