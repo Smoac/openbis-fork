@@ -394,7 +394,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         {
             for (ExternalDataPE dataSet : entry.getValue())
             {
-                if (dataSet.isContainerDataSet())
+                if (dataSet.isContainer())
                 {
                     containerDataSets.add(dataSet.getCode());
                 }
