@@ -187,7 +187,7 @@ var common = {
   space: "Space",
   groups: "Spaces",
   project: "Project",
-  container_dataset: "Container Data Set",
+  container_dataset: "Container",
   experiment: "Experiment",
   experiment_identifier: "Experiment Identifier",
   generated_from: "Parent {0}",

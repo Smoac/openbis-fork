@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.propert
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ExternalHyperlink;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
@@ -94,7 +95,9 @@ public class DataSetPropertiesPanel extends ContentPanel
                 PropertyValueRenderers.createSamplePropertyValueRenderer(viewContext, true));
         propertyGrid.registerPropertyValueRenderer(Experiment.class,
                 PropertyValueRenderers.createExperimentPropertyValueRenderer(viewContext));
-        propertyGrid.registerPropertyValueRenderer(ExternalData.class,
+        propertyGrid.registerPropertyValueRenderer(DataSet.class,
+                PropertyValueRenderers.createExternalDataPropertyValueRenderer(viewContext));
+        propertyGrid.registerPropertyValueRenderer(ContainerDataSet.class,
                 PropertyValueRenderers.createExternalDataPropertyValueRenderer(viewContext));
         propertyGrid.registerPropertyValueRenderer(DataStore.class,
                 PropertyValueRenderers.createDataStorePropertyValueRenderer(viewContext));
