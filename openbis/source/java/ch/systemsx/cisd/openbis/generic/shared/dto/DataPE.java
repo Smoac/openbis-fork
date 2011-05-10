@@ -191,7 +191,6 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         return isDerived;
     }
 
-
     /**
      * Set to <code>true</code> if this data set is data set is derived from a sample (otherwise it
      * is measured from a sample).
@@ -440,15 +439,14 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         component.setContainerInternal(component);
     }
 
-    /** removes connection with specified parent */
-    public void removeVirtualComponent(final DataPE component)
+    public void removeComponent(final DataPE component)
     {
         assert component != null;
         this.containedDataSets.remove(component);
         component.setContainerInternal(null);
     }
 
-    @OneToMany(mappedBy = "virtualParentInternal", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "containerInternal", fetch = FetchType.LAZY)
     @OrderBy(clause = ColumnNames.DATA_CONTAINER_ORDER_COLUMN)
     public List<DataPE> getContainedDataSets()
     {
