@@ -28,7 +28,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.io.IHierarchicalContentFactory;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.common.utilities.IDelegatedAction;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 
 /**
@@ -84,7 +84,7 @@ public class HierarchicalContentProviderTest extends AssertJUnit
     {
         final String dataSetCode = "DS_CODE";
 
-        final ExternalData data = new ExternalData();
+        final DataSet data = new DataSet();
         data.setCode(dataSetCode);
         final File dataRootFile = new File("DS_FILE");
         final RecordingMatcher<IDelegatedAction> actionMatcher = RecordingMatcher.create();

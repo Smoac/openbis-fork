@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
  */
 public class ExternalData extends CodeWithRegistration<ExternalData> implements
         IInvalidationProvider, IEntityInformationHolderWithProperties, IIdAndCodeHolder,
-        IPermIdHolder, IDatasetLocation
+        IPermIdHolder
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -416,18 +416,6 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
     public void setOrderInContainer(Integer orderInContainer)
     {
         this.orderInContainer = orderInContainer;
-    }
-
-    // IDatasetLocation
-
-    public String getDataSetLocation()
-    {
-        return getLocation();
-    }
-
-    public String getDataSetCode()
-    {
-        return getCode();
     }
 
     // 'transient'

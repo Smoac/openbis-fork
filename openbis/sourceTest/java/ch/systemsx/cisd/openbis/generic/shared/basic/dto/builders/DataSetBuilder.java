@@ -105,7 +105,7 @@ public class DataSetBuilder
         return this;
     }
     
-    public final ExternalData getDataSet()
+    public final DataSet getDataSet()
     {
         return dataSet;
     }

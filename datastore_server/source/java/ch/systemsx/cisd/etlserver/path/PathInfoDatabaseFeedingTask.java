@@ -135,7 +135,11 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
                         operationLog.error("Data set " + dataSetCode + " unknown by openBIS.");
                         return;
                     }
-                    feedPathInfoDatabase(dataSet);
+                    if (false == dataSet.isContainerDataSet())
+                    {
+                        IDatasetLocation dataSetLocation = dataSet.tryGetAsDataSet();
+                        feedPathInfoDatabase(dataSetLocation);
+                    }
                 }
             };
     }

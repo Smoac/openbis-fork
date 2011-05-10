@@ -22,7 +22,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
  * 
  * @author Kaloyan Enimanev
  */
-public class DataSet extends ExternalData
+public class DataSet extends ExternalData implements IDatasetLocation
 {
 
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
@@ -115,6 +115,17 @@ public class DataSet extends ExternalData
     public boolean isAvailable()
     {
         return getStatus().isAvailable();
+    }
+
+    // IDatasetLocation
+    public String getDataSetLocation()
+    {
+        return getLocation();
+    }
+
+    public String getDataSetCode()
+    {
+        return getCode();
     }
 
 }

@@ -23,6 +23,7 @@ import ch.systemsx.cisd.common.io.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.IHierarchicalContentFactory;
 import ch.systemsx.cisd.common.utilities.IDelegatedAction;
 import ch.systemsx.cisd.openbis.dss.generic.shared.content.PathInfoDBAwareHierarchicalContentFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 
@@ -67,10 +68,16 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
     public IHierarchicalContent asContent(String dataSetCode)
     {
         // this is temporary implementation - it shouldn't access openBIS after LMS-2172 is done
-        ExternalData dataSet = openbisService.tryGetDataSet(dataSetCode);
-        if (dataSet == null)
+        ExternalData externalData = openbisService.tryGetDataSet(dataSetCode);
+        if (externalData == null)
         {
             throw new IllegalArgumentException("Unknown data set " + dataSetCode);
+        }
+        // this is a temporary fix
+        DataSet dataSet = externalData.tryGetAsDataSet();
+        if (dataSet == null)
+        {
+            throw new IllegalArgumentException("Not implemented for container data sets.");
         }
         return asContent(dataSet);
     }
