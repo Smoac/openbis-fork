@@ -25,8 +25,8 @@ import java.util.Set;
 
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
@@ -72,6 +72,6 @@ public final class PackageBasedIndexedEntityFinderTest
         assertTrue(entities.contains(SamplePE.class));
         assertTrue(entities.contains(ExperimentPE.class));
         assertTrue(entities.contains(MaterialPE.class));
-        assertTrue(entities.contains(ExternalDataPE.class));
+        assertTrue(entities.contains(DataPE.class));
     }
 }
