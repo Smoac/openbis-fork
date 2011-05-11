@@ -1246,6 +1246,13 @@ public final class CommonClientService extends AbstractClientService implements
                 final List<VocabularyTerm> loadedTerms =
                         tabFileLoader.load(new DelegatedReader(reader, multipartFile
                                 .getOriginalFilename()));
+                for (VocabularyTerm vocabularyTerm : loadedTerms)
+                {
+                    if (vocabularyTerm.isOfficial() == null)
+                    {
+                        vocabularyTerm.setOfficial(true);
+                    }
+                }
                 results.addAll(loadedTerms);
             }
             // set initial order equivalent with order from the file
