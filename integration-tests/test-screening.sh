@@ -79,9 +79,8 @@ function install_dss_screening {
 		mv $dss_dest/datastore_server/* $dss_dest
 		rmdir $dss_dest/datastore_server
 
-		# extend distribution configuration
-		cat $dss_template/integration-tests-service.properties >> $dss_dest/etc/service.properties
-		cat $dss_template/genedata-dropboxes-service.properties >> $dss_dest/etc/service.properties	
+		# override default DSS configuration
+		cp -v $dss_template/etc/service.properties $dss_dest/etc
 }
 
 function install_screening_api {
