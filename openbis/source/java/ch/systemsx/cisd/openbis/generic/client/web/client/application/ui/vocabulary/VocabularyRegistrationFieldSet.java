@@ -370,6 +370,7 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
             {
                 final VocabularyTerm vocabularyTerm = new VocabularyTerm();
                 vocabularyTerm.setCode(termCode);
+                vocabularyTerm.setOfficial(true);
                 vocabularyTerms.add(vocabularyTerm);
             }
             vocabulary.setTerms(vocabularyTerms);
