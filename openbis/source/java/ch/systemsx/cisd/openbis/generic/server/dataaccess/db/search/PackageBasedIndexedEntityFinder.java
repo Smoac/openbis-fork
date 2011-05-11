@@ -41,8 +41,7 @@ public final class PackageBasedIndexedEntityFinder implements IIndexedEntityFind
     public PackageBasedIndexedEntityFinder(final String packageName)
     {
         assert packageName != null : "Unspecified package name.";
-        indexedEntities =
-                createIndexedEntities(packageName);
+        indexedEntities = createIndexedEntities(packageName);
     }
 
     private HashSet<Class<?>> createIndexedEntities(final String packageName)
@@ -56,7 +55,20 @@ public final class PackageBasedIndexedEntityFinder implements IIndexedEntityFind
 
                 public final boolean accept(final Class<?> clazz)
                 {
-                    return clazz.isAnnotationPresent(Indexed.class);
+                    if (clazz.isAnnotationPresent(Indexed.class))
+                    {
+                        if (clazz.getSuperclass() != null && accept(clazz.getSuperclass()))
+                        {
+                            // don't index data sets twice (for DataPE and for ExternalDataPE)
+                            return false;
+                        } else
+                        {
+                            return true;
+                        }
+                    } else
+                    {
+                        return false;
+                    }
                 }
             });
         return new HashSet<Class<?>>(classes);

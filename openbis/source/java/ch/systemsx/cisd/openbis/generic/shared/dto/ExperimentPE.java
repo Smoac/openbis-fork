@@ -82,7 +82,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 @Table(name = TableNames.EXPERIMENTS_TABLE, uniqueConstraints =
     { @UniqueConstraint(columnNames =
         { ColumnNames.CODE_COLUMN, ColumnNames.PROJECT_COLUMN }) })
-@Indexed
+@Indexed(index = "ExperimentPE")
 @Friend(toClasses =
     { AttachmentPE.class, ProjectPE.class })
 public class ExperimentPE extends AttachmentHolderPE implements

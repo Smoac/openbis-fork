@@ -94,7 +94,7 @@ public final class FullTextIndexerRunnable extends HibernateDaoSupport implement
         // Use code below for debugging if not all entities need to be indexed.
         //
         // final Set<Class<?>> indexedEntities = new HashSet<Class<?>>();
-        // indexedEntities.add(ExternalDataPE.class);
+        // indexedEntities.add(DataPE.class);
         // indexedEntities.add(ExperimentPE.class);
 
         if (indexedEntities.size() == 0)

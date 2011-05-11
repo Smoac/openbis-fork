@@ -74,7 +74,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 @Table(name = TableNames.MATERIALS_TABLE, uniqueConstraints = @UniqueConstraint(columnNames =
     { ColumnNames.CODE_COLUMN, ColumnNames.MATERIAL_TYPE_COLUMN,
             ColumnNames.DATABASE_INSTANCE_COLUMN }))
-@Indexed
+@Indexed(index = "MaterialPE")
 public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
         IEntityInformationWithPropertiesHolder, Serializable, IMatchingEntity
 {
@@ -153,7 +153,6 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
     @SequenceGenerator(name = SequenceNames.MATERIAL_SEQUENCE, sequenceName = SequenceNames.MATERIAL_SEQUENCE, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.MATERIAL_SEQUENCE)
     @DocumentId(name = SearchFieldConstants.ID)
-
     public Long getId()
     {
         return id;

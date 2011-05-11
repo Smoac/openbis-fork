@@ -53,7 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstant
 @Table(name = TableNames.EXTERNAL_DATA_TABLE, uniqueConstraints = @UniqueConstraint(columnNames =
     { ColumnNames.LOCATION_COLUMN, ColumnNames.LOCATOR_TYPE_COLUMN }))
 @PrimaryKeyJoinColumn(name = ColumnNames.DATA_ID_COLUMN)
-@Indexed
+@Indexed(index = "DataPE")
 public final class ExternalDataPE extends DataPE
 {
     private static final long serialVersionUID = IServer.VERSION;
@@ -61,11 +61,11 @@ public final class ExternalDataPE extends DataPE
     /** An empty array of <code>ExternalData</code>. */
     @SuppressWarnings("hiding")
     public final static ExternalDataPE[] EMPTY_ARRAY = new ExternalDataPE[0];
-    
+
     private String shareId;
 
     private String location;
-    
+
     private Long size;
 
     private VocabularyTermPE storageFormatVocabularyTerm;
@@ -79,7 +79,7 @@ public final class ExternalDataPE extends DataPE
     private DataSetArchivingStatus status = DataSetArchivingStatus.AVAILABLE;
 
     private boolean isPresentInArchive;
-    
+
     private int speedHint = Constants.DEFAULT_SPEED_HINT;
 
     /**
@@ -114,7 +114,7 @@ public final class ExternalDataPE extends DataPE
     {
         this.location = location;
     }
-    
+
     @Column(name = ColumnNames.SHARE_ID_COLUMN)
     public String getShareId()
     {

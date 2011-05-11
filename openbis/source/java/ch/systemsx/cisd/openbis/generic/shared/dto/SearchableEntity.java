@@ -72,13 +72,7 @@ public enum SearchableEntity
      */
     public <T extends IMatchingEntity> Class<T> getMatchingEntityClass()
     {
-        if (entityKind == EntityKind.DATA_SET)
-        {
-            return cast(ExternalDataPE.class);
-        } else
-        {
-            return cast(entityKind.getEntityClass());
-        }
+        return cast(entityKind.getEntityClass());
     }
 
     @SuppressWarnings("unchecked")

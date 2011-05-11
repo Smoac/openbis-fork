@@ -84,7 +84,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 @Check(constraints = "(" + ColumnNames.DATABASE_INSTANCE_COLUMN + " IS NOT NULL AND "
         + ColumnNames.SPACE_COLUMN + " IS NULL) OR (" + ColumnNames.DATABASE_INSTANCE_COLUMN
         + " IS NULL AND " + ColumnNames.SPACE_COLUMN + " IS NOT NULL)")
-@Indexed
+@Indexed(index = "SamplePE")
 public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Comparable<SamplePE>,
         IEntityInformationWithPropertiesHolder, IMatchingEntity, Serializable
 {
