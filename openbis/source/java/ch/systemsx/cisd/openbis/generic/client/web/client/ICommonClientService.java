@@ -567,7 +567,7 @@ public interface ICommonClientService extends IClientService
      * Makes given terms official
      */
     public void makeVocabularyTermsOfficial(TechId vocabularyId,
-            List<VocabularyTerm> termsToBeOfficial);
+            List<VocabularyTerm> termsToBeOfficial) throws UserFailureException;
 
     /** Lists terms of a specified vocabulary */
     public List<VocabularyTerm> listVocabularyTerms(Vocabulary vocabulary)
