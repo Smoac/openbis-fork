@@ -49,12 +49,12 @@ public class VocabularyTermModel extends SimplifiedBaseModel implements
         set(ORDINAL, term.getOrdinal());
         set(IS_OFFICIAL, term.isOfficial());
         set(ModelDataPropertyNames.CODE_WITH_LABEL, term.getCodeOrLabel());
-        set(DISPLAY_FIELD, generateDisplatField(term));
+        set(DISPLAY_FIELD, generateDisplayField(term));
         set(ModelDataPropertyNames.TOOLTIP, VocabularyPropertyColRenderer.renderAsTooltip(term));
         set(ModelDataPropertyNames.OBJECT, term);
     }
 
-    public String generateDisplatField(VocabularyTerm term)
+    public String generateDisplayField(VocabularyTerm term)
     {
         final Element span = DOM.createSpan();
         if (false == term.isOfficial())

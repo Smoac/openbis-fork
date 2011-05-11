@@ -92,6 +92,7 @@ public class VocabularyTermSelectionWidget extends
         {
             long result = 0l;
 
+            // WORKAROUND for some strange reason getStore().getModels() returns empty list
             for (VocabularyTermModel term : VocabularyTermSelectionWidget.this.store.getModels())
             {
                 if (term.getTerm().getOrdinal() > result)
@@ -232,7 +233,7 @@ public class VocabularyTermSelectionWidget extends
         final List<VocabularyTermModel> models = new ArrayList<VocabularyTermModel>();
         models.addAll(convertItems(terms));
         updateStore(models);
-        getPropertyEditor().setList(store.getModels());
+        getPropertyEditor().setList(store.getModels()); // see workaround description above
         selectInitialValue();
     }
 

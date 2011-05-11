@@ -217,7 +217,8 @@ public class WebClientConfigurationProvider
 
     private boolean extractAllowAddingUnofficialTerms(Properties properties)
     {
-        return PropertyUtils.getBoolean(properties, ALLOW_ADDING_UNOFFICIAL_TERMS, false);
+        return PropertyUtils.getBoolean(properties, ALLOW_ADDING_UNOFFICIAL_TERMS,
+                DEFAULT_ALLOW_ADDING_UNOFFICIAL_TERMS);
     }
 
     public WebClientConfiguration getWebClientConfiguration()
