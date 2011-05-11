@@ -59,7 +59,7 @@ function install_and_run_openbis_server_screening {
         mv $openbis_server_dir/openBIS-server/* $openbis_server_dir
 				rmdir $openbis_server_dir/openBIS-server
 
-				cat $TEMPLATE/$openbis_server_name/integration-tests-service.properties >> $openbis_server_dir/service.properties
+				cp -v $TEMPLATE/$openbis_server_name/service.properties $openbis_server_dir/service.properties
 				$openbis_server_dir/install.sh $PWD/$openbis_server_dir
 				startup_openbis_server $openbis_server_dir
 				wait_for_server
