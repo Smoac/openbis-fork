@@ -111,6 +111,7 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
 
     public void execute()
     {
+        // TODO don't load virtual data sets here or filter them out
         List<SimpleDataSetInformationDTO> dataSets = service.listDataSets();
         for (SimpleDataSetInformationDTO dataSet : dataSets)
         {
@@ -135,7 +136,7 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
                         operationLog.error("Data set " + dataSetCode + " unknown by openBIS.");
                         return;
                     }
-                    if (false == dataSet.isContainerDataSet())
+                    if (false == dataSet.isContainer())
                     {
                         IDatasetLocation dataSetLocation = dataSet.tryGetAsDataSet();
                         feedPathInfoDatabase(dataSetLocation);
