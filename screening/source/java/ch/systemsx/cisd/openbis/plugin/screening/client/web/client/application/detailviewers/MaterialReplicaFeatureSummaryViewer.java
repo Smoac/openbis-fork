@@ -81,7 +81,7 @@ public class MaterialReplicaFeatureSummaryViewer
 
     private static final String MATERIAL_ID_DICT_MSG = "Id";
 
-    private static final int ONE_IMAGE_SIZE_PX = 80;
+    private static final int ONE_IMAGE_SIZE_FACTOR_PX = 60;
 
     public static void openTab(IViewContext<IScreeningClientServiceAsync> screeningViewContext,
             String experimentPermId, MaterialIdentifier materialIdentifier)
@@ -405,7 +405,7 @@ public class MaterialReplicaFeatureSummaryViewer
                 public Widget create(List<String> channels)
                 {
                     return WellContentDialog.createImageViewerForChannel(screeningViewContext,
-                            image, ONE_IMAGE_SIZE_PX, channels);
+                            image, ONE_IMAGE_SIZE_FACTOR_PX, channels);
                 }
             };
         ChannelWidgetWithListener widgetWithListener = new ChannelWidgetWithListener(viewerFactory);
@@ -422,7 +422,7 @@ public class MaterialReplicaFeatureSummaryViewer
     {
         final LayoutContainer panel = new Viewport();
         panel.setLayout(new RowLayout(Orientation.VERTICAL));
-        panel.setScrollMode(Scroll.AUTOY);
+        panel.setScrollMode(Scroll.AUTO);
 
         Widget materialInfo = createMaterialInfo(screeningViewContext, experiment, material);
         panel.add(materialInfo, new RowData(-1, -1, PropertiesUtil.createHeaderInfoMargin()));
