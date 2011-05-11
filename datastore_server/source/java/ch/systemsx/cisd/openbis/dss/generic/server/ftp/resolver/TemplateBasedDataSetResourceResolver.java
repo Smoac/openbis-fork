@@ -181,7 +181,13 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
         String relativePath = evaluationResult.fileName;
         if (false == StringUtils.isBlank(nestedSubPath))
         {
-            relativePath += FtpConstants.FILE_SEPARATOR + nestedSubPath;
+            if (StringUtils.isBlank(relativePath))
+            {
+                relativePath = nestedSubPath;
+            } else
+            {
+                relativePath += FtpConstants.FILE_SEPARATOR + nestedSubPath;
+            }
         }
 
         IHierarchicalContentNodeFilter fileFilter = getFileFilter(evaluationResult.dataSet);

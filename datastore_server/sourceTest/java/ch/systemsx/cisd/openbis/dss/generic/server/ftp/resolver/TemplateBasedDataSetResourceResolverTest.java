@@ -166,9 +166,11 @@ public class TemplateBasedDataSetResourceResolverTest extends AssertJUnit
         resolver = new TemplateBasedDataSetResourceResolver(config);
 
         final String dataSetCode = "dataSetCode";
-        final String subPath = "/level1/level2/fileName.txt";
+        final String subPath = "level1/level2/fileName.txt";
 
-        String path = EXP_ID + FtpConstants.FILE_SEPARATOR + dataSetCode + subPath;
+        String path =
+                EXP_ID + FtpConstants.FILE_SEPARATOR + dataSetCode + FtpConstants.FILE_SEPARATOR
+                        + subPath;
 
         List<ExternalData> dataSets = Arrays.asList(createDataSet(dataSetCode, DS_TYPE1));
 
