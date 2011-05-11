@@ -17,30 +17,29 @@
 package ch.systemsx.cisd.openbis.dss.client.api.gui;
 
 import java.awt.CardLayout;
-import java.awt.Color;
-import java.awt.Font;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
-import javax.swing.JEditorPane;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkEvent.EventType;
-import javax.swing.event.HyperlinkListener;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
 
 /**
  * @author Pawel Glyzewski
  */
-public class ErrorsPanel extends JPanel implements HyperlinkListener
+public class ErrorsPanel extends JPanel
 {
     private static final long serialVersionUID = 5932698456919803620L;
 
@@ -50,22 +49,22 @@ public class ErrorsPanel extends JPanel implements HyperlinkListener
 
     private static final String VALIDATION_SUCCESS_CARD = "Success";
 
-    private static final String WRONG_ICON_URL = ErrorsPanel.class.getResource("/wrong.png")
-            .toString();
-
     private static final ImageIcon OK_ICON =
             new ImageIcon(ErrorsPanel.class.getResource("/ok.png"));
 
+    private static final ImageIcon WRONG_ICON =
+        new ImageIcon(ErrorsPanel.class.getResource("/wrong.png"));
+    
     private static final ImageIcon WAIT_ICON = new ImageIcon(
             ErrorsPanel.class.getResource("/wait.gif"));
 
-    private final List<ValidationError> errors = new ArrayList<ValidationError>();
+    private final Set<String> errors = new LinkedHashSet<String>();
 
     private final ErrorMessageDialog errorMessageDialog;
 
-    private final JEditorPane errorsArea;
-
     private final JScrollPane errorsAreaScroll;
+
+    private final JPanel errorsPanel;
 
     public ErrorsPanel(JFrame mainWindow)
     {
@@ -73,54 +72,64 @@ public class ErrorsPanel extends JPanel implements HyperlinkListener
 
         errorMessageDialog = new ErrorMessageDialog(mainWindow);
 
-        errorsArea = new JEditorPane("text/html", "");
-        errorsArea.addHyperlinkListener(this);
-        errorsArea.setEditable(false);
-        errorsArea.setBackground(getBackground());
-        errorsArea.setFont(new Font(getFont().getName(), Font.BOLD, getFont().getSize()));
-        errorsArea.setForeground(Color.RED);
-        errorsAreaScroll = new JScrollPane(errorsArea);
+        errorsPanel = new JPanel();
+        errorsPanel.setLayout(new BoxLayout(errorsPanel, BoxLayout.Y_AXIS));
+        errorsAreaScroll = new JScrollPane(errorsPanel);
         errorsAreaScroll.setBorder(BorderFactory.createEmptyBorder());
         errorsAreaScroll
                 .setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
         this.add(errorsAreaScroll, VALIDATION_ERRORS_CARD);
-        this.add(new JLabel("Validating, please wait...", WAIT_ICON, JLabel.CENTER),
+        this.add(new JLabel("Validating, please wait...", WAIT_ICON, JLabel.LEFT),
                 VALIDATION_WAIT_CARD);
-        this.add(new JLabel("Validated successfully.", OK_ICON, JLabel.CENTER),
+        this.add(new JLabel("Validated successfully.", OK_ICON, JLabel.LEFT),
                 VALIDATION_SUCCESS_CARD);
     }
 
     public void clear()
     {
-        errorsArea.setText("");
-        errorsArea.setToolTipText("");
         this.errors.clear();
+        errorsPanel.removeAll();
+        errorsPanel.invalidate();
+        errorsPanel.getParent().validate();
     }
 
     public void reportError(ValidationError error)
     {
-        errors.add(error);
+        errors.add(error.getErrorMessage());
         displayErrors();
     }
 
     private void displayErrors()
     {
-        StringBuilder sb = new StringBuilder();
-
-        int counter = 0;
-        for (ValidationError error : errors)
+        if (errors.isEmpty())
         {
-            sb.append(
-                    "<center><div><a href='http://openbis.ch/" + (counter++)
-                            + "' ><img border='0' hspace='10' src='").append(WRONG_ICON_URL)
-                    .append("' ></img><font color='black'>")
-                    .append(truncateErrorMessage(error.getErrorMessage()))
-                    .append(" [...]</font></a></div></center>");
+            return;
         }
-
-        errorsArea.setText(sb.toString());
-        System.out.println(errorsArea.getText());
+        errorsPanel.removeAll();
+        for (final String error : errors)
+        {
+            JPanel line = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            String truncateErrorMessage = truncateErrorMessage(error);
+            JLabel label = new JLabel(truncateErrorMessage, WRONG_ICON, JLabel.LEFT);
+            line.add(label);
+            if (truncateErrorMessage.length() < error.length())
+            {
+                JButton button = new JButton("...");
+                button.setPreferredSize(new Dimension(25, label.getPreferredSize().height));
+                button.addActionListener(new ActionListener()
+                    {
+                        public void actionPerformed(ActionEvent e)
+                        {
+                            errorMessageDialog.showErrorMessage(error);
+                        }
+                    });
+                line.add(button);
+            }
+            errorsPanel.add(line);
+        }
+        errorsPanel.invalidate();
+        errorsPanel.getParent().validate();
     }
 
     private String truncateErrorMessage(String errorMessage)
@@ -141,16 +150,6 @@ public class ErrorsPanel extends JPanel implements HyperlinkListener
 
         return errorMessage.length() > truncIndex ? errorMessage.substring(0, truncIndex)
                 : errorMessage;
-    }
-
-    public void hyperlinkUpdate(HyperlinkEvent event)
-    {
-        if (event.getEventType() == EventType.ACTIVATED)
-        {
-            URL url = event.getURL();
-            int idx = Integer.parseInt(url.getPath().substring(1));
-            errorMessageDialog.showErrorMessage(errors.get(idx).getErrorMessage());
-        }
     }
 
     public void waitCard()
