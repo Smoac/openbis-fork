@@ -561,7 +561,7 @@ public class DataSetMetadataPanel extends JPanel
             switch (error.getTarget())
             {
                 case DATA_SET_OWNER:
-                    displayError(ownerIdLabel, ownerIdText, null, error);
+                    displayError(ownerIdLabel, ownerIdText, validationErrors, error);
                     break;
 
                 case DATA_SET_TYPE:
