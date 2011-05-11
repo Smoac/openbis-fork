@@ -140,6 +140,7 @@
     <copy file="${lib}/jaxb/jaxb-impl.jar" todir="${dist.datastore_server.lib}" />
     <copy file="${lib}/jaxb/jsr173_1.0_api.jar" todir="${dist.datastore_server.lib}" />
     <copy file="${lib}/spring/spring.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/slf4j/log4j12/slf4j-log4j12.jar" todir="${dist.datastore_server.lib}" />
     <copy file="${lib}/slf4j/slf4j.jar" todir="${dist.datastore_server.lib}" />
     <copy file="${lib}/fast-md5/fast-md5.jar" todir="${dist.datastore_server.lib}" />
     <copy file="${lib}/csv/csv.jar" todir="${dist.datastore_server.lib}" />
