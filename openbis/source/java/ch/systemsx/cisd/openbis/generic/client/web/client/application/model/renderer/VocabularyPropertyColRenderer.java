@@ -85,12 +85,13 @@ public class VocabularyPropertyColRenderer<T extends IEntityPropertiesHolder> ex
         final String label = term.getLabel();
         final String description = term.getDescription();
         String result = "";
+        String unofficialOrEmpty = term.isOfficial() ? "" : "(unofficial term)";
         if (label == null)
         {
-            result += "<b>" + code + "</b>";
+            result += "<b>" + code + " " + unofficialOrEmpty + "</b>";
         } else
         {
-            result += "<b>" + label + "</b>";
+            result += "<b>" + label + " " + unofficialOrEmpty + "</b>";
             result += "<br>code: " + code;
         }
         if (description != null)
