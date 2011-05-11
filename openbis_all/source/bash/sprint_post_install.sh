@@ -56,6 +56,9 @@ function restore_config_files {
   if  [ -f ~openbis/config/welcomePageSimple.html ]; then
   	cp ~openbis/config/welcomePageSimple.html ~openbis/sprint/openBIS-server/jetty/webapps/openbis/
   fi  
+  if  [ -f ~openbis/config/web-client.properties ]; then
+  	cp ~openbis/config/web-client.properties ~openbis/sprint/openBIS-server/jetty/etc/
+  fi  
   if  [ -f ~openbis/config/datastore_server.conf ]; then
   	cp ~openbis/config/datastore_server.conf ~openbis/sprint/datastore_server/etc/
   fi  
