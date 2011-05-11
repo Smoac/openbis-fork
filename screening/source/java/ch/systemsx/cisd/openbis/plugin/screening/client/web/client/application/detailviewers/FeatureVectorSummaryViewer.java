@@ -18,9 +18,12 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.user.client.ui.Widget;
@@ -138,13 +141,13 @@ public class FeatureVectorSummaryViewer
     {
 
         final LayoutContainer panel = new LayoutContainer();
-        panel.setLayout(new RowLayout());
+        panel.setLayout(new BorderLayout());
 
         addHeader(panel, viewContext, experiment);
 
         final IDisposableComponent gridComponent =
                 FeatureVectorSummaryGrid.create(viewContext, experiment);
-        panel.add(gridComponent.getComponent(), new RowData(-1, 1));
+        panel.add(gridComponent.getComponent(), new BorderLayoutData(LayoutRegion.CENTER));
 
         return new IDisposableComponent()
             {
@@ -177,7 +180,7 @@ public class FeatureVectorSummaryViewer
 
         LayoutContainer panel = new LayoutContainer();
         panel.setLayout(new RowLayout());
-        panel.setScrollMode(Scroll.AUTO);
+        panel.setScrollMode(Scroll.AUTOY);
 
         Widget headingWidget = PropertiesUtil.createHeaderTitle(headingText);
         panel.add(headingWidget, PropertiesUtil.createHeaderTitleLayoutData());
@@ -185,12 +188,13 @@ public class FeatureVectorSummaryViewer
         LayoutContainer propertiesPanel = new LayoutContainer();
         propertiesPanel.setLayout(new RowLayout());
         int propsHeight = PropertiesUtil.addProperties(experiment, propertiesPanel, null);
-        panel.add(propertiesPanel, new RowData(1, -1));
+        panel.add(propertiesPanel, new RowData(1, propsHeight));
 
         int headersHeight = 25;
         int totalHeight = propsHeight + headersHeight;
-        parentPanel.add(panel,
-                new RowData(-1, totalHeight, PropertiesUtil.createHeaderInfoMargin()));
+        BorderLayoutData layoutData = new BorderLayoutData(LayoutRegion.NORTH, totalHeight);
+        layoutData.setMargins(PropertiesUtil.createHeaderInfoMargin());
+        parentPanel.add(panel, layoutData);
     }
 
 }

@@ -295,7 +295,7 @@ public class MaterialReplicaFeatureSummaryViewer
         LayoutContainer imagePanel = new LayoutContainer();
         TableLayout layout = new TableLayout(maxReplicaNumber + 1);
         layout.setBorder(1);
-        layout.setCellSpacing(10);
+        layout.setCellPadding(5);
         imagePanel.setLayout(layout);
 
         addImageTableHeader(maxReplicaNumber, imagePanel);
