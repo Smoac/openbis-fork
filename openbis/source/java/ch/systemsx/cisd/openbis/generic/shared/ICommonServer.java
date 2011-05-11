@@ -100,11 +100,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
@@ -559,7 +559,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
-    @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY_TERM)
+    @DatabaseUpdateModification(value = ObjectKind.VOCABULARY_TERM)
     public void makeVocabularyTermsOfficial(String sessionToken, TechId vocabularyId,
             List<VocabularyTerm> termsToBeOfficial);
 
@@ -837,7 +837,7 @@ public interface ICommonServer extends IServer
     public SampleParentWithDerived getSampleInfo(final String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) final TechId sampleId)
             throws UserFailureException;
-    
+
     /**
      * Saves changed sample.
      */

@@ -57,14 +57,13 @@ public class VocabularyTermSelectionWidget extends
 
     private class UnofficialTermRegistrationDialog extends AbstractRegistrationDialog
     {
-        private final IViewContext<ICommonClientServiceAsync> viewContext;
+        private final IViewContext<?> viewContext;
 
         private final String code;
 
         private final Vocabulary vocabulary;
 
-        public UnofficialTermRegistrationDialog(
-                IViewContext<ICommonClientServiceAsync> viewContext, String code)
+        public UnofficialTermRegistrationDialog(IViewContext<?> viewContext, String code)
         {
             super(viewContext, viewContext
                     .getMessage(Dict.ADD_UNOFFICIAL_VOCABULARY_TERM_DIALOG_TITLE),
@@ -81,7 +80,7 @@ public class VocabularyTermSelectionWidget extends
         @Override
         protected void register(AsyncCallback<Void> registrationCallback)
         {
-            ICommonClientServiceAsync service = viewContext.getService();
+            ICommonClientServiceAsync service = viewContext.getCommonService();
 
             service.addUnofficialVocabularyTerms(TechId.create(vocabulary), Arrays.asList(code),
                     getMaxOrdinal(), registrationCallback);
@@ -106,6 +105,8 @@ public class VocabularyTermSelectionWidget extends
 
     private static final String CHOOSE_MSG = "Choose...";
 
+    private static final String CHOOSE_OR_ADD_MSG = "Choose or add new...";
+
     private static final String VALUE_NOT_IN_LIST_MSG = "Value not in the list";
 
     private static final String EMPTY_MSG = "- No terms found -";
@@ -116,7 +117,7 @@ public class VocabularyTermSelectionWidget extends
 
     private String initialTermCodeOrNull;
 
-    private String typedValue = null;
+    private String typedValueOrNull = null;
 
     /**
      * Allows to choose one of the specified vocabulary's terms, is able to refresh the available
@@ -143,8 +144,9 @@ public class VocabularyTermSelectionWidget extends
             Vocabulary vocabularyOrNull, final IViewContext<?> viewContextOrNull,
             List<VocabularyTerm> termsOrNull, String initialTermCodeOrNull)
     {
-        super(idSuffix, ModelDataPropertyNames.CODE_WITH_LABEL, label, CHOOSE_MSG, EMPTY_MSG,
-                VALUE_NOT_IN_LIST_MSG, mandatory, viewContextOrNull, termsOrNull == null);
+        super(idSuffix, ModelDataPropertyNames.CODE_WITH_LABEL, label,
+                allowAddingUnofficialTerms(viewContextOrNull) ? CHOOSE_OR_ADD_MSG : CHOOSE_MSG,
+                EMPTY_MSG, VALUE_NOT_IN_LIST_MSG, mandatory, viewContextOrNull, termsOrNull == null);
         this.viewContextOrNull = viewContextOrNull;
         this.vocabularyOrNull = vocabularyOrNull;
         this.initialTermCodeOrNull = initialTermCodeOrNull;
@@ -159,53 +161,58 @@ public class VocabularyTermSelectionWidget extends
         setTemplate(GWTUtils.getTooltipTemplate(VocabularyTermModel.DISPLAY_FIELD,
                 ModelDataPropertyNames.TOOLTIP));
 
-        if (viewContextOrNull != null
-                && viewContextOrNull.getModel().getApplicationInfo().getWebClientConfiguration()
-                        .getAllowAddingUnofficialTerms())
+        if (allowAddingUnofficialTerms(viewContextOrNull))
         {
-            this.addListener(Events.Blur, new Listener<BaseEvent>()
+            this.addListener(Events.Blur, createListenerAddingOnofficialTerms());
+        }
+    }
+
+    private static boolean allowAddingUnofficialTerms(IViewContext<?> viewContextOrNull)
+    {
+        return viewContextOrNull != null
+                && viewContextOrNull.getModel().getApplicationInfo().getWebClientConfiguration()
+                        .getAllowAddingUnofficialTerms();
+    }
+
+    private Listener<BaseEvent> createListenerAddingOnofficialTerms()
+    {
+        return new Listener<BaseEvent>()
+            {
+                public void handleEvent(BaseEvent be)
                 {
-                    public void handleEvent(BaseEvent be)
+                    if (VocabularyTermSelectionWidget.this.vocabularyOrNull != null
+                            && getSelection().size() != 1
+                            && (false == StringUtils.isBlank(VocabularyTermSelectionWidget.this
+                                    .getRawValue())))
                     {
-                        if (VocabularyTermSelectionWidget.this.vocabularyOrNull != null
-                                && VocabularyTermSelectionWidget.this.viewContextOrNull
-                                        .getService() instanceof ICommonClientServiceAsync
-                                && getSelection().size() != 1
-                                && (false == StringUtils.isBlank(VocabularyTermSelectionWidget.this
-                                        .getRawValue())))
+                        final String code = getRawValue().toUpperCase();
+                        if (!code.matches(CodeFieldKind.CODE_WITH_COLON.getPattern()))
                         {
-                            final String code = getRawValue().toUpperCase();
-                            if (!code.matches(CodeFieldKind.CODE_WITH_COLON.getPattern()))
-                            {
-                                Dialog d = new Dialog()
+                            Dialog d = new Dialog()
+                                {
+                                    @Override
+                                    protected void onButtonPressed(Button button)
                                     {
-                                        @Override
-                                        protected void onButtonPressed(Button button)
-                                        {
-                                            super.onButtonPressed(button);
-                                            VocabularyTermSelectionWidget.this.focus();
-                                        }
-                                    };
-                                d.setHeading(viewContextOrNull.getMessage(Dict.MESSAGEBOX_ERROR));
-                                d.addText(viewContextOrNull.getMessage(Dict.INVALID_CODE_MESSAGE,
-                                        CodeFieldKind.CODE_WITH_COLON.getAllowedCharacters()));
-                                d.setSize(400, 200);
-                                d.setHideOnButtonClick(true);
-                                d.setButtons(Dialog.OK);
-                                d.show();
-                            } else
-                            {
-                                @SuppressWarnings("unchecked")
-                                UnofficialTermRegistrationDialog d =
-                                        new UnofficialTermRegistrationDialog(
-                                                (IViewContext<ICommonClientServiceAsync>) viewContextOrNull,
-                                                code);
-                                d.show();
-                            }
+                                        super.onButtonPressed(button);
+                                        VocabularyTermSelectionWidget.this.focus();
+                                    }
+                                };
+                            d.setHeading(viewContextOrNull.getMessage(Dict.MESSAGEBOX_ERROR));
+                            d.addText(viewContextOrNull.getMessage(Dict.INVALID_CODE_MESSAGE,
+                                    CodeFieldKind.CODE_WITH_COLON.getAllowedCharacters()));
+                            d.setSize(400, 200);
+                            d.setHideOnButtonClick(true);
+                            d.setButtons(Dialog.OK);
+                            d.show();
+                        } else
+                        {
+                            UnofficialTermRegistrationDialog d =
+                                    new UnofficialTermRegistrationDialog(viewContextOrNull, code);
+                            d.show();
                         }
                     }
-                });
-        }
+                }
+            };
     }
 
     private IDelegatedAction createRefreshAction(final String _typedValue)
@@ -214,7 +221,7 @@ public class VocabularyTermSelectionWidget extends
             {
                 public void execute()
                 {
-                    VocabularyTermSelectionWidget.this.typedValue = _typedValue;
+                    VocabularyTermSelectionWidget.this.typedValueOrNull = _typedValue;
                     refreshStore();
                     clearInvalid();
                     focus();
@@ -261,15 +268,15 @@ public class VocabularyTermSelectionWidget extends
 
     public void selectInitialValue()
     {
-        if (typedValue != null)
+        if (typedValueOrNull != null)
         {
             try
             {
-                trySelectByCode(typedValue);
+                trySelectByCode(typedValueOrNull);
                 updateOriginalValue();
             } finally
             {
-                typedValue = null;
+                typedValueOrNull = null;
             }
         } else if (initialTermCodeOrNull != null)
         {
