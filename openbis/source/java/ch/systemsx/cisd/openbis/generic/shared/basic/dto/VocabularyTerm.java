@@ -44,7 +44,7 @@ public class VocabularyTerm extends CodeWithRegistration<Vocabulary> implements
 
     private Long ordinal;
 
-    private Boolean isOfficial;
+    private Boolean isOfficial = true; // official by default
 
     public VocabularyTerm()
     {

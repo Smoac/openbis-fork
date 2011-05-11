@@ -172,9 +172,9 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
         vocabularyTermsSection.setVisible(visible);
     }
 
-    // 
+    //
     // Helpers
-    // 
+    //
 
     public static class CommonVocabularyRegistrationAndEditionFieldsFactory
     {
@@ -186,8 +186,10 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
         public static CheckBox createChosenFromListCheckbox(final IMessageProvider messageProvider)
         {
             final CheckBox result =
-                    new CheckBoxField(messageProvider
-                            .getMessage(Dict.VOCABULARY_SHOW_AVAILABLE_TERMS_IN_CHOOSERS), false);
+                    new CheckBoxField(
+                            messageProvider
+                                    .getMessage(Dict.VOCABULARY_SHOW_AVAILABLE_TERMS_IN_CHOOSERS),
+                            false);
 
             // If user changes value of this checkbox to true a confirmation window will be shown.
             result.addListener(Events.Change, new Listener<FieldEvent>()
@@ -370,7 +372,6 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
             {
                 final VocabularyTerm vocabularyTerm = new VocabularyTerm();
                 vocabularyTerm.setCode(termCode);
-                vocabularyTerm.setOfficial(true);
                 vocabularyTerms.add(vocabularyTerm);
             }
             vocabulary.setTerms(vocabularyTerms);
