@@ -590,7 +590,10 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
                     DatabaseModificationKind.createOrDelete(ObjectKind.SAMPLE),
                     DatabaseModificationKind.edit(ObjectKind.SAMPLE),
                     DatabaseModificationKind.createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
-                    DatabaseModificationKind.edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
+                    DatabaseModificationKind.edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                    // (unofficial) terms may also be created outside of the grid
+                    DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY_TERM),
+                    DatabaseModificationKind.edit(ObjectKind.VOCABULARY_TERM) };
     }
 
     private void deleteTerms()
