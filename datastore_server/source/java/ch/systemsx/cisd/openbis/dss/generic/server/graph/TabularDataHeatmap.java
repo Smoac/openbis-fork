@@ -69,6 +69,18 @@ public class TabularDataHeatmap extends AbstractTabularDataGraph<TabularDataHeat
         // We could not find the necessary columns in the dataset
         if (xColumn < 0 || yColumn < 0 || zColumn < 0)
         {
+            if (xColumn < 0)
+            {
+                logFailureToFindColumnHeader(configuration.getXAxisColumn());
+            }
+            if (yColumn < 0)
+            {
+                logFailureToFindColumnHeader(configuration.getYAxisColumn());
+            }
+            if (zColumn < 0)
+            {
+                logFailureToFindColumnHeader(configuration.getZAxisColumn());
+            }
             return null;
         }
 

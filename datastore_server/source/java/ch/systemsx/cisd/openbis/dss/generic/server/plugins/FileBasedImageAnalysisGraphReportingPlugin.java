@@ -64,7 +64,7 @@ public class FileBasedImageAnalysisGraphReportingPlugin extends AbstractDataMerg
         if (propertiesFilePath == null)
         {
             throw new EnvironmentFailureException(
-                    "ImageAnalysisGraphReportingPlugin requires a properties file (specified with the "
+                    "FileBasedImageAnalysisGraphReportingPlugin requires a properties file (specified with the "
                             + PROPERTIES_FILE_KEY + "key).");
         }
 

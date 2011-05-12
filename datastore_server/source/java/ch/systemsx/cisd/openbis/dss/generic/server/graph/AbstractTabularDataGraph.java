@@ -20,8 +20,10 @@ import java.awt.Color;
 import java.awt.Font;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
@@ -33,6 +35,8 @@ import org.jfree.chart.title.TextTitle;
 import org.jfree.data.general.Dataset;
 import org.jfree.data.xy.DefaultXYDataset;
 
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ITabularData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 
@@ -44,6 +48,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 abstract class AbstractTabularDataGraph<T extends TabularDataGraphConfiguration> implements
         ITabularDataGraph
 {
+    protected static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            AbstractTabularDataGraph.class);
+
     private static final int SMALL_TICK_LABEL_FONT_SIZE = 7;
 
     private static final int SMALL_LABEL_FONT_SIZE = 9;
@@ -271,6 +278,14 @@ abstract class AbstractTabularDataGraph<T extends TabularDataGraphConfiguration>
         // We could not find the necessary columns in the dataset
         if (xColumn < 0 || yColumn < 0)
         {
+            if (xColumn < 0)
+            {
+                logFailureToFindColumnHeader(configuration.getXAxisColumn());
+            }
+            if (yColumn < 0)
+            {
+                logFailureToFindColumnHeader(configuration.getYAxisColumn());
+            }
             return false;
         }
 
@@ -282,6 +297,13 @@ abstract class AbstractTabularDataGraph<T extends TabularDataGraphConfiguration>
         }
 
         return true;
+    }
+
+    protected void logFailureToFindColumnHeader(CodeAndLabel codeAndLabel)
+    {
+        String[] headerCodes = fileLines.getHeaderCodes();
+        operationLog.warn("Could not find column with header " + codeAndLabel + " among the "
+                + headerCodes.length + " header(s): " + Arrays.toString(headerCodes));
     }
 
     protected void configureChart(JFreeChart chart, int imageWidth, int imageHeight)
@@ -324,9 +346,7 @@ abstract class AbstractTabularDataGraph<T extends TabularDataGraphConfiguration>
         if (imageWidth < SMALL_FONT_TRANSITION_SIZE)
         {
             Font oldFont = axis.getLabelFont();
-            axis
-                    .setLabelFont(new Font(oldFont.getName(), oldFont.getStyle(),
-                            SMALL_LABEL_FONT_SIZE));
+            axis.setLabelFont(new Font(oldFont.getName(), oldFont.getStyle(), SMALL_LABEL_FONT_SIZE));
             oldFont = axis.getTickLabelFont();
             axis.setTickLabelFont(new Font(oldFont.getName(), oldFont.getStyle(),
                     SMALL_TICK_LABEL_FONT_SIZE));
