@@ -143,8 +143,6 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         operationLog.info("Archiving of the following datasets has been requested: "
                 + CollectionUtils.abbreviate(datasets, 10));
 
-        initializeDatasetSizesIfNeeded(datasets);
-
         DatasetProcessingStatuses statuses = safeArchive(datasets, context, removeFromDataStore);
 
         DataSetArchivingStatus successStatus = (removeFromDataStore) ? ARCHIVED : AVAILABLE;
@@ -186,6 +184,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         {
             try
             {
+                initializeDatasetSizesIfNeeded(datasets);
                 statuses = unsafeArchive(datasets, context, removeFromDataStore);
             } catch (Throwable t)
             {
@@ -282,7 +281,6 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
     {
         operationLog.info("Unarchiving of the following datasets has been requested: "
                 + CollectionUtils.abbreviate(datasets, 10));
-        setUpUnarchivingPreparation(context);
         DatasetProcessingStatuses statuses = safeUnarchive(datasets, context);
 
         asyncUpdateStatuses(statuses.getSuccessfulDatasetCodes(), AVAILABLE, true);
@@ -318,6 +316,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         {
             try
             {
+                setUpUnarchivingPreparation(context);
                 statuses = doUnarchive(datasets, context);
             } catch (Throwable t)
             {
