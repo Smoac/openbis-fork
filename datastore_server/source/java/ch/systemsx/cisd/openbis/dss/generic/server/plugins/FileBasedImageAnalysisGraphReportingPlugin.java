@@ -85,11 +85,11 @@ public class FileBasedImageAnalysisGraphReportingPlugin extends AbstractDataMerg
         {
             final File dir = getDataSubDir(context.getDirectoryProvider(), dataset);
             List<File> matchingFiles = findMatchingFiles(dataset, dir);
-            if (matchingFiles.size() > 1)
+            if (matchingFiles.size() != 1)
             {
                 throw UserFailureException.fromTemplate(
-                        "Found multiple candidate files in the dataset %s ",
-                        dataset.getDataSetCode());
+                        "Expected exactly one matching file in the dataset %s but found %d", dataset
+                                .getDataSetCode(), matchingFiles.size());
             }
             builder.addRow(createRow(dataset, matchingFiles.get(0)));
         }
