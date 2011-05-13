@@ -708,8 +708,11 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         {
             throw new UserFailureException("Unknown data set " + dataSetCode);
         }
+        // data sets consisting out of empty folders have a size of 0,
+        // but we want the size of a data set to be strictly positive
+        long positiveSize = Math.max(1, size);
         dataSet.setShareId(shareId);
-        dataSet.setSize(size);
+        dataSet.setSize(positiveSize);
         externalDataDAO.updateDataSet(dataSet);
     }
 
