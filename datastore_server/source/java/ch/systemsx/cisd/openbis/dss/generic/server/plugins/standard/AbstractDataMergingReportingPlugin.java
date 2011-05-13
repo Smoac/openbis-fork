@@ -75,7 +75,8 @@ public abstract class AbstractDataMergingReportingPlugin extends AbstractFileTab
         this.includePatternOrNull = properties.getProperty(FILE_INCLUDE_PATTERN);
     }
 
-    protected String[] getHeaderTitles(DatasetDescription dataset, IDataSetDirectoryProvider dirProvider)
+    protected String[] getHeaderTitles(DatasetDescription dataset,
+            IDataSetDirectoryProvider dirProvider)
     {
         File dir = getDataSubDir(dirProvider, dataset);
         final DatasetFileLines lines = loadFromDirectory(dataset, dir);
@@ -128,8 +129,8 @@ public abstract class AbstractDataMergingReportingPlugin extends AbstractFileTab
             throw UserFailureException
                     .fromTemplate(
                             "Directory with Data Set '%s' data ('%s') should contain exactly 1 file with data but %s files were found.",
-                            dataset.getDataSetCode(), dir.getAbsolutePath(), datasetFilesToMerge
-                                    .size());
+                            dataset.getDataSetCode(), dir.getAbsolutePath(),
+                            datasetFilesToMerge.size());
         } else
         {
             return loadFromFile(dataset, datasetFilesToMerge.get(0));
@@ -154,7 +155,8 @@ public abstract class AbstractDataMergingReportingPlugin extends AbstractFileTab
             if (datasetFile.isDirectory())
             {
                 // recursively go down the directories
-                return findMatchingFiles(dataset, datasetFile);
+                List<File> matched = findMatchingFiles(dataset, datasetFile);
+                matchingFiles.addAll(matched);
             } else
             {
                 // exclude files with properties
