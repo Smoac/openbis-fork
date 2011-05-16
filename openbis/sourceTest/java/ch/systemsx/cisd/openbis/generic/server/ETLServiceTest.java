@@ -59,6 +59,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleC
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataStoreBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
@@ -96,8 +99,10 @@ public class ETLServiceTest extends AbstractServerTestCase
 
     private static final String DOWNLOAD_URL = "download-url";
 
-    private static final String DSS_CODE = "my-dss";
+    private static final long DSS_ID = 137L;
 
+    private static final String DSS_CODE = "my-dss";
+    
     private static final String DSS_SESSION_TOKEN = "dss42";
 
     private static final int PORT = 443;
@@ -129,19 +134,25 @@ public class ETLServiceTest extends AbstractServerTestCase
                 {
                     one(dataStoreDAO).tryToFindDataStoreByCode(DSS_CODE);
                     DataStorePE store = new DataStorePE();
+                    store.setId(DSS_ID);
                     store.setCode(DSS_CODE);
                     will(returnValue(store));
 
-                    one(boFactory).createExternalDataTable(SESSION);
-                    will(returnValue(externalDataTable));
+                    one(boFactory).createDatasetLister(SESSION);
+                    will(returnValue(datasetLister));
 
-                    one(externalDataTable).loadByDataStore(store);
-                    one(externalDataTable).getExternalData();
-                    ExternalDataPE ds1 = dataSet(1);
-                    ds1.setShareId("share-1");
-                    ds1.setLocation("loc-a");
-                    ds1.setSize(4711L);
-                    will(returnValue(Arrays.asList(ds1, dataSet(2))));
+                    one(datasetLister).listByDataStore(DSS_ID);
+                    DataSetBuilder ds1 =
+                            new DataSetBuilder().type("my-type")
+                                    .code("ds-1")
+                                    .location("loc-a")
+                                    .shareID("share-1")
+                                    .size(4711L)
+                                    .store(new DataStoreBuilder(DSS_CODE).getStore())
+                                    .experiment(
+                                            new ExperimentBuilder().identifier("DB:/G1/P/EXP1")
+                                                    .getExperiment());
+                    will(returnValue(Arrays.asList(ds1.getDataSet())));
                 }
             });
 
@@ -149,6 +160,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                 createService().listDataSets(SESSION_TOKEN, DSS_CODE);
 
         assertEquals(DSS_CODE, dataSets.get(0).getDataStoreCode());
+        assertEquals("my-type", dataSets.get(0).getDataSetType());
         assertEquals("ds-1", dataSets.get(0).getDataSetCode());
         assertEquals("share-1", dataSets.get(0).getDataSetShareId());
         assertEquals("loc-a", dataSets.get(0).getDataSetLocation());
@@ -156,23 +168,9 @@ public class ETLServiceTest extends AbstractServerTestCase
         assertEquals("EXP1", dataSets.get(0).getExperimentCode());
         assertEquals("P", dataSets.get(0).getProjectCode());
         assertEquals("G1", dataSets.get(0).getGroupCode());
-        assertEquals(2, dataSets.size());
+        assertEquals("DB", dataSets.get(0).getDatabaseInstanceCode());
+        assertEquals(1, dataSets.size());
         context.assertIsSatisfied();
-    }
-
-    private ExternalDataPE dataSet(long id)
-    {
-        ExternalDataPE dataSet = new ExternalDataPE();
-        dataSet.setId(id);
-        DataStorePE store = new DataStorePE();
-        store.setCode(DSS_CODE);
-        dataSet.setDataStore(store);
-        dataSet.setCode("ds-" + id);
-        DataSetTypePE dataSetType = new DataSetTypePE();
-        dataSetType.setCode("my-type");
-        dataSet.setDataSetType(dataSetType);
-        dataSet.setExperiment(createExperiment("TYPE", "EXP1", "G1"));
-        return dataSet;
     }
 
     @Test
