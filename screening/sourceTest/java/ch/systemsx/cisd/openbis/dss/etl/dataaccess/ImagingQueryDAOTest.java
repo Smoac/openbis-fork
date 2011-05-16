@@ -31,6 +31,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.bds.hcs.Location;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelColor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.AbstractDBTest;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgAcquiredImageDTO;
@@ -53,6 +54,8 @@ public class ImagingQueryDAOTest extends AbstractDBTest
 {
 
     private static final String CHANNEL_LABEL = "Channel Label";
+
+    private static final ImageChannelColor CHANNEL_COLOR = ImageChannelColor.RED;
 
     private static final int PAGE = 1;
 
@@ -299,6 +302,7 @@ public class ImagingQueryDAOTest extends AbstractDBTest
 
         assertEquals("DSCHANNEL", datasetChannel.getCode());
         assertEquals(CHANNEL_LABEL, datasetChannel.getLabel());
+        assertEquals(CHANNEL_COLOR.name(), datasetChannel.getDbChannelColor());
         assertEquals(datasetChannelId, datasetChannel.getId());
 
         assertEquals(datasetChannel, dao.tryGetChannelForDataset(datasetId, "dsChannel"));
@@ -308,6 +312,7 @@ public class ImagingQueryDAOTest extends AbstractDBTest
         ImgChannelDTO experimentChannel = experimentChannels.get(0);
         assertEquals("EXPCHANNEL", experimentChannel.getCode());
         assertEquals(CHANNEL_LABEL, experimentChannel.getLabel());
+        assertEquals(CHANNEL_COLOR.name(), experimentChannel.getDbChannelColor());
         assertEquals(experimentChannelId, experimentChannel.getId());
 
         assertEquals(experimentChannel, dao.tryGetChannelForExperiment(experimentId, "expChannel"));
@@ -400,7 +405,7 @@ public class ImagingQueryDAOTest extends AbstractDBTest
     {
         final ImgChannelDTO channel =
                 new ImgChannelDTO(DS_CHANNEL, CHANNEL_DESCRIPTION, WAVELENGTH, datasetId, null,
-                        CHANNEL_LABEL);
+                        CHANNEL_LABEL, CHANNEL_COLOR);
         return dao.addChannel(channel);
     }
 
@@ -408,7 +413,7 @@ public class ImagingQueryDAOTest extends AbstractDBTest
     {
         final ImgChannelDTO channel =
                 new ImgChannelDTO(EXP_CHANNEL, CHANNEL_DESCRIPTION, WAVELENGTH, null, experimentId,
-                        CHANNEL_LABEL);
+                        CHANNEL_LABEL, CHANNEL_COLOR);
         return dao.addChannel(channel);
     }
 

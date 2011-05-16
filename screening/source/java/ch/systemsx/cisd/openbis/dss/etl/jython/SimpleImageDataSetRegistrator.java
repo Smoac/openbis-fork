@@ -172,7 +172,8 @@ public class SimpleImageDataSetRegistrator
         List<Channel> channels = new ArrayList<Channel>();
         for (String channelCode : channelCodes)
         {
-            channels.add(simpleImageConfig.createChannel(channelCode));
+            Channel channel = simpleImageConfig.createChannel(channelCode);
+            channels.add(channel);
         }
         return channels;
     }

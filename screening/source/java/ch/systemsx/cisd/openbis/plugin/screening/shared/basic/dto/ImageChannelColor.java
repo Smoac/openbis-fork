@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 ETH Zuerich, CISD
+ * Copyright 2011 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,14 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.etl;
-
-import ch.systemsx.cisd.openbis.dss.generic.shared.IDatabaseVersionHolder;
+package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
 /**
- * Version holder for imaging database.
+ * Allowed colors in which channels can be presented.
  * 
- * @author Franz-Josef Elmer
+ * @author Tomasz Pylak
  */
-public class ImagingDatabaseVersionHolder implements IDatabaseVersionHolder
+public enum ImageChannelColor
 {
-
-    public String getDatabaseVersion()
-    {
-        return "012"; // changed in S106
-    }
-
+    BLUE, GREEN, RED, RED_GREEN, RED_BLUE, GREEN_BLUE;
 }

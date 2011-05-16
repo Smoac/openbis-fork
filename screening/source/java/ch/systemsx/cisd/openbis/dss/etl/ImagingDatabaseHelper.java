@@ -23,6 +23,8 @@ import java.util.Map;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ChannelColor;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelColor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgExperimentDTO;
@@ -92,8 +94,7 @@ public class ImagingDatabaseHelper
      * in the DB.
      */
     public static ExperimentWithChannelsAndContainer getOrCreateExperimentWithChannelsAndContainer(
-            IImagingQueryDAO dao, HCSContainerDatasetInfo info,
-            List<Channel> channels)
+            IImagingQueryDAO dao, HCSContainerDatasetInfo info, List<Channel> channels)
     {
         ImagingDatabaseHelper helper = new ImagingDatabaseHelper(dao);
         synchronized (IImagingQueryDAO.class)
@@ -289,9 +290,16 @@ public class ImagingDatabaseHelper
 
         private Map<String, Long> createChannels(ChannelOwner channelOwner, List<Channel> channels)
         {
+            int colorIndex = 0;
             Map<String, Long> map = new HashMap<String, Long>();
             for (Channel channel : channels)
             {
+                if (channel.tryGetChannelColor() == null)
+                {
+                    ChannelColor channelColor = ChannelColor.createFromIndex(colorIndex);
+                    channel.setChannelColor(channelColor);
+                    colorIndex++;
+                }
                 ImgChannelDTO channelDTO = createChannel(channel, channelOwner);
                 addChannel(map, channelDTO);
             }
@@ -313,8 +321,8 @@ public class ImagingDatabaseHelper
             return nameMap;
         }
 
-        private ImgChannelDTO updateExperimentChannel(Channel channel,
-                long expId, Map<String, ImgChannelDTO> existingChannels)
+        private ImgChannelDTO updateExperimentChannel(Channel channel, long expId,
+                Map<String, ImgChannelDTO> existingChannels)
         {
             ImgChannelDTO channelDTO =
                     makeChannelDTO(channel, ChannelOwner.createExperiment(expId));
@@ -358,8 +366,7 @@ public class ImagingDatabaseHelper
                     channelName, existingChannels.keySet());
         }
 
-        private ImgChannelDTO createChannel(Channel channel,
-                ChannelOwner channelOwner)
+        private ImgChannelDTO createChannel(Channel channel, ChannelOwner channelOwner)
         {
             ImgChannelDTO channelDTO = makeChannelDTO(channel, channelOwner);
             long channelId = dao.addChannel(channelDTO);
@@ -367,12 +374,15 @@ public class ImagingDatabaseHelper
             return channelDTO;
         }
 
-        private static ImgChannelDTO makeChannelDTO(Channel channel,
-                ChannelOwner channelOwner)
+        private static ImgChannelDTO makeChannelDTO(Channel channel, ChannelOwner channelOwner)
         {
+            ChannelColor channelColor = channel.tryGetChannelColor();
+            assert channelColor != null : "channel color should be specified at this point";
+            ImageChannelColor imageChannelColor = ImageChannelColor.valueOf(channelColor.name());
+
             return new ImgChannelDTO(channel.getCode(), channel.tryGetDescription(),
                     channel.tryGetWavelength(), channelOwner.tryGetDatasetId(),
-                    channelOwner.tryGetExperimentId(), channel.getLabel());
+                    channelOwner.tryGetExperimentId(), channel.getLabel(), imageChannelColor);
         }
     }
 

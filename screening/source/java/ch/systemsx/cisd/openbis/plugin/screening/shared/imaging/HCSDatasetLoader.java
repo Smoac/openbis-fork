@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.common.utilities.MD5ChecksumCalculator;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannel;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelColor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
@@ -160,19 +162,27 @@ public class HCSDatasetLoader implements IImageDatasetLoader
         params.setIsMultidimensional(dataset.getIsMultidimensional());
         params.addTransformerFactorySignatureFor(ScreeningConstants.MERGED_CHANNELS,
                 mergedChannelTransformerFactorySignatureOrNull);
-        List<String> channelsCodes = new ArrayList<String>();
-        List<String> channelsLabels = new ArrayList<String>();
-        for (ImgChannelDTO channel : channels)
+
+        List<ImageChannel> convertedChannels = new ArrayList<ImageChannel>();
+        for (ImgChannelDTO channelDTO : channels)
         {
-            String channelCode = channel.getCode();
-            channelsCodes.add(channelCode);
-            channelsLabels.add(channel.getLabel());
-            params.addTransformerFactorySignatureFor(channelCode,
-                    tryGetSignature(channel.getSerializedImageTransformerFactory()));
+            ImageChannel channel = convert(channelDTO);
+            convertedChannels.add(channel);
+
+            String transformationSignature =
+                    tryGetSignature(channelDTO.getSerializedImageTransformerFactory());
+            params.addTransformerFactorySignatureFor(channelDTO.getCode(), transformationSignature);
         }
-        params.setChannelsCodes(channelsCodes);
-        params.setChannelsLabels(channelsLabels);
+        params.setChannels(convertedChannels);
         return params;
+    }
+
+    private static ImageChannel convert(ImgChannelDTO channelDTO)
+    {
+        ImageChannelColor imageChannelColor =
+                ImageChannelColor.valueOf(channelDTO.getDbChannelColor());
+        return new ImageChannel(channelDTO.getCode(), channelDTO.getLabel(),
+                channelDTO.getDescription(), channelDTO.getWavelength(), imageChannelColor);
     }
 
     private String tryGetSignature(byte[] bytesOrNull)

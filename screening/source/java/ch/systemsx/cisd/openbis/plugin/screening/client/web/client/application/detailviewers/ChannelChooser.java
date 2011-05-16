@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 
 /**
@@ -148,12 +149,11 @@ class ChannelChooser
         for (DatasetImagesReference overlayDataset : overlayDatasets)
         {
             ImageDatasetParameters imageParams = overlayDataset.getImageParameters();
-            List<String> channelsCodes = imageParams.getChannelsCodes();
-            List<String> channelsLabels = imageParams.getChannelsLabels();
             for (int i = 0; i < imageParams.getChannelsNumber(); i++)
             {
-                String channelCode = channelsCodes.get(i);
-                String channelLabel = channelsLabels.get(i);
+                ImageChannel channel = imageParams.getChannels().get(i);
+                String channelCode = channel.getCode();
+                String channelLabel = channel.getLabel();
                 LabeledItem<ImageDatasetChannel> item =
                         createLabeledItem(overlayDataset, channelCode, channelLabel);
                 items.add(item);

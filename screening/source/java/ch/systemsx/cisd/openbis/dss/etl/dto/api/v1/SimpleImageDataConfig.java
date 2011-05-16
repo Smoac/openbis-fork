@@ -76,12 +76,29 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
-     * Creates channel description for a given code. The channel label will be equal to the code.
-     * Can be overridden in subclasses.
+     * <p>
+     * Creates channel description for a given code. Can be overridden in subclasses.
+     * </p>
+     * By default rhe channel label will be equal to the code. Channel color returned by
+     * {@link #getChannelColor(String)} will be used.
      */
     public Channel createChannel(String channelCode)
     {
-        return new Channel(channelCode, channelCode);
+        ChannelColor channelColor = getChannelColor(channelCode);
+        return new Channel(channelCode, channelCode, channelColor);
+    }
+
+    /**
+     * Returns color for the specified channel. It will be used to display merged channels images.
+     * <p>
+     * Can be overridden in subclasses. It is ignored if {@link #createChannel(String)} is
+     * overridden as well.
+     * </p>
+     * By default returns null (the arbitrary color will be set).
+     */
+    public ChannelColor getChannelColor(String channelCode)
+    {
+        return null;
     }
 
     // --- auxiliary structures ----------------------------------------------

@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackR
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtilTest;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 
 /**
@@ -165,7 +166,8 @@ public class ImageChannelsUtilsTest extends AssertJUnit
                 {
                     one(loader).getImageParameters();
                     ImageDatasetParameters imgParams = new ImageDatasetParameters();
-                    imgParams.setChannelsCodes(Arrays.asList(CHANNEL));
+                    imgParams.setChannels(Arrays.asList(new ImageChannel(CHANNEL, CHANNEL, null,
+                            null, null)));
                     will(returnValue(imgParams));
 
                     RequestedImageSize requestedSize =

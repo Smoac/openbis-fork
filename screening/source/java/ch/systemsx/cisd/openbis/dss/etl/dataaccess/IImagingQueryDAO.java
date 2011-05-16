@@ -69,8 +69,8 @@ public interface IImagingQueryDAO extends TransactionQuery, IImagingReadonlyQuer
     @Select("insert into EXPERIMENTS (PERM_ID) values (?{1}) returning ID")
     public long addExperiment(String experimentPermId);
 
-    @Select("insert into CHANNELS (LABEL, CODE, DESCRIPTION, WAVELENGTH, DS_ID, EXP_ID) values "
-            + "(?{1.label}, ?{1.code}, ?{1.description}, ?{1.wavelength}, ?{1.datasetId}, ?{1.experimentId}) returning ID")
+    @Select("insert into CHANNELS (LABEL, CODE, DESCRIPTION, WAVELENGTH, DS_ID, EXP_ID, COLOR) values "
+            + "(?{1.label}, ?{1.code}, ?{1.description}, ?{1.wavelength}, ?{1.datasetId}, ?{1.experimentId}, ?{1.dbChannelColor}) returning ID")
     public long addChannel(ImgChannelDTO channel);
 
     @Select("insert into CONTAINERS (PERM_ID, SPOTS_WIDTH, SPOTS_HEIGHT, EXPE_ID) values "
@@ -105,7 +105,7 @@ public interface IImagingQueryDAO extends TransactionQuery, IImagingReadonlyQuer
     // updates
 
     @Update("update CHANNELS "
-            + "set DESCRIPTION = ?{1.description}, WAVELENGTH = ?{1.wavelength} "
+            + "set DESCRIPTION = ?{1.description}, WAVELENGTH = ?{1.wavelength}, COLOR = ?{1.dbChannelColor} "
             + "where ID = ?{1.id}")
     public void updateChannel(ImgChannelDTO channel);
 }

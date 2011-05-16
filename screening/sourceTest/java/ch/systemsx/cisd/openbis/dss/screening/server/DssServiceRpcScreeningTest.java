@@ -79,6 +79,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVecto
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannel;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelColor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateFeatureValues;
@@ -169,7 +171,8 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         imageParameters.setTileRowsNum(1);
         imageParameters.setTileColsNum(2);
         imageParameters.setDatasetCode(DATASET_CODE);
-        imageParameters.setChannelsCodes(Arrays.asList(CHANNEL_CODE));
+        imageParameters.setChannels(Arrays.asList(new ImageChannel(CHANNEL_CODE, CHANNEL_CODE,
+                null, null, null)));
         context.checking(new Expectations()
             {
                 {
@@ -384,7 +387,8 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                 {
                     one(dao).tryGetChannelForExperimentPermId(EXPERIMENT_PERM_ID, channel);
                     ImgChannelDTO channelDTO =
-                            new ImgChannelDTO("dapi", null, null, new Long(42), null, "dapi");
+                            new ImgChannelDTO("dapi", null, null, new Long(42), null, "dapi",
+                                    ImageChannelColor.BLUE);
                     channelDTO.setSerializedImageTransformerFactory(SerializationUtils
                             .serialize(transformerFactory));
                     will(returnValue(channelDTO));

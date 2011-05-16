@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,9 +45,7 @@ public class ImageDatasetParameters implements ISerializable
 
     private int tileColsNum;
 
-    private List<String> channelsCodes;
-
-    private List<String> channelsLabels;
+    private List<ImageChannel> channels;
 
     private Map<String/* channel code */, String/* signature */> channelsTransformerFactorySignatures =
             new HashMap<String, String>();
@@ -104,19 +103,29 @@ public class ImageDatasetParameters implements ISerializable
         this.datasetCode = datasetCode;
     }
 
-    public void setChannelsCodes(List<String> channelsCodes)
-    {
-        this.channelsCodes = channelsCodes;
-    }
-
     public List<String> getChannelsCodes()
     {
-        return channelsCodes;
+        List<String> channelCodes = new ArrayList<String>();
+        for (ImageChannel channel : channels)
+        {
+            channelCodes.add(channel.getCode());
+        }
+        return channelCodes;
+    }
+
+    public List<String> getChannelsLabels()
+    {
+        List<String> channelLabels = new ArrayList<String>();
+        for (ImageChannel channel : channels)
+        {
+            channelLabels.add(channel.getLabel());
+        }
+        return channelLabels;
     }
 
     public int getChannelsNumber()
     {
-        return channelsCodes.size();
+        return channels.size();
     }
 
     public boolean isMultidimensional()
@@ -129,14 +138,14 @@ public class ImageDatasetParameters implements ISerializable
         this.isMultidimensional = isMultidimensional;
     }
 
-    public void setChannelsLabels(List<String> channelsLabels)
+    public void setChannels(List<ImageChannel> channels)
     {
-        this.channelsLabels = channelsLabels;
+        this.channels = channels;
     }
 
-    public List<String> getChannelsLabels()
+    public List<ImageChannel> getChannels()
     {
-        return channelsLabels;
+        return channels;
     }
 
     public void addTransformerFactorySignatureFor(String channelCode, String signatureOrNull)
@@ -148,5 +157,4 @@ public class ImageDatasetParameters implements ISerializable
     {
         return channelsTransformerFactorySignatures.get(channelCode);
     }
-
 }

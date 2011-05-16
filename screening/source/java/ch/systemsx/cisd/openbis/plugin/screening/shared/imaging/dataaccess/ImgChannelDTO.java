@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess;
 
 import net.lemnik.eodsql.ResultColumn;
 
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelColor;
+
 /**
  * @author Tomasz Pylak
  */
@@ -43,6 +45,10 @@ public class ImgChannelDTO extends AbstractImageTransformerFactoryHolder
     @ResultColumn("EXP_ID")
     private Long experimentIdOrNull;
 
+    /** Value for the {@link ImageChannelColor} enum. Not null. */
+    @ResultColumn("COLOR")
+    private String channelColor;
+
     // GWT only
     @SuppressWarnings("unused")
     private ImgChannelDTO()
@@ -51,7 +57,8 @@ public class ImgChannelDTO extends AbstractImageTransformerFactoryHolder
     }
 
     public ImgChannelDTO(String code, String descriptionOrNull, Integer wavelengthOrNull,
-            Long datasetIdOrNull, Long experimentIdOrNull, String label)
+            Long datasetIdOrNull, Long experimentIdOrNull, String label,
+            ImageChannelColor channelColor)
     {
         assert (datasetIdOrNull == null && experimentIdOrNull != null)
                 || (datasetIdOrNull != null && experimentIdOrNull == null);
@@ -61,6 +68,7 @@ public class ImgChannelDTO extends AbstractImageTransformerFactoryHolder
         this.wavelengthOrNull = wavelengthOrNull;
         this.datasetIdOrNull = datasetIdOrNull;
         this.experimentIdOrNull = experimentIdOrNull;
+        this.channelColor = channelColor.name();
     }
 
     public String getCode()
@@ -124,4 +132,14 @@ public class ImgChannelDTO extends AbstractImageTransformerFactoryHolder
         this.experimentIdOrNull = experimentId;
     }
 
+    /** Can be converted to {@link ImageChannelColor}. */
+    public String getDbChannelColor()
+    {
+        return channelColor;
+    }
+
+    public void setDbChannelColor(String channelColor)
+    {
+        this.channelColor = channelColor;
+    }
 }
