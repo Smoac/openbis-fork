@@ -68,12 +68,15 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
 {
     private final static Class<DataPE> ENTITY_CLASS = DataPE.class;
 
-    // private final static Class<DataPE> ENTITY_SUPER_CLASS = DataPE.class;
+    private final static Class<ExternalDataPE> EXTERNAL_DATA_ENTITY_CLASS = ExternalDataPE.class;
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DataDAO.class);
 
     private static final String TABLE_NAME = ENTITY_CLASS.getSimpleName();
+
+    private static final String EXTERNAL_DATA_TABLE_NAME = EXTERNAL_DATA_ENTITY_CLASS
+            .getSimpleName();
 
     DataDAO(final PersistencyResources persistencyResources,
             final DatabaseInstancePE databaseInstance)
@@ -302,7 +305,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                     // NOTE: 'VERSIONED' makes modification time modified too
                     return session
                             .createQuery(
-                                    "UPDATE VERSIONED " + TABLE_NAME
+                                    "UPDATE VERSIONED " + EXTERNAL_DATA_TABLE_NAME
                                             + " SET status = :status WHERE code IN (:codes) ")
                             .setParameter("status", status).setParameterList("codes", dataSetCodes)
                             .executeUpdate();
@@ -346,7 +349,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                     return session
                             .createQuery(
                                     "UPDATE VERSIONED "
-                                            + TABLE_NAME
+                                            + EXTERNAL_DATA_TABLE_NAME
                                             + " SET status = :status, presentInArchive = :presentInArchive"
                                             + " WHERE code IN (:codes) ")
                             .setParameter("status", status)

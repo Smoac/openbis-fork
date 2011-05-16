@@ -749,11 +749,10 @@ public class DataBO extends AbstractExternalDataBusinessObject implements IDataB
         return result;
     }
 
-    // TODO 2011-05-16, Piotr Buczek: use DataDAO
     public void updateStatuses(List<String> dataSetCodes, DataSetArchivingStatus newStatus,
             boolean newPresentInArchive)
     {
-        getExternalDataDAO().updateDataSetStatuses(dataSetCodes, newStatus, newPresentInArchive);
+        getDataDAO().updateDataSetStatuses(dataSetCodes, newStatus, newPresentInArchive);
     }
 
     public boolean compareAndSetDataSetStatus(DataSetArchivingStatus oldStatus,

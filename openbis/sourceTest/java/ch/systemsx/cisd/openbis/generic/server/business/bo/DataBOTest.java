@@ -404,8 +404,8 @@ public class DataBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(externalDataDAO).updateDataSetStatuses(codes,
-                            DataSetArchivingStatus.ARCHIVED, true);
+                    one(dataDAO)
+                            .updateDataSetStatuses(codes, DataSetArchivingStatus.ARCHIVED, true);
                 }
             });
 
