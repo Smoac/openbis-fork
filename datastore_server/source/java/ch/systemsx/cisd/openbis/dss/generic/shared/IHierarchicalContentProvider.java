@@ -23,6 +23,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 
 /**
  * A provider of {@link IHierarchicalContent} for given data set.
+ * <p>
+ * <b>NOTE</b>{@link IHierarchicalContent#close()} needs to be called to release resources when
+ * working with the content is done. Otherwise data set may e.g. remain locked in its share until
+ * timeout occurs.
  * 
  * @author Piotr Buczek
  * @author Chandrasekhar Ramakrishnan
@@ -30,11 +34,25 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 public interface IHierarchicalContentProvider
 {
 
+    /**
+     * <b>NOTE:</b> if possible use {@link #asContent(IDatasetLocation)} which doesn't need to
+     * retrieve information from DB
+     * 
+     * @return {@link IHierarchicalContent} for the specified data set
+     */
     IHierarchicalContent asContent(String dataSetCode);
 
+    /**
+     * @return {@link IHierarchicalContent} for the specified data set
+     */
     IHierarchicalContent asContent(IDatasetLocation datasetLocation);
 
-    // NOTE: the data set file is assumed to be locked when this method is called
+    /**
+     * <b>NOTE:</b> the data set is assumed to be locked when this method is called
+     * 
+     * @param datasetDirectory the directory file of the data set
+     * @return {@link IHierarchicalContent} for the specified data set
+     */
     IHierarchicalContent asContent(File datasetDirectory);
 
 }

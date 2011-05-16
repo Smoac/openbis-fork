@@ -193,6 +193,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
         IHierarchicalContentNodeFilter fileFilter = getFileFilter(evaluationResult.dataSet);
         IHierarchicalContentProvider provider = ServiceProvider.getHierarchicalContentProvider();
         IHierarchicalContent content = provider.asContent(evaluationResult.dataSet.getCode());
+        // FIXME use content.close() - otherwise data set will be locked until timeout
         IHierarchicalContentNode contentNode = content.getNode(relativePath);
         if (fileFilter.accept(contentNode))
         {
