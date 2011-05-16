@@ -55,6 +55,14 @@ public interface IHierarchicalContent
      */
     List<IHierarchicalContentNode> listMatchingNodes(String startingPath, String fileNamePattern);
 
-    /** Cleans resources acquired to access this hierarchical content. */
+    /**
+     * Cleans resources (e.g. releases locks) acquired to access this hierarchical content.
+     * <p>
+     * For now accessing {@link IHierarchicalContentNode} from a closed content doesn't fail
+     * immediately but it is unpredictable (e.g. files may no longer be accessible). One shouldn't
+     * call any methods of {@link IHierarchicalContentNode}-s that were acquired from a content
+     * which is closed at the time of invocation of the methods. In future version such operations
+     * will fail immediately.
+     */
     void close();
 }
