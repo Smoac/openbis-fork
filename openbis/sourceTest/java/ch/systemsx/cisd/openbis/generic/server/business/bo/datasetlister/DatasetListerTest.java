@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
@@ -282,6 +283,38 @@ public class DatasetListerTest extends AbstractDAOTest
         assertEquals(2, containedDataSets.size());
         assertEquals("20110509092359990-11", containedDataSets.get(0).getCode());
         assertEquals("20110509092359990-12", containedDataSets.get(1).getCode());
+    }
+    
+    @Test
+    public void testListByDataStore()
+    {
+        List<ExternalData> list = lister.listByDataStore(1);
+        
+        Collections.sort(list, new Comparator<ExternalData>()
+            {
+                public int compare(ExternalData o1, ExternalData o2)
+                {
+                    return o1.getCode().compareTo(o2.getCode());
+                }
+            });
+        assertEquals(2L, list.get(0).getId().longValue());
+        assertEquals("20081105092158673-1", list.get(0).getCode());
+        assertEquals("HCS_IMAGE", list.get(0).getDataSetType().getCode());
+        assertEquals("STANDARD", list.get(0).getDataStore().getCode());
+        assertEquals(1225873318798L, list.get(0).getRegistrationDate().getTime());
+        assertEquals(1225873318688L, list.get(0).getProductionDate().getTime());
+        assertEquals("EXP1", list.get(0).getExperiment().getCode());
+        assertEquals("NEMO", list.get(0).getExperiment().getProject().getCode());
+        assertEquals("CISD", list.get(0).getExperiment().getProject().getSpace().getCode());
+        assertEquals("CISD", list.get(0).getExperiment().getProject().getSpace().getInstance().getCode());
+        assertEquals("3VCP1", list.get(0).getSample().getCode());
+        assertEquals("CISD", list.get(0).getSample().getSpace().getCode());
+        assertEquals("[COMMENT: no comment]", list.get(0).getProperties().toString());
+        assertEquals("xxx/yyy/zzz", ((DataSet) list.get(0)).getLocation());
+        assertEquals("42", ((DataSet) list.get(0)).getShareId());
+        assertEquals(4711L, ((DataSet) list.get(0)).getSize().longValue());
+        assertEquals(DataSetArchivingStatus.AVAILABLE, ((DataSet) list.get(0)).getStatus());
+        assertEquals(13, list.size());
     }
 
     private void assertSameDataSetsForSameCode(Map<String, ExternalData> dataSetsByCode,
