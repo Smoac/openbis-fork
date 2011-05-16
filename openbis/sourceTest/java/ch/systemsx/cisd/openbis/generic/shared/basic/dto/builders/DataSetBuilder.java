@@ -24,12 +24,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
- * Builder class for creating an instance of {@link ExternalData}.
+ * Builder class for creating an instance of {@link DataSet}.
  *
  * @author Franz-Josef Elmer
  */
@@ -82,6 +81,18 @@ public class DataSetBuilder
     public DataSetBuilder store(DataStore dataStore)
     {
         dataSet.setDataStore(dataStore);
+        return this;
+    }
+    
+    public DataSetBuilder shareID(String shareID)
+    {
+        dataSet.setShareId(shareID);
+        return this;
+    }
+    
+    public DataSetBuilder size(long size)
+    {
+        dataSet.setSize(size);
         return this;
     }
     
