@@ -650,13 +650,13 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         for (DatasetRecord record : records)
         {
             DataSetType dsType = dataSetTypes.get(record.dsty_id);
-            if (record.is_placeholder || record.location == null)
+            if (record.is_placeholder)
             {
                 // placeholder data sets are filtered out
             } else if (dsType.isContainerType())
             {
                 datasets.put(record.id, convertToContainerDataSet(record));
-            } else
+            } else if (record.location != null)
             {
                 datasets.put(record.id, convertToDataSet(record));
             }
