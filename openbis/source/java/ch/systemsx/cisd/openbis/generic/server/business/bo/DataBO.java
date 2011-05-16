@@ -327,7 +327,7 @@ public class DataBO extends AbstractExternalDataBusinessObject implements IDataB
         DataPE placeholder = dataDAO.tryToFindDataSetByCode(dataCode);
         if (placeholder == null)
         {
-            dataDAO.createDataSet(placeholder);
+            dataDAO.createDataSet(data);
         } else
         {
             if (placeholder.isPlaceholder() == false)
@@ -409,8 +409,9 @@ public class DataBO extends AbstractExternalDataBusinessObject implements IDataB
         loadDataByTechId(updates.getDatasetId());
         if (updates.getVersion().equals(data.getModificationDate()) == false)
         {
-            System.err.println("modification date error: " + updates.getVersion() + " != " + data.getModificationDate());
-//            throwModifiedEntityException("Data set"); FIXME
+            System.err.println("modification date error: " + updates.getVersion() + " != "
+                    + data.getModificationDate());
+            // throwModifiedEntityException("Data set"); FIXME
         }
         final SampleIdentifier sampleIdentifierOrNull = updates.getSampleIdentifierOrNull();
         if (sampleIdentifierOrNull != null)
@@ -747,6 +748,7 @@ public class DataBO extends AbstractExternalDataBusinessObject implements IDataB
         return result;
     }
 
+    // TODO use DataDAO
     public void updateStatuses(List<String> dataSetCodes, DataSetArchivingStatus newStatus,
             boolean newPresentInArchive)
     {

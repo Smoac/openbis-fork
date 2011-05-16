@@ -28,6 +28,7 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ScriptBO.IScriptFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationGroupDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
@@ -81,6 +82,8 @@ public abstract class AbstractBOTest extends AssertJUnit
 
     protected IMaterialDAO materialDAO;
 
+    protected IDataDAO dataDAO;
+
     protected IExternalDataDAO externalDataDAO;
 
     protected IDatabaseInstanceDAO databaseInstanceDAO;
@@ -130,6 +133,7 @@ public abstract class AbstractBOTest extends AssertJUnit
         entityTypeDAO = context.mock(IEntityTypeDAO.class);
         sampleDAO = context.mock(ISampleDAO.class);
         databaseInstanceDAO = context.mock(IDatabaseInstanceDAO.class);
+        dataDAO = context.mock(IDataDAO.class);
         externalDataDAO = context.mock(IExternalDataDAO.class);
         personDAO = context.mock(IPersonDAO.class);
         propertiesConverter = context.mock(IEntityPropertiesConverter.class);
@@ -168,6 +172,8 @@ public abstract class AbstractBOTest extends AssertJUnit
                     will(returnValue(fileFormatTypeDAO));
                     allowing(daoFactory).getLocatorTypeDAO();
                     will(returnValue(locatorTypeDAO));
+                    allowing(daoFactory).getDataDAO();
+                    will(returnValue(dataDAO));
                     allowing(daoFactory).getExternalDataDAO();
                     will(returnValue(externalDataDAO));
                     allowing(daoFactory).getDataStoreDAO();
