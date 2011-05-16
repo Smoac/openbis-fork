@@ -59,7 +59,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
- * Implementation of {@link IExternalDataDAO} for databases.
+ * Implementation of IExternalDataDAO for databases.
  * 
  * @author Christian Ribeaud
  */

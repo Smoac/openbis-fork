@@ -33,21 +33,22 @@ import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExperimentValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.IValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -65,14 +66,14 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 /**
  * @author Franz-Josef Elmer
  */
-public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDataServiceInternal> implements
-        IProteomicsDataServiceInternal
+public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDataServiceInternal>
+        implements IProteomicsDataServiceInternal
 {
     private static final IValidator<Sample> PARENT_SAMPLE_VALIDATOR = new ParentSampleValidator();
 
     private static final IValidator<MsInjectionSample> RAW_DATA_SAMPLE_VALIDATOR =
             new RawDataSampleValidator();
-    
+
     private static final IValidator<Experiment> EXPERIMENT_VALIDATOR = new ExperimentValidator();
 
     private ICommonBusinessObjectFactory commonBoFactory;
@@ -87,12 +88,13 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
     {
     }
 
-    public ProteomicsDataServiceInternal(ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
-            ICommonBusinessObjectFactory businessObjectFactory, IBusinessObjectFactory boFactory)
+    public ProteomicsDataServiceInternal(ISessionManager<Session> sessionManager,
+            IDAOFactory daoFactory, ICommonBusinessObjectFactory businessObjectFactory,
+            IBusinessObjectFactory boFactory)
     {
         this(sessionManager, daoFactory, null, businessObjectFactory, boFactory);
     }
-    
+
     ProteomicsDataServiceInternal(ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
             IPropertiesBatchManager propertiesBatchManager,
             ICommonBusinessObjectFactory businessObjectFactory, IBusinessObjectFactory boFactory)
@@ -158,7 +160,7 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
     public List<Experiment> listExperiments(String sessionToken, String experimentTypeCode)
     {
         checkSession(sessionToken);
-        
+
         IDAOFactory daoFactory = getDAOFactory();
         IEntityTypeDAO entityTypeDAO = daoFactory.getEntityTypeDAO(EntityKind.EXPERIMENT);
         ExperimentTypePE type =
@@ -182,10 +184,10 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
     {
         Session session = getSession(sessionToken);
         PersonPE person = session.tryGetPerson();
-        
+
         List<String> dataSetCodes = new ArrayList<String>();
         IExperimentDAO experimentDAO = getDAOFactory().getExperimentDAO();
-        IExternalDataDAO dataSetDAO = getDAOFactory().getExternalDataDAO();
+        IDataDAO dataSetDAO = getDAOFactory().getDataDAO();
         for (long experimentID : searchExperimentIDs)
         {
             ExperimentPE experiment = experimentDAO.tryGetByTechId(new TechId(experimentID));
@@ -199,11 +201,8 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
             Experiment translatedExperiment = ExperimentTranslator.translate(experiment, "");
             if (EXPERIMENT_VALIDATOR.isValid(person, translatedExperiment))
             {
-                List<ExternalDataPE> dataSets = dataSetDAO.listExternalData(experiment);
-                for (ExternalDataPE dataSet : dataSets)
-                {
-                    dataSetCodes.add(dataSet.getCode());
-                }
+                List<DataPE> dataSets = dataSetDAO.listDataSets(experiment);
+                dataSetCodes.addAll(Code.extractCodes(dataSets));
             }
         }
 
@@ -234,7 +233,8 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
         ISampleLoader sampleLoader = boFactory.createSampleLoader(session);
         List<Sample> samples =
                 sampleLoader.listSamplesWithParentsByTypeAndSpace(
-                        CommonConstants.MS_INJECTION_SAMPLE_TYPE_CODE, CommonConstants.MS_DATA_SPACE);
+                        CommonConstants.MS_INJECTION_SAMPLE_TYPE_CODE,
+                        CommonConstants.MS_DATA_SPACE);
         PersonPE person = session.tryGetPerson();
         List<Sample> validSamples = new ArrayList<Sample>();
         for (Sample sample : samples)
@@ -251,8 +251,7 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
             List<String> dataSetCodes, Map<String, String> parameterBindings)
     {
         String dataStoreServerCode = findDataStoreServer(dataSetProcessingKey);
-        IExternalDataTable externalDataTable =
-                commonBoFactory.createExternalDataTable(session);
+        IExternalDataTable externalDataTable = commonBoFactory.createExternalDataTable(session);
         externalDataTable.processDatasets(dataSetProcessingKey, dataStoreServerCode, dataSetCodes,
                 parameterBindings);
     }
@@ -275,7 +274,7 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
         throw new EnvironmentFailureException("No data store processing service with key '"
                 + dataSetProcessingKey + "' found.");
     }
-    
+
     private Set<Long> asSet(long[] ids)
     {
         Set<Long> result = new HashSet<Long>();
@@ -286,4 +285,3 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
         return result;
     }
 }
-

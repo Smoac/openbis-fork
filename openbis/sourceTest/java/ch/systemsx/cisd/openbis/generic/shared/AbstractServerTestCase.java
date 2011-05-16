@@ -51,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMater
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
@@ -114,6 +115,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
     protected ISpaceDAO groupDAO;
 
     protected IExternalDataDAO externalDataDAO;
+
+    protected IDataDAO dataSetDAO;
 
     protected IPermIdDAO permIdDAO;
 
@@ -192,6 +195,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         groupDAO = context.mock(ISpaceDAO.class);
         sampleDAO = context.mock(ISampleDAO.class);
         roleAssignmentDAO = context.mock(IRoleAssignmentDAO.class);
+        dataSetDAO = context.mock(IDataDAO.class);
         externalDataDAO = context.mock(IExternalDataDAO.class);
         permIdDAO = context.mock(IPermIdDAO.class);
         entityTypeDAO = context.mock(IEntityTypeDAO.class);
@@ -246,6 +250,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
                     will(returnValue(roleAssignmentDAO));
                     allowing(daoFactory).getSampleTypeDAO();
                     will(returnValue(sampleTypeDAO));
+                    allowing(daoFactory).getDataDAO();
+                    will(returnValue(dataSetDAO));
                     allowing(daoFactory).getExternalDataDAO();
                     will(returnValue(externalDataDAO));
                     allowing(daoFactory).getAttachmentDAO();

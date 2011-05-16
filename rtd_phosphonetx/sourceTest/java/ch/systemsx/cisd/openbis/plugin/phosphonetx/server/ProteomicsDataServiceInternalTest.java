@@ -72,7 +72,9 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
 {
     private static final String GROUP_CODE = "g";
+
     private static final String COPY_PROCESSING_KEY = "copy-data-sets";
+
     private static final String EXPERIMENT_TYPE = "EXPE";
 
     private IProteomicsDataServiceInternal service;
@@ -144,9 +146,9 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
         final ExperimentPE e1 = experiment(1);
         final ExperimentPE e2 = experiment(2, "a");
         prepareListExperiments(e1, e2);
-        
+
         List<Experiment> list = service.listExperiments(SESSION_TOKEN, EXPERIMENT_TYPE);
-        
+
         assertEquals("HOME_DATABASE:/G/P/e1", list.get(0).getIdentifier());
         assertEquals(1, list.get(0).getRegistrationDate().getTime());
         assertEquals(0, list.get(0).getProperties().size());
@@ -158,7 +160,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
         assertEquals(2, list.size());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testProcessSearchData()
     {
@@ -171,7 +173,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
                     one(experimentDAO).tryGetByTechId(new TechId(e1.getId()));
                     will(returnValue(e1));
 
-                    one(externalDataDAO).listExternalData(e1);
+                    one(dataSetDAO).listDataSets(e1);
                     ExternalDataPE ds1 = new ExternalDataPE();
                     ds1.setCode("ds1");
                     will(returnValue(Arrays.asList(ds1)));
@@ -179,20 +181,21 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
                     one(experimentDAO).tryGetByTechId(new TechId(e2.getId()));
                     will(returnValue(e2));
 
-                    one(externalDataDAO).listExternalData(e2);
+                    one(dataSetDAO).listDataSets(e2);
                     ExternalDataPE ds2 = new ExternalDataPE();
                     ds2.setCode("ds2");
                     will(returnValue(Arrays.asList(ds2)));
                 }
             });
         prepareProcessDataSets(session, new HashMap<String, String>(), "ds1", "ds2");
-        
+
         service.processProteinResultDataSets(SESSION_TOKEN, COPY_PROCESSING_KEY, EXPERIMENT_TYPE,
-                new long[] { e1.getId(), e2.getId() });
-        
+                new long[]
+                    { e1.getId(), e2.getId() });
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testProcessSearchDataFilteredByValidator()
     {
@@ -210,13 +213,14 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
                 }
             });
         prepareProcessDataSets(session, new HashMap<String, String>());
-        
+
         service.processProteinResultDataSets(SESSION_TOKEN, COPY_PROCESSING_KEY, EXPERIMENT_TYPE,
-                new long[] {e1.getId(), e2.getId()});
-        
+                new long[]
+                    { e1.getId(), e2.getId() });
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testProcessSearchDataFilteredByIds()
     {
@@ -228,7 +232,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
                     one(experimentDAO).tryGetByTechId(new TechId(e1.getId()));
                     will(returnValue(e1));
 
-                    one(externalDataDAO).listExternalData(e1);
+                    one(dataSetDAO).listDataSets(e1);
                     ExternalDataPE ds1 = new ExternalDataPE();
                     ds1.setCode("ds1");
                     will(returnValue(Arrays.asList(ds1)));
@@ -237,11 +241,11 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
         prepareProcessDataSets(session, new HashMap<String, String>(), "ds1");
 
         service.processProteinResultDataSets(SESSION_TOKEN, COPY_PROCESSING_KEY, EXPERIMENT_TYPE,
-                new long[] {e1.getId()});
-        
+                new long[]
+                    { e1.getId() });
+
         context.assertIsSatisfied();
     }
-    
 
     private Session createSessionAndPrepareGetSession(String spaceCode)
     {
@@ -264,7 +268,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
             });
         return session;
     }
-    
+
     private void prepareListExperiments(final ExperimentPE... experiments)
     {
         context.checking(new Expectations()
@@ -281,7 +285,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
                 }
             });
     }
-    
+
     private void prepareProcessDataSets(final Session session,
             final Map<String, String> parameterBindings, final String... dataSetCodes)
     {
@@ -290,8 +294,8 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
                 {
                     one(dataStoreDAO).listDataStores();
                     DataStorePE s1 =
-                            store("s1", service("a", PROCESSING), service(COPY_PROCESSING_KEY,
-                                    QUERIES));
+                            store("s1", service("a", PROCESSING),
+                                    service(COPY_PROCESSING_KEY, QUERIES));
                     DataStorePE s2 = store("s2", service(COPY_PROCESSING_KEY, PROCESSING));
                     will(returnValue(Arrays.asList(s1, s2)));
 
@@ -304,7 +308,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
 
             });
     }
-    
+
     private void prepareListRawDataSamples(final Long... sampleIDs)
     {
         final List<Sample> samples = new ArrayList<Sample>();
@@ -335,7 +339,8 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
             samples.add(sample);
             if (id % 2 == 0)
             {
-                ExperimentPE bioExperiment = createExperiment("e-type", "exp-" + id, space.getCode());
+                ExperimentPE bioExperiment =
+                        createExperiment("e-type", "exp-" + id, space.getCode());
                 bioExperiment.setId(parentExperiment.getId());
                 bioExperiments.add(bioExperiment);
                 experimentIds.add(bioExperiment.getId());
@@ -346,16 +351,18 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
                 {
                     one(boFactory).createSampleLoader(SESSION);
                     will(returnValue(sampleLoader));
-                    
+
                     one(sampleLoader).listSamplesWithParentsByTypeAndSpace(
-                            CommonConstants.MS_INJECTION_SAMPLE_TYPE_CODE, CommonConstants.MS_DATA_SPACE);
+                            CommonConstants.MS_INJECTION_SAMPLE_TYPE_CODE,
+                            CommonConstants.MS_DATA_SPACE);
                     will(returnValue(samples));
-                    
+
                     one(experimentDAO).listExperimentsWithProperties(experimentIds);
                     will(returnValue(bioExperiments));
-                    
+
                     List<Sample> filteredSamples = new ArrayList<Sample>();
-                    Map<Sample, List<ExternalData>> dataSetsBySamples = new HashMap<Sample, List<ExternalData>>();
+                    Map<Sample, List<ExternalData>> dataSetsBySamples =
+                            new HashMap<Sample, List<ExternalData>>();
                     for (Sample sample : samples)
                     {
                         if ("Space-0".equals(sample.getGeneratedFrom().getSpace().getCode()))
@@ -383,17 +390,17 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
                             filteredSamples.add(sample);
                         }
                     }
-                    
+
                     one(commonBoFactory).createDatasetLister(SESSION);
                     will(returnValue(datasetLister));
-                        
+
                     one(datasetLister).listAllDataSetsFor(filteredSamples);
                     will(returnValue(dataSetsBySamples));
-                    
+
                 }
             });
     }
-    
+
     private ExperimentPE experiment(long id, String... properties)
     {
         ExperimentPE experiment = new ExperimentPE();
@@ -402,7 +409,9 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
         experiment.setCode("e" + id);
         ProjectPE project = new ProjectPE();
         project.setCode("p");
-        SpacePE group = CommonTestUtils.createGroup(GROUP_CODE, CommonTestUtils.createHomeDatabaseInstance());
+        SpacePE group =
+                CommonTestUtils.createGroup(GROUP_CODE,
+                        CommonTestUtils.createHomeDatabaseInstance());
         project.setSpace(group);
         experiment.setProject(project);
         experiment.setRegistrationDate(new Date(id * id));
@@ -418,7 +427,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
         }
         return experiment;
     }
-    
+
     private DataStorePE store(String code, DataStoreServicePE... services)
     {
         DataStorePE store = new DataStorePE();
