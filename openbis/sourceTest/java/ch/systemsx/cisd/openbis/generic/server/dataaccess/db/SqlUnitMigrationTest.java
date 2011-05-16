@@ -157,6 +157,19 @@ public final class SqlUnitMigrationTest
             return "MyDataSource[" + driver + ", " + url + ", " + owner + "]";
         }
 
+        // NOTE: the following methods are needed because we compile with JDK 6 on Hudson
+
+        @SuppressWarnings("unused")
+        public boolean isWrapperFor(Class<?> arg0) throws SQLException
+        {
+            return false;
+        }
+
+        @SuppressWarnings("unused")
+        public <T> T unwrap(Class<T> arg0) throws SQLException
+        {
+            return null;
+        }
     }
 
     private static final IDataSourceFactory DATA_SOURCE_FACTORY = new IDataSourceFactory()
