@@ -128,15 +128,27 @@ public class Copier implements Serializable, IPostRegistrationDatasetHandler
         }
         if (renameToDataSetCode)
         {
-            String newFile = new File(destination, dataSetCode).getPath();
-            ProcessResult result =
-                    sshCommandExecutor.executeCommandRemotely("mv " + destinationFile.getPath()
-                            + " " + newFile, DataSetCopier.SSH_TIMEOUT_MILLIS);
-            if (result.isOK() == false)
+            File newFile = new File(destination, dataSetCode);
+            if (host == null)
             {
-                operationLog.error("Remote move of '" + destinationFile.getPath() + "' to '"
-                        + newFile + "' failed with exit value: " + result.getExitValue());
-                return Status.createError("couldn't move");
+                if (destinationFile.renameTo(newFile))
+                {
+                    operationLog.error("Moving of '" + destinationFile.getPath() + "' to '"
+                            + newFile + "' failed.");
+                    return Status.createError("couldn't move");
+                }
+            } else
+            {
+                String newFilePath = newFile.getPath();
+                ProcessResult result =
+                    sshCommandExecutor.executeCommandRemotely("mv " + destinationFile.getPath()
+                            + " " + newFilePath, DataSetCopier.SSH_TIMEOUT_MILLIS);
+                if (result.isOK() == false)
+                {
+                    operationLog.error("Remote move of '" + destinationFile.getPath() + "' to '"
+                            + newFilePath + "' failed with exit value: " + result.getExitValue());
+                    return Status.createError("couldn't move");
+                }
             }
         }
         return status;
