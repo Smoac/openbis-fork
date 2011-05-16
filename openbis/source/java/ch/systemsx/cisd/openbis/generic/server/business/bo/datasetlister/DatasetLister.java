@@ -325,13 +325,9 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
 
     public List<ExternalData> listByParentTechIds(Collection<Long> parentDatasetIds)
     {
-        List<ExternalData> result = new ArrayList<ExternalData>();
-        // non-virtual
-        result.addAll(enrichDatasets(query.getChildDatasetsForParents(new LongOpenHashSet(
-                parentDatasetIds))));
-        // TODO KE: implement virtual data set enriching
-        // result.addAll(enrichVirtual());
-        return result;
+        DataIterator<DatasetRecord> childrenDataSets =
+                query.getChildDatasetsForParents(new LongOpenHashSet(parentDatasetIds));
+        return enrichDatasets(childrenDataSets);
     }
 
     public List<ExternalData> listByDatasetIds(Collection<Long> datasetIds)
