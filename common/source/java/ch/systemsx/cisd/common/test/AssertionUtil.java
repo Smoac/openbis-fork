@@ -19,6 +19,10 @@ package ch.systemsx.cisd.common.test;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 /**
  * Utilities for making assertions in unit tests.
  * 
@@ -79,4 +83,30 @@ public class AssertionUtil
         }
     }
 
+    /**
+     * asserts that two enums have the same values. Usage example:
+     * 
+     * <pre>
+     * List&lt;MyEnum1&gt; values1 = Arrays.asList(MyEnum1.values());
+     * List&lt;MyEnum2&gt; values2 = Arrays.asList(MyEnum2.values());
+     * AssertionUtil.assertEnumsEqual(values1, values2);
+     * </pre>
+     */
+    public static void assertEnumsEqual(List<? extends Enum<?>> values1,
+            List<? extends Enum<?>> values2)
+    {
+        Set<String> valuesSet1 = asSet(values1);
+        Set<String> valuesSet2 = asSet(values2);
+        assertEquals(valuesSet1, valuesSet2);
+    }
+
+    private static Set<String> asSet(List<? extends Enum<?>> enumValues)
+    {
+        Set<String> stringValues = new HashSet<String>();
+        for (Enum<?> enumInst : enumValues)
+        {
+            stringValues.add(enumInst.name());
+        }
+        return stringValues;
+    }
 }
