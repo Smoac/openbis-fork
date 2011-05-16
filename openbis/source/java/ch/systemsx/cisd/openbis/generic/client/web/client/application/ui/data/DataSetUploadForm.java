@@ -71,7 +71,7 @@ public class DataSetUploadForm extends AbstractRegistrationForm
     // 2. not connected with sample
     private final ExperimentChooserFieldAdaptor experimentChooser;
 
-    private final DataSetParentsArea parentsArea;
+    private final DataSetsArea parentsArea;
 
     //
 
@@ -216,7 +216,7 @@ public class DataSetUploadForm extends AbstractRegistrationForm
 
     protected String[] extractParentDatasetCodes()
     {
-        return parentsArea.tryGetModifiedParentCodes();
+        return parentsArea.tryGetModifiedDataSetCodes();
     }
 
     private String encodeDataSetInfo(String sample, String dataSetType, String fileType)

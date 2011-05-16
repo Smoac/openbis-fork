@@ -14,22 +14,21 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
-import java.util.Collection;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.CodesArea;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 
 /**
- * Abstract {@link CodesArea} extension for samples introducing methods with convenient names.
+ * Abstract {@link CodesArea} extension for data sets introducing methods with convenient names.
  * 
  * @author Piotr Buczek
  */
-abstract public class SamplesArea extends CodesArea<Sample>
+public abstract class DataSetsArea extends CodesArea<ExternalData>
 {
-    public SamplesArea(String emptyTextMsg)
+    public DataSetsArea(String emptyTextMsg)
     {
         super(emptyTextMsg);
     }
@@ -39,23 +38,18 @@ abstract public class SamplesArea extends CodesArea<Sample>
     /**
      * @see #tryGetModifiedItemList()
      */
-    public final String[] tryGetModifiedSampleCodes()
+    public final String[] tryGetModifiedDataSetCodes()
     {
         return tryGetModifiedItemList();
     }
 
-    public void setSamples(Collection<Sample> samples)
+    public final void setDataSets(List<ExternalData> dataSets)
     {
-        setCodeProviders(samples);
+        setCodeProviders(dataSets);
     }
 
-    public final void setSampleCodes(List<String> codes)
+    public final void setDataSetCodes(List<String> dataSetCodes)
     {
-        setItems(codes);
-    }
-
-    public final void setSampleIdentifiers(List<String> identifiers)
-    {
-        setItems(identifiers);
+        setItems(dataSetCodes);
     }
 }

@@ -35,12 +35,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.SampleTypeDisplayID;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetParentsArea;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetsArea;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetsContainedArea;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.FileFormatTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.FileFormatTypeSelectionWidget.FileFormatTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField.ExperimentChooserFieldAdaptor;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField.SampleChooserFieldAdaptor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUpdates;
@@ -48,6 +50,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetCo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
@@ -72,9 +76,9 @@ public final class GenericDataSetEditForm extends
 
     private final String simpleId;
 
-    private FileFormatTypeSelectionWidget fileFormatTypeSelectionWidget;
-
     private CheckBoxField connectedWithSampleCheckbox;
+
+    private DataSetsArea parentsArea;
 
     // two options:
     // 1. connected with sample
@@ -83,11 +87,11 @@ public final class GenericDataSetEditForm extends
     // 2. not connected with sample
     private ExperimentChooserFieldAdaptor experimentChooser;
 
-    // 
-
-    private DataSetParentsArea parentsArea;
+    //
 
     private ExternalData originalDataSet;
+
+    private IDataSetEditorBuilder builder;
 
     public static DatabaseModificationAwareComponent create(
             IViewContext<IGenericClientServiceAsync> viewContext, IIdAndCodeHolder identifiable)
@@ -121,7 +125,6 @@ public final class GenericDataSetEditForm extends
         result.setDatasetId(techIdOrNull);
         result.setProperties(extractProperties());
         result.setVersion(originalDataSet.getModificationDate());
-        result.setFileFormatTypeCode(extractFileFormatTypeCode());
         if (isConnectedWithSample())
         {
             result.setSampleIdentifierOrNull(extractSampleIdentifier());
@@ -130,6 +133,7 @@ public final class GenericDataSetEditForm extends
             result.setExperimentIdentifierOrNull(extractExperimentIdentifier());
         }
         result.setModifiedParentDatasetCodesOrNull(extractParentDatasetCodes());
+        builder.fillUpdates(result);
         return result;
     }
 
@@ -149,14 +153,9 @@ public final class GenericDataSetEditForm extends
         return identifierOrNull == null ? null : identifierOrNull.getIdentifier();
     }
 
-    protected String[] extractParentDatasetCodes()
+    private String[] extractParentDatasetCodes()
     {
-        return parentsArea.tryGetModifiedParentCodes();
-    }
-
-    private String extractFileFormatTypeCode()
-    {
-        return fileFormatTypeSelectionWidget.tryGetSelectedFileFormatType().getCode();
+        return parentsArea.tryGetModifiedDataSetCodes();
     }
 
     // public only for tests
@@ -172,8 +171,7 @@ public final class GenericDataSetEditForm extends
         @Override
         protected void process(final DataSetUpdateResult result)
         {
-            originalDataSet.setModificationDate(result.getModificationDate());
-            updateOriginalValues(result.getParentCodes());
+            updateOriginalValues(result);
             super.process(result);
         }
 
@@ -184,14 +182,16 @@ public final class GenericDataSetEditForm extends
         }
     }
 
-    private void updateOriginalValues(List<String> parentCodes)
+    private void updateOriginalValues(final DataSetUpdateResult result)
     {
+        originalDataSet.setModificationDate(result.getModificationDate());
         updatePropertyFieldsOriginalValues();
+        final List<String> parentCodes = result.getParentCodes();
+        parentsArea.setDataSetCodes(parentCodes);
+        connectedWithSampleCheckbox.updateOriginalValue(connectedWithSampleCheckbox.getValue());
         sampleChooser.updateOriginalValue();
         experimentChooser.updateOriginalValue();
-        parentsArea.setParentCodes(parentCodes);
-        fileFormatTypeSelectionWidget.updateOriginalValue(fileFormatTypeSelectionWidget.getValue());
-        connectedWithSampleCheckbox.updateOriginalValue(connectedWithSampleCheckbox.getValue());
+        builder.updateOriginalValues(result);
     }
 
     @Override
@@ -211,7 +211,10 @@ public final class GenericDataSetEditForm extends
         fields.add(wrapUnaware(sampleChooser.getField()));
         fields.add(wrapUnaware(experimentChooser.getField()));
         fields.add(wrapUnaware(parentsArea));
-        fields.add(wrapUnaware(fileFormatTypeSelectionWidget));
+        for (DatabaseModificationAwareField<?> field : builder.getEntitySpecificFormFields())
+        {
+            fields.add(field);
+        }
         return fields;
     }
 
@@ -222,7 +225,7 @@ public final class GenericDataSetEditForm extends
         this.sampleChooser = createSampleField();
         this.experimentChooser = createExperimentChooserField();
         this.parentsArea = createParentsArea();
-        this.fileFormatTypeSelectionWidget = createFileFormatTypeField();
+        builder.createEntitySpecificFormFields();
     }
 
     private CheckBoxField createConnectedWithSampleCheckbox()
@@ -257,13 +260,13 @@ public final class GenericDataSetEditForm extends
         ExperimentIdentifier originalExperiment =
                 ExperimentIdentifier.createIdentifier(originalDataSet.getExperiment());
         final ExperimentChooserFieldAdaptor result =
-                ExperimentChooserField.create(label, true, originalExperiment, viewContext
-                        .getCommonViewContext());
+                ExperimentChooserField.create(label, true, originalExperiment,
+                        viewContext.getCommonViewContext());
         result.getField().setId(createChildId(EXPERIMENT_FIELD_ID_SUFFIX));
         return result;
     }
 
-    private DataSetParentsArea createParentsArea()
+    private DataSetsArea createParentsArea()
     {
         return new DataSetParentsArea(viewContext, simpleId);
     }
@@ -286,11 +289,21 @@ public final class GenericDataSetEditForm extends
         propertiesEditor.initWithProperties(originalDataSet.getDataSetType()
                 .getAssignedPropertyTypes(), originalDataSet.getProperties());
         codeField.setValue(originalDataSet.getCode());
-        fileFormatTypeSelectionWidget.setValue(new FileFormatTypeModel(originalDataSet
-                .getFileFormatType()));
-        // sample and experiment fields are initialized when they are created
+        // data set fields are initialized when they are created
         parentsArea.setValue(viewContext.getMessage(Dict.LOAD_IN_PROGRESS));
-        loadParentsInBackground();
+        builder.initializeFormFields();
+        loadDataInBackground();
+    }
+
+    private void loadDataInBackground()
+    {
+        // not best performance but the same solution that is done for experiments
+        // only codes are needed but we extract 'full' object
+        DefaultResultSetConfig<String, ExternalData> config =
+                DefaultResultSetConfig.createFetchAll();
+        viewContext.getCommonService().listDataSetRelationships(techIdOrNull,
+                DataSetRelationshipRole.CHILD, config, new ListParentsCallback(viewContext));
+        builder.loadDataInBackground();
     }
 
     private void updateFieldsVisibility()
@@ -303,6 +316,9 @@ public final class GenericDataSetEditForm extends
     private void setOriginalData(ExternalData data)
     {
         this.originalDataSet = data;
+        this.builder =
+                data.isContainer() ? new ContainerDataSetEditFormBuilder((ContainerDataSet) data)
+                        : new ExternalDataEditFormBuilder((DataSet) data);
     }
 
     @Override
@@ -328,16 +344,6 @@ public final class GenericDataSetEditForm extends
         }
     }
 
-    private void loadParentsInBackground()
-    {
-        // not best performance but the same solution that is done for experiments
-        // only codes are needed but we extract 'full' object
-        DefaultResultSetConfig<String, ExternalData> config =
-                DefaultResultSetConfig.createFetchAll();
-        viewContext.getCommonService().listDataSetRelationships(techIdOrNull,
-                DataSetRelationshipRole.CHILD, config, new ListParentsCallback(viewContext));
-    }
-
     private class ListParentsCallback extends
             AbstractAsyncCallback<ResultSetWithEntityTypes<ExternalData>>
     {
@@ -350,11 +356,165 @@ public final class GenericDataSetEditForm extends
         @Override
         protected void process(ResultSetWithEntityTypes<ExternalData> result)
         {
-            parentsArea.setParents(result.getResultSet().getList().extractOriginalObjects());
+            parentsArea.setDataSets(result.getResultSet().getList().extractOriginalObjects());
             if (parentsArea.isVisible())
             {
                 parentsArea.setEnabled(true);
             }
         }
     }
+
+    interface IDataSetEditorBuilder
+    {
+
+        void updateOriginalValues(DataSetUpdateResult result);
+
+        void loadDataInBackground();
+
+        void fillUpdates(DataSetUpdates result);
+
+        List<DatabaseModificationAwareField<?>> getEntitySpecificFormFields();
+
+        void createEntitySpecificFormFields();
+
+        void initializeFormFields();
+
+    }
+
+    /** {@link IDataSetEditorBuilder} implementation for {@link DataSet}-s */
+    private class ExternalDataEditFormBuilder implements IDataSetEditorBuilder
+    {
+        private DataSet dataSet;
+
+        private FileFormatTypeSelectionWidget fileFormatTypeSelectionWidget;
+
+        public ExternalDataEditFormBuilder(DataSet dataSet)
+        {
+            this.dataSet = dataSet;
+        }
+
+        public void createEntitySpecificFormFields()
+        {
+            this.fileFormatTypeSelectionWidget = createFileFormatTypeField();
+        }
+
+        public void updateOriginalValues(DataSetUpdateResult result)
+        {
+            fileFormatTypeSelectionWidget.updateOriginalValue(fileFormatTypeSelectionWidget
+                    .getValue());
+        }
+
+        public void fillUpdates(DataSetUpdates result)
+        {
+            result.setFileFormatTypeCode(extractFileFormatTypeCode());
+        }
+
+        private String extractFileFormatTypeCode()
+        {
+            return fileFormatTypeSelectionWidget.tryGetSelectedFileFormatType().getCode();
+        }
+
+        public List<DatabaseModificationAwareField<?>> getEntitySpecificFormFields()
+        {
+            ArrayList<DatabaseModificationAwareField<?>> fields =
+                    new ArrayList<DatabaseModificationAwareField<?>>();
+            fields.add(wrapUnaware(fileFormatTypeSelectionWidget));
+            return fields;
+        }
+
+        public void initializeFormFields()
+        {
+            fileFormatTypeSelectionWidget.setValue(new FileFormatTypeModel(dataSet
+                    .getFileFormatType()));
+        }
+
+        public void loadDataInBackground()
+        {
+            // nothing to do
+        }
+
+    }
+
+    /** {@link IDataSetEditorBuilder} implementation for {@link ContainerDataSet}-s */
+    private class ContainerDataSetEditFormBuilder implements IDataSetEditorBuilder
+    {
+        private DataSetsArea containedArea;
+
+        public ContainerDataSetEditFormBuilder(ContainerDataSet dataSet)
+        {
+        }
+
+        public void createEntitySpecificFormFields()
+        {
+            this.containedArea = createContainsArea();
+        }
+
+        private DataSetsArea createContainsArea()
+        {
+            return new DataSetsContainedArea(viewContext, simpleId);
+        }
+
+        public void updateOriginalValues(DataSetUpdateResult result)
+        {
+            final List<String> containedCodes = result.getContainedDataSetCodes();
+            containedArea.setDataSetCodes(containedCodes);
+        }
+
+        public void fillUpdates(DataSetUpdates result)
+        {
+            result.setModifiedContainedDatasetCodesOrNull(extractContainedDatasetCodes());
+        }
+
+        private String[] extractContainedDatasetCodes()
+        {
+            return containedArea.tryGetModifiedDataSetCodes();
+        }
+
+        public List<DatabaseModificationAwareField<?>> getEntitySpecificFormFields()
+        {
+            ArrayList<DatabaseModificationAwareField<?>> fields =
+                    new ArrayList<DatabaseModificationAwareField<?>>();
+            fields.add(wrapUnaware(containedArea));
+            return fields;
+        }
+
+        public void initializeFormFields()
+        {
+            // data set fields are initialized when they are created
+            containedArea.setValue(viewContext.getMessage(Dict.LOAD_IN_PROGRESS));
+        }
+
+        public void loadDataInBackground()
+        {
+            // not best performance but the same solution that is done for experiments
+            // only codes are needed but we extract 'full' object
+            DefaultResultSetConfig<String, ExternalData> config =
+                    DefaultResultSetConfig.createFetchAll();
+            viewContext.getCommonService().listDataSetRelationships(techIdOrNull,
+                    DataSetRelationshipRole.CONTAINER, config,
+                    new ListContainedDataSetsCallback(viewContext));
+        }
+
+        private class ListContainedDataSetsCallback extends
+                AbstractAsyncCallback<ResultSetWithEntityTypes<ExternalData>>
+        {
+
+            public ListContainedDataSetsCallback(IViewContext<?> viewContext)
+            {
+                super(viewContext);
+            }
+
+            @Override
+            protected void process(ResultSetWithEntityTypes<ExternalData> result)
+            {
+                containedArea.setDataSets(result.getResultSet().getList().extractOriginalObjects());
+                if (containedArea.isVisible())
+                {
+                    containedArea.setEnabled(true);
+                }
+            }
+        }
+
+    }
+
 }

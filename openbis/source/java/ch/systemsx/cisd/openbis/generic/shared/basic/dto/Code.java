@@ -116,7 +116,7 @@ public class Code<T extends Code<T>> implements ISerializable, ICodeHolder, Comp
         return extractCodes(codeProviders).toArray(new String[codeProviders.size()]);
     }
 
-    public final static class CodeProviderComparator implements Comparator<ICodeHolder>,
+    private final static class CodeProviderComparator implements Comparator<ICodeHolder>,
             Serializable
     {
         private static final long serialVersionUID = 1L;

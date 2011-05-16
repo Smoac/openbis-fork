@@ -428,7 +428,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         filterDatasetsWithNullExperiments(datasetMap);
         enrichWithProperties(datasetMap);
         enrichWithSamples(datasetMap);
-        enrichWithContainerParents(datasetMap);
+        enrichWithContainers(datasetMap);
         enrichWithContainedDataSets(datasetMap);
         return asList(datasetMap);
     }
@@ -538,7 +538,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
             });
     }
 
-    private void enrichWithContainerParents(Long2ObjectMap<ExternalData> datasetMap)
+    private void enrichWithContainers(Long2ObjectMap<ExternalData> datasetMap)
     {
 
         Set<Long> containersNotLoaded = new HashSet<Long>();

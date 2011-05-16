@@ -254,7 +254,7 @@ abstract public class AbstractGenericExperimentRegisterEditForm extends
     protected String[] getSamples()
     {
         if (existingSamplesRadio.getValue())
-            return samplesArea.tryGetSampleCodes();
+            return samplesArea.tryGetModifiedSampleCodes();
         else
             return null;
     }

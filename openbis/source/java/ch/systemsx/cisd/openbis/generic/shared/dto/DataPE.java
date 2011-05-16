@@ -123,9 +123,9 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     private List<DataPE> containedDataSets = new ArrayList<DataPE>();
 
     /**
-     * the index of this {@link DataPE} within its virtual parent.
+     * the index of this {@link DataPE} within its virtual parent; null if there is virtual parent
      */
-    private int orderInContainer;
+    private Integer orderInContainer;
 
     private DataStorePE dataStore;
 
@@ -202,14 +202,14 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     }
 
     @Column(name = ColumnNames.DATA_CONTAINER_ORDER_COLUMN)
-    public int getOrderInContainer()
+    public Integer getOrderInContainer()
     {
         return orderInContainer;
     }
 
     public void setOrderInContainer(Integer orderInContainer)
     {
-        this.orderInContainer = (orderInContainer != null) ? orderInContainer : 0;
+        this.orderInContainer = orderInContainer;
     }
 
     /**
@@ -427,7 +427,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     }
 
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = DataPE.class)
-    @JoinColumn(name = ColumnNames.DATA_CONTAINER_COLUMN)
+    @JoinColumn(name = ColumnNames.DATA_CONTAINER_COLUMN, updatable = true)
     private DataPE getContainerInternal()
     {
         return container;
@@ -442,7 +442,8 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     {
         assert component != null;
         this.containedDataSets.add(component);
-        component.setContainerInternal(component);
+        component.setContainerInternal(this);
+        component.setOrderInContainer(containedDataSets.size());
     }
 
     public void removeComponent(final DataPE component)
@@ -450,6 +451,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         assert component != null;
         this.containedDataSets.remove(component);
         component.setContainerInternal(null);
+        component.setOrderInContainer(null);
     }
 
     @OneToMany(mappedBy = "containerInternal", fetch = FetchType.LAZY)

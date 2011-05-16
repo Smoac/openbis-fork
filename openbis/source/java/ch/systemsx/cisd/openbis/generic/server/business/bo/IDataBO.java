@@ -76,7 +76,7 @@ public interface IDataBO extends IEntityBusinessObject
     public void define(NewExternalData data, ExperimentPE experiment, SourceType sourceType);
 
     /**
-     * Changes given data set. Currently allowed changes: properties, sample.
+     * Changes given data set. Currently allowed changes: properties, sample, parents, components.
      */
     public void update(DataSetUpdatesDTO updates);
 

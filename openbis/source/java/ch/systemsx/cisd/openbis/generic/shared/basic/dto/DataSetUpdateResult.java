@@ -34,6 +34,8 @@ public class DataSetUpdateResult implements ISerializable
 
     List<String> parentCodes;
 
+    List<String> containedDataSetCodes; // always empty for external data
+
     public DataSetUpdateResult()
     {
     }
@@ -56,6 +58,16 @@ public class DataSetUpdateResult implements ISerializable
     public void setParentCodes(List<String> parentCodes)
     {
         this.parentCodes = parentCodes;
+    }
+
+    public List<String> getContainedDataSetCodes()
+    {
+        return containedDataSetCodes;
+    }
+
+    public void setContainedDataSetCodes(List<String> containedDataSetCodes)
+    {
+        this.containedDataSetCodes = containedDataSetCodes;
     }
 
 }

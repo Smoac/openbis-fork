@@ -531,6 +531,8 @@ public class GenericClientService extends AbstractClientService implements IGene
         updatesDTO.setVersion(updates.getVersion());
         updatesDTO.setModifiedParentDatasetCodesOrNull(updates
                 .getModifiedParentDatasetCodesOrNull());
+        updatesDTO.setModifiedContainedDatasetCodesOrNull(updates
+                .getModifiedContainedDatasetCodesOrNull());
         String sampleIdentifierOrNull = updates.getSampleIdentifierOrNull();
         updatesDTO.setSampleIdentifierOrNull(sampleIdentifierOrNull == null ? null
                 : SampleIdentifierFactory.parse(sampleIdentifierOrNull));

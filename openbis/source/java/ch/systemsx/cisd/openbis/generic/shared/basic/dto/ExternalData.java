@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -35,6 +36,13 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
         IPermIdHolder
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
+    /**
+     * {@link Comparator} for data sets contained in a (virtual) container which uses ascending
+     * order in container.
+     */
+    public static final Comparator<ExternalData> DATA_SET_COMPONENTS_COMPARATOR =
+            new DataSetComponentsComparator();
 
     private boolean derived;
 
@@ -396,7 +404,7 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
     }
 
     /**
-     * @return the "parent" container of this data set or null.
+     * @return the "virtual" container of this data set or null.
      */
     public ContainerDataSet tryGetContainer()
     {
@@ -423,6 +431,21 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
     public String getSourceType()
     {
         return SourceType.create(isDerived()).name();
+    }
+
+    private static final class DataSetComponentsComparator implements Comparator<ExternalData>
+    {
+        public int compare(ExternalData o1, ExternalData o2)
+        {
+            Integer order1 = o1.getOrderInContainer();
+            Integer order2 = o2.getOrderInContainer();
+            // sanity check
+            if (order1 == null || order2 == null)
+            {
+                return Code.CODE_PROVIDER_COMPARATOR.compare(o1, o2);
+            }
+            return order1.compareTo(order2);
+        }
     }
 
 }

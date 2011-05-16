@@ -20,25 +20,25 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
- * A text area to specify parents of a data set.
+ * A text area to specify data sets contained in a virtual data set container.
  * 
  * @author Piotr Buczek
  */
-public final class DataSetParentsArea extends DataSetsArea
+public final class DataSetsContainedArea extends DataSetsArea
 {
 
-    public static final String ID_SUFFIX_PARENTS = "_parents";
+    public static final String ID_SUFFIX_CONTAINED = "_contained";
 
-    public DataSetParentsArea(IMessageProvider messageProvider, String idPrefix)
+    public DataSetsContainedArea(IMessageProvider messageProvider, String idPrefix)
     {
-        super(messageProvider.getMessage(Dict.PARENTS_EMPTY));
-        this.setFieldLabel(messageProvider.getMessage(Dict.PARENTS));
+        super(messageProvider.getMessage(Dict.CONTAINED_DATA_SETS_EMPTY));
+        this.setFieldLabel(messageProvider.getMessage(Dict.CONTAINED_DATA_SETS));
         setId(createId(idPrefix));
     }
 
     public static String createId(String idPrefix)
     {
-        return idPrefix + ID_SUFFIX_PARENTS;
+        return idPrefix + ID_SUFFIX_CONTAINED;
     }
 
 }

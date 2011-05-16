@@ -35,12 +35,19 @@ public class BasicDataSetUpdates implements ISerializable
 
     // ----- the data which should be changed:
 
+    // new set of properties for the data set, they will replace the old set
+    private List<IEntityProperty> properties;
+
     private String[] modifiedParentDatasetCodesOrNull;
+
+    // Optional:
+
+    // 1. external data (non-virtual)
 
     private String fileFormatTypeCode;
 
-    // new set of properties for the data set, they will replace the old set
-    private List<IEntityProperty> properties;
+    // 2. container (virtual)
+    private String[] modifiedContainedDatasetCodesOrNull;
 
     public BasicDataSetUpdates()
     {
@@ -103,4 +110,13 @@ public class BasicDataSetUpdates implements ISerializable
         this.fileFormatTypeCode = fileFormatTypeCode;
     }
 
+    public String[] getModifiedContainedDatasetCodesOrNull()
+    {
+        return modifiedContainedDatasetCodesOrNull;
+    }
+
+    public void setModifiedContainedDatasetCodesOrNull(String[] modifiedContainedDatasetCodesOrNull)
+    {
+        this.modifiedContainedDatasetCodesOrNull = modifiedContainedDatasetCodesOrNull;
+    }
 }

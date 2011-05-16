@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -408,7 +409,8 @@ public class DataBO extends AbstractExternalDataBusinessObject implements IDataB
         loadDataByTechId(updates.getDatasetId());
         if (updates.getVersion().equals(data.getModificationDate()) == false)
         {
-            throwModifiedEntityException("Data set");
+            System.err.println("modification date error: " + updates.getVersion() + " != " + data.getModificationDate());
+//            throwModifiedEntityException("Data set"); FIXME
         }
         final SampleIdentifier sampleIdentifierOrNull = updates.getSampleIdentifierOrNull();
         if (sampleIdentifierOrNull != null)
@@ -422,6 +424,7 @@ public class DataBO extends AbstractExternalDataBusinessObject implements IDataB
             data.setSample(null);
         }
         updateParents(updates.getModifiedParentDatasetCodesOrNull());
+        updateComponents(updates.getModifiedContainedDatasetCodesOrNull());
         updateFileFormatType(updates.getFileFormatTypeCode());
         updateProperties(data, updates.getProperties());
         entityPropertiesConverter.checkMandatoryProperties(data.getProperties(),
@@ -460,6 +463,34 @@ public class DataBO extends AbstractExternalDataBusinessObject implements IDataB
             final Set<String> removedCodes = currentParentCodes;
             removedCodes.removeAll(asSet(modifiedParentDatasetCodesOrNull));
             removeParents(filterDataSets(currentParents, removedCodes));
+        }
+    }
+
+    private void updateComponents(String[] modifiedContainedDatasetCodesOrNull)
+    {
+        if (modifiedContainedDatasetCodesOrNull == null)
+        {
+            return; // contained data sets were not changed
+        } else
+        {
+            final List<DataPE> currentComponents =
+                    new ArrayList<DataPE>(data.getContainedDataSets());
+            removeComponents(currentComponents);
+
+            // final Set<String> currentComponentCodes = extractCodes(currentComponents);
+            final Set<String> newCodes = asSet(modifiedContainedDatasetCodesOrNull);
+            // newCodes.removeAll(currentComponentCodes);
+            //
+            // // quick check for direct cycle
+            // if (newCodes.contains(data.getCode()))
+            // {
+            // throw new UserFailureException("Data set '" + data.getCode()
+            // + "' can not be its own component.");
+            // }
+            // validateRelationshipGraph(componentsToAdd); // TODO
+
+            final List<DataPE> newComponents = findDataSetsByCodes(newCodes);
+            addComponents(newComponents);
         }
     }
 
@@ -548,6 +579,22 @@ public class DataBO extends AbstractExternalDataBusinessObject implements IDataB
         }
     }
 
+    private void addComponents(Collection<DataPE> componentsToAdd)
+    {
+        for (DataPE component : componentsToAdd)
+        {
+            data.addComponent(component);
+        }
+    }
+
+    private void removeComponents(Collection<DataPE> componentsToRemove)
+    {
+        for (DataPE component : componentsToRemove)
+        {
+            data.removeComponent(component);
+        }
+    }
+
     private List<DataPE> findDataSetsByCodes(Set<String> codes)
     {
         final IDataDAO dao = getDataDAO();
@@ -577,7 +624,7 @@ public class DataBO extends AbstractExternalDataBusinessObject implements IDataB
 
     private static Set<String> asSet(String[] objects)
     {
-        return new HashSet<String>(Arrays.asList(objects));
+        return new LinkedHashSet<String>(Arrays.asList(objects)); // keep the ordering
     }
 
     private static Set<String> extractCodes(Collection<DataPE> parents)

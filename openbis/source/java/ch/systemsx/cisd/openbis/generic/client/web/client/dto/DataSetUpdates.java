@@ -16,12 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
-import java.util.Date;
-import java.util.List;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicDataSetUpdates;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
@@ -37,14 +32,6 @@ public class DataSetUpdates extends BasicDataSetUpdates
 
     public DataSetUpdates()
     {
-    }
-
-    public DataSetUpdates(TechId sampleId, List<IEntityProperty> properties, Date version,
-            String sampleIdentifierOrNull, String experimentIdentifierOrNull)
-    {
-        super(sampleId, properties, version);
-        this.sampleIdentifierOrNull = sampleIdentifierOrNull;
-        this.experimentIdentifierOrNull = experimentIdentifierOrNull;
     }
 
     public String getSampleIdentifierOrNull()
