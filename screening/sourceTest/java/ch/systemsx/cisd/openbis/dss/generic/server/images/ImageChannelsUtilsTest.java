@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtilTest;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannel;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelColor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 
 /**
@@ -218,8 +219,8 @@ public class ImageChannelsUtilsTest extends AssertJUnit
     private static AbsoluteImageReference createAbsoluteImageReference(String fileName,
             RequestedImageSize imageSize)
     {
-        return new AbsoluteImageReference(image(fileName), "id42", null, null, imageSize, 0,
-                new ImageTransfomationFactories(), null);
+        return new AbsoluteImageReference(image(fileName), "id42", null, null, imageSize,
+                ImageChannelColor.BLUE, new ImageTransfomationFactories(), null);
     }
 
     private ImageChannelsUtils createImageChannelsUtils(Size thumbnailSizeOrNull)

@@ -335,13 +335,15 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                             ImageChannelStackReference.createHCSFromLocations(new Location(3, 1),
                                     new Location(1, 1)), thumbnailSize);
                     will(returnValue(new AbsoluteImageReference(image("img1.jpg"), "img1", null,
-                            null, thumbnailSize, 0, new ImageTransfomationFactories(), null)));
+                            null, thumbnailSize, ImageChannelColor.BLUE,
+                            new ImageTransfomationFactories(), null)));
                     one(imageLoader).tryGetImage(
                             channel,
                             ImageChannelStackReference.createHCSFromLocations(new Location(3, 1),
                                     new Location(2, 1)), thumbnailSize);
                     will(returnValue(new AbsoluteImageReference(image("img1.gif"), "img1", null,
-                            null, thumbnailSize, 0, new ImageTransfomationFactories(), null)));
+                            null, thumbnailSize, ImageChannelColor.BLUE,
+                            new ImageTransfomationFactories(), null)));
                 }
             });
 

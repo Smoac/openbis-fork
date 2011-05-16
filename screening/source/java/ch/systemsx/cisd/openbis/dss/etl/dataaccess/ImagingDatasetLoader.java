@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackR
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference.MicroscopyChannelStackByLocationReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelColor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.HCSDatasetLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
@@ -130,10 +131,10 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
         ColorComponent colorComponent = imageDTO.getColorComponent();
         ImageTransfomationFactories imageTransfomationFactories =
                 createImageTransfomationFactories(imageDTO, channel);
-        int channelIndex = getChannelIndex(channel);
+        ImageChannelColor channelColor = ImageChannelColor.valueOf(channel.getDbChannelColor());
         ImageLibraryInfo imageLibrary = tryGetImageLibrary(dataset, useNativeImageLibrary);
         return new AbsoluteImageReference(content, path, imageDTO.getPage(), colorComponent,
-                imageSize, channelIndex, imageTransfomationFactories, imageLibrary);
+                imageSize, channelColor, imageTransfomationFactories, imageLibrary);
     }
 
     private ImageTransfomationFactories createImageTransfomationFactories(ImgImageDTO imageDTO,
@@ -155,20 +156,6 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
             imageTransformerFactory = experimentOrNull.tryGetImageTransformerFactory();
         }
         return imageTransformerFactory;
-    }
-
-    private int getChannelIndex(ImgChannelDTO chosenChannel)
-    {
-        int index = 0;
-        for (ImgChannelDTO channel : channels)
-        {
-            if (channel.getId() == chosenChannel.getId())
-            {
-                return index;
-            }
-            index++;
-        }
-        throw new IllegalStateException("Channel not found: " + chosenChannel);
     }
 
     private ImgChannelDTO tryLoadChannel(String chosenChannelCode)

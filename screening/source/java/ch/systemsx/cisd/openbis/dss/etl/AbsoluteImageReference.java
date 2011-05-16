@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageTransfomationFactories;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelColor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 
 /**
@@ -45,15 +46,14 @@ public class AbsoluteImageReference extends AbstractImageReference
 
     private BufferedImage image;
 
-    // This is an artificial value which helps to keep coloring channels constant. Starts with 0.
-    // Unique for a given experiment or dataset (if channels are per dataset).
-    private int channelIndex;
+    private ImageChannelColor channelColor;
 
     /**
      * @param content is the original content before choosing the color component and the page
      */
     public AbsoluteImageReference(IContent content, String uniqueId, Integer pageOrNull,
-            ColorComponent colorComponentOrNull, RequestedImageSize imageSize, int channelIndex,
+            ColorComponent colorComponentOrNull, RequestedImageSize imageSize,
+            ImageChannelColor channelColor,
             ImageTransfomationFactories imageTransfomationFactories,
             ImageLibraryInfo imageLibraryOrNull)
     {
@@ -64,7 +64,7 @@ public class AbsoluteImageReference extends AbstractImageReference
         this.content = content;
         this.uniqueId = uniqueId;
         this.imageSize = imageSize;
-        this.channelIndex = channelIndex;
+        this.channelColor = channelColor;
         this.imageTransfomationFactories = imageTransfomationFactories;
         this.imageLibraryOrNull = imageLibraryOrNull;
     }
@@ -128,16 +128,16 @@ public class AbsoluteImageReference extends AbstractImageReference
         return imageTransfomationFactories;
     }
 
-    public int getChannelIndex()
+    public ImageChannelColor getChannelColor()
     {
-        return channelIndex;
+        return channelColor;
     }
 
     public AbsoluteImageReference createWithoutColorComponent()
     {
         ColorComponent colorComponent = null;
         return new AbsoluteImageReference(content, uniqueId, tryGetPage(), colorComponent,
-                imageSize, channelIndex, imageTransfomationFactories, imageLibraryOrNull);
+                imageSize, channelColor, imageTransfomationFactories, imageLibraryOrNull);
 
     }
 }

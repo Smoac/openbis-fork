@@ -9,6 +9,8 @@ public enum ChannelColor
 {
     BLUE(0), GREEN(1), RED(2), RED_GREEN(3), RED_BLUE(4), GREEN_BLUE(5);
 
+    private static final int MAX_COLOR = calcMaxColorIndex();
+
     // If no mapping between channels and colors has been provided then channels get consecutive
     // colors. This field determines the order in which colors are assigned.
     // It is important for backward compatibility as well.
@@ -17,6 +19,16 @@ public enum ChannelColor
     private ChannelColor(int orderIndex)
     {
         this.orderIndex = orderIndex;
+    }
+
+    private static int calcMaxColorIndex()
+    {
+        int max = 0;
+        for (ChannelColor color : values())
+        {
+            max = Math.max(max, color.getColorOrderIndex());
+        }
+        return max;
     }
 
     public int getColorOrderIndex()
@@ -28,7 +40,7 @@ public enum ChannelColor
     {
         for (ChannelColor color : values())
         {
-            if (color.getColorOrderIndex() == colorIndex)
+            if (color.getColorOrderIndex() == colorIndex % (MAX_COLOR + 1))
             {
                 return color;
             }

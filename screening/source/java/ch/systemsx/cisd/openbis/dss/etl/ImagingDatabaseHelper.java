@@ -17,9 +17,12 @@
 package ch.systemsx.cisd.openbis.dss.etl;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
@@ -237,7 +240,8 @@ public class ImagingDatabaseHelper
     }
 
     /** Logic to find or create channels */
-    private static class ImagingChannelsCreator
+    @Private
+    static class ImagingChannelsCreator
     {
         private final IImagingQueryDAO dao;
 
@@ -290,20 +294,54 @@ public class ImagingDatabaseHelper
 
         private Map<String, Long> createChannels(ChannelOwner channelOwner, List<Channel> channels)
         {
-            int colorIndex = 0;
             Map<String, Long> map = new HashMap<String, Long>();
+            fillMissingChannelColors(channels);
             for (Channel channel : channels)
             {
-                if (channel.tryGetChannelColor() == null)
-                {
-                    ChannelColor channelColor = ChannelColor.createFromIndex(colorIndex);
-                    channel.setChannelColor(channelColor);
-                    colorIndex++;
-                }
                 ImgChannelDTO channelDTO = createChannel(channel, channelOwner);
                 addChannel(map, channelDTO);
             }
             return map;
+        }
+
+        @Private
+        static void fillMissingChannelColors(List<Channel> channels)
+        {
+            Set<Integer> usedColorsIndieces = createUsedColorsIndiecesSet(channels);
+            for (Channel channel : channels)
+            {
+                if (channel.tryGetChannelColor() == null)
+                {
+                    int colorIndex = getSmallestUnused(usedColorsIndieces);
+                    ChannelColor color = ChannelColor.createFromIndex(colorIndex);
+                    channel.setChannelColor(color);
+                    usedColorsIndieces.add(colorIndex);
+                }
+            }
+        }
+
+        private static Set<Integer> createUsedColorsIndiecesSet(List<Channel> channels)
+        {
+            Set<Integer> usedColorsIndieces = new HashSet<Integer>();
+            for (Channel channel : channels)
+            {
+                ChannelColor channelColor = channel.tryGetChannelColor();
+                if (channelColor != null)
+                {
+                    usedColorsIndieces.add(channelColor.getColorOrderIndex());
+                }
+            }
+            return usedColorsIndieces;
+        }
+
+        private static int getSmallestUnused(Set<Integer> usedColorsIndieces)
+        {
+            int colorIndex = 0;
+            while (usedColorsIndieces.contains(colorIndex))
+            {
+                colorIndex++;
+            }
+            return colorIndex;
         }
 
         private static void addChannel(Map<String, Long> map, ImgChannelDTO channelDTO)

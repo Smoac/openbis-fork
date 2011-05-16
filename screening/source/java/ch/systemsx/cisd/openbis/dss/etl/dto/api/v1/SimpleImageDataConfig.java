@@ -84,7 +84,7 @@ abstract public class SimpleImageDataConfig
      */
     public Channel createChannel(String channelCode)
     {
-        ChannelColor channelColor = getChannelColor(channelCode);
+        ChannelColor channelColor = getChannelColor(channelCode.toUpperCase());
         return new Channel(channelCode, channelCode, channelColor);
     }
 

@@ -51,6 +51,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageGenerationDes
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelColor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 
@@ -712,8 +713,8 @@ public class ImageChannelsUtils
             colorBuffer[index] = colorComponent.getComponent(singleColor);
         } else
         {
-            int channelIndex = imageReference.getChannelIndex();
-            setColorComponentsForChannelIndex(colorBuffer, singleColor, channelIndex);
+            ImageChannelColor channelColor = imageReference.getChannelColor();
+            setColorComponentsForChannelIndex(colorBuffer, singleColor, channelColor);
         }
     }
 
@@ -733,9 +734,9 @@ public class ImageChannelsUtils
     }
 
     private static void setColorComponentsForChannelIndex(int[] colorBuffer, Color singleColor,
-            int channelIndex)
+            ImageChannelColor channelColor)
     {
-        for (int i : getRGBColorIndexes(channelIndex))
+        for (int i : getRGBColorIndexes(channelColor))
         {
             colorBuffer[i] = Math.max(colorBuffer[i], extractMaxColorIngredient(singleColor));
         }
@@ -783,23 +784,27 @@ public class ImageChannelsUtils
         return newImage;
     }
 
-    // 0=B, 1=G, 2=R, 3=RG, 4=RB, 5=GB
-    private static int[] getRGBColorIndexes(int channelIndex)
+    // 0=R, 1=G, 2=B, 3=RG, 4=RB, 5=GB
+    private static int[] getRGBColorIndexes(ImageChannelColor channelColor)
     {
-        switch (channelIndex % 6)
+        switch (channelColor)
         {
-            case 0:
-            case 1:
-            case 2:
+            case RED:
                 return new int[]
-                    { 2 - (channelIndex % 6) };
-            case 3:
+                    { 0 };
+            case GREEN:
+                return new int[]
+                    { 1 };
+            case BLUE:
+                return new int[]
+                    { 2 };
+            case RED_GREEN:
                 return new int[]
                     { 0, 1 };
-            case 4:
+            case RED_BLUE:
                 return new int[]
                     { 0, 2 };
-            case 5:
+            case GREEN_BLUE:
                 return new int[]
                     { 1, 2 };
             default:
