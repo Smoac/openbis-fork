@@ -16,12 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetTypeGridColumnIDs.CONTAINER_TYPE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetTypeGridColumnIDs.MAIN_DATA_SET_PATH;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetTypeGridColumnIDs.MAIN_DATA_SET_PATTERN;
 
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 
@@ -46,6 +48,7 @@ public class DataSetTypeProvider extends EntityTypeProvider<DataSetType>
     @Override
     protected void addMoreColumns(TypedTableModelBuilder<DataSetType> builder)
     {
+        builder.addColumn(CONTAINER_TYPE);
         builder.addColumn(MAIN_DATA_SET_PATH).hideByDefault();
         builder.addColumn(MAIN_DATA_SET_PATTERN).hideByDefault();
     }
@@ -53,6 +56,8 @@ public class DataSetTypeProvider extends EntityTypeProvider<DataSetType>
     @Override
     protected void addMoreCells(TypedTableModelBuilder<DataSetType> builder, DataSetType type)
     {
+        builder.column(CONTAINER_TYPE)
+                .addString(SimpleYesNoRenderer.render(type.isContainerType()));
         builder.column(MAIN_DATA_SET_PATH).addString(type.getMainDataSetPath());
         builder.column(MAIN_DATA_SET_PATTERN).addString(type.getMainDataSetPattern());
     }

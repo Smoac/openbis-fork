@@ -48,6 +48,7 @@ public class SimpleDataSetHelper
         return result;
     }
 
+    // TODO KE: use DataPE ?
     private static SimpleDataSetInformationDTO translate(ExternalDataPE data)
     {
         SimpleDataSetInformationDTO result = new SimpleDataSetInformationDTO();
@@ -77,6 +78,7 @@ public class SimpleDataSetHelper
         return result;
     }
     
+    // TODO KE: will this work ?
     public static SimpleDataSetInformationDTO translate(DatasetDescription datasetDescription)
     {
         SimpleDataSetInformationDTO result = new SimpleDataSetInformationDTO();

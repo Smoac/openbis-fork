@@ -24,5 +24,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 public class DataSetTypeGridColumnIDs extends EntityTypeGridColumnIDs
 {
     public static final String MAIN_DATA_SET_PATH = "MAIN_DATA_SET_PATH";
+
     public static final String MAIN_DATA_SET_PATTERN = "MAIN_DATA_SET_PATTERN";
+
+    public static final String CONTAINER_TYPE = "CONTAINER_TYPE";
 }

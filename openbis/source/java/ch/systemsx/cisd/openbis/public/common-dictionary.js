@@ -46,6 +46,8 @@ var common = {
   delete_progress_message: "Deleting {0}(s)...",
   add_attachment: "Add attachment...",
   data_view: "Data View",
+  container_type: "Container",
+  container_type_tooltip: "Container data sets do not contain any data in the data store itself. They can be thought as of grouping of other container or non-container data sets.",
   main_data_set_path: "Main Data Set Path",
   main_data_set_path_tooltip: "The path (relative to the top directory of a data set) that will be used as a starting point of 'main data set' lookup.\nExample: 'original/images/'",
   main_data_set_path_example: "for example: original/images/",
@@ -187,6 +189,7 @@ var common = {
   space: "Space",
   groups: "Spaces",
   project: "Project",
+  container_dataset: "Container",
   experiment: "Experiment",
   experiment_identifier: "Experiment Identifier",
   generated_from: "Parent {0}",
@@ -216,8 +219,6 @@ var common = {
   // DataSet Browser
   //
   
-  container_dataset: "Container",
-  order_in_container: "Order in Container",
   children_datasets: "Children",
   no_datasets_selected: "No Data Sets were selected.",
   datasets_from_different_stores_selected: "Data Sets from different Data Stores were selected, so no operation can be performed on all of them.",
@@ -532,8 +533,6 @@ var common = {
   //
   parents: "Parents",
   parents_empty: "List of parent data set codes separated by commas (\",\") or one code per line.",
-  contained_data_sets: "Contains Data Sets",
-  contained_data_sets_empty: "List of contained data set codes separated by commas (\",\") or one code per line.",
   
  //
  // Vocabulary Browser
