@@ -27,18 +27,18 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class RecordBasedQueuePersisterTest extends AssertJUnit
 {
     private static final File TMP = new File("targets/unit-test-wd");
+
     private static final File QUEUE_FILE = new File(TMP, "RecordBasedQueuePersisterTestQueue");
-    
+
     private ArrayBlockingQueue<String> queue;
+
     private RecordBasedQueuePersister<String> persister;
-    
+
     @BeforeTest
     public void setUp()
     {
@@ -47,7 +47,7 @@ public class RecordBasedQueuePersisterTest extends AssertJUnit
         queue = new ArrayBlockingQueue<String>(10);
         persister = new RecordBasedQueuePersister<String>(queue, QUEUE_FILE);
     }
-    
+
     @AfterTest
     public void tearDown()
     {
@@ -72,10 +72,32 @@ public class RecordBasedQueuePersisterTest extends AssertJUnit
         assertEquals(1, queue.size());
         assertEquals(element, queue.peek());
     }
-    
+
     @Test
     public void testAddToTail()
     {
         persister.addToTail("hello world");
+    }
+
+    @Test
+    public void testZeroRecordSize()
+    {
+        // First delete the queue file created by setUp so we can create one where the initial
+        // record size is 0.
+        assertEquals("Couldn't delete " + TMP, true, FileUtilities.deleteRecursively(TMP));
+        TMP.mkdirs();
+        queue = new ArrayBlockingQueue<String>(10);
+        persister = new RecordBasedQueuePersister<String>(queue, QUEUE_FILE, 0, false);
+
+        queue.add("");
+        queue.add("foo");
+        persister.persist();
+        persister.close();
+        queue.clear();
+        persister = new RecordBasedQueuePersister<String>(queue, QUEUE_FILE);
+
+        assertEquals(2, queue.size());
+        assertEquals("", queue.poll());
+        assertEquals("foo", queue.poll());
     }
 }

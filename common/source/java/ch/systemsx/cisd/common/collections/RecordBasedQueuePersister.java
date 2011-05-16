@@ -250,7 +250,8 @@ public class RecordBasedQueuePersister<E> implements IQueuePersister<E>
 
     private static int getNewRecordSize(int oldRecordSize, int elementSize)
     {
-        return oldRecordSize * (elementSize / oldRecordSize + 1);
+        return (oldRecordSize < 1) ? elementSize : oldRecordSize
+                * (elementSize / oldRecordSize + 1);
     }
 
     //
@@ -290,7 +291,7 @@ public class RecordBasedQueuePersister<E> implements IQueuePersister<E>
             }
         }
     }
-    
+
     private int fillNewQueueFile(int newRecordSize) throws IOException
     {
         RandomAccessFile newRandomAccessFile = null;
