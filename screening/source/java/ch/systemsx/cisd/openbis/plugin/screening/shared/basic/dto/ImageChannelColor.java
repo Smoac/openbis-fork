@@ -16,12 +16,14 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 /**
  * Allowed colors in which channels can be presented.
  * 
  * @author Tomasz Pylak
  */
-public enum ImageChannelColor
+public enum ImageChannelColor implements IsSerializable
 {
     BLUE, GREEN, RED, RED_GREEN, RED_BLUE, GREEN_BLUE;
 }
