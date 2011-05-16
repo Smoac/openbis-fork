@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.FactoryBean;
 
@@ -91,9 +92,14 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     
     private IShareIdManager shareIdManager;
 
-    public static IETLLIMSService createOpenBisService(String openBISURL)
+    public static IETLLIMSService createOpenBisService(String openBISURL, String timeout)
     {
-        return new OpenBisServiceFactory(openBISURL, ResourceNames.ETL_SERVICE_URL).createService();
+        OpenBisServiceFactory factory = new OpenBisServiceFactory(openBISURL, ResourceNames.ETL_SERVICE_URL);
+        if (timeout.startsWith("$"))
+        {
+            return factory.createService();
+        }
+        return factory.createService(Integer.parseInt(timeout) * DateUtils.MILLIS_PER_MINUTE);
     }
 
     public EncapsulatedOpenBISService(IETLLIMSService service, OpenBISSessionHolder sessionHolder)

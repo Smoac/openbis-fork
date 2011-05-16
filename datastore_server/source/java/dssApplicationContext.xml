@@ -30,6 +30,7 @@
   <bean id="etl-lims-service" class="ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService"
       factory-method="createOpenBisService">
       <constructor-arg value="${server-url}"/>
+      <constructor-arg value="${server-timeout-in-minutes}"/>
   </bean>
   
   <bean id="sessionHolder" class="ch.systemsx.cisd.openbis.dss.generic.server.openbisauth.OpenBISSessionHolder">
