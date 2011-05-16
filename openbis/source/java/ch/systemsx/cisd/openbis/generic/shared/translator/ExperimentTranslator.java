@@ -118,12 +118,13 @@ public final class ExperimentTranslator
 
     // NOTE: when translating list of experiments managed properties will contain raw value
     public final static List<Experiment> translate(final List<ExperimentPE> experiments,
-            String baseIndexURL, final LoadableFields... withFields)
+            String baseIndexURL)
     {
         final List<Experiment> result = new ArrayList<Experiment>(experiments.size());
         for (final ExperimentPE experiment : experiments)
         {
-            result.add(ExperimentTranslator.translate(experiment, baseIndexURL, true, withFields));
+            HibernateUtils.initialize(experiment.getProperties());
+            result.add(ExperimentTranslator.translate(experiment, baseIndexURL, true, LoadableFields.PROPERTIES));
         }
         return result;
     }

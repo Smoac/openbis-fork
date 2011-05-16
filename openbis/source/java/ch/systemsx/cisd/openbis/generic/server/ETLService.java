@@ -547,8 +547,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         experimentTable.load(EntityType.ALL_TYPES_CODE, projectIdentifier);
         final List<ExperimentPE> experiments = experimentTable.getExperiments();
         Collections.sort(experiments);
-        return ExperimentTranslator.translate(experiments, session.getBaseIndexURL(),
-                ExperimentTranslator.LoadableFields.PROPERTIES);
+        return ExperimentTranslator.translate(experiments, session.getBaseIndexURL());
     }
 
     public IEntityProperty[] tryToGetPropertiesOfTopSampleRegisteredFor(String sessionToken,

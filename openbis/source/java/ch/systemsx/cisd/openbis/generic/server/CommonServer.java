@@ -592,8 +592,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         experimentTable.load(experimentType.getCode(), projectIdentifier);
         final List<ExperimentPE> experiments = experimentTable.getExperiments();
         Collections.sort(experiments);
-        return ExperimentTranslator.translate(experiments, session.getBaseIndexURL(),
-                ExperimentTranslator.LoadableFields.PROPERTIES);
+        return ExperimentTranslator.translate(experiments, session.getBaseIndexURL());
     }
 
     public final List<ExperimentType> listExperimentTypes(final String sessionToken)
