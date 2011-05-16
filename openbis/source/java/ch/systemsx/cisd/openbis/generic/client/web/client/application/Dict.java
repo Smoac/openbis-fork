@@ -240,8 +240,6 @@ public abstract class Dict
 
     public static final String GROUPS = "groups";
 
-    public static final String CONTAINER_DATA_SET = "container_dataset";
-
     public static final String PROJECT = "project";
 
     public static final String EXPERIMENT = "experiment";
@@ -492,6 +490,10 @@ public abstract class Dict
     // ExternalData Viewer
     //
 
+    public static final String ORDER_IN_CONTAINER = "order_in_container";
+
+    public static final String CONTAINER_DATA_SET = "container_dataset";
+
     public static final String DATA_SET_PROPERTIES_HEADING = "data_set_properties_heading";
 
     public static final String PARENT = "parent";
@@ -663,6 +665,10 @@ public abstract class Dict
     public static final String PARENTS = "parents";
 
     public static final String PARENTS_EMPTY = "parents_empty";
+
+    public static final String CONTAINED_DATA_SETS = "contained_data_sets";
+
+    public static final String CONTAINED_DATA_SETS_EMPTY = "contained_data_sets_empty";
 
     //
     // Vocabulary Browser

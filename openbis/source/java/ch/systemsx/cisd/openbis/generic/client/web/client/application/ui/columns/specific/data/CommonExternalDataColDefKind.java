@@ -57,6 +57,34 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
             }
         }),
 
+    CONTAINER(new AbstractColumnDefinitionKind<ExternalData>(Dict.CONTAINER_DATA_SET, 150, true)
+        {
+            @Override
+            public String tryGetValue(ExternalData entity)
+            {
+                final ExternalData containerOrNull = entity.tryGetContainer();
+                return containerOrNull != null ? containerOrNull.getCode() : "";
+            }
+
+            @Override
+            public String tryGetLink(ExternalData entity)
+            {
+                final ExternalData containerOrNull = entity.tryGetContainer();
+                return LinkExtractor.tryExtract(containerOrNull);
+            }
+        }),
+
+    ORDER_IN_CONTAINER(new AbstractColumnDefinitionKind<ExternalData>(Dict.ORDER_IN_CONTAINER, 100,
+            true)
+        {
+            @Override
+            public String tryGetValue(ExternalData entity)
+            {
+                final Integer orderOrNull = entity.getOrderInContainer();
+                return orderOrNull != null ? orderOrNull.toString() : "";
+            }
+        }),
+
     SAMPLE(new AbstractColumnDefinitionKind<ExternalData>(Dict.SAMPLE, 100, true)
         {
             @Override

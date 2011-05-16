@@ -97,6 +97,18 @@ public abstract class AbstractExternalDataGrid
 
         extendBottomToolbar();
 
+        ICellListener<ExternalData> containerClickListener =
+                new OpenEntityDetailsTabCellClickListener()
+                    {
+                        @Override
+                        protected IEntityInformationHolderWithPermId getEntity(ExternalData rowItem)
+                        {
+                            return rowItem.tryGetContainer();
+                        }
+                    };
+        registerLinkClickListenerFor(CommonExternalDataColDefKind.CONTAINER.id(),
+                containerClickListener);
+
         ICellListener<ExternalData> experimentClickListener =
                 new OpenEntityDetailsTabCellClickListener()
                     {
@@ -110,6 +122,7 @@ public abstract class AbstractExternalDataGrid
                 experimentClickListener);
         registerLinkClickListenerFor(CommonExternalDataColDefKind.EXPERIMENT_IDENTIFIER.id(),
                 experimentClickListener);
+
         ICellListener<ExternalData> sampleClickListener =
                 new OpenEntityDetailsTabCellClickListener()
                     {
@@ -329,6 +342,7 @@ public abstract class AbstractExternalDataGrid
     {
         ColumnDefsAndConfigs<ExternalData> schema = createColumnsSchema();
         GridCellRenderer<BaseEntityModel<?>> linkRenderer = createInternalLinkCellRenderer();
+        schema.setGridCellRendererFor(CommonExternalDataColDefKind.CONTAINER.id(), linkRenderer);
         schema.setGridCellRendererFor(CommonExternalDataColDefKind.SAMPLE.id(), linkRenderer);
         schema.setGridCellRendererFor(CommonExternalDataColDefKind.SAMPLE_IDENTIFIER.id(),
                 linkRenderer);
