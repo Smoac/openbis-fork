@@ -513,7 +513,7 @@ public class OpenBISScreeningML
      * </pre>
      * 
      * @param augmentedPlateCode The augmented plate code.
-     * @return <code>{ number of plate rows, number of plate columns, number of tiles in the well, 
+     * @return <code>{ images width, images height, number of tiles in the well, 
      *                 number of tiles rows, number of tiles columns }</code> .
      */
     public static Object[][] getImagesMetadata(String augmentedPlateCode)
