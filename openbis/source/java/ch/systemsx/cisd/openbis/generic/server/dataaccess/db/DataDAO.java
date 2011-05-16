@@ -387,7 +387,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         }
 
         template.flush();
-        tryScheduleDynamicPropertiesEvaluation(Collections.singletonList(dataset));
+        scheduleDynamicPropertiesEvaluation(Collections.singletonList(dataset));
 
         if (operationLog.isInfoEnabled())
         {
@@ -437,7 +437,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         }
         hibernateTemplate.update(data);
         hibernateTemplate.flush();
-        tryScheduleDynamicPropertiesEvaluation(Collections.singletonList(data));
+        scheduleDynamicPropertiesEvaluation(Collections.singletonList(data));
 
         if (operationLog.isInfoEnabled())
         {
@@ -523,7 +523,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         }
 
         flushWithSqlExceptionHandling(getHibernateTemplate());
-        tryScheduleDynamicPropertiesEvaluation(dataSets);
+        scheduleDynamicPropertiesEvaluation(dataSets);
 
         // if session is not cleared registration of many samples slows down after each batch
         hibernateTemplate.clear();
@@ -533,22 +533,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
     public final void validateAndSaveUpdatedEntity(DataPE entity) throws DataAccessException
     {
         super.validateAndSaveUpdatedEntity(entity);
-        tryScheduleDynamicPropertiesEvaluation(Arrays.asList(entity));
-    }
-
-    private void tryScheduleDynamicPropertiesEvaluation(List<DataPE> dataSets)
-    {
-        // FIXME search and dynamic properties don't work for other types
-        List<ExternalDataPE> handledDataSets = new ArrayList<ExternalDataPE>();
-        for (DataPE data : dataSets)
-        {
-            if (data.isExternalData())
-            {
-                handledDataSets.add(data.tryAsExternalData());
-            }
-        }
-        scheduleDynamicPropertiesEvaluation(getDynamicPropertyEvaluatorScheduler(),
-                ExternalDataPE.class, handledDataSets);
+        scheduleDynamicPropertiesEvaluation(Arrays.asList(entity));
     }
 
 }
