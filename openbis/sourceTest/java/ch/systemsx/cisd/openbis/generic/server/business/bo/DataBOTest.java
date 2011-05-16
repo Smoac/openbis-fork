@@ -95,6 +95,8 @@ public class DataBOTest extends AbstractBOTest
 
     private static final String PARENT_CODE = "parent";
 
+    private static final String COMPONENT_CODE = "component";
+
     private static final Date PRODUCTION_DATE = new Date(1001);
 
     private static final String DATA_PRODUCER_CODE = "DPC";
@@ -418,7 +420,7 @@ public class DataBOTest extends AbstractBOTest
     {
         final SamplePE sample = new SamplePE();
         sample.setCode(SAMPLE_IDENTIFIER.getSampleCode());
-        final ExternalDataPE dataSet = createDataSet(sample, null);
+        final ExternalDataPE dataSet = createExternalData(sample, null);
         DataSetUpdatesDTO dataSetUpdatesDTO =
                 createDataSetUpdates(dataSet, SAMPLE_IDENTIFIER, null);
         prepareForUpdate(dataSet, sample);
@@ -449,7 +451,7 @@ public class DataBOTest extends AbstractBOTest
         final ExperimentPE experiment = new ExperimentPE();
         experiment.setCode(EXPERIMENT_IDENTIFIER.getExperimentCode());
 
-        final ExternalDataPE dataSet = createDataSet(null, experiment);
+        final ExternalDataPE dataSet = createExternalData(null, experiment);
         DataSetUpdatesDTO dataSetUpdatesDTO =
                 createDataSetUpdates(dataSet, null, EXPERIMENT_IDENTIFIER);
         String[] parentCodes =
@@ -476,7 +478,7 @@ public class DataBOTest extends AbstractBOTest
         final ExperimentPE experiment = new ExperimentPE();
         experiment.setCode(EXPERIMENT_IDENTIFIER.getExperimentCode());
 
-        final ExternalDataPE dataSet = createDataSet(null, experiment);
+        final ExternalDataPE dataSet = createExternalData(null, experiment);
         DataSetUpdatesDTO dataSetUpdatesDTO =
                 createDataSetUpdates(dataSet, null, EXPERIMENT_IDENTIFIER);
         String[] parentCodes =
@@ -500,6 +502,69 @@ public class DataBOTest extends AbstractBOTest
         {
             assertEquals("Data Sets with following codes do not exist: '[" + PARENT_CODE + "]'.",
                     e.getMessage());
+        }
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testUpdateWithNonExistingComponentDataSet()
+    {
+        final ExperimentPE experiment = new ExperimentPE();
+        experiment.setCode(EXPERIMENT_IDENTIFIER.getExperimentCode());
+
+        final DataPE dataSet = createDataSet(null, experiment);
+        DataSetUpdatesDTO dataSetUpdatesDTO =
+                createDataSetUpdates(dataSet, null, EXPERIMENT_IDENTIFIER);
+        String[] componentCodes =
+            { COMPONENT_CODE };
+        dataSetUpdatesDTO.setModifiedParentDatasetCodesOrNull(componentCodes);
+        prepareForUpdate(dataSet, experiment);
+        context.checking(new Expectations()
+            {
+                {
+                    one(dataDAO).tryToFindDataSetByCode(COMPONENT_CODE);
+                    will(returnValue(null));
+                }
+            });
+
+        IDataBO dataBO = createDataBO();
+        try
+        {
+            dataBO.update(dataSetUpdatesDTO);
+            fail("UserFailureException expected");
+        } catch (UserFailureException e)
+        {
+            assertEquals(
+                    "Data Sets with following codes do not exist: '[" + COMPONENT_CODE + "]'.",
+                    e.getMessage());
+        }
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testUpdateWithDataSetAsItsOwnContainer()
+    {
+        final ExperimentPE experiment = new ExperimentPE();
+        experiment.setCode(EXPERIMENT_IDENTIFIER.getExperimentCode());
+
+        final DataPE dataSet = createDataSet(null, experiment);
+        DataSetUpdatesDTO dataSetUpdatesDTO =
+                createDataSetUpdates(dataSet, null, EXPERIMENT_IDENTIFIER);
+        String[] componentCodes =
+            { dataSet.getCode() };
+        dataSetUpdatesDTO.setModifiedContainedDatasetCodesOrNull(componentCodes);
+        prepareForUpdate(dataSet, experiment);
+
+        IDataBO dataBO = createDataBO();
+        try
+        {
+            dataBO.update(dataSetUpdatesDTO);
+            fail("UserFailureException expected");
+        } catch (UserFailureException e)
+        {
+            assertEquals("Data set 'DS1' can not be its own component.", e.getMessage());
         }
 
         context.assertIsSatisfied();
@@ -535,7 +600,7 @@ public class DataBOTest extends AbstractBOTest
             });
     }
 
-    private void prepareForUpdate(final ExternalDataPE dataSet, final ExperimentPE experiment)
+    private void prepareForUpdate(final DataPE dataSet, final ExperimentPE experiment)
     {
         context.checking(new Expectations()
             {
@@ -559,7 +624,7 @@ public class DataBOTest extends AbstractBOTest
             });
     }
 
-    private DataSetUpdatesDTO createDataSetUpdates(final ExternalDataPE dataSet,
+    private DataSetUpdatesDTO createDataSetUpdates(final DataPE dataSet,
             final SampleIdentifier sampleIdentifierOrNull,
             final ExperimentIdentifier experimentIdentifierOrNull)
     {
@@ -568,16 +633,19 @@ public class DataBOTest extends AbstractBOTest
         dataSetUpdatesDTO.setVersion(dataSet.getModificationDate());
         dataSetUpdatesDTO.setSampleIdentifierOrNull(sampleIdentifierOrNull);
         dataSetUpdatesDTO.setExperimentIdentifierOrNull(experimentIdentifierOrNull);
-        dataSetUpdatesDTO.setFileFormatTypeCode(FILE_FORMAT_TYPE.getCode());
+        if (dataSet.isExternalData())
+        {
+            dataSetUpdatesDTO.setFileFormatTypeCode(FILE_FORMAT_TYPE.getCode());
+        }
         return dataSetUpdatesDTO;
     }
 
-    private ExternalDataPE createDataSet(final SamplePE sampleOrNull,
+    private ExternalDataPE createExternalData(final String code, final SamplePE sampleOrNull,
             final ExperimentPE experimentOrNull)
     {
         final ExternalDataPE dataSet = new ExternalDataPE();
         dataSet.setId(TECH_ID.getId());
-        dataSet.setCode(DATA_SET_CODE);
+        dataSet.setCode(code);
         dataSet.setModificationDate(PRODUCTION_DATE);
         dataSet.setSample(sampleOrNull);
         dataSet.setExperiment(experimentOrNull);
@@ -589,6 +657,36 @@ public class DataBOTest extends AbstractBOTest
         dataSetType.setDataSetTypePropertyTypes(new HashSet<DataSetTypePropertyTypePE>());
         dataSet.setDataSetType(dataSetType);
         return dataSet;
+    }
+
+    private ExternalDataPE createExternalData(final SamplePE sampleOrNull,
+            final ExperimentPE experimentOrNull)
+    {
+        return createExternalData(DATA_SET_CODE, sampleOrNull, experimentOrNull);
+    }
+
+    private DataPE createDataSet(final String code, final SamplePE sampleOrNull,
+            final ExperimentPE experimentOrNull)
+    {
+        final DataPE dataSet = new DataPE();
+        dataSet.setId(TECH_ID.getId());
+        dataSet.setCode(code);
+        dataSet.setModificationDate(PRODUCTION_DATE);
+        dataSet.setSample(sampleOrNull);
+        dataSet.setExperiment(experimentOrNull);
+        DataSetTypePE dataSetType = new DataSetTypePE();
+        dataSetType.setCode(DATA_SET_TYPE.getCode());
+        DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
+        databaseInstance.setCode("db");
+        dataSetType.setDatabaseInstance(databaseInstance);
+        dataSetType.setDataSetTypePropertyTypes(new HashSet<DataSetTypePropertyTypePE>());
+        dataSet.setDataSetType(dataSetType);
+        return dataSet;
+    }
+
+    private DataPE createDataSet(final SamplePE sampleOrNull, final ExperimentPE experimentOrNull)
+    {
+        return createDataSet(DATA_SET_CODE, sampleOrNull, experimentOrNull);
     }
 
     @Test

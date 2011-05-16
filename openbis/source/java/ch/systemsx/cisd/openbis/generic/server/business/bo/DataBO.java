@@ -478,17 +478,19 @@ public class DataBO extends AbstractExternalDataBusinessObject implements IDataB
                     new ArrayList<DataPE>(data.getContainedDataSets());
             removeComponents(currentComponents);
 
-            // final Set<String> currentComponentCodes = extractCodes(currentComponents);
+            final Set<String> currentCodes = extractCodes(currentComponents);
             final Set<String> newCodes = asSet(modifiedContainedDatasetCodesOrNull);
-            // newCodes.removeAll(currentComponentCodes);
-            //
-            // // quick check for direct cycle
-            // if (newCodes.contains(data.getCode()))
-            // {
-            // throw new UserFailureException("Data set '" + data.getCode()
-            // + "' can not be its own component.");
-            // }
-            // validateRelationshipGraph(componentsToAdd); // TODO
+
+            // quick check for direct cycle
+            final Set<String> brandNewCodes = new HashSet<String>(newCodes);
+            brandNewCodes.removeAll(currentCodes);
+            if (brandNewCodes.contains(data.getCode()))
+            {
+                throw new UserFailureException("Data set '" + data.getCode()
+                        + "' can not be its own component.");
+            }
+            // TODO 2011-05-16, Piotr Buczek: validation of container relationship graph
+            // validateContainerRelationshipGraph(componentsToAdd);
 
             final List<DataPE> newComponents = findDataSetsByCodes(newCodes);
             addComponents(newComponents);
@@ -550,10 +552,9 @@ public class DataBO extends AbstractExternalDataBusinessObject implements IDataB
         return getDataDAO().findParentIds(dataSetIds);
     }
 
-    private Collection<DataPE> filterDataSets(Collection<DataPE> dataSets,
-            Collection<String> seekenCodes)
+    private List<DataPE> filterDataSets(Collection<DataPE> dataSets, Collection<String> seekenCodes)
     {
-        Collection<DataPE> result = new ArrayList<DataPE>();
+        List<DataPE> result = new ArrayList<DataPE>();
         for (DataPE dataSet : dataSets)
         {
             if (seekenCodes.contains(dataSet.getCode()))
@@ -748,7 +749,7 @@ public class DataBO extends AbstractExternalDataBusinessObject implements IDataB
         return result;
     }
 
-    // TODO use DataDAO
+    // TODO 2011-05-16, Piotr Buczek: use DataDAO
     public void updateStatuses(List<String> dataSetCodes, DataSetArchivingStatus newStatus,
             boolean newPresentInArchive)
     {

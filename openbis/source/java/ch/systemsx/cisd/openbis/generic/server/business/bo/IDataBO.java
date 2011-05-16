@@ -46,18 +46,6 @@ public interface IDataBO extends IEntityBusinessObject
      */
     public DataPE getData();
 
-    // /**
-    // * Returns the external data item which has been created by
-    // * {@link #define(NewExternalData, SamplePE, SourceType)} or null.
-    // */
-    // public ExternalDataPE tryGetExternalData();
-    //
-    // /**
-    // * Returns the external data item which has been created by
-    // * {@link #define(NewExternalData, SamplePE, SourceType)}.
-    // */
-    // public ExternalDataPE getExternalData();
-
     /**
      * Defines a new external data item directly connected to a sample.
      * <p>
