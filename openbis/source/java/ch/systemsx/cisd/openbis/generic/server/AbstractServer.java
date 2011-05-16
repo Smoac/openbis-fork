@@ -76,6 +76,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.ServerUtils;
  */
 public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> implements IServer
 {
+    private final static String ETL_SERVER_USERNAME_PREFIX = "etlserver";
+
     protected static final class AuthenticatedPersonBasedPrincipalProvider implements IPrincipalProvider
     {
         private final PersonPE person;
@@ -193,13 +195,13 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
                 .getSlaveServer();
     }
 
-    private final RoleAssignmentPE createInstanceAdminRoleAssigment(final PersonPE registrator,
-            final PersonPE person)
+    private final RoleAssignmentPE createRoleAssigment(final PersonPE registrator,
+            final PersonPE person, final RoleCode roleCode)
     {
         final RoleAssignmentPE roleAssignmentPE = new RoleAssignmentPE();
         roleAssignmentPE.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
         roleAssignmentPE.setRegistrator(registrator);
-        roleAssignmentPE.setRole(RoleCode.ADMIN);
+        roleAssignmentPE.setRole(roleCode);
         person.addRoleAssignment(roleAssignmentPE);
         return roleAssignmentPE;
     }
@@ -322,7 +324,6 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         final List<PersonPE> persons = daoFactory.getPersonDAO().listPersons();
         assert persons.size() > 0 : "At least system user should be in the database";
         // If only one user (system user), then this is the first logged user.
-        final boolean isFirstLoggedUser = (persons.size() == 1);
         PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(session.getUserName());
         final Set<RoleAssignmentPE> roles;
         if (person == null)
@@ -340,25 +341,80 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         {
             session.setPerson(person);
         }
-        if (isFirstLoggedUser)
+
+        if (roles.isEmpty())
         {
-            // If system user does not have any role assignment yet make him database instance
-            // administrator.
-            final PersonPE systemUser = getSystemUser(persons);
-            if (systemUser.getRoleAssignments().isEmpty())
+            if (isFirstLoggedUser(person, persons))
             {
-                final RoleAssignmentPE roleAssignment =
-                        createInstanceAdminRoleAssigment(systemUser, person);
-                daoFactory.getRoleAssignmentDAO().createRoleAssignment(roleAssignment);
+                grantRoleAtFirstLogin(persons, person, RoleCode.ADMIN);
+            } else if (isFirstLoggedETLServer(person, persons))
+            {
+                grantRoleAtFirstLogin(persons, person, RoleCode.ETL_SERVER);
+            } else
+            {
+                authenticationLog.info(String.format(
+                        "User '%s' has no role assignments and thus is not permitted to login.",
+                        person.getUserId()));
+                return null;
             }
-        } else if (roles.isEmpty())
-        {
-            authenticationLog.info(String.format(
-                    "User '%s' has no role assignments and thus is not permitted to login.",
-                    person.getUserId()));
-            return null;
         }
+
         return asDTO(session);
+    }
+
+    private void grantRoleAtFirstLogin(List<PersonPE> persons, PersonPE person,
+            RoleCode roleCode)
+    {
+        final PersonPE systemUser = getSystemUser(persons);
+        if (systemUser.getRoleAssignments().isEmpty())
+        {
+            final RoleAssignmentPE roleAssignment =
+                    createRoleAssigment(systemUser, person, roleCode);
+            daoFactory.getRoleAssignmentDAO().createRoleAssignment(roleAssignment);
+        }
+    }
+
+    private boolean isFirstLoggedUser(PersonPE newPerson, List<PersonPE> persons)
+    {
+        if (isETLServerUserId(newPerson))
+        {
+            return false;
+        }
+
+        for (PersonPE person : persons)
+        {
+            if (person.isSystemUser() || isETLServerUserId(person))
+            {
+                // system & etl users should not receive INSTANCE_ADMIN rights
+                // upon first login
+            } else
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isFirstLoggedETLServer(PersonPE person, List<PersonPE> persons)
+    {
+        if (false == isETLServerUserId(person))
+        {
+            return false;
+        }
+
+        for (PersonPE existingPerson : persons)
+        {
+            if (isETLServerUserId(existingPerson))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isETLServerUserId(PersonPE person)
+    {
+        return person.getUserId().startsWith(ETL_SERVER_USERNAME_PREFIX);
     }
 
     private static SessionContextDTO asDTO(Session session)
@@ -376,6 +432,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         result.setAnonymous(session.isAnonymous());
         return result;
     }
+
 
     public SessionContextDTO tryGetSession(String sessionToken)
     {
