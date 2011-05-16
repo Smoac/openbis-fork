@@ -28,6 +28,8 @@ public class DataSet extends ExternalData implements IDatasetLocation
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private Boolean complete;
+    
+    private String shareId;
 
     private String location;
 
@@ -49,6 +51,16 @@ public class DataSet extends ExternalData implements IDatasetLocation
     public void setComplete(Boolean complete)
     {
         this.complete = complete;
+    }
+
+    public void setShareId(String shareId)
+    {
+        this.shareId = shareId;
+    }
+
+    public String getShareId()
+    {
+        return shareId;
     }
 
     @Override

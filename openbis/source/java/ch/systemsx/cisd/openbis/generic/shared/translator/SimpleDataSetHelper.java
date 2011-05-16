@@ -17,13 +17,11 @@
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
@@ -33,23 +31,25 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
  */
 public class SimpleDataSetHelper
 {
-    public static final List<SimpleDataSetInformationDTO> translate(
-            List<ExternalDataPE> externalData)
+    public static final List<SimpleDataSetInformationDTO> translate(List<ExternalData> externalData)
     {
         if (externalData == null)
         {
             return null;
         }
         List<SimpleDataSetInformationDTO> result = new ArrayList<SimpleDataSetInformationDTO>();
-        for (ExternalDataPE ed : externalData)
+        for (ExternalData ed : externalData)
         {
-            result.add(translate(ed));
+            if (ed instanceof DataSet)
+            {
+                DataSet dataSet = (DataSet) ed;
+                result.add(translate(dataSet));
+            }
         }
         return result;
     }
 
-    // TODO KE: use DataPE ?
-    private static SimpleDataSetInformationDTO translate(ExternalDataPE data)
+    private static SimpleDataSetInformationDTO translate(DataSet data)
     {
         SimpleDataSetInformationDTO result = new SimpleDataSetInformationDTO();
         result.setDataStoreCode(data.getDataStore().getCode());
@@ -59,21 +59,12 @@ public class SimpleDataSetHelper
         result.setDataSetLocation(data.getLocation());
         result.setDataSetSize(data.getSize());
         result.setDatabaseInstanceCode(data.getExperiment().getProject().getSpace()
-                .getDatabaseInstance().getCode());
+                .getInstance().getCode());
         result.setExperimentCode(data.getExperiment().getCode());
         result.setProjectCode(data.getExperiment().getProject().getCode());
         result.setGroupCode(data.getExperiment().getProject().getSpace().getCode());
-        SamplePE sampleOrNull = data.tryGetSample();
-        result.setSampleCode(sampleOrNull == null ? null : sampleOrNull.getCode());
+        result.setSampleCode(data.getSampleCode());
         result.setDataSetType(data.getDataSetType().getCode());
-
-        HashSet<String> parentCodes = new HashSet<String>();
-        for (DataPE parent : data.getParents())
-        {
-            parentCodes.add(parent.getCode());
-        }
-
-        result.setParentDataSetCodes(parentCodes);
 
         return result;
     }

@@ -343,6 +343,11 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         return asList(createPrimaryDatasets(asList(datasets)));
     }
 
+    public List<ExternalData> listByDataStore(long dataStoreID)
+    {
+        return enrichDatasets(query.getDatasetsByDataStoreId(dataStoreID));
+    }
+
     public List<ExternalData> listByTrackingCriteria(TrackingDataSetCriteria criteria)
     {
         DataIterator<DatasetRecord> dataSets;
@@ -645,7 +650,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         for (DatasetRecord record : records)
         {
             DataSetType dsType = dataSetTypes.get(record.dsty_id);
-            if (record.is_placeholder)
+            if (record.is_placeholder || record.location == null)
             {
                 // placeholder data sets are filtered out
             } else if (dsType.isContainerType())
@@ -665,13 +670,16 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         convertStandardProperties(dataSet, record);
 
         dataSet.setComplete(resolve(record.is_complete));
-        dataSet.setStatus(DataSetArchivingStatus.valueOf(record.status));
+        dataSet.setStatus(record.status == null ? null : DataSetArchivingStatus
+                .valueOf(record.status));
         dataSet.setSpeedHint(record.speed_hint == null ? Constants.DEFAULT_SPEED_HINT
                 : record.speed_hint);
-        dataSet.setFileFormatType(fileFormatTypes.get(record.ffty_id));
+        dataSet.setShareId(record.share_id);
+        dataSet.setFileFormatType(record.ffty_id == null ? null : fileFormatTypes
+                .get(record.ffty_id));
         dataSet.setLocation(record.location);
         dataSet.setSize(record.size);
-        dataSet.setLocatorType(locatorTypes.get(record.loty_id));
+        dataSet.setLocatorType(record.loty_id == null ? null : locatorTypes.get(record.loty_id));
         return dataSet;
     }
 

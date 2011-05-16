@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
-import java.util.Collection;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
@@ -55,8 +54,6 @@ public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocati
 
     private String databaseInstanceCode;
     
-    private Collection<String> parentDataSetCodes;
-
     public void setDataStoreCode(String dataStoreCode)
     {
         this.dataStoreCode = dataStoreCode;
@@ -176,16 +173,6 @@ public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocati
     public void setDatabaseInstanceCode(String dbInstanceCode)
     {
         this.databaseInstanceCode = dbInstanceCode;
-    }
-
-    public Collection<String> getParentDataSetCodes()
-    {
-        return parentDataSetCodes;
-    }
-
-    public void setParentDataSetCodes(Collection<String> parentDataSetCodes)
-    {
-        this.parentDataSetCodes = parentDataSetCodes;
     }
 
 }

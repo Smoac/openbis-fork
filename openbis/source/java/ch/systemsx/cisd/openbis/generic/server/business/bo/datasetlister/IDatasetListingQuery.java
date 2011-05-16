@@ -195,6 +195,9 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
         { StringArrayMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getDatasets(String[] datasetCodes);
 
+    @Select(sql = SELECT_ALL + " where data.dast_id = ?{1}", fetchSize = FETCH_SIZE)
+    public DataIterator<DatasetRecord> getDatasetsByDataStoreId(long dataStoreId);
+    
     /**
      * Returns the children dataset ids of the specified datasets.
      */

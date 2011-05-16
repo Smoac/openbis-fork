@@ -111,7 +111,6 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
 
     public void execute()
     {
-        // TODO don't load virtual data sets here or filter them out
         List<SimpleDataSetInformationDTO> dataSets = service.listDataSets();
         for (SimpleDataSetInformationDTO dataSet : dataSets)
         {

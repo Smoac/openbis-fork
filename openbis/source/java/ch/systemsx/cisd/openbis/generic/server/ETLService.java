@@ -37,7 +37,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObject
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
@@ -57,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
@@ -800,14 +800,18 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
     public List<DataSetShareId> listShareIds(String sessionToken, String dataStore)
             throws UserFailureException
     {
-        List<ExternalDataPE> dataSets = loadDataSets(sessionToken, dataStore);
+        List<ExternalData> dataSets = loadDataSets(sessionToken, dataStore);
         ArrayList<DataSetShareId> shareIds = new ArrayList<DataSetShareId>();
-        for (ExternalDataPE dataSet : dataSets)
+        for (ExternalData dataSet : dataSets)
         {
-            DataSetShareId dataSetShareId = new DataSetShareId();
-            dataSetShareId.setDataSetCode(dataSet.getCode());
-            dataSetShareId.setShareId(dataSet.getShareId());
-            shareIds.add(dataSetShareId);
+            if (dataSet instanceof DataSet)
+            {
+                DataSet ds = (DataSet) dataSet;
+                DataSetShareId dataSetShareId = new DataSetShareId();
+                dataSetShareId.setDataSetCode(ds.getCode());
+                dataSetShareId.setShareId(ds.getShareId());
+                shareIds.add(dataSetShareId);
+            }
         }
         return shareIds;
     }
@@ -815,7 +819,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
     public List<SimpleDataSetInformationDTO> listDataSets(String sessionToken, String dataStoreCode)
             throws UserFailureException
     {
-        List<ExternalDataPE> dataSets = loadDataSets(sessionToken, dataStoreCode);
+        List<ExternalData> dataSets = loadDataSets(sessionToken, dataStoreCode);
         return SimpleDataSetHelper.translate(dataSets);
     }
 
@@ -851,18 +855,17 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         return result;
     }
 
-    private List<ExternalDataPE> loadDataSets(String sessionToken, String dataStoreCode)
+    private List<ExternalData> loadDataSets(String sessionToken, String dataStoreCode)
     {
         Session session = getSession(sessionToken);
+        IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
         DataStorePE dataStore =
                 getDAOFactory().getDataStoreDAO().tryToFindDataStoreByCode(dataStoreCode);
         if (dataStore == null)
         {
             throw new UserFailureException(String.format("Unknown data store '%s'", dataStoreCode));
         }
-        IExternalDataTable dataSetTable = businessObjectFactory.createExternalDataTable(session);
-        dataSetTable.loadByDataStore(dataStore);
-        return dataSetTable.getExternalData();
+        return datasetLister.listByDataStore(dataStore.getId());
     }
 
     public List<DeletedDataSet> listDeletedDataSets(String sessionToken,

@@ -22,21 +22,21 @@ import java.util.List;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.types.BooleanOrUnknown;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * 
@@ -48,10 +48,11 @@ public class SimpleDataSetHelperTest extends AssertJUnit
     @Test
     public void testTranslateList()
     {
-        ExternalDataPE ds1 = create(1);
-        ExternalDataPE ds2 = create(2);
+        ExternalData ds1 = create(1);
+        ExternalData ds2 = create(2);
+        ExternalData ds3 = new ContainerDataSet();
 
-        List<SimpleDataSetInformationDTO> list = SimpleDataSetHelper.translate(Arrays.asList(ds1, ds2));
+        List<SimpleDataSetInformationDTO> list = SimpleDataSetHelper.translate(Arrays.asList(ds1, ds2, ds3));
         
         check(1, list.get(0));
         check(2, list.get(1));
@@ -62,49 +63,47 @@ public class SimpleDataSetHelperTest extends AssertJUnit
     @Test 
     public void testTranslateDescription()
     {
-        ExternalData ds = ExternalDataTranslator.translate(create(1), "", false);
-        DatasetDescription description = ExternalDataTranslator.translateToDescription(ds);
+        DatasetDescription description = ExternalDataTranslator.translateToDescription(create(1));
         
         SimpleDataSetInformationDTO result = SimpleDataSetHelper.translate(description);
         
         check(1, result);
     }
     
-    private ExternalDataPE create(long id)
+    private ExternalData create(long id)
     {
-        ExternalDataPE dataSet = new ExternalDataPE();
+        DataSet dataSet = new DataSet();
         dataSet.setId(id);
         dataSet.setCode("ds-" + id);
-        dataSet.setComplete(BooleanOrUnknown.T);
+        dataSet.setComplete(true);
         dataSet.setDataProducerCode("producer");
-        DataSetTypePE dataSetType = new DataSetTypePE();
+        DataSetType dataSetType = new DataSetType();
         dataSetType.setCode("MY-TYPE");
         dataSet.setDataSetType(dataSetType);
-        DataStorePE store = new DataStorePE();
+        DataStore store = new DataStore();
         store.setCode("MY-STORE");
         dataSet.setDataStore(store);
         dataSet.setDerived(true);
-        ExperimentPE experiment = new ExperimentPE();
+        Experiment experiment = new Experiment();
         experiment.setCode("MY-EXPERIMENT");
-        ExperimentTypePE experimentType = new ExperimentTypePE();
+        ExperimentType experimentType = new ExperimentType();
         experimentType.setCode("MY-EXPERIMENT-TYPE");
         experiment.setExperimentType(experimentType);
-        ProjectPE project = new ProjectPE();
+        Project project = new Project();
         project.setCode("MY-PROJECT");
-        SpacePE space = new SpacePE();
+        Space space = new Space();
         space.setCode("MY-SPACE");
-        DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
+        DatabaseInstance databaseInstance = new DatabaseInstance();
         databaseInstance.setCode("MY-DB");
-        space.setDatabaseInstance(databaseInstance);
+        space.setInstance(databaseInstance);
         project.setSpace(space);
         experiment.setProject(project);
         dataSet.setExperiment(experiment);
-        FileFormatTypePE fileFormatType = new FileFormatTypePE();
+        FileFormatType fileFormatType = new FileFormatType();
         fileFormatType.setCode("MY_FILE_FORMAT");
         dataSet.setFileFormatType(fileFormatType);
         dataSet.setLocation("my-location");
-        dataSet.setPresentInArchive(true);
-        SamplePE sample = new SamplePE();
+        Sample sample = new Sample();
         sample.setCode("MY-SAMPLE");
         dataSet.setSample(sample);
         dataSet.setShareId("42");
