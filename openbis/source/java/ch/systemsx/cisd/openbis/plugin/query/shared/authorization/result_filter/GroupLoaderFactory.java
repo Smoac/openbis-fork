@@ -42,7 +42,7 @@ class GroupLoaderFactory implements IGroupLoaderFactory
             case SAMPLE:
                 return new SampleGroupLoader(factory.getSampleDAO());
             case DATA_SET:
-                return new DataSetGroupLoader(factory.getExternalDataDAO());
+                return new DataSetGroupLoader(factory.getDataDAO());
             case MATERIAL:
                 throw new UnsupportedOperationException();
         }

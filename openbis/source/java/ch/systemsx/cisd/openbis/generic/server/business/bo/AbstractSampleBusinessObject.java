@@ -29,7 +29,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -347,11 +347,11 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         return project;
     }
 
-    protected void checkAllBusinessRules(SamplePE sample, IExternalDataDAO externalDataDAO,
+    protected void checkAllBusinessRules(SamplePE sample, IDataDAO dataDAO,
             Map<EntityTypePE, List<EntityTypePropertyTypePE>> cacheOrNull)
     {
         checkPropertiesBusinessRules(sample, cacheOrNull);
-        checkExperimentBusinessRules(externalDataDAO, sample);
+        checkExperimentBusinessRules(dataDAO, sample);
         checkParentBusinessRules(sample);
         checkContainerBusinessRules(sample);
     }
@@ -370,9 +370,9 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         }
     }
 
-    protected void checkExperimentBusinessRules(IExternalDataDAO externalDataDAO, SamplePE sample)
+    protected void checkExperimentBusinessRules(IDataDAO dataDAO, SamplePE sample)
     {
-        final boolean hasDatasets = hasDatasets(externalDataDAO, sample);
+        final boolean hasDatasets = hasDatasets(dataDAO, sample);
         if (hasDatasets && sample.getExperiment() == null)
         {
             throw UserFailureException.fromTemplate(
@@ -407,11 +407,11 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         SampleGenericBusinessRules.assertValidComponents(sample);
     }
 
-    protected boolean hasDatasets(IExternalDataDAO externalDataDAO, SamplePE sample)
+    protected boolean hasDatasets(IDataDAO dataDAO, SamplePE sample)
     {
         // If we just added new data sets in this BO, they won't have data sets, so no need to
         // check.
-        return (onlyNewSamples == false) && SampleUtils.hasDatasets(externalDataDAO, sample);
+        return (onlyNewSamples == false) && SampleUtils.hasDatasets(dataDAO, sample);
     }
 
     protected void updateSpace(SamplePE sample, SampleIdentifier sampleOwnerIdentifier,
@@ -441,7 +441,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
 
     private void removeFromExperiment(SamplePE sample)
     {
-        if (hasDatasets(getExternalDataDAO(), sample))
+        if (hasDatasets(getDataDAO(), sample))
         {
             throw UserFailureException.fromTemplate(
                     "Cannot detach the sample '%s' from the experiment "

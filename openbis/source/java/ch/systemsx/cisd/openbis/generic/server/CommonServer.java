@@ -72,9 +72,9 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calc
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
@@ -208,7 +208,6 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DataStoreServiceTransl
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GridCustomExpressionTranslator.GridCustomFilterTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GroupTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTypeTranslator;
@@ -913,13 +912,13 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final Session session = getSession(sessionToken);
         try
         {
-            final Set<ExternalDataPE> resultSet = new LinkedHashSet<ExternalDataPE>();
+            final Set<DataPE> resultSet = new LinkedHashSet<DataPE>();
             // TODO 2009-08-17, Piotr Buczek: [LMS-1149] optimize performance
             addRelatedDataSets(resultSet, relatedEntities.getEntities());
             final List<ExternalData> list = new ArrayList<ExternalData>(resultSet.size());
-            for (final ExternalDataPE hit : resultSet)
+            for (final DataPE hit : resultSet)
             {
-                list.add(ExternalDataTranslator.translate(hit, session.getBaseIndexURL(), false));
+                list.add(DataSetTranslator.translate(hit, session.getBaseIndexURL(), false));
             }
             return list;
         } catch (final DataAccessException ex)
@@ -928,16 +927,15 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
     }
 
-    private void addRelatedDataSets(final Set<ExternalDataPE> resultSet,
+    private void addRelatedDataSets(final Set<DataPE> resultSet,
             final List<? extends IEntityInformationHolder> relatedEntities)
     {
-        final IExternalDataDAO externalDataDAO = getDAOFactory().getExternalDataDAO();
+        final IDataDAO dataDAO = getDAOFactory().getDataDAO();
         for (IEntityInformationHolder entity : relatedEntities)
         {
             if (isEntityKindRelatedWithDataSets(entity.getEntityKind()))
             {
-                List<ExternalDataPE> relatedDataSets =
-                        externalDataDAO.listRelatedExternalData(entity);
+                List<DataPE> relatedDataSets = dataDAO.listRelatedDataSets(entity);
                 resultSet.addAll(relatedDataSets);
             }
         }

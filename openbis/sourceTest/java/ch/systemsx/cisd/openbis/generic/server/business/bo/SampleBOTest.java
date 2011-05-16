@@ -352,7 +352,7 @@ public final class SampleBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    allowing(externalDataDAO).hasExternalData(with(sample));
+                    allowing(dataDAO).hasDataSet(with(sample));
                     will(returnValue(true));
                 }
             });
@@ -445,7 +445,7 @@ public final class SampleBOTest extends AbstractBOTest
                     allowing(daoFactory).getHomeDatabaseInstance();
                     will(returnValue(EXAMPLE_DATABASE_INSTANCE));
 
-                    allowing(externalDataDAO).hasExternalData(with(sample));
+                    allowing(dataDAO).hasDataSet(with(sample));
                     will(returnValue(false));
                 }
             });
@@ -497,7 +497,7 @@ public final class SampleBOTest extends AbstractBOTest
                     allowing(sampleDAO).tryFindByCodeAndSpace(parent.getCode(), EXAMPLE_GROUP);
                     will(returnValue(parent));
 
-                    allowing(externalDataDAO).hasExternalData(with(sample));
+                    allowing(dataDAO).hasDataSet(with(sample));
                     will(returnValue(false));
                 }
             });
@@ -564,7 +564,7 @@ public final class SampleBOTest extends AbstractBOTest
                             EXAMPLE_GROUP2);
                     will(returnValue(parent3Group2));
 
-                    allowing(externalDataDAO).hasExternalData(with(sample));
+                    allowing(dataDAO).hasDataSet(with(sample));
                     will(returnValue(false));
                 }
             });
@@ -621,7 +621,7 @@ public final class SampleBOTest extends AbstractBOTest
                     allowing(sampleDAO).tryFindByCodeAndSpace(container.getCode(), EXAMPLE_GROUP);
                     will(returnValue(container));
 
-                    allowing(externalDataDAO).hasExternalData(with(sample));
+                    allowing(dataDAO).hasDataSet(with(sample));
                     will(returnValue(false));
                 }
             });
@@ -661,7 +661,7 @@ public final class SampleBOTest extends AbstractBOTest
                     allowing(sampleDAO).tryFindByCodeAndSpace(container.getCode(), EXAMPLE_GROUP2);
                     will(returnValue(container));
 
-                    allowing(externalDataDAO).hasExternalData(with(sample));
+                    allowing(dataDAO).hasDataSet(with(sample));
                     will(returnValue(false));
 
                     one(sampleDAO).createOrUpdateSample(sample);
@@ -692,7 +692,7 @@ public final class SampleBOTest extends AbstractBOTest
             {
                 {
 
-                    allowing(externalDataDAO).hasExternalData(with(sample));
+                    allowing(dataDAO).hasDataSet(with(sample));
                     will(returnValue(true));
                 }
             });
@@ -977,7 +977,7 @@ public final class SampleBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    allowing(externalDataDAO).hasExternalData(with(sample));
+                    allowing(dataDAO).hasDataSet(with(sample));
                     will(returnValue(false));
                 }
             });

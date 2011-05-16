@@ -504,7 +504,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    allowing(externalDataDAO).hasExternalData((with(any(SamplePE.class))));
+                    allowing(dataDAO).hasDataSet((with(any(SamplePE.class))));
                     will(returnValue(false));
                 }
             });
@@ -582,7 +582,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    allowing(externalDataDAO).hasExternalData(with(assignedSample));
+                    allowing(dataDAO).hasDataSet(with(assignedSample));
                     will(returnValue(true));
                 }
             });

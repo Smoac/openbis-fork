@@ -27,11 +27,11 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * Test cases for {@link DataSetGroupLoader}.
@@ -48,13 +48,13 @@ public class DataSetGroupLoaderTest extends AssertJUnit
 
     private Mockery context;
 
-    private IExternalDataDAO dao;
+    private IDataDAO dao;
 
     @BeforeMethod
     public void setUp()
     {
         context = new Mockery();
-        dao = context.mock(IExternalDataDAO.class);
+        dao = context.mock(IDataDAO.class);
     }
 
     @AfterMethod

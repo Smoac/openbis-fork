@@ -22,7 +22,6 @@ import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
@@ -34,8 +33,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 /**
  * An interface that contains all data access operations on {@link ExternalDataPE}s.
  * 
+ * @deprecated use {@link IDataDAO}
  * @author Christian Ribeaud
  */
+@Deprecated
 public interface IExternalDataDAO extends IGenericDAO<ExternalDataPE>
 {
     /**
@@ -46,30 +47,11 @@ public interface IExternalDataDAO extends IGenericDAO<ExternalDataPE>
     public boolean hasExternalData(final SamplePE sample) throws DataAccessException;
 
     /**
-     * List the {@link ExternalDataPE} related to given <var>entity</var>.
-     * 
-     * @returns list of {@link ExternalDataPE}s that are related to given
-     *          {@link IEntityInformationHolder}.
-     */
-    public List<ExternalDataPE> listRelatedExternalData(final IEntityInformationHolder entity)
-            throws DataAccessException;
-
-    /**
      * List the {@link ExternalDataPE} for given <var>sample</var>.
      * 
      * @returns list of {@link ExternalDataPE}s that are related to given {@link SamplePE}.
      */
     public List<ExternalDataPE> listExternalData(final SamplePE sample) throws DataAccessException;
-
-    // /**
-    // * List the all {@link ExternalDataPE} for given {@link DataSetArchivingStatus}.
-    // *
-    // * @param maxResultSize the maximum size of the returned list. Specifying a negative number
-    // * (e.g. -1) is equal to no limitation.
-    // * @returns list of {@link ExternalDataPE}s with the specified status.
-    // */
-    // public List<ExternalDataPE> listByArchivingStatus(DataSetArchivingStatus status,
-    // int maxResultSize);
 
     /**
      * List the {@link ExternalDataPE} for given <var>experiment</var>.

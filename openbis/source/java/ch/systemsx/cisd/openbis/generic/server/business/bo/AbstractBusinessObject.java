@@ -209,6 +209,7 @@ abstract class AbstractBusinessObject implements IDAOFactory
         return daoFactory.getDataDAO();
     }
 
+    @Deprecated
     public final IExternalDataDAO getExternalDataDAO()
     {
         return daoFactory.getExternalDataDAO();

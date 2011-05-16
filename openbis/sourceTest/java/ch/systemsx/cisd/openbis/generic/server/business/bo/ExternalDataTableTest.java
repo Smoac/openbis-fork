@@ -68,6 +68,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
  * @author Christian Ribeaud
  */
 @Friend(toClasses = ExternalDataTable.class)
+// FIXME
+@SuppressWarnings("deprecation")
 public final class ExternalDataTableTest extends AbstractBOTest
 {
     private IDataStoreServiceFactory dssFactory;
@@ -308,8 +310,10 @@ public final class ExternalDataTableTest extends AbstractBOTest
                     prepareFindFullDatasets(new ExternalDataPE[]
                         { d1, d2 }, false, false);
 
-                    BaseMatcher<List<DatasetDescription>> dataSets = createDatasetDescriptionsMatcher(d2);
-                    one(dataStoreService2).getKnownDataSets(with(dss2.getSessionToken()), with(dataSets));
+                    BaseMatcher<List<DatasetDescription>> dataSets =
+                            createDatasetDescriptionsMatcher(d2);
+                    one(dataStoreService2).getKnownDataSets(with(dss2.getSessionToken()),
+                            with(dataSets));
                     will(returnValue(Arrays.asList(d2.getLocation())));
 
                     PersonPE person = EXAMPLE_SESSION.tryGetPerson();
@@ -318,7 +322,8 @@ public final class ExternalDataTableTest extends AbstractBOTest
                     one(eventDAO).persist(createDeletionEvent(d2, person, reason));
                     one(externalDataDAO).delete(d2);
 
-                    one(dataStoreService2).deleteDataSets(with(dss2.getSessionToken()), with(dataSets));
+                    one(dataStoreService2).deleteDataSets(with(dss2.getSessionToken()),
+                            with(dataSets));
                 }
             });
 
@@ -356,7 +361,8 @@ public final class ExternalDataTableTest extends AbstractBOTest
                     will(returnValue(Arrays.asList(d2PE.getLocation())));
 
                     one(dataStoreService2).uploadDataSetsToCIFEX(
-                            with(equal(dss2.getSessionToken())), with(new BaseMatcher<List<ExternalData>>()
+                            with(equal(dss2.getSessionToken())),
+                            with(new BaseMatcher<List<ExternalData>>()
                                 {
 
                                     public boolean matches(Object item)
@@ -647,7 +653,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
                             with(equal(ManagerTestTool.EXAMPLE_PERSON.getEmail())),
                             with(equal(true)));
                     will(throwException(new RuntimeException()));
-                    
+
                     allowing(dataStoreService3).archiveDatasets(
                             with(equal(dss3.getSessionToken())),
                             with(createDatasetDescriptionsMatcher(d3Array)),
@@ -719,7 +725,8 @@ public final class ExternalDataTableTest extends AbstractBOTest
     }
 
     @SuppressWarnings("unchecked")
-    private BaseMatcher<List<DatasetDescription>> createDatasetDescriptionsMatcher(final ExternalDataPE... dataSets)
+    private BaseMatcher<List<DatasetDescription>> createDatasetDescriptionsMatcher(
+            final ExternalDataPE... dataSets)
     {
         return new BaseMatcher<List<DatasetDescription>>()
             {
@@ -730,8 +737,10 @@ public final class ExternalDataTableTest extends AbstractBOTest
                     assertEquals(dataSets.length, list.size());
                     for (int i = 0; i < list.size(); i++)
                     {
-                        assertEquals("data set " + i, dataSets[i].getCode(), list.get(i).getDataSetCode());
-                        assertEquals("data set " + i, dataSets[i].getSpeedHint(), list.get(i).getSpeedHint());
+                        assertEquals("data set " + i, dataSets[i].getCode(), list.get(i)
+                                .getDataSetCode());
+                        assertEquals("data set " + i, dataSets[i].getSpeedHint(), list.get(i)
+                                .getSpeedHint());
                     }
                     return true;
                 }
@@ -747,7 +756,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
                 }
             };
     }
-    
+
     @SuppressWarnings("unchecked")
     private BaseMatcher<List<String>> createUnorderedMarcher(final List<String> list)
     {

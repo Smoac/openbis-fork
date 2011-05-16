@@ -231,7 +231,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     {
         if (experiment.getDataSets().size() > 0)
         {
-            getExternalDataDAO().listExternalData(experiment);
+            getDataDAO().listDataSets(experiment);
             boolean onlyPlaceholders = true;
             for (DataPE data : experiment.getDataSets())
             {
@@ -468,7 +468,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     {
         for (SamplePE sample : samples)
         {
-            SampleUtils.checkSampleWithoutDatasets(getExternalDataDAO(), sample);
+            SampleUtils.checkSampleWithoutDatasets(getDataDAO(), sample);
             experiment.removeSample(sample);
         }
     }

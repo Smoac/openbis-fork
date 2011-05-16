@@ -89,7 +89,7 @@ public class GroupLoaderFactoryTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getExternalDataDAO();
+                    one(daoFactory).getDataDAO();
                     will(returnValue(null));
                 }
             });

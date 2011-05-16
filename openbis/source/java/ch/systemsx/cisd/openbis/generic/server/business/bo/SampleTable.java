@@ -221,7 +221,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
                 new HashMap<EntityTypePE, List<EntityTypePropertyTypePE>>();
         for (SamplePE s : samples)
         {
-            checkAllBusinessRules(s, getExternalDataDAO(), cache);
+            checkAllBusinessRules(s, getDataDAO(), cache);
         }
     }
 
@@ -245,7 +245,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         {
             updateSpace(sample, updates.getSampleIdentifier(), sampleOwnerCache);
             updateExperiment(sample, updates.getExperimentIdentifierOrNull(), experimentCache);
-            checkExperimentBusinessRules(getExternalDataDAO(), sample);
+            checkExperimentBusinessRules(getDataDAO(), sample);
         }
         if (details.isParentsUpdateRequested())
         {
@@ -293,14 +293,16 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         final Map<EntityTypePE, List<EntityTypePropertyTypePE>> propertiesCache =
                 new HashMap<EntityTypePE, List<EntityTypePropertyTypePE>>();
         samples = loadSamples(updates, sampleOwnerCache);
-        Map<SampleIdentifier, SamplePE> samplesByIdentifiers = new HashMap<SampleIdentifier, SamplePE>();
+        Map<SampleIdentifier, SamplePE> samplesByIdentifiers =
+                new HashMap<SampleIdentifier, SamplePE>();
         for (SamplePE sample : samples)
         {
             samplesByIdentifiers.put(sample.getSampleIdentifier(), sample);
         }
         for (SampleBatchUpdatesDTO sampleUpdates : updates)
         {
-            final SamplePE sample = samplesByIdentifiers.get(sampleUpdates.getOldSampleIdentifierOrNull());
+            final SamplePE sample =
+                    samplesByIdentifiers.get(sampleUpdates.getOldSampleIdentifierOrNull());
             prepareBatchUpdate(sample, sampleUpdates, sampleOwnerCache, experimentCache,
                     propertiesCache);
         }

@@ -80,6 +80,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  * 
  * @author Christian Ribeaud
  */
+@SuppressWarnings("deprecation")
+// FIXME
 public final class ExternalDataTable extends AbstractExternalDataBusinessObject implements
         IExternalDataTable
 {

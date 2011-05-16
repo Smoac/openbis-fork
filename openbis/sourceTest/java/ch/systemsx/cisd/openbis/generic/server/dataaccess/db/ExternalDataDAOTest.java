@@ -65,6 +65,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
  */
 @Test(groups =
     { "db", "externalData" })
+@SuppressWarnings("deprecation")
 public final class ExternalDataDAOTest extends AbstractDAOTest
 {
 
@@ -171,7 +172,7 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
     {
         checkUpdate(4711L);
     }
-    
+
     private void checkUpdate(Long size)
     {
         IExternalDataDAO externalDataDAO = daoFactory.getExternalDataDAO();

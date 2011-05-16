@@ -28,8 +28,8 @@ import org.springframework.test.annotation.Rollback;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
@@ -41,11 +41,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
@@ -73,8 +73,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * <br>
  * IMPORTANT - to make it faster try:
  * <ul>
- * <li>commenting out flush() in create methods for in {@link IExternalDataDAO} and
- * {@link SampleDAO}
+ * <li>commenting out flush() in create methods for in {@link IDataDAO} and {@link SampleDAO}
  * <li>turning off logging (doesn't make a big difference) - change root logging priority in log.xml
  * from "info" to "error".
  * </ul>
@@ -305,6 +304,7 @@ public final class DBCreator extends AbstractDAOTest
 
     // DataSets
 
+    @SuppressWarnings("deprecation")
     private void createDataSetsForSample(SamplePE sample)
     {
         final int size = SizeHelper.getNextDataSetsPerSampleSize();

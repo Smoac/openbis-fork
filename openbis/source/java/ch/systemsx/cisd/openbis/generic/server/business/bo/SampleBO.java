@@ -188,7 +188,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
             }
             attachments.clear();
         }
-        checkAllBusinessRules(sample, getExternalDataDAO(), null);
+        checkAllBusinessRules(sample, getDataDAO(), null);
         onlyNewSamples = false;
     }
 
@@ -223,7 +223,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
 
     private final void checkSampleWithoutDatasets()
     {
-        SampleUtils.checkSampleWithoutDatasets(getExternalDataDAO(), sample);
+        SampleUtils.checkSampleWithoutDatasets(getDataDAO(), sample);
     }
 
     private final static void checkSampleUnused(final SamplePE sample)

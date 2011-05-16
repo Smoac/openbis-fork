@@ -17,20 +17,19 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo.util;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * @author Tomasz Pylak
  */
 public class SampleUtils
 {
-    public static final void checkSampleWithoutDatasets(IExternalDataDAO externalDataDAO,
-            SamplePE sample)
+    public static final void checkSampleWithoutDatasets(IDataDAO dataDAO, SamplePE sample)
     {
-        if (hasDatasets(externalDataDAO, sample))
+        if (hasDatasets(dataDAO, sample))
         {
             throw UserFailureException
                     .fromTemplate(
@@ -39,11 +38,11 @@ public class SampleUtils
         }
     }
 
-    public static boolean hasDatasets(IExternalDataDAO externalDataDAO, SamplePE sample)
+    public static boolean hasDatasets(IDataDAO dataDAO, SamplePE sample)
     {
         assert sample != null;
 
-        return externalDataDAO.hasExternalData(sample); 
+        return dataDAO.hasDataSet(sample);
     }
 
     /** for all experiment samples which belonged to a group the specified group will be set */

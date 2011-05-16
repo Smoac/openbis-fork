@@ -65,6 +65,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 /**
  * @author Franz-Josef Elmer
  */
+@SuppressWarnings("deprecation")
 @Friend(toClasses = DataPE.class)
 public class ExternalDataBO extends AbstractExternalDataBusinessObject implements IExternalDataBO
 {

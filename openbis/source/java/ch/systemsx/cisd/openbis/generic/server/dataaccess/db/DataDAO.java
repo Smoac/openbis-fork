@@ -44,7 +44,6 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -60,7 +59,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
- * Implementation of {@link IExternalDataDAO} for databases.
+ * Implementation of {@link IDataDAO} for databases.
  * 
  * @author Christian Ribeaud
  */

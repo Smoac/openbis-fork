@@ -58,16 +58,6 @@ public interface IDataDAO extends IGenericDAO<DataPE>
      */
     public List<DataPE> listDataSets(final SamplePE sample) throws DataAccessException;
 
-    // /**
-    // * List the all {@link ExternalDataPE} for given {@link DataSetArchivingStatus}.
-    // *
-    // * @param maxResultSize the maximum size of the returned list. Specifying a negative number
-    // * (e.g. -1) is equal to no limitation.
-    // * @returns list of {@link ExternalDataPE}s with the specified status.
-    // */
-    // public List<ExternalDataPE> listByArchivingStatus(DataSetArchivingStatus status,
-    // int maxResultSize);
-
     /**
      * List the {@link DataPE} for given <var>experiment</var>.
      * 

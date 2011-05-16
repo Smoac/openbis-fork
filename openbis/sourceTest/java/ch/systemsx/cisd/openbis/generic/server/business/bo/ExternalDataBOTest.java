@@ -72,6 +72,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
  * @author Franz-Josef Elmer
  */
 // TODO 2009-09-10, Piotr Buczek: write tests with many parents and cycle check
+@SuppressWarnings("deprecation")
 public class ExternalDataBOTest extends AbstractBOTest
 {
     private static final int SPEED_HINT = (Constants.DEFAULT_SPEED_HINT + Constants.MAX_SPEED) / 2;

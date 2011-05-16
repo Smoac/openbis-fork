@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
@@ -33,9 +33,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 class DataSetGroupLoader implements IGroupLoader
 {
 
-    private final IExternalDataDAO dao;
+    private final IDataDAO dao;
 
-    public DataSetGroupLoader(IExternalDataDAO dao)
+    public DataSetGroupLoader(IDataDAO dao)
     {
         this.dao = dao;
     }
@@ -43,8 +43,8 @@ class DataSetGroupLoader implements IGroupLoader
     public Map<String, SpacePE> loadGroups(Set<String> keys)
     {
         Map<String, SpacePE> map = new HashMap<String, SpacePE>();
-        List<ExternalDataPE> data = dao.listByCode(keys);
-        for (ExternalDataPE d : data)
+        List<DataPE> data = dao.listByCode(keys);
+        for (DataPE d : data)
         {
             map.put(d.getCode(), d.getExperiment().getProject().getSpace());
         }

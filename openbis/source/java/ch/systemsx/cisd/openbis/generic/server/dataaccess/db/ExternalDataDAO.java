@@ -63,6 +63,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  * 
  * @author Christian Ribeaud
  */
+@SuppressWarnings("deprecation")
 final class ExternalDataDAO extends AbstractGenericEntityWithPropertiesDAO<ExternalDataPE>
         implements IExternalDataDAO
 {
