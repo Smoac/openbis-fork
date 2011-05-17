@@ -67,7 +67,6 @@ public class DataSetTranslator
         DataSet dataSet = data.tryGetAsDataSet();
         if (dataSet != null)
         {
-            // TODO KE: 2011-05-06 make sure this other classes handle NULL correctly
             description.setDataSetLocation(dataSet.getLocation());
             description.setSpeedHint(dataSet.getSpeedHint());
         }

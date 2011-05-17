@@ -642,4 +642,32 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         return (this instanceof ExternalDataPE) ? (ExternalDataPE) this : null;
     }
 
+    /**
+     * return true if the data set if available in the data store.
+     */
+    @Transient
+    public boolean isAvailable()
+    {
+        return false;
+    }
+
+    /**
+     * return true if the data set can be deleted.
+     */
+    @Transient
+    public boolean isDeletable()
+    {
+        if (containedDataSets != null)
+        {
+            for (DataPE containedDataSet : containedDataSets)
+            {
+                if (containedDataSet.isDeletable() == false)
+                {
+                    return false;
+                }
+            }
+
+        }
+        return true;
+    }
 }

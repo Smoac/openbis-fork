@@ -234,4 +234,24 @@ public final class ExternalDataPE extends DataPE
         this.speedHint = speedHint == null ? Constants.DEFAULT_SPEED_HINT : speedHint;
     }
 
+    /**
+     * return true if the data set if available in the data store.
+     */
+    @Transient
+    @Override
+    public boolean isAvailable()
+    {
+        return getStatus().isAvailable();
+    }
+
+    /**
+     * return true if the data set can be deleted.
+     */
+    @Transient
+    @Override
+    public boolean isDeletable()
+    {
+        return getStatus().isDeletable();
+    }
+
 }

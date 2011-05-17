@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,6 +37,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
+import ch.systemsx.cisd.common.collections.DAG;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -240,19 +242,22 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
 
     public void deleteLoadedDataSets(String reason)
     {
+        dataSets = loadContainedDataSetsRecursively();
         assertDatasetsAreDeletable(dataSets);
 
-        Map<DataStorePE, List<ExternalDataPE>> allToBeDeleted = groupExternalDataByDataStores();
+        dataSets = sortTopologicallyByContainerRelationship(dataSets);
+
+        Map<DataStorePE, List<DataPE>> allToBeDeleted = groupDataSetsByDataStores();
         Map<DataStorePE, List<ExternalDataPE>> availableDatasets =
                 filterAvailableDatasets(allToBeDeleted);
 
         assertDataSetsAreKnown(availableDatasets);
-        for (Map.Entry<DataStorePE, List<ExternalDataPE>> entry : allToBeDeleted.entrySet())
+        for (Map.Entry<DataStorePE, List<DataPE>> entry : allToBeDeleted.entrySet())
         {
             DataStorePE dataStore = entry.getKey();
-            List<ExternalDataPE> allDataSets = entry.getValue();
+            List<DataPE> allDataSets = entry.getValue();
             // delete locally from DB
-            for (ExternalDataPE dataSet : allDataSets)
+            for (DataPE dataSet : allDataSets)
             {
                 deleteDataSetLocally(dataSet, reason);
             }
@@ -262,19 +267,63 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         }
     }
 
+    private List<DataPE> loadContainedDataSetsRecursively()
+    {
+        Map<Long, DataPE> loadCache = new HashMap<Long, DataPE>();
+        for (DataPE dataSet : dataSets)
+        {
+            loadContainedDataSetsInternal(dataSet, loadCache);
+        }
+
+        return new ArrayList<DataPE>(loadCache.values());
+    }
+
+    private void loadContainedDataSetsInternal(DataPE dataSet, Map<Long /* id */, DataPE> loaded)
+    {
+        Long id = dataSet.getId();
+        if (false == loaded.containsKey(id))
+        {
+            loaded.put(id, dataSet);
+            if (dataSet.getContainedDataSets() != null)
+            {
+                for (DataPE containedDataSet : dataSet.getContainedDataSets())
+                {
+                    loadContainedDataSetsInternal(containedDataSet, loaded);
+                }
+            }
+
+        }
+    }
+
+    private List<DataPE> sortTopologicallyByContainerRelationship(List<DataPE> datasets)
+    {
+        DAG<DataPE> dag = new DAG<DataPE>(datasets)
+            {
+                @Override
+                public Collection<DataPE> getSuccessors(DataPE node)
+                {
+                    return node.getContainedDataSets();
+                }
+            };
+
+        return dag.sortTopologically();
+    }
+
     private Map<DataStorePE, List<ExternalDataPE>> filterAvailableDatasets(
-            Map<DataStorePE, List<ExternalDataPE>> map)
+            Map<DataStorePE, List<DataPE>> map)
     {
         Map<DataStorePE, List<ExternalDataPE>> result =
                 new HashMap<DataStorePE, List<ExternalDataPE>>();
-        for (Map.Entry<DataStorePE, List<ExternalDataPE>> entry : map.entrySet())
+        for (Map.Entry<DataStorePE, List<DataPE>> entry : map.entrySet())
         {
             ArrayList<ExternalDataPE> available = new ArrayList<ExternalDataPE>();
-            for (ExternalDataPE data : entry.getValue())
+            for (DataPE data : entry.getValue())
             {
-                if (data.getStatus().isAvailable())
+                ExternalDataPE externalData = data.tryAsExternalData();
+                if (externalData != null && externalData.isAvailable())
                 {
-                    available.add(data);
+
+                    available.add(externalData);
                 }
             }
             result.put(entry.getKey(), available);
@@ -282,7 +331,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         return result;
     }
 
-    private void deleteDataSetLocally(ExternalDataPE dataSet, String reason)
+    private void deleteDataSetLocally(DataPE dataSet, String reason)
             throws UserFailureException
     {
         try
@@ -301,7 +350,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         }
     }
 
-    public static EventPE createDeletionEvent(ExternalDataPE dataSet, PersonPE registrator,
+    public static EventPE createDeletionEvent(DataPE dataSet, PersonPE registrator,
             String reason)
     {
         EventPE event = new EventPE();
@@ -315,9 +364,16 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         return event;
     }
 
-    private static String getDeletionDescription(ExternalDataPE dataSet)
+    private static String getDeletionDescription(DataPE dataSet)
     {
-        return dataSet.getLocation();
+        if (dataSet.isExternalData())
+        {
+            return dataSet.tryAsExternalData().getLocation();
+
+        } else
+        {
+            return StringUtils.EMPTY;
+        }
     }
 
     public String uploadLoadedDataSetsToCIFEX(DataSetUploadContext uploadContext)
@@ -451,7 +507,6 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
     /** groups all data sets (both virtual and non-virtual) by data stores */
     // TODO 2011-05-17, Piotr Buczek: use this instead of groupExternalDataByDataStores in places
     // where we want to support virtual data sets
-    @SuppressWarnings("unused")
     private Map<DataStorePE, List<DataPE>> groupDataSetsByDataStores()
     {
         Map<DataStorePE, List<DataPE>> map = new LinkedHashMap<DataStorePE, List<DataPE>>();

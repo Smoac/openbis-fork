@@ -481,6 +481,7 @@ public final class DataSetTableTest extends AbstractBOTest
     private ExternalDataPE createDataSet(String code, DataStorePE dataStore)
     {
         ExternalDataPE data = new ExternalDataPE();
+        data.setId((long) code.hashCode());
         data.setCode(code);
         data.setDataStore(dataStore);
         data.setLocation("here/" + code);

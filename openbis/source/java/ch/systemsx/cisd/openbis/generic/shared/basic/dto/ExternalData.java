@@ -62,7 +62,6 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
 
     private Collection<ExternalData> parents;
 
-    // TODO KE: 2011-05-06 Implement a logic in ContainerDataSets to calculate the size
     private Long size;
 
     private Sample sample;
