@@ -29,6 +29,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
@@ -101,24 +103,32 @@ public class ConversionUtils
             StorageFormat storageFormat, String dataFileRelativePath)
     {
         DataSetInformation dataSetInformation = registrationDetails.getDataSetInformation();
-        final NewExternalData data = new NewExternalData();
+        final NewExternalData data;
+        if (dataSetInformation.isContainerDataSet())
+        {
+            data = new NewContainerDataSet();
+            ((NewContainerDataSet) data).setContainedDataSetCodes(dataSetInformation
+                    .getContainedDataSetCodes());
+        } else
+        {
+            data = new NewDataSet();
+            data.setSpeedHint(dataSetInformation.getSpeedHint());
+            final BooleanOrUnknown isCompleteFlag = dataSetInformation.getIsCompleteFlag();
+            data.setComplete(isCompleteFlag);
+            data.setLocatorType(registrationDetails.getLocatorType());
+            data.setShareId(dataSetInformation.getShareId());
+            data.setLocation(dataFileRelativePath.substring(data.getShareId().length() + 1));
+            data.setFileFormatType(registrationDetails.getFileFormatType());
+        }
         data.setUserId(dataSetInformation.getUploadingUserIdOrNull());
         data.setUserEMail(dataSetInformation.tryGetUploadingUserEmail());
         data.setExtractableData(dataSetInformation.getExtractableData());
         data.setDataSetType(registrationDetails.getDataSetType());
-        data.setSpeedHint(dataSetInformation.getSpeedHint());
-        data.setFileFormatType(registrationDetails.getFileFormatType());
         data.setMeasured(registrationDetails.isMeasuredData());
         data.setDataStoreCode(dataStoreCode);
         data.setExperimentIdentifierOrNull(dataSetInformation.getExperimentIdentifier());
         data.setSampleIdentifierOrNull(dataSetInformation.getSampleIdentifier());
 
-        final BooleanOrUnknown isCompleteFlag = dataSetInformation.getIsCompleteFlag();
-
-        data.setComplete(isCompleteFlag);
-        data.setLocatorType(registrationDetails.getLocatorType());
-        data.setShareId(dataSetInformation.getShareId());
-        data.setLocation(dataFileRelativePath.substring(data.getShareId().length() + 1));
         data.setStorageFormat(storageFormat);
 
         List<NewProperty> newProperties =

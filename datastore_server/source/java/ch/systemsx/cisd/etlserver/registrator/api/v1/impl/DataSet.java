@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -190,5 +192,24 @@ public class DataSet<T extends DataSetInformation> implements IDataSet
     public List<String> getParentDatasets()
     {
         return registrationDetails.getDataSetInformation().getParentDataSetCodes();
+    }
+
+    public boolean isContainerDataSet()
+    {
+        return registrationDetails.getDataSetInformation().isContainerDataSet();
+    }
+
+    public List<String> getContainedDataSetCodes()
+    {
+        return Collections.unmodifiableList(registrationDetails.getDataSetInformation()
+                .getContainedDataSetCodes());
+    }
+
+    public void setContainedDataSetCodes(List<String> containedDataSetCodes)
+    {
+        ArrayList<String> newContainedDataSetCodes = new ArrayList<String>(containedDataSetCodes);
+        registrationDetails.getDataSetInformation().setContainedDataSetCodes(
+                newContainedDataSetCodes);
+
     }
 }

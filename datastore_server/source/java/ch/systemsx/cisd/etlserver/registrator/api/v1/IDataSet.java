@@ -102,10 +102,10 @@ public interface IDataSet
      * Set the data set type.
      */
     public void setDataSetType(String dataSetTypeCode);
-    
+
     /**
-     * Returns the speed hint. If it hasn't been set by {@link #setSpeedHint(int)} the default
-     * value {@link Constants#DEFAULT_SPEED_HINT} will be returned.
+     * Returns the speed hint. If it hasn't been set by {@link #setSpeedHint(int)} the default value
+     * {@link Constants#DEFAULT_SPEED_HINT} will be returned.
      */
     public int getSpeedHint();
 
@@ -122,17 +122,29 @@ public interface IDataSet
     /**
      * Get the value for a property.
      */
-    String getPropertyValue(String propertyCode);
+    public String getPropertyValue(String propertyCode);
 
     /**
      * Set the value for a property.
      */
-    void setPropertyValue(String propertyCode, String propertyValue);
+    public void setPropertyValue(String propertyCode, String propertyValue);
 
     /** Sets the parents of the dataset. */
-    void setParentDatasets(List<String> parentDatasetCodes);
+    public void setParentDatasets(List<String> parentDatasetCodes);
 
-    /** Sets the parents of the dataset. */
-    List<String> getParentDatasets();
+    /** Gets the parents of the dataset. */
+    public List<String> getParentDatasets();
 
+    // Methods relating to container data sets which contain other data sets
+    /** Return true if this data set contains other data sets. */
+    public boolean isContainerDataSet();
+
+    /**
+     * Get the codes for contained data sets. This is empty if {@link #isContainerDataSet()} returns
+     * false.
+     */
+    public List<String> getContainedDataSetCodes();
+
+    /** Set the codes for contained data sets. */
+    public void setContainedDataSetCodes(List<String> containedDataSetCodes);
 }

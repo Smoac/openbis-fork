@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared.dto;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -54,7 +55,7 @@ public class DataSetInformation implements Serializable
     private IEntityProperty[] topSampleProperties = IEntityProperty.EMPTY_ARRAY;
 
     private DataSetType dataSetType;
-    
+
     private int speedHint = ch.systemsx.cisd.openbis.generic.shared.Constants.DEFAULT_SPEED_HINT;
 
     private String shareId;
@@ -80,6 +81,8 @@ public class DataSetInformation implements Serializable
     private transient Experiment experiment;
 
     private BooleanOrUnknown isCompleteFlag = BooleanOrUnknown.U;
+
+    private List<String> containedDataSetCodes = new ArrayList<String>();
 
     /**
      * A subset of {@link NewExternalData} which gets set by the code extractor.
@@ -335,6 +338,21 @@ public class DataSetInformation implements Serializable
     public List<NewProperty> getDataSetProperties()
     {
         return extractableData.getDataSetProperties();
+    }
+
+    public List<String> getContainedDataSetCodes()
+    {
+        return containedDataSetCodes;
+    }
+
+    public void setContainedDataSetCodes(List<String> containedDataSetCodes)
+    {
+        this.containedDataSetCodes = containedDataSetCodes;
+    }
+
+    public boolean isContainerDataSet()
+    {
+        return false == containedDataSetCodes.isEmpty();
     }
 
     public final String describe()
