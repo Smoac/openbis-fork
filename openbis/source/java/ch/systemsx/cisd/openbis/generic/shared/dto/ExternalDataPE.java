@@ -89,7 +89,7 @@ public final class ExternalDataPE extends DataPE
     @ManyToOne(fetch = FetchType.LAZY)
     @NotNull(message = ValidationMessages.LOCATOR_TYPE_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.LOCATOR_TYPE_COLUMN, updatable = false)
-    public final LocatorTypePE getLocatorType()
+    public LocatorTypePE getLocatorType()
     {
         return locatorType;
     }
