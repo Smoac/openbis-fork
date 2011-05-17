@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -143,7 +144,8 @@ public class DataBOTest extends AbstractBOTest
         SamplePE sample = new SamplePE();
         ExperimentPE experimentPE = new ExperimentPE();
         sample.setExperiment(experimentPE);
-        prepareDefine(dataSetType, fileFormatType, vocabulary, locatorType, new DataStorePE());
+        prepareDefineExternalData(dataSetType, fileFormatType, vocabulary, locatorType,
+                new DataStorePE());
 
         IDataBO dataBO = createDataBO();
         dataBO.define(createDataSet(null), sample, SourceType.DERIVED);
@@ -183,7 +185,8 @@ public class DataBOTest extends AbstractBOTest
         SamplePE sample = new SamplePE();
         ExperimentPE experimentPE = new ExperimentPE();
         sample.setExperiment(experimentPE);
-        prepareDefine(dataSetType, fileFormatType, vocabulary, locatorType, new DataStorePE());
+        prepareDefineExternalData(dataSetType, fileFormatType, vocabulary, locatorType,
+                new DataStorePE());
         final NewExternalData data = createDataSet(null);
         data.setUserId("my-id");
         final PersonPE registrator = new PersonPE();
@@ -232,7 +235,8 @@ public class DataBOTest extends AbstractBOTest
         SamplePE sample = new SamplePE();
         ExperimentPE experimentPE = new ExperimentPE();
         sample.setExperiment(experimentPE);
-        prepareDefine(dataSetType, fileFormatType, vocabulary, locatorType, new DataStorePE());
+        prepareDefineExternalData(dataSetType, fileFormatType, vocabulary, locatorType,
+                new DataStorePE());
         final NewExternalData data = createDataSet(null);
         data.setUserEMail("my-email");
         final PersonPE registrator = new PersonPE();
@@ -281,7 +285,7 @@ public class DataBOTest extends AbstractBOTest
         final LocatorTypePE locatorType = new LocatorTypePE();
         ExperimentPE experimentPE = new ExperimentPE();
         DataStorePE dataStore = new DataStorePE();
-        prepareDefine(dataSetType, fileFormatType, vocabulary, locatorType, dataStore);
+        prepareDefineExternalData(dataSetType, fileFormatType, vocabulary, locatorType, dataStore);
         final DataPE data = new DataPE();
         context.checking(new Expectations()
             {
@@ -317,7 +321,7 @@ public class DataBOTest extends AbstractBOTest
         final LocatorTypePE locatorType = new LocatorTypePE();
         final ExperimentPE experiment = new ExperimentPE();
         final DataStorePE dataStore = new DataStorePE();
-        prepareDefine(dataSetType, fileFormatType, vocabulary, locatorType, dataStore);
+        prepareDefineExternalData(dataSetType, fileFormatType, vocabulary, locatorType, dataStore);
         final DataSetTypePE dataSetTypeUnknown = new DataSetTypePE();
         final DataPE parentData = new DataPE();
         parentData.setCode(PARENT_CODE);
@@ -362,7 +366,7 @@ public class DataBOTest extends AbstractBOTest
         vocabulary.addTerm(vocabularyTerm);
         final LocatorTypePE locatorType = new LocatorTypePE();
         final DataStorePE dataStore = new DataStorePE();
-        prepareDefine(dataSetType, fileFormatType, vocabulary, locatorType, dataStore);
+        prepareDefineExternalData(dataSetType, fileFormatType, vocabulary, locatorType, dataStore);
         final DataSetTypePE dataSetTypeUnknown = new DataSetTypePE();
         final DataPE parentData = new DataPE();
         parentData.setCode(PARENT_CODE);
@@ -386,6 +390,113 @@ public class DataBOTest extends AbstractBOTest
 
         IDataBO dataBO = createDataBO();
         dataBO.define(createDataSet(PARENT_CODE), experiment, SourceType.MEASUREMENT);
+        DataPE data = dataBO.getData();
+
+        assertSame(null, data.tryGetSample());
+        assertSame(true, data.isMeasured());
+        assertSame(dataStore, data.getDataStore());
+        assertEquals(1, data.getParents().size());
+        assertEquals(parentData, data.getParents().iterator().next());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testDefineWithExistingContainerDataSet()
+    {
+        final DataSetTypePE dataSetType = new DataSetTypePE();
+        ExperimentPE experimentPE = new ExperimentPE();
+        DataStorePE dataStore = new DataStorePE();
+        prepareDefineData(dataSetType, dataStore);
+        final DataPE data = new DataPE();
+        context.checking(new Expectations()
+            {
+                {
+                    one(dataDAO).tryToFindDataSetByCode(PARENT_CODE);
+                    will(returnValue(data));
+                }
+            });
+
+        IDataBO dataBO = createDataBO();
+        dataBO.define(createContainerDataSet(PARENT_CODE), experimentPE, SourceType.MEASUREMENT);
+        DataPE loadedData = dataBO.getData();
+
+        assertSame(experimentPE, loadedData.getExperiment());
+        assertEquals(null, loadedData.tryGetSample());
+        assertSame(true, loadedData.isMeasured());
+        assertSame(dataStore, loadedData.getDataStore());
+        assertEquals(1, loadedData.getParents().size());
+        assertSame(data, loadedData.getParents().iterator().next());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testDefineWithNonExistingContainerDataSet()
+    {
+        final DataSetTypePE dataSetType = new DataSetTypePE();
+        final ExperimentPE experiment = new ExperimentPE();
+        final DataStorePE dataStore = new DataStorePE();
+        prepareDefineData(dataSetType, dataStore);
+        final DataSetTypePE dataSetTypeUnknown = new DataSetTypePE();
+        final DataPE containerData = new DataPE();
+        containerData.setCode(PARENT_CODE);
+        containerData.setDataSetType(dataSetTypeUnknown);
+        containerData.setExperiment(createExperiment("EXP1"));
+        containerData.setPlaceholder(true);
+        context.checking(new Expectations()
+            {
+                {
+                    one(dataDAO).tryToFindDataSetByCode(PARENT_CODE);
+                    will(returnValue(null));
+
+                    one(dataSetTypeDAO).tryToFindDataSetTypeByCode("UNKNOWN");
+                    will(returnValue(dataSetTypeUnknown));
+
+                    one(dataDAO).createDataSet(containerData);
+                }
+            });
+
+        IDataBO dataBO = createDataBO();
+        dataBO.define(createContainerDataSet(PARENT_CODE), experiment, SourceType.MEASUREMENT);
+        DataPE data = dataBO.getData();
+
+        assertSame(experiment, data.getExperiment());
+        assertEquals(null, data.tryGetSample());
+        assertSame(true, data.isMeasured());
+        assertSame(dataStore, data.getDataStore());
+        assertEquals(1, data.getParents().size());
+        assertEquals(containerData, data.getParents().iterator().next());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testDefineWithNonExistingContainerDataSetAndNonExistingExperiment()
+    {
+        final DataSetTypePE dataSetType = createDataSetType();
+        final DataStorePE dataStore = new DataStorePE();
+        prepareDefineData(dataSetType, dataStore);
+        final DataSetTypePE dataSetTypeUnknown = new DataSetTypePE();
+        final DataPE parentData = new DataPE();
+        parentData.setCode(PARENT_CODE);
+        parentData.setDataSetType(dataSetTypeUnknown);
+        ExperimentPE experiment = createExperiment("EXP1");
+        parentData.setExperiment(experiment);
+        parentData.setPlaceholder(true);
+        context.checking(new Expectations()
+            {
+                {
+                    one(dataDAO).tryToFindDataSetByCode(PARENT_CODE);
+                    will(returnValue(null));
+
+                    one(dataSetTypeDAO).tryToFindDataSetTypeByCode(
+                            DataSetTypeCode.UNKNOWN.getCode());
+                    will(returnValue(dataSetTypeUnknown));
+
+                    one(dataDAO).createDataSet(parentData);
+                }
+            });
+
+        IDataBO dataBO = createDataBO();
+        dataBO.define(createContainerDataSet(PARENT_CODE), experiment, SourceType.MEASUREMENT);
         DataPE data = dataBO.getData();
 
         assertSame(null, data.tryGetSample());
@@ -703,7 +814,7 @@ public class DataBOTest extends AbstractBOTest
         SamplePE sample = new SamplePE();
         sample.setExperiment(new ExperimentPE());
         final DataStorePE dataStore = new DataStorePE();
-        prepareDefine(dataSetType, fileFormatType, vocabulary, locatorType, dataStore);
+        prepareDefineExternalData(dataSetType, fileFormatType, vocabulary, locatorType, dataStore);
         context.checking(new Expectations()
             {
                 {
@@ -737,7 +848,7 @@ public class DataBOTest extends AbstractBOTest
         SamplePE sample = new SamplePE();
         sample.setExperiment(new ExperimentPE());
         final DataStorePE dataStore = new DataStorePE();
-        prepareDefine(dataSetType, fileFormatType, vocabulary, locatorType, dataStore);
+        prepareDefineExternalData(dataSetType, fileFormatType, vocabulary, locatorType, dataStore);
         context.checking(new Expectations()
             {
                 {
@@ -799,22 +910,13 @@ public class DataBOTest extends AbstractBOTest
         return experiment;
     }
 
-    private void prepareDefine(final DataSetTypePE dataSetType,
-            final FileFormatTypePE fileFormatType, final VocabularyPE vocabulary,
-            final LocatorTypePE locatorType, final DataStorePE dataStore)
+    private void prepareDefineData(final DataSetTypePE dataSetType, final DataStorePE dataStore)
     {
         context.checking(new Expectations()
             {
                 {
                     one(dataSetTypeDAO).tryToFindDataSetTypeByCode(DATA_SET_TYPE.getCode());
                     will(returnValue(dataSetType));
-                    one(fileFormatTypeDAO)
-                            .tryToFindFileFormatTypeByCode(FILE_FORMAT_TYPE.getCode());
-                    will(returnValue(fileFormatType));
-                    one(vocabularyDAO).tryFindVocabularyByCode(StorageFormat.VOCABULARY_CODE);
-                    will(returnValue(vocabulary));
-                    one(locatorTypeDAO).tryToFindLocatorTypeByCode(LOCATOR_TYPE.getCode());
-                    will(returnValue(locatorType));
 
                     one(propertiesConverter).convertProperties(new IEntityProperty[0],
                             dataSetType.getCode(), EXAMPLE_SESSION.tryGetPerson());
@@ -823,6 +925,25 @@ public class DataBOTest extends AbstractBOTest
 
                     one(dataStoreDAO).tryToFindDataStoreByCode(DATA_STORE_CODE);
                     will(returnValue(dataStore));
+                }
+            });
+    }
+
+    private void prepareDefineExternalData(final DataSetTypePE dataSetType,
+            final FileFormatTypePE fileFormatType, final VocabularyPE vocabulary,
+            final LocatorTypePE locatorType, final DataStorePE dataStore)
+    {
+        prepareDefineData(dataSetType, dataStore);
+        context.checking(new Expectations()
+            {
+                {
+                    one(fileFormatTypeDAO)
+                            .tryToFindFileFormatTypeByCode(FILE_FORMAT_TYPE.getCode());
+                    will(returnValue(fileFormatType));
+                    one(vocabularyDAO).tryFindVocabularyByCode(StorageFormat.VOCABULARY_CODE);
+                    will(returnValue(vocabulary));
+                    one(locatorTypeDAO).tryToFindLocatorTypeByCode(LOCATOR_TYPE.getCode());
+                    will(returnValue(locatorType));
                 }
             });
     }
@@ -845,6 +966,23 @@ public class DataBOTest extends AbstractBOTest
         data.setLocation(LOCATION);
         data.setDataStoreCode(DATA_STORE_CODE);
         data.setSpeedHint(SPEED_HINT);
+        return data;
+    }
+
+    private NewContainerDataSet createContainerDataSet(String containedDataSetCodeOrNull)
+    {
+        NewContainerDataSet data = new NewContainerDataSet();
+        data.setCode(DATA_SET_CODE);
+        if (containedDataSetCodeOrNull != null)
+        {
+            data.setContainedDataSetCodes(Collections.singletonList(containedDataSetCodeOrNull));
+        }
+        data.setDataProducerCode(DATA_PRODUCER_CODE);
+        data.setProductionDate(PRODUCTION_DATE);
+        data.setComplete(BooleanOrUnknown.U);
+        data.setStorageFormat(StorageFormat.PROPRIETARY);
+        data.setDataSetType(DATA_SET_TYPE);
+        data.setDataStoreCode(DATA_STORE_CODE);
         return data;
     }
 
