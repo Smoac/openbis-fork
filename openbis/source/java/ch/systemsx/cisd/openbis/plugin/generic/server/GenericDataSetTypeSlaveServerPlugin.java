@@ -24,10 +24,10 @@ import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.openbis.generic.server.batch.BatchOperationExecutor;
 import ch.systemsx.cisd.openbis.generic.server.batch.DataSetBatchUpdate;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
@@ -46,12 +46,11 @@ public class GenericDataSetTypeSlaveServerPlugin implements IDataSetTypeSlaveSer
     {
     }
 
-    public void deleteDataSets(Session session, List<ExternalDataPE> dataSets, String reason)
+    public void deleteDataSets(Session session, List<DataPE> dataSets, String reason)
     {
-        IExternalDataTable externalDataTable =
-                businessObjectFactory.createExternalDataTable(session);
-        externalDataTable.setExternalData(dataSets);
-        externalDataTable.deleteLoadedDataSets(reason);
+        IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
+        dataSetTable.setDataSets(dataSets);
+        dataSetTable.deleteLoadedDataSets(reason);
     }
 
     public void updateDataSets(Session session, List<NewDataSet> newDataSets)
@@ -60,7 +59,7 @@ public class GenericDataSetTypeSlaveServerPlugin implements IDataSetTypeSlaveSer
         assert newDataSets != null && newDataSets.size() > 0 : "Unspecified data set or empty data sets.";
 
         BatchOperationExecutor.executeInBatches(new DataSetBatchUpdate(businessObjectFactory
-                .createExternalDataTable(session), newDataSets));
+                .createDataSetTable(session), newDataSets));
     }
 
 }

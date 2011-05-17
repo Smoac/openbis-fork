@@ -32,18 +32,18 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 /**
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractExternalDataBusinessObject extends
+public abstract class AbstractDataSetBusinessObject extends
         AbstractSampleIdentifierBusinessObject
 {
 
     protected final IEntityPropertiesConverter entityPropertiesConverter;
 
-    public AbstractExternalDataBusinessObject(IDAOFactory daoFactory, Session session)
+    public AbstractDataSetBusinessObject(IDAOFactory daoFactory, Session session)
     {
         this(daoFactory, session, new EntityPropertiesConverter(EntityKind.DATA_SET, daoFactory));
     }
 
-    public AbstractExternalDataBusinessObject(IDAOFactory daoFactory, Session session,
+    public AbstractDataSetBusinessObject(IDAOFactory daoFactory, Session session,
             IEntityPropertiesConverter entityPropertiesConverter)
     {
         super(daoFactory, session);

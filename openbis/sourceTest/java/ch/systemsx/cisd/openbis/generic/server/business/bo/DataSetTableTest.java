@@ -63,14 +63,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
 /**
- * Test cases for corresponding {@link ExternalDataTable} class.
+ * Test cases for corresponding {@link DataSetTable} class.
  * 
  * @author Christian Ribeaud
+ * @author Piotr Buczek
  */
-@Friend(toClasses = ExternalDataTable.class)
-// FIXME
-@SuppressWarnings("deprecation")
-public final class ExternalDataTableTest extends AbstractBOTest
+@Friend(toClasses = DataSetTable.class)
+public final class DataSetTableTest extends AbstractBOTest
 {
     private IDataStoreServiceFactory dssFactory;
 
@@ -86,9 +85,9 @@ public final class ExternalDataTableTest extends AbstractBOTest
 
     private IDataStoreService dataStoreService3;
 
-    private final ExternalDataTable createExternalDataTable()
+    private final DataSetTable createDataSetTable()
     {
-        return new ExternalDataTable(daoFactory, dssFactory, ManagerTestTool.EXAMPLE_SESSION);
+        return new DataSetTable(daoFactory, dssFactory, ManagerTestTool.EXAMPLE_SESSION);
     }
 
     @BeforeMethod
@@ -121,11 +120,11 @@ public final class ExternalDataTableTest extends AbstractBOTest
     @Test
     public final void testLoadBySampleTechIdWithNullSampleId()
     {
-        final ExternalDataTable externalDataTable = createExternalDataTable();
+        final DataSetTable dataSetTable = createDataSetTable();
         boolean fail = true;
         try
         {
-            externalDataTable.loadBySampleTechId(null);
+            dataSetTable.loadBySampleTechId(null);
         } catch (final AssertionError ex)
         {
             fail = false;
@@ -134,7 +133,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
         fail = true;
         try
         {
-            externalDataTable.getExternalData();
+            dataSetTable.getDataSets();
         } catch (final AssertionError ex)
         {
             fail = false;
@@ -145,7 +144,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
     @Test
     public final void testLoadBySampleTechId()
     {
-        final ExternalDataTable externalDataTable = createExternalDataTable();
+        final DataSetTable dataSetTable = createDataSetTable();
         final TechId sampleId = CommonTestUtils.TECH_ID;
         final String sampleCode = "CP-01";
         final SamplePE sample = new SamplePE();
@@ -160,10 +159,10 @@ public final class ExternalDataTableTest extends AbstractBOTest
                     one(sampleDAO).getByTechId(sampleId);
                     will(returnValue(sample));
 
-                    one(externalDataDAO).listExternalData(sample);
+                    one(dataDAO).listDataSets(sample);
                 }
             });
-        externalDataTable.loadBySampleTechId(sampleId);
+        dataSetTable.loadBySampleTechId(sampleId);
     }
 
     @Test
@@ -184,12 +183,12 @@ public final class ExternalDataTableTest extends AbstractBOTest
                     one(experimentDAO).getByTechId(experimentId);
                     will(returnValue(experimentPE));
 
-                    one(externalDataDAO).listExternalData(experimentPE);
+                    one(dataDAO).listDataSets(experimentPE);
                 }
             });
 
-        ExternalDataTable externalDataTable = createExternalDataTable();
-        externalDataTable.loadByExperimentTechId(experimentId);
+        DataSetTable dataSetTable = createDataSetTable();
+        dataSetTable.loadByExperimentTechId(experimentId);
     }
 
     @Test
@@ -202,12 +201,11 @@ public final class ExternalDataTableTest extends AbstractBOTest
             { d1, d2 }, new ExternalDataPE[]
             { d1 }, false, false);
 
-        ExternalDataTable externalDataTable = createExternalDataTable();
-        externalDataTable.loadByDataSetCodes(Arrays.asList(d1.getCode(), d2.getCode()), false,
-                false);
+        DataSetTable dataSetTable = createDataSetTable();
+        dataSetTable.loadByDataSetCodes(Arrays.asList(d1.getCode(), d2.getCode()), false, false);
 
-        assertEquals(1, externalDataTable.getExternalData().size());
-        assertSame(d1, externalDataTable.getExternalData().get(0));
+        assertEquals(1, dataSetTable.getDataSets().size());
+        assertSame(d1, dataSetTable.getDataSets().get(0));
     }
 
     private void prepareFindFullDatasets(final ExternalDataPE[] search,
@@ -223,7 +221,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(externalDataDAO).tryToFindFullDataSetsByCodes(
+                    one(dataDAO).tryToFindFullDataSetsByCodes(
                             Code.extractCodes(Arrays.asList(searched)), withProperties,
                             lockForUpdate);
                     will(returnValue(Arrays.asList(results)));
@@ -249,18 +247,17 @@ public final class ExternalDataTableTest extends AbstractBOTest
                 }
             });
 
-        ExternalDataTable externalDataTable = createExternalDataTable();
-        externalDataTable.loadByDataSetCodes(Arrays.asList(d1.getCode(), d2.getCode()), false,
-                false);
+        DataSetTable dataSetTable = createDataSetTable();
+        dataSetTable.loadByDataSetCodes(Arrays.asList(d1.getCode(), d2.getCode()), false, false);
         try
         {
-            externalDataTable.deleteLoadedDataSets("");
+            dataSetTable.deleteLoadedDataSets("");
             fail("UserFailureException expected");
         } catch (UserFailureException e)
         {
             assertEquals(
-                    "The following data sets are unknown by any registered Data Store Server. "
-                            + "May be the responsible Data Store Server is not running.\n[d2]",
+                    "The following data sets are unknown by Data Store Servers they were registered in. "
+                            + "May be the responsible Data Store Servers are not running.\n[d2]",
                     e.getMessage());
         }
     }
@@ -282,12 +279,12 @@ public final class ExternalDataTableTest extends AbstractBOTest
                 }
             });
 
-        ExternalDataTable externalDataTable = createExternalDataTable();
-        externalDataTable.loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)), false,
-                false);
+        DataSetTable dataSetTable = createDataSetTable();
+        dataSetTable
+                .loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)), false, false);
         try
         {
-            externalDataTable.deleteLoadedDataSets("");
+            dataSetTable.deleteLoadedDataSets("");
             fail("UserFailureException expected");
         } catch (UserFailureException e)
         {
@@ -327,15 +324,14 @@ public final class ExternalDataTableTest extends AbstractBOTest
                 }
             });
 
-        ExternalDataTable externalDataTable = createExternalDataTable();
-        externalDataTable.loadByDataSetCodes(Arrays.asList(d1.getCode(), d2.getCode()), false,
-                false);
-        externalDataTable.deleteLoadedDataSets(reason);
+        DataSetTable dataSetTable = createDataSetTable();
+        dataSetTable.loadByDataSetCodes(Arrays.asList(d1.getCode(), d2.getCode()), false, false);
+        dataSetTable.deleteLoadedDataSets(reason);
     }
 
     private EventPE createDeletionEvent(ExternalDataPE dataset, PersonPE person, String reason)
     {
-        return ExternalDataTable.createDeletionEvent(dataset, person, reason);
+        return DataSetTable.createDeletionEvent(dataset, person, reason);
     }
 
     @SuppressWarnings("unchecked")
@@ -349,7 +345,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
         uploadContext.setUserID(EXAMPLE_SESSION.getUserName());
         uploadContext.setPassword("pwd");
         uploadContext.setUserEMail(EXAMPLE_SESSION.getPrincipal().getEmail());
-        uploadContext.setComment(ExternalDataTable.createUploadComment(Arrays.asList(d1PE, d2PE)));
+        uploadContext.setComment(DataSetTable.createUploadComment(Arrays.asList(d1PE, d2PE)));
         context.checking(new Expectations()
             {
                 {
@@ -384,10 +380,9 @@ public final class ExternalDataTableTest extends AbstractBOTest
                 }
             });
 
-        ExternalDataTable externalDataTable = createExternalDataTable();
-        externalDataTable.loadByDataSetCodes(Arrays.asList(d1PE.getCode(), d2PE.getCode()), true,
-                false);
-        String message = externalDataTable.uploadLoadedDataSetsToCIFEX(uploadContext);
+        DataSetTable dataSetTable = createDataSetTable();
+        dataSetTable.loadByDataSetCodes(Arrays.asList(d1PE.getCode(), d2PE.getCode()), true, false);
+        String message = dataSetTable.uploadLoadedDataSetsToCIFEX(uploadContext);
 
         assertEquals(
                 "The following data sets couldn't been uploaded because of unkown data store: d1",
@@ -409,8 +404,8 @@ public final class ExternalDataTableTest extends AbstractBOTest
         uploadContext.setUserID(EXAMPLE_SESSION.getUserName());
         uploadContext.setPassword("pwd");
         uploadContext.setUserEMail(EXAMPLE_SESSION.getPrincipal().getEmail());
-        uploadContext.setComment(ExternalDataTable.createUploadComment(Arrays.asList(d1, d2, d3,
-                d4, d5)));
+        uploadContext
+                .setComment(DataSetTable.createUploadComment(Arrays.asList(d1, d2, d3, d4, d5)));
         context.checking(new Expectations()
             {
                 {
@@ -418,12 +413,11 @@ public final class ExternalDataTableTest extends AbstractBOTest
                 }
             });
 
-        ExternalDataTable externalDataTable = createExternalDataTable();
-        externalDataTable.loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)), true,
-                false);
+        DataSetTable dataSetTable = createDataSetTable();
+        dataSetTable.loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)), true, false);
         try
         {
-            externalDataTable.uploadLoadedDataSetsToCIFEX(uploadContext);
+            dataSetTable.uploadLoadedDataSetsToCIFEX(uploadContext);
             fail("UserFailureException expected");
         } catch (UserFailureException e)
         {
@@ -453,7 +447,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
             int dataSetCount)
     {
         List<ExternalDataPE> dataSets = new ArrayList<ExternalDataPE>(dataSetCount);
-        StringBuilder builder = new StringBuilder(ExternalDataTable.UPLOAD_COMMENT_TEXT);
+        StringBuilder builder = new StringBuilder(DataSetTable.UPLOAD_COMMENT_TEXT);
         for (int i = 0; i < dataSetCount; i++)
         {
             ExternalDataPE dataSet = new ExternalDataPE();
@@ -462,16 +456,16 @@ public final class ExternalDataTableTest extends AbstractBOTest
             dataSets.add(dataSet);
             if (i < expectedCodesShown)
             {
-                builder.append(ExternalDataTable.NEW_LINE);
+                builder.append(DataSetTable.NEW_LINE);
                 builder.append(code);
             } else if (i == expectedCodesShown)
             {
-                builder.append(ExternalDataTable.NEW_LINE);
-                builder.append(String.format(ExternalDataTable.AND_MORE_TEMPLATE, dataSetCount
+                builder.append(DataSetTable.NEW_LINE);
+                builder.append(String.format(DataSetTable.AND_MORE_TEMPLATE, dataSetCount
                         - expectedCodesShown));
             }
         }
-        String comment = ExternalDataTable.createUploadComment(dataSets);
+        String comment = DataSetTable.createUploadComment(dataSets);
         System.out.println(comment.length() + ":" + comment);
         assertEquals(builder.toString(), comment);
         assertTrue(comment.length() <= BasicConstant.MAX_LENGTH_OF_CIFEX_COMMENT);
@@ -558,10 +552,9 @@ public final class ExternalDataTableTest extends AbstractBOTest
 
             });
 
-        ExternalDataTable externalDataTable = createExternalDataTable();
-        externalDataTable.loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)), false,
-                true);
-        int archived = externalDataTable.archiveDatasets(true);
+        DataSetTable dataSetTable = createDataSetTable();
+        dataSetTable.loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)), false, true);
+        int archived = dataSetTable.archiveDatasets(true);
         assertEquals(3, archived);
     }
 
@@ -591,10 +584,9 @@ public final class ExternalDataTableTest extends AbstractBOTest
                 }
             });
 
-        ExternalDataTable externalDataTable = createExternalDataTable();
-        externalDataTable.loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)), false,
-                true);
-        int unarchived = externalDataTable.unarchiveDatasets();
+        DataSetTable dataSetTable = createDataSetTable();
+        dataSetTable.loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)), false, true);
+        int unarchived = dataSetTable.unarchiveDatasets();
         assertEquals(3, unarchived);
     }
 
@@ -616,12 +608,12 @@ public final class ExternalDataTableTest extends AbstractBOTest
                 }
             });
 
-        ExternalDataTable externalDataTable = createExternalDataTable();
-        externalDataTable.loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)), false,
-                false);
+        DataSetTable dataSetTable = createDataSetTable();
+        dataSetTable
+                .loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)), false, false);
         try
         {
-            externalDataTable.archiveDatasets(true);
+            dataSetTable.archiveDatasets(true);
             fail("RuntimeException expected");
         } catch (RuntimeException re)
         {
@@ -666,12 +658,12 @@ public final class ExternalDataTableTest extends AbstractBOTest
                 }
             });
 
-        ExternalDataTable externalDataTable = createExternalDataTable();
-        externalDataTable.loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)), false,
-                false);
+        DataSetTable dataSetTable = createDataSetTable();
+        dataSetTable
+                .loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)), false, false);
         try
         {
-            externalDataTable.archiveDatasets(true);
+            dataSetTable.archiveDatasets(true);
             fail("UserFailureException expected");
         } catch (UserFailureException ufe)
         {
@@ -691,8 +683,8 @@ public final class ExternalDataTableTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(externalDataDAO).updateDataSetStatuses(
-                            with(createUnorderedMarcher(dataSetCodes)), with(equal(newStatus)));
+                    one(dataDAO).updateDataSetStatuses(with(createUnorderedMarcher(dataSetCodes)),
+                            with(equal(newStatus)));
                 }
             });
     }

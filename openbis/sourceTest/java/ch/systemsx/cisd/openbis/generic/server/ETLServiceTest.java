@@ -102,7 +102,7 @@ public class ETLServiceTest extends AbstractServerTestCase
     private static final long DSS_ID = 137L;
 
     private static final String DSS_CODE = "my-dss";
-    
+
     private static final String DSS_SESSION_TOKEN = "dss42";
 
     private static final int PORT = 443;
@@ -143,7 +143,8 @@ public class ETLServiceTest extends AbstractServerTestCase
 
                     one(datasetLister).listByDataStore(DSS_ID);
                     DataSetBuilder ds1 =
-                            new DataSetBuilder().type("my-type")
+                            new DataSetBuilder()
+                                    .type("my-type")
                                     .code("ds-1")
                                     .location("loc-a")
                                     .shareID("share-1")

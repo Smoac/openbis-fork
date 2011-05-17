@@ -117,8 +117,8 @@ public class DataSetTranslator
         return description;
     }
 
-    public static List<ExternalData> translate(List<DataPE> list, String defaultDataStoreBaseURL,
-            String baseIndexURL)
+    public static List<ExternalData> translate(List<? extends DataPE> list,
+            String defaultDataStoreBaseURL, String baseIndexURL)
     {
         ArrayList<ExternalData> result = new ArrayList<ExternalData>(list.size());
         for (DataPE dataPE : list)

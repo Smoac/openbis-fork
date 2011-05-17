@@ -27,7 +27,7 @@ import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
@@ -95,19 +95,17 @@ abstract class AbstractCommonServer<T extends IServer> extends AbstractServer<T>
             boolean deleteFromDataStore)
     {
         Session session = getSession(sessionToken);
-        IExternalDataTable externalDataTable =
-                businessObjectFactory.createExternalDataTable(session);
-        externalDataTable.loadByDataSetCodes(datasetCodes, false, true);
-        return externalDataTable.archiveDatasets(deleteFromDataStore);
+        IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
+        dataSetTable.loadByDataSetCodes(datasetCodes, false, true);
+        return dataSetTable.archiveDatasets(deleteFromDataStore);
     }
 
     public int unarchiveDatasets(String sessionToken, List<String> datasetCodes)
     {
         Session session = getSession(sessionToken);
-        IExternalDataTable externalDataTable =
-                businessObjectFactory.createExternalDataTable(session);
-        externalDataTable.loadByDataSetCodes(datasetCodes, false, true);
-        return externalDataTable.unarchiveDatasets();
+        IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
+        dataSetTable.loadByDataSetCodes(datasetCodes, false, true);
+        return dataSetTable.unarchiveDatasets();
     }
 
     protected IDatasetLister createDatasetLister(Session session)

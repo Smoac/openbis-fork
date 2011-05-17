@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -41,7 +42,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
@@ -52,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
@@ -69,25 +71,22 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
- * The only productive implementation of {@link IExternalDataTable}.
+ * The only productive implementation of {@link DataPE}.
  * <p>
  * We are using an interface here to keep the system testable.
  * </p>
  * 
  * @author Christian Ribeaud
  */
-@SuppressWarnings("deprecation")
-// FIXME
-public final class ExternalDataTable extends AbstractExternalDataBusinessObject implements
-        IExternalDataTable
+public final class DataSetTable extends AbstractDataSetBusinessObject implements IDataSetTable
 {
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            ExternalDataTable.class);
+            DataSetTable.class);
 
     @Private
     static final String UPLOAD_COMMENT_TEXT = "Uploaded zip file contains the following data sets:";
@@ -101,7 +100,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
     private boolean dataChanged;
 
     @Private
-    static String createUploadComment(List<ExternalDataPE> dataSets)
+    static String createUploadComment(List<? extends DataPE> dataSets)
     {
         StringBuilder builder = new StringBuilder(UPLOAD_COMMENT_TEXT);
         for (int i = 0, n = dataSets.size(); i < n; i++)
@@ -125,12 +124,13 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         return builder.toString();
     }
 
-    private static void assertDatasetsAreAvailable(List<ExternalDataPE> datasets)
+    private static void assertDatasetsAreAvailable(List<DataPE> datasets)
     {
         List<String> notAvailableDatasets = new ArrayList<String>();
-        for (ExternalDataPE dataSet : datasets)
+        for (DataPE dataSet : datasets)
         {
-            if (dataSet.getStatus().isAvailable() == false)
+            if (dataSet.isExternalData() == false
+                    || dataSet.tryAsExternalData().getStatus().isAvailable() == false)
             {
                 notAvailableDatasets.add(dataSet.getCode());
             }
@@ -152,12 +152,14 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         }
     }
 
-    private static void assertDatasetsAreDeletable(List<ExternalDataPE> datasets)
+    private static void assertDatasetsAreDeletable(List<DataPE> datasets)
     {
         List<String> notDeletableDatasets = new ArrayList<String>();
-        for (ExternalDataPE dataSet : datasets)
+        for (DataPE dataSet : datasets)
         {
-            if (dataSet.getStatus().isDeletable() == false)
+            // TODO 2011-05-16, Piotr Buczek: change this after deletion is implemented
+            if (dataSet.isExternalData() == false
+                    || dataSet.tryAsExternalData().getStatus().isDeletable() == false)
             {
                 notDeletableDatasets.add(dataSet.getCode());
             }
@@ -173,9 +175,9 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
 
     private final IDataStoreServiceFactory dssFactory;
 
-    private List<ExternalDataPE> externalData;
+    private List<DataPE> dataSets;
 
-    public ExternalDataTable(final IDAOFactory daoFactory, IDataStoreServiceFactory dssFactory,
+    public DataSetTable(final IDAOFactory daoFactory, IDataStoreServiceFactory dssFactory,
             final Session session)
     {
         super(daoFactory, session);
@@ -186,33 +188,45 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
     // IExternalDataTable
     //
 
-    public final List<ExternalDataPE> getExternalData()
+    public final List<DataPE> getDataSets()
     {
-        assert externalData != null : "External data not loaded.";
-        return externalData;
+        assert dataSets != null : "Data Sets not loaded.";
+        return dataSets;
     }
 
-    public void setExternalData(List<ExternalDataPE> externalData)
+    public final List<ExternalDataPE> getExternalData()
     {
-        this.externalData = externalData;
+        assert dataSets != null : "Data Sets not loaded.";
+        final List<ExternalDataPE> result = new ArrayList<ExternalDataPE>();
+        for (DataPE dataSet : dataSets)
+        {
+            if (dataSet.isExternalData())
+                result.add(dataSet.tryAsExternalData());
+        }
+        return result;
+    }
+
+    public void setDataSets(List<DataPE> dataSets)
+    {
+        this.dataSets = dataSets;
     }
 
     public void loadByDataSetCodes(List<String> dataSetCodes, boolean withProperties,
             boolean lockForUpdate)
     {
-        IExternalDataDAO externalDataDAO = getExternalDataDAO();
+        IDataDAO dataDAO = getDataDAO();
 
-        externalData = new ArrayList<ExternalDataPE>();
-        externalData.addAll(externalDataDAO.tryToFindFullDataSetsByCodes(dataSetCodes,
-                withProperties, lockForUpdate));
+        dataSets = new ArrayList<DataPE>();
+        dataSets.addAll(dataDAO.tryToFindFullDataSetsByCodes(dataSetCodes, withProperties,
+                lockForUpdate));
     }
 
     public final void loadBySampleTechId(final TechId sampleId)
     {
         assert sampleId != null : "Unspecified sample id";
         final SamplePE sample = getSampleDAO().getByTechId(sampleId);
-        externalData = new ArrayList<ExternalDataPE>();
-        externalData.addAll(getExternalDataDAO().listExternalData(sample));
+        dataSets = new ArrayList<DataPE>();
+        dataSets.addAll(getDataDAO().listDataSets(sample));
     }
 
     public void loadByExperimentTechId(final TechId experimentId)
@@ -220,15 +234,15 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         assert experimentId != null : "Unspecified experiment id";
 
         ExperimentPE experiment = getExperimentDAO().getByTechId(experimentId);
-        externalData = new ArrayList<ExternalDataPE>();
-        externalData.addAll(getExternalDataDAO().listExternalData(experiment));
+        dataSets = new ArrayList<DataPE>();
+        dataSets.addAll(getDataDAO().listDataSets(experiment));
     }
 
     public void deleteLoadedDataSets(String reason)
     {
-        assertDatasetsAreDeletable(externalData);
+        assertDatasetsAreDeletable(dataSets);
 
-        Map<DataStorePE, List<ExternalDataPE>> allToBeDeleted = groupDataSetsByDataStores();
+        Map<DataStorePE, List<ExternalDataPE>> allToBeDeleted = groupExternalDataByDataStores();
         Map<DataStorePE, List<ExternalDataPE>> availableDatasets =
                 filterAvailableDatasets(allToBeDeleted);
 
@@ -308,22 +322,22 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
 
     public String uploadLoadedDataSetsToCIFEX(DataSetUploadContext uploadContext)
     {
-        assertDatasetsAreAvailable(externalData);
-        Map<DataStorePE, List<ExternalDataPE>> map = groupDataSetsByDataStores();
+        assertDatasetsAreAvailable(dataSets);
+        Map<DataStorePE, List<ExternalDataPE>> map = groupExternalDataByDataStores();
         assertDataSetsAreKnown(map);
         assertNoContainerDataSets(map);
         uploadContext.setUserEMail(session.getPrincipal().getEmail());
         uploadContext.setSessionUserID(session.getUserName());
         if (StringUtils.isBlank(uploadContext.getComment()))
         {
-            uploadContext.setComment(createUploadComment(externalData));
+            uploadContext.setComment(createUploadComment(dataSets));
         }
         List<ExternalDataPE> dataSetsWithUnknownDSS = new ArrayList<ExternalDataPE>();
         for (Map.Entry<DataStorePE, List<ExternalDataPE>> entry : map.entrySet())
         {
             DataStorePE dataStore = entry.getKey();
-            List<ExternalDataPE> dataSets = entry.getValue();
-            for (ExternalDataPE dataSet : dataSets)
+            List<ExternalDataPE> externalDatas = entry.getValue();
+            for (ExternalDataPE dataSet : externalDatas)
             {
                 HibernateUtils.initialize(dataSet.getParents());
                 HibernateUtils.initialize(dataSet.getProperties());
@@ -341,10 +355,10 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
             }
             if (StringUtils.isBlank(dataStore.getRemoteUrl()))
             {
-                dataSetsWithUnknownDSS.addAll(dataSets);
+                dataSetsWithUnknownDSS.addAll(externalDatas);
             } else
             {
-                uploadDataSetsToCIFEX(dataStore, dataSets, uploadContext);
+                uploadDataSetsToCIFEX(dataStore, externalDatas, uploadContext);
             }
         }
         StringBuilder builder = new StringBuilder();
@@ -361,30 +375,31 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
 
     private void assertDataSetsAreKnown(Map<DataStorePE, List<ExternalDataPE>> map)
     {
-        Set<String> knownLocations = new LinkedHashSet<String>();
+        // Set<String> knownLocations = new LinkedHashSet<String>();
+        List<String> unknownDataSets = new ArrayList<String>();
         for (Map.Entry<DataStorePE, List<ExternalDataPE>> entry : map.entrySet())
         {
             DataStorePE dataStore = entry.getKey();
-            List<ExternalDataPE> dataSets = entry.getValue();
-            knownLocations.addAll(getKnownDataSets(dataStore, createDatasetDescriptions(dataSets)));
-        }
-        List<String> unknownDataSets = new ArrayList<String>();
-        for (ExternalDataPE dataSet : externalData)
-        {
-            if (dataSet.getStatus() == DataSetArchivingStatus.ARCHIVED)
+            List<ExternalDataPE> externalDatas = entry.getValue();
+            Set<String> knownLocations =
+                    getKnownDataSets(dataStore, createDatasetDescriptions(externalDatas));
+            for (ExternalDataPE dataSet : entry.getValue())
             {
-                // archived datasets are currently not available in the data store
-                // but can be deleted
-            } else if (knownLocations.contains(dataSet.getLocation()) == false)
-            {
-                unknownDataSets.add(dataSet.getCode());
+                if (dataSet.getStatus() == DataSetArchivingStatus.ARCHIVED)
+                {
+                    // archived datasets are currently not available in the data store
+                    // but can be deleted
+                } else if (knownLocations.contains(dataSet.getLocation()) == false)
+                {
+                    unknownDataSets.add(dataSet.getCode());
+                }
             }
         }
         if (unknownDataSets.isEmpty() == false)
         {
             throw new UserFailureException(
-                    "The following data sets are unknown by any registered Data Store Server. "
-                            + "May be the responsible Data Store Server is not running.\n"
+                    "The following data sets are unknown by Data Store Servers they were registered in. "
+                            + "May be the responsible Data Store Servers are not running.\n"
                             + unknownDataSets);
         }
     }
@@ -411,17 +426,42 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         }
     }
 
-    private Map<DataStorePE, List<ExternalDataPE>> groupDataSetsByDataStores()
+    /** groups data sets by data stores filtering out virtual data sets */
+    private Map<DataStorePE, List<ExternalDataPE>> groupExternalDataByDataStores()
     {
         Map<DataStorePE, List<ExternalDataPE>> map =
                 new LinkedHashMap<DataStorePE, List<ExternalDataPE>>();
-        for (ExternalDataPE dataSet : externalData)
+        for (DataPE dataSet : dataSets)
+        {
+            if (dataSet.isExternalData())
+            {
+                DataStorePE dataStore = dataSet.getDataStore();
+                List<ExternalDataPE> list = map.get(dataStore);
+                if (list == null)
+                {
+                    list = new ArrayList<ExternalDataPE>();
+                    map.put(dataStore, list);
+                }
+                list.add(dataSet.tryAsExternalData());
+            }
+        }
+        return map;
+    }
+
+    /** groups all data sets (both virtual and non-virtual) by data stores */
+    // TODO 2011-05-17, Piotr Buczek: use this instead of groupExternalDataByDataStores in places
+    // where we want to support virtual data sets
+    @SuppressWarnings("unused")
+    private Map<DataStorePE, List<DataPE>> groupDataSetsByDataStores()
+    {
+        Map<DataStorePE, List<DataPE>> map = new LinkedHashMap<DataStorePE, List<DataPE>>();
+        for (DataPE dataSet : dataSets)
         {
             DataStorePE dataStore = dataSet.getDataStore();
-            List<ExternalDataPE> list = map.get(dataStore);
+            List<DataPE> list = map.get(dataStore);
             if (list == null)
             {
-                list = new ArrayList<ExternalDataPE>();
+                list = new ArrayList<DataPE>();
                 map.put(dataStore, list);
             }
             list.add(dataSet);
@@ -429,12 +469,12 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         return map;
     }
 
-    private void uploadDataSetsToCIFEX(DataStorePE dataStore, List<ExternalDataPE> dataSets,
+    private void uploadDataSetsToCIFEX(DataStorePE dataStore, List<ExternalDataPE> list,
             DataSetUploadContext context)
     {
         IDataStoreService service = dssFactory.create(dataStore.getRemoteUrl());
         String sessionToken = dataStore.getSessionToken();
-        List<ExternalData> cleanDataSets = ExternalDataTranslator.translate(dataSets, "?", "?");
+        List<ExternalData> cleanDataSets = DataSetTranslator.translate(list, "?", "?");
         service.uploadDataSetsToCIFEX(sessionToken, cleanDataSets, context);
     }
 
@@ -461,14 +501,15 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         return dssFactory.create(remoteURL);
     }
 
-    private List<String> getKnownDataSets(DataStorePE dataStore, List<DatasetDescription> dataSets)
+    private Set<String> getKnownDataSets(DataStorePE dataStore,
+            List<DatasetDescription> dataSetDescriptions)
     {
         String remoteURL = dataStore.getRemoteUrl();
         if (StringUtils.isBlank(remoteURL))
         {
             // Assuming dummy data store "knows" all locations
-            List<String> locations = new ArrayList<String>();
-            for (DatasetDescription dataSet : dataSets)
+            Set<String> locations = new HashSet<String>();
+            for (DatasetDescription dataSet : dataSetDescriptions)
             {
                 locations.add(dataSet.getDataSetLocation());
             }
@@ -476,7 +517,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         }
         IDataStoreService service = dssFactory.create(remoteURL);
         String sessionToken = dataStore.getSessionToken();
-        return service.getKnownDataSets(sessionToken, dataSets);
+        return new HashSet<String>(service.getKnownDataSets(sessionToken, dataSetDescriptions));
     }
 
     public void processDatasets(String datastoreServiceKey, String datastoreCode,
@@ -523,19 +564,25 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
 
     private List<DatasetDescription> loadAvailableDatasetDescriptions(List<String> dataSetCodes)
     {
-        IExternalDataDAO externalDataDAO = getExternalDataDAO();
+        IDataDAO dataDAO = getDataDAO();
         List<DatasetDescription> result = new ArrayList<DatasetDescription>();
         List<String> notAvailableDatasets = new ArrayList<String>();
-        List<ExternalDataPE> dataSets =
-                externalDataDAO.tryToFindFullDataSetsByCodes(dataSetCodes, false, false);
-        for (ExternalDataPE dataSet : dataSets)
+        List<DataPE> data = dataDAO.tryToFindFullDataSetsByCodes(dataSetCodes, false, false);
+        for (DataPE dataSet : data)
         {
-            if (dataSet.getStatus().isAvailable())
+            if (dataSet.isExternalData())
             {
-                result.add(createDatasetDescription(dataSet));
+                ExternalDataPE externalData = dataSet.tryAsExternalData();
+                if (externalData.getStatus().isAvailable())
+                {
+                    result.add(createDatasetDescription(externalData));
+                } else
+                {
+                    notAvailableDatasets.add(dataSet.getCode());
+                }
             } else
             {
-                notAvailableDatasets.add(dataSet.getCode());
+                // TODO 2011-05-16, Piotr Buczek: implement archiving of virtual data sets
             }
         }
         throwUnavailableOperationExceptionIfNecessary(notAvailableDatasets);
@@ -598,9 +645,9 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
     public void loadByDataStore(DataStorePE dataStore)
     {
         assert dataStore != null : "Unspecified data store";
-        assert externalData == null : "Data already loaded";
-        externalData = new ArrayList<ExternalDataPE>();
-        externalData.addAll(getExternalDataDAO().listExternalData(dataStore));
+        assert dataSets == null : "Data already loaded";
+        dataSets = new ArrayList<DataPE>();
+        dataSets.addAll(getDataDAO().listExternalData(dataStore));
     }
 
     //
@@ -609,7 +656,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
 
     public int archiveDatasets(boolean removeFromDataStore)
     {
-        Map<DataStorePE, List<ExternalDataPE>> datasetsByStore = groupDataSetsByDataStores();
+        Map<DataStorePE, List<ExternalDataPE>> datasetsByStore = groupExternalDataByDataStores();
         Map<DataStoreWithService, List<ExternalDataPE>> datasetsWithService =
                 enrichWithService(datasetsByStore);
 
@@ -625,7 +672,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
 
     public int unarchiveDatasets()
     {
-        Map<DataStorePE, List<ExternalDataPE>> datasetsByStore = groupDataSetsByDataStores();
+        Map<DataStorePE, List<ExternalDataPE>> datasetsByStore = groupExternalDataByDataStores();
         Map<DataStoreWithService, List<ExternalDataPE>> datasetsWithService =
                 enrichWithService(datasetsByStore);
         int result =
@@ -637,14 +684,14 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
 
     public int lockDatasets()
     {
-        Map<DataStorePE, List<ExternalDataPE>> datasetsByStore = groupDataSetsByDataStores();
+        Map<DataStorePE, List<ExternalDataPE>> datasetsByStore = groupExternalDataByDataStores();
         return filterByStatusAndUpdate(datasetsByStore, DataSetArchivingStatus.AVAILABLE,
                 DataSetArchivingStatus.LOCKED);
     }
 
     public int unlockDatasets()
     {
-        Map<DataStorePE, List<ExternalDataPE>> datasetsByStore = groupDataSetsByDataStores();
+        Map<DataStorePE, List<ExternalDataPE>> datasetsByStore = groupExternalDataByDataStores();
         return filterByStatusAndUpdate(datasetsByStore, DataSetArchivingStatus.LOCKED,
                 DataSetArchivingStatus.AVAILABLE);
     }
@@ -653,10 +700,10 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
             DataSetArchivingStatus oldStatus, DataSetArchivingStatus newStatus)
     {
         List<String> codesToUpdate = new ArrayList<String>();
-        IExternalDataDAO externalDataDAO = getExternalDataDAO();
-        for (List<ExternalDataPE> dataSets : datasetsByStore.values())
+        IDataDAO dataDAO = getDataDAO();
+        for (List<ExternalDataPE> data : datasetsByStore.values())
         {
-            Iterator<ExternalDataPE> iterator = dataSets.iterator();
+            Iterator<ExternalDataPE> iterator = data.iterator();
             while (iterator.hasNext())
             {
                 ExternalDataPE dataSet = iterator.next();
@@ -674,7 +721,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         // but perform a 'bulk update' operation. Such an operation is quicker and Hibernate
         // Search doesn't spot the change. The drawback is that the loaded objects are
         // not updated with a new status.
-        externalDataDAO.updateDataSetStatuses(codesToUpdate, newStatus);
+        dataDAO.updateDataSetStatuses(codesToUpdate, newStatus);
         return codesToUpdate.size();
     }
 
@@ -805,31 +852,31 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
             datasetsWithPendingStatus.addAll(iterator.next().getValue());
         }
         List<String> codes = Code.extractCodes(datasetsWithPendingStatus);
-        getExternalDataDAO().updateDataSetStatuses(codes, statusToRestoreOnFailure);
+        getDataDAO().updateDataSetStatuses(codes, statusToRestoreOnFailure);
     }
 
     public void save()
     {
         assert dataChanged == true : "Data not changed";
-        assert externalData != null : "Undefined external data.";
+        assert dataSets != null : "Undefined data sets.";
         try
         {
             checkMandatoryProperties();
-            IExternalDataDAO externalDataDAO = getExternalDataDAO();
-            externalDataDAO.updateDataSets(externalData);
+            IDataDAO dataDAO = getDataDAO();
+            dataDAO.updateDataSets(dataSets);
         } catch (final DataAccessException ex)
         {
             throwException(ex, String.format("One of data sets"));
         }
         dataChanged = false;
-        operationLog.info("State of external data saved.");
+        operationLog.info("State of data sets saved.");
     }
 
     private void checkMandatoryProperties()
     {
         final Map<EntityTypePE, List<EntityTypePropertyTypePE>> cache =
                 new HashMap<EntityTypePE, List<EntityTypePropertyTypePE>>();
-        for (ExternalDataPE s : externalData)
+        for (DataPE s : dataSets)
         {
             entityPropertiesConverter.checkMandatoryProperties(s.getProperties(),
                     s.getDataSetType(), cache);
@@ -843,15 +890,14 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
 
         loadByDataSetCodes(Code.extractCodes(updates), true, true);
 
-        final Map<String, ExternalDataPE> externalDataByCode =
-                new HashMap<String, ExternalDataPE>();
-        for (ExternalDataPE dataSet : externalData)
+        final Map<String, DataPE> dataSetsByCode = new HashMap<String, DataPE>();
+        for (DataPE dataSet : dataSets)
         {
-            externalDataByCode.put(dataSet.getIdentifier(), dataSet);
+            dataSetsByCode.put(dataSet.getIdentifier(), dataSet);
         }
         for (NewDataSet dataSetUpdates : updates)
         {
-            final ExternalDataPE dataSet = externalDataByCode.get(dataSetUpdates.getCode());
+            final DataPE dataSet = dataSetsByCode.get(dataSetUpdates.getCode());
             prepareBatchUpdate(dataSet, dataSetUpdates);
         }
         setBatchUpdateMode(false);
@@ -859,7 +905,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         operationLog.info("External data updated");
     }
 
-    private ExternalDataPE prepareBatchUpdate(ExternalDataPE dataSet, NewDataSet dataSetUpdates)
+    private DataPE prepareBatchUpdate(DataPE dataSet, NewDataSet dataSetUpdates)
     {
         if (dataSet == null)
         {

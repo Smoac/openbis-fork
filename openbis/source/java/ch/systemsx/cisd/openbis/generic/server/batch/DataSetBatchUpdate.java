@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.batch;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
 
 /**
@@ -28,11 +28,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
  */
 public class DataSetBatchUpdate implements IBatchOperation<NewDataSet>
 {
-    private final IExternalDataTable businessTable;
+    private final IDataSetTable businessTable;
 
     private final List<NewDataSet> entities;
 
-    public DataSetBatchUpdate(IExternalDataTable businessTable, List<NewDataSet> entities)
+    public DataSetBatchUpdate(IDataSetTable businessTable, List<NewDataSet> entities)
     {
         this.businessTable = businessTable;
         this.entities = entities;

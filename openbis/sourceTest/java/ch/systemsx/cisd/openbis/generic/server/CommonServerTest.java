@@ -67,6 +67,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
@@ -139,7 +140,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         sampleTypeSlaveServerPlugin = context.mock(ISampleTypeSlaveServerPlugin.class);
         dataSetTypeSlaveServerPlugin = context.mock(IDataSetTypeSlaveServerPlugin.class);
     }
-    
+
     @Test
     public void testGetTemplateColumns()
     {
@@ -1350,14 +1351,14 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createExternalDataTable(SESSION);
-                    will(returnValue(externalDataTable));
+                    one(commonBusinessObjectFactory).createDataSetTable(SESSION);
+                    will(returnValue(dataSetTable));
 
-                    one(externalDataTable).loadByDataSetCodes(dataSetCodes, false, false);
-                    one(externalDataTable).getExternalData();
-                    ExternalDataPE ds1 = createDataSet("ds1", "type1");
-                    ExternalDataPE ds2 = createDataSet("ds2", "type1");
-                    ExternalDataPE ds3 = createDataSet("ds3", "type2");
+                    one(dataSetTable).loadByDataSetCodes(dataSetCodes, false, false);
+                    one(dataSetTable).getDataSets();
+                    DataPE ds1 = createDataSet("ds1", "type1");
+                    DataPE ds2 = createDataSet("ds2", "type1");
+                    DataPE ds3 = createDataSet("ds3", "type2");
                     will(returnValue(Arrays.asList(ds1, ds2, ds3)));
 
                     one(dataSetTypeSlaveServerPlugin).deleteDataSets(SESSION,
@@ -1392,11 +1393,11 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createExternalDataTable(SESSION);
-                    will(returnValue(externalDataTable));
+                    one(commonBusinessObjectFactory).createDataSetTable(SESSION);
+                    will(returnValue(dataSetTable));
 
-                    one(externalDataTable).loadByDataSetCodes(dataSetCodes, true, false);
-                    one(externalDataTable).uploadLoadedDataSetsToCIFEX(uploadContext);
+                    one(dataSetTable).loadByDataSetCodes(dataSetCodes, true, false);
+                    one(dataSetTable).uploadLoadedDataSetsToCIFEX(uploadContext);
                 }
             });
 
@@ -1414,11 +1415,11 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createExternalDataTable(SESSION);
-                    will(returnValue(externalDataTable));
+                    one(commonBusinessObjectFactory).createDataSetTable(SESSION);
+                    will(returnValue(dataSetTable));
 
-                    one(externalDataTable).loadByDataSetCodes(dataSetCodes, false, true);
-                    one(externalDataTable).archiveDatasets(removeFromDataStore);
+                    one(dataSetTable).loadByDataSetCodes(dataSetCodes, false, true);
+                    one(dataSetTable).archiveDatasets(removeFromDataStore);
                 }
             });
 
@@ -1435,11 +1436,11 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createExternalDataTable(SESSION);
-                    will(returnValue(externalDataTable));
+                    one(commonBusinessObjectFactory).createDataSetTable(SESSION);
+                    will(returnValue(dataSetTable));
 
-                    one(externalDataTable).loadByDataSetCodes(dataSetCodes, false, true);
-                    one(externalDataTable).unarchiveDatasets();
+                    one(dataSetTable).loadByDataSetCodes(dataSetCodes, false, true);
+                    one(dataSetTable).unarchiveDatasets();
                 }
             });
 
@@ -1484,7 +1485,7 @@ public final class CommonServerTest extends AbstractServerTestCase
 
         context.assertIsSatisfied();
     }
-    
+
     @SuppressWarnings("deprecation")
     private DisplaySettings displaySettingsWithVisits(EntityVisit... entityVisits)
     {
@@ -1495,7 +1496,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         }
         return settings;
     }
-    
+
     private EntityVisit visit(EntityKind kind, long timeStamp)
     {
         EntityVisit entityVisit = new EntityVisit();

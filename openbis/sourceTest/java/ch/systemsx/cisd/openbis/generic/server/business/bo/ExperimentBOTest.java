@@ -392,8 +392,8 @@ public final class ExperimentBOTest extends AbstractBOTest
                     allowing(daoFactory).getExperimentDAO();
                     will(returnValue(experimentDAO));
 
-                    allowing(daoFactory).getExternalDataDAO();
-                    will(returnValue(externalDataDAO));
+                    allowing(daoFactory).getDataDAO();
+                    will(returnValue(dataDAO));
 
                     allowing(daoFactory).getPermIdDAO();
                     will(returnValue(permIdDAO));

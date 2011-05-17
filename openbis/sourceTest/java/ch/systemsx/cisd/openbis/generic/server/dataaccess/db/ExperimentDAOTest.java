@@ -273,7 +273,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
         // to an empty experiment (with no connections).
         final ExternalDataPE dataSet = findExternalData("20081105092158673-1");
         dataSet.setExperiment(deletedExperiment);
-        daoFactory.getExternalDataDAO().validateAndSaveUpdatedEntity(dataSet);
+        daoFactory.getDataDAO().validateAndSaveUpdatedEntity(dataSet);
 
         assertTrue(deletedExperiment.getAttachments().isEmpty());
         assertFalse(deletedExperiment.getDataSets().isEmpty());

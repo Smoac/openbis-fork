@@ -22,8 +22,8 @@ import java.util.Collections;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
@@ -167,10 +167,10 @@ public class PlateContentLoader
 
     private PlateContent getPlateContent(TechId plateId)
     {
-        IExternalDataTable externalDataTable = createExternalDataTable();
+        IDataSetTable dataSetTable = createDataSetTable();
 
         Sample plate = loadPlate(plateId);
-        List<ExternalDataPE> datasets = loadDatasets(plateId, externalDataTable);
+        List<ExternalDataPE> datasets = loadDatasets(plateId, dataSetTable);
         List<WellMetadata> wells = loadWells(plateId);
 
         List<ImageDatasetEnrichedReference> imageDatasetReferences =
@@ -281,9 +281,9 @@ public class PlateContentLoader
         return datasetReferences;
     }
 
-    private IExternalDataTable createExternalDataTable()
+    private IDataSetTable createDataSetTable()
     {
-        return businessObjectFactory.createExternalDataTable(session);
+        return businessObjectFactory.createDataSetTable(session);
     }
 
     private Sample loadPlate(TechId plateId)
@@ -329,11 +329,10 @@ public class PlateContentLoader
         return materials;
     }
 
-    protected static List<ExternalDataPE> loadDatasets(TechId plateId,
-            IExternalDataTable externalDataTable)
+    protected static List<ExternalDataPE> loadDatasets(TechId plateId, IDataSetTable dataSetTable)
     {
-        externalDataTable.loadBySampleTechId(plateId);
-        return externalDataTable.getExternalData();
+        dataSetTable.loadBySampleTechId(plateId);
+        return dataSetTable.getExternalData();
     }
 
     private static List<WellMetadata> createWells(List<Sample> wellSamples)
@@ -384,8 +383,7 @@ public class PlateContentLoader
         {
             datasetOwnerSampleId = sampleId;
         }
-        List<ExternalDataPE> datasets =
-                loadDatasets(datasetOwnerSampleId, createExternalDataTable());
+        List<ExternalDataPE> datasets = loadDatasets(datasetOwnerSampleId, createDataSetTable());
         List<ExternalDataPE> imageDatasets = ScreeningUtils.filterImageDatasets(datasets);
 
         List<LogicalImageInfo> logicalImages = new ArrayList<LogicalImageInfo>();

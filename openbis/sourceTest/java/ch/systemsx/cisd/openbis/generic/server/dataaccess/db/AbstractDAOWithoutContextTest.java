@@ -40,7 +40,6 @@ import org.testng.annotations.BeforeMethod;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
@@ -271,9 +270,11 @@ public abstract class AbstractDAOWithoutContextTest extends
 
     protected ExternalDataPE findExternalData(String code)
     {
-        final IExternalDataDAO externalDataDAO = daoFactory.getExternalDataDAO();
-        ExternalDataPE externalData = externalDataDAO.tryToFindFullDataSetByCode(code, true, false);
+        final IDataDAO dataDAO = daoFactory.getDataDAO();
+        DataPE data = dataDAO.tryToFindFullDataSetByCode(code, true, false);
+        assertNotNull(data);
 
+        ExternalDataPE externalData = data.tryAsExternalData();
         assertNotNull(externalData);
 
         return externalData;

@@ -84,6 +84,7 @@ public abstract class AbstractBOTest extends AssertJUnit
 
     protected IDataDAO dataDAO;
 
+    // FIXME remove
     protected IExternalDataDAO externalDataDAO;
 
     protected IDatabaseInstanceDAO databaseInstanceDAO;

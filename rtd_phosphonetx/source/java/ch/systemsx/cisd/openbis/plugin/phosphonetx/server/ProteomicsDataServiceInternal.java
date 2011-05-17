@@ -31,7 +31,7 @@ import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
@@ -52,8 +52,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.ExperimentLoader;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.ISampleLoader;
@@ -174,9 +174,9 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
     {
         final Session session = getSession(sessionToken);
 
-        IExternalDataTable dataSetTable = commonBoFactory.createExternalDataTable(session);
+        IDataSetTable dataSetTable = commonBoFactory.createDataSetTable(session);
         dataSetTable.loadByExperimentTechId(experimentID);
-        return ExternalDataTranslator.translate(dataSetTable.getExternalData(), "", "");
+        return DataSetTranslator.translate(dataSetTable.getDataSets(), "", "");
     }
 
     public void processProteinResultDataSets(String sessionToken, String dataSetProcessingKey,
@@ -251,8 +251,8 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
             List<String> dataSetCodes, Map<String, String> parameterBindings)
     {
         String dataStoreServerCode = findDataStoreServer(dataSetProcessingKey);
-        IExternalDataTable externalDataTable = commonBoFactory.createExternalDataTable(session);
-        externalDataTable.processDatasets(dataSetProcessingKey, dataStoreServerCode, dataSetCodes,
+        IDataSetTable dataSetTable = commonBoFactory.createDataSetTable(session);
+        dataSetTable.processDatasets(dataSetProcessingKey, dataStoreServerCode, dataSetCodes,
                 parameterBindings);
     }
 

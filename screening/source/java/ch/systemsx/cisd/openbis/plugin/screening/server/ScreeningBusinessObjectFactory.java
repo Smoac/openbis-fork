@@ -22,9 +22,9 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
@@ -107,9 +107,9 @@ public final class ScreeningBusinessObjectFactory extends AbstractPluginBusiness
         return getCommonBusinessObjectFactory().createMaterialLister(session);
     }
 
-    public IExternalDataTable createExternalDataTable(Session session)
+    public IDataSetTable createDataSetTable(Session session)
     {
-        return getCommonBusinessObjectFactory().createExternalDataTable(session);
+        return getCommonBusinessObjectFactory().createDataSetTable(session);
     }
 
     public IExperimentBO createExperimentBO(Session session)

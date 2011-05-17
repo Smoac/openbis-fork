@@ -70,8 +70,7 @@ public class EntityInformationProvider implements IEntityInformationProvider
                 identifierHolderOrNull = daoFactory.getSampleDAO().tryToFindByPermID(permId);
                 break;
             case DATA_SET:
-                identifierHolderOrNull =
-                        daoFactory.getExternalDataDAO().tryToFindDataSetByCode(permId);
+                identifierHolderOrNull = daoFactory.getDataDAO().tryToFindDataSetByCode(permId);
                 break;
             case MATERIAL:
                 MaterialIdentifier idOrNull = MaterialIdentifier.tryParseIdentifier(permId);

@@ -33,12 +33,12 @@ import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.openbis.generic.server.CommonServerTest.PersonWithDisplaySettingsMatcher;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
@@ -114,6 +114,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected ISpaceDAO groupDAO;
 
+    // FIXME use IDataDAO
     protected IExternalDataDAO externalDataDAO;
 
     protected IDataDAO dataSetDAO;
@@ -128,7 +129,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected IMaterialBO materialBO;
 
-    protected IExternalDataTable externalDataTable;
+    protected IDataSetTable dataSetTable;
 
     protected IExperimentTable experimentTable;
 
@@ -220,7 +221,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         entityTypePropertyTypeBO = context.mock(IEntityTypePropertyTypeBO.class);
         externalDataBO = context.mock(IExternalDataBO.class);
         // Table
-        externalDataTable = context.mock(IExternalDataTable.class);
+        dataSetTable = context.mock(IDataSetTable.class);
         sampleLister = context.mock(ISampleLister.class);
         datasetLister = context.mock(IDatasetLister.class);
         experimentTable = context.mock(IExperimentTable.class);

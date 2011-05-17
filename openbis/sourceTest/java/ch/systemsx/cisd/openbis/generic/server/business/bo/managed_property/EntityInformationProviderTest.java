@@ -73,7 +73,7 @@ public class EntityInformationProviderTest extends AbstractBOTest
                     will(returnValue(sample));
                     one(experimentDAO).tryGetByPermID(ePermId);
                     will(returnValue(experiment));
-                    one(externalDataDAO).tryToFindDataSetByCode(dPermId);
+                    one(dataDAO).tryToFindDataSetByCode(dPermId);
                     will(returnValue(dataSet));
                     one(materialDAO).tryFindMaterial(new MaterialIdentifier(mCode, mTypeCode));
                     will(returnValue(material));
@@ -103,7 +103,7 @@ public class EntityInformationProviderTest extends AbstractBOTest
                     will(returnValue(null));
                     one(experimentDAO).tryGetByPermID(fakePermId);
                     will(returnValue(null));
-                    one(externalDataDAO).tryToFindDataSetByCode(fakePermId);
+                    one(dataDAO).tryToFindDataSetByCode(fakePermId);
                     will(returnValue(null));
                     one(materialDAO).tryFindMaterial(
                             new MaterialIdentifier(fakeMCode, fakeMTypeCode));

@@ -244,7 +244,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         return result;
     }
 
-    // NOTE: depends on proper implementation of ExternalDataDAO.
+    // NOTE: depends on proper implementation of DataDAO.
     //
     // HibernateSearhDAO returns only dataset ids, which are too strongly connected with database
     // content and should not be directly tested in asserts. Using ExternalDataDAO we can check
@@ -252,7 +252,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
     // of using ids.
     private ExternalDataPE getDataSetById(Long datasetId)
     {
-        return daoFactory.getExternalDataDAO().getByTechId(new TechId(datasetId));
+        return daoFactory.getDataDAO().getByTechId(new TechId(datasetId)).tryAsExternalData();
     }
 
     // NOTE: such a check depends strongly on the test database content. Use it only when the better

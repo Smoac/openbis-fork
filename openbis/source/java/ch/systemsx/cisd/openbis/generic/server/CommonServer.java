@@ -44,12 +44,12 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IAttachmentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IAuthorizationGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGridCustomFilterOrColumnBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
@@ -170,7 +170,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationHolderDTO;
@@ -1100,24 +1099,23 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         Session session = getSession(sessionToken);
         try
         {
-            IExternalDataTable externalDataTable =
-                    businessObjectFactory.createExternalDataTable(session);
-            externalDataTable.loadByDataSetCodes(dataSetCodes, false, false);
-            List<ExternalDataPE> dataSets = externalDataTable.getExternalData();
-            Map<DataSetTypePE, List<ExternalDataPE>> groupedDataSets =
-                    new LinkedHashMap<DataSetTypePE, List<ExternalDataPE>>();
-            for (ExternalDataPE dataSet : dataSets)
+            IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
+            dataSetTable.loadByDataSetCodes(dataSetCodes, false, false);
+            List<DataPE> dataSets = dataSetTable.getDataSets();
+            Map<DataSetTypePE, List<DataPE>> groupedDataSets =
+                    new LinkedHashMap<DataSetTypePE, List<DataPE>>();
+            for (DataPE dataSet : dataSets)
             {
                 DataSetTypePE dataSetType = dataSet.getDataSetType();
-                List<ExternalDataPE> list = groupedDataSets.get(dataSetType);
+                List<DataPE> list = groupedDataSets.get(dataSetType);
                 if (list == null)
                 {
-                    list = new ArrayList<ExternalDataPE>();
+                    list = new ArrayList<DataPE>();
                     groupedDataSets.put(dataSetType, list);
                 }
                 list.add(dataSet);
             }
-            for (Map.Entry<DataSetTypePE, List<ExternalDataPE>> entry : groupedDataSets.entrySet())
+            for (Map.Entry<DataSetTypePE, List<DataPE>> entry : groupedDataSets.entrySet())
             {
                 DataSetTypePE dataSetType = entry.getKey();
                 IDataSetTypeSlaveServerPlugin plugin = getDataSetTypeSlaveServerPlugin(dataSetType);
@@ -1383,10 +1381,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         Session session = getSession(sessionToken);
         try
         {
-            IExternalDataTable externalDataTable =
-                    businessObjectFactory.createExternalDataTable(session);
-            externalDataTable.loadByDataSetCodes(dataSetCodes, true, false);
-            return externalDataTable.uploadLoadedDataSetsToCIFEX(uploadContext);
+            IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
+            dataSetTable.loadByDataSetCodes(dataSetCodes, true, false);
+            return dataSetTable.uploadLoadedDataSetsToCIFEX(uploadContext);
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);
@@ -1520,8 +1517,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         switch (entityKind)
         {
             case DATA_SET:
-                return createInformationHolder(entityKind, permId, getDAOFactory()
-                        .getExternalDataDAO().tryToFindDataSetByCode(permId));
+                return createInformationHolder(entityKind, permId, getDAOFactory().getDataDAO()
+                        .tryToFindDataSetByCode(permId));
             case SAMPLE:
             case EXPERIMENT:
                 return createInformationHolder(entityKind, permId, getDAOFactory().getPermIdDAO()
@@ -1931,9 +1928,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             DatastoreServiceDescription serviceDescription, List<String> datasetCodes)
     {
         Session session = getSession(sessionToken);
-        IExternalDataTable externalDataTable =
-                businessObjectFactory.createExternalDataTable(session);
-        return externalDataTable.createReportFromDatasets(serviceDescription.getKey(),
+        IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
+        return dataSetTable.createReportFromDatasets(serviceDescription.getKey(),
                 serviceDescription.getDatastoreCode(), datasetCodes);
     }
 
@@ -1941,10 +1937,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             DatastoreServiceDescription serviceDescription, List<String> datasetCodes)
     {
         Session session = getSession(sessionToken);
-        IExternalDataTable externalDataTable =
-                businessObjectFactory.createExternalDataTable(session);
+        IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
         Map<String, String> parameterBindings = new HashMap<String, String>();
-        externalDataTable.processDatasets(serviceDescription.getKey(),
+        dataSetTable.processDatasets(serviceDescription.getKey(),
                 serviceDescription.getDatastoreCode(), datasetCodes, parameterBindings);
     }
 
@@ -2193,28 +2188,25 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     public int lockDatasets(String sessionToken, List<String> datasetCodes)
     {
         Session session = getSession(sessionToken);
-        IExternalDataTable externalDataTable =
-                businessObjectFactory.createExternalDataTable(session);
-        externalDataTable.loadByDataSetCodes(datasetCodes, false, true);
-        return externalDataTable.lockDatasets();
+        IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
+        dataSetTable.loadByDataSetCodes(datasetCodes, false, true);
+        return dataSetTable.lockDatasets();
     }
 
     public int unlockDatasets(String sessionToken, List<String> datasetCodes)
     {
         Session session = getSession(sessionToken);
-        IExternalDataTable externalDataTable =
-                businessObjectFactory.createExternalDataTable(session);
-        externalDataTable.loadByDataSetCodes(datasetCodes, false, true);
-        return externalDataTable.unlockDatasets();
+        IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
+        dataSetTable.loadByDataSetCodes(datasetCodes, false, true);
+        return dataSetTable.unlockDatasets();
     }
 
     public LinkModel retrieveLinkFromDataSet(String sessionToken,
             DatastoreServiceDescription serviceDescription, String dataSetCode)
     {
         Session session = getSession(sessionToken);
-        IExternalDataTable externalDataTable =
-                businessObjectFactory.createExternalDataTable(session);
-        return externalDataTable.retrieveLinkFromDataSet(serviceDescription.getKey(),
+        IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
+        return dataSetTable.retrieveLinkFromDataSet(serviceDescription.getKey(),
                 serviceDescription.getDatastoreCode(), dataSetCode);
     }
 

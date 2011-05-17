@@ -36,9 +36,9 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.Indistinguis
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.Peptide;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.PeptideModification;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinDetails;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.PeptideWithModification;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IdentifiedProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IndistinguishableProtein;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.PeptideWithModification;
 
 /**
  * @author Franz-Josef Elmer
@@ -80,7 +80,7 @@ class ProteinDetailsBO extends AbstractBusinessObject implements IProteinDetails
                 details.setFalseDiscoveryRate(protein.getFalseDiscoveryRate());
                 String dataSetPermID = protein.getDataSetPermID();
                 details.setDataSetPermID(dataSetPermID);
-                DataPE ds = getDaoFactory().getExternalDataDAO().tryToFindDataSetByCode(dataSetPermID);
+                DataPE ds = getDaoFactory().getDataDAO().tryToFindDataSetByCode(dataSetPermID);
                 if (ds != null)
                 {
                     details.setDataSetTechID(ds.getId());
@@ -96,7 +96,7 @@ class ProteinDetailsBO extends AbstractBusinessObject implements IProteinDetails
             proteins.close();
         }
     }
-    
+
     private List<IndistinguishableProteinInfo> loadIndistinguishableProteinInfos(long proteinID)
     {
         IProteinQueryDAO proteinQueryDAO = getSpecificDAOFactory().getProteinQueryDAO();
@@ -109,7 +109,8 @@ class ProteinDetailsBO extends AbstractBusinessObject implements IProteinDetails
             for (IndistinguishableProtein protein : proteins)
             {
                 IndistinguishableProteinInfo info = new IndistinguishableProteinInfo();
-                AccessionNumberBuilder builder = new AccessionNumberBuilder(protein.getAccessionNumber());
+                AccessionNumberBuilder builder =
+                        new AccessionNumberBuilder(protein.getAccessionNumber());
                 info.setAccessionNumber(builder.getAccessionNumber());
                 info.setAccessionNumberType(builder.getTypeOrNull());
                 info.setDescription(protein.getDescription());

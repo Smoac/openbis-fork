@@ -299,10 +299,10 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
                     DataStorePE s2 = store("s2", service(COPY_PROCESSING_KEY, PROCESSING));
                     will(returnValue(Arrays.asList(s1, s2)));
 
-                    one(commonBoFactory).createExternalDataTable(session);
-                    will(returnValue(externalDataTable));
+                    one(commonBoFactory).createDataSetTable(session);
+                    will(returnValue(dataSetTable));
 
-                    one(externalDataTable).processDatasets(COPY_PROCESSING_KEY, "s2",
+                    one(dataSetTable).processDatasets(COPY_PROCESSING_KEY, "s2",
                             Arrays.asList(dataSetCodes), parameterBindings);
                 }
 

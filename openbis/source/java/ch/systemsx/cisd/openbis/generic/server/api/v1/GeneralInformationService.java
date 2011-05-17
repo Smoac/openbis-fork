@@ -35,8 +35,8 @@ import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType;
@@ -348,7 +348,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     {
         checkSession(sessionToken);
 
-        IExternalDataDAO dataDAO = getDAOFactory().getExternalDataDAO();
+        IDataDAO dataDAO = getDAOFactory().getDataDAO();
         DataPE data = dataDAO.tryToFindDataSetByCode(dataSetCode);
         if (data == null)
         {

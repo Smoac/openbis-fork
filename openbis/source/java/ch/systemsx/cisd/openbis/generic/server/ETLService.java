@@ -34,6 +34,7 @@ import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
@@ -45,10 +46,10 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
@@ -89,6 +90,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePropertyTypePE;
@@ -127,6 +129,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierF
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DatabaseInstanceTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.EntityPropertyTranslator;
@@ -675,10 +678,9 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
             throws UserFailureException
     {
         Session session = getSession(sessionToken);
-        IExternalDataDAO externalDataDAO = getDAOFactory().getExternalDataDAO();
-        ExternalDataPE dataSet =
-                externalDataDAO.tryToFindFullDataSetByCode(dataSetCode, false, false);
-        if (dataSet != null)
+        IDataDAO dataSetDAO = getDAOFactory().getDataDAO();
+        DataPE dataSet = dataSetDAO.tryToFindFullDataSetByCode(dataSetCode, false, false);
+        if (dataSet != null && dataSet.isExternalData())
         {
             DataSetTypePE dataSetType = dataSet.getDataSetType();
             IDataSetTypeSlaveServerPlugin plugin = getDataSetTypeSlaveServerPlugin(dataSetType);
@@ -700,19 +702,24 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
     {
         checkSession(sessionToken);
 
-        IExternalDataDAO externalDataDAO = getDAOFactory().getExternalDataDAO();
-        ExternalDataPE dataSet =
-                externalDataDAO.tryToFindFullDataSetByCode(dataSetCode, false, false);
+        IDataDAO dataSetDAO = getDAOFactory().getDataDAO();
+        DataPE dataSet = dataSetDAO.tryToFindFullDataSetByCode(dataSetCode, false, false);
         if (dataSet == null)
         {
             throw new UserFailureException("Unknown data set " + dataSetCode);
         }
+        ExternalDataPE externalData = dataSet.tryAsExternalData();
+        if (externalData == null)
+        {
+            throw new UserFailureException("Can't update share id and size of a virtual data set: "
+                    + dataSetCode);
+        }
         // data sets consisting out of empty folders have a size of 0,
         // but we want the size of a data set to be strictly positive
         long positiveSize = Math.max(1, size);
-        dataSet.setShareId(shareId);
-        dataSet.setSize(positiveSize);
-        externalDataDAO.updateDataSet(dataSet);
+        externalData.setShareId(shareId);
+        externalData.setSize(positiveSize);
+        dataSetDAO.updateDataSet(dataSet);
     }
 
     public void updateDataSetStatuses(String sessionToken, List<String> dataSetCodes,
@@ -743,14 +750,14 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
 
         Session session = getSession(sessionToken); // assert authenticated
 
-        IExternalDataBO externalDataBO = businessObjectFactory.createExternalDataBO(session);
-        externalDataBO.loadByCode(dataSetCode);
-        externalDataBO.enrichWithParentsAndExperiment();
-        externalDataBO.enrichWithProperties();
-        ExternalDataPE externalDataPE = externalDataBO.tryExternalData();
-        if (null == externalDataPE)
+        IDataBO dataBO = businessObjectFactory.createDataBO(session);
+        dataBO.loadByCode(dataSetCode);
+        dataBO.enrichWithParentsAndExperiment();
+        dataBO.enrichWithProperties();
+        DataPE dataPE = dataBO.tryGetData();
+        if (null == dataPE)
             return null;
-        return ExternalDataTranslator.translate(externalDataPE, session.getBaseIndexURL());
+        return DataSetTranslator.translate(dataPE, session.getBaseIndexURL());
     }
 
     public void checkInstanceAdminAuthorization(String sessionToken) throws UserFailureException
@@ -804,9 +811,9 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         ArrayList<DataSetShareId> shareIds = new ArrayList<DataSetShareId>();
         for (ExternalData dataSet : dataSets)
         {
-            if (dataSet instanceof DataSet)
+            DataSet ds = dataSet.tryGetAsDataSet();
+            if (ds != null)
             {
-                DataSet ds = (DataSet) dataSet;
                 DataSetShareId dataSetShareId = new DataSetShareId();
                 dataSetShareId.setDataSetCode(ds.getCode());
                 dataSetShareId.setShareId(ds.getShareId());

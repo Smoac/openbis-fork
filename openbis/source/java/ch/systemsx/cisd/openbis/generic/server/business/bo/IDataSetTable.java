@@ -23,24 +23,23 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 
 /**
- * A <i>Business Object</i> to load a list of {@link ExternalDataPE}.
+ * A <i>Business Object</i> to load a list of {@link DataPE}-s.
  * 
  * @author Christian Ribeaud
  */
-@Deprecated
-public interface IExternalDataTable
+public interface IDataSetTable
 {
     /**
-     * Loads data sets specified by their codes. Data set codes will be ignored if no
-     * {@link ExternalDataPE} could be found. Properties will be loaded too depending on
-     * <var>withProperties</var> value. Optionally if <var>lockForUpdate</var> is <var>true</var>
-     * all updates to loaded data sets from other transactions will be blocked until current
-     * transaction is finished.
+     * Loads data sets specified by their codes. Data set codes will be ignored if no {@link DataPE}
+     * could be found. Properties will be loaded too depending on <var>withProperties</var> value.
+     * Optionally if <var>lockForUpdate</var> is <var>true</var> all updates to loaded data sets
+     * from other transactions will be blocked until current transaction is finished.
      */
     void loadByDataSetCodes(List<String> dataSetCodes, boolean withProperties, boolean lockForUpdate);
 
@@ -55,14 +54,19 @@ public interface IExternalDataTable
     void loadByExperimentTechId(final TechId experimentId);
 
     /**
-     * Returns the loaded {@link ExternalDataPE}.
+     * Returns the loaded {@link DataPE}.
+     */
+    List<DataPE> getDataSets();
+
+    /**
+     * Returns the loaded {@link DataPE}-s filtered to instances of {@link ExternalDataPE}.
      */
     List<ExternalDataPE> getExternalData();
 
     /**
-     * Sets the specified external data as they were loaded.
+     * Sets the specified data sets as they were loaded.
      */
-    void setExternalData(List<ExternalDataPE> externalData);
+    void setDataSets(List<DataPE> dataSets);
 
     /**
      * Deletes loaded data sets for specified reason.
