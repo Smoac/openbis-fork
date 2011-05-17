@@ -46,13 +46,19 @@ class ProteinSummaryTable extends AbstractBusinessObject implements IProteinSumm
 
         private final Set<Long> proteins;
 
+        private final Set<Long> decoyProteins;
+
         private final Set<String> peptides;
 
+        private final Set<String> decoyPeptides;
+        
         Counter(double fdrLevel)
         {
             this.fdrLevel = fdrLevel;
             proteins = new HashSet<Long>();
+            decoyProteins = new HashSet<Long>();
             peptides = new HashSet<String>();
+            decoyPeptides = new HashSet<String>();
         }
 
         public ProteinSummary getProteinSummary()
@@ -61,6 +67,8 @@ class ProteinSummaryTable extends AbstractBusinessObject implements IProteinSumm
             proteinSummary.setFDR(fdrLevel);
             proteinSummary.setProteinCount(proteins.size());
             proteinSummary.setPeptideCount(peptides.size());
+            proteinSummary.setDecoyProteinCount(decoyProteins.size());
+            proteinSummary.setDecoyPeptideCount(decoyPeptides.size());
             return proteinSummary;
         }
 
@@ -68,8 +76,16 @@ class ProteinSummaryTable extends AbstractBusinessObject implements IProteinSumm
         {
             if (fdr <= fdrLevel)
             {
-                proteins.add(protein.getId());
-                peptides.add(protein.getPeptideSequence());
+                String accessionNumber = protein.getAccessionNumber();
+                if (accessionNumber.startsWith("DECOY_"))
+                {
+                    decoyProteins.add(protein.getId());
+                    decoyPeptides.add(protein.getPeptideSequence());
+                } else
+                {
+                    proteins.add(protein.getId());
+                    peptides.add(protein.getPeptideSequence());
+                }
             }
         }
     }
@@ -112,14 +128,20 @@ class ProteinSummaryTable extends AbstractBusinessObject implements IProteinSumm
                     counter.handle(fdr, protein);
                 }
             }
-            summaries = new ArrayList<ProteinSummary>(counters.size());
-            for (Counter counter : counters)
-            {
-                summaries.add(counter.getProteinSummary());
-            }
+            summaries = getSummaries(counters);
         } finally
         {
             resultSet.close();
         }
+    }
+
+    private List<ProteinSummary> getSummaries(List<Counter> counters)
+    {
+        List<ProteinSummary> list = new ArrayList<ProteinSummary>(counters.size());
+        for (Counter counter : counters)
+        {
+            list.add(counter.getProteinSummary());
+        }
+        return list;
     }
 }

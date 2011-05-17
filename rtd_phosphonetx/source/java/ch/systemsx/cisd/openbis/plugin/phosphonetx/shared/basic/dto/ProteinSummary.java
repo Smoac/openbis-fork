@@ -29,9 +29,13 @@ public class ProteinSummary implements ISerializable
     private double fdr;
 
     private int proteinCount;
+    
+    private int decoyProteinCount;
 
     private int peptideCount;
 
+    private int decoyPeptideCount;
+    
     public double getFDR()
     {
         return fdr;
@@ -60,6 +64,26 @@ public class ProteinSummary implements ISerializable
     public void setPeptideCount(int peptideCount)
     {
         this.peptideCount = peptideCount;
+    }
+
+    public void setDecoyProteinCount(int decoyProteinCount)
+    {
+        this.decoyProteinCount = decoyProteinCount;
+    }
+
+    public int getDecoyProteinCount()
+    {
+        return decoyProteinCount;
+    }
+
+    public void setDecoyPeptideCount(int decoyPeptideCount)
+    {
+        this.decoyPeptideCount = decoyPeptideCount;
+    }
+
+    public int getDecoyPeptideCount()
+    {
+        return decoyPeptideCount;
     }
 
 }

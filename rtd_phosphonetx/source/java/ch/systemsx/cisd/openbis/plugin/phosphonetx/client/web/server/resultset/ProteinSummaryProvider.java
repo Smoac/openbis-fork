@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.server.resultset;
 import static ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ProteinSummaryGridColumnIDs.FDR;
 import static ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ProteinSummaryGridColumnIDs.PEPTIDE_COUNT;
 import static ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ProteinSummaryGridColumnIDs.PROTEIN_COUNT;
+import static ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ProteinSummaryGridColumnIDs.DECOY_PEPTIDE_COUNT;
+import static ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ProteinSummaryGridColumnIDs.DECOY_PROTEIN_COUNT;
 
 import java.util.List;
 
@@ -56,12 +58,16 @@ public class ProteinSummaryProvider extends AbstractTableModelProvider<ProteinSu
         builder.addColumn(FDR);
         builder.addColumn(PROTEIN_COUNT).withDefaultWidth(100);
         builder.addColumn(PEPTIDE_COUNT).withDefaultWidth(100);
+        builder.addColumn(DECOY_PROTEIN_COUNT).withDefaultWidth(100);
+        builder.addColumn(DECOY_PEPTIDE_COUNT).withDefaultWidth(100);
         for (ProteinSummary summary : sumaries)
         {
             builder.addRow(summary);
             builder.column(FDR).addDouble(summary.getFDR());
             builder.column(PROTEIN_COUNT).addInteger((long) summary.getProteinCount());
             builder.column(PEPTIDE_COUNT).addInteger((long) summary.getPeptideCount());
+            builder.column(DECOY_PROTEIN_COUNT).addInteger((long) summary.getDecoyProteinCount());
+            builder.column(DECOY_PEPTIDE_COUNT).addInteger((long) summary.getDecoyPeptideCount());
         }
         return builder.getModel();
     }

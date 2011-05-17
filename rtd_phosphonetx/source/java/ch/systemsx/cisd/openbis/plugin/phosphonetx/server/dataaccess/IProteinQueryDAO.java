@@ -61,8 +61,9 @@ public interface IProteinQueryDAO extends BaseQuery
             + "where p.id = any (?{1})", parameterBindings = { LongSetMapper.class })
     public DataSet<ProteinAbundance> listProteinWithAbundanceByExperiment(LongSet proteinIDs);
     
-    @Select(sql = "select p.dase_id as data_set_id, p.probability, s.prre_id as id, pe.sequence "
+    @Select(sql = "select p.dase_id as data_set_id, p.probability, s.prre_id as id, pr.accession_number, pe.sequence "
             + "from identified_proteins as ip left join sequences as s on ip.sequ_id = s.id "
+            + "left join protein_references as pr on s.prre_id = pr.id "
             + "left join proteins as p on ip.prot_id = p.id "
             + "left join peptides as pe on pe.prot_id = p.id "
             + "left join data_sets as d on p.dase_id = d.id "

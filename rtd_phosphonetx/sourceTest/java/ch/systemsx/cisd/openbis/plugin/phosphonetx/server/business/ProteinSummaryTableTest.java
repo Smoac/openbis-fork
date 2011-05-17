@@ -89,13 +89,14 @@ public class ProteinSummaryTableTest extends AbstractServerTestCase
     @Test
     public void testLoadData()
     {
-        ProteinReferenceWithProbabilityAndPeptide i1 = createItem(0.5, 123, "ABCD");
-        ProteinReferenceWithProbabilityAndPeptide i2 = createItem(0.5, 123, "DEF");
-        ProteinReferenceWithProbabilityAndPeptide i3 = createItem(0.75, 123, "DEF");
-        ProteinReferenceWithProbabilityAndPeptide i4 = createItem(0.75, 456, "ABC");
-        ProteinReferenceWithProbabilityAndPeptide i5 = createItem(1, 456, "DEF");
-        ProteinReferenceWithProbabilityAndPeptide i6 = createItem(1, 456, "XYZ");
-        prepare(i1, i2, i3, i4, i5, i6);
+        ProteinReferenceWithProbabilityAndPeptide i1 = createItem("A", 0.5, 123, "ABCD");
+        ProteinReferenceWithProbabilityAndPeptide i2 = createItem("B", 0.5, 123, "DEF");
+        ProteinReferenceWithProbabilityAndPeptide i3 = createItem("C", 0.75, 123, "DEF");
+        ProteinReferenceWithProbabilityAndPeptide i4 = createItem("D", 0.75, 456, "ABC");
+        ProteinReferenceWithProbabilityAndPeptide i5 = createItem("E", 1, 456, "DEF");
+        ProteinReferenceWithProbabilityAndPeptide i6 = createItem("F", 1, 456, "XYZ");
+        ProteinReferenceWithProbabilityAndPeptide i7 = createItem("DECOY_F", 0.75, 456, "XYZ");
+        prepare(i1, i2, i3, i4, i5, i6, i7);
         context.checking(new Expectations()
             {
                 {
@@ -112,22 +113,25 @@ public class ProteinSummaryTableTest extends AbstractServerTestCase
         table.load(EXPERIMENT_ID);
 
         List<ProteinSummary> summaries = table.getProteinSummaries();
-        assertSummary(0, 1, 2, summaries);
-        assertSummary(1, 1, 2, summaries);
-        assertSummary(2, 2, 3, summaries);
-        assertSummary(3, 2, 4, summaries);
-        assertSummary(4, 2, 4, summaries);
+        assertSummary(0, 1, 2, 0, 0, summaries);
+        assertSummary(1, 1, 2, 0, 0, summaries);
+        assertSummary(2, 2, 3, 1, 1, summaries);
+        assertSummary(3, 2, 4, 1, 1, summaries);
+        assertSummary(4, 2, 4, 1, 1, summaries);
         assertEquals(FDR_LEVELS.length, summaries.size());
         context.assertIsSatisfied();
     }
 
     private void assertSummary(int index, int expectedProteinCount, int expectedPeptideCount,
+            int expectedDecoyProteinCount, int expectedDecoyPeptideCount,
             List<ProteinSummary> summaries)
     {
         ProteinSummary proteinSummary = summaries.get(index);
         assertEquals(FDR_LEVELS[index], proteinSummary.getFDR(), 1e-6);
         assertEquals(expectedProteinCount, proteinSummary.getProteinCount());
         assertEquals(expectedPeptideCount, proteinSummary.getPeptideCount());
+        assertEquals(expectedDecoyProteinCount, proteinSummary.getDecoyProteinCount());
+        assertEquals(expectedDecoyPeptideCount, proteinSummary.getDecoyPeptideCount());
     }
 
     private ProbabilityFDRMapping createMappingItem(double probability, double falseDiscoveryRate)
@@ -158,8 +162,8 @@ public class ProteinSummaryTableTest extends AbstractServerTestCase
             });
     }
 
-    private ProteinReferenceWithProbabilityAndPeptide createItem(double probability, long id,
-            String peptideSequence)
+    private ProteinReferenceWithProbabilityAndPeptide createItem(String accessionNumber, double probability,
+            long id, String peptideSequence)
     {
         ProteinReferenceWithProbabilityAndPeptide item =
                 new ProteinReferenceWithProbabilityAndPeptide();
@@ -167,6 +171,7 @@ public class ProteinSummaryTableTest extends AbstractServerTestCase
         item.setProbability(probability);
         item.setId(id);
         item.setPeptideSequence(peptideSequence);
+        item.setAccessionNumber(accessionNumber);
         return item;
     }
 

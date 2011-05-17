@@ -39,6 +39,8 @@ public class ProteinSummaryProviderTest extends AbstractProviderTest
         ps.setFDR(0.125);
         ps.setProteinCount(42);
         ps.setPeptideCount(4711);
+        ps.setDecoyProteinCount(2);
+        ps.setDecoyPeptideCount(5);
         final IPhosphoNetXServer phosphonetxServer = context.mock(IPhosphoNetXServer.class);
         context.checking(new Expectations()
             {
@@ -53,11 +55,14 @@ public class ProteinSummaryProviderTest extends AbstractProviderTest
 
         TypedTableModel<ProteinSummary> model = provider.createTableModel();
 
-        assertEquals("[FDR, PROTEIN_COUNT, PEPTIDE_COUNT]", getHeaderIDs(model).toString());
-        assertEquals("[REAL, INTEGER, INTEGER]", getHeaderDataTypes(model).toString());
-        assertEquals("[null, null, null]", getHeaderEntityKinds(model).toString());
+        assertEquals(
+                "[FDR, PROTEIN_COUNT, PEPTIDE_COUNT, DECOY_PROTEIN_COUNT, DECOY_PEPTIDE_COUNT]",
+                getHeaderIDs(model).toString());
+        assertEquals("[REAL, INTEGER, INTEGER, INTEGER, INTEGER]", getHeaderDataTypes(model)
+                .toString());
+        assertEquals("[null, null, null, null, null]", getHeaderEntityKinds(model).toString());
         assertSame(ps, model.getRows().get(0).getObjectOrNull());
-        assertEquals("[0.125, 42, 4711]", model.getRows().get(0).getValues().toString());
+        assertEquals("[0.125, 42, 4711, 2, 5]", model.getRows().get(0).getValues().toString());
         assertEquals(1, model.getRows().size());
         context.assertIsSatisfied();
     }
