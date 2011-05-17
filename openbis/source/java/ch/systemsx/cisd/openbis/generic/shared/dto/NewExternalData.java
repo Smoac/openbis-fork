@@ -38,18 +38,18 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  * 
  * @author Christian Ribeaud
  */
-public final class NewExternalData implements Serializable
+public class NewExternalData implements Serializable
 {
     private static final long serialVersionUID = IServer.VERSION;
 
     private ExtractableData extractableData = new ExtractableData();
 
     private String shareId;
-    
+
     private String location;
-    
+
     private Long size;
-    
+
     private int speedHint;
 
     private StorageFormat storageFormat;
@@ -73,11 +73,11 @@ public final class NewExternalData implements Serializable
     private String dataStoreCode;
 
     private boolean measured;
-    
+
     private ExperimentIdentifier experimentIdentifierOrNull;
-    
+
     private SampleIdentifier sampleIdentifierOrNull;
-    
+
     public ExperimentIdentifier getExperimentIdentifierOrNull()
     {
         return experimentIdentifierOrNull;

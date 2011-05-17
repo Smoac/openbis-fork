@@ -1217,7 +1217,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
     {
         final Session session = getSession(sessionToken);
         ArrayList<ExternalDataPE> dataSetsCreated = new ArrayList<ExternalDataPE>();
-        ArrayList<NewExternalData> dataSetRegistrations =
+        ArrayList<? extends NewExternalData> dataSetRegistrations =
                 operationDetails.getDataSetRegistrations();
         for (NewExternalData dataSet : dataSetRegistrations)
         {

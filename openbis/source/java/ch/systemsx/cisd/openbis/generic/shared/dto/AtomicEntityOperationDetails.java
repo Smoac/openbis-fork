@@ -55,12 +55,12 @@ public class AtomicEntityOperationDetails implements Serializable
 
     private final ArrayList<NewSample> sampleRegistrations;
 
-    private final ArrayList<NewExternalData> dataSetRegistrations;
+    private final ArrayList<? extends NewExternalData> dataSetRegistrations;
 
     public AtomicEntityOperationDetails(String userIdOrNull, List<NewSpace> spaceRegistrations,
-            List<NewProject> projectRegistrations,
-            List<NewExperiment> experimentRegistrations, List<SampleUpdatesDTO> sampleUpdates,
-            List<NewSample> sampleRegistrations, List<NewExternalData> dataSetRegistrations)
+            List<NewProject> projectRegistrations, List<NewExperiment> experimentRegistrations,
+            List<SampleUpdatesDTO> sampleUpdates, List<NewSample> sampleRegistrations,
+            List<? extends NewExternalData> dataSetRegistrations)
     {
         this.userIdOrNull = userIdOrNull;
         this.spaceRegistrations = new ArrayList<NewSpace>(spaceRegistrations);
@@ -97,7 +97,7 @@ public class AtomicEntityOperationDetails implements Serializable
         return sampleRegistrations;
     }
 
-    public ArrayList<NewExternalData> getDataSetRegistrations()
+    public ArrayList<? extends NewExternalData> getDataSetRegistrations()
     {
         return dataSetRegistrations;
     }
