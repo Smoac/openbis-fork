@@ -49,6 +49,17 @@ public class ImageTableCell implements ISerializableComparable
         this(getPath(dataSetCode, dataSetLocation, originalPath), maxThumbnailWidth, maxThumbnailHeight);
     }
     
+    /**
+     * @param relativePathFromDataSetRoot the relative path to this image file starting from the
+     *            data set root.
+     */
+    public ImageTableCell(String dataSetCode, String relativePathFromDataSetRoot,
+            int maxThumbnailWidth,
+            int maxThumbnailHeight)
+    {
+        this(dataSetCode + relativePathFromDataSetRoot, maxThumbnailWidth, maxThumbnailHeight);
+    }
+
     public ImageTableCell(String path, int maxThumbnailWidth, int maxThumbnailHeight)
     {
         this.path = path;

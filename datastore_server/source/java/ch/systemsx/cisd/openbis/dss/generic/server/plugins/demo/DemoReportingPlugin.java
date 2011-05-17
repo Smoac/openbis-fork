@@ -22,11 +22,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.commons.io.FileUtils;
-
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractTableModelReportingPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
+import ch.systemsx.cisd.openbis.dss.generic.shared.HierarchicalContentTraverseUtil;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentNodeVisitor;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
@@ -61,77 +63,73 @@ public class DemoReportingPlugin extends AbstractTableModelReportingPlugin
         builder.addHeader("Size");
         for (DatasetDescription dataset : datasets)
         {
-            File file = getDataSubDir(context.getDirectoryProvider(), dataset);
-            if (file.isDirectory())
-            {
-                describe(builder, dataset, file);
-            } else
-            {
-                describeUnknown(builder, dataset, file);
-            }
+            describe(builder, dataset);
         }
         return builder.getTableModel();
     }
 
-    private static void describe(SimpleTableModelBuilder builder, DatasetDescription dataset,
-            File file)
+    private void describe(SimpleTableModelBuilder builder, DatasetDescription dataset)
     {
-        if (file.isFile())
-        {
-            describeFile(builder, dataset, file);
-        } else
-        {
-            File[] datasetFiles = FileUtilities.listFiles(file);
-            for (File datasetFile : datasetFiles)
+        IHierarchicalContentNodeVisitor visitor =
+                createFileDescribingVisitor(builder, dataset);
+        IHierarchicalContentProvider provider = ServiceProvider.getHierarchicalContentProvider();
+        HierarchicalContentTraverseUtil.traverse(provider, dataset.getDataSetCode(), visitor);
+    }
+
+    private IHierarchicalContentNodeVisitor createFileDescribingVisitor(
+            final SimpleTableModelBuilder builder, final DatasetDescription dataset)
+    {
+        return new IHierarchicalContentNodeVisitor()
             {
-                describe(builder, dataset, datasetFile);
-            }
-        }
+
+                public void visit(IHierarchicalContentNode node)
+                {
+                    if (false == node.isDirectory())
+                    {
+                        describeFileNode(builder, dataset, node);
+                    }
+                }
+            };
     }
 
-    private void describeUnknown(SimpleTableModelBuilder builder, DatasetDescription dataset,
-            File file)
+    private void describeFileNode(SimpleTableModelBuilder builder, DatasetDescription dataset,
+            IHierarchicalContentNode fileNode)
     {
-        String datasetCode = dataset.getDataSetCode();
-        ISerializableComparable image = createImageCell(dataset, file);
-        List<ISerializableComparable> row =
-                Arrays.<ISerializableComparable> asList(new StringTableCell(datasetCode), image,
-                        new StringTableCell(file.getName()),
-                        new DateTableCell(new Date(file.lastModified())), new DoubleTableCell(0));
-        builder.addRow(row);
-    }
-
-    private static ISerializableComparable createImageCell(DatasetDescription dataset, File file)
-    {
-        if (ImageUtil.isImageFile(file))
+        ISerializableComparable image = createPathOrImageCell(dataset, fileNode);
+        long lastModified = 0;
+        try
         {
-            String code = dataset.getDataSetCode();
-            String location = dataset.getDataSetLocation();
-            return new ImageTableCell(code, location, file.getPath(), 100, 60);
+            lastModified = fileNode.getFile().lastModified();
+        } catch (UnsupportedOperationException uoe)
+        {
+            // ignore exceptions
         }
-        return new StringTableCell(file.getName());
-    }
-
-    private static void describeFile(SimpleTableModelBuilder builder, DatasetDescription dataset,
-            File file)
-    {
-        ISerializableComparable image = createImageCell(dataset, file);
         List<ISerializableComparable> row =
                 Arrays.<ISerializableComparable> asList(
                         new StringTableCell(dataset.getDataSetCode()), image, new StringTableCell(
-                                file.getName()), new DateTableCell(new Date(file.lastModified())),
-                        new DoubleTableCell(getSize(file)));
+                                fileNode.getName()), new DateTableCell(new Date(lastModified)),
+                        new DoubleTableCell(fileNode.getFileLength()));
         builder.addRow(row);
     }
 
-    private static long getSize(File file)
+    private ISerializableComparable createPathOrImageCell(DatasetDescription dataset,
+            IHierarchicalContentNode fileNode)
     {
-        if (file.isFile())
+        File fileOnDisk = null;
+        try
         {
-            return file.length();
-        } else
+            fileOnDisk = fileNode.getFile();
+        } catch (UnsupportedOperationException uoe)
         {
-            return FileUtils.sizeOfDirectory(file);
+            // do not break
         }
+
+        if (fileOnDisk != null && ImageUtil.isImageFile(fileOnDisk))
+        {
+            return new ImageTableCell(dataset.getDataSetCode(), fileNode.getRelativePath(), 100,
+                    60);
+        }
+        return new StringTableCell(fileNode.getName());
     }
+
 }

@@ -26,16 +26,26 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.springframework.beans.factory.BeanFactory;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.io.DefaultFileBasedHierarchicalContentFactory;
+import ch.systemsx.cisd.common.io.IHierarchicalContent;
+import ch.systemsx.cisd.common.utilities.IDelegatedAction;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.demo.DemoProcessingPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.demo.DemoReportingPlugin;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.MockDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -47,8 +57,55 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
     { PluginTaskProviders.class, AbstractPluginTaskFactory.class })
 public class PluginTaskParametersTest extends AbstractFileSystemTestCase
 {
-    private static final String SHARE_ID = "42";
-    private static final File STORE_ROOT = new File(".");
+    private static final File STORE_ROOT = new File("./resource/test-data/"
+            + PluginTaskParametersTest.class.getSimpleName());
+
+    private Mockery context;
+
+    private IHierarchicalContentProvider contentProvider;
+
+    @BeforeMethod
+    public void beforeMethod()
+    {
+        context = new Mockery();
+        contentProvider = new IHierarchicalContentProvider()
+            {
+
+                public IHierarchicalContent asContent(String dataSetCode)
+                {
+                    File dataSetFolder = new File(STORE_ROOT, dataSetCode);
+                    return new DefaultFileBasedHierarchicalContentFactory().asHierarchicalContent(
+                            dataSetFolder, IDelegatedAction.DO_NOTHING);
+                }
+
+                public IHierarchicalContent asContent(File datasetDirectory)
+                {
+                    return null;
+                }
+
+                public IHierarchicalContent asContent(IDatasetLocation datasetLocation)
+                {
+                    return null;
+                }
+            };
+        final BeanFactory beanFactory = context.mock(BeanFactory.class);
+        ServiceProviderTestWrapper.setApplicationContext(beanFactory);
+
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(beanFactory).getBean("hierarchical-content-provider");
+                    will(returnValue(contentProvider));
+                }
+            });
+
+    }
+
+    @AfterMethod
+    public void afterTest()
+    {
+        ServiceProviderTestWrapper.restoreApplicationContext();
+    }
 
     @Test
     public void testCreateReportingPluginsFactories() throws Exception
@@ -71,7 +128,7 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
         factories.logConfigurations();
         IReportingPluginTask pluginInstance1 = factories.getPluginInstance(plugin1);
         pluginInstance1.createReport(createDatasetDescriptions(), new DataSetProcessingContext(
-                new MockDataSetDirectoryProvider(STORE_ROOT, SHARE_ID), null, null, null));
+                null, null, null, null));
 
         List<DatastoreServiceDescription> descriptions = factories.getPluginDescriptions();
         assertEquals(2, descriptions.size());
@@ -145,8 +202,9 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
     private static List<DatasetDescription> createDatasetDescriptions()
     {
         DatasetDescription description = new DatasetDescription();
-        description.setDatasetCode(".");
-        description.setDataSetLocation("3123123123-123");
+        final String dataSetCode = "dataset-1";
+        description.setDatasetCode(dataSetCode);
+        description.setDataSetLocation(dataSetCode);
         description.setSampleCode("sampleCode");
         description.setSpaceCode("groupCode");
         description.setProjectCode("projCode");

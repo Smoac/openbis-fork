@@ -20,9 +20,19 @@ import java.io.File;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+
+import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
+import ch.systemsx.cisd.openbis.dss.generic.shared.HierarchicalContentTraverseUtil;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentNodeVisitor;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -34,6 +44,9 @@ public class DemoProcessingPlugin implements IProcessingPluginTask
 {
     private static final long serialVersionUID = 1L;
 
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            DemoProcessingPlugin.class);
+
     public DemoProcessingPlugin(Properties properties, File storeRoot)
     {
     }
@@ -41,16 +54,33 @@ public class DemoProcessingPlugin implements IProcessingPluginTask
     public ProcessingStatus process(List<DatasetDescription> datasets,
             DataSetProcessingContext context)
     {
-        System.out.println("Processing of the following datasets has been requested: " + datasets);
-        System.out.println("sleeping for 2 sec");
-        try
-        {
-            Thread.sleep(2000);
-        } catch (InterruptedException ex)
-        {
-            ex.printStackTrace();
+        operationLog.info("Processing of the following datasets has been requested: " + datasets);
+        IHierarchicalContentProvider contentProvider =
+                ServiceProvider.getHierarchicalContentProvider();
+
+        for (DatasetDescription dataset : datasets) {
+            String dataSetCode = dataset.getDataSetCode();
+            IHierarchicalContentNodeVisitor printingVisitor = createPrintingVisitor(dataSetCode);
+            HierarchicalContentTraverseUtil.traverse(contentProvider, dataSetCode, printingVisitor);
         }
-        System.out.println("Processing done.");
+        operationLog.info("Processing done.");
         return null;
+    }
+
+    private IHierarchicalContentNodeVisitor createPrintingVisitor(final String datasetCode)
+    {
+        return new IHierarchicalContentNodeVisitor()
+            {
+                public void visit(IHierarchicalContentNode node)
+                {
+                    String relativePath = node.getRelativePath();
+                    String fullPath = datasetCode + "/";
+                    if (false == StringUtils.isBlank(relativePath))
+                    {
+                        fullPath += relativePath;
+                    }
+                    operationLog.info("Processing " + node.getRelativePath());
+                }
+            };
     }
 }
