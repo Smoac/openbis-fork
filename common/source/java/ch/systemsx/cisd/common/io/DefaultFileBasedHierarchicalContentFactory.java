@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.io;
 
 import java.io.File;
+import java.util.List;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.IDelegatedAction;
@@ -29,6 +30,13 @@ import ch.systemsx.cisd.common.utilities.IDelegatedAction;
  */
 public class DefaultFileBasedHierarchicalContentFactory implements IHierarchicalContentFactory
 {
+
+    public IHierarchicalContent asVirtualHierarchicalContent(
+            List<IHierarchicalContent> components)
+    {
+        return new VirtualHierarchicalContent(components);
+    }
+
     public IHierarchicalContent asHierarchicalContent(File file, IDelegatedAction onCloseAction)
     {
         return new DefaultFileBasedHierarchicalContent(this, file, onCloseAction);

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.io;
 
 import java.io.File;
+import java.util.List;
 
 import ch.systemsx.cisd.common.utilities.IDelegatedAction;
 
@@ -26,6 +27,11 @@ import ch.systemsx.cisd.common.utilities.IDelegatedAction;
  */
 public interface IHierarchicalContentFactory
 {
+    /**
+     * Returns virtual hierarchy with merged nodes based on given list of components.
+     */
+    public IHierarchicalContent asVirtualHierarchicalContent(List<IHierarchicalContent> components);
+
     /**
      * Returns hierarchy based on given root file.
      * 
