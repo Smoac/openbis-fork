@@ -260,6 +260,7 @@ public class ImagingDatabaseHelper
         private Map<String, Long> getOrCreateChannels(ChannelOwner channelOwner,
                 List<Channel> channels)
         {
+            fillMissingChannelColors(channels);
             if (channelOwner.tryGetExperimentId() != null)
             {
                 long expId = channelOwner.tryGetExperimentId();
@@ -295,7 +296,6 @@ public class ImagingDatabaseHelper
         private Map<String, Long> createChannels(ChannelOwner channelOwner, List<Channel> channels)
         {
             Map<String, Long> map = new HashMap<String, Long>();
-            fillMissingChannelColors(channels);
             for (Channel channel : channels)
             {
                 ImgChannelDTO channelDTO = createChannel(channel, channelOwner);
