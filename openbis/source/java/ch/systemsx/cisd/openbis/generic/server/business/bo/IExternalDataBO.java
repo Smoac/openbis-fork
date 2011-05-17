@@ -30,8 +30,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
+ * @deprecated this code will be removed - use IDataBO if possible
  * @author Franz-Josef Elmer
  */
+@Deprecated
 public interface IExternalDataBO extends IEntityBusinessObject
 {
     /**

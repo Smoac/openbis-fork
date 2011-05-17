@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 /**
  * An interface that contains all data access operations on {@link ExternalDataPE}s.
  * 
- * @deprecated use {@link IDataDAO}
+ * @deprecated this code will be removed, use {@link IDataDAO} if possible
  * @author Christian Ribeaud
  */
 @Deprecated
