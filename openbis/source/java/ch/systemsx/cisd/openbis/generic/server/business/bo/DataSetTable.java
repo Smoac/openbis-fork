@@ -287,7 +287,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
     {
         try
         {
-            getExternalDataDAO().delete(dataSet);
+            getDataDAO().delete(dataSet);
             getEventDAO().persist(createDeletionEvent(dataSet, session.tryGetPerson(), reason));
         } catch (final DataIntegrityViolationException ex)
         {

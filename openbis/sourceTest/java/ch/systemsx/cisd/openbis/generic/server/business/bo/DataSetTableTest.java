@@ -315,9 +315,9 @@ public final class DataSetTableTest extends AbstractBOTest
 
                     PersonPE person = EXAMPLE_SESSION.tryGetPerson();
                     one(eventDAO).persist(createDeletionEvent(d1, person, reason));
-                    one(externalDataDAO).delete(d1);
+                    one(dataDAO).delete(d1);
                     one(eventDAO).persist(createDeletionEvent(d2, person, reason));
-                    one(externalDataDAO).delete(d2);
+                    one(dataDAO).delete(d2);
 
                     one(dataStoreService2).deleteDataSets(with(dss2.getSessionToken()),
                             with(dataSets));

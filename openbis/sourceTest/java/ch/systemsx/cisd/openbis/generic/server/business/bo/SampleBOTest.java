@@ -50,7 +50,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -211,9 +210,6 @@ public final class SampleBOTest extends AbstractBOTest
                             }
                         };
                     one(sampleDAO).createOrUpdateSample(with(matcher));
-
-                    allowing(externalDataDAO).listExternalData(with(matcher));
-                    will(returnValue(new ArrayList<ExternalDataPE>()));
 
                     extracted(sampleType);
 
@@ -414,10 +410,6 @@ public final class SampleBOTest extends AbstractBOTest
                     one(experimentDAO).tryFindByCodeAndProject(project,
                             experimentIdentifier.getExperimentCode());
                     will(returnValue(experimentToAttach));
-
-                    // no datasets attached
-                    allowing(externalDataDAO).listExternalData(with(sample));
-                    will(returnValue(new ArrayList<ExternalDataPE>()));
                 }
             });
         createSampleBO().update(
