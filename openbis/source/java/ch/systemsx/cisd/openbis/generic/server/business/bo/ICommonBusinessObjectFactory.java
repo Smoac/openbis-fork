@@ -42,8 +42,6 @@ public interface ICommonBusinessObjectFactory
 
     public ISampleBO createSampleBO(final Session session);
 
-    public IExternalDataBO createExternalDataBO(Session session);
-
     public IDataBO createDataBO(Session session);
 
     public IDataSetTable createDataSetTable(final Session session);

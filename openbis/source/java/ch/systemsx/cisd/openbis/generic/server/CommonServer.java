@@ -49,7 +49,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGridCustomFilterOrColumnBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
@@ -2254,9 +2253,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         switch (entityKind)
         {
             case DATA_SET:
-                IExternalDataBO bo = businessObjectFactory.createExternalDataBO(session);
+                IDataBO bo = businessObjectFactory.createDataBO(session);
                 bo.loadByCode(entityIdentifier);
-                entity = bo.getExternalData();
+                entity = bo.getData();
                 break;
             case EXPERIMENT:
                 IExperimentBO expBO = businessObjectFactory.createExperimentBO(session);
@@ -2341,13 +2340,12 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         Session session = getSession(sessionToken);
         try
         {
-            IExternalDataBO dataSetBO = businessObjectFactory.createExternalDataBO(session);
+            IDataBO dataSetBO = businessObjectFactory.createDataBO(session);
             dataSetBO.loadDataByTechId(experimentId);
 
             // Evaluate the script
             dataSetBO.enrichWithProperties();
-            Set<? extends EntityPropertyPE> properties =
-                    dataSetBO.getExternalData().getProperties();
+            Set<? extends EntityPropertyPE> properties = dataSetBO.getData().getProperties();
             ManagedPropertyEvaluator evaluator =
                     tryManagedPropertyEvaluator(managedProperty, properties);
             extendWithPerson(updateAction, session.tryGetPerson());

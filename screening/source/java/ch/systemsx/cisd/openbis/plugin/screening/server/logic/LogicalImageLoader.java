@@ -20,12 +20,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
@@ -94,7 +94,7 @@ public class LogicalImageLoader
     {
         ImageDatasetParameters imageParameters = datasetLoader.getImageParameters();
 
-        ExternalDataPE dataset = loadDatasetWithChildren(datasetCode);
+        DataPE dataset = loadDatasetWithChildren(datasetCode);
         DatasetImagesReference datasetImagesReference =
                 createDatasetImagesReference(translate(dataset), imageParameters);
         List<DatasetImagesReference> overlayDatasets = extractImageOverlays(dataset);
@@ -116,7 +116,7 @@ public class LogicalImageLoader
         return refs;
     }
 
-    private List<DatasetImagesReference> extractImageOverlays(ExternalDataPE imageDataset)
+    private List<DatasetImagesReference> extractImageOverlays(DataPE imageDataset)
     {
         List<ExternalData> overlayDatasets = fetchOverlayDatasets(imageDataset);
 
@@ -128,7 +128,7 @@ public class LogicalImageLoader
         return overlays;
     }
 
-    private List<ExternalData> fetchOverlayDatasets(ExternalDataPE imageDataset)
+    private List<ExternalData> fetchOverlayDatasets(DataPE imageDataset)
     {
         List<DataPE> overlayPEs =
                 ScreeningUtils.filterImageOverlayDatasets(imageDataset.getChildren());
@@ -150,18 +150,18 @@ public class LogicalImageLoader
                 imageParameters);
     }
 
-    DatasetImagesReference loadImageDatasetReference(ExternalDataPE imageDataset)
+    DatasetImagesReference loadImageDatasetReference(DataPE imageDataset)
     {
         return loadImageDatasetReference(translate(imageDataset));
     }
 
-    private ExternalDataPE loadDatasetWithChildren(String datasetPermId)
+    private DataPE loadDatasetWithChildren(String datasetPermId)
     {
-        IExternalDataBO externalDataBO = businessObjectFactory.createExternalDataBO(session);
-        externalDataBO.loadByCode(datasetPermId);
-        externalDataBO.enrichWithChildren();
-        ExternalDataPE externalData = externalDataBO.getExternalData();
-        return externalData;
+        IDataBO dataBO = businessObjectFactory.createDataBO(session);
+        dataBO.loadByCode(datasetPermId);
+        dataBO.enrichWithChildren();
+        DataPE dataSet = dataBO.getData();
+        return dataSet;
     }
 
     private static Collection<Long> extractIds(List<DataPE> datasets)
@@ -174,8 +174,8 @@ public class LogicalImageLoader
         return ids;
     }
 
-    private ExternalData translate(ExternalDataPE externalData)
+    private ExternalData translate(DataPE dataSet)
     {
-        return ExternalDataTranslator.translate(externalData, session.getBaseIndexURL());
+        return DataSetTranslator.translate(dataSet, session.getBaseIndexURL());
     }
 }

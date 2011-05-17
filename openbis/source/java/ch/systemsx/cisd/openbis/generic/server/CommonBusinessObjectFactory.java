@@ -26,7 +26,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityTypePropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ExperimentTable;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.ExternalDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.GridCustomColumnBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.GridCustomFilterBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.GroupBO;
@@ -39,7 +38,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGridCustomFilterOrColumnBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
@@ -136,11 +134,6 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     public IDataBO createDataBO(Session session)
     {
         return new DataBO(getDaoFactory(), session);
-    }
-
-    public IExternalDataBO createExternalDataBO(Session session)
-    {
-        return new ExternalDataBO(getDaoFactory(), session);
     }
 
     public final IDataSetTable createDataSetTable(final Session session)

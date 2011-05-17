@@ -22,7 +22,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
@@ -81,11 +80,6 @@ public final class GenericBusinessObjectFactory extends AbstractPluginBusinessOb
     public IDataBO createDataBO(Session session)
     {
         return getCommonBusinessObjectFactory().createDataBO(session);
-    }
-
-    public IExternalDataBO createExternalDataBO(Session session)
-    {
-        return getCommonBusinessObjectFactory().createExternalDataBO(session);
     }
 
     public IDataSetTable createDataSetTable(Session session)

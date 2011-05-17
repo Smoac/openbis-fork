@@ -22,8 +22,8 @@ import java.util.Collections;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -128,16 +129,16 @@ public class PlateContentLoader
 
     private PlateImages getPlateContentForDataset(TechId datasetId)
     {
-        ExternalDataPE externalData = loadDataset(datasetId);
-        SamplePE plate = externalData.tryGetSample();
+        DataPE dataSet = loadDataset(datasetId);
+        SamplePE plate = dataSet.tryGetSample();
         if (plate == null)
         {
             throw UserFailureException.fromTemplate("Dataset '%s' has no sample connected.",
-                    externalData.getCode());
+                    dataSet.getCode());
         }
         List<WellMetadata> wells = loadWells(new TechId(HibernateUtils.getId(plate)));
         DatasetImagesReference datasetImagesReference =
-                imageLoader.loadImageDatasetReference(externalData);
+                imageLoader.loadImageDatasetReference(dataSet);
         Geometry plateGeometry = getPlateGeometry(plate);
         PlateMetadata plateMetadata =
                 new PlateMetadata(translate(plate), wells, plateGeometry.getNumberOfRows(),
@@ -152,12 +153,12 @@ public class PlateContentLoader
         return PlateDimensionParser.getPlateGeometry(properties);
     }
 
-    private ExternalDataPE loadDataset(TechId datasetId)
+    private DataPE loadDataset(TechId datasetId)
     {
-        IExternalDataBO externalDataBO = businessObjectFactory.createExternalDataBO(session);
-        externalDataBO.loadDataByTechId(datasetId);
-        ExternalDataPE externalData = externalDataBO.getExternalData();
-        return externalData;
+        IDataBO dataBO = businessObjectFactory.createDataBO(session);
+        dataBO.loadDataByTechId(datasetId);
+        DataPE dataSet = dataBO.getData();
+        return dataSet;
     }
 
     private ExternalData translate(ExternalDataPE externalData)

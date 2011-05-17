@@ -33,12 +33,12 @@ import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.openbis.generic.server.CommonServerTest.PersonWithDisplaySettingsMatcher;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
@@ -57,7 +57,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
@@ -114,9 +113,6 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected ISpaceDAO groupDAO;
 
-    // FIXME use IDataDAO
-    protected IExternalDataDAO externalDataDAO;
-
     protected IDataDAO dataSetDAO;
 
     protected IPermIdDAO permIdDAO;
@@ -159,7 +155,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected IAttachmentDAO experimentAttachmentDAO;
 
-    protected IExternalDataBO externalDataBO;
+    protected IDataBO dataBO;
 
     protected IEntityTypeBO entityTypeBO;
 
@@ -197,7 +193,6 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         sampleDAO = context.mock(ISampleDAO.class);
         roleAssignmentDAO = context.mock(IRoleAssignmentDAO.class);
         dataSetDAO = context.mock(IDataDAO.class);
-        externalDataDAO = context.mock(IExternalDataDAO.class);
         permIdDAO = context.mock(IPermIdDAO.class);
         entityTypeDAO = context.mock(IEntityTypeDAO.class);
         experimentDAO = context.mock(IExperimentDAO.class);
@@ -219,7 +214,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         propertyTypeBO = context.mock(IPropertyTypeBO.class);
         vocabularyBO = context.mock(IVocabularyBO.class);
         entityTypePropertyTypeBO = context.mock(IEntityTypePropertyTypeBO.class);
-        externalDataBO = context.mock(IExternalDataBO.class);
+        dataBO = context.mock(IDataBO.class);
         // Table
         dataSetTable = context.mock(IDataSetTable.class);
         sampleLister = context.mock(ISampleLister.class);
@@ -253,8 +248,6 @@ public abstract class AbstractServerTestCase extends AssertJUnit
                     will(returnValue(sampleTypeDAO));
                     allowing(daoFactory).getDataDAO();
                     will(returnValue(dataSetDAO));
-                    allowing(daoFactory).getExternalDataDAO();
-                    will(returnValue(externalDataDAO));
                     allowing(daoFactory).getAttachmentDAO();
                     will(returnValue(experimentAttachmentDAO));
                     allowing(daoFactory).getFileFormatTypeDAO();

@@ -59,9 +59,6 @@ public interface IAuthorizationDAOFactory
 
     public IDataDAO getDataDAO();
 
-    @Deprecated
-    public IExternalDataDAO getExternalDataDAO();
-
     public IExperimentDAO getExperimentDAO();
 
     public IProjectDAO getProjectDAO();

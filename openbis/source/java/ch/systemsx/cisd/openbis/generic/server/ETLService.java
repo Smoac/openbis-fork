@@ -37,7 +37,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObject
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
@@ -136,7 +135,6 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.EntityPropertyTranslat
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator.LoadableFields;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTypeTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GroupTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ProjectTranslator;
@@ -693,8 +691,8 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
     {
         assert sessionToken != null : "Unspecified session token.";
         final Session session = getSession(sessionToken);
-        final IExternalDataBO externalDataBO = businessObjectFactory.createExternalDataBO(session);
-        externalDataBO.addPropertiesToDataSet(dataSetCode, properties);
+        final IDataBO dataBO = businessObjectFactory.createDataBO(session);
+        dataBO.addPropertiesToDataSet(dataSetCode, properties);
     }
 
     public void updateShareIdAndSize(String sessionToken, String dataSetCode, String shareId,
@@ -727,8 +725,8 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
     {
         assert sessionToken != null : "Unspecified session token.";
         final Session session = getSession(sessionToken);
-        final IExternalDataBO externalDataBO = businessObjectFactory.createExternalDataBO(session);
-        externalDataBO.updateStatuses(dataSetCodes, newStatus, presentInArchive);
+        final IDataBO dataBO = businessObjectFactory.createDataBO(session);
+        dataBO.updateStatuses(dataSetCodes, newStatus, presentInArchive);
     }
 
     public boolean compareAndSetDataSetStatus(String sessionToken, String dataSetCode,
@@ -737,9 +735,9 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
     {
         assert sessionToken != null : "Unspecified session token.";
         final Session session = getSession(sessionToken);
-        final IExternalDataBO externalDataBO = businessObjectFactory.createExternalDataBO(session);
-        externalDataBO.loadByCode(dataSetCode);
-        return externalDataBO.compareAndSetDataSetStatus(oldStatus, newStatus, newPresentInArchive);
+        final IDataBO dataBO = businessObjectFactory.createDataBO(session);
+        dataBO.loadByCode(dataSetCode);
+        return dataBO.compareAndSetDataSetStatus(oldStatus, newStatus, newPresentInArchive);
     }
 
     public ExternalData tryGetDataSet(String sessionToken, String dataSetCode)
@@ -1021,12 +1019,12 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
                     + experiment.getIdentifier() + "' is invalid.");
         }
 
-        final IExternalDataBO externalDataBO = businessObjectFactory.createExternalDataBO(session);
+        final IDataBO dataBO = businessObjectFactory.createDataBO(session);
         SourceType sourceType =
                 externalData.isMeasured() ? SourceType.MEASUREMENT : SourceType.DERIVED;
-        externalDataBO.define(externalData, samplePE, sourceType);
-        externalDataBO.save();
-        final String dataSetCode = externalDataBO.getExternalData().getCode();
+        dataBO.define(externalData, samplePE, sourceType);
+        dataBO.save();
+        final String dataSetCode = dataBO.getData().getCode();
         assert dataSetCode != null : "Data set code not specified.";
     }
 
@@ -1216,24 +1214,24 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
             AtomicEntityOperationDetails operationDetails)
     {
         final Session session = getSession(sessionToken);
-        ArrayList<ExternalDataPE> dataSetsCreated = new ArrayList<ExternalDataPE>();
+        ArrayList<DataPE> dataSetsCreated = new ArrayList<DataPE>();
         ArrayList<? extends NewExternalData> dataSetRegistrations =
                 operationDetails.getDataSetRegistrations();
         for (NewExternalData dataSet : dataSetRegistrations)
         {
             SampleIdentifier sampleIdentifier = dataSet.getSampleIdentifierOrNull();
-            IExternalDataBO externalData;
+            IDataBO dataBO;
             if (sampleIdentifier != null)
             {
-                externalData = registerDataSetInternal(session, sampleIdentifier, dataSet);
+                dataBO = registerDataSetInternal(session, sampleIdentifier, dataSet);
             } else
             {
                 ExperimentIdentifier experimentIdentifier = dataSet.getExperimentIdentifierOrNull();
-                externalData = registerDataSetInternal(session, experimentIdentifier, dataSet);
+                dataBO = registerDataSetInternal(session, experimentIdentifier, dataSet);
             }
-            dataSetsCreated.add(externalData.getExternalData());
+            dataSetsCreated.add(dataBO.getData());
         }
-        return ExternalDataTranslator.translate(dataSetsCreated, "", session.getBaseIndexURL());
+        return DataSetTranslator.translate(dataSetsCreated, "", session.getBaseIndexURL());
     }
 
     private ArrayList<Experiment> createExperiments(String sessionToken,
@@ -1251,7 +1249,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         return experimentsCreated;
     }
 
-    private IExternalDataBO registerDataSetInternal(final Session session,
+    private IDataBO registerDataSetInternal(final Session session,
             SampleIdentifier sampleIdentifier, NewExternalData externalData)
     {
         ExperimentPE experiment = tryLoadExperimentBySampleIdentifier(session, sampleIdentifier);
@@ -1267,18 +1265,18 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.loadBySampleIdentifier(sampleIdentifier);
         final SamplePE cellPlate = sampleBO.getSample();
-        final IExternalDataBO externalDataBO = businessObjectFactory.createExternalDataBO(session);
+        final IDataBO dataBO = businessObjectFactory.createDataBO(session);
         SourceType sourceType =
                 externalData.isMeasured() ? SourceType.MEASUREMENT : SourceType.DERIVED;
-        externalDataBO.define(externalData, cellPlate, sourceType);
-        externalDataBO.save();
-        final String dataSetCode = externalDataBO.getExternalData().getCode();
+        dataBO.define(externalData, cellPlate, sourceType);
+        dataBO.save();
+        final String dataSetCode = dataBO.getData().getCode();
         assert dataSetCode != null : "Data set code not specified.";
 
-        return externalDataBO;
+        return dataBO;
     }
 
-    private IExternalDataBO registerDataSetInternal(final Session session,
+    private IDataBO registerDataSetInternal(final Session session,
             ExperimentIdentifier experimentIdentifier, NewExternalData externalData)
     {
         ExperimentPE experiment = tryToLoadExperimentByIdentifier(session, experimentIdentifier);
@@ -1287,12 +1285,12 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
             throw new UserFailureException("Data set can not be registered because experiment '"
                     + experiment.getIdentifier() + "' is invalid.");
         }
-        final IExternalDataBO externalDataBO = businessObjectFactory.createExternalDataBO(session);
+        final IDataBO externalDataBO = businessObjectFactory.createDataBO(session);
         SourceType sourceType =
                 externalData.isMeasured() ? SourceType.MEASUREMENT : SourceType.DERIVED;
         externalDataBO.define(externalData, experiment, sourceType);
         externalDataBO.save();
-        final String dataSetCode = externalDataBO.getExternalData().getCode();
+        final String dataSetCode = externalDataBO.getData().getCode();
         assert dataSetCode != null : "Data set code not specified.";
 
         return externalDataBO;

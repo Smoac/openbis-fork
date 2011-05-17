@@ -31,7 +31,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEventDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGridCustomColumnDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGridCustomFilterDAO;
@@ -207,11 +206,6 @@ abstract class AbstractBusinessObject implements IDAOFactory
     public final IDataDAO getDataDAO()
     {
         return daoFactory.getDataDAO();
-    }
-
-    public final IExternalDataDAO getExternalDataDAO()
-    {
-        return daoFactory.getExternalDataDAO();
     }
 
     public final IHibernateSearchDAO getHibernateSearchDAO()

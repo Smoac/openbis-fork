@@ -20,7 +20,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
@@ -65,11 +64,6 @@ public interface IGenericBusinessObjectFactory
      * Creates a {@link IDataBO} <i>Business Object</i>.
      */
     public IDataBO createDataBO(final Session session);
-
-    /**
-     * Creates a {@link IExternalDataBO} <i>Business Object</i>.
-     */
-    public IExternalDataBO createExternalDataBO(final Session session);
 
     /**
      * Creates a {@link ISampleTable} <i>Business Object</i>.

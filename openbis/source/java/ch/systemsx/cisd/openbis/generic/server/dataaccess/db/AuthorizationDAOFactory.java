@@ -32,7 +32,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGridCustomColumnDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGridCustomFilterDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
@@ -68,9 +67,6 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
 
     private final IDataDAO dataDAO;
 
-    // FIXME use IDataDAO
-    private final IExternalDataDAO externalDataDAO;
-
     private final IExperimentDAO experimentDAO;
 
     private final DatabaseInstancePE homeDatabaseInstance;
@@ -103,7 +99,6 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
         groupDAO = new SpaceDAO(sessionFactory, homeDatabaseInstance);
         roleAssignmentDAO = new RoleAssignmentDAO(sessionFactory, homeDatabaseInstance);
         dataDAO = new DataDAO(persistencyResources, homeDatabaseInstance);
-        externalDataDAO = new ExternalDataDAO(persistencyResources, homeDatabaseInstance);
         experimentDAO = new ExperimentDAO(persistencyResources, homeDatabaseInstance);
         projectDAO = new ProjectDAO(sessionFactory, homeDatabaseInstance);
         sampleDAO = new SampleDAO(persistencyResources, homeDatabaseInstance);
@@ -210,11 +205,6 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
     public final IDataDAO getDataDAO()
     {
         return dataDAO;
-    }
-
-    public final IExternalDataDAO getExternalDataDAO()
-    {
-        return externalDataDAO;
     }
 
     public final IExperimentDAO getExperimentDAO()

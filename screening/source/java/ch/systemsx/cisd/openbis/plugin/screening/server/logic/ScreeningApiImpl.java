@@ -35,7 +35,7 @@ import org.apache.commons.lang.StringUtils;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.api.v1.Translator;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
@@ -49,8 +49,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -282,7 +282,7 @@ public class ScreeningApiImpl
 
     public List<IDatasetIdentifier> getDatasetIdentifiers(List<String> datasetCodes)
     {
-        IExternalDataBO externalDataBO = businessObjectFactory.createExternalDataBO(session);
+        IDataBO externalDataBO = businessObjectFactory.createDataBO(session);
         List<IDatasetIdentifier> identifiers = new ArrayList<IDatasetIdentifier>();
         for (String datasetCode : datasetCodes)
         {
@@ -291,16 +291,15 @@ public class ScreeningApiImpl
         return identifiers;
     }
 
-    private IDatasetIdentifier getDatasetIdentifier(IExternalDataBO externalDataBO,
-            String datasetCode)
+    private IDatasetIdentifier getDatasetIdentifier(IDataBO dataBO, String datasetCode)
     {
-        externalDataBO.loadByCode(datasetCode);
-        ExternalDataPE externalData = externalDataBO.getExternalData();
-        if (externalData == null)
+        dataBO.loadByCode(datasetCode);
+        DataPE dataSet = dataBO.getData();
+        if (dataSet == null)
         {
             throw UserFailureException.fromTemplate("Dataset '%s' does not exist", datasetCode);
         }
-        return new DatasetIdentifier(datasetCode, externalData.getDataStore().getDownloadUrl());
+        return new DatasetIdentifier(datasetCode, dataSet.getDataStore().getDownloadUrl());
     }
 
     static class DatasetReferenceHolder
@@ -439,7 +438,7 @@ public class ScreeningApiImpl
         Sample sample = loadSampleByPermId(wellIdentifier.getPermId(), enrichWithProperties);
         return Translator.translate(sample);
     }
-    
+
     public ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample getPlateSample(
             PlateIdentifier plateIdentifier)
     {

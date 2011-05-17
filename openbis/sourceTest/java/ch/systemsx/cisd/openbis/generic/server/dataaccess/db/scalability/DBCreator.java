@@ -304,7 +304,6 @@ public final class DBCreator extends AbstractDAOTest
 
     // DataSets
 
-    @SuppressWarnings("deprecation")
     private void createDataSetsForSample(SamplePE sample)
     {
         final int size = SizeHelper.getNextDataSetsPerSampleSize();
@@ -312,7 +311,7 @@ public final class DBCreator extends AbstractDAOTest
         {
             log("creating dataset: %d/%d", i, size);
             ExternalDataPE dataSet = generateDataSetForSample(sample);
-            daoFactory.getExternalDataDAO().createDataSet(dataSet);
+            daoFactory.getDataDAO().createDataSet(dataSet);
         }
         log("created datasets");
 

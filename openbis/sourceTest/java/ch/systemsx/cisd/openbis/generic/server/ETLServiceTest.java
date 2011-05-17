@@ -811,12 +811,12 @@ public class ETLServiceTest extends AbstractServerTestCase
                     one(personDAO).tryFindPersonByUserId(CommonTestUtils.USER_ID);
                     will(returnValue(new PersonPE()));
 
-                    one(boFactory).createExternalDataBO(SESSION);
-                    will(returnValue(externalDataBO));
+                    one(boFactory).createDataBO(SESSION);
+                    will(returnValue(dataBO));
 
-                    one(externalDataBO).define(externalData, samplePE, SourceType.MEASUREMENT);
-                    one(externalDataBO).save();
-                    one(externalDataBO).getExternalData();
+                    one(dataBO).define(externalData, samplePE, SourceType.MEASUREMENT);
+                    one(dataBO).save();
+                    one(dataBO).getData();
                     ExternalDataPE externalDataPE = new ExternalDataPE();
                     externalDataPE.setCode(externalData.getCode());
                     will(returnValue(externalDataPE));
@@ -864,12 +864,12 @@ public class ETLServiceTest extends AbstractServerTestCase
                     one(sampleBO).getSample();
                     will(returnValue(samplePE));
 
-                    one(boFactory).createExternalDataBO(SESSION);
-                    will(returnValue(externalDataBO));
+                    one(boFactory).createDataBO(SESSION);
+                    will(returnValue(dataBO));
 
-                    one(externalDataBO).define(externalData, samplePE, SourceType.MEASUREMENT);
-                    one(externalDataBO).save();
-                    one(externalDataBO).getExternalData();
+                    one(dataBO).define(externalData, samplePE, SourceType.MEASUREMENT);
+                    one(dataBO).save();
+                    one(dataBO).getData();
                     ExternalDataPE externalDataPE = new ExternalDataPE();
                     externalDataPE.setCode(externalData.getCode());
                     will(returnValue(externalDataPE));
@@ -937,7 +937,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(externalDataBO).getExternalData();
+                    one(dataBO).getData();
                     ExternalDataPE externalDataPE = new ExternalDataPE();
                     externalDataPE.setCode(externalData.getCode());
 
@@ -946,15 +946,15 @@ public class ETLServiceTest extends AbstractServerTestCase
                     externalDataPE.setDataStore(store);
                     will(returnValue(externalDataPE));
 
-                    // one(boFactory).createExternalDataBO(SESSION);
-                    // will(returnValue(externalDataBO));
+                    // one(boFactory).createDataBO(SESSION);
+                    // will(returnValue(dataBO));
                     //
                     // exactly(1).of(boFactory).createSampleBO(SESSION);
                     // will(returnValue(sampleBO));
                     //
-                    // one(externalDataBO).define(externalData, samplePE, SourceType.MEASUREMENT);
-                    // one(externalDataBO).save();
-                    // one(externalDataBO).getExternalData();
+                    // one(dataBO).define(externalData, samplePE, SourceType.MEASUREMENT);
+                    // one(dataBO).save();
+                    // one(dataBO).getExternalData();
                     // ExternalDataPE externalDataPE = new ExternalDataPE();
                     // externalDataPE.setCode(externalData.getCode());
                     // will(returnValue(externalDataPE));
@@ -1001,12 +1001,12 @@ public class ETLServiceTest extends AbstractServerTestCase
                     sample.setExperiment(experiment);
                     will(returnValue(sample));
 
-                    one(boFactory).createExternalDataBO(SESSION);
-                    will(returnValue(externalDataBO));
+                    one(boFactory).createDataBO(SESSION);
+                    will(returnValue(dataBO));
 
-                    one(externalDataBO).define(externalData, sample, sourceType);
-                    one(externalDataBO).save();
-                    one(externalDataBO).getExternalData();
+                    one(dataBO).define(externalData, sample, sourceType);
+                    one(dataBO).save();
+                    one(dataBO).getData();
                     ExternalDataPE externalDataPE = new ExternalDataPE();
                     externalDataPE.setCode(externalData.getCode());
                     will(returnValue(externalDataPE));
