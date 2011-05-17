@@ -57,7 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
     { PluginTaskProviders.class, AbstractPluginTaskFactory.class })
 public class PluginTaskParametersTest extends AbstractFileSystemTestCase
 {
-    private static final File STORE_ROOT = new File("./resource/test-data/"
+    private static final File STORE_ROOT = new File("../datastore_server/resource/test-data/"
             + PluginTaskParametersTest.class.getSimpleName());
 
     private Mockery context;
