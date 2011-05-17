@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import org.apache.commons.lang.StringUtils;
 
 /**
  * 
@@ -34,9 +35,20 @@ public class ImageTableCell implements ISerializableComparable
             throw new IllegalArgumentException("Data set location '" + dataSetLocation
                     + "' inconsistent with original path: " + originalPath);
         }
-        return dataSetCode + originalPath.substring(indexOfLocation + dataSetLocation.length());
+        String relativePath = originalPath.substring(indexOfLocation + dataSetLocation.length());
+        return getPath(dataSetCode, relativePath);
     }
     
+    private static String getPath(String dataSetCode, String relativePath)
+    {
+        String delimiter = StringUtils.EMPTY;
+        if (false == relativePath.startsWith("/"))
+        {
+            delimiter = "/";
+        }
+        return dataSetCode + delimiter + relativePath;
+    }
+
     private String path;
 
     private int maxThumbnailWidth;
@@ -57,7 +69,8 @@ public class ImageTableCell implements ISerializableComparable
             int maxThumbnailWidth,
             int maxThumbnailHeight)
     {
-        this(dataSetCode + relativePathFromDataSetRoot, maxThumbnailWidth, maxThumbnailHeight);
+        this(getPath(dataSetCode, relativePathFromDataSetRoot), maxThumbnailWidth,
+                maxThumbnailHeight);
     }
 
     public ImageTableCell(String path, int maxThumbnailWidth, int maxThumbnailHeight)
