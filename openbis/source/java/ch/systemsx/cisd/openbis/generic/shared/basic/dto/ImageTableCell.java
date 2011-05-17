@@ -16,17 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import org.apache.commons.lang.StringUtils;
-
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ImageTableCell implements ISerializableComparable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
     
+    private static final String SLASH = "/";
+
     private static String getPath(String dataSetCode, String dataSetLocation, String originalPath)
     {
         int indexOfLocation = originalPath.indexOf(dataSetLocation);
@@ -41,10 +39,10 @@ public class ImageTableCell implements ISerializableComparable
     
     private static String getPath(String dataSetCode, String relativePath)
     {
-        String delimiter = StringUtils.EMPTY;
-        if (false == relativePath.startsWith("/"))
+        String delimiter = "";
+        if (false == relativePath.startsWith(SLASH))
         {
-            delimiter = "/";
+            delimiter = SLASH;
         }
         return dataSetCode + delimiter + relativePath;
     }
