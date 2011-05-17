@@ -25,6 +25,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.collections.ExtendedBlockingQueueFactory;
+import ch.systemsx.cisd.common.collections.PersistentExtendedBlockingQueueDecorator;
 
 /**
  * A package internal class to manage the rollback stack.
@@ -42,9 +43,9 @@ class RollbackStack
     private final File queue2File;
 
     // These are not final because they get swapped around.
-    private Queue<StackElement> liveLifo;
+    private PersistentExtendedBlockingQueueDecorator<StackElement> liveLifo;
 
-    private Queue<StackElement> tempLifo;
+    private PersistentExtendedBlockingQueueDecorator<StackElement> tempLifo;
 
     /**
      * Constructor for a rollback stack that uses queue1File and queue2File for the persistent
@@ -58,9 +59,9 @@ class RollbackStack
         this.queue1File = queue1File;
         this.queue2File = queue2File;
 
-        Queue<StackElement> queue1 =
+        PersistentExtendedBlockingQueueDecorator<StackElement> queue1 =
                 ExtendedBlockingQueueFactory.createPersistRecordBased(queue1File, 16, false);
-        Queue<StackElement> queue2 =
+        PersistentExtendedBlockingQueueDecorator<StackElement> queue2 =
                 ExtendedBlockingQueueFactory.createPersistRecordBased(queue2File, 16, false);
 
         // If both queues are empty, it doesn't matter which is which
@@ -197,8 +198,14 @@ class RollbackStack
      */
     public void discard()
     {
+        // Close the persistent queues
+        liveLifo.close();
+        tempLifo.close();
+
         liveLifo = null;
         tempLifo = null;
+
+        // Delete the files
         queue1File.delete();
         queue2File.delete();
     }
@@ -256,7 +263,7 @@ class RollbackStack
      */
     private void swapStacks()
     {
-        Queue<StackElement> swap = liveLifo;
+        PersistentExtendedBlockingQueueDecorator<StackElement> swap = liveLifo;
         liveLifo = tempLifo;
         tempLifo = swap;
     }
