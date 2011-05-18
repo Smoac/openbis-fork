@@ -43,7 +43,7 @@ class FeatureVectorSummaryProvider extends AbstractTableModelProvider<MaterialFe
 {
     private static final String SHOW_DETAILS_MSG = "Show details";
 
-    private static final String RANK_COLUMN_TITLE_SUFFIX_MSG = " rank";
+    private static final String RANK_COLUMN_MSG = " Rank";
 
     private static final String MATERIAL_PROPS_GROUP = "MATERIAL_PROP-";
 
@@ -89,7 +89,7 @@ class FeatureVectorSummaryProvider extends AbstractTableModelProvider<MaterialFe
             featureColumnIds.add(featureColumnId);
 
             String rankColumnId = getRankColumnId(featureCode);
-            String rankTitle = featureLabel + RANK_COLUMN_TITLE_SUFFIX_MSG;
+            String rankTitle = RANK_COLUMN_MSG;
             builder.addColumn(rankColumnId).withTitle(rankTitle).withDataType(DataTypeCode.INTEGER);
             rankColumnIds.add(rankColumnId);
         }

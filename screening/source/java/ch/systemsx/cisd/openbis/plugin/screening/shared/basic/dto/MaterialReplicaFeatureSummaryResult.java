@@ -36,11 +36,14 @@ public class MaterialReplicaFeatureSummaryResult implements ISerializable
     // represents a single row in the table
     private final List<MaterialReplicaFeatureSummary> replicaSummaries;
 
+    private final int numberOfMaterialsInExperiment;
+
     public MaterialReplicaFeatureSummaryResult(List<String> subgroupLabels,
-            List<MaterialReplicaFeatureSummary> replicaSummaries)
+            List<MaterialReplicaFeatureSummary> replicaSummaries, int numberOfMaterialsInExperiment)
     {
         this.subgroupLabels = Collections.unmodifiableList(subgroupLabels);
         this.replicaSummaries = Collections.unmodifiableList(replicaSummaries);
+        this.numberOfMaterialsInExperiment = numberOfMaterialsInExperiment;
     }
 
     public List<String> getSubgroupLabels()
@@ -54,4 +57,8 @@ public class MaterialReplicaFeatureSummaryResult implements ISerializable
         return replicaSummaries;
     }
 
+    public int getNumberOfMaterialsInExperiment()
+    {
+        return numberOfMaterialsInExperiment;
+    }
 }

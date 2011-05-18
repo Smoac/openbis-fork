@@ -35,8 +35,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialFeatur
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaSummaryAggregationType;
 
 /**
- * Calculates summaries and ranks for each group of well replicas. Usually a replica is determined
- * by the material in the well, e.g. gene or compound.
+ * Calculates summaries and ranks for each group of well replicas (biological or technical). Usually
+ * a replica is determined by the material in the well, e.g. gene or compound.
  * 
  * @author Tomasz Pylak
  */
@@ -50,13 +50,13 @@ public class WellReplicaSummaryCalculator
                 .calculateReplicasFeatureVectorSummaries();
     }
 
-    public static float[] calculateSummaryFeatureVector(List<IWellData> oneReplicaWells,
+    public static float[] calculateSummaryFeatureVector(List<IWellData> techicalReplicaWells,
             MaterialReplicaSummaryAggregationType aggregationType)
     {
-        validate(oneReplicaWells);
-        int numberOfFeatures = getNumberOfFeatures(oneReplicaWells);
-        return calculateSummaryFeatureVector(oneReplicaWells, aggregationType, numberOfFeatures)
-                .getAggregates();
+        validate(techicalReplicaWells);
+        int numberOfFeatures = getNumberOfFeatures(techicalReplicaWells);
+        return calculateSummaryFeatureVector(techicalReplicaWells, aggregationType,
+                numberOfFeatures).getAggregates();
     }
 
     private static void validate(List<IWellData> wellDataList)
@@ -112,6 +112,7 @@ public class WellReplicaSummaryCalculator
         List<MaterialFeatureVectorSummary> summaries =
                 new ArrayList<MaterialFeatureVectorSummary>();
         Set<Long> replicaIds = replicaToWellDataMap.getKeys();
+        int numberOfReplicas = replicaIds.size();
         for (Long replicaId : replicaIds)
         {
             List<IWellData> replicaWells = replicaToWellDataMap.getOrDie(replicaId);
@@ -120,7 +121,7 @@ public class WellReplicaSummaryCalculator
             Material material = replicaWells.get(0).getMaterial();
             MaterialFeatureVectorSummary summary =
                     new MaterialFeatureVectorSummary(material, summaryFeatures.getAggregates(),
-                            summaryFeatures.getDeviation(), ranks.get(replicaId));
+                            summaryFeatures.getDeviation(), ranks.get(replicaId), numberOfReplicas);
             summaries.add(summary);
         }
         return summaries;

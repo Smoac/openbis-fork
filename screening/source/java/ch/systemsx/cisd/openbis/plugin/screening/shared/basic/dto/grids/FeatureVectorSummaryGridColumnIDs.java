@@ -25,6 +25,6 @@ public class FeatureVectorSummaryGridColumnIDs
 
     public static final String DETAILS = "details";
 
-    public static final String RANK_PREFIX = "RANK-";
+    public static final String RANK_PREFIX = "RANK";
 
 }

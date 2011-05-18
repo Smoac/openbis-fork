@@ -37,6 +37,8 @@ public class MaterialFeatureVectorSummary implements ISerializable
 
     private int[] featureVectorRanks;
 
+    private int numberOfMaterialsInExperiment;
+
     // GTW
     @SuppressWarnings("unused")
     private MaterialFeatureVectorSummary()
@@ -44,12 +46,14 @@ public class MaterialFeatureVectorSummary implements ISerializable
     }
 
     public MaterialFeatureVectorSummary(Material material, float[] featureVectorSummary,
-            float[] featureVectorDeviations, int[] featureVectorRanks)
+            float[] featureVectorDeviations, int[] featureVectorRanks,
+            int numberOfMaterialsInExperiment)
     {
         this.material = material;
         this.featureVectorSummary = featureVectorSummary;
         this.featureVectorDeviations = featureVectorDeviations;
         this.featureVectorRanks = featureVectorRanks;
+        this.numberOfMaterialsInExperiment = numberOfMaterialsInExperiment;
     }
 
     public Material getMaterial()
@@ -70,5 +74,10 @@ public class MaterialFeatureVectorSummary implements ISerializable
     public int[] getFeatureVectorRanks()
     {
         return featureVectorRanks;
+    }
+
+    public int getNumberOfMaterialsInExperiment()
+    {
+        return numberOfMaterialsInExperiment;
     }
 }

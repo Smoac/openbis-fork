@@ -73,7 +73,8 @@ class MaterialReplicaFeatureSummaryProvider extends
         builder.addColumn(FEATURE);
         builder.addColumn(MEDIAN).withDataType(DataTypeCode.REAL);
         builder.addColumn(DEVIATION).withDataType(DataTypeCode.REAL);
-        builder.addColumn(RANK).withDataType(DataTypeCode.INTEGER);
+        String rankTitle = "Rank (" + replicaResult.getNumberOfMaterialsInExperiment() + ")";
+        builder.addColumn(RANK).withDataType(DataTypeCode.INTEGER).withTitle(rankTitle);
 
         List<MaterialReplicaFeatureSummary> rows = replicaResult.getFeatureSummaries();
         List<String> subgroupLabels = replicaResult.getSubgroupLabels();

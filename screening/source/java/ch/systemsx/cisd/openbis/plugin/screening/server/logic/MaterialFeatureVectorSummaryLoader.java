@@ -66,7 +66,12 @@ public class MaterialFeatureVectorSummaryLoader extends ExperimentFeatureVectorS
 
         List<MaterialReplicaFeatureSummary> replicaRows = convertToFeatureRows(resultOrNull);
         List<String> subgroupLabels = tryGetSubgroupLabels(resultOrNull);
-        return new MaterialReplicaFeatureSummaryResult(subgroupLabels, replicaRows);
+
+        int materialsInExperiment =
+                (resultOrNull != null ? resultOrNull.getGeneralSummary()
+                        .getNumberOfMaterialsInExperiment() : 0);
+        return new MaterialReplicaFeatureSummaryResult(subgroupLabels, replicaRows,
+                materialsInExperiment);
     }
 
     private static List<MaterialReplicaFeatureSummary> convertToFeatureRows(
