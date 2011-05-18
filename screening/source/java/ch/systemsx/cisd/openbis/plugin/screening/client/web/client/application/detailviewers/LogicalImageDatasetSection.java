@@ -73,22 +73,27 @@ public class LogicalImageDatasetSection extends TabContent
                     setLayout(new RowLayout());
                     setScrollMode(Scroll.AUTO);
 
-                    Experiment experiment = dataset.getExperiment();
-                    String experimentPermId = experiment.getPermId();
-                    String identifier = experiment.getIdentifier();
-                    LogicalImageReference logicalImageReference =
-                            new LogicalImageReference(dataset.getCode(), dataset.getDataStore()
-                                    .getCode(), dataset.getDataStore().getHostUrl(),
-                                    imageInfo.getImageParameters());
-                    LogicalImageViewer viewer =
-                            new LogicalImageViewer(logicalImageReference,
-                                    LogicalImageDatasetSection.this.viewContext, identifier,
-                                    experimentPermId, true);
-                    Widget viewerWidget = viewer.getViewerWidget(imageInfo.getChannelStacks());
+                    Widget viewerWidget = createImageViewerWidget(imageInfo);
                     add(viewerWidget, LayoutUtils.createRowLayoutSurroundingData());
 
                     layout();
                 }
             };
+    }
+
+    private Widget createImageViewerWidget(LogicalImageInfo imageInfo)
+    {
+        Experiment experiment = dataset.getExperiment();
+        String experimentPermId = experiment.getPermId();
+        String identifier = experiment.getIdentifier();
+        LogicalImageReference logicalImageReference =
+                new LogicalImageReference(dataset.getCode(), dataset.getDataStore().getCode(),
+                        dataset.getDataStore().getHostUrl(), imageInfo.getImageParameters());
+        LogicalImageViewer viewer =
+                new LogicalImageViewer(logicalImageReference,
+                        LogicalImageDatasetSection.this.viewContext, identifier, experimentPermId,
+                        true);
+        Widget viewerWidget = viewer.getViewerWidget(imageInfo.getChannelStacks());
+        return viewerWidget;
     }
 }
