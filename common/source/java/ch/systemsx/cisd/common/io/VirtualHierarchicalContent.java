@@ -316,7 +316,21 @@ public class VirtualHierarchicalContent implements IHierarchicalContent
 
         public long getFileLength() throws UnsupportedOperationException
         {
-            return lastExistingNode().getFileLength();
+            if (isDirectory())
+            {
+                // For directory we return an estimated length - sum of lengths of all nodes.
+                // NOTE: This code is here for future. Currently all implementations for real data
+                // set directories throw an exception when asked for file length.
+                long estimatedLength = 0;
+                for (IHierarchicalContentNode node : nodes)
+                {
+                    estimatedLength += node.getFileLength();
+                }
+                return estimatedLength;
+            } else
+            {
+                return lastExistingNode().getFileLength();
+            }
         }
 
         public IRandomAccessFile getFileContent() throws UnsupportedOperationException,
