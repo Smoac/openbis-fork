@@ -59,14 +59,6 @@ class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
     {
         assert dataSetPathInfoProvider != null;
         this.dataSetPathInfoProvider = dataSetPathInfoProvider;
-        if (dataSetDir.exists() == false)
-        {
-            throw new IllegalArgumentException(dataSetDir.getAbsolutePath() + " doesn't exist");
-        }
-        if (dataSetDir.isDirectory() == false)
-        {
-            throw new IllegalArgumentException(dataSetDir.getAbsolutePath() + " is not a directory");
-        }
         this.onCloseAction = onCloseAction;
         this.root = dataSetDir;
     }

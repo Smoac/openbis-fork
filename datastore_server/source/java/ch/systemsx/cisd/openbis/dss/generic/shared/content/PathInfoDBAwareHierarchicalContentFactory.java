@@ -42,7 +42,7 @@ public class PathInfoDBAwareHierarchicalContentFactory extends
                     ServiceProvider.getDataSetPathInfoProvider());
         } else
         {
-            operationLog.info("Path Info DB was NOT configured. "
+            operationLog.warn("Path Info DB was NOT configured. "
                     + "File system based implementation will be used.");
             return new DefaultFileBasedHierarchicalContentFactory();
         }
@@ -69,7 +69,7 @@ public class PathInfoDBAwareHierarchicalContentFactory extends
                     onCloseAction);
         } else
         {
-            operationLog.info("Data set " + dataSetCode + " was NOT found in Path Info DB. "
+            operationLog.warn("Data set " + dataSetCode + " was NOT found in Path Info DB. "
                     + "Falling back to file system based implementation.");
             return super.asHierarchicalContent(file, onCloseAction);
         }

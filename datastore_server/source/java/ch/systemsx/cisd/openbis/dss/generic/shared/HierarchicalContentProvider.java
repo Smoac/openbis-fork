@@ -20,9 +20,13 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.io.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.IHierarchicalContentFactory;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.IDelegatedAction;
 import ch.systemsx.cisd.openbis.dss.generic.shared.content.PathInfoDBAwareHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
@@ -37,6 +41,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
  */
 public class HierarchicalContentProvider implements IHierarchicalContentProvider
 {
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            HierarchicalContentProvider.class);
 
     private final IEncapsulatedOpenBISService openbisService;
 
@@ -81,8 +87,11 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
             List<IHierarchicalContent> componentContents = new ArrayList<IHierarchicalContent>();
             for (ExternalData component : container.getContainedDataSets())
             {
-                IHierarchicalContent componentContent = createComponentContent(component);
-                componentContents.add(componentContent);
+                IHierarchicalContent componentContent = tryCreateComponentContent(component);
+                if (componentContent != null)
+                {
+                    componentContents.add(componentContent);
+                }
             }
             return getHierarchicalContentFactory().asVirtualHierarchicalContent(componentContents);
         } else
@@ -91,14 +100,22 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
         }
     }
 
-    private IHierarchicalContent createComponentContent(ExternalData component)
+    private IHierarchicalContent tryCreateComponentContent(ExternalData component)
     {
-        if (component.isContainer())
+        try
         {
-            return asContent(component.getCode());
-        } else
+            if (component.isContainer())
+            {
+                return asContent(component.getCode());
+            } else
+            {
+                return asContent(asDataSet(component));
+            }
+        } catch (IllegalArgumentException ex)
         {
-            return asContent(asDataSet(component));
+            operationLog.info("ignoring contained data set " + component.getCode() + ": "
+                    + ex.getMessage());
+            return null;
         }
     }
 
