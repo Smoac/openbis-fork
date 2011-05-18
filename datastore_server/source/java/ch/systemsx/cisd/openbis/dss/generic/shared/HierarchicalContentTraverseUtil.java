@@ -16,8 +16,11 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared;
 
+import java.util.List;
+
 import ch.systemsx.cisd.common.io.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
+import ch.systemsx.cisd.common.utilities.HierarchicalContentUtils;
 
 /**
  * A utility class to abstract traversing of {@link IHierarchicalContentNode}-s.
@@ -59,7 +62,9 @@ public class HierarchicalContentTraverseUtil
         visitor.visit(node);
         if (node.isDirectory())
         {
-            for (IHierarchicalContentNode child : node.getChildNodes())
+            List<IHierarchicalContentNode> children = node.getChildNodes();
+            HierarchicalContentUtils.sortNodes(children);
+            for (IHierarchicalContentNode child : children)
             {
                 visit(child, visitor);
             }
