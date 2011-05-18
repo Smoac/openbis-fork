@@ -53,12 +53,14 @@ public class DemoReportingPlugin extends AbstractTableModelReportingPlugin
         super(properties, storeRoot);
     }
 
-    public TableModel createReport(List<DatasetDescription> datasets, DataSetProcessingContext context)
+    public TableModel createReport(List<DatasetDescription> datasets,
+            DataSetProcessingContext context)
     {
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
         builder.addHeader("Dataset Code");
         builder.addHeader("Thumbnail");
         builder.addHeader("Name");
+        builder.addHeader("Relative Path");
         builder.addHeader("Last Modified");
         builder.addHeader("Size");
         for (DatasetDescription dataset : datasets)
@@ -70,8 +72,7 @@ public class DemoReportingPlugin extends AbstractTableModelReportingPlugin
 
     private void describe(SimpleTableModelBuilder builder, DatasetDescription dataset)
     {
-        IHierarchicalContentNodeVisitor visitor =
-                createFileDescribingVisitor(builder, dataset);
+        IHierarchicalContentNodeVisitor visitor = createFileDescribingVisitor(builder, dataset);
         IHierarchicalContentProvider provider = ServiceProvider.getHierarchicalContentProvider();
         HierarchicalContentTraverseUtil.traverse(provider, dataset.getDataSetCode(), visitor);
     }
@@ -107,7 +108,9 @@ public class DemoReportingPlugin extends AbstractTableModelReportingPlugin
         List<ISerializableComparable> row =
                 Arrays.<ISerializableComparable> asList(
                         new StringTableCell(dataset.getDataSetCode()), image, new StringTableCell(
-                                fileNode.getName()), new DateTableCell(new Date(lastModified)),
+                                fileNode.getName()),
+                        new StringTableCell(fileNode.getRelativePath()), new DateTableCell(
+                                new Date(lastModified)),
                         new DoubleTableCell(fileNode.getFileLength()));
         builder.addRow(row);
     }
@@ -126,8 +129,7 @@ public class DemoReportingPlugin extends AbstractTableModelReportingPlugin
 
         if (fileOnDisk != null && ImageUtil.isImageFile(fileOnDisk))
         {
-            return new ImageTableCell(dataset.getDataSetCode(), fileNode.getRelativePath(), 100,
-                    60);
+            return new ImageTableCell(dataset.getDataSetCode(), fileNode.getRelativePath(), 100, 60);
         }
         return new StringTableCell(fileNode.getName());
     }
