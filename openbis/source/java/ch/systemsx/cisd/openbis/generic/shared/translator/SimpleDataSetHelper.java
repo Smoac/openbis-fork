@@ -69,7 +69,6 @@ public class SimpleDataSetHelper
         return result;
     }
     
-    // TODO KE: will this work ?
     public static SimpleDataSetInformationDTO translate(DatasetDescription datasetDescription)
     {
         SimpleDataSetInformationDTO result = new SimpleDataSetInformationDTO();
