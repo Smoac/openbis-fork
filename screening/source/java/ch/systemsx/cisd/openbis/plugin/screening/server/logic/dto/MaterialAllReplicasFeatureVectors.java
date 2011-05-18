@@ -2,7 +2,6 @@ package ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialFeatureVectorSummary;
@@ -12,26 +11,20 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialFeatur
  * 
  * @author Tomasz Pylak
  */
-public class MaterialAllReplicasFeatureVectors implements ISerializable
+public class MaterialAllReplicasFeatureVectors
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     // NOTE: has the same length as feature vectors in all summaries
-    private List<CodeAndLabel> featureDescriptions;
+    private final List<CodeAndLabel> featureDescriptions;
 
-    private MaterialFeatureVectorSummary generalSummary;
+    private final MaterialFeatureVectorSummary generalSummary;
 
     // NOTE: Can be empty.
-    private List<MaterialBiologicalReplicateFeatureVector> biologicalReplicates;
+    private final List<MaterialBiologicalReplicateFeatureVector> biologicalReplicates;
 
     // NOTE: Can be empty. Used for replicas which have no subgroups
-    private List<MaterialTechnicalReplicateFeatureVector> directTechnicalReplicates;
-
-    // GWT only
-    @SuppressWarnings("unused")
-    private MaterialAllReplicasFeatureVectors()
-    {
-    }
+    private final List<MaterialTechnicalReplicateFeatureVector> directTechnicalReplicates;
 
     public MaterialAllReplicasFeatureVectors(List<CodeAndLabel> featureDescriptions,
             MaterialFeatureVectorSummary generalSummary,
@@ -63,5 +56,4 @@ public class MaterialAllReplicasFeatureVectors implements ISerializable
     {
         return directTechnicalReplicates;
     }
-
 }
