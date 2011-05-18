@@ -299,8 +299,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         return result;
     }
 
-    private void deleteDataSetLocally(DataPE dataSet, String reason)
-            throws UserFailureException
+    private void deleteDataSetLocally(DataPE dataSet, String reason) throws UserFailureException
     {
         try
         {
@@ -318,8 +317,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         }
     }
 
-    public static EventPE createDeletionEvent(DataPE dataSet, PersonPE registrator,
-            String reason)
+    public static EventPE createDeletionEvent(DataPE dataSet, PersonPE registrator, String reason)
     {
         EventPE event = new EventPE();
         event.setEventType(EventType.DELETION);
@@ -473,8 +471,6 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
     }
 
     /** groups all data sets (both virtual and non-virtual) by data stores */
-    // TODO 2011-05-17, Piotr Buczek: use this instead of groupExternalDataByDataStores in places
-    // where we want to support virtual data sets
     private Map<DataStorePE, List<DataPE>> groupDataSetsByDataStores()
     {
         Map<DataStorePE, List<DataPE>> map = new LinkedHashMap<DataStorePE, List<DataPE>>();
@@ -605,7 +601,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
                 }
             } else
             {
-                // TODO 2011-05-16, Piotr Buczek: implement archiving of virtual data sets
+                result.add(createDatasetDescription(dataSet));
             }
         }
         throwUnavailableOperationExceptionIfNecessary(notAvailableDatasets);
@@ -622,15 +618,19 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         return result;
     }
 
-    private DatasetDescription createDatasetDescription(ExternalDataPE dataSet)
+    private DatasetDescription createDatasetDescription(DataPE dataSet)
     {
         assert dataSet != null;
 
         DatasetDescription description = new DatasetDescription();
         description.setDatasetCode(dataSet.getCode());
-        description.setDataSetLocation(dataSet.getLocation());
-        description.setDataSetSize(dataSet.getSize());
-        description.setSpeedHint(dataSet.getSpeedHint());
+        if (dataSet.isExternalData())
+        {
+            ExternalDataPE externalData = dataSet.tryAsExternalData();
+            description.setDataSetLocation(externalData.getLocation());
+            description.setDataSetSize(externalData.getSize());
+            description.setSpeedHint(externalData.getSpeedHint());
+        }
         SamplePE sample = dataSet.tryGetSample();
         if (sample != null)
         {
