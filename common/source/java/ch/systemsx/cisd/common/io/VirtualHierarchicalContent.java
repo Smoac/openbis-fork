@@ -187,104 +187,14 @@ public class VirtualHierarchicalContent implements IHierarchicalContent
             nodes.addFirst(node);
         }
 
-        private IHierarchicalContentNode lastNode()
-        {
-            return nodes.getFirst();
-        }
-
-        private IHierarchicalContentNode lastExistingNode()
-        {
-            for (IHierarchicalContentNode node : nodes)
-            {
-                if (node.exists()) // archived node doesn't exist and will be omitted
-                {
-                    return node;
-                }
-            }
-            throw new IllegalStateException("Resource is unavailable.");
-        }
-
         public IHierarchicalContentNode createMergedNode()
         {
-            if (nodes.isEmpty())
-            {
-                throw new IllegalStateException("Resource doesn't exist.");
-            }
-            return new IHierarchicalContentNode()
-                {
-
-                    public String getName()
-                    {
-                        return lastNode().getName();
-                    }
-
-                    public String getRelativePath()
-                    {
-                        return lastNode().getRelativePath();
-                    }
-
-                    public String getParentRelativePath()
-                    {
-                        return lastNode().getParentRelativePath();
-                    }
-
-                    public boolean exists()
-                    {
-                        // the node exists if at least one node exists
-                        for (IHierarchicalContentNode node : nodes)
-                        {
-                            if (node.exists())
-                            {
-                                return true;
-                            }
-                        }
-                        return false;
-                    }
-
-                    public boolean isDirectory()
-                    {
-                        // NOTE: we don't support files and directories with the same name
-                        return lastNode().isDirectory();
-                    }
-
-                    public List<IHierarchicalContentNode> getChildNodes()
-                            throws UnsupportedOperationException
-                    {
-                        IVirtualNodeListMerger listMerger = createNodeListMerger();
-                        for (IHierarchicalContentNode node : nodes)
-                        {
-                            listMerger.addNodes(node.getChildNodes());
-                        }
-                        return listMerger.createMergedNodeList();
-                    }
-
-                    public File getFile() throws UnsupportedOperationException
-                    {
-                        return lastExistingNode().getFile();
-                    }
-
-                    public long getFileLength() throws UnsupportedOperationException
-                    {
-                        return lastExistingNode().getFileLength();
-                    }
-
-                    public IRandomAccessFile getFileContent() throws UnsupportedOperationException,
-                            IOExceptionUnchecked
-                    {
-                        return lastExistingNode().getFileContent();
-                    }
-
-                    public InputStream getInputStream() throws UnsupportedOperationException,
-                            IOExceptionUnchecked
-                    {
-                        return lastExistingNode().getInputStream();
-                    }
-                };
+            return new VirtualNode(nodes);
         }
     }
 
     /**
-     * Merges lists of nodes, merging individual nodes in lists with the same relative paths.
+     * Merges lists of nodes into a list with nodes merging nodes with the same relative paths.
      */
     static class VirtualNodeListMerger implements IVirtualNodeListMerger
     {
@@ -315,6 +225,112 @@ public class VirtualHierarchicalContent implements IHierarchicalContent
             }
             return result;
         }
+    }
+
+    /**
+     * {@link IHierarchicalContentNode} implementation merging nodes with the same relative paths:
+     * <ul>
+     * <li>For directories merges the internal nodes.
+     * <li>For normal files uses the 'last' available node's file.
+     * </ul>
+     */
+    static class VirtualNode implements IHierarchicalContentNode
+    {
+
+        private final List<IHierarchicalContentNode> nodes;
+
+        public VirtualNode(List<IHierarchicalContentNode> nodes)
+        {
+            if (nodes.isEmpty())
+            {
+                throw new IllegalArgumentException("Resource doesn't exist.");
+            }
+            this.nodes = nodes;
+        }
+
+        private IHierarchicalContentNode lastNode()
+        {
+            return nodes.get(0);
+        }
+
+        private IHierarchicalContentNode lastExistingNode()
+        {
+            for (IHierarchicalContentNode node : nodes)
+            {
+                if (node.exists()) // archived node doesn't exist and will be omitted
+                {
+                    return node;
+                }
+            }
+            throw new IllegalStateException("Resource is unavailable.");
+        }
+
+        public String getName()
+        {
+            return lastNode().getName();
+        }
+
+        public String getRelativePath()
+        {
+            return lastNode().getRelativePath();
+        }
+
+        public String getParentRelativePath()
+        {
+            return lastNode().getParentRelativePath();
+        }
+
+        public boolean exists()
+        {
+            // the node exists if at least one node exists
+            for (IHierarchicalContentNode node : nodes)
+            {
+                if (node.exists())
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public boolean isDirectory()
+        {
+            // NOTE: we don't support files and directories with the same name
+            return lastNode().isDirectory();
+        }
+
+        public List<IHierarchicalContentNode> getChildNodes() throws UnsupportedOperationException
+        {
+            IVirtualNodeListMerger listMerger = createNodeListMerger();
+            for (IHierarchicalContentNode node : nodes)
+            {
+                listMerger.addNodes(node.getChildNodes());
+            }
+            return listMerger.createMergedNodeList();
+        }
+
+        public File getFile() throws UnsupportedOperationException
+        {
+            return lastExistingNode().getFile();
+        }
+
+        public long getFileLength() throws UnsupportedOperationException
+        {
+            return lastExistingNode().getFileLength();
+        }
+
+        public IRandomAccessFile getFileContent() throws UnsupportedOperationException,
+                IOExceptionUnchecked
+        {
+            return lastExistingNode().getFileContent();
+        }
+
+        public InputStream getInputStream() throws UnsupportedOperationException,
+                IOExceptionUnchecked
+        {
+            return lastExistingNode().getInputStream();
+        }
+
     }
 
 }
