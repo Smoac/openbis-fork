@@ -71,7 +71,7 @@ public class ArchivingPostRegistrationTask extends AbstractPostRegistrationTask
     {
         return new Executor(dataSetCode);
     }
-
+    
     private final class Executor implements IPostRegistrationTaskExecutor
     {
         private final String dataSetCode;
@@ -98,13 +98,19 @@ public class ArchivingPostRegistrationTask extends AbstractPostRegistrationTask
                 return;
             }
 
-            DatasetDescription dataSet = tryGetDatasetDescription(dataSetCode, service);
+            ExternalData dataSet = tryGetExternalData(dataSetCode, service);
             if (dataSet == null)
             {
-                operationLog.warn("Data set with code " + dataSetCode
-                        + " is no longer available in openBIS. Archiving post-registration "
-                        + "task will be skipped...");
+                operationLog.warn("Data set '" + dataSetCode
+                        + "' is no longer available in openBIS."
+                        + "Archiving post-registration task will be skipped...");
                 return;
+            } else if (dataSet.isContainer())
+            {
+                operationLog.warn("Data set '" + dataSetCode + "' is a container data set."
+                        + " Archiving post-registration task will be skipped...");
+                return;
+
             }
 
             boolean statusUpdated =
@@ -112,7 +118,10 @@ public class ArchivingPostRegistrationTask extends AbstractPostRegistrationTask
                             false);
             if (statusUpdated)
             {
-                List<DatasetDescription> dataSetAsList = Collections.singletonList(dataSet);
+                DatasetDescription dataSetDescription =
+                        DataSetTranslator.translateToDescription(dataSet);
+                List<DatasetDescription> dataSetAsList =
+                        Collections.singletonList(dataSetDescription);
                 ProcessingStatus processingStatus =
                         archiver.archive(dataSetAsList, createArchiverContext(), false);
                 if (false == processingStatus.getErrorStatuses().isEmpty())
@@ -129,7 +138,7 @@ public class ArchivingPostRegistrationTask extends AbstractPostRegistrationTask
             String failedMessage =
                     String.format("Eager archiving of dataset '%s' has failed. \n", dataSetCode);
             message.append(failedMessage);
-            for (Status status : processingStatus.getErrorStatuses())
+            for (Status status : processingStatus.getErrorStatuses()) 
             {
                 if (status.tryGetErrorMessage() != null)
                 {
@@ -141,7 +150,7 @@ public class ArchivingPostRegistrationTask extends AbstractPostRegistrationTask
                     String.format("If you wish to archive the dataset in the future, "
                             + "you can configure an '%s'.", AutoArchiverTask.class.getSimpleName());
             message.append(footer);
-
+            
             notificationLog.error(message);
         }
 
@@ -151,7 +160,7 @@ public class ArchivingPostRegistrationTask extends AbstractPostRegistrationTask
         }
     }
 
-    private static DatasetDescription tryGetDatasetDescription(String dataSetCode,
+    private static ExternalData tryGetExternalData(String dataSetCode,
             IEncapsulatedOpenBISService service)
     {
         List<String> codeAsList = Collections.singletonList(dataSetCode);
@@ -162,13 +171,20 @@ public class ArchivingPostRegistrationTask extends AbstractPostRegistrationTask
         }
 
         ExternalData data = dataList.get(0);
-        return DataSetTranslator.translateToDescription(data);
+        return data;
     }
+
+    private static DatasetDescription tryGetDatasetWithLocation(String dataSetCode,
+            IEncapsulatedOpenBISService service)
+    {
+        ExternalData data = tryGetExternalData(dataSetCode, service);
+        return (data != null) ? DataSetTranslator.translateToDescription(data) : null;
+    }
+
 
     private static ArchiverTaskContext createArchiverContext()
     {
-        return new ArchiverTaskContext(ServiceProvider.getDataStoreService()
-                .getDataSetDirectoryProvider());
+        return new ArchiverTaskContext(ServiceProvider.getDataStoreService().getDataSetDirectoryProvider());
     }
 
     private static class ArchivingCleanupTask implements ICleanupTask
@@ -185,18 +201,16 @@ public class ArchivingPostRegistrationTask extends AbstractPostRegistrationTask
         public void cleanup(ISimpleLogger logger)
         {
             IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
-            boolean statusUpdated =
-                    openBISService.compareAndSetDataSetStatus(dataSetCode, BACKUP_PENDING,
-                            AVAILABLE, false);
-
-            if (statusUpdated == false)
-            {
-                // invalid data set status, do not continue
+            boolean statusUpdated = openBISService
+                    .compareAndSetDataSetStatus(dataSetCode, BACKUP_PENDING, AVAILABLE, false);
+            
+            if (statusUpdated == false) {
+                // invalid data set status, do not continue 
                 return;
             }
-
+            
             IArchiverPlugin archiver = ServiceProvider.getDataStoreService().getArchiverPlugin();
-            DatasetDescription dataSet = tryGetDatasetDescription(dataSetCode, openBISService);
+            DatasetDescription dataSet = tryGetDatasetWithLocation(dataSetCode, openBISService);
             if (archiver != null && dataSet != null)
             {
                 DatasetLocation dataset = new DatasetLocation();
