@@ -51,7 +51,7 @@ public class VirtualHierarchicalContent implements IHierarchicalContent
         {
             rootNode = mergeNodes(new INodeProvider()
                 {
-                    public IHierarchicalContentNode getNode(IHierarchicalContent content)
+                    public IHierarchicalContentNode tryGetNode(IHierarchicalContent content)
                     {
                         return content.getRootNode();
                     }
@@ -65,9 +65,15 @@ public class VirtualHierarchicalContent implements IHierarchicalContent
     {
         return mergeNodes(new INodeProvider()
             {
-                public IHierarchicalContentNode getNode(IHierarchicalContent content)
+                public IHierarchicalContentNode tryGetNode(IHierarchicalContent content)
                 {
-                    return content.getNode(relativePath);
+                    try
+                    {
+                        return content.getNode(relativePath);
+                    } catch (IllegalArgumentException ex)
+                    {
+                        return null;
+                    }
                 }
             });
     }
@@ -108,8 +114,11 @@ public class VirtualHierarchicalContent implements IHierarchicalContent
         IVirtualNodesMerger merger = createNodesMerger();
         for (IHierarchicalContent component : components)
         {
-            IHierarchicalContentNode componentNode = provider.getNode(component);
-            merger.addNode(componentNode);
+            IHierarchicalContentNode componentNode = provider.tryGetNode(component);
+            if (componentNode != null)
+            {
+                merger.addNode(componentNode);
+            }
         }
         return merger.createMergedNode();
     }
@@ -137,7 +146,7 @@ public class VirtualHierarchicalContent implements IHierarchicalContent
 
     interface INodeProvider
     {
-        IHierarchicalContentNode getNode(IHierarchicalContent content);
+        IHierarchicalContentNode tryGetNode(IHierarchicalContent content);
     }
 
     interface INodeListProvider
@@ -192,16 +201,15 @@ public class VirtualHierarchicalContent implements IHierarchicalContent
                     return node;
                 }
             }
-            throw new IllegalStateException("resource doesn't exist");
+            throw new IllegalStateException("Resource is unavailable.");
         }
 
         public IHierarchicalContentNode createMergedNode()
         {
             if (nodes.isEmpty())
             {
-                throw new IllegalStateException("no nodes to merge");
+                throw new IllegalStateException("Resource doesn't exist.");
             }
-            // TODO caching
             return new IHierarchicalContentNode()
                 {
 
@@ -287,10 +295,12 @@ public class VirtualHierarchicalContent implements IHierarchicalContent
         {
             for (IHierarchicalContentNode node : nodes)
             {
-                IVirtualNodesMerger merger = mergers.get(node.getRelativePath());
+                String relativePath = node.getRelativePath();
+                IVirtualNodesMerger merger = mergers.get(relativePath);
                 if (merger == null)
                 {
                     merger = createNodesMerger();
+                    mergers.put(relativePath, merger);
                 }
                 merger.addNode(node);
             }
