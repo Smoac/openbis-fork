@@ -810,14 +810,14 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         ArrayList<DataSetShareId> shareIds = new ArrayList<DataSetShareId>();
         for (ExternalData dataSet : dataSets)
         {
+            DataSetShareId dataSetShareId = new DataSetShareId();
+            dataSetShareId.setDataSetCode(dataSet.getCode());
             DataSet ds = dataSet.tryGetAsDataSet();
             if (ds != null)
             {
-                DataSetShareId dataSetShareId = new DataSetShareId();
-                dataSetShareId.setDataSetCode(ds.getCode());
                 dataSetShareId.setShareId(ds.getShareId());
-                shareIds.add(dataSetShareId);
             }
+            shareIds.add(dataSetShareId);
         }
         return shareIds;
     }

@@ -304,10 +304,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         IShareIdManager manager = getShareIdManager();
         for (DatasetDescription dataSet : datasets)
         {
-            if (dataSet.getDataSetLocation() != null) // FIXME temporary solution to ignore virtual data sets
-            {
-                manager.lock(dataSet.getDataSetCode());
-            }
+            manager.lock(dataSet.getDataSetCode());
         }
         try
         {

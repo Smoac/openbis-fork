@@ -98,7 +98,6 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
                                 List<String> dataSetCodes = command.getDataSetCodes();
                                 for (String dataSetCode : dataSetCodes)
                                 {
-                                    // FIXME doesn't find virtual data sets
                                     manager.lock(dataSetCode);
                                 }
                                 command.execute(new DataSetDirectoryProvider(store, manager));

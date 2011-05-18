@@ -58,7 +58,8 @@ public class DemoProcessingPlugin implements IProcessingPluginTask
         IHierarchicalContentProvider contentProvider =
                 ServiceProvider.getHierarchicalContentProvider();
 
-        for (DatasetDescription dataset : datasets) {
+        for (DatasetDescription dataset : datasets)
+        {
             String dataSetCode = dataset.getDataSetCode();
             IHierarchicalContentNodeVisitor printingVisitor = createPrintingVisitor(dataSetCode);
             HierarchicalContentTraverseUtil.traverse(contentProvider, dataSetCode, printingVisitor);
@@ -79,7 +80,7 @@ public class DemoProcessingPlugin implements IProcessingPluginTask
                     {
                         fullPath += relativePath;
                     }
-                    operationLog.info("Processing " + node.getRelativePath());
+                    operationLog.info("Processing " + fullPath);
                 }
             };
     }
