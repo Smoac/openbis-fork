@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.hamcrest.BaseMatcher;
@@ -288,10 +290,18 @@ public final class DataSetTableTest extends AbstractBOTest
             fail("UserFailureException expected");
         } catch (UserFailureException e)
         {
+            Pattern pattern =
+                    Pattern.compile("Deletion failed because the following data sets are "
+                            + "required by a background process \\(their status is pending\\): "
+                            +"\\[(.*)\\]. ");
+            Matcher matcher = pattern.matcher(e.getMessage());
 
-            assertEquals("Deletion failed because the following data sets are "
-                    + "required by a background process (their status is pending): "
-                    + "[d4n, d5n]. ", e.getMessage());
+            assertTrue("Invalid error message:" + e.getMessage(), matcher.matches());
+
+            List<String> pendingIds = Arrays.asList(matcher.group(1).split(", "));
+            Collections.sort(pendingIds);
+
+            assertEquals("[d4n, d5n]", pendingIds.toString());
         }
     }
 
