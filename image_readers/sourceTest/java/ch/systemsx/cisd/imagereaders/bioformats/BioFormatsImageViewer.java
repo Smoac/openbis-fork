@@ -28,26 +28,27 @@ import ch.systemsx.cisd.imagereaders.IImageReader;
 import ch.systemsx.cisd.imagereaders.TiffReadParams;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
+@SuppressWarnings("deprecation")
 public class BioFormatsImageViewer
 {
     public static void main(String[] args)
     {
-        if (args.length == 0)
+        String[] myArgs = args;
+        if (myArgs.length == 0)
         {
             FileDialog fileDialog = new FileDialog((Frame) null);
             fileDialog.setMode(FileDialog.LOAD);
             fileDialog.setVisible(true);
             String dir = fileDialog.getDirectory();
-            args = new String[] {dir + "/" + fileDialog.getFile()};
+            myArgs = new String[]
+                { dir + "/" + fileDialog.getFile() };
         }
-        for (String fileName : args)
+        for (String fileName : myArgs)
         {
             IImageReader reader = new BioFormatsReaderLibrary().tryGetReaderForFile(fileName);
-            
+
             System.out.println("=========== File: " + fileName);
             System.out.println("Reader: " + reader);
             File file = new File(fileName);
@@ -55,7 +56,7 @@ public class BioFormatsImageViewer
             readParams.setIntensityRescalingChannel(0);
             final BufferedImage image = reader.readImage(file, readParams);
             showImage(image, fileName);
-            
+
         }
     }
 
