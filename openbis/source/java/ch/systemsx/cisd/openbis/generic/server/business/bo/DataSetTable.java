@@ -131,8 +131,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         List<String> notAvailableDatasets = new ArrayList<String>();
         for (DataPE dataSet : datasets)
         {
-            if (dataSet.isExternalData() == false
-                    || dataSet.tryAsExternalData().getStatus().isAvailable() == false)
+            if (dataSet.isAvailable() == false)
             {
                 notAvailableDatasets.add(dataSet.getCode());
             }
@@ -159,9 +158,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         List<String> notDeletableDatasets = new ArrayList<String>();
         for (DataPE dataSet : datasets)
         {
-            // TODO 2011-05-16, Piotr Buczek: change this after deletion is implemented
-            if (dataSet.isExternalData() == false
-                    || dataSet.tryAsExternalData().getStatus().isDeletable() == false)
+            if (dataSet.isDeletable() == false)
             {
                 notDeletableDatasets.add(dataSet.getCode());
             }
@@ -242,7 +239,6 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
 
     public void deleteLoadedDataSets(String reason)
     {
-        dataSets = loadContainedDataSetsRecursively();
         assertDatasetsAreDeletable(dataSets);
 
         dataSets = sortTopologicallyByContainerRelationship(dataSets);
@@ -264,34 +260,6 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
             // delete remotely from Data Store (only executed for available datasets)
             List<ExternalDataPE> available = availableDatasets.get(dataStore);
             deleteDataSets(dataStore, createDatasetDescriptions(available));
-        }
-    }
-
-    private List<DataPE> loadContainedDataSetsRecursively()
-    {
-        Map<Long, DataPE> loadCache = new HashMap<Long, DataPE>();
-        for (DataPE dataSet : dataSets)
-        {
-            loadContainedDataSetsInternal(dataSet, loadCache);
-        }
-
-        return new ArrayList<DataPE>(loadCache.values());
-    }
-
-    private void loadContainedDataSetsInternal(DataPE dataSet, Map<Long /* id */, DataPE> loaded)
-    {
-        Long id = dataSet.getId();
-        if (false == loaded.containsKey(id))
-        {
-            loaded.put(id, dataSet);
-            if (dataSet.getContainedDataSets() != null)
-            {
-                for (DataPE containedDataSet : dataSet.getContainedDataSets())
-                {
-                    loadContainedDataSetsInternal(containedDataSet, loaded);
-                }
-            }
-
         }
     }
 

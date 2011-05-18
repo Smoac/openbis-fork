@@ -657,17 +657,6 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     @Transient
     public boolean isDeletable()
     {
-        if (containedDataSets != null)
-        {
-            for (DataPE containedDataSet : containedDataSets)
-            {
-                if (containedDataSet.isDeletable() == false)
-                {
-                    return false;
-                }
-            }
-
-        }
         return true;
     }
 }
