@@ -79,7 +79,6 @@ public class ChannelChooserPanel extends LayoutContainer
 
         setAutoHeight(true);
         setAutoWidth(true);
-        // setLayout(new ColumnLayout());
 
         channelsComboBox = createChannelsComboBox();
         add(channelsComboBox);
@@ -108,7 +107,6 @@ public class ChannelChooserPanel extends LayoutContainer
     private CheckBoxGroup createCheckBoxGroup()
     {
         CheckBoxGroup group = new CheckBoxGroup();
-        // group.setStyleAttribute("margin-left", "20px");
         return group;
     }    
 
