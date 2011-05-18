@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
-import java.io.File;
-
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import ch.systemsx.cisd.common.io.IHierarchicalContent;
@@ -25,7 +23,6 @@ import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
 
 final class RenderingContext
 {
-    private final File rootDir;
 
     private final IHierarchicalContent rootContent;
 
@@ -39,10 +36,9 @@ final class RenderingContext
 
     private final String sessionIdOrNull;
 
-    RenderingContext(File rootDir, IHierarchicalContent rootContent, String urlPrefix,
-            String relativePathOrNull, String sessionIdOrNull)
+    RenderingContext(IHierarchicalContent rootContent, String urlPrefix, String relativePathOrNull,
+            String sessionIdOrNull)
     {
-        this.rootDir = rootDir;
         this.rootContent = rootContent;
         this.relativePathOrNull = relativePathOrNull;
         this.urlPrefix = urlPrefix;
@@ -63,11 +59,11 @@ final class RenderingContext
 
     RenderingContext(RenderingContext oldContext, String newRelativePathOrNull)
     {
-        this(oldContext.rootDir, oldContext.rootContent, oldContext.urlPrefix,
-                newRelativePathOrNull, oldContext.sessionIdOrNull);
+        this(oldContext.rootContent, oldContext.urlPrefix, newRelativePathOrNull,
+                oldContext.sessionIdOrNull);
     }
 
-    public final IHierarchicalContent getRoot()
+    public final IHierarchicalContent getRootContent()
     {
         return rootContent;
     }
@@ -80,11 +76,6 @@ final class RenderingContext
     public final IHierarchicalContentNode getContentNode()
     {
         return fileNode;
-    }
-
-    public final File getRootDir()
-    {
-        return rootDir;
     }
 
     public final String getRelativePathOrNull()

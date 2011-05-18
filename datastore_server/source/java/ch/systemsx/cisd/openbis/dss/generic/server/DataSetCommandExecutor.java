@@ -43,11 +43,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
  */
 class DataSetCommandExecutor implements IDataSetCommandExecutor
 {
-    private final static Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, DataSetCommandExecutor.class);
+    private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            DataSetCommandExecutor.class);
 
-    private final static Logger notificationLog =
-            LogFactory.getLogger(LogCategory.NOTIFY, DataSetCommandExecutor.class);
+    private final static Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
+            DataSetCommandExecutor.class);
 
     private final File store;
 
@@ -62,7 +62,7 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
         commandQueue =
                 ExtendedBlockingQueueFactory.<IDataSetCommand> createPersistRecordBased(queueFile);
     }
-    
+
     void setShareIdManager(IShareIdManager shareIdManager)
     {
         this.shareIdManager = shareIdManager;
@@ -98,6 +98,7 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
                                 List<String> dataSetCodes = command.getDataSetCodes();
                                 for (String dataSetCode : dataSetCodes)
                                 {
+                                    // FIXME doesn't find virtual data sets
                                     manager.lock(dataSetCode);
                                 }
                                 command.execute(new DataSetDirectoryProvider(store, manager));
@@ -170,7 +171,7 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
         }
         return shareIdManager;
     }
-    
+
     /**
      * Writes the list of items in the command store of the given <var>store</var> directory to
      * stdout.

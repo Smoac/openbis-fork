@@ -338,6 +338,8 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
         }
     }
 
+    /** @deprecated doesn't work with virtual data sets (children can be from different shares) */
+    @Deprecated
     protected final File createDataSetRootDirectory(String dataSetCode, HttpSession session)
     {
         IShareIdManager shareIdManager = applicationContext.getShareIdManager();

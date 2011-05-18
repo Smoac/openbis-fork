@@ -138,7 +138,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     {
         this.cifexAdminPasswordOrNull = cifexAdminPasswordOrNull;
     }
-    
+
     public void afterPropertiesSet()
     {
         String prefix = "Property 'storeRoot' ";
@@ -171,7 +171,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         commandExecutor = commandExecutorFactory.create(storeRoot, commandQueueDirOrNull);
         migrateStore();
     }
-    
+
     public void initialize()
     {
         commandExecutor.start();
@@ -184,7 +184,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         {
             operationLog.info("Initialization finished.");
         }
-        
+
     }
 
     private void migrateStore()
@@ -304,7 +304,10 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         IShareIdManager manager = getShareIdManager();
         for (DatasetDescription dataSet : datasets)
         {
-            manager.lock(dataSet.getDataSetCode());
+            if (dataSet.getDataSetLocation() != null) // FIXME temporary solution to ignore virtual data sets
+            {
+                manager.lock(dataSet.getDataSetCode());
+            }
         }
         try
         {
@@ -348,7 +351,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         String description = removeFromDataStore ? "Archiving" : "Copying data sets to archive";
         IProcessingPluginTask task =
                 new ArchiveProcessingPluginTask(getArchiverPlugin(), removeFromDataStore);
-        
+
         scheduleTask(sessionToken, description, task, datasets, userEmailOrNull);
     }
 
@@ -357,7 +360,6 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         ArchiverPluginFactory factory = pluginTaskParameters.getArchiverPluginFactory();
         return factory.createInstance(storeRoot);
     }
-    
 
     public IDataSetDirectoryProvider getDataSetDirectoryProvider()
     {

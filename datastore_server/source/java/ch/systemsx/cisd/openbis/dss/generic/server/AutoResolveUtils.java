@@ -76,7 +76,7 @@ public class AutoResolveUtils
      * <li>all directories have been checked
      * </p>
      * 
-     * @param root - the search will start from this directory
+     * @param rootContent - the search will start from this abstraction of a directory
      * @param path - narrows the search to this directory; relative to the root
      * @param pattern - regular expression defining the files that will be accepted; if no pattern
      *            is specified - the result will be empty
@@ -84,8 +84,8 @@ public class AutoResolveUtils
      *         there exactly one file matched; 2 or more files (not necessarily all) - if more than
      *         one file matched
      */
-    public static List<IHierarchicalContentNode> findSomeMatchingFiles(IHierarchicalContent root,
-            String path, final String pattern)
+    public static List<IHierarchicalContentNode> findSomeMatchingFiles(
+            IHierarchicalContent rootContent, String path, final String pattern)
     {
         if (StringUtils.isBlank(pattern))
         {
@@ -101,7 +101,7 @@ public class AutoResolveUtils
                     prefix += File.separator;
                 }
             }
-            return root.listMatchingNodes(prefix + pattern);
+            return rootContent.listMatchingNodes(prefix + pattern);
         }
     }
 

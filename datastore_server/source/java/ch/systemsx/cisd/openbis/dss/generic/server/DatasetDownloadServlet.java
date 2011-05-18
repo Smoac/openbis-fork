@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -206,17 +205,26 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
     {
         String dataSetCode = requestParams.getDataSetCode();
         RenderingContext context = createRenderingContext(requestParams, dataSetCode, session);
-        renderPage(rendererFactory, response, dataSetCode, context, requestParams, session);
+        try
+        {
+            renderPage(rendererFactory, response, dataSetCode, context, requestParams, session);
+        } finally
+        {
+            // close the root content when we are done working with it
+            if (context != null && context.getRootContent() != null)
+            {
+                context.getRootContent().close();
+            }
+        }
     }
 
     private RenderingContext createRenderingContext(RequestParams requestParams,
             String dataSetCode, HttpSession session)
     {
-        File rootDir = createDataSetRootDirectory(dataSetCode, session);
         IHierarchicalContent rootContent =
-                applicationContext.getHierarchicalContentProvider().asContent(rootDir);
+                applicationContext.getHierarchicalContentProvider().asContent(dataSetCode);
         RenderingContext context =
-                new RenderingContext(rootDir, rootContent, requestParams.getURLPrefix(),
+                new RenderingContext(rootContent, requestParams.getURLPrefix(),
                         requestParams.getPathInfo(), requestParams.tryGetSessionId());
         return context;
     }
@@ -365,7 +373,7 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
     {
         assert dirNode.exists() && dirNode.isDirectory();
         List<IHierarchicalContentNode> mainDataSets =
-                AutoResolveUtils.findSomeMatchingFiles(renderingContext.getRoot(),
+                AutoResolveUtils.findSomeMatchingFiles(renderingContext.getRootContent(),
                         requestParams.tryGetMainDataSetPath(),
                         requestParams.tryGetMainDataSetPattern());
         if (mainDataSets.size() == 1 || (mainDataSets.size() > 1 && shouldForce))

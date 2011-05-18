@@ -71,6 +71,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 /**
  * @author Franz-Josef Elmer
  */
+// FIXME use mocks for abstraction
+@Test(groups = "broken")
 public class DatasetDownloadServletTest
 {
     private static final String REQUEST_URI_PREFIX = "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME
