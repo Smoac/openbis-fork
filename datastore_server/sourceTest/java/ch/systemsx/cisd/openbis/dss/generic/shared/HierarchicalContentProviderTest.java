@@ -144,6 +144,7 @@ public class HierarchicalContentProviderTest extends AssertJUnit
         context.assertIsSatisfied();
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     void testAsContentFromDataSetLocation()
     {
@@ -191,6 +192,7 @@ public class HierarchicalContentProviderTest extends AssertJUnit
         context.assertIsSatisfied();
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     void testAsContentFromDataSetFile()
     {

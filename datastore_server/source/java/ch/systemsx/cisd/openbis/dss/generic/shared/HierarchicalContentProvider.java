@@ -17,12 +17,15 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.io.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.IHierarchicalContentFactory;
 import ch.systemsx.cisd.common.utilities.IDelegatedAction;
 import ch.systemsx.cisd.openbis.dss.generic.shared.content.PathInfoDBAwareHierarchicalContentFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
@@ -72,18 +75,37 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
         {
             throw new IllegalArgumentException("Unknown data set " + dataSetCode);
         }
-        // this is a temporary fix
-        DataSet dataSet = externalData.tryGetAsDataSet();
-        if (dataSet == null)
+        if (externalData.isContainer())
         {
-            throw new IllegalArgumentException("Not implemented for container data sets.");
+            ContainerDataSet container = externalData.tryGetAsContainerDataSet();
+            List<IHierarchicalContent> componentContents = new ArrayList<IHierarchicalContent>();
+            for (ExternalData component : container.getContainedDataSets())
+            {
+                IHierarchicalContent componentContent = createComponentContent(component);
+                componentContents.add(componentContent);
+            }
+            return getHierarchicalContentFactory().asVirtualHierarchicalContent(componentContents);
+        } else
+        {
+            return asContent(asDataSet(externalData));
         }
-        return asContent(dataSet);
+    }
+
+    private IHierarchicalContent createComponentContent(ExternalData component)
+    {
+        if (component.isContainer())
+        {
+            return asContent(component.getCode());
+        } else
+        {
+            return asContent(asDataSet(component));
+        }
     }
 
     public IHierarchicalContent asContent(final IDatasetLocation datasetLocation)
     {
-        // IHierarchicalContent.close() should be called to unlock the dataset
+        // NOTE: remember to call IHierarchicalContent.close() to unlock the dataset when finished
+        // working with the IHierarchivalContent
         directoryProvider.getShareIdManager().lock(datasetLocation.getDataSetCode());
         File dataSetDirectory = directoryProvider.getDataSetDirectory(datasetLocation);
         IDelegatedAction onCloseAction = new IDelegatedAction()
@@ -116,6 +138,18 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
             hierarchicalContentFactory = PathInfoDBAwareHierarchicalContentFactory.create();
         }
         return hierarchicalContentFactory;
+    }
+
+    private static DataSet asDataSet(ExternalData externalData)
+    {
+        DataSet dataSet = externalData.tryGetAsDataSet();
+        if (dataSet == null)
+        {
+            throw new IllegalArgumentException(
+                    "Couldn't retrieve full data set infomation from data set "
+                            + externalData.getCode());
+        }
+        return dataSet;
     }
 
 }

@@ -35,8 +35,8 @@ public interface IHierarchicalContentProvider
 {
 
     /**
-     * <b>NOTE:</b> if possible use {@link #asContent(IDatasetLocation)} which doesn't need to
-     * retrieve information from DB
+     * This is the only method that supports abstraction for virtual data sets. It needs to access
+     * openBIS DB first to retrieve information first.
      * 
      * @return {@link IHierarchicalContent} for the specified data set
      */
@@ -44,7 +44,9 @@ public interface IHierarchicalContentProvider
 
     /**
      * @return {@link IHierarchicalContent} for the specified data set
+     * @deprecated doesn't support abstraction for virtual data sets, use {@link #asContent(String)}
      */
+    @Deprecated
     IHierarchicalContent asContent(IDatasetLocation datasetLocation);
 
     /**
@@ -52,7 +54,9 @@ public interface IHierarchicalContentProvider
      * 
      * @param datasetDirectory the directory file of the data set
      * @return {@link IHierarchicalContent} for the specified data set
+     * @deprecated doesn't support abstraction for virtual data sets, use {@link #asContent(String)}
      */
+    @Deprecated
     IHierarchicalContent asContent(File datasetDirectory);
 
 }
