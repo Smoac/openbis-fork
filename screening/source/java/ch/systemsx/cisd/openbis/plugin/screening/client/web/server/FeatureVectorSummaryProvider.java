@@ -41,6 +41,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.FeatureV
  */
 class FeatureVectorSummaryProvider extends AbstractTableModelProvider<MaterialFeatureVectorSummary>
 {
+    private static final String SHOW_DETAILS_MSG = "Show details";
+
+    private static final String RANK_COLUMN_TITLE_SUFFIX_MSG = " rank";
+
     private static final String MATERIAL_PROPS_GROUP = "MATERIAL_PROP-";
 
     private static final String FEATURE_VALUE_PREFIX = "FEATURE_VALUE-";
@@ -79,15 +83,16 @@ class FeatureVectorSummaryProvider extends AbstractTableModelProvider<MaterialFe
         {
             String featureCode = featureDescription.getCode();
             String featureColumnId = getFeatureColumnId(featureCode);
-            builder.addColumn(featureColumnId).withTitle(featureDescription.getLabel())
+            String featureLabel = featureDescription.getLabel();
+            builder.addColumn(featureColumnId).withTitle(featureLabel)
                     .withDataType(DataTypeCode.REAL);
             featureColumnIds.add(featureColumnId);
 
             String rankColumnId = getRankColumnId(featureCode);
-            builder.addColumn(rankColumnId).withDataType(DataTypeCode.INTEGER);
+            String rankTitle = featureLabel + RANK_COLUMN_TITLE_SUFFIX_MSG;
+            builder.addColumn(rankColumnId).withTitle(rankTitle).withDataType(DataTypeCode.INTEGER);
             rankColumnIds.add(rankColumnId);
         }
-
 
         for (MaterialFeatureVectorSummary summary : fvSummary.getMaterialsSummary())
         {
@@ -109,7 +114,7 @@ class FeatureVectorSummaryProvider extends AbstractTableModelProvider<MaterialFe
         {
             builder.columnGroup(MATERIAL_PROPS_GROUP).addProperties(material.getProperties());
         }
-        builder.column(DETAILS).addString("Show details");
+        builder.column(DETAILS).addString(SHOW_DETAILS_MSG);
 
         float[] featureSummaries = summary.getFeatureVectorSummary();
         int[] ranksValues = summary.getFeatureVectorRanks();
