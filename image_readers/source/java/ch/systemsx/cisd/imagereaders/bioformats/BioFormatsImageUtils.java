@@ -33,6 +33,7 @@ import java.util.UUID;
 import loci.common.IRandomAccess;
 import loci.common.Location;
 import loci.formats.FormatException;
+import loci.formats.IFormatHandler;
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 import loci.formats.gui.BufferedImageReader;
@@ -126,7 +127,7 @@ final class BioFormatsImageUtils
     static BufferedImage readImage(IFormatReader reader,
             IRandomAccess handle, int page) throws IOExceptionUnchecked, IllegalArgumentException
     {
-        String handleId = generateHandleId();
+        String handleId = generateHandleId(reader);
         // Add to static map.
         Location.mapFile(handleId, handle);
         try
@@ -159,7 +160,7 @@ final class BioFormatsImageUtils
     public static Map<String, Object> readMetadata(IFormatReader reader, IRandomAccess handle)
     {
         // Add to static map.
-        String handleId = generateHandleId();
+        String handleId = generateHandleId(reader);
         Location.mapFile(handleId, handle);
 
         try
@@ -200,7 +201,7 @@ final class BioFormatsImageUtils
             IllegalArgumentException
     {
         // Add to static map.
-        String handleId = generateHandleId();
+        String handleId = generateHandleId(reader);
         Location.mapFile(handleId, handle);
         try
         {
@@ -229,9 +230,9 @@ final class BioFormatsImageUtils
         }
     }
 
-    public static String generateHandleId()
+    public static String generateHandleId(IFormatHandler formatHandler)
     {
-        return UUID.randomUUID().toString();
+        return UUID.randomUUID().toString() + "." + formatHandler.getSuffixes()[0];
     }
 
     private static void nullSafeAddAll(HashMap<String, Object> accumulator,

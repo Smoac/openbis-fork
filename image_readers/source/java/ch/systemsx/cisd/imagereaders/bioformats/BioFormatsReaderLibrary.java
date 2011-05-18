@@ -35,7 +35,7 @@ public class BioFormatsReaderLibrary implements IImageReaderLibrary
 {
 
     private static final List<String> TIFF_FORMAT_SUBSTRINGS = Arrays.asList("tiff",
-            "metamorph stk", "tagged image file format");
+            "metamorph stk", "tagged image file format", "deltavision", "leica", "nikon", "zeiss");
 
     public String getName()
     {
