@@ -352,6 +352,9 @@ public class DataSetInformation implements Serializable
 
     public boolean isContainerDataSet()
     {
+        // This doesn't work because the dataSetType is not always retrieved from openBIS.
+        // return (dataSetType == null) ? (false == containedDataSetCodes.isEmpty()) : dataSetType
+        // .isContainerType();
         return false == containedDataSetCodes.isEmpty();
     }
 

@@ -454,7 +454,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         component.setOrderInContainer(null);
     }
 
-    @OneToMany(mappedBy = "containerInternal", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "containerInternal", fetch = FetchType.LAZY, cascade=CascadeType.PERSIST)
     @OrderBy(clause = ColumnNames.DATA_CONTAINER_ORDER_COLUMN)
     public List<DataPE> getContainedDataSets()
     {

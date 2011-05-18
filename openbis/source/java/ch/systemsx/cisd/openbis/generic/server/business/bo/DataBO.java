@@ -72,6 +72,8 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
 {
     private DataPE data;
 
+    private DataStorePE dataStore;
+
     public DataBO(IDAOFactory daoFactory, Session session)
     {
         super(daoFactory, session);
@@ -159,14 +161,13 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
     {
         assert sample != null : "Undefined sample.";
 
-        final DataStorePE dataStore;
         boolean isContainer = newData instanceof NewContainerDataSet;
         if (isContainer)
         {
-            dataStore = define((NewContainerDataSet) newData, sourceType);
+            define((NewContainerDataSet) newData, sourceType);
         } else
         {
-            dataStore = define(newData, sourceType);
+            define(newData, sourceType);
         }
 
         final ExperimentPE experiment = sample.getExperiment();
@@ -174,64 +175,53 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         data.setSample(sample);
         data.setExperiment(experiment);
 
-        setParentDataSets(dataStore, experiment, newData);
-        if (isContainer)
-        {
-            setContainedDataSets(dataStore, experiment, (NewContainerDataSet) newData);
-        }
+        setParentDataSets(experiment, newData);
     }
 
     public void define(NewExternalData newData, ExperimentPE experiment, SourceType sourceType)
     {
         assert experiment != null : "Undefined experiment.";
 
-        final DataStorePE dataStore;
         boolean isContainer = newData instanceof NewContainerDataSet;
         if (isContainer)
         {
-            dataStore = define((NewContainerDataSet) newData, sourceType);
+            define((NewContainerDataSet) newData, sourceType);
         } else
         {
-            dataStore = define(newData, sourceType);
+            define(newData, sourceType);
         }
 
         data.setExperiment(experiment);
-        setParentDataSets(dataStore, experiment, newData);
-        if (isContainer)
-        {
-            setContainedDataSets(dataStore, experiment, (NewContainerDataSet) newData);
-        }
+        setParentDataSets(experiment, newData);
     }
 
-    private void setParentDataSets(DataStorePE dataStore, ExperimentPE experiment,
-            NewExternalData newData)
+    private void setParentDataSets(ExperimentPE experiment, NewExternalData newData)
     {
         final List<String> parentDataSetCodes = newData.getParentDataSetCodes();
         if (parentDataSetCodes != null)
         {
             for (String parentCode : parentDataSetCodes)
             {
-                final DataPE parent = getOrCreateData(parentCode, dataStore, experiment);
+                final DataPE parent = getOrCreateData(parentCode, experiment);
                 data.addParent(parent);
             }
         }
     }
 
-    private void setContainedDataSets(DataStorePE dataStore, ExperimentPE experiment,
-            NewContainerDataSet newData)
+    public void setContainedDataSets(ExperimentPE experiment, NewContainerDataSet newData)
     {
         final List<String> containedDataSetCodes = newData.getContainedDataSetCodes();
         if (containedDataSetCodes != null)
         {
-            for (String parentCode : containedDataSetCodes)
+            for (String containedCode : containedDataSetCodes)
             {
-                final DataPE parent = getOrCreateData(parentCode, dataStore, experiment);
-                data.addParent(parent);
+                final DataPE contained = getOrCreateData(containedCode, experiment);
+                data.addComponent(contained);
             }
         }
     }
 
-    private DataStorePE define(NewExternalData newData, SourceType sourceType)
+    private void define(NewExternalData newData, SourceType sourceType)
     {
         assert newData != null : "Undefined data.";
         final DataSetType dataSetType = newData.getDataSetType();
@@ -261,19 +251,16 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         externalData.setLocatorType(getLocatorTypeDAO().tryToFindLocatorTypeByCode(
                 locatorType.getCode()));
         externalData.setRegistrator(tryToGetRegistrator(newData));
-        DataStorePE dataStore =
-                getDataStoreDAO().tryToFindDataStoreByCode(newData.getDataStoreCode());
+        dataStore = getDataStoreDAO().tryToFindDataStoreByCode(newData.getDataStoreCode());
         externalData.setDataStore(dataStore);
         defineDataSetProperties(externalData,
                 convertToDataSetProperties(newData.getDataSetProperties()));
         externalData.setDerived(sourceType == SourceType.DERIVED);
 
         data = externalData;
-
-        return dataStore;
     }
 
-    private DataStorePE define(NewContainerDataSet newData, SourceType sourceType)
+    private void define(NewContainerDataSet newData, SourceType sourceType)
     {
         assert newData != null : "Undefined data.";
         final DataSetType dataSetType = newData.getDataSetType();
@@ -287,15 +274,12 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         dataPE.setCode(newData.getCode());
         dataPE.setDataSetType(getDataSetType(dataSetType));
         dataPE.setRegistrator(tryToGetRegistrator(newData));
-        DataStorePE dataStore =
-                getDataStoreDAO().tryToFindDataStoreByCode(newData.getDataStoreCode());
+        dataStore = getDataStoreDAO().tryToFindDataStoreByCode(newData.getDataStoreCode());
         dataPE.setDataStore(dataStore);
         defineDataSetProperties(dataPE, convertToDataSetProperties(newData.getDataSetProperties()));
         dataPE.setDerived(sourceType == SourceType.DERIVED);
 
         data = dataPE;
-
-        return dataStore;
     }
 
     private PersonPE tryToGetRegistrator(NewExternalData newData)
@@ -363,8 +347,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         return fileFormatTypeOrNull;
     }
 
-    private final DataPE getOrCreateData(final String dataSetCode, DataStorePE dataStore,
-            ExperimentPE experiment)
+    private final DataPE getOrCreateData(final String dataSetCode, ExperimentPE experiment)
     {
         assert dataSetCode != null : "Unspecified parent data set code.";
 

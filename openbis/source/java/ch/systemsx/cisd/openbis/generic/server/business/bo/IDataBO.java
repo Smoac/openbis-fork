@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -121,5 +122,10 @@ public interface IDataBO extends IEntityBusinessObject
      * Changes the value of a managed property.
      */
     public void updateManagedProperty(IManagedProperty managedProperty);
+
+    /**
+     * Set the contained data sets. Taken out of the define method to prevent hibernate problems.
+     */
+    public void setContainedDataSets(ExperimentPE experiment, NewContainerDataSet newData);
 
 }

@@ -104,6 +104,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
@@ -1271,6 +1272,13 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
                 externalData.isMeasured() ? SourceType.MEASUREMENT : SourceType.DERIVED;
         dataBO.define(externalData, cellPlate, sourceType);
         dataBO.save();
+
+        boolean isContainer = externalData instanceof NewContainerDataSet;
+        if (isContainer)
+        {
+            dataBO.setContainedDataSets(experiment, (NewContainerDataSet) externalData);
+        }
+
         final String dataSetCode = dataBO.getData().getCode();
         assert dataSetCode != null : "Data set code not specified.";
 
@@ -1291,6 +1299,13 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
                 externalData.isMeasured() ? SourceType.MEASUREMENT : SourceType.DERIVED;
         externalDataBO.define(externalData, experiment, sourceType);
         externalDataBO.save();
+
+        boolean isContainer = externalData instanceof NewContainerDataSet;
+        if (isContainer)
+        {
+            externalDataBO.setContainedDataSets(experiment, (NewContainerDataSet) externalData);
+        }
+
         final String dataSetCode = externalDataBO.getData().getCode();
         assert dataSetCode != null : "Data set code not specified.";
 
