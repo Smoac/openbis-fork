@@ -35,7 +35,7 @@ import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
 import ch.systemsx.cisd.common.io.IHierarchicalContentNodeFilter;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.ExtendedProperties;
+import ch.systemsx.cisd.common.utilities.Template;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpConstants;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpServerConfig;
@@ -72,8 +72,6 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
     private static final String DISAMBIGUATION_VARNAME = "disambiguation";
 
     private static final String DATA_SET_DATE_FORMAT = "yyyy-MM-dd-HH-mm";
-
-    private static final String TEMPLATE = "template";
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             TemplateBasedDataSetResourceResolver.class);
@@ -405,19 +403,18 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
 
     private String evaluateTemplate(ExternalData dataSet, String fileName, String disambiguation)
     {
-        ExtendedProperties properties = new ExtendedProperties();
-        properties.put(DATA_SET_CODE_VARNAME, dataSet.getCode());
-        properties.put(DATA_SET_TYPE_VARNAME, dataSet.getDataSetType().getCode());
+        Template eval = new Template(template);
+        eval.attemptToBind(DATA_SET_CODE_VARNAME, dataSet.getCode());
+        eval.attemptToBind(DATA_SET_TYPE_VARNAME, dataSet.getDataSetType().getCode());
         String dataSetDate = extractDateValue(dataSet.getRegistrationDate());
-        properties.put(DATA_SET_DATE_VARNAME, dataSetDate);
+        eval.attemptToBind(DATA_SET_DATE_VARNAME, dataSetDate);
         if (fileName != null)
         {
-            properties.put(FILE_NAME_VARNAME, fileName);
+            eval.attemptToBind(FILE_NAME_VARNAME, fileName);
         }
-        properties.put(DISAMBIGUATION_VARNAME, disambiguation);
+        eval.attemptToBind(DISAMBIGUATION_VARNAME, disambiguation);
 
-        properties.put(TEMPLATE, template);
-        return properties.getProperty(TEMPLATE);
+        return eval.createText();
     }
 
     /**
@@ -433,13 +430,8 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
      */
     private boolean isVariablePresentInTemplate(String variableName)
     {
-        ExtendedProperties properties = new ExtendedProperties();
-        // try to replace the variable with something different
-        properties.put(variableName, variableName + variableName);
-
-        properties.put(TEMPLATE, template);
-        String evaluatedTemplate = properties.getProperty(TEMPLATE);
-        return false == evaluatedTemplate.equals(template);
+        Template parsedTemplate = new Template(template);
+        return parsedTemplate.getPlaceholderNames().contains(variableName);
     }
 
     private IHierarchicalContentNodeFilter createFilter(final String fileFilterPattern)
