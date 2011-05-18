@@ -10,20 +10,19 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.Vi
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.MaterialReplicaFeatureSummaryViewer;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.MaterialReplicaSummaryViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
 
 /**
- * Locator resolver for plate metadata browser.
+ * Locator resolver for material replica summary view.
  * 
  * @author Kaloyan Enimanev
  */
-public class MaterialReplicaFeatureSummaryResolver extends AbstractViewLocatorResolver
+public class MaterialReplicaSummaryResolver extends AbstractViewLocatorResolver
 {
     private final IViewContext<IScreeningClientServiceAsync> viewContext;
 
-    public MaterialReplicaFeatureSummaryResolver(
-            IViewContext<IScreeningClientServiceAsync> viewContext)
+    public MaterialReplicaSummaryResolver(IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         super(ScreeningLinkExtractor.MATERIAL_REPLICA_SUMMARY_ACTION);
         this.viewContext = viewContext;
@@ -43,8 +42,7 @@ public class MaterialReplicaFeatureSummaryResolver extends AbstractViewLocatorRe
         MaterialIdentifier materialIdentifier =
                 new MaterialIdentifier(materialCode, materialTypeCode);
 
-        MaterialReplicaFeatureSummaryViewer.openTab(viewContext, experimentPermId,
-                materialIdentifier);
+        MaterialReplicaSummaryViewer.openTab(viewContext, experimentPermId, materialIdentifier);
 
     }
 }

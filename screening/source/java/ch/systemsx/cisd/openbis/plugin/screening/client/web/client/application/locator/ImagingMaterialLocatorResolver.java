@@ -49,11 +49,13 @@ public class ImagingMaterialLocatorResolver extends MaterialLocatorResolver
             Map<String, String> parameters)
     {
         String experimentIdentifierOrNull =
-                parameters.get(ScreeningLinkExtractor.MATERIAL_DETAIL_EXPERIMENT_IDENT_PARAMETER_KEY);
+                parameters
+                        .get(ScreeningLinkExtractor.MATERIAL_DETAIL_EXPERIMENT_IDENT_PARAMETER_KEY);
         if (experimentIdentifierOrNull == null)
         {
             String searchAllExp =
-                    parameters.get(ScreeningLinkExtractor.MATERIAL_DETAIL_SEARCH_ALL_EXPERIMENTS_PARAMETER_KEY);
+                    parameters
+                            .get(ScreeningLinkExtractor.MATERIAL_DETAIL_SEARCH_ALL_EXPERIMENTS_PARAMETER_KEY);
             if (StringUtils.isBlank(searchAllExp) == false
                     && searchAllExp.equalsIgnoreCase("false") == false)
             {
@@ -133,9 +135,7 @@ public class ImagingMaterialLocatorResolver extends MaterialLocatorResolver
                             protected void process(Experiment experiment)
                             {
                                 ExperimentSearchCriteria experimentCriteria =
-                                        ExperimentSearchCriteria.createExperiment(
-                                                experiment.getId(), experiment.getPermId(),
-                                                experiment.getIdentifier());
+                                        ExperimentSearchCriteria.createExperiment(experiment);
                                 openImagingMaterialViewer(material, experimentCriteria);
                             }
 

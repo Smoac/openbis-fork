@@ -125,7 +125,7 @@ abstract public class GenericMaterialViewer extends AbstractViewerWithVerticalSp
         final SectionsPanel container =
                 new SectionsPanel(viewContext.getCommonViewContext(), ID_PREFIX + material.getId());
         container.setDisplayID(DisplayTypeIDGenerator.GENERIC_MATERIAL_VIEWER, displayIdSuffix);
-        List<TabContent> additionalPanels = createAdditionalSectionPanels();
+        List<TabContent> additionalPanels = createAdditionalSectionPanels(material);
         for (TabContent panel : additionalPanels)
         {
             container.addSection(panel);
@@ -154,7 +154,7 @@ abstract public class GenericMaterialViewer extends AbstractViewerWithVerticalSp
      * To be subclassed. Creates additional panels of the viewer in the right side section besides
      * components, datasets and attachments
      */
-    protected List<TabContent> createAdditionalSectionPanels()
+    protected List<TabContent> createAdditionalSectionPanels(Material material)
     {
         return new ArrayList<TabContent>();
     }

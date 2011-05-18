@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IMo
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ExperimentFeatureVectorSummarySection;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ExperimentAnalysisSummarySection;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ExperimentWellMaterialsSection;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.WellSearchComponent;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator.GlobalWellSearchLocatorResolver;
@@ -113,7 +113,7 @@ public class ScreeningModule implements IModule
         {
             sections.add(WellSearchComponent.create(viewContext, entity));
             sections.add(new ExperimentWellMaterialsSection(viewContext, entity));
-            sections.add(new ExperimentFeatureVectorSummarySection(viewContext, entity));
+            sections.add(new ExperimentAnalysisSummarySection(viewContext, entity));
         }
         return sections;
     }

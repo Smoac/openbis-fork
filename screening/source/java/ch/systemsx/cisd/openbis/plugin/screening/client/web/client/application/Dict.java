@@ -64,6 +64,9 @@ public final class Dict extends ch.systemsx.cisd.openbis.generic.client.web.clie
 
     public static final String PLATE_LOCATIONS = "plate_locations";
 
+    public static final String REPLICA_SUMMARY_MATERIAL_SECTION_TITLE =
+            "REPLICA_SUMMARY_MATERIAL_SECTION_TITLE";
+
     public static final String EXPERIMENT_PLATE_MATERIAL_REVIEWER_SECTION =
             "EXPERIMENT_PLATE_MATERIAL_REVIEWER_SECTION";
 

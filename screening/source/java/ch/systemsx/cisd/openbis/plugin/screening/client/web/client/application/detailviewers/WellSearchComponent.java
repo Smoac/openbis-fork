@@ -33,8 +33,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCrit
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialSearchCriteria;
 
 /**
- * Allows to find wells were selected materials are contained. Used in experiment section panel or
- * as a standalone module.
+ * Allows to specify search criteria for materials contained in wells. Used in experiment section
+ * panel or as a standalone module.
  * 
  * @author Tomasz Pylak
  */
@@ -98,8 +98,7 @@ public class WellSearchComponent extends TabContent
         {
             return ExperimentSearchCriteria.createAllExperiments();
         }
-        return ExperimentSearchCriteria.createExperiment(experimentOrNull.getId(),
-                experimentOrNull.getPermId(), experimentOrNull.getIdentifier());
+        return ExperimentSearchCriteria.createExperiment(experimentOrNull);
     }
 
     public WellSearchComponent(IViewContext<IScreeningClientServiceAsync> screeningViewContext,

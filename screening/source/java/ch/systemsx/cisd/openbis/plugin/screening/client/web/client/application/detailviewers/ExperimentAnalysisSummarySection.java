@@ -13,14 +13,14 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.D
  * 
  * @author Kaloyan Enimanev
  */
-public class ExperimentFeatureVectorSummarySection extends DisposableTabContent
+public class ExperimentAnalysisSummarySection extends DisposableTabContent
 {
 
     private final IViewContext<IScreeningClientServiceAsync> screeningViewContext;
 
     private final IEntityInformationHolderWithIdentifier experiment;
 
-    public ExperimentFeatureVectorSummarySection(
+    public ExperimentAnalysisSummarySection(
             IViewContext<IScreeningClientServiceAsync> screeningViewContext,
             IEntityInformationHolderWithIdentifier experiment)
     {
@@ -34,7 +34,7 @@ public class ExperimentFeatureVectorSummarySection extends DisposableTabContent
     @Override
     protected IDisposableComponent createDisposableContent()
     {
-        return FeatureVectorSummaryGrid.create(screeningViewContext, experiment);
+        return ExperimentAnalysisSummaryGrid.create(screeningViewContext, experiment);
     }
 
 }

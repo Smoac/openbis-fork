@@ -50,8 +50,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.u
  * 
  * @author Kaloyan Enimanev
  */
-// TODO 2011-05-05, Tomasz Pylak: rename to ExperimentAnalysisSummaryViewer
-public class FeatureVectorSummaryViewer
+public class ExperimentAnalysisSummaryViewer
 {
 
     public static void openTab(
@@ -103,7 +102,7 @@ public class FeatureVectorSummaryViewer
                 public String getId()
                 {
                     return ScreeningModule.ID
-                            + ScreeningLinkExtractor.FEATURE_VECTOR_SUMMARY_ACTION
+                            + ScreeningLinkExtractor.EXPERIMENT_ANALYSIS_SUMMARY_ACTION
                             + experiment.getCode();
                 }
 
@@ -146,7 +145,7 @@ public class FeatureVectorSummaryViewer
         addHeader(panel, viewContext, experiment);
 
         final IDisposableComponent gridComponent =
-                FeatureVectorSummaryGrid.create(viewContext, experiment);
+                ExperimentAnalysisSummaryGrid.create(viewContext, experiment);
         panel.add(gridComponent.getComponent(), new BorderLayoutData(LayoutRegion.CENTER));
 
         return new IDisposableComponent()

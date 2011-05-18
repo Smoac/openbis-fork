@@ -8,10 +8,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorResolverRegistry;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientService;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator.FeatureVectorSummaryResolver;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator.ExperimentAnalysisSummaryResolver;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator.GlobalWellSearchLocatorResolver;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator.ImagingMaterialLocatorResolver;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator.MaterialReplicaFeatureSummaryResolver;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator.MaterialReplicaSummaryResolver;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator.PlateMetadataBrowserLocatorResolver;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator.WellSearchLocatorResolver;
 
@@ -50,8 +50,8 @@ public final class ScreeningViewContext extends
         handlerRegistry.registerHandler(new PlateMetadataBrowserLocatorResolver(this));
         handlerRegistry.registerHandler(new WellSearchLocatorResolver(this));
         handlerRegistry.registerHandler(new GlobalWellSearchLocatorResolver(this));
-        handlerRegistry.registerHandler(new FeatureVectorSummaryResolver(this));
-        handlerRegistry.registerHandler(new MaterialReplicaFeatureSummaryResolver(this));
+        handlerRegistry.registerHandler(new ExperimentAnalysisSummaryResolver(this));
+        handlerRegistry.registerHandler(new MaterialReplicaSummaryResolver(this));
     }
 
     public static ScreeningDisplaySettingsManager getTechnologySpecificDisplaySettingsManager(

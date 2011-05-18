@@ -9,7 +9,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.D
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
 
 /**
- * Experiment section panel which shows all materials in the experiment.
+ * Experiment section with {@link ExperimentWellMaterialBrowserGrid} which shows all materials in
+ * the experiment (a.k.a. Library Index).
  * 
  * @author Piotr Buczek
  */

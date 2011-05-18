@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.dto.ExperimentIdentifierSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
@@ -67,9 +68,9 @@ public class ScreeningLinkExtractor extends LinkExtractor
 
     public final static boolean WELL_SEARCH_SHOW_COMBINED_RESULTS_DEFAULT = true;
 
-    public final static String FEATURE_VECTOR_SUMMARY_ACTION = "FEATURE_VECTOR_SUMMARY";
+    public final static String EXPERIMENT_ANALYSIS_SUMMARY_ACTION = "FEATURE_VECTOR_SUMMARY";
 
-    public final static String FEATURE_VECTOR_SUMMARY_EXPERIMENT_PERMID_PARAMETER_KEY =
+    public final static String EXPERIMENT_ANALYSIS_SUMMARY_EXPERIMENT_PERMID_PARAMETER_KEY =
             "experimentPermId";
 
     public final static String MATERIAL_REPLICA_SUMMARY_ACTION = "MATERIAL_REPLICA_SUMMARY";
@@ -91,8 +92,9 @@ public class ScreeningLinkExtractor extends LinkExtractor
     public static final String createExperimentAnalysisSummaryBrowserLink(String experimentPermId)
     {
         URLMethodWithParameters url = new URLMethodWithParameters("");
-        url.addParameter(BasicConstant.LOCATOR_ACTION_PARAMETER, FEATURE_VECTOR_SUMMARY_ACTION);
-        url.addParameter(FEATURE_VECTOR_SUMMARY_EXPERIMENT_PERMID_PARAMETER_KEY, experimentPermId);
+        url.addParameter(BasicConstant.LOCATOR_ACTION_PARAMETER, EXPERIMENT_ANALYSIS_SUMMARY_ACTION);
+        url.addParameter(EXPERIMENT_ANALYSIS_SUMMARY_EXPERIMENT_PERMID_PARAMETER_KEY,
+                experimentPermId);
         return tryPrint(url);
     }
 
@@ -126,7 +128,7 @@ public class ScreeningLinkExtractor extends LinkExtractor
             MaterialSearchCodesCriteria materialCodesCriteria, Boolean showCombinedResults)
     {
         ExperimentPermIdSearchCriteria experimentCriteria =
-                convertExperimentCriteria(experimentSearchCriteria);
+                convertToPermIdExperimentCriteria(experimentSearchCriteria);
         return createWellsSearchLink(experimentCriteria, materialCodesCriteria, showCombinedResults);
     }
 
@@ -151,7 +153,7 @@ public class ScreeningLinkExtractor extends LinkExtractor
         }
     }
 
-    private static ExperimentPermIdSearchCriteria convertExperimentCriteria(
+    private static ExperimentPermIdSearchCriteria convertToPermIdExperimentCriteria(
             ExperimentSearchCriteria experimentSearchCriteria)
     {
         SingleExperimentSearchCriteria expOrNull = experimentSearchCriteria.tryGetExperiment();
@@ -161,6 +163,19 @@ public class ScreeningLinkExtractor extends LinkExtractor
         } else
         {
             return new ExperimentPermIdSearchCriteria(expOrNull.getExperimentPermId());
+        }
+    }
+
+    private static ExperimentIdentifierSearchCriteria convertToIdentifierExperimentCriteria(
+            ExperimentSearchCriteria experimentSearchCriteria)
+    {
+        SingleExperimentSearchCriteria experiment = experimentSearchCriteria.tryGetExperiment();
+        if (experiment != null)
+        {
+            return new ExperimentIdentifierSearchCriteria(experiment.getExperimentIdentifier());
+        } else
+        {
+            return ExperimentIdentifierSearchCriteria.createSearchAll();
         }
     }
 
@@ -238,4 +253,13 @@ public class ScreeningLinkExtractor extends LinkExtractor
         }
         return url;
     }
+
+    public static String tryCreateMaterialDetailsLink(Material material,
+            ExperimentSearchCriteria experimentSearchCriteria)
+    {
+        ExperimentIdentifierSearchCriteria experimentCriteria =
+                convertToIdentifierExperimentCriteria(experimentSearchCriteria);
+        return tryCreateMaterialDetailsLink(material, experimentCriteria);
+    }
+
 }

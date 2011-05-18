@@ -24,16 +24,16 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.material.GenericMaterialViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.SingleExperimentSearchCriteria;
 
 /**
- * A viewer for a material which can be a content of the well.
+ * Material detail viewer in screening context.
  * 
  * @author Tomasz Pylak
  */
@@ -74,18 +74,42 @@ public class ImagingMaterialViewer extends GenericMaterialViewer
     }
 
     @Override
-    protected List<TabContent> createAdditionalSectionPanels()
+    protected List<TabContent> createAdditionalSectionPanels(Material material)
     {
 
         List<TabContent> sections = new ArrayList<TabContent>();
-        sections.add(new WellSearchMaterialSection(screeningViewContext, materialId,
-                experimentCriteriaOrNull));
+
+        WellSearchMaterialSection wellSearchSection =
+                new WellSearchMaterialSection(screeningViewContext, materialId,
+                        experimentCriteriaOrNull);
+        sections.add(wellSearchSection);
+
+        // TODO 2011-05-17, Tomasz Pylak: the section is visible only if experiment is initially
+        // selected. Allow to switch between "Material in one assay" and "Material in all assays"
+        // summaries. Extract experiment chooser from WellSearchGrid
+        String experimentPermId = tryGetExperimentPermId();
+        if (experimentPermId != null)
+        {
+            MaterialReplicaSummarySection replicaSummarySection =
+                    new MaterialReplicaSummarySection(screeningViewContext, material,
+                            experimentPermId);
+            sections.add(replicaSummarySection);
+        }
         return sections;
     }
 
-    public static HelpPageIdentifier getHelpPageIdentifier()
+    private String tryGetExperimentPermId()
     {
-        return HelpPageIdentifier.createSpecific("Well Content Material Viewer");
+        if (experimentCriteriaOrNull != null)
+        {
+            SingleExperimentSearchCriteria experimentCriteria =
+                    experimentCriteriaOrNull.tryGetExperiment();
+            if (experimentCriteria != null)
+            {
+                return experimentCriteria.getExperimentPermId();
+            }
+        }
+        return null;
     }
 
 }

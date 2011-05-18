@@ -5,21 +5,21 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.Ab
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.FeatureVectorSummaryViewer;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ExperimentAnalysisSummaryViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
 
 /**
- * Locator resolver for plate metadata browser.
+ * Locator resolver for experiment analysis summary view.
  * 
  * @author Kaloyan Enimanev
  */
-public class FeatureVectorSummaryResolver extends AbstractViewLocatorResolver
+public class ExperimentAnalysisSummaryResolver extends AbstractViewLocatorResolver
 {
     private final IViewContext<IScreeningClientServiceAsync> viewContext;
 
-    public FeatureVectorSummaryResolver(IViewContext<IScreeningClientServiceAsync> viewContext)
+    public ExperimentAnalysisSummaryResolver(IViewContext<IScreeningClientServiceAsync> viewContext)
     {
-        super(ScreeningLinkExtractor.FEATURE_VECTOR_SUMMARY_ACTION);
+        super(ScreeningLinkExtractor.EXPERIMENT_ANALYSIS_SUMMARY_ACTION);
         this.viewContext = viewContext;
     }
 
@@ -28,9 +28,9 @@ public class FeatureVectorSummaryResolver extends AbstractViewLocatorResolver
         String experimentPermId =
                 getMandatoryParameter(
                         locator,
-                        ScreeningLinkExtractor.FEATURE_VECTOR_SUMMARY_EXPERIMENT_PERMID_PARAMETER_KEY);
+                        ScreeningLinkExtractor.EXPERIMENT_ANALYSIS_SUMMARY_EXPERIMENT_PERMID_PARAMETER_KEY);
 
-        FeatureVectorSummaryViewer.openTab(viewContext, experimentPermId);
+        ExperimentAnalysisSummaryViewer.openTab(viewContext, experimentPermId);
 
     }
 }

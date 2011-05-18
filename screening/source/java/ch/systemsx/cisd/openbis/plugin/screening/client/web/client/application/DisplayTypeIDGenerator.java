@@ -35,6 +35,8 @@ public enum DisplayTypeIDGenerator implements IDisplayTypeIDGenerator
 
     PLATE_LOCATIONS_MATERIAL_SECTION("plate-locations-material-section"),
 
+    REPLICA_SUMMARY_MATERIAL_SECTION("replica-summary-material-section"),
+
     EXPERIMENT_PLATE_LOCATIONS_SECTION("plate-locations-experiment-section"),
 
     EXPERIMENT_WELL_MATERIALS_SECTION("experiment-well-materials-section"),

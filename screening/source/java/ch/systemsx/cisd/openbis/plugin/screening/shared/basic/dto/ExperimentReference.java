@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  * 
  * @author Tomasz Pylak
  */
-public class ExperimentReference implements ISerializable, IEntityInformationHolderWithPermId
+public class ExperimentReference implements ISerializable, IEntityInformationHolderWithIdentifier
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -80,7 +80,8 @@ public class ExperimentReference implements ISerializable, IEntityInformationHol
         return experimentCode;
     }
 
-    public String getExperimentIdentifier()
+    /** @return experiment identifier */
+    public String getIdentifier()
     {
         String SEP = "/";
         return SEP + spaceCode + SEP + projectCode + SEP + experimentCode;
@@ -104,6 +105,6 @@ public class ExperimentReference implements ISerializable, IEntityInformationHol
     @Override
     public String toString()
     {
-        return getExperimentIdentifier();
+        return getIdentifier();
     }
 }

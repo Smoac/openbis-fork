@@ -29,17 +29,18 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ID
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialFeatureVectorSummary;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.FeatureVectorSummaryGridColumnIDs;
 
 /**
@@ -47,7 +48,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.FeatureV
  * 
  * @author Kaloyan Enimanev
  */
-public class FeatureVectorSummaryGrid extends TypedTableGrid<MaterialFeatureVectorSummary>
+public class ExperimentAnalysisSummaryGrid extends TypedTableGrid<MaterialFeatureVectorSummary>
 {
     private static final String PREFIX = GenericConstants.ID_PREFIX
             + "experiment-feature-vector-summary";
@@ -56,54 +57,57 @@ public class FeatureVectorSummaryGrid extends TypedTableGrid<MaterialFeatureVect
 
     public static final String GRID_ID = PREFIX + TypedTableGrid.GRID_POSTFIX;
 
-    private final IViewContext<IScreeningClientServiceAsync> specificViewContext;
+    private final IViewContext<IScreeningClientServiceAsync> screeningViewContext;
 
-    private final IEntityInformationHolderWithPermId experiment;
-
+    private final IEntityInformationHolderWithIdentifier experiment;
 
     public static IDisposableComponent create(
             IViewContext<IScreeningClientServiceAsync> viewContext,
-            IEntityInformationHolderWithPermId experiment)
+            IEntityInformationHolderWithIdentifier experiment)
     {
-        return new FeatureVectorSummaryGrid(viewContext, experiment).asDisposableWithoutToolbar();
+        return new ExperimentAnalysisSummaryGrid(viewContext, experiment)
+                .asDisposableWithoutToolbar();
     }
-
 
     private ICellListenerAndLinkGenerator<MaterialFeatureVectorSummary> createMaterialReplicaSummaryLinkGenerator()
     {
         return new ICellListenerAndLinkGenerator<MaterialFeatureVectorSummary>()
+            {
+
+                public void handle(TableModelRowWithObject<MaterialFeatureVectorSummary> rowItem,
+                        boolean specialKeyPressed)
                 {
+                    Material material = rowItem.getObjectOrNull().getMaterial();
+                    openMaterialDetailViewer(material);
+                }
 
-                    public void handle(
-                            TableModelRowWithObject<MaterialFeatureVectorSummary> rowItem,
-                            boolean specialKeyPressed)
-                    {
-                        Material material = rowItem.getObjectOrNull().getMaterial();
-                        MaterialIdentifier materialIdentifier =
-                                new MaterialIdentifier(material.getCode(), material
-                                        .getMaterialType().getCode());
-                        MaterialReplicaFeatureSummaryViewer.openTab(specificViewContext,
-                                experiment.getPermId(), materialIdentifier);
-                    }
-
-                    public String tryGetLink(MaterialFeatureVectorSummary entity,
-                            ISerializableComparable comparableValue)
-                    {
-                        Material material = entity.getMaterial();
-                        return ScreeningLinkExtractor
-                                .createMaterialReplicaSummaryLink(experiment
-                                        .getPermId(), material.getCode(), material
-                                        .getMaterialType().getCode());
-                    }
-                };
+                public String tryGetLink(MaterialFeatureVectorSummary entity,
+                        ISerializableComparable comparableValue)
+                {
+                    Material material = entity.getMaterial();
+                    return ScreeningLinkExtractor.tryCreateMaterialDetailsLink(material,
+                            getExperimentAsSearchCriteria());
+                }
+            };
     }
 
-    FeatureVectorSummaryGrid(IViewContext<IScreeningClientServiceAsync> viewContext,
-            final IEntityInformationHolderWithPermId experiment)
+    private void openMaterialDetailViewer(Material material)
+    {
+        ClientPluginFactory.openImagingMaterialViewer(material, getExperimentAsSearchCriteria(),
+                screeningViewContext);
+    }
+
+    private ExperimentSearchCriteria getExperimentAsSearchCriteria()
+    {
+        return ExperimentSearchCriteria.createExperiment(experiment);
+    }
+
+    ExperimentAnalysisSummaryGrid(IViewContext<IScreeningClientServiceAsync> viewContext,
+            final IEntityInformationHolderWithIdentifier experiment)
     {
         super(viewContext.getCommonViewContext(), BROWSER_ID, true,
                 DisplayTypeIDGenerator.EXPERIMENT_FEATURE_VECTOR_SUMMARY_SECTION);
-        this.specificViewContext = viewContext;
+        this.screeningViewContext = viewContext;
         this.experiment = experiment;
 
         ICellListenerAndLinkGenerator<MaterialFeatureVectorSummary> linkGenerator =
@@ -120,7 +124,7 @@ public class FeatureVectorSummaryGrid extends TypedTableGrid<MaterialFeatureVect
             DefaultResultSetConfig<String, TableModelRowWithObject<MaterialFeatureVectorSummary>> resultSetConfig,
             AsyncCallback<TypedTableResultSet<MaterialFeatureVectorSummary>> callback)
     {
-        specificViewContext.getService().listExperimentFeatureVectorSummary(resultSetConfig,
+        screeningViewContext.getService().listExperimentFeatureVectorSummary(resultSetConfig,
                 new TechId(experiment), callback);
 
     }
@@ -130,8 +134,8 @@ public class FeatureVectorSummaryGrid extends TypedTableGrid<MaterialFeatureVect
             TableExportCriteria<TableModelRowWithObject<MaterialFeatureVectorSummary>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
-        specificViewContext.getService()
-                .prepareExportFeatureVectorSummary(exportCriteria, callback);
+        screeningViewContext.getService().prepareExportFeatureVectorSummary(exportCriteria,
+                callback);
     }
 
     @Override

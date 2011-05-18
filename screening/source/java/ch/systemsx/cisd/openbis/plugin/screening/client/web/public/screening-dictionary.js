@@ -66,6 +66,7 @@ separator: "Separator",
 // Gene Viewer
 //
 plate_locations: "Plate Locations",
+REPLICA_SUMMARY_MATERIAL_SECTION_TITLE: "Assay Summary",
 
 //
 // Plate Material Reviewer 

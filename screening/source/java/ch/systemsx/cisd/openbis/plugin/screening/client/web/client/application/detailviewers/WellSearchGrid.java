@@ -140,8 +140,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
                         protected void process(Experiment experiment)
                         {
                             ExperimentSearchCriteria experimentCriteria =
-                                    ExperimentSearchCriteria.createExperiment(experiment.getId(),
-                                            experiment.getPermId(), experiment.getIdentifier());
+                                    ExperimentSearchCriteria.createExperiment(experiment);
                             WellSearchGrid.openTab(screeningViewContext, experimentCriteria,
                                     materialSearchCriteria, showCombinedResults);
                         }
@@ -363,7 +362,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
 
     private static String tryCreateMaterialDetailsLink(WellContent wellContent, Material material)
     {
-        String experimentIdentifier = wellContent.getExperiment().getExperimentIdentifier();
+        String experimentIdentifier = wellContent.getExperiment().getIdentifier();
         return ScreeningLinkExtractor.tryCreateMaterialDetailsLink(material, experimentIdentifier);
     }
 
@@ -371,8 +370,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
     {
         ExperimentReference experiment = wellContent.getExperiment();
         ExperimentSearchCriteria experimentCriteria =
-                ExperimentSearchCriteria.createExperiment(experiment.getId(),
-                        experiment.getPermId(), experiment.getExperimentIdentifier());
+                ExperimentSearchCriteria.createExperiment(experiment);
 
         ClientPluginFactory.openImagingMaterialViewer(material, experimentCriteria, viewContext);
     }

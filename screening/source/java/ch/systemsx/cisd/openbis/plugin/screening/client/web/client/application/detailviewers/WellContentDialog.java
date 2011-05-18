@@ -222,7 +222,7 @@ public class WellContentDialog extends Dialog
             ExperimentReference experimentReference)
     {
         return new SingleExperimentSearchCriteria(experimentReference.getId(),
-                experimentReference.getPermId(), experimentReference.getExperimentIdentifier());
+                experimentReference.getPermId(), experimentReference.getIdentifier());
     }
 
     private static String getSessionId(IViewContext<?> viewContext)

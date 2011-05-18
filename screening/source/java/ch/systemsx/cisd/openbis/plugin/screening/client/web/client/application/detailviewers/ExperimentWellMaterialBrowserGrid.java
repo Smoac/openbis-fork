@@ -108,8 +108,7 @@ public class ExperimentWellMaterialBrowserGrid extends MaterialBrowserGrid
         if (editMode == false)
         {
             ExperimentSearchCriteria experimentCriteria =
-                    ExperimentSearchCriteria.createExperiment(experiment.getId(),
-                            experiment.getPermId(), experiment.getIdentifier());
+                    ExperimentSearchCriteria.createExperiment(experiment);
             ClientPluginFactory.openImagingMaterialViewer(material, experimentCriteria,
                     screeningViewContext);
         } else

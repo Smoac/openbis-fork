@@ -49,18 +49,21 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ImageSampleViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ImagingMaterialViewer;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.MaterialReplicaSummaryViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.MicroscopyDatasetViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateDatasetViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateSampleViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.sample.LibrarySampleBatchRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.SingleExperimentSearchCriteria;
 
 /**
  * {@link IClientPluginFactory} implementation for <i>screening</i> plugin.
@@ -172,8 +175,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
     }
 
     /**
-     * opens material viewer showing wells in which the material is contained, with a selected
-     * experiment
+     * Opens material detail viewer. Shows wells in which the material is contained, with a selected
+     * experiment. In embedded mode only the content of the replica summary tab is presented.
      * 
      * @param experimentCriteriaOrNull note that null does NOT mean searching in all experiments,
      *            but that single experiment should be specified by the user.
@@ -183,10 +186,42 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
             final ExperimentSearchCriteria experimentCriteriaOrNull,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
-        AbstractTabItemFactory tab =
-                createImagingMaterialViewerTabFactory(material, experimentCriteriaOrNull,
-                        viewContext);
-        DispatcherHelper.dispatchNaviEvent(tab);
+        String experimentPermId = tryGetExperimentPermId(experimentCriteriaOrNull);
+        if (viewContext.getModel().isEmbeddedMode() && experimentPermId != null)
+        {
+            // TODO 2011-05-17, Tomasz Pylak: it should be possible to open this veiw
+            // for all experiments as well
+            MaterialIdentifier materialIdentifier = asMaterialIdentifier(material);
+            MaterialReplicaSummaryViewer.openTab(viewContext, experimentPermId, materialIdentifier);
+        } else
+        {
+            AbstractTabItemFactory tab =
+                    createImagingMaterialViewerTabFactory(material, experimentCriteriaOrNull,
+                            viewContext);
+            DispatcherHelper.dispatchNaviEvent(tab);
+        }
+    }
+
+    private static String tryGetExperimentPermId(ExperimentSearchCriteria criteriaOrNull)
+    {
+        if (criteriaOrNull == null)
+        {
+            return null;
+        }
+        SingleExperimentSearchCriteria singleExperiment = criteriaOrNull.tryGetExperiment();
+        if (singleExperiment != null)
+        {
+            return singleExperiment.getExperimentPermId();
+        } else
+        {
+            return null;
+        }
+    }
+
+    private static MaterialIdentifier asMaterialIdentifier(
+            IEntityInformationHolderWithPermId material)
+    {
+        return new MaterialIdentifier(material.getCode(), material.getEntityType().getCode());
     }
 
     private static final AbstractTabItemFactory createImagingMaterialViewerTabFactory(
@@ -215,7 +250,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                 @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
-                    return ImagingMaterialViewer.getHelpPageIdentifier();
+                    return HelpPageIdentifier.createSpecific("Well Content Material Viewer");
                 }
 
                 @Override

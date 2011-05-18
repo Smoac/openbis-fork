@@ -26,6 +26,7 @@ import java.util.Set;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -41,23 +42,14 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplayTypeIDGenerator;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningModule;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelWidgetWithListener.ISimpleChanneledViewerFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
@@ -66,12 +58,14 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReplicaImage;
 
 /**
- * A viewer that comprises several UI elements to produce a holistic UI for material replica feature
- * summaries.
+ * Component which for a specified material and experiment presents 1. feature vectors (detailed and
+ * aggregated across all replicas of one assay) 2. images grouped by biological and technical
+ * replicates.
  * 
  * @author Kaloyan Enimanev
+ * @author Tomasz Pylak
  */
-public class MaterialReplicaFeatureSummaryViewer
+public class MaterialReplicaSummaryComponent
 {
     private static final String LOADING_IMAGES_DICT_MSG = "Loading images...";
 
@@ -83,127 +77,20 @@ public class MaterialReplicaFeatureSummaryViewer
 
     private static final int ONE_IMAGE_SIZE_FACTOR_PX = 60;
 
-    public static void openTab(IViewContext<IScreeningClientServiceAsync> screeningViewContext,
-            String experimentPermId, MaterialIdentifier materialIdentifier)
+    public static IDisposableComponent createViewer(
+            IViewContext<IScreeningClientServiceAsync> screeningViewContext,
+            IEntityInformationHolderWithPermId experiment, Material material)
     {
-        MaterialReplicaFeatureSummaryViewer viewer =
-                new MaterialReplicaFeatureSummaryViewer(screeningViewContext);
-        screeningViewContext.getCommonService().getEntityInformationHolder(EntityKind.EXPERIMENT,
-                experimentPermId, viewer.createExperimentFoundCallback(materialIdentifier));
+        return new MaterialReplicaSummaryComponent(screeningViewContext).createViewer(experiment,
+                material);
     }
 
     private final IViewContext<IScreeningClientServiceAsync> screeningViewContext;
 
-    private MaterialReplicaFeatureSummaryViewer(
+    private MaterialReplicaSummaryComponent(
             IViewContext<IScreeningClientServiceAsync> screeningViewContext)
     {
         this.screeningViewContext = screeningViewContext;
-    }
-
-    private ExperimentFoundCallback createExperimentFoundCallback(
-            MaterialIdentifier materialIdentifier)
-    {
-        return new ExperimentFoundCallback(materialIdentifier);
-    }
-
-    private class ExperimentFoundCallback extends
-            AbstractAsyncCallback<IEntityInformationHolderWithPermId>
-    {
-
-        private final MaterialIdentifier materialIdentifier;
-
-        ExperimentFoundCallback(MaterialIdentifier materialIdentifier)
-        {
-            super(screeningViewContext);
-            this.materialIdentifier = materialIdentifier;
-        }
-
-        @Override
-        protected void process(IEntityInformationHolderWithPermId experiment)
-        {
-            screeningViewContext.getCommonService().getExperimentInfo(new TechId(experiment),
-                    new AbstractAsyncCallback<Experiment>(screeningViewContext)
-                        {
-                            @Override
-                            protected void process(Experiment result)
-                            {
-                                viewContext.getCommonService().getMaterialInformationHolder(
-                                        materialIdentifier, new MaterialFoundCallback(result));
-                            }
-                        });
-        }
-    }
-
-    private class MaterialFoundCallback extends
-            AbstractAsyncCallback<IEntityInformationHolderWithPermId>
-    {
-
-        private final Experiment experiment;
-
-        MaterialFoundCallback(Experiment experiment)
-        {
-            super(screeningViewContext);
-            this.experiment = experiment;
-        }
-
-        @Override
-        protected void process(IEntityInformationHolderWithPermId material)
-        {
-            screeningViewContext.getService().getMaterialInfo(new TechId(material),
-                    new AbstractAsyncCallback<Material>(screeningViewContext)
-                        {
-                            @Override
-                            protected void process(Material result)
-                            {
-                                AbstractTabItemFactory factory =
-                                        createTabFactory(experiment, result);
-                                DispatcherHelper.dispatchNaviEvent(factory);
-                            }
-                        });
-        }
-    }
-
-    private AbstractTabItemFactory createTabFactory(final Experiment experiment,
-            final Material material)
-    {
-        return new AbstractTabItemFactory()
-            {
-
-                @Override
-                public String getId()
-                {
-                    return ScreeningModule.ID
-                            + ScreeningLinkExtractor.MATERIAL_REPLICA_SUMMARY_ACTION
-                            + experiment.getCode() + material.getPermId();
-                }
-
-                @Override
-                public ITabItem create()
-                {
-                    IDisposableComponent tabComponent = createViewer(experiment, material);
-                    return DefaultTabItem.create(getTabTitle(), tabComponent, screeningViewContext);
-                }
-
-                @Override
-                public String tryGetLink()
-                {
-                    return ScreeningLinkExtractor.createMaterialReplicaSummaryLink(experiment
-                            .getPermId(), material.getCode(), material.getEntityType().getCode());
-                }
-
-                @Override
-                public String getTabTitle()
-                {
-                    return getMaterialName(material) + " in " + experiment.getCode() + " Summary";
-                }
-
-                @Override
-                public HelpPageIdentifier getHelpPageIdentifier()
-                {
-                    return null;
-                }
-
-            };
     }
 
     private class ImagesFoundCallback extends AbstractAsyncCallback<List<WellReplicaImage>>
@@ -220,7 +107,9 @@ public class MaterialReplicaFeatureSummaryViewer
         protected void process(List<WellReplicaImage> images)
         {
             imagesPanel.removeAll();
-            imagesPanel.add(createImagePanel(images));
+            imagesPanel.setLayout(new RowLayout());
+            imagesPanel.add(createImagePanel(images), new RowData(-1, -1,
+                    new Margins(10, 0, 10, 10)));
             imagesPanel.layout();
         }
     }
@@ -237,7 +126,6 @@ public class MaterialReplicaFeatureSummaryViewer
         ChannelChooserPanel channelChooser = new ChannelChooserPanel(defaultChannelState);
         LayoutContainer panel = new LayoutContainer();
         panel.setLayout(new RowLayout());
-        panel.add(new Html("<br>"), new RowData(1, -1));
         panel.add(channelChooser);
 
         Map<String, List<WellReplicaImage>> labelToReplicasMap = createSortedImageMap(images);
@@ -250,20 +138,7 @@ public class MaterialReplicaFeatureSummaryViewer
             labelToReplicasMap.remove(orphanGroupKey);
         }
         panel.add(createBiologicalReplicatesImagesPanel(labelToReplicasMap, channelChooser));
-        ensureAllImagesVisible(panel);
         return panel;
-    }
-
-    // WORKAROUND: in normal mode the height of menu and tab is not taken into account,
-    // so we add empty space to make
-    private void ensureAllImagesVisible(LayoutContainer panel)
-    {
-        if (screeningViewContext.isSimpleOrEmbeddedMode() == false)
-        {
-            Text box = new Text();
-            box.setHeight(100);
-            panel.add(box);
-        }
     }
 
     private Widget createOrphanTechnicalReplicatesPanel(
@@ -418,7 +293,8 @@ public class MaterialReplicaFeatureSummaryViewer
         return widgetWithListener.asWidget();
     }
 
-    private IDisposableComponent createViewer(Experiment experiment, Material material)
+    private IDisposableComponent createViewer(IEntityInformationHolderWithPermId experiment,
+            Material material)
     {
         final LayoutContainer panel = new Viewport();
         panel.setLayout(new RowLayout(Orientation.VERTICAL));
@@ -427,17 +303,19 @@ public class MaterialReplicaFeatureSummaryViewer
         Widget materialInfo = createMaterialInfo(screeningViewContext, experiment, material);
         panel.add(materialInfo, new RowData(-1, -1, PropertiesUtil.createHeaderInfoMargin()));
 
+        TechId materialTechId = new TechId(material);
+        TechId experimentTechId = new TechId(experiment);
         final IDisposableComponent gridComponent =
-                MaterialReplicaFeatureSummaryGrid.create(screeningViewContext, new TechId(
-                        experiment), new TechId(material));
+                MaterialReplicaFeatureSummaryGrid.create(screeningViewContext, experimentTechId,
+                        materialTechId);
         // NOTE: if the width is 100% then the vertical scrollbar of the grid is not visible
         panel.add(gridComponent.getComponent(), new RowData(0.97, 400));
 
         LayoutContainer imagesPanel = new LayoutContainer();
         imagesPanel.add(new Text(LOADING_IMAGES_DICT_MSG));
         panel.add(imagesPanel);
-        screeningViewContext.getService().listWellImages(new TechId(material.getId()),
-                new TechId(experiment.getId()), new ImagesFoundCallback(imagesPanel));
+        screeningViewContext.getService().listWellImages(materialTechId, experimentTechId,
+                new ImagesFoundCallback(imagesPanel));
 
         return new IDisposableComponent()
             {
@@ -465,7 +343,7 @@ public class MaterialReplicaFeatureSummaryViewer
 
     private static Widget createMaterialInfo(
             final IViewContext<IScreeningClientServiceAsync> viewContext,
-            final Experiment experiment, final Material material)
+            final IEntityInformationHolderWithPermId experiment, final Material material)
     {
         LayoutContainer panel = new LayoutContainer();
         panel.setLayout(new RowLayout());
@@ -481,7 +359,7 @@ public class MaterialReplicaFeatureSummaryViewer
 
     private static Widget createHeaderWithLinks(
             final IViewContext<IScreeningClientServiceAsync> viewContext,
-            final Experiment experiment, final Material material)
+            final IEntityInformationHolderWithPermId experiment, final Material material)
     {
         Widget headingWidget = createHeaderTitle(experiment, material);
         Text emptyBox = new Text();
@@ -496,7 +374,8 @@ public class MaterialReplicaFeatureSummaryViewer
         return headerPanel;
     }
 
-    private static Html createHeaderTitle(final Experiment experiment, final Material material)
+    private static Html createHeaderTitle(final IEntityInformationHolderWithPermId experiment,
+            final Material material)
     {
         String headingText =
                 getMaterialType(material) + " " + getMaterialName(material) + " in assay "
@@ -517,7 +396,8 @@ public class MaterialReplicaFeatureSummaryViewer
         return ("" + text.charAt(0)).toUpperCase() + text.substring(1).toLowerCase();
     }
 
-    private static String getMaterialName(Material material)
+    /** @return the best short description of the material. */
+    public static String getMaterialName(Material material)
     {
         if (material.getEntityType().getCode()
                 .equalsIgnoreCase(ScreeningConstants.GENE_PLUGIN_TYPE_CODE))
@@ -534,20 +414,20 @@ public class MaterialReplicaFeatureSummaryViewer
 
     private static Widget createAssayAnalysisSummaryLink(
             final IViewContext<IScreeningClientServiceAsync> viewContext,
-            final Experiment experiment, final Material material)
+            final IEntityInformationHolderWithPermId experiment, final Material material)
     {
         // add link to feature vector summary for the experiment
         String linkUrl =
                 ScreeningLinkExtractor.createExperimentAnalysisSummaryBrowserLink(experiment
                         .getPermId());
-        String linkText = "Show assay " + experiment.getCode() + " summary";
+        String linkText = "Show assay " + experiment.getCode() + " analysis summary";
         Widget linkWidget = LinkRenderer.getLinkWidget(linkText, new ClickHandler()
             {
                 public void onClick(ClickEvent event)
                 {
                     // TODO KE: We bind ourselves with
                     // the implementation of the other view instead of relying on the browser
-                    FeatureVectorSummaryViewer.openTab(viewContext, experiment.getPermId());
+                    ExperimentAnalysisSummaryViewer.openTab(viewContext, experiment.getPermId());
                 }
             }, linkUrl);
         return linkWidget;
@@ -563,4 +443,5 @@ public class MaterialReplicaFeatureSummaryViewer
                 ScreeningConstants.GENE_SYMBOLS);
         return propertiesPanel;
     }
+
 }

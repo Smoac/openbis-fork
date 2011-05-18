@@ -22,6 +22,7 @@ import java.util.Arrays;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
@@ -104,7 +105,14 @@ public class WellSearchCriteria implements ISerializable
             return new ExperimentSearchCriteria(experiment);
         }
 
-        public static final ExperimentSearchCriteria createExperiment(long experimentId,
+        public static final ExperimentSearchCriteria createExperiment(
+                IEntityInformationHolderWithIdentifier experiment)
+        {
+            return createExperiment(experiment.getId(), experiment.getPermId(),
+                    experiment.getIdentifier());
+        }
+
+        private static final ExperimentSearchCriteria createExperiment(long experimentId,
                 String experimentPermId, String experimentIdentifier)
         {
             return new ExperimentSearchCriteria(new SingleExperimentSearchCriteria(experimentId,

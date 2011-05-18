@@ -42,17 +42,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.dto.ExperimentIdentifierSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.SingleExperimentSearchCriteria;
 
 /**
  * Displays a list of well content materials matching the search criteria and allows to go to their
@@ -94,7 +90,7 @@ public class MaterialDisambiguationGrid extends TypedTableGrid<Material>
                     {
                         List<Material> materials = grid.getContainedGridElements();
                         Material material = materials.get(0);
-                        grid.openImagingMaterialViewer(material);
+                        grid.openMaterialDetailViewer(material);
                     } else
                     {
                         DispatcherHelper.dispatchNaviEvent(disambiguationTabFactory);
@@ -225,81 +221,25 @@ public class MaterialDisambiguationGrid extends TypedTableGrid<Material>
                     {
                         public String tryGetLink(Material material, ISerializableComparable value)
                         {
-                            ExperimentSearchCriteria experimentSearchCriteria =
-                                    searchCriteria.getExperimentCriteria();
-                            if (experimentSearchCriteria.tryGetExperiment() != null)
-                            {
-                                String experimentPermId =
-                                        experimentSearchCriteria.tryGetExperiment()
-                                                .getExperimentPermId();
-                                return createMaterialReplicaSummaryLink(material, experimentPermId);
-                            } else
-                            {
-                                return tryCreateMaterialDetailViewLink(material,
-                                        experimentSearchCriteria);
-                            }
+                            return ScreeningLinkExtractor.tryCreateMaterialDetailsLink(material,
+                                    searchCriteria.getExperimentCriteria());
                         }
 
                         public void handle(TableModelRowWithObject<Material> row,
                                 boolean specialKeyPressed)
                         {
                             Material material = row.getObjectOrNull();
-                            openImagingMaterialViewer(material);
+                            openMaterialDetailViewer(material);
                         }
                     };
         registerListenerAndLinkGenerator(MaterialGridColumnIDs.SHOW_DETAILS, listenerLinkGenerator);
         registerListenerAndLinkGenerator(MaterialGridColumnIDs.CODE, listenerLinkGenerator);
     }
 
-    private void openMaterialReplicaSummary(Material material, String experimentPermId)
+    private void openMaterialDetailViewer(Material material)
     {
-        MaterialIdentifier materialIdentifier =
-                new MaterialIdentifier(material.getCode(), material.getMaterialType().getCode());
-        MaterialReplicaFeatureSummaryViewer.openTab(screeningViewContext, experimentPermId,
-                materialIdentifier);
-    }
-
-    private static String createMaterialReplicaSummaryLink(Material material,
-            String experimentPermId)
-    {
-        return ScreeningLinkExtractor.createMaterialReplicaSummaryLink(experimentPermId,
-                material.getCode(), material.getMaterialType().getCode());
-    }
-
-    private static String tryCreateMaterialDetailViewLink(Material material,
-            ExperimentSearchCriteria experimentSearchCriteria)
-    {
-        ExperimentIdentifierSearchCriteria experimentCriteria =
-                convertExperimentCriteria(experimentSearchCriteria);
-        return ScreeningLinkExtractor.tryCreateMaterialDetailsLink(material, experimentCriteria);
-    }
-
-    private static ExperimentIdentifierSearchCriteria convertExperimentCriteria(
-            ExperimentSearchCriteria experimentSearchCriteria)
-    {
-        SingleExperimentSearchCriteria experiment = experimentSearchCriteria.tryGetExperiment();
-        if (experiment != null)
-        {
-            return new ExperimentIdentifierSearchCriteria(experiment.getExperimentIdentifier());
-        } else
-        {
-            return ExperimentIdentifierSearchCriteria.createSearchAll();
-        }
-    }
-
-    private void openImagingMaterialViewer(Material material)
-    {
-        ExperimentSearchCriteria experimentSearchCriteria = searchCriteria.getExperimentCriteria();
-        if (experimentSearchCriteria.tryGetExperiment() != null)
-        {
-            String experimentPermId =
-                    experimentSearchCriteria.tryGetExperiment().getExperimentPermId();
-            openMaterialReplicaSummary(material, experimentPermId);
-        } else
-        {
-            ClientPluginFactory.openImagingMaterialViewer(material,
-                    searchCriteria.getExperimentCriteria(), screeningViewContext);
-        }
+        ClientPluginFactory.openImagingMaterialViewer(material,
+                searchCriteria.getExperimentCriteria(), screeningViewContext);
     }
 
     @Override
