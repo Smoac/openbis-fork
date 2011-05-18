@@ -39,8 +39,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.EntityPropertyTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
@@ -163,7 +163,7 @@ public class PlateContentLoader
 
     private ExternalData translate(ExternalDataPE externalData)
     {
-        return ExternalDataTranslator.translate(externalData, session.getBaseIndexURL());
+        return DataSetTranslator.translate(externalData, session.getBaseIndexURL());
     }
 
     private PlateContent getPlateContent(TechId plateId)

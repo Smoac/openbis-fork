@@ -65,8 +65,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
 
 /**
  * @author Franz-Josef Elmer
@@ -183,11 +183,11 @@ public class UploadingCommandTest extends AssertJUnit
         createTestData(LOCATION1);
         ds2 = createTestData(LOCATION2);
         ExternalData dataSet1 =
-                ExternalDataTranslator.translate(createDataSet("1", LOCATION1), "?",
+                DataSetTranslator.translate(createDataSet("1", LOCATION1), "?",
                         ExperimentTranslator.LoadableFields.PROPERTIES);
         System.out.println("ds1:" + dataSet1.getExperiment().getProperties());
         ExternalData dataSet2 =
-                ExternalDataTranslator.translate(createDataSet("2", LOCATION2), "?",
+                DataSetTranslator.translate(createDataSet("2", LOCATION2), "?",
                         ExperimentTranslator.LoadableFields.PROPERTIES);
         dataSets = Arrays.<ExternalData> asList(dataSet1, dataSet2);
         command =

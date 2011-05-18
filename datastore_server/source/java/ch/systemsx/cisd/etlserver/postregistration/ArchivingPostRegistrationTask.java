@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
-import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 
 /**
  * A post-registration task that archives datasets.
@@ -71,7 +71,7 @@ public class ArchivingPostRegistrationTask extends AbstractPostRegistrationTask
     {
         return new Executor(dataSetCode);
     }
-    
+
     private final class Executor implements IPostRegistrationTaskExecutor
     {
         private final String dataSetCode;
@@ -129,7 +129,8 @@ public class ArchivingPostRegistrationTask extends AbstractPostRegistrationTask
             String failedMessage =
                     String.format("Eager archiving of dataset '%s' has failed. \n", dataSetCode);
             message.append(failedMessage);
-            for (Status status : processingStatus.getErrorStatuses()) {
+            for (Status status : processingStatus.getErrorStatuses())
+            {
                 if (status.tryGetErrorMessage() != null)
                 {
                     message.append("Error encountered : " + status.tryGetErrorMessage());
@@ -140,7 +141,7 @@ public class ArchivingPostRegistrationTask extends AbstractPostRegistrationTask
                     String.format("If you wish to archive the dataset in the future, "
                             + "you can configure an '%s'.", AutoArchiverTask.class.getSimpleName());
             message.append(footer);
-            
+
             notificationLog.error(message);
         }
 
@@ -161,13 +162,13 @@ public class ArchivingPostRegistrationTask extends AbstractPostRegistrationTask
         }
 
         ExternalData data = dataList.get(0);
-        return ExternalDataTranslator.translateToDescription(data);
+        return DataSetTranslator.translateToDescription(data);
     }
-
 
     private static ArchiverTaskContext createArchiverContext()
     {
-        return new ArchiverTaskContext(ServiceProvider.getDataStoreService().getDataSetDirectoryProvider());
+        return new ArchiverTaskContext(ServiceProvider.getDataStoreService()
+                .getDataSetDirectoryProvider());
     }
 
     private static class ArchivingCleanupTask implements ICleanupTask
@@ -184,14 +185,16 @@ public class ArchivingPostRegistrationTask extends AbstractPostRegistrationTask
         public void cleanup(ISimpleLogger logger)
         {
             IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
-            boolean statusUpdated = openBISService
-                    .compareAndSetDataSetStatus(dataSetCode, BACKUP_PENDING, AVAILABLE, false);
-            
-            if (statusUpdated == false) {
-                // invalid data set status, do not continue 
+            boolean statusUpdated =
+                    openBISService.compareAndSetDataSetStatus(dataSetCode, BACKUP_PENDING,
+                            AVAILABLE, false);
+
+            if (statusUpdated == false)
+            {
+                // invalid data set status, do not continue
                 return;
             }
-            
+
             IArchiverPlugin archiver = ServiceProvider.getDataStoreService().getArchiverPlugin();
             DatasetDescription dataSet = tryGetDatasetDescription(dataSetCode, openBISService);
             if (archiver != null && dataSet != null)

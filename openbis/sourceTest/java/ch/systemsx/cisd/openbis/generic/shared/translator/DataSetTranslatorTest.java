@@ -47,7 +47,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 /**
  * @author Franz-Josef Elmer
  */
-public class ExternalDataTranslatorTest extends AssertJUnit
+// TODO write test with translation of components
+public class DataSetTranslatorTest extends AssertJUnit
 {
     private static final String DOWNLOAD_URL = "url";
 
@@ -58,8 +59,7 @@ public class ExternalDataTranslatorTest extends AssertJUnit
     {
         ExternalDataPE externalDataPE = new ExternalDataPE();
         externalDataPE.setDataStore(createStore());
-        ExternalData data =
-                ExternalDataTranslator.translate(externalDataPE, BASE_INDEX_URL);
+        ExternalData data = DataSetTranslator.translate(externalDataPE, BASE_INDEX_URL);
 
         DataSet translated = data.tryGetAsDataSet();
 
@@ -124,8 +124,7 @@ public class ExternalDataTranslatorTest extends AssertJUnit
         samplePE.setInvalidation(invalidationPE);
         externalDataPE.setSampleAcquiredFrom(samplePE);
 
-        ExternalData data =
-                ExternalDataTranslator.translate(externalDataPE, BASE_INDEX_URL);
+        ExternalData data = DataSetTranslator.translate(externalDataPE, BASE_INDEX_URL);
 
         DataSet translated = data.tryGetAsDataSet();
 
@@ -180,8 +179,7 @@ public class ExternalDataTranslatorTest extends AssertJUnit
         externalDataPE.addParent(createParent("parent-1"));
         externalDataPE.addParent(createParent("parent-2"));
 
-        ExternalData externalData =
-                ExternalDataTranslator.translate(externalDataPE, BASE_INDEX_URL);
+        ExternalData externalData = DataSetTranslator.translate(externalDataPE, BASE_INDEX_URL);
 
         assertEquals("my-experiment", externalData.getExperiment().getCode());
         assertEquals(2, externalData.getParents().size());

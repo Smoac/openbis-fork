@@ -39,8 +39,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class SimpleDataSetHelperTest extends AssertJUnit
@@ -52,24 +50,25 @@ public class SimpleDataSetHelperTest extends AssertJUnit
         ExternalData ds2 = create(2);
         ExternalData ds3 = new ContainerDataSet();
 
-        List<SimpleDataSetInformationDTO> list = SimpleDataSetHelper.translate(Arrays.asList(ds1, ds2, ds3));
-        
+        List<SimpleDataSetInformationDTO> list =
+                SimpleDataSetHelper.translate(Arrays.asList(ds1, ds2, ds3));
+
         check(1, list.get(0));
         check(2, list.get(1));
         assertEquals("42", list.get(1).getDataSetShareId());
         assertEquals(2, list.size());
     }
-    
-    @Test 
+
+    @Test
     public void testTranslateDescription()
     {
-        DatasetDescription description = ExternalDataTranslator.translateToDescription(create(1));
-        
+        DatasetDescription description = DataSetTranslator.translateToDescription(create(1));
+
         SimpleDataSetInformationDTO result = SimpleDataSetHelper.translate(description);
-        
+
         check(1, result);
     }
-    
+
     private ExternalData create(long id)
     {
         DataSet dataSet = new DataSet();
@@ -112,7 +111,7 @@ public class SimpleDataSetHelperTest extends AssertJUnit
         dataSet.setStatus(DataSetArchivingStatus.ARCHIVED);
         return dataSet;
     }
-    
+
     public void check(long expectedID, SimpleDataSetInformationDTO dataSet)
     {
         assertEquals("ds-" + expectedID, dataSet.getDataSetCode());

@@ -92,9 +92,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.builders.ExperimentTypePEBuil
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GroupTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
@@ -566,7 +566,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         dataStorePE.setCode("DST");
         externalDataPE.setDataStore(dataStorePE);
         final ExternalData externalData =
-                ExternalDataTranslator.translate(externalDataPE, BASE_INDEX_URL);
+                DataSetTranslator.translate(externalDataPE, BASE_INDEX_URL);
         prepareGetSession();
         final boolean showOnlyDirectlyConnected = true;
         context.checking(new Expectations()
@@ -605,7 +605,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         dataStorePE.setCode("DST");
         externalDataPE.setDataStore(dataStorePE);
         final ExternalData externalData =
-                ExternalDataTranslator.translate(externalDataPE, BASE_INDEX_URL);
+                DataSetTranslator.translate(externalDataPE, BASE_INDEX_URL);
         prepareGetSession();
         context.checking(new Expectations()
             {

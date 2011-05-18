@@ -58,7 +58,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
-import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 
 import de.schlichtherle.util.zip.ZipEntry;
 import de.schlichtherle.util.zip.ZipOutputStream;
@@ -72,11 +72,11 @@ class UploadingCommand implements IDataSetCommand
 {
     private static final long serialVersionUID = 1L;
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, UploadingCommand.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            UploadingCommand.class);
 
-    private static final Logger notificationLog =
-            LogFactory.getLogger(LogCategory.NOTIFY, UploadingCommand.class);
+    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
+            UploadingCommand.class);
 
     private final class ProgressListener implements IProgressListener
     {
@@ -139,8 +139,8 @@ class UploadingCommand implements IDataSetCommand
 
         private static final char DELIM = '\t';
 
-        private static final DateFormat DATE_FORMAT_PATTERN =
-                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
+        private static final DateFormat DATE_FORMAT_PATTERN = new SimpleDateFormat(
+                "yyyy-MM-dd HH:mm:ss Z");
 
         private final StringBuilder builder = new StringBuilder();
 
@@ -416,7 +416,7 @@ class UploadingCommand implements IDataSetCommand
                 assert dataSet != null : "container datasets are currently not supported by DSS client";
 
                 DatasetDescription dataSetDescription =
-                        ExternalDataTranslator.translateToDescription(dataSet);
+                        DataSetTranslator.translateToDescription(dataSet);
                 File dataSetFile = dataSetDirectoryProvider.getDataSetDirectory(dataSetDescription);
                 if (dataSetFile.exists() == false)
                 {
@@ -426,13 +426,14 @@ class UploadingCommand implements IDataSetCommand
                 String newRootPath = createRootPath(dataSet);
                 try
                 {
-                    addEntry(zipOutputStream, newRootPath + "/meta-data.tsv", System
-                            .currentTimeMillis(), new ByteArrayInputStream(createMetaData(dataSet)
-                            .getBytes()));
+                    addEntry(zipOutputStream, newRootPath + "/meta-data.tsv",
+                            System.currentTimeMillis(),
+                            new ByteArrayInputStream(createMetaData(dataSet).getBytes()));
                 } catch (IOException ex)
                 {
-                    notificationLog.error("Couldn't add meta date for data set '"
-                            + dataSet.getCode() + "' to zip file.", ex);
+                    notificationLog.error(
+                            "Couldn't add meta date for data set '" + dataSet.getCode()
+                                    + "' to zip file.", ex);
                     return false;
                 }
                 try
@@ -441,8 +442,8 @@ class UploadingCommand implements IDataSetCommand
                             dataSetFile);
                 } catch (IOException ex)
                 {
-                    notificationLog.error("Couldn't add data set '" + dataSetFile + "' to zip file.",
-                            ex);
+                    notificationLog.error("Couldn't add data set '" + dataSetFile
+                            + "' to zip file.", ex);
                     return false;
                 }
             }

@@ -78,7 +78,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTranslator;
 
 /**
@@ -503,7 +503,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         locatorTypePE.setCode("LOCATOR");
         externalDataPE.setLocatorType(locatorTypePE);
         final ExternalData externalData =
-                ExternalDataTranslator.translate(externalDataPE, BASE_INDEX_URL, false);
+                DataSetTranslator.translate(externalDataPE, BASE_INDEX_URL, false);
         context.checking(new Expectations()
             {
                 {

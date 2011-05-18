@@ -142,7 +142,7 @@ public class DataSetTranslator
         ExternalData externalData = null;
         if (dataPE.isContainer())
         {
-            externalData = translateContainerDataSetProperties(dataPE, withDetails);
+            externalData = translateContainerDataSetProperties(dataPE, baseIndexURL, withDetails);
         } else
         {
             externalData = translateDataSetProperties(dataPE);
@@ -189,12 +189,12 @@ public class DataSetTranslator
     }
 
     private static ExternalData translateContainerDataSetProperties(DataPE dataPE,
-            boolean withComponents)
+            String baseIndexURL, boolean withComponents)
     {
         ContainerDataSet containerDataSet = new ContainerDataSet();
         if (withComponents)
         {
-            setContainedDataSets(dataPE, containerDataSet);
+            setContainedDataSets(dataPE, containerDataSet, baseIndexURL);
         }
         return containerDataSet;
     }
@@ -307,14 +307,15 @@ public class DataSetTranslator
         externalData.setChildren(children);
     }
 
-    private static void setContainedDataSets(DataPE dataPE, ContainerDataSet containerDataSet)
+    private static void setContainedDataSets(DataPE dataPE, ContainerDataSet containerDataSet,
+            String baseIndexURL)
     {
         List<ExternalData> containedDataSets = new ArrayList<ExternalData>();
         if (HibernateUtils.isInitialized(dataPE.getContainedDataSets()))
         {
             for (DataPE childPE : dataPE.getContainedDataSets())
             {
-                containedDataSets.add(translateBasicProperties(childPE));
+                containedDataSets.add(translate(childPE, baseIndexURL));
             }
         }
         containerDataSet.setContainedDataSets(containedDataSets);
@@ -326,7 +327,18 @@ public class DataSetTranslator
      */
     private static ExternalData translateBasicProperties(DataPE dataPE)
     {
-        ExternalData result = new ExternalData();
+        ExternalData result = null;
+        if (dataPE.isContainer())
+        {
+            result = new ContainerDataSet();
+        } else if (dataPE.isExternalData())
+        {
+            result = new DataSet();
+        } else
+        {
+            assert dataPE.isPlaceholder() == true;
+            result = new ExternalData();
+        }
         result.setId(HibernateUtils.getId(dataPE));
         result.setCode(dataPE.getCode());
         result.setDataSetType(DataSetTypeTranslator.translate(dataPE.getDataSetType(),

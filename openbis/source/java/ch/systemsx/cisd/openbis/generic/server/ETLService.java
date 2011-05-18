@@ -752,6 +752,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         dataBO.loadByCode(dataSetCode);
         dataBO.enrichWithParentsAndExperiment();
         dataBO.enrichWithProperties();
+        dataBO.enrichWithContainedDataSets();
         DataPE dataPE = dataBO.tryGetData();
         if (null == dataPE)
             return null;
