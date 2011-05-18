@@ -42,7 +42,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCrite
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.util.StopWatchLogger;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.IWellData;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.WellData;
@@ -107,11 +106,9 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
     protected final List<MaterialFeatureVectorSummary> calculateReplicasFeatureVectorSummaries(
             WellDataCollection wellDataCollection)
     {
-        StopWatchLogger watch = StopWatchLogger.createAndStart();
         List<MaterialFeatureVectorSummary> summaries =
                 WellReplicaSummaryCalculator.calculateReplicasFeatureVectorSummaries(
                         wellDataCollection.getWellDataList(), settings.getAggregationType());
-        watch.logAndReset("calculateReplicasFeatureVectorSummaries");
         return summaries;
     }
 
