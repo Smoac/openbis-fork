@@ -108,12 +108,19 @@ public final class DataStrategyStore implements IDataStrategyStore
     public IDataStoreStrategy getDataStoreStrategy(final DataSetInformation dataSetInfo,
             final File incomingDataSetPath)
     {
-
-        assert incomingDataSetPath != null : "Incoming data set path can not be null.";
         if (dataSetInfo == null)
         {
             return dataStoreStrategies.get(DataStoreStrategyKey.UNIDENTIFIED);
         }
+
+        if (dataSetInfo.isContainerDataSet())
+        {
+            assert incomingDataSetPath == null : "Incoming data set path for a container data set must be null";
+        } else
+        {
+            assert incomingDataSetPath != null : "Incoming data set path for a normal data set can not be null.";
+        }
+
         String emailOrNull = dataSetInfo.tryGetUploadingUserEmail();
         ExperimentIdentifier experimentIdentifier;
         final SampleIdentifier sampleIdentifier = dataSetInfo.getSampleIdentifier();

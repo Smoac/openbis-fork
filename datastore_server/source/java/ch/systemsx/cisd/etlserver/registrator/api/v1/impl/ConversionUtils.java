@@ -109,6 +109,12 @@ public class ConversionUtils
             data = new NewContainerDataSet();
             ((NewContainerDataSet) data).setContainedDataSetCodes(dataSetInformation
                     .getContainedDataSetCodes());
+            if (null != dataFileRelativePath)
+            {
+                throw new IllegalArgumentException(
+                        "A data set can contain files or other data sets, but not both. The data set specification is invalid: "
+                                + dataSetInformation);
+            }
         } else
         {
             data = new NewDataSet();
@@ -130,6 +136,29 @@ public class ConversionUtils
         data.setSampleIdentifierOrNull(dataSetInformation.getSampleIdentifier());
 
         data.setStorageFormat(storageFormat);
+
+        List<NewProperty> newProperties =
+                dataSetInformation.getExtractableData().getDataSetProperties();
+        data.getExtractableData().setDataSetProperties(newProperties);
+
+        return data;
+    }
+
+    public static NewContainerDataSet convertToNewContainerDataSet(
+            DataSetRegistrationDetails<?> registrationDetails, String dataStoreCode)
+    {
+        DataSetInformation dataSetInformation = registrationDetails.getDataSetInformation();
+
+        NewContainerDataSet data = new NewContainerDataSet();
+        data.setContainedDataSetCodes(dataSetInformation.getContainedDataSetCodes());
+        data.setUserId(dataSetInformation.getUploadingUserIdOrNull());
+        data.setUserEMail(dataSetInformation.tryGetUploadingUserEmail());
+        data.setExtractableData(dataSetInformation.getExtractableData());
+        data.setDataSetType(registrationDetails.getDataSetType());
+        data.setMeasured(registrationDetails.isMeasuredData());
+        data.setDataStoreCode(dataStoreCode);
+        data.setExperimentIdentifierOrNull(dataSetInformation.getExperimentIdentifier());
+        data.setSampleIdentifierOrNull(dataSetInformation.getSampleIdentifier());
 
         List<NewProperty> newProperties =
                 dataSetInformation.getExtractableData().getDataSetProperties();

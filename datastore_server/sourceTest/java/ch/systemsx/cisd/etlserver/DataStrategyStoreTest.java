@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.etlserver;
 
 import java.io.File;
+import java.util.Arrays;
 
 import org.apache.log4j.Level;
 import org.jmock.Expectations;
@@ -121,7 +122,7 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
         boolean exceptionThrown = false;
         try
         {
-            dataStrategyStore.getDataStoreStrategy(null, null);
+            dataStrategyStore.getDataStoreStrategy(new DataSetInformation(), null);
         } catch (final AssertionError ex)
         {
             exceptionThrown = true;
@@ -131,6 +132,41 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
         final IDataStoreStrategy dataStoreStrategy =
                 dataStrategyStore.getDataStoreStrategy(null, incomingDataSetPath);
         assertEquals(dataStoreStrategy.getKey(), DataStoreStrategyKey.UNIDENTIFIED);
+    }
+
+    @Test
+    public final void testContainerDataSetStrategies()
+    {
+        final DataSetInformation dataSetInfo = IdentifiedDataStrategyTest.createDataSetInfo();
+        dataSetInfo.setContainedDataSetCodes(Arrays.asList("container-1"));
+        final SampleIdentifier sampleIdentifier = dataSetInfo.getSampleIdentifier();
+        final Sample baseSample = createSampleWithExperiment();
+        dataSetInfo.setSampleCode(sampleIdentifier.getSampleCode());
+        context.checking(new Expectations()
+            {
+                {
+                    one(limsService).tryGetSampleWithExperiment(sampleIdentifier);
+                    will(returnValue(baseSample));
+
+                    one(limsService).getPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
+                    will(returnValue(new IEntityProperty[0]));
+                }
+            });
+        final IDataStoreStrategy dataStoreStrategy =
+                dataStrategyStore.getDataStoreStrategy(dataSetInfo, null);
+        assertEquals(dataStoreStrategy.getKey(), DataStoreStrategyKey.IDENTIFIED);
+        context.assertIsSatisfied();
+
+        boolean exceptionThrown = false;
+        try
+        {
+            final File incomingDataSetPath = createIncomingDataSetPath();
+            dataStrategyStore.getDataStoreStrategy(dataSetInfo, incomingDataSetPath);
+        } catch (final AssertionError ex)
+        {
+            exceptionThrown = true;
+        }
+        assertTrue("Null incoming data set path required for container data sets", exceptionThrown);
     }
 
     @Test
@@ -199,8 +235,8 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
 
         assertEquals(dataStoreStrategy.getKey(), DataStoreStrategyKey.UNIDENTIFIED);
         final String logContent = logRecorder.getLogContent();
-        assertEquals("Unexpected log content: " + logContent, true, logContent
-                .startsWith("ERROR NOTIFY.DataStrategyStore"));
+        assertEquals("Unexpected log content: " + logContent, true,
+                logContent.startsWith("ERROR NOTIFY.DataStrategyStore"));
 
         context.assertIsSatisfied();
     }
@@ -229,7 +265,7 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public final void testWithNoSampleButIdentifierOfExistingExperiment()
     {
@@ -237,19 +273,19 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
         final DataSetInformation dataSetInfo = IdentifiedDataStrategyTest.createDataSetInfo();
         dataSetInfo.setSampleCode(null);
         context.checking(new Expectations()
-        {
             {
-                one(limsService).tryToGetExperiment(dataSetInfo.getExperimentIdentifier());
-                will(returnValue(new Experiment()));
-            }
-        });
+                {
+                    one(limsService).tryToGetExperiment(dataSetInfo.getExperimentIdentifier());
+                    will(returnValue(new Experiment()));
+                }
+            });
         final IDataStoreStrategy dataStoreStrategy =
-            dataStrategyStore.getDataStoreStrategy(dataSetInfo, incomingDataSetPath);
+                dataStrategyStore.getDataStoreStrategy(dataSetInfo, incomingDataSetPath);
         assertEquals(DataStoreStrategyKey.IDENTIFIED, dataStoreStrategy.getKey());
         final String logContent = logRecorder.getLogContent();
-        assertEquals("INFO  OPERATION.DataStrategyStore - " +
-        		"Identified that database knows experiment '/G/P/E'.", logContent);
-        
+        assertEquals("INFO  OPERATION.DataStrategyStore - "
+                + "Identified that database knows experiment '/G/P/E'.", logContent);
+
         context.assertIsSatisfied();
     }
 
@@ -291,8 +327,8 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
 
         assertEquals(dataStoreStrategy.getKey(), DataStoreStrategyKey.INVALID);
         final String logContent = logRecorder.getLogContent();
-        assertEquals("Unexpected log content: " + logContent, true, logContent
-                .startsWith("ERROR OPERATION.DataStrategyStore"));
+        assertEquals("Unexpected log content: " + logContent, true,
+                logContent.startsWith("ERROR OPERATION.DataStrategyStore"));
 
         context.assertIsSatisfied();
     }

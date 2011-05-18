@@ -322,7 +322,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
                     new ArrayList<DataSetStorageAlgorithm<T>>(registeredDataSets.size());
             for (DataSet<T> dataSet : registeredDataSets)
             {
-                File contents = dataSet.getDataSetContents();
+                File contents = dataSet.tryDataSetContents();
                 DataSetRegistrationDetails<T> details = dataSet.getRegistrationDetails();
 
                 // The experiment/sample does not yet exist

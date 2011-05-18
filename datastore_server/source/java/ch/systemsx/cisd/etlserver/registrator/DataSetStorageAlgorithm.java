@@ -254,7 +254,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
 
     public String getFailureRegistrationMessage()
     {
-        return "Error when trying to register data set '" + incomingDataSetFile.getName() + "'.";
+        return "Error trying to register data set '" + incomingDataSetFile.getName() + "'.";
     }
 
     protected DataSetType getDataSetType()
@@ -275,6 +275,11 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
     protected IStorageProcessorTransactional getStorageProcessor()
     {
         return storageProcessor;
+    }
+
+    protected String getDataStoreCode()
+    {
+        return dataStoreCode;
     }
 
     protected DataSetRegistrationDetails<T> getRegistrationDetails()

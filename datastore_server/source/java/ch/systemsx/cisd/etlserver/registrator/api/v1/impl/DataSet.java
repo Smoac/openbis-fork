@@ -18,10 +18,10 @@ package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperimentImmutable;
@@ -64,20 +64,35 @@ public class DataSet<T extends DataSetInformation> implements IDataSet
         return dataSetFolder;
     }
 
-    public File getDataSetContents()
+    public File tryDataSetContents()
     {
+        // How the contents are handled depends on whether this is a container data set or not.
         File[] contents = dataSetFolder.listFiles();
-        if (contents.length > 1)
+        if (isContainerDataSet())
         {
-            throw new EnvironmentFailureException(
-                    "Data set is ambiguous -- there are more than one potential candidates");
-        }
-        if (contents.length < 1)
+            if (contents.length > 0)
+            {
+                throw new IllegalArgumentException(
+                        "A data set can contain files or other data sets, but not both. The data set specification is invalid: "
+                                + registrationDetails.getDataSetInformation());
+            }
+            return null;
+        } else
         {
-            throw new EnvironmentFailureException("Data set is empty");
+            if (contents.length > 1)
+            {
+                throw new IllegalArgumentException(
+                        "Data set is ambiguous -- there are more than one potential candidates:"
+                                + Arrays.toString(contents));
+            }
+            if (contents.length < 1)
+            {
+                throw new IllegalArgumentException("Data set is empty: "
+                        + registrationDetails.getDataSetInformation());
+            }
+            return contents[0];
         }
 
-        return contents[0];
     }
 
     public String getDataSetCode()

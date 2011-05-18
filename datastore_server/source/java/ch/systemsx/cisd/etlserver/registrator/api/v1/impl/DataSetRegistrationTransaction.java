@@ -303,6 +303,13 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         LiveTransactionState<T> liveState = getStateAsLiveState();
         boolean datasetsCommited = liveState.commit();
 
+        // The attempt to commit the live state could have changed the state to rolledback
+        if (state instanceof RolledbackTransactionState)
+        {
+            return false;
+        }
+
+        // Advance to the committed state.
         state = new CommitedTransactionState<T>(liveState);
         return datasetsCommited;
     }

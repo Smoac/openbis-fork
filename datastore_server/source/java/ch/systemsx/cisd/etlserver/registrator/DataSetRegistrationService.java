@@ -215,19 +215,10 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     public DataSetStorageAlgorithm<T> createStorageAlgorithm(File dataSetFile,
             DataSetRegistrationDetails<T> dataSetDetails)
     {
-        TopLevelDataSetRegistratorGlobalState globalContext = registratorContext.getGlobalState();
-        T dataSetInformation = dataSetDetails.getDataSetInformation();
-        dataSetInformation.setShareId(globalContext.getShareId());
         IDataStoreStrategy strategy =
-                registratorContext.getDataStrategyStore().getDataStoreStrategy(dataSetInformation,
-                        dataSetFile);
-
-        DataSetStorageAlgorithm<T> algorithm =
-                new DataSetStorageAlgorithm<T>(dataSetFile, dataSetDetails, strategy,
-                        registratorContext.getStorageProcessor(),
-                        globalContext.getDataSetValidator(), globalContext.getDssCode(),
-                        registratorContext.getFileOperations(), globalContext.getMailClient());
-        return algorithm;
+                registratorContext.getDataStrategyStore().getDataStoreStrategy(
+                        dataSetDetails.getDataSetInformation(), dataSetFile);
+        return createStorageAlgorithmWithStrategy(dataSetFile, dataSetDetails, strategy);
     }
 
     /**
@@ -239,16 +230,46 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     public DataSetStorageAlgorithm<T> createStorageAlgorithmWithIdentifiedStrategy(
             File dataSetFile, DataSetRegistrationDetails<T> dataSetDetails)
     {
+        IDataStoreStrategy strategy = new IdentifiedDataStrategy();
+        return createStorageAlgorithmWithStrategy(dataSetFile, dataSetDetails, strategy);
+    }
+
+    /**
+     * Helper method to create a storage algorithm for storing an individual data set.
+     */
+    protected DataSetStorageAlgorithm<T> createStorageAlgorithmWithStrategy(File dataSetFile,
+            DataSetRegistrationDetails<T> dataSetDetails, IDataStoreStrategy strategy)
+    {
+        // If the file is null and the registration details say it is a container, return a
+        // different algorithm.
         TopLevelDataSetRegistratorGlobalState globalContext = registratorContext.getGlobalState();
         T dataSetInformation = dataSetDetails.getDataSetInformation();
         dataSetInformation.setShareId(globalContext.getShareId());
-        IDataStoreStrategy strategy = new IdentifiedDataStrategy();
 
-        DataSetStorageAlgorithm<T> algorithm =
-                new DataSetStorageAlgorithm<T>(dataSetFile, dataSetDetails, strategy,
-                        registratorContext.getStorageProcessor(),
-                        globalContext.getDataSetValidator(), globalContext.getDssCode(),
-                        registratorContext.getFileOperations(), globalContext.getMailClient());
+        DataSetStorageAlgorithm<T> algorithm;
+        if (dataSetInformation.isContainerDataSet())
+        {
+            // Return a different storage algorithm for container data sets
+            if (null != dataSetFile)
+            {
+                throw new IllegalArgumentException(
+                        "A data set can contain files or other data sets, but not both. The data set specification is invalid: "
+                                + dataSetInformation);
+            }
+            algorithm =
+                    new ContainerDataSetStorageAlgorithm<T>(dataSetFile, dataSetDetails, strategy,
+                            registratorContext.getStorageProcessor(),
+                            globalContext.getDataSetValidator(), globalContext.getDssCode(),
+                            registratorContext.getFileOperations(), globalContext.getMailClient());
+        } else
+        {
+
+            algorithm =
+                    new DataSetStorageAlgorithm<T>(dataSetFile, dataSetDetails, strategy,
+                            registratorContext.getStorageProcessor(),
+                            globalContext.getDataSetValidator(), globalContext.getDssCode(),
+                            registratorContext.getFileOperations(), globalContext.getMailClient());
+        }
         return algorithm;
     }
 

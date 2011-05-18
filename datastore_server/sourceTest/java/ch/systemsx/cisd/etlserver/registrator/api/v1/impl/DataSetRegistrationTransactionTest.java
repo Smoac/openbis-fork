@@ -19,9 +19,11 @@ package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
+import org.hamcrest.core.IsNull;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.AfterTest;
@@ -134,6 +136,76 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         createTransaction();
 
         IDataSet newDataSet = tr.createNewDataSet();
+        String dst = tr.moveFile(srcFile.getAbsolutePath(), newDataSet);
+        IExperimentImmutable experiment = tr.getExperiment(EXPERIMENT_IDENTIFIER);
+        newDataSet.setExperiment(experiment);
+        newDataSet.setDataSetType(DATA_SET_TYPE.getCode());
+
+        checkContentsOfFile(new File(dst));
+
+        File[] rollbackQueueFiles = listRollbackQueueFiles();
+        assertEquals(2, rollbackQueueFiles.length);
+
+        tr.commit();
+
+        System.out.println(logAppender.getLogContent());
+
+        assertTrue(logAppender.getLogContent().length() > 0);
+        // Skip this for the moment
+        // new LogMatcher(logAppender,
+        // "Identified that database knows experiment '/SPACE/PROJECT/EXP-CODE'.*",
+        // "Start storing data set for experiment '/SPACE/PROJECT/EXP-CODE'.*",
+        // "Finished storing data set for experiment '/SPACE/PROJECT/EXP-CODE', took .*",
+        // "Successfully registered data set: .+").assertMatches();
+
+        rollbackQueueFiles = listRollbackQueueFiles();
+        assertEquals(0, rollbackQueueFiles.length);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testCommitContainerDataSet()
+    {
+        setUpOpenBisExpectations(true);
+        setUpDataSetValidatorExpectationsForNullFiles();
+        createTransaction();
+
+        IDataSet newDataSet = tr.createNewDataSet();
+        newDataSet.setContainedDataSetCodes(Arrays.asList("container-1"));
+        IExperimentImmutable experiment = tr.getExperiment(EXPERIMENT_IDENTIFIER);
+        newDataSet.setExperiment(experiment);
+        newDataSet.setDataSetType(DATA_SET_TYPE.getCode());
+
+        File[] rollbackQueueFiles = listRollbackQueueFiles();
+        assertEquals(2, rollbackQueueFiles.length);
+
+        tr.commit();
+
+        assertTrue(logAppender.getLogContent().length() > 0);
+        // Skip this for the moment
+        // new LogMatcher(logAppender,
+        // "Identified that database knows experiment '/SPACE/PROJECT/EXP-CODE'.*",
+        // "Start storing data set for experiment '/SPACE/PROJECT/EXP-CODE'.*",
+        // "Finished storing data set for experiment '/SPACE/PROJECT/EXP-CODE', took .*",
+        // "Successfully registered data set: .+").assertMatches();
+
+        rollbackQueueFiles = listRollbackQueueFiles();
+        assertEquals(0, rollbackQueueFiles.length);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test(expectedExceptions =
+        { IllegalArgumentException.class })
+    public void testCommitContainerDataSetWithFiles()
+    {
+        setUpOpenBisExpectations(true);
+        setUpDataSetValidatorExpectations();
+        createTransaction();
+
+        IDataSet newDataSet = tr.createNewDataSet();
+        newDataSet.setContainedDataSetCodes(Arrays.asList("container-1"));
         String dst = tr.moveFile(srcFile.getAbsolutePath(), newDataSet);
         IExperimentImmutable experiment = tr.getExperiment(EXPERIMENT_IDENTIFIER);
         newDataSet.setExperiment(experiment);
@@ -381,6 +453,17 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
                 {
                     oneOf(dataSetValidator).assertValidDataSet(with(DATA_SET_TYPE),
                             with(dataSetFile));
+                }
+            });
+    }
+
+    private void setUpDataSetValidatorExpectationsForNullFiles()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    oneOf(dataSetValidator).assertValidDataSet(with(DATA_SET_TYPE),
+                            with(new IsNull<File>()));
                 }
             });
     }
