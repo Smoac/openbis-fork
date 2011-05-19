@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared.content;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -115,35 +114,12 @@ public class PathInfoProviderBasedHierarchicalContentTest extends AbstractFileSy
         return new PathInfoProviderBasedHierarchicalContent(pathInfoProvider, file, onCloseAction);
     }
 
-    @Test(groups = "broken")
-    public void testFailWithNonExistentRoot()
+    @Test
+    public void testCreateSucceedsWithNonExistentRoot()
     {
+        // NOTE: we want to traverse through archived data set files even if they don't exist
         final File fakeFile = new File(workingDirectory, "fakeFile");
-        try
-        {
-            createContent(fakeFile);
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException ex)
-        {
-            assertEquals(fakeFile.getAbsolutePath() + " doesn't exist", ex.getMessage());
-        }
-
-        context.assertIsSatisfied();
-    }
-
-    @Test(groups = "broken")
-    public void testFailWithNonDirectoryRoot() throws IOException
-    {
-        final File rootFile = new File(workingDirectory, "rootFile");
-        rootFile.createNewFile();
-        try
-        {
-            createContent(rootFile);
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException ex)
-        {
-            assertEquals(rootFile.getAbsolutePath() + " is not a directory", ex.getMessage());
-        }
+        createContent(fakeFile);
 
         context.assertIsSatisfied();
     }
