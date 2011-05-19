@@ -16,8 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.server.api.v1;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
@@ -28,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.MaterialBuilder;
@@ -99,8 +103,15 @@ public class GeneralInformationChangingServiceTest extends AbstractServerTestCas
         SampleUpdatesDTO updatesDTO = updateMatcher.recordedObject();
         assertEquals(SAMPLE_ID, updatesDTO.getSampleIdOrNull().getId().longValue());
         assertEquals(1234567890L, updatesDTO.getVersion().getTime());
-        assertEquals("[age: 76, material: B (Fluid), greetings: hello]",
-                updatesDTO.getProperties().toString());
+        List<IEntityProperty> props = updatesDTO.getProperties();
+        Collections.sort(props, new Comparator<IEntityProperty>()
+            {
+                public int compare(IEntityProperty o1, IEntityProperty o2)
+                {
+                    return o1.getPropertyType().getCode().compareTo(o2.getPropertyType().getCode());
+                }
+            });
+        assertEquals("[age: 76, greetings: hello, material: B (Fluid)]", props.toString());
         assertEquals("/P/S1:A03", updatesDTO.getSampleIdentifier().toString());
         assertEquals("/S/P/E", updatesDTO.getExperimentIdentifierOrNull().toString());
         assertEquals("/P/S1", updatesDTO.getContainerIdentifierOrNull().toString());
