@@ -204,10 +204,9 @@ public class DatasetDownloadServletTest
         final StringWriter writer = new StringWriter();
         final ExternalData externalData = createExternalData();
         prepareParseRequestURL();
-        prepareCheckDatasetAccess();
         prepareForObtainingDataSetFromServer(externalData);
-        prepareLocking();
         prepareForGettingDataSetFromSession(externalData, "");
+        prepareLocking();
         prepareForCreatingHTML(writer);
 
         DatasetDownloadServlet servlet = createServlet();
@@ -241,12 +240,8 @@ public class DatasetDownloadServletTest
                         + OSUtilities.LINE_SEPARATOR + "", writer.toString());
 
         String normalizedLogContent = getNormalizedLogContent();
-        // assertContains(getSessionCreationLogMessage() + OSUtilities.LINE_SEPARATOR + LOG_INFO
-        // + "Data set '1234-1' obtained from openBIS server.", normalizedLogContent);
-        // FIXME
-        // assertContains(getSessionCreationLogMessage() + OSUtilities.LINE_SEPARATOR + LOG_INFO
-        // + "Check access to the data set '1234-1' at openBIS server.", normalizedLogContent);
-        assertContains(LOG_INFO + "For data set '1234-1' show directory '/'", normalizedLogContent);
+        assertContains(getSessionCreationLogMessage() + OSUtilities.LINE_SEPARATOR + LOG_INFO
+                + "For data set '1234-1' show directory '/'", normalizedLogContent);
 
         context.assertIsSatisfied();
     }
@@ -358,8 +353,8 @@ public class DatasetDownloadServletTest
     {
         final StringWriter writer = new StringWriter();
         final ExternalData externalData = createExternalData();
-        prepareCheckDatasetAccess();
         prepareForObtainingDataSetFromServer(externalData);
+        prepareForGettingDataSetFromSession(externalData, ESCAPED_EXAMPLE_DATA_SET_SUB_FOLDER_NAME);
         prepareLocking();
         context.checking(new Expectations()
             {
@@ -368,9 +363,6 @@ public class DatasetDownloadServletTest
 
                     allowing(request).getSession(false);
                     will(returnValue(httpSession));
-
-                    prepareForGettingDataSetFromSession(this, externalData,
-                            ESCAPED_EXAMPLE_DATA_SET_SUB_FOLDER_NAME);
                 }
             });
         prepareForCreatingHTML(writer);
@@ -397,7 +389,7 @@ public class DatasetDownloadServletTest
 
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         prepareParseRequestURL();
-        prepareFullCheckDatasetAccess();
+        prepareCheckDatasetAccess();
         prepareForObtainingDataSetFromServer(externalData);
         prepareLocking();
 
@@ -442,7 +434,7 @@ public class DatasetDownloadServletTest
         ImageIO.write(image, "png", EXAMPLE_FILE);
         prepareParseRequestURLForThumbnail(100, 50);
         final ExternalData externalData = createExternalData();
-        prepareFullCheckDatasetAccess();
+        prepareCheckDatasetAccess();
         prepareForObtainingDataSetFromServer(externalData);
         prepareLocking();
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -601,29 +593,28 @@ public class DatasetDownloadServletTest
         context.checking(new Expectations()
             {
                 {
-                    prepareForGettingDataSetFromSession(this, externalData, path);
+                    Map<String, Boolean> accessMap = new HashMap<String, Boolean>();
+                    checkAndSetAttribute(this, DatasetDownloadServlet.DATA_SET_ACCESS_SESSION_KEY,
+                            accessMap);
+
+                    one(httpSession).getAttribute(DatasetDownloadServlet.DATA_SET_SESSION_KEY);
+                    Map<String, ExternalData> map = new HashMap<String, ExternalData>();
+                    map.put(externalData.getCode(), externalData);
+                    will(Expectations.returnValue(map));
+
+                    prepareGetRequestURI(this, externalData, path);
+
+                    oneOf(response).setHeader("Pragma", "no-cache");
+                    oneOf(response).setHeader("Cache-control",
+                            "no-cache, no-store, must-revalidate");
+                    allowing(response).setDateHeader(with(Expectations.any(String.class)),
+                            with(Expectations.any(long.class)));
+                    // oneOf(response).addDateHeader(with("Date"),
+                    // with(Expectations.any(long.class)));
+                    // oneOf(response).addDateHeader(with("Expires"),
+                    // with(Expectations.any(long.class))); }
                 }
             });
-    }
-
-    private void prepareForGettingDataSetFromSession(Expectations exp,
-            final ExternalData externalData, final String path)
-    {
-        exp.one(httpSession).getAttribute(DatasetDownloadServlet.DATA_SET_SESSION_KEY);
-        Map<String, ExternalData> map = new HashMap<String, ExternalData>();
-        map.put(externalData.getCode(), externalData);
-        exp.will(Expectations.returnValue(map));
-
-        prepareGetRequestURI(exp, externalData, path);
-
-        exp.oneOf(response).setHeader("Pragma", "no-cache");
-        exp.oneOf(response).setHeader("Cache-control", "no-cache, no-store, must-revalidate");
-        exp.allowing(response).setDateHeader(exp.with(Expectations.any(String.class)),
-                exp.with(Expectations.any(long.class)));
-        // exp.oneOf(response).addDateHeader(exp.with("Date"),
-        // exp.with(Expectations.any(long.class)));
-        // exp.oneOf(response).addDateHeader(exp.with("Expires"),
-        // exp.with(Expectations.any(long.class)));
     }
 
     private void prepareGetRequestURI(Expectations exp, final ExternalData externalData,
@@ -719,10 +710,6 @@ public class DatasetDownloadServletTest
         context.checking(new Expectations()
             {
                 {
-                    // FIXME temporary
-                    // HashMap<String, ExternalDataPE> map = new HashMap<String, ExternalDataPE>();
-                    // checkAndSetAttribute(this, DatasetDownloadServlet.DATA_SET_SESSION_KEY, map);
-
                     one(openbisService).tryGetDataSet(EXAMPLE_DATA_SET_CODE);
                     will(returnValue(externalData));
                 }
@@ -740,7 +727,7 @@ public class DatasetDownloadServletTest
             });
     }
 
-    private void prepareFullCheckDatasetAccess()
+    private void prepareCheckDatasetAccess()
     {
         context.checking(new Expectations()
             {
@@ -756,19 +743,6 @@ public class DatasetDownloadServletTest
                             EXAMPLE_DATA_SET_CODE);
 
                     getSessionAttribute(this, DatasetDownloadServlet.DATA_SET_ACCESS_SESSION_KEY,
-                            map);
-                }
-            });
-    }
-
-    private void prepareCheckDatasetAccess()
-    {
-        context.checking(new Expectations()
-            {
-                {
-                    // FIXME
-                    Map<String, Boolean> map = new HashMap<String, Boolean>();
-                    checkAndSetAttribute(this, DatasetDownloadServlet.DATA_SET_ACCESS_SESSION_KEY,
                             map);
                 }
             });
