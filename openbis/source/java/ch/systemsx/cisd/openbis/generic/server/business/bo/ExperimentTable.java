@@ -55,8 +55,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 public final class ExperimentTable extends AbstractBusinessObject implements IExperimentTable
 {
-    protected final IEntityPropertiesConverter entityPropertiesConverter;
-
     private List<ExperimentPE> experiments;
 
     private boolean dataChanged = false;
@@ -65,13 +63,12 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
     ExperimentTable(final IDAOFactory daoFactory, final Session session,
             IEntityPropertiesConverter converter)
     {
-        super(daoFactory, session);
-        entityPropertiesConverter = converter;
+        super(daoFactory, session, converter);
     }
 
     public ExperimentTable(final IDAOFactory daoFactory, final Session session)
     {
-        this(daoFactory, session, new EntityPropertiesConverter(EntityKind.EXPERIMENT, daoFactory));
+        super(daoFactory, session, EntityKind.EXPERIMENT);
     }
 
     //
