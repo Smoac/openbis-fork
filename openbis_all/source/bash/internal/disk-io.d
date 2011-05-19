@@ -16,27 +16,20 @@ syscall::open*:entry
 	printf("%s", self->filename);
 }
 
-syscall::open*:return
-/pid == $target/
-{
-	self->handles[arg1] = self->filename;
-}
-
 syscall::close*:entry
 /pid == $target/
 {
-	printf("%s",self->handles[arg0]);
-	self->handles[arg0] = 0;
+	printf("%s",fds[arg0].fi_pathname);
 }
 
 syscall::read*:entry
 /pid == $target/
 {
-	printf("%s", self->handles[arg0]);
+	printf("%s", fds[arg0].fi_pathname);
 }
 
 syscall::write*:entry
 /pid == $target/
 {
-	printf("%s", self->handles[arg0]);
+	printf("%s", fds[arg0].fi_pathname);
 }
