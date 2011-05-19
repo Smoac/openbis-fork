@@ -704,11 +704,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     public Date updateMaterial(String sessionToken, TechId materialId,
             List<IEntityProperty> properties, Date version)
     {
-        final Session session = getSession(sessionToken);
-        final IMaterialBO materialBO = businessObjectFactory.createMaterialBO(session);
-        materialBO.update(new MaterialUpdateDTO(materialId, properties, version));
-        materialBO.save();
-        return materialBO.getMaterial().getModificationDate();
+        return commonServer.updateMaterial(sessionToken, materialId, properties, version);
     }
 
     public SampleUpdateResult updateSample(String sessionToken, SampleUpdatesDTO updates)

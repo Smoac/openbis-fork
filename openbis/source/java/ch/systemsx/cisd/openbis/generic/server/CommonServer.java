@@ -65,6 +65,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IScriptBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyTermBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.DynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.IDynamicPropertyEvaluator;
@@ -116,6 +117,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IScriptUpdates;
@@ -1546,6 +1548,16 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 .tryFindMaterial(identifier));
     }
 
+    public Date updateMaterial(String sessionToken, TechId materialId,
+            List<IEntityProperty> properties, Date version)
+    {
+        final Session session = getSession(sessionToken);
+        final IMaterialBO materialBO = businessObjectFactory.createMaterialBO(session);
+        materialBO.update(new MaterialUpdateDTO(materialId, properties, version));
+        materialBO.save();
+        return materialBO.getMaterial().getModificationDate();
+    }
+
     public IEntityInformationHolderWithPermId getEntityInformationHolder(String sessionToken,
             final EntityKind entityKind, final String permId)
     {
@@ -2480,10 +2492,13 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             String propertyTypeCode, String value)
     {
         checkSession(sessionToken);
-        HashMap<String, String> properties = new HashMap<String, String>();
+        Map<String, String> properties = new HashMap<String, String>();
         properties.put(getPropertyTypeCode(propertyTypeCode), value);
         switch (kind)
         {
+            case MATERIAL:
+                updateMaterialProperties(sessionToken, entityId, properties);
+                break;
             case EXPERIMENT:
                 updateExperimentProperties(sessionToken, entityId, properties);
                 break;
@@ -2493,13 +2508,18 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             case DATA_SET:
                 updateDataSetProperties(sessionToken, entityId, properties);
                 break;
-            default:
-                throw new UnsupportedOperationException();
         }
     }
 
-    public void updateExperimentProperties(String sessionToken, TechId entityId,
-            HashMap<String, String> properties)
+    private void updateMaterialProperties(String sessionToken, TechId entityId,
+            Map<String, String> properties)
+    {
+        Date modificationDate = getDAOFactory().getMaterialDAO().tryGetByTechId(entityId).getModificationDate();
+        updateMaterial(sessionToken, entityId, EntityHelper.translatePropertiesMapToList(properties), modificationDate);
+    }
+
+    private void updateExperimentProperties(String sessionToken, TechId entityId,
+            Map<String, String> properties)
     {
         Experiment experiment = getExperimentInfo(sessionToken, entityId);
         ExperimentUpdatesDTO updates = new ExperimentUpdatesDTO();
@@ -2511,8 +2531,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         updateExperiment(sessionToken, updates);
     }
 
-    public void updateDataSetProperties(String sessionToken, TechId dataSetID,
-            HashMap<String, String> properties)
+    private void updateDataSetProperties(String sessionToken, TechId dataSetID,
+            Map<String, String> properties)
     {
         ExternalData dataSet = getDataSetInfo(sessionToken, dataSetID);
         DataSetUpdatesDTO updates = new DataSetUpdatesDTO();

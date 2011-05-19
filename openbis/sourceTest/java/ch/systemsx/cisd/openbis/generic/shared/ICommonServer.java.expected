@@ -80,6 +80,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IScriptUpdates;
@@ -996,6 +997,15 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public IEntityInformationHolderWithPermId getMaterialInformationHolder(String sessionToken,
             MaterialIdentifier identifier);
+
+    /**
+     * Saves changed material.
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @DatabaseUpdateModification(value = ObjectKind.MATERIAL)
+    public Date updateMaterial(String sessionToken, TechId materialId,
+            List<IEntityProperty> properties, Date version);
 
     /**
      * Returns file template available during batch operation of entity of given type.

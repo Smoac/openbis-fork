@@ -103,9 +103,7 @@ public final class MaterialBO extends AbstractMaterialBusinessObject implements 
     {
         final Set<MaterialPropertyPE> existingProperties = material.getProperties();
         final MaterialTypePE type = material.getMaterialType();
-        final PersonPE registrator = findRegistrator();
-        material.setProperties(entityPropertiesConverter.updateProperties(existingProperties, type,
-                properties, registrator));
+        material.setProperties(convertProperties(type, existingProperties, properties));
     }
 
     public MaterialPE getMaterial()

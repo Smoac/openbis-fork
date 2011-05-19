@@ -30,18 +30,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 public class AbstractMaterialBusinessObject extends AbstractBusinessObject
 {
-    protected final IEntityPropertiesConverter entityPropertiesConverter;
-
     protected AbstractMaterialBusinessObject(final IDAOFactory daoFactory, final Session session)
     {
-        this(daoFactory, session, new EntityPropertiesConverter(EntityKind.MATERIAL, daoFactory));
+        super(daoFactory, session, EntityKind.MATERIAL);
     }
 
     protected AbstractMaterialBusinessObject(final IDAOFactory daoFactory, final Session session,
             final IEntityPropertiesConverter entityPropertiesConverter)
     {
-        super(daoFactory, session);
-        this.entityPropertiesConverter = entityPropertiesConverter;
+        super(daoFactory, session, entityPropertiesConverter);
     }
 
     private static final String PROPERTY_TYPES = "materialType.materialTypePropertyTypesInternal";

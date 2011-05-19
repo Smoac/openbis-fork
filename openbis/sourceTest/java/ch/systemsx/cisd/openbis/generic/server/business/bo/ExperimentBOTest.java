@@ -102,7 +102,7 @@ public final class ExperimentBOTest extends AbstractBOTest
             {
                 {
                     one(propertiesConverter).updateProperties(oldProperties, entityType,
-                            newProperties, registrator);
+                            newProperties, registrator, Collections.<String>emptySet());
                     will(returnValue(new HashSet<ExperimentPropertyPE>(updated)));
 
                 }

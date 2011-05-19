@@ -632,18 +632,13 @@ public final class GenericServerTest extends AbstractServerTestCase
         prepareGetSession();
         final Date version = new Date(1);
         final MaterialPE material = new MaterialPE();
-        Date newModificationDate = new Date(2);
+        final Date newModificationDate = new Date(2);
         material.setModificationDate(newModificationDate);
         context.checking(new Expectations()
             {
                 {
-                    one(genericBusinessObjectFactory).createMaterialBO(SESSION);
-                    will(returnValue(materialBO));
-
-                    one(materialBO).update(new MaterialUpdateDTO(materialId, properties, version));
-                    one(materialBO).save();
-                    one(materialBO).getMaterial();
-                    will(returnValue(material));
+                    one(commonServer).updateMaterial(SESSION_TOKEN, materialId, properties, version);
+                    will(returnValue(newModificationDate));
                 }
             });
         assertEquals(newModificationDate,

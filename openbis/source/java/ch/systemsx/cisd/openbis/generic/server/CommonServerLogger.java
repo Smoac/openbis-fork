@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IScriptUpdates;
@@ -745,6 +746,13 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
             MaterialIdentifier identifier)
     {
         logTracking(sessionToken, "get_material_information_holder", " IDENTIFIER(%S) ", identifier);
+        return null;
+    }
+
+    public Date updateMaterial(String sessionToken, TechId materialId,
+            List<IEntityProperty> properties, Date version)
+    {
+        logTracking(sessionToken, "edit_material", "MATERIAL(%s)", materialId);
         return null;
     }
 
