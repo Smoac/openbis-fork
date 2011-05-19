@@ -25,7 +25,6 @@ import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -59,7 +58,6 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
 
     private boolean dataChanged = false;
 
-    @Private
     ExperimentTable(final IDAOFactory daoFactory, final Session session,
             IEntityPropertiesConverter converter)
     {

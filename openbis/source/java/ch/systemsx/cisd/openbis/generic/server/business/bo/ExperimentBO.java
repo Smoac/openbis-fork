@@ -85,7 +85,6 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         super(daoFactory, session, EntityKind.EXPERIMENT);
     }
 
-    @Private
     ExperimentBO(final IDAOFactory daoFactory, final Session session,
             final IEntityPropertiesConverter entityPropertiesConverter)
     {
