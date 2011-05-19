@@ -32,6 +32,7 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimplePersonRenderer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TableCellUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
@@ -157,19 +158,10 @@ public class TypedTableModelBuilder<T extends ISerializable>
         private IColumn addColumn(String idPrefix, PropertyType propertyType)
         {
             String label = propertyType.getLabel();
-            String code = getColumnId(idPrefix, propertyType);
+            String code = idPrefix + TableCellUtil.getPropertyTypeCode(propertyType);
             DataTypeCode dataType = propertyType.getDataType().getCode();
             IColumn column = column(code).withTitle(label).withDataType(dataType);
             return column;
-        }
-
-        private String getColumnId(String idPrefix, PropertyType propertyType)
-        {
-            boolean internalNamespace = propertyType.isInternalNamespace();
-            String code =
-                    idPrefix + (internalNamespace ? "INTERN" : "USER") + "-"
-                            + propertyType.getSimpleCode();
-            return code;
         }
 
         public void addProperties(Collection<IEntityProperty> properties)

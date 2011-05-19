@@ -126,9 +126,6 @@ public final class PropertyTypeBOTest extends AbstractBOTest
                     one(daoFactory).getHomeDatabaseInstance();
                     will(returnValue(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE));
 
-                    allowing(daoFactory).getPropertyTypeDAO();
-                    will(returnValue(propertyTypeDAO));
-
                     one(propertyTypeDAO).getDataTypeByCode(DataTypeCode.VARCHAR);
                     will(returnValue(dataTypePE));
 
@@ -154,9 +151,6 @@ public final class PropertyTypeBOTest extends AbstractBOTest
                 {
                     one(daoFactory).getHomeDatabaseInstance();
                     will(returnValue(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE));
-
-                    allowing(daoFactory).getPropertyTypeDAO();
-                    will(returnValue(propertyTypeDAO));
 
                     one(propertyTypeDAO).getDataTypeByCode(DataTypeCode.VARCHAR);
                     will(returnValue(dataTypePE));
@@ -195,9 +189,6 @@ public final class PropertyTypeBOTest extends AbstractBOTest
                     allowing(daoFactory).getHomeDatabaseInstance();
                     will(returnValue(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE));
 
-                    one(daoFactory).getPropertyTypeDAO();
-                    will(returnValue(propertyTypeDAO));
-
                     one(propertyTypeDAO).getDataTypeByCode(DataTypeCode.CONTROLLEDVOCABULARY);
                     will(returnValue(dataTypePE));
 
@@ -225,9 +216,6 @@ public final class PropertyTypeBOTest extends AbstractBOTest
                 {
                     allowing(daoFactory).getHomeDatabaseInstance();
                     will(returnValue(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE));
-
-                    one(daoFactory).getPropertyTypeDAO();
-                    will(returnValue(propertyTypeDAO));
 
                     one(propertyTypeDAO).getDataTypeByCode(DataTypeCode.CONTROLLEDVOCABULARY);
                     will(returnValue(dataTypePE));
@@ -342,9 +330,6 @@ public final class PropertyTypeBOTest extends AbstractBOTest
                 {
                     allowing(daoFactory).getHomeDatabaseInstance();
                     will(returnValue(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE));
-
-                    one(daoFactory).getPropertyTypeDAO();
-                    will(returnValue(propertyTypeDAO));
 
                     one(propertyTypeDAO).getDataTypeByCode(DataTypeCode.XML);
                     will(returnValue(dataTypePE));

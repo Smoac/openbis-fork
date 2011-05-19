@@ -16,19 +16,33 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.util;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
 /**
  * @author Izabela Adamczyk
@@ -120,6 +134,30 @@ public class EntityHelper
         return (property != null) ? property.tryGetOriginalValue() : null;
     }
 
+
+    public static void updateSampleProperties(ICommonServer server, String sessionToken, TechId id,
+            Map<String, String> properties)
+    {
+        Sample sample = server.getSampleInfo(sessionToken, id).getParent();
+        List<IEntityProperty> props = new ArrayList<IEntityProperty>();
+        for (Entry<String, String> entry : properties.entrySet())
+        {
+            props.add(createNewProperty(entry.getKey(), entry.getValue()));
+        }
+        Experiment experiment = sample.getExperiment();
+        ExperimentIdentifier experimentIdentifier =
+                experiment == null ? null : ExperimentIdentifierFactory.parse(experiment
+                        .getIdentifier());
+        SampleIdentifier sampleIdentifier = SampleIdentifierFactory.parse(sample.getIdentifier());
+        Sample container = sample.getContainer();
+        String containerIdentifier = container == null ? null : container.getIdentifier();
+        SampleUpdatesDTO updates =
+                new SampleUpdatesDTO(id, props, experimentIdentifier,
+                        Collections.<NewAttachment> emptySet(), sample.getModificationDate(),
+                        sampleIdentifier, containerIdentifier, null);
+        server.updateSample(sessionToken, updates);
+    }
+    
     /**
      * Creates a property with specified code and value. An already existing property with same
      * code will be removed.

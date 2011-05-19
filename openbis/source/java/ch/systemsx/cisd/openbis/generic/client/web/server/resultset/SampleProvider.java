@@ -26,6 +26,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridC
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.PARENTS;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.PERM_ID;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.PROJECT;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.PROPERTIES_PREFIX;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.REGISTRATION_DATE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.REGISTRATOR;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.SAMPLE_IDENTIFIER;
@@ -54,8 +55,6 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
  */
 public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
 {
-    private static final String PROPERTIES_GROUP = "property-";
-
     private static final int MAX_PARENTS = 4;
 
     private final ListSampleDisplayCriteria2 criteria;
@@ -116,9 +115,9 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
             SampleType sampleType = sampleTypes.tryGet(sample.getSampleType().getCode());
             if (sampleType != null)
             {
-                builder.columnGroup(PROPERTIES_GROUP).addColumnsForAssignedProperties(sampleType);
+                builder.columnGroup(PROPERTIES_PREFIX).addColumnsForAssignedProperties(sampleType);
             }
-            builder.columnGroup(PROPERTIES_GROUP).addProperties(sample.getProperties());
+            builder.columnGroup(PROPERTIES_PREFIX).addProperties(sample.getProperties());
         }
         return builder.getModel();
     }

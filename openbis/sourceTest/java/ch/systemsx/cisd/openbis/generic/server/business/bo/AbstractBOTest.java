@@ -190,6 +190,8 @@ public abstract class AbstractBOTest extends AssertJUnit
                     will(returnValue(materialDAO));
                     allowing(daoFactory).getExperimentDAO();
                     will(returnValue(experimentDAO));
+                    allowing(daoFactory).getPropertyTypeDAO();
+                    will(returnValue(propertyTypeDAO));
                 }
             });
     }

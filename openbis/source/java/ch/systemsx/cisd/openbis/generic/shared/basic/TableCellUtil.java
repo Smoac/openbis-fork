@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.util;
+package ch.systemsx.cisd.openbis.generic.shared.basic;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 
 /**
@@ -28,6 +29,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
  */
 public class TableCellUtil
 {
+    private static final String USER_PREFIX = "USER-";
+    private static final String INTERN_PREFIX = "INTERN-";
+
     /**
      * Returns an appropriate table cell for the specified string token. If it can be parsed as
      * an integer number a {@link IntegerTableCell} is returned. If it can be parsed as a floating
@@ -50,6 +54,29 @@ public class TableCellUtil
             }
         }
         return new StringTableCell(token);
+    }
+    
+    /**
+     * Returns the code of specified property type with prefix <code>INTERN-</code> or
+     * <code>USER-</code> depending on whether it is internal name space or not.
+     */
+    public static String getPropertyTypeCode(PropertyType propertyType)
+    {
+        return (propertyType.isInternalNamespace() ? INTERN_PREFIX : USER_PREFIX)
+                + propertyType.getSimpleCode();
+    }
+    
+    public static String getSimplePropertyTypeCode(String propertyColumnCode)
+    {
+        if (propertyColumnCode.startsWith(USER_PREFIX))
+        {
+            return propertyColumnCode.substring(USER_PREFIX.length());
+        }
+        if (propertyColumnCode.startsWith(INTERN_PREFIX))
+        {
+            return propertyColumnCode.substring(INTERN_PREFIX.length());
+        }
+        return propertyColumnCode;
     }
     
     private TableCellUtil()

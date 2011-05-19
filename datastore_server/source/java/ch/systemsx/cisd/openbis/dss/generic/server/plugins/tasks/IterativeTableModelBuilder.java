@@ -30,10 +30,10 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetFileLines;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TableCellUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
-import ch.systemsx.cisd.openbis.generic.shared.util.TableCellUtil;
 
 /**
  * A table model builder that can take new columns and rows iteratively.

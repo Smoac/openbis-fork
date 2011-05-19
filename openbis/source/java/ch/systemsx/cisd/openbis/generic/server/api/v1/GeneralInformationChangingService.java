@@ -16,9 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.api.v1;
 
-import java.util.Collections;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 
@@ -32,15 +30,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
 /**
@@ -77,24 +67,7 @@ public class GeneralInformationChangingService extends
     {
         checkSession(sessionToken);
         
-        TechId id = new TechId(sampleID);
-        Sample sample = server.getSampleInfo(sessionToken, id).getParent();
-        for (Entry<String, String> entry : properties.entrySet())
-        {
-            EntityHelper.createOrUpdateProperty(sample, entry.getKey(), entry.getValue());
-        }
-        Experiment experiment = sample.getExperiment();
-        ExperimentIdentifier experimentIdentifier =
-                experiment == null ? null : ExperimentIdentifierFactory.parse(experiment
-                        .getIdentifier());
-        SampleIdentifier sampleIdentifier = SampleIdentifierFactory.parse(sample.getIdentifier());
-        Sample container = sample.getContainer();
-        String containerIdentifier = container == null ? null : container.getIdentifier();
-        SampleUpdatesDTO updates =
-                new SampleUpdatesDTO(id, sample.getProperties(), experimentIdentifier,
-                        Collections.<NewAttachment> emptySet(), sample.getModificationDate(),
-                        sampleIdentifier, containerIdentifier, null);
-        server.updateSample(sessionToken, updates);
+        EntityHelper.updateSampleProperties(server, sessionToken, new TechId(sampleID), properties);
     }
 
     public int getMajorVersion()

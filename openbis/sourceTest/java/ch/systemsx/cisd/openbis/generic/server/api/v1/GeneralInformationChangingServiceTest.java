@@ -99,7 +99,7 @@ public class GeneralInformationChangingServiceTest extends AbstractServerTestCas
         SampleUpdatesDTO updatesDTO = updateMatcher.recordedObject();
         assertEquals(SAMPLE_ID, updatesDTO.getSampleIdOrNull().getId().longValue());
         assertEquals(1234567890L, updatesDTO.getVersion().getTime());
-        assertEquals("[name: Albert, age: 76, material: B (Fluid), level: LOW, greetings: hello]",
+        assertEquals("[age: 76, material: B (Fluid), greetings: hello]",
                 updatesDTO.getProperties().toString());
         assertEquals("/P/S1:A03", updatesDTO.getSampleIdentifier().toString());
         assertEquals("/S/P/E", updatesDTO.getExperimentIdentifierOrNull().toString());

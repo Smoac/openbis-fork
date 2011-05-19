@@ -2771,4 +2771,18 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    public void updateProperty(EntityKind kind, TechId entityId, String propertyTypeCode,
+            String value)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            commonServer.updateProperty(sessionToken, kind, entityId, propertyTypeCode, value);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
 }

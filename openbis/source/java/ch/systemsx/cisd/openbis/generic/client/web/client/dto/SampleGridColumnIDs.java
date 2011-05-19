@@ -59,5 +59,7 @@ public class SampleGridColumnIDs
     public static final String PARENTS = "generatedFromParent";
     
     public static final String CONTAINER_SAMPLE = "containerParent";
+
+    public static final String PROPERTIES_PREFIX = "property-";
 }
 

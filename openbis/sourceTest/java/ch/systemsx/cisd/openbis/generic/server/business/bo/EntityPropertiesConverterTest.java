@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -37,13 +38,16 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.PropertyBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.builders.SamplePEBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -222,9 +226,6 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
                     this.allowing(daoFactory).getEntityTypeDAO(EntityKind.SAMPLE);
                     this.will(Expectations.returnValue(entityTypeDAO));
 
-                    this.allowing(daoFactory).getPropertyTypeDAO();
-                    this.will(Expectations.returnValue(propertyTypeDAO));
-
                     this.atLeast(1).of(entityTypeDAO).listEntityTypes();
                     this.will(Expectations.returnValue(Collections.singletonList(sampleType)));
 
@@ -322,6 +323,120 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
                         SAMPLE_TYPE_CODE.toLowerCase(), ManagerTestTool.EXAMPLE_PERSON);
         assertEquals(1, convertedProperties.size());
         context.assertIsSatisfied();
+    }
+    
+//    @Test
+    public void testUpdateProperties()
+    {
+        final SampleTypePE entityType = createSampleType(SAMPLE_TYPE_CODE);
+        PersonPE registrator = new PersonPE();
+        SamplePEBuilder builder =
+                new SamplePEBuilder().property("TEXT", DataTypeCode.VARCHAR, "hello").property(
+                        "NUMBER", DataTypeCode.INTEGER, "123");
+        SamplePEBuilder builder2 = new SamplePEBuilder().property("C", DataTypeCode.INTEGER, "123");
+        Set<SamplePropertyPE> oldProperties = builder.getSample().getProperties();
+        final List<EntityTypePropertyTypePE> assignments =
+                new ArrayList<EntityTypePropertyTypePE>();
+        for (SamplePropertyPE sampleProperty : oldProperties)
+        {
+            assignments.add(sampleProperty.getEntityTypePropertyType());
+        }
+        for (SamplePropertyPE sampleProperty : builder2.getSample().getProperties())
+        {
+            assignments.add(sampleProperty.getEntityTypePropertyType());
+        }
+        PropertyBuilder p1 = new PropertyBuilder("NUMBER").type(DataTypeCode.INTEGER).value("42");
+        PropertyBuilder p2 = new PropertyBuilder("C").type(DataTypeCode.INTEGER).value("137");
+        List<IEntityProperty> newProperties =
+                Arrays.<IEntityProperty> asList(p1.getProperty(), p2.getProperty());
+        IEntityPropertiesConverter entityPropertiesConverter =
+                createEntityPropertiesConverter(EntityKind.SAMPLE);
+        final RecordingMatcher<Set<String>> matcherOfPropertiesToUpdate =
+                new RecordingMatcher<Set<String>>();
+        final RecordingMatcher<Set<IEntityProperty>> matcherOfProperties =
+                new RecordingMatcher<Set<IEntityProperty>>();
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getEntityTypeDAO(EntityKind.SAMPLE);
+                    will(Expectations.returnValue(entityTypeDAO));
+
+                    one(entityTypeDAO).listEntityTypes();
+                    will(returnValue(Arrays.asList(entityType)));
+
+                    allowing(daoFactory).getEntityPropertyTypeDAO(EntityKind.SAMPLE);
+                    will(Expectations.returnValue(entityPropertyTypeDAO));
+
+                    allowing(entityPropertyTypeDAO).listEntityPropertyTypes(entityType);
+                    will(returnValue(assignments));
+
+                    one(dynamicPropertiesChecker).checkDynamicPropertiesNotManuallyUpdated(
+                            with(matcherOfPropertiesToUpdate),
+                            with(Collections.<String> emptySet()));
+                    one(placeholderCreator).addDynamicPropertiesPlaceholders(
+                            with(matcherOfProperties), with(Collections.<String> emptySet()));
+
+                    for (String[] codeAndValue : new String[][]
+                        {
+                            { "NUMBER", "42" },
+                            { "C", "137" } })
+                    {
+                        String code = codeAndValue[0];
+                        one(propertyTypeDAO).tryFindPropertyTypeByCode(code);
+                        PropertyTypePE type = tryToFind(assignments, code);
+                        if (type == null)
+                        {
+                            type = new PropertyTypePE();
+                            type.setCode(code);
+                        }
+                        will(returnValue(type));
+
+                        String value = codeAndValue[1];
+                        one(propertyValueValidator).validatePropertyValue(type, value);
+                        will(returnValue(value));
+                    }
+                }
+            });
+
+        Set<SamplePropertyPE> properties =
+                entityPropertiesConverter.updateProperties(oldProperties, entityType,
+                        newProperties, registrator);
+
+        List<SamplePropertyPE> props = new ArrayList<SamplePropertyPE>(properties);
+        Collections.sort(props, new Comparator<SamplePropertyPE>()
+            {
+                public int compare(SamplePropertyPE o1, SamplePropertyPE o2)
+                {
+                    return o1.getEntityTypePropertyType().getPropertyType().getCode()
+                            .compareTo(o2.getEntityTypePropertyType().getPropertyType().getCode());
+                }
+            });
+        assertEquals("C", props.get(0).getEntityTypePropertyType().getPropertyType().getCode());
+        assertEquals(DataTypeCode.INTEGER, props.get(0).getEntityTypePropertyType()
+                .getPropertyType().getType().getCode());
+        assertEquals("137", props.get(0).getValue());
+        assertEquals("NUMBER", props.get(1).getEntityTypePropertyType().getPropertyType().getCode());
+        assertEquals(DataTypeCode.INTEGER, props.get(1).getEntityTypePropertyType()
+                .getPropertyType().getType().getCode());
+        assertEquals("42", props.get(1).getValue());
+        assertEquals("TEXT", props.get(2).getEntityTypePropertyType().getPropertyType().getCode());
+        assertEquals(DataTypeCode.VARCHAR, props.get(2).getEntityTypePropertyType()
+                .getPropertyType().getType().getCode());
+        assertEquals("hello", props.get(2).getValue());
+        assertEquals(3, props.size());
+        context.assertIsSatisfied();
+    }
+
+    private PropertyTypePE tryToFind(List<EntityTypePropertyTypePE> assignments, String code)
+    {
+        for (EntityTypePropertyTypePE entityTypePropertyTypePE : assignments)
+        {
+            if (entityTypePropertyTypePE.getPropertyType().getCode().equals(code))
+            {
+                return entityTypePropertyTypePE.getPropertyType();
+            }
+        }
+        return null;
     }
 
     private PropertyTypePE createPropertyType()

@@ -33,12 +33,12 @@ import ch.systemsx.cisd.common.parser.ParsingException;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetFileLines;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TableCellUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
-import ch.systemsx.cisd.openbis.generic.shared.util.TableCellUtil;
 
 /**
  * Abstract class for reporting plugins which read from CSV or TSV files.

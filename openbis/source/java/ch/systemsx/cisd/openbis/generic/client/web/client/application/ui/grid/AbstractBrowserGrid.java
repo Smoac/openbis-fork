@@ -54,8 +54,11 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
+import com.extjs.gxt.ui.client.widget.grid.EditorGrid;
+import com.extjs.gxt.ui.client.widget.grid.EditorGrid.ClicksToEdit;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
@@ -1681,20 +1684,43 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         }
     }
 
-    private static <T extends ModelData> Grid<T> createGrid(
-            PagingLoader<PagingLoadResult<T>> dataLoader, String gridId)
+    private Grid<M> createGrid(
+            PagingLoader<PagingLoadResult<M>> dataLoader, String gridId)
     {
 
-        ListStore<T> listStore = new ListStore<T>(dataLoader);
+        ListStore<M> listStore = new ListStore<M>(dataLoader);
         ColumnModel columnModel = createColumnModel(new ArrayList<ColumnConfig>());
-        final Grid<T> grid = new Grid<T>(listStore, columnModel);
-        grid.setId(gridId);
-        grid.setLoadMask(true);
-        grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        grid.setView(new ExtendedGridView());
-        grid.setStripeRows(true);
-        grid.setColumnReordering(true);
-        return grid;
+        EditorGrid<M> editorGrid = new EditorGrid<M>(listStore, columnModel);
+        editorGrid.setId(gridId);
+        editorGrid.setLoadMask(true);
+        editorGrid.setSelectionModel(new GridSelectionModel<M>());
+        editorGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        editorGrid.setView(new ExtendedGridView());
+        editorGrid.setStripeRows(true);
+        editorGrid.setColumnReordering(true);
+        editorGrid.setClicksToEdit(ClicksToEdit.TWO);
+        editorGrid.addListener(Events.AfterEdit, new Listener<GridEvent<M>>()
+            {
+                public void handleEvent(GridEvent<M> event)
+                {
+                    M model = event.getModel();
+                    String columnID = event.getProperty();
+                    Object value = event.getValue();
+                    handleEditingEvent(model, columnID, value);
+                }
+            });
+        return editorGrid;
+    }
+    
+    /**
+     * Handle cell editing event.
+     * 
+     * @param model Row object corresponding to edited cell.
+     * @param columnID ID of cell's column
+     * @param newValue New value of the cell.
+     */
+    protected void handleEditingEvent(M model, String columnID, Object newValue)
+    {
     }
 
     // this should be the only place where we create the grid column model.

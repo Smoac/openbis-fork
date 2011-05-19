@@ -16,7 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto.builders;
 
+import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
@@ -73,6 +76,16 @@ public class SamplePEBuilder
     {
         sample.setSampleType(type);
         return this;
+    }
+    
+    public SamplePEBuilder property(String code, DataTypeCode dataType, String value)
+    {
+        SampleTypePEBuilder sampleTypeBuilder = new SampleTypePEBuilder().code("my-type");
+        PropertyTypePE propertyType =
+                CommonTestUtils.createPropertyType(code, dataType, null, null);
+        EntityTypePropertyTypePE etpt =
+                sampleTypeBuilder.assign(propertyType).getEntityTypePropertyType();
+        return property(etpt, value);
     }
     
     public SamplePEBuilder property(EntityTypePropertyTypePE etpt, String value)

@@ -1042,4 +1042,12 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         logAccess(sessionToken, "getDefaultPutDataStoreBaseURL");
         return null;
     }
+
+    public void updateProperty(String sessionToken, EntityKind kind, TechId entityId,
+            String propertyTypeCode, String value)
+    {
+        logTracking(sessionToken, "updateProperty",
+                "ENTITY_KIND(%s) ID(%s) PROPERTY(%s) VALUE(%s)", kind, entityId, propertyTypeCode,
+                value);
+    }
 }

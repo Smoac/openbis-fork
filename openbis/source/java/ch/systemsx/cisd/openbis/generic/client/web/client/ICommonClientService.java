@@ -1035,4 +1035,11 @@ public interface ICommonClientService extends IClientService
      * Returns script evaluation result.
      */
     public String evaluate(DynamicPropertyEvaluationInfo info) throws UserFailureException;
+    
+    /**
+     * Updates specified property for specified entity of specified kind.
+     */
+    public void updateProperty(EntityKind kind, TechId entityId, String propertyTypeCode,
+            String value) throws UserFailureException;
+
 }

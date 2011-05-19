@@ -204,9 +204,6 @@ public final class EntityTypePropertyTypeBOTest extends AbstractBOTest
                     one(entityTypeDAO).tryToFindEntityTypeByCode(experimentType.getCode());
                     will(returnValue(experimentType));
 
-                    one(daoFactory).getPropertyTypeDAO();
-                    will(returnValue(propertyTypeDAO));
-
                     one(propertyTypeDAO).tryFindPropertyTypeByCode(propertyType.getCode());
                     will(returnValue(propertyType));
 

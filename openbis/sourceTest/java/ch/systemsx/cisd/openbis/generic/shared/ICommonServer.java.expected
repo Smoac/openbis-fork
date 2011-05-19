@@ -1305,4 +1305,9 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public String getDefaultPutDataStoreBaseURL(String sessionToken);
 
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    public void updateProperty(String sessionToken, EntityKind kind, TechId entityId,
+            String propertyTypeCode, String value);
+
 }

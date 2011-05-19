@@ -981,7 +981,7 @@ public final class SampleBOTest extends AbstractBOTest
             {
                 {
                     one(propertiesConverter).updateProperties(sample.getProperties(),
-                            sample.getSampleType(), null, EXAMPLE_PERSON);
+                            sample.getSampleType(), null, EXAMPLE_PERSON, Collections.<String>emptySet());
                 }
             });
     }

@@ -2439,4 +2439,26 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return dataStores.get(0).getDownloadUrl();
     }
 
+    public void updateProperty(String sessionToken, EntityKind kind, TechId entityId,
+            String propertyTypeCode, String value)
+    {
+        checkSession(sessionToken);
+        switch (kind)
+        {
+            case SAMPLE:
+                updateSampleProperty(sessionToken, entityId, propertyTypeCode, value);
+                break;
+            default:
+                throw new UnsupportedOperationException();
+        }
+    }
+    
+    private void updateSampleProperty(String sessionToken, TechId entityId,
+            String propertyTypeCode, String value)
+    {
+        HashMap<String, String> properties = new HashMap<String, String>();
+        properties.put(propertyTypeCode, value);
+        EntityHelper.updateSampleProperties(this, sessionToken, entityId, properties);
+    }
+
 }
