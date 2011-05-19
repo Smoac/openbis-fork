@@ -369,6 +369,8 @@ public final class DataDAOTest extends AbstractDAOTest
         findData(PARENT_CODE);
     }
 
+    // TODO write testDeleteContainerWithComponentsPreserved
+
     @Test(expectedExceptions = DataIntegrityViolationException.class)
     public final void testDeleteFailWithChildrenDatasets()
     {

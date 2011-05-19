@@ -457,6 +457,17 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                     "Data Set '%s' cannot be deleted because children datasets are connected.",
                     entity.getCode()));
         }
+        if (entity.isContainer())
+        {
+            // Remove components and flush changes before deletion of the container.
+            // Otherwise constraint violation exception will be thrown.
+            List<DataPE> components = new ArrayList<DataPE>(entity.getContainedDataSets());
+            for (DataPE component : components)
+            {
+                entity.removeComponent(component);
+            }
+            flush();
+        }
         super.delete(entity);
     }
 
