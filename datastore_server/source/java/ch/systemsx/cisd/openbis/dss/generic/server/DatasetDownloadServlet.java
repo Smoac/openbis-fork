@@ -39,9 +39,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
 import ch.systemsx.cisd.common.utilities.HierarchicalContentUtils;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.util.HttpRequestUtils;
 
 /**
@@ -221,12 +219,29 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
     private RenderingContext createRenderingContext(RequestParams requestParams,
             String dataSetCode, HttpSession session)
     {
-        IHierarchicalContent rootContent =
-                applicationContext.getHierarchicalContentProvider().asContent(dataSetCode);
-        RenderingContext context =
-                new RenderingContext(rootContent, requestParams.getURLPrefix(),
-                        requestParams.getPathInfo(), requestParams.tryGetSessionId());
-        return context;
+        IHierarchicalContent rootContent = null;
+        try
+        {
+            rootContent =
+                    applicationContext.getHierarchicalContentProvider().asContent(dataSetCode);
+        } catch (IllegalArgumentException ex)
+        {
+            throw new UserFailureException(ex.getMessage());
+        }
+        try
+        {
+            RenderingContext context =
+                    new RenderingContext(rootContent, requestParams.getURLPrefix(),
+                            requestParams.getPathInfo(), requestParams.tryGetSessionId());
+            return context;
+        } catch (IllegalArgumentException ex)
+        {
+            if (rootContent != null)
+            {
+                rootContent.close();
+            }
+            throw ex; // rethrow
+        }
     }
 
     private IRendererFactory createRendererFactory(String displayMode)
@@ -340,36 +355,32 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
                     + "' does not exist in data set '" + dataSetCode + "'.");
         }
 
-        // If we want to browse a directory, we need a whole dataset metadata from openbis to
-        // display them for the user. But if just a file is needed, then it's much faster to just
-        // check the access rights in openbis.
         String sessionIdOrNull = requestParams.tryGetSessionId();
+        ensureDatasetAccessible(dataSetCode, session, sessionIdOrNull);
         if (node.isDirectory())
         {
-            ExternalData dataSet = getDataSet(dataSetCode, sessionIdOrNull, session);
             if (requestParams.isAutoResolve())
             {
                 autoResolve(rendererFactory, response, dataSetCode, renderingContext,
-                        requestParams, session, node, dataSet, false);
+                        requestParams, session, node, false);
             } else if (requestParams.isForceAutoResolve())
             {
                 autoResolve(rendererFactory, response, dataSetCode, renderingContext,
-                        requestParams, session, node, dataSet, true);
+                        requestParams, session, node, true);
             } else
             {
-                createPage(rendererFactory, response, dataSet, renderingContext, node);
+                createPage(rendererFactory, response, dataSetCode, renderingContext, node);
             }
         } else
         {
-            ensureDatasetAccessible(dataSetCode, session, sessionIdOrNull);
             deliverFile(response, dataSetCode, node, requestParams.getDisplayMode());
         }
     }
 
     private void autoResolve(IRendererFactory rendererFactory, HttpServletResponse response,
             String dataSetCode, RenderingContext renderingContext, RequestParams requestParams,
-            HttpSession session, IHierarchicalContentNode dirNode, ExternalData dataSet,
-            boolean shouldForce) throws IOException
+            HttpSession session, IHierarchicalContentNode dirNode, boolean shouldForce)
+            throws IOException
     {
         assert dirNode.exists() && dirNode.isDirectory();
         List<IHierarchicalContentNode> mainDataSets =
@@ -396,7 +407,7 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
             autoResolveRedirect(response, newRenderingContext);
         } else
         {
-            createPage(rendererFactory, response, dataSet, renderingContext, dirNode);
+            createPage(rendererFactory, response, dataSetCode, renderingContext, dirNode);
         }
     }
 
@@ -418,14 +429,13 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
     }
 
     private void createPage(IRendererFactory rendererFactory, HttpServletResponse response,
-            ExternalData dataSet, RenderingContext renderingContext,
-            IHierarchicalContentNode dirNode) throws IOException
+            String dataSetCode, RenderingContext renderingContext, IHierarchicalContentNode dirNode)
+            throws IOException
     {
         assert dirNode.isDirectory();
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("For data set '%s' show directory '%s'",
-                    dataSet.getCode(),
+            operationLog.info(String.format("For data set '%s' show directory '%s'", dataSetCode,
                     (dirNode.getRelativePath() == null) ? "/" : dirNode.getRelativePath()));
         }
         IDirectoryRenderer directoryRenderer =
@@ -515,40 +525,4 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
                 contentNode.getFileLength(), contentType, contentNode.getName());
     }
 
-    private ExternalData getDataSet(String dataSetCode, String sessionIdOrNull, HttpSession session)
-    {
-        ExternalData dataset = tryToGetCachedDataSet(session, dataSetCode);
-        if (dataset != null)
-        {
-            return dataset;
-        }
-        ensureSessionIdSpecified(sessionIdOrNull);
-        ExternalData dataSet = tryGetDataSetFromServer(dataSetCode, sessionIdOrNull);
-        if (dataSet != null)
-        {
-            putDataSetToMap(session, dataSetCode, dataSet);
-            return dataSet;
-        } else
-        {
-            throw new UserFailureException("Unknown data set '" + dataSetCode + "'.");
-        }
-    }
-
-    private ExternalData tryGetDataSetFromServer(String dataSetCode, String sessionIdOrNull)
-    {
-        IEncapsulatedOpenBISService dataSetService = applicationContext.getDataSetService();
-        ExternalData dataSet = dataSetService.tryGetDataSet(sessionIdOrNull, dataSetCode);
-        if (operationLog.isInfoEnabled())
-        {
-            String actionDesc = (dataSet != null) ? "obtained from" : "not found in";
-            operationLog.info(String.format("Data set '%s' %s openBIS server.", dataSetCode,
-                    actionDesc));
-        }
-        return dataSet;
-    }
-
-    private void putDataSetToMap(HttpSession session, String dataSetCode, ExternalData dataSet)
-    {
-        getDataSets(session).put(dataSetCode, dataSet);
-    }
 }

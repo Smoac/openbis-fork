@@ -36,11 +36,12 @@ public interface IHierarchicalContentProvider
 
     /**
      * This is the only method that supports abstraction for virtual data sets. It needs to access
-     * openBIS DB first to retrieve information first.
+     * openBIS DB to retrieve information first.
      * 
      * @return {@link IHierarchicalContent} for the specified data set
+     * @throws IllegalArgumentException if data set doesn't exist in openBIS DB
      */
-    IHierarchicalContent asContent(String dataSetCode);
+    IHierarchicalContent asContent(String dataSetCode) throws IllegalArgumentException;
 
     /**
      * @return {@link IHierarchicalContent} for the specified data set

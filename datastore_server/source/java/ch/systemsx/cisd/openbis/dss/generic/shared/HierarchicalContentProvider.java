@@ -79,7 +79,9 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
         ExternalData externalData = openbisService.tryGetDataSet(dataSetCode);
         if (externalData == null)
         {
-            throw new IllegalArgumentException("Unknown data set " + dataSetCode);
+            operationLog.error(String.format("Data set '%s' not found in openBIS server.",
+                    dataSetCode));
+            throw new IllegalArgumentException("Unknown data set: " + dataSetCode);
         }
         if (externalData.isContainer())
         {

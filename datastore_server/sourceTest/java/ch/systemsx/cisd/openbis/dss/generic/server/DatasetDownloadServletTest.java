@@ -52,15 +52,17 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.io.DefaultFileBasedHierarchicalContentFactory;
+import ch.systemsx.cisd.common.io.IHierarchicalContentFactory;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.test.AssertionUtil;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.MockDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.HierarchicalContentProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
@@ -71,8 +73,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 /**
  * @author Franz-Josef Elmer
  */
-// FIXME use mocks for abstraction
-@Test(groups = "broken")
+@Test
 public class DatasetDownloadServletTest
 {
     private static final String REQUEST_URI_PREFIX = "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME
@@ -83,9 +84,15 @@ public class DatasetDownloadServletTest
 
     private static final String LOGGER_NAME = "OPERATION.AbstractDatasetDownloadServlet";
 
+    private static final String CONTENT_PROVIDER_LOGGER_NAME =
+            "OPERATION.HierarchicalContentProvider";
+
     private static final String LOG_INFO = "INFO  " + LOGGER_NAME + " - ";
 
     private static final String LOG_ERROR = "ERROR " + LOGGER_NAME + " - ";
+
+    private static final String CONTENT_PROVIDER_LOG_ERROR = "ERROR "
+            + CONTENT_PROVIDER_LOGGER_NAME + " - ";
 
     private static final String DATABASE_INSTANCE_UUID = "db-uuid";
 
@@ -137,11 +144,11 @@ public class DatasetDownloadServletTest
 
     private HttpServletResponse response;
 
-    private IEncapsulatedOpenBISService dataSetService;
-
     private HttpSession httpSession;
 
     private IShareIdManager shareIdManager;
+
+    private IEncapsulatedOpenBISService openbisService;
 
     private IHierarchicalContentProvider hierarchicalContentProvider;
 
@@ -153,12 +160,16 @@ public class DatasetDownloadServletTest
         context = new Mockery();
         request = context.mock(HttpServletRequest.class);
         response = context.mock(HttpServletResponse.class);
-        dataSetService = context.mock(IEncapsulatedOpenBISService.class);
         shareIdManager = context.mock(IShareIdManager.class);
-        // test with HierarchicalContentFactory to actually access files
+        openbisService = context.mock(IEncapsulatedOpenBISService.class);
+        // test with DefaultFileBasedHierarchicalContentFactory to actually access files
+        final IHierarchicalContentFactory fileBasedContentFactory =
+                new DefaultFileBasedHierarchicalContentFactory();
+        final IDataSetDirectoryProvider dummyDirectoryProvider =
+                new MockDataSetDirectoryProvider(TEST_FOLDER, DEFAULT_SHARE_ID, shareIdManager);
         hierarchicalContentProvider =
-                new HierarchicalContentProvider(null, null,
-                        new DefaultFileBasedHierarchicalContentFactory());
+                new HierarchicalContentProvider(openbisService, dummyDirectoryProvider,
+                        fileBasedContentFactory);
         httpSession = context.mock(HttpSession.class);
         TEST_FOLDER.mkdirs();
         EXAMPLE_DATA_SET_FOLDER.mkdirs();
@@ -187,16 +198,17 @@ public class DatasetDownloadServletTest
         assertEquals("text/plain", DatasetDownloadServlet.getMimeType("filewithoutext", false));
     }
 
-    @Test()
+    @Test
     public void testInitialDoGet() throws Exception
     {
         final StringWriter writer = new StringWriter();
         final ExternalData externalData = createExternalData();
         prepareParseRequestURL();
+        prepareCheckDatasetAccess();
         prepareForObtainingDataSetFromServer(externalData);
+        prepareLocking();
         prepareForGettingDataSetFromSession(externalData, "");
         prepareForCreatingHTML(writer);
-        prepareListDataSetsByCode();
 
         DatasetDownloadServlet servlet = createServlet();
         servlet.doGet(request, response);
@@ -229,8 +241,11 @@ public class DatasetDownloadServletTest
                         + OSUtilities.LINE_SEPARATOR + "", writer.toString());
 
         String normalizedLogContent = getNormalizedLogContent();
-        assertContains(getSessionCreationLogMessage() + OSUtilities.LINE_SEPARATOR + LOG_INFO
-                + "Data set '1234-1' obtained from openBIS server.", normalizedLogContent);
+        // assertContains(getSessionCreationLogMessage() + OSUtilities.LINE_SEPARATOR + LOG_INFO
+        // + "Data set '1234-1' obtained from openBIS server.", normalizedLogContent);
+        // FIXME
+        // assertContains(getSessionCreationLogMessage() + OSUtilities.LINE_SEPARATOR + LOG_INFO
+        // + "Check access to the data set '1234-1' at openBIS server.", normalizedLogContent);
         assertContains(LOG_INFO + "For data set '1234-1' show directory '/'", normalizedLogContent);
 
         context.assertIsSatisfied();
@@ -268,8 +283,8 @@ public class DatasetDownloadServletTest
         final StringWriter writer = new StringWriter();
         final ExternalData externalData = createExternalData();
         prepareParseRequestURL();
-        prepareCreateSession();
-        prepareListDataSetsByCode();
+        prepareForObtainingDataSetFromServer(externalData);
+        prepareLocking();
         context.checking(new Expectations()
             {
                 {
@@ -305,9 +320,7 @@ public class DatasetDownloadServletTest
     {
         final StringWriter writer = new StringWriter();
         prepareParseRequestURL();
-        prepareCreateSession();
-        prepareTryGetDataset(null);
-        prepareListDataSetsByCode();
+        prepareForObtainingDataSetFromServer(null);
         context.checking(new Expectations()
             {
                 {
@@ -323,12 +336,13 @@ public class DatasetDownloadServletTest
         DatasetDownloadServlet servlet = createServlet();
         servlet.doGet(request, response);
         assertContains("<html><body><h1>Error</h1>" + OSUtilities.LINE_SEPARATOR
-                + "Unknown data set '1234-1'." + OSUtilities.LINE_SEPARATOR + "</body></html>"
+                + "Unknown data set: 1234-1" + OSUtilities.LINE_SEPARATOR + "</body></html>"
                 + OSUtilities.LINE_SEPARATOR, writer.toString());
         String logContent = logRecorder.getLogContent();
-        assertContains(getSessionCreationLogMessage() + OSUtilities.LINE_SEPARATOR + LOG_INFO
-                + "Data set '1234-1' not found in openBIS server." + OSUtilities.LINE_SEPARATOR
-                + LOG_INFO + "User failure: Unknown data set '1234-1'.", logContent);
+        assertContains(getSessionCreationLogMessage() + OSUtilities.LINE_SEPARATOR
+                + CONTENT_PROVIDER_LOG_ERROR + "Data set '1234-1' not found in openBIS server."
+                + OSUtilities.LINE_SEPARATOR + LOG_INFO + "User failure: Unknown data set: 1234-1",
+                logContent);
 
         context.assertIsSatisfied();
     }
@@ -339,12 +353,14 @@ public class DatasetDownloadServletTest
                 + "Creating a new session with the following parameters: [sessionID=AV76CF] Session Timeout: 120 sec";
     }
 
-    @Test()
+    @Test
     public void testDoGetSubFolder() throws Exception
     {
         final StringWriter writer = new StringWriter();
         final ExternalData externalData = createExternalData();
-        prepareListDataSetsByCode();
+        prepareCheckDatasetAccess();
+        prepareForObtainingDataSetFromServer(externalData);
+        prepareLocking();
         context.checking(new Expectations()
             {
                 {
@@ -352,11 +368,6 @@ public class DatasetDownloadServletTest
 
                     allowing(request).getSession(false);
                     will(returnValue(httpSession));
-
-                    DatabaseInstance databaseInstance = new DatabaseInstance();
-                    databaseInstance.setUuid(DATABASE_INSTANCE_UUID);
-                    getSessionAttribute(this, DatasetDownloadServlet.DATABASE_INSTANCE_SESSION_KEY,
-                            databaseInstance);
 
                     prepareForGettingDataSetFromSession(this, externalData,
                             ESCAPED_EXAMPLE_DATA_SET_SUB_FOLDER_NAME);
@@ -369,7 +380,7 @@ public class DatasetDownloadServletTest
         assertEquals(
                 "<html><head><style type='text/css'> * { margin: 3px; }html { height: 100%;  }body { height: 100%; font-family: verdana, tahoma, helvetica; font-size: 11px; text-align:left; }h1 { text-align: center; padding: 1em; color: #1E4E8F;}.td_hd { border: 1px solid #FFFFFF; padding 3px; background-color: #DDDDDD; height: 1.5em; }.div_hd { background-color: #1E4E8F; color: white; font-weight: bold; padding: 3px; }table { border-collapse: collapse; padding: 1em; }tr, td { font-family: verdana, tahoma, helvetica; font-size: 11px; }.td_file { font-family: verdana, tahoma, helvetica; font-size: 11px; height: 1.5em }.wrapper { min-height: 100%; height: auto !important; height: 100%; margin: 0em auto -4em; }.footer { height: 4em; text-align: center; }</style></head><body><table> <tr><td class='td_hd'>Folder:</td><td>+ s % ! # @</td></tr>"
                         + OSUtilities.LINE_SEPARATOR
-                        + "<tr><td class='td_file'><a href='/datastore_server/1234-1/?mode=simpleHtml'>..</td><td></td></tr>"
+                        + "<tr><td class='td_file'><a href='/datastore_server/1234-1/?mode=simpleHtml&sessionID=AV76CF'>..</td><td></td></tr>"
                         + OSUtilities.LINE_SEPARATOR
                         + "</table> </div> </body></html>"
                         + OSUtilities.LINE_SEPARATOR, writer.toString());
@@ -385,10 +396,11 @@ public class DatasetDownloadServletTest
         final ExternalData externalData = createExternalData();
 
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        prepareCreateSession();
-        prepareCheckDatasetAccess();
         prepareParseRequestURL();
-        prepareListDataSetsByCode();
+        prepareFullCheckDatasetAccess();
+        prepareForObtainingDataSetFromServer(externalData);
+        prepareLocking();
+
         context.checking(new Expectations()
             {
                 {
@@ -429,9 +441,10 @@ public class DatasetDownloadServletTest
         BufferedImage image = new BufferedImage(100, 200, BufferedImage.TYPE_INT_RGB);
         ImageIO.write(image, "png", EXAMPLE_FILE);
         prepareParseRequestURLForThumbnail(100, 50);
-        prepareCreateSession();
-        prepareCheckDatasetAccess();
-        prepareListDataSetsByCode();
+        final ExternalData externalData = createExternalData();
+        prepareFullCheckDatasetAccess();
+        prepareForObtainingDataSetFromServer(externalData);
+        prepareLocking();
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         context.checking(new Expectations()
             {
@@ -479,8 +492,8 @@ public class DatasetDownloadServletTest
         final StringWriter writer = new StringWriter();
         final ExternalData externalData = createExternalData();
         prepareParseRequestURL();
-        prepareCreateSession();
-        prepareListDataSetsByCode();
+        prepareForObtainingDataSetFromServer(externalData);
+        prepareLocking();
         context.checking(new Expectations()
             {
                 {
@@ -697,14 +710,6 @@ public class DatasetDownloadServletTest
                     will(Expectations.returnValue(parameterNames.elements()));
                     one(request).getParameter(Utils.SESSION_ID_PARAM);
                     will(returnValue(EXAMPLE_SESSION_ID));
-
-                    DatabaseInstance databaseInstance = new DatabaseInstance();
-                    databaseInstance.setUuid(DATABASE_INSTANCE_UUID);
-                    one(dataSetService).getHomeDatabaseInstance();
-                    will(returnValue(databaseInstance));
-                    checkAndSetAttribute(this,
-                            DatasetDownloadServlet.DATABASE_INSTANCE_SESSION_KEY, databaseInstance);
-
                 }
             });
     }
@@ -714,28 +719,28 @@ public class DatasetDownloadServletTest
         context.checking(new Expectations()
             {
                 {
-                    HashMap<String, ExternalDataPE> map = new HashMap<String, ExternalDataPE>();
-                    checkAndSetAttribute(this, DatasetDownloadServlet.DATA_SET_SESSION_KEY, map);
+                    // FIXME temporary
+                    // HashMap<String, ExternalDataPE> map = new HashMap<String, ExternalDataPE>();
+                    // checkAndSetAttribute(this, DatasetDownloadServlet.DATA_SET_SESSION_KEY, map);
 
-                    one(dataSetService).tryGetDataSet(EXAMPLE_SESSION_ID, EXAMPLE_DATA_SET_CODE);
+                    one(openbisService).tryGetDataSet(EXAMPLE_DATA_SET_CODE);
                     will(returnValue(externalData));
                 }
             });
     }
 
-    private void prepareListDataSetsByCode()
+    private void prepareLocking()
     {
         context.checking(new Expectations()
             {
                 {
                     one(shareIdManager).lock(EXAMPLE_DATA_SET_CODE);
-                    one(shareIdManager).getShareId(EXAMPLE_DATA_SET_CODE);
-                    will(returnValue(DEFAULT_SHARE_ID));
+                    one(shareIdManager).releaseLock(EXAMPLE_DATA_SET_CODE);
                 }
             });
     }
 
-    private void prepareCheckDatasetAccess()
+    private void prepareFullCheckDatasetAccess()
     {
         context.checking(new Expectations()
             {
@@ -747,10 +752,23 @@ public class DatasetDownloadServletTest
                     checkAndSetAttribute(this, DatasetDownloadServlet.DATA_SET_ACCESS_SESSION_KEY,
                             map);
 
-                    one(dataSetService).checkDataSetAccess(EXAMPLE_SESSION_ID,
+                    one(openbisService).checkDataSetAccess(EXAMPLE_SESSION_ID,
                             EXAMPLE_DATA_SET_CODE);
 
                     getSessionAttribute(this, DatasetDownloadServlet.DATA_SET_ACCESS_SESSION_KEY,
+                            map);
+                }
+            });
+    }
+
+    private void prepareCheckDatasetAccess()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    // FIXME
+                    Map<String, Boolean> map = new HashMap<String, Boolean>();
+                    checkAndSetAttribute(this, DatasetDownloadServlet.DATA_SET_ACCESS_SESSION_KEY,
                             map);
                 }
             });
@@ -797,8 +815,9 @@ public class DatasetDownloadServletTest
         LocatorType locatorType = new LocatorType();
         locatorType.setCode(LocatorType.DEFAULT_LOCATOR_TYPE_CODE);
         externalData.setLocatorType(locatorType);
-        externalData.setLocation(DatasetLocationUtil.getDatasetRelativeLocationPath(
-                EXAMPLE_DATA_SET_CODE, DEFAULT_SHARE_ID, DATABASE_INSTANCE_UUID));
+        externalData.setShareId(DEFAULT_SHARE_ID);
+        externalData.setLocation(DatasetLocationUtil.getDatasetLocationPath(EXAMPLE_DATA_SET_CODE,
+                DATABASE_INSTANCE_UUID));
         return externalData;
     }
 
@@ -820,7 +839,7 @@ public class DatasetDownloadServletTest
         properties.setProperty(ConfigParameters.KEYSTORE_KEY_PASSWORD_KEY, "y");
         properties.setProperty(ConfigParameters.DOWNLOAD_URL, "http://localhost:8080");
         ConfigParameters configParameters = new ConfigParameters(properties);
-        return new DatasetDownloadServlet(new ApplicationContext(dataSetService, shareIdManager,
+        return new DatasetDownloadServlet(new ApplicationContext(openbisService, shareIdManager,
                 hierarchicalContentProvider, configParameters));
     }
 

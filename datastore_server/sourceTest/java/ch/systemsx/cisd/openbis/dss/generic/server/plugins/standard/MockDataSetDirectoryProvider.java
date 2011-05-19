@@ -28,10 +28,18 @@ public final class MockDataSetDirectoryProvider implements IDataSetDirectoryProv
 
     private final String shareID;
 
+    private final IShareIdManager shareIdManager;
+
     public MockDataSetDirectoryProvider(File store, String shareID)
+    {
+        this(store, shareID, null);
+    }
+
+    public MockDataSetDirectoryProvider(File store, String shareID, IShareIdManager shareIdManager)
     {
         this.store = store;
         this.shareID = shareID;
+        this.shareIdManager = shareIdManager;
     }
 
     public File getStoreRoot()
@@ -46,6 +54,6 @@ public final class MockDataSetDirectoryProvider implements IDataSetDirectoryProv
 
     public IShareIdManager getShareIdManager()
     {
-        return null;
+        return shareIdManager;
     }
 }

@@ -81,7 +81,7 @@ public class DataStoreServerBasedDataSourceProvider implements IDataSourceProvid
         DataPE dataSet = daoFactory.getDataDAO().tryToFindDataSetByCode(dataSetCode);
         if (dataSet == null)
         {
-            throw new UserFailureException("Unknown data set " + dataSetCode);
+            throw new UserFailureException("Unknown data set: " + dataSetCode);
         }
         return getDataSourceByDataStoreServerCode(dataSet.getDataStore().getCode(), technology);
     }

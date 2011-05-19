@@ -138,7 +138,7 @@ public class HierarchicalContentProviderTest extends AssertJUnit
             fail("expected IllegalArgumentException");
         } catch (IllegalArgumentException ex)
         {
-            assertEquals("Unknown data set " + dataSetCode, ex.getMessage());
+            assertEquals("Unknown data set: " + dataSetCode, ex.getMessage());
         }
 
         context.assertIsSatisfied();

@@ -59,9 +59,10 @@ public class SegmentedStoreUtils
     private static final String RSYNC_EXEC = "rsync";
 
     private static final Pattern SHARE_ID_PATTERN = Pattern.compile("[0-9]+");
-    
-    @Private static final String SPEED_FILE = "speed";
-    
+
+    @Private
+    static final String SPEED_FILE = "speed";
+
     private static final Comparator<Share> SHARE_COMPARATOR = new Comparator<Share>()
         {
             public int compare(Share o1, Share o2)
@@ -165,8 +166,9 @@ public class SegmentedStoreUtils
             Set<String> incomingShares, IFreeSpaceProvider freeSpaceProvider,
             IEncapsulatedOpenBISService service, ISimpleLogger log)
     {
-        List<Share> shares = getDataSetsPerShare(storeRoot, dataStoreCode, freeSpaceProvider, service, log,
-                SystemTimeProvider.SYSTEM_TIME_PROVIDER);
+        List<Share> shares =
+                getDataSetsPerShare(storeRoot, dataStoreCode, freeSpaceProvider, service, log,
+                        SystemTimeProvider.SYSTEM_TIME_PROVIDER);
         for (Share share : shares)
         {
             share.setIncoming(incomingShares.contains(share.getShareId()));
@@ -201,9 +203,10 @@ public class SegmentedStoreUtils
                             log.log(LogLevel.INFO, "Calculating size of " + dataSetInStore);
                             long t0 = timeProvider.getTimeInMilliseconds();
                             long size = FileUtils.sizeOfDirectory(dataSetInStore);
-                            log.log(LogLevel.INFO, dataSetInStore + " contains " + size
-                                    + " bytes (calculated in "
-                                    + (timeProvider.getTimeInMilliseconds() - t0) + " msec)");
+                            log.log(LogLevel.INFO,
+                                    dataSetInStore + " contains " + size + " bytes (calculated in "
+                                            + (timeProvider.getTimeInMilliseconds() - t0)
+                                            + " msec)");
                             service.updateShareIdAndSize(dataSetCode, shareId, size);
                             dataSet.setDataSetSize(size);
                         }
@@ -271,7 +274,7 @@ public class SegmentedStoreUtils
         ExternalData dataSet = service.tryGetDataSet(dataSetCode);
         if (dataSet == null)
         {
-            throw new UserFailureException("Unknown data set " + dataSetCode);
+            throw new UserFailureException("Unknown data set: " + dataSetCode);
         }
         File oldShare =
                 dataSetDirInStore.getParentFile().getParentFile().getParentFile().getParentFile()
@@ -288,14 +291,13 @@ public class SegmentedStoreUtils
     }
 
     /**
-     * Deletes specified data set at specified location. This methods waits until any locks 
-     * on the specified data set have been released. 
+     * Deletes specified data set at specified location. This methods waits until any locks on the
+     * specified data set have been released.
      */
     public static void deleteDataSet(final String dataSetCode, final File dataSetDirInStore,
             final IShareIdManager shareIdManager, final ISimpleLogger logger)
     {
-        logger.log(LogLevel.INFO, "Await for data set " + dataSetCode
-                + " to be unlocked.");
+        logger.log(LogLevel.INFO, "Await for data set " + dataSetCode + " to be unlocked.");
         shareIdManager.await(dataSetCode);
         logger.log(LogLevel.INFO, "Start deleting data set " + dataSetCode + " at "
                 + dataSetDirInStore);

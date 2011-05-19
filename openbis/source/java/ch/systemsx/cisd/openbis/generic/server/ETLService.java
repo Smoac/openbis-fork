@@ -705,7 +705,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         DataPE dataSet = dataSetDAO.tryToFindFullDataSetByCode(dataSetCode, false, false);
         if (dataSet == null)
         {
-            throw new UserFailureException("Unknown data set " + dataSetCode);
+            throw new UserFailureException("Unknown data set: " + dataSetCode);
         }
         ExternalDataPE externalData = dataSet.tryAsExternalData();
         if (externalData == null)

@@ -39,10 +39,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 public class NotifyingTask extends AbstractPostRegistrationTask
 {
     private static final String MESSAGE_TEMPLATE_KEY = "message-template";
+
     private static final String DESTINATION_PATH_TEMPLATE_KEY = "destination-path-template";
+
     private static final String PROPERTY_PREFIX = "property:";
+
     private static final String DATA_SET_CODE_PLACE_HOLDER = "data-set-code";
-    
+
     private final Template messageTemplate;
 
     private final Template destinationPathTemplate;
@@ -67,7 +70,7 @@ public class NotifyingTask extends AbstractPostRegistrationTask
         ExternalData dataSet = service.tryGetDataSet(dataSetCode);
         if (dataSet == null)
         {
-            throw new IllegalArgumentException("Unknown data set " + dataSetCode);
+            throw new IllegalArgumentException("Unknown data set: " + dataSetCode);
         }
         return new Executor(dataSet, messageTemplate.createFreshCopy(),
                 destinationPathTemplate.createFreshCopy());

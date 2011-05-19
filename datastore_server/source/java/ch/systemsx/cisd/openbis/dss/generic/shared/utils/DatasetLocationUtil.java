@@ -32,13 +32,14 @@ public class DatasetLocationUtil
      * 
      * @throws UserFailureException if the dataset directory does not exist.
      */
-    public static File getDatasetLocationPathCheckingIfExists(String dataSetCode, String shareId, 
+    public static File getDatasetLocationPathCheckingIfExists(String dataSetCode, String shareId,
             DatabaseInstance databaseInstance, File storeDir)
     {
         String databaseUuid = databaseInstance.getUuid();
 
         File dataSetRootDirectory =
-                DatasetLocationUtil.getDatasetLocationPath(storeDir, dataSetCode, shareId, databaseUuid);
+                DatasetLocationUtil.getDatasetLocationPath(storeDir, dataSetCode, shareId,
+                        databaseUuid);
         if (dataSetRootDirectory.exists() == false)
         {
             throw new UserFailureException("Data set '" + dataSetCode + "' not found in the store.");
@@ -47,17 +48,26 @@ public class DatasetLocationUtil
     }
 
     /** Creates a location where a dataset can be found in a specified base directory. */
-    public static File getDatasetLocationPath(final File baseDir, String dataSetCode, String shareId, 
-            final String instanceUUID)
+    public static File getDatasetLocationPath(final File baseDir, String dataSetCode,
+            String shareId, final String instanceUUID)
     {
         return new File(baseDir, getDatasetRelativeLocationPath(dataSetCode, shareId, instanceUUID));
     }
 
     /** returns path relative to the store */
-    public static String getDatasetRelativeLocationPath(String dataSetCode, String shareId, 
+    public static String getDatasetRelativeLocationPath(String dataSetCode, String shareId,
             final String instanceUUID)
     {
         final File instanceDir = new File(new File(shareId), instanceUUID);
+        final File shardingDir = createShardingDir(instanceDir, dataSetCode);
+        final File datasetDir = new File(shardingDir, dataSetCode);
+        return datasetDir.getPath();
+    }
+
+    /** returns location (path relative to the share) */
+    public static String getDatasetLocationPath(String dataSetCode, final String instanceUUID)
+    {
+        final File instanceDir = new File(instanceUUID);
         final File shardingDir = createShardingDir(instanceDir, dataSetCode);
         final File datasetDir = new File(shardingDir, dataSetCode);
         return datasetDir.getPath();
