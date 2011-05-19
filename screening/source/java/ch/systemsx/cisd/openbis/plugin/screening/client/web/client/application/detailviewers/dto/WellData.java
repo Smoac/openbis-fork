@@ -109,4 +109,8 @@ public class WellData
         return fullyLoaded;
     }
 
+    public void setFullyLoaded(boolean fullyLoaded)
+    {
+        this.fullyLoaded = fullyLoaded;
+    }
 }

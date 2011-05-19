@@ -34,6 +34,7 @@ import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.layout.ColumnLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
+import com.extjs.gxt.ui.client.widget.tips.ToolTip;
 import com.extjs.gxt.ui.client.widget.tips.ToolTipConfig;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -152,8 +153,6 @@ public class PlateLayouter
                     config.setMouseOffset(new int[]
                         { 0, 0 });
                     config.setAnchor(anchor);
-                    // WORKAROUND width isn't properly updated - we set fixed value
-                    config.setMinWidth(300);
                     config.setDismissDelay(10000); // 10s to hide
                     GWTUtils.setToolTip(wellComponent, config);
                 }
@@ -419,7 +418,36 @@ public class PlateLayouter
 
     private static Component createBox()
     {
-        return new Text("");
+        return new Text("")
+            {
+                @Override
+                // WORKAROUND to have an auto-width feature in ToolTips. See:
+                // http://www.sencha.com/forum/archive/index.php/t-124754.html?s=656b4337e47b9419755bf0a6bc7409e9
+                public void setToolTip(ToolTipConfig config)
+                {
+                    if (config != null)
+                    {
+                        if (toolTip == null)
+                        {
+                            toolTip = new ToolTip(this, config)
+                                {
+                                    @Override
+                                    public void update(ToolTipConfig tooTipConfig)
+                                    {
+                                        super.update(tooTipConfig);
+                                        if (isRendered() && isAttached())
+                                        {
+                                            hide();
+                                            doAutoWidth();
+                                            show();
+                                        }
+                                    }
+                                };
+                        }
+                    }
+                    super.setToolTip(config);
+                }
+            };
     }
 
     // ---------

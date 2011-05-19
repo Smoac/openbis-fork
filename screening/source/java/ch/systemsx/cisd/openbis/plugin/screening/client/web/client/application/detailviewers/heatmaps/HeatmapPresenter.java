@@ -276,6 +276,10 @@ class HeatmapPresenter
                         };
             viewContext.getService().getWellFeatureVectorValues(datasetCode, datastoreCode,
                     location, callback);
+        } else
+        {
+            wellData.setFullyLoaded(true);
+            refreshTooltipAction.execute();
         }
     }
 

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 import java.util.Collections;
 import java.util.List;
 
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.IRealNumberRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
@@ -36,6 +37,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
  */
 class WellTooltipGenerator implements HeatmapPresenter.IWellTooltipGenerator
 {
+    private static final String UNKNOWN_WELL_LABEL = "No well information available.";
+
     private static final String NEWLINE = "\n";
 
     private static final int MAX_DESCRIBED_FEATURES = 20;
@@ -97,7 +100,7 @@ class WellTooltipGenerator implements HeatmapPresenter.IWellTooltipGenerator
                 tooltip += "...";
             }
         }
-        return tooltip;
+        return StringUtils.isBlank(tooltip) ? UNKNOWN_WELL_LABEL : tooltip;
     }
 
     private int getNumberOfLoadedFeatures(WellData wellData)
