@@ -21,7 +21,6 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ArchivingResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
@@ -927,6 +926,6 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /**
      * @see ICommonClientService#updateProperty(EntityKind, TechId, String, String)
      */
-    public void updateProperty(EntityKind kind, TechId entityId, String propertyTypeCode,
+    public void updateProperty(EntityKind kind, TechId entityId, String propertyColumnName,
             String value, AsyncCallback<Void> callback);
 }

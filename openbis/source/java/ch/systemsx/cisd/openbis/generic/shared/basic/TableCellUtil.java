@@ -29,8 +29,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
  */
 public class TableCellUtil
 {
-    private static final String USER_PREFIX = "USER-";
-    private static final String INTERN_PREFIX = "INTERN-";
+    public static final String USER_PREFIX = "USER-";
+    public static final String INTERN_PREFIX = "INTERN-";
 
     /**
      * Returns an appropriate table cell for the specified string token. If it can be parsed as
@@ -64,19 +64,6 @@ public class TableCellUtil
     {
         return (propertyType.isInternalNamespace() ? INTERN_PREFIX : USER_PREFIX)
                 + propertyType.getSimpleCode();
-    }
-    
-    public static String getSimplePropertyTypeCode(String propertyColumnCode)
-    {
-        if (propertyColumnCode.startsWith(USER_PREFIX))
-        {
-            return propertyColumnCode.substring(USER_PREFIX.length());
-        }
-        if (propertyColumnCode.startsWith(INTERN_PREFIX))
-        {
-            return propertyColumnCode.substring(INTERN_PREFIX.length());
-        }
-        return propertyColumnCode;
     }
     
     private TableCellUtil()

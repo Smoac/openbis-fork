@@ -172,7 +172,7 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
             Object value = field.get().getValue();
             final S etpt = field.get().getData(ETPT); // null for section labels
 
-            if (etpt != null && value != null && PropertyFieldFactory.valueToString(value) != null)
+            if (etpt != null)
             {
                 final IEntityProperty entityProperty = createEntityProperty();
                 entityProperty.setValue(PropertyFieldFactory.valueToString(value));

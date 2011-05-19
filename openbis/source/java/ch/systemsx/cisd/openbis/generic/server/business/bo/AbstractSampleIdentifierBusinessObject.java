@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -43,11 +44,17 @@ abstract class AbstractSampleIdentifierBusinessObject extends AbstractBusinessOb
 
     private final SampleOwnerFinder sampleOwnerFinder;
 
-    AbstractSampleIdentifierBusinessObject(final IDAOFactory daoFactory, final Session session)
+    AbstractSampleIdentifierBusinessObject(final IDAOFactory daoFactory, final Session session, EntityKind entityKind)
     {
-        super(daoFactory, session);
+        super(daoFactory, session, entityKind);
         sampleOwnerFinder = new SampleOwnerFinder(daoFactory, findRegistrator());
+    }
 
+    public AbstractSampleIdentifierBusinessObject(IDAOFactory daoFactory, Session session,
+            IEntityPropertiesConverter converter)
+    {
+        super(daoFactory, session, converter);
+        sampleOwnerFinder = new SampleOwnerFinder(daoFactory, findRegistrator());
     }
 
     final SampleOwnerFinder getSampleOwnerFinder()

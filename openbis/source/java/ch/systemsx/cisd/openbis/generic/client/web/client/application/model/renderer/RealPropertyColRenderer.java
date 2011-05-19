@@ -52,5 +52,11 @@ public class RealPropertyColRenderer<T extends IEntityPropertiesHolder> extends
     {
         return true;
     }
+
+    @Override
+    public boolean isEditable()
+    {
+        return true;
+    }
     
 }

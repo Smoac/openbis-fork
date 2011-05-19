@@ -40,7 +40,7 @@ public class EntityPropertyColDef<T extends IEntityPropertiesHolder> extends
 {
     private static final int PROPERTY_COLUMN_WIDTH = 120;
 
-    private static final String PROPERTY_PREFIX = "property-";
+    public static final String PROPERTY_PREFIX = "property-";
 
     private String identifierPrefix;
 
@@ -155,6 +155,13 @@ public class EntityPropertyColDef<T extends IEntityPropertiesHolder> extends
             default:
                 return false;
         }
+    }
+
+    @Override
+    public boolean isEditable()
+    {
+        // TODO better criteria: should be based on data type and whether it is dynamic/managed property
+        return true;
     }
 
     public IEntityProperty tryGetProperty(T entity)

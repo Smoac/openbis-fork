@@ -53,6 +53,11 @@ public class GridCustomColumnDefinition<T> implements IColumnDefinitionUI<T>
         return dataType == DataTypeCode.INTEGER || dataType == DataTypeCode.REAL;
     }
 
+    public boolean isEditable()
+    {
+        return false;
+    }
+
     public boolean isLink()
     {
         return false;

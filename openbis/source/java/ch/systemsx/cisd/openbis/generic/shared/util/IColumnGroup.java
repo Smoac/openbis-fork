@@ -37,6 +37,12 @@ public interface IColumnGroup
     public IColumn column(String id);
 
     /**
+     * Intends uneditable property columns for all property columns added by one of the add methods
+     * after this method has been invoked.
+     */
+    public IColumnGroup uneditablePropertyColumns();
+
+    /**
      * Adds for all assigned property types of the specified entity type a column. The group name is
      * used as a prefix which combined with the property type code to determine the column id. The
      * property type label is used as column title.
@@ -74,5 +80,5 @@ public interface IColumnGroup
      * type code to determine the column id. The property type label is used as column title.
      */
     public void addProperties(String idPrefix, Collection<IEntityProperty> properties);
-
+    
 }

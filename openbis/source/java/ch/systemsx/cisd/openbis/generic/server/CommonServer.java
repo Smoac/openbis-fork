@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import static ch.systemsx.cisd.openbis.generic.shared.basic.TableCellUtil.INTERN_PREFIX;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.TableCellUtil.USER_PREFIX;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -91,9 +94,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
@@ -105,6 +111,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
@@ -157,8 +164,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IPerson;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
@@ -169,6 +178,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationHolderDTO;
@@ -194,6 +204,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceId
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluator;
@@ -904,6 +915,19 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return DataSetTranslator.translate(dataset, session.getBaseIndexURL(), false);
     }
 
+    public DataSetUpdateResult updateDataSet(String sessionToken, DataSetUpdatesDTO updates)
+    {
+        final Session session = getSession(sessionToken);
+        final IDataBO dataSetBO = businessObjectFactory.createDataBO(session);
+        dataSetBO.update(updates);
+        DataSetUpdateResult result = new DataSetUpdateResult();
+        DataPE data = dataSetBO.getData();
+        result.setModificationDate(data.getModificationDate());
+        result.setParentCodes(Code.extractCodes(data.getParents()));
+        result.setContainedDataSetCodes(Code.extractCodes(data.getContainedDataSets()));
+        return result;
+    }
+
     public List<ExternalData> listRelatedDataSets(String sessionToken,
             DataSetRelatedEntities relatedEntities)
     {
@@ -1480,6 +1504,19 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return ExperimentTranslator.translate(experiment, session.getBaseIndexURL(),
                 ExperimentTranslator.LoadableFields.PROPERTIES,
                 ExperimentTranslator.LoadableFields.ATTACHMENTS);
+    }
+
+    public ExperimentUpdateResult updateExperiment(String sessionToken, ExperimentUpdatesDTO updates)
+    {
+        final Session session = getSession(sessionToken);
+        final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
+        experimentBO.update(updates);
+        experimentBO.save();
+        ExperimentUpdateResult result = new ExperimentUpdateResult();
+        ExperimentPE experiment = experimentBO.getExperiment();
+        result.setModificationDate(experiment.getModificationDate());
+        result.setSamples(Code.extractCodes(experiment.getSamples()));
+        return result;
     }
 
     public Project getProjectInfo(String sessionToken, TechId projectId)
@@ -2443,22 +2480,73 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             String propertyTypeCode, String value)
     {
         checkSession(sessionToken);
+        HashMap<String, String> properties = new HashMap<String, String>();
+        properties.put(getPropertyTypeCode(propertyTypeCode), value);
         switch (kind)
         {
+            case EXPERIMENT:
+                updateExperimentProperties(sessionToken, entityId, properties);
+                break;
             case SAMPLE:
-                updateSampleProperty(sessionToken, entityId, propertyTypeCode, value);
+                EntityHelper.updateSampleProperties(this, sessionToken, entityId, properties);
+                break;
+            case DATA_SET:
+                updateDataSetProperties(sessionToken, entityId, properties);
                 break;
             default:
                 throw new UnsupportedOperationException();
         }
     }
-    
-    private void updateSampleProperty(String sessionToken, TechId entityId,
-            String propertyTypeCode, String value)
+
+    public void updateExperimentProperties(String sessionToken, TechId entityId,
+            HashMap<String, String> properties)
     {
-        HashMap<String, String> properties = new HashMap<String, String>();
-        properties.put(propertyTypeCode, value);
-        EntityHelper.updateSampleProperties(this, sessionToken, entityId, properties);
+        Experiment experiment = getExperimentInfo(sessionToken, entityId);
+        ExperimentUpdatesDTO updates = new ExperimentUpdatesDTO();
+        updates.setVersion(experiment.getModificationDate());
+        updates.setExperimentId(entityId);
+        updates.setAttachments(Collections.<NewAttachment>emptySet());
+        updates.setProjectIdentifier(new ProjectIdentifierFactory(experiment.getProject().getIdentifier()).createIdentifier());
+        updates.setProperties(EntityHelper.translatePropertiesMapToList(properties));
+        updateExperiment(sessionToken, updates);
     }
 
+    public void updateDataSetProperties(String sessionToken, TechId dataSetID,
+            HashMap<String, String> properties)
+    {
+        ExternalData dataSet = getDataSetInfo(sessionToken, dataSetID);
+        DataSetUpdatesDTO updates = new DataSetUpdatesDTO();
+        updates.setDatasetId(dataSetID);
+        updates.setVersion(dataSet.getModificationDate());
+        updates.setProperties(EntityHelper.translatePropertiesMapToList(properties));
+        Experiment exp = dataSet.getExperiment();
+        if (exp != null)
+        {
+            updates.setExperimentIdentifierOrNull(ExperimentIdentifierFactory.parse(exp.getIdentifier()));
+        }
+        String sampleIdentifier = dataSet.getSampleIdentifier();
+        if (sampleIdentifier != null)
+        {
+            updates.setSampleIdentifierOrNull(SampleIdentifierFactory.parse(sampleIdentifier));
+        }
+        if (dataSet instanceof DataSet)
+        {
+            updates.setFileFormatTypeCode(((DataSet) dataSet).getFileFormatType().getCode());
+        }
+        updateDataSet(sessionToken, updates);
+    }
+    
+    private String getPropertyTypeCode(String propertyColumnCode)
+    {
+        if (propertyColumnCode.startsWith(USER_PREFIX))
+        {
+            return CodeConverter.tryToBusinessLayer(propertyColumnCode.substring(USER_PREFIX.length()), false);
+        }
+        if (propertyColumnCode.startsWith(INTERN_PREFIX))
+        {
+            return CodeConverter.tryToBusinessLayer(propertyColumnCode.substring(INTERN_PREFIX.length()), true);
+        }
+        return propertyColumnCode;
+    }
+    
 }

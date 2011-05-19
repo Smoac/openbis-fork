@@ -1039,7 +1039,7 @@ public interface ICommonClientService extends IClientService
     /**
      * Updates specified property for specified entity of specified kind.
      */
-    public void updateProperty(EntityKind kind, TechId entityId, String propertyTypeCode,
+    public void updateProperty(EntityKind kind, TechId entityId, String propertyColumnName,
             String value) throws UserFailureException;
 
 }

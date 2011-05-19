@@ -44,5 +44,10 @@ public interface IColumnMetaData
      * Sets hidden flag to <code>true</code>.
      */
     public IColumnMetaData hideByDefault();
+    
+    /**
+     * Sets editable falg to <code>true</code>.
+     */
+    public IColumnMetaData editable();
 
 }

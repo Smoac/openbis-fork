@@ -83,6 +83,11 @@ public abstract class AbstractColumnDefinition<T> implements IColumnDefinitionUI
         return numeric;
     }
 
+    public boolean isEditable()
+    {
+        return false;
+    }
+
     public boolean isLink()
     {
         return false;

@@ -109,6 +109,11 @@ public abstract class AbstractPropertyColRenderer<T extends IEntityPropertiesHol
         return false;
     }
 
+    public boolean isEditable()
+    {
+        return false;
+    }
+
     public String tryGetLink(T entity)
     {
         return null;

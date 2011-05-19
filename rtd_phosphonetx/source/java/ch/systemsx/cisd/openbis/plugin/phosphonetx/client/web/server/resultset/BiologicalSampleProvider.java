@@ -70,7 +70,8 @@ public class BiologicalSampleProvider extends AbstractCommonTableModelProvider<S
             builder.addRow(sample);
             builder.column(IDENTIFIER).addString(sample.getIdentifier());
             builder.column(REGISTRATION_DATE).addDate(sample.getRegistrationDate());
-            builder.columnGroup("PROPERTY").addProperties(sample.getProperties());
+            builder.columnGroup("PROPERTY").uneditablePropertyColumns()
+                    .addProperties(sample.getProperties());
         }
         return builder.getModel();
     }

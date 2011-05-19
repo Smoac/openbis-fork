@@ -73,7 +73,7 @@ public interface IMaterialListingQuery extends TransactionQuery, IPropertyListin
      * 
      * @param entityIds The set of material ids to get the property values for.
      */
-    @Select(sql = "SELECT pr.mate_id as entity_id, etpt.prty_id, pr.value "
+    @Select(sql = "SELECT pr.mate_id as entity_id, etpt.prty_id, etpt.script_id, pr.value "
             + "      FROM material_properties pr"
             + "      JOIN material_type_property_types etpt ON pr.mtpt_id=etpt.id"
             + "     WHERE pr.value is not null AND pr.mate_id = any(?{1})", parameterBindings =
@@ -87,7 +87,7 @@ public interface IMaterialListingQuery extends TransactionQuery, IPropertyListin
      * 
      * @param entityIds The set of material ids to get the property values for.
      */
-    @Select(sql = "SELECT pr.mate_id as entity_id, etpt.prty_id, cvte.id, cvte.covo_id, cvte.code, cvte.label, cvte.ordinal"
+    @Select(sql = "SELECT pr.mate_id as entity_id, etpt.prty_id, etpt.script_id, cvte.id, cvte.covo_id, cvte.code, cvte.label, cvte.ordinal"
             + "      FROM material_properties pr"
             + "      JOIN material_type_property_types etpt ON pr.mtpt_id=etpt.id"
             + "      JOIN controlled_vocabulary_terms cvte ON pr.cvte_id=cvte.id"
@@ -101,7 +101,7 @@ public interface IMaterialListingQuery extends TransactionQuery, IPropertyListin
      * 
      * @param entityIds The set of material ids to get the property values for.
      */
-    @Select(sql = "SELECT pr.mate_id as entity_id, etpt.prty_id, m.id, m.code, m.maty_id"
+    @Select(sql = "SELECT pr.mate_id as entity_id, etpt.prty_id, etpt.script_id, m.id, m.code, m.maty_id"
             + "      FROM material_properties pr"
             + "      JOIN material_type_property_types etpt ON pr.mtpt_id=etpt.id"
             + "      JOIN materials m ON pr.mate_prop_id=m.id "

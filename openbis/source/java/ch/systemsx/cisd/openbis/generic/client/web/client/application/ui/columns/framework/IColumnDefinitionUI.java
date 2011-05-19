@@ -24,6 +24,11 @@ public interface IColumnDefinitionUI<T> extends IColumnDefinition<T>
      * Returns <code>true</code> if the column cell should be rendered as a link.
      */
     boolean isLink();
+    
+    /**
+     * Returns <code>true</code> if the column cell is editable.
+     */
+    boolean isEditable();
 
     String tryGetLink(T entity);
 }

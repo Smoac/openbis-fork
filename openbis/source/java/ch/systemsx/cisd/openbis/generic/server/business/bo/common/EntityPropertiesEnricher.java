@@ -21,6 +21,7 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongSet;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -61,9 +62,10 @@ public final class EntityPropertiesEnricher implements IEntityPropertiesEnricher
                 .getEntityPropertyGenericValues(entityIDs))
         {
             final IEntityPropertiesHolder entity = entities.get(val.entity_id);
-            final IEntityProperty property = new GenericEntityProperty();
+            final AbstractEntityProperty property = new GenericEntityProperty();
             property.setValue(val.value);
             property.setPropertyType(propertyTypes.get(val.prty_id));
+            property.setScriptable(val.script_id != null);
             entity.getProperties().add(property);
         }
         // Controlled vocabulary properties

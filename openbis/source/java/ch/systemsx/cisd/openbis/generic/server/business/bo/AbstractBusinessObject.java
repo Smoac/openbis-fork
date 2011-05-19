@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.hibernate.SessionFactory;
 import org.springframework.dao.DataAccessException;
 
@@ -53,8 +57,11 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ICodeSequenceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IPermIdDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Identifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -72,15 +79,28 @@ abstract class AbstractBusinessObject implements IDAOFactory
 
     protected final Session session;
 
+    protected final IEntityPropertiesConverter entityPropertiesConverter;
+
     AbstractBusinessObject(final IDAOFactory daoFactory, final Session session)
+    {
+        this(daoFactory, session, (IEntityPropertiesConverter) null);
+    }
+
+    AbstractBusinessObject(final IDAOFactory daoFactory, final Session session, EntityKind entityKindOrNull)
+    {
+        this(daoFactory, session, entityKindOrNull == null ? null : new EntityPropertiesConverter(entityKindOrNull, daoFactory));
+    }
+    
+    AbstractBusinessObject(final IDAOFactory daoFactory, final Session session, IEntityPropertiesConverter converter)
     {
         assert daoFactory != null : "Given DAO factory can not be null.";
         assert session != null : "Given session can not be null.";
-
+        
         this.daoFactory = daoFactory;
         this.session = session;
+        entityPropertiesConverter = converter;
     }
-
+    
     public SessionFactory getSessionFactory()
     {
         return daoFactory.getSessionFactory();
@@ -157,6 +177,22 @@ abstract class AbstractBusinessObject implements IDAOFactory
     {
         String permID = identifier.getPermID();
         return permID == null ? getPermIdDAO().createPermId() : permID;
+    }
+
+    protected <T extends EntityPropertyPE> Set<T> convertProperties(final EntityTypePE type,
+            final Set<T> existingProperties, List<IEntityProperty> properties)
+    {
+        final PersonPE registrator = findRegistrator();
+        Set<String> propertiesToUpdate = new HashSet<String>();
+        if (properties != null)
+        {
+            for (IEntityProperty property : properties)
+            {
+                propertiesToUpdate.add(property.getPropertyType().getCode());
+            }
+        }
+        return entityPropertiesConverter.updateProperties(existingProperties, type,
+                properties, registrator, propertiesToUpdate);
     }
 
     //

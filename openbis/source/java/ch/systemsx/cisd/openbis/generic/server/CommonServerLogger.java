@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
@@ -47,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
@@ -89,7 +91,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
@@ -481,6 +485,12 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    public DataSetUpdateResult updateDataSet(String sessionToken, DataSetUpdatesDTO updates)
+    {
+        logTracking(sessionToken, "updateDataSet", "DATA_SET(%s)", updates.getDatasetId());
+        return null;
+    }
+
     public List<ExternalData> listRelatedDataSets(String sessionToken,
             DataSetRelatedEntities entities)
     {
@@ -701,6 +711,12 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     public Experiment getExperimentInfo(final String sessionToken, final TechId experimentId)
     {
         logAccess(sessionToken, "get_experiment_info", "ID(%s)", experimentId);
+        return null;
+    }
+
+    public ExperimentUpdateResult updateExperiment(String sessionToken, ExperimentUpdatesDTO updates)
+    {
+        logTracking(sessionToken, "update_experiment", "EXPERIMENT(%s)", updates.getExperimentId());
         return null;
     }
 
@@ -1047,7 +1063,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
             String propertyTypeCode, String value)
     {
         logTracking(sessionToken, "updateProperty",
-                "ENTITY_KIND(%s) ID(%s) PROPERTY(%s) VALUE(%s)", kind, entityId, propertyTypeCode,
+                "ENTITY_KIND(%s) ID(%s) PROPERTY_COLUMN_NAME(%s) VALUE(%s)", kind, entityId, propertyTypeCode,
                 value);
     }
 }

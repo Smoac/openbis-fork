@@ -29,9 +29,6 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.grid.CellEditor;
-import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -41,7 +38,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionCont
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
@@ -75,7 +71,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayC
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TableCellUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -509,15 +504,6 @@ public class SampleBrowserGrid extends TypedTableGrid<Sample>
                 PersonRenderer.REGISTRATOR_RENDERER);
         definitions.setGridCellRendererFor(SampleGridColumnIDs.SHOW_DETAILS_LINK_COLUMN_NAME,
                 createShowDetailsLinkCellRenderer());
-        List<ColumnConfig> columnConfigs = definitions.getColumnConfigs();
-        for (ColumnConfig columnConfig : columnConfigs)
-        {
-            if (columnConfig.getDataIndex().startsWith(SampleGridColumnIDs.PROPERTIES_PREFIX))
-            {
-                CellEditor editor = new CellEditor(new TextField<String>());
-                columnConfig.setEditor(editor);
-            }
-        }
         return definitions;
     }
 
@@ -529,16 +515,13 @@ public class SampleBrowserGrid extends TypedTableGrid<Sample>
 
     @Override
     protected void handleEditingEvent(BaseEntityModel<TableModelRowWithObject<Sample>> model,
-            String columnID, Object newValue)
+            String columnID, String newValueOrNull)
     {
         Sample sample = model.getBaseObject().getObjectOrNull();
         TechId sampleID = new TechId(sample.getId());
-        String propertyName =
-                TableCellUtil.getSimplePropertyTypeCode(columnID
-                        .substring(SampleGridColumnIDs.PROPERTIES_PREFIX.length()));
-        viewContext.getService().updateProperty(EntityKind.SAMPLE,
-                sampleID, propertyName, newValue.toString(),
-                new VoidAsyncCallback<Void>(viewContext));
+        String propertyName = columnID.substring(SampleGridColumnIDs.PROPERTIES_PREFIX.length());
+        viewContext.getService().updateProperty(EntityKind.SAMPLE, sampleID, propertyName,
+                newValueOrNull, createPostEditingRefreshCallback());
     }
 
     @Override

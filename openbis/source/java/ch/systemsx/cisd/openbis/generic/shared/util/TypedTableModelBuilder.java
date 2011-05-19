@@ -92,6 +92,12 @@ public class TypedTableModelBuilder<T extends ISerializable>
             column.getHeader().setHidden(true);
             return this;
         }
+
+        public IColumnMetaData editable()
+        {
+            column.getHeader().setEditable(true);
+            return this;
+        }
     }
 
     private static interface IIndexProvider
@@ -109,6 +115,8 @@ public class TypedTableModelBuilder<T extends ISerializable>
         private final String groupKey;
 
         private final Set<Column> cols = new LinkedHashSet<TypedTableModelBuilder.Column>();
+        
+        private boolean uneditablePropertyColumns;
 
         private ColumnGroup(String groupKey)
         {
@@ -127,6 +135,12 @@ public class TypedTableModelBuilder<T extends ISerializable>
             return column;
         }
 
+        public IColumnGroup uneditablePropertyColumns()
+        {
+            uneditablePropertyColumns = true;
+            return this;
+        }
+
         public void addColumnsForAssignedProperties(EntityType entityType)
         {
             addColumnsForAssignedProperties(groupKey, entityType);
@@ -138,7 +152,8 @@ public class TypedTableModelBuilder<T extends ISerializable>
                     entityType.getAssignedPropertyTypes();
             for (EntityTypePropertyType<?> propertyType : propertyTypes)
             {
-                addColumn(idPrefix, propertyType.getPropertyType());
+                IColumn column = addColumn(idPrefix, propertyType.getPropertyType());
+                setEditableFlag(column, propertyType.getScript() != null, propertyType.getPropertyType());
             }
         }
 
@@ -190,7 +205,28 @@ public class TypedTableModelBuilder<T extends ISerializable>
                     default:
                         value = DataTypeUtils.convertTo(dataType, property.tryGetAsString());
                 }
+                setEditableFlag(column, property.isScriptable(), propertyType);
                 column.addValue(value);
+            }
+        }
+
+        private void setEditableFlag(IColumn column, boolean scriptable, PropertyType propertyType)
+        {
+            if (scriptable || uneditablePropertyColumns)
+            {
+                return;
+            }
+            DataTypeCode dataType = propertyType.getDataType().getCode();
+            switch (dataType)
+            {
+                case REAL:
+                case INTEGER:
+                case VARCHAR:
+                case BOOLEAN:
+                case CONTROLLEDVOCABULARY:
+                    column.editable();
+                    break;
+                default:
             }
         }
 
@@ -247,6 +283,12 @@ public class TypedTableModelBuilder<T extends ISerializable>
         public IColumn withEntityKind(EntityKind entityKind)
         {
             header.setEntityKind(entityKind);
+            return this;
+        }
+
+        public IColumn editable()
+        {
+            header.setEditable(true);
             return this;
         }
 

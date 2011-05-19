@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.translator;
 
 import ch.systemsx.cisd.common.evaluator.EvaluatorException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -65,7 +66,8 @@ final class PropertyTranslatorUtils
     static IEntityProperty createEntityProperty(EntityPropertyPE propertyPE)
     {
         final DataTypeCode typeCode = PropertyTranslatorUtils.getDataTypeCode(propertyPE);
-        final IEntityProperty basicProperty = createEntityProperty(typeCode);
+        final AbstractEntityProperty basicProperty = createEntityProperty(typeCode);
+        basicProperty.setScriptable(propertyPE.getEntityTypePropertyType().isScriptable());
         return basicProperty;
     }
 
@@ -102,7 +104,7 @@ final class PropertyTranslatorUtils
     /**
      * Creates an appropriate {@link IEntityProperty} for the given <var>dataTypeCode</var>.
      */
-    private static IEntityProperty createEntityProperty(DataTypeCode dataTypeCode)
+    private static AbstractEntityProperty createEntityProperty(DataTypeCode dataTypeCode)
     {
         switch (dataTypeCode)
         {

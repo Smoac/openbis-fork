@@ -9,4 +9,7 @@ public class BaseEntityPropertyRecord
     public long entity_id;
 
     public long prty_id;
+    
+    public Long script_id;
+    
 }

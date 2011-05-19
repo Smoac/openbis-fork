@@ -41,7 +41,6 @@ import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.batch.BatchOperationExecutor;
 import ch.systemsx.cisd.openbis.generic.server.batch.IBatchOperation;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
@@ -83,7 +82,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedBasicExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedExperimentsWithType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
@@ -720,15 +718,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
 
     public DataSetUpdateResult updateDataSet(String sessionToken, DataSetUpdatesDTO updates)
     {
-        final Session session = getSession(sessionToken);
-        final IDataBO dataSetBO = businessObjectFactory.createDataBO(session);
-        dataSetBO.update(updates);
-        DataSetUpdateResult result = new DataSetUpdateResult();
-        DataPE data = dataSetBO.getData();
-        result.setModificationDate(data.getModificationDate());
-        result.setParentCodes(Code.extractCodes(data.getParents()));
-        result.setContainedDataSetCodes(Code.extractCodes(data.getContainedDataSets()));
-        return result;
+        return commonServer.updateDataSet(sessionToken, updates);
     }
 
     public void registerOrUpdateMaterials(String sessionToken, String materialTypeCode,

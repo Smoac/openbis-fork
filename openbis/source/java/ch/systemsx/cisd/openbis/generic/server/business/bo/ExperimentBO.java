@@ -74,8 +74,6 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     static final String ERR_EXPERIMENT_TYPE_NOT_FOUND =
             "No experiment type with code '%s' could be found in the database.";
 
-    private final IEntityPropertiesConverter propertiesConverter;
-
     private ExperimentPE experiment;
 
     private boolean dataChanged;
@@ -84,15 +82,14 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
 
     public ExperimentBO(final IDAOFactory daoFactory, final Session session)
     {
-        this(daoFactory, session, new EntityPropertiesConverter(EntityKind.EXPERIMENT, daoFactory));
+        super(daoFactory, session, EntityKind.EXPERIMENT);
     }
 
     @Private
     ExperimentBO(final IDAOFactory daoFactory, final Session session,
             final IEntityPropertiesConverter entityPropertiesConverter)
     {
-        super(daoFactory, session);
-        propertiesConverter = entityPropertiesConverter;
+        super(daoFactory, session, entityPropertiesConverter);
     }
 
     @SuppressWarnings("unused")
@@ -365,7 +362,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
 
     private void checkBusinessRules()
     {
-        propertiesConverter.checkMandatoryProperties(experiment.getProperties(),
+        entityPropertiesConverter.checkMandatoryProperties(experiment.getProperties(),
                 experiment.getExperimentType());
     }
 
@@ -378,7 +375,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
             final IEntityProperty[] experimentProperties, PersonPE registrator)
     {
         final List<ExperimentPropertyPE> properties =
-                propertiesConverter.convertProperties(experimentProperties, experimentTypeCode,
+                entityPropertiesConverter.convertProperties(experimentProperties, experimentTypeCode,
                         registrator);
         for (final ExperimentPropertyPE experimentProperty : properties)
         {
@@ -563,9 +560,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     {
         final Set<ExperimentPropertyPE> existingProperties = experiment.getProperties();
         final ExperimentTypePE type = experiment.getExperimentType();
-        final PersonPE registrator = findRegistrator();
-        experiment.setProperties(propertiesConverter.updateProperties(existingProperties, type,
-                properties, registrator));
+        experiment.setProperties(convertProperties(type, existingProperties, properties));
     }
 
     public void setGeneratedCode()
@@ -579,7 +574,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         final Set<ExperimentPropertyPE> existingProperties = experiment.getProperties();
         final ExperimentTypePE type = experiment.getExperimentType();
         final PersonPE registrator = findRegistrator();
-        experiment.setProperties(propertiesConverter.updateManagedProperty(existingProperties,
+        experiment.setProperties(entityPropertiesConverter.updateManagedProperty(existingProperties,
                 type, managedProperty, registrator));
 
         dataChanged = true;

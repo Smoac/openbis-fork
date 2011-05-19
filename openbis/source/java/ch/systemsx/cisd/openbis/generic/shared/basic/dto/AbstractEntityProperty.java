@@ -33,6 +33,8 @@ public abstract class AbstractEntityProperty implements IEntityProperty
     private PropertyType propertyType;
 
     private Long ordinal;
+    
+    private boolean scriptable;
 
     public PropertyType getPropertyType()
     {
@@ -116,6 +118,16 @@ public abstract class AbstractEntityProperty implements IEntityProperty
         return false;
     }
 
+    public void setScriptable(boolean scriptable)
+    {
+        this.scriptable = scriptable;
+    }
+
+    public boolean isScriptable()
+    {
+        return scriptable;
+    }
+
     //
     // Object
     //
@@ -148,5 +160,4 @@ public abstract class AbstractEntityProperty implements IEntityProperty
             return thisPropertyType.getLabel().compareTo(otherPropertyType.getLabel());
         }
     }
-
 }

@@ -40,4 +40,10 @@ class DefaultPropertyColRenderer<T extends IEntityPropertiesHolder> extends
         return colDef.getValue(entity);
     }
 
+    @Override
+    public boolean isEditable()
+    {
+        return true;
+    }
+
 }

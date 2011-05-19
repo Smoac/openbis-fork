@@ -52,6 +52,11 @@ public interface IColumn
     public IColumn withEntityKind(EntityKind entityKind);
     
     /**
+     * Sets editable flag to <code>true</code>.
+     */
+    public IColumn editable();
+    
+    /**
      * Adds a value.
      */
     public void addValue(ISerializableComparable valueOrNull);

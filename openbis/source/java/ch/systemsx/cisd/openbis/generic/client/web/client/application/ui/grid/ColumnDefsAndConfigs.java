@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
@@ -90,6 +91,11 @@ public class ColumnDefsAndConfigs<T>
         }
         columnConfig.setWidth(column.getWidth());
         columnConfig.setHidden(column.isHidden());
+        if (column.isEditable())
+        {
+            CellEditor editor = new CellEditor(new TextField<String>());
+            columnConfig.setEditor(editor);
+        }
         return columnConfig;
     }
 

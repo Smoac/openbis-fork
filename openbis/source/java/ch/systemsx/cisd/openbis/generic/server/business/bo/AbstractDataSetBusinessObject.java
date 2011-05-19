@@ -36,18 +36,15 @@ public abstract class AbstractDataSetBusinessObject extends
         AbstractSampleIdentifierBusinessObject
 {
 
-    protected final IEntityPropertiesConverter entityPropertiesConverter;
-
     public AbstractDataSetBusinessObject(IDAOFactory daoFactory, Session session)
     {
-        this(daoFactory, session, new EntityPropertiesConverter(EntityKind.DATA_SET, daoFactory));
+        super(daoFactory, session, EntityKind.DATA_SET);
     }
 
     public AbstractDataSetBusinessObject(IDAOFactory daoFactory, Session session,
             IEntityPropertiesConverter entityPropertiesConverter)
     {
-        super(daoFactory, session);
-        this.entityPropertiesConverter = entityPropertiesConverter;
+        super(daoFactory, session, entityPropertiesConverter);
     }
 
     protected void enrichWithParentsAndExperiment(DataPE dataPE)
@@ -75,9 +72,7 @@ public abstract class AbstractDataSetBusinessObject extends
     {
         final Set<DataSetPropertyPE> existingProperties = data.getProperties();
         final DataSetTypePE type = data.getDataSetType();
-        final PersonPE registrator = findRegistrator();
-        data.setProperties(entityPropertiesConverter.updateProperties(existingProperties, type,
-                newProperties, registrator));
+        data.setProperties(convertProperties(type, existingProperties, newProperties));
     }
 
 }

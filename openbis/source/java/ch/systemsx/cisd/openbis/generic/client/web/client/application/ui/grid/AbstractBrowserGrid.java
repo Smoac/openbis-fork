@@ -1706,7 +1706,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     M model = event.getModel();
                     String columnID = event.getProperty();
                     Object value = event.getValue();
-                    handleEditingEvent(model, columnID, value);
+                    handleEditingEvent(model, columnID, value == null ? null : value.toString());
                 }
             });
         return editorGrid;
@@ -1717,10 +1717,47 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
      * 
      * @param model Row object corresponding to edited cell.
      * @param columnID ID of cell's column
-     * @param newValue New value of the cell.
+     * @param newValueOrNull New value of the cell.
      */
-    protected void handleEditingEvent(M model, String columnID, Object newValue)
+    protected void handleEditingEvent(M model, String columnID, String newValueOrNull)
     {
+    }
+
+    /**
+     * Creates a callback object which invokes {@link #refresh()} after server-side editing action
+     * took place.
+     */
+    protected AsyncCallback<Void> createPostEditingRefreshCallback()
+    {
+        return createPostEditingCallback(new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    asActionInvoker().refresh();
+                }
+            });
+    }
+
+    /**
+     * Creates a callback object which invokes specified refresh action after server-side editing
+     * action took place.
+     */
+    protected AsyncCallback<Void> createPostEditingCallback(final IDelegatedAction refreshAction)
+    {
+        return new AbstractAsyncCallback<Void>(viewContext)
+            {
+                @Override
+                protected void process(Void result)
+                {
+                    refreshAction.execute();
+                }
+
+                @Override
+                public void finishOnFailure(Throwable caught)
+                {
+                    refreshAction.execute();
+                }
+            };
     }
 
     // this should be the only place where we create the grid column model.

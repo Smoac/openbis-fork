@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
+import ch.systemsx.cisd.openbis.generic.shared.util.IColumnGroup;
 import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 
 /**
@@ -113,11 +114,12 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
             builder.column(PARENTS).addString(getParents(sample));
             builder.column(CONTAINER_SAMPLE).addString(getContainer(sample));
             SampleType sampleType = sampleTypes.tryGet(sample.getSampleType().getCode());
+            IColumnGroup columnGroup = builder.columnGroup(PROPERTIES_PREFIX);
             if (sampleType != null)
             {
-                builder.columnGroup(PROPERTIES_PREFIX).addColumnsForAssignedProperties(sampleType);
+                columnGroup.addColumnsForAssignedProperties(sampleType);
             }
-            builder.columnGroup(PROPERTIES_PREFIX).addProperties(sample.getProperties());
+            columnGroup.addProperties(sample.getProperties());
         }
         return builder.getModel();
     }

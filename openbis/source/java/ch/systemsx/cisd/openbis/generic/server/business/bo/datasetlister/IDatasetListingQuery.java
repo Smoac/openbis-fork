@@ -218,7 +218,7 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
      * 
      * @param entityIds The set of sample ids to get the property values for.
      */
-    @Select(sql = "SELECT pr.ds_id as entity_id, etpt.prty_id, pr.value "
+    @Select(sql = "SELECT pr.ds_id as entity_id, etpt.prty_id, etpt.script_id, pr.value "
             + "      FROM data_set_properties pr"
             + "      JOIN data_set_type_property_types etpt ON pr.dstpt_id=etpt.id"
             + "     WHERE pr.value is not null AND pr.ds_id = any(?{1})", parameterBindings =
@@ -232,7 +232,7 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
      * 
      * @param entityIds The set of sample ids to get the property values for.
      */
-    @Select(sql = "SELECT pr.ds_id as entity_id, etpt.prty_id, cvte.id, cvte.covo_id, cvte.code, cvte.label, cvte.ordinal"
+    @Select(sql = "SELECT pr.ds_id as entity_id, etpt.prty_id, etpt.script_id, cvte.id, cvte.covo_id, cvte.code, cvte.label, cvte.ordinal"
             + "      FROM data_set_properties pr"
             + "      JOIN data_set_type_property_types etpt ON pr.dstpt_id=etpt.id"
             + "      JOIN controlled_vocabulary_terms cvte ON pr.cvte_id=cvte.id"
@@ -246,7 +246,7 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
      * 
      * @param entityIds The set of sample ids to get the property values for.
      */
-    @Select(sql = "SELECT pr.ds_id as entity_id, etpt.prty_id, m.id, m.code, m.maty_id"
+    @Select(sql = "SELECT pr.ds_id as entity_id, etpt.prty_id, etpt.script_id, m.id, m.code, m.maty_id"
             + "      FROM data_set_properties pr"
             + "      JOIN data_set_type_property_types etpt ON pr.dstpt_id=etpt.id"
             + "      JOIN materials m ON pr.mate_prop_id=m.id "

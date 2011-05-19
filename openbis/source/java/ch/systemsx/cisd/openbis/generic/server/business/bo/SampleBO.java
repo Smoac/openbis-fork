@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -275,17 +274,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     {
         final Set<SamplePropertyPE> existingProperties = sample.getProperties();
         final SampleTypePE type = sample.getSampleType();
-        final PersonPE registrator = findRegistrator();
-        Set<String> propertiesToUpdate = new HashSet<String>();
-        if (properties != null)
-        {
-            for (IEntityProperty property : properties)
-            {
-                propertiesToUpdate.add(property.getPropertyType().getCode());
-            }
-        }
-        sample.setProperties(entityPropertiesConverter.updateProperties(existingProperties, type,
-                properties, registrator, propertiesToUpdate));
+        sample.setProperties(convertProperties(type, existingProperties, properties));
     }
 
     private void updateParents(SampleUpdatesDTO updates)

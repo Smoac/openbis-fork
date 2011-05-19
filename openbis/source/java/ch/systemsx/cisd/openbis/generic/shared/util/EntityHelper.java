@@ -139,11 +139,7 @@ public class EntityHelper
             Map<String, String> properties)
     {
         Sample sample = server.getSampleInfo(sessionToken, id).getParent();
-        List<IEntityProperty> props = new ArrayList<IEntityProperty>();
-        for (Entry<String, String> entry : properties.entrySet())
-        {
-            props.add(createNewProperty(entry.getKey(), entry.getValue()));
-        }
+        List<IEntityProperty> props = translatePropertiesMapToList(properties);
         Experiment experiment = sample.getExperiment();
         ExperimentIdentifier experimentIdentifier =
                 experiment == null ? null : ExperimentIdentifierFactory.parse(experiment
@@ -156,6 +152,16 @@ public class EntityHelper
                         Collections.<NewAttachment> emptySet(), sample.getModificationDate(),
                         sampleIdentifier, containerIdentifier, null);
         server.updateSample(sessionToken, updates);
+    }
+
+    public static List<IEntityProperty> translatePropertiesMapToList(Map<String, String> properties)
+    {
+        List<IEntityProperty> props = new ArrayList<IEntityProperty>();
+        for (Entry<String, String> entry : properties.entrySet())
+        {
+            props.add(createNewProperty(entry.getKey(), entry.getValue()));
+        }
+        return props;
     }
     
     /**

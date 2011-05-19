@@ -48,6 +48,8 @@ public class TableModelColumnHeader implements ISerializable
 
     private boolean hidden;
 
+    private boolean editable;
+    
     public TableModelColumnHeader()
     {
     }
@@ -122,6 +124,16 @@ public class TableModelColumnHeader implements ISerializable
     public boolean isNumeric()
     {
         return dataType == DataTypeCode.REAL || dataType == DataTypeCode.INTEGER;
+    }
+
+    public void setEditable(boolean editable)
+    {
+        this.editable = editable;
+    }
+
+    public boolean isEditable()
+    {
+        return editable;
     }
 
     public void setTitle(String title)

@@ -69,6 +69,11 @@ public class TypedTableGridColumnDefinitionUI<T extends ISerializable> extends
         return hidden;
     }
 
+    public boolean isEditable()
+    {
+        return header.isEditable();
+    }
+
     public boolean isLink()
     {
         return false;

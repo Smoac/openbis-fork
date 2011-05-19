@@ -356,7 +356,7 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
      * 
      * @param sampleIds The set of sample ids to get the property values for.
      */
-    @Select(sql = "SELECT sp.samp_id as entity_id, stpt.prty_id, sp.value "
+    @Select(sql = "SELECT sp.samp_id as entity_id, stpt.prty_id, stpt.script_id, sp.value "
             + "      FROM sample_properties sp"
             + "      JOIN sample_type_property_types stpt ON sp.stpt_id=stpt.id"
             + "     WHERE sp.value is not null AND sp.samp_id = any(?{1})", parameterBindings =
@@ -370,7 +370,7 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
      * 
      * @param sampleIds The set of sample ids to get the property values for.
      */
-    @Select(sql = "SELECT sp.samp_id as entity_id, stpt.prty_id, cvte.id, cvte.covo_id, cvte.code, cvte.label, cvte.ordinal"
+    @Select(sql = "SELECT sp.samp_id as entity_id, stpt.prty_id, stpt.script_id, cvte.id, cvte.covo_id, cvte.code, cvte.label, cvte.ordinal"
             + "      FROM sample_properties sp"
             + "      JOIN sample_type_property_types stpt ON sp.stpt_id=stpt.id"
             + "      JOIN controlled_vocabulary_terms cvte ON sp.cvte_id=cvte.id"
@@ -384,7 +384,7 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
      * 
      * @param sampleIds The set of sample ids to get the property values for.
      */
-    @Select(sql = "SELECT sp.samp_id as entity_id, stpt.prty_id, m.id, m.code, m.maty_id"
+    @Select(sql = "SELECT sp.samp_id as entity_id, stpt.prty_id, stpt.script_id, m.id, m.code, m.maty_id"
             + "      FROM sample_properties sp"
             + "      JOIN sample_type_property_types stpt ON sp.stpt_id=stpt.id"
             + "      JOIN materials m ON sp.mate_prop_id=m.id "

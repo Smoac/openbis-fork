@@ -80,6 +80,11 @@ public class ManagedEntityProperty implements IEntityProperty, IManagedProperty
         return true;
     }
 
+    public boolean isScriptable()
+    {
+        return true;
+    }
+    
     //
     // IEntityProperty delegated methods
     //

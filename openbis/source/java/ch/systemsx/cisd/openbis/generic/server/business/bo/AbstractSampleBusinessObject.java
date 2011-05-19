@@ -65,8 +65,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusinessObject
 {
-    protected final IEntityPropertiesConverter entityPropertiesConverter;
-
     /**
      * Whether this object works with only new samples (that is: not yet saved into the database)
      * right now.
@@ -75,14 +73,13 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
 
     AbstractSampleBusinessObject(final IDAOFactory daoFactory, final Session session)
     {
-        this(daoFactory, session, new EntityPropertiesConverter(EntityKind.SAMPLE, daoFactory));
+        super(daoFactory, session, EntityKind.SAMPLE);
     }
 
     AbstractSampleBusinessObject(final IDAOFactory daoFactory, final Session session,
             final IEntityPropertiesConverter entityPropertiesConverter)
     {
-        super(daoFactory, session);
-        this.entityPropertiesConverter = entityPropertiesConverter;
+        super(daoFactory, session, entityPropertiesConverter);
     }
 
     private final void defineSampleProperties(final SamplePE sample,
