@@ -1,46 +1,40 @@
 <userInput>
-  <panel order="0">
-    <createForPack name="openBIS Server" />
-    
-    <field type="title" txt="Configure openBIS PostgreSQL DB" bold="true" size="2" />
-    
-    <field type="text" variable="DB.HOST">
-      <spec txt="Hostname" size="20" set="localhost" />
+  <panel id="UserInputPanel.PSQL_PATH">
+    <field type="staticText" align="left" txt="The openBIS installation process requires access to the PostreSQL command line tools 'psql' and 'pg_dump'. Please specify their location:" />
+    <field type="title" txt="Path to 'psql' (PostgreSQL) tool " bold="true" size="2" />
+    <field type="dir" align="left" variable="POSTGRES_BIN">
+      <spec txt="" size="30" set="/opt/local/lib/postgresql90/bin" mustExist="true" create="false" />
     </field>
-    
-    <field type="text" variable="DB.PORT">
-      <spec txt="Port" size="20" set="5432" />
-    </field>
-    
-    <field type="text" variable="DB.USERNAME">
-      <spec txt="Username" size="20" set="$USER_NAME"/>
-    </field>
-    
-    <field type="password" variable="DB.PASSWORD">
-      <spec>
-          <pwd txt="Password" size="20" set=""/>
-      </spec>
-    </field>
-    
-    <field type="text" variable="DB.ADMIN.USERNAME">
-      <spec txt="Admin Username" size="20" set="postgres"/>
-    </field>
-    
-    <field type="password" variable="DB.ADMIN.PASSWORD">
-      <spec>
-          <pwd txt="Password" size="20" set=""/>
-      </spec>
-    </field>
-    <field type="staticText" align="left" txt="(NOTE: Password fileds could be left empty if IDENT authentication is used)" />
   </panel>
   
-  <panel order="1">
-    <createForPack name="Datastore Server" />
-    <field type="title" txt="DataStore Server Configuration" bold="true" size="2" />
+  <panel id="UserInputPanel.DB_PROPS">
+    <field type="title" txt="Configure openBIS PostgreSQL DB" bold="true" size="2" />
+    
+    <field type="staticText" align="left" txt="TODO (improve wording and layout): openBIS requires PostgreSQL installation to be configured with the 'trust' setting on localhost, which means that a user connecting from 127.0.0.1 can connect without providing a password. These settings are changed in the file pg_hba.conf, see http://www.postgresql.org/docs/9.0/static/auth-pg-hba-conf.html." />
+    
+    <field type="staticText" align="left" txt="PostgreSQL installed on: localhost" />
+    <field type="staticText" align="left" txt="DB Admin: postgres" />
+    <field type="staticText" align="left" txt="openBIS DB Owner: $USER_NAME" />
+    
+    <field type="staticText" align="left" txt="Click 'Next' to verify the above users can connect to PostgreSQL." />
+  </panel>
+
+  <panel id="UserInputPanel.MISC">
+    <field type="title" txt="Misc" bold="true" size="2" />
+    <field type="password" align="left" variable="ADMIN_PASSWORD">
+      <spec>
+        <pwd txt="Admin password" size="20" set="" />
+      </spec>
+      <validator class="com.izforge.izpack.util.RegularExpressionValidator" txt="Admin password cannot be empty.">
+        <param name="pattern" value="^.+$" />
+      </validator>
+    </field>
+    <field type="staticText" align="left" txt="Password for the 'admin' user account." />
+
     <field type="dir" align="left" variable="DSS.ROOT-DIR">
       <spec txt="Data folder" size="30" set="$INSTALL_PATH/data" mustExist="false" create="true" />
     </field>
-    <field type="staticText" align="left" txt="This directory will be used to store raw data." />
+    <field type="staticText" align="left" txt="The directory to be used to store raw data like images, analysis files etc." />
   </panel>
   
 </userInput>

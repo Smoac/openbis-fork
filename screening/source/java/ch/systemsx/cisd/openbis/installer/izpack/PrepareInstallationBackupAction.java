@@ -26,6 +26,8 @@ import com.izforge.izpack.installer.PanelActionConfiguration;
 import com.izforge.izpack.util.AbstractUIHandler;
 
 /**
+ * An action that creates a backup folder and sets a global variable with the folder's name.
+ * 
  * @author Kaloyan Enimanev
  */
 public class PrepareInstallationBackupAction implements PanelAction
@@ -42,9 +44,9 @@ public class PrepareInstallationBackupAction implements PanelAction
 
     public synchronized void executeAction(AutomatedInstallData data, AbstractUIHandler arg1)
     {
-        if (InstallationContext.isUpdateInstallation)
+        if (GlobalInstallationContext.isUpdateInstallation)
         {
-            installDir = InstallationContext.installDir;
+            installDir = GlobalInstallationContext.installDir;
             backupDir = generateUniqueBackupDirName();
 
             setInstallationWideBackupDirVariable(data);
@@ -62,7 +64,6 @@ public class PrepareInstallationBackupAction implements PanelAction
     private String setInstallationWideBackupDirVariable(AutomatedInstallData data)
     {
         String backupDirPath = backupDir.getAbsolutePath();
-        System.out.println("Setting backup folder to " + backupDirPath + " ...");
         data.setVariable(BACKUP_FOLDER_VARNAME, backupDirPath);
         return backupDirPath;
     }

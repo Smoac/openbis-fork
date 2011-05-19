@@ -22,16 +22,16 @@ import com.izforge.izpack.installer.PanelActionConfiguration;
 import com.izforge.izpack.util.AbstractUIHandler;
 
 /**
- * 
+ * An action that initializes the installation process.
  *
- * @author kaloyane
+ * @author Kaloyan Enimanev
  */
 public class InitializeInstallationContextAction implements PanelAction
 {
 
     public void executeAction(AutomatedInstallData data, AbstractUIHandler arg1)
     {
-        InstallationContext.initialize(data);
+        GlobalInstallationContext.initialize(data);
     }
 
     public void initialize(PanelActionConfiguration arg0)

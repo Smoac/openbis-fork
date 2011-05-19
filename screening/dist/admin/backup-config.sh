@@ -16,6 +16,9 @@ fi
 source $BASE/common-functions.sh
 ROOT=$BASE/../servers
 
+# -- GLOBAL 
+cp $BASE/env $CONF/
+
 # -- AS
 cp $ROOT/openBIS-server/jetty/webapps/openbis/WEB-INF/classes/service.properties $CONF/
 cp $ROOT/openBIS-server/jetty/etc/log.xml $CONF/

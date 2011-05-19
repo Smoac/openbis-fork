@@ -37,7 +37,6 @@
     <variable name="ShowCreateDirectoryMessage"  value="no" />
     <variable name="data.validation.error.title"  value="Error" />
     <variable name="installer.reversetitle"  value="$APP_NAME installation" />
-    <variable name="DB.NAME"  value="openbis_@{installer.database.kind}" />
   </variables>
 
   <dynamicvariables>
@@ -49,15 +48,22 @@
   <conditions>
     <condition type="java" id="isUpdateInstallation">
       <java>
-        <class>ch.systemsx.cisd.openbis.installer.izpack.InstallationContext</class>
+        <class>ch.systemsx.cisd.openbis.installer.izpack.GlobalInstallationContext</class>
         <field>isUpdateInstallation</field>
       </java>
       <returnvalue type="boolean">true</returnvalue>
     </condition>
     <condition type="java" id="isFirstTimeInstallation">
       <java>
-        <class>ch.systemsx.cisd.openbis.installer.izpack.InstallationContext</class>
+        <class>ch.systemsx.cisd.openbis.installer.izpack.GlobalInstallationContext</class>
         <field>isFirstTimeInstallation</field>
+      </java>
+      <returnvalue type="boolean">true</returnvalue>
+    </condition>
+    <condition type="java" id="noPsqlToolsOnPath">
+      <java>
+        <class>ch.systemsx.cisd.openbis.installer.izpack.GlobalInstallationContext</class>
+        <field>noPsqlToolsOnPath</field>
       </java>
       <returnvalue type="boolean">true</returnvalue>
     </condition>
@@ -73,11 +79,16 @@
         <action stage="postvalidate" classname="ch.systemsx.cisd.openbis.installer.izpack.InitializeInstallationContextAction" />
       </actions>
     </panel>
-
-    <panel classname="UserInputPanel" id="UserInputPanel.0" condition="isFirstTimeInstallation">
+    
+    <panel classname="UserInputPanel" id="UserInputPanel.DB_PROPS" condition="isFirstTimeInstallation">
         <validator classname="ch.systemsx.cisd.openbis.installer.izpack.DBConnectionValidator"/>
     </panel>
-    <panel classname="UserInputPanel" id="UserInputPanel.1" condition="isFirstTimeInstallation"/>
+    
+    <panel classname="UserInputPanel" id="UserInputPanel.PSQL_PATH" condition="noPsqlToolsOnPath">
+        <validator classname="ch.systemsx.cisd.openbis.installer.izpack.PostgresToolsPathValidator"/>
+    </panel>
+    
+    <panel classname="UserInputPanel" id="UserInputPanel.MISC" condition="isFirstTimeInstallation"/>
     
     <!--  create backup if needed -->
     <panel classname="ProcessPanel" condition="isUpdateInstallation" >
@@ -87,7 +98,12 @@
     </panel>
     
     <panel classname="PacksPanel"/>
-    <panel classname="InstallPanel" />
+    <panel classname="InstallPanel">
+      <actions>
+        <action stage="postvalidate" classname="ch.systemsx.cisd.openbis.installer.izpack.ExecuteSetupScriptsAction" />
+      </actions>
+    </panel>
+    
     <panel classname="FinishPanel" />
   </panels>
 
@@ -96,7 +112,7 @@
   <packs>
     <pack name="openBIS Server" required="yes" loose="yes">
       <description>The openBIS application server</description>
-      <file src="@{server.dist.file}" targetdir="$INSTALL_PATH/servers" unpack="true" />
+      <file src="@{installer.dist.dir}/openBIS-server" targetdir="$INSTALL_PATH/servers" />
       <parsable targetfile="$INSTALL_OPENBIS_PATH/service.properties" />
       <!-- run post installation script for the openBIS server -->
       <executable targetfile="$INSTALL_OPENBIS_PATH/install.sh" stage="postinstall">
@@ -109,7 +125,9 @@
 
     <pack name="Datastore Server" required="yes" loose="yes">
       <description>The data store server managing raw data</description>
-      <file src="@{dss.dist.file}" targetdir="$INSTALL_PATH/servers" unpack="true" />
+      <file src="@{installer.dist.dir}/datastore_server" targetdir="$INSTALL_PATH/servers"/>
+      <file src="@{installer.resourcedir}/dropboxes" targetdir="$DSS.ROOT-DIR" />
+      <file src="@{installer.resourcedir}/incoming-simple" targetdir="$DSS.ROOT-DIR" />
       <parsable targetfile="$INSTALL_DSS_PATH/etc/service.properties" />
       
       <!-- create a log folder and store folder -->
@@ -124,7 +142,8 @@
 
     <pack name="Administration Scripts" required="yes" loose="yes">
       <description>Scripts to facilitate openBIS administration</description>
-      <file src="@{installer.admin.scripts.dir}" targetdir="$INSTALL_PATH" />
+      <file src="@{installer.dist.dir}/bin" targetdir="$INSTALL_PATH" />
+      <parsable targetfile="$INSTALL_BIN_PATH/env" />
 
       <!--  set all *.sh files executable -->      
       <executable targetfile="/usr/bin/find" stage="postinstall" keep="true">
@@ -149,12 +168,6 @@
           <arg value="$BACKUP_FOLDER" />
         </args>
       </executable>
-    </pack>
-    
-    <pack name="HCS Jython dropboxes" required="yes" loose="yes">
-      <description>A set of minimal Jython dropboxes for importing HCS data into openBIS</description>
-      <file src="@{installer.resourcedir}/dropboxes" targetdir="$DSS.ROOT-DIR" />
-      <file src="@{installer.resourcedir}/incoming-simple" targetdir="$DSS.ROOT-DIR" />
     </pack>
     
   </packs>

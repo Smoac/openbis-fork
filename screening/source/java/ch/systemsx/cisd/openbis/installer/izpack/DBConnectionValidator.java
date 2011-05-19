@@ -24,12 +24,23 @@ import com.izforge.izpack.installer.AutomatedInstallData;
 import com.izforge.izpack.installer.DataValidator;
 
 /**
+ * Tests if there is a valid PostgreSQL installation on the local machine that is setup to accept
+ * connections from local users without requiring a password.
+ * 
  * @author Kaloyan Enimanev
  */
 public class DBConnectionValidator implements DataValidator
 {
 
     private static final String DEFAULT_ERROR_MESSAGE = "Cannot connect to the specified database.";
+
+    private static final String JDBC_DRIVER_NAME = "org.postgresql.Driver";
+
+    private static final String CONNECTION_STRING = "jdbc:postgresql://localhost/template1";
+
+    private static final String POSTGRES_USER = "postgres";
+
+    private static final String NO_PASSWORD = "";
 
     private String errorMessage;
 
@@ -56,19 +67,11 @@ public class DBConnectionValidator implements DataValidator
 
     public Status validateData(AutomatedInstallData data)
     {
-        String hostname = data.getVariable("DB.HOST");
-        String port = data.getVariable("DB.PORT");
-        String username = data.getVariable("DB.USERNAME");
-        String password = data.getVariable("DB.PASSWORD");
-        String adminUsername = data.getVariable("DB.ADMIN.USERNAME");
-        String adminPassword = data.getVariable("DB.ADMIN.PASSWORD");
-        String dbname = data.getVariable("DB.NAME");
+        String username = data.getVariable("USER_NAME");
 
-        String connectionString = "jdbc:postgresql://" + hostname + ":" + port + "/" + dbname;
-
-        if (testConnectionOK(connectionString, username, password))
+        if (testConnectionOK(POSTGRES_USER, NO_PASSWORD))
         {
-            if (testConnectionOK(connectionString, adminUsername, adminPassword))
+            if (testConnectionOK(username, NO_PASSWORD))
             {
                 return Status.OK;
             }
@@ -76,15 +79,14 @@ public class DBConnectionValidator implements DataValidator
         return Status.ERROR;
     }
 
-    private boolean testConnectionOK(String connectionString,
-            String username, String password)
+    private boolean testConnectionOK(String username, String password)
     {
         boolean connected = false;
         try
         {
-            Class.forName("org.postgresql.Driver");
+            Class.forName(JDBC_DRIVER_NAME);
             Connection connection =
-                    DriverManager.getConnection(connectionString, username, password);
+                    DriverManager.getConnection(CONNECTION_STRING, username, password);
             if (connection != null)
             {
                 connected = true;

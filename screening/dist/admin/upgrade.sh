@@ -32,9 +32,9 @@ mv $ROOT_DIR/datastore_server $BACKUP_DIR/datastore_server
 
 # Note: to restore the database afterwards one can use:
 #    pg_restore -d db-name db-file.dmp 
-pg_dump -U $DB_USER_NAME -Fc $OPENBIS_DB > $BACKUP_DIR/$OPENBIS_DB-${NOW}.dmp
+$PG_DUMP -U $DB_USER_NAME -Fc $OPENBIS_DB > $BACKUP_DIR/$OPENBIS_DB-${NOW}.dmp
 # screening-specific
-pg_dump -U $DB_USER_NAME -Fc $IMAGING_DB > $BACKUP_DIR/$IMAGING_DB-${NOW}.dmp
+$PG_DUMP -U $DB_USER_NAME -Fc $IMAGING_DB > $BACKUP_DIR/$IMAGING_DB-${NOW}.dmp
 
 echo Installing openBIS Datastore Server
 unzip $ROOT_DIR/datastore_server-screening*.zip -d $ROOT_DIR

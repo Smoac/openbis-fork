@@ -38,11 +38,11 @@ mv $ROOT_DIR/datastore_server $BACKUP_DIR/datastore_server
 #    pg_restore -d db-name db-file.dmp 
 echo "Creating database dumps for $OPENBIS_DB and $IMAGING_DB..."
 
-echo "pg_dump -U $DB_USER_NAME -Fc $OPENBIS_DB > $BACKUP_DIR/$OPENBIS_DB.dmp"
-pg_dump -U $DB_USER_NAME -Fc $OPENBIS_DB > $BACKUP_DIR/$OPENBIS_DB.dmp
+echo "$PG_DUMP -U $DB_USER_NAME -Fc $OPENBIS_DB > $BACKUP_DIR/$OPENBIS_DB.dmp"
+$PG_DUMP -U $DB_USER_NAME -Fc $OPENBIS_DB > $BACKUP_DIR/$OPENBIS_DB.dmp
 
 # screening-specific
-echo "pg_dump -U $DB_USER_NAME -Fc $IMAGING_DB > $BACKUP_DIR/$IMAGING_DB.dmp"
-pg_dump -U $DB_USER_NAME -Fc $IMAGING_DB > $BACKUP_DIR/$IMAGING_DB.dmp
+echo "$PG_DUMP -U $DB_USER_NAME -Fc $IMAGING_DB > $BACKUP_DIR/$IMAGING_DB.dmp"
+$PG_DUMP -U $DB_USER_NAME -Fc $IMAGING_DB > $BACKUP_DIR/$IMAGING_DB.dmp
 
 echo "DONE"
