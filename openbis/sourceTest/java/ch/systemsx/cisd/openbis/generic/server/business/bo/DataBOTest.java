@@ -400,7 +400,7 @@ public class DataBOTest extends AbstractBOTest
         context.assertIsSatisfied();
     }
 
-    @Test(groups="broken")
+    @Test
     public void testDefineWithExistingContainerDataSet()
     {
         final DataSetTypePE dataSetType = new DataSetTypePE();
@@ -417,19 +417,21 @@ public class DataBOTest extends AbstractBOTest
             });
 
         IDataBO dataBO = createDataBO();
-        dataBO.define(createContainerDataSet(PARENT_CODE), experimentPE, SourceType.MEASUREMENT);
+        NewContainerDataSet newData = createContainerDataSet(PARENT_CODE);
+        dataBO.define(newData, experimentPE, SourceType.MEASUREMENT);
+        dataBO.setContainedDataSets(experimentPE, newData);
         DataPE loadedData = dataBO.getData();
 
         assertSame(experimentPE, loadedData.getExperiment());
         assertEquals(null, loadedData.tryGetSample());
         assertSame(true, loadedData.isMeasured());
         assertSame(dataStore, loadedData.getDataStore());
-        assertEquals(1, loadedData.getParents().size());
-        assertSame(data, loadedData.getParents().iterator().next());
+        assertEquals(1, loadedData.getContainedDataSets().size());
+        assertSame(data, loadedData.getContainedDataSets().iterator().next());
         context.assertIsSatisfied();
     }
 
-    @Test(groups="broken")
+    @Test
     public void testDefineWithNonExistingContainerDataSet()
     {
         final DataSetTypePE dataSetType = new DataSetTypePE();
@@ -456,31 +458,33 @@ public class DataBOTest extends AbstractBOTest
             });
 
         IDataBO dataBO = createDataBO();
-        dataBO.define(createContainerDataSet(PARENT_CODE), experiment, SourceType.MEASUREMENT);
+        NewContainerDataSet newData = createContainerDataSet(PARENT_CODE);
+        dataBO.define(newData, experiment, SourceType.MEASUREMENT);
+        dataBO.setContainedDataSets(experiment, newData);
         DataPE data = dataBO.getData();
 
         assertSame(experiment, data.getExperiment());
         assertEquals(null, data.tryGetSample());
         assertSame(true, data.isMeasured());
         assertSame(dataStore, data.getDataStore());
-        assertEquals(1, data.getParents().size());
-        assertEquals(containerData, data.getParents().iterator().next());
+        assertEquals(1, data.getContainedDataSets().size());
+        assertEquals(containerData, data.getContainedDataSets().iterator().next());
         context.assertIsSatisfied();
     }
 
-    @Test(groups="broken")
+    @Test
     public void testDefineWithNonExistingContainerDataSetAndNonExistingExperiment()
     {
         final DataSetTypePE dataSetType = createDataSetType();
         final DataStorePE dataStore = new DataStorePE();
         prepareDefineData(dataSetType, dataStore);
         final DataSetTypePE dataSetTypeUnknown = new DataSetTypePE();
-        final DataPE parentData = new DataPE();
-        parentData.setCode(PARENT_CODE);
-        parentData.setDataSetType(dataSetTypeUnknown);
+        final DataPE containerData = new DataPE();
+        containerData.setCode(PARENT_CODE);
+        containerData.setDataSetType(dataSetTypeUnknown);
         ExperimentPE experiment = createExperiment("EXP1");
-        parentData.setExperiment(experiment);
-        parentData.setPlaceholder(true);
+        containerData.setExperiment(experiment);
+        containerData.setPlaceholder(true);
         context.checking(new Expectations()
             {
                 {
@@ -491,19 +495,21 @@ public class DataBOTest extends AbstractBOTest
                             DataSetTypeCode.UNKNOWN.getCode());
                     will(returnValue(dataSetTypeUnknown));
 
-                    one(dataDAO).createDataSet(parentData);
+                    one(dataDAO).createDataSet(containerData);
                 }
             });
 
         IDataBO dataBO = createDataBO();
-        dataBO.define(createContainerDataSet(PARENT_CODE), experiment, SourceType.MEASUREMENT);
+        NewContainerDataSet newData = createContainerDataSet(PARENT_CODE);
+        dataBO.define(newData, experiment, SourceType.MEASUREMENT);
+        dataBO.setContainedDataSets(experiment, newData);
         DataPE data = dataBO.getData();
 
         assertSame(null, data.tryGetSample());
         assertSame(true, data.isMeasured());
         assertSame(dataStore, data.getDataStore());
-        assertEquals(1, data.getParents().size());
-        assertEquals(parentData, data.getParents().iterator().next());
+        assertEquals(1, data.getContainedDataSets().size());
+        assertEquals(containerData, data.getContainedDataSets().iterator().next());
         context.assertIsSatisfied();
     }
 
@@ -692,7 +698,7 @@ public class DataBOTest extends AbstractBOTest
 
                     one(propertiesConverter).updateProperties(
                             Collections.<DataSetPropertyPE> emptySet(), dataSet.getDataSetType(),
-                            null, ManagerTestTool.EXAMPLE_PERSON, Collections.<String>emptySet());
+                            null, ManagerTestTool.EXAMPLE_PERSON, Collections.<String> emptySet());
                     will(returnValue(Collections.emptySet()));
 
                     one(databaseInstanceDAO).tryFindDatabaseInstanceByCode(
