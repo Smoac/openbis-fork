@@ -457,9 +457,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         loadDataByTechId(updates.getDatasetId());
         if (updates.getVersion().equals(data.getModificationDate()) == false)
         {
-            System.err.println("modification date error: " + updates.getVersion() + " != "
-                    + data.getModificationDate());
-            // throwModifiedEntityException("Data set"); FIXME
+            throwModifiedEntityException("Data set");
         }
         final SampleIdentifier sampleIdentifierOrNull = updates.getSampleIdentifierOrNull();
         if (sampleIdentifierOrNull != null)

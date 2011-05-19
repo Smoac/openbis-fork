@@ -37,8 +37,8 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityPropertiesConve
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -65,7 +65,7 @@ final class DefaultBatchDynamicPropertyEvaluator implements IBatchDynamicPropert
         entityKindsByClass.put(SamplePE.class, EntityKind.SAMPLE);
         entityKindsByClass.put(ExperimentPE.class, EntityKind.EXPERIMENT);
         entityKindsByClass.put(MaterialPE.class, EntityKind.MATERIAL);
-        entityKindsByClass.put(ExternalDataPE.class, EntityKind.DATA_SET);
+        entityKindsByClass.put(DataPE.class, EntityKind.DATA_SET);
     }
 
     private final int batchSize;
