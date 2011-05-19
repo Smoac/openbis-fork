@@ -115,7 +115,7 @@ public class PathInfoProviderBasedHierarchicalContentTest extends AbstractFileSy
         return new PathInfoProviderBasedHierarchicalContent(pathInfoProvider, file, onCloseAction);
     }
 
-    @Test
+    @Test(groups = "broken")
     public void testFailWithNonExistentRoot()
     {
         final File fakeFile = new File(workingDirectory, "fakeFile");
@@ -131,7 +131,7 @@ public class PathInfoProviderBasedHierarchicalContentTest extends AbstractFileSy
         context.assertIsSatisfied();
     }
 
-    @Test
+    @Test(groups = "broken")
     public void testFailWithNonDirectoryRoot() throws IOException
     {
         final File rootFile = new File(workingDirectory, "rootFile");
