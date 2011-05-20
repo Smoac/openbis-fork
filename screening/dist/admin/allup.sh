@@ -6,9 +6,5 @@ if [ ${BASE#/} == ${BASE} ]; then
     BASE="`pwd`/${BASE}"
 fi
 
-echo Starting openBIS.
-$BASE/bisup.sh
-echo Waiting 20 sec for openBIS to start up....
-sleep 20
-echo Starting Datastore Server.
-$BASE/dssup.sh
+$BASE/bisup.sh || exit 1;
+$BASE/dssup.sh || exit 2;
