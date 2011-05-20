@@ -189,7 +189,6 @@ var common = {
   space: "Space",
   groups: "Spaces",
   project: "Project",
-  container_dataset: "Container",
   experiment: "Experiment",
   experiment_identifier: "Experiment Identifier",
   generated_from: "Parent {0}",
@@ -219,6 +218,8 @@ var common = {
   // DataSet Browser
   //
   
+  container_dataset: "Container",
+  order_in_container: "Order in Container",
   children_datasets: "Children",
   no_datasets_selected: "No Data Sets were selected.",
   datasets_from_different_stores_selected: "Data Sets from different Data Stores were selected, so no operation can be performed on all of them.",
