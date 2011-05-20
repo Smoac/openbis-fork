@@ -91,10 +91,9 @@ public class ImagingMaterialViewer extends GenericMaterialViewer
                     new MaterialReplicaSummarySection(screeningViewContext, material,
                             experimentPermId);
             sections.add(replicaSummarySection);
-        } else
-        {
-            // TODO 2011-05-17, Tomasz Pylak: show MaterialAllAssaysSummarySection section
         }
+        // TODO 2011-05-17, Tomasz Pylak: show materials in all assays section (always,
+        // MaterialAllAssaysSummarySection class)
         return sections;
     }
 
