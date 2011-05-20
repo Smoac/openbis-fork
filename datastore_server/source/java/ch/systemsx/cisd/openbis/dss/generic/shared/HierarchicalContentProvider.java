@@ -146,8 +146,15 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
 
     public IHierarchicalContent asContent(File dataSetDirectory, IDelegatedAction onCloseAction)
     {
-        return getHierarchicalContentFactory().asHierarchicalContent(dataSetDirectory,
-                onCloseAction);
+        try
+        {
+            return getHierarchicalContentFactory().asHierarchicalContent(dataSetDirectory,
+                    onCloseAction);
+        } catch (RuntimeException ex)
+        {
+            onCloseAction.execute();
+            throw ex;
+        }
     }
 
     private IHierarchicalContentFactory getHierarchicalContentFactory()

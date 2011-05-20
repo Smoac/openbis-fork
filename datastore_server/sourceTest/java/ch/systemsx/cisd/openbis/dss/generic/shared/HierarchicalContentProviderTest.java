@@ -133,15 +133,20 @@ public class HierarchicalContentProviderTest extends AssertJUnit
 
         final DataSet dataSet1 = new DataSet();
         final DataSet dataSet2 = new DataSet();
+        final DataSet dataSet3 = new DataSet();
         final String componentCode1 = "DS_CODE_1";
         final String componentCode2 = "DS_CODE_2";
+        final String componentCode3 = "DS_CODE_3";
         dataSet1.setCode(componentCode1);
         dataSet2.setCode(componentCode2);
+        dataSet3.setCode(componentCode3);
         final File dataSetRootFile1 = new File("DS_FILE_1");
         final File dataSetRootFile2 = new File("DS_FILE_2");
+        final File dataSetRootFile3 = new File("DS_FILE_3");
 
         container.getContainedDataSets().add(dataSet1);
         container.getContainedDataSets().add(dataSet2);
+        container.getContainedDataSets().add(dataSet3);
 
         final RecordingMatcher<IDelegatedAction> actionMatcher = RecordingMatcher.create();
         context.checking(new Expectations()
@@ -158,6 +163,10 @@ public class HierarchicalContentProviderTest extends AssertJUnit
                     one(directoryProvider).getDataSetDirectory(dataSet2);
                     will(returnValue(dataSetRootFile2));
 
+                    one(shareIdManager).lock(componentCode3);
+                    one(directoryProvider).getDataSetDirectory(dataSet3);
+                    will(returnValue(dataSetRootFile3));
+
                     IHierarchicalContent content1 = new DummyHierarchicalContent();
                     IHierarchicalContent content2 = new DummyHierarchicalContent();
                     one(hierarchicalContentFactory).asHierarchicalContent(
@@ -167,8 +176,16 @@ public class HierarchicalContentProviderTest extends AssertJUnit
                             with(same(dataSetRootFile2)), with(actionMatcher));
                     will(returnValue(content2));
 
+                    // creation of content for dataSet3 fails:
+                    // - its lock should be automatically released
+                    // - it should not be a component of the virtual content
+                    one(hierarchicalContentFactory).asHierarchicalContent(
+                            with(same(dataSetRootFile3)), with(actionMatcher));
+                    will(throwException(new IllegalArgumentException("")));
+                    one(shareIdManager).releaseLock(componentCode3);
+
                     one(hierarchicalContentFactory).asVirtualHierarchicalContent(
-                            Arrays.asList(content1, content2));
+                            Arrays.asList(content1, content2)); // no content for dataSet3
                 }
             });
 
@@ -176,7 +193,7 @@ public class HierarchicalContentProviderTest extends AssertJUnit
         context.assertIsSatisfied();
 
         // check that locks are released on execution of recorded actions
-        assertEquals(2, actionMatcher.getRecordedObjects().size());
+        assertEquals(3, actionMatcher.getRecordedObjects().size());
         context.checking(new Expectations()
             {
                 {
@@ -191,6 +208,13 @@ public class HierarchicalContentProviderTest extends AssertJUnit
                 }
             });
         actionMatcher.getRecordedObjects().get(1).execute();
+        // context.checking(new Expectations()
+        // {
+        // {
+        // one(shareIdManager).releaseLock(componentCode3);
+        // }
+        // });
+        // actionMatcher.getRecordedObjects().get(2).execute();
 
         context.assertIsSatisfied();
     }
