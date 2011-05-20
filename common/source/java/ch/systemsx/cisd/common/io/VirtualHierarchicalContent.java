@@ -33,7 +33,7 @@ import ch.systemsx.cisd.base.io.IRandomAccessFile;
  * 
  * @author Piotr Buczek
  */
-public class VirtualHierarchicalContent implements IHierarchicalContent
+class VirtualHierarchicalContent implements IHierarchicalContent
 {
 
     private final List<IHierarchicalContent> components;
@@ -42,6 +42,10 @@ public class VirtualHierarchicalContent implements IHierarchicalContent
 
     public VirtualHierarchicalContent(List<IHierarchicalContent> components)
     {
+        if (components == null || components.isEmpty())
+        {
+            throw new IllegalArgumentException("Undefined contents");
+        }
         this.components = components;
     }
 
@@ -72,7 +76,7 @@ public class VirtualHierarchicalContent implements IHierarchicalContent
                         return content.getNode(relativePath);
                     } catch (IllegalArgumentException ex)
                     {
-                        return null;
+                        return null; // ignore (not all components need to contain the node)
                     }
                 }
             });
@@ -111,7 +115,7 @@ public class VirtualHierarchicalContent implements IHierarchicalContent
 
     private IHierarchicalContentNode mergeNodes(INodeProvider provider)
     {
-        IVirtualNodesMerger merger = createNodesMerger();
+        IVirtualNodeMerger merger = createNodeMerger();
         for (IHierarchicalContent component : components)
         {
             IHierarchicalContentNode componentNode = provider.tryGetNode(component);
@@ -134,9 +138,9 @@ public class VirtualHierarchicalContent implements IHierarchicalContent
         return listMerger.createMergedNodeList();
     }
 
-    private static IVirtualNodesMerger createNodesMerger()
+    private static IVirtualNodeMerger createNodeMerger()
     {
-        return new VirtualNodesMerger();
+        return new VirtualNodeMerger();
     }
 
     private static IVirtualNodeListMerger createNodeListMerger()
@@ -154,7 +158,7 @@ public class VirtualHierarchicalContent implements IHierarchicalContent
         List<IHierarchicalContentNode> getNodeList(IHierarchicalContent content);
     }
 
-    interface IVirtualNodesMerger
+    interface IVirtualNodeMerger
     {
         void addNode(IHierarchicalContentNode node);
 
@@ -175,7 +179,7 @@ public class VirtualHierarchicalContent implements IHierarchicalContent
      * <li>For normal files uses the 'last' node's file.
      * </ul>
      */
-    static class VirtualNodesMerger implements IVirtualNodesMerger
+    static class VirtualNodeMerger implements IVirtualNodeMerger
     {
         // For convenience in iteration the order of these nodes is reversed.
         // It is the first node, not the last one, which is overriding all files of other nodes.
@@ -199,17 +203,17 @@ public class VirtualHierarchicalContent implements IHierarchicalContent
     static class VirtualNodeListMerger implements IVirtualNodeListMerger
     {
         // relative path -> merger (with preserved order)
-        Map<String, IVirtualNodesMerger> mergers = new LinkedHashMap<String, IVirtualNodesMerger>();
+        Map<String, IVirtualNodeMerger> mergers = new LinkedHashMap<String, IVirtualNodeMerger>();
 
         public void addNodes(List<IHierarchicalContentNode> nodes)
         {
             for (IHierarchicalContentNode node : nodes)
             {
                 String relativePath = node.getRelativePath();
-                IVirtualNodesMerger merger = mergers.get(relativePath);
+                IVirtualNodeMerger merger = mergers.get(relativePath);
                 if (merger == null)
                 {
-                    merger = createNodesMerger();
+                    merger = createNodeMerger();
                     mergers.put(relativePath, merger);
                 }
                 merger.addNode(node);
@@ -219,7 +223,7 @@ public class VirtualHierarchicalContent implements IHierarchicalContent
         public List<IHierarchicalContentNode> createMergedNodeList()
         {
             List<IHierarchicalContentNode> result = new ArrayList<IHierarchicalContentNode>();
-            for (IVirtualNodesMerger merger : mergers.values())
+            for (IVirtualNodeMerger merger : mergers.values())
             {
                 result.add(merger.createMergedNode());
             }
