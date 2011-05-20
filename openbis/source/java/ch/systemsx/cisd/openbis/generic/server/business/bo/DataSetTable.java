@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,7 +36,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
-import ch.systemsx.cisd.common.collections.DAG;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -241,8 +239,6 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
     {
         assertDatasetsAreDeletable(dataSets);
 
-        dataSets = sortTopologicallyByContainerRelationship(dataSets);
-
         Map<DataStorePE, List<DataPE>> allToBeDeleted = groupDataSetsByDataStores();
         Map<DataStorePE, List<ExternalDataPE>> availableDatasets =
                 filterAvailableDatasets(allToBeDeleted);
@@ -261,20 +257,6 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
             List<ExternalDataPE> available = availableDatasets.get(dataStore);
             deleteDataSets(dataStore, createDatasetDescriptions(available));
         }
-    }
-
-    private List<DataPE> sortTopologicallyByContainerRelationship(List<DataPE> datasets)
-    {
-        DAG<DataPE> dag = new DAG<DataPE>(datasets)
-            {
-                @Override
-                public Collection<DataPE> getSuccessors(DataPE node)
-                {
-                    return node.getContainedDataSets();
-                }
-            };
-
-        return dag.sortTopologically();
     }
 
     private Map<DataStorePE, List<ExternalDataPE>> filterAvailableDatasets(
