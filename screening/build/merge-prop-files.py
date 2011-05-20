@@ -20,7 +20,7 @@ def readPropFile(srcFileName):
         if (len(line) == 0) or line.startswith("#"):
             pass
         else:
-            (key, delim, value) = line.partition('=')
+            (key, value) = line.split('=', 1)
             dict[key.strip()] = value.strip()
 
     f.close()        
