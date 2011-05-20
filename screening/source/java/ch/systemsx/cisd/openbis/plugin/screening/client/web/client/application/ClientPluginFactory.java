@@ -187,19 +187,33 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         String experimentPermId = tryGetExperimentPermId(experimentCriteriaOrNull);
-        if (viewContext.getModel().isEmbeddedMode() && experimentPermId != null)
+        if (viewContext.getModel().isEmbeddedMode())
         {
-            // TODO 2011-05-17, Tomasz Pylak: it should be possible to open this veiw
-            // for all experiments as well
-            MaterialIdentifier materialIdentifier = asMaterialIdentifier(material);
-            MaterialReplicaSummaryViewer.openTab(viewContext, experimentPermId, materialIdentifier);
+            if (experimentPermId != null)
+            {
+                MaterialIdentifier materialIdentifier = asMaterialIdentifier(material);
+                MaterialReplicaSummaryViewer.openTab(viewContext, experimentPermId,
+                        materialIdentifier);
+            } else
+            {
+                // TODO 2011-05-17, Tomasz Pylak: open view showing all assays with the material
+                openImagingMaterialGenericViewer(material, experimentCriteriaOrNull, viewContext);
+            }
         } else
         {
-            AbstractTabItemFactory tab =
-                    createImagingMaterialViewerTabFactory(material, experimentCriteriaOrNull,
-                            viewContext);
-            DispatcherHelper.dispatchNaviEvent(tab);
+            openImagingMaterialGenericViewer(material, experimentCriteriaOrNull, viewContext);
         }
+    }
+
+    private static void openImagingMaterialGenericViewer(
+            final IEntityInformationHolderWithPermId material,
+            final ExperimentSearchCriteria experimentCriteriaOrNull,
+            final IViewContext<IScreeningClientServiceAsync> viewContext)
+    {
+        AbstractTabItemFactory tab =
+                createImagingMaterialViewerTabFactory(material, experimentCriteriaOrNull,
+                        viewContext);
+        DispatcherHelper.dispatchNaviEvent(tab);
     }
 
     private static String tryGetExperimentPermId(ExperimentSearchCriteria criteriaOrNull)
