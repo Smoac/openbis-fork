@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObject
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.IWellData;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialAllReplicasFeatureVectors;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialBiologicalReplicateFeatureVector;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialSimpleFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialTechnicalReplicateFeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.WellDataCollection;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialBiologicalReplicateFeatureSummary;
@@ -53,6 +54,24 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSummar
  */
 public class MaterialFeatureVectorSummaryLoader extends ExperimentFeatureVectorSummaryLoader
 {
+    public static List<MaterialSimpleFeatureVectorSummary> loadMaterialFeatureVectorsFromAllAssays(
+            Session session, IScreeningBusinessObjectFactory businessObjectFactory,
+            IDAOFactory daoFactory, TechId materialId, MaterialSummarySettings settings)
+    {
+        // Probably the result DTO has to be converted (here?) to fit the GUI needs better.
+        // Note that different experiments can have different set of features!
+        return new MaterialFeatureVectorSummaryLoader(session, businessObjectFactory, daoFactory,
+                settings).loadMaterialFeatureVectorsFromAllAssays(materialId);
+    }
+
+    /** Note that different experiments can have different set of features! */
+    private List<MaterialSimpleFeatureVectorSummary> loadMaterialFeatureVectorsFromAllAssays(
+            TechId materialId)
+    {
+        // TODO 2011-05-20, Tomasz Pylak: implement me!
+        return null;
+    }
+
     /**
      * For comments {@See MaterialFeatureVectorSummaryLoader}.
      */
