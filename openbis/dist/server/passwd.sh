@@ -23,7 +23,6 @@ if [ -L $bin ]; then
   bin=`dirname $bin`/`readlink $bin`
 fi
 WD="`dirname $bin`"
-cd "$WD/.."
 
 if [ ! -x "$JVM" ]; then
   echo "No java runtime environment executable found. You need to set the environment variable JAVA_HOME appropriately."
