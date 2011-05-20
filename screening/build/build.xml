@@ -25,6 +25,7 @@
   <property name="installer.basedir" value="${basedir}/dist/installer" />
   <!-- relative path referenced from within the installer compilation --> 
   <property name="installer.resourcedir" value="dist/installer" />
+  <property name="installer.dist.dir" value="${dist}/installer" />
 	
   <taskdef name="izpack" classpath="${lib}/izpack/standalone-compiler.jar"
 	         classname="com.izforge.izpack.ant.IzPackTask"/>
@@ -38,32 +39,29 @@
   -->
 	
   <target name="dist" depends="create-installer, screening-api"/>
-	
-	<target name="create-installer" depends="openbis.make-dist, make-full-dss-dist, dss-plugin-jar, datastore_server.make-plugin-dist">
-		<!-- KE: there is no easy way to get the ${dss.dist.file} property as we 
-		     refer to the DSS build via "antcall"-s and they do not have return values --> 
-		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
-    <property name="dss.dist.file"
-              value="${dist.file.prefix}${variant}-${version.number}-r${revision.number}.zip" />
-    <property name="installer.jar.file"
-              value="${basedir}/${dist}/openBIS-installer${variant}-${version.number}-r${revision.number}.jar" />
-		
-  	<zip update="true" destfile="${server.dist.file}">
-  		<zipfileset file="${jars.to.be.signed.zip}"/>
-  	</zip>
-  	<delete file="${jars.to.be.signed.zip}"/>
+
+	<target name="create-installer" depends="openbis.make-dist, make-full-dss-dist, dss-plugin-jar, datastore_server.make-plugin-dist, prepare-installer">
+		<mkdir dir="${installer.dist.dir}" />
+		<unzip src="${dss.dist.file}" dest="${installer.dist.dir}"/>
+		<unzip src="${server.dist.file}" dest="${installer.dist.dir}"/>
 		
 		<!-- make the "admin" directory available to the installer as "bin" -->
-		<copy todir="${classes.screening}/bin">
+		<copy todir="${installer.dist.dir}/bin">
 		    <fileset dir="${installer.basedir}/../admin">
 		      <include name="**/*"/>
 		      <exclude name="svn-update.sh"/>
 		    </fileset>
 		</copy>
 		
+		
+		<exec executable="/usr/bin/python" failonerror="true">
+		    <arg value="${basedir}/build/merge-prop-files.py"/>
+		    <arg value="${installer.basedir}/dss-service.properties"/>
+		    <arg value="${installer.dist.dir}/datastore_server/etc/service.properties"/>
+		</exec>		
+		
 		<!-- this suffix will be used by the installer to check if there are database connections -->
 	  <property name="installer.database.kind" value="screening" />
-	  <property name="installer.admin.scripts.dir" value="${classes.screening}/bin" />
 				
 		<izpack input="${installer.basedir}/install.xml"
 		        output="${installer.jar.file}"
@@ -80,9 +78,27 @@
     		<include name="**/*"/>
     	</zipfileset>
     </jar>
+		
+		<delete dir="${installer.dist.dir}" />
 
 	</target>
 	
+	<target name="prepare-installer">
+		<!-- KE: there is no easy way to get the ${dss.dist.file} property as we 
+		     refer to the DSS build via "antcall"-s and they do not have return values -->  
+		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
+    <property name="dss.dist.file"
+              value="${dist.file.prefix}${variant}-${version.number}-r${revision.number}.zip" />
+    <property name="installer.jar.file"
+              value="${basedir}/${dist}/openBIS-installer${variant}-${version.number}-r${revision.number}.jar" />
+		
+  	<zip update="true" destfile="${server.dist.file}">
+  		<zipfileset file="${jars.to.be.signed.zip}"/>
+  	</zip>
+  	<delete file="${jars.to.be.signed.zip}"/>
+
+	</target>
+    			
   <target name="dss-plugin-jar" depends="compile">
 		<mkdir dir="${dist}/data" />
 		<mkdir dir="${dist}/etc" />
