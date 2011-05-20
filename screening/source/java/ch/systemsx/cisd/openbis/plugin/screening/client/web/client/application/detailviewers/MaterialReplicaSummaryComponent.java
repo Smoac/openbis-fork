@@ -31,7 +31,6 @@ import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
-import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.layout.ColumnLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
@@ -44,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.NotScrollableContainer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -107,11 +107,14 @@ public class MaterialReplicaSummaryComponent
         protected void process(List<WellReplicaImage> images)
         {
             imagesPanel.removeAll();
-            imagesPanel.setLayout(new RowLayout());
-            imagesPanel.add(createImagePanel(images), new RowData(-1, -1,
-                    new Margins(10, 0, 10, 10)));
+            imagesPanel.add(createImagePanel(images), createImagePanelLayoutData());
             imagesPanel.layout();
         }
+    }
+
+    private static RowData createImagePanelLayoutData()
+    {
+        return new RowData(-1, -1, new Margins(10, 0, 10, 10));
     }
 
     private Widget createImagePanel(List<WellReplicaImage> images)
@@ -124,7 +127,7 @@ public class MaterialReplicaSummaryComponent
         final IDefaultChannelState defaultChannelState =
                 new DefaultChannelState(screeningViewContext, displayTypeId);
         ChannelChooserPanel channelChooser = new ChannelChooserPanel(defaultChannelState);
-        LayoutContainer panel = new LayoutContainer();
+        LayoutContainer panel = new NotScrollableContainer();
         panel.setLayout(new RowLayout());
         panel.add(channelChooser);
 
@@ -133,11 +136,14 @@ public class MaterialReplicaSummaryComponent
         List<WellReplicaImage> orphanTechnicalReplicates = labelToReplicasMap.get(orphanGroupKey);
         if (orphanTechnicalReplicates != null)
         {
-            panel.add(createOrphanTechnicalReplicatesPanel(orphanTechnicalReplicates,
-                    channelChooser));
+            Widget technicalReplicatesPanel =
+                    createOrphanTechnicalReplicatesPanel(orphanTechnicalReplicates, channelChooser);
+            panel.add(technicalReplicatesPanel);
             labelToReplicasMap.remove(orphanGroupKey);
         }
-        panel.add(createBiologicalReplicatesImagesPanel(labelToReplicasMap, channelChooser));
+        LayoutContainer biologicalReplicatesImagesPanel =
+                createBiologicalReplicatesImagesPanel(labelToReplicasMap, channelChooser);
+        panel.add(biologicalReplicatesImagesPanel);
         return panel;
     }
 
@@ -296,7 +302,7 @@ public class MaterialReplicaSummaryComponent
     private IDisposableComponent createViewer(IEntityInformationHolderWithPermId experiment,
             Material material)
     {
-        final LayoutContainer panel = new Viewport();
+        final LayoutContainer panel = new LayoutContainer();
         panel.setLayout(new RowLayout(Orientation.VERTICAL));
         panel.setScrollMode(Scroll.AUTO);
 
@@ -311,8 +317,9 @@ public class MaterialReplicaSummaryComponent
         // NOTE: if the width is 100% then the vertical scrollbar of the grid is not visible
         panel.add(gridComponent.getComponent(), new RowData(0.97, 400));
 
-        LayoutContainer imagesPanel = new LayoutContainer();
-        imagesPanel.add(new Text(LOADING_IMAGES_DICT_MSG));
+        LayoutContainer imagesPanel = new NotScrollableContainer();
+        imagesPanel.setLayout(new RowLayout());
+        imagesPanel.add(new Text(LOADING_IMAGES_DICT_MSG), createImagePanelLayoutData());
         panel.add(imagesPanel);
         screeningViewContext.getService().listWellImages(materialTechId, experimentTechId,
                 new ImagesFoundCallback(imagesPanel));
