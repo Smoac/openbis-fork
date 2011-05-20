@@ -31,6 +31,18 @@ public class ContainerDataSet extends ExternalData
 
     private List<ExternalData> containedDataSets = new ArrayList<ExternalData>();
 
+    @Override
+    public boolean isContainer()
+    {
+        return true;
+    }
+
+    @Override
+    public ContainerDataSet tryGetAsContainerDataSet()
+    {
+        return this;
+    }
+
     public List<ExternalData> getContainedDataSets()
     {
         return containedDataSets;

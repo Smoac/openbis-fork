@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-
 /**
  * A simple (non-container aka non-virtual) data set.
  * 
@@ -28,7 +27,7 @@ public class DataSet extends ExternalData implements IDatasetLocation
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private Boolean complete;
-    
+
     private String shareId;
 
     private String location;
@@ -40,6 +39,12 @@ public class DataSet extends ExternalData implements IDatasetLocation
     private LocatorType locatorType;
 
     private FileFormatType fileFormatType;
+
+    @Override
+    public DataSet tryGetAsDataSet()
+    {
+        return this;
+    }
 
     @Override
     public Boolean getComplete()

@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -25,9 +27,12 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.io.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.IHierarchicalContentFactory;
+import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.common.utilities.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 
@@ -116,6 +121,77 @@ public class HierarchicalContentProviderTest extends AssertJUnit
                 }
             });
         actionMatcher.recordedObject().execute();
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    void testAsContentFromContainerCode()
+    {
+        final String containerCode = "CONTAINER_CODE";
+        final ContainerDataSet container = new ContainerDataSet();
+        container.setCode(containerCode);
+
+        final DataSet dataSet1 = new DataSet();
+        final DataSet dataSet2 = new DataSet();
+        final String componentCode1 = "DS_CODE_1";
+        final String componentCode2 = "DS_CODE_2";
+        dataSet1.setCode(componentCode1);
+        dataSet2.setCode(componentCode2);
+        final File dataSetRootFile1 = new File("DS_FILE_1");
+        final File dataSetRootFile2 = new File("DS_FILE_2");
+
+        container.getContainedDataSets().add(dataSet1);
+        container.getContainedDataSets().add(dataSet2);
+
+        final RecordingMatcher<IDelegatedAction> actionMatcher = RecordingMatcher.create();
+        context.checking(new Expectations()
+            {
+                {
+                    one(openbisService).tryGetDataSet(containerCode);
+                    will(returnValue(container));
+
+                    one(shareIdManager).lock(componentCode1);
+                    one(directoryProvider).getDataSetDirectory(dataSet1);
+                    will(returnValue(dataSetRootFile1));
+
+                    one(shareIdManager).lock(componentCode2);
+                    one(directoryProvider).getDataSetDirectory(dataSet2);
+                    will(returnValue(dataSetRootFile2));
+
+                    IHierarchicalContent content1 = new DummyHierarchicalContent();
+                    IHierarchicalContent content2 = new DummyHierarchicalContent();
+                    one(hierarchicalContentFactory).asHierarchicalContent(
+                            with(same(dataSetRootFile1)), with(actionMatcher));
+                    will(returnValue(content1));
+                    one(hierarchicalContentFactory).asHierarchicalContent(
+                            with(same(dataSetRootFile2)), with(actionMatcher));
+                    will(returnValue(content2));
+
+                    one(hierarchicalContentFactory).asVirtualHierarchicalContent(
+                            Arrays.asList(content1, content2));
+                }
+            });
+
+        hierarchicalContentProvider.asContent(containerCode);
+        context.assertIsSatisfied();
+
+        // check that locks are released on execution of recorded actions
+        assertEquals(2, actionMatcher.getRecordedObjects().size());
+        context.checking(new Expectations()
+            {
+                {
+                    one(shareIdManager).releaseLock(componentCode1);
+                }
+            });
+        actionMatcher.getRecordedObjects().get(0).execute();
+        context.checking(new Expectations()
+            {
+                {
+                    one(shareIdManager).releaseLock(componentCode2);
+                }
+            });
+        actionMatcher.getRecordedObjects().get(1).execute();
+
         context.assertIsSatisfied();
     }
 
@@ -209,6 +285,38 @@ public class HierarchicalContentProviderTest extends AssertJUnit
         hierarchicalContentProvider.asContent(dataRootFile);
 
         context.assertIsSatisfied();
+
+    }
+
+    private static class DummyHierarchicalContent implements IHierarchicalContent
+    {
+
+        public IHierarchicalContentNode getRootNode()
+        {
+            return null;
+        }
+
+        public IHierarchicalContentNode getNode(String relativePath)
+                throws IllegalArgumentException
+        {
+            return null;
+        }
+
+        public List<IHierarchicalContentNode> listMatchingNodes(String relativePathPattern)
+        {
+            return null;
+        }
+
+        public List<IHierarchicalContentNode> listMatchingNodes(String startingPath,
+                String fileNamePattern)
+        {
+            return null;
+        }
+
+        public void close()
+        {
+
+        }
 
     }
 

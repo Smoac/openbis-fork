@@ -97,33 +97,23 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
      */
     public boolean isContainer()
     {
-        return dataSetType != null && dataSetType.isContainerType();
+        return false; // overriden in subclasses
     }
 
     /**
-     * Tries to cast the current object to {@link DataSet}. Will return non-null values for plain
-     * non-container data sets.
+     * Will return non-null values for plain non-container data sets.
      */
     public DataSet tryGetAsDataSet()
     {
-        if (this instanceof DataSet)
-        {
-            return (DataSet) this;
-        }
-        return null;
+        return null; // overriden in subclasses
     }
 
     /**
-     * Tries to cast the current object to {@link ContainerDataSet}. Returns null if the data set is
-     * not a container data set.
+     * Returns null if the data set is not a container data set, otherwise returns the container.
      */
     public ContainerDataSet tryGetAsContainerDataSet()
     {
-        if (this instanceof ContainerDataSet)
-        {
-            return (ContainerDataSet) this;
-        }
-        return null;
+        return null; // overriden in subclasses
     }
 
     public String getPermlink()
