@@ -74,7 +74,12 @@ public final class DataDAOTest extends AbstractDAOTest
 
     private final String CHILD_CODE = "20081105092159188-3";
 
+    private final String CONTAINER_CODE = "20110509092359990-10";
+
+    private final String COMPONENT_CODE = "20110509092359990-11";
+
     private final String VIRTUAL_DATA_SET_TYPE_CODE = "CONTAINER_TYPE";
+
 
     @Test
     public final void testListSampleDataSets()
@@ -369,7 +374,23 @@ public final class DataDAOTest extends AbstractDAOTest
         findData(PARENT_CODE);
     }
 
-    // TODO write testDeleteContainerWithComponentsPreserved
+    @Test
+    public final void testDeleteContainerWithComponentsPreserved()
+    {
+        final IDataDAO dataDAO = daoFactory.getDataDAO();
+        DataPE containerDataSet = findData(CONTAINER_CODE);
+        DataPE componentDataSet = findData(COMPONENT_CODE);
+
+        assertEquals(containerDataSet.getId(), componentDataSet.getContainer().getId());
+
+        dataDAO.delete(containerDataSet);
+
+        DataPE reloadedContainer = dataDAO.tryToFindDataSetByCode(CONTAINER_CODE);
+        assertNull(reloadedContainer);
+
+        DataPE preservedComponent = findData(COMPONENT_CODE);
+        assertNull(preservedComponent.getContainer());
+    }
 
     @Test(expectedExceptions = DataIntegrityViolationException.class)
     public final void testDeleteFailWithChildrenDatasets()
