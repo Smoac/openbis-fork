@@ -84,9 +84,6 @@ public class ImagingMaterialViewer extends GenericMaterialViewer
                         experimentCriteriaOrNull);
         sections.add(wellSearchSection);
 
-        // TODO 2011-05-17, Tomasz Pylak: the section is visible only if experiment is initially
-        // selected. Allow to switch between "Material in one assay" and "Material in all assays"
-        // summaries. Extract experiment chooser from WellSearchGrid
         String experimentPermId = tryGetExperimentPermId();
         if (experimentPermId != null)
         {
@@ -94,6 +91,9 @@ public class ImagingMaterialViewer extends GenericMaterialViewer
                     new MaterialReplicaSummarySection(screeningViewContext, material,
                             experimentPermId);
             sections.add(replicaSummarySection);
+        } else
+        {
+            // TODO 2011-05-17, Tomasz Pylak: show MaterialAllAssaysSummarySection section
         }
         return sections;
     }
