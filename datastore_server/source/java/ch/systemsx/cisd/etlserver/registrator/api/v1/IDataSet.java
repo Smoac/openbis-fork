@@ -68,6 +68,8 @@ public interface IDataSet
     /**
      * The file format type of the data set. Defaults to the default specified in
      * {@link FileFormatType}.
+     * <p>
+     * This property is undefined for container data sets.
      * 
      * @return The code of the {@link FileFormatType} for this data set.
      */
@@ -75,6 +77,8 @@ public interface IDataSet
 
     /**
      * Set the file format type.
+     * <p>
+     * This property is undefined for container data sets.
      * 
      * @param fileFormatTypeCode The code of the desired {@link FileFormatType}.
      */
@@ -106,6 +110,8 @@ public interface IDataSet
     /**
      * Returns the speed hint. If it hasn't been set by {@link #setSpeedHint(int)} the default value
      * {@link Constants#DEFAULT_SPEED_HINT} will be returned.
+     * <p>
+     * This property is undefined for container data sets.
      */
     public int getSpeedHint();
 
@@ -116,6 +122,8 @@ public interface IDataSet
      * A positive value means that the data set should be stored in a storage with speed &gt;=
      * <code>speedHint</code>. A negative value means that the data set should be stored in a
      * storage with speed &lt;= <code>abs(speedHint)</code>. The speed hint might be ignored.
+     * <p>
+     * This property is undefined for container data sets.
      */
     public void setSpeedHint(int speedHint);
 
