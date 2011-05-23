@@ -24,6 +24,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 import com.csvreader.CsvReader;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
@@ -33,6 +40,7 @@ import ch.systemsx.cisd.common.parser.ParsingException;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetFileLines;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ExcelFileReaderHelper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TableCellUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
@@ -60,6 +68,10 @@ abstract public class AbstractFileTableReportingPlugin extends AbstractTableMode
     public static final String IGNORE_TRAILING_EMPTY_CELLS_PROPERTY_KEY =
             "ignore-trailing-empty-cells";
 
+    public static final String EXCEL_SHEET_PROPERTY_KEY = "excel-sheet"; // sheet index or name
+
+    private static final String defaultExcelSheet = "0"; // 1st sheet (0 based)
+
     // if the line starts with this character and comments should be ignored, the line is ignored
     private static final char COMMENT = '#';
 
@@ -69,6 +81,8 @@ abstract public class AbstractFileTableReportingPlugin extends AbstractTableMode
 
     private final boolean ignoreTrailingEmptyCells;
 
+    private final String excelSheet;
+
     protected AbstractFileTableReportingPlugin(Properties properties, File storeRoot,
             char defaultSeparator)
     {
@@ -77,10 +91,11 @@ abstract public class AbstractFileTableReportingPlugin extends AbstractTableMode
                 PropertyUtils.getChar(properties, SEPARATOR_PROPERTY_KEY, defaultSeparator);
         this.ignoreComments =
                 PropertyUtils.getBoolean(properties, IGNORE_COMMENTS_PROPERTY_KEY, true);
-        ignoreTrailingEmptyCells =
+        this.ignoreTrailingEmptyCells =
                 PropertyUtils.getBoolean(properties, IGNORE_TRAILING_EMPTY_CELLS_PROPERTY_KEY,
                         false);
-
+        this.excelSheet =
+                PropertyUtils.getProperty(properties, EXCEL_SHEET_PROPERTY_KEY, defaultExcelSheet);
     }
 
     /**
@@ -95,20 +110,76 @@ abstract public class AbstractFileTableReportingPlugin extends AbstractTableMode
         assert file != null : "Given file must not be null";
         assert file.isFile() : "Given file '" + file.getAbsolutePath() + "' is not a file.";
 
-        CsvReader reader = null;
+        if (isExcelFile(file))
+        {
+            try
+            {
+                Sheet sheet = getExcelSheet(file);
+                return load(dataset, sheet, file);
+            } catch (final IOException ex)
+            {
+                throw new IOExceptionUnchecked(ex);
+            }
+        } else
+        {
+            CsvReader reader = null;
+            try
+            {
+                reader = readFile(file, ignoreComments, separator);
+                return load(dataset, reader, file);
+            } catch (final IOException ex)
+            {
+                throw new IOExceptionUnchecked(ex);
+            } finally
+            {
+                if (reader != null)
+                {
+                    reader.close();
+                }
+            }
+        }
+    }
+
+    private static boolean isExcelFile(File file)
+    {
+        return FilenameUtils.isExtension(file.getName().toLowerCase(), new String[]
+            { "xls", "xlsx" });
+    }
+
+    private Sheet getExcelSheet(File file) throws IOException
+    {
+        Workbook wb = getExcelWorkbook(file);
         try
         {
-            reader = readFile(file, ignoreComments, separator);
-            return load(dataset, reader, file);
-        } catch (final IOException ex)
+            int index = Integer.parseInt(excelSheet);
+            return wb.getSheetAt(index); // will throw exception if index is out of range
+        } catch (NumberFormatException ex)
         {
-            throw new IOExceptionUnchecked(ex);
-        } finally
-        {
-            if (reader != null)
+            Sheet sheet = wb.getSheet(excelSheet);
+            if (sheet == null)
             {
-                reader.close();
+                throw new UserFailureException(file.getName() + " doesn't contain sheet named "
+                        + excelSheet);
             }
+            return sheet;
+        }
+    }
+
+    private Workbook getExcelWorkbook(File file) throws IOException
+    {
+        final String extension = FilenameUtils.getExtension(file.getName()).toLowerCase();
+        final FileInputStream stream = new FileInputStream(file);
+        if ("xls".equals(extension))
+        {
+            POIFSFileSystem poifsFileSystem = new POIFSFileSystem(stream);
+            return new HSSFWorkbook(poifsFileSystem);
+        } else if ("xlsx".equals(extension))
+        {
+            return new XSSFWorkbook(stream);
+        } else
+        {
+            throw new IllegalArgumentException(
+                    "Expected an Excel file with 'xls' or 'xlsx' extension, got " + file.getName());
         }
     }
 
@@ -133,9 +204,21 @@ abstract public class AbstractFileTableReportingPlugin extends AbstractTableMode
     }
 
     /**
-     * Loads data from the specified reader.
+     * Loads data from the specified sheet.
      * 
      * @throws IOException
+     */
+    private DatasetFileLines load(DatasetDescription dataset, Sheet sheet, File file)
+            throws IOException
+    {
+        assert sheet != null : "Unspecified sheet";
+
+        List<String[]> lines = ExcelFileReaderHelper.loadLines(sheet, ignoreComments);
+        return new DatasetFileLines(file, dataset.getDataSetCode(), lines, ignoreTrailingEmptyCells);
+    }
+
+    /**
+     * Loads data from the specified reader.
      */
     protected DatasetFileLines load(final DatasetDescription dataset, final CsvReader reader,
             final File file) throws ParserException, ParsingException, IllegalArgumentException,
