@@ -21,23 +21,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
+
+import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.etlserver.BaseDirectoryHolder;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithmRunner;
-import ch.systemsx.cisd.etlserver.FileRenamer;
 import ch.systemsx.cisd.etlserver.IDataStoreStrategy;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataAction;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.IdentifiedDataStrategy;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
-import ch.systemsx.cisd.etlserver.TransferredDataSetHandler;
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
+import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.ErrorType;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
 
 /**
  * A service that registers many files as individual data sets in one transaction.
@@ -65,6 +67,9 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     private final File incomingDataSetFile;
 
     private final ITopLevelDataSetRegistratorDelegate delegate;
+
+    static private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            DataSetRegistrationService.class);
 
     /**
      * Keep track of errors we encounter while processing. Clients may want this information.
@@ -174,38 +179,30 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
 
     public File moveIncomingToError(String dataSetTypeCodeOrNull)
     {
-        // Make sure the data set information is valid
-        DataSetInformation dataSetInfo = new DataSetInformation();
-        dataSetInfo.setShareId(registratorContext.getGlobalState().getShareId());
-        if (null == dataSetTypeCodeOrNull)
-        {
-            dataSetInfo.setDataSetType(new DataSetType(DataSetTypeCode.UNKNOWN.getCode()));
-        } else
-        {
-            dataSetInfo.setDataSetType(new DataSetType(dataSetTypeCodeOrNull));
-        }
-
-        // Create the error directory
-        File baseDirectory =
-                DataSetStorageAlgorithm.createBaseDirectory(
-                        TransferredDataSetHandler.ERROR_DATA_STRATEGY, registratorContext
-                                .getStorageProcessor().getStoreRootDirectory(), registratorContext
-                                .getFileOperations(), dataSetInfo, dataSetInfo.getDataSetType(),
-                        incomingDataSetFile);
-        BaseDirectoryHolder baseDirectoryHolder =
-                new BaseDirectoryHolder(TransferredDataSetHandler.ERROR_DATA_STRATEGY,
-                        baseDirectory, incomingDataSetFile);
-
-        // Move the incoming there
-        FileRenamer.renameAndLog(incomingDataSetFile, baseDirectoryHolder.getTargetFile());
-        return baseDirectoryHolder.getTargetFile();
+        DataSetStorageRollbacker rollbacker =
+                new DataSetStorageRollbacker(registratorContext, operationLog,
+                        UnstoreDataAction.MOVE_TO_ERROR, incomingDataSetFile,
+                        dataSetTypeCodeOrNull, null);
+        return rollbacker.doRollback();
     }
 
-    public void rollbackTransaction(DataSetRegistrationTransaction<T> transaction,
-            DataSetStorageAlgorithmRunner<T> algorithm, Throwable ex)
+    public void didRollbackTransaction(DataSetRegistrationTransaction<T> transaction,
+            DataSetStorageAlgorithmRunner<T> algorithm, Throwable ex, ErrorType errorType)
     {
         encounteredErrors.add(ex);
-        registrator.rollbackTransaction(this, transaction, algorithm, ex);
+        // Don't do the undo store action when this exception happens
+        boolean stopped = ex instanceof InterruptedExceptionUnchecked;
+        if (false == stopped)
+        {
+            UnstoreDataAction action =
+                    registratorContext.getOnErrorActionDecision().computeUndoAction(errorType, ex);
+            DataSetStorageRollbacker rollbacker =
+                    new DataSetStorageRollbacker(registratorContext, operationLog, action,
+                            incomingDataSetFile, null, null, errorType);
+            operationLog.info(rollbacker.getErrorMessageForLog());
+            rollbacker.doRollback();
+        }
+        registrator.didRollbackTransaction(this, transaction, algorithm, ex);
     }
 
     /**

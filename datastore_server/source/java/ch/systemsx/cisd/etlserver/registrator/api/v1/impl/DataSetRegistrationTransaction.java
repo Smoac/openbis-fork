@@ -30,6 +30,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner;
+import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.ErrorType;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.etlserver.registrator.IEntityOperationService;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
@@ -335,10 +336,11 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     /**
      * Delegate method called by the {@link DataSetStorageAlgorithmRunner}.
      */
-    public void rollback(DataSetStorageAlgorithmRunner<T> algorithm, Throwable ex)
+    public void didRollbackStorageAlgorithmRunner(DataSetStorageAlgorithmRunner<T> algorithm,
+            Throwable ex, ErrorType errorType)
     {
         rollback();
-        registrationService.rollbackTransaction(this, algorithm, ex);
+        registrationService.didRollbackTransaction(this, algorithm, ex, errorType);
     }
 
     /**

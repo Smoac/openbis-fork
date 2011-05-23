@@ -195,7 +195,7 @@ public class ContainerDataSetStorageAlgorithm<T extends DataSetInformation> exte
         }
 
         /**
-         * Committed data sets don't use a storage process -- there is nothing to do.
+         * Committed data sets don't use a storage processor -- there is nothing to do.
          */
         public UnstoreDataAction rollbackStorageProcessor(final Throwable throwable)
         {

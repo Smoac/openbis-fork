@@ -22,9 +22,9 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.ErrorType;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInformation;
@@ -40,7 +40,13 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
     public static interface IRollbackDelegate<T extends DataSetInformation>
     {
-        public void rollback(DataSetStorageAlgorithmRunner<T> algorithm, Throwable ex);
+        /**
+         * @param algorithm The algorithm that is rolling back
+         * @param ex The throwable that forced the rollback
+         * @param errorType The point in the execution of the algorithm that rollback happened
+         */
+        public void didRollbackStorageAlgorithmRunner(DataSetStorageAlgorithmRunner<T> algorithm,
+                Throwable ex, ErrorType errorType);
     }
 
     /**
@@ -160,21 +166,24 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
     {
         operationLog.error("Failed to run storage processor", ex);
         rollbackStorageProcessors(ex);
-        rollbackDelegate.rollback(this, ex);
+        rollbackDelegate.didRollbackStorageAlgorithmRunner(this, ex,
+                ErrorType.STORAGE_PROCESSOR_ERROR);
     }
 
     private void rollbackDuringMetadataRegistration(Throwable ex)
     {
         operationLog.error("Failed to register metadata", ex);
         rollbackStorageProcessors(ex);
-        rollbackDelegate.rollback(this, ex);
+        rollbackDelegate.didRollbackStorageAlgorithmRunner(this, ex,
+                ErrorType.OPENBIS_REGISTRATION_FAILURE);
     }
 
     private void rollbackAfterStorageProcessorAndMetadataRegistration(Throwable ex)
     {
         operationLog.error("Failed to complete transaction", ex);
         rollbackStorageProcessors(ex);
-        rollbackDelegate.rollback(this, ex);
+        rollbackDelegate.didRollbackStorageAlgorithmRunner(this, ex,
+                ErrorType.POST_REGISTRATION_ERROR);
     }
 
     private void commitStorageProcessors()
@@ -219,19 +228,12 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             return;
         }
 
-        // Don't rollback when this exception happens
-        boolean stopped = ex instanceof InterruptedExceptionUnchecked;
-
         // Rollback in the reverse order
         for (int i = dataSetStorageAlgorithms.size() - 1; i >= 0; --i)
         {
             DataSetStorageAlgorithm<T> storageAlgorithm = dataSetStorageAlgorithms.get(i);
             storageAlgorithm.rollbackStorageProcessor(ex);
-
-            if (stopped == false)
-            {
-                storageAlgorithm.executeUndoStoreAction();
-            }
+            storageAlgorithm.executeUndoStoreAction();
         }
     }
 

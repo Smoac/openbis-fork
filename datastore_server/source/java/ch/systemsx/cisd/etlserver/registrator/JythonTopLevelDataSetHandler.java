@@ -173,12 +173,12 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     }
 
     @Override
-    public void rollbackTransaction(DataSetRegistrationService<T> service,
+    public void didRollbackTransaction(DataSetRegistrationService<T> service,
             DataSetRegistrationTransaction<T> transaction,
             DataSetStorageAlgorithmRunner<T> algorithmRunner, Throwable ex)
     {
         invokeRollbackTransactionFunction(service, transaction, algorithmRunner, ex);
-        super.rollbackTransaction(service, transaction, algorithmRunner, ex);
+        super.didRollbackTransaction(service, transaction, algorithmRunner, ex);
     }
 
     private void invokeRollbackTransactionFunction(DataSetRegistrationService<T> service,

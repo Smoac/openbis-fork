@@ -16,10 +16,8 @@
 
 package ch.systemsx.cisd.etlserver.registrator;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -29,7 +27,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
-import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
@@ -66,8 +63,6 @@ public class DataSetStorageRollbackerTest extends AbstractFileSystemTestCase
 
     private File incomingDataSetFile;
 
-    private BufferedAppender logAppender;
-
     private TestDataSetRegistrator testRegistrator;
 
     @Override
@@ -80,13 +75,11 @@ public class DataSetStorageRollbackerTest extends AbstractFileSystemTestCase
         openBisService = context.mock(IEncapsulatedOpenBISService.class);
         dataSetValidator = context.mock(IDataSetValidator.class);
         mailClient = context.mock(IMailClient.class);
-        logAppender = new BufferedAppender();
 
         setUpHomeDataBaseExpectations();
         TopLevelDataSetRegistratorGlobalState topLevelState =
                 createGlobalState(createThreadProperties());
         testRegistrator = new TestDataSetRegistrator(topLevelState);
-        logAppender.resetLogContent();
     }
 
     @Test
@@ -98,20 +91,16 @@ public class DataSetStorageRollbackerTest extends AbstractFileSystemTestCase
         DataSetStorageRollbacker rollbacker =
                 new DataSetStorageRollbacker(globalState, logger, UnstoreDataAction.DELETE,
                         incomingDataSetFile, null, null);
-        rollbacker.appendErrorMessage();
         assertEquals(
                 "Performing action DELETE on targets/unit-test-wd/ch.systemsx.cisd.etlserver.registrator.DataSetStorageRollbackerTest/data_set",
-                logAppender.getLogContent());
-
-        logAppender.resetLogContent();
+                rollbacker.getErrorMessageForLog());
 
         rollbacker =
                 new DataSetStorageRollbacker(globalState, logger, UnstoreDataAction.DELETE,
                         incomingDataSetFile, null, null, ErrorType.REGISTRATION_SCRIPT_ERROR);
-        rollbacker.appendErrorMessage();
         assertEquals(
                 "Responding to error [REGISTRATION_SCRIPT_ERROR] by performing action DELETE on targets/unit-test-wd/ch.systemsx.cisd.etlserver.registrator.DataSetStorageRollbackerTest/data_set",
-                logAppender.getLogContent());
+                rollbacker.getErrorMessageForLog());
     }
 
     private TopLevelDataSetRegistratorGlobalState createGlobalState(Properties threadProperties)
@@ -149,14 +138,12 @@ public class DataSetStorageRollbackerTest extends AbstractFileSystemTestCase
         protected TestDataSetRegistrator(TopLevelDataSetRegistratorGlobalState globalState)
         {
             super(globalState);
-            // TODO Auto-generated constructor stub
         }
 
         @Override
         protected void handleDataSet(File dataSetFile,
                 DataSetRegistrationService<DataSetInformation> service) throws Throwable
         {
-            // TODO Auto-generated method stub
 
         }
     }
@@ -173,33 +160,6 @@ public class DataSetStorageRollbackerTest extends AbstractFileSystemTestCase
                     will(returnValue(databaseInstance));
                 }
             });
-    }
-
-    protected void assertLogContent(BufferedAppender logRecorder, String... expectedLinesOfContent)
-    {
-        BufferedReader reader = new BufferedReader(new StringReader(logRecorder.getLogContent()));
-        StringBuilder builder = new StringBuilder();
-        for (String line : expectedLinesOfContent)
-        {
-            builder.append(line).append('\n');
-        }
-        String expectedContent = builder.toString();
-        builder.setLength(0);
-        String line;
-        try
-        {
-            while ((line = reader.readLine()) != null)
-            {
-                if (line.startsWith("\tat") == false && line.startsWith("\t... ") == false)
-                {
-                    builder.append(line).append('\n');
-                }
-            }
-        } catch (IOException ex)
-        {
-            // ignored, because we are reading from a string
-        }
-        assertEquals(expectedContent, builder.toString());
     }
 
     private File createDirectory(File parentDir, String directoryName)

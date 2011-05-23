@@ -17,9 +17,11 @@
 package ch.systemsx.cisd.etlserver.registrator;
 
 import static ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.STORAGE_PROCESSOR_KEY;
+import static ch.systemsx.cisd.etlserver.ThreadParameters.ON_ERROR_DECISION_KEY;
 
 import java.io.File;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -32,6 +34,8 @@ import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.ClassUtils;
+import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.etlserver.AbstractTopLevelDataSetRegistrator;
 import ch.systemsx.cisd.etlserver.DataStrategyStore;
@@ -39,9 +43,11 @@ import ch.systemsx.cisd.etlserver.IDataStrategyStore;
 import ch.systemsx.cisd.etlserver.IPostRegistrationAction;
 import ch.systemsx.cisd.etlserver.IPreRegistrationAction;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataAction;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.PropertiesBasedETLServerPlugin;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
+import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.ErrorType;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.utils.PostRegistrationExecutor;
 import ch.systemsx.cisd.etlserver.utils.PreRegistrationExecutor;
@@ -93,10 +99,12 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
 
         private final ValidationScriptRunner validationScriptRunner;
 
+        private final IDataSetOnErrorActionDecision onErrorActionDecision;
+
         private OmniscientTopLevelDataSetRegistratorState(
                 TopLevelDataSetRegistratorGlobalState globalState,
                 IStorageProcessorTransactional storageProcessor, ReentrantLock registrationLock,
-                IFileOperations fileOperations)
+                IFileOperations fileOperations, IDataSetOnErrorActionDecision onErrorActionDecision)
         {
             this.globalState = globalState;
             this.storageProcessor = storageProcessor;
@@ -116,6 +124,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             this.validationScriptRunner =
                     ValidationScriptRunner.createValidatorFromScriptPath(globalState
                             .getValidationScriptOrNull());
+            this.onErrorActionDecision = onErrorActionDecision;
         }
 
         public TopLevelDataSetRegistratorGlobalState getGlobalState()
@@ -167,6 +176,11 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         {
             return validationScriptRunner;
         }
+
+        public IDataSetOnErrorActionDecision getOnErrorActionDecision()
+        {
+            return onErrorActionDecision;
+        }
     }
 
     public static class DoNothingDelegatedAction implements IDelegatedActionWithResult<Boolean>
@@ -206,9 +220,19 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                         STORAGE_PROCESSOR_KEY, true);
         storageProcessor.setStoreRootDirectory(globalState.getStoreRootDir());
 
+        Properties onErrorDecisionProperties =
+                ExtendedProperties.getSubset(globalState.getThreadParameters()
+                        .getThreadProperties(), ON_ERROR_DECISION_KEY, true);
+        IDataSetOnErrorActionDecision onErrorDecision =
+                ClassUtils.create(
+                        IDataSetOnErrorActionDecision.class,
+                        globalState.getThreadParameters().getOnErrorActionDecisionClass(
+                                ConfiguredOnErrorActionDecision.class), onErrorDecisionProperties);
+
         state =
                 new OmniscientTopLevelDataSetRegistratorState(globalState, storageProcessor,
-                        new ReentrantLock(), FileOperations.getMonitoredInstanceForCurrentThread());
+                        new ReentrantLock(), FileOperations.getMonitoredInstanceForCurrentThread(),
+                        onErrorDecision);
 
         DataSetRegistrationTransaction.rollbackDeadTransactions(globalState.getStoreRootDir());
 
@@ -316,6 +340,18 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         } catch (Throwable ex)
         {
             operationLog.error("Could not process file " + incomingDataSetFile, ex);
+
+            // If we are here, it is because there was an error thrown in Java before trying to
+            // register the data set. This is considered a script error
+            UnstoreDataAction action =
+                    getRegistratorState().getOnErrorActionDecision().computeUndoAction(
+                            ErrorType.REGISTRATION_SCRIPT_ERROR, ex);
+            DataSetStorageRollbacker rollbacker =
+                    new DataSetStorageRollbacker(getRegistratorState(), operationLog, action,
+                            incomingDataSetFile, null, ex, ErrorType.REGISTRATION_SCRIPT_ERROR);
+            operationLog.info(rollbacker.getErrorMessageForLog());
+            rollbacker.doRollback();
+
             rollback(service, ex);
         }
 
@@ -341,7 +377,16 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             sb.append(error.getErrorMessage());
             sb.append("\n");
         }
-        operationLog.error(sb.toString());
+
+        UnstoreDataAction action =
+                getRegistratorState().getOnErrorActionDecision().computeUndoAction(
+                        ErrorType.INVALID_DATA_SET, null);
+        DataSetStorageRollbacker rollbacker =
+                new DataSetStorageRollbacker(getRegistratorState(), operationLog, action,
+                        incomingDataSetFile, null, null, ErrorType.INVALID_DATA_SET);
+        sb.append(rollbacker.getErrorMessageForLog());
+        operationLog.info(sb.toString());
+        rollbacker.doRollback();
     }
 
     public boolean isStopped()
@@ -369,7 +414,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
      * Subclasses may override, but should call super.
      */
 
-    public void rollbackTransaction(DataSetRegistrationService<T> dataSetRegistrationService,
+    public void didRollbackTransaction(DataSetRegistrationService<T> dataSetRegistrationService,
             DataSetRegistrationTransaction<T> transaction,
             DataSetStorageAlgorithmRunner<T> algorithm, Throwable ex)
     {

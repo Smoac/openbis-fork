@@ -910,12 +910,12 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         }
 
         @Override
-        public void rollbackTransaction(DataSetRegistrationService<DataSetInformation> service,
+        public void didRollbackTransaction(DataSetRegistrationService<DataSetInformation> service,
                 DataSetRegistrationTransaction<DataSetInformation> transaction,
                 DataSetStorageAlgorithmRunner<DataSetInformation> algorithmRunner,
                 Throwable throwable)
         {
-            super.rollbackTransaction(service, transaction, algorithmRunner, throwable);
+            super.didRollbackTransaction(service, transaction, algorithmRunner, throwable);
 
             didTransactionRollbackHappen = true;
             if (shouldReThrowRollbackException)

@@ -101,15 +101,15 @@ public class DataSetStorageRollbacker
         this.errorTypeOrNull = errorTypeOrNull;
     }
 
-    public void appendErrorMessage()
+    public String getErrorMessageForLog()
     {
         if (errorTypeOrNull != null)
         {
-            operationLog.info("Responding to error [" + errorTypeOrNull + "] by performing action "
-                    + unstoreAction + " on " + incomingDataSetFile);
+            return "Responding to error [" + errorTypeOrNull + "] by performing action "
+                    + unstoreAction + " on " + incomingDataSetFile;
         } else
         {
-            operationLog.info("Performing action " + unstoreAction + " on " + incomingDataSetFile);
+            return "Performing action " + unstoreAction + " on " + incomingDataSetFile;
         }
     }
 

@@ -90,6 +90,9 @@ public final class ThreadParameters
 
     private static final String REPROCESS_FAULTY_DATASETS_NAME = "reprocess-faulty-datasets";
 
+    @Private
+    public static final String ON_ERROR_DECISION_KEY = "on-error-decision";
+
     /**
      * The (local) directory to monitor for new files and directories to move to the remote side.
      * The directory where data to be processed by the ETL server become available.
@@ -101,6 +104,8 @@ public final class ThreadParameters
     private final Properties threadProperties;
 
     private final Class<?> topLevelDataSetRegistratorClassOrNull;
+
+    private final Class<?> onErrorDecisionClassOrNull;
 
     private final String threadName;
 
@@ -158,6 +163,20 @@ public final class ThreadParameters
                         "false"));
 
         this.threadName = threadName;
+
+        String onErrorClassName =
+                PropertyUtils.getProperty(threadProperties, ON_ERROR_DECISION_KEY + ".class");
+        Class<?> onErrorClass;
+        try
+        {
+            onErrorClass = (null == onErrorClassName) ? null : Class.forName(onErrorClassName);
+        } catch (ClassNotFoundException ex)
+        {
+            throw ConfigurationFailureException.fromTemplate("Wrong '%s' property: %s",
+                    ON_ERROR_DECISION_KEY + ".class", ex.getMessage());
+        }
+        this.onErrorDecisionClassOrNull = onErrorClass;
+
     }
 
     // true if marker file should be used, false if autodetection should be used, exceprion when the
@@ -278,6 +297,11 @@ public final class ThreadParameters
     {
         return (topLevelDataSetRegistratorClassOrNull == null) ? defaultClass
                 : topLevelDataSetRegistratorClassOrNull;
+    }
+
+    public Class<?> getOnErrorActionDecisionClass(Class<?> defaultClass)
+    {
+        return (onErrorDecisionClassOrNull == null) ? defaultClass : onErrorDecisionClassOrNull;
     }
 
     public Properties getThreadProperties()

@@ -17,11 +17,7 @@
 package ch.systemsx.cisd.etlserver.registrator;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
 
@@ -30,13 +26,11 @@ import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
-import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.etlserver.BaseDirectoryHolder;
 import ch.systemsx.cisd.etlserver.DataStoreStrategyKey;
-import ch.systemsx.cisd.etlserver.FileRenamer;
 import ch.systemsx.cisd.etlserver.IDataStoreStrategy;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
@@ -202,7 +196,10 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         }
 
         RolledbackState<T> rolledbackState = (RolledbackState<T>) state;
-        rolledbackState.executeUndoAction();
+
+        // Do not undo the individual data sets -- the entire transaction needs to be undone as a
+        // group
+        // rolledbackState.executeUndoAction();
 
         state = new UndoneState<T>(rolledbackState);
     }
@@ -429,8 +426,6 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
     private static class StoredState<T extends DataSetInformation> extends
             DataSetStorageAlgorithmState<T>
     {
-        protected final IStorageProcessorTransactional storageProcessor;
-
         protected final IStorageProcessorTransaction transaction;
 
         protected final File markerFile;
@@ -438,7 +433,6 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         public StoredState(PreparedState<T> oldState)
         {
             super(oldState.storageAlgorithm);
-            this.storageProcessor = storageAlgorithm.getStorageProcessor();
             this.transaction = oldState.transaction;
             this.markerFile = oldState.markerFile;
         }
@@ -493,61 +487,11 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
     private static class RolledbackState<T extends DataSetInformation> extends
             DataSetStorageAlgorithmState<T>
     {
-        private final UnstoreDataAction action;
-
-        private final Throwable throwable;
-
-        private final File storeRoot;
-
-        private BaseDirectoryHolder baseDirectoryHolder;
 
         public RolledbackState(StoredState<T> oldState, UnstoreDataAction action,
                 Throwable throwable)
         {
             super(oldState.storageAlgorithm);
-            this.action = action;
-            this.throwable = throwable;
-            this.storeRoot = oldState.storageProcessor.getStoreRootDirectory();
-        }
-
-        public void executeUndoAction()
-        {
-            if (action == UnstoreDataAction.MOVE_TO_ERROR)
-            {
-                final File baseDirectory =
-                        createBaseDirectory(TransferredDataSetHandler.ERROR_DATA_STRATEGY,
-                                storeRoot, storageAlgorithm.getDataSetInformation());
-                baseDirectoryHolder =
-                        new BaseDirectoryHolder(TransferredDataSetHandler.ERROR_DATA_STRATEGY,
-                                baseDirectory, incomingDataSetFile);
-                FileRenamer.renameAndLog(incomingDataSetFile, baseDirectoryHolder.getTargetFile());
-                writeThrowable();
-            } else if (action == UnstoreDataAction.DELETE)
-            {
-                FileUtilities.deleteRecursively(incomingDataSetFile, new Log4jSimpleLogger(
-                        getOperationLog()));
-            }
-        }
-
-        private void writeThrowable()
-        {
-            final String fileName = incomingDataSetFile.getName() + ".exception";
-            final File file =
-                    new File(baseDirectoryHolder.getTargetFile().getParentFile(), fileName);
-            FileWriter writer = null;
-            try
-            {
-                writer = new FileWriter(file);
-                throwable.printStackTrace(new PrintWriter(writer));
-            } catch (final IOException e)
-            {
-                getOperationLog().warn(
-                        String.format("Could not write out the exception '%s' in file '%s'.",
-                                fileName, file.getAbsolutePath()), e);
-            } finally
-            {
-                IOUtils.closeQuietly(writer);
-            }
         }
     }
 
