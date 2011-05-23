@@ -16,11 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 
-import java.util.ArrayList;
 import java.util.List;
+
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer.AbstractPropertyColRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.RealNumberRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.EntityPropertyColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
@@ -29,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.en
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -75,7 +78,7 @@ public class EntityGridModelFactory<T extends IEntityPropertiesHolder>
      * here we create the columns definition having just one table row. We need them only to render
      * column values (headers have been already created), so no message provider is needed.
      */
-    public List<IColumnDefinitionUI<T>> createColumnsSchemaForRendering(GridRowModel<T> rowModel,
+    private List<IColumnDefinitionUI<T>> createColumnsSchemaForRendering(GridRowModel<T> rowModel,
             RealNumberFormatingParameters realNumberFormatingParameters)
     {
         List<IColumnDefinitionUI<T>> list = createStaticColumnDefinitions(null);
@@ -90,25 +93,26 @@ public class EntityGridModelFactory<T extends IEntityPropertiesHolder>
     }
 
     public ColumnDefsAndConfigs<T> createColumnsSchema(IMessageProvider messageProvider,
-            EntityType selectedTypeOrNull)
+            EntityType selectedTypeOrNull,
+            RealNumberFormatingParameters realNumberFormatingParameters)
     {
         List<PropertyType> propertyTypesOrNull = null;
         if (selectedTypeOrNull != null)
         {
             propertyTypesOrNull = PropertyTypesFilterUtil.extractPropertyTypes(selectedTypeOrNull);
         }
-        return createColumnsSchema(messageProvider, propertyTypesOrNull);
+        return createColumnsSchema(messageProvider, propertyTypesOrNull,
+                realNumberFormatingParameters);
     }
 
     public ColumnDefsAndConfigs<T> createColumnsSchema(IMessageProvider messageProvider,
-            List<PropertyType> propertyTypesOrNull)
+            List<PropertyType> propertyTypesOrNull,
+            RealNumberFormatingParameters realNumberFormatingParameters)
     {
         ColumnDefsAndConfigs<T> columns = createStaticColumnDefsAndConfigs(messageProvider);
         if (propertyTypesOrNull != null)
         {
-            List<IColumnDefinitionUI<T>> propertyColumnsSchema =
-                    createPropertyColumnsSchema(propertyTypesOrNull);
-            columns.addColumns(propertyColumnsSchema);
+            createPropertyColumnsSchema(columns, propertyTypesOrNull, realNumberFormatingParameters);
         }
         return columns;
     }
@@ -118,8 +122,7 @@ public class EntityGridModelFactory<T extends IEntityPropertiesHolder>
     {
         List<IColumnDefinitionUI<T>> commonColumnsSchema =
                 createStaticColumnDefinitions(messageProvider);
-        ColumnDefsAndConfigs<T> columns = ColumnDefsAndConfigs.create(commonColumnsSchema);
-        return columns;
+        return ColumnDefsAndConfigs.create(commonColumnsSchema);
     }
 
     private List<IColumnDefinitionUI<T>> createStaticColumnDefinitions(
@@ -128,19 +131,21 @@ public class EntityGridModelFactory<T extends IEntityPropertiesHolder>
         return BaseEntityModel.createColumnsDefinition(staticColumnDefinitions, msgProviderOrNull);
     }
 
-    private static <T extends IEntityPropertiesHolder> List<IColumnDefinitionUI<T>> createPropertyColumnsSchema(
-            List<PropertyType> propertyTypes)
+    public static <T extends IEntityPropertiesHolder> void createPropertyColumnsSchema(
+            ColumnDefsAndConfigs<T> columns, List<PropertyType> propertyTypes,
+            RealNumberFormatingParameters realNumberFormatingParameters)
     {
-        List<IColumnDefinitionUI<T>> list = createColDefList();
         for (PropertyType propertyType : propertyTypes)
         {
-            list.add(new EntityPropertyColDef<T>(propertyType, true, propertyTypes));
+            EntityPropertyColDef<T> def =
+                    new EntityPropertyColDef<T>(propertyType, true, propertyTypes);
+            GridCellRenderer<BaseEntityModel<?>> renderer = null;
+            DataTypeCode dataTypeCode = propertyType.getDataType().getCode();
+            if (dataTypeCode == DataTypeCode.REAL)
+            {
+                renderer = new RealNumberRenderer(realNumberFormatingParameters);
+            }
+            columns.addColumn(def, renderer);
         }
-        return list;
-    }
-
-    private static <T> ArrayList<IColumnDefinitionUI<T>> createColDefList()
-    {
-        return new ArrayList<IColumnDefinitionUI<T>>();
     }
 }

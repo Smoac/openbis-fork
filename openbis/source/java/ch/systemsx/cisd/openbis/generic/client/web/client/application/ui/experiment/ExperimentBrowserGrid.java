@@ -290,7 +290,8 @@ public class ExperimentBrowserGrid extends
     protected ColumnDefsAndConfigs<Experiment> createColumnsDefinition()
     {
         ColumnDefsAndConfigs<Experiment> schema =
-                getColumnsFactory().createColumnsSchema(viewContext, criteria.getExperimentType());
+                getColumnsFactory().createColumnsSchema(viewContext, criteria.getExperimentType(),
+                        viewContext.getDisplaySettingsManager().getRealNumberFormatingParameters());
         schema.setGridCellRendererFor(CommonExperimentColDefKind.SHOW_DETAILS_LINK.id(),
                 createShowDetailsLinkCellRenderer());
         GridCellRenderer<BaseEntityModel<?>> linkCellRenderer = createInternalLinkCellRenderer();

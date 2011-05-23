@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.EntityGridModelFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PropertyTypeRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.CommonExternalDataColDefKind;
@@ -31,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RealNumberFormatingParameters;
 
 /**
  * @author Tomasz Pylak
@@ -89,7 +91,8 @@ public class DataSetSearchHitModel extends BaseEntityModel<ExternalData>
     }
 
     public static ColumnDefsAndConfigs<ExternalData> createColumnsSchema(
-            IMessageProvider messageProvider, List<PropertyType> mergedPropertyTypesOrNull)
+            IMessageProvider messageProvider, List<PropertyType> mergedPropertyTypesOrNull,
+            RealNumberFormatingParameters realNumberFormatingParameters)
     {
         List<IColumnDefinitionUI<ExternalData>> commonColumnsSchema =
                 createCommonColumnsSchema(messageProvider);
@@ -100,7 +103,8 @@ public class DataSetSearchHitModel extends BaseEntityModel<ExternalData>
         {
             List<PropertyType> datasetProperties =
                     PropertyTypesFilterUtil.filterDataSetPropertyTypes(mergedPropertyTypesOrNull);
-            columns.addColumns(createDatasetPropertyTypeColDefs(datasetProperties));
+            EntityGridModelFactory.createPropertyColumnsSchema(columns, datasetProperties,
+                    realNumberFormatingParameters);
         }
         return columns;
     }

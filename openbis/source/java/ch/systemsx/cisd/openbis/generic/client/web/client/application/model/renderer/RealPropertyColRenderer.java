@@ -16,11 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.RealNumberRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.EntityPropertyColDef;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RealNumberFormatingParameters;
 
 /**
  * An {@link AbstractPropertyColRenderer} which renders Real values.
@@ -31,20 +29,16 @@ public class RealPropertyColRenderer<T extends IEntityPropertiesHolder> extends
         AbstractPropertyColRenderer<T>
 {
 
-    private final RealNumberFormatingParameters realNumberFormatingParameters;
-
-    public RealPropertyColRenderer(EntityPropertyColDef<T> colDef,
-            RealNumberFormatingParameters realNumberFormatingParameters)
+    public RealPropertyColRenderer(EntityPropertyColDef<T> colDef)
     {
         super(colDef);
-        this.realNumberFormatingParameters = realNumberFormatingParameters;
     }
 
     @Override
     protected String renderValue(GridRowModel<T> entity)
     {
         String value = colDef.getValue(entity);
-        return RealNumberRenderer.render(value, realNumberFormatingParameters);
+        return value;
     }
 
     @Override

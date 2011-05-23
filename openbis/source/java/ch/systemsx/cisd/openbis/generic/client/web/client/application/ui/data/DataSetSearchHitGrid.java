@@ -195,7 +195,8 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid implements
     protected ColumnDefsAndConfigs<ExternalData> createColumnsSchema()
     {
         List<PropertyType> propertyTypes = criteria == null ? null : criteria.tryGetPropertyTypes();
-        return DataSetSearchHitModel.createColumnsSchema(viewContext, propertyTypes);
+        return DataSetSearchHitModel.createColumnsSchema(viewContext, propertyTypes, viewContext
+                .getDisplaySettingsManager().getRealNumberFormatingParameters());
     }
 
     /** @return this grid as a disposable component with a specified toolbar at the top. */

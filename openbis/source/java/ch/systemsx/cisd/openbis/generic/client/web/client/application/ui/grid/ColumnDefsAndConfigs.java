@@ -30,6 +30,7 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 
 /**
@@ -59,9 +60,30 @@ public class ColumnDefsAndConfigs<T>
     {
         for (IColumnDefinitionUI<T> column : columnsSchema)
         {
-            columnConfigs.add(createColumn(column));
-            columnDefs.add(column);
+            addColumn(column);
         }
+    }
+
+    public void addColumn(IColumnDefinitionUI<T> column,
+            GridCellRenderer<BaseEntityModel<?>> rendererOrNull)
+    {
+        ColumnConfig columnConfig = createColumn(column);
+        if (rendererOrNull != null)
+        {
+            columnConfig.setRenderer(rendererOrNull);
+        }
+        addColumn(column, columnConfig);
+    }
+    
+    private void addColumn(IColumnDefinitionUI<T> column)
+    {
+        addColumn(column, createColumn(column));
+    }
+
+    private void addColumn(IColumnDefinitionUI<T> column, ColumnConfig columnConfig)
+    {
+        columnConfigs.add(columnConfig);
+        columnDefs.add(column);
     }
 
     public void setGridCellRendererFor(String columnID, GridCellRenderer<BaseEntityModel<?>> render)
@@ -93,7 +115,14 @@ public class ColumnDefsAndConfigs<T>
         columnConfig.setHidden(column.isHidden());
         if (column.isEditable())
         {
-            CellEditor editor = new CellEditor(new TextField<String>());
+            CellEditor editor = new CellEditor(new TextField<String>()
+                {
+                    @Override
+                    public void setValue(String value)
+                    {
+                        super.setValue(StringEscapeUtils.unescapeHtml(value));
+                    }
+                });
             columnConfig.setEditor(editor);
         }
         return columnConfig;

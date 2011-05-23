@@ -53,7 +53,7 @@ public abstract class AbstractPropertyColRenderer<T extends IEntityPropertiesHol
         switch (colDef.getDataTypeCode())
         {
             case REAL:
-                return new RealPropertyColRenderer<S>(colDef, realNumberFormatingParameters);
+                return new RealPropertyColRenderer<S>(colDef);
             case HYPERLINK:
                 return new HyperlinkPropertyColRenderer<S>(colDef);
             case MULTILINE_VARCHAR:

@@ -228,7 +228,8 @@ public class MaterialBrowserGrid extends
     {
         ColumnDefsAndConfigs<Material> schema =
                 getColumnsFactory().createColumnsSchema(viewContext,
-                        criteria.getListCriteria().tryGetMaterialType());
+                        criteria.getListCriteria().tryGetMaterialType(),
+                        viewContext.getDisplaySettingsManager().getRealNumberFormatingParameters());
         schema.setGridCellRendererFor(CommonMaterialColDefKind.CODE.id(),
                 createInternalLinkCellRenderer());
         return schema;

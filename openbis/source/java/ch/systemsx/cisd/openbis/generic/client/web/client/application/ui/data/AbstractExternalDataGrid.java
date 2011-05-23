@@ -334,7 +334,8 @@ public abstract class AbstractExternalDataGrid
 
     protected ColumnDefsAndConfigs<ExternalData> createColumnsSchema()
     {
-        return getColumnsFactory().createColumnsSchema(viewContext, criteria.tryGetPropertyTypes());
+        return getColumnsFactory().createColumnsSchema(viewContext, criteria.tryGetPropertyTypes(),
+                viewContext.getDisplaySettingsManager().getRealNumberFormatingParameters());
     }
 
     @Override

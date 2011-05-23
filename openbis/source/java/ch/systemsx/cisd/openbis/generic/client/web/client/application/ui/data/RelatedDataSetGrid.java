@@ -91,7 +91,8 @@ public class RelatedDataSetGrid extends AbstractExternalDataGrid
     protected ColumnDefsAndConfigs<ExternalData> createColumnsSchema()
     {
         List<PropertyType> propertyTypes = criteria == null ? null : criteria.tryGetPropertyTypes();
-        return DataSetSearchHitModel.createColumnsSchema(viewContext, propertyTypes);
+        return DataSetSearchHitModel.createColumnsSchema(viewContext, propertyTypes, viewContext
+                .getDisplaySettingsManager().getRealNumberFormatingParameters());
     }
 
 }

@@ -81,7 +81,7 @@ public class TableCellUtil
             case INTEGER:
             case VARCHAR:
             case BOOLEAN:
-            case CONTROLLEDVOCABULARY:
+//            case CONTROLLEDVOCABULARY:
                 return true;
             default:
                 return false;
