@@ -198,7 +198,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
                     registratorContext.getOnErrorActionDecision().computeUndoAction(errorType, ex);
             DataSetStorageRollbacker rollbacker =
                     new DataSetStorageRollbacker(registratorContext, operationLog, action,
-                            incomingDataSetFile, null, null, errorType);
+                            incomingDataSetFile, null, ex, errorType);
             operationLog.info(rollbacker.getErrorMessageForLog());
             rollbacker.doRollback();
         }

@@ -222,7 +222,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
 
         Properties onErrorDecisionProperties =
                 ExtendedProperties.getSubset(globalState.getThreadParameters()
-                        .getThreadProperties(), ON_ERROR_DECISION_KEY, true);
+                        .getThreadProperties(), ON_ERROR_DECISION_KEY + ".", true);
         IDataSetOnErrorActionDecision onErrorDecision =
                 ClassUtils.create(
                         IDataSetOnErrorActionDecision.class,
