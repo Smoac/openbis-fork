@@ -1,3 +1,4 @@
+#!/bin/bash
 #
 # Creates an openBIS user by executing the 'passwd.sh' command-line tool.
 # These users will only be available when 'file-authentication-service' is configured in openBIS.

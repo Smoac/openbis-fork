@@ -132,16 +132,10 @@
       <file src="@{installer.dist.dir}/data/incoming-simple" targetdir="$DSS.ROOT-DIR" />
       <file src="@{installer.dist.dir}/data/incoming-hcs" targetdir="$DSS.ROOT-DIR" />
       <file src="@{installer.dist.dir}/data/samples" targetdir="$DSS.ROOT-DIR" />
-      <parsable targetfile="$INSTALL_DSS_PATH/etc/service.properties" />
+      <file src="@{installer.dist.dir}/data/store" targetdir="$DSS.ROOT-DIR" />
+      <file src="@{installer.dist.dir}/data/log" targetdir="$INSTALL_DSS_PATH" />
       
-      <!-- create a log folder and store folder -->
-      <executable targetfile="/bin/mkdir" stage="postinstall" keep="true">
-        <args>
-          <arg value="-p" />
-          <arg value="$INSTALL_DSS_PATH/log" />
-          <arg value="$DSS.ROOT-DIR/store" />
-        </args>
-      </executable>
+      <parsable targetfile="$INSTALL_DSS_PATH/etc/service.properties" />
     </pack>
 
     <pack name="Administration Scripts" required="yes" loose="yes">
@@ -150,20 +144,7 @@
       <parsable targetfile="$INSTALL_BIN_PATH/env" />
 
       <!--  set all *.sh files executable -->      
-      <executable targetfile="/usr/bin/find" stage="postinstall" keep="true">
-        <args>
-          <arg value="$INSTALL_PATH" />
-          <arg value="-type" />
-          <arg value="f" />
-          <arg value="-name" />
-          <arg value="*.sh" />
-          <arg value="-exec" />
-          <arg value="/bin/chmod" />
-          <arg value="744"/>
-          <arg value="{}" />
-          <arg value=";" />
-        </args>
-      </executable>
+      <executable targetfile="$INSTALL_BIN_PATH/chmodx-all-scripts.sh" stage="postinstall" keep="false"/>
       
       <!-- restore the config from the pre-existing installation -->
       <executable targetfile="$INSTALL_BIN_PATH/restore-config-from-backup.sh" 

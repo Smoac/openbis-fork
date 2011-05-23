@@ -40,7 +40,7 @@ public class DBConnectionValidator implements DataValidator
 
     private static final String POSTGRES_USER = "postgres";
 
-    private static final String NO_PASSWORD = null;
+    private static final String NO_PASSWORD = "";
 
     private String errorMessage;
 
@@ -67,14 +67,9 @@ public class DBConnectionValidator implements DataValidator
 
     public Status validateData(AutomatedInstallData data)
     {
-        String username = data.getVariable("USER_NAME");
-
         if (testConnectionOK(POSTGRES_USER, NO_PASSWORD))
         {
-            if (testConnectionOK(username, NO_PASSWORD))
-            {
                 return Status.OK;
-            }
         }
         return Status.ERROR;
     }
