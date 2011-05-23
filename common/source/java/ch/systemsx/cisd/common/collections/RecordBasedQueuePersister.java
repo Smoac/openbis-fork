@@ -143,7 +143,7 @@ public class RecordBasedQueuePersister<E> implements IQueuePersister<E>
         try
         {
             this.randomAccessFile = new RandomAccessFile(queueFile, "rw");
-            if (randomAccessFile.length() == 0)
+            if (randomAccessFile.length() < HEADER_LENGTH)
             {
                 this.recordSize = initialRecordSize;
                 writeFullHeader(randomAccessFile, firstRecord, lastRecord, initialRecordSize);

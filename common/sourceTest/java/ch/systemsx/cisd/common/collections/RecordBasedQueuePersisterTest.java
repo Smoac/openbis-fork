@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.collections;
 
 import java.io.File;
+import java.io.RandomAccessFile;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import org.testng.AssertJUnit;
@@ -58,7 +59,7 @@ public class RecordBasedQueuePersisterTest extends AssertJUnit
     public void testPersist()
     {
         String element =
-                "a string with more characters then "
+                "a string with more characters than "
                         + "RecordBasedQueuePersister.DEFAULT_INITIAL_RECORD_SIZE";
         assertEquals(true, element.length() > RecordBasedQueuePersister.DEFAULT_INITIAL_RECORD_SIZE);
         queue.add(element);
@@ -100,4 +101,29 @@ public class RecordBasedQueuePersisterTest extends AssertJUnit
         assertEquals("", queue.poll());
         assertEquals("foo", queue.poll());
     }
+
+    @Test
+    public void testQueueFileSizeLessThanHeaderSize() throws Exception
+    {
+        assertEquals("Couldn't delete " + TMP, true, FileUtilities.deleteRecursively(TMP));
+        TMP.mkdirs();
+        queue = new ArrayBlockingQueue<String>(10);
+
+        // write a data shorter than header size
+        RandomAccessFile tooShortRaf = new RandomAccessFile(QUEUE_FILE, "rw");
+        tooShortRaf.writeInt(1);
+        tooShortRaf.close();
+
+        persister = new RecordBasedQueuePersister<String>(queue, QUEUE_FILE);
+
+        queue.add("test");
+        persister.persist();
+        persister.close();
+        queue.clear();
+        persister = new RecordBasedQueuePersister<String>(queue, QUEUE_FILE);
+
+        assertEquals(1, queue.size());
+        assertEquals("test", queue.poll());
+    }
+
 }
