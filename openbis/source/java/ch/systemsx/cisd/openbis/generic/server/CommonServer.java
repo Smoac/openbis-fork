@@ -815,17 +815,18 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         vocabularyBO.save();
     }
 
-    public void addUnofficialVocabularyTerms(String sessionToken, TechId vocabularyId,
-            List<String> vocabularyTerms, Long previousTermOrdinal)
+    public void addUnofficialVocabularyTerm(String sessionToken, TechId vocabularyId, String code,
+            String label, String description, Long previousTermOrdinal)
     {
         assert sessionToken != null : "Unspecified session token";
         assert vocabularyId != null : "Unspecified vocabulary id";
+        assert code != null : "Unspecified code";
         assert previousTermOrdinal != null : "Unspecified previous term ordinal";
 
         final Session session = getSession(sessionToken);
         final IVocabularyBO vocabularyBO = businessObjectFactory.createVocabularyBO(session);
         vocabularyBO.loadDataByTechId(vocabularyId);
-        vocabularyBO.addNewUnofficialTerms(vocabularyTerms, previousTermOrdinal);
+        vocabularyBO.addNewUnofficialTerm(code, label, description, previousTermOrdinal);
         vocabularyBO.save();
     }
 

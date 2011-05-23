@@ -25,6 +25,8 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+
 /**
  * @author Chandrasekhar Ramakrishnan
  */
@@ -40,10 +42,16 @@ public class ControlledVocabularyPropertyType extends PropertyType
 
         private final String label;
 
-        public VocabularyTerm(String code, String label)
+        private final Long ordinal;
+
+        private final Boolean isOfficial;
+
+        public VocabularyTerm(String code, String label, Long ordinal, Boolean isOfficial)
         {
             this.code = code;
             this.label = label;
+            this.ordinal = ordinal;
+            this.isOfficial = isOfficial == null ? Boolean.TRUE : isOfficial;
         }
 
         public String getCode()
@@ -54,6 +62,16 @@ public class ControlledVocabularyPropertyType extends PropertyType
         public String getLabel()
         {
             return label;
+        }
+
+        public Long getOrdinal()
+        {
+            return ordinal;
+        }
+
+        public Boolean isOfficial()
+        {
+            return isOfficial;
         }
 
         @Override
@@ -96,14 +114,23 @@ public class ControlledVocabularyPropertyType extends PropertyType
     {
         private final ArrayList<VocabularyTerm> terms = new ArrayList<VocabularyTerm>();
 
+        private Vocabulary vocabulary;
+
         public void setTerms(List<VocabularyTerm> validValues)
         {
             this.terms.clear();
             this.terms.addAll(validValues);
         }
+
+        public void setVocabulary(Vocabulary vocabulary)
+        {
+            this.vocabulary = vocabulary;
+        }
     }
 
     private final ArrayList<VocabularyTerm> terms;
+
+    private final Vocabulary vocabulary;
 
     /**
      * @param initializer
@@ -112,6 +139,7 @@ public class ControlledVocabularyPropertyType extends PropertyType
     {
         super(initializer);
         terms = initializer.terms;
+        vocabulary = initializer.vocabulary;
         if (terms == null || terms.isEmpty())
         {
             throw new IllegalArgumentException(
@@ -122,6 +150,11 @@ public class ControlledVocabularyPropertyType extends PropertyType
     public List<VocabularyTerm> getTerms()
     {
         return terms;
+    }
+
+    public Vocabulary getVocabulary()
+    {
+        return vocabulary;
     }
 
     @Override

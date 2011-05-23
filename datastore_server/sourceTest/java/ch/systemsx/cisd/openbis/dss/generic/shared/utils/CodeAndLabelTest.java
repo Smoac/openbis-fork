@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 
 /**
@@ -35,9 +36,9 @@ public class CodeAndLabelTest extends AssertJUnit
 
     private void assertNormalized(String expectedNormalizedCode, String code)
     {
-        assertEquals(expectedNormalizedCode, CodeAndLabelUtil.normalize(code));
+        assertEquals(expectedNormalizedCode, CodeNormalizer.normalize(code));
         assertEquals(expectedNormalizedCode,
-                CodeAndLabelUtil.normalize(CodeAndLabelUtil.normalize(code)));
+                CodeNormalizer.normalize(CodeNormalizer.normalize(code)));
     }
 
     @Test

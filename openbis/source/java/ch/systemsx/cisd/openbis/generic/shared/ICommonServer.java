@@ -541,8 +541,8 @@ public interface ICommonServer extends IServer
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY_TERM)
-    public void addUnofficialVocabularyTerms(String sessionToken, TechId vocabularyId,
-            List<String> vocabularyTerms, Long previousTermOrdinal);
+    public void addUnofficialVocabularyTerm(String sessionToken, TechId vocabularyId, String code,
+            String label, String description, Long previousTermOrdinal);
 
     /**
      * Updates a vocabulary term.

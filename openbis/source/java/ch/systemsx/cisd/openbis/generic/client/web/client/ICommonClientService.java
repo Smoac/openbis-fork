@@ -548,8 +548,8 @@ public interface ICommonClientService extends IClientService
      * Adds specified unofficial terms to the specified vocabulary after specified ordinal (first
      * shift all terms with bigger ordinal).
      */
-    public void addUnofficialVocabularyTerms(TechId vocabularyId, List<String> vocabularyTerms,
-            Long previousTermOrdinal) throws UserFailureException;
+    public void addUnofficialVocabularyTerm(TechId vocabularyId, String code, String label,
+            String description, Long previousTermOrdinal) throws UserFailureException;
 
     /**
      * Updates vocabulary term.

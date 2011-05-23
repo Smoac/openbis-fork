@@ -78,11 +78,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
@@ -425,12 +425,12 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 vocabularyId, abbreviate(vocabularyTerms), Long.toString(previousTermOrdinal));
     }
 
-    public void addUnofficialVocabularyTerms(String sessionToken, TechId vocabularyId,
-            List<String> vocabularyTerms, Long previousTermOrdinal)
+    public void addUnofficialVocabularyTerm(String sessionToken, TechId vocabularyId, String code,
+            String label, String description, Long previousTermOrdinal)
     {
         logTracking(sessionToken, "add_unofficial_vocabulary_terms",
-                "ID(%s) TERMS(%s) PREVIOUS_ORDINAL(%s)", vocabularyId, abbreviate(vocabularyTerms),
-                Long.toString(previousTermOrdinal));
+                "ID(%s) CODE(%s), LABEL(%s), DESCRIPTION(%s), PREVIOUS_ORDINAL(%s)", vocabularyId,
+                code, label, description, Long.toString(previousTermOrdinal));
     }
 
     public void updateVocabularyTerm(String sessionToken, IVocabularyTermUpdates updates)
@@ -1071,7 +1071,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
             String propertyTypeCode, String value)
     {
         logTracking(sessionToken, "updateProperty",
-                "ENTITY_KIND(%s) ID(%s) PROPERTY_COLUMN_NAME(%s) VALUE(%s)", kind, entityId, propertyTypeCode,
-                value);
+                "ENTITY_KIND(%s) ID(%s) PROPERTY_COLUMN_NAME(%s) VALUE(%s)", kind, entityId,
+                propertyTypeCode, value);
     }
 }

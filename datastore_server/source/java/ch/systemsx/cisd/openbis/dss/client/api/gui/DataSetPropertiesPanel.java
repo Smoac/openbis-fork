@@ -38,7 +38,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -62,27 +61,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 public class DataSetPropertiesPanel extends JPanel
 {
     private static final long serialVersionUID = 1L;
-
-    /**
-     * An adaptor to convert VocabularyTerms into something that can be put into combo boxes.
-     * 
-     * @author Chandrasekhar Ramakrishnan
-     */
-    private static final class VocabularyTermAdaptor
-    {
-        private final VocabularyTerm term;
-
-        private VocabularyTermAdaptor(VocabularyTerm term)
-        {
-            this.term = term;
-        }
-
-        @Override
-        public String toString()
-        {
-            return term.getLabel();
-        }
-    }
 
     private final DataSetType dataSetType;
 
@@ -200,22 +178,22 @@ public class DataSetPropertiesPanel extends JPanel
         return textField;
     }
 
-    private JComboBox createComboBox(final ControlledVocabularyPropertyType propertyType)
+    private VocabularyTermsComboBoxPanel createComboBox(
+            final ControlledVocabularyPropertyType propertyType)
     {
-        final JComboBox comboBox = new JComboBox();
-        for (VocabularyTerm term : propertyType.getTerms())
-        {
-            comboBox.addItem(new VocabularyTermAdaptor(term));
-        }
+        final VocabularyTermsComboBoxPanel comboBox =
+                new VocabularyTermsComboBoxPanel(propertyType, clientModel);
+
+        clientModel.registerObserver(comboBox);
+
         comboBox.addItemListener(new ItemListener()
             {
                 public void itemStateChanged(ItemEvent e)
                 {
-                    setPropertyValue(propertyType,
-                            ((VocabularyTermAdaptor) e.getItem()).term.getCode());
+                    setPropertyValue(propertyType, ((VocabularyTerm) e.getItem()).getCode());
                 }
-
             });
+
         return comboBox;
     }
 
@@ -302,13 +280,13 @@ public class DataSetPropertiesPanel extends JPanel
             {
                 JTextField textField = (JTextField) formField;
                 textField.setText(propertyValue);
-            } else if (formField instanceof JComboBox)
+            } else if (formField instanceof VocabularyTermsComboBoxPanel)
             {
-                JComboBox comboBox = (JComboBox) formField;
+                VocabularyTermsComboBoxPanel comboBox = (VocabularyTermsComboBoxPanel) formField;
                 for (int i = 0; i < comboBox.getItemCount(); ++i)
                 {
-                    VocabularyTermAdaptor adaptor = (VocabularyTermAdaptor) comboBox.getItemAt(i);
-                    if (adaptor.term.getCode().equals(propertyValue))
+                    VocabularyTerm term = comboBox.getItemAt(i);
+                    if (term.getCode().equals(propertyValue))
                     {
                         comboBox.setSelectedIndex(i);
                     }

@@ -458,9 +458,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void addVocabularyTerms(TechId vocabularyId, List<String> vocabularyTerms,
             Long previousTermOrdinal, AsyncCallback<Void> callback);
 
-    /** @see ICommonClientService#addUnofficialVocabularyTerms(TechId, List, Long) */
-    public void addUnofficialVocabularyTerms(TechId vocabularyId, List<String> vocabularyTerms,
-            Long previousTermOrdinal, AsyncCallback<Void> callback);
+    /** @see ICommonClientService#addUnofficialVocabularyTerm(TechId, String, String, String, Long) */
+    public void addUnofficialVocabularyTerm(TechId vocabularyId, String code, String label,
+            String description, Long previousTermOrdinal, AsyncCallback<Void> callback);
 
     /** @see ICommonClientService#updateVocabularyTerm(IVocabularyTermUpdates) */
     public void updateVocabularyTerm(final IVocabularyTermUpdates updates,

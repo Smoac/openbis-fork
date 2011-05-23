@@ -23,9 +23,9 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ITabularData;
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.PlateUtils;
@@ -102,9 +102,9 @@ public class TabularDataGraphServlet extends AbstractTabularDataGraphServlet
             headerLabels[1] = WELL_ROW_COLUMN;
             headerLabels[2] = WELL_COLUMN_COLUMN;
             headerCodes = new String[headerTokensLength];
-            headerCodes[0] = CodeAndLabelUtil.normalize(WELL_NAME_COLUMN);
-            headerCodes[1] = CodeAndLabelUtil.normalize(WELL_ROW_COLUMN);
-            headerCodes[2] = CodeAndLabelUtil.normalize(WELL_COLUMN_COLUMN);
+            headerCodes[0] = CodeNormalizer.normalize(WELL_NAME_COLUMN);
+            headerCodes[1] = CodeNormalizer.normalize(WELL_ROW_COLUMN);
+            headerCodes[2] = CodeNormalizer.normalize(WELL_COLUMN_COLUMN);
 
             int i = 3;
             for (CodeAndLabel featureCodeAndLabel : featureCodeAndLabels)

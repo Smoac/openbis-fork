@@ -41,9 +41,9 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializ
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 
 /**
  * @author Franz-Josef Elmer
@@ -144,6 +144,7 @@ public class Translator
                 ControlledVocabularyPropertyTypeInitializer cvptInitializer =
                         new ControlledVocabularyPropertyTypeInitializer();
 
+                cvptInitializer.setVocabulary(propertyType.getVocabulary());
                 cvptInitializer.setTerms(vocabTerms.get(propertyType.getVocabulary()));
                 ptInitializer = cvptInitializer;
             } else
@@ -181,19 +182,24 @@ public class Translator
         Collections.sort(sortedTerms,
                 new Comparator<ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm>()
                     {
-
                         public int compare(VocabularyTerm o1, VocabularyTerm o2)
                         {
-                            return o1.getOrdinal().compareTo(o2.getOrdinal());
+                            if (o1.isOfficial() != o2.isOfficial())
+                            {
+                                return o1.isOfficial() ? -1 : 1;
+                            } else
+                            {
+                                return o1.getOrdinal().compareTo(o2.getOrdinal());
+                            }
                         }
-
                     });
         ArrayList<ControlledVocabularyPropertyType.VocabularyTerm> terms =
                 new ArrayList<ControlledVocabularyPropertyType.VocabularyTerm>();
         for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm privateTerm : sortedTerms)
         {
             terms.add(new ControlledVocabularyPropertyType.VocabularyTerm(privateTerm.getCode(),
-                    privateTerm.getCodeOrLabel()));
+                    privateTerm.getCodeOrLabel(), privateTerm.getOrdinal(), privateTerm
+                            .isOfficial()));
         }
 
         return terms;

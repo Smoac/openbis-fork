@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.api.v1;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -23,6 +24,7 @@ import java.util.Set;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.common.api.IRpcService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
@@ -171,5 +173,15 @@ public interface IGeneralInformationService extends IRpcService
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<DataSetType> listDataSetTypes(String sessionToken);
+
+    /**
+     * Returns map of avaialable vocabulary terms. Available since minor version 6.
+     * 
+     * @since 1.6
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public HashMap<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary, List<ControlledVocabularyPropertyType.VocabularyTerm>> getVocabularyTermsMap(
+            String sessionToken);
 
 }

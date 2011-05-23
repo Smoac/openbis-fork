@@ -21,12 +21,15 @@ import java.util.Map;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.common.api.IRpcService;
+import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModification;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 
 /**
  * Service for changing general informations.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IGeneralInformationChangingService extends IRpcService
@@ -40,8 +43,18 @@ public interface IGeneralInformationChangingService extends IRpcService
      * Application part of the URL to access this service remotely.
      */
     public static final String SERVICE_URL = "/rmi-" + SERVICE_NAME + "-v1";
-    
+
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public void updateSampleProperties(String sessionToken, long sampleID, Map<String, String> properties);
+    public void updateSampleProperties(String sessionToken, long sampleID,
+            Map<String, String> properties);
+
+    /**
+     * Adds new unofficial terms to a vocabulary starting from specified ordinal + 1.
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY_TERM)
+    public void addUnofficialVocabularyTerm(String sessionToken, TechId vocabularyId, String code,
+            String label, String description, Long previousTermOrdinal);
 }

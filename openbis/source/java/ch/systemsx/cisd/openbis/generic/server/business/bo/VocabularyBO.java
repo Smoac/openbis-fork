@@ -133,9 +133,20 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         addNewTerms(newTermCodes, previousTermOrdinal, true);
     }
 
-    public void addNewUnofficialTerms(List<String> newTermCodes, Long previousTermOrdinal)
+    public void addNewUnofficialTerm(String code, String label, String description,
+            Long previousTermOrdinal)
     {
-        addNewTerms(newTermCodes, previousTermOrdinal, false);
+        assert vocabularyPE != null : UNSPECIFIED_VOCABULARY;
+        assert code != null : "Unspecified vocabulary term code";
+        assert previousTermOrdinal != null : "Unspecified previous term ordinal";
+        if (vocabularyPE.isManagedInternally())
+        {
+            throw new UserFailureException(
+                    "Not allowed to add terms to an internally managed vocabulary.");
+        }
+
+        increaseVocabularyTermOrdinals(previousTermOrdinal + 1, 1);
+        addTerm(code, description, label, previousTermOrdinal + 1, false);
     }
 
     /** shift terms in vocabulary by specified increment starting from term with specified ordinal */

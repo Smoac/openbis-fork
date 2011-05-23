@@ -22,6 +22,7 @@ import java.io.IOException;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
+import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 
 /**
@@ -34,7 +35,7 @@ public class TabularDataScatterplotTest extends AbstractTabularDataGraphTest
     {
         File outputFile = getImageOutputFile();
 
-        CodeAndLabel xAxisColumn = CodeAndLabelUtil.create("TotalCells", "Total Cells");
+        CodeAndLabel xAxisColumn = CodeNormalizer.create("TotalCells", "Total Cells");
         CodeAndLabel yAxisColumn = CodeAndLabelUtil.create("<INFECTEDCELLS> Infected Cells");
         TabularDataScatterplotConfiguration config =
                 new TabularDataScatterplotConfiguration("Total Cells vs. Infected Cells",
@@ -58,7 +59,7 @@ public class TabularDataScatterplotTest extends AbstractTabularDataGraphTest
         File outputFile = getImageOutputFile();
 
         CodeAndLabel xAxisColumn = CodeAndLabelUtil.create("BigNumber");
-        CodeAndLabel yAxisColumn = CodeAndLabelUtil.create("TotalCells", "Total Cells");
+        CodeAndLabel yAxisColumn = CodeNormalizer.create("TotalCells", "Total Cells");
         TabularDataScatterplotConfiguration config =
                 new TabularDataScatterplotConfiguration("Big Number vs Total Cells", xAxisColumn,
                         yAxisColumn, 300, 200);
@@ -81,7 +82,7 @@ public class TabularDataScatterplotTest extends AbstractTabularDataGraphTest
         File outputFile = getImageOutputFile();
 
         CodeAndLabel xAxisColumn = CodeAndLabelUtil.create("SmallNumbers");
-        CodeAndLabel yAxisColumn = CodeAndLabelUtil.create("TotalCells", "Total Cells");
+        CodeAndLabel yAxisColumn = CodeNormalizer.create("TotalCells", "Total Cells");
         TabularDataScatterplotConfiguration config =
                 new TabularDataScatterplotConfiguration("Small Numbers vs Total Cells",
                         xAxisColumn, yAxisColumn, 300, 200);
@@ -101,7 +102,7 @@ public class TabularDataScatterplotTest extends AbstractTabularDataGraphTest
         File outputFile = getImageOutputFile();
 
         CodeAndLabel xAxisColumn = CodeAndLabelUtil.create("Zero");
-        CodeAndLabel yAxisColumn = CodeAndLabelUtil.create("TotalCells", "Total Cells");
+        CodeAndLabel yAxisColumn = CodeNormalizer.create("TotalCells", "Total Cells");
         TabularDataScatterplotConfiguration config =
                 new TabularDataScatterplotConfiguration("Zero vs Total Cells", xAxisColumn,
                         yAxisColumn, 300, 200);
@@ -121,7 +122,7 @@ public class TabularDataScatterplotTest extends AbstractTabularDataGraphTest
         File outputFile = getImageOutputFile();
 
         CodeAndLabel xAxisColumn = CodeAndLabelUtil.create("JustNaN");
-        CodeAndLabel yAxisColumn = CodeAndLabelUtil.create("TotalCells", "Total Cells");
+        CodeAndLabel yAxisColumn = CodeNormalizer.create("TotalCells", "Total Cells");
         TabularDataScatterplotConfiguration config =
                 new TabularDataScatterplotConfiguration("Just NaN vs Total Cells", xAxisColumn,
                         yAxisColumn, 300, 200);
@@ -141,7 +142,7 @@ public class TabularDataScatterplotTest extends AbstractTabularDataGraphTest
         File outputFile = getImageOutputFile();
 
         CodeAndLabel xAxisColumn = CodeAndLabelUtil.create("SomeNaN");
-        CodeAndLabel yAxisColumn = CodeAndLabelUtil.create("TotalCells", "Total Cells");
+        CodeAndLabel yAxisColumn = CodeNormalizer.create("TotalCells", "Total Cells");
         TabularDataScatterplotConfiguration config =
                 new TabularDataScatterplotConfiguration("Some NaN vs Total Cells", xAxisColumn,
                         yAxisColumn, 300, 200);
@@ -161,7 +162,7 @@ public class TabularDataScatterplotTest extends AbstractTabularDataGraphTest
         File outputFile = getImageOutputFile();
 
         CodeAndLabel xAxisColumn = CodeAndLabelUtil.create("JustInf");
-        CodeAndLabel yAxisColumn = CodeAndLabelUtil.create("TotalCells", "Total Cells");
+        CodeAndLabel yAxisColumn = CodeNormalizer.create("TotalCells", "Total Cells");
         TabularDataScatterplotConfiguration config =
                 new TabularDataScatterplotConfiguration("Just Inf vs Total Cells", xAxisColumn,
                         yAxisColumn, 300, 200);
@@ -181,7 +182,7 @@ public class TabularDataScatterplotTest extends AbstractTabularDataGraphTest
         File outputFile = getImageOutputFile();
 
         CodeAndLabel xAxisColumn = CodeAndLabelUtil.create("SomeInf");
-        CodeAndLabel yAxisColumn = CodeAndLabelUtil.create("TotalCells", "Total Cells");
+        CodeAndLabel yAxisColumn = CodeNormalizer.create("TotalCells", "Total Cells");
         TabularDataScatterplotConfiguration config =
                 new TabularDataScatterplotConfiguration("Some Inf vs Total Cells", xAxisColumn,
                         yAxisColumn, 300, 200);
@@ -201,7 +202,7 @@ public class TabularDataScatterplotTest extends AbstractTabularDataGraphTest
         File outputFile = getImageOutputFile();
 
         CodeAndLabel xAxisColumn = CodeAndLabelUtil.create("Blanks");
-        CodeAndLabel yAxisColumn = CodeAndLabelUtil.create("TotalCells", "Total Cells");
+        CodeAndLabel yAxisColumn = CodeNormalizer.create("TotalCells", "Total Cells");
         TabularDataScatterplotConfiguration config =
                 new TabularDataScatterplotConfiguration("Blanks vs Total Cells", xAxisColumn,
                         yAxisColumn, 300, 200);

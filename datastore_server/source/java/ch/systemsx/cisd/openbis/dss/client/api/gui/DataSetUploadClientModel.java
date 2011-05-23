@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.client.api.gui;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -38,11 +39,15 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTOBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyTypeGroup;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.util.SimplePropertyValidator;
 
 /**
@@ -50,6 +55,11 @@ import ch.systemsx.cisd.openbis.generic.shared.util.SimplePropertyValidator;
  */
 public class DataSetUploadClientModel
 {
+    public static interface Observer
+    {
+        public void update(Vocabulary vocabulary, String code);
+    }
+
     private static ExecutorService executor = new NamingThreadPoolExecutor("Data Set Upload", 1, 1,
             0, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>()).daemonize();
 
@@ -57,9 +67,11 @@ public class DataSetUploadClientModel
 
     private final IGeneralInformationService generalInformationService;
 
+    private final IGeneralInformationChangingService generalInformationChangingService;
+
     private final ITimeProvider timeProvider;
 
-    private final List<DataSetType> dataSetTypes;
+    private List<DataSetType> dataSetTypes;
 
     private final ArrayList<NewDataSetInfo> newDataSetInfos = new ArrayList<NewDataSetInfo>();
 
@@ -75,12 +87,19 @@ public class DataSetUploadClientModel
     // observer.
     private DataSetUploadTableModel tableModel;
 
+    private final List<Observer> observers = new LinkedList<DataSetUploadClientModel.Observer>();
+
+    private HashMap<Vocabulary, List<VocabularyTerm>> vocabularyTerms;
+
     public DataSetUploadClientModel(DssCommunicationState commState, ITimeProvider timeProvider)
     {
         this.dssComponent = commState.getDssComponent();
         this.generalInformationService = commState.getGeneralInformationService();
+        this.generalInformationChangingService = commState.getGeneralInformationChangingService();
         this.timeProvider = timeProvider;
         dataSetTypes = generalInformationService.listDataSetTypes(dssComponent.getSessionToken());
+        vocabularyTerms =
+                generalInformationService.getVocabularyTermsMap(dssComponent.getSessionToken());
     }
 
     /**
@@ -499,6 +518,36 @@ public class DataSetUploadClientModel
             errors.add(ValidationError.createPropertyValidationError(propertyType.getCode(),
                     e.getMessage()));
         }
+    }
 
+    public void addUnofficialVocabularyTerm(Vocabulary vocabulary, String code, String label,
+            String description, Long previousTermOrdinal)
+    {
+        generalInformationChangingService.addUnofficialVocabularyTerm(
+                dssComponent.getSessionToken(), TechId.create(vocabulary), code, label,
+                description, previousTermOrdinal);
+        dataSetTypes = generalInformationService.listDataSetTypes(dssComponent.getSessionToken());
+        vocabularyTerms =
+                generalInformationService.getVocabularyTermsMap(dssComponent.getSessionToken());
+
+        notifyObservers(vocabulary, code);
+    }
+
+    public void registerObserver(Observer observer)
+    {
+        observers.add(observer);
+    }
+
+    public void notifyObservers(Vocabulary vocabulary, String code)
+    {
+        for (Observer observer : observers)
+        {
+            observer.update(vocabulary, code);
+        }
+    }
+
+    public List<VocabularyTerm> getVocabularyTerms(Vocabulary vocabulary)
+    {
+        return vocabularyTerms.get(vocabulary);
     }
 }

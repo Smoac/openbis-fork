@@ -40,6 +40,7 @@ import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DssComponentFactory;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 
 /**
@@ -366,6 +367,8 @@ class DssCommunicationState
 
     private final IGeneralInformationService generalInformationService;
 
+    private final IGeneralInformationChangingService generalInformationChangingService;
+
     private final boolean logoutOnClose;
 
     private static final long CONNECTION_TIMEOUT_MILLIS = 15 * DateUtils.MILLIS_PER_SECOND;
@@ -378,6 +381,18 @@ class DssCommunicationState
                 generalInformationServiceFinder.createService(IGeneralInformationService.class,
                         openBISURL);
         return service;
+    }
+
+    private static IGeneralInformationChangingService createGeneralInformationChangingService(
+            String openBISURL)
+    {
+        ServiceFinder generalInformationServiceFinder =
+                new ServiceFinder("openbis", IGeneralInformationChangingService.SERVICE_URL);
+        IGeneralInformationChangingService service =
+                generalInformationServiceFinder.createService(
+                        IGeneralInformationChangingService.class, openBISURL);
+        return service;
+
     }
 
     /**
@@ -424,6 +439,7 @@ class DssCommunicationState
         }
 
         generalInformationService = createGeneralInformationService(openBisUrl);
+        generalInformationChangingService = createGeneralInformationChangingService(openBisUrl);
     }
 
     IDssComponent getDssComponent()
@@ -434,6 +450,11 @@ class DssCommunicationState
     public IGeneralInformationService getGeneralInformationService()
     {
         return generalInformationService;
+    }
+
+    public IGeneralInformationChangingService getGeneralInformationChangingService()
+    {
+        return generalInformationChangingService;
     }
 
     public boolean isLogoutOnClose()

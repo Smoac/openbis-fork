@@ -222,6 +222,11 @@ body,div,td {
     cursor: pointer;
 }
 
+.x-form-trigger-add {
+    background-image: url(../images/generate-trigger.gif) !important;
+    cursor: pointer;
+}
+
 .cisd-visible {
 	visibility: visible !important;
 }
@@ -231,5 +236,9 @@ body,div,td {
 }
 
 .hands {
-    cursor:hand;
+	cursor:hand;
+}
+
+.cisd-unofficial {
+	color: grey; font-style:italic;
 }

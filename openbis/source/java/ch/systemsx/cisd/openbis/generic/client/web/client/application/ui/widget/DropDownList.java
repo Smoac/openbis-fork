@@ -21,14 +21,21 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.GXT;
+import com.extjs.gxt.ui.client.core.El;
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.store.StoreFilter;
+import com.extjs.gxt.ui.client.util.Size;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Event;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -81,6 +88,17 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
 
     private final List<IDataRefreshCallback> dataRefreshCallbacks;
 
+    /*
+     * Twin trigger related
+     */
+    private final boolean twinTriggerEnabled;
+
+    protected El twinTrigger;
+
+    private String twinTriggerStyle = "x-form-trigger-add";
+
+    protected El span;
+
     public DropDownList(final IViewContext<?> viewContext, String idSuffix, String labelDictCode,
             String displayField, String chooseSuffix, String nothingFoundSuffix)
     {
@@ -90,11 +108,21 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
                 .getMessage(Dict.COMBO_BOX_EXPECTED_VALUE_FROM_THE_LIST), true, viewContext, true);
     }
 
-    /** if viewContextOrNull is null the combobox is not able to refresh itself */
     public DropDownList(String idSuffix, String displayField, String label, String chooseMsg,
             String emptyMsg, String valueNotInListMsg, boolean mandatory,
             final IViewContext<?> viewContextOrNull, boolean reloadWhenRendering)
     {
+        this(idSuffix, displayField, label, chooseMsg, emptyMsg, valueNotInListMsg, mandatory,
+                viewContextOrNull, reloadWhenRendering, false);
+    }
+
+    /** if viewContextOrNull is null the combobox is not able to refresh itself */
+    protected DropDownList(String idSuffix, String displayField, String label, String chooseMsg,
+            String emptyMsg, String valueNotInListMsg, boolean mandatory,
+            final IViewContext<?> viewContextOrNull, boolean reloadWhenRendering,
+            boolean twinTriggerEnabled)
+    {
+        this.twinTriggerEnabled = twinTriggerEnabled;
         this.chooseMsg = chooseMsg;
         this.emptyMsg = emptyMsg;
         this.valueNotInListMsg = valueNotInListMsg;
@@ -483,13 +511,71 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
     }
 
     @Override
-    protected void onRender(final Element parent, final int pos)
+    protected void onRender(final Element target, final int index)
     {
-        super.onRender(parent, pos);
+        if (this.twinTriggerEnabled)
+        {
+            input = new El(DOM.createInputText());
+            setElement(DOM.createDiv(), target, index);
+            addStyleName("x-form-field-wrap");
+
+            trigger = new El(DOM.createImg());
+            trigger.dom.setClassName("x-form-trigger " + triggerStyle);
+            trigger.dom.setPropertyString("src", GXT.BLANK_IMAGE_URL);
+
+            twinTrigger = new El(DOM.createImg());
+            twinTrigger.dom.setClassName("x-form-trigger " + twinTriggerStyle);
+            twinTrigger.dom.setPropertyString("src", GXT.BLANK_IMAGE_URL);
+
+            span = new El(DOM.createSpan());
+            span.dom.setClassName("x-form-twin-triggers");
+
+            span.appendChild(trigger.dom);
+            span.appendChild(twinTrigger.dom);
+
+            el().appendChild(input.dom);
+            el().appendChild(span.dom);
+
+            if (isHideTrigger())
+            {
+                span.setVisible(false);
+            }
+
+            addStyleOnOver(twinTrigger.dom, "x-form-trigger-over");
+        }
+
+        super.onRender(target, index);
         if (reloadWhenRendering)
         {
             refreshStore();
         }
+    }
+
+    @Override
+    public void onComponentEvent(ComponentEvent ce)
+    {
+        super.onComponentEvent(ce);
+        if (twinTriggerEnabled)
+        {
+            int type = ce.getEventTypeInt();
+            if (ce.getTarget() == twinTrigger.dom && type == Event.ONCLICK)
+            {
+                onTwinTriggerClick(ce);
+            }
+        }
+    }
+
+    @Override
+    protected Size adjustInputSize()
+    {
+        return twinTriggerEnabled ? new Size(isHideTrigger() ? 0
+                : (trigger.getStyleSize().width + twinTrigger.getStyleSize().width), 0) : super
+                .adjustInputSize();
+    }
+
+    protected void onTwinTriggerClick(ComponentEvent ce)
+    {
+        fireEvent(Events.TwinTriggerClick, ce);
     }
 
     public void addPostRefreshCallback(IDataRefreshCallback callback)

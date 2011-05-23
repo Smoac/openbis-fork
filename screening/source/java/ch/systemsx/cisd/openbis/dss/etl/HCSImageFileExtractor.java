@@ -26,7 +26,7 @@ import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.etl.dto.UnparsedImageFileInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageFileInfo;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
+import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -167,7 +167,7 @@ public class HCSImageFileExtractor extends AbstractImageFileExtractor
                     + unparsedInfo.getTileLocationToken());
             return null;
         }
-        String channelCode = CodeAndLabelUtil.normalize(unparsedInfo.getChannelToken());
+        String channelCode = CodeNormalizer.normalize(unparsedInfo.getChannelToken());
         String imageRelativePath = getRelativeImagePath(incomingDataSetDirectory, imageFile);
 
         ImageFileInfo info =

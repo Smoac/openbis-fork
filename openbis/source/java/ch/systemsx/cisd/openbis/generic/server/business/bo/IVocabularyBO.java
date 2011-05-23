@@ -76,11 +76,15 @@ public interface IVocabularyBO extends IEntityBusinessObject
     void addNewTerms(List<String> newTerms, Long previousTermOrdinal);
 
     /**
-     * Add unofficial terms with specified codes to a loaded vocabulary.
+     * Add unofficial terms with specified label and description to a loaded vocabulary.
      * 
+     * @param code code of the vocabulary term
+     * @param label label of the vocabulary term
+     * @description description of the term
      * @param previousTermOrdinal ordinal of term after which new terms should be added
      */
-    void addNewUnofficialTerms(List<String> newTerms, Long previousTermOrdinal);
+    void addNewUnofficialTerm(String code, String label, String description,
+            Long previousTermOrdinal);
 
     /**
      * Deletes the specified terms from a loaded vocabulary and replaces terms which are used.

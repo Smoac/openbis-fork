@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.api.v1;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,6 +25,7 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
@@ -32,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
@@ -121,6 +124,12 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     public List<DataSetType> listDataSetTypes(String sessionToken)
     {
         logAccess(sessionToken, "list-data-set-types");
+        return null;
+    }
+
+    public HashMap<Vocabulary, List<VocabularyTerm>> getVocabularyTermsMap(String sessionToken)
+    {
+        logAccess(sessionToken, "get-vocabulary-terms-map");
         return null;
     }
 

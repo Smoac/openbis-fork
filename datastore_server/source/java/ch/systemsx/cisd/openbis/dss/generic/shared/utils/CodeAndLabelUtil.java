@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 
 /**
@@ -25,11 +26,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
  */
 public class CodeAndLabelUtil
 {
-    public static CodeAndLabel create(String code, String label)
-    {
-        return new CodeAndLabel(normalize(code), label);
-    }
-
     /**
      * Creates an instance from specified label with optional code prefix in form of
      * <code>&lt;code&gt;</code>. The code will be normalized.
@@ -47,26 +43,10 @@ public class CodeAndLabelUtil
                 t = labelWithOptionalCode.substring(indexOfClosing + 1).trim();
             }
         }
-        String code = normalize(c);
+        String code = CodeNormalizer.normalize(c);
         String rest = t.trim();
         String label = rest.length() == 0 ? code : rest;
         return new CodeAndLabel(code, label);
     }
 
-    /**
-     * Normalizes the specified code. That is lower-case characters are turned to upper case and any
-     * symbol which isn't from A-Z, 0-9 or '-' is replaced by an underscore character.
-     */
-    public static String normalize(String code)
-    {
-        StringBuilder builder = new StringBuilder(code.toUpperCase().trim());
-        for (int i = 0, n = builder.length(); i < n; i++)
-        {
-            if ("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-".indexOf(builder.charAt(i)) < 0)
-            {
-                builder.setCharAt(i, '_');
-            }
-        }
-        return builder.toString();
-    }
 }

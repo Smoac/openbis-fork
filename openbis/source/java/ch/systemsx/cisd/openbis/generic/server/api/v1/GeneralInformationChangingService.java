@@ -34,7 +34,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
 /**
- *
  * @author Franz-Josef Elmer
  */
 @Component(ResourceNames.GENERAL_INFORMATION_CHANGING_SERVICE_SERVER)
@@ -50,8 +49,9 @@ public class GeneralInformationChangingService extends
     {
     }
 
-    GeneralInformationChangingService(ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
-            IPropertiesBatchManager propertiesBatchManager, ICommonServer server)
+    GeneralInformationChangingService(ISessionManager<Session> sessionManager,
+            IDAOFactory daoFactory, IPropertiesBatchManager propertiesBatchManager,
+            ICommonServer server)
     {
         super(sessionManager, daoFactory, propertiesBatchManager);
         this.server = server;
@@ -61,23 +61,29 @@ public class GeneralInformationChangingService extends
     {
         return new GeneralInformationChangingServiceLogger(sessionManager, context);
     }
-    
+
     public void updateSampleProperties(String sessionToken, long sampleID,
             Map<String, String> properties)
     {
         checkSession(sessionToken);
-        
+
         EntityHelper.updateSampleProperties(server, sessionToken, new TechId(sampleID), properties);
+    }
+
+    public void addUnofficialVocabularyTerm(String sessionToken, TechId vocabularyId, String code,
+            String label, String description, Long previousTermOrdinal)
+    {
+        server.addUnofficialVocabularyTerm(sessionToken, vocabularyId, code, label, description,
+                previousTermOrdinal);
     }
 
     public int getMajorVersion()
     {
         return 1;
     }
-    
+
     public int getMinorVersion()
     {
         return 0;
     }
-
 }

@@ -197,7 +197,7 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
 
     @Select(sql = SELECT_ALL + " where data.dast_id = ?{1}", fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getDatasetsByDataStoreId(long dataStoreId);
-    
+
     /**
      * Returns the children dataset ids of the specified datasets.
      */
@@ -232,7 +232,7 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
      * 
      * @param entityIds The set of sample ids to get the property values for.
      */
-    @Select(sql = "SELECT pr.ds_id as entity_id, etpt.prty_id, etpt.script_id, cvte.id, cvte.covo_id, cvte.code, cvte.label, cvte.ordinal"
+    @Select(sql = "SELECT pr.ds_id as entity_id, etpt.prty_id, etpt.script_id, cvte.id, cvte.covo_id, cvte.code, cvte.label, cvte.ordinal, cvte.is_official"
             + "      FROM data_set_properties pr"
             + "      JOIN data_set_type_property_types etpt ON pr.dstpt_id=etpt.id"
             + "      JOIN controlled_vocabulary_terms cvte ON pr.cvte_id=cvte.id"

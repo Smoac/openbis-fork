@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -64,7 +65,7 @@ public class DatasetFileLines implements ITabularData
         headerCodes = new String[headerTokens.length];
         for (int i = 0; i < headerCodes.length; i++)
         {
-            headerCodes[i] = CodeAndLabelUtil.normalize(headerTokens[i]);
+            headerCodes[i] = CodeNormalizer.normalize(headerTokens[i]);
         }
         dataLines = new ArrayList<String[]>(lines.size());
         for (int i = 1; i < lines.size(); i++)
@@ -113,7 +114,7 @@ public class DatasetFileLines implements ITabularData
 
     /**
      * Returns the normalized headers. Normalization is done by
-     * {@link CodeAndLabelUtil#normalize(String)}.
+     * {@link CodeNormalizer#normalize(String)}.
      */
     public String[] getHeaderCodes()
     {

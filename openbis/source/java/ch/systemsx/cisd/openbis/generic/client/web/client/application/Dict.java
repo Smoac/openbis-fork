@@ -1105,9 +1105,6 @@ public abstract class Dict
     public static final String ADD_UNOFFICIAL_VOCABULARY_TERM_DIALOG_TITLE =
             "add_unofficial_vocabulary_term_dialog_title";
 
-    public static final String ADD_UNOFFICIAL_VOCABULARY_TERM_DIALOG_MESSAGE =
-            "add_unofficial_vocabulary_term_dialog_message";
-
     // Material Viewer
 
     public static final String MATERIAL_PROPERTIES_HEADING = "material_properties_heading";

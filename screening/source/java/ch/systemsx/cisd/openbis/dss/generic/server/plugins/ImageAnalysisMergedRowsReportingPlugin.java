@@ -25,14 +25,14 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractTabl
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
@@ -94,11 +94,11 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractTableModelRe
         List<CodeAndLabel> codeAndLabels = featuresCollection.getFeatureCodesAndLabels();
         List<FeatureTableRow> rows = featuresCollection.getFeatures();
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder(true);
-        builder.addHeader(DATA_SET_CODE_TITLE, CodeAndLabelUtil.normalize(DATA_SET_CODE_TITLE));
+        builder.addHeader(DATA_SET_CODE_TITLE, CodeNormalizer.normalize(DATA_SET_CODE_TITLE));
         builder.addHeader(PLATE_IDENTIFIER_TITLE,
-                CodeAndLabelUtil.normalize(PLATE_IDENTIFIER_TITLE));
-        builder.addHeader(ROW_TITLE, CodeAndLabelUtil.normalize(ROW_TITLE));
-        builder.addHeader(COLUMN_TITLE, CodeAndLabelUtil.normalize(COLUMN_TITLE));
+                CodeNormalizer.normalize(PLATE_IDENTIFIER_TITLE));
+        builder.addHeader(ROW_TITLE, CodeNormalizer.normalize(ROW_TITLE));
+        builder.addHeader(COLUMN_TITLE, CodeNormalizer.normalize(COLUMN_TITLE));
         for (CodeAndLabel codeAndLabel : codeAndLabels)
         {
             builder.addHeader(codeAndLabel.getLabel(), "feature-" + codeAndLabel.getCode());

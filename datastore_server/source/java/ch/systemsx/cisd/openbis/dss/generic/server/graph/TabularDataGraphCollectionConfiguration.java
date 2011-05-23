@@ -32,8 +32,9 @@ import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionPropertie
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.graph.TabularDataGraphConfiguration.GraphType;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ITabularData;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CsvFileReaderHelper.ICsvFileReaderConfiguration;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ITabularData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 
 /**
@@ -180,12 +181,8 @@ public class TabularDataGraphCollectionConfiguration implements ICsvFileReaderCo
             case HEATMAP:
                 // Default the Row and Column header names to the standard ones if no override is
                 // specified.
-                CodeAndLabel xAxis =
-                        getCodeAndLabelWithDefault(props, X_AXIS_KEY,
-                                "Row");
-                CodeAndLabel yAxis =
-                        getCodeAndLabelWithDefault(props, Y_AXIS_KEY,
-                                "Column");
+                CodeAndLabel xAxis = getCodeAndLabelWithDefault(props, X_AXIS_KEY, "Row");
+                CodeAndLabel yAxis = getCodeAndLabelWithDefault(props, Y_AXIS_KEY, "Column");
                 CodeAndLabel zAxis = getCodeAndLabel(props, COLUMN_KEY);
                 if (xAxis.equals(yAxis))
                 {
@@ -231,7 +228,7 @@ public class TabularDataGraphCollectionConfiguration implements ICsvFileReaderCo
         {
             return CodeAndLabelUtil.create(label);
         }
-        return CodeAndLabelUtil.create(code, label);
+        return CodeNormalizer.create(code, label);
     }
 
     private CodeAndLabel getCodeAndLabelWithDefault(Properties properties, String key,
@@ -249,13 +246,13 @@ public class TabularDataGraphCollectionConfiguration implements ICsvFileReaderCo
         if (label == null && code == null)
         {
             label = defaultLabel;
-            code = CodeAndLabelUtil.normalize(label);
+            code = CodeNormalizer.normalize(label);
         }
         if (code == null)
         {
             return CodeAndLabelUtil.create(label);
         }
-        return CodeAndLabelUtil.create(code, label);
+        return CodeNormalizer.create(code, label);
     }
 
     /**

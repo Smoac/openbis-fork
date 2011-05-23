@@ -40,7 +40,7 @@ var common = {
   table_operations: "Table:",
   entity_operations: "Entity:",
   url: "URL",
-  is_official: "Is Official?",
+  is_official: "Approved?",
   reason: "Reason",
   delete_confirmation_message_with_reason: "You are deleting {0}(s).<br><br>Please enter a reason or cancel deletion.",
   delete_progress_message: "Deleting {0}(s)...",
@@ -57,8 +57,7 @@ var common = {
   auto_resolve_label: "Smart View",
   data_report_label: "Report:",
   explore_label: "Explore:",
-  add_unofficial_vocabulary_term_dialog_title: "Add unofficial term",
-  add_unofficial_vocabulary_term_dialog_message: "Do you want to add new unofficial term '{0}' to dictionary '{1}'?",
+  add_unofficial_vocabulary_term_dialog_title: "Add Ad Hoc term",
 	  
   //
   // Field
@@ -564,10 +563,10 @@ var common = {
  delete_vocabulary_terms_confirmation_message_no_replacements: "Do you want to delete the {0} selected terms?",
  delete_vocabulary_terms_confirmation_message_for_replacements: "{0} terms will be deleted.\n\nThe terms below are used. They have to be replaced by one of the remaining terms.",
  edit_vocabulary_term_button: "Edit Term",
- make_official_vocabulary_term_button: "Make Official",
- make_official_vocabulary_terms_confirmation_title: "Making Vocabulary Terms Official",
- make_official_vocabulary_terms_confirmation_message_singular: "Do you want to make the selected term official?",
- make_official_vocabulary_terms_confirmation_message: "Do you want to make the {0} selected terms official?",
+ make_official_vocabulary_term_button: "Approve",
+ make_official_vocabulary_terms_confirmation_title: "Approving Vocabulary Terms",
+ make_official_vocabulary_terms_confirmation_message_singular: "Do you want to approve selected term?",
+ make_official_vocabulary_terms_confirmation_message: "Do you want to approve {0} selected terms?",
 
  //
  // Person Browser
