@@ -143,9 +143,13 @@ public class DataSetTranslator
         if (dataPE.isContainer())
         {
             externalData = translateContainerDataSetProperties(dataPE, baseIndexURL, withDetails);
+        } else if (dataPE instanceof ExternalDataPE)
+        {
+            externalData = translateDataSetProperties((ExternalDataPE) dataPE);
         } else
         {
-            externalData = translateDataSetProperties(dataPE);
+            throw new IllegalArgumentException("Data set " + dataPE.getCode()
+                    + " is neither a container nor a real data set.");
         }
 
         SamplePE sampleOrNull = dataPE.tryGetSample();
@@ -199,11 +203,8 @@ public class DataSetTranslator
         return containerDataSet;
     }
 
-    private static ExternalData translateDataSetProperties(DataPE dataPE)
+    private static ExternalData translateDataSetProperties(ExternalDataPE externalDataPE)
     {
-        assert dataPE instanceof ExternalDataPE;
-
-        ExternalDataPE externalDataPE = (ExternalDataPE) dataPE;
         DataSet dataSet = new DataSet();
         dataSet.setSize(externalDataPE.getSize());
         dataSet.setComplete(BooleanOrUnknown.tryToResolve(externalDataPE.getComplete()));
