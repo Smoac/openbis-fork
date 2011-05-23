@@ -14,9 +14,10 @@
 	<A href="https://localhost:8443/openbis">https://localhost:8443/openbis</A>
 
 
-<BR><BR>
+<BR>
 <H3>Importing test data</H3>
 
+<P>
   By now you have a fully functional openBIS instance, but it makes little sense 
   if it has no data in it. You could import a minimalistic example by executing the command: 
   
@@ -26,18 +27,23 @@
 	
 	It will create a plate <i>PLATE1</i> with images data for one of its wells. 
 	We challenge you to go find it in the running application !
+</P>
 	
+<P>	
   openBIS can store any data, not just HCS images. To test the import of random data select a random directory or file and copy it to <i>incoming-simple</i>
   
   <DIV style="background-color: #EEEEEE; fontfamily: monospace; padding-top: 10px; padding-bottom: 10px; margin: 15px 0px 15px 0px;">
  cp -R &lt;my-file-or-directory&gt; &lt;OPENBIS_DATA&gt;/incoming-simple
 	</DIV>
+</P>
    	
-<BR><BR>
+<BR>
 <H3>Customizing openBIS</H3>
+
  In the scientific world there is no one-size-fits-them-all solutions. 
  Your research data is certainly different from our example data. Luckily, openBIS provides 
  an easy way to script the import process - the Jython Dropboxes. You can learn how to 
  create your custom-tailored Jython Dropbox <A HREF="https://wiki-bsse.ethz.ch/display/openBISDoc/JythonTopLevelDataSetHandler">here</A>.
+
 </BODY>
 </HTML>

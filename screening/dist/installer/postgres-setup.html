@@ -5,14 +5,19 @@
   <BODY>
 <H2>Configure openBIS PostgreSQL DB</H2>
 
-<BR>    
+<P>
 openBIS requires PostgreSQL installation to be configured with the 'trust' setting on localhost, which 
 means that a user connecting from 127.0.0.1 can connect without providing a password.
- 
+</P>
+
+<P>
 These settings are changed in the file pg_hba.conf, 
 see <A href="http://www.postgresql.org/docs/9.0/static/auth-pg-hba-conf.html">http://www.postgresql.org/docs/9.0/static/auth-pg-hba-conf.html</A>
-    
-Click 'Next' to verify the users 'postgres' and '$USER_HOME' can connect to a PostgreSQL server running on localhost.
+</P>
+
+<P>
+Click 'Next' to verify the users 'postgres' and '$USER_NAME' can connect to a PostgreSQL server running on localhost.
+</P>
 
 </BODY>
 </HTML>
