@@ -35,12 +35,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.IWellData;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.IWellExtendedData;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialAllReplicasFeatureVectors;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialBiologicalReplicateFeatureVector;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialIdFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.WellData;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.WellDataCollection;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaSummaryAggregationType;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSummarySettings;
 
@@ -61,7 +61,7 @@ public class MaterialFeatureVectorSummaryLoaderTest extends AssertJUnit
         settings.setAggregationType(MaterialReplicaSummaryAggregationType.MEDIAN);
         settings.setBiologicalReplicatePropertyTypeCodes(SIRNA_PROPERTY_TYPE_CODE);
         int replId = 0;
-        List<IWellData> wellDataList = Arrays.asList(
+        List<IWellExtendedData> wellDataList = Arrays.asList(
         // repl. 1 group 1
                 createSIRNAWellData(replId, 1, 10, 100),
 
@@ -86,16 +86,17 @@ public class MaterialFeatureVectorSummaryLoaderTest extends AssertJUnit
                 new MaterialFeatureVectorSummaryLoader(null, null, null, settings)
                         .tryLoadMaterialFeatureVectors(new TechId(replId), wellDataCollection);
 
-        MaterialFeatureVectorSummary generalSummary = featureVectors.getGeneralSummary();
+        MaterialIdFeatureVectorSummary generalSummary = featureVectors.getGeneralSummary();
         assertArraysEqual(new float[]
             { 65, 650 }, generalSummary.getFeatureVectorSummary());
         assertArraysEqual(new int[]
             { 2, 1 }, generalSummary.getFeatureVectorRanks());
-        assertEquals(replId, generalSummary.getMaterial().getId().longValue());
+        assertEquals(replId, generalSummary.getMaterial().longValue());
 
         assertEquals(featuresDesc, featureVectors.getFeatureDescriptions());
         int groupId = 1;
-        for (MaterialBiologicalReplicateFeatureVector subgroup : featureVectors.getBiologicalReplicates())
+        for (MaterialBiologicalReplicateFeatureVector subgroup : featureVectors
+                .getBiologicalReplicates())
         {
             switch (groupId)
             {
@@ -119,7 +120,7 @@ public class MaterialFeatureVectorSummaryLoaderTest extends AssertJUnit
 
     }
 
-    private static IWellData createSIRNAWellData(long replicaId, long siRNAId,
+    private static IWellExtendedData createSIRNAWellData(long replicaId, long siRNAId,
             float... featureValues)
     {
         MaterialEntityProperty subgroupProperty = new MaterialEntityProperty();
@@ -134,8 +135,8 @@ public class MaterialFeatureVectorSummaryLoaderTest extends AssertJUnit
         return createWellData(replicaId, subgroupProperty, featureValues);
     }
 
-    private static IWellData createWellData(long replicaId, IEntityProperty subgroupProperty,
-            float... featureValues)
+    private static IWellExtendedData createWellData(long replicaId,
+            IEntityProperty subgroupProperty, float... featureValues)
     {
         Material material = new Material();
         material.setId(replicaId);

@@ -44,6 +44,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.IWellData;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.IWellExtendedData;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialIdFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.WellData;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.WellDataCollection;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
@@ -103,13 +105,64 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
                 wellDataCollection.getFeatureDescriptions());
     }
 
-    protected final List<MaterialFeatureVectorSummary> calculateReplicasFeatureVectorSummaries(
+    private List<MaterialFeatureVectorSummary> calculateReplicasFeatureVectorSummaries(
             WellDataCollection wellDataCollection)
     {
-        List<MaterialFeatureVectorSummary> summaries =
-                WellReplicaSummaryCalculator.calculateReplicasFeatureVectorSummaries(
-                        wellDataCollection.getWellDataList(), settings.getAggregationType());
-        return summaries;
+        List<? extends IWellData> wellDataList = wellDataCollection.getWellDataList();
+        List<MaterialIdFeatureVectorSummary> summaries =
+                calculateReplicasFeatureVectorSummaries(wellDataList);
+        return enrichWithMaterial(summaries, wellDataCollection);
+    }
+
+    protected final List<MaterialIdFeatureVectorSummary> calculateReplicasFeatureVectorSummaries(
+            List<? extends IWellData> wellDataList)
+    {
+        return WellReplicaSummaryCalculator.calculateReplicasFeatureVectorSummaries(wellDataList,
+                settings.getAggregationType());
+    }
+
+    private static List<MaterialFeatureVectorSummary> enrichWithMaterial(
+            List<MaterialIdFeatureVectorSummary> summaries, WellDataCollection wellDataCollection)
+    {
+        final TableMap<Long, Material> materialMap = createMaterialMap(wellDataCollection);
+        return CollectionUtils
+                .map(summaries,
+                        new ICollectionMappingFunction<MaterialFeatureVectorSummary, MaterialIdFeatureVectorSummary>()
+                            {
+                                public MaterialFeatureVectorSummary map(
+                                        MaterialIdFeatureVectorSummary summary)
+                                {
+                                    return convert(summary, materialMap);
+                                }
+                            });
+    }
+
+    private static MaterialFeatureVectorSummary convert(MaterialIdFeatureVectorSummary summary,
+            TableMap<Long, Material> materialMap)
+    {
+        Material material = materialMap.getOrDie(summary.getMaterial());
+        return summary.createWithMaterial(material);
+    }
+
+    private static TableMap<Long/* material id */, Material> createMaterialMap(
+            WellDataCollection wellDataCollection)
+    {
+        List<Material> materials =
+                CollectionUtils.map(wellDataCollection.getWellDataList(),
+                        new ICollectionMappingFunction<Material, IWellExtendedData>()
+                            {
+                                public Material map(IWellExtendedData wellData)
+                                {
+                                    return wellData.getMaterial();
+                                }
+                            });
+        return new TableMap<Long, Material>(materials, new IKeyExtractor<Long, Material>()
+            {
+                public Long getKey(Material material)
+                {
+                    return material.getId();
+                }
+            }, UniqueKeyViolationStrategy.KEEP_FIRST);
     }
 
     protected final WellDataCollection tryLoadWellData(TechId experimentId)
@@ -123,15 +176,15 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
         }
         enrichWithMaterialProperties(wells);
 
-        List<String> featureCodes = settings.getFeatureCodes();
+        Set<PlateIdentifier> plateIdentifiers = extractIdentifiers(plates);
         WellFeatureCollection<FeatureVectorValues> featureVectorsCollection =
-                tryLoadWellSingleFeatureVectors(extractIdentifiers(plates), featureCodes);
+                tryLoadWellSingleFeatureVectors(plateIdentifiers);
         if (featureVectorsCollection == null)
         {
             return null; // no feature vector datasets connected to plates in this experiment
         }
 
-        List<IWellData> wellDataList = asWellData(wells, featureVectorsCollection);
+        List<IWellExtendedData> wellDataList = asWellData(wells, featureVectorsCollection);
         return new WellDataCollection(wellDataList,
                 featureVectorsCollection.getFeatureCodesAndLabels());
     }
@@ -175,16 +228,17 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
         return materials;
     }
 
-    private List<IWellData> asWellData(List<Sample> wells,
+    private List<IWellExtendedData> asWellData(List<Sample> wells,
             WellFeatureCollection<FeatureVectorValues> featureVectorsCollection)
     {
         Map<WellReference, FeatureVectorValues> featureVectors =
                 createWellToFeatureVectorMap(featureVectorsCollection);
         List<String> orderedFeatureLabels = featureVectorsCollection.getFeatureLabels();
-        List<IWellData> wellDataList = new ArrayList<IWellData>();
+        List<IWellExtendedData> wellDataList = new ArrayList<IWellExtendedData>();
         for (Sample well : wells)
         {
-            IWellData wellData = tryCreateWellData(well, featureVectors, orderedFeatureLabels);
+            IWellExtendedData wellData =
+                    tryCreateWellData(well, featureVectors, orderedFeatureLabels);
             if (wellData != null)
             {
                 wellDataList.add(wellData);
@@ -193,12 +247,12 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
         return wellDataList;
     }
 
-    private IWellData tryCreateWellData(Sample well,
+    private IWellExtendedData tryCreateWellData(Sample well,
             Map<WellReference, FeatureVectorValues> featureVectorsMap,
             List<String> orderedFeatureLabels)
     {
         final float[] featureVectorNumbers =
-                tryExtractFeatureVectorNumbers(well, featureVectorsMap, orderedFeatureLabels);
+                tryExtractFeatureVectorValues(well, featureVectorsMap, orderedFeatureLabels);
         if (featureVectorNumbers == null)
         {
             return null;
@@ -228,7 +282,7 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
         return null;
     }
 
-    private static float[] tryExtractFeatureVectorNumbers(Sample well,
+    private static float[] tryExtractFeatureVectorValues(Sample well,
             Map<WellReference, FeatureVectorValues> featureVectorsMap,
             List<String> orderedFeatureLabels)
     {
@@ -238,10 +292,10 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
         {
             return null;
         }
-        return asFeatureVectorNumbers(featureVector, orderedFeatureLabels);
+        return asFeatureVectorValues(featureVector, orderedFeatureLabels);
     }
 
-    private static float[] asFeatureVectorNumbers(FeatureVectorValues featureVector,
+    private static float[] asFeatureVectorValues(FeatureVectorValues featureVector,
             List<String> orderedFeatureLabels)
     {
         Map<String, FeatureValue> featureMap = featureVector.getFeatureMap();
@@ -414,7 +468,7 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
     }
 
     private WellFeatureCollection<FeatureVectorValues> tryLoadWellSingleFeatureVectors(
-            Set<PlateIdentifier> plates, List<String> featureCodes)
+            Set<PlateIdentifier> plates)
     {
         FeatureVectorDatasetLoader datasetsRetriever = createFeatureVectorDatasetsRetriever(plates);
         Collection<ExternalData> featureVectorDatasets =
@@ -424,6 +478,7 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
             return null;
         }
         List<DatasetReference> datasetPerPlate = chooseSingleDatasetForPlate(featureVectorDatasets);
+        List<String> featureCodes = settings.getFeatureCodes();
         return FeatureVectorRetriever
                 .tryFetch(datasetPerPlate, featureCodes, businessObjectFactory);
     }

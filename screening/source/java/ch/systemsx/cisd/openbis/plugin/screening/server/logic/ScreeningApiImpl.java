@@ -325,11 +325,9 @@ public class ScreeningApiImpl
                     materialIdentifier.getAugmentedCode());
         }
         final List<WellContent> wellContents;
-        final ExperimentIdentifier fullExperimentIdentifier =
-                getExperimentIdentifierFromDB(experimentIdentifier);
-        wellContents =
-                WellContentLoader.loadOnlyMetadata(session, businessObjectFactory, daoFactory,
-                        new TechId(materialOrNull.getId()), fullExperimentIdentifier.getPermId());
+        final ExperimentPE experiment = getExperimentFromDB(experimentIdentifier);
+        final ExperimentIdentifier fullExperimentIdentifier = asExperimentIdentifier(experiment);
+        wellContents = loadWellContentMetadata(materialOrNull, experiment);
         if (findDatasets)
         {
             final Set<Plate> plates = extractPlates(wellContents, fullExperimentIdentifier);
@@ -348,6 +346,13 @@ public class ScreeningApiImpl
             return asPlateWellReferences(fullExperimentIdentifier, wellContents,
                     Collections.<String, DatasetReferenceHolder> emptyMap());
         }
+    }
+
+    private List<WellContent> loadWellContentMetadata(final MaterialPE materialOrNull,
+            final ExperimentPE experiment)
+    {
+        return WellContentLoader.loadOnlyMetadata(session, businessObjectFactory, daoFactory,
+                new TechId(materialOrNull.getId()), new TechId(experiment.getId()));
     }
 
     private static Set<Plate> extractPlates(final List<WellContent> wellContents,
@@ -652,8 +657,7 @@ public class ScreeningApiImpl
         return QueryTool.getQuery(connection, IScreeningQuery.class);
     }
 
-    private ExperimentIdentifier getExperimentIdentifierFromDB(
-            ExperimentIdentifier experimentIdentifierFromUser)
+    private ExperimentPE getExperimentFromDB(ExperimentIdentifier experimentIdentifierFromUser)
     {
         if (experimentIdentifierFromUser.getPermId() != null)
         {
@@ -665,7 +669,7 @@ public class ScreeningApiImpl
                 throw UserFailureException.fromTemplate("Experiment '%s' not found",
                         experimentIdentifierFromUser.getPermId());
             }
-            return asExperimentIdentifier(experimentPE);
+            return experimentPE;
         } else
         {
             final String spaceCode =
@@ -695,7 +699,7 @@ public class ScreeningApiImpl
                         experimentIdentifierFromUser.getExperimentCode(),
                         experimentIdentifierFromUser.getProjectCode(), spaceCode);
             }
-            return asExperimentIdentifier(experimentPE);
+            return experimentPE;
         }
 
     }

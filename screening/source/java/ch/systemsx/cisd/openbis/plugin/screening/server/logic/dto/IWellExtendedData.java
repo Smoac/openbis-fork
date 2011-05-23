@@ -16,19 +16,25 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto;
 
-import ch.systemsx.cisd.openbis.plugin.screening.server.logic.WellReplicaSummaryCalculator;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
- * Interface to access well feature vector and the material replica id, used by
- * {@link WellReplicaSummaryCalculator}.
+ * Enriches interface to access well feature vector with well sample and material metadata.
  * 
  * @author Tomasz Pylak
  */
-public interface IWellData
+public interface IWellExtendedData extends IEntityPropertiesHolder, IWellData
 {
-    /** @return feature vector for the well */
-    float[] getFeatureVector();
+    /** Well sample for which the data are provided. */
+    Sample getWell();
 
-    /** @return id which allows to group all wells which contain replicates */
-    long getReplicaMaterialId();
+    /**
+     * Material in the well which allowed to find replicates (e.g. gene or compound).<br>
+     * Note: if the replicaId is the same for two wellData then the returned material is also the
+     * same.
+     */
+    Material getMaterial();
+
 }

@@ -93,11 +93,10 @@ public class WellContentLoader extends AbstractContentLoader
      */
     public static List<WellContent> loadOnlyMetadata(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
-            TechId materialId, String experimentPermId)
+            TechId materialId, TechId experimentId)
     {
         WellContentLoader loader =
                 new WellContentLoader(session, businessObjectFactory, daoFactory);
-        long experimentId = loader.loadExperimentByPermId(experimentPermId).getId();
         return loader.loadLocations(materialId, experimentId);
     }
 
@@ -146,7 +145,7 @@ public class WellContentLoader extends AbstractContentLoader
     {
         WellContentLoader loader =
                 new WellContentLoader(session, businessObjectFactory, daoFactory);
-        List<WellContent> locations = loader.loadLocations(materialId, experimentId.getId());
+        List<WellContent> locations = loader.loadLocations(materialId, experimentId);
         locations = loader.enrichWithSingleImageDatasets(locations);
         return annotateWithReplicaLabels(locations, settings);
     }
@@ -838,11 +837,11 @@ public class WellContentLoader extends AbstractContentLoader
         return exp == null ? null : exp.getExperimentId().getId();
     }
 
-    private List<WellContent> loadLocations(TechId geneMaterialId, long experimentId)
+    private List<WellContent> loadLocations(TechId geneMaterialId, TechId experimentId)
     {
         DataIterator<WellContentQueryResult> locations =
                 createDAO(daoFactory).getPlateLocationsForMaterialId(geneMaterialId.getId(),
-                        experimentId);
+                        experimentId.getId());
 
         return convert(locations);
     }

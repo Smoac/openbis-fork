@@ -32,8 +32,8 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.WellReplicaSummaryCalculator.SummaryFeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.IWellData;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialIdFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.WellData;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaSummaryAggregationType;
 
 /**
@@ -58,17 +58,17 @@ public class WellReplicaSummaryCalculatorTest extends AssertJUnit
                 createWellData(2, 1, 100),
 
                 createWellData(2, 3, 200));
-        List<MaterialFeatureVectorSummary> summary = calculate(wellDataList);
+        List<MaterialIdFeatureVectorSummary> summary = calculate(wellDataList);
         assertEquals(2, summary.size());
-        int replica1Ix = summary.get(0).getMaterial().getId() == 1 ? 0 : 1;
+        int replica1Ix = summary.get(0).getMaterial() == 1 ? 0 : 1;
 
-        MaterialFeatureVectorSummary repl1 = summary.get(replica1Ix);
+        MaterialIdFeatureVectorSummary repl1 = summary.get(replica1Ix);
         assertArraysEqual(new float[]
             { 1.5f, 6 }, repl1.getFeatureVectorSummary());
         assertArraysEqual(new float[]
             { 0.5f, 2 }, repl1.getFeatureVectorDeviations());
 
-        MaterialFeatureVectorSummary repl2 = summary.get(1 - replica1Ix);
+        MaterialIdFeatureVectorSummary repl2 = summary.get(1 - replica1Ix);
         assertArraysEqual(new float[]
             { 1, 100 }, repl2.getFeatureVectorSummary());
         assertArraysEqual(new float[]
@@ -89,7 +89,7 @@ public class WellReplicaSummaryCalculatorTest extends AssertJUnit
     @Test
     public void testNoFeatures()
     {
-        List<MaterialFeatureVectorSummary> summary =
+        List<MaterialIdFeatureVectorSummary> summary =
                 calculate(Arrays.asList(createWellData(0), createWellData(1)));
         assertEquals(2, summary.size());
         assertEquals(0, summary.get(0).getFeatureVectorSummary().length);
@@ -109,9 +109,9 @@ public class WellReplicaSummaryCalculatorTest extends AssertJUnit
                 createWellData(1, 0, 2), // 1
 
                 createWellData(1, 0, 4), // 1
-                
+
                 createWellData(1, 0, 100), // 97
-                
+
                 createWellData(1, 0, Float.NaN),
 
                 createWellData(1, 0, 3), // 0
@@ -125,12 +125,11 @@ public class WellReplicaSummaryCalculatorTest extends AssertJUnit
                         1);
         assertEquals(1.0f, mad);
     }
-    
+
     @Test
     public void testCalculateMedianOneValue()
     {
-        List<IWellData> wellDataList = Arrays.asList(
-                createWellData(1, 0, 1));
+        List<IWellData> wellDataList = Arrays.asList(createWellData(1, 0, 1));
         float median = WellReplicaSummaryCalculator.calculateMedian(wellDataList, 1);
         assertEquals(1f, median);
     }
@@ -139,31 +138,31 @@ public class WellReplicaSummaryCalculatorTest extends AssertJUnit
     public void testCalculateMedianForEvenNumberOfValues()
     {
         List<IWellData> wellDataList = Arrays.asList(
-                // ---- replicaId, [featureValues]
+        // ---- replicaId, [featureValues]
                 createWellData(1, 0, Float.NaN),
-                
+
                 createWellData(1, 0, Float.NEGATIVE_INFINITY),
-                
+
                 createWellData(1, 0, 1), // 1.5
-                
+
                 createWellData(1, 0, 3), // 0.5
-                
+
                 createWellData(1, 0, 2), // 0.5
-                
+
                 createWellData(1, 0, Float.NaN),
-                
+
                 createWellData(1, 0, 100), // 97.5
-                
+
                 createWellData(1, 0, Float.POSITIVE_INFINITY));
         float median = WellReplicaSummaryCalculator.calculateMedian(wellDataList, 1);
         assertEquals(2.5f, median);
-        
+
         float mad =
-            WellReplicaSummaryCalculator.calculateMedianAbsoluteDeviation(median, wellDataList,
-                    1);
+                WellReplicaSummaryCalculator.calculateMedianAbsoluteDeviation(median, wellDataList,
+                        1);
         assertEquals(1.0f, mad);
     }
-    
+
     @Test
     public void testCalculateMedianAbsoluteDeviationMedianUnknown()
     {
@@ -210,7 +209,7 @@ public class WellReplicaSummaryCalculatorTest extends AssertJUnit
         return new WellData(replicaId, featureValues, null, material);
     }
 
-    private List<MaterialFeatureVectorSummary> calculate(List<IWellData> wellDataList)
+    private List<MaterialIdFeatureVectorSummary> calculate(List<IWellData> wellDataList)
     {
         return WellReplicaSummaryCalculator.calculateReplicasFeatureVectorSummaries(wellDataList,
                 MaterialReplicaSummaryAggregationType.MEDIAN);

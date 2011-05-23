@@ -4,7 +4,6 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialFeatureVectorSummary;
 
 /**
  * Feature vectors (details and summaries) for one material.
@@ -18,7 +17,7 @@ public class MaterialAllReplicasFeatureVectors
     // NOTE: has the same length as feature vectors in all summaries
     private final List<CodeAndLabel> featureDescriptions;
 
-    private final MaterialFeatureVectorSummary generalSummary;
+    private final MaterialIdFeatureVectorSummary generalSummary;
 
     // NOTE: Can be empty.
     private final List<MaterialBiologicalReplicateFeatureVector> biologicalReplicates;
@@ -27,7 +26,7 @@ public class MaterialAllReplicasFeatureVectors
     private final List<MaterialTechnicalReplicateFeatureVector> directTechnicalReplicates;
 
     public MaterialAllReplicasFeatureVectors(List<CodeAndLabel> featureDescriptions,
-            MaterialFeatureVectorSummary generalSummary,
+            MaterialIdFeatureVectorSummary generalSummary,
             List<MaterialBiologicalReplicateFeatureVector> subgroups,
             List<MaterialTechnicalReplicateFeatureVector> replicas)
     {
@@ -42,7 +41,7 @@ public class MaterialAllReplicasFeatureVectors
         return featureDescriptions;
     }
 
-    public MaterialFeatureVectorSummary getGeneralSummary()
+    public MaterialIdFeatureVectorSummary getGeneralSummary()
     {
         return generalSummary;
     }

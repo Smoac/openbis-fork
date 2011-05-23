@@ -29,10 +29,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ID
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory;
@@ -77,21 +78,22 @@ public class ExperimentAnalysisSummaryGrid extends TypedTableGrid<MaterialFeatur
                 public void handle(TableModelRowWithObject<MaterialFeatureVectorSummary> rowItem,
                         boolean specialKeyPressed)
                 {
-                    Material material = rowItem.getObjectOrNull().getMaterial();
+                    IEntityInformationHolderWithPermId material =
+                            rowItem.getObjectOrNull().getMaterial();
                     openMaterialDetailViewer(material);
                 }
 
                 public String tryGetLink(MaterialFeatureVectorSummary entity,
                         ISerializableComparable comparableValue)
                 {
-                    Material material = entity.getMaterial();
+                    IEntityInformationHolder material = entity.getMaterial();
                     return ScreeningLinkExtractor.tryCreateMaterialDetailsLink(material,
                             getExperimentAsSearchCriteria());
                 }
             };
     }
 
-    private void openMaterialDetailViewer(Material material)
+    private void openMaterialDetailViewer(IEntityInformationHolderWithPermId material)
     {
         ClientPluginFactory.openImagingMaterialViewer(material, getExperimentAsSearchCriteria(),
                 screeningViewContext);

@@ -28,29 +28,35 @@ import java.util.Set;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.GroupByMap;
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.IWellData;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialIdFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.WellData;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaSummaryAggregationType;
 
 /**
- * Calculates summaries and ranks for each group of well replicas (biological or technical). Usually
- * a replica is determined by the material in the well, e.g. gene or compound.
- * 
  * @author Tomasz Pylak
  */
 public class WellReplicaSummaryCalculator
 {
-    public static List<MaterialFeatureVectorSummary> calculateReplicasFeatureVectorSummaries(
-            List<IWellData> wellDataList, MaterialReplicaSummaryAggregationType aggregationType)
+    /**
+     * Calculates summaries and ranks for each group of well replicas (biological or technical).
+     * Usually a replica is determined by the material in the well, e.g. gene or compound.
+     */
+    public static List<MaterialIdFeatureVectorSummary> calculateReplicasFeatureVectorSummaries(
+            List<? extends IWellData> wellDataList,
+            MaterialReplicaSummaryAggregationType aggregationType)
     {
         validate(wellDataList);
-        return new WellReplicaSummaryCalculator(wellDataList, aggregationType)
-                .calculateReplicasFeatureVectorSummaries();
+        WellReplicaSummaryCalculator calculator =
+                new WellReplicaSummaryCalculator(wellDataList, aggregationType);
+        List<MaterialIdFeatureVectorSummary> summaries =
+                calculator.calculateReplicasFeatureVectorSummaries();
+        return summaries;
     }
 
-    public static float[] calculateSummaryFeatureVector(List<IWellData> techicalReplicaWells,
+    /** Calculates one aggregated number for each feature, taking all specified wells into account. */
+    public static float[] calculateSummaryFeatureVector(
+            List<? extends IWellData> techicalReplicaWells,
             MaterialReplicaSummaryAggregationType aggregationType)
     {
         validate(techicalReplicaWells);
@@ -59,7 +65,7 @@ public class WellReplicaSummaryCalculator
                 numberOfFeatures).getAggregates();
     }
 
-    private static void validate(List<IWellData> wellDataList)
+    private static void validate(List<? extends IWellData> wellDataList)
     {
         int numberOfFeatures = getNumberOfFeatures(wellDataList);
         for (IWellData wellData : wellDataList)
@@ -68,7 +74,7 @@ public class WellReplicaSummaryCalculator
             {
                 throw new IllegalStateException(
                         String.format("No feature vector found for material "
-                                + wellData.getMaterial()));
+                                + wellData.getReplicaMaterialId()));
             }
             if (wellData.getFeatureVector().length != numberOfFeatures)
             {
@@ -87,7 +93,7 @@ public class WellReplicaSummaryCalculator
 
     private final int numberOfFeatures;
 
-    private WellReplicaSummaryCalculator(List<IWellData> wellDataList,
+    private WellReplicaSummaryCalculator(List<? extends IWellData> wellDataList,
             MaterialReplicaSummaryAggregationType aggregationType)
     {
         this.numberOfFeatures = getNumberOfFeatures(wellDataList);
@@ -97,30 +103,28 @@ public class WellReplicaSummaryCalculator
                     {
                         public Long getKey(IWellData wellData)
                         {
-                            return wellData.getReplicaId();
+                            return wellData.getReplicaMaterialId();
                         }
                     });
     }
 
-    private List<MaterialFeatureVectorSummary> calculateReplicasFeatureVectorSummaries()
+    private List<MaterialIdFeatureVectorSummary> calculateReplicasFeatureVectorSummaries()
     {
         Map<Long/* replica id */, SummaryFeatureVector> replicaToSummaryMap =
                 calculateSummaryFeatures();
         Map<Long/* replica id */, int[]/* ranks for each feature */> ranks =
                 calculateRanks(replicaToSummaryMap, numberOfFeatures);
 
-        List<MaterialFeatureVectorSummary> summaries =
-                new ArrayList<MaterialFeatureVectorSummary>();
+        List<MaterialIdFeatureVectorSummary> summaries =
+                new ArrayList<MaterialIdFeatureVectorSummary>();
         Set<Long> replicaIds = replicaToWellDataMap.getKeys();
         int numberOfReplicas = replicaIds.size();
         for (Long replicaId : replicaIds)
         {
-            List<IWellData> replicaWells = replicaToWellDataMap.getOrDie(replicaId);
             SummaryFeatureVector summaryFeatures = replicaToSummaryMap.get(replicaId);
             // array not empty, all materials are the same
-            Material material = replicaWells.get(0).getMaterial();
-            MaterialFeatureVectorSummary summary =
-                    new MaterialFeatureVectorSummary(material, summaryFeatures.getAggregates(),
+            MaterialIdFeatureVectorSummary summary =
+                    new MaterialIdFeatureVectorSummary(replicaId, summaryFeatures.getAggregates(),
                             summaryFeatures.getDeviation(), ranks.get(replicaId), numberOfReplicas);
             summaries.add(summary);
         }
@@ -148,7 +152,7 @@ public class WellReplicaSummaryCalculator
                 {
                     rank = i + 1;
                 }
-                int[] replicaRanks = ranks.get(rankWellData.getReplicaId());
+                int[] replicaRanks = ranks.get(rankWellData.getReplicaMaterialId());
                 replicaRanks[featureIx] = rank;
                 prevValue = value;
             }
@@ -241,7 +245,8 @@ public class WellReplicaSummaryCalculator
         }
     }
 
-    private static SummaryFeatureVector calculateSummaryFeatureVector(List<IWellData> replicaWells,
+    private static SummaryFeatureVector calculateSummaryFeatureVector(
+            List<? extends IWellData> replicaWells,
             MaterialReplicaSummaryAggregationType aggregationType, int numberOfFeatures)
     {
         switch (aggregationType)
@@ -253,16 +258,17 @@ public class WellReplicaSummaryCalculator
         }
     }
 
-    private static SummaryFeatureVector calculateMedianVector(List<IWellData> replicaWells,
-            int numberOfFeatures)
+    private static SummaryFeatureVector calculateMedianVector(
+            List<? extends IWellData> replicaWells, int numberOfFeatures)
     {
         float[] medians = new float[numberOfFeatures];
         float[] deviations = new float[numberOfFeatures];
         for (int featureIx = 0; featureIx < numberOfFeatures; featureIx++)
         {
-            medians[featureIx] = calculateMedian(replicaWells, featureIx);
+            float median = calculateMedian(replicaWells, featureIx);
+            medians[featureIx] = median;
             deviations[featureIx] =
-                    calculateMedianAbsoluteDeviation(medians[featureIx], replicaWells, featureIx);
+                    calculateMedianAbsoluteDeviation(median, replicaWells, featureIx);
         }
         return new SummaryFeatureVector(medians, deviations);
     }
@@ -272,7 +278,7 @@ public class WellReplicaSummaryCalculator
         Collections.sort(replicaWells, createSelectedFeatureDescendingComparator(featureIx));
     }
 
-    private static int getNumberOfFeatures(List<IWellData> replicaWells)
+    private static int getNumberOfFeatures(List<? extends IWellData> replicaWells)
     {
         if (replicaWells.size() == 0)
         {
@@ -285,7 +291,7 @@ public class WellReplicaSummaryCalculator
 
     // NOTE: we calculate the median from the values which are neither NaN nor infinity
     @Private
-    static float calculateMedian(List<IWellData> replicaWells, int featureIx)
+    static float calculateMedian(List<? extends IWellData> replicaWells, int featureIx)
     {
         List<Float> featureValues = new ArrayList<Float>();
         for (IWellData replicaWell : replicaWells)
@@ -322,8 +328,8 @@ public class WellReplicaSummaryCalculator
     }
 
     @Private
-    static float calculateMedianAbsoluteDeviation(float median, List<IWellData> replicaWells,
-            int featureIx)
+    static float calculateMedianAbsoluteDeviation(float median,
+            List<? extends IWellData> replicaWells, int featureIx)
     {
         if (isNumerical(median) == false)
         {

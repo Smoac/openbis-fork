@@ -27,18 +27,19 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
  */
 public class WellDataCollection
 {
-    private final List<IWellData> wellDataList;
+    private final List<IWellExtendedData> wellDataList;
 
     // has the same length as feature vectors in all wells
     private final List<CodeAndLabel> featureDescriptions;
 
-    public WellDataCollection(List<IWellData> wellDataList, List<CodeAndLabel> featureDescriptions)
+    public WellDataCollection(List<IWellExtendedData> wellDataList,
+            List<CodeAndLabel> featureDescriptions)
     {
         this.wellDataList = wellDataList;
         this.featureDescriptions = featureDescriptions;
     }
 
-    public List<IWellData> getWellDataList()
+    public List<IWellExtendedData> getWellDataList()
     {
         return wellDataList;
     }

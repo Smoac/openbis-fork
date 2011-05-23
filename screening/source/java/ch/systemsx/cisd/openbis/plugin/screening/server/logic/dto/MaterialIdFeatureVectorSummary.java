@@ -14,32 +14,35 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
+package ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialFeatureVectorSummary;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialFeatureVectorSummaryParametrized;
 
 /**
- * Aggregated feature vector with its ranking in one experiment for one material.
+ * Aggregated feature vector with its ranking in one experiment for one material (represented by the
+ * technical id)
  * 
  * @author Tomasz Pylak
  */
-public class MaterialFeatureVectorSummary extends
-        MaterialFeatureVectorSummaryParametrized<Material>
+public class MaterialIdFeatureVectorSummary extends MaterialFeatureVectorSummaryParametrized<Long>
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    // GTW
-    @SuppressWarnings("unused")
-    private MaterialFeatureVectorSummary()
-    {
-    }
-
-    public MaterialFeatureVectorSummary(Material material, float[] featureVectorSummary,
+    public MaterialIdFeatureVectorSummary(Long materialId, float[] featureVectorSummary,
             float[] featureVectorDeviations, int[] featureVectorRanks,
             int numberOfMaterialsInExperiment)
     {
-        super(material, featureVectorSummary, featureVectorDeviations, featureVectorRanks,
+        super(materialId, featureVectorSummary, featureVectorDeviations, featureVectorRanks,
                 numberOfMaterialsInExperiment);
+    }
+
+    public MaterialFeatureVectorSummary createWithMaterial(Material material)
+    {
+        return new MaterialFeatureVectorSummary(material, getFeatureVectorSummary(),
+                getFeatureVectorDeviations(), getFeatureVectorRanks(),
+                getNumberOfMaterialsInExperiment());
     }
 }

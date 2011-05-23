@@ -24,7 +24,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.dto.ExperimentIdentifierSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
@@ -254,7 +253,7 @@ public class ScreeningLinkExtractor extends LinkExtractor
         return url;
     }
 
-    public static String tryCreateMaterialDetailsLink(Material material,
+    public static String tryCreateMaterialDetailsLink(IEntityInformationHolder material,
             ExperimentSearchCriteria experimentSearchCriteria)
     {
         ExperimentIdentifierSearchCriteria experimentCriteria =

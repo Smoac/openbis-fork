@@ -24,11 +24,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
- * The simplest implementation of {@Link IWellData}.
+ * The simplest implementation of {@Link IWellExtendedData}.
  * 
  * @author Tomasz Pylak
  */
-public class WellData implements IWellData
+public class WellData implements IWellExtendedData
 {
     private final long replicaId;
 
@@ -46,7 +46,7 @@ public class WellData implements IWellData
         this.material = material;
     }
 
-    public long getReplicaId()
+    public long getReplicaMaterialId()
     {
         return replicaId;
     }
