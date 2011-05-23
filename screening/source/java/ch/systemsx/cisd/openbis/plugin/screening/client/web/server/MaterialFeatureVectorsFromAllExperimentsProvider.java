@@ -23,10 +23,13 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AbstractTableModelProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 import ch.systemsx.cisd.openbis.generic.shared.util.IColumnGroup;
 import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSimpleFeatureVectorSummary;
 
 /**
@@ -69,7 +72,8 @@ class MaterialFeatureVectorsFromAllExperimentsProvider extends
         return builder.getModel();
     }
 
-    private void createFeatureColumns(TypedTableModelBuilder<MaterialSimpleFeatureVectorSummary> builder,
+    private void createFeatureColumns(
+            TypedTableModelBuilder<MaterialSimpleFeatureVectorSummary> builder,
             List<MaterialSimpleFeatureVectorSummary> summaries)
     {
         IColumnGroup columnGroup = builder.columnGroup("FEATURES");
@@ -86,7 +90,11 @@ class MaterialFeatureVectorsFromAllExperimentsProvider extends
             MaterialSimpleFeatureVectorSummary row)
     {
         builder.addRow(row);
-        builder.column(EXPERIMENT).addString(row.getExperiment().getCode());
+        ExperimentReference exp = row.getExperiment();
+        EntityTableCell experimentCell =
+                new EntityTableCell(EntityKind.EXPERIMENT, exp.getPermId(), exp.getIdentifier());
+        experimentCell.setLinkText(exp.getCode());
+        builder.column(EXPERIMENT).withEntityKind(EntityKind.EXPERIMENT).addValue(experimentCell);
 
         float[] features = row.getFeatureVectorSummary();
         List<CodeAndLabel> descriptions = row.getFeatureDescriptions();
@@ -96,5 +104,4 @@ class MaterialFeatureVectorsFromAllExperimentsProvider extends
             builder.column(description.getCode()).addDouble((double) features[i]);
         }
     }
-
 }
