@@ -55,7 +55,13 @@ public class FtpServerConfig
 
     final static String DATASET_FILELIST_FILTER_KEY = PREFIX + "dataset.filelist.filter.";
 
+    final static String ACTIVE_MODE_ENABLE_KEY = PREFIX + "activemode.enable";
+
+    final static String ACTIVE_PORT_KEY = PREFIX + "activemode.port";
+
     private static final int DEFAULT_PORT = 2121;
+
+    private static final int DEFAULT_ACTIVE_PORT = 2122;
 
     private static final boolean DEFAULT_USE_SSL = true;
 
@@ -66,6 +72,10 @@ public class FtpServerConfig
     private boolean startServer;
 
     private int port;
+
+    private boolean activeModeEnabled;
+
+    private int activePort;
 
     private boolean useSSL;
 
@@ -95,12 +105,14 @@ public class FtpServerConfig
 
     private void initializeProperties(Properties props)
     {
-        this.port = PropertyUtils.getPosInt(props, PORT_KEY, DEFAULT_PORT);
-        this.useSSL = PropertyUtils.getBoolean(props, USE_SSL_KEY, DEFAULT_USE_SSL);
+        port = PropertyUtils.getPosInt(props, PORT_KEY, DEFAULT_PORT);
+        useSSL = PropertyUtils.getBoolean(props, USE_SSL_KEY, DEFAULT_USE_SSL);
         if (useSSL)
         {
             initializeSSLProperties(props);
         }
+        activeModeEnabled = PropertyUtils.getBoolean(props, ACTIVE_MODE_ENABLE_KEY, false);
+        activePort = PropertyUtils.getPosInt(props, ACTIVE_PORT_KEY, DEFAULT_ACTIVE_PORT);
         maxThreads = PropertyUtils.getPosInt(props, MAX_THREADS_KEY, DEFAULT_MAX_THREADS);
         dataSetDisplayTemplate =
                 PropertyUtils.getProperty(props, DATASET_DISPLAY_TEMPLATE_KEY, DEFAULT_DATASET_TEMPLATE);
@@ -214,5 +226,14 @@ public class FtpServerConfig
         }
     }
 
+    public boolean isActiveModeEnabled()
+    {
+        return activeModeEnabled;
+    }
+
+    public int getActiveLocalPort()
+    {
+        return activePort;
+    }
 
 }

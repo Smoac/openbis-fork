@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.ftp;
 import java.util.Properties;
 
 import org.apache.ftpserver.ConnectionConfigFactory;
+import org.apache.ftpserver.DataConnectionConfigurationFactory;
 import org.apache.ftpserver.FtpServerFactory;
 import org.apache.ftpserver.ftplet.FileSystemFactory;
 import org.apache.ftpserver.ftplet.FileSystemView;
@@ -82,6 +83,15 @@ public class FtpServer implements FileSystemFactory
             sslConfigFactory.setKeyPassword(config.getKeyPassword());
             factory.setSslConfiguration(sslConfigFactory.createSslConfiguration());
             factory.setImplicitSsl(true);
+        }
+
+        if (config.isActiveModeEnabled())
+        {
+            DataConnectionConfigurationFactory dccFactory =
+                    new DataConnectionConfigurationFactory();
+            dccFactory.setActiveEnabled(true);
+            dccFactory.setActiveLocalPort(config.getActiveLocalPort());
+            factory.setDataConnectionConfiguration(dccFactory.createDataConnectionConfiguration());
         }
         serverFactory.addListener("default", factory.createListener());
 
