@@ -81,6 +81,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 @Friend(toClasses = DssServiceRpcScreeningHolder.class)
 public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCase
 {
+    private static final String MY_DATA_SET_TYPE = "my-data-set";
+
     private static final class MockPlateImageHandler implements IPlateImageHandler
     {
         private final StringBuilder recorder = new StringBuilder();
@@ -465,7 +467,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testGetWellProperties()
     {
@@ -479,13 +481,13 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
                     will(returnValue(new Sample(initializer)));
                 }
             });
-        
+
         Map<String, String> wellProperties = facade.getWellProperties(wellIdentifier);
-        
+
         assertEquals("{a=alpha}", wellProperties.toString());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testUpdateWellProperties()
     {
@@ -496,16 +498,17 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
                 {
                     one(screeningService).getWellSample(SESSION_TOKEN, wellIdentifier);
                     will(returnValue(new Sample(sampleInitializer())));
-                    
-                    one(generalInformationChangingService).updateSampleProperties(SESSION_TOKEN, 42L, properties);
+
+                    one(generalInformationChangingService).updateSampleProperties(SESSION_TOKEN,
+                            42L, properties);
                 }
             });
 
         facade.updateWellProperties(wellIdentifier, properties);
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testGetDataSetsOfAWell()
     {
@@ -516,23 +519,25 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
                     one(screeningService).getWellSample(SESSION_TOKEN, wellIdentifier);
                     Sample sample = new Sample(sampleInitializer());
                     will(returnValue(sample));
-                    
-                    one(generalInformationService).listDataSetsForSample(SESSION_TOKEN, sample, true);
+
+                    one(generalInformationService).listDataSetsForSample(SESSION_TOKEN, sample,
+                            true);
                     DataSetInitializer initializer1 = dataSetInitializer(DATA_SET1);
                     will(returnValue(Arrays.asList(new DataSet(initializer1))));
-                    
+
                     one(dssComponent).getDataSet(DATA_SET1);
                     will(returnValue(ds1Proxy));
                 }
             });
-        
-        List<IDataSetDss> dataSets = facade.getDataSets(wellIdentifier);
-        
+
+        List<IDataSetDss> dataSets =
+                facade.getDataSets(wellIdentifier, ".*" + MY_DATA_SET_TYPE + ".*");
+
         assertSame(ds1Proxy, dataSets.get(0));
         assertEquals(1, dataSets.size());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testGetDataSetsOfAPlate()
     {
@@ -554,13 +559,13 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
                 }
             });
 
-        List<IDataSetDss> dataSets = facade.getDataSets(plateIdentifier);
-        
+        List<IDataSetDss> dataSets = facade.getDataSets(plateIdentifier, MY_DATA_SET_TYPE);
+
         assertSame(ds1Proxy, dataSets.get(0));
         assertEquals(1, dataSets.size());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testPutDataSetForWell() throws IOException
     {
@@ -571,14 +576,15 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
         File dir = new File(dataSetRoot, "dir");
         dir.mkdir();
         FileUtilities.writeToFile(new File(dir, "hello.txt"), "hello world");
-        final RecordingMatcher<NewDataSetDTO> dataSetMatcher = new RecordingMatcher<NewDataSetDTO>();
+        final RecordingMatcher<NewDataSetDTO> dataSetMatcher =
+                new RecordingMatcher<NewDataSetDTO>();
         context.checking(new Expectations()
             {
                 {
                     one(screeningService).getWellSample(SESSION_TOKEN, wellIdentifier);
                     Sample sample = new Sample(sampleInitializer());
                     will(returnValue(sample));
-                    
+
                     one(dssComponent).putDataSet(with(dataSetMatcher), with(dataSetRoot));
                     will(returnValue(ds1Proxy));
                 }
@@ -588,14 +594,15 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
         HashMap<String, String> props = new HashMap<String, String>();
         props.put("a", "b");
         metaData.setProperties(props);
-        
+
         IDataSetDss dataSet = facade.putDataSet(wellIdentifier, dataSetRoot, metaData);
 
         assertSame(ds1Proxy, dataSet);
         assertEquals("MY-TYPE", dataSetMatcher.recordedObject().tryDataSetType());
         assertEquals(NewDataSetDTO.DEFAULT_DATA_SET_FOLDER_NAME, dataSetMatcher.recordedObject()
                 .getDataSetFolderName());
-        assertEquals(DataSetOwnerType.SAMPLE, dataSetMatcher.recordedObject().getDataSetOwner().getType());
+        assertEquals(DataSetOwnerType.SAMPLE, dataSetMatcher.recordedObject().getDataSetOwner()
+                .getType());
         assertEquals("/S/abc", dataSetMatcher.recordedObject().getDataSetOwner().getIdentifier());
         assertEquals("{a=b}", dataSetMatcher.recordedObject().getProperties().toString());
         List<FileInfoDssDTO> fileInfos = dataSetMatcher.recordedObject().getFileInfos();
@@ -609,7 +616,6 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
         context.assertIsSatisfied();
     }
 
-    
     @Test
     public void testPutDataSetForPlate() throws IOException
     {
@@ -620,31 +626,33 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
         File dir = new File(dataSetRoot, "dir");
         dir.mkdir();
         FileUtilities.writeToFile(new File(dir, "hello.txt"), "hello world");
-        final RecordingMatcher<NewDataSetDTO> dataSetMatcher = new RecordingMatcher<NewDataSetDTO>();
+        final RecordingMatcher<NewDataSetDTO> dataSetMatcher =
+                new RecordingMatcher<NewDataSetDTO>();
         context.checking(new Expectations()
-        {
             {
-                one(screeningService).getPlateSample(SESSION_TOKEN, plateIdentifier);
-                Sample sample = new Sample(sampleInitializer());
-                will(returnValue(sample));
-                
-                one(dssComponent).putDataSet(with(dataSetMatcher), with(dataSetRoot));
-                will(returnValue(ds1Proxy));
-            }
-        });
+                {
+                    one(screeningService).getPlateSample(SESSION_TOKEN, plateIdentifier);
+                    Sample sample = new Sample(sampleInitializer());
+                    will(returnValue(sample));
+
+                    one(dssComponent).putDataSet(with(dataSetMatcher), with(dataSetRoot));
+                    will(returnValue(ds1Proxy));
+                }
+            });
         NewDataSetMetadataDTO metaData = new NewDataSetMetadataDTO();
         metaData.setDataSetTypeOrNull("my-type");
         HashMap<String, String> props = new HashMap<String, String>();
         props.put("a", "b");
         metaData.setProperties(props);
-        
+
         IDataSetDss dataSet = facade.putDataSet(plateIdentifier, dataSetRoot, metaData);
-        
+
         assertSame(ds1Proxy, dataSet);
         assertEquals("MY-TYPE", dataSetMatcher.recordedObject().tryDataSetType());
         assertEquals(NewDataSetDTO.DEFAULT_DATA_SET_FOLDER_NAME, dataSetMatcher.recordedObject()
                 .getDataSetFolderName());
-        assertEquals(DataSetOwnerType.SAMPLE, dataSetMatcher.recordedObject().getDataSetOwner().getType());
+        assertEquals(DataSetOwnerType.SAMPLE, dataSetMatcher.recordedObject().getDataSetOwner()
+                .getType());
         assertEquals("/S/abc", dataSetMatcher.recordedObject().getDataSetOwner().getIdentifier());
         assertEquals("{a=b}", dataSetMatcher.recordedObject().getProperties().toString());
         List<FileInfoDssDTO> fileInfos = dataSetMatcher.recordedObject().getFileInfos();
@@ -657,7 +665,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
         assertEquals("[/dir, /dir/hello.txt, /readme]", paths.toString());
         context.assertIsSatisfied();
     }
-    
+
     private SampleInitializer sampleInitializer()
     {
         SampleInitializer initializer = new SampleInitializer();
@@ -673,7 +681,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
     private DataSetInitializer dataSetInitializer(String code)
     {
         DataSetInitializer initializer = new DataSetInitializer();
-        initializer.setDataSetTypeCode("my-data-set");
+        initializer.setDataSetTypeCode(MY_DATA_SET_TYPE);
         initializer.setExperimentIdentifier("/S/P/E");
         initializer.setCode(code);
         return initializer;

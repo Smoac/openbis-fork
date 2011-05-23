@@ -150,12 +150,12 @@ public interface IScreeningOpenbisServiceFacade
      * For the given <var>plateIdentifier</var> find all wells that are connected to it.
      */
     public List<WellIdentifier> listPlateWells(PlateIdentifier plateIdentifier);
-    
+
     /**
      * Returns all properties of specified well as a map.
      */
     public Map<String, String> getWellProperties(WellIdentifier wellIdentifier);
-    
+
     /**
      * Updates properties of specified well.
      */
@@ -164,12 +164,15 @@ public interface IScreeningOpenbisServiceFacade
     /**
      * Get proxies to the data sets owned by specified well.
      * 
+     * @param datasetTypeCodePattern only datasets of the type which matche the specified pattern
+     *            will be returned. To fetch all datasets specify ".*".
      * @throws IllegalStateException Thrown if the user has not yet been authenticated.
      * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
      *             the server.
      */
-    public List<IDataSetDss> getDataSets(WellIdentifier wellIdentifier)
-            throws IllegalStateException, EnvironmentFailureException;
+    public List<IDataSetDss> getDataSets(WellIdentifier wellIdentifier,
+            String datasetTypeCodePattern) throws IllegalStateException,
+            EnvironmentFailureException;
 
     /**
      * Upload a new data set to the DSS for a well.
@@ -189,15 +192,18 @@ public interface IScreeningOpenbisServiceFacade
             EnvironmentFailureException, IOException;
 
     /**
-     * Get proxies to the data sets owned by specified plate.
+     * Get proxies to the data sets of the specified type owned by specified plate.
      * 
+     * @param datasetTypeCodePattern only datasets of the type which matche the specified pattern
+     *            will be returned. To fetch all datasets specify ".*".
      * @throws IllegalStateException Thrown if the user has not yet been authenticated.
      * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
      *             the server.
      */
-    public List<IDataSetDss> getDataSets(PlateIdentifier plateIdentifier)
-            throws IllegalStateException, EnvironmentFailureException;
-    
+    public List<IDataSetDss> getDataSets(PlateIdentifier plateIdentifier,
+            String datasetTypeCodePattern) throws IllegalStateException,
+            EnvironmentFailureException;
+
     /**
      * Upload a new data set to the DSS for a plate.
      * 
@@ -214,7 +220,7 @@ public interface IScreeningOpenbisServiceFacade
     public IDataSetDss putDataSet(PlateIdentifier plateIdentifier, File dataSetFile,
             NewDataSetMetadataDTO dataSetMetadataOrNull) throws IllegalStateException,
             EnvironmentFailureException, IOException;
-    
+
     /**
      * Converts the given list of {@link PlateWellReferenceWithDatasets} into a list of
      * {@link FeatureVectorDatasetWellReference}.
@@ -566,5 +572,5 @@ public interface IScreeningOpenbisServiceFacade
     public List<PlateWellMaterialMapping> listPlateMaterialMapping(
             List<? extends PlateIdentifier> plates,
             MaterialTypeIdentifier materialTypeIdentifierOrNull);
-    
+
 }

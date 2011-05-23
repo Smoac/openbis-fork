@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorWithDescription;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialIdentifier;
@@ -514,7 +515,8 @@ public class OpenBISScreeningML
      * 
      * @param augmentedPlateCode The augmented plate code.
      * @return <code>{ images width, images height, number of tiles in the well, 
-     *                 number of tiles rows, number of tiles columns }</code> .
+     *                 number of tiles rows, number of tiles columns, number of plate rows, number of plate columns }</code>
+     *         .
      */
     public static Object[][] getImagesMetadata(String augmentedPlateCode)
     {
@@ -527,10 +529,13 @@ public class OpenBISScreeningML
         for (int i = 0; i < metaList.size(); ++i)
         {
             ImageDatasetMetadata meta = metaList.get(i);
+            ImageDatasetReference imageDatasetReference = imageDatasets.get(i);
+            Geometry plateGeometry = imageDatasetReference.getPlateGeometry();
             result[i] =
                     new Object[]
                         { meta.getWidth(), meta.getHeight(), meta.getNumberOfTiles(),
-                                meta.getTilesRows(), meta.getTilesCols() };
+                                meta.getTilesRows(), meta.getTilesCols(),
+                                plateGeometry.getNumberOfRows(), plateGeometry.getNumberOfColumns() };
         }
         return result;
     }
@@ -650,7 +655,9 @@ public class OpenBISScreeningML
     /**
      * Loads data sets for specified plate code. For each data set the path to the root of the data
      * set is returned. If it is possible the path points directly into the data set store. No data
-     * is copied. Otherwise the data is retrieved from the data store server.
+     * is copied. Otherwise the data is retrieved from the data store server.<br>
+     * If the same dataset is loaded for the second time in one session it will be immediately
+     * returned from the local cache.
      * <p>
      * Matlab example:
      * 
@@ -664,16 +671,22 @@ public class OpenBISScreeningML
      * </pre>
      * 
      * @param augmentedPlateCode The augmented plate code.
+     * @param datasetTypeCodePattern only datasets of the type which matche the specified pattern
+     *            will be returned. To fetch all datasets specify ".*".
+     * @param overrideStoreRootPathOrNull A path, in the context of the local file system mounts, to
+     *            the DSS' store root. If null, paths are returned in the context of the DSS' file
+     *            system mounts.
      * @return Each row contains information about one data set:
      *         <p>
      *         <code>{ data set code, data set root path  }</code>
      */
-    public static Object[][] loadDataSets(String augmentedPlateCode)
+    public static Object[][] loadDataSets(String augmentedPlateCode, String datasetTypeCodePattern,
+            String overrideStoreRootPathOrNull)
     {
         checkLoggedIn();
         Plate plateIdentifier = getPlate(augmentedPlateCode);
 
-        List<IDataSetDss> dataSets = openbis.getDataSets(plateIdentifier);
+        List<IDataSetDss> dataSets = openbis.getDataSets(plateIdentifier, datasetTypeCodePattern);
         Object[][] result = new Object[dataSets.size()][];
         try
         {
@@ -684,7 +697,9 @@ public class OpenBISScreeningML
                 File file = new File(dataSetsDir, code);
                 if (file.exists() == false)
                 {
-                    file = dataSet.getLinkOrCopyOfContents(null, dataSetsDir);
+                    file =
+                            dataSet.getLinkOrCopyOfContents(overrideStoreRootPathOrNull,
+                                    dataSetsDir);
                 }
                 result[i] = new Object[]
                     { code, file.getPath() };

@@ -93,7 +93,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     private final IScreeningApiServer openbisScreeningServer;
 
     private final IGeneralInformationService generalInformationService;
-    
+
     private final IGeneralInformationChangingService generalInformationChangingService;
 
     private final IDssComponent dssComponent;
@@ -190,7 +190,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                         IGeneralInformationChangingService.class, serverUrl);
         return service;
     }
-    
+
     ScreeningOpenbisServiceFacade(String sessionToken, IScreeningApiServer screeningServer,
             int minorVersion, final IDssServiceFactory dssServiceFactory,
             IDssComponent dssComponent, IGeneralInformationService generalInformationService,
@@ -383,7 +383,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         checkASMinimalMinorVersion("listPlateWells", PlateIdentifier.class);
         return openbisScreeningServer.listPlateWells(sessionToken, plateIdentifier);
     }
-    
+
     public Map<String, String> getWellProperties(WellIdentifier wellIdentifier)
     {
         Sample wellSample = openbisScreeningServer.getWellSample(sessionToken, wellIdentifier);
@@ -394,7 +394,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     public void updateWellProperties(WellIdentifier wellIdentifier, Map<String, String> properties)
     {
         Sample wellSample = openbisScreeningServer.getWellSample(sessionToken, wellIdentifier);
-        generalInformationChangingService.updateSampleProperties(sessionToken, wellSample.getId(), properties);
+        generalInformationChangingService.updateSampleProperties(sessionToken, wellSample.getId(),
+                properties);
     }
 
     /**
@@ -404,11 +405,12 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
      * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
      *             the server.
      */
-    public List<IDataSetDss> getDataSets(WellIdentifier wellIdentifier)
-            throws IllegalStateException, EnvironmentFailureException
+    public List<IDataSetDss> getDataSets(WellIdentifier wellIdentifier,
+            String datasetTypeCodePattern) throws IllegalStateException,
+            EnvironmentFailureException
     {
         final Sample wellSample = getWellSample(wellIdentifier);
-        return getDataSets(wellSample);
+        return getDataSets(wellSample, datasetTypeCodePattern);
     }
 
     /**
@@ -418,22 +420,26 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
      * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
      *             the server.
      */
-    public List<IDataSetDss> getDataSets(PlateIdentifier plateIdentifier)
-            throws IllegalStateException, EnvironmentFailureException
+    public List<IDataSetDss> getDataSets(PlateIdentifier plateIdentifier,
+            String datasetTypeCodePattern) throws IllegalStateException,
+            EnvironmentFailureException
     {
         checkASMinimalMinorVersion("getPlateSample", PlateIdentifier.class);
         Sample sample = openbisScreeningServer.getPlateSample(sessionToken, plateIdentifier);
-        return getDataSets(sample);
+        return getDataSets(sample, datasetTypeCodePattern);
     }
 
-    private List<IDataSetDss> getDataSets(final Sample sample)
+    private List<IDataSetDss> getDataSets(final Sample sample, final String datasetTypeCodePattern)
     {
         final List<DataSet> dataSets =
                 generalInformationService.listDataSetsForSample(sessionToken, sample, true);
         final List<IDataSetDss> result = new ArrayList<IDataSetDss>();
         for (DataSet dataSet : dataSets)
         {
-            result.add(dssComponent.getDataSet(dataSet.getCode()));
+            if (dataSet.getDataSetTypeCode().matches(datasetTypeCodePattern))
+            {
+                result.add(dssComponent.getDataSet(dataSet.getCode()));
+            }
         }
         return result;
     }
@@ -490,7 +496,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             NewDataSetMetadataDTO dataSetMetadataOrNull, File dataSetFile) throws IOException
     {
         final NewDataSetMetadataDTO dataSetMetadata =
-                (dataSetMetadataOrNull == null) ? new NewDataSetMetadataDTO() : dataSetMetadataOrNull;
+                (dataSetMetadataOrNull == null) ? new NewDataSetMetadataDTO()
+                        : dataSetMetadataOrNull;
         final DataSetOwner dataSetOwner =
                 new DataSetOwner(DataSetOwnerType.SAMPLE, sample.getIdentifier());
         final String dataSetFolderNameOrNull = null;
@@ -499,7 +506,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                 new NewDataSetDTO(dataSetMetadata, dataSetOwner, dataSetFolderNameOrNull, fileInfos);
         return dssComponent.putDataSet(newDataSet, dataSetFile);
     }
-    
+
     private List<FileInfoDssDTO> getFileInfosForPath(File file) throws IOException
     {
         ArrayList<FileInfoDssDTO> fileInfos = new ArrayList<FileInfoDssDTO>();

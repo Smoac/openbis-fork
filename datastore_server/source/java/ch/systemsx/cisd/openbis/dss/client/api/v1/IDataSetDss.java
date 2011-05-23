@@ -75,8 +75,7 @@ public interface IDataSetDss
      * the downloadDir containing the contents of the data set.
      * 
      * @param overrideStoreRootPathOrNull A path, in the context of the local file system mounts, to
-     *            the DSS' store root. If null, paths are returned in the context of the DSS' file
-     *            system mounts.
+     *            the DSS' store root. If null, datasets are copied to the downloadDir folder.
      * @param downloadDir The directory in which to place the contents of the data set if they must
      *            be downloaded.
      * @return A File containing the contents of the data set.

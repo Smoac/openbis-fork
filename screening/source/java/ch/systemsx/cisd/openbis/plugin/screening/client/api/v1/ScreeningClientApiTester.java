@@ -246,7 +246,7 @@ public class ScreeningClientApiTester
                             }
                             for (WellIdentifier wellIdentifier : listPlateWells)
                             {
-                                List<IDataSetDss> dataSets = facade.getDataSets(wellIdentifier);
+                                List<IDataSetDss> dataSets = facade.getDataSets(wellIdentifier, ".*");
                                 if (dataSets.isEmpty() == false)
                                 {
                                     JOptionPane.showMessageDialog(TesterFrame.this, "Well "
