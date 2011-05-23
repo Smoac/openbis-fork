@@ -39,8 +39,9 @@
   -->
 	
   <target name="dist" depends="create-installer, screening-api"/>
-
+  
 	<target name="create-installer" depends="openbis.make-dist, make-full-dss-dist, dss-plugin-jar, datastore_server.make-plugin-dist, prepare-installer">
+
 		<mkdir dir="${installer.dist.dir}" />
 		<unzip src="${dss.dist.file}" dest="${installer.dist.dir}"/>
 		<unzip src="${server.dist.file}" dest="${installer.dist.dir}"/>
@@ -50,7 +51,13 @@
 		    <fileset dir="${installer.basedir}/../admin">
 		      <include name="**/*"/>
 		      <exclude name="svn-update.sh"/>
+		      <exclude name="**/.svn/*"/>
 		    </fileset>
+		</copy>
+		<copy todir="${installer.dist.dir}/data">
+			    <fileset dir="${installer.basedir}/data">
+			      <exclude name="**/.svn/*"/>
+			    </fileset>
 		</copy>
 		
 		
@@ -73,6 +80,10 @@
     	<fileset dir="${classes.screening}">
     		<include name="ch/systemsx/cisd/openbis/installer/izpack/**/*"/>
     	</fileset>
+    	<fileset dir="${classes.common}">
+    		<include name="**/utilities/*.class"/>
+    	</fileset>
+    	
     	<zipfileset src="${lib}/postgresql/postgresql.jar">
     		<exclude name="META_INF/*"/>
     		<include name="**/*"/>

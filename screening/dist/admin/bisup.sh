@@ -18,8 +18,9 @@ echo $STARTING_MESSAGE >> $OPENBIS_LOG
 
 $JETTY_HOME/bin/startup.sh
 
-for i in {1..40}; do 
-    sleep 1
+for i in {1..120}; do 
+    echo -n "."
+    sleep 2
     
     started=`egrep -R "($STARTING_MESSAGE|$STARTED_MESSAGE)" $OPENBIS_LOG | tail -1 | grep "$STARTED_MESSAGE"`
     if [ -n "$started" ]; then

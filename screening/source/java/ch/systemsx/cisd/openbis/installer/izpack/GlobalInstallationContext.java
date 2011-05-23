@@ -21,6 +21,8 @@ import java.net.InetAddress;
 
 import com.izforge.izpack.installer.AutomatedInstallData;
 
+import ch.systemsx.cisd.common.utilities.PasswordGenerator;
+
 /**
  * @author Kaloyan Enimanev
  */
@@ -73,7 +75,8 @@ public class GlobalInstallationContext
      */
     private static void populateFirstTimeInstallVariables(AutomatedInstallData data)
     {
-        data.setVariable(ETL_SERVER_PASSWORD_VARNAME, PasswordGenerator.generatePassword());
+        data.setVariable(ETL_SERVER_PASSWORD_VARNAME,
+                new PasswordGenerator(true).generatePassword());
         data.setVariable(HOSTNAME_VARNAME, getHostName());
     }
 

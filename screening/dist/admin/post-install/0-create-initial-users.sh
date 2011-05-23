@@ -14,7 +14,7 @@ createUser()
 	fi
 
   
-  pushd
+  pushd .
   cd $BASE/../../servers/openBIS-server/jetty
   
   echo "Creating user $username ..."
@@ -29,5 +29,11 @@ if [ ${BASE#/} == ${BASE} ]; then
 fi
 
 createUser "admin" "$ADMIN_PASSWORD"
+
 createUser "etlserver" "$ETLSERVER_PASSWORD"
 
+# remove existing password configuration
+
+DSS_SERVICE_PROPERTIES=$BASE/../../servers/datastore_server/etc/service.properties
+cat $DSS_SERVICE_PROPERTIES | awk '{ sub("^password[ tab]*=.*$", "password=" ENVIRON["ETLSERVER_PASSWORD"]); print }' > $DSS_SERVICE_PROPERTIES.TMP
+mv $DSS_SERVICE_PROPERTIES.TMP $DSS_SERVICE_PROPERTIES

@@ -40,7 +40,7 @@ public class DBConnectionValidator implements DataValidator
 
     private static final String POSTGRES_USER = "postgres";
 
-    private static final String NO_PASSWORD = "";
+    private static final String NO_PASSWORD = null;
 
     private String errorMessage;
 

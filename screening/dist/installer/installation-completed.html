@@ -1,0 +1,43 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+</HEAD>
+<BODY>
+
+<H3>Start servers</H3>
+	The installation has completed successfully. To start openBIS launch the following script:
+	<DIV style="background-color: #EEEEEE; fontfamily: monospace; padding-top: 10px; padding-bottom: 10px; margin: 15px 0px 15px 0px;">
+ &lt;OPENBIS&gt;/bin/allup.sh
+	</DIV>
+
+	After the completion of the above command openBIS will be available at
+	<A href="https://localhost:8443/openbis">https://localhost:8443/openbis</A>
+
+
+<BR><BR>
+<H3>Importing test data</H3>
+
+  By now you have a fully functional openBIS instance, but it makes little sense 
+  if it has no data in it. You could import a minimalistic example by executing the command: 
+  
+	<DIV style="background-color: #EEEEEE; fontfamily: monospace; padding-top: 10px; padding-bottom: 10px; margin: 15px 0px 15px 0px;">
+ cp -R &lt;OPENBIS_DATA&gt;/samples/PLATE1 &lt;OPENBIS_DATA&gt;/incoming-hcs
+	</DIV>
+	
+	It will create a plate <i>PLATE1</i> with images data for one of its wells. 
+	We challenge you to go find it in the running application !
+	
+  openBIS can store any data, not just HCS images. To test the import of random data select a random directory or file and copy it to <i>incoming-simple</i>
+  
+  <DIV style="background-color: #EEEEEE; fontfamily: monospace; padding-top: 10px; padding-bottom: 10px; margin: 15px 0px 15px 0px;">
+ cp -R &lt;my-file-or-directory&gt; &lt;OPENBIS_DATA&gt;/incoming-simple
+	</DIV>
+   	
+<BR><BR>
+<H3>Customizing openBIS</H3>
+ In the scientific world there is no one-size-fits-them-all solutions. 
+ Your research data is certainly different from our example data. Luckily, openBIS provides 
+ an easy way to script the import process - the Jython Dropboxes. You can learn how to 
+ create your custom-tailored Jython Dropbox <A HREF="https://wiki-bsse.ethz.ch/display/openBISDoc/JythonTopLevelDataSetHandler">here</A>.
+</BODY>
+</HTML>
