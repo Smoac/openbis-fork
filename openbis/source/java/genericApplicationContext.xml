@@ -213,6 +213,7 @@
     -->
 
     <bean class="ch.systemsx.cisd.common.spring.LogAdvisor" />
+    <bean class="ch.systemsx.cisd.common.spring.MarkerLogApplicationListener"/>
 
     <!--
         // Plugins
