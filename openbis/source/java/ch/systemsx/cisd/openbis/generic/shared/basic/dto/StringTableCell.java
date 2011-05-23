@@ -27,7 +27,7 @@ public class StringTableCell implements ISerializableComparable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private static final StringTableCell EMPTY_CELL = new StringTableCell("");
+    public static final StringTableCell EMPTY_CELL = new StringTableCell("");
 
     public static StringTableCell wrap(String stringOrNull)
     {

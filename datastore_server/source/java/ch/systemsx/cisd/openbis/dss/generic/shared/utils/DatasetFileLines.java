@@ -26,7 +26,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
- * Stores the lines of a tsv file.
+ * Stores the lines of a file with tabular data (TSV, CSV, XLS).
  * 
  * @author Bernd Rinn
  */
@@ -104,7 +104,7 @@ public class DatasetFileLines implements ITabularData
     }
 
     /**
-     * Returns the headers as defined in CSV file.
+     * Returns the headers as defined in the file.
      */
     public String[] getHeaderLabels()
     {
