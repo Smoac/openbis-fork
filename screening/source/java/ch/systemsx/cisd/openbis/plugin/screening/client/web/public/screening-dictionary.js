@@ -96,7 +96,7 @@ material_replica_feature_summary_MEDIAN: "Median",
 material_replica_feature_summary_DEVIATION: "Deviation",
 
 material_features_from_all_experiments_ASSAY: "Assay",
-MATERIAL_FEATURES_FROM_ALL_EXPERIMENTS_SECTION: "Feature Vectors",
+MATERIAL_FEATURES_FROM_ALL_EXPERIMENTS_SECTION: "All Assays",
 
 EXACT_MATCH_ONLY: "Exact Matches Only",
 WELLS_SEARCH_SHOW_COMBINED_RESULTS: "Show all matching results combined",
