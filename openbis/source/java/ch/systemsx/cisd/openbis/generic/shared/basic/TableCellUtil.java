@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
@@ -64,6 +65,22 @@ public class TableCellUtil
     {
         return (propertyType.isInternalNamespace() ? INTERN_PREFIX : USER_PREFIX)
                 + propertyType.getSimpleCode();
+    }
+    
+    public static boolean isEditiableProperty(PropertyType propertyType)
+    {
+        DataTypeCode dataType = propertyType.getDataType().getCode();
+        switch (dataType)
+        {
+            case REAL:
+            case INTEGER:
+            case VARCHAR:
+            case BOOLEAN:
+            case CONTROLLEDVOCABULARY:
+                return true;
+            default:
+                return false;
+        }
     }
     
     private TableCellUtil()

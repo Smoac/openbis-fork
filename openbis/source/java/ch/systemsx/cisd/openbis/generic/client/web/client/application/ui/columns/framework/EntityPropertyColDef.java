@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.P
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TableCellUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -160,8 +161,7 @@ public class EntityPropertyColDef<T extends IEntityPropertiesHolder> extends
     @Override
     public boolean isEditable()
     {
-        // TODO better criteria: should be based on data type and whether it is dynamic/managed property
-        return true;
+        return TableCellUtil.isEditiableProperty(propertyType);
     }
 
     public IEntityProperty tryGetProperty(T entity)

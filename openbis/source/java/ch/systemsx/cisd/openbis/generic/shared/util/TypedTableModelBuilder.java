@@ -153,7 +153,8 @@ public class TypedTableModelBuilder<T extends ISerializable>
             for (EntityTypePropertyType<?> propertyType : propertyTypes)
             {
                 IColumn column = addColumn(idPrefix, propertyType.getPropertyType());
-                setEditableFlag(column, propertyType.getScript() != null, propertyType.getPropertyType());
+                column.property(entityType.getCode(), Boolean.TRUE.toString());
+                setEditableFlag(column, propertyType.getPropertyType());
             }
         }
 
@@ -205,28 +206,20 @@ public class TypedTableModelBuilder<T extends ISerializable>
                     default:
                         value = DataTypeUtils.convertTo(dataType, property.tryGetAsString());
                 }
-                setEditableFlag(column, property.isScriptable(), propertyType);
+                setEditableFlag(column, propertyType);
                 column.addValue(value);
             }
         }
 
-        private void setEditableFlag(IColumn column, boolean scriptable, PropertyType propertyType)
+        private void setEditableFlag(IColumn column, PropertyType propertyType)
         {
-            if (scriptable || uneditablePropertyColumns)
+            if (uneditablePropertyColumns)
             {
                 return;
             }
-            DataTypeCode dataType = propertyType.getDataType().getCode();
-            switch (dataType)
+            if (TableCellUtil.isEditiableProperty(propertyType))
             {
-                case REAL:
-                case INTEGER:
-                case VARCHAR:
-                case BOOLEAN:
-                case CONTROLLEDVOCABULARY:
-                    column.editable();
-                    break;
-                default:
+                column.editable();
             }
         }
 
@@ -289,6 +282,12 @@ public class TypedTableModelBuilder<T extends ISerializable>
         public IColumn editable()
         {
             header.setEditable(true);
+            return this;
+        }
+
+        public IColumn property(String key, String value)
+        {
+            header.setProperty(key, value);
             return this;
         }
 

@@ -6,10 +6,10 @@ import java.sql.SQLException;
 import net.lemnik.eodsql.EoDException;
 import net.lemnik.eodsql.spi.util.NonUpdateCapableDataObjectBinding;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 
 /**
  * A binding for the {@link IPropertyListingQuery#getPropertyTypes()} query.

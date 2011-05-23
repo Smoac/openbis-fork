@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
-import static ch.systemsx.cisd.openbis.generic.shared.basic.TableCellUtil.INTERN_PREFIX;
-import static ch.systemsx.cisd.openbis.generic.shared.basic.TableCellUtil.USER_PREFIX;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -85,6 +83,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.HibernateSearchData
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IdentifierExtractor;
@@ -166,7 +165,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IPerson;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
@@ -2493,7 +2491,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     {
         checkSession(sessionToken);
         Map<String, String> properties = new HashMap<String, String>();
-        properties.put(getPropertyTypeCode(propertyTypeCode), value);
+        properties.put(CodeConverter.getPropertyTypeCode(propertyTypeCode), value);
         switch (kind)
         {
             case MATERIAL:
@@ -2554,19 +2552,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             updates.setFileFormatTypeCode(((DataSet) dataSet).getFileFormatType().getCode());
         }
         updateDataSet(sessionToken, updates);
-    }
-    
-    private String getPropertyTypeCode(String propertyColumnCode)
-    {
-        if (propertyColumnCode.startsWith(USER_PREFIX))
-        {
-            return CodeConverter.tryToBusinessLayer(propertyColumnCode.substring(USER_PREFIX.length()), false);
-        }
-        if (propertyColumnCode.startsWith(INTERN_PREFIX))
-        {
-            return CodeConverter.tryToBusinessLayer(propertyColumnCode.substring(INTERN_PREFIX.length()), true);
-        }
-        return propertyColumnCode;
     }
     
 }

@@ -71,13 +71,17 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayC
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -511,6 +515,39 @@ public class SampleBrowserGrid extends TypedTableGrid<Sample>
     {
         return LinkRenderer.createExternalLinkRenderer(viewContext
                 .getMessage(Dict.SHOW_DETAILS_LINK_TEXT_VALUE));
+    }
+
+    @Override
+    protected boolean isEditable(BaseEntityModel<TableModelRowWithObject<Sample>> model,
+            String columnID)
+    {
+        String propertyName = columnID.substring(SampleGridColumnIDs.PROPERTIES_PREFIX.length());
+        Sample sample = model.getBaseObject().getObjectOrNull();
+        EntityType entityType = sample.getEntityType();
+        IEntityProperty propertyOrNull = tryGetProperty(sample, propertyName);
+        if (propertyOrNull != null && propertyOrNull.isScriptable())
+        {
+            return false;
+        }
+        List<IColumnDefinition<TableModelRowWithObject<Sample>>> columnDefinitions =
+                getColumnDefinitions(Arrays.asList(columnID));
+        IColumnDefinition<TableModelRowWithObject<Sample>> columnDefinition =
+                columnDefinitions.get(0);
+        return columnDefinition.tryToGetProperty(entityType.getCode()) != null;
+    }
+    
+    protected boolean isPropertyEditable(EntityType entityType, String propertyColumnNameWithoutPrefix)
+    {
+        String propertyTypeCode = CodeConverter.getPropertyTypeCode(propertyColumnNameWithoutPrefix);
+        List<? extends EntityTypePropertyType<?>> assignedPropertyTypes = entityType.getAssignedPropertyTypes();
+        for (EntityTypePropertyType<?> entityTypePropertyType : assignedPropertyTypes)
+        {
+            if (entityTypePropertyType.getPropertyType().getCode().equals(propertyTypeCode))
+            {
+                return entityTypePropertyType.isDynamic() == false && entityTypePropertyType.isManaged() == false;
+            }
+        }
+        return false;
     }
 
     @Override

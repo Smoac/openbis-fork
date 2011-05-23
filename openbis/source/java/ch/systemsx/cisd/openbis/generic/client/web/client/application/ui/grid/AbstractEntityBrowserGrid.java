@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 
 /**
  * The abstract superclass for grids, which have a defined criteria provider (e.g. tollbar with the
@@ -145,6 +146,19 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
             };
     }
     
+    @Override
+    protected boolean isEditable(M model, String columnID)
+    {
+        String propertyName = columnID.substring(EntityPropertyColDef.PROPERTY_PREFIX.length());
+        T entity = model.getBaseObject();
+        IEntityProperty property = tryGetProperty(entity, propertyName);
+        if (property == null)
+        {
+            return true;
+        }
+        return property.isScriptable() == false;
+    }
+
     @Override
     protected void handleEditingEvent(M model, String columnID, String newValueOrNull)
     {

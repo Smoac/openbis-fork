@@ -57,6 +57,11 @@ public interface IColumn
     public IColumn editable();
     
     /**
+     * Sets property specified by key and value.
+     */
+    public IColumn property(String key, String value);
+    
+    /**
      * Adds a value.
      */
     public void addValue(ISerializableComparable valueOrNull);

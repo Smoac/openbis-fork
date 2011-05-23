@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.dto;
+package ch.systemsx.cisd.openbis.generic.shared.basic;
 
 import static ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant.INTERNAL_NAMESPACE_PREFIX;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.TableCellUtil.INTERN_PREFIX;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.TableCellUtil.USER_PREFIX;
 
 /**
  * Methods for converter codes from business layer to database and from database to business layer.
@@ -88,6 +90,22 @@ public final class CodeConverter
         {
             return codeFromBusinessLayerOrNull.toUpperCase().startsWith(INTERNAL_NAMESPACE_PREFIX) == true;
         }
+    }
+
+    /**
+     * Convert property column name as used in GUI to property type code as used in business layer.
+     */
+    public static String getPropertyTypeCode(String propertyColumnName)
+    {
+        if (propertyColumnName.startsWith(USER_PREFIX))
+        {
+            return tryToBusinessLayer(propertyColumnName.substring(USER_PREFIX.length()), false);
+        }
+        if (propertyColumnName.startsWith(INTERN_PREFIX))
+        {
+            return tryToBusinessLayer(propertyColumnName.substring(INTERN_PREFIX.length()), true);
+        }
+        return propertyColumnName;
     }
 
 }

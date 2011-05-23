@@ -54,7 +54,7 @@ public class TypedTableGridColumnDefinition<T extends ISerializable> implements
 
     public String tryToGetProperty(String key)
     {
-        return null;
+        return header.tryToGetProperty(key);
     }
 
     public String getValue(GridRowModel<TableModelRowWithObject<T>> rowModel)

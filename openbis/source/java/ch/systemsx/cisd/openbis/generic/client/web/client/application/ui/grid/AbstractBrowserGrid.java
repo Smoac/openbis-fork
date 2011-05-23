@@ -107,6 +107,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
@@ -116,6 +117,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ColumnSetting;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo.SortDir;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;
@@ -1699,6 +1702,15 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         editorGrid.setStripeRows(true);
         editorGrid.setColumnReordering(true);
         editorGrid.setClicksToEdit(ClicksToEdit.TWO);
+        editorGrid.addListener(Events.BeforeEdit, new Listener<GridEvent<M>>()
+            {
+                public void handleEvent(GridEvent<M> event)
+                {
+                    M model = event.getModel();
+                    String columnID = event.getProperty();
+                    event.setCancelled(isEditable(model, columnID) == false);
+                }
+            });
         editorGrid.addListener(Events.AfterEdit, new Listener<GridEvent<M>>()
             {
                 public void handleEvent(GridEvent<M> event)
@@ -1711,7 +1723,36 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             });
         return editorGrid;
     }
+
+    /**
+     * Returns <code>true</code> if cell specified by model and column ID is editable. Default
+     * implementation returns false.
+     */
+    protected boolean isEditable(M model, String columnID)
+    {
+        return false;
+    }
     
+    /**
+     * Tries to return the property of specified properties holder which is specified by
+     * the property column name without a prefix like <code>property-</code> but with 
+     * prefix which distinguishes internal from externally name space.
+     */
+    protected IEntityProperty tryGetProperty(IEntityPropertiesHolder propertiesHolder,
+            String propertyColumnNameWithoutPrefix)
+    {
+        String propertyTypeCode = CodeConverter.getPropertyTypeCode(propertyColumnNameWithoutPrefix);
+        List<IEntityProperty> properties = propertiesHolder.getProperties();
+        for (IEntityProperty property : properties)
+        {
+            if (property.getPropertyType().getCode().equals(propertyTypeCode))
+            {
+                return property;
+            }
+        }
+        return null;
+    }
+
     /**
      * Handle cell editing event.
      * 
