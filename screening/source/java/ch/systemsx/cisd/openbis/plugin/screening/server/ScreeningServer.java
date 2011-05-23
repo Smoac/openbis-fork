@@ -96,6 +96,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleCon
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaFeatureSummaryResult;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaSummaryAggregationType;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSimpleFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSummarySettings;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
@@ -300,10 +301,20 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
             TechId experimentId)
     {
         Session session = getSession(sessionToken);
-        // NOTE: we want the settings t be passed form the client in future
+        // NOTE: we want the settings to be passed form the client in future
         MaterialSummarySettings settings = createDefaultSettings();
         return ExperimentFeatureVectorSummaryLoader.loadExperimentFeatureVectors(session,
                 businessObjectFactory, getDAOFactory(), experimentId, settings);
+    }
+
+    public List<MaterialSimpleFeatureVectorSummary> getMaterialFeatureVectorsFromAllExperiments(
+            String sessionToken, TechId materialId)
+    {
+        Session session = getSession(sessionToken);
+        // NOTE: we want the settings to be passed form the client in future
+        MaterialSummarySettings settings = createDefaultSettings();
+        return MaterialFeatureVectorSummaryLoader.loadMaterialFeatureVectorsFromAllAssays(session,
+                businessObjectFactory, getDAOFactory(), materialId, settings);
     }
 
     public static MaterialSummarySettings createDefaultSettings()
@@ -457,5 +468,6 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     {
         return MINOR_VERSION;
     }
+
 
 }

@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistr
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaFeatureSummary;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSimpleFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
@@ -200,4 +201,20 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
     public void prepareExportMaterialReplicaFeatureSummary(
             TableExportCriteria<TableModelRowWithObject<MaterialReplicaFeatureSummary>> criteria,
             AsyncCallback<String> callback);
+
+    /**
+     * @see IScreeningClientService#listMaterialFeaturesFromAllExperiments(IResultSetConfig, TechId)
+     */
+    public void listMaterialFeaturesFromAllExperiments(
+            IResultSetConfig<String, TableModelRowWithObject<MaterialSimpleFeatureVectorSummary>> resultSetConfig,
+            TechId materialId,
+            AsyncCallback<TypedTableResultSet<MaterialSimpleFeatureVectorSummary>> callback);
+
+    /**
+     * @see IScreeningClientService#prepareExportMaterialFeaturesFromAllExperiments(TableExportCriteria)
+     */
+    public void prepareExportMaterialFeaturesFromAllExperiments(
+            TableExportCriteria<TableModelRowWithObject<MaterialSimpleFeatureVectorSummary>> criteria,
+            AsyncCallback<String> callback);
+
 }

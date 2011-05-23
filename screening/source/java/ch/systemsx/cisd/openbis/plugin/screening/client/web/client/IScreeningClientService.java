@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistr
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaFeatureSummary;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSimpleFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
@@ -212,4 +213,14 @@ public interface IScreeningClientService extends IClientService
             TableExportCriteria<TableModelRowWithObject<MaterialReplicaFeatureSummary>> criteria)
             throws UserFailureException;
 
+    /**
+     * Return material feature vector summaries from all experiments for a give material tech id.
+     */
+    public TypedTableResultSet<MaterialSimpleFeatureVectorSummary> listMaterialFeaturesFromAllExperiments(
+            IResultSetConfig<String, TableModelRowWithObject<MaterialSimpleFeatureVectorSummary>> resultSetConfig,
+            TechId materialId) throws UserFailureException;
+
+    public String prepareExportMaterialFeaturesFromAllExperiments(
+            TableExportCriteria<TableModelRowWithObject<MaterialSimpleFeatureVectorSummary>> criteria)
+            throws UserFailureException;
 }

@@ -58,6 +58,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEn
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaFeatureSummaryResult;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSimpleFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
@@ -359,6 +360,14 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         logAccess(sessionToken, "getFeatureVectorReplicaSummary",
                 "sessionToken(%s), experimentId(%s), materialId(%s)", sessionToken, experimentId,
                 materialId);
+        return null;
+    }
+
+    public List<MaterialSimpleFeatureVectorSummary> getMaterialFeatureVectorsFromAllExperiments(
+            String sessionToken, TechId materialId)
+    {
+        logAccess(sessionToken, "getMaterialFeatureVectorsFromAllExperiments",
+                "sessionToken(%s), materialId(%s)", sessionToken, materialId);
         return null;
     }
 }

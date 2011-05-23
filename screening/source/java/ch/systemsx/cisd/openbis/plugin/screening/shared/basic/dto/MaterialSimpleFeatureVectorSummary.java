@@ -14,26 +14,37 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto;
+package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * Stores feature vector summaries for one material and experiment.
  * 
  * @author Tomasz Pylak
  */
-public class MaterialSimpleFeatureVectorSummary
+public class MaterialSimpleFeatureVectorSummary implements ISerializable
 {
-    private final Experiment experiment;
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
+    private Experiment experiment;
 
     // has the same length as feature vectors summary
-    private final List<CodeAndLabel> featureDescriptions;
+    private List<CodeAndLabel> featureDescriptions;
 
-    private final float[] featureVectorSummary;
+    private float[] featureVectorSummary;
+
+    // GTW
+    // TODO KE: create a separate DTO for the UI layer if there is enough time
+    @SuppressWarnings("unused")
+    private MaterialSimpleFeatureVectorSummary()
+    {
+    }
 
     public MaterialSimpleFeatureVectorSummary(Experiment experiment,
             List<CodeAndLabel> featureDescriptions, float[] featureVectorSummary)

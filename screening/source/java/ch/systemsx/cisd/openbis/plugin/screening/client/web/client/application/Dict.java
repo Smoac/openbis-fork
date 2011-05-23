@@ -76,6 +76,9 @@ public final class Dict extends ch.systemsx.cisd.openbis.generic.client.web.clie
     public static final String EXPERIMENT_FEATURE_VECTOR_SUMMARY_SECTION =
             "EXPERIMENT_FEATURE_VECTOR_SUMMARY_SECTION";
 
+    public static final String MATERIAL_FEATURES_FROM_ALL_EXPERIMENTS_SECTION =
+            "MATERIAL_FEATURES_FROM_ALL_EXPERIMENTS_SECTION";
+
     public static final String SCREENING_MODULE_TITLE = "SCREENING_MODULE_TITLE";
 
     public static final String PLATE_MATERIAL_REVIEWER_TITLE = "PLATE_MATERIAL_REVIEWER_TITLE";

@@ -61,6 +61,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistr
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaFeatureSummary;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSimpleFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
@@ -366,6 +367,23 @@ public final class ScreeningClientService extends AbstractClientService implemen
 
     public String prepareExportMaterialReplicaFeatureSummary(
             TableExportCriteria<TableModelRowWithObject<MaterialReplicaFeatureSummary>> criteria)
+            throws UserFailureException
+    {
+        return prepareExportEntities(criteria);
+    }
+
+    public TypedTableResultSet<MaterialSimpleFeatureVectorSummary> listMaterialFeaturesFromAllExperiments(
+            IResultSetConfig<String, TableModelRowWithObject<MaterialSimpleFeatureVectorSummary>> resultSetConfig,
+            TechId materialId) throws UserFailureException
+    {
+        MaterialFeatureVectorsFromAllExperimentsProvider provider =
+                new MaterialFeatureVectorsFromAllExperimentsProvider(server, getSessionToken(),
+                        materialId);
+        return listEntities(provider, resultSetConfig);
+    }
+
+    public String prepareExportMaterialFeaturesFromAllExperiments(
+            TableExportCriteria<TableModelRowWithObject<MaterialSimpleFeatureVectorSummary>> criteria)
             throws UserFailureException
     {
         return prepareExportEntities(criteria);
