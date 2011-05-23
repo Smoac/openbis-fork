@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithProperties;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -138,14 +139,24 @@ public class ExperimentAnalysisSummaryViewer
     private static IDisposableComponent createViewer(
             IViewContext<IScreeningClientServiceAsync> viewContext, Experiment experiment)
     {
+        String headingText = "Assay " + experiment.getCode();
+        final IDisposableComponent gridComponent =
+                ExperimentAnalysisSummaryGrid.create(viewContext, experiment);
 
+        return createViewer(viewContext, experiment, headingText, gridComponent);
+    }
+
+    /** Creates a grid with some header on top containing the specified title and entity properties. */
+    private static IDisposableComponent createViewer(
+            IViewContext<IScreeningClientServiceAsync> viewContext,
+            IEntityInformationHolderWithProperties entity, String headingText,
+            final IDisposableComponent gridComponent)
+    {
         final LayoutContainer panel = new LayoutContainer();
         panel.setLayout(new BorderLayout());
 
-        addHeader(panel, viewContext, experiment);
+        addHeader(panel, viewContext, headingText, entity);
 
-        final IDisposableComponent gridComponent =
-                ExperimentAnalysisSummaryGrid.create(viewContext, experiment);
         panel.add(gridComponent.getComponent(), new BorderLayoutData(LayoutRegion.CENTER));
 
         return new IDisposableComponent()
@@ -173,10 +184,9 @@ public class ExperimentAnalysisSummaryViewer
     }
 
     private static void addHeader(LayoutContainer parentPanel,
-            IViewContext<IScreeningClientServiceAsync> viewContext, Experiment experiment)
+            IViewContext<IScreeningClientServiceAsync> viewContext, String headingText,
+            IEntityInformationHolderWithProperties entity)
     {
-        String headingText = "Assay " + experiment.getCode();
-
         LayoutContainer panel = new LayoutContainer();
         panel.setLayout(new RowLayout());
         panel.setScrollMode(Scroll.AUTOY);
@@ -186,7 +196,7 @@ public class ExperimentAnalysisSummaryViewer
 
         LayoutContainer propertiesPanel = new LayoutContainer();
         propertiesPanel.setLayout(new RowLayout());
-        int propsHeight = PropertiesUtil.addProperties(experiment, propertiesPanel, null);
+        int propsHeight = PropertiesUtil.addProperties(entity, propertiesPanel, null);
         panel.add(propertiesPanel, new RowData(1, propsHeight));
 
         int headersHeight = 25;
