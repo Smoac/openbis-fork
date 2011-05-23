@@ -30,7 +30,7 @@ import ch.systemsx.cisd.common.collections.GroupByMap;
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.IWellData;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialIdFeatureVectorSummary;
-import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.WellData;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.WellExtendedData;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaSummaryAggregationType;
 
 /**
@@ -188,7 +188,7 @@ public class WellReplicaSummaryCalculator
         {
             Long replicaId = entry.getKey();
             float[] aggregates = entry.getValue().getAggregates();
-            IWellData summaryWellData = new WellData(replicaId, aggregates, null, null);
+            IWellData summaryWellData = new WellExtendedData(replicaId, aggregates, null, null);
             summaryWellDataList.add(summaryWellData);
         }
         return summaryWellDataList;

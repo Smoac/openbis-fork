@@ -16,11 +16,12 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
@@ -32,21 +33,30 @@ public class MaterialSimpleFeatureVectorSummary implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private Experiment experiment;
+    private ExperimentReference experiment;
 
-    // has the same length as feature vectors summary
+    // Has the same length as feature vectors summary.
+    // Note that it can be empty if there are no analysis results!
     private List<CodeAndLabel> featureDescriptions;
 
     private float[] featureVectorSummary;
 
     // GTW
-    // TODO KE: create a separate DTO for the UI layer if there is enough time
     @SuppressWarnings("unused")
     private MaterialSimpleFeatureVectorSummary()
     {
     }
 
-    public MaterialSimpleFeatureVectorSummary(Experiment experiment,
+    /**
+     * Useful when there are no analysis results for a material in the experiment (but there can be
+     * still some images acquired).
+     */
+    public MaterialSimpleFeatureVectorSummary(ExperimentReference experiment)
+    {
+        this(experiment, new ArrayList<CodeAndLabel>(), new float[0]);
+    }
+
+    public MaterialSimpleFeatureVectorSummary(ExperimentReference experiment,
             List<CodeAndLabel> featureDescriptions, float[] featureVectorSummary)
     {
         this.experiment = experiment;
@@ -54,7 +64,7 @@ public class MaterialSimpleFeatureVectorSummary implements ISerializable
         this.featureVectorSummary = featureVectorSummary;
     }
 
-    public Experiment getExperiment()
+    public ExperimentReference getExperiment()
     {
         return experiment;
     }

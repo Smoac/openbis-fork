@@ -43,9 +43,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialBiolog
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaFeatureSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaFeatureSummaryResult;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaSummaryAggregationType;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSimpleFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSummarySettings;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 
 /**
  * For the specified material in the specified experiment loads feature vectors (details and
@@ -56,30 +54,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
  */
 public class MaterialFeatureVectorSummaryLoader extends ExperimentFeatureVectorSummaryLoader
 {
-    public static List<MaterialSimpleFeatureVectorSummary> loadMaterialFeatureVectorsFromAllAssays(
-            Session session, IScreeningBusinessObjectFactory businessObjectFactory,
-            IDAOFactory daoFactory, TechId materialId, MaterialSummarySettings settings)
-    {
-        List<WellContent> allAssayWellsForMaterial =
-                WellContentLoader.loadOnlyMetadata(session, businessObjectFactory, daoFactory,
-                        materialId);
-        // Probably the result DTO has to be converted (here?) to fit the GUI needs better.
-        // Note that different experiments can have different set of features!
-        return new MaterialFeatureVectorSummaryLoader(session, businessObjectFactory, daoFactory,
-                settings).loadMaterialFeatureVectorsFromAllAssays(materialId,
-                allAssayWellsForMaterial);
-    }
-
-    /**
-     * Note that different experiments can have different set of features!
-     */
-    private List<MaterialSimpleFeatureVectorSummary> loadMaterialFeatureVectorsFromAllAssays(
-            TechId materialId, List<WellContent> allAssayWellsForMaterial)
-    {
-        // TODO 2011-05-20, Tomasz Pylak: implement me!
-        return null;
-    }
-
     /**
      * For comments {@See MaterialFeatureVectorSummaryLoader}.
      */
@@ -286,7 +260,8 @@ public class MaterialFeatureVectorSummaryLoader extends ExperimentFeatureVectorS
             List<? extends IWellData> experimentWellDataList)
     {
         List<MaterialIdFeatureVectorSummary> featureSummaries =
-                calculateReplicasFeatureVectorSummaries(experimentWellDataList);
+                WellReplicaSummaryCalculator.calculateReplicasFeatureVectorSummaries(
+                        experimentWellDataList, settings.getAggregationType());
         return tryFindMaterialSummary(materialId, featureSummaries);
     }
 

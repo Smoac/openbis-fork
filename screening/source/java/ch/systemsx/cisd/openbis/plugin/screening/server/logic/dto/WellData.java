@@ -17,33 +17,22 @@
 package ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto;
 
 import java.util.Arrays;
-import java.util.List;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
- * The simplest implementation of {@Link IWellExtendedData}.
+ * The simplest implementation of {@Link IWellData}.
  * 
  * @author Tomasz Pylak
  */
-public class WellData implements IWellExtendedData
+public class WellData implements IWellData
 {
     private final long replicaId;
 
-    private Sample well;
-
     private final float[] featureVector;
 
-    private final Material material;
-
-    public WellData(long replicaId, float[] featureVector, Sample well, Material material)
+    public WellData(long replicaId, float[] featureVector)
     {
-        this.well = well;
         this.featureVector = featureVector;
         this.replicaId = replicaId;
-        this.material = material;
     }
 
     public long getReplicaMaterialId()
@@ -51,19 +40,9 @@ public class WellData implements IWellExtendedData
         return replicaId;
     }
 
-    public Sample getWell()
-    {
-        return well;
-    }
-
     public float[] getFeatureVector()
     {
         return featureVector;
-    }
-
-    public Material getMaterial()
-    {
-        return material;
     }
 
     @Override
@@ -71,15 +50,4 @@ public class WellData implements IWellExtendedData
     {
         return "repl " + replicaId + ": " + Arrays.toString(featureVector);
     }
-
-    public List<IEntityProperty> getProperties()
-    {
-        return well.getProperties();
-    }
-
-    public Long getId()
-    {
-        return well.getId();
-    }
-
 }

@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.IWellExtendedD
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialAllReplicasFeatureVectors;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialBiologicalReplicateFeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialIdFeatureVectorSummary;
-import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.WellData;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.WellExtendedData;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.WellDataCollection;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaSummaryAggregationType;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSummarySettings;
@@ -147,6 +147,6 @@ public class MaterialFeatureVectorSummaryLoaderTest extends AssertJUnit
         material.setProperties(properties);
         well.setProperties(properties);
 
-        return new WellData(replicaId, featureValues, well, material);
+        return new WellExtendedData(replicaId, featureValues, well, material);
     }
 }

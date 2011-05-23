@@ -27,7 +27,6 @@ import java.util.Set;
 
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.collections.CollectionUtils.ICollectionMappingFunction;
-import ch.systemsx.cisd.common.collections.GroupByMap;
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.common.collections.TableMap.UniqueKeyViolationStrategy;
@@ -36,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleL
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
@@ -46,20 +44,17 @@ import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObject
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.IWellData;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.IWellExtendedData;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialIdFeatureVectorSummary;
-import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.WellData;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.WellDataCollection;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.WellExtendedData;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureValue;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSummarySettings;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.WellFeatureCollection;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSFeatureVectorLoader;
 
 /**
  * {@See #loadExperimentFeatureVectors}.
@@ -114,7 +109,7 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
         return enrichWithMaterial(summaries, wellDataCollection);
     }
 
-    protected final List<MaterialIdFeatureVectorSummary> calculateReplicasFeatureVectorSummaries(
+    private final List<MaterialIdFeatureVectorSummary> calculateReplicasFeatureVectorSummaries(
             List<? extends IWellData> wellDataList)
     {
         return WellReplicaSummaryCalculator.calculateReplicasFeatureVectorSummaries(wellDataList,
@@ -187,6 +182,13 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
         List<IWellExtendedData> wellDataList = asWellData(wells, featureVectorsCollection);
         return new WellDataCollection(wellDataList,
                 featureVectorsCollection.getFeatureCodesAndLabels());
+    }
+
+    private WellFeatureCollection<FeatureVectorValues> tryLoadWellSingleFeatureVectors(
+            Set<PlateIdentifier> plateIdentifiers)
+    {
+        return new WellFeatureCollectionLoader(session, businessObjectFactory, daoFactory)
+                .tryLoadWellSingleFeatureVectors(plateIdentifiers, settings.getFeatureCodes());
     }
 
     private static ExperimentFeatureVectorSummary createEmptySummary(ExperimentReference experiment)
@@ -262,7 +264,8 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
         {
             return null;
         }
-        return new WellData(replicaMaterial.getId(), featureVectorNumbers, well, replicaMaterial);
+        return new WellExtendedData(replicaMaterial.getId(), featureVectorNumbers, well,
+                replicaMaterial);
     }
 
     private static Material tryFindReplicaMaterial(Sample well, MaterialSummarySettings settings)
@@ -292,26 +295,8 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
         {
             return null;
         }
-        return asFeatureVectorValues(featureVector, orderedFeatureLabels);
-    }
-
-    private static float[] asFeatureVectorValues(FeatureVectorValues featureVector,
-            List<String> orderedFeatureLabels)
-    {
-        Map<String, FeatureValue> featureMap = featureVector.getFeatureMap();
-        float[] values = new float[featureMap.size()];
-        int i = 0;
-        for (String featureLabel : orderedFeatureLabels)
-        {
-            FeatureValue featureValue = featureMap.get(featureLabel);
-            values[i++] = asFloat(featureValue);
-        }
-        return values;
-    }
-
-    private static float asFloat(FeatureValue featureValue)
-    {
-        return featureValue.isFloat() ? featureValue.asFloat() : Float.NaN;
+        return WellFeatureCollectionLoader.asFeatureVectorValues(featureVector,
+                orderedFeatureLabels);
     }
 
     private static WellReference asWellReference(Sample well)
@@ -332,32 +317,6 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
         return idents;
     }
 
-    // private static List<WellContent> convert(List<Sample> wells, ExperimentReference experiment)
-    // {
-    // List<WellContent> wellContents = new ArrayList<WellContent>();
-    // for (Sample well : wells)
-    // {
-    // wellContents.add(convert(well, experiment));
-    // }
-    // return wellContents;
-    // }
-    //
-    // private static WellContent convert(Sample well, ExperimentReference experiment)
-    // {
-    // WellLocation location =
-    // ScreeningUtils.tryCreateLocationFromMatrixCoordinate(well.getSubCode());
-    // EntityReference wellReference = asEntityReference(well);
-    // EntityReference plate = asEntityReference(well.getContainer());
-    //
-    // return new WellContent(location, wellReference, plate, experiment);
-    // }
-    //
-    // private static EntityReference asEntityReference(Sample sample)
-    // {
-    // return new EntityReference(sample.getId(), sample.getSubCode(), sample.getSampleType()
-    // .getCode(), EntityKind.SAMPLE, sample.getPermId());
-    // }
-
     private static ListOrSearchSampleCriteria createWellsCriteria(List<Sample> plates)
     {
         Collection<Long> plateIds = new ArrayList<Long>();
@@ -377,112 +336,6 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
                 ListOrSearchSampleCriteria.createForExperiment(new TechId(expId)));
     }
 
-    /**
-     * Fetches feature vectors from different datastores and merges them (assuming that feature
-     * codes are the same).
-     */
-    private static class FeatureVectorRetriever
-    {
-        public static WellFeatureCollection<FeatureVectorValues> tryFetch(
-                Collection<DatasetReference> datasets, List<String> featureCodes,
-                IScreeningBusinessObjectFactory businessObjectFactory)
-        {
-            assert datasets.size() > 0 : "No feature vector datasets specified.";
-            return new FeatureVectorRetriever(businessObjectFactory, featureCodes)
-                    .tryFetch(datasets);
-        }
-
-        private final IScreeningBusinessObjectFactory businessObjectFactory;
-
-        private final List<String> featureCodes;
-
-        public FeatureVectorRetriever(IScreeningBusinessObjectFactory businessObjectFactory,
-                List<String> featureCodes)
-        {
-            this.businessObjectFactory = businessObjectFactory;
-            this.featureCodes = featureCodes;
-        }
-
-        private WellFeatureCollection<FeatureVectorValues> tryFetch(
-                Collection<DatasetReference> datasets)
-        {
-            GroupByMap<String/* datastore code */, DatasetReference> datastoreToDatasetsMap =
-                    GroupByMap.create(datasets, new IKeyExtractor<String, DatasetReference>()
-                        {
-                            public String getKey(DatasetReference datasetReference)
-                            {
-                                return datasetReference.getDatastoreCode();
-                            }
-                        });
-            WellFeatureCollection<FeatureVectorValues> allFeatures = null;
-            for (String datastoreCode : datastoreToDatasetsMap.getKeys())
-            {
-                List<DatasetReference> datasetsForDatastore =
-                        datastoreToDatasetsMap.getOrDie(datastoreCode);
-                WellFeatureCollection<FeatureVectorValues> features =
-                        fetchFromDatastore(datastoreCode, datasetsForDatastore);
-                if (allFeatures == null)
-                {
-                    allFeatures = features;
-                } else
-                {
-                    mergeFeatures(allFeatures, features);
-                }
-            }
-            return allFeatures;
-        }
-
-        private static void mergeFeatures(WellFeatureCollection<FeatureVectorValues> allFeatures,
-                WellFeatureCollection<FeatureVectorValues> features)
-        {
-            if (allFeatures.getFeatureCodes().equals(features.getFeatureCodes()) == false)
-            {
-                throw new IllegalStateException(
-                        "Cannot merge feature vectors from different datastores because the have different set of features: '"
-                                + allFeatures.getFeatureCodes()
-                                + "' and '"
-                                + features.getFeatureCodes() + "'.");
-            }
-            allFeatures.getFeatures().addAll(features.getFeatures());
-        }
-
-        private WellFeatureCollection<FeatureVectorValues> fetchFromDatastore(String datastoreCode,
-                List<DatasetReference> datasets)
-        {
-            IHCSFeatureVectorLoader loader =
-                    businessObjectFactory.createHCSFeatureVectorLoader(datastoreCode);
-            return loader.fetchDatasetFeatureValues(extractCodes(datasets), featureCodes);
-        }
-
-        private static List<String> extractCodes(List<DatasetReference> datasets)
-        {
-            return CollectionUtils.map(datasets,
-                    new ICollectionMappingFunction<String, DatasetReference>()
-                        {
-                            public String map(DatasetReference element)
-                            {
-                                return element.getCode();
-                            }
-                        });
-        }
-    }
-
-    private WellFeatureCollection<FeatureVectorValues> tryLoadWellSingleFeatureVectors(
-            Set<PlateIdentifier> plates)
-    {
-        FeatureVectorDatasetLoader datasetsRetriever = createFeatureVectorDatasetsRetriever(plates);
-        Collection<ExternalData> featureVectorDatasets =
-                datasetsRetriever.getFeatureVectorDatasets();
-        if (featureVectorDatasets.isEmpty())
-        {
-            return null;
-        }
-        List<DatasetReference> datasetPerPlate = chooseSingleDatasetForPlate(featureVectorDatasets);
-        List<String> featureCodes = settings.getFeatureCodes();
-        return FeatureVectorRetriever
-                .tryFetch(datasetPerPlate, featureCodes, businessObjectFactory);
-    }
-
     private static Map<WellReference, FeatureVectorValues> createWellToFeatureVectorMap(
             WellFeatureCollection<FeatureVectorValues> featureVectors)
     {
@@ -496,35 +349,4 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
         return wellToFeatureVectorMap;
     }
 
-    // TODO 2011-04-04, Tomasz Pylak: here if the plate has more than one dataset assigned, we
-    // take the first and ignore the rest. The clean solution would be to introduce analysis
-    // runs, where each plate has at most one analysis dataset in each run. {@link
-    // UniqueKeyViolationStrategy} could be set to {@link UniqueKeyViolationStrategy.ERROR} in
-    // such a case.
-    protected static List<DatasetReference> chooseSingleDatasetForPlate(
-            Collection<ExternalData> datasets)
-    {
-        TableMap<String, ExternalData> plateToDatasetMap =
-                new TableMap<String, ExternalData>(datasets,
-                        new IKeyExtractor<String, ExternalData>()
-                            {
-                                public String getKey(ExternalData externalData)
-                                {
-                                    Sample plate = externalData.getSample();
-                                    return plate != null ? plate.getPermId() : null;
-                                }
-                            }, UniqueKeyViolationStrategy.KEEP_FIRST);
-
-        List<DatasetReference> datasetPerPlate = new ArrayList<DatasetReference>();
-        for (String platePermId : plateToDatasetMap.keySet())
-        {
-            if (platePermId != null)
-            {
-                ExternalData dataset = plateToDatasetMap.getOrDie(platePermId);
-                DatasetReference datasetReference = ScreeningUtils.createDatasetReference(dataset);
-                datasetPerPlate.add(datasetReference);
-            }
-        }
-        return datasetPerPlate;
-    }
 }

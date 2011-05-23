@@ -107,4 +107,29 @@ public class ExperimentReference implements ISerializable, IEntityInformationHol
     {
         return getIdentifier();
     }
+
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + (int) (experimentId ^ (experimentId >>> 32));
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ExperimentReference other = (ExperimentReference) obj;
+        if (experimentId != other.experimentId)
+            return false;
+        return true;
+    }
+
 }
