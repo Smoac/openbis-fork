@@ -495,7 +495,7 @@ public class OpenBISScreeningML
                 return wellIdentifier;
             }
         }
-        throw new RuntimeException("Plate '" + augmentedPlateCode + "' has now well at "
+        throw new RuntimeException("Plate '" + augmentedPlateCode + "' has no well at "
                 + wellPosition + ".");
     }
 
