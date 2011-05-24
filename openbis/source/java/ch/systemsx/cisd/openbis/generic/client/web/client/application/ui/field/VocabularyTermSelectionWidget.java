@@ -86,9 +86,13 @@ public class VocabularyTermSelectionWidget extends
             form.setFieldWidth(FIELD_WIDTH);
             this.setWidth(LABEL_WIDTH + FIELD_WIDTH + 50);
 
-            codeField = new CodeField(viewContext, Dict.CODE, CodeFieldKind.CODE_WITH_COLON);
+            codeField =
+                    new CodeField(viewContext, viewContext.getMessage(Dict.CODE),
+                            CodeFieldKind.CODE_WITH_COLON);
             codeField.setMaxLength(GenericConstants.COLUMN_LABEL);
             codeField.setReadOnly(true);
+            // FIXME GWT hangs if this field is disabled, but we want disabled style
+            // codeField.disable();
             addField(codeField);
 
             boolean mandatory = false;
